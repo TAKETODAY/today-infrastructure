@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.context.annotation.jsr330;
 
-import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestResult;
+import junit.framework.TestSuite;
 
 import org.atinject.tck.Tck;
 import org.atinject.tck.auto.Car;
@@ -33,20 +32,41 @@ import org.atinject.tck.auto.Tire;
 import org.atinject.tck.auto.V8Engine;
 import org.atinject.tck.auto.accessories.Cupholder;
 import org.atinject.tck.auto.accessories.SpareTire;
+import org.junit.jupiter.api.DynamicNode;
+import org.junit.jupiter.api.TestFactory;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.stream.Stream;
 
 import infra.context.annotation.AnnotatedBeanDefinitionReader;
 import infra.context.annotation.Jsr330ScopeMetadataResolver;
 import infra.context.annotation.Primary;
 import infra.context.support.GenericApplicationContext;
+import infra.util.ClassUtils;
+
+import static org.junit.jupiter.api.DynamicContainer.dynamicContainer;
+import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 /**
+ * {@code @Inject} Technology Compatibility Kit (TCK) tests.
+ *
  * @author Juergen Hoeller
+ * @author Sam Brannen
+ * @see org.atinject.tck.Tck
  * @since 3.0
  */
-public class InfraAtInjectTckTests {
+class InfraAtInjectTckTests {
+
+  @TestFactory
+  Stream<? extends DynamicNode> runTechnologyCompatibilityKit() {
+    TestSuite testSuite = (TestSuite) Tck.testsFor(buildCar(), false, true);
+    Class<?> suiteClass = resolveTestSuiteClass(testSuite);
+    return generateDynamicTests(testSuite, suiteClass);
+  }
 
   @SuppressWarnings("unchecked")
-  public static Test suite() {
+  private static Car buildCar() {
     GenericApplicationContext ac = new GenericApplicationContext();
     AnnotatedBeanDefinitionReader bdr = new AnnotatedBeanDefinitionReader(ac);
     bdr.setScopeMetadataResolver(new Jsr330ScopeMetadataResolver());
@@ -61,9 +81,37 @@ public class InfraAtInjectTckTests {
     bdr.registerBean(FuelTank.class);
 
     ac.refresh();
-    Car car = ac.getBean(Car.class);
+    return ac.getBean(Car.class);
+  }
 
-    return Tck.testsFor(car, false, true);
+  private static Stream<? extends DynamicNode> generateDynamicTests(TestSuite testSuite, Class<?> suiteClass) {
+    return Collections.list(testSuite.tests()).stream().map(test -> {
+      if (test instanceof TestSuite nestedSuite) {
+        Class<?> nestedSuiteClass = resolveTestSuiteClass(nestedSuite);
+        URI uri = URI.create("class:" + nestedSuiteClass.getName());
+        return dynamicContainer(nestedSuite.getName(), uri, generateDynamicTests(nestedSuite, nestedSuiteClass));
+      }
+      if (test instanceof TestCase testCase) {
+        URI uri = URI.create("method:" + suiteClass.getName() + "#" + testCase.getName());
+        return dynamicTest(testCase.getName(), uri, () -> runTestCase(testCase));
+      }
+      throw new IllegalStateException("Unsupported Test type: " + test.getClass().getName());
+    });
+  }
+
+  private static void runTestCase(TestCase testCase) throws Throwable {
+    TestResult testResult = new TestResult();
+    testCase.run(testResult);
+    if (testResult.failureCount() > 0) {
+      throw testResult.failures().nextElement().thrownException();
+    }
+    if (testResult.errorCount() > 0) {
+      throw testResult.errors().nextElement().thrownException();
+    }
+  }
+
+  private static Class<?> resolveTestSuiteClass(TestSuite testSuite) {
+    return ClassUtils.resolveClassName(testSuite.getName(), Tck.class.getClassLoader());
   }
 
 }
