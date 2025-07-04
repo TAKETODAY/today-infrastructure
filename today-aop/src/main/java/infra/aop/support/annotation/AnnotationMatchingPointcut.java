@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import infra.aop.MethodMatcher;
 import infra.aop.Pointcut;
 import infra.core.annotation.AnnotationUtils;
 import infra.lang.Assert;
+import infra.lang.Nullable;
 
 /**
  * Simple Pointcut that looks for a specific Java 5 annotation
@@ -72,8 +73,7 @@ public class AnnotationMatchingPointcut implements Pointcut {
    * @param methodAnnotationType the annotation type to look for at the method level
    * (can be {@code null})
    */
-  public AnnotationMatchingPointcut(
-          Class<? extends Annotation> classAnnotationType, Class<? extends Annotation> methodAnnotationType) {
+  public AnnotationMatchingPointcut(@Nullable Class<? extends Annotation> classAnnotationType, @Nullable Class<? extends Annotation> methodAnnotationType) {
     this(classAnnotationType, methodAnnotationType, false);
   }
 
@@ -89,10 +89,8 @@ public class AnnotationMatchingPointcut implements Pointcut {
    * @see AnnotationClassFilter#AnnotationClassFilter(Class, boolean)
    * @see AnnotationMethodMatcher#AnnotationMethodMatcher(Class, boolean)
    */
-  public AnnotationMatchingPointcut(
-          Class<? extends Annotation> classAnnotationType,
-          Class<? extends Annotation> methodAnnotationType, boolean checkInherited) {
-
+  public AnnotationMatchingPointcut(@Nullable Class<? extends Annotation> classAnnotationType,
+          @Nullable Class<? extends Annotation> methodAnnotationType, boolean checkInherited) {
     Assert.isTrue((classAnnotationType != null || methodAnnotationType != null),
             "Either Class annotation type or Method annotation type needs to be specified (or both)");
 
