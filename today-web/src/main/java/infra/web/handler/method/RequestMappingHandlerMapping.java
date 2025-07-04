@@ -42,8 +42,6 @@ import infra.lang.Nullable;
 import infra.stereotype.Controller;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
-import infra.web.RequestContext;
-import infra.web.accept.ApiVersionStrategy;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.DefaultApiVersionStrategy;
 import infra.web.annotation.CrossOrigin;
@@ -80,9 +78,6 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
   @Nullable
   private ParameterResolvingRegistry resolvingRegistry;
-
-  @Nullable
-  private ApiVersionStrategy apiVersionStrategy;
 
   private ResolvableParameterFactory parameterFactory;
 
@@ -141,26 +136,6 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
     this.resolvingRegistry = resolvingRegistry;
   }
 
-  /**
-   * Configure a strategy to manage API versioning.
-   *
-   * @param strategy the strategy to use
-   * @since 5.0
-   */
-  public void setApiVersionStrategy(@Nullable ApiVersionStrategy strategy) {
-    this.apiVersionStrategy = strategy;
-  }
-
-  /**
-   * Return the configured {@link ApiVersionStrategy} strategy.
-   *
-   * @since 5.0
-   */
-  @Nullable
-  public ApiVersionStrategy getApiVersionStrategy() {
-    return this.apiVersionStrategy;
-  }
-
   @Override
   public void afterPropertiesSet() {
     config.setPatternParser(getPatternParser());
@@ -210,22 +185,6 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
               context.getBeanFactory(), context, method, parameterFactory);
     }
     return new InvocableHandlerMethod(handler, method, parameterFactory);
-  }
-
-  @Nullable
-  @Override
-  protected HandlerMethod getHandlerInternal(RequestContext request) {
-    if (this.apiVersionStrategy != null) {
-      Comparable<?> version = (Comparable<?>) request.getAttribute(API_VERSION_ATTRIBUTE);
-      if (version == null) {
-        version = apiVersionStrategy.resolveParseAndValidateVersion(request);
-        if (version != null) {
-          request.setAttribute(API_VERSION_ATTRIBUTE, version);
-          apiVersionStrategy.handleDeprecations(version, request);
-        }
-      }
-    }
-    return super.getHandlerInternal(request);
   }
 
   /**
@@ -296,7 +255,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
       }
     }
 
-    if (requestMappingInfo != null && this.apiVersionStrategy instanceof DefaultApiVersionStrategy davs) {
+    if (requestMappingInfo != null && getApiVersionStrategy() instanceof DefaultApiVersionStrategy davs) {
       String version = requestMappingInfo.getVersionCondition().getVersion();
       if (version != null) {
         davs.addMappedVersion(version);
