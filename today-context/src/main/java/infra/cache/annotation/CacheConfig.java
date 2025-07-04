@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ import infra.cache.CacheManager;
 import infra.cache.interceptor.CacheResolver;
 import infra.cache.interceptor.KeyGenerator;
 import infra.cache.interceptor.SimpleCacheResolver;
+import infra.core.annotation.AliasFor;
 
 /**
  * {@code @CacheConfig} provides a mechanism for sharing common cache-related
@@ -46,6 +47,14 @@ import infra.cache.interceptor.SimpleCacheResolver;
 public @interface CacheConfig {
 
   /**
+   * Alias for {@link #cacheNames}.
+   *
+   * @since 5.0
+   */
+  @AliasFor("cacheNames")
+  String[] value() default {};
+
+  /**
    * Names of the default caches to consider for caching operations defined
    * in the annotated class.
    * <p>If none is set at the operation level, these are used instead of the default.
@@ -54,6 +63,7 @@ public @interface CacheConfig {
    * {@link CacheManager#getCache}.
    * For further details see {@link Cacheable#cacheNames()}.
    */
+  @AliasFor("value")
   String[] cacheNames() default {};
 
   /**

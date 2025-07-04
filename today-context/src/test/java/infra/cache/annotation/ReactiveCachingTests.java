@@ -269,7 +269,7 @@ class ReactiveCachingTests {
             .verify();
   }
 
-  @CacheConfig(cacheNames = "first")
+  @CacheConfig("first")
   static class ReactiveCacheableService {
 
     private final AtomicLong counter = new AtomicLong();
