@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
+import org.reactivestreams.Publisher;
 
 import java.util.Collections;
 import java.util.List;
@@ -28,6 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import infra.core.ResolvableType;
+import infra.http.MediaType;
 import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -310,6 +312,21 @@ class ResponseBodyEmitterReturnValueHandlerTests {
     assertThat(this.response.isCommitted()).isFalse();
   }
 
+  @Test
+  void responseEntityFluxSseWithPresetContentType() throws Exception {
+    ResponseEntity<Publisher<?>> entity = ResponseEntity.ok()
+            .contentType(MediaType.TEXT_EVENT_STREAM).body(Flux.just("foo", "bar"));
+
+    var handlerMethod = on(TestController.class).resolveHandlerMethod(ResponseEntity.class, Publisher.class);
+    this.handler.handleReturnValue(webRequest, handlerMethod, entity);
+    webRequest.flush();
+
+    assertThat(this.request.isAsyncStarted()).isTrue();
+    assertThat(this.response.getStatus()).isEqualTo(200);
+    assertThat(this.response.getContentType()).isEqualTo("text/event-stream");
+    assertThat(this.response.getContentAsString()).isEqualTo("data:foo\n\ndata:bar\n\n");
+  }
+
   @SuppressWarnings("unused")
   private static class TestController {
 
@@ -332,6 +349,9 @@ class ResponseBodyEmitterReturnValueHandlerTests {
     private ResponseEntity<Flux<String>> h9() { return null; }
 
     private ResponseEntity<Flux<SimpleBean>> h10() { return null; }
+
+    private ResponseEntity<Publisher<?>> h11() { return null; }
+
   }
 
   @SuppressWarnings("unused")

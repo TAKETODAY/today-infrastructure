@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -151,14 +151,17 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
       return;
     }
 
+    MediaType contentType = null;
     // maybe nested body
     MethodParameter returnType = null;
-    if (handler instanceof HandlerMethod handlerMethod) {
+    HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
+    if (handlerMethod != null) {
       returnType = handlerMethod.getReturnType();
       // for ResponseEntity unwrap body
       if (returnValue instanceof ResponseEntity<?> entity) {
         request.setStatus(entity.getStatusCode());
         request.mergeToResponse(entity.headers());
+        contentType = entity.getHeaders().getContentType();
         returnValue = entity.getBody();
         returnType = returnType.nested();
         if (returnValue == null) {
@@ -175,7 +178,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
     }
     else if (returnType != null) {
       // for reactive types
-      emitter = reactiveHandler.handleValue(returnValue, returnType, request);
+      emitter = reactiveHandler.handleValue(returnValue, returnType,contentType, request);
       if (emitter == null) {
         // Not streaming: write headers without committing response..
         return;
