@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,12 +45,12 @@ public abstract class AbstractBeanFactoryAwareAdvisingPostProcessor
   private static final long serialVersionUID = 1L;
 
   @Nullable
-  private ConfigurableBeanFactory beanFactory;
+  protected ConfigurableBeanFactory beanFactory;
 
   @Override
   public void setBeanFactory(BeanFactory beanFactory) {
     this.beanFactory = beanFactory instanceof ConfigurableBeanFactory
-                       ? (ConfigurableBeanFactory) beanFactory : null;
+            ? (ConfigurableBeanFactory) beanFactory : null;
   }
 
   @Override

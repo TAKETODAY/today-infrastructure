@@ -27,7 +27,6 @@ import java.util.Enumeration;
 import java.util.HexFormat;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.Random;
@@ -115,99 +114,6 @@ public abstract class StringUtils {
   @Contract("null -> false")
   public static boolean isNotEmpty(@Nullable CharSequence str) {
     return str != null && !str.isEmpty();
-  }
-
-  /**
-   * Splits the given source string into an array of substrings based on
-   * a predefined delimiter. If the source string is null, an empty string
-   * array is returned.
-   *
-   * <p>Example usage:
-   * <pre>{@code
-   * String input = "apple,banana,cherry";
-   * String[] result = split(input);
-   * for (String item : result) {
-   *   System.out.println(item);
-   * }
-   * }</pre>
-   * Output:
-   * <pre>
-   * apple
-   * banana
-   * cherry
-   * </pre>
-   *
-   * @param source the string to be split; can be null
-   * @return an array of substrings if the source is not null;
-   * otherwise, an empty string array
-   */
-  public static String[] split(@Nullable String source) {
-    if (source == null) {
-      return Constant.EMPTY_STRING_ARRAY;
-    }
-    return toStringArray(splitAsList(source));
-  }
-
-  /**
-   * Splits the given source string into a list of substrings based on
-   * splittable characters. If the source is null, an empty list is returned.
-   * If the source is empty or contains no splitable characters, the returned
-   * list will contain the original source string.
-   *
-   * <p>Example usage:</p>
-   *
-   * <pre>{@code
-   * String input = "apple,banana,cherry";
-   * List<String> result = splitAsList(input);
-   * System.out.println(result);
-   * // Output: [apple, banana, cherry]
-   *
-   * String singleInput = "singleWord";
-   * List<String> singleResult = splitAsList(singleInput);
-   * System.out.println(singleResult);
-   * // Output: [singleWord]
-   *
-   * String nullInput = null;
-   * List<String> nullResult = splitAsList(nullInput);
-   * System.out.println(nullResult);
-   * // Output: []
-   * }</pre>
-   *
-   * @param source the string to be split; can be null or empty
-   * @return a list of substrings split by splitable characters,
-   * or a list containing the original string if no splits occur,
-   * or an empty list if the input is null
-   */
-  public static List<String> splitAsList(@Nullable String source) {
-    if (source == null) {
-      return Collections.emptyList();
-    }
-    if (source.isEmpty()) {
-      return Collections.singletonList(source);
-    }
-    final ArrayList<String> splitList = new ArrayList<>();
-
-    int idx = 0;
-    int start = 0;
-    final char[] chars = source.toCharArray();
-    for (final char c : chars) {
-      if (isSplitable(c)) {
-        splitList.add(new String(chars, start, idx - start));
-        start = idx + 1;
-      }
-      idx++;
-    }
-    if (idx != start && idx == source.length()) { // 最后一次分割
-      splitList.add(new String(chars, start, idx - start));
-    }
-    else if (splitList.isEmpty()) {
-      return Collections.singletonList(source);
-    }
-    return splitList;
-  }
-
-  private static boolean isSplitable(final char c) {
-    return c == ',' || c == ';';
   }
 
   /**

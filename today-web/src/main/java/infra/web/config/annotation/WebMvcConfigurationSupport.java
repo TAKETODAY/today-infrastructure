@@ -473,8 +473,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   @Nullable
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public ViewResolver mvcViewResolver(
-          @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager) {
+  public ViewResolver mvcViewResolver(@Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager) {
     var registry = new ViewResolverRegistry(contentNegotiationManager, applicationContext);
     configureViewResolvers(registry);
     var viewResolvers = new ArrayList<>(registry.getViewResolvers());

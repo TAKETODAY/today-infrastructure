@@ -242,9 +242,6 @@ public class ViewControllerRegistry extends ApplicationObjectSupport {
 
   /**
    * configure from a xml file
-   *
-   * @see StringUtils#split(String)
-   * @see StringUtils#isSplitable(char)
    */
   protected void configure(Resource resource) throws Exception {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

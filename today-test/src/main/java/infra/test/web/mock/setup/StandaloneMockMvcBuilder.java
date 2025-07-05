@@ -59,6 +59,7 @@ import infra.web.LocaleResolver;
 import infra.web.RedirectModelManager;
 import infra.web.RequestContext;
 import infra.web.ReturnValueHandler;
+import infra.web.accept.ApiVersionStrategy;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
@@ -156,6 +157,9 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
 
   @Nullable
   private ParameterResolvingRegistry parameterResolvingRegistry;
+
+  @Nullable
+  private ApiVersionStrategy versionStrategy;
 
   /**
    * Protected constructor. Not intended for direct instantiation.

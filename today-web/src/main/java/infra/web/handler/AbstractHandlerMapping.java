@@ -39,6 +39,7 @@ import infra.web.HandlerMatchingMetadata;
 import infra.web.HandlerWrapper;
 import infra.web.HttpRequestHandler;
 import infra.web.RequestContext;
+import infra.web.accept.ApiVersionStrategy;
 import infra.web.cors.CorsConfiguration;
 import infra.web.cors.CorsConfigurationSource;
 import infra.web.cors.CorsProcessor;
@@ -92,6 +93,9 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
   private CorsConfigurationSource corsConfigurationSource;
 
   private CorsProcessor corsProcessor = new DefaultCorsProcessor();
+
+  @Nullable
+  private ApiVersionStrategy apiVersionStrategy;
 
   /**
    * Shortcut method for setting the same property on the underlying pattern
@@ -172,6 +176,26 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
    */
   public CorsProcessor getCorsProcessor() {
     return this.corsProcessor;
+  }
+
+  /**
+   * Configure a strategy to manage API versioning.
+   *
+   * @param strategy the strategy to use
+   * @since 5.0
+   */
+  public void setApiVersionStrategy(@Nullable ApiVersionStrategy strategy) {
+    this.apiVersionStrategy = strategy;
+  }
+
+  /**
+   * Return the configured {@link ApiVersionStrategy} strategy.
+   *
+   * @since 5.0
+   */
+  @Nullable
+  public ApiVersionStrategy getApiVersionStrategy() {
+    return this.apiVersionStrategy;
   }
 
   /**
@@ -319,6 +343,16 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
   @Nullable
   @Override
   public final Object getHandler(final RequestContext request) throws Exception {
+    Comparable<?> version = null;
+    if (this.apiVersionStrategy != null) {
+      version = (Comparable<?>) request.getAttribute(API_VERSION_ATTRIBUTE);
+      if (version == null) {
+        version = apiVersionStrategy.resolveParseAndValidateVersion(request);
+        if (version != null) {
+          request.setAttribute(API_VERSION_ATTRIBUTE, version);
+        }
+      }
+    }
     Object handler = getHandlerInternal(request);
     if (handler == null) {
       handler = getDefaultHandler();
@@ -357,6 +391,9 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
       request.setMatchingMetadata(new HandlerMatchingMetadata(handler, request, patternParser));
     }
 
+    if (version != null) {
+      apiVersionStrategy.handleDeprecations(version, request);
+    }
     return chain;
   }
 

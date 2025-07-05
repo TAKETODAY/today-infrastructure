@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,16 +43,28 @@ import infra.util.ConcurrencyThrottleSupport;
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public class ConcurrencyThrottleInterceptor
-        extends ConcurrencyThrottleSupport implements MethodInterceptor, Serializable {
+public class ConcurrencyThrottleInterceptor extends ConcurrencyThrottleSupport implements MethodInterceptor, Serializable {
 
+  /**
+   * Create a default {@code ConcurrencyThrottleInterceptor}
+   * with concurrency limit 1.
+   */
   public ConcurrencyThrottleInterceptor() {
-    setConcurrencyLimit(1);
+    this(1);
+  }
+
+  /**
+   * Create a {@code ConcurrencyThrottleInterceptor}
+   * with the given concurrency limit.
+   *
+   * @since 5.0
+   */
+  public ConcurrencyThrottleInterceptor(int concurrencyLimit) {
+    setConcurrencyLimit(concurrencyLimit);
   }
 
   @Override
-  @Nullable
-  public Object invoke(MethodInvocation methodInvocation) throws Throwable {
+  public @Nullable Object invoke(MethodInvocation methodInvocation) throws Throwable {
     beforeAccess();
     try {
       return methodInvocation.proceed();

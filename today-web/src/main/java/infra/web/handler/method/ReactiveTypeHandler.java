@@ -26,7 +26,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -113,7 +112,8 @@ final class ReactiveTypeHandler {
    * with a {@link DeferredResult}
    */
   @Nullable
-  public ResponseBodyEmitter handleValue(Object returnValue, MethodParameter returnType, RequestContext request) throws Exception {
+  public ResponseBodyEmitter handleValue(Object returnValue, MethodParameter returnType,
+          @Nullable MediaType presetMediaType, RequestContext request) throws Exception {
     Assert.notNull(returnValue, "Expected return value");
 
     ReactiveAdapter adapter = adapterRegistry.getAdapter(returnValue.getClass());
@@ -125,7 +125,7 @@ final class ReactiveTypeHandler {
     Class<?> elementClass = elementType.toClass();
 
     if (adapter.isMultiValue()) {
-      Collection<MediaType> mediaTypes = getMediaTypes(request);
+      var mediaTypes = (presetMediaType != null ? List.of(presetMediaType) : getMediaTypes(request));
       if (mediaTypes.stream().anyMatch(MediaType.TEXT_EVENT_STREAM::includes)
               || ServerSentEvent.class.isAssignableFrom(elementClass)) {
         var emitter = new SseEmitter(STREAMING_TIMEOUT_VALUE);
@@ -133,9 +133,7 @@ final class ReactiveTypeHandler {
         return emitter;
       }
       if (CharSequence.class.isAssignableFrom(elementClass)) {
-        Optional<MediaType> mediaType = mediaTypes.stream()
-                .filter(MimeType::isConcrete)
-                .findFirst();
+        var mediaType = mediaTypes.stream().filter(MimeType::isConcrete).findFirst();
         var emitter = getEmitter(mediaType.orElse(MediaType.TEXT_PLAIN));
         new TextEmitterSubscriber(emitter, taskExecutor).connect(adapter, returnValue);
         return emitter;
