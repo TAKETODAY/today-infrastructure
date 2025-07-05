@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,18 +44,35 @@ public class InstanceFilter<T> {
   private final boolean matchIfEmpty;
 
   /**
-   * Create a new instance based on includes/excludes collections.
-   * <p>A particular element will match if it "matches" the one of the element in the
-   * includes list and  does not match one of the element in the excludes list.
-   * <p>Subclasses may redefine what matching means. By default, an element match with
-   * another if it is equals according to {@link Object#equals(Object)}
-   * <p>If both collections are empty, {@code matchIfEmpty} defines if
-   * an element matches or not.
+   * Create a new {@code InstanceFilter} based on include and exclude collections,
+   * with the {@code matchIfEmpty} flag set to {@code true}.
+   * <p>See {@link #InstanceFilter(Collection, Collection, boolean)} for details.
    *
    * @param includes the collection of includes
    * @param excludes the collection of excludes
-   * @param matchIfEmpty the matching result if both the includes and the excludes
-   * collections are empty
+   * @since 5.0
+   */
+  public InstanceFilter(@Nullable Collection<? extends T> includes,
+          @Nullable Collection<? extends T> excludes) {
+
+    this(includes, excludes, true);
+  }
+
+  /**
+   * Create a new {@code InstanceFilter} based on include and exclude collections.
+   * <p>A particular element will match if it <em>matches</em> one of the elements
+   * in the {@code includes} list and does not match one of the elements in the
+   * {@code excludes} list.
+   * <p>Subclasses may redefine what matching means. By default, an element
+   * {@linkplain #match(Object, Object) matches} another if the two elements are
+   * {@linkplain Object#equals(Object) equal}.
+   * <p>If both collections are empty, {@code matchIfEmpty} defines if an element
+   * matches or not.
+   *
+   * @param includes the collection of includes
+   * @param excludes the collection of excludes
+   * @param matchIfEmpty the matching result if the includes and the excludes
+   * collections are both {@code null} or empty
    */
   public InstanceFilter(@Nullable Collection<? extends T> includes,
           @Nullable Collection<? extends T> excludes, boolean matchIfEmpty) {
@@ -66,7 +83,7 @@ public class InstanceFilter<T> {
   }
 
   /**
-   * Determine if the specified {code instance} matches this filter.
+   * Determine if the specified {@code instance} matches this filter.
    */
   public boolean match(T instance) {
     Assert.notNull(instance, "Instance to match is required");
@@ -89,10 +106,13 @@ public class InstanceFilter<T> {
   }
 
   /**
-   * Determine if the specified {@code instance} is equal to the
-   * specified {@code candidate}.
+   * Determine if the specified {@code instance} matches the specified
+   * {@code candidate}.
+   * <p>By default, the two instances match if they are
+   * {@linkplain Object#equals(Object) equal}.
+   * <p>Can be overridden by subclasses.
    *
-   * @param instance the instance to handle
+   * @param instance the instance to check
    * @param candidate a candidate defined by this filter
    * @return {@code true} if the instance matches the candidate
    */
@@ -102,11 +122,11 @@ public class InstanceFilter<T> {
 
   /**
    * Determine if the specified {@code instance} matches one of the candidates.
-   * <p>If the candidates collection is {@code null}, returns {@code false}.
    *
    * @param instance the instance to check
-   * @param candidates a list of candidates
-   * @return {@code true} if the instance match or the candidates collection is null
+   * @param candidates the collection of candidates
+   * @return {@code true} if the instance matches; {@code false} if the
+   * candidates collection is empty or there is no match
    */
   protected boolean match(T instance, Collection<? extends T> candidates) {
     for (T candidate : candidates) {
