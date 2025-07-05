@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -517,7 +517,9 @@ abstract class AbstractInfraArchiveIntegrationTests {
   void defaultDirAndFileModesAreUsed() throws IOException {
     BuildResult result = this.gradleBuild.build(this.taskName);
     assertThat(result.task(":" + this.taskName).getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
-    try (ZipFile jarFile = new ZipFile(new File(this.gradleBuild.getProjectDir(), "build/libs").listFiles()[0])) {
+    try (ZipFile jarFile = ZipFile.builder()
+            .setFile(new File(this.gradleBuild.getProjectDir(), "build/libs").listFiles()[0])
+            .get()) {
       Enumeration<ZipArchiveEntry> entries = jarFile.getEntries();
       while (entries.hasMoreElements()) {
         ZipArchiveEntry entry = entries.nextElement();
@@ -525,10 +527,10 @@ abstract class AbstractInfraArchiveIntegrationTests {
           continue;
         }
         if (entry.isDirectory()) {
-          assertEntryMode(entry, UnixStat.DIR_FLAG | UnixStat.DEFAULT_DIR_PERM);
+          assertEntryMode(entry, UnixStat.DEFAULT_DIR_PERM);
         }
         else {
-          assertEntryMode(entry, UnixStat.FILE_FLAG | UnixStat.DEFAULT_FILE_PERM);
+          assertEntryMode(entry, UnixStat.DEFAULT_FILE_PERM);
         }
       }
     }

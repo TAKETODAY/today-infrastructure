@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.lang.reflect.Method;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Collection;
@@ -221,7 +220,7 @@ class InfraZipCopyAction implements CopyAction {
     Processor(ZipArchiveOutputStream out) {
       this.out = out;
       this.layerIndex = (InfraZipCopyAction.this.layerResolver != null)
-                        ? new LayersIndex(InfraZipCopyAction.this.layerResolver.getLayers()) : null;
+              ? new LayersIndex(InfraZipCopyAction.this.layerResolver.getLayers()) : null;
     }
 
     void process(FileCopyDetails details) {
@@ -250,7 +249,7 @@ class InfraZipCopyAction implements CopyAction {
     private void processDirectory(FileCopyDetails details) throws IOException {
       String name = details.getRelativePath().getPathString();
       ZipArchiveEntry entry = new ZipArchiveEntry(name + '/');
-      prepareEntry(entry, name, getTime(details), getFileMode(details));
+      prepareEntry(entry, name, getTime(details), getDirMode(details));
       this.out.putArchiveEntry(entry);
       this.out.closeArchiveEntry();
       this.writtenDirectories.add(name);
@@ -447,35 +446,29 @@ class InfraZipCopyAction implements CopyAction {
     }
 
     private int getDirMode() {
-      return (InfraZipCopyAction.this.dirMode != null)
-             ? InfraZipCopyAction.this.dirMode
-             : UnixStat.DIR_FLAG | UnixStat.DEFAULT_DIR_PERM;
+      return dirMode != null ? dirMode : UnixStat.DEFAULT_DIR_PERM;
     }
 
     private int getFileMode() {
-      return (InfraZipCopyAction.this.fileMode != null)
-             ? InfraZipCopyAction.this.fileMode
-             : UnixStat.FILE_FLAG | UnixStat.DEFAULT_FILE_PERM;
+      return fileMode != null ? fileMode : UnixStat.DEFAULT_FILE_PERM;
+    }
+
+    private int getDirMode(FileCopyDetails details) {
+      return fileMode != null ? dirMode : getPermissions(details);
     }
 
     private int getFileMode(FileCopyDetails details) {
-      return (InfraZipCopyAction.this.fileMode != null)
-             ? InfraZipCopyAction.this.fileMode
-             : UnixStat.FILE_FLAG | getPermissions(details);
+      return fileMode != null ? fileMode : getPermissions(details);
     }
 
     private int getPermissions(FileCopyDetails details) {
-      if (GradleVersion.current().compareTo(GradleVersion.version("8.3")) >= 0) {
-        try {
-          Method getPermissionsMethod = details.getClass().getMethod("getPermissions");
-          getPermissionsMethod.setAccessible(true);
-          Object permissions = getPermissionsMethod.invoke(details);
-          return (int) permissions.getClass().getMethod("toUnixNumeric").invoke(permissions);
-        }
-        catch (Exception ex) {
-          throw new GradleException("Failed to get permissions", ex);
-        }
-      }
+      return GradleVersion.current().compareTo(GradleVersion.version("8.3")) >= 0
+              ? details.getPermissions().toUnixNumeric()
+              : getMode(details);
+    }
+
+    @SuppressWarnings("deprecation")
+    private int getMode(FileCopyDetails details) {
       return details.getMode();
     }
 
