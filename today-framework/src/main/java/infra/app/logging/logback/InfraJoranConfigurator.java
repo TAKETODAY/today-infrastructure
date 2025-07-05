@@ -179,7 +179,6 @@ class InfraJoranConfigurator extends JoranConfigurator {
       this.modelInterpretationContext = modelInterpretationContext;
     }
 
-    @SuppressWarnings("removal")
     private void writeTo(GenerationContext generationContext) {
       byte[] serializedModel = serializeModel();
       generationContext.getGeneratedFiles().handleFile(Kind.RESOURCE, MODEL_RESOURCE_LOCATION,
@@ -189,8 +188,8 @@ class InfraJoranConfigurator extends JoranConfigurator {
       serializationTypes(this.model).forEach(serializationHints::registerType);
       reflectionTypes(this.model).forEach((type) -> generationContext.getRuntimeHints()
               .reflection()
-              .registerType(TypeReference.of(type), MemberCategory.INTROSPECT_PUBLIC_METHODS,
-                      MemberCategory.INVOKE_PUBLIC_METHODS, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS));
+              .registerType(TypeReference.of(type), MemberCategory.INVOKE_PUBLIC_METHODS,
+                      MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS));
     }
 
     private byte[] serializeModel() {
