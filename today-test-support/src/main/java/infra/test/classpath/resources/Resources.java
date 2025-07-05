@@ -19,22 +19,27 @@ package infra.test.classpath.resources;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.FileSystemUtils;
+import infra.util.function.ThrowingConsumer;
 
 /**
  * A collection of resources.
@@ -52,28 +57,42 @@ class Resources {
     this.root = root;
   }
 
-  Resources addPackage(Package root, String[] resourceNames) {
+  Resources addPackage(String packageName, String[] resourceNames) {
     Set<String> unmatchedNames = new HashSet<>(Arrays.asList(resourceNames));
+    withPathsForPackage(packageName, (packagePath) -> {
+      for (String resourceName : resourceNames) {
+        Path resource = packagePath.resolve(resourceName);
+        if (Files.exists(resource) && !Files.isDirectory(resource)) {
+          Path target = this.root.resolve(resourceName);
+          Path targetDirectory = target.getParent();
+          if (!Files.isDirectory(targetDirectory)) {
+            Files.createDirectories(targetDirectory);
+          }
+          Files.copy(resource, target);
+          register(resourceName, target, true);
+          unmatchedNames.remove(resourceName);
+        }
+      }
+    });
+    Assert.isTrue(unmatchedNames.isEmpty(), () -> "Package '%s' did not contain resources: %s".formatted(packageName, unmatchedNames));
+    return this;
+  }
+
+  private void withPathsForPackage(String packageName, ThrowingConsumer<Path> consumer) {
     try {
-      Enumeration<URL> sources = getClass().getClassLoader().getResources(root.getName().replace(".", "/"));
-      for (URL source : Collections.list(sources)) {
-        Path sourceRoot = Paths.get(source.toURI());
-        for (String resourceName : resourceNames) {
-          Path resource = sourceRoot.resolve(resourceName);
-          if (Files.isRegularFile(resource)) {
-            Path target = this.root.resolve(resourceName);
-            Path targetDirectory = target.getParent();
-            if (!Files.isDirectory(targetDirectory)) {
-              Files.createDirectories(targetDirectory);
-            }
-            Files.copy(resource, target);
-            register(resourceName, target, true);
-            unmatchedNames.remove(resourceName);
+      List<URL> sources = Collections
+              .list(getClass().getClassLoader().getResources(packageName.replace(".", "/")));
+      for (URL source : sources) {
+        URI sourceUri = source.toURI();
+        try {
+          consumer.accept(Paths.get(sourceUri));
+        }
+        catch (FileSystemNotFoundException ex) {
+          try (FileSystem fileSystem = FileSystems.newFileSystem(sourceUri, Collections.emptyMap())) {
+            consumer.accept(Paths.get(sourceUri));
           }
         }
       }
-      Assert.isTrue(unmatchedNames.isEmpty(),
-              "Package '" + root.getName() + "' did not contain resources: " + unmatchedNames);
     }
     catch (IOException ex) {
       throw new UncheckedIOException(ex);
@@ -81,14 +100,13 @@ class Resources {
     catch (URISyntaxException ex) {
       throw new RuntimeException(ex);
     }
-    return this;
   }
 
   Resources addResource(String name, String content, boolean additional) {
     Path resourcePath = this.root.resolve(name);
     if (Files.isDirectory(resourcePath)) {
       throw new IllegalStateException(
-              "Cannot create resource '" + name + "' as a directory already exists at that location");
+              "Cannot create resource '%s' as a directory already exists at that location".formatted(name));
     }
     Path parent = resourcePath.getParent();
     try {

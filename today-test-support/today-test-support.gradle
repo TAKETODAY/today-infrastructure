@@ -9,7 +9,7 @@ dependencies {
   optional "org.mockito:mockito-core"
   optional "org.mockito:mockito-junit-jupiter"
   optional "org.junit.jupiter:junit-jupiter-api"
-
+  optional "org.junit.jupiter:junit-jupiter-params"
   optional 'org.testcontainers:cassandra'
   optional 'org.testcontainers:testcontainers'
 

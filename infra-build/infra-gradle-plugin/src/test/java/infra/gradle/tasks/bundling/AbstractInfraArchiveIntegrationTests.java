@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -209,6 +209,61 @@ abstract class AbstractInfraArchiveIntegrationTests {
 
   @TestTemplate
   void developmentOnlyDependenciesCanBeIncludedInTheArchive() throws IOException {
+    assertThat(this.gradleBuild.build(this.taskName).task(":" + this.taskName).getOutcome())
+            .isEqualTo(TaskOutcome.SUCCESS);
+    try (JarFile jarFile = new JarFile(new File(this.gradleBuild.getProjectDir(), "build/libs").listFiles()[0])) {
+      Stream<String> libEntryNames = jarFile.stream()
+              .filter((entry) -> !entry.isDirectory())
+              .map(JarEntry::getName)
+              .filter((name) -> name.startsWith(this.libPath));
+      assertThat(libEntryNames).containsExactly(this.libPath + "commons-io-2.6.jar",
+              this.libPath + "commons-lang3-3.9.jar");
+    }
+  }
+
+  @TestTemplate
+  void versionMismatchBetweenTransitiveDevelopmentOnlyImplementationDependenciesDoesNotRemoveDependencyFromTheArchive() throws IOException {
+    assertThat(this.gradleBuild.build(this.taskName).task(":" + this.taskName).getOutcome())
+            .isEqualTo(TaskOutcome.SUCCESS);
+    try (JarFile jarFile = new JarFile(new File(this.gradleBuild.getProjectDir(), "build/libs").listFiles()[0])) {
+      Stream<String> libEntryNames = jarFile.stream()
+              .filter((entry) -> !entry.isDirectory())
+              .map(JarEntry::getName)
+              .filter((name) -> name.startsWith(this.libPath));
+      if (this.gradleBuild.gradleVersionIsLessThan("9.0.0-rc-1")) {
+        assertThat(libEntryNames).containsExactly(this.libPath + "two-1.0.jar",
+                this.libPath + "commons-io-2.19.0.jar");
+      }
+      else {
+        assertThat(libEntryNames).containsExactly(this.libPath + "commons-io-2.19.0.jar",
+                this.libPath + "two-1.0.jar");
+      }
+    }
+  }
+
+  @TestTemplate
+  void testAndDevelopmentOnlyDependenciesAreNotIncludedInTheArchiveByDefault() throws IOException {
+    File srcMainResources = new File(this.gradleBuild.getProjectDir(), "src/main/resources");
+    srcMainResources.mkdirs();
+    new File(srcMainResources, "resource").createNewFile();
+    assertThat(this.gradleBuild.build(this.taskName).task(":" + this.taskName).getOutcome())
+            .isEqualTo(TaskOutcome.SUCCESS);
+    try (JarFile jarFile = new JarFile(new File(this.gradleBuild.getProjectDir(), "build/libs").listFiles()[0])) {
+      Stream<String> libEntryNames = jarFile.stream()
+              .filter((entry) -> !entry.isDirectory())
+              .map(JarEntry::getName)
+              .filter((name) -> name.startsWith(this.libPath));
+      assertThat(libEntryNames).containsExactly(this.libPath + "commons-io-2.6.jar");
+      Stream<String> classesEntryNames = jarFile.stream()
+              .filter((entry) -> !entry.isDirectory())
+              .map(JarEntry::getName)
+              .filter((name) -> name.startsWith(this.classesPath));
+      assertThat(classesEntryNames).containsExactly(this.classesPath + "resource");
+    }
+  }
+
+  @TestTemplate
+  void testAndDevelopmentOnlyDependenciesCanBeIncludedInTheArchive() throws IOException {
     assertThat(this.gradleBuild.build(this.taskName).task(":" + this.taskName).getOutcome())
             .isEqualTo(TaskOutcome.SUCCESS);
     try (JarFile jarFile = new JarFile(new File(this.gradleBuild.getProjectDir(), "build/libs").listFiles()[0])) {
@@ -517,7 +572,9 @@ abstract class AbstractInfraArchiveIntegrationTests {
   void defaultDirAndFileModesAreUsed() throws IOException {
     BuildResult result = this.gradleBuild.build(this.taskName);
     assertThat(result.task(":" + this.taskName).getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
-    try (ZipFile jarFile = new ZipFile(new File(this.gradleBuild.getProjectDir(), "build/libs").listFiles()[0])) {
+    try (ZipFile jarFile = ZipFile.builder()
+            .setFile(new File(this.gradleBuild.getProjectDir(), "build/libs").listFiles()[0])
+            .get()) {
       Enumeration<ZipArchiveEntry> entries = jarFile.getEntries();
       while (entries.hasMoreElements()) {
         ZipArchiveEntry entry = entries.nextElement();
@@ -525,10 +582,10 @@ abstract class AbstractInfraArchiveIntegrationTests {
           continue;
         }
         if (entry.isDirectory()) {
-          assertEntryMode(entry, UnixStat.DIR_FLAG | UnixStat.DEFAULT_DIR_PERM);
+          assertEntryMode(entry, UnixStat.DEFAULT_DIR_PERM);
         }
         else {
-          assertEntryMode(entry, UnixStat.FILE_FLAG | UnixStat.DEFAULT_FILE_PERM);
+          assertEntryMode(entry, UnixStat.DEFAULT_FILE_PERM);
         }
       }
     }

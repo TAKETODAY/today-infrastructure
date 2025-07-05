@@ -111,7 +111,6 @@ abstract class IndexedElementsBinder<T> extends AggregateBinder<T> {
           AggregateElementBinder elementBinder, IndexedCollectionSupplier collection, ResolvableType elementType) {
     Set<String> knownIndexedChildren = Collections.emptySet();
     if (source instanceof IterableConfigurationPropertySource iterableSource) {
-      source = iterableSource.filter(root::isAncestorOf);
       knownIndexedChildren = getKnownIndexedChildren(iterableSource, root);
     }
     for (int i = 0; i < Integer.MAX_VALUE; i++) {
@@ -130,9 +129,9 @@ abstract class IndexedElementsBinder<T> extends AggregateBinder<T> {
     }
   }
 
-  private Set<String> getKnownIndexedChildren(IterableConfigurationPropertySource filteredSource, ConfigurationPropertyName root) {
-    HashSet<String> knownIndexedChildren = new HashSet<>();
-    for (ConfigurationPropertyName name : filteredSource) {
+  private Set<String> getKnownIndexedChildren(IterableConfigurationPropertySource source, ConfigurationPropertyName root) {
+    var knownIndexedChildren = new HashSet<String>();
+    for (ConfigurationPropertyName name : source.filter(root::isAncestorOf)) {
       ConfigurationPropertyName choppedName = name.chop(root.getNumberOfElements() + 1);
       if (choppedName.isLastElementIndexed()) {
         knownIndexedChildren.add(choppedName.getLastElement(Form.UNIFORM));

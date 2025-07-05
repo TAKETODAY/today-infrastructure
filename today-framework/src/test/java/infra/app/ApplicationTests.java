@@ -1441,7 +1441,7 @@ class ApplicationTests {
     assertThat(ExampleAdditionalConfig.local.get()).isNull();
     Application.from(ExampleFromMainMethod::main).with(ExampleAdditionalConfig.class).run();
     assertThat(ExampleAdditionalConfig.local.get()).isNotNull();
-    ExampleAdditionalConfig.local.set(null);
+    ExampleAdditionalConfig.local.remove();
   }
 
   @Test

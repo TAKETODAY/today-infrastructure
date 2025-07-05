@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,11 +38,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.lang.reflect.Method;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -54,7 +56,6 @@ import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 
 import infra.app.loader.tools.DefaultLaunchScript;
-import infra.app.loader.tools.FileUtils;
 import infra.app.loader.tools.JarModeLibrary;
 import infra.app.loader.tools.Layer;
 import infra.app.loader.tools.LayersIndex;
@@ -221,7 +222,7 @@ class InfraZipCopyAction implements CopyAction {
     Processor(ZipArchiveOutputStream out) {
       this.out = out;
       this.layerIndex = (InfraZipCopyAction.this.layerResolver != null)
-                        ? new LayersIndex(InfraZipCopyAction.this.layerResolver.getLayers()) : null;
+              ? new LayersIndex(InfraZipCopyAction.this.layerResolver.getLayers()) : null;
     }
 
     void process(FileCopyDetails details) {
@@ -250,7 +251,7 @@ class InfraZipCopyAction implements CopyAction {
     private void processDirectory(FileCopyDetails details) throws IOException {
       String name = details.getRelativePath().getPathString();
       ZipArchiveEntry entry = new ZipArchiveEntry(name + '/');
-      prepareEntry(entry, name, getTime(details), getFileMode(details));
+      prepareEntry(entry, name, getTime(details), getDirMode(details));
       this.out.putArchiveEntry(entry);
       this.out.closeArchiveEntry();
       this.writtenDirectories.add(name);
@@ -333,17 +334,21 @@ class InfraZipCopyAction implements CopyAction {
     }
 
     private void writeJarToolsIfNecessary() throws IOException {
-      if (InfraZipCopyAction.this.layerToolsLocation != null) {
-        writeJarModeLibrary(InfraZipCopyAction.this.layerToolsLocation, JarModeLibrary.LAYER_TOOLS);
+      if (layerToolsLocation != null) {
+        writeJarModeLibrary(layerToolsLocation, JarModeLibrary.LAYER_TOOLS);
       }
     }
 
     private void writeJarModeLibrary(String location, JarModeLibrary library) throws IOException {
       String name = location + library.getName();
-      writeEntry(name, ZipEntryContentWriter.fromInputStream(library.openStream()), false,
-              (entry) -> prepareStoredEntry(library.openStream(), entry));
-      if (InfraZipCopyAction.this.layerResolver != null) {
-        Layer layer = InfraZipCopyAction.this.layerResolver.getLayer(library);
+      writeEntry(name, ZipEntryContentWriter.fromInputStream(library.openStream()), false, (entry) -> {
+        try (InputStream in = library.openStream()) {
+          prepareStoredEntry(library.openStream(), false, entry);
+        }
+      });
+
+      if (layerResolver != null) {
+        Layer layer = layerResolver.getLayer(library);
         this.layerIndex.add(layer, name);
       }
     }
@@ -422,14 +427,12 @@ class InfraZipCopyAction implements CopyAction {
     }
 
     private void prepareStoredEntry(FileCopyDetails details, ZipArchiveEntry archiveEntry) throws IOException {
-      prepareStoredEntry(details.open(), archiveEntry);
-      if (InfraZipCopyAction.this.requiresUnpack.isSatisfiedBy(details)) {
-        archiveEntry.setComment("UNPACK:" + FileUtils.sha1Hash(details.getFile()));
-      }
+      prepareStoredEntry(details.open(), requiresUnpack.isSatisfiedBy(details), archiveEntry);
     }
 
-    private void prepareStoredEntry(InputStream input, ZipArchiveEntry archiveEntry) throws IOException {
-      new CrcAndSize(input).setUpStoredEntry(archiveEntry);
+    private void prepareStoredEntry(InputStream input, boolean unpack, ZipArchiveEntry archiveEntry)
+            throws IOException {
+      new StoredEntryPreparator(input, unpack).prepareStoredEntry(archiveEntry);
     }
 
     private Long getTime() {
@@ -447,35 +450,29 @@ class InfraZipCopyAction implements CopyAction {
     }
 
     private int getDirMode() {
-      return (InfraZipCopyAction.this.dirMode != null)
-             ? InfraZipCopyAction.this.dirMode
-             : UnixStat.DIR_FLAG | UnixStat.DEFAULT_DIR_PERM;
+      return dirMode != null ? dirMode : UnixStat.DEFAULT_DIR_PERM;
     }
 
     private int getFileMode() {
-      return (InfraZipCopyAction.this.fileMode != null)
-             ? InfraZipCopyAction.this.fileMode
-             : UnixStat.FILE_FLAG | UnixStat.DEFAULT_FILE_PERM;
+      return fileMode != null ? fileMode : UnixStat.DEFAULT_FILE_PERM;
+    }
+
+    private int getDirMode(FileCopyDetails details) {
+      return fileMode != null ? dirMode : getPermissions(details);
     }
 
     private int getFileMode(FileCopyDetails details) {
-      return (InfraZipCopyAction.this.fileMode != null)
-             ? InfraZipCopyAction.this.fileMode
-             : UnixStat.FILE_FLAG | getPermissions(details);
+      return fileMode != null ? fileMode : getPermissions(details);
     }
 
     private int getPermissions(FileCopyDetails details) {
-      if (GradleVersion.current().compareTo(GradleVersion.version("8.3")) >= 0) {
-        try {
-          Method getPermissionsMethod = details.getClass().getMethod("getPermissions");
-          getPermissionsMethod.setAccessible(true);
-          Object permissions = getPermissionsMethod.invoke(details);
-          return (int) permissions.getClass().getMethod("toUnixNumeric").invoke(permissions);
-        }
-        catch (Exception ex) {
-          throw new GradleException("Failed to get permissions", ex);
-        }
-      }
+      return GradleVersion.current().compareTo(GradleVersion.version("8.3")) >= 0
+              ? details.getPermissions().toUnixNumeric()
+              : getMode(details);
+    }
+
+    @SuppressWarnings("deprecation")
+    private int getMode(FileCopyDetails details) {
       return details.getMode();
     }
 
@@ -549,19 +546,32 @@ class InfraZipCopyAction implements CopyAction {
   }
 
   /**
-   * Data holder for CRC and Size.
+   * Prepares a {@link ZipEntry#STORED stored} {@link ZipArchiveEntry entry} with CRC
+   * and size information. Also adds an {@code UNPACK} comment, if needed.
    */
-  private static class CrcAndSize {
+  private static class StoredEntryPreparator {
 
     private static final int BUFFER_SIZE = 32 * 1024;
+
+    private final MessageDigest messageDigest;
 
     private final CRC32 crc = new CRC32();
 
     private long size;
 
-    CrcAndSize(InputStream inputStream) throws IOException {
+    StoredEntryPreparator(InputStream inputStream, boolean unpack) throws IOException {
+      this.messageDigest = (unpack) ? sha1Digest() : null;
       try (inputStream) {
         load(inputStream);
+      }
+    }
+
+    private static MessageDigest sha1Digest() {
+      try {
+        return MessageDigest.getInstance("SHA-1");
+      }
+      catch (NoSuchAlgorithmException ex) {
+        throw new IllegalStateException(ex);
       }
     }
 
@@ -570,15 +580,21 @@ class InfraZipCopyAction implements CopyAction {
       int bytesRead;
       while ((bytesRead = inputStream.read(buffer)) != -1) {
         this.crc.update(buffer, 0, bytesRead);
+        if (this.messageDigest != null) {
+          this.messageDigest.update(buffer, 0, bytesRead);
+        }
         this.size += bytesRead;
       }
     }
 
-    void setUpStoredEntry(ZipArchiveEntry entry) {
+    void prepareStoredEntry(ZipArchiveEntry entry) {
       entry.setSize(this.size);
       entry.setCompressedSize(this.size);
       entry.setCrc(this.crc.getValue());
       entry.setMethod(ZipEntry.STORED);
+      if (this.messageDigest != null) {
+        entry.setComment("UNPACK:" + HexFormat.of().formatHex(this.messageDigest.digest()));
+      }
     }
 
   }

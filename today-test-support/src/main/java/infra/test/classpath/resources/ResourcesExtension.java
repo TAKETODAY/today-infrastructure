@@ -27,7 +27,6 @@ import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.platform.commons.support.AnnotationSupport;
-import org.junit.platform.commons.support.SearchOption;
 
 import java.io.File;
 import java.io.IOException;
@@ -67,11 +66,10 @@ class ResourcesExtension implements BeforeEachCallback, AfterEachCallback, Param
     Method testMethod = context.getRequiredTestMethod();
     resourcesOf(testMethod).forEach((resource) -> resources.addResource(resource.name(), resource.content(), resource.additional()));
     resourceDirectoriesOf(testMethod).forEach((directory) -> resources.addDirectory(directory.value()));
-    packageResourcesOf(testMethod).forEach((withPackageResources) -> resources
-            .addPackage(testMethod.getDeclaringClass().getPackage(), withPackageResources.value()));
-    ResourcesClassLoader classLoader = new ResourcesClassLoader(context.getRequiredTestClass().getClassLoader(),
-            resources);
-    store.put(TCCL_KEY, Thread.currentThread().getContextClassLoader());
+    packageResourcesOf(testMethod, context).forEach((withPackageResources) -> resources
+            .addPackage(testMethod.getDeclaringClass().getPackage().getName(), withPackageResources.value()));
+    ResourcesClassLoader classLoader = new ResourcesClassLoader(context.getRequiredTestClass().getClassLoader(), resources);
+    store.put(TCCL_KEY, new Tccl());
     Thread.currentThread().setContextClassLoader(classLoader);
   }
 
@@ -94,11 +92,11 @@ class ResourcesExtension implements BeforeEachCallback, AfterEachCallback, Param
     return annotations;
   }
 
-  private List<WithPackageResources> packageResourcesOf(Method method) {
+  private List<WithPackageResources> packageResourcesOf(Method method, ExtensionContext context) {
     List<WithPackageResources> annotations = new ArrayList<>();
     AnnotationSupport.findAnnotation(method, WithPackageResources.class).ifPresent(annotations::add);
-    AnnotationSupport.findAnnotation(method.getDeclaringClass(), WithPackageResources.class,
-                    SearchOption.INCLUDE_ENCLOSING_CLASSES)
+    AnnotationSupport
+            .findAnnotation(method.getDeclaringClass(), WithPackageResources.class, context.getEnclosingTestClasses())
             .ifPresent(annotations::add);
     return annotations;
   }
@@ -107,7 +105,7 @@ class ResourcesExtension implements BeforeEachCallback, AfterEachCallback, Param
   public void afterEach(ExtensionContext context) throws Exception {
     Store store = context.getStore(Namespace.create(ResourcesExtension.class));
     store.get(RESOURCES_KEY, Resources.class).delete();
-    Thread.currentThread().setContextClassLoader(store.get(TCCL_KEY, ClassLoader.class));
+    Thread.currentThread().setContextClassLoader(store.get(TCCL_KEY, Tccl.class).get());
   }
 
   @Override
@@ -181,7 +179,27 @@ class ResourcesExtension implements BeforeEachCallback, AfterEachCallback, Param
 
   private Resources getResources(ExtensionContext extensionContext) {
     Store store = extensionContext.getStore(Namespace.create(ResourcesExtension.class));
-    return store.get(RESOURCES_KEY, Resources.class);
+    Resources resources = store.get(RESOURCES_KEY, Resources.class);
+    return resources;
+  }
+
+  /**
+   * Holder for the thread context class loader that can be safely
+   * {@link Store#put(Object, Object) stored} without it causing unwanted
+   * {@link ClassLoader#close closure} of the class loader.
+   */
+  private static class Tccl {
+
+    private final ClassLoader classLoader;
+
+    Tccl() {
+      this.classLoader = Thread.currentThread().getContextClassLoader();
+    }
+
+    ClassLoader get() {
+      return this.classLoader;
+    }
+
   }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.app.loader.net.protocol.nested;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
@@ -36,6 +37,13 @@ public class Handler extends URLStreamHandler {
   // must be named Handler and must be in a package ending '.nested'
 
   private static final String PREFIX = "nested:";
+
+  @Override
+  protected InetAddress getHostAddress(URL url) {
+    // Some Windows users have reported that calls to java.net.URL.getHostAddress()
+    // can be slow. Since we only deal with local files we always return null here.
+    return null;
+  }
 
   @Override
   protected URLConnection openConnection(URL url) throws IOException {
