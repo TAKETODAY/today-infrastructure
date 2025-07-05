@@ -550,7 +550,8 @@ public abstract class AbstractAnnotationMetadataTests {
     @Test
     void declaredMethodsToString() {
       List<String> methods = get(TestMethods.class).getDeclaredMethods().stream().map(Object::toString).toList();
-      List<String> expected = Arrays.stream(TestMethods.class.getDeclaredMethods()).map(Object::toString).toList();
+      List<String> expected = Arrays.stream(TestMethods.class.getDeclaredMethods()).map(Object::toString)
+              .filter(name -> name.startsWith("test")).toList(); // jacoco
       assertThat(methods).containsExactlyInAnyOrderElementsOf(expected);
     }
 
