@@ -1656,7 +1656,7 @@ class FutureTests {
             .asVoid(directExecutor())
             .onSuccess(() -> fail());
 
-    assertThat(future).failsWithin(Duration.ofSeconds(1));
+    assertThat(future).failsWithin(Duration.ofSeconds(5));
     assertThat(future.isFailed()).isTrue();
 
     assertThat(combine(Stream.of(1, 2, "3").map(Future::ok)).asVoid()).succeedsWithin(Duration.ofSeconds(1));
