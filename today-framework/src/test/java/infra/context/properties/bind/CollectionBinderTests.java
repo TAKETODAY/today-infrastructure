@@ -22,11 +22,12 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import infra.context.properties.bind.BinderTests.ExampleEnum;
 import infra.context.properties.bind.BinderTests.JavaBean;
@@ -35,6 +36,7 @@ import infra.context.properties.source.ConfigurationPropertySource;
 import infra.context.properties.source.MockConfigurationPropertySource;
 import infra.core.ResolvableType;
 import infra.core.env.StandardEnvironment;
+import infra.core.env.SystemEnvironmentPropertySource;
 import infra.test.context.support.TestPropertySourceUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -120,7 +122,7 @@ class CollectionBinderTests {
                       .getUnboundProperties();
               assertThat(unbound).hasSize(1);
               ConfigurationProperty property = unbound.iterator().next();
-              assertThat(property.getName().toString()).isEqualTo("foo[3]");
+              assertThat(property.getName()).hasToString("foo[3]");
               assertThat(property.getValue()).isEqualTo("3");
             });
   }
@@ -172,7 +174,7 @@ class CollectionBinderTests {
                       .getUnboundProperties();
               assertThat(unbound).hasSize(1);
               ConfigurationProperty property = unbound.iterator().next();
-              assertThat(property.getName().toString()).isEqualTo("foo[4].value");
+              assertThat(property.getName()).hasToString("foo[4].value");
               assertThat(property.getValue()).isEqualTo("4");
             });
   }
@@ -300,7 +302,7 @@ class CollectionBinderTests {
     source.put("foo", "");
     this.sources.add(source);
     List<String> result = this.binder.bind("foo", STRING_LIST).get();
-    assertThat(result).isNotNull().isEmpty();
+    assertThat(result).isEmpty();
   }
 
   @Test
@@ -313,7 +315,7 @@ class CollectionBinderTests {
     Bindable<List<JavaBean>> target = Bindable.listOf(JavaBean.class);
     List<JavaBean> result = this.binder.bind("foo", target).get();
     assertThat(result).hasSize(3);
-    List<String> values = result.stream().map(JavaBean::getValue).collect(Collectors.toList());
+    List<String> values = result.stream().map(JavaBean::getValue).toList();
     assertThat(values).containsExactly("a", "b", "c");
   }
 
@@ -349,7 +351,6 @@ class CollectionBinderTests {
 
   @Test
   void bindToCollectionWithDefaultConstructor() {
-    // gh-12322
     MockConfigurationPropertySource source = new MockConfigurationPropertySource();
     source.put("foo.items", "a,b,c,c");
     this.sources.add(source);
@@ -407,7 +408,6 @@ class CollectionBinderTests {
 
   @Test
   void bindToCollectionShouldUsePropertyEditor() {
-    // gh-12166
     MockConfigurationPropertySource source = new MockConfigurationPropertySource();
     source.put("foo[0]", "java.lang.RuntimeException");
     source.put("foo[1]", "java.lang.IllegalStateException");
@@ -418,7 +418,6 @@ class CollectionBinderTests {
 
   @Test
   void bindToCollectionWhenStringShouldUsePropertyEditor() {
-    // gh-12166
     MockConfigurationPropertySource source = new MockConfigurationPropertySource();
     source.put("foo", "java.lang.RuntimeException,java.lang.IllegalStateException");
     this.sources.add(source);
@@ -428,7 +427,6 @@ class CollectionBinderTests {
 
   @Test
   void bindToBeanWithNestedCollectionAndNonIterableSourceShouldNotFail() {
-    // gh-10702
     MockConfigurationPropertySource source = new MockConfigurationPropertySource();
     this.sources.add(source.nonIterable());
     Bindable<BeanWithNestedCollection> target = Bindable.of(BeanWithNestedCollection.class);
@@ -463,9 +461,37 @@ class CollectionBinderTests {
     assertThat(result.getValues().get(0)).containsExactly(ExampleEnum.FOO_BAR, ExampleEnum.BAR_BAZ);
   }
 
+  @Test
+  void bindToWellFormedSystemEnvironmentVariableProperty() {
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put("FOO_THENAMES_0_FIRST", "infra");
+    map.put("FOO_THENAMES_0_LAST", "app");
+    map.put("FOO_THENAMES_1_FIRST", "binding");
+    map.put("FOO_THENAMES_1_LAST", "test");
+    SystemEnvironmentPropertySource propertySource = new SystemEnvironmentPropertySource(
+            StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, map);
+    this.sources.add(ConfigurationPropertySource.from(propertySource));
+    BeanWithCamelCaseNameList result = this.binder.bind("foo", BeanWithCamelCaseNameList.class).get();
+    assertThat(result.theNames()).containsExactly(new Name("infra", "app"), new Name("binding", "test"));
+  }
+
+  @Test
+  void bindToLegacySystemEnvironmentVariableProperty() {
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put("FOO_THE_NAMES_0_FIRST", "infra");
+    map.put("FOO_THE_NAMES_0_LAST", "app");
+    map.put("FOO_THE_NAMES_1_FIRST", "binding");
+    map.put("FOO_THE_NAMES_1_LAST", "test");
+    SystemEnvironmentPropertySource propertySource = new SystemEnvironmentPropertySource(
+            StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, map);
+    this.sources.add(ConfigurationPropertySource.from(propertySource));
+    BeanWithCamelCaseNameList result = this.binder.bind("foo", BeanWithCamelCaseNameList.class).get();
+    assertThat(result.theNames()).containsExactly(new Name("infra", "app"), new Name("binding", "test"));
+  }
+
   static class ExampleCollectionBean {
 
-    private List<String> items = new ArrayList<>();
+    private final List<String> items = new ArrayList<>();
 
     private Set<String> itemsSet = new LinkedHashSet<>();
 
@@ -512,7 +538,6 @@ class CollectionBinderTests {
 
   }
 
-  @SuppressWarnings("serial")
   static class MyCustomNoDefaultConstructorList extends ArrayList<String> {
 
     MyCustomNoDefaultConstructorList(List<String> items) {
@@ -523,7 +548,7 @@ class CollectionBinderTests {
 
   static class ExampleCustomWithDefaultConstructorBean {
 
-    private MyCustomWithDefaultConstructorList items = new MyCustomWithDefaultConstructorList();
+    private final MyCustomWithDefaultConstructorList items = new MyCustomWithDefaultConstructorList();
 
     MyCustomWithDefaultConstructorList getItems() {
       return this.items;
@@ -536,7 +561,6 @@ class CollectionBinderTests {
 
   }
 
-  @SuppressWarnings("serial")
   static class MyCustomWithDefaultConstructorList extends ArrayList<String> {
 
   }
@@ -607,7 +631,12 @@ class CollectionBinderTests {
 
   }
 
+  record BeanWithCamelCaseNameList(List<Name> theNames) {
+
+  }
+
   record Name(String first, String last) {
 
   }
+
 }
