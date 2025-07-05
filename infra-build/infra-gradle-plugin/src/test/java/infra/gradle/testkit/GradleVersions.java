@@ -31,10 +31,11 @@ import java.util.List;
  */
 public final class GradleVersions {
 
-  private GradleVersions() { }
+  private GradleVersions() {
+  }
 
   public static List<String> allCompatible() {
-    return Arrays.asList(GradleVersion.current().getVersion(), "8.12", "8.10");
+    return Arrays.asList(GradleVersion.current().getVersion(), "8.13", "8.12");
   }
 
   public static String minimumCompatible() {
