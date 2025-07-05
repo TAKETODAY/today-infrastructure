@@ -56,7 +56,7 @@ public class ConcurrencyLimitBeanPostProcessor extends AbstractBeanFactoryAwareA
             new ConcurrencyLimitInterceptor());
   }
 
-  private static class ConcurrencyLimitInterceptor implements MethodInterceptor {
+  private static final class ConcurrencyLimitInterceptor implements MethodInterceptor {
 
     private final ConcurrentReferenceHashMap<Object, ConcurrencyThrottleCache> cachePerInstance =
             new ConcurrentReferenceHashMap<>(16, ConcurrentReferenceHashMap.ReferenceType.WEAK);
@@ -105,7 +105,7 @@ public class ConcurrencyLimitBeanPostProcessor extends AbstractBeanFactoryAwareA
     }
   }
 
-  private static class ConcurrencyThrottleCache {
+  private static final class ConcurrencyThrottleCache {
 
     public final ConcurrentHashMap<Method, MethodInterceptor> methodInterceptors = new ConcurrentHashMap<>();
 
