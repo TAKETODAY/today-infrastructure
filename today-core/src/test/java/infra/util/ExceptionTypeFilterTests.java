@@ -15,31 +15,24 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.gradle.testkit;
+package infra.util;
 
-import org.gradle.util.GradleVersion;
+import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
- * Versions of Gradle used for testing.
- *
- * @author Scott Frederick
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @author Stephane Nicoll
  */
-public final class GradleVersions {
+class ExceptionTypeFilterTests {
 
-  private GradleVersions() {
-  }
-
-  public static List<String> allCompatible() {
-    return Arrays.asList(GradleVersion.current().getVersion(), "8.13", "8.12");
-  }
-
-  public static String minimumCompatible() {
-    return allCompatible().get(0);
+  @Test
+  void subClassMatch() {
+    ExceptionTypeFilter filter = new ExceptionTypeFilter(List.of(RuntimeException.class), null);
+    assertThat(filter.match(RuntimeException.class)).isTrue();
+    assertThat(filter.match(IllegalStateException.class)).isTrue();
   }
 
 }

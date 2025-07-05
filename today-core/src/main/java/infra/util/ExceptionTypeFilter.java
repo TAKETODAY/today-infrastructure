@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@ package infra.util;
 
 import java.util.Collection;
 
+import infra.lang.Nullable;
+
 /**
  * An {@link InstanceFilter} implementation that handles exception types. A type
  * will match against a given candidate if it is assignable to that candidate.
@@ -29,12 +31,51 @@ import java.util.Collection;
  */
 public class ExceptionTypeFilter extends InstanceFilter<Class<? extends Throwable>> {
 
-  public ExceptionTypeFilter(Collection<? extends Class<? extends Throwable>> includes,
-          Collection<? extends Class<? extends Throwable>> excludes, boolean matchIfEmpty) {
+  /**
+   * Create a new {@code ExceptionTypeFilter} based on include and exclude
+   * collections, with the {@code matchIfEmpty} flag set to {@code true}.
+   * <p>See {@link #ExceptionTypeFilter(Collection, Collection, boolean)} for
+   * details.
+   *
+   * @param includes the collection of includes
+   * @param excludes the collection of excludes
+   * @since 5.0
+   */
+  public ExceptionTypeFilter(@Nullable Collection<Class<? extends Throwable>> includes,
+          @Nullable Collection<Class<? extends Throwable>> excludes) {
+
+    super(includes, excludes);
+  }
+
+  /**
+   * Create a new {@code ExceptionTypeFilter} based on include and exclude
+   * collections.
+   * <p>See {@link InstanceFilter#InstanceFilter(Collection, Collection, boolean)
+   * InstanceFilter} for details.
+   *
+   * @param includes the collection of includes
+   * @param excludes the collection of excludes
+   * @param matchIfEmpty the matching result if the includes and the excludes
+   * collections are both {@code null} or empty
+   */
+  public ExceptionTypeFilter(@Nullable Collection<? extends Class<? extends Throwable>> includes,
+          @Nullable Collection<? extends Class<? extends Throwable>> excludes, boolean matchIfEmpty) {
 
     super(includes, excludes, matchIfEmpty);
   }
 
+  /**
+   * Determine if the specified {@code instance} matches the specified
+   * {@code candidate}.
+   * <p>By default, the two instances match if the {@code candidate} type is
+   * {@linkplain Class#isAssignableFrom(Class) is assignable from} the
+   * {@code instance} type.
+   * <p>Can be overridden by subclasses.
+   *
+   * @param instance the instance to check
+   * @param candidate a candidate defined by this filter
+   * @return {@code true} if the instance matches the candidate
+   */
   @Override
   protected boolean match(Class<? extends Throwable> instance, Class<? extends Throwable> candidate) {
     return candidate.isAssignableFrom(instance);

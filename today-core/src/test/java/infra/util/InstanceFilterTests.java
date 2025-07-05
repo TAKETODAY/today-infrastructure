@@ -19,11 +19,9 @@ package infra.util;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -32,92 +30,45 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class InstanceFilterTests {
 
   @Test
-  void matchWithEmptyIncludesAndExcludesReturnsMatchIfEmpty() {
-    InstanceFilter<String> filter = new InstanceFilter<>(null, null, true);
-    assertThat(filter.match("test")).isTrue();
-
-    filter = new InstanceFilter<>(null, null, false);
-    assertThat(filter.match("test")).isFalse();
+  void emptyFilterApplyMatchIfEmpty() {
+    InstanceFilter<String> filter = new InstanceFilter<>(null, null);
+    match(filter, "foo");
+    match(filter, "bar");
   }
 
   @Test
-  void matchWithNullInstanceThrowsException() {
-    InstanceFilter<String> filter = new InstanceFilter<>(null, null, true);
-    assertThatThrownBy(() -> filter.match(null))
-            .isInstanceOf(IllegalArgumentException.class);
+  void includesFilter() {
+    InstanceFilter<String> filter = new InstanceFilter<>(List.of("First", "Second"), null);
+    match(filter, "Second");
+    doNotMatch(filter, "foo");
   }
 
   @Test
-  void matchWithOnlyIncludesMatchesIncludedElement() {
-    InstanceFilter<String> filter = new InstanceFilter<>(List.of("foo", "bar"), null, false);
-    assertThat(filter.match("foo")).isTrue();
-    assertThat(filter.match("bar")).isTrue();
-    assertThat(filter.match("baz")).isFalse();
+  void excludesFilter() {
+    InstanceFilter<String> filter = new InstanceFilter<>(null, List.of("First", "Second"));
+    doNotMatch(filter, "Second");
+    match(filter, "foo");
   }
 
   @Test
-  void matchWithOnlyExcludesMatchesNonExcludedElement() {
-    InstanceFilter<String> filter = new InstanceFilter<>(null, List.of("foo", "bar"), true);
-    assertThat(filter.match("foo")).isFalse();
-    assertThat(filter.match("bar")).isFalse();
-    assertThat(filter.match("baz")).isTrue();
+  void includesAndExcludesFilters() {
+    InstanceFilter<String> filter = new InstanceFilter<>(List.of("foo", "Bar"), List.of("First", "Second"));
+    doNotMatch(filter, "Second");
+    match(filter, "foo");
   }
 
   @Test
-  void matchWithBothIncludesAndExcludesMatchesIncludedNonExcludedElement() {
-    InstanceFilter<String> filter = new InstanceFilter<>(
-            List.of("foo", "bar", "baz"),
-            List.of("bar", "qux"),
-            false);
-
-    assertThat(filter.match("foo")).isTrue();
-    assertThat(filter.match("bar")).isFalse();
-    assertThat(filter.match("baz")).isTrue();
-    assertThat(filter.match("qux")).isFalse();
-    assertThat(filter.match("other")).isFalse();
+  void includesAndExcludesFiltersConflict() {
+    InstanceFilter<String> filter = new InstanceFilter<>(List.of("First"), List.of("First"));
+    doNotMatch(filter, "First");
   }
 
-  @Test
-  void matchWithCustomMatchingLogic() {
-    InstanceFilter<String> filter = new InstanceFilter<>(List.of("foo"), null, false) {
-      @Override
-      protected boolean match(String instance, String candidate) {
-        return instance.startsWith(candidate);
-      }
-    };
-
-    assertThat(filter.match("foobar")).isTrue();
-    assertThat(filter.match("barfoo")).isFalse();
+  private static <T> void match(InstanceFilter<T> filter, T candidate) {
+    assertThat(filter.match(candidate)).as("filter '" + filter + "' should match " + candidate).isTrue();
   }
 
-  @Test
-  void toStringContainsFilterDetails() {
-    InstanceFilter<String> filter = new InstanceFilter<>(
-            List.of("foo"), List.of("bar"), true);
-
-    assertThat(filter.toString())
-            .contains("includes=[foo]")
-            .contains("excludes=[bar]")
-            .contains("matchIfEmpty=true");
-  }
-
-  @Test
-  void matchWithEmptyCollectionsAndNullCollectionsAreTreatedTheSame() {
-    InstanceFilter<String> filter1 = new InstanceFilter<>(Collections.emptyList(), Collections.emptyList(), true);
-    InstanceFilter<String> filter2 = new InstanceFilter<>(null, null, true);
-
-    assertThat(filter1.match("test")).isEqualTo(filter2.match("test"));
-  }
-
-  @Test
-  void matchWithDuplicateIncludesAndExcludes() {
-    InstanceFilter<String> filter = new InstanceFilter<>(
-            List.of("foo", "foo"),
-            List.of("bar", "bar"),
-            false);
-
-    assertThat(filter.match("foo")).isTrue();
-    assertThat(filter.match("bar")).isFalse();
+  private static <T> void doNotMatch(InstanceFilter<T> filter, T candidate) {
+    assertThat(filter.match(candidate)).as("filter '" + filter + "' should not match " + candidate).isFalse();
   }
 
 }
