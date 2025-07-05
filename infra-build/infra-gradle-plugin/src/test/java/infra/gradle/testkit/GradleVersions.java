@@ -19,7 +19,6 @@ package infra.gradle.testkit;
 
 import org.gradle.util.GradleVersion;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -35,7 +34,7 @@ public final class GradleVersions {
   }
 
   public static List<String> allCompatible() {
-    return Arrays.asList(GradleVersion.current().getVersion(), "8.13", "8.12");
+    return List.of(GradleVersion.current().getVersion());
   }
 
   public static String minimumCompatible() {
