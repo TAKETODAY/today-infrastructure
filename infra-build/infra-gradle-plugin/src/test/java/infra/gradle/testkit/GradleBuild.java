@@ -25,13 +25,13 @@ import com.sun.jna.Platform;
 
 import org.antlr.v4.runtime.Lexer;
 import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.io.Charsets;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
 import org.gradle.util.GradleVersion;
-import org.apache.commons.io.Charsets;
 import org.tomlj.Toml;
 
 import java.io.File;
@@ -193,6 +193,10 @@ public class GradleBuild {
 
   public boolean gradleVersionIsAtLeast(String version) {
     return GradleVersion.version(this.gradleVersion).compareTo(GradleVersion.version(version)) >= 0;
+  }
+
+  public boolean gradleVersionIsLessThan(String version) {
+    return GradleVersion.version(this.gradleVersion).compareTo(GradleVersion.version(version)) < 0;
   }
 
   public BuildResult build(String... arguments) {

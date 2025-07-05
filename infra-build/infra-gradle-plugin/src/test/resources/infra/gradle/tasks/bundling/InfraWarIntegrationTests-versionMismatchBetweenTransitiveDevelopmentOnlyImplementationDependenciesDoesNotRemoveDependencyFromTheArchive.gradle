@@ -1,0 +1,23 @@
+plugins {
+	id 'war'
+	id 'infra.application' version '{version}'
+}
+
+repositories {
+	mavenCentral()
+	maven {
+		url = 'repository'
+	}
+}
+
+dependencies {
+	developmentOnly("commons-io-consumer:one:1.0")
+	implementation("commons-io-consumer:two:1.0")
+}
+
+infraWar {
+	layered {
+		includeLayerTools = false
+	}
+	mainClass = 'com.example.Application'
+}

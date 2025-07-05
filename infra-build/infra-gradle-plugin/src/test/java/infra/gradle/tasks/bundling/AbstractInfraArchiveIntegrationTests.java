@@ -222,6 +222,61 @@ abstract class AbstractInfraArchiveIntegrationTests {
   }
 
   @TestTemplate
+  void versionMismatchBetweenTransitiveDevelopmentOnlyImplementationDependenciesDoesNotRemoveDependencyFromTheArchive() throws IOException {
+    assertThat(this.gradleBuild.build(this.taskName).task(":" + this.taskName).getOutcome())
+            .isEqualTo(TaskOutcome.SUCCESS);
+    try (JarFile jarFile = new JarFile(new File(this.gradleBuild.getProjectDir(), "build/libs").listFiles()[0])) {
+      Stream<String> libEntryNames = jarFile.stream()
+              .filter((entry) -> !entry.isDirectory())
+              .map(JarEntry::getName)
+              .filter((name) -> name.startsWith(this.libPath));
+      if (this.gradleBuild.gradleVersionIsLessThan("9.0.0-rc-1")) {
+        assertThat(libEntryNames).containsExactly(this.libPath + "two-1.0.jar",
+                this.libPath + "commons-io-2.19.0.jar");
+      }
+      else {
+        assertThat(libEntryNames).containsExactly(this.libPath + "commons-io-2.19.0.jar",
+                this.libPath + "two-1.0.jar");
+      }
+    }
+  }
+
+  @TestTemplate
+  void testAndDevelopmentOnlyDependenciesAreNotIncludedInTheArchiveByDefault() throws IOException {
+    File srcMainResources = new File(this.gradleBuild.getProjectDir(), "src/main/resources");
+    srcMainResources.mkdirs();
+    new File(srcMainResources, "resource").createNewFile();
+    assertThat(this.gradleBuild.build(this.taskName).task(":" + this.taskName).getOutcome())
+            .isEqualTo(TaskOutcome.SUCCESS);
+    try (JarFile jarFile = new JarFile(new File(this.gradleBuild.getProjectDir(), "build/libs").listFiles()[0])) {
+      Stream<String> libEntryNames = jarFile.stream()
+              .filter((entry) -> !entry.isDirectory())
+              .map(JarEntry::getName)
+              .filter((name) -> name.startsWith(this.libPath));
+      assertThat(libEntryNames).containsExactly(this.libPath + "commons-io-2.6.jar");
+      Stream<String> classesEntryNames = jarFile.stream()
+              .filter((entry) -> !entry.isDirectory())
+              .map(JarEntry::getName)
+              .filter((name) -> name.startsWith(this.classesPath));
+      assertThat(classesEntryNames).containsExactly(this.classesPath + "resource");
+    }
+  }
+
+  @TestTemplate
+  void testAndDevelopmentOnlyDependenciesCanBeIncludedInTheArchive() throws IOException {
+    assertThat(this.gradleBuild.build(this.taskName).task(":" + this.taskName).getOutcome())
+            .isEqualTo(TaskOutcome.SUCCESS);
+    try (JarFile jarFile = new JarFile(new File(this.gradleBuild.getProjectDir(), "build/libs").listFiles()[0])) {
+      Stream<String> libEntryNames = jarFile.stream()
+              .filter((entry) -> !entry.isDirectory())
+              .map(JarEntry::getName)
+              .filter((name) -> name.startsWith(this.libPath));
+      assertThat(libEntryNames).containsExactly(this.libPath + "commons-io-2.6.jar",
+              this.libPath + "commons-lang3-3.9.jar");
+    }
+  }
+
+  @TestTemplate
   void jarTypeFilteringIsApplied() throws IOException {
     File flatDirRepository = new File(this.gradleBuild.getProjectDir(), "repository");
     createDependenciesStarterJar(new File(flatDirRepository, "starter.jar"));
