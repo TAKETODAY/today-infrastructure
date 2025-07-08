@@ -237,7 +237,8 @@ class PropertiesUtilsTests {
     ClassLoader firstLoader = new URLClassLoader(new URL[] {});
     ClassLoader secondLoader = new URLClassLoader(new URL[] {});
 
-    Properties firstProps = PropertiesUtils.loadAllProperties("test.properties", firstLoader);
+    Properties firstProps = new Properties();
+    PropertiesUtils.loadAllProperties(firstProps, "test.properties", StandardCharsets.ISO_8859_1, firstLoader);
     Properties secondProps = PropertiesUtils.loadAllProperties("test.properties", secondLoader);
 
     assertThat(firstProps).isNotEmpty();
@@ -271,6 +272,10 @@ class PropertiesUtilsTests {
   @Test
   void loadAllPropertiesWithNestedResourceName() throws IOException {
     Properties props = PropertiesUtils.loadAllProperties("infra/core/io/nested/test.properties");
+    assertThat(props).isEmpty();
+
+    props = new Properties();
+    PropertiesUtils.loadAllProperties(props, "infra/core/io/nested/test.properties");
     assertThat(props).isEmpty();
   }
 
