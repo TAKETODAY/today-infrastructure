@@ -238,7 +238,7 @@ class PropertiesUtilsTests {
     ClassLoader secondLoader = new URLClassLoader(new URL[] {});
 
     Properties firstProps = new Properties();
-    PropertiesUtils.loadAllProperties(firstProps, "test.properties", firstLoader);
+    PropertiesUtils.loadAllProperties(firstProps, "test.properties", StandardCharsets.ISO_8859_1, firstLoader);
     Properties secondProps = PropertiesUtils.loadAllProperties("test.properties", secondLoader);
 
     assertThat(firstProps).isNotEmpty();

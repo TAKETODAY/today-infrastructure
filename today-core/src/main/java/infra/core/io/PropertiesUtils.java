@@ -20,9 +20,11 @@ package infra.core.io;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -174,7 +176,7 @@ public abstract class PropertiesUtils {
    */
   public static Properties loadAllProperties(String resourceName, @Nullable ClassLoader classLoader) throws IOException {
     Properties props = new Properties();
-    loadAllProperties(props, resourceName, classLoader);
+    loadAllProperties(props, resourceName, StandardCharsets.ISO_8859_1, classLoader);
     return props;
   }
 
@@ -189,7 +191,21 @@ public abstract class PropertiesUtils {
    * @since 5.0
    */
   public static void loadAllProperties(Properties props, String resourceName) throws IOException {
-    loadAllProperties(props, resourceName, null);
+    loadAllProperties(props, resourceName, StandardCharsets.ISO_8859_1);
+  }
+
+  /**
+   * Load all properties from the specified class path resource
+   * (in ISO-8859-1 encoding), using the given class loader.
+   * <p>Merges properties if more than one resource of the same name
+   * found in the class path.
+   *
+   * @param resourceName the name of the class path resource
+   * @throws IOException if loading failed
+   * @since 5.0
+   */
+  public static void loadAllProperties(Properties props, String resourceName, Charset charset) throws IOException {
+    loadAllProperties(props, resourceName, charset, null);
   }
 
   /**
@@ -204,8 +220,9 @@ public abstract class PropertiesUtils {
    * @throws IOException if loading failed
    * @since 5.0
    */
-  public static void loadAllProperties(Properties props, String resourceName, @Nullable ClassLoader classLoader) throws IOException {
+  public static void loadAllProperties(Properties props, String resourceName, Charset charset, @Nullable ClassLoader classLoader) throws IOException {
     Assert.notNull(props, "Properties is required");
+    Assert.notNull(charset, "Charset is required");
     Assert.notNull(resourceName, "Resource name is required");
     ClassLoader classLoaderToUse = classLoader;
     if (classLoaderToUse == null) {
@@ -222,7 +239,7 @@ public abstract class PropertiesUtils {
           props.loadFromXML(is);
         }
         else {
-          props.load(is);
+          props.load(new InputStreamReader(con.getInputStream(), charset));
         }
       }
     }
