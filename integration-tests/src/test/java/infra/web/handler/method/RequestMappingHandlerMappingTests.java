@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,10 +50,15 @@ import infra.web.handler.condition.ConsumesRequestCondition;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.support.StaticWebApplicationContext;
 import infra.web.service.annotation.HttpExchange;
+import infra.web.service.annotation.PostExchange;
+import infra.web.service.annotation.PutExchange;
 import infra.web.util.pattern.PathPattern;
 import infra.web.view.PathPatternsParameterizedTest;
 
+import static infra.http.HttpMethod.POST;
+import static infra.web.handler.method.RequestMappingInfo.paths;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -140,7 +145,7 @@ class RequestMappingHandlerMappingTests {
   void resolveRequestMappingViaComposedAnnotation(RequestMappingHandlerMapping mapping) {
 
     RequestMappingInfo info = assertComposedAnnotationMapping(
-            mapping, "postJson", "/postJson", HttpMethod.POST);
+            mapping, "postJson", "/postJson", POST);
 
     assertThat(info.getConsumesCondition().getConsumableMediaTypes().iterator().next().toString())
             .isEqualTo(MediaType.APPLICATION_JSON_VALUE);
@@ -149,9 +154,8 @@ class RequestMappingHandlerMappingTests {
   }
 
   @Test
-
   void getMappingOverridesConsumesFromTypeLevelAnnotation() throws Exception {
-    RequestMappingInfo requestMappingInfo = assertComposedAnnotationMapping(HttpMethod.POST);
+    RequestMappingInfo requestMappingInfo = assertComposedAnnotationMapping(POST);
 
     ConsumesRequestCondition condition = requestMappingInfo.getConsumesCondition();
     assertThat(condition.getConsumableMediaTypes()).isEqualTo(Collections.singleton(MediaType.APPLICATION_XML));
@@ -177,7 +181,7 @@ class RequestMappingHandlerMappingTests {
 
   @Test
   void postMapping() throws Exception {
-    assertComposedAnnotationMapping(HttpMethod.POST);
+    assertComposedAnnotationMapping(POST);
   }
 
   @Test
@@ -193,6 +197,112 @@ class RequestMappingHandlerMappingTests {
   @Test
   void patchMapping() throws Exception {
     assertComposedAnnotationMapping(HttpMethod.PATCH);
+  }
+
+  @Test
+  void httpExchangeWithMultipleAnnotationsAtClassLevel() throws NoSuchMethodException {
+    RequestMappingHandlerMapping mapping = createMapping();
+
+    Class<?> controllerClass = MultipleClassLevelAnnotationsHttpExchangeController.class;
+    Method method = controllerClass.getDeclaredMethod("post");
+
+    assertThatIllegalStateException()
+            .isThrownBy(() -> mapping.getMappingForMethod(method, controllerClass))
+            .withMessageContainingAll(
+                    "Multiple @HttpExchange annotations found on " + controllerClass,
+                    HttpExchange.class.getSimpleName(),
+                    ExtraHttpExchange.class.getSimpleName()
+            );
+  }
+
+  @Test
+  void httpExchangeWithMultipleAnnotationsAtMethodLevel() throws NoSuchMethodException {
+    RequestMappingHandlerMapping mapping = createMapping();
+
+    Class<?> controllerClass = MultipleMethodLevelAnnotationsHttpExchangeController.class;
+    Method method = controllerClass.getDeclaredMethod("post");
+
+    assertThatIllegalStateException()
+            .isThrownBy(() -> mapping.getMappingForMethod(method, controllerClass))
+            .withMessageContainingAll(
+                    "Multiple @HttpExchange annotations found on " + method,
+                    PostExchange.class.getSimpleName(),
+                    PutExchange.class.getSimpleName()
+            );
+  }
+
+  @Test
+  void httpExchangeWithMixedAnnotationsAtClassLevel() throws NoSuchMethodException {
+    RequestMappingHandlerMapping mapping = createMapping();
+
+    Class<?> controllerClass = MixedClassLevelAnnotationsController.class;
+    Method method = controllerClass.getDeclaredMethod("post");
+
+    assertThatIllegalStateException()
+            .isThrownBy(() -> mapping.getMappingForMethod(method, controllerClass))
+            .withMessageContainingAll(
+                    controllerClass.getName(),
+                    "is annotated with @RequestMapping and @HttpExchange annotations, but only one is allowed:",
+                    RequestMapping.class.getSimpleName(),
+                    HttpExchange.class.getSimpleName()
+            );
+  }
+
+  @Test
+  void httpExchangeWithMixedAnnotationsAtMethodLevel() throws NoSuchMethodException {
+    RequestMappingHandlerMapping mapping = createMapping();
+
+    Class<?> controllerClass = MixedMethodLevelAnnotationsController.class;
+    Method method = controllerClass.getDeclaredMethod("post");
+
+    assertThatIllegalStateException()
+            .isThrownBy(() -> mapping.getMappingForMethod(method, controllerClass))
+            .withMessageContainingAll(
+                    method.toString(),
+                    "is annotated with @RequestMapping and @HttpExchange annotations, but only one is allowed:",
+                    PostMapping.class.getSimpleName(),
+                    PostExchange.class.getSimpleName()
+            );
+  }
+
+  @Test
+  void httpExchangeAnnotationsOverriddenAtClassLevel() throws NoSuchMethodException {
+    RequestMappingHandlerMapping mapping = createMapping();
+
+    Class<?> controllerClass = ClassLevelOverriddenHttpExchangeAnnotationsController.class;
+    Method method = controllerClass.getDeclaredMethod("post");
+
+    RequestMappingInfo info = mapping.getMappingForMethod(method, controllerClass);
+
+    assertThat(info).isNotNull();
+    assertThat(info.getPathPatternsCondition()).isNotNull();
+
+    HttpMockRequestImpl request = new HttpMockRequestImpl("POST", "/service/postExchange");
+    assertThat(info.getPathPatternsCondition().getMatchingCondition(new MockRequestContext(request))).isNull();
+
+    request = new HttpMockRequestImpl("POST", "/controller/postExchange");
+    assertThat(info.getPathPatternsCondition().getMatchingCondition(new MockRequestContext(request))).isNotNull();
+  }
+
+  @Test
+  void httpExchangeAnnotationsOverriddenAtMethodLevel() throws NoSuchMethodException {
+    RequestMappingHandlerMapping mapping = createMapping();
+
+    Class<?> controllerClass = MethodLevelOverriddenHttpExchangeAnnotationsController.class;
+    Method method = controllerClass.getDeclaredMethod("post");
+
+    RequestMappingInfo info = mapping.getMappingForMethod(method, controllerClass);
+
+    assertThat(info).isNotNull();
+    assertThat(info.getPathPatternsCondition()).isNotNull();
+
+    HttpMockRequestImpl request = new HttpMockRequestImpl("POST", "/service/postExchange");
+
+    assertThat(info.getPathPatternsCondition().getMatchingCondition(new MockRequestContext(request))).isNull();
+
+    request = new HttpMockRequestImpl("POST", "/controller/postMapping");
+
+    assertThat(info.getPathPatternsCondition().getMatchingCondition(new MockRequestContext(request))).isNotNull();
   }
 
   @SuppressWarnings("DataFlowIssue")
@@ -232,7 +342,7 @@ class RequestMappingHandlerMappingTests {
             .extracting(PathPattern::toString)
             .containsOnly("/exchange/custom");
 
-    assertThat(mappingInfo.getMethodsCondition().getMethods()).containsOnly(HttpMethod.POST);
+    assertThat(mappingInfo.getMethodsCondition().getMethods()).containsOnly(POST);
     assertThat(mappingInfo.getParamsCondition().getExpressions()).isEmpty();
     assertThat(mappingInfo.getHeadersCondition().getExpressions()).isEmpty();
 
@@ -265,6 +375,86 @@ class RequestMappingHandlerMappingTests {
 
     assertThat(mappingInfo.getHeadersCondition().getExpressions().stream().map(Object::toString))
             .containsExactly("h1=hv1", "!h2");
+  }
+
+  @Test
+  void requestBodyAnnotationFromInterfaceIsRespected() throws Exception {
+    String path = "/controller/postMapping";
+    MediaType mediaType = MediaType.APPLICATION_JSON;
+
+    RequestMappingHandlerMapping mapping = createMapping();
+
+    Class<?> controllerClass = InterfaceControllerImpl.class;
+    Method method = controllerClass.getDeclaredMethod("post", Foo.class);
+
+    RequestMappingInfo info = mapping.getMappingForMethod(method, controllerClass);
+    assertThat(info).isNotNull();
+
+    // Original ConsumesCondition
+    ConsumesRequestCondition consumesCondition = info.getConsumesCondition();
+    assertThat(consumesCondition).isNotNull();
+    assertThat(consumesCondition.isBodyRequired()).isTrue();
+    assertThat(consumesCondition.getConsumableMediaTypes()).containsOnly(mediaType);
+
+    mapping.registerHandlerMethod(new InterfaceControllerImpl(), method, info);
+
+    // Updated ConsumesCondition
+    consumesCondition = info.getConsumesCondition();
+    assertThat(consumesCondition).isNotNull();
+    assertThat(consumesCondition.isBodyRequired()).isFalse();
+    assertThat(consumesCondition.getConsumableMediaTypes()).containsOnly(mediaType);
+
+    HttpMockRequestImpl request = new HttpMockRequestImpl("POST", path);
+
+    request.setContentType(mediaType.toString());
+
+    RequestMappingInfo matchingInfo = info.getMatchingCondition(new MockRequestContext(request));
+    // Since the request has no body AND the required flag is false, the
+    // ConsumesCondition in the matching condition in an EMPTY_CONDITION.
+    // In other words, the "consumes" expressions are removed.
+    assertThat(matchingInfo).isEqualTo(paths(path).methods(POST).build());
+  }
+
+  @Test
+  void requestBodyAnnotationFromImplementationOverridesInterface() throws Exception {
+    String path = "/controller/postMapping";
+    MediaType mediaType = MediaType.APPLICATION_JSON;
+
+    RequestMappingHandlerMapping mapping = createMapping();
+
+    Class<?> controllerClass = InterfaceControllerImplOverridesRequestBody.class;
+    Method method = controllerClass.getDeclaredMethod("post", Foo.class);
+
+    RequestMappingInfo info = mapping.getMappingForMethod(method, controllerClass);
+    assertThat(info).isNotNull();
+
+    // Original ConsumesCondition
+    ConsumesRequestCondition consumesCondition = info.getConsumesCondition();
+    assertThat(consumesCondition).isNotNull();
+    assertThat(consumesCondition.isBodyRequired()).isTrue();
+    assertThat(consumesCondition.getConsumableMediaTypes()).containsOnly(mediaType);
+
+    mapping.registerHandlerMethod(new InterfaceControllerImplOverridesRequestBody(), method, info);
+
+    // Updated ConsumesCondition
+    consumesCondition = info.getConsumesCondition();
+    assertThat(consumesCondition).isNotNull();
+    assertThat(consumesCondition.isBodyRequired()).isTrue();
+    assertThat(consumesCondition.getConsumableMediaTypes()).containsOnly(mediaType);
+
+    HttpMockRequestImpl request = new HttpMockRequestImpl("POST", path);
+    request.setContentType(mediaType.toString());
+
+    RequestMappingInfo matchingInfo = info.getMatchingCondition(new MockRequestContext(request));
+    RequestMappingInfo expected = paths(path).methods(POST).consumes(mediaType.toString()).build();
+    assertThat(matchingInfo).isEqualTo(expected);
+  }
+
+  private static RequestMappingHandlerMapping createMapping() {
+    RequestMappingHandlerMapping mapping = new RequestMappingHandlerMapping();
+    mapping.setApplicationContext(new StaticWebApplicationContext());
+    mapping.afterPropertiesSet();
+    return mapping;
   }
 
   private RequestMappingInfo assertComposedAnnotationMapping(HttpMethod requestMethod) throws Exception {
@@ -370,7 +560,90 @@ class RequestMappingHandlerMappingTests {
     }
   }
 
-  private static class Foo {
+  @HttpExchange("/exchange")
+  @ExtraHttpExchange
+  static class MultipleClassLevelAnnotationsHttpExchangeController {
+
+    @PostExchange("/post")
+    void post() { }
   }
 
+  static class MultipleMethodLevelAnnotationsHttpExchangeController {
+
+    @PostExchange("/post")
+    @PutExchange("/post")
+    void post() { }
+  }
+
+  @Controller
+  @RequestMapping("/api")
+  @HttpExchange("/api")
+  static class MixedClassLevelAnnotationsController {
+
+    @PostExchange("/post")
+    void post() { }
+  }
+
+  @Controller
+  @RequestMapping("/api")
+  static class MixedMethodLevelAnnotationsController {
+
+    @PostMapping("/post")
+    @PostExchange("/post")
+    void post() { }
+  }
+
+  @HttpExchange("/service")
+  interface Service {
+
+    @PostExchange("/postExchange")
+    void post();
+
+  }
+
+  @Controller
+  @RequestMapping("/controller")
+  static class ClassLevelOverriddenHttpExchangeAnnotationsController implements Service {
+
+    @Override
+    public void post() { }
+  }
+
+  @Controller
+  @RequestMapping("/controller")
+  static class MethodLevelOverriddenHttpExchangeAnnotationsController implements Service {
+
+    @PostMapping("/postMapping")
+    @Override
+    public void post() { }
+  }
+
+  @RestController
+  @RequestMapping(path = "/controller", consumes = "application/json")
+  interface InterfaceController {
+
+    @PostMapping("/postMapping")
+    void post(@RequestBody(required = false) Foo foo);
+  }
+
+  static class InterfaceControllerImpl implements InterfaceController {
+
+    @Override
+    public void post(Foo foo) { }
+  }
+
+  static class InterfaceControllerImplOverridesRequestBody implements InterfaceController {
+
+    @Override
+    public void post(@RequestBody(required = true) Foo foo) { }
+  }
+
+  @HttpExchange
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface ExtraHttpExchange {
+  }
+
+  private static class Foo {
+  }
 }

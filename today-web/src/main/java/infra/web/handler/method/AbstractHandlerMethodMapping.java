@@ -346,8 +346,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * @throws IllegalStateException if another method was already registered
    * under the same mapping
    */
-  protected void registerHandlerMethod(Object handler, Method method, T mapping) {
-    this.mappingRegistry.register(mapping, handler, method);
+  protected HandlerMethod registerHandlerMethod(Object handler, Method method, T mapping) {
+    return mappingRegistry.register(mapping, handler, method);
   }
 
   /**
@@ -721,7 +721,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
       return handlerMethod.corsConfig;
     }
 
-    public void register(T mapping, Object handler, Method method) {
+    public HandlerMethod register(T mapping, Object handler, Method method) {
       HandlerMethod handlerMethod = createHandlerMethod(handler, method);
       validateMethodMapping(handlerMethod, mapping);
 
@@ -733,7 +733,6 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
           pathLookup.put(path, mappings);
         }
         mappings.add(mapping);
-
       }
 
       String name = null;
@@ -752,6 +751,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
       registrations.put(mapping, new MappingRegistration<>(
               mapping, handlerMethod, directPaths, name, corsConfig != null));
+
+      return handlerMethod;
     }
 
     private void validateMethodMapping(HandlerMethod handlerMethod, T mapping) {

@@ -81,4 +81,14 @@ public class ExceptionTypeFilter extends InstanceFilter<Class<? extends Throwabl
     return candidate.isAssignableFrom(instance);
   }
 
+  /**
+   * Determine if the type of the supplied {@code exception} matches this filter.
+   *
+   * @see InstanceFilter#match(Object)
+   * @since 5.0
+   */
+  public boolean match(Throwable exception) {
+    return match(exception.getClass());
+  }
+
 }

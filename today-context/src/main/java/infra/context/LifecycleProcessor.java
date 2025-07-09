@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,13 +28,34 @@ package infra.context;
 public interface LifecycleProcessor extends Lifecycle {
 
   /**
-   * Notification of context refresh, e.g. for auto-starting components.
+   * Notification of context refresh for auto-starting components.
+   *
+   * @see ConfigurableApplicationContext#refresh()
    */
-  void onRefresh();
+  default void onRefresh() {
+    start();
+  }
 
   /**
-   * Notification of context close phase, e.g. for auto-stopping components.
+   * Notification of context close phase for auto-stopping components
+   * before destruction.
+   *
+   * @see ConfigurableApplicationContext#close()
    */
-  void onClose();
+  default void onClose() {
+    stop();
+  }
+
+  /**
+   * Notification of context restart for auto-stopping and subsequently
+   * auto-starting components.
+   *
+   * @see ConfigurableApplicationContext#restart()
+   * @since 5.0
+   */
+  default void onRestart() {
+    stop();
+    start();
+  }
 
 }
