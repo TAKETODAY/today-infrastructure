@@ -19,6 +19,9 @@ package infra.util;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.FileSystemException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,11 +31,83 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class ExceptionTypeFilterTests {
 
+  ExceptionTypeFilter filter;
+
   @Test
-  void subClassMatch() {
-    ExceptionTypeFilter filter = new ExceptionTypeFilter(List.of(RuntimeException.class), null);
-    assertThat(filter.match(RuntimeException.class)).isTrue();
-    assertThat(filter.match(IllegalStateException.class)).isTrue();
+  void emptyFilter() {
+    filter = new ExceptionTypeFilter(null, null);
+
+    assertMatches(new Throwable());
+    assertMatches(new Error());
+    assertMatches(new Exception());
+    assertMatches(new RuntimeException());
+  }
+
+  @Test
+  void includes() {
+    filter = new ExceptionTypeFilter(List.of(FileNotFoundException.class, IllegalArgumentException.class), null);
+
+    assertMatches(new FileNotFoundException());
+    assertMatches(new IllegalArgumentException());
+    assertMatches(new NumberFormatException());
+
+    assertDoesNotMatch(new Throwable());
+    assertDoesNotMatch(new FileSystemException("test"));
+  }
+
+  @Test
+  void includesSubtypeMatching() {
+    filter = new ExceptionTypeFilter(List.of(RuntimeException.class), null);
+
+    assertMatches(new RuntimeException());
+    assertMatches(new IllegalStateException());
+
+    assertDoesNotMatch(new Exception());
+  }
+
+  @Test
+  void excludes() {
+    filter = new ExceptionTypeFilter(null, List.of(FileNotFoundException.class, IllegalArgumentException.class));
+
+    assertDoesNotMatch(new FileNotFoundException());
+    assertDoesNotMatch(new IllegalArgumentException());
+
+    assertMatches(new Throwable());
+    assertMatches(new AssertionError());
+    assertMatches(new FileSystemException("test"));
+  }
+
+  @Test
+  void excludesSubtypeMatching() {
+    filter = new ExceptionTypeFilter(null, List.of(IllegalArgumentException.class));
+
+    assertDoesNotMatch(new IllegalArgumentException());
+    assertDoesNotMatch(new NumberFormatException());
+
+    assertMatches(new Throwable());
+  }
+
+  @Test
+  void includesAndExcludes() {
+    filter = new ExceptionTypeFilter(List.of(IOException.class), List.of(FileNotFoundException.class));
+
+    assertMatches(new IOException());
+    assertMatches(new FileSystemException("test"));
+
+    assertDoesNotMatch(new FileNotFoundException());
+    assertDoesNotMatch(new Throwable());
+  }
+
+  private void assertMatches(Throwable candidate) {
+    assertThat(this.filter.match(candidate))
+            .as("filter '" + this.filter + "' should match " + candidate.getClass().getSimpleName())
+            .isTrue();
+  }
+
+  private void assertDoesNotMatch(Throwable candidate) {
+    assertThat(this.filter.match(candidate))
+            .as("filter '" + this.filter + "' should not match " + candidate.getClass().getSimpleName())
+            .isFalse();
   }
 
 }
