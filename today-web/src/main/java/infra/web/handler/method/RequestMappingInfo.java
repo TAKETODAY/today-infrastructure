@@ -547,7 +547,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 
     private BuilderConfiguration options = new BuilderConfiguration();
 
-    private boolean combine;
+    private boolean combine = true;
 
     public DefaultBuilder(String... paths) {
       this.paths = paths;
