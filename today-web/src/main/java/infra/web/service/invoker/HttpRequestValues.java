@@ -17,6 +17,7 @@
 
 package infra.web.service.invoker;
 
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import infra.core.MethodParameter;
 import infra.core.ParameterizedTypeReference;
 import infra.core.io.Resource;
 import infra.http.HttpEntity;
@@ -196,6 +198,9 @@ public class HttpRequestValues {
     return this.version;
   }
 
+  /**
+   * Return a builder for {@link HttpRequestValues}.
+   */
   public static Builder builder() {
     return new Builder();
   }
@@ -230,6 +235,30 @@ public class HttpRequestValues {
      */
     @Nullable
     List<MediaType> getAcceptMediaTypes();
+  }
+
+  /**
+   * A contract that allows further customization of {@link HttpRequestValues}
+   * in addition to those added by argument resolvers.
+   * <p>Use {@link HttpServiceProxyFactory.Builder#httpRequestValuesProcessor(Processor)}
+   * to add such a processor.
+   *
+   * @since 5.0
+   */
+  public interface Processor {
+
+    /**
+     * Invoked after argument resolvers have been called, and before the
+     * {@link HttpRequestValues} is built.
+     *
+     * @param method the {@code @HttpExchange} method
+     * @param parameters provides access to method parameter information
+     * @param arguments the raw argument values to the method
+     * @param builder the builder to add request values too; the builder
+     * also exposes method {@link Metadata} from the {@code HttpExchange} method.
+     */
+    void process(Method method, MethodParameter[] parameters, @Nullable Object[] arguments, Builder builder);
+
   }
 
   /**
@@ -275,6 +304,9 @@ public class HttpRequestValues {
 
     @Nullable
     private Object version;
+
+    protected Builder() {
+    }
 
     /**
      * Set the HTTP method for the request.

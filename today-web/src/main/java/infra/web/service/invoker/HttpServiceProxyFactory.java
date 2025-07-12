@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import infra.aop.ProxyMethodInvocation;
 import infra.aop.framework.ProxyFactory;
 import infra.core.MethodIntrospector;
+import infra.core.MethodParameter;
 import infra.core.ReactiveAdapterRegistry;
 import infra.core.StringValueResolver;
 import infra.core.annotation.MergedAnnotations;
@@ -67,12 +68,17 @@ public final class HttpServiceProxyFactory {
   @Nullable
   private final StringValueResolver embeddedValueResolver;
 
+  private final HttpRequestValues.Processor requestValuesProcessor;
+
   private HttpServiceProxyFactory(HttpExchangeAdapter exchangeAdapter,
-          List<HttpServiceArgumentResolver> argumentResolvers, @Nullable StringValueResolver embeddedValueResolver) {
+          List<HttpServiceArgumentResolver> argumentResolvers,
+          @Nullable StringValueResolver embeddedValueResolver,
+          ArrayList<HttpRequestValues.Processor> requestValuesProcessors) {
 
     this.exchangeAdapter = exchangeAdapter;
     this.argumentResolvers = argumentResolvers;
     this.embeddedValueResolver = embeddedValueResolver;
+    this.requestValuesProcessor = new CompositeHttpRequestValuesProcessor(requestValuesProcessors);
   }
 
   /**
@@ -103,7 +109,7 @@ public final class HttpServiceProxyFactory {
             "No argument resolvers: afterPropertiesSet was not called");
 
     return new HttpServiceMethod(
-            method, serviceType, this.argumentResolvers, this.exchangeAdapter, this.embeddedValueResolver);
+            method, serviceType, this.argumentResolvers, this.exchangeAdapter, this.embeddedValueResolver, requestValuesProcessor);
   }
 
   /**
@@ -146,6 +152,8 @@ public final class HttpServiceProxyFactory {
      */
     @Nullable
     private HttpServiceArgumentResolver fallbackArgumentResolver;
+
+    private final ArrayList<HttpRequestValues.Processor> requestValuesProcessors = new ArrayList<>();
 
     /**
      * Provide the HTTP client to perform requests through.
@@ -204,6 +212,19 @@ public final class HttpServiceProxyFactory {
     }
 
     /**
+     * Register an {@link HttpRequestValues} processor that can further
+     * customize request values based on the method and all arguments.
+     *
+     * @param processor the processor to add
+     * @return this same builder instance
+     * @since 5.0
+     */
+    public Builder httpRequestValuesProcessor(HttpRequestValues.Processor processor) {
+      this.requestValuesProcessors.add(processor);
+      return this;
+    }
+
+    /**
      * Set the {@link StringValueResolver} to use for resolving placeholders
      * and expressions embedded in {@link HttpExchange#url()}.
      *
@@ -254,7 +275,7 @@ public final class HttpServiceProxyFactory {
       Assert.notNull(exchangeAdapter, "HttpClientAdapter is required");
 
       return new HttpServiceProxyFactory(
-              exchangeAdapter, initArgumentResolvers(), embeddedValueResolver);
+              exchangeAdapter, initArgumentResolvers(), embeddedValueResolver, requestValuesProcessors);
     }
 
     /**
@@ -330,6 +351,22 @@ public final class HttpServiceProxyFactory {
         }
       }
       throw new IllegalStateException("Unexpected method invocation: " + method);
+    }
+  }
+
+  /**
+   * Processor that delegates to a list of other processors.
+   */
+  private record CompositeHttpRequestValuesProcessor(List<HttpRequestValues.Processor> processors)
+          implements HttpRequestValues.Processor {
+
+    @Override
+    public void process(Method method, MethodParameter[] parameters, @Nullable Object[] arguments,
+            HttpRequestValues.Builder builder) {
+
+      for (HttpRequestValues.Processor processor : this.processors) {
+        processor.process(method, parameters, arguments, builder);
+      }
     }
   }
 
