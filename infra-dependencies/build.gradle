@@ -27,6 +27,21 @@ javaPlatform {
 
 bom {
   effectiveBomArtifact()
+  library("Angus Mail", "2.0.3") {
+    group("org.eclipse.angus") {
+      modules = [
+          "angus-core",
+          "angus-mail",
+          "dsn",
+          "gimap",
+          "imap",
+          "jakarta.mail",
+          "logging-mailhandler",
+          "pop3",
+          "smtp"
+      ]
+    }
+  }
   library("AspectJ", "1.9.24") {
     group("org.aspectj") {
       modules = [
