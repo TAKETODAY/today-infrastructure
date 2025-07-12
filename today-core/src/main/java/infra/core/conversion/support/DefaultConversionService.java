@@ -82,96 +82,98 @@ public class DefaultConversionService extends GenericConversionService {
   /**
    * Add converters appropriate for most environments.
    *
-   * @param converterRegistry the registry of converters to add to
+   * @param registry the registry of converters to add to
    * (must also be castable to ConversionService, e.g. being a {@link ConfigurableConversionService})
    * @throws ClassCastException if the given ConverterRegistry could not be cast to a ConversionService
    */
-  public static void addDefaultConverters(ConverterRegistry converterRegistry) {
-    addScalarConverters(converterRegistry);
-    addCollectionConverters(converterRegistry);
+  public static void addDefaultConverters(ConverterRegistry registry) {
+    addScalarConverters(registry);
+    addCollectionConverters(registry);
 
-    converterRegistry.addConverter(new ByteBufferConverter((ConversionService) converterRegistry));
-    converterRegistry.addConverter(new StringToTimeZoneConverter());
-    converterRegistry.addConverter(new ZoneIdToTimeZoneConverter());
-    converterRegistry.addConverter(new ZonedDateTimeToCalendarConverter());
+    registry.addConverter(new ByteBufferConverter((ConversionService) registry));
+    registry.addConverter(new DateToInstantConverter());
+    registry.addConverter(new InstantToDateConverter());
+    registry.addConverter(new StringToTimeZoneConverter());
+    registry.addConverter(new ZoneIdToTimeZoneConverter());
+    registry.addConverter(new ZonedDateTimeToCalendarConverter());
 
-    converterRegistry.addConverter(new ObjectToObjectConverter());
-    converterRegistry.addConverter(new IdToEntityConverter((ConversionService) converterRegistry));
-    converterRegistry.addConverter(new FallbackObjectToStringConverter());
-    converterRegistry.addConverter(new ObjectToOptionalConverter((ConversionService) converterRegistry));
-    converterRegistry.addConverter(new OptionalToObjectConverter((ConversionService) converterRegistry));
+    registry.addConverter(new ObjectToObjectConverter());
+    registry.addConverter(new IdToEntityConverter((ConversionService) registry));
+    registry.addConverter(new FallbackObjectToStringConverter());
+    registry.addConverter(new ObjectToOptionalConverter((ConversionService) registry));
+    registry.addConverter(new OptionalToObjectConverter((ConversionService) registry));
   }
 
   /**
    * Add common collection converters.
    *
-   * @param converterRegistry the registry of converters to add to
+   * @param registry the registry of converters to add to
    * (must also be castable to ConversionService, e.g. being a {@link ConfigurableConversionService})
    * @throws ClassCastException if the given ConverterRegistry could not be cast to a ConversionService
    */
-  public static void addCollectionConverters(ConverterRegistry converterRegistry) {
-    ConversionService conversionService = (ConversionService) converterRegistry;
+  public static void addCollectionConverters(ConverterRegistry registry) {
+    ConversionService conversionService = (ConversionService) registry;
 
-    converterRegistry.addConverter(new ArrayToCollectionConverter(conversionService));
-    converterRegistry.addConverter(new CollectionToArrayConverter(conversionService));
+    registry.addConverter(new ArrayToCollectionConverter(conversionService));
+    registry.addConverter(new CollectionToArrayConverter(conversionService));
 
-    converterRegistry.addConverter(new ArrayToArrayConverter(conversionService));
-    converterRegistry.addConverter(new CollectionToCollectionConverter(conversionService));
-    converterRegistry.addConverter(new MapToMapConverter(conversionService));
+    registry.addConverter(new ArrayToArrayConverter(conversionService));
+    registry.addConverter(new CollectionToCollectionConverter(conversionService));
+    registry.addConverter(new MapToMapConverter(conversionService));
 
-    converterRegistry.addConverter(new ArrayToStringConverter(conversionService));
-    converterRegistry.addConverter(new StringToArrayConverter(conversionService));
+    registry.addConverter(new ArrayToStringConverter(conversionService));
+    registry.addConverter(new StringToArrayConverter(conversionService));
 
-    converterRegistry.addConverter(new ArrayToObjectConverter(conversionService));
-    converterRegistry.addConverter(new ObjectToArrayConverter(conversionService));
+    registry.addConverter(new ArrayToObjectConverter(conversionService));
+    registry.addConverter(new ObjectToArrayConverter(conversionService));
 
-    converterRegistry.addConverter(new CollectionToStringConverter(conversionService));
-    converterRegistry.addConverter(new StringToCollectionConverter(conversionService));
+    registry.addConverter(new CollectionToStringConverter(conversionService));
+    registry.addConverter(new StringToCollectionConverter(conversionService));
 
-    converterRegistry.addConverter(new CollectionToObjectConverter(conversionService));
-    converterRegistry.addConverter(new ObjectToCollectionConverter(conversionService));
+    registry.addConverter(new CollectionToObjectConverter(conversionService));
+    registry.addConverter(new ObjectToCollectionConverter(conversionService));
 
-    converterRegistry.addConverter(new StreamConverter(conversionService));
+    registry.addConverter(new StreamConverter(conversionService));
   }
 
-  private static void addScalarConverters(ConverterRegistry converterRegistry) {
-    converterRegistry.addConverterFactory(new NumberToNumberConverterFactory());
+  private static void addScalarConverters(ConverterRegistry registry) {
+    registry.addConverterFactory(new NumberToNumberConverterFactory());
 
-    converterRegistry.addConverterFactory(new StringToNumberConverterFactory());
-    converterRegistry.addConverter(Number.class, String.class, new ObjectToStringConverter());
+    registry.addConverterFactory(new StringToNumberConverterFactory());
+    registry.addConverter(Number.class, String.class, new ObjectToStringConverter());
 
-    converterRegistry.addConverter(new StringToCharacterConverter());
-    converterRegistry.addConverter(Character.class, String.class, new ObjectToStringConverter());
+    registry.addConverter(new StringToCharacterConverter());
+    registry.addConverter(Character.class, String.class, new ObjectToStringConverter());
 
-    converterRegistry.addConverter(new NumberToCharacterConverter());
-    converterRegistry.addConverterFactory(new CharacterToNumberFactory());
+    registry.addConverter(new NumberToCharacterConverter());
+    registry.addConverterFactory(new CharacterToNumberFactory());
 
-    converterRegistry.addConverter(new StringToBooleanConverter());
-    converterRegistry.addConverter(Boolean.class, String.class, new ObjectToStringConverter());
+    registry.addConverter(new StringToBooleanConverter());
+    registry.addConverter(Boolean.class, String.class, new ObjectToStringConverter());
 
-    converterRegistry.addConverterFactory(new StringToEnumConverterFactory());
-    converterRegistry.addConverter(new EnumToStringConverter((ConversionService) converterRegistry));
+    registry.addConverterFactory(new StringToEnumConverterFactory());
+    registry.addConverter(new EnumToStringConverter((ConversionService) registry));
 
-    converterRegistry.addConverterFactory(new IntegerToEnumConverterFactory());
-    converterRegistry.addConverter(new EnumToIntegerConverter((ConversionService) converterRegistry));
+    registry.addConverterFactory(new IntegerToEnumConverterFactory());
+    registry.addConverter(new EnumToIntegerConverter((ConversionService) registry));
 
-    converterRegistry.addConverter(new StringToLocaleConverter());
-    converterRegistry.addConverter(Locale.class, String.class, new ObjectToStringConverter());
+    registry.addConverter(new StringToLocaleConverter());
+    registry.addConverter(Locale.class, String.class, new ObjectToStringConverter());
 
-    converterRegistry.addConverter(new StringToCharsetConverter());
-    converterRegistry.addConverter(Charset.class, String.class, new ObjectToStringConverter());
+    registry.addConverter(new StringToCharsetConverter());
+    registry.addConverter(Charset.class, String.class, new ObjectToStringConverter());
 
-    converterRegistry.addConverter(new StringToCurrencyConverter());
-    converterRegistry.addConverter(Currency.class, String.class, new ObjectToStringConverter());
+    registry.addConverter(new StringToCurrencyConverter());
+    registry.addConverter(Currency.class, String.class, new ObjectToStringConverter());
 
-    converterRegistry.addConverter(new StringToPropertiesConverter());
-    converterRegistry.addConverter(new PropertiesToStringConverter());
+    registry.addConverter(new StringToPropertiesConverter());
+    registry.addConverter(new PropertiesToStringConverter());
 
-    converterRegistry.addConverter(new StringToUUIDConverter());
-    converterRegistry.addConverter(UUID.class, String.class, new ObjectToStringConverter());
+    registry.addConverter(new StringToUUIDConverter());
+    registry.addConverter(UUID.class, String.class, new ObjectToStringConverter());
 
-    converterRegistry.addConverter(new StringToPatternConverter());
-    converterRegistry.addConverter(Pattern.class, String.class, new ObjectToStringConverter());
+    registry.addConverter(new StringToPatternConverter());
+    registry.addConverter(Pattern.class, String.class, new ObjectToStringConverter());
   }
 
 }
