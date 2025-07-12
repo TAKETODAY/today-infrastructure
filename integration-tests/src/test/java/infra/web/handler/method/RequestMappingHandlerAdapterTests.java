@@ -56,6 +56,7 @@ import infra.web.RedirectModelManager;
 import infra.web.RequestContext;
 import infra.web.annotation.ControllerAdvice;
 import infra.web.annotation.RequestBody;
+import infra.web.annotation.RequestParam;
 import infra.web.annotation.ResponseBody;
 import infra.web.bind.annotation.ModelAttribute;
 import infra.web.bind.resolver.HttpEntityMethodProcessor;
@@ -64,6 +65,7 @@ import infra.web.bind.resolver.RequestResponseBodyAdviceChain;
 import infra.web.bind.resolver.RequestResponseBodyMethodProcessor;
 import infra.web.bind.support.WebBindingInitializer;
 import infra.web.config.annotation.EnableWebMvc;
+import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.support.StaticWebApplicationContext;
 import infra.web.testfixture.ReflectionTestUtils;
@@ -113,7 +115,7 @@ class RequestMappingHandlerAdapterTests {
     this.request = new HttpMockRequestImpl("GET", "/");
     this.response = new MockHttpResponseImpl();
 
-    context = new MockRequestContext(null, request, response);
+    context = new MockRequestContext(webAppContext, request, response);
   }
 
   @EnableWebMvc
@@ -131,6 +133,24 @@ class RequestMappingHandlerAdapterTests {
     this.handlerAdapter.handle(context, handlerMethod);
     context.flush();
     assertThat(response.getHeader("Cache-Control")).contains("max-age");
+  }
+
+  @Test
+  void responseEntityWithWildCardAndConditionalStream() throws Throwable {
+    HandlerMethod handlerMethod = handlerMethod(new SseController(), "handle", String.class);
+    this.handlerAdapter.afterPropertiesSet();
+
+    this.request.setAsyncSupported(true);
+    this.request.addParameter("q", "sse");
+
+    Object result = this.handlerAdapter.handle(context, handlerMethod);
+
+    webAppContext.getBean(ReturnValueHandlerManager.class)
+            .handleReturnValue(context, handlerMethod, result);
+
+    assertThat(this.response.getStatus()).isEqualTo(200);
+    assertThat(this.response.getHeader("Content-Type")).isEqualTo("text/event-stream");
+    assertThat(this.response.getContentAsString()).isEqualTo("data:event 1\n\ndata:event 2\n\n");
   }
 
   @Test
@@ -476,4 +496,18 @@ class RequestMappingHandlerAdapterTests {
     }
   }
 
+  private static class SseController {
+
+    public ResponseEntity<?> handle(@RequestParam String q) throws IOException {
+      if (q.equals("sse")) {
+        SseEmitter emitter = new SseEmitter();
+        emitter.send("event 1");
+        emitter.send("event 2");
+        emitter.complete();
+        return ResponseEntity.ok().body(emitter);
+      }
+      return ResponseEntity.ok("text");
+    }
+
+  }
 }

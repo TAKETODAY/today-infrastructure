@@ -54,8 +54,7 @@ import infra.logging.LoggerFactory;
  * @see AbstractBeanFactory
  * @since 4.0 2021/12/13 22:24
  */
-public abstract class AbstractBeanFactoryTargetSourceCreator
-        implements TargetSourceCreator, BeanFactoryAware, DisposableBean {
+public abstract class AbstractBeanFactoryTargetSourceCreator implements TargetSourceCreator, BeanFactoryAware, DisposableBean {
 
   private static final Logger log = LoggerFactory.getLogger(AbstractBeanFactoryTargetSourceCreator.class);
 
@@ -87,14 +86,13 @@ public abstract class AbstractBeanFactoryTargetSourceCreator
   @Override
   @Nullable
   public final TargetSource getTargetSource(Class<?> beanClass, String beanName) {
-    AbstractBeanFactoryTargetSource targetSource =
-            createBeanFactoryTargetSource(beanClass, beanName);
+    AbstractBeanFactoryTargetSource targetSource = createBeanFactoryTargetSource(beanClass, beanName);
     if (targetSource == null) {
       return null;
     }
 
     if (log.isDebugEnabled()) {
-      log.debug("Configuring AbstractBeanFactoryBasedTargetSource: {}", targetSource);
+      log.debug("Configuring AbstractBeanFactoryTargetSource: {}", targetSource);
     }
 
     StandardBeanFactory internalBeanFactory = getInternalBeanFactoryForBean(beanName);

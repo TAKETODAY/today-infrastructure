@@ -22,6 +22,7 @@ import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.CompilationCustomizer;
 
 import java.io.IOException;
+import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.InvocationTargetException;
 
 import groovy.lang.GroovyClassLoader;
@@ -346,7 +347,7 @@ public class GroovyScriptFactory implements ScriptFactory, BeanFactoryAware, Bea
       throw new ScriptCompilationException(
               scriptSource, "Unable to instantiate Groovy script class: " + scriptClass.getName(), ex);
     }
-    catch (IllegalAccessException ex) {
+    catch (IllegalAccessException | InaccessibleObjectException ex) {
       throw new ScriptCompilationException(
               scriptSource, "Could not access Groovy script constructor: " + scriptClass.getName(), ex);
     }

@@ -153,6 +153,26 @@ public abstract class TransactionSynchronizationManager {
     return getSynchronizationInfo().unbindResourceIfPossible(key);
   }
 
+  /**
+   * Bind the given resource for the given key to the current thread,
+   * synchronizing it with the current transaction for automatic unbinding
+   * after transaction completion.
+   * <p>This is effectively a programmatic way to register a transaction-scoped
+   * resource, similar to the BeanFactory-driven {@link SimpleTransactionScope}.
+   * <p>An existing value bound for the given key will be preserved and re-bound
+   * after transaction completion, restoring the state before this bind call.
+   *
+   * @param key the key to bind the value to (usually the resource factory)
+   * @param value the value to bind (usually the active resource object)
+   * @throws IllegalStateException if transaction synchronization is not active
+   * @see #bindResource
+   * @see #registerSynchronization
+   * @since 5.0
+   */
+  public static void bindSynchronizedResource(Object key, Object value) throws IllegalStateException {
+    getSynchronizationInfo().bindSynchronizedResource(key, value);
+  }
+
   //-------------------------------------------------------------------------
   // Management of transaction synchronizations
   //-------------------------------------------------------------------------

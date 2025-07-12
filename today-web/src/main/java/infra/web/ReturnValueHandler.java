@@ -17,8 +17,6 @@
 
 package infra.web;
 
-import java.util.List;
-
 import infra.lang.Nullable;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
@@ -144,7 +142,7 @@ public interface ReturnValueHandler {
    *
    * @see HttpRequestHandler#NONE_RETURN_VALUE
    * @see ReturnValueHandler#supportsReturnValue(Object)
-   * @see ReturnValueHandler#select(List, Object, Object)
+   * @see ReturnValueHandler#select(Iterable, Object, Object)
    */
   Object NONE_RETURN_VALUE = HttpRequestHandler.NONE_RETURN_VALUE;
 
@@ -234,14 +232,14 @@ public interface ReturnValueHandler {
    * In this example, the method will attempt to find a handler that supports both the
    * {@code MyHandler} instance and the string return value.
    *
-   * @param handlers the list of {@link ReturnValueHandler} candidates to evaluate; must not be null
+   * @param handlers the Iterable of {@link ReturnValueHandler} candidates to evaluate; must not be null
    * @param handler the target handler to be checked for support; may be null
    * @param returnValue the return value to be checked for support; may be null
    * @return the first {@link ReturnValueHandler} that matches the criteria, or {@code null}
    * if no suitable handler is found
    */
   @Nullable
-  static ReturnValueHandler select(List<ReturnValueHandler> handlers,
+  static ReturnValueHandler select(Iterable<ReturnValueHandler> handlers,
           @Nullable Object handler, @Nullable Object returnValue) {
     if (returnValue != NONE_RETURN_VALUE) {
       if (handler != null) {

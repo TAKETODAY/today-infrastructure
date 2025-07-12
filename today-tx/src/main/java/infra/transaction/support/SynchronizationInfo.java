@@ -146,30 +146,25 @@ public class SynchronizationInfo implements Serializable {
    * @see ResourceTransactionManager#getResourceFactory()
    */
   public void bindResource(Object key, Object value) throws IllegalStateException {
-    Assert.notNull(value, "Value is required");
     Object actualKey = TransactionSynchronizationUtils.unwrapResourceIfNecessary(key);
-    Map<Object, Object> map = resourceMap;
-    if (map == null) {
-      resourceMap = map = new HashMap<>(8);
-    }
-    Object oldValue = map.put(actualKey, value);
-    // Transparently suppress a ResourceHolder that was marked as void...
-    if (oldValue instanceof ResourceHolder && ((ResourceHolder) oldValue).isVoid()) {
-      oldValue = null;
-    }
+    Object oldValue = doBindResource(actualKey, value);
     if (oldValue != null) {
-      throw new IllegalStateException("Already value [%s] for key [%s] bound to thread [%s]"
-              .formatted(oldValue, actualKey, Thread.currentThread().getName()));
+      throw new IllegalStateException(
+              "Already value [%s] for key [%s] bound to thread".formatted(oldValue, actualKey));
     }
   }
 
   /**
    * Unbind a resource for the given key from the current thread.
+   * <p>This explicit step is only necessary with {@link #bindResource}.
+   * For automatic unbinding, consider {@link #bindSynchronizedResource}.
    *
    * @param key the key to unbind (usually the resource factory)
    * @return the previously bound value (usually the active resource object)
    * @throws IllegalStateException if there is no value bound to the thread
    * @see ResourceTransactionManager#getResourceFactory()
+   * @see #bindResource
+   * @see #unbindResourceIfPossible
    */
   public Object unbindResource(Object key) {
     Object actualKey = TransactionSynchronizationUtils.unwrapResourceIfNecessary(key);
@@ -190,6 +185,74 @@ public class SynchronizationInfo implements Serializable {
   public Object unbindResourceIfPossible(Object key) {
     Object actualKey = TransactionSynchronizationUtils.unwrapResourceIfNecessary(key);
     return doUnbindResource(actualKey);
+  }
+
+  /**
+   * Bind the given resource for the given key to the current thread,
+   * synchronizing it with the current transaction for automatic unbinding
+   * after transaction completion.
+   * <p>This is effectively a programmatic way to register a transaction-scoped
+   * resource, similar to the BeanFactory-driven {@link SimpleTransactionScope}.
+   * <p>An existing value bound for the given key will be preserved and re-bound
+   * after transaction completion, restoring the state before this bind call.
+   *
+   * @param key the key to bind the value to (usually the resource factory)
+   * @param value the value to bind (usually the active resource object)
+   * @throws IllegalStateException if transaction synchronization is not active
+   * @see #bindResource
+   * @see #registerSynchronization
+   * @since 5.0
+   */
+  public void bindSynchronizedResource(Object key, Object value) throws IllegalStateException {
+    Set<TransactionSynchronization> synchs = synchronizations;
+    if (synchs == null) {
+      throw new IllegalStateException("Transaction synchronization is not active");
+    }
+    Object actualKey = TransactionSynchronizationUtils.unwrapResourceIfNecessary(key);
+    Object oldValue = doBindResource(actualKey, value);
+    synchs.add(new TransactionSynchronization() {
+
+      @Override
+      public void suspend() {
+        doUnbindResource(actualKey);
+      }
+
+      @Override
+      public void resume() {
+        Object existingValue = doBindResource(actualKey, value);
+        if (existingValue != null) {
+          throw new IllegalStateException(
+                  "Unexpected value [%s] for key [%s] bound on resume".formatted(existingValue, actualKey));
+        }
+      }
+
+      @Override
+      public void afterCompletion(int status) {
+        doUnbindResource(actualKey);
+        if (oldValue != null) {
+          doBindResource(actualKey, oldValue);
+        }
+      }
+    });
+  }
+
+  /**
+   * Actually bind the given resource for the given key to the current thread.
+   */
+  @Nullable
+  private Object doBindResource(Object actualKey, Object value) {
+    Assert.notNull(value, "Value is required");
+    Map<Object, Object> map = resourceMap;
+    if (map == null) {
+      map = new HashMap<>(8);
+      resourceMap = map;
+    }
+    Object oldValue = map.put(actualKey, value);
+    // Transparently suppress a ResourceHolder that was marked as void...
+    if (oldValue instanceof ResourceHolder resourceHolder && resourceHolder.isVoid()) {
+      oldValue = null;
+    }
+    return oldValue;
   }
 
   /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
+import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -111,7 +112,7 @@ abstract class ScheduledAnnotationReactiveSupport {
       // If Reactor is on the classpath, we could benefit from having a checkpoint for debuggability
       if (ReactiveStreams.reactorPresent) {
         return Flux.from(publisher)
-                .checkpoint("@Scheduled '" + method.getName() + "()' in '" + method.getDeclaringClass().getName() + "'");
+                .checkpoint("@Scheduled '%s()' in '%s'".formatted(method.getName(), method.getDeclaringClass().getName()));
       }
       else {
         return publisher;
@@ -122,7 +123,7 @@ abstract class ScheduledAnnotationReactiveSupport {
               "Cannot obtain a Publisher-convertible value from the @Scheduled reactive method",
               ex.getTargetException());
     }
-    catch (IllegalAccessException ex) {
+    catch (IllegalAccessException | InaccessibleObjectException ex) {
       throw new IllegalArgumentException(
               "Cannot obtain a Publisher-convertible value from the @Scheduled reactive method", ex);
     }

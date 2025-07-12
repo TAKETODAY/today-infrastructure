@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +19,12 @@ package infra.web.handler;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Spliterator;
 import java.util.concurrent.Callable;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import infra.context.support.ApplicationObjectSupport;
@@ -49,6 +52,7 @@ import infra.web.handler.method.ModelAttributeMethodProcessor;
 import infra.web.handler.method.RequestBodyAdvice;
 import infra.web.handler.method.ResponseBodyAdvice;
 import infra.web.handler.method.ResponseBodyEmitterReturnValueHandler;
+import infra.web.handler.method.ResponseEntityReturnValueHandler;
 import infra.web.handler.result.AsyncTaskMethodReturnValueHandler;
 import infra.web.handler.result.CallableMethodReturnValueHandler;
 import infra.web.handler.result.DeferredResultReturnValueHandler;
@@ -56,7 +60,6 @@ import infra.web.handler.result.HttpHeadersReturnValueHandler;
 import infra.web.handler.result.HttpStatusReturnValueHandler;
 import infra.web.handler.result.ObjectHandlerMethodReturnValueHandler;
 import infra.web.handler.result.RenderedImageReturnValueHandler;
-import infra.web.handler.result.SmartReturnValueHandler;
 import infra.web.handler.result.StreamingResponseBodyReturnValueHandler;
 import infra.web.handler.result.VoidReturnValueHandler;
 import infra.web.view.BeanNameViewResolver;
@@ -68,7 +71,7 @@ import infra.web.view.ViewReturnValueHandler;
  *
  * @author TODAY 2019-12-28 13:47
  */
-public class ReturnValueHandlerManager extends ApplicationObjectSupport implements ArraySizeTrimmer, ReturnValueHandler {
+public class ReturnValueHandlerManager extends ApplicationObjectSupport implements ArraySizeTrimmer, ReturnValueHandler, Iterable<ReturnValueHandler> {
 
   private final ArrayList<ReturnValueHandler> handlers = new ArrayList<>(8);
 
@@ -81,6 +84,7 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   @Nullable
   private RedirectModelManager redirectModelManager;
 
+  @Nullable
   private ViewReturnValueHandler viewReturnValueHandler;
 
   @Nullable
@@ -124,9 +128,8 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
    * return values from controller methods.
    */
   public void setReactiveAdapterRegistry(@Nullable ReactiveAdapterRegistry reactiveAdapterRegistry) {
-    this.reactiveAdapterRegistry =
-            reactiveAdapterRegistry == null
-                    ? ReactiveAdapterRegistry.getSharedInstance() : reactiveAdapterRegistry;
+    this.reactiveAdapterRegistry = reactiveAdapterRegistry == null
+            ? ReactiveAdapterRegistry.getSharedInstance() : reactiveAdapterRegistry;
   }
 
   /**
@@ -150,6 +153,21 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
     Assert.notNull(handlers, "ReturnValueHandler is required");
     this.handlers.clear();
     this.handlers.addAll(handlers);
+  }
+
+  @Override
+  public Iterator<ReturnValueHandler> iterator() {
+    return handlers.iterator();
+  }
+
+  @Override
+  public void forEach(Consumer<? super ReturnValueHandler> action) {
+    handlers.forEach(action);
+  }
+
+  @Override
+  public Spliterator<ReturnValueHandler> spliterator() {
+    return handlers.spliterator();
   }
 
   public List<ReturnValueHandler> getHandlers() {
@@ -188,76 +206,7 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
 
   @Nullable
   public ReturnValueHandler getHandler(final Object handler) {
-    Assert.notNull(handler, "handler is required");
-    for (ReturnValueHandler resolver : getHandlers()) {
-      if (resolver.supportsHandler(handler)) {
-        return resolver;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * search by {@code returnValue}
-   *
-   * @param returnValue returnValue
-   * @return {@code ReturnValueHandler} maybe null
-   */
-  // @since 4.0
-  @Nullable
-  public ReturnValueHandler getByReturnValue(@Nullable Object returnValue) {
-    for (ReturnValueHandler resolver : getHandlers()) {
-      if (resolver.supportsReturnValue(returnValue)) {
-        return resolver;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Get correspond view resolver, If there isn't a suitable resolver will be
-   * throws {@link ReturnValueHandlerNotFoundException}
-   *
-   * @return A suitable {@link ReturnValueHandler}
-   */
-  public ReturnValueHandler obtainHandler(Object handler) {
-    ReturnValueHandler returnValueHandler = getHandler(handler);
-    if (returnValueHandler == null) {
-      throw new ReturnValueHandlerNotFoundException(handler);
-    }
-    return returnValueHandler;
-  }
-
-  @Nullable
-  public ReturnValueHandler findHandler(Object handler, @Nullable Object returnValue) {
-    for (ReturnValueHandler returnValueHandler : getHandlers()) {
-      if (returnValueHandler instanceof SmartReturnValueHandler smartHandler) {
-        if (smartHandler.supportsHandler(handler, returnValue)) {
-          return returnValueHandler;
-        }
-      }
-      else {
-        if (returnValueHandler.supportsHandler(handler)
-                || returnValueHandler.supportsReturnValue(returnValue)) {
-          return returnValueHandler;
-        }
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Get correspond view resolver, If there isn't a suitable resolver will be
-   * throws {@link ReturnValueHandlerNotFoundException}
-   *
-   * @return A suitable {@link ReturnValueHandler}
-   */
-  public ReturnValueHandler obtainHandler(Object handler, @Nullable Object returnValue) {
-    ReturnValueHandler returnValueHandler = findHandler(handler, returnValue);
-    if (returnValueHandler == null) {
-      throw new ReturnValueHandlerNotFoundException(handler);
-    }
-    return returnValueHandler;
+    return ReturnValueHandler.select(getHandlers(), handler, null);
   }
 
   /**
@@ -281,8 +230,7 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
    * @throws Exception throws when write data to response
    */
   @Override
-  public void handleReturnValue(RequestContext context,
-          @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     delegate.handleReturnValue(context, handler, returnValue);
   }
 
@@ -337,15 +285,20 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
 
     List<HttpMessageConverter<?>> messageConverters = getMessageConverters();
 
+    HttpEntityMethodProcessor httpEntityMethodProcessor = new HttpEntityMethodProcessor(messageConverters,
+            contentNegotiationManager, bodyAdvice, redirectModelManager, errorResponseInterceptors);
+
+    ResponseBodyEmitterReturnValueHandler responseBodyEmitterHandler;
     if (taskExecutor != null) {
-      handlers.add(new ResponseBodyEmitterReturnValueHandler(
-              messageConverters, reactiveAdapterRegistry, taskExecutor, contentNegotiationManager));
+      responseBodyEmitterHandler = new ResponseBodyEmitterReturnValueHandler(
+              messageConverters, reactiveAdapterRegistry, taskExecutor, contentNegotiationManager);
     }
     else {
-      handlers.add(new ResponseBodyEmitterReturnValueHandler(messageConverters, contentNegotiationManager));
+      responseBodyEmitterHandler = new ResponseBodyEmitterReturnValueHandler(messageConverters, contentNegotiationManager);
     }
 
-    handlers.add(new HttpEntityMethodProcessor(messageConverters, contentNegotiationManager, bodyAdvice, redirectModelManager, errorResponseInterceptors));
+    handlers.add(responseBodyEmitterHandler);
+    handlers.add(new ResponseEntityReturnValueHandler(httpEntityMethodProcessor, responseBodyEmitterHandler));
     handlers.add(new RequestResponseBodyMethodProcessor(messageConverters, contentNegotiationManager, bodyAdvice, errorResponseInterceptors));
     handlers.add(new ModelAttributeMethodProcessor(true));
 
@@ -479,7 +432,8 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
    * @since 4.0
    */
   public void setContentNegotiationManager(@Nullable ContentNegotiationManager contentNegotiationManager) {
-    this.contentNegotiationManager = contentNegotiationManager;
+    this.contentNegotiationManager = contentNegotiationManager == null
+            ? new ContentNegotiationManager() : contentNegotiationManager;
   }
 
   /**

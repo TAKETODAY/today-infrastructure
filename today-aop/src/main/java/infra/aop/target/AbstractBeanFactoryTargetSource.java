@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,8 @@ import infra.aop.TargetSource;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.NoSuchBeanDefinitionException;
+import infra.lang.Assert;
+import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
@@ -50,23 +52,26 @@ import infra.logging.LoggerFactory;
  * @see ThreadLocalTargetSource
  * @since 3.0
  */
-public abstract class AbstractBeanFactoryTargetSource
-        implements TargetSource, BeanFactoryAware, Serializable {
+public abstract class AbstractBeanFactoryTargetSource implements TargetSource, BeanFactoryAware, Serializable {
+
   @Serial
   private static final long serialVersionUID = 1L;
 
   protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
   /** Name of the target bean we will create on each invocation. */
-  private String targetBeanName;
+  @Nullable
+  protected String targetBeanName;
 
   /** Class of the target. */
+  @Nullable
   private volatile Class<?> targetClass;
 
   /**
    * BeanFactory that owns this TargetSource. We need to hold onto this reference
    * so that we can create new prototype instances as necessary.
    */
+  @Nullable
   private BeanFactory beanFactory;
 
   /**
@@ -88,6 +93,7 @@ public abstract class AbstractBeanFactoryTargetSource
    * Return the name of the target bean in the factory.
    */
   public String getTargetBeanName() {
+    Assert.state(targetBeanName != null, "Target bean name not set");
     return targetBeanName;
   }
 
@@ -118,6 +124,7 @@ public abstract class AbstractBeanFactoryTargetSource
    * Return the owning BeanFactory.
    */
   public BeanFactory getBeanFactory() {
+    Assert.state(this.beanFactory != null, "BeanFactory not set");
     return this.beanFactory;
   }
 
@@ -130,7 +137,7 @@ public abstract class AbstractBeanFactoryTargetSource
     synchronized(this) {
       // Full check within synchronization, entering the BeanFactory interaction algorithm only once...
       targetClass = this.targetClass;
-      if (targetClass == null && beanFactory != null) {
+      if (targetClass == null && beanFactory != null && targetBeanName != null) {
         // Determine type of the target bean.
         targetClass = beanFactory.getType(targetBeanName);
         if (targetClass == null) {

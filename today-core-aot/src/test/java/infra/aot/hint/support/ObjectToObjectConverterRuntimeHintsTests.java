@@ -21,14 +21,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
+import java.time.Instant;
 import java.time.LocalDate;
 
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
-import infra.aot.hint.predicate.RuntimeHintsPredicates;
 import infra.lang.TodayStrategies;
 import infra.util.ClassUtils;
 
+import static infra.aot.hint.predicate.RuntimeHintsPredicates.reflection;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -38,25 +39,30 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class ObjectToObjectConverterRuntimeHintsTests {
 
-  private RuntimeHints hints;
+  private final RuntimeHints hints = new RuntimeHints();
 
   @BeforeEach
   void setup() {
-    this.hints = new RuntimeHints();
+    ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
     TodayStrategies.forResourceLocation("META-INF/config/aot.factories")
-            .load(RuntimeHintsRegistrar.class).forEach(registrar -> registrar
-                    .registerHints(this.hints, ClassUtils.getDefaultClassLoader()));
+            .load(RuntimeHintsRegistrar.class)
+            .forEach(registrar -> registrar.registerHints(this.hints, classLoader));
   }
 
   @Test
   void javaSqlDateHasHints() throws NoSuchMethodException {
-    assertThat(RuntimeHintsPredicates.reflection().onMethodInvocation(java.sql.Date.class, "toLocalDate")).accepts(this.hints);
-    assertThat(RuntimeHintsPredicates.reflection().onMethodInvocation(java.sql.Date.class.getMethod("valueOf", LocalDate.class))).accepts(this.hints);
+    assertThat(reflection().onMethodInvocation(java.sql.Date.class, "toLocalDate")).accepts(this.hints);
+    assertThat(reflection().onMethodInvocation(java.sql.Date.class.getMethod("valueOf", LocalDate.class))).accepts(this.hints);
   }
 
   @Test
-  void uriHasHints() throws NoSuchMethodException {
-    assertThat(RuntimeHintsPredicates.reflection().onConstructorInvocation(URI.class.getConstructor(String.class))).accepts(this.hints);
+  void javaSqlTimestampHasHints() throws NoSuchMethodException {
+    assertThat(reflection().onMethodInvocation(java.sql.Timestamp.class.getMethod("from", Instant.class))).accepts(this.hints);
+  }
+
+  @Test
+  void uriHasHints() {
+    assertThat(reflection().onType(URI.class)).accepts(this.hints);
   }
 
 }

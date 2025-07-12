@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.beans.factory.support;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.function.Supplier;
@@ -129,7 +130,7 @@ public class InstantiationStrategy {
    * Instantiation should use a no-arg constructor.
    */
   protected Object instantiateWithMethodInjection(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
-    throw new UnsupportedOperationException("Method Injection not supported in SimpleInstantiationStrategy");
+    throw new UnsupportedOperationException("Method Injection not supported in InstantiationStrategy");
   }
 
   /**
@@ -165,7 +166,7 @@ public class InstantiationStrategy {
   protected Object instantiateWithMethodInjection(RootBeanDefinition bd,
           @Nullable String beanName, BeanFactory owner, @Nullable Constructor<?> ctor, Object... args) {
 
-    throw new UnsupportedOperationException("Method Injection not supported in SimpleInstantiationStrategy");
+    throw new UnsupportedOperationException("Method Injection not supported in InstantiationStrategy");
   }
 
   /**
@@ -203,7 +204,7 @@ public class InstantiationStrategy {
                 "Illegal arguments to factory method '" + factoryMethod.getName() + "'; " +
                         "args: " + StringUtils.arrayToCommaDelimitedString(args), ex);
       }
-      catch (IllegalAccessException ex) {
+      catch (IllegalAccessException | InaccessibleObjectException ex) {
         throw new BeanInstantiationException(factoryMethod,
                 "Cannot access factory method '" + factoryMethod.getName() + "'; is it public?", ex);
       }
