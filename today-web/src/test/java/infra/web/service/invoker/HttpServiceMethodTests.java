@@ -230,6 +230,18 @@ class HttpServiceMethodTests {
   }
 
   @Test
+  void httpRequestValuesProcessor() {
+    HttpServiceProxyFactory.builder()
+            .exchangeAdapter(this.client)
+            .httpRequestValuesProcessor((m, p, a, builder) -> builder.addAttribute("foo", "a"))
+            .build()
+            .createClient(Service.class)
+            .execute();
+
+    assertThat(this.client.getRequestValues().getAttributes().get("foo")).isEqualTo("a");
+  }
+
+  @Test
   void multipleAnnotationsAtClassLevel() {
     Class<?> serviceInterface = MultipleClassLevelAnnotationsService.class;
 

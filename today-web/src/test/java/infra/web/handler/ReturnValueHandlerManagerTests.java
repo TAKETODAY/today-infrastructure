@@ -31,6 +31,7 @@ import infra.web.accept.ContentNegotiationManager;
 import infra.web.bind.resolver.HttpEntityMethodProcessor;
 import infra.web.bind.resolver.RequestResponseBodyMethodProcessor;
 import infra.web.handler.method.HandlerMethod;
+import infra.web.handler.method.ResponseEntityReturnValueHandler;
 import infra.web.handler.result.HttpHeadersReturnValueHandler;
 import infra.web.handler.result.HttpStatusReturnValueHandler;
 import infra.web.handler.result.ObjectHandlerMethodReturnValueHandler;
@@ -195,7 +196,8 @@ class ReturnValueHandlerManagerTests {
 
     assertThat(manager.contains(ObjectHandlerMethodReturnValueHandler.class)).isTrue();
     assertThat(manager.contains(VoidReturnValueHandler.class)).isTrue();
-    assertThat(manager.contains(HttpEntityMethodProcessor.class)).isTrue();
+    assertThat(manager.contains(HttpEntityMethodProcessor.class)).isFalse();
+    assertThat(manager.contains(ResponseEntityReturnValueHandler.class)).isTrue();
     assertThat(manager.contains(RequestResponseBodyMethodProcessor.class)).isTrue();
     assertThat(manager.contains(RequestResponseBodyMethodProcessor.class)).isTrue();
 

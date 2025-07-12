@@ -68,12 +68,15 @@ final class HttpServiceMethod {
 
   private final ResponseFunction responseFunction;
 
+  private final HttpRequestValues.Processor requestValuesProcessor;
+
   HttpServiceMethod(Method method, Class<?> containingClass, List<HttpServiceArgumentResolver> argumentResolvers,
-          HttpExchangeAdapter adapter, @Nullable StringValueResolver embeddedValueResolver) {
+          HttpExchangeAdapter adapter, @Nullable StringValueResolver embeddedValueResolver, HttpRequestValues.Processor requestValuesProcessor) {
 
     this.method = method;
     this.parameters = initMethodParameters(method);
     this.argumentResolvers = argumentResolvers;
+    this.requestValuesProcessor = requestValuesProcessor;
 
     boolean isReactorAdapter = ReactiveStreams.reactorPresent && adapter instanceof ReactorHttpExchangeAdapter;
 
@@ -114,6 +117,7 @@ final class HttpServiceMethod {
   public Object invoke(Object[] arguments) {
     var requestValues = requestValuesInitializer.initializeRequestValuesBuilder();
     applyArguments(requestValues, arguments);
+    requestValuesProcessor.process(method, parameters, arguments, requestValues);
     return responseFunction.execute(requestValues.build());
   }
 
