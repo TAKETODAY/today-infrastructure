@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.aot.hint.support;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -44,6 +42,7 @@ class ObjectToObjectConverterRuntimeHints implements RuntimeHintsRegistrar {
   @Override
   public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
     ReflectionHints reflectionHints = hints.reflection();
+
     TypeReference sqlDateTypeReference = TypeReference.of("java.sql.Date");
     reflectionHints.registerTypeIfPresent(classLoader, sqlDateTypeReference.getName(), hint -> hint
             .withMethod("toLocalDate", Collections.emptyList(), ExecutableMode.INVOKE)
@@ -51,8 +50,14 @@ class ObjectToObjectConverterRuntimeHints implements RuntimeHintsRegistrar {
             .withMethod("valueOf", List.of(TypeReference.of(LocalDate.class)), ExecutableMode.INVOKE)
             .onReachableType(sqlDateTypeReference));
 
+    TypeReference sqlTimestampTypeReference = TypeReference.of("java.sql.Timestamp");
+    reflectionHints.registerTypeIfPresent(classLoader, sqlTimestampTypeReference.getName(), hint -> hint
+            .withMethod("from", List.of(TypeReference.of(Instant.class)), ExecutableMode.INVOKE)
+            .onReachableType(sqlTimestampTypeReference));
+
     reflectionHints.registerTypeIfPresent(classLoader, "infra.http.HttpMethod",
             builder -> builder.withMethod("valueOf", List.of(TypeReference.of(String.class)), ExecutableMode.INVOKE));
+
     reflectionHints.registerTypeIfPresent(classLoader, "java.net.URI", MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
   }
 
