@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.beans;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 
@@ -161,7 +162,7 @@ public class DirectFieldAccessor extends AbstractNestablePropertyAccessor {
         ReflectionUtils.makeAccessible(this.field);
         return this.field.get(getWrappedInstance());
       }
-      catch (IllegalAccessException ex) {
+      catch (IllegalAccessException | InaccessibleObjectException ex) {
         throw new InvalidPropertyException(getWrappedClass(),
                 this.field.getName(), "Field is not accessible", ex);
       }
@@ -173,7 +174,7 @@ public class DirectFieldAccessor extends AbstractNestablePropertyAccessor {
         ReflectionUtils.makeAccessible(this.field);
         this.field.set(getWrappedInstance(), value);
       }
-      catch (IllegalAccessException ex) {
+      catch (IllegalAccessException | InaccessibleObjectException ex) {
         throw new InvalidPropertyException(getWrappedClass(), this.field.getName(),
                 "Field is not accessible", ex);
       }

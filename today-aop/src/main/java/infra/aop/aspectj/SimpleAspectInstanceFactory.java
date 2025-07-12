@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.aop.aspectj;
 
+import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.InvocationTargetException;
 
 import infra.aop.framework.AopConfigException;
@@ -67,7 +68,7 @@ public class SimpleAspectInstanceFactory implements AspectInstanceFactory {
       throw new AopConfigException(
               "Unable to instantiate aspect class: " + this.aspectClass.getName(), ex);
     }
-    catch (IllegalAccessException ex) {
+    catch (IllegalAccessException | InaccessibleObjectException ex) {
       throw new AopConfigException(
               "Could not access aspect constructor: " + this.aspectClass.getName(), ex);
     }

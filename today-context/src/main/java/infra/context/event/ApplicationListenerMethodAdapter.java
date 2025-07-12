@@ -20,6 +20,7 @@ package infra.context.event;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
+import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -189,6 +190,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
   /**
    * Return the target bean instance to use.
    */
+  @Nullable
   protected Object getTargetBean() {
     Assert.state(context != null, "No ApplicationContext set");
     return context.getBean(beanName);
@@ -328,15 +330,15 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
     if (bean == null) {
       return null;
     }
-    ReflectionUtils.makeAccessible(method);
     try {
+      ReflectionUtils.makeAccessible(method);
       return method.invoke(bean, args);
     }
     catch (IllegalArgumentException ex) {
       assertTargetBean(method, bean, args);
       throw new IllegalStateException(getInvocationErrorMessage(bean, ex.getMessage(), args), ex);
     }
-    catch (IllegalAccessException ex) {
+    catch (IllegalAccessException | InaccessibleObjectException ex) {
       throw new IllegalStateException(getInvocationErrorMessage(bean, ex.getMessage(), args), ex);
     }
     catch (InvocationTargetException ex) {
