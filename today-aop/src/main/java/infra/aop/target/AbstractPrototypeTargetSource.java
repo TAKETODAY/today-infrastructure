@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@ public abstract class AbstractPrototypeTargetSource extends AbstractBeanFactoryT
     if (!beanFactory.isPrototype(getTargetBeanName())) {
       throw new BeanDefinitionStoreException(
               "Cannot use prototype-based TargetSource against non-prototype bean with name '" +
-                      getTargetBeanName() + "': instances would not be independent");
+                      targetBeanName + "': instances would not be independent");
     }
   }
 
@@ -68,7 +68,7 @@ public abstract class AbstractPrototypeTargetSource extends AbstractBeanFactoryT
    */
   protected Object newPrototypeInstance() {
     if (logger.isDebugEnabled()) {
-      logger.debug("Creating new instance of bean '{}'", getTargetBeanName());
+      logger.debug("Creating new instance of bean '{}'", targetBeanName);
     }
     return getBeanFactory().getBean(getTargetBeanName());
   }
@@ -80,7 +80,7 @@ public abstract class AbstractPrototypeTargetSource extends AbstractBeanFactoryT
    */
   protected void destroyPrototypeInstance(Object target) {
     if (logger.isDebugEnabled()) {
-      logger.debug("Destroying instance of bean '{}'", getTargetBeanName());
+      logger.debug("Destroying instance of bean '{}'", targetBeanName);
     }
     if (getBeanFactory() instanceof ConfigurableBeanFactory factory) {
       factory.destroyBean(getTargetBeanName(), target);
@@ -90,7 +90,7 @@ public abstract class AbstractPrototypeTargetSource extends AbstractBeanFactoryT
         ((DisposableBean) target).destroy();
       }
       catch (Throwable ex) {
-        logger.warn("Destroy method on bean with name '{}' threw an exception", getTargetBeanName(), ex);
+        logger.warn("Destroy method on bean with name '{}' threw an exception", targetBeanName, ex);
       }
     }
   }
@@ -123,8 +123,8 @@ public abstract class AbstractPrototypeTargetSource extends AbstractBeanFactoryT
       // Create disconnected SingletonTargetSource/EmptyTargetSource.
       Object target = getTarget();
       return target != null
-             ? new SingletonTargetSource(target)
-             : EmptyTargetSource.forClass(getTargetClass());
+              ? new SingletonTargetSource(target)
+              : EmptyTargetSource.forClass(getTargetClass());
     }
     catch (Exception ex) {
       String msg = "Cannot get target for disconnecting TargetSource [" + this + "]";

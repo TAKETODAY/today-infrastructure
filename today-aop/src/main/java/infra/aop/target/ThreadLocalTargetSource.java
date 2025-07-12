@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,8 +51,7 @@ import infra.core.NamedThreadLocal;
  * @see DisposableBean#destroy()
  * @since 3.0
  */
-public class ThreadLocalTargetSource
-        extends AbstractPrototypeTargetSource implements ThreadLocalTargetSourceStats, DisposableBean {
+public class ThreadLocalTargetSource extends AbstractPrototypeTargetSource implements ThreadLocalTargetSourceStats, DisposableBean {
 
   @Serial
   private static final long serialVersionUID = 1L;
@@ -62,8 +61,13 @@ public class ThreadLocalTargetSource
    * thread. Unlike most ThreadLocals, which are static, this variable
    * is meant to be per thread per instance of the ThreadLocalTargetSource class.
    */
-  private final ThreadLocal<Object> targetInThread =
-          new NamedThreadLocal<>("Thread-local instance of bean '" + getTargetBeanName() + "'");
+  private final ThreadLocal<Object> targetInThread = new NamedThreadLocal<>("Thread-local instance of bean") {
+
+    @Override
+    public String toString() {
+      return super.toString() + " '" + targetBeanName + "'";
+    }
+  };
 
   /**
    * Set of managed targets, enabling us to keep track of the targets we've created.
