@@ -111,7 +111,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
   }
 
   @Override
-  public boolean supportsHandler(Object handler) {
+  public boolean supportsHandler(@Nullable Object handler) {
     HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
     if (handlerMethod != null) {
       return supportsReturnType(handlerMethod.getReturnType());
@@ -120,7 +120,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
   }
 
   @Override
-  public boolean supportsHandler(Object handler, @Nullable Object returnValue) {
+  public boolean supportsHandler(@Nullable Object handler, @Nullable Object returnValue) {
     HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
     if (handlerMethod != null) {
       return supportsReturnValue(returnValue)
@@ -133,11 +133,11 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
     Class<?> bodyType = ResponseEntity.class.isAssignableFrom(returnType.getParameterType())
             ? ResolvableType.forMethodParameter(returnType).getGeneric().resolve()
             : returnType.getParameterType();
-    return bodyType != null
-            && (
-            ResponseBodyEmitter.class.isAssignableFrom(bodyType)
-                    || reactiveHandler.isReactiveType(bodyType)
-    );
+    return bodyType != null && supportsBodyType(bodyType);
+  }
+
+  boolean supportsBodyType(Class<?> bodyType) {
+    return ResponseBodyEmitter.class.isAssignableFrom(bodyType) || reactiveHandler.isReactiveType(bodyType);
   }
 
   @Override
@@ -178,7 +178,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
     }
     else if (returnType != null) {
       // for reactive types
-      emitter = reactiveHandler.handleValue(returnValue, returnType,contentType, request);
+      emitter = reactiveHandler.handleValue(returnValue, returnType, contentType, request);
       if (emitter == null) {
         // Not streaming: write headers without committing response..
         return;

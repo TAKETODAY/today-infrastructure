@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,9 @@ import java.util.List;
 
 import infra.http.HttpStatus;
 import infra.http.converter.StringHttpMessageConverter;
+import infra.lang.Nullable;
 import infra.session.SessionRedirectModelManager;
+import infra.web.ReturnValueHandler;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.bind.resolver.HttpEntityMethodProcessor;
 import infra.web.bind.resolver.RequestResponseBodyMethodProcessor;
@@ -76,12 +78,11 @@ class ReturnValueHandlerManagerTests {
 
     assertThat(manager.getHandlers()).hasSize(2);
 
-    assertThat(manager.getByReturnValue(HttpStatus.OK)).isNotNull();
+    assertThat(getByReturnValue(manager, HttpStatus.OK)).isNotNull();
+    assertThat(getByReturnValue(manager, "")).isNull();
+    assertThat(getByReturnValue(manager, null)).isNull();
 
-    assertThat(manager.getByReturnValue("")).isNull();
-    assertThat(manager.getByReturnValue(null)).isNull();
-
-    assertThat(manager.getHandler("")).isNull();
+    assertThat(ReturnValueHandler.select(manager, "", null)).isNull();
 
     // getHandler(handler)
 
@@ -89,23 +90,41 @@ class ReturnValueHandlerManagerTests {
     when(handler.isReturn(HttpStatus.class))
             .thenReturn(true);
 
-    assertThat(manager.getHandler(handler))
+    assertThat(ReturnValueHandler.select(manager, handler, null))
             .isNotNull();
 
     // obtainHandler
 
-    assertThat(manager.obtainHandler(handler))
+    assertThat(obtainHandler(manager, handler))
             .isEqualTo(returnValueHandler)
             .isNotNull();
 
-    assertThat(manager.obtainHandler(handler))
+    assertThat(obtainHandler(manager, handler))
             .isEqualTo(returnValueHandler)
             .isNotNull();
 
-    assertThatThrownBy(() -> manager.obtainHandler(""))
+    assertThatThrownBy(() -> obtainHandler(manager, ""))
             .isInstanceOf(ReturnValueHandlerNotFoundException.class)
             .hasMessageStartingWith("No ReturnValueHandler for handler");
 
+  }
+
+  @Nullable
+  public ReturnValueHandler getByReturnValue(ReturnValueHandlerManager manager, @Nullable Object returnValue) {
+    for (ReturnValueHandler resolver : manager) {
+      if (resolver.supportsReturnValue(returnValue)) {
+        return resolver;
+      }
+    }
+    return null;
+  }
+
+  public ReturnValueHandler obtainHandler(ReturnValueHandlerManager manager, Object handler) {
+    ReturnValueHandler returnValueHandler = ReturnValueHandler.select(manager, handler, null);
+    if (returnValueHandler == null) {
+      throw new ReturnValueHandlerNotFoundException(handler);
+    }
+    return returnValueHandler;
   }
 
   @Test
