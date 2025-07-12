@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -93,6 +93,7 @@ public class WebMvcProperties {
      * Amount of time before asynchronous request handling times out. If this value is
      * not set, the default timeout of the underlying implementation is used.
      */
+    @Nullable
     public Duration requestTimeout;
 
   }
