@@ -500,10 +500,8 @@ public abstract class ReflectionUtils {
   }
 
   /**
-   * Get the first publicly accessible method in the supplied method's type hierarchy that
+   * Get the highest publicly accessible method in the supplied method's type hierarchy that
    * has a method signature equivalent to the supplied method, if possible.
-   * <p>If the supplied method is {@code public} and declared in a {@code public} type,
-   * the supplied method will be returned.
    * <p>Otherwise, this method recursively searches the class hierarchy and implemented
    * interfaces for an equivalent method that is {@code public} and declared in a
    * {@code public} type.
@@ -521,24 +519,27 @@ public abstract class ReflectionUtils {
    *
    * @param method the method to be invoked, potentially from an implementation class
    * @param targetClass the target class to invoke the method on, or {@code null} if unknown
-   * @return the corresponding publicly accessible method, or the original method if none
-   * found
+   * @return the corresponding publicly accessible method, or the original method if none found
    * @see #getInterfaceMethodIfPossible(Method, Class)
    * @see #getMostSpecificMethod(Method, Class)
    * @since 5.0
    */
   public static Method getPubliclyAccessibleMethodIfPossible(Method method, @Nullable Class<?> targetClass) {
-    Class<?> declaringClass = method.getDeclaringClass();
-    // If the method is not public, we can abort the search immediately; or if the method's
-    // declaring class is public, the method is already publicly accessible.
-    if (!Modifier.isPublic(method.getModifiers()) || Modifier.isPublic(declaringClass.getModifiers())) {
+    // If the method is not public, we can abort the search immediately.
+    if (!Modifier.isPublic(method.getModifiers())) {
       return method;
     }
 
     Method interfaceMethod = getInterfaceMethodIfPossible(method, targetClass, true);
     // If we found a method in a public interface, return the interface method.
-    if (!interfaceMethod.equals(method)) {
+    if (interfaceMethod != method) {
       return interfaceMethod;
+    }
+
+    Class<?> declaringClass = method.getDeclaringClass();
+    // Bypass cache for java.lang.Object unless it is actually an overridable method declared there.
+    if (declaringClass.getSuperclass() == Object.class && !ReflectionUtils.isObjectMethod(method)) {
+      return method;
     }
 
     Method result = publiclyAccessibleMethodCache.computeIfAbsent(method,
@@ -550,19 +551,19 @@ public abstract class ReflectionUtils {
   private static Method findPubliclyAccessibleMethodIfPossible(
           String methodName, Class<?>[] parameterTypes, Class<?> declaringClass) {
 
+    Method result = null;
     Class<?> current = declaringClass.getSuperclass();
     while (current != null) {
-      if (Modifier.isPublic(current.getModifiers())) {
-        try {
-          return current.getDeclaredMethod(methodName, parameterTypes);
-        }
-        catch (NoSuchMethodException ex) {
-          // ignore
-        }
+      Method method = getMethodOrNull(current, methodName, parameterTypes);
+      if (method == null) {
+        break;
       }
-      current = current.getSuperclass();
+      if (Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
+        result = method;
+      }
+      current = method.getDeclaringClass().getSuperclass();
     }
-    return null;
+    return result;
   }
 
   /**
@@ -1546,9 +1547,9 @@ public abstract class ReflectionUtils {
    * }</pre>
    *
    * @param field the field for which the write method is to be retrieved;
-   *              must not be null
+   * must not be null
    * @return the write method (setter) for the specified field, or null if
-   *         no such method exists in the declaring class
+   * no such method exists in the declaring class
    */
   @Nullable
   public static Method getWriteMethod(Field field) {

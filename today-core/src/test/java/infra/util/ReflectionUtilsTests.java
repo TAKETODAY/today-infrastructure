@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -116,7 +116,6 @@ class ReflectionUtilsTests {
     assertTrue(pojo.constructorInvoked);
     assertTrue(pojo.pojo4_constructorInvoked);
   }
-
 
   // --------------
 
@@ -767,14 +766,25 @@ class ReflectionUtilsTests {
     }
 
     @Test
+    void publicMethodInObjectClass() throws Exception {
+      Class<?> originalType = String.class;
+      Method originalMethod = originalType.getDeclaredMethod("hashCode");
+
+      Method publiclyAccessibleMethod = ReflectionUtils.getPubliclyAccessibleMethodIfPossible(originalMethod, null);
+      assertThat(publiclyAccessibleMethod.getDeclaringClass()).isEqualTo(Object.class);
+      assertThat(publiclyAccessibleMethod.getName()).isEqualTo("hashCode");
+      assertPubliclyAccessible(publiclyAccessibleMethod);
+    }
+
+    @Test
     void publicInterfaceMethodInPublicClass() throws Exception {
       Class<?> originalType = ArrayList.class;
       Method originalMethod = originalType.getDeclaredMethod("size");
 
       Method publiclyAccessibleMethod = ReflectionUtils.getPubliclyAccessibleMethodIfPossible(originalMethod, null);
-      // Should not find the interface method in List.
-      assertThat(publiclyAccessibleMethod.getDeclaringClass()).isEqualTo(originalType);
-      assertThat(publiclyAccessibleMethod).isSameAs(originalMethod);
+      // Should find the interface method in List.
+      assertThat(publiclyAccessibleMethod.getDeclaringClass()).isEqualTo(List.class);
+      assertThat(publiclyAccessibleMethod.getName()).isEqualTo("size");
       assertPubliclyAccessible(publiclyAccessibleMethod);
     }
 
