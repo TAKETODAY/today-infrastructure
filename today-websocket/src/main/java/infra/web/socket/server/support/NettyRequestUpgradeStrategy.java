@@ -85,6 +85,7 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
     return Collections.emptyList();
   }
 
+  @Nullable
   @Override
   public WebSocketSession upgrade(RequestContext context, @Nullable String selectedProtocol, List<WebSocketExtension> selectedExtensions,
           WebSocketHandler wsHandler, Map<String, Object> attributes) throws HandshakeFailureException //
