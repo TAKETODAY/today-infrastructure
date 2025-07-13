@@ -24,42 +24,37 @@ description = "TODAY Infrastructure Applications Gradle Plugins"
 
 
 dependencies {
-
-  api(project(":today-core"))
-  api("com.fasterxml.jackson.module:jackson-module-parameter-names")
-  api("com.fasterxml.jackson.core:jackson-databind")
-  api("org.apache.httpcomponents.client5:httpclient5")
-  api("org.apache.commons:commons-compress")
-  api("net.java.dev.jna:jna-platform")
-  api("org.tomlj:tomlj:1.0.0")
-  implementation(project(":today-aop"))
-
   implementation(project(":today-core"))
-  implementation(project(":today-test-support"))
   implementation(project(":infra-build:infra-app-loader"))
   implementation(project(":infra-build:infra-app-loader-tools"))
-  implementation 'org.apache.commons:commons-compress'
-  implementation 'io.spring.gradle:dependency-management-plugin:1.1.5'
 
-  optional "org.graalvm.buildtools:native-gradle-plugin:$nativeBuildToolsVersion"
+  optional "org.graalvm.buildtools:native-gradle-plugin"
+  implementation 'org.apache.commons:commons-compress'
+  implementation 'io.spring.gradle:dependency-management-plugin'
 
   testImplementation(project(":today-aop"))
   testImplementation(project(":today-core-aot"))
   testImplementation(project(":today-framework"))
+  testImplementation(project(":today-test-support"))
+  testImplementation("com.fasterxml.jackson.core:jackson-databind")
+  testImplementation("com.fasterxml.jackson.module:jackson-module-parameter-names")
   testImplementation("com.tngtech.archunit:archunit-junit5:0.22.0")
+  testImplementation("org.apache.httpcomponents.client5:httpclient5")
   testImplementation("org.assertj:assertj-core")
   testImplementation("org.junit.jupiter:junit-jupiter")
   testImplementation("org.mockito:mockito-core")
   testImplementation("org.testcontainers:junit-jupiter")
   testImplementation("org.testcontainers:testcontainers")
   testImplementation 'org.jboss.logging:jboss-logging:3.5.3.Final'
-  testImplementation(project(":today-test-support"))
   testImplementation("com.jayway.jsonpath:json-path")
   testImplementation("org.testcontainers:testcontainers")
   testImplementation("org.hamcrest:hamcrest")
   testImplementation("org.mockito:mockito-junit-jupiter")
   testImplementation("org.skyscreamer:jsonassert")
+  testImplementation("net.java.dev.jna:jna-platform")
   testImplementation "commons-io:commons-io"
+  testImplementation("org.tomlj:tomlj:1.0.0")
+  testImplementation 'com.github.openjson:openjson:1.0.13'
 }
 
 gradlePlugin {
