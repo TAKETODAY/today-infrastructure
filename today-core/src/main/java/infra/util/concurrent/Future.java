@@ -1949,6 +1949,8 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
 
   /**
    * Creates a new Promise instance.
+   *
+   * @throws NullPointerException consumer is null
    */
   public static <V> Promise<V> create(Consumer<Promise<V>> consumer) {
     return create(consumer, defaultScheduler);
@@ -1959,9 +1961,9 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    *
    * @param executor the {@link Executor} which is used to notify
    * the Promise once it is complete.
+   * @throws NullPointerException consumer is null
    */
   public static <V> Promise<V> create(Consumer<Promise<V>> consumer, @Nullable Executor executor) {
-    Assert.notNull(consumer, "Promise consumer is required");
     Promise<V> promise = new Promise<>(executor);
     consumer.accept(promise);
     return promise;

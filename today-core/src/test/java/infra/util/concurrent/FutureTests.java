@@ -2251,6 +2251,9 @@ class FutureTests {
     assertThat(promise.isDone()).isTrue();
     assertThat(promise.isSuccess()).isTrue();
     assertThat(promise.getNow()).isEqualTo("success");
+
+    assertThatThrownBy(() -> Future.create(null))
+            .isInstanceOf(NullPointerException.class);
   }
 
   private void handleAsync(Promise<String> promise) {
