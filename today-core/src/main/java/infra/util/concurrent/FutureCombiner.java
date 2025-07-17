@@ -63,7 +63,6 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
   private final AtomicInteger done = new AtomicInteger();
 
   FutureCombiner(boolean allMustSucceed, Collection<Future<?>> futures) {
-    Assert.notNull(futures, "futures is required");
     this.futures = futures;
     this.allMustSucceed = allMustSucceed;
     this.expectedCount = futures.size();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -388,16 +388,14 @@ class PromiseTests {
 
   @Test
   void setSuccess() {
-    Promise<Void> settable = Future.forPromise();
-    settable.setSuccess(null);
+    Promise<Void> settable = Future.create(promise -> promise.setSuccess(null));
     assertThatThrownBy(() -> settable.setSuccess(null))
             .hasMessageStartingWith("complete already:");
   }
 
   @Test
   void setFailure() {
-    Promise<Void> settable = Future.forPromise();
-    settable.setSuccess(null);
+    Promise<Void> settable = Future.create(promise -> promise.setSuccess(null));
     assertThatThrownBy(() -> settable.setFailure(new RuntimeException()))
             .hasMessageStartingWith("complete already:");
   }
