@@ -71,6 +71,7 @@ import infra.context.ResourceLoaderAware;
 import infra.context.event.ApplicationEventMulticaster;
 import infra.context.event.ContextClosedEvent;
 import infra.context.event.ContextRefreshedEvent;
+import infra.context.event.ContextRestartedEvent;
 import infra.context.event.ContextStartedEvent;
 import infra.context.event.ContextStoppedEvent;
 import infra.context.event.SimpleApplicationEventMulticaster;
@@ -1385,7 +1386,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   @Override
   public void restart() {
     getLifecycleProcessor().onRestart();
-    publishEvent(new ContextStartedEvent(this));
+    publishEvent(new ContextRestartedEvent(this));
   }
 
   @Override
