@@ -17,9 +17,11 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import infra.aot.hint.MemberCategory;
@@ -30,7 +32,6 @@ import infra.beans.factory.FactoryBean;
 import infra.beans.factory.InitializationBeanPostProcessor;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.annotation.Autowired;
-import infra.beans.factory.support.DefaultBeanNameGenerator;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.context.ApplicationContext;
 import infra.context.annotation6.ComponentForScanning;
@@ -51,7 +52,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/19 17:52
  */
-public class AnnotationConfigApplicationContextTests {
+class AnnotationConfigApplicationContextTests {
 
   @Test
   void scanAndRefresh() {
@@ -68,13 +69,43 @@ public class AnnotationConfigApplicationContextTests {
   }
 
   @Test
+  void scanAndRefreshWithFullyQualifiedBeanNames() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.setBeanNameGenerator(FullyQualifiedConfigurationBeanNameGenerator.INSTANCE);
+    context.scan("infra.context.annotation6");
+    context.refresh();
+
+    context.getBean(ConfigForScanning.class.getName());
+    context.getBean(ConfigForScanning.class.getName() + ".testBean"); // contributed by ConfigForScanning
+    context.getBean(ComponentForScanning.class.getName());
+    context.getBean(Jsr330NamedForScanning.class.getName());
+    Map<String, Object> beans = context.getBeansWithAnnotation(Configuration.class);
+    assertThat(beans).hasSize(1);
+  }
+
+  @Test
   void registerAndRefresh() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.register(Config.class, NameConfig.class);
     context.refresh();
 
     context.getBean("testBean");
-    context.getBean("name");
+    assertThat(context.getBean("name")).isEqualTo("foo");
+    assertThat(context.getBean("prefixName")).isEqualTo("barfoo");
+    Map<String, Object> beans = context.getBeansWithAnnotation(Configuration.class);
+    assertThat(beans).hasSize(2);
+  }
+
+  @Test
+  void registerAndRefreshWithFullyQualifiedBeanNames() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.setBeanNameGenerator(FullyQualifiedConfigurationBeanNameGenerator.INSTANCE);
+    context.register(Config.class, NameConfig.class);
+    context.refresh();
+
+    context.getBean(Config.class.getName() + ".testBean");
+    assertThat(context.getBean(NameConfig.class.getName() + ".name")).isEqualTo("foo");
+    assertThat(context.getBean(NameConfig.class.getName() + ".prefixName")).isEqualTo("barfoo");
     Map<String, Object> beans = context.getBeansWithAnnotation(Configuration.class);
     assertThat(beans).hasSize(2);
   }
@@ -94,7 +125,7 @@ public class AnnotationConfigApplicationContextTests {
   @Test
   void getBeanByType() {
     ApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
-    AnnoTestBean testBean = context.getBean(AnnoTestBean.class);
+    TestBean testBean = context.getBean(TestBean.class);
     assertThat(testBean).isNotNull();
     assertThat(testBean.name).isEqualTo("foo");
   }
@@ -105,17 +136,17 @@ public class AnnotationConfigApplicationContextTests {
 
     // attempt to retrieve a bean that does not exist
     Class<?> targetType = Pattern.class;
-    assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
-                    context.getBean(targetType))
+    assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
+            .isThrownBy(() -> context.getBean(targetType))
             .withMessageContaining(format("No qualifying bean of type '%s'", targetType.getName()));
   }
 
   @Test
   void getBeanByTypeAmbiguityRaisesException() {
     ApplicationContext context = new AnnotationConfigApplicationContext(TwoTestBeanConfig.class);
-    assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
-                    context.getBean(AnnoTestBean.class))
-            .withMessageContaining("No qualifying bean of type '" + AnnoTestBean.class.getName() + "'")
+    assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
+            .isThrownBy(() -> context.getBean(TestBean.class))
+            .withMessageContaining("No qualifying bean of type '" + TestBean.class.getName() + "'")
             .withMessageContaining("tb1")
             .withMessageContaining("tb2");
   }
@@ -123,7 +154,7 @@ public class AnnotationConfigApplicationContextTests {
   /**
    * Tests that Configuration classes are registered according to convention
    *
-   * @see DefaultBeanNameGenerator#generateBeanName
+   * @see infra.beans.factory.support.DefaultBeanNameGenerator#generateBeanName
    */
   @Test
   void defaultConfigClassBeanNameIsGeneratedProperly() {
@@ -150,33 +181,61 @@ public class AnnotationConfigApplicationContextTests {
   @Test
   void autowiringIsEnabledByDefault() {
     ApplicationContext context = new AnnotationConfigApplicationContext(AutowiredConfig.class);
-    assertThat(context.getBean(AnnoTestBean.class).name).isEqualTo("foo");
+    assertThat(context.getBean(TestBean.class).name).isEqualTo("foo");
   }
 
   @Test
   void nullReturningBeanPostProcessor() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.register(AutowiredConfig.class);
+    // 1st BPP always gets invoked
     context.getBeanFactory().addBeanPostProcessor(new InitializationBeanPostProcessor() {
       @Override
       public Object postProcessBeforeInitialization(Object bean, String beanName) {
-        return (bean instanceof AnnoTestBean ? null : bean);
-      }
-    });
-    context.getBeanFactory().addBeanPostProcessor(new InitializationBeanPostProcessor() {
-      @Override
-      public Object postProcessBeforeInitialization(Object bean, String beanName) {
-        bean.getClass().getName();
+        if (bean instanceof TestBean testBean) {
+          testBean.name = testBean.name + "-before";
+        }
         return bean;
       }
 
       @Override
       public Object postProcessAfterInitialization(Object bean, String beanName) {
-        bean.getClass().getName();
+        if (bean instanceof TestBean testBean) {
+          testBean.name = testBean.name + "-after";
+        }
+        return bean;
+      }
+    });
+    // 2nd BPP always returns null for a TestBean
+    context.getBeanFactory().addBeanPostProcessor(new InitializationBeanPostProcessor() {
+      @Override
+      public Object postProcessBeforeInitialization(Object bean, String beanName) {
+        return (bean instanceof TestBean ? null : bean);
+      }
+
+      @Override
+      public Object postProcessAfterInitialization(Object bean, String beanName) {
+        return (bean instanceof TestBean ? null : bean);
+      }
+    });
+    // 3rd BPP never gets invoked with a TestBean
+    context.getBeanFactory().addBeanPostProcessor(new InitializationBeanPostProcessor() {
+      @Override
+      public Object postProcessBeforeInitialization(Object bean, String beanName) {
+        assertThat(bean).isNotInstanceOf(TestBean.class);
+        return bean;
+      }
+
+      @Override
+      public Object postProcessAfterInitialization(Object bean, String beanName) {
+        assertThat(bean).isNotInstanceOf(TestBean.class);
         return bean;
       }
     });
     context.refresh();
+    TestBean testBean = context.getBean(TestBean.class);
+    assertThat(testBean).isNotNull();
+    assertThat(testBean.name).isEqualTo("foo-before-after");
   }
 
   @Test
@@ -283,11 +342,11 @@ public class AnnotationConfigApplicationContextTests {
     assertThat(ObjectUtils.containsElement(StringUtils.toStringArray(context.getBeanNamesForType(BeanC.class)), "c")).isTrue();
 
     assertThat(context.getBeansOfType(BeanA.class)).isEmpty();
-    assertThat(context.getBeansOfType(BeanB.class).values().iterator().next()).isSameAs(context.getBean(BeanB.class));
-    assertThat(context.getBeansOfType(BeanC.class).values().iterator().next()).isSameAs(context.getBean(BeanC.class));
+    assertThat(context.getBeansOfType(BeanB.class).values()).singleElement().isSameAs(context.getBean(BeanB.class));
+    assertThat(context.getBeansOfType(BeanC.class).values()).singleElement().isSameAs(context.getBean(BeanC.class));
 
-    assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
-            context.getBeanFactory().resolveNamedBean(BeanA.class));
+    assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
+            .isThrownBy(() -> context.getBeanFactory().resolveNamedBean(BeanA.class));
     assertThat(context.getBeanFactory().resolveNamedBean(BeanB.class).getBeanInstance()).isSameAs(context.getBean(BeanB.class));
     assertThat(context.getBeanFactory().resolveNamedBean(BeanC.class).getBeanInstance()).isSameAs(context.getBean(BeanC.class));
   }
@@ -350,8 +409,8 @@ public class AnnotationConfigApplicationContextTests {
     context.registerBean("fb", NonInstantiatedFactoryBean.class, NonInstantiatedFactoryBean::new, bd -> bd.setLazyInit(true));
     context.refresh();
 
-    assertThat(context.getType("fb")).isEqualTo(String.class);
     assertThat(context.getType("&fb")).isEqualTo(NonInstantiatedFactoryBean.class);
+    assertThat(context.getType("fb")).isEqualTo(String.class);
     assertThat(context.getBeanNamesForType(FactoryBean.class)).hasSize(1);
     assertThat(context.getBeanNamesForType(NonInstantiatedFactoryBean.class)).hasSize(1);
   }
@@ -537,44 +596,12 @@ public class AnnotationConfigApplicationContextTests {
     assertThat(runtimeHints.reflection().typeHints()).isEmpty();
   }
 
-  static class GenericHolder<T> { }
-
-  static class GenericHolderFactoryBean implements FactoryBean<GenericHolder<?>> {
-
-    @Override
-    public GenericHolder<?> getObject() {
-      return new GenericHolder<>();
-    }
-
-    @Override
-    public Class<?> getObjectType() {
-      return GenericHolder.class;
-    }
-
-    @Override
-    public boolean isSingleton() {
-      return true;
-    }
-  }
-
-  static class FactoryResultInjectionPoint {
-
-    @Autowired
-    GenericHolder<String> factoryResult;
-  }
-
-  static class FactoryBeanInjectionPoints extends FactoryResultInjectionPoint {
-
-    @Autowired
-    FactoryBean<GenericHolder<String>> factoryBean;
-  }
-
   @Configuration
   static class Config {
 
     @Bean
-    AnnoTestBean testBean() {
-      AnnoTestBean testBean = new AnnoTestBean();
+    TestBean testBean() {
+      TestBean testBean = new TestBean();
       testBean.name = "foo";
       return testBean;
     }
@@ -584,8 +611,8 @@ public class AnnotationConfigApplicationContextTests {
   static class ConfigWithCustomName {
 
     @Bean
-    AnnoTestBean testBean() {
-      return new AnnoTestBean();
+    TestBean testBean() {
+      return new TestBean();
     }
   }
 
@@ -593,13 +620,13 @@ public class AnnotationConfigApplicationContextTests {
   static class TwoTestBeanConfig {
 
     @Bean
-    AnnoTestBean tb1() {
-      return new AnnoTestBean();
+    TestBean tb1() {
+      return new TestBean();
     }
 
     @Bean
-    AnnoTestBean tb2() {
-      return new AnnoTestBean();
+    TestBean tb2() {
+      return new TestBean();
     }
   }
 
@@ -608,6 +635,9 @@ public class AnnotationConfigApplicationContextTests {
 
     @Bean
     String name() { return "foo"; }
+
+    @Bean(autowireCandidate = false)
+    String prefixName() { return "bar" + name(); }
   }
 
   @Configuration
@@ -618,8 +648,8 @@ public class AnnotationConfigApplicationContextTests {
     String autowiredName;
 
     @Bean
-    AnnoTestBean testBean() {
-      AnnoTestBean testBean = new AnnoTestBean();
+    TestBean testBean() {
+      TestBean testBean = new TestBean();
       testBean.name = autowiredName;
       return testBean;
     }
@@ -715,6 +745,38 @@ public class AnnotationConfigApplicationContextTests {
       return false;
     }
   }
+
+  static class GenericHolder<T> { }
+
+  static class GenericHolderFactoryBean implements FactoryBean<GenericHolder<?>> {
+
+    @Override
+    public GenericHolder<?> getObject() {
+      return new GenericHolder<>();
+    }
+
+    @Override
+    public Class<?> getObjectType() {
+      return GenericHolder.class;
+    }
+
+    @Override
+    public boolean isSingleton() {
+      return true;
+    }
+  }
+
+  static class FactoryResultInjectionPoint {
+
+    @Autowired
+    GenericHolder<String> factoryResult;
+  }
+
+  static class FactoryBeanInjectionPoints extends FactoryResultInjectionPoint {
+
+    @Autowired
+    FactoryBean<GenericHolder<String>> factoryBean;
+  }
 }
 
 class AnnoTestBean {
@@ -752,4 +814,19 @@ class AnnoTestBean {
     return true;
   }
 
+}
+
+class TestBean {
+
+  String name;
+
+  @Override
+  public boolean equals(@Nullable Object other) {
+    return (this == other || (other instanceof TestBean that && Objects.equals(this.name, that.name)));
+  }
+
+  @Override
+  public int hashCode() {
+    return this.name.hashCode();
+  }
 }

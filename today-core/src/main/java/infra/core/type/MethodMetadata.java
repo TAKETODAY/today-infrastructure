@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.core.type;
+
+import java.lang.reflect.Method;
 
 /**
  * Interface that defines abstract access to the annotations of a specific
@@ -70,5 +72,17 @@ public interface MethodMetadata extends AnnotatedTypeMetadata {
    * i.e. not marked as static, final, or private.
    */
   boolean isOverridable();
+
+  /**
+   * Factory method to create a new {@link MethodMetadata} instance
+   * for the given method using standard reflection.
+   *
+   * @param method the method to introspect
+   * @return a new {@link MethodMetadata} instance
+   * @since 5.0
+   */
+  static MethodMetadata introspect(Method method) {
+    return new StandardMethodMetadata(method, true);
+  }
 
 }

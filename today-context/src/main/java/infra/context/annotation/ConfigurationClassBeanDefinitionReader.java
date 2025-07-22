@@ -169,32 +169,49 @@ class ConfigurationClassBeanDefinitionReader {
    */
   private void loadBeanDefinitionsForComponentMethod(ComponentMethod componentMethod, boolean disableAllDependencyInjection) {
     ConfigurationClass configClass = componentMethod.configurationClass;
-    MethodMetadata methodMetadata = componentMethod.metadata;
-    String methodName = methodMetadata.getMethodName();
+    MethodMetadata metadata = componentMethod.metadata;
+    String methodName = metadata.getMethodName();
 
     // Do we need to mark the bean as skipped by its condition?
-    if (bootstrapContext.shouldSkip(methodMetadata, ConfigurationCondition.ConfigurationPhase.REGISTER_BEAN)) {
+    if (bootstrapContext.shouldSkip(metadata, ConfigurationCondition.ConfigurationPhase.REGISTER_BEAN)) {
       configClass.skippedComponentMethods.add(methodName);
       return;
     }
     if (configClass.skippedComponentMethods.contains(methodName)) {
       return;
     }
-    MergedAnnotations annotations = methodMetadata.getAnnotations();
+    MergedAnnotations annotations = metadata.getAnnotations();
     MergedAnnotation<Component> component = annotations.get(Component.class);
     Assert.state(component.isPresent(), "No @Component annotation attributes");
 
     // Consider name and any aliases
     ArrayList<String> names = CollectionUtils.newArrayList(component.getStringArray("name"));
-    String beanName = !names.isEmpty() ? names.remove(0) : methodName;
 
-    // Register aliases even when overridden
-    for (String alias : names) {
-      bootstrapContext.registerAlias(beanName, alias);
+    // Consider name and any aliases.
+    String[] explicitNames = component.getStringArray("name");
+    String beanName;
+    String localBeanName;
+    if (explicitNames.length > 0 && StringUtils.hasText(explicitNames[0])) {
+      beanName = explicitNames[0];
+      localBeanName = beanName;
+      // Register aliases even when overridden below.
+      for (int i = 1; i < explicitNames.length; i++) {
+        bootstrapContext.registerAlias(beanName, explicitNames[i]);
+      }
+    }
+    else {
+      // Default bean name derived from method name.
+      beanName = this.importBeanNameGenerator instanceof ConfigurationBeanNameGenerator cbng
+              ? cbng.deriveBeanName(metadata) : methodName;
+      localBeanName = methodName;
     }
 
+    var beanDef = new ConfigurationClassBeanDefinition(configClass, metadata, localBeanName);
+    beanDef.setSource(configClass.resource);
+    beanDef.setResource(configClass.resource);
+
     // Has this effectively been overridden before (e.g. via XML)?
-    if (isOverriddenByExistingDefinition(componentMethod, beanName)) {
+    if (isOverriddenByExistingDefinition(componentMethod, beanName, beanDef)) {
       if (beanName.equals(componentMethod.configurationClass.beanName)) {
         throw new BeanDefinitionStoreException(componentMethod.configurationClass.resource.toString(),
                 beanName, ("Bean name derived from @Component method '%s' clashes with bean name for containing configuration class; " +
@@ -203,15 +220,11 @@ class ConfigurationClassBeanDefinitionReader {
       return;
     }
 
-    var beanDef = new ConfigurationClassBeanDefinition(configClass, methodMetadata, beanName);
-    beanDef.setSource(configClass.resource);
-    beanDef.setResource(configClass.resource);
-
     boolean enableDI = isEnableDependencyInjection(annotations, disableAllDependencyInjection);
     beanDef.setEnableDependencyInjection(enableDI);
 
     AnnotationMetadata configClassMetadata = configClass.metadata;
-    if (methodMetadata.isStatic()) {
+    if (metadata.isStatic()) {
       // static @Component method
       if (configClassMetadata instanceof StandardAnnotationMetadata) {
         beanDef.setBeanClass(((StandardAnnotationMetadata) configClassMetadata).getIntrospectedClass());
@@ -227,8 +240,7 @@ class ConfigurationClassBeanDefinitionReader {
       beanDef.setUniqueFactoryMethodName(methodName);
     }
 
-    if (methodMetadata instanceof StandardMethodMetadata smm
-            && configClass.metadata instanceof StandardAnnotationMetadata sam) {
+    if (metadata instanceof StandardMethodMetadata smm && configClass.metadata instanceof StandardAnnotationMetadata sam) {
       Method method = ReflectionUtils.getMostSpecificMethod(smm.getIntrospectedMethod(), sam.getIntrospectedClass());
       if (method == smm.getIntrospectedMethod()) {
         beanDef.setResolvedFactoryMethod(method);
@@ -276,7 +288,7 @@ class ConfigurationClassBeanDefinitionReader {
       BeanDefinitionHolder proxyDef = ScopedProxyCreator.createScopedProxy(new BeanDefinitionHolder(beanDef, beanName),
               bootstrapContext.getRegistry(), proxyMode == ScopedProxyMode.TARGET_CLASS);
       beanDefToRegister = new ConfigurationClassBeanDefinition(
-              (RootBeanDefinition) proxyDef.getBeanDefinition(), configClass, methodMetadata, beanName);
+              (RootBeanDefinition) proxyDef.getBeanDefinition(), configClass, metadata, localBeanName);
     }
     else {
       beanDefToRegister = beanDef;
@@ -321,7 +333,7 @@ class ConfigurationClassBeanDefinitionReader {
             || !(disableAllDependencyInjection || annotations.isPresent(DisableDependencyInjection.class));
   }
 
-  protected boolean isOverriddenByExistingDefinition(ComponentMethod componentMethod, String beanName) {
+  private boolean isOverriddenByExistingDefinition(ComponentMethod componentMethod, String beanName, ConfigurationClassBeanDefinition newBeanDef) {
     if (!bootstrapContext.containsBeanDefinition(beanName)) {
       return false;
     }
@@ -341,8 +353,8 @@ class ConfigurationClassBeanDefinitionReader {
       Map<String, Object> attributes = configClass.metadata.getAnnotationAttributes(Configuration.class);
       if ((attributes != null && (Boolean) attributes.get("enforceUniqueMethods"))
               || !bootstrapContext.getRegistry().isBeanDefinitionOverridable(beanName)) {
-        throw new BeanDefinitionOverrideException(beanName, new ConfigurationClassBeanDefinition(configClass, componentMethod.metadata, beanName),
-                existingBeanDef, "@Bean method override with same bean name but different method name: " + existingBeanDef);
+        throw new BeanDefinitionOverrideException(beanName, newBeanDef, existingBeanDef,
+                "@Bean method override with same bean name but different method name: " + existingBeanDef);
       }
       return true;
     }
@@ -366,7 +378,7 @@ class ConfigurationClassBeanDefinitionReader {
     // At this point, it's a top-level override (probably XML), just having been parsed
     // before configuration class processing kicks in...
     if (!bootstrapContext.getRegistry().isBeanDefinitionOverridable(beanName)) {
-      throw new BeanDefinitionOverrideException(beanName, new ConfigurationClassBeanDefinition(configClass, componentMethod.metadata, beanName),
+      throw new BeanDefinitionOverrideException(beanName, newBeanDef,
               existingBeanDef, "@Component definition illegally overridden by existing bean definition: " + existingBeanDef);
     }
     if (logger.isDebugEnabled()) {
@@ -473,31 +485,31 @@ class ConfigurationClassBeanDefinitionReader {
 
     private final MethodMetadata factoryMethodMetadata;
 
-    private final String derivedBeanName;
+    private final String localBeanName;
 
     public ConfigurationClassBeanDefinition(ConfigurationClass configClass,
-            MethodMetadata beanMethodMetadata, String derivedBeanName) {
+            MethodMetadata beanMethodMetadata, String localBeanName) {
 
       this.annotationMetadata = configClass.metadata;
       this.factoryMethodMetadata = beanMethodMetadata;
-      this.derivedBeanName = derivedBeanName;
+      this.localBeanName = localBeanName;
       setResource(configClass.resource);
       setLenientConstructorResolution(false);
     }
 
     public ConfigurationClassBeanDefinition(RootBeanDefinition original,
-            ConfigurationClass configClass, MethodMetadata beanMethodMetadata, String derivedBeanName) {
+            ConfigurationClass configClass, MethodMetadata beanMethodMetadata, String localBeanName) {
       super(original);
       this.annotationMetadata = configClass.metadata;
       this.factoryMethodMetadata = beanMethodMetadata;
-      this.derivedBeanName = derivedBeanName;
+      this.localBeanName = localBeanName;
     }
 
     private ConfigurationClassBeanDefinition(ConfigurationClassBeanDefinition original) {
       super(original);
       this.annotationMetadata = original.annotationMetadata;
       this.factoryMethodMetadata = original.factoryMethodMetadata;
-      this.derivedBeanName = original.derivedBeanName;
+      this.localBeanName = original.localBeanName;
     }
 
     @Override
@@ -515,7 +527,7 @@ class ConfigurationClassBeanDefinitionReader {
     public boolean isFactoryMethod(Method candidate) {
       return super.isFactoryMethod(candidate)
               && BeanAnnotationHelper.isBeanAnnotated(candidate)
-              && BeanAnnotationHelper.determineBeanNameFor(candidate).equals(derivedBeanName);
+              && BeanAnnotationHelper.determineBeanNameFor(candidate).equals(localBeanName);
     }
 
     @Override
