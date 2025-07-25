@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 
 package infra.cache.jcache;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
@@ -26,6 +25,7 @@ import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.transaction.support.TransactionSynchronization;
 import infra.transaction.support.TransactionSynchronizationManager;
+import infra.util.function.ThrowingFunction;
 
 /**
  * Cache decorator which synchronizes its {@link #put}, {@link #evict} and
@@ -83,14 +83,15 @@ public class TransactionAwareCacheDecorator implements Cache {
     return this.targetCache.get(key);
   }
 
+  @Nullable
   @Override
   public <T> T get(Object key, @Nullable Class<T> type) {
     return this.targetCache.get(key, type);
   }
 
-  @Override
   @Nullable
-  public <T> T get(Object key, Callable<T> valueLoader) {
+  @Override
+  public <K, V> V get(K key, ThrowingFunction<? super K, ? extends V> valueLoader) {
     return this.targetCache.get(key, valueLoader);
   }
 
@@ -107,8 +108,9 @@ public class TransactionAwareCacheDecorator implements Cache {
 
   @Override
   public void put(final Object key, @Nullable final Object value) {
-    if (TransactionSynchronizationManager.isSynchronizationActive()) {
-      TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+    var info = TransactionSynchronizationManager.getSynchronizationInfo();
+    if (info.isSynchronizationActive()) {
+      info.registerSynchronization(new TransactionSynchronization() {
         @Override
         public void afterCommit() {
           TransactionAwareCacheDecorator.this.targetCache.put(key, value);
@@ -128,8 +130,9 @@ public class TransactionAwareCacheDecorator implements Cache {
 
   @Override
   public void evict(final Object key) {
-    if (TransactionSynchronizationManager.isSynchronizationActive()) {
-      TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+    var info = TransactionSynchronizationManager.getSynchronizationInfo();
+    if (info.isSynchronizationActive()) {
+      info.registerSynchronization(new TransactionSynchronization() {
         @Override
         public void afterCommit() {
           TransactionAwareCacheDecorator.this.targetCache.evict(key);
@@ -148,8 +151,9 @@ public class TransactionAwareCacheDecorator implements Cache {
 
   @Override
   public void clear() {
-    if (TransactionSynchronizationManager.isSynchronizationActive()) {
-      TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+    var info = TransactionSynchronizationManager.getSynchronizationInfo();
+    if (info.isSynchronizationActive()) {
+      info.registerSynchronization(new TransactionSynchronization() {
         @Override
         public void afterCommit() {
           targetCache.clear();

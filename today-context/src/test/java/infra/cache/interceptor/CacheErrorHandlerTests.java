@@ -39,6 +39,7 @@ import infra.cache.support.SimpleValueWrapper;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
+import infra.util.function.ThrowingFunction;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -95,12 +96,12 @@ public class CacheErrorHandlerTests {
   @Test
   public void getSyncFail() {
     UnsupportedOperationException exception = new UnsupportedOperationException("Test exception on get");
-    willThrow(exception).given(this.cache).get(eq(0L), any(Callable.class));
+    willThrow(exception).given(this.cache).get(eq(0L), any(ThrowingFunction.class));
 
     Object result = this.simpleService.getSync(0L);
     assertThat(result).isEqualTo(0L);
     verify(this.errorHandler).handleCacheGetError(exception, this.cache, 0L);
-    verify(this.cache).get(eq(0L), any(Callable.class));
+    verify(this.cache).get(eq(0L), any(ThrowingFunction.class));
   }
 
   @Test

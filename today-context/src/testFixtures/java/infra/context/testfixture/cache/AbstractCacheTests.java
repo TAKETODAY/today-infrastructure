@@ -129,7 +129,7 @@ public abstract class AbstractCacheTests<T extends Cache> {
     String key = createRandomKey();
 
     assertThat((Object) cache.get(key)).isNull();
-    Object value = cache.get(key, () -> returnValue);
+    Object value = cache.get(key, (k) -> returnValue);
     assertThat(value).isEqualTo(returnValue);
     assertThat(cache.get(key).get()).isEqualTo(value);
   }
@@ -150,7 +150,7 @@ public abstract class AbstractCacheTests<T extends Cache> {
     String key = createRandomKey();
     cache.put(key, initialValue);
 
-    Object value = cache.get(key, () -> {
+    Object value = cache.get(key, (k) -> {
       throw new IllegalStateException("Should not have been invoked");
     });
     assertThat(value).isEqualTo(initialValue);
@@ -164,7 +164,7 @@ public abstract class AbstractCacheTests<T extends Cache> {
     assertThat((Object) cache.get(key)).isNull();
 
     try {
-      cache.get(key, () -> {
+      cache.get(key, (k) -> {
         throw new UnsupportedOperationException("Expected exception");
       });
     }
@@ -188,7 +188,7 @@ public abstract class AbstractCacheTests<T extends Cache> {
     String key = createRandomKey();
     Runnable run = () -> {
       try {
-        Integer value = cache.get(key, () -> {
+        Integer value = cache.get(key, (k) -> {
           Thread.sleep(50); // make sure the thread will overlap
           return counter.incrementAndGet();
         });

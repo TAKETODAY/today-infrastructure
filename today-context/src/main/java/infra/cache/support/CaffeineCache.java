@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@ package infra.cache.support;
 import com.github.benmanes.caffeine.cache.AsyncCache;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -28,6 +27,7 @@ import java.util.function.Supplier;
 import infra.cache.Cache;
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.util.function.ThrowingFunction;
 
 /**
  * Infra {@link Cache} adapter implementation
@@ -42,15 +42,17 @@ import infra.lang.Nullable;
  * @author Ben Manes
  * @author Juergen Hoeller
  * @author Stephane Nicoll
- * @author TODAY 2020-08-15 19:50
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see CaffeineCacheManager
- * @since 3.0
+ * @since 3.0 2020-08-15 19:50
  */
+@SuppressWarnings("unchecked")
 public class CaffeineCache extends AbstractValueAdaptingCache {
 
   private final String name;
 
-  private final com.github.benmanes.caffeine.cache.Cache<Object, Object> cache;
+  @SuppressWarnings("rawtypes")
+  private final com.github.benmanes.caffeine.cache.Cache cache;
 
   @Nullable
   private AsyncCache<Object, Object> asyncCache;
@@ -75,9 +77,7 @@ public class CaffeineCache extends AbstractValueAdaptingCache {
    * @param allowNullValues whether to accept and convert {@code null}
    * values for this cache
    */
-  public CaffeineCache(String name, com.github.benmanes.caffeine.cache.Cache<Object, Object> cache,
-          boolean allowNullValues) {
-
+  public CaffeineCache(String name, com.github.benmanes.caffeine.cache.Cache<Object, Object> cache, boolean allowNullValues) {
     super(allowNullValues);
     Assert.notNull(name, "Name is required");
     Assert.notNull(cache, "Cache is required");
@@ -105,7 +105,7 @@ public class CaffeineCache extends AbstractValueAdaptingCache {
 
   @Override
   public final String getName() {
-    return this.name;
+    return name;
   }
 
   /**
@@ -114,7 +114,7 @@ public class CaffeineCache extends AbstractValueAdaptingCache {
    */
   @Override
   public final com.github.benmanes.caffeine.cache.Cache<Object, Object> getNativeCache() {
-    return this.cache;
+    return cache;
   }
 
   /**
@@ -126,16 +126,14 @@ public class CaffeineCache extends AbstractValueAdaptingCache {
    * @since 4.0
    */
   public final AsyncCache<Object, Object> getAsyncCache() {
-    Assert.state(this.asyncCache != null,
+    Assert.state(asyncCache != null,
             "No Caffeine AsyncCache available: set CaffeineCacheManager.setAsyncCacheMode(true)");
-    return this.asyncCache;
+    return asyncCache;
   }
 
-  @SuppressWarnings("unchecked")
-  @Override
   @Nullable
-  public <T> T get(Object key, final Callable<T> valueLoader) {
-    return (T) fromStoreValue(this.cache.get(key, new LoadFunction(valueLoader)));
+  public <K, V> V get(K key, ThrowingFunction<? super K, ? extends V> valueLoader) {
+    return (V) fromStoreValue(cache.get(key, new LoadFunction(valueLoader)));
   }
 
   @Override
@@ -148,7 +146,6 @@ public class CaffeineCache extends AbstractValueAdaptingCache {
     return result;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public <T> CompletableFuture<T> retrieve(Object key, Supplier<CompletableFuture<T>> valueLoader) {
     if (allowNullValues) {
@@ -164,44 +161,44 @@ public class CaffeineCache extends AbstractValueAdaptingCache {
   @Override
   @Nullable
   protected Object lookup(Object key) {
-    if (this.cache instanceof LoadingCache) {
-      return ((LoadingCache<Object, Object>) this.cache).get(key);
+    if (cache instanceof LoadingCache) {
+      return ((LoadingCache<Object, Object>) cache).get(key);
     }
-    return this.cache.getIfPresent(key);
+    return cache.getIfPresent(key);
   }
 
   @Override
   public void put(Object key, @Nullable Object value) {
-    this.cache.put(key, toStoreValue(value));
+    cache.put(key, toStoreValue(value));
   }
 
   @Override
   @Nullable
   public ValueWrapper putIfAbsent(Object key, @Nullable final Object value) {
     PutIfAbsentFunction callable = new PutIfAbsentFunction(value);
-    Object result = this.cache.get(key, callable);
+    Object result = cache.get(key, callable);
     return (callable.called ? null : toValueWrapper(result));
   }
 
   @Override
   public void evict(Object key) {
-    this.cache.invalidate(key);
+    cache.invalidate(key);
   }
 
   @Override
   public boolean evictIfPresent(Object key) {
-    return (this.cache.asMap().remove(key) != null);
+    return (cache.asMap().remove(key) != null);
   }
 
   @Override
   public void clear() {
-    this.cache.invalidateAll();
+    cache.invalidateAll();
   }
 
   @Override
   public boolean invalidate() {
-    boolean notEmpty = !this.cache.asMap().isEmpty();
-    this.cache.invalidateAll();
+    boolean notEmpty = !cache.asMap().isEmpty();
+    cache.invalidateAll();
     return notEmpty;
   }
 
@@ -219,25 +216,26 @@ public class CaffeineCache extends AbstractValueAdaptingCache {
     @Override
     public Object apply(Object key) {
       this.called = true;
-      return toStoreValue(this.value);
+      return toStoreValue(value);
     }
   }
 
   private class LoadFunction implements Function<Object, Object> {
 
-    private final Callable<?> valueLoader;
+    private final ThrowingFunction<Object, Object> valueLoader;
 
-    public LoadFunction(Callable<?> valueLoader) {
+    @SuppressWarnings("rawtypes")
+    public LoadFunction(ThrowingFunction valueLoader) {
       this.valueLoader = valueLoader;
     }
 
     @Override
     public Object apply(Object o) {
       try {
-        return toStoreValue(this.valueLoader.call());
+        return toStoreValue(valueLoader.apply(o));
       }
       catch (Exception ex) {
-        throw new ValueRetrievalException(o, this.valueLoader, ex);
+        throw new ValueRetrievalException(o, valueLoader, ex);
       }
     }
   }

@@ -17,9 +17,6 @@
 
 package infra.cache.jcache;
 
-import java.util.concurrent.Callable;
-import java.util.function.Function;
-
 import javax.cache.Cache;
 import javax.cache.processor.EntryProcessor;
 import javax.cache.processor.EntryProcessorException;
@@ -28,6 +25,7 @@ import javax.cache.processor.MutableEntry;
 import infra.cache.support.AbstractValueAdaptingCache;
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.util.function.ThrowingFunction;
 
 /**
  * {@link infra.cache.Cache} implementation on top of a
@@ -66,7 +64,7 @@ public class JCacheCache extends AbstractValueAdaptingCache {
     super(allowNullValues);
     Assert.notNull(jcache, "Cache is required");
     this.cache = jcache;
-    this.valueLoaderEntryProcessor = new ValueLoaderEntryProcessor(this::fromStoreValue, this::toStoreValue);
+    this.valueLoaderEntryProcessor = new ValueLoaderEntryProcessor();
   }
 
   @Override
@@ -85,12 +83,12 @@ public class JCacheCache extends AbstractValueAdaptingCache {
     return this.cache.get(key);
   }
 
-  @Override
   @Nullable
+  @Override
   @SuppressWarnings("unchecked")
-  public <T> T get(Object key, Callable<T> valueLoader) {
+  public <K, V> V get(K key, ThrowingFunction<? super K, ? extends V> valueLoader) {
     try {
-      return (T) this.cache.invoke(key, this.valueLoaderEntryProcessor, valueLoader);
+      return (V) this.cache.invoke(key, this.valueLoaderEntryProcessor, valueLoader);
     }
     catch (EntryProcessorException ex) {
       throw new ValueRetrievalException(key, valueLoader, ex.getCause());
@@ -146,38 +144,23 @@ public class JCacheCache extends AbstractValueAdaptingCache {
     }
   }
 
-  private static final class ValueLoaderEntryProcessor implements EntryProcessor<Object, Object, Object> {
-
-    private final Function<Object, Object> fromStoreValue;
-
-    private final Function<Object, Object> toStoreValue;
-
-    private ValueLoaderEntryProcessor(Function<Object, Object> fromStoreValue,
-            Function<Object, Object> toStoreValue) {
-
-      this.fromStoreValue = fromStoreValue;
-      this.toStoreValue = toStoreValue;
-    }
+  private final class ValueLoaderEntryProcessor implements EntryProcessor<Object, Object, Object> {
 
     @Override
     @Nullable
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Object process(MutableEntry<Object, Object> entry, Object... arguments) throws EntryProcessorException {
-      Callable<Object> valueLoader = (Callable<Object>) arguments[0];
       if (entry.exists()) {
-        return this.fromStoreValue.apply(entry.getValue());
+        return fromStoreValue(entry.getValue());
       }
-      else {
-        Object value;
-        try {
-          value = valueLoader.call();
-        }
-        catch (Exception ex) {
-          throw new EntryProcessorException("Value loader '" + valueLoader + "' failed " +
-                  "to compute value for key '" + entry.getKey() + "'", ex);
-        }
-        entry.setValue(this.toStoreValue.apply(value));
+      try {
+        Object value = ((ThrowingFunction) arguments[0]).applyWithException(entry.getKey());
+        entry.setValue(toStoreValue(value));
         return value;
+      }
+      catch (Throwable ex) {
+        throw new EntryProcessorException("Value loader '%s' failed to compute value for key '%s'"
+                .formatted(arguments[0], entry.getKey()), ex);
       }
     }
   }
