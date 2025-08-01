@@ -17,14 +17,14 @@
 
 package infra.web.handler.condition;
 
-import org.assertj.core.api.Assertions;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
-import infra.lang.Nullable;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.web.HandlerMapping;
 import infra.web.RequestContext;
@@ -34,6 +34,7 @@ import infra.web.accept.SemanticApiVersionParser;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -114,7 +115,8 @@ class VersionRequestConditionTests {
     assertThat(match).isSameAs(condition);
 
     if (notAcceptable) {
-      Assertions.assertThatThrownBy(() -> condition.handleMatch(request)).isInstanceOf(NotAcceptableApiVersionException.class);
+      assertThatThrownBy(() -> condition.handleMatch(request))
+              .isInstanceOf(NotAcceptableApiVersionException.class);
       return;
     }
 
@@ -148,6 +150,26 @@ class VersionRequestConditionTests {
     assertThat(list.get(0)).isEqualTo(condition(expected));
   }
 
+  @Test
+  void compareWithoutRequestVersion() {
+    VersionRequestCondition condition = Stream.of(condition("1.1"), condition("1.2"), emptyCondition())
+            .min((c1, c2) -> c1.compareTo(c2, exchange()))
+            .get();
+
+    assertThat(condition).isEqualTo(emptyCondition());
+  }
+
+  @Test
+  void noRequestVersion() {
+    VersionRequestCondition condition = condition("1.1");
+
+    MockRequestContext exchange = exchange();
+    VersionRequestCondition match = condition.getMatchingCondition(exchange);
+    assertThat(match).isSameAs(condition);
+
+    condition.handleMatch(exchange);
+  }
+
   private VersionRequestCondition condition(String v) {
     this.strategy.addSupportedVersion(v.endsWith("+") ? v.substring(0, v.length() - 1) : v);
     return new VersionRequestCondition(v, this.strategy);
@@ -165,7 +187,6 @@ class VersionRequestConditionTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/path");
     request.setAttribute(HandlerMapping.API_VERSION_ATTRIBUTE, this.strategy.parseVersion(v));
 
-    request.addParameter("api-version", v);
     return new MockRequestContext(request);
   }
 
