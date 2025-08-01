@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.function.Consumer;
 
+import infra.http.MediaType;
 import infra.http.client.JdkClientHttpRequestFactory;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -59,38 +60,44 @@ public class RestClientVersionTests {
 
   @Test
   void header() {
-    performRequest(ApiVersionInserter.forHeader("X-API-Version"));
+    performRequest(ApiVersionInserter.builder().useHeader("X-API-Version"));
     expectRequest(request -> assertThat(request.getHeader("X-API-Version")).isEqualTo("1.2"));
   }
 
   @Test
   void queryParam() {
-    performRequest(ApiVersionInserter.forQueryParam("api-version"));
+    performRequest(ApiVersionInserter.builder().useQueryParam("api-version"));
     expectRequest(request -> assertThat(request.getPath()).isEqualTo("/path?api-version=1.2"));
   }
 
   @Test
+  void mediaTypeParam() {
+    performRequest(ApiVersionInserter.builder().useMediaTypeParam("v"));
+    expectRequest(request -> assertThat(request.getHeaders().get("Content-Type")).isEqualTo("application/json;v=1.2"));
+  }
+
+  @Test
   void pathSegmentIndexLessThanSize() {
-    performRequest(ApiVersionInserter.forPathSegment(0).withVersionFormatter(v -> "v" + v));
+    performRequest(ApiVersionInserter.builder().usePathSegment(0).withVersionFormatter(v -> "v" + v));
     expectRequest(request -> assertThat(request.getPath()).isEqualTo("/v1.2/path"));
   }
 
   @Test
   void pathSegmentIndexEqualToSize() {
-    performRequest(ApiVersionInserter.forPathSegment(1).withVersionFormatter(v -> "v" + v));
+    performRequest(ApiVersionInserter.builder().usePathSegment(1).withVersionFormatter(v -> "v" + v));
     expectRequest(request -> assertThat(request.getPath()).isEqualTo("/path/v1.2"));
   }
 
   @Test
   void pathSegmentIndexGreaterThanSize() {
     assertThatIllegalStateException()
-            .isThrownBy(() -> performRequest(ApiVersionInserter.forPathSegment(2)))
+            .isThrownBy(() -> performRequest(ApiVersionInserter.builder().usePathSegment(2)))
             .withMessage("Cannot insert version into '/path' at path segment index 2");
   }
 
   @Test
   void defaultVersion() {
-    ApiVersionInserter inserter = ApiVersionInserter.forHeader("X-API-Version").build();
+    ApiVersionInserter inserter = ApiVersionInserter.forHeader("X-API-Version");
     RestClient restClient = restClientBuilder.defaultApiVersion(1.2).apiVersionInserter(inserter).build();
     restClient.get().uri("/path").retrieve().body(String.class);
 
@@ -98,11 +105,9 @@ public class RestClientVersionTests {
   }
 
   private void performRequest(ApiVersionInserter.Builder builder) {
-    ApiVersionInserter versionInserter = builder.build();
-    RestClient restClient = restClientBuilder.apiVersionInserter(versionInserter).build();
-
-    restClient.get()
-            .uri("/path")
+    restClientBuilder.apiVersionInserter(builder.build()).build()
+            .post().uri("/path")
+            .contentType(MediaType.APPLICATION_JSON)
             .apiVersion(1.2)
             .retrieve()
             .body(String.class);

@@ -253,7 +253,7 @@ class RestClientAdapterTests {
   void apiVersion() throws Exception {
     RestClient restClient = RestClient.builder()
             .baseURI(anotherServer.url("/").toString())
-            .apiVersionInserter(ApiVersionInserter.forHeader("X-API-Version").build())
+            .apiVersionInserter(ApiVersionInserter.forHeader("X-API-Version"))
             .build();
 
     RestClientAdapter adapter = RestClientAdapter.create(restClient);

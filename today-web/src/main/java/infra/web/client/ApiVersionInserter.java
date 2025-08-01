@@ -55,30 +55,46 @@ public interface ApiVersionInserter {
   }
 
   /**
-   * Create a builder for an inserter that sets a header.
+   * Create an inserter that sets a header.
    *
    * @param header the name of a header to hold the version
    */
-  static Builder forHeader(@Nullable String header) {
-    return new DefaultApiVersionInserterBuilder(header, null, null);
+  static ApiVersionInserter forHeader(@Nullable String header) {
+    return new DefaultApiVersionInserterBuilder(header, null, null, null).build();
   }
 
   /**
-   * Create a builder for an inserter that sets a query parameter.
+   * Create an inserter that sets a query parameter.
    *
    * @param queryParam the name of a query parameter to hold the version
    */
-  static Builder forQueryParam(@Nullable String queryParam) {
-    return new DefaultApiVersionInserterBuilder(null, queryParam, null);
+  static ApiVersionInserter forQueryParam(@Nullable String queryParam) {
+    return new DefaultApiVersionInserterBuilder(null, queryParam, null, null).build();
   }
 
   /**
-   * Create a builder for an inserter that inserts a path segment.
+   * Create an inserter to set a MediaType parameter on the "Content-Type" header.
+   *
+   * @param mediaTypeParam the name of the media type parameter to hold the version
+   */
+  static ApiVersionInserter forMediaTypeParam(@Nullable String mediaTypeParam) {
+    return new DefaultApiVersionInserterBuilder(null, null, mediaTypeParam, null).build();
+  }
+
+  /**
+   * Create an inserter that inserts a path segment.
    *
    * @param pathSegmentIndex the index of the path segment to hold the version
    */
-  static Builder forPathSegment(@Nullable Integer pathSegmentIndex) {
-    return new DefaultApiVersionInserterBuilder(null, null, pathSegmentIndex);
+  static ApiVersionInserter forPathSegment(@Nullable Integer pathSegmentIndex) {
+    return new DefaultApiVersionInserterBuilder(null, null, null, pathSegmentIndex).build();
+  }
+
+  /**
+   * Create a builder for an {@link ApiVersionInserter}.
+   */
+  static Builder builder() {
+    return new DefaultApiVersionInserterBuilder(null, null, null, null);
   }
 
   /**
@@ -91,21 +107,28 @@ public interface ApiVersionInserter {
      *
      * @param header the name of the header to hold the version
      */
-    Builder fromHeader(@Nullable String header);
+    Builder useHeader(@Nullable String header);
 
     /**
      * Configure the inserter to set a query parameter.
      *
      * @param queryParam the name of the query parameter to hold the version
      */
-    Builder fromQueryParam(@Nullable String queryParam);
+    Builder useQueryParam(@Nullable String queryParam);
+
+    /**
+     * Create an inserter to set a MediaType parameter on the "Content-Type" header.
+     *
+     * @param param the name of the media type parameter to hold the version
+     */
+    Builder useMediaTypeParam(@Nullable String param);
 
     /**
      * Configure the inserter to insert a path segment.
      *
      * @param pathSegmentIndex the index of the path segment to hold the version
      */
-    Builder fromPathSegment(@Nullable Integer pathSegmentIndex);
+    Builder usePathSegment(@Nullable Integer pathSegmentIndex);
 
     /**
      * Format the version Object into a String using the given {@link ApiVersionFormatter}.
