@@ -108,7 +108,7 @@ class DefaultApiVersionInserterTests {
   void noInsertionPointConfigured() {
     assertThatThrownBy(() -> ApiVersionInserter.forHeader(null))
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Expected 'header', 'queryParam', or 'pathSegmentIndex' to be configured");
+            .hasMessageContaining("Expected 'header', 'queryParam', 'mediaTypeParam', or 'pathSegmentIndex' to be configured");
   }
 
   @Test
