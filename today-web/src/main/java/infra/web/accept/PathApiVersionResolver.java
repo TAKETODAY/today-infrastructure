@@ -20,7 +20,6 @@ package infra.web.accept;
 import infra.http.server.PathContainer;
 import infra.http.server.RequestPath;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 
 /**
@@ -45,7 +44,6 @@ public class PathApiVersionResolver implements ApiVersionResolver {
     this.pathSegmentIndex = pathSegmentIndex;
   }
 
-  @Nullable
   @Override
   public String resolveVersion(RequestContext request) {
     RequestPath path = request.getRequestPath();
@@ -55,7 +53,7 @@ public class PathApiVersionResolver implements ApiVersionResolver {
         return e.value();
       }
     }
-    return null;
+    throw new InvalidApiVersionException("No path segment at index " + this.pathSegmentIndex);
   }
 
 }
