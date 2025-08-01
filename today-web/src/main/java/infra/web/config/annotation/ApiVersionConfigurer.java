@@ -24,6 +24,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import infra.http.MediaType;
+import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.web.accept.ApiVersionDeprecationHandler;
 import infra.web.accept.ApiVersionParser;
@@ -50,7 +51,8 @@ public class ApiVersionConfigurer {
   @Nullable
   private ApiVersionParser<?> versionParser;
 
-  private boolean versionRequired = true;
+  @Nullable
+  private Boolean versionRequired;
 
   @Nullable
   private String defaultVersion;
@@ -203,12 +205,14 @@ public class ApiVersionConfigurer {
   @Nullable
   protected ApiVersionStrategy getApiVersionStrategy() {
     if (this.versionResolvers.isEmpty()) {
+      Assert.state(isNotCustomized(), "API version config customized, but no ApiVersionResolver provided");
       return null;
     }
 
     var strategy = new DefaultApiVersionStrategy(this.versionResolvers,
             this.versionParser != null ? this.versionParser : new SemanticApiVersionParser(),
-            this.versionRequired, this.defaultVersion, this.detectSupportedVersions, this.deprecationHandler);
+            this.versionRequired != null ? this.versionRequired : true,
+            this.defaultVersion, this.detectSupportedVersions, this.deprecationHandler);
 
     for (String supportedVersion : supportedVersions) {
       strategy.addSupportedVersion(supportedVersion);
@@ -217,4 +221,8 @@ public class ApiVersionConfigurer {
     return strategy;
   }
 
+  private boolean isNotCustomized() {
+    return (this.versionParser == null && this.versionRequired == null &&
+            this.defaultVersion == null && this.supportedVersions.isEmpty());
+  }
 }
