@@ -240,7 +240,8 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
   @Nullable
   private volatile Set<ClassPathManifestEntry> manifestEntriesCache;
 
-  private boolean useCaches = true;
+  @Nullable
+  private Boolean useCaches;
 
   /**
    * Create a new PathMatchingPatternResourceLoader with a DefaultResourceLoader.
@@ -282,10 +283,12 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * the {@link JarURLConnection} level as well as within this resolver instance.
    * <p>Note that {@link JarURLConnection#setDefaultUseCaches} can be turned off
    * independently. This resolver-level setting is designed to only enforce
-   * {@code JarURLConnection#setUseCaches(false)} if necessary but otherwise
-   * leaves the JVM-level default in place.
+   * {@code JarURLConnection#setUseCaches(true/false)} if necessary but otherwise
+   * leaves the JVM-level default in place (if this setter has not been called).
+   * <p>this setting propagates to {@link UrlResource#setUseCaches}.
    *
    * @see JarURLConnection#setUseCaches
+   * @see UrlResource#setUseCaches
    * @see #clearCache()
    * @since 5.0
    */
@@ -324,7 +327,11 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
 
   @Override
   public Resource getResource(String location) {
-    return resourceLoader.getResource(location);
+    Resource resource = resourceLoader.getResource(location);
+    if (this.useCaches != null && resource instanceof UrlResource urlResource) {
+      urlResource.setUseCaches(this.useCaches);
+    }
+    return resource;
   }
 
   @Override
@@ -435,8 +442,41 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * @see java.lang.ClassLoader#getResources
    * @see Resource
    */
+  @SuppressWarnings("deprecation")  // on JDK 20 (deprecated URL constructor)
   protected Resource convertClassLoaderURL(URL url) {
-    return ResourceUtils.getResource(url);
+    if (ResourceUtils.URL_PROTOCOL_FILE.equals(url.getProtocol())) {
+      try {
+        // URI decoding for special characters such as spaces.
+        return new FileSystemResource(ResourceUtils.toURI(url).getSchemeSpecificPart());
+      }
+      catch (URISyntaxException ex) {
+        // Fallback for URLs that are not valid URIs (should hardly ever happen).
+        return new FileSystemResource(url.getFile());
+      }
+    }
+    else {
+      UrlResource resource = null;
+      String urlString = url.toString();
+      String cleanedPath = StringUtils.cleanPath(urlString);
+      if (!cleanedPath.equals(urlString)) {
+        // Prefer cleaned URL, aligned with UrlResource#createRelative(String)
+        try {
+          // Retain original URL instance, potentially including custom URLStreamHandler.
+          resource = new UrlResource(new URL(url, cleanedPath));
+        }
+        catch (MalformedURLException ex) {
+          // Fallback to regular URL construction below...
+        }
+      }
+      // Retain original URL instance, potentially including custom URLStreamHandler.
+      if (resource == null) {
+        resource = new UrlResource(url);
+      }
+      if (this.useCaches != null) {
+        resource.setUseCaches(this.useCaches);
+      }
+      return resource;
+    }
   }
 
   /**
@@ -456,6 +496,9 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
                     ResourceUtils.URL_PROTOCOL_JAR.equals(url.getProtocol())
                             ? new UrlResource(url)
                             : new UrlResource(ResourceUtils.JAR_URL_PREFIX + url + ResourceUtils.JAR_URL_SEPARATOR);
+            if (this.useCaches != null) {
+              jarResource.setUseCaches(this.useCaches);
+            }
             if (jarResource.exists()) {
               consumer.accept(jarResource);
             }
@@ -499,7 +542,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     Set<ClassPathManifestEntry> entries = this.manifestEntriesCache;
     if (entries == null) {
       entries = getClassPathManifestEntries();
-      if (this.useCaches) {
+      if (this.useCaches == null || this.useCaches) {
         this.manifestEntriesCache = entries;
       }
     }
@@ -521,7 +564,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
         try {
           File jar = new File(path).getAbsoluteFile();
           if (jar.isFile() && seen.add(jar)) {
-            manifestEntries.add(ClassPathManifestEntry.of(jar));
+            manifestEntries.add(ClassPathManifestEntry.of(jar, this.useCaches));
             manifestEntries.addAll(getClassPathManifestEntriesFromJar(jar));
           }
         }
@@ -560,7 +603,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
           }
           File candidate = new File(parent, path);
           if (candidate.isFile() && candidate.getCanonicalPath().contains(parent.getCanonicalPath())) {
-            manifestEntries.add(ClassPathManifestEntry.of(candidate));
+            manifestEntries.add(ClassPathManifestEntry.of(candidate, this.useCaches));
           }
         }
       }
@@ -650,7 +693,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
       if (rootDirResources == null) {
         // Lookup for specific directory, creating a cache entry for it.
         rootDirResources = getResourcesArray(rootDirPath);
-        if (this.useCaches) {
+        if (this.useCaches == null || this.useCaches) {
           this.rootDirCache.put(rootDirPath, rootDirResources);
         }
       }
@@ -793,8 +836,8 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
 
     if (con instanceof JarURLConnection jarCon) {
       // Should usually be the case for traditional JAR files.
-      if (!this.useCaches) {
-        jarCon.setUseCaches(false);
+      if (this.useCaches != null) {
+        jarCon.setUseCaches(this.useCaches);
       }
       try {
         jarFile = jarCon.getJarFile();
@@ -860,7 +903,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
           }
         }
       }
-      if (this.useCaches) {
+      if (this.useCaches == null || this.useCaches) {
         // Cache jar entries in TreeSet for efficient searching on re-encounter.
         this.jarEntriesCache.put(jarFileUrl, entriesCache);
       }
@@ -1081,10 +1124,10 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
 
     private static final String JARFILE_URL_PREFIX = ResourceUtils.JAR_URL_PREFIX + ResourceUtils.FILE_URL_PREFIX;
 
-    static ClassPathManifestEntry of(File file) throws MalformedURLException {
+    static ClassPathManifestEntry of(File file, @Nullable Boolean useCaches) throws MalformedURLException {
       String path = fixPath(file.getAbsolutePath());
-      Resource resource = asJarFileResource(path);
-      Resource alternative = createAlternative(path);
+      Resource resource = asJarFileResource(path, useCaches);
+      Resource alternative = createAlternative(path, useCaches);
       return new ClassPathManifestEntry(resource, alternative);
     }
 
@@ -1106,18 +1149,22 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
      * @return the alternative form or {@code null}
      */
     @Nullable
-    private static Resource createAlternative(String path) {
+    private static Resource createAlternative(String path, @Nullable Boolean useCaches) {
       try {
         String alternativePath = path.startsWith("/") ? path.substring(1) : "/" + path;
-        return asJarFileResource(alternativePath);
+        return asJarFileResource(alternativePath, useCaches);
       }
       catch (MalformedURLException ex) {
         return null;
       }
     }
 
-    private static Resource asJarFileResource(String path) throws MalformedURLException {
-      return new UrlResource(JARFILE_URL_PREFIX + path + ResourceUtils.JAR_URL_SEPARATOR);
+    private static Resource asJarFileResource(String path, @Nullable Boolean useCaches) throws MalformedURLException {
+      UrlResource resource = new UrlResource(JARFILE_URL_PREFIX + path + ResourceUtils.JAR_URL_SEPARATOR);
+      if (useCaches != null) {
+        resource.setUseCaches(useCaches);
+      }
+      return resource;
     }
   }
 

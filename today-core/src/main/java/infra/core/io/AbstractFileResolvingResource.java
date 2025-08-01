@@ -346,10 +346,21 @@ public abstract class AbstractFileResolvingResource extends AbstractResource {
    * @throws IOException if thrown from URLConnection methods
    */
   protected void customizeConnection(URLConnection con) throws IOException {
-    ResourceUtils.useCachesIfNecessary(con);
+    useCachesIfNecessary(con);
     if (con instanceof HttpURLConnection httpConn) {
       customizeConnection(httpConn);
     }
+  }
+
+  /**
+   * Apply {@link URLConnection#setUseCaches useCaches} if necessary.
+   *
+   * @param con the URLConnection to customize
+   * @see ResourceUtils#useCachesIfNecessary(URLConnection)
+   * @since 5.0
+   */
+  void useCachesIfNecessary(URLConnection con) {
+    ResourceUtils.useCachesIfNecessary(con);
   }
 
   /**
