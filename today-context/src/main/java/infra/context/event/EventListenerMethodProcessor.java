@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -85,7 +85,7 @@ public class EventListenerMethodProcessor implements SmartInitializingSingleton,
     shared.setBeanResolver(new BeanFactoryResolver(beanFactory));
     EventExpressionEvaluator evaluator = new EventExpressionEvaluator(shared);
 
-    Set<String> beanNames = beanFactory.getBeanNamesForType(Object.class);
+    var beanNames = beanFactory.getBeanNamesForType(Object.class);
     for (String beanName : beanNames) {
       if (ScopedProxyUtils.isScopedTarget(beanName)) {
         continue;

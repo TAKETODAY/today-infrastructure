@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,6 +63,7 @@ import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.test.context.junit4.InfraRunner;
 import infra.util.ClassUtils;
+import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
@@ -254,7 +255,7 @@ public class MockitoPostProcessor implements BeanFactoryAware, BeanClassLoaderAw
   }
 
   private Set<String> getExistingBeans(ConfigurableBeanFactory beanFactory, ResolvableType resolvableType) {
-    Set<String> beans = new LinkedHashSet<>(beanFactory.getBeanNamesForType(resolvableType, true, false));
+    Set<String> beans = CollectionUtils.newLinkedHashSet(beanFactory.getBeanNamesForType(resolvableType, true, false));
     Class<?> type = resolvableType.resolve(Object.class);
     for (String beanName : beanFactory.getBeanNamesForType(FactoryBean.class, true, false)) {
       beanName = BeanFactoryUtils.transformedBeanName(beanName);

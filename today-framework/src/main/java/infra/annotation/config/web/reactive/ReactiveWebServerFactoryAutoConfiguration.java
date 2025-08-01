@@ -40,7 +40,7 @@ import infra.http.ReactiveHttpInputMessage;
 import infra.http.server.reactive.ForwardedHeaderTransformer;
 import infra.lang.Nullable;
 import infra.stereotype.Component;
-import infra.util.CollectionUtils;
+import infra.util.ObjectUtils;
 import infra.web.server.ServerProperties;
 import infra.web.server.WebServerFactoryCustomizerBeanPostProcessor;
 
@@ -90,7 +90,7 @@ public class ReactiveWebServerFactoryAutoConfiguration {
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
       ConfigurableBeanFactory beanFactory = context.getBeanFactory();
-      if (CollectionUtils.isEmpty(beanFactory.getBeanNamesForType(
+      if (ObjectUtils.isEmpty(beanFactory.getBeanNamesForType(
               WebServerFactoryCustomizerBeanPostProcessor.class, true, false))) {
         RootBeanDefinition beanDefinition = new RootBeanDefinition(WebServerFactoryCustomizerBeanPostProcessor.class);
         beanDefinition.setSynthetic(true);

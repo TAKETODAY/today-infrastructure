@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,6 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.context.ApplicationContext;
 import infra.context.ConfigurableApplicationContext;
 import infra.lang.Assert;
-import infra.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -232,7 +231,7 @@ public class ApplicationContextAssert<C extends ApplicationContext>
     if (this.startupFailure != null) {
       throwAssertionError(contextFailedToStartWhenExpecting("to get beans names with type:%n <%s>", type));
     }
-    return Assertions.assertThat(StringUtils.toStringArray(getApplicationContext().getBeanNamesForType(type)))
+    return Assertions.assertThat(getApplicationContext().getBeanNamesForType(type))
             .as("Bean names of type <%s> from <%s>", type, getApplicationContext());
   }
 
@@ -500,10 +499,9 @@ public class ApplicationContextAssert<C extends ApplicationContext>
      * Limited to the current context.
      */
     NO_ANCESTORS {
-
       @Override
       String[] getBeanNamesForType(ApplicationContext applicationContext, Class<?> type) {
-        return StringUtils.toStringArray(applicationContext.getBeanNamesForType(type));
+        return applicationContext.getBeanNamesForType(type);
       }
 
       @Override
@@ -519,7 +517,7 @@ public class ApplicationContextAssert<C extends ApplicationContext>
     INCLUDE_ANCESTORS {
       @Override
       String[] getBeanNamesForType(ApplicationContext applicationContext, Class<?> type) {
-        return StringUtils.toStringArray(BeanFactoryUtils.beanNamesForTypeIncludingAncestors(applicationContext, type));
+        return BeanFactoryUtils.beanNamesForTypeIncludingAncestors(applicationContext, type);
       }
 
       @Override

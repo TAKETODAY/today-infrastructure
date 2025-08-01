@@ -17,7 +17,6 @@
 
 package infra.cache.annotation;
 
-import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -34,7 +33,7 @@ import infra.context.annotation.ImportAware;
 import infra.core.annotation.AnnotationAttributes;
 import infra.core.type.AnnotationMetadata;
 import infra.lang.Nullable;
-import infra.util.CollectionUtils;
+import infra.util.ObjectUtils;
 import infra.util.function.SingletonSupplier;
 
 /**
@@ -80,17 +79,17 @@ public abstract class AbstractCachingConfiguration implements ImportAware, BeanF
   @Override
   public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
     useCachingConfigurer(new CachingConfigurerSupplier(() -> {
-      Set<String> candidates = beanFactory.getBeanNamesForType(CachingConfigurer.class);
-      if (CollectionUtils.isEmpty(candidates)) {
+      var candidates = beanFactory.getBeanNamesForType(CachingConfigurer.class);
+      if (ObjectUtils.isEmpty(candidates)) {
         return null;
       }
-      if (candidates.size() > 1) {
-        throw new IllegalStateException(candidates.size() + " implementations of " +
+      if (candidates.length > 1) {
+        throw new IllegalStateException(candidates.length + " implementations of " +
                 "CachingConfigurer were found when only 1 was expected. " +
                 "Refactor the configuration such that CachingConfigurer is " +
                 "implemented only once or not at all.");
       }
-      return beanFactory.getBean(CollectionUtils.firstElement(candidates), CachingConfigurer.class);
+      return beanFactory.getBean(candidates[0], CachingConfigurer.class);
     }));
   }
 

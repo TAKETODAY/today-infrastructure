@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -106,7 +106,7 @@ class TestRestTemplateContextCustomizer implements ContextCustomizer {
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
       if (BeanFactoryUtils.beanNamesForTypeIncludingAncestors(this.beanFactory,
-              TestRestTemplate.class, false, false).size() == 0) {
+              TestRestTemplate.class, false, false).length == 0) {
         registry.registerBeanDefinition(TestRestTemplate.class.getName(),
                 new RootBeanDefinition(TestRestTemplateFactory.class));
       }

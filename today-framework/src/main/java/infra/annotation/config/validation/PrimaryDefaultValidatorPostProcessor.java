@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,12 @@
 
 package infra.annotation.config.validation;
 
-import java.util.Set;
-
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.config.BeanDefinition;
 import infra.context.BootstrapContext;
 import infra.context.annotation.ImportBeanDefinitionRegistrar;
 import infra.core.type.AnnotationMetadata;
+import infra.lang.Nullable;
 import infra.validation.Validator;
 import infra.validation.beanvalidation.LocalValidatorFactoryBean;
 
@@ -55,6 +54,7 @@ class PrimaryDefaultValidatorPostProcessor implements ImportBeanDefinitionRegist
     }
   }
 
+  @Nullable
   private BeanDefinition getAutoConfiguredValidator(BootstrapContext context) {
     if (context.containsBeanDefinition(VALIDATOR_BEAN_NAME)) {
       BeanFactory beanFactory = context.getBeanFactory();
@@ -72,7 +72,7 @@ class PrimaryDefaultValidatorPostProcessor implements ImportBeanDefinitionRegist
   }
 
   private boolean hasPrimaryInfraValidator(BeanFactory beanFactory) {
-    Set<String> validatorBeans = beanFactory.getBeanNamesForType(Validator.class, false, false);
+    var validatorBeans = beanFactory.getBeanNamesForType(Validator.class, false, false);
     for (String validatorBean : validatorBeans) {
       BeanDefinition definition = beanFactory.getBeanDefinition(validatorBean);
       if (definition.isPrimary()) {

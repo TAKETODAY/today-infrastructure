@@ -245,7 +245,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * @see #setDetectHandlerMethodsInAncestorContexts
    * @see BeanFactoryUtils#beanNamesForTypeIncludingAncestors
    */
-  protected Set<String> getCandidateBeanNames() {
+  protected String[] getCandidateBeanNames() {
     return detectHandlerMethodsInAncestorContexts ?
             BeanFactoryUtils.beanNamesForTypeIncludingAncestors(obtainApplicationContext(), Object.class) :
             obtainApplicationContext().getBeanNamesForType(Object.class);
