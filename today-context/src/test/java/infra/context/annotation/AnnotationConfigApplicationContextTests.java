@@ -17,7 +17,6 @@
 
 package infra.context.annotation;
 
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -40,6 +39,7 @@ import infra.context.annotation6.Jsr330NamedForScanning;
 import infra.context.testfixture.context.annotation.CglibConfiguration;
 import infra.context.testfixture.context.annotation.LambdaBeanConfiguration;
 import infra.core.ResolvableType;
+import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 
