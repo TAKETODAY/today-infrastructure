@@ -19,6 +19,7 @@ package infra.beans.factory.support;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -46,7 +47,6 @@ import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.RepeatableContainers;
 import infra.lang.Assert;
 import infra.lang.Nullable;
-import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 
@@ -171,11 +171,11 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
 
   @Override
   public <T> T getBean(Class<T> requiredType) throws BeansException {
-    Set<String> beanNames = getBeanNamesForType(requiredType);
-    if (beanNames.size() == 1) {
-      return getBean(CollectionUtils.firstElement(beanNames), requiredType);
+    var beanNames = getBeanNamesForType(requiredType);
+    if (beanNames.length == 1) {
+      return getBean(beanNames[0], requiredType);
     }
-    else if (beanNames.size() > 1) {
+    else if (beanNames.length > 1) {
       throw new NoUniqueBeanDefinitionException(requiredType, beanNames);
     }
     else {
@@ -323,11 +323,11 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
     return new ObjectProvider<>() {
       @Override
       public T get() throws BeansException {
-        Set<String> beanNames = getBeanNamesForType(requiredType);
-        if (beanNames.size() == 1) {
-          return (T) getBean(CollectionUtils.firstElement(beanNames), requiredType.toClass());
+        var beanNames = getBeanNamesForType(requiredType);
+        if (beanNames.length == 1) {
+          return (T) getBean(beanNames[0], requiredType.toClass());
         }
-        else if (beanNames.size() > 1) {
+        else if (beanNames.length > 1) {
           throw new NoUniqueBeanDefinitionException(requiredType, beanNames);
         }
         else {
@@ -337,11 +337,11 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
 
       @Override
       public T get(Object... args) throws BeansException {
-        Set<String> beanNames = getBeanNamesForType(requiredType);
-        if (beanNames.size() == 1) {
-          return (T) getBean(CollectionUtils.firstElement(beanNames), args);
+        var beanNames = getBeanNamesForType(requiredType);
+        if (beanNames.length == 1) {
+          return (T) getBean(beanNames[0], args);
         }
-        else if (beanNames.size() > 1) {
+        else if (beanNames.length > 1) {
           throw new NoUniqueBeanDefinitionException(requiredType, beanNames);
         }
         else {
@@ -352,11 +352,11 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
       @Override
       @Nullable
       public T getIfAvailable() throws BeansException {
-        Set<String> beanNames = getBeanNamesForType(requiredType);
-        if (beanNames.size() == 1) {
-          return (T) getBean(CollectionUtils.firstElement(beanNames), requiredType.toClass());
+        var beanNames = getBeanNamesForType(requiredType);
+        if (beanNames.length == 1) {
+          return (T) getBean(beanNames[0], requiredType.toClass());
         }
-        else if (beanNames.size() > 1) {
+        else if (beanNames.length > 1) {
           throw new NoUniqueBeanDefinitionException(requiredType, beanNames);
         }
         else {
@@ -367,9 +367,9 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
       @Override
       @Nullable
       public T getIfUnique() throws BeansException {
-        Set<String> beanNames = getBeanNamesForType(requiredType);
-        if (beanNames.size() == 1) {
-          return (T) getBean(CollectionUtils.firstElement(beanNames), requiredType.toClass());
+        var beanNames = getBeanNamesForType(requiredType);
+        if (beanNames.length == 1) {
+          return (T) getBean(beanNames[0], requiredType.toClass());
         }
         else {
           return null;
@@ -378,19 +378,20 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
 
       @Override
       public Stream<T> stream() {
-        return getBeanNamesForType(requiredType).stream().map(name -> (T) getBean(name, requiredType.toClass()));
+        return Arrays.stream(getBeanNamesForType(requiredType))
+                .map(name -> (T) getBean(name, requiredType.toClass()));
       }
 
     };
   }
 
   @Override
-  public Set<String> getBeanNamesForType(@Nullable ResolvableType type) {
+  public String[] getBeanNamesForType(@Nullable ResolvableType type) {
     return getBeanNamesForType(type, true, true);
   }
 
   @Override
-  public Set<String> getBeanNamesForType(@Nullable ResolvableType type,
+  public String[] getBeanNamesForType(@Nullable ResolvableType type,
           boolean includeNonSingletons, boolean allowEagerInit) {
 
     Class<?> resolved = (type != null ? type.resolve() : null);
@@ -412,16 +413,16 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
         }
       }
     }
-    return new LinkedHashSet<>(matches);
+    return StringUtils.toStringArray(matches);
   }
 
   @Override
-  public Set<String> getBeanNamesForType(@Nullable Class<?> type) {
+  public String[] getBeanNamesForType(@Nullable Class<?> type) {
     return getBeanNamesForType(ResolvableType.forClass(type));
   }
 
   @Override
-  public Set<String> getBeanNamesForType(@Nullable Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
+  public String[] getBeanNamesForType(@Nullable Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
     return getBeanNamesForType(ResolvableType.forClass(type), includeNonSingletons, allowEagerInit);
   }
 
@@ -470,14 +471,14 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
   }
 
   @Override
-  public Set<String> getBeanNamesForAnnotation(Class<? extends Annotation> annotationType) {
+  public String[] getBeanNamesForAnnotation(Class<? extends Annotation> annotationType) {
     List<String> results = new ArrayList<>();
     for (String beanName : this.beans.keySet()) {
       if (findAnnotationOnBean(beanName, annotationType) != null) {
         results.add(beanName);
       }
     }
-    return new LinkedHashSet<>(results);
+    return StringUtils.toStringArray(results);
   }
 
   @Override

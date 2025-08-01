@@ -41,7 +41,6 @@ import infra.context.testfixture.context.annotation.LambdaBeanConfiguration;
 import infra.core.ResolvableType;
 import infra.lang.Nullable;
 import infra.util.ObjectUtils;
-import infra.util.StringUtils;
 
 import static infra.util.StringUtils.uncapitalize;
 import static java.lang.String.format;
@@ -337,9 +336,9 @@ class AnnotationConfigApplicationContextTests {
     context.registerBean("c", BeanC.class, BeanC::new);
     context.refresh();
 
-    assertThat(ObjectUtils.containsElement(StringUtils.toStringArray(context.getBeanNamesForType(BeanA.class)), "a")).isTrue();
-    assertThat(ObjectUtils.containsElement(StringUtils.toStringArray(context.getBeanNamesForType(BeanB.class)), "b")).isTrue();
-    assertThat(ObjectUtils.containsElement(StringUtils.toStringArray(context.getBeanNamesForType(BeanC.class)), "c")).isTrue();
+    assertThat(ObjectUtils.containsElement(context.getBeanNamesForType(BeanA.class), "a")).isTrue();
+    assertThat(ObjectUtils.containsElement(context.getBeanNamesForType(BeanB.class), "b")).isTrue();
+    assertThat(ObjectUtils.containsElement(context.getBeanNamesForType(BeanC.class), "c")).isTrue();
 
     assertThat(context.getBeansOfType(BeanA.class)).isEmpty();
     assertThat(context.getBeansOfType(BeanB.class).values()).singleElement().isSameAs(context.getBean(BeanB.class));

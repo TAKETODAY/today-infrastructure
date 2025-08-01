@@ -860,11 +860,13 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     return bd;
   }
 
+  @Nullable
+  @Override
   public BeanDefinition getBeanDefinition(Class<?> requiredType) {
-    Set<String> candidateNames = getBeanNamesForType(requiredType, true, false);
-    int size = candidateNames.size();
+    var candidateNames = getBeanNamesForType(requiredType, true, false);
+    int size = candidateNames.length;
     if (size == 1) {
-      return getBeanDefinition(candidateNames.iterator().next());
+      return getBeanDefinition(candidateNames[0]);
     }
     else if (size > 1) {
       Map<String, Object> candidates = CollectionUtils.newLinkedHashMap(size);
@@ -993,9 +995,9 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @SuppressWarnings("unchecked")
   private <T> NamedBeanHolder<T> resolveNamedBean(ResolvableType requiredType, @Nullable Object[] args, boolean nonUniqueAsNull) throws BeansException {
     Assert.notNull(requiredType, "Required type is required");
-    Set<String> candidateNames = getBeanNamesForType(requiredType);
+    var candidateNames = getBeanNamesForType(requiredType);
 
-    int size = candidateNames.size();
+    int size = candidateNames.length;
     if (size > 1) {
       LinkedHashSet<String> autowireCandidates = new LinkedHashSet<>(size);
       for (String beanName : candidateNames) {
@@ -1004,13 +1006,13 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         }
       }
       if (!autowireCandidates.isEmpty()) {
-        candidateNames = autowireCandidates;
+        candidateNames = StringUtils.toStringArray(autowireCandidates);
       }
     }
 
-    size = candidateNames.size();
+    size = candidateNames.length;
     if (size == 1) {
-      return resolveNamedBean(candidateNames.iterator().next(), requiredType, args);
+      return resolveNamedBean(candidateNames[0], requiredType, args);
     }
     else if (size > 1) {
       Map<String, Object> candidates = CollectionUtils.newLinkedHashMap(size);
@@ -1175,7 +1177,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     };
   }
 
-  private Set<String> getBeanNamesForTypedStream(ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
+  private String[] getBeanNamesForTypedStream(ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
     return BeanFactoryUtils.beanNamesForTypeIncludingAncestors(this, requiredType, includeNonSingletons, allowEagerInit);
   }
 
@@ -1199,7 +1201,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @SuppressWarnings("unchecked")
   public <T> Map<String, T> getBeansOfType(@Nullable Class<T> type, boolean includeNonSingletons, boolean allowEagerInit) {
     var beanNames = getBeanNamesForType(type, includeNonSingletons, allowEagerInit);
-    Map<String, T> result = CollectionUtils.newLinkedHashMap(beanNames.size());
+    Map<String, T> result = CollectionUtils.newLinkedHashMap(beanNames.length);
     for (String beanName : beanNames) {
       try {
         Object beanInstance = type != null ? getBean(beanName, type) : getBean(beanName);
@@ -1235,8 +1237,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @SuppressWarnings("unchecked")
   public <T> Map<String, T> getBeansOfType(ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
     Class<?> type = requiredType.getRawClass();
-    Set<String> beanNames = getBeanNamesForType(requiredType, includeNonSingletons, allowEagerInit);
-    Map<String, T> beans = CollectionUtils.newLinkedHashMap(beanNames.size());
+    var beanNames = getBeanNamesForType(requiredType, includeNonSingletons, allowEagerInit);
+    Map<String, T> beans = CollectionUtils.newLinkedHashMap(beanNames.length);
     for (String beanName : beanNames) {
       try {
         Object beanInstance = type != null ? getBean(beanName, type) : getBean(beanName);
@@ -1270,13 +1272,12 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   // getBeanNamesOfType
 
   @Override
-  public Set<String> getBeanNamesForType(@Nullable Class<?> type) {
+  public String[] getBeanNamesForType(@Nullable Class<?> type) {
     return getBeanNamesForType(type, true, true);
   }
 
   @Override
-  @Modifiable
-  public Set<String> getBeanNamesForType(@Nullable Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
+  public String[] getBeanNamesForType(@Nullable Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
     if (!isConfigurationFrozen() || type == null || !allowEagerInit) {
       return doGetBeanNamesForType(
               ResolvableType.forRawClass(type), includeNonSingletons, allowEagerInit);
@@ -1285,25 +1286,24 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     Map<Class<?>, String[]> cache = includeNonSingletons ? this.allBeanNamesByType : this.singletonBeanNamesByType;
     String[] resolvedBeanNames = cache.get(type);
     if (resolvedBeanNames != null) {
-      return CollectionUtils.newLinkedHashSet(resolvedBeanNames);
+      return resolvedBeanNames;
     }
 
-    Set<String> resolvedBeanNamesSet = doGetBeanNamesForType(
+    resolvedBeanNames = doGetBeanNamesForType(
             ResolvableType.forRawClass(type), includeNonSingletons, true);
     if (ClassUtils.isCacheSafe(type, getBeanClassLoader())) {
-      cache.put(type, StringUtils.toStringArray(resolvedBeanNamesSet));
+      cache.put(type, resolvedBeanNames);
     }
-    return resolvedBeanNamesSet;
+    return resolvedBeanNames;
   }
 
   @Override
-  public Set<String> getBeanNamesForType(ResolvableType type) {
+  public String[] getBeanNamesForType(ResolvableType type) {
     return getBeanNamesForType(type, true, true);
   }
 
   @Override
-  @Modifiable
-  public Set<String> getBeanNamesForType(ResolvableType type, boolean includeNonSingletons, boolean allowEagerInit) {
+  public String[] getBeanNamesForType(ResolvableType type, boolean includeNonSingletons, boolean allowEagerInit) {
 
     Class<?> resolved = type.resolve();
     if (resolved != null && !type.hasGenerics()) {
@@ -1314,8 +1314,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     }
   }
 
-  @Modifiable
-  private Set<String> doGetBeanNamesForType(ResolvableType type, boolean includeNonSingletons, boolean allowEagerInit) {
+  private String[] doGetBeanNamesForType(ResolvableType type, boolean includeNonSingletons, boolean allowEagerInit) {
     LinkedHashSet<String> beanNames = new LinkedHashSet<>();
     // 1. Check all bean definitions.
     for (String beanName : beanDefinitionNames) {
@@ -1408,7 +1407,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         log.trace("Failed to check manually registered singleton with name '{}'", beanName, ex);
       }
     }
-    return beanNames;
+    return StringUtils.toStringArray(beanNames);
   }
 
   private boolean allowCheck(RootBeanDefinition definition) {
@@ -1439,8 +1438,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   public Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType, boolean includeNonSingletons) {
     Assert.notNull(annotationType, "annotationType is required");
 
-    Set<String> beanNames = getBeanNamesForAnnotation(annotationType);
-    Map<String, Object> result = CollectionUtils.newLinkedHashMap(beanNames.size());
+    var beanNames = getBeanNamesForAnnotation(annotationType);
+    Map<String, Object> result = CollectionUtils.newLinkedHashMap(beanNames.length);
     for (String beanName : beanNames) {
       Object beanInstance = getBean(beanName);
       result.put(beanName, beanInstance);
@@ -1449,7 +1448,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   @Override
-  public Set<String> getBeanNamesForAnnotation(Class<? extends Annotation> annotationType) {
+  public String[] getBeanNamesForAnnotation(Class<? extends Annotation> annotationType) {
     Assert.notNull(annotationType, "annotationType is required");
     LinkedHashSet<String> names = new LinkedHashSet<>();
 
@@ -1466,7 +1465,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       }
     }
 
-    return names;
+    return StringUtils.toStringArray(names);
   }
 
   @Nullable
@@ -2041,10 +2040,10 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    * @throws BeansException in case of errors
    */
   protected Map<String, Object> findAutowireCandidates(@Nullable String beanName, Class<?> requiredType, DependencyDescriptor descriptor) {
-    Set<String> candidateNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
+    String[] candidateNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
             this, requiredType, true, descriptor.isEager());
 
-    Map<String, Object> result = CollectionUtils.newLinkedHashMap(candidateNames.size());
+    Map<String, Object> result = CollectionUtils.newLinkedHashMap(candidateNames.length);
     for (Map.Entry<Class<?>, Object> classObjectEntry : this.resolvableDependencies.entrySet()) {
       Class<?> autowiringType = classObjectEntry.getKey();
       if (autowiringType.isAssignableFrom(requiredType)) {
@@ -2565,14 +2564,12 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     public Stream<T> stream(@Nullable Predicate<Class<?>> customFilter, boolean includeNonSingletons) {
       ResolvableType type = requiredType();
       if (customFilter != null) {
-        return getBeanNamesForTypedStream(type, includeNonSingletons, allowEagerInit)
-                .stream()
+        return Arrays.stream(getBeanNamesForTypedStream(type, includeNonSingletons, allowEagerInit))
                 .filter(name -> filterInternal(name) && customFilter.test(getType(name)))
                 .map(name -> (T) resolveBean(name, type))
                 .filter(Objects::nonNull);
       }
-      return getBeanNamesForTypedStream(type, includeNonSingletons, allowEagerInit)
-              .stream()
+      return Arrays.stream(getBeanNamesForTypedStream(type, includeNonSingletons, allowEagerInit))
               .map(name -> (T) resolveBean(name, type))
               .filter(Objects::nonNull);
     }
@@ -2586,10 +2583,10 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     public Stream<T> orderedStream(@Nullable Predicate<Class<?>> customFilter, boolean includeNonSingletons) {
       ResolvableType type = requiredType();
       var beanNames = getBeanNamesForTypedStream(type, includeNonSingletons, allowEagerInit);
-      if (beanNames.isEmpty()) {
+      if (ObjectUtils.isEmpty(beanNames)) {
         return Stream.empty();
       }
-      Map<String, T> matchingBeans = CollectionUtils.newLinkedHashMap(beanNames.size());
+      Map<String, T> matchingBeans = CollectionUtils.newLinkedHashMap(beanNames.length);
       for (String beanName : beanNames) {
         if (customFilter == null || (filterInternal(beanName) && customFilter.test(getType(beanName)))) {
           Object beanInstance = resolveBean(beanName, type);

@@ -326,28 +326,28 @@ class ApplicationContextHolderTests {
     }
 
     @Override
-    public Set<String> getBeanNamesForType(@Nullable Class<?> type) {
-      return Set.of();
+    public String[] getBeanNamesForType(@Nullable Class<?> type) {
+      return new String[0];
     }
 
     @Override
-    public Set<String> getBeanNamesForType(@Nullable Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
-      return Set.of();
+    public String[] getBeanNamesForType(@Nullable Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
+      return new String[0];
     }
 
     @Override
-    public Set<String> getBeanNamesForType(ResolvableType type) {
-      return Set.of();
+    public String[] getBeanNamesForType(ResolvableType type) {
+      return new String[0];
     }
 
     @Override
-    public Set<String> getBeanNamesForType(ResolvableType type, boolean includeNonSingletons, boolean allowEagerInit) {
-      return Set.of();
+    public String[] getBeanNamesForType(ResolvableType type, boolean includeNonSingletons, boolean allowEagerInit) {
+      return new String[0];
     }
 
     @Override
-    public Set<String> getBeanNamesForAnnotation(Class<? extends Annotation> annotationType) {
-      return Set.of();
+    public String[] getBeanNamesForAnnotation(Class<? extends Annotation> annotationType) {
+      return new String[0];
     }
 
     @Override

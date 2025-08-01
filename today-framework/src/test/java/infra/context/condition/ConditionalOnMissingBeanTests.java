@@ -503,8 +503,8 @@ class ConditionalOnMissingBeanTests {
 
   private Consumer<ConfigurableApplicationContext> beansAndContainersNamed(Class<?> type, String... names) {
     return (context) -> {
-      String[] beans = StringUtils.toStringArray(context.getBeanNamesForType(type));
-      String[] containers = StringUtils.toStringArray(context.getBeanNamesForType(TestParameterizedContainer.class));
+      String[] beans = context.getBeanNamesForType(type);
+      String[] containers = context.getBeanNamesForType(TestParameterizedContainer.class);
       assertThat(StringUtils.concatenateStringArrays(beans, containers)).containsOnly(names);
     };
   }

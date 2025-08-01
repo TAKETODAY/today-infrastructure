@@ -1236,7 +1236,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   }
 
   @Override
-  public Set<String> getBeanNamesForAnnotation(Class<? extends Annotation> annotationType) {
+  public String[] getBeanNamesForAnnotation(Class<? extends Annotation> annotationType) {
     assertBeanFactoryActive();
     return getBeanFactory().getBeanNamesForAnnotation(annotationType);
   }
@@ -1297,13 +1297,13 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   }
 
   @Override
-  public Set<String> getBeanNamesForType(@Nullable Class<?> type) {
+  public String[] getBeanNamesForType(@Nullable Class<?> type) {
     assertBeanFactoryActive();
     return getBeanFactory().getBeanNamesForType(type);
   }
 
   @Override
-  public Set<String> getBeanNamesForType(@Nullable Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
+  public String[] getBeanNamesForType(@Nullable Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
     assertBeanFactoryActive();
     return getBeanFactory().getBeanNamesForType(type, includeNonSingletons, allowEagerInit);
   }
@@ -1327,13 +1327,13 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   }
 
   @Override
-  public Set<String> getBeanNamesForType(ResolvableType requiredType) {
+  public String[] getBeanNamesForType(ResolvableType requiredType) {
     assertBeanFactoryActive();
     return getBeanFactory().getBeanNamesForType(requiredType);
   }
 
   @Override
-  public Set<String> getBeanNamesForType(ResolvableType type, boolean includeNonSingletons, boolean allowEagerInit) {
+  public String[] getBeanNamesForType(ResolvableType type, boolean includeNonSingletons, boolean allowEagerInit) {
     assertBeanFactoryActive();
     return getBeanFactory().getBeanNamesForType(type, includeNonSingletons, allowEagerInit);
   }
@@ -1592,7 +1592,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 
     // Do not initialize FactoryBeans here: We need to leave all regular beans
     // uninitialized to let post-processors apply to them!
-    Set<String> listenerBeanNames = getBeanNamesForType(ApplicationListener.class, true, false);
+    var listenerBeanNames = getBeanNamesForType(ApplicationListener.class, true, false);
     for (String listenerBeanName : listenerBeanNames) {
       eventMulticaster.addApplicationListenerBean(listenerBeanName);
     }

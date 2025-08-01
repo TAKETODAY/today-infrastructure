@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@ package infra.context.properties;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import infra.aot.generate.GenerationContext;
 import infra.beans.factory.aot.BeanFactoryInitializationAotContribution;
@@ -46,14 +45,14 @@ class ConfigurationPropertiesBeanFactoryInitializationAotProcessor implements Be
 
   @Override
   public ConfigurationPropertiesReflectionHintsContribution processAheadOfTime(ConfigurableBeanFactory beanFactory) {
-    Set<String> beanNames = beanFactory.getBeanNamesForAnnotation(ConfigurationProperties.class);
+    var beanNames = beanFactory.getBeanNamesForAnnotation(ConfigurationProperties.class);
     List<Bindable<?>> bindables = new ArrayList<>();
     for (String beanName : beanNames) {
       Class<?> beanType = beanFactory.getType(beanName, false);
       if (beanType != null) {
         BindMethod bindMethod = beanFactory.containsBeanDefinition(beanName)
-                                ? (BindMethod) beanFactory.getBeanDefinition(beanName).getAttribute(BindMethod.class.getName())
-                                : null;
+                ? (BindMethod) beanFactory.getBeanDefinition(beanName).getAttribute(BindMethod.class.getName())
+                : null;
         bindables.add(Bindable.of(ClassUtils.getUserClass(beanType))
                 .withBindMethod((bindMethod != null) ? bindMethod : BindMethod.JAVA_BEAN));
       }

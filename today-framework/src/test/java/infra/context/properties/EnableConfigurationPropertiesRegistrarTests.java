@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@ package infra.context.properties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Set;
 import java.util.function.Consumer;
 
 import infra.beans.factory.config.BeanDefinition;
@@ -95,7 +94,7 @@ class EnableConfigurationPropertiesRegistrarTests {
   @Test
   void registrationWithNoTypeShouldNotRegisterAnything() {
     register(EmptyConfiguration.class);
-    Set<String> names = this.beanFactory.getBeanNamesForType(Object.class);
+    var names = this.beanFactory.getBeanNamesForType(Object.class);
     for (String name : names) {
       assertThat(name).doesNotContain("-");
     }

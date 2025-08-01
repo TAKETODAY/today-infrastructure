@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -102,15 +101,13 @@ class BeanFactoryUtilsTests {
 
   @Test
   void testHierarchicalNamesWithNoMatch() {
-    List<String> names = new ArrayList<>(
-            BeanFactoryUtils.beanNamesForTypeIncludingAncestors(this.listableBeanFactory, NoOp.class));
+    var names = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(this.listableBeanFactory, NoOp.class);
     assertThat(names).isEmpty();
   }
 
   @Test
   void testHierarchicalNamesWithMatchOnlyInRoot() {
-    List<String> names = new ArrayList<>(
-            BeanFactoryUtils.beanNamesForTypeIncludingAncestors(this.listableBeanFactory, IndexedTestBean.class));
+    var names = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(this.listableBeanFactory, IndexedTestBean.class);
     assertThat(names).hasSize(1);
     assertThat(names).contains("indexedBean");
     assertThat(listableBeanFactory.getBeanNamesForType(IndexedTestBean.class)).isEmpty();
@@ -118,8 +115,7 @@ class BeanFactoryUtilsTests {
 
   @Test
   void testGetBeanNamesForTypeWithOverride() {
-    List<String> names = new ArrayList<>(
-            BeanFactoryUtils.beanNamesForTypeIncludingAncestors(this.listableBeanFactory, ITestBean.class));
+    var names = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(this.listableBeanFactory, ITestBean.class);
     // includes 2 TestBeans from FactoryBeans (DummyFactory definitions)
     assertThat(names).hasSize(4);
     assertThat(names).contains("test");
@@ -271,15 +267,13 @@ class BeanFactoryUtilsTests {
 
   @Test
   void testHierarchicalNamesForAnnotationWithNoMatch() {
-    List<String> names = new ArrayList<>(
-            BeanFactoryUtils.beanNamesForAnnotationIncludingAncestors(this.listableBeanFactory, Override.class));
+    var names = BeanFactoryUtils.beanNamesForAnnotationIncludingAncestors(this.listableBeanFactory, Override.class);
     assertThat(names).isEmpty();
   }
 
   @Test
   void testHierarchicalNamesForAnnotationWithMatchOnlyInRoot() {
-    List<String> names = new ArrayList<>(
-            BeanFactoryUtils.beanNamesForAnnotationIncludingAncestors(this.listableBeanFactory, TestAnnotation.class));
+    var names = BeanFactoryUtils.beanNamesForAnnotationIncludingAncestors(this.listableBeanFactory, TestAnnotation.class);
     assertThat(names).hasSize(1);
     assertThat(names).contains("annotatedBean");
     assertThat(listableBeanFactory.getBeanNamesForAnnotation(TestAnnotation.class)).isEmpty();
@@ -289,8 +283,7 @@ class BeanFactoryUtilsTests {
   void testGetBeanNamesForAnnotationWithOverride() {
     AnnotatedBean annotatedBean = new AnnotatedBean();
     this.listableBeanFactory.registerSingleton("anotherAnnotatedBean", annotatedBean);
-    List<String> names = new ArrayList<>(
-            BeanFactoryUtils.beanNamesForAnnotationIncludingAncestors(this.listableBeanFactory, TestAnnotation.class));
+    var names = BeanFactoryUtils.beanNamesForAnnotationIncludingAncestors(this.listableBeanFactory, TestAnnotation.class);
     assertThat(names).hasSize(2);
     assertThat(names).contains("annotatedBean");
     assertThat(names).contains("anotherAnnotatedBean");

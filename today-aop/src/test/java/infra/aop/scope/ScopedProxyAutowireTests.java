@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +18,6 @@
 package infra.aop.scope;
 
 import org.junit.jupiter.api.Test;
-
-import java.util.Set;
 
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.beans.factory.xml.XmlBeanDefinitionReader;
@@ -40,10 +38,10 @@ public class ScopedProxyAutowireTests {
     new XmlBeanDefinitionReader(bf).loadBeanDefinitions(
             qualifiedResource(ScopedProxyAutowireTests.class, "scopedAutowireFalse.xml"));
 
-    Set<String> beanNamesForType = bf.getBeanNamesForType(TestBean.class, false, false);
-    assertThat(beanNamesForType.contains("scoped")).isTrue();
-    Set<String> beanNamesForType1 = bf.getBeanNamesForType(TestBean.class, true, false);
-    assertThat(beanNamesForType1.contains("scoped")).isTrue();
+    var beanNamesForType = bf.getBeanNamesForType(TestBean.class, false, false);
+    assertThat(beanNamesForType).contains("scoped");
+    var beanNamesForType1 = bf.getBeanNamesForType(TestBean.class, true, false);
+    assertThat(beanNamesForType1).contains("scoped");
     assertThat(bf.containsSingleton("scoped")).isFalse();
     TestBean autowired = (TestBean) bf.getBean("autowired");
     TestBean unscoped = (TestBean) bf.getBean("unscoped");
@@ -56,8 +54,8 @@ public class ScopedProxyAutowireTests {
     new XmlBeanDefinitionReader(bf).loadBeanDefinitions(
             qualifiedResource(ScopedProxyAutowireTests.class, "scopedAutowireTrue.xml"));
 
-    assertThat(bf.getBeanNamesForType(TestBean.class, true, false).contains("scoped")).isTrue();
-    assertThat(bf.getBeanNamesForType(TestBean.class, false, false).contains("scoped")).isTrue();
+    assertThat(bf.getBeanNamesForType(TestBean.class, true, false)).contains("scoped");
+    assertThat(bf.getBeanNamesForType(TestBean.class, false, false)).contains("scoped");
     assertThat(bf.containsSingleton("scoped")).isFalse();
     TestBean autowired = (TestBean) bf.getBean("autowired");
     TestBean scoped = (TestBean) bf.getBean("scoped");

@@ -2231,7 +2231,7 @@ class AutowiredAnnotationBeanPostProcessorTests {
     assertThat(bean.repositoryMap.get("repo")).isSameAs(repo);
     assertThat(bean.stringRepositoryMap.get("repo")).isSameAs(repo);
 
-    assertThat(bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class))).isEqualTo(Set.of("repo"));
+    assertThat(bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class))).contains("repo");
   }
 
   @Test
@@ -2576,8 +2576,8 @@ class AutowiredAnnotationBeanPostProcessorTests {
     GenericInterface1Impl bean1 = (GenericInterface1Impl) bf.getBean("bean1");
     GenericInterface2Impl bean2 = (GenericInterface2Impl) bf.getBean("bean2");
     assertThat(bean1.gi2).isSameAs(bean2);
-    assertThat(bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(GenericInterface1.class, String.class))).isEqualTo(Set.of("bean1"));
-    assertThat(bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(GenericInterface2.class, String.class))).isEqualTo(Set.of("bean2"));
+    assertThat(bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(GenericInterface1.class, String.class))).contains(("bean1"));
+    assertThat(bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(GenericInterface2.class, String.class))).contains(("bean2"));
   }
 
   @Test

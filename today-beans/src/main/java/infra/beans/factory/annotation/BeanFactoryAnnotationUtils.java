@@ -21,7 +21,6 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Predicate;
 
 import infra.beans.BeansException;
@@ -64,7 +63,7 @@ public abstract class BeanFactoryAnnotationUtils {
   public static <T> Map<String, T> qualifiedBeansOfType(
           BeanFactory beanFactory, Class<T> beanType, String qualifier) throws BeansException {
 
-    Set<String> candidateBeans = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory, beanType);
+    var candidateBeans = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory, beanType);
     LinkedHashMap<String, T> result = new LinkedHashMap<>(4);
     for (String beanName : candidateBeans) {
       if (isQualifierMatch(qualifier::equals, beanName, beanFactory)) {
@@ -84,7 +83,7 @@ public abstract class BeanFactoryAnnotationUtils {
    * @return the matching bean of type {@code T} (never {@code null})
    */
   public static <T> T qualifiedBeanOfType(BeanFactory bf, Class<T> beanType, String qualifier) {
-    Set<String> candidateBeans = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(bf, beanType);
+    var candidateBeans = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(bf, beanType);
     String matchingBean = null;
     for (String beanName : candidateBeans) {
       if (isQualifierMatch(qualifier::equals, beanName, bf)) {

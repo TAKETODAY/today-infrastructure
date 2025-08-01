@@ -3140,9 +3140,8 @@ class StandardBeanFactoryTests {
     assertThat(lbf.getType("bd1")).isEqualTo(DerivedTestBean.class);
     assertThat(lbf.getBeanNamesForType(TestBean.class)).containsExactly("bd1");
     assertThat(lbf.getBeanNamesForType(DerivedTestBean.class)).containsExactly("bd1");
-    // todo API
-    assertThat(lbf.getBeanNamesForType(NestedTestBean.class)).isEqualTo(nestedBeanNames);
-    assertThat(lbf.getBeanNamesForType(Object.class)).isEqualTo(allBeanNames);
+    assertThat(lbf.getBeanNamesForType(NestedTestBean.class)).isSameAs(nestedBeanNames);
+    assertThat(lbf.getBeanNamesForType(Object.class)).isSameAs(allBeanNames);
   }
 
   private int registerBeanDefinitions(Properties p) {

@@ -302,10 +302,10 @@ class ClassPathXmlApplicationContextTests {
   }
 
   private void assertOneMessageSourceOnly(ClassPathXmlApplicationContext ctx, Object myMessageSource) {
-    String[] beanNamesForType = StringUtils.toStringArray(ctx.getBeanNamesForType(StaticMessageSource.class));
+    String[] beanNamesForType = ctx.getBeanNamesForType(StaticMessageSource.class);
     assertThat(beanNamesForType).hasSize(1);
     assertThat(beanNamesForType[0]).isEqualTo("myMessageSource");
-    beanNamesForType = StringUtils.toStringArray(ctx.getBeanNamesForType(StaticMessageSource.class, true, true));
+    beanNamesForType = ctx.getBeanNamesForType(StaticMessageSource.class, true, true);
     assertThat(beanNamesForType).hasSize(1);
     assertThat(beanNamesForType[0]).isEqualTo("myMessageSource");
     beanNamesForType = StringUtils.toStringArray(BeanFactoryUtils.beanNamesForTypeIncludingAncestors(ctx, StaticMessageSource.class));

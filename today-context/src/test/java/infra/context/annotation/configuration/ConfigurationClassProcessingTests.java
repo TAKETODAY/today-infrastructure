@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -186,20 +186,20 @@ class ConfigurationClassProcessingTests {
     boolean condition = factory.getBean("factoryBean") instanceof List;
     assertThat(condition).isTrue();
 
-    Set<String> beanNames = factory.getBeanNamesForType(FactoryBean.class);
-    assertThat(beanNames.size()).isEqualTo(1);
-    assertThat(beanNames.iterator().next()).isEqualTo("&factoryBean");
+    var beanNames = factory.getBeanNamesForType(FactoryBean.class);
+    assertThat(beanNames.length).isEqualTo(1);
+    assertThat(beanNames[0]).isEqualTo("&factoryBean");
 
     beanNames = factory.getBeanNamesForType(BeanClassLoaderAware.class);
-    assertThat(beanNames.size()).isEqualTo(1);
-    assertThat(beanNames.iterator().next()).isEqualTo("&factoryBean");
+    assertThat(beanNames.length).isEqualTo(1);
+    assertThat(beanNames[0]).isEqualTo("&factoryBean");
 
     beanNames = factory.getBeanNamesForType(ListFactoryBean.class);
-    assertThat(beanNames.size()).isEqualTo(1);
-    assertThat(beanNames.iterator().next()).isEqualTo("&factoryBean");
+    assertThat(beanNames.length).isEqualTo(1);
+    assertThat(beanNames[0]).isEqualTo("&factoryBean");
 
     beanNames = factory.getBeanNamesForType(List.class);
-    assertThat(beanNames.iterator().next()).isEqualTo("factoryBean");
+    assertThat(beanNames[0]).isEqualTo("factoryBean");
   }
 
   @Test
