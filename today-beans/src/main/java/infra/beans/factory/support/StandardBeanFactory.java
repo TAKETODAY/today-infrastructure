@@ -377,10 +377,17 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   //---------------------------------------------------------------------
 
   @Override
+  protected void addSingleton(String beanName, Object singletonObject) {
+    super.addSingleton(beanName, singletonObject);
+    Predicate<Class<?>> filter = (beanType -> beanType != Object.class && beanType.isInstance(singletonObject));
+    this.allBeanNamesByType.keySet().removeIf(filter);
+    this.singletonBeanNamesByType.keySet().removeIf(filter);
+  }
+
+  @Override
   public void registerSingleton(String beanName, Object singletonObject) throws IllegalStateException {
     super.registerSingleton(beanName, singletonObject);
     updateManualSingletonNames(set -> set.add(beanName), set -> !beanDefinitionMap.containsKey(beanName));
-    clearByTypeCache();
   }
 
   @Override
