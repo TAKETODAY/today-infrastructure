@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -139,8 +139,9 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
     return this.useCodeAsDefaultMessage;
   }
 
+  @Nullable
   @Override
-  public final String getMessage(String code, @Nullable Object[] args, @Nullable String defaultMessage, Locale locale) {
+  public final String getMessage(String code, @Nullable Object[] args, @Nullable String defaultMessage, @Nullable Locale locale) {
     String msg = getMessageInternal(code, args, locale);
     if (msg != null) {
       return msg;
@@ -152,8 +153,7 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
   }
 
   @Override
-  public final String getMessage(
-          String code, @Nullable Object[] args, Locale locale) throws NoSuchMessageException {
+  public final String getMessage(String code, @Nullable Object[] args, @Nullable Locale locale) throws NoSuchMessageException {
     String msg = getMessageInternal(code, args, locale);
     if (msg != null) {
       return msg;
@@ -162,11 +162,16 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
     if (fallback != null) {
       return fallback;
     }
-    throw new NoSuchMessageException(code, locale);
+    if (locale == null) {
+      throw new NoSuchMessageException(code);
+    }
+    else {
+      throw new NoSuchMessageException(code, locale);
+    }
   }
 
   @Override
-  public final String getMessage(MessageSourceResolvable resolvable, Locale locale) throws NoSuchMessageException {
+  public final String getMessage(MessageSourceResolvable resolvable, @Nullable Locale locale) throws NoSuchMessageException {
     String[] codes = resolvable.getCodes();
     if (codes != null) {
       for (String code : codes) {
@@ -180,7 +185,13 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
     if (defaultMessage != null) {
       return defaultMessage;
     }
-    throw new NoSuchMessageException(ObjectUtils.isNotEmpty(codes) ? codes[codes.length - 1] : "", locale);
+    String code = ObjectUtils.isNotEmpty(codes) ? codes[codes.length - 1] : "";
+    if (locale == null) {
+      throw new NoSuchMessageException(code);
+    }
+    else {
+      throw new NoSuchMessageException(code, locale);
+    }
   }
 
   /**
@@ -288,7 +299,7 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
    * @see #getDefaultMessage(String)
    */
   @Nullable
-  protected String getDefaultMessage(MessageSourceResolvable resolvable, Locale locale) {
+  protected String getDefaultMessage(MessageSourceResolvable resolvable, @Nullable Locale locale) {
     String defaultMessage = resolvable.getDefaultMessage();
     String[] codes = resolvable.getCodes();
     if (defaultMessage != null) {
@@ -336,7 +347,7 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
    * @return an array of arguments with any MessageSourceResolvables resolved
    */
   @Override
-  protected Object[] resolveArguments(@Nullable Object[] args, Locale locale) {
+  protected Object[] resolveArguments(@Nullable Object[] args, @Nullable Locale locale) {
     if (ObjectUtils.isEmpty(args)) {
       return super.resolveArguments(args, locale);
     }
