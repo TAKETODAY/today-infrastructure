@@ -1181,6 +1181,18 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     return BeanFactoryUtils.beanNamesForTypeIncludingAncestors(this, requiredType, includeNonSingletons, allowEagerInit);
   }
 
+  @Nullable
+  private Comparator<Object> adaptDependencyComparator(Map<String, ?> matchingBeans) {
+    Comparator<Object> comparator = getDependencyComparator();
+    if (comparator instanceof OrderComparator) {
+      return ((OrderComparator) comparator).withSourceProvider(
+              createFactoryAwareOrderSourceProvider(matchingBeans));
+    }
+    else {
+      return comparator;
+    }
+  }
+
   private Comparator<Object> adaptOrderComparator(Map<String, ?> matchingBeans) {
     Comparator<Object> dependencyComparator = getDependencyComparator();
     OrderComparator comparator = dependencyComparator instanceof OrderComparator
@@ -2015,18 +2027,6 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
             && (Collection.class.isAssignableFrom(type) || Map.class.isAssignableFrom(type)));
   }
 
-  @Nullable
-  private Comparator<Object> adaptDependencyComparator(Map<String, ?> matchingBeans) {
-    Comparator<Object> comparator = getDependencyComparator();
-    if (comparator instanceof OrderComparator) {
-      return ((OrderComparator) comparator).withSourceProvider(
-              createFactoryAwareOrderSourceProvider(matchingBeans));
-    }
-    else {
-      return comparator;
-    }
-  }
-
   /**
    * Find bean instances that match the required type.
    * Called during autowiring for the specified bean.
@@ -2700,7 +2700,9 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       }
       else {
         DependencyDescriptor descriptorToUse = new DependencyDescriptor(this.descriptor) {
+
           @Override
+          @Nullable
           public Object resolveCandidate(String beanName, Class<?> requiredType, BeanFactory beanFactory) {
             return beanFactory.getBean(beanName, args);
           }
