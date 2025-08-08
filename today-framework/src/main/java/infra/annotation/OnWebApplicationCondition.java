@@ -58,15 +58,14 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
     for (int i = 0; i < outcomes.length; i++) {
       String autoConfigurationClass = configClasses[i];
       if (autoConfigurationClass != null) {
-        outcomes[i] = getOutcome(
-                configMetadata.get(autoConfigurationClass, "ConditionalOnWebApplication"));
+        outcomes[i] = getOutcome(configMetadata.get(autoConfigurationClass, "ConditionalOnWebApplication"));
       }
     }
     return outcomes;
   }
 
   @Nullable
-  private ConditionOutcome getOutcome(String type) {
+  private ConditionOutcome getOutcome(@Nullable String type) {
     if (type == null) {
       return null;
     }
@@ -128,7 +127,13 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
 
   private ConditionOutcome isReactiveWebApplication(ConditionContext context) {
     var message = ConditionMessage.forCondition("");
-    if (ClassNameFilter.MISSING.matches(ApplicationType.REACTOR_INDICATOR_CLASS, context.getClassLoader())) {
+
+    ClassNameFilter missingClassFilter = ClassNameFilter.MISSING;
+    if (missingClassFilter.matches(ApplicationType.WEB_INDICATOR_CLASS, context.getClassLoader())) {
+      return ConditionOutcome.noMatch(message.didNotFind("web application classes").atAll());
+    }
+
+    if (missingClassFilter.matches(ApplicationType.REACTOR_INDICATOR_CLASS, context.getClassLoader())) {
       return ConditionOutcome.noMatch(message.didNotFind("reactive web application classes").atAll());
     }
 
