@@ -90,7 +90,7 @@ public final class ConditionMessage {
    * @param message the message to append
    * @return a new {@link ConditionMessage} instance
    */
-  public ConditionMessage append(String message) {
+  public ConditionMessage append(@Nullable String message) {
     if (StringUtils.isEmpty(message)) {
       return this;
     }
@@ -166,7 +166,7 @@ public final class ConditionMessage {
    * @param messages the source messages (may be {@code null})
    * @return a new {@link ConditionMessage} instance
    */
-  public static ConditionMessage of(Collection<? extends ConditionMessage> messages) {
+  public static ConditionMessage of(@Nullable Collection<? extends ConditionMessage> messages) {
     ConditionMessage result = new ConditionMessage();
     if (messages != null) {
       for (ConditionMessage message : messages) {
@@ -315,7 +315,7 @@ public final class ConditionMessage {
      * @param reason the reason for the message
      * @return a built {@link ConditionMessage}
      */
-    public ConditionMessage because(String reason) {
+    public ConditionMessage because(@Nullable String reason) {
       if (StringUtils.isNotEmpty(reason)) {
         return new ConditionMessage(
                 ConditionMessage.this,
@@ -378,7 +378,7 @@ public final class ConditionMessage {
      * @param items the items (may be {@code null})
      * @return a built {@link ConditionMessage}
      */
-    public ConditionMessage items(Style style, Object... items) {
+    public ConditionMessage items(Style style, @Nullable Object... items) {
       return items(style, (items != null) ? Arrays.asList(items) : null);
     }
 
@@ -403,7 +403,7 @@ public final class ConditionMessage {
      * @param items the source of the items (may be {@code null})
      * @return a built {@link ConditionMessage}
      */
-    public ConditionMessage items(Style style, Collection<?> items) {
+    public ConditionMessage items(Style style, @Nullable Collection<?> items) {
       Assert.notNull(style, "Style is required");
       StringBuilder message = new StringBuilder(this.reason);
       items = style.applyTo(items);
@@ -444,14 +444,14 @@ public final class ConditionMessage {
     QUOTE {
       @Override
       @Nullable
-      protected String applyToItem(Object item) {
+      protected String applyToItem(@Nullable Object item) {
         return (item != null) ? "'" + item + "'" : null;
       }
 
     };
 
     @Nullable
-    public Collection<?> applyTo(Collection<?> items) {
+    public Collection<?> applyTo(@Nullable Collection<?> items) {
       if (items == null) {
         return null;
       }
@@ -462,6 +462,7 @@ public final class ConditionMessage {
       return result;
     }
 
+    @Nullable
     protected abstract Object applyToItem(Object item);
 
   }
