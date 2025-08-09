@@ -72,7 +72,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
     ClassNameFilter missingClassFilter = ClassNameFilter.MISSING;
     ConditionMessage.Builder message = ConditionMessage.forCondition(ConditionalOnWebApplication.class);
     if (ConditionalOnWebApplication.Type.NETTY.name().equals(type)) {
-      if (missingClassFilter.matches(ApplicationType.NETTY_INDICATOR_CLASS, getBeanClassLoader())) {
+      if (missingClassFilter.matches(ApplicationType.NETTY_WEB_INDICATOR_CLASS, getBeanClassLoader())) {
         return ConditionOutcome.noMatch(message.didNotFind("netty web application classes").atAll());
       }
     }
@@ -81,7 +81,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
         return ConditionOutcome.noMatch(message.didNotFind("reactive web application classes").atAll());
       }
     }
-    if (missingClassFilter.matches(ApplicationType.NETTY_INDICATOR_CLASS, getBeanClassLoader())
+    if (missingClassFilter.matches(ApplicationType.NETTY_WEB_INDICATOR_CLASS, getBeanClassLoader())
             && missingClassFilter.matches(ApplicationType.REACTOR_INDICATOR_CLASS, getBeanClassLoader())) {
       return ConditionOutcome.noMatch(message.didNotFind("reactive, netty web application classes").atAll());
     }
@@ -158,7 +158,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
       return ConditionOutcome.noMatch(message.didNotFind("web application classes").atAll());
     }
 
-    if (missingClassFilter.matches(ApplicationType.NETTY_INDICATOR_CLASS, context.getClassLoader())) {
+    if (missingClassFilter.matches(ApplicationType.NETTY_WEB_INDICATOR_CLASS, context.getClassLoader())) {
       return ConditionOutcome.noMatch(message.didNotFind("netty classes").atAll());
     }
 
