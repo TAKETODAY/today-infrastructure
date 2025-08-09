@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author TODAY 2021/4/28 13:44
  * @since 3.0
  */
-public class ResolveableMethodParameterTests {
+public class ResolvableMethodParameterTests {
 
   public void method(@Nullable String name) {
 
@@ -51,7 +51,7 @@ public class ResolveableMethodParameterTests {
 
   @Test
   public void test() throws NoSuchMethodException {
-    final Method method = ResolveableMethodParameterTests.class.getDeclaredMethod("method", String.class);
+    final Method method = ResolvableMethodParameterTests.class.getDeclaredMethod("method", String.class);
     final ResolvableMethodParameter methodParameter = createParameter(0, method, "name");
 
     assertThat(methodParameter).isNotNull();
@@ -68,7 +68,7 @@ public class ResolveableMethodParameterTests {
 
   @Test
   public void testRequired() throws NoSuchMethodException {
-    final Method method = ResolveableMethodParameterTests.class.getDeclaredMethod("isRequired", String.class, int.class);
+    final Method method = ResolvableMethodParameterTests.class.getDeclaredMethod("isRequired", String.class, int.class);
     final ResolvableMethodParameter methodParameter = createParameter(0, method, "name");
     assertThat(methodParameter.isRequired()).isTrue();
     assertThat(methodParameter.isAssignableTo(CharSequence.class)).isTrue();
