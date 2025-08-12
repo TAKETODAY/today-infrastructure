@@ -19,6 +19,8 @@ package infra.core;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.CancellationException;
+
 import infra.util.concurrent.Future;
 import infra.util.concurrent.Promise;
 import reactor.test.StepVerifier;
@@ -329,6 +331,13 @@ class FutureMonoTests {
             .verifyComplete();
   }
 
+  @Test
+  void subscribeAfterCancellation() {
+    Promise<String> future = Future.forPromise();
+    future.cancel();
 
+    StepVerifier.create(FutureMono.of(future))
+            .verifyError(CancellationException.class);
+  }
 
 }
