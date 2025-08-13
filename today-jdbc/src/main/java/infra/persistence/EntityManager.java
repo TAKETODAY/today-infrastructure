@@ -871,6 +871,31 @@ public interface EntityManager {
   <T> T findFirst(T entity) throws DataAccessException;
 
   /**
+   * Searches for the first entity of the specified type.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   *
+   * User firstUser = entityManager.findFirst(User.class);
+   * if (firstUser != null) {
+   *   System.out.println("Found user: " + firstUser.getName());
+   * }
+   * else {
+   *   System.out.println("No user found.");
+   * }
+   * }</pre>
+   *
+   * @param <T> the type of the entity to be retrieved
+   * @param entityClass the class object representing the type of entity to search for
+   * @return the first matching entity of type T, or null if no match is found
+   * @throws DataAccessException if there is any issue accessing the data store during
+   * the search operation
+   * @since 5.0
+   */
+  @Nullable
+  <T> T findFirst(Class<T> entityClass) throws DataAccessException;
+
+  /**
    * Searches for the first entity of the specified type that matches the given example.
    * This method is typically used to retrieve a single entity based on a prototype or
    * example object containing matching criteria.

@@ -934,6 +934,12 @@ public class DefaultEntityManager implements EntityManager {
 
   @Nullable
   @Override
+  public <T> T findFirst(Class<T> entityClass) throws DataAccessException {
+    return findFirst(entityClass, null);
+  }
+
+  @Nullable
+  @Override
   public <T> T findFirst(Class<T> entityClass, Object example) throws DataAccessException {
     return iterate(entityClass, example).first();
   }
