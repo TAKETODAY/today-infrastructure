@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ import java.io.StringWriter;
 
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-import infra.mail.MailPreparationException;
 
 /**
  * Utility class for working with FreeMarker.
@@ -45,7 +44,7 @@ public abstract class FreeMarkerTemplateUtils {
    * @return the result as String
    * @throws IOException if the template wasn't found or couldn't be read
    * @throws freemarker.template.TemplateException if rendering failed
-   * @see MailPreparationException
+   * @see infra.mail.MailPreparationException
    */
   public static String processTemplateIntoString(Template template, Object model)
           throws IOException, TemplateException {

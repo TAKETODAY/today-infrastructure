@@ -68,7 +68,31 @@ public abstract class FutureMono<T> extends Mono<T> {
     return new DeferredFutureMono<>(deferredFuture);
   }
 
-  static final class ImmediateFutureMono<T, F extends Future<T>> extends FutureMono<T> {
+  @SuppressWarnings("FutureReturnValueIgnored")
+  private static <T, F extends Future<T>> void doSubscribe(CoreSubscriber<? super T> s, F future) {
+    if (future.isDone()) {
+      if (future.isSuccess()) {
+        T value = future.getNow();
+        if (value != null) {
+          s.onSubscribe(Operators.scalarSubscription(s, value));
+        }
+        else {
+          Operators.complete(s);
+        }
+      }
+      else {
+        Operators.error(s, future.getCause());
+      }
+      return;
+    }
+
+    FutureSubscription<T, F> fs = new FutureSubscription<>(future, s);
+    // propagate subscription before adding listener to avoid any race between finishing future and onSubscribe
+    // is called
+    s.onSubscribe(fs);
+  }
+
+  private static final class ImmediateFutureMono<T, F extends Future<T>> extends FutureMono<T> {
 
     final F future;
 
@@ -82,7 +106,7 @@ public abstract class FutureMono<T> extends Mono<T> {
     }
   }
 
-  static final class DeferredFutureMono<T, F extends Future<T>> extends FutureMono<T> {
+  private static final class DeferredFutureMono<T, F extends Future<T>> extends FutureMono<T> {
 
     final Supplier<F> deferredFuture;
 
@@ -110,31 +134,7 @@ public abstract class FutureMono<T> extends Mono<T> {
     }
   }
 
-  @SuppressWarnings("FutureReturnValueIgnored")
-  static <T, F extends Future<T>> void doSubscribe(CoreSubscriber<? super T> s, F future) {
-    if (future.isDone()) {
-      if (future.isSuccess()) {
-        T value = future.getNow();
-        if (value != null) {
-          s.onSubscribe(Operators.scalarSubscription(s, value));
-        }
-        else {
-          Operators.complete(s);
-        }
-      }
-      else {
-        Operators.error(s, future.getCause());
-      }
-      return;
-    }
-
-    FutureSubscription<T, F> fs = new FutureSubscription<>(future, s);
-    // propagate subscription before adding listener to avoid any race between finishing future and onSubscribe
-    // is called
-    s.onSubscribe(fs);
-  }
-
-  static final class FutureSubscription<T, F extends Future<T>>
+  private static final class FutureSubscription<T, F extends Future<T>>
           implements FutureListener<F>, Subscription {
 
     final CoreSubscriber<? super T> s;

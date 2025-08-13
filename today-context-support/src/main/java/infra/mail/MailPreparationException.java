@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,15 +17,13 @@
 
 package infra.mail;
 
-import infra.ui.freemarker.FreeMarkerTemplateUtils;
-
 /**
  * Exception to be thrown by user code if a mail cannot be prepared properly,
  * for example when a FreeMarker template cannot be rendered for the mail text.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see FreeMarkerTemplateUtils#processTemplateIntoString
+ * @see infra.ui.freemarker.FreeMarkerTemplateUtils#processTemplateIntoString
  * @since 4.0
  */
 public class MailPreparationException extends MailException {
