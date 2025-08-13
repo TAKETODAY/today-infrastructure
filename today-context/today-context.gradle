@@ -27,14 +27,12 @@ dependencies {
   optional("io.projectreactor:reactor-core")
   optional("javax.annotation:javax.annotation-api")
 
-  optional("jakarta.mail:jakarta.mail-api")
   optional 'jakarta.activation:jakarta.activation-api'
   optional("javax.cache:cache-api")
   optional("com.github.ben-manes.caffeine:caffeine")
   optional("org.freemarker:freemarker")
   optional("javax.inject:javax.inject")
 
-  testImplementation("org.eclipse.angus:jakarta.mail")
   testImplementation("javax.annotation:javax.annotation-api")
   testImplementation('com.google.code.findbugs:findbugs')
   testImplementation(project(":today-core-test"))
@@ -55,7 +53,6 @@ dependencies {
   testImplementation("io.projectreactor:reactor-test")
   testRuntimeOnly("org.ehcache:jcache")
   testRuntimeOnly("org.ehcache:ehcache")
-  testRuntimeOnly("com.sun.mail:jakarta.mail")
   testRuntimeOnly("jakarta.xml.bind:jakarta.xml.bind-api")
   testRuntimeOnly("org.glassfish:jakarta.el")
   // Substitute for javax.management:jmxremote_optional:1.0.1_04 (not available on Maven Central)

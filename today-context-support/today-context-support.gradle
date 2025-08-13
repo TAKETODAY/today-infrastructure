@@ -1,15 +1,16 @@
-description = 'Infra JCache'
+description = 'Infra Context Support'
 
 dependencies {
   api(project(":today-beans"))
   api(project(":today-context"))
   api(project(":today-core"))
-  api(project(":today-context-support"))
   optional(project(":today-jdbc"))
   optional(project(":today-tx"))
   optional(project(":today-aop"))
+  optional(project(":today-core-aot"))
 
-  optional("javax.cache:cache-api")
+  optional("jakarta.activation:jakarta.activation-api")
+  optional("jakarta.mail:jakarta.mail-api")
 
   testImplementation(project(":today-context"))
   testImplementation(testFixtures(project(":today-beans")))
@@ -18,11 +19,9 @@ dependencies {
   testImplementation(testFixtures(project(":today-tx")))
   testImplementation(testFixtures(project(":today-aop")))
   testImplementation("jakarta.annotation:jakarta.annotation-api")
-  testRuntimeOnly("org.ehcache:jcache")
-  testRuntimeOnly("org.ehcache:ehcache")
-  testFixturesApi("org.junit.jupiter:junit-jupiter-api")
-  testFixturesImplementation("org.assertj:assertj-core")
-  testFixturesImplementation("org.mockito:mockito-core")
+  testRuntimeOnly("org.eclipse.angus:angus-mail")
+  testRuntimeOnly("org.glassfish:jakarta.el")
+  testRuntimeOnly("com.sun.mail:jakarta.mail")
 
 }
 

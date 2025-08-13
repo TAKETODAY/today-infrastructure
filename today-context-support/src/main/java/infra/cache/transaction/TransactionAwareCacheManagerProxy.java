@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.cache.jcache;
+package infra.cache.transaction;
 
 import java.util.Collection;
 
@@ -33,6 +33,7 @@ import infra.lang.Nullable;
  * If no transaction is active, {@link Cache#put} operations will be performed immediately, as usual.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see #setTargetCacheManager
  * @see TransactionAwareCacheDecorator
  * @see infra.transaction.support.TransactionSynchronizationManager

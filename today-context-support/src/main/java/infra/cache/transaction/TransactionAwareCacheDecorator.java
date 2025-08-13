@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.cache.jcache;
+package infra.cache.transaction;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
