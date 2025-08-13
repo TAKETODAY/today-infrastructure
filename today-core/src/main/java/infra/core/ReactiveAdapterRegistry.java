@@ -19,8 +19,6 @@ package infra.core;
 
 import org.reactivestreams.FlowAdapters;
 import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -29,20 +27,18 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Flow;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 import infra.lang.Nullable;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.ReflectionUtils;
-import infra.util.concurrent.AbstractFuture;
 import infra.util.concurrent.Future;
+import infra.util.concurrent.PublisherFuture;
 import reactor.adapter.JdkFlowAdapter;
 import reactor.blockhound.BlockHound;
 import reactor.blockhound.integration.BlockHoundIntegration;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.Operators;
 
 /**
  * A registry of adapters to adapt Reactive Streams {@link Publisher} to/from various
@@ -281,63 +277,8 @@ public class ReactiveAdapterRegistry {
       // @since 5.0
       registry.registerReactiveType(ReactiveTypeDescriptor.nonDeferredAsyncValue(Future.class, Future::ok),
               source -> FutureMono.of((Future<?>) source),
-              PublisherFuture::new);
+              PublisherFuture::of);
     }
-  }
-
-  private static final class PublisherFuture<T> extends AbstractFuture<T> implements Subscriber<T> {
-
-    private final AtomicReference<Subscription> ref = new AtomicReference<>();
-
-    PublisherFuture(Publisher<T> publisher) {
-      super(null);
-      publisher.subscribe(this);
-    }
-
-    @Override
-    public boolean cancel(boolean mayInterruptIfRunning) {
-      boolean cancelled = super.cancel(mayInterruptIfRunning);
-      if (cancelled) {
-        Subscription s = ref.getAndSet(null);
-        if (s != null) {
-          s.cancel();
-        }
-      }
-      return cancelled;
-    }
-
-    @Override
-    public void onSubscribe(Subscription s) {
-      if (Operators.validate(ref.getAndSet(s), s)) {
-        s.request(Long.MAX_VALUE);
-      }
-      else {
-        s.cancel();
-      }
-    }
-
-    @Override
-    public void onNext(T t) {
-      Subscription s = ref.getAndSet(null);
-      if (s != null) {
-        trySuccess(t);
-      }
-    }
-
-    @Override
-    public void onError(Throwable t) {
-      if (ref.getAndSet(null) != null) {
-        tryFailure(t);
-      }
-    }
-
-    @Override
-    public void onComplete() {
-      if (ref.getAndSet(null) != null) {
-        trySuccess(null);
-      }
-    }
-
   }
 
   private static final class EmptyCompletableFuture<T> extends CompletableFuture<T> {
