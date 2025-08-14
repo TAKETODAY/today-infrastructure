@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ import org.xml.sax.Locator;
 import org.xmlunit.diff.DifferenceEvaluator;
 
 import java.io.ByteArrayOutputStream;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -34,9 +35,13 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Result;
+import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stax.StAXSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
@@ -44,6 +49,7 @@ import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.oxm.AbstractMarshallerTests;
 import infra.oxm.UncategorizedMappingException;
+import infra.oxm.UnmarshallingFailureException;
 import infra.oxm.XmlContent;
 import infra.oxm.XmlMappingException;
 import infra.oxm.jaxb.test.FlightType;
@@ -55,12 +61,15 @@ import infra.util.ReflectionUtils;
 import jakarta.activation.DataHandler;
 import jakarta.activation.FileDataSource;
 import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.Unmarshaller;
+import jakarta.xml.bind.ValidationEventHandler;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
@@ -290,7 +299,6 @@ class Jaxb2MarshallerTests extends AbstractMarshallerTests<Jaxb2Marshaller> {
   }
 
   @Test
-
   void marshalAWrappedObjectHoldingAnXmlElementDeclElement() throws Exception {
     marshaller = new Jaxb2Marshaller();
     marshaller.setPackagesToScan("infra.oxm.jaxb");
@@ -305,7 +313,6 @@ class Jaxb2MarshallerTests extends AbstractMarshallerTests<Jaxb2Marshaller> {
   }
 
   @Test
-
   void unmarshalStreamSourceWithXmlOptions() throws Exception {
     final jakarta.xml.bind.Unmarshaller unmarshaller = mock();
     Jaxb2Marshaller marshaller = new Jaxb2Marshaller() {
@@ -340,7 +347,6 @@ class Jaxb2MarshallerTests extends AbstractMarshallerTests<Jaxb2Marshaller> {
   }
 
   @Test
-
   void unmarshalSaxSourceWithXmlOptions() throws Exception {
     final jakarta.xml.bind.Unmarshaller unmarshaller = mock();
     Jaxb2Marshaller marshaller = new Jaxb2Marshaller() {
@@ -372,6 +378,97 @@ class Jaxb2MarshallerTests extends AbstractMarshallerTests<Jaxb2Marshaller> {
     result = sourceCaptor.getValue();
     assertThat(result.getXMLReader().getFeature("http://apache.org/xml/features/disallow-doctype-decl")).isFalse();
     assertThat(result.getXMLReader().getFeature("http://xml.org/sax/features/external-general-entities")).isTrue();
+  }
+
+  @Test
+  void emptyPackagesToScanThrowsException() {
+    Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+    marshaller.setPackagesToScan();
+    assertThatIllegalArgumentException().isThrownBy(marshaller::afterPropertiesSet);
+  }
+
+  @Test
+  void nullPackagesToScanThrowsException() {
+    Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+    marshaller.setPackagesToScan((String[]) null);
+    assertThatIllegalArgumentException().isThrownBy(marshaller::afterPropertiesSet);
+  }
+
+  @Test
+  void multiplePackagesToScan() throws Exception {
+    Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+    marshaller.setPackagesToScan("infra.oxm.jaxb.test", "infra.oxm.jaxb");
+    marshaller.afterPropertiesSet();
+    assertThat(marshaller.supports(Flights.class)).isTrue();
+    assertThat(marshaller.supports(Airplane.class)).isTrue();
+  }
+
+  @Test
+  void unmarshalWithXmlRootElementClass() throws Exception {
+    Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+    marshaller.setClassesToBeBound(DummyRootElement.class);
+    marshaller.afterPropertiesSet();
+
+    String xml = "<dummyRootElement><s>Hello</s></dummyRootElement>";
+    Source source = new StreamSource(new StringReader(xml));
+    Object result = marshaller.unmarshal(source);
+
+    assertThat(result).isInstanceOf(DummyRootElement.class);
+    assertThat(((DummyRootElement) result).t.s).isEqualTo("Hello");
+  }
+
+  @Test
+  void unmarshalWithListeners() throws Exception {
+    Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+    marshaller.setClassesToBeBound(DummyRootElement.class);
+
+    Unmarshaller.Listener listener = mock(Unmarshaller.Listener.class);
+    marshaller.setUnmarshallerListener(listener);
+
+    marshaller.afterPropertiesSet();
+
+    String xml = "<dummyRootElement><s>Hello</s></dummyRootElement>";
+    Source source = new StreamSource(new StringReader(xml));
+    Object result = marshaller.unmarshal(source);
+
+    verify(listener).beforeUnmarshal(any(), any());
+    verify(listener).afterUnmarshal(any(), any());
+  }
+
+  @Test
+  void marshalWithoutContextOrClassesThrowsException() {
+    Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+    assertThatIllegalArgumentException().isThrownBy(marshaller::afterPropertiesSet);
+  }
+
+  @Test
+  void unmarshalWithValidationFailure() throws Exception {
+    Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+    marshaller.setClassesToBeBound(DummyRootElement.class);
+    ValidationEventHandler validationEventHandler = mock(ValidationEventHandler.class);
+    marshaller.setValidationEventHandler(validationEventHandler);
+    marshaller.afterPropertiesSet();
+
+    String invalidXml = "<invalid>content</invalid>";
+    Source source = new StreamSource(new StringReader(invalidXml));
+    assertThatExceptionOfType(UnmarshallingFailureException.class)
+            .isThrownBy(() -> marshaller.unmarshal(source));
+  }
+
+  @Test
+  void unmarshalWithStaxSource() throws Exception {
+    Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+    marshaller.setClassesToBeBound(DummyRootElement.class);
+    marshaller.afterPropertiesSet();
+
+    String xml = "<dummyRootElement><s>Hello</s></dummyRootElement>";
+    XMLStreamReader streamReader = XMLInputFactory.newInstance()
+            .createXMLStreamReader(new StringReader(xml));
+    StAXSource source = new StAXSource(streamReader);
+
+    Object result = marshaller.unmarshal(source);
+    assertThat(result).isInstanceOf(DummyRootElement.class);
+    assertThat(((DummyRootElement) result).t.s).isEqualTo("Hello");
   }
 
   @XmlRootElement

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.oxm;
 
+import infra.lang.Nullable;
+
 /**
  * Exception thrown on marshalling validation failure.
  *
@@ -27,22 +29,13 @@ package infra.oxm;
 public class ValidationFailureException extends XmlMappingException {
 
   /**
-   * Construct a {@code ValidationFailureException} with the specified detail message.
-   *
-   * @param msg the detail message
-   */
-  public ValidationFailureException(String msg) {
-    super(msg);
-  }
-
-  /**
    * Construct a {@code ValidationFailureException} with the specified detail message
    * and nested exception.
    *
    * @param msg the detail message
    * @param cause the nested exception
    */
-  public ValidationFailureException(String msg, Throwable cause) {
+  public ValidationFailureException(@Nullable String msg, @Nullable Throwable cause) {
     super(msg, cause);
   }
 
