@@ -1,6 +1,7 @@
 # TODAY Infrastructure
 
-![Logo](./logo.svg) A Java library for applications software infrastructure.
+![Logo](./logo.svg) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FTAKETODAY%2Ftoday-infrastructure.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FTAKETODAY%2Ftoday-infrastructure?ref=badge_shield)
+A Java library for applications software infrastructure.
 
 
 ![Java17](https://img.shields.io/badge/JDK-17+-success.svg)
@@ -175,3 +176,7 @@ public class DemoApplication {
 
 使用 [GPLv3](https://github.com/TAKETODAY/today-infrastructure/blob/master/LICENSE) 开源协议
 
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FTAKETODAY%2Ftoday-infrastructure.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FTAKETODAY%2Ftoday-infrastructure?ref=badge_large)
