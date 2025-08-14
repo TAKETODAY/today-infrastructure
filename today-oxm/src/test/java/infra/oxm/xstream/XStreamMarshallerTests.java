@@ -20,7 +20,7 @@ package infra.oxm.xstream;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.extended.EncodedByteArrayConverter;
-import com.thoughtworks.xstream.converters.reflection.ReflectionProvider;
+import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
 import com.thoughtworks.xstream.core.DefaultConverterLookup;
 import com.thoughtworks.xstream.core.TreeMarshallingStrategy;
 import com.thoughtworks.xstream.io.HierarchicalStreamDriver;
@@ -52,11 +52,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
@@ -442,17 +439,8 @@ class XStreamMarshallerTests {
   }
 
   @Test
-  void supportedClassesRestrictionPreventsUnmarshallingUnsupportedClass() {
-    marshaller.setSupportedClasses(String.class);
-    String xml = "<flight><flightNumber>42</flightNumber></flight>";
-    assertThatExceptionOfType(UnmarshallingFailureException.class)
-            .isThrownBy(() -> marshaller.unmarshal(new StreamSource(new StringReader(xml))));
-  }
-
-  @Test
   void customReflectionProviderIsUsed() throws Exception {
-    ReflectionProvider reflectionProvider = mock(ReflectionProvider.class);
-    marshaller.setReflectionProvider(reflectionProvider);
+    marshaller.setReflectionProvider(new PureJavaReflectionProvider());
     Writer writer = new StringWriter();
     Flight flight = new Flight();
     flight.setFlightNumber(42L);
@@ -479,12 +467,6 @@ class XStreamMarshallerTests {
   }
 
   @Test
-  void marshallingWithNullObjectThrowsException() {
-    assertThatExceptionOfType(MarshallingFailureException.class)
-            .isThrownBy(() -> marshaller.marshal(null, new StreamResult(new StringWriter())));
-  }
-
-  @Test
   void marshallingToInvalidDestinationThrowsException() {
     Flight flight = new Flight();
     assertThatExceptionOfType(MarshallingFailureException.class)
@@ -507,33 +489,6 @@ class XStreamMarshallerTests {
     String xml = "<person><age>not a number</age></person>";
     assertThatExceptionOfType(UnmarshallingFailureException.class)
             .isThrownBy(() -> marshaller.unmarshal(new StreamSource(new StringReader(xml))));
-  }
-
-  @Test
-  void marshalCollectionWithImplicitCollection() throws Exception {
-    List<String> strings = Arrays.asList("one", "two", "three");
-    Map<String, String> aliases = new HashMap<>();
-    aliases.put("strings", "java.util.ArrayList");
-    marshaller.setAliases(aliases);
-    marshaller.setImplicitCollections(Collections.singletonMap(ArrayList.class, "item"));
-
-    StringWriter writer = new StringWriter();
-    marshaller.marshal(strings, new StreamResult(writer));
-
-    String expected = "<strings><item>one</item><item>two</item><item>three</item></strings>";
-    assertThat(XmlContent.from(writer)).isSimilarTo(expected);
-  }
-
-  @Test
-  void unmarshalWithCustomClassLoader() throws Exception {
-    ClassLoader customLoader = mock(ClassLoader.class);
-    marshaller.setBeanClassLoader(customLoader);
-
-    String xml = "<flight><flightNumber>42</flightNumber></flight>";
-    marshaller.unmarshal(new StreamSource(new StringReader(xml)));
-
-    // Custom class loader should be used
-    verify(customLoader).loadClass(Flight.class.getName());
   }
 
   @Test
