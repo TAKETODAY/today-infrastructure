@@ -48,6 +48,7 @@ import javax.xml.transform.stream.StreamSource;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.oxm.AbstractMarshallerTests;
+import infra.oxm.MarshallingFailureException;
 import infra.oxm.UncategorizedMappingException;
 import infra.oxm.UnmarshallingFailureException;
 import infra.oxm.XmlContent;
@@ -63,6 +64,7 @@ import jakarta.activation.FileDataSource;
 import jakarta.xml.bind.JAXBElement;
 import jakarta.xml.bind.Unmarshaller;
 import jakarta.xml.bind.ValidationEventHandler;
+import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 
@@ -414,7 +416,7 @@ class Jaxb2MarshallerTests extends AbstractMarshallerTests<Jaxb2Marshaller> {
     Object result = marshaller.unmarshal(source);
 
     assertThat(result).isInstanceOf(DummyRootElement.class);
-    assertThat(((DummyRootElement) result).t.s).isEqualTo("Hello");
+    assertThat(((DummyRootElement) result).getS()).isEqualTo("Hello");
   }
 
   @Test
@@ -468,14 +470,134 @@ class Jaxb2MarshallerTests extends AbstractMarshallerTests<Jaxb2Marshaller> {
 
     Object result = marshaller.unmarshal(source);
     assertThat(result).isInstanceOf(DummyRootElement.class);
-    assertThat(((DummyRootElement) result).t.s).isEqualTo("Hello");
+    assertThat(((DummyRootElement) result).s).isEqualTo("Hello");
   }
 
-  @XmlRootElement
-  @SuppressWarnings("unused")
+  @Test
+  void unmarshalWithValidationAndValidSchema() throws Exception {
+    Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+    marshaller.setClassesToBeBound(DummyRootElement.class);
+    marshaller.setSchemas(new ClassPathResource("dummy.xsd", getClass()));
+    ValidationEventHandler validationEventHandler = mock(ValidationEventHandler.class);
+    marshaller.setValidationEventHandler(validationEventHandler);
+    marshaller.afterPropertiesSet();
+
+    String xml = "<dummyRootElement><s>Hello</s></dummyRootElement>";
+    Source source = new StreamSource(new StringReader(xml));
+    Object result = marshaller.unmarshal(source);
+
+    assertThat(result).isInstanceOf(DummyRootElement.class);
+    verify(validationEventHandler, times(0)).handleEvent(any());
+  }
+
+  @Test
+  void unmarshalWithValidationAndInvalidXml() throws Exception {
+    Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+    marshaller.setClassesToBeBound(DummyRootElement.class);
+    marshaller.setSchemas(new ClassPathResource("dummy.xsd", getClass()));
+    ValidationEventHandler validationEventHandler = mock(ValidationEventHandler.class);
+    marshaller.setValidationEventHandler(validationEventHandler);
+    marshaller.afterPropertiesSet();
+
+    String invalidXml = "<dummyRootElement><invalid>content</invalid></dummyRootElement>";
+    Source source = new StreamSource(new StringReader(invalidXml));
+    assertThatExceptionOfType(UnmarshallingFailureException.class)
+            .isThrownBy(() -> marshaller.unmarshal(source));
+  }
+
+  @Test
+  void marshalWithValidSchemaAndValidContent() throws Exception {
+    Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+    marshaller.setClassesToBeBound(DummyRootElement.class);
+    marshaller.setSchema(new ClassPathResource("dummy.xsd", getClass()));
+    marshaller.afterPropertiesSet();
+
+    DummyRootElement root = new DummyRootElement();
+    root.setS("Hello");
+
+    StringWriter writer = new StringWriter();
+    StreamResult result = new StreamResult(writer);
+    marshaller.marshal(root, result);
+
+    String expected = "<dummyRootElement><s>Hello</s></dummyRootElement>";
+    assertThat(writer.toString()).contains(expected);
+  }
+
+  @Test
+  void unmarshalWithValidSchemaAndInvalidContent() throws Exception {
+    Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+    marshaller.setClassesToBeBound(DummyRootElement.class);
+    marshaller.setSchema(new ClassPathResource("dummy.xsd", getClass()));
+    marshaller.afterPropertiesSet();
+
+    String invalidXml = "<dummyRootElement></dummyRootElement>";
+    Source source = new StreamSource(new StringReader(invalidXml));
+
+    assertThatExceptionOfType(UnmarshallingFailureException.class)
+            .isThrownBy(() -> marshaller.unmarshal(source));
+  }
+
+  @Test
+  void unmarshalWithValidSchemaAndMissingRequiredElement() throws Exception {
+    Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+    marshaller.setClassesToBeBound(DummyRootElement.class);
+    marshaller.setSchema(new ClassPathResource("dummy.xsd", getClass()));
+    marshaller.afterPropertiesSet();
+
+    String invalidXml = "<dummyRootElement/>";
+    Source source = new StreamSource(new StringReader(invalidXml));
+
+    assertThatExceptionOfType(UnmarshallingFailureException.class)
+            .isThrownBy(() -> marshaller.unmarshal(source));
+  }
+
+  @Test
+  void marshalWithValidationAndNullContent() throws Exception {
+    Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+    marshaller.setClassesToBeBound(DummyRootElement.class);
+    marshaller.setSchema(new ClassPathResource("dummy.xsd", getClass()));
+    marshaller.afterPropertiesSet();
+
+    DummyRootElement root = new DummyRootElement();
+    StringWriter writer = new StringWriter();
+
+    assertThatExceptionOfType(MarshallingFailureException.class)
+            .isThrownBy(() -> marshaller.marshal(root, new StreamResult(writer)));
+  }
+
+  @Test
+  void marshalWithCustomValidationEventHandler() throws Exception {
+    Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+    marshaller.setClassesToBeBound(DummyRootElement.class);
+    ValidationEventHandler validationEventHandler = mock(ValidationEventHandler.class);
+    marshaller.setValidationEventHandler(validationEventHandler);
+    marshaller.setSchema(new ClassPathResource("dummy.xsd", getClass()));
+    marshaller.afterPropertiesSet();
+
+    DummyRootElement root = new DummyRootElement();
+    StringWriter writer = new StringWriter();
+
+    assertThatExceptionOfType(MarshallingFailureException.class)
+            .isThrownBy(() -> marshaller.marshal(root, new StreamResult(writer)));
+
+    verify(validationEventHandler, times(1)).handleEvent(any());
+  }
+
+//  @XmlRootElement
+
+  @XmlRootElement(name = "dummyRootElement")
   public static class DummyRootElement {
 
-    private DummyType t = new DummyType();
+    private String s;
+
+    @XmlElement(name = "s")
+    public String getS() {
+      return s;
+    }
+
+    public void setS(String s) {
+      this.s = s;
+    }
   }
 
   @XmlType
