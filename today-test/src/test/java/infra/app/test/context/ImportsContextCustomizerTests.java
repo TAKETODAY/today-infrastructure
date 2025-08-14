@@ -123,7 +123,7 @@ class ImportsContextCustomizerTests {
 
   @Nested
   @Import(TestImportSelector.class)
-  static class FirstJUnitAnnotatedTestClass {
+  class FirstJUnitAnnotatedTestClass {
 
   }
 
