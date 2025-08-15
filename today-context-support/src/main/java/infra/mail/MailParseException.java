@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.mail;
 
+import infra.lang.Nullable;
+
 /**
  * Exception thrown if illegal message properties are encountered.
  *
@@ -31,18 +33,9 @@ public class MailParseException extends MailException {
    * Constructor for MailParseException.
    *
    * @param msg the detail message
-   */
-  public MailParseException(String msg) {
-    super(msg);
-  }
-
-  /**
-   * Constructor for MailParseException.
-   *
-   * @param msg the detail message
    * @param cause the root cause from the mail API in use
    */
-  public MailParseException(String msg, Throwable cause) {
+  public MailParseException(@Nullable String msg, @Nullable Throwable cause) {
     super(msg, cause);
   }
 
@@ -51,8 +44,8 @@ public class MailParseException extends MailException {
    *
    * @param cause the root cause from the mail API in use
    */
-  public MailParseException(Throwable cause) {
-    super("Could not parse mail", cause);
+  public MailParseException(@Nullable Throwable cause) {
+    this("Could not parse mail", cause);
   }
 
 }

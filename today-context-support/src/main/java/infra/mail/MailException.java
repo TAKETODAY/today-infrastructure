@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,15 +28,6 @@ import infra.lang.Nullable;
  * @since 4.0
  */
 public abstract class MailException extends NestedRuntimeException {
-
-  /**
-   * Constructor for MailException.
-   *
-   * @param msg the detail message
-   */
-  public MailException(String msg) {
-    super(msg);
-  }
 
   /**
    * Constructor for MailException.

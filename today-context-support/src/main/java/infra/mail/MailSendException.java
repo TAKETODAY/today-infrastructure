@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,18 +45,9 @@ public class MailSendException extends MailException {
    * Constructor for MailSendException.
    *
    * @param msg the detail message
-   */
-  public MailSendException(String msg) {
-    this(msg, null);
-  }
-
-  /**
-   * Constructor for MailSendException.
-   *
-   * @param msg the detail message
    * @param cause the root cause from the mail API in use
    */
-  public MailSendException(String msg, @Nullable Throwable cause) {
+  public MailSendException(@Nullable String msg, @Nullable Throwable cause) {
     super(msg, cause);
     this.failedMessages = new LinkedHashMap<>();
     this.messageExceptions = null;
