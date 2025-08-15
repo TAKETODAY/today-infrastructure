@@ -23,6 +23,7 @@ import java.net.InetSocketAddress;
 
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.NettyDataBufferFactory;
+import infra.util.concurrent.Future;
 import infra.web.socket.CloseStatus;
 import infra.web.socket.WebSocketMessage;
 import io.netty.buffer.ByteBufAllocator;
@@ -97,8 +98,10 @@ class NettyWebSocketSessionTests {
 
     session.sendBinary(DataBuffer.empty());
     session.sendBinary(factory -> factory.copiedBuffer("demo"));
+    session.send(session.textMessage("send"));
+    session.send(Future.ok(session.textMessage("Future")));
+    session.send(session.binaryMessage(factory -> factory.copiedBuffer("binaryMessage")));
     session.send(WebSocketMessage.binary(session.bufferFactory().copiedBuffer("send")));
-    session.send(WebSocketMessage.text(session.bufferFactory().copiedBuffer("send")));
     session.send(WebSocketMessage.ping(session.bufferFactory().copiedBuffer("ping")));
     session.send(WebSocketMessage.pong(session.bufferFactory().copiedBuffer("pong")));
 
@@ -111,6 +114,8 @@ class NettyWebSocketSessionTests {
     verify(channel).writeAndFlush(new PingWebSocketFrame());
     verify(channel).writeAndFlush(new PongWebSocketFrame());
     verify(channel).writeAndFlush(new BinaryWebSocketFrame(Unpooled.EMPTY_BUFFER));
+    verify(channel).writeAndFlush(new TextWebSocketFrame("Future"));
+    verify(channel).writeAndFlush(new BinaryWebSocketFrame(Unpooled.copiedBuffer("binaryMessage".getBytes())));
     verify(channel).writeAndFlush(new BinaryWebSocketFrame(Unpooled.copiedBuffer("demo".getBytes())));
     verify(channel).writeAndFlush(new BinaryWebSocketFrame(Unpooled.copiedBuffer("send".getBytes())));
     verify(channel).writeAndFlush(new TextWebSocketFrame("send"));
