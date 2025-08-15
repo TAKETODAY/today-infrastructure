@@ -50,7 +50,7 @@ import static org.mockito.Mockito.verify;
 class NettyWebSocketSessionTests {
 
   @Test
-  void close() {
+  void close() throws InterruptedException {
     Channel channel = mock(Channel.class);
     NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
             new NettyDataBufferFactory(ByteBufAllocator.DEFAULT), null);
@@ -75,6 +75,7 @@ class NettyWebSocketSessionTests {
     session.close();
 
     verify(channel).writeAndFlush(new CloseWebSocketFrame(CloseStatus.NORMAL.getCode(), CloseStatus.NORMAL.getReason()));
+    Thread.sleep(1000);
     verify(channel).close();
   }
 
