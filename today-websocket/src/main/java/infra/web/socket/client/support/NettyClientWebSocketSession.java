@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 package infra.web.socket.client.support;
 
 import infra.core.io.buffer.NettyDataBufferFactory;
-import infra.lang.Nullable;
 import infra.web.socket.server.support.NettyWebSocketSession;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
@@ -31,19 +30,9 @@ import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
  */
 final class NettyClientWebSocketSession extends NettyWebSocketSession {
 
-  @Nullable
-  private final String acceptedProtocol;
-
   NettyClientWebSocketSession(boolean secure, Channel channel,
           WebSocketClientHandshaker handshaker, NettyDataBufferFactory allocator) {
-    super(secure, channel, allocator);
-    this.acceptedProtocol = handshaker.actualSubprotocol();
-  }
-
-  @Override
-  @Nullable
-  public String getAcceptedProtocol() {
-    return acceptedProtocol;
+    super(secure, channel, allocator, handshaker.actualSubprotocol());
   }
 
 }

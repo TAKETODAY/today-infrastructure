@@ -38,6 +38,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.websocketx.WebSocketDecoderConfig;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 
@@ -95,14 +96,15 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
     }
 
     FullHttpRequest request = nettyContext.nativeRequest();
-    var handshaker = createHandshakeFactory(request, selectedProtocol, selectedExtensions).newHandshaker(request);
+    var handshaker = createHandshakeFactory(request, selectedExtensions).newHandshaker(request);
     Channel channel = nettyContext.channel;
     if (handshaker == null) {
       WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(channel);
       return null;
     }
+
     NettyDataBufferFactory allocator = new NettyDataBufferFactory(channel.alloc());
-    NettyWebSocketSession session = createSession(nettyContext, allocator);
+    NettyWebSocketSession session = createSession(selectedProtocol, nettyContext, allocator);
     session.setAttributes(attributes);
 
     WebSocketHolder.bind(channel, wsHandler, session);
@@ -120,6 +122,10 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
     nettyContext.setStatus(response.status());
     nettyContext.nettyResponseHeaders.add(response.headers());
     nettyContext.registerDestructionCallback(handshakeChannel);
+
+    if (selectedProtocol != null) {
+      nettyContext.nettyResponseHeaders.set(HttpHeaderNames.SEC_WEBSOCKET_PROTOCOL, selectedProtocol);
+    }
 
     handshakeChannel.release();
 
@@ -140,13 +146,13 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
     return session;
   }
 
-  protected NettyWebSocketSession createSession(NettyRequestContext context, NettyDataBufferFactory allocator) {
-    return new NettyWebSocketSession(context.config.secure, context.channel, allocator);
+  protected NettyWebSocketSession createSession(@Nullable String selectedProtocol,
+          NettyRequestContext context, NettyDataBufferFactory allocator) {
+    return new NettyWebSocketSession(context.config.secure, context.channel, allocator, selectedProtocol);
   }
 
-  protected WebSocketServerHandshakerFactory createHandshakeFactory(FullHttpRequest request,
-          @Nullable String selectedProtocol, List<WebSocketExtension> selectedExtensions) {
-    return new WebSocketServerHandshakerFactory(request.uri(), selectedProtocol, decoderConfig);
+  protected WebSocketServerHandshakerFactory createHandshakeFactory(FullHttpRequest request, List<WebSocketExtension> selectedExtensions) {
+    return new WebSocketServerHandshakerFactory(request.uri(), null, decoderConfig);
   }
 
 }

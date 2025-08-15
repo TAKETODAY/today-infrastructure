@@ -56,10 +56,15 @@ public class NettyWebSocketSession extends WebSocketSession {
 
   private final NettyDataBufferFactory allocator;
 
-  protected NettyWebSocketSession(boolean secure, Channel channel, NettyDataBufferFactory allocator) {
+  @Nullable
+  private final String acceptedProtocol;
+
+  protected NettyWebSocketSession(boolean secure, Channel channel,
+          NettyDataBufferFactory allocator, @Nullable String acceptedProtocol) {
     this.secure = secure;
     this.channel = channel;
     this.allocator = allocator;
+    this.acceptedProtocol = acceptedProtocol;
   }
 
   @Override
@@ -149,7 +154,7 @@ public class NettyWebSocketSession extends WebSocketSession {
   @Nullable
   @Override
   public String getAcceptedProtocol() {
-    return null;
+    return acceptedProtocol;
   }
 
   @Override
