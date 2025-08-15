@@ -19,12 +19,21 @@ package infra.web.socket.server.support;
 
 import org.junit.jupiter.api.Test;
 
+import java.net.InetSocketAddress;
+
+import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.NettyDataBufferFactory;
 import infra.web.socket.CloseStatus;
+import infra.web.socket.WebSocketMessage;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.DefaultChannelPromise;
+import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,18 +52,24 @@ class NettyWebSocketSessionTests {
   void close() {
     Channel channel = mock(Channel.class);
     NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
-            new NettyDataBufferFactory(ByteBufAllocator.DEFAULT),null);
+            new NettyDataBufferFactory(ByteBufAllocator.DEFAULT), null);
 
     DefaultChannelPromise promise = new DefaultChannelPromise(channel, GlobalEventExecutor.INSTANCE);
+    promise.setSuccess();
     given(channel.writeAndFlush(any())).willReturn(promise);
     given(channel.isActive()).willReturn(true);
     given(channel.isOpen()).willReturn(true);
-
-    promise.setSuccess();
+    given(channel.localAddress()).willReturn(InetSocketAddress.createUnresolved("localhost", 1234));
+    given(channel.remoteAddress()).willReturn(InetSocketAddress.createUnresolved("localhost", 1234));
 
     assertThat(session.isSecure()).isFalse();
     assertThat(session.isOpen()).isTrue();
     assertThat(session.isActive()).isTrue();
+    assertThat(session.bufferFactory()).isNotNull();
+    assertThat(session.getAcceptedProtocol()).isNull();
+
+    assertThat(session.getLocalAddress()).isEqualTo(channel.localAddress()).isEqualTo(InetSocketAddress.createUnresolved("localhost", 1234));
+    assertThat(session.getRemoteAddress()).isEqualTo(channel.remoteAddress()).isEqualTo(InetSocketAddress.createUnresolved("localhost", 1234));
 
     session.close();
 
@@ -63,8 +78,45 @@ class NettyWebSocketSessionTests {
   }
 
   @Test
-  void f() {
+  void send() {
+    Channel channel = mock(Channel.class);
+    NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
+            new NettyDataBufferFactory(ByteBufAllocator.DEFAULT), null);
 
+    DefaultChannelPromise promise = new DefaultChannelPromise(channel, GlobalEventExecutor.INSTANCE);
+
+    given(channel.writeAndFlush(any())).willReturn(promise);
+
+    promise.setSuccess();
+
+    session.sendText("text");
+    session.sendText("");
+
+    session.sendPing();
+    session.sendPong();
+
+    session.sendBinary(DataBuffer.empty());
+    session.sendBinary(factory -> factory.copiedBuffer("demo"));
+    session.send(WebSocketMessage.binary(session.bufferFactory().copiedBuffer("send")));
+    session.send(WebSocketMessage.text(session.bufferFactory().copiedBuffer("send")));
+    session.send(WebSocketMessage.ping(session.bufferFactory().copiedBuffer("ping")));
+    session.send(WebSocketMessage.pong(session.bufferFactory().copiedBuffer("pong")));
+
+    TextWebSocketFrame nativeMessage = new TextWebSocketFrame(Unpooled.copiedBuffer("nativeMessage".getBytes()));
+    session.send(new WebSocketMessage(WebSocketMessage.Type.TEXT, DataBuffer.empty(),
+            nativeMessage, true));
+
+    verify(channel).writeAndFlush(new TextWebSocketFrame("text"));
+    verify(channel).writeAndFlush(new TextWebSocketFrame(Unpooled.EMPTY_BUFFER));
+    verify(channel).writeAndFlush(new PingWebSocketFrame());
+    verify(channel).writeAndFlush(new PongWebSocketFrame());
+    verify(channel).writeAndFlush(new BinaryWebSocketFrame(Unpooled.EMPTY_BUFFER));
+    verify(channel).writeAndFlush(new BinaryWebSocketFrame(Unpooled.copiedBuffer("demo".getBytes())));
+    verify(channel).writeAndFlush(new BinaryWebSocketFrame(Unpooled.copiedBuffer("send".getBytes())));
+    verify(channel).writeAndFlush(new TextWebSocketFrame("send"));
+    verify(channel).writeAndFlush(new PingWebSocketFrame(Unpooled.copiedBuffer("ping".getBytes())));
+    verify(channel).writeAndFlush(new PongWebSocketFrame(Unpooled.copiedBuffer("pong".getBytes())));
+    verify(channel).writeAndFlush(nativeMessage);
   }
 
 }
