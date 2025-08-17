@@ -180,9 +180,8 @@ public class ProblemDetail implements Serializable {
    * @param type the problem type
    * @see #withType(URI)
    */
-  public void setType(URI type) {
-    Assert.notNull(type, "'type' is required");
-    this.type = type;
+  public void setType(@Nullable URI type) {
+    this.type = type == null ? BLANK_TYPE : type;
   }
 
   /**
