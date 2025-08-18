@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,14 +33,16 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.IoHandlerFactory;
+import io.netty.channel.MultiThreadIoEventLoopGroup;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollChannelOption;
-import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollIoHandler;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.kqueue.KQueue;
-import io.netty.channel.kqueue.KQueueEventLoopGroup;
+import io.netty.channel.kqueue.KQueueIoHandler;
 import io.netty.channel.kqueue.KQueueServerSocketChannel;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpDecoderConfig;
@@ -303,13 +305,14 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
       KQueueDelegate.init(this);
     }
     else {
+      IoHandlerFactory ioHandlerFactory = NioIoHandler.newFactory();
       if (acceptorGroup == null) {
-        acceptorGroup = new NioEventLoopGroup(acceptorThreadCount,
-                new DefaultThreadFactory(acceptorPoolName == null ? "acceptor" : acceptorPoolName));
+        acceptorGroup = new MultiThreadIoEventLoopGroup(acceptorThreadCount,
+                new DefaultThreadFactory(acceptorPoolName == null ? "acceptor" : acceptorPoolName), ioHandlerFactory);
       }
       if (workerGroup == null) {
-        workerGroup = new NioEventLoopGroup(workerThreadCount,
-                new DefaultThreadFactory(workerPoolName == null ? "workers" : workerPoolName));
+        workerGroup = new MultiThreadIoEventLoopGroup(workerThreadCount,
+                new DefaultThreadFactory(workerPoolName == null ? "workers" : workerPoolName), ioHandlerFactory);
       }
       if (socketChannel == null) {
         socketChannel = NioServerSocketChannel.class;
@@ -438,15 +441,17 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
       if (factory.getSocketChannel() == null) {
         factory.setSocketChannel(EpollServerSocketChannel.class);
       }
+      IoHandlerFactory ioHandlerFactory = EpollIoHandler.newFactory();
+
       if (factory.getAcceptorGroup() == null) {
-        factory.setAcceptorGroup(new EpollEventLoopGroup(
+        factory.setAcceptorGroup(new MultiThreadIoEventLoopGroup(
                 factory.acceptorThreadCount, new DefaultThreadFactory(
-                factory.acceptorPoolName == null ? "epoll-acceptor" : factory.acceptorPoolName)));
+                factory.acceptorPoolName == null ? "epoll-acceptor" : factory.acceptorPoolName), ioHandlerFactory));
       }
       if (factory.getWorkerGroup() == null) {
-        factory.setWorkerGroup(new EpollEventLoopGroup(
+        factory.setWorkerGroup(new MultiThreadIoEventLoopGroup(
                 factory.workerThreadCount, new DefaultThreadFactory(
-                factory.workerPoolName == null ? "epoll-workers" : factory.workerPoolName)));
+                factory.workerPoolName == null ? "epoll-workers" : factory.workerPoolName), ioHandlerFactory));
       }
     }
   }
@@ -456,15 +461,16 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
       if (factory.getSocketChannel() == null) {
         factory.setSocketChannel(KQueueServerSocketChannel.class);
       }
+      IoHandlerFactory ioHandlerFactory = KQueueIoHandler.newFactory();
       if (factory.getAcceptorGroup() == null) {
-        factory.setAcceptorGroup(new KQueueEventLoopGroup(
+        factory.setAcceptorGroup(new MultiThreadIoEventLoopGroup(
                 factory.workerThreadCount, new DefaultThreadFactory(
-                factory.acceptorPoolName == null ? "kQueue-acceptor" : factory.acceptorPoolName)));
+                factory.acceptorPoolName == null ? "kQueue-acceptor" : factory.acceptorPoolName), ioHandlerFactory));
       }
       if (factory.getWorkerGroup() == null) {
-        factory.setWorkerGroup(new KQueueEventLoopGroup(
+        factory.setWorkerGroup(new MultiThreadIoEventLoopGroup(
                 factory.workerThreadCount, new DefaultThreadFactory(
-                factory.workerPoolName == null ? "kQueue-workers" : factory.workerPoolName)));
+                factory.workerPoolName == null ? "kQueue-workers" : factory.workerPoolName), ioHandlerFactory));
       }
     }
   }
