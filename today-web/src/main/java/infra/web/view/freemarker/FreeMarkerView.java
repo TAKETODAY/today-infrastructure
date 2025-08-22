@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ import java.util.Map;
 import freemarker.core.Environment;
 import freemarker.core.ParseException;
 import freemarker.template.Configuration;
+import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.DefaultObjectWrapperBuilder;
 import freemarker.template.ObjectWrapper;
 import freemarker.template.SimpleHash;
@@ -99,6 +100,9 @@ public class FreeMarkerView extends AbstractTemplateView {
 
   @Nullable
   private Configuration configuration;
+
+  @Nullable
+  private Locale locale;
 
   /**
    * Set the encoding used to decode byte sequences to character sequences when
@@ -180,6 +184,20 @@ public class FreeMarkerView extends AbstractTemplateView {
   }
 
   /**
+   * Set the {@link Locale}
+   *
+   * @since 5.0
+   */
+  public void setLocale(@Nullable Locale locale) {
+    this.locale = locale;
+  }
+
+  @Nullable
+  protected Locale getLocale() {
+    return locale;
+  }
+
+  /**
    * Invoked on startup. Looks for a single {@link FreeMarkerConfig} bean to
    * find the relevant {@link Configuration} for this view.
    * <p>Checks that the template for the default Locale can be found:
@@ -219,7 +237,7 @@ public class FreeMarkerView extends AbstractTemplateView {
 
   /**
    * Return the configured FreeMarker {@link ObjectWrapper}, or the
-   * {@linkplain ObjectWrapper#DEFAULT_WRAPPER default wrapper} if none specified.
+   * {@linkplain DefaultObjectWrapper default wrapper} if none specified.
    *
    * @see freemarker.template.Configuration#getObjectWrapper()
    */
@@ -279,7 +297,6 @@ public class FreeMarkerView extends AbstractTemplateView {
    * @see #renderMergedTemplateModel
    */
   protected void exposeHelpers(Map<String, Object> model, RequestContext request) throws Exception {
-
   }
 
   /**
@@ -299,7 +316,6 @@ public class FreeMarkerView extends AbstractTemplateView {
    * @see #setUrl
    * @see #getTemplate(java.util.Locale)
    * @see #processTemplate
-   * @see freemarker.ext.servlet.FreemarkerServlet
    */
   protected void doRender(Map<String, Object> model, RequestContext context) throws Exception {
     // Expose model to JSP tags (as request attributes).
@@ -308,8 +324,12 @@ public class FreeMarkerView extends AbstractTemplateView {
     SimpleHash fmModel = buildTemplateModel(model, context);
 
     // Grab the locale-specific version of the template.
-    Locale locale = RequestContextUtils.getLocale(context);
+    Locale locale = findLocale(context);
     processTemplate(getTemplate(locale), fmModel, context);
+  }
+
+  private Locale findLocale(RequestContext context) {
+    return locale == null ? RequestContextUtils.getLocale(context) : locale;
   }
 
   /**

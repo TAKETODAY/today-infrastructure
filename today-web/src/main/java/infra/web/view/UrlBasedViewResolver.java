@@ -527,6 +527,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
    * @see ApplicationContextAware#setApplicationContext
    * @see InitializingBean#afterPropertiesSet
    */
+  @Nullable
   @Override
   protected View loadView(String viewName, Locale locale) throws Exception {
     AbstractUrlBasedView view = buildView(viewName);
