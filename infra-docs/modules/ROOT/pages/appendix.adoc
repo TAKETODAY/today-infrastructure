@@ -89,7 +89,7 @@ xref:testing/testcontext-framework/ctx-management/failure-threshold.adoc[失败�
 | 如果使用默认 _封闭配置继承模式_ 测试类中不存在 `@NestedTestConfiguration`. 详见：
 xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-annotations-nestedtestconfiguration[更改默认封闭配置继承模式].
 
-| `infra.app.temp-prefix`
+| `infra.app.sub-temp-dir`
 | 全局 ApplicationTemp 的 _默认的临时目录（根目录）_，统一的临时目录更好管理应用产生的临时文件, 默认值：`${java.io.tmpdir}/infra.core.ApplicationTemp/`
 
 | `template.default.loader.path`
