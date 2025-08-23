@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -156,74 +156,172 @@ public class StandardEvaluationContext implements EvaluationContext {
     this.rootObject = TypedValue.valueOf(rootObject);
   }
 
+  /**
+   * Specify the default root context object (including a type descriptor)
+   * against which unqualified properties, methods, etc. should be resolved.
+   *
+   * @param rootObject the root object to use
+   * @param typeDescriptor a corresponding type descriptor
+   */
   public void setRootObject(@Nullable Object rootObject, @Nullable TypeDescriptor typeDescriptor) {
     this.rootObject = new TypedValue(rootObject, typeDescriptor);
   }
 
+  /**
+   * Specify the default root context object against which unqualified
+   * properties, methods, etc. should be resolved.
+   *
+   * @param rootObject the root object to use
+   */
   public void setRootObject(@Nullable Object rootObject) {
     this.rootObject = TypedValue.valueOf(rootObject);
   }
 
+  /**
+   * Return the configured default root context object against which unqualified
+   * properties, methods, etc. should be resolved (can be {@link TypedValue#NULL}).
+   */
   @Override
   public TypedValue getRootObject() {
     return this.rootObject;
   }
 
+  /**
+   * Set the list of property accessors to use in this evaluation context.
+   * <p>Replaces any previously configured property accessors.
+   */
   public void setPropertyAccessors(List<PropertyAccessor> propertyAccessors) {
     this.propertyAccessors = propertyAccessors;
   }
 
+  /**
+   * Get the list of property accessors configured in this evaluation context.
+   */
   @Override
   public List<PropertyAccessor> getPropertyAccessors() {
     return initPropertyAccessors();
   }
 
+  /**
+   * Add the supplied property accessor to this evaluation context.
+   *
+   * @param accessor the property accessor to add
+   * @see #getPropertyAccessors()
+   * @see #setPropertyAccessors(List)
+   * @see #removePropertyAccessor(PropertyAccessor)
+   */
   public void addPropertyAccessor(PropertyAccessor accessor) {
     addBeforeDefault(initPropertyAccessors(), accessor);
   }
 
+  /**
+   * Remove the supplied property accessor from this evaluation context.
+   *
+   * @param accessor the property accessor to remove
+   * @return {@code true} if the property accessor was removed, {@code false}
+   * if the property accessor was not configured in this evaluation context
+   * @see #getPropertyAccessors()
+   * @see #setPropertyAccessors(List)
+   * @see #addPropertyAccessor(PropertyAccessor)
+   */
   public boolean removePropertyAccessor(PropertyAccessor accessor) {
     return initPropertyAccessors().remove(accessor);
   }
 
+  /**
+   * Set the list of constructor resolvers to use in this evaluation context.
+   * <p>Replaces any previously configured constructor resolvers.
+   */
   public void setConstructorResolvers(List<ConstructorResolver> constructorResolvers) {
     this.constructorResolvers = constructorResolvers;
   }
 
+  /**
+   * Get the list of constructor resolvers to use in this evaluation context.
+   */
   @Override
   public List<ConstructorResolver> getConstructorResolvers() {
     return initConstructorResolvers();
   }
 
+  /**
+   * Add the supplied constructor resolver to this evaluation context.
+   *
+   * @param resolver the constructor resolver to add
+   * @see #getConstructorResolvers()
+   * @see #setConstructorResolvers(List)
+   * @see #removeConstructorResolver(ConstructorResolver)
+   */
   public void addConstructorResolver(ConstructorResolver resolver) {
     addBeforeDefault(initConstructorResolvers(), resolver);
   }
 
+  /**
+   * Remove the supplied constructor resolver from this evaluation context.
+   *
+   * @param resolver the constructor resolver to remove
+   * @return {@code true} if the constructor resolver was removed, {@code false}
+   * if the constructor resolver was not configured in this evaluation context
+   * @see #getConstructorResolvers()
+   * @see #setConstructorResolvers(List)
+   * @see #addConstructorResolver(ConstructorResolver)
+   */
   public boolean removeConstructorResolver(ConstructorResolver resolver) {
     return initConstructorResolvers().remove(resolver);
   }
 
+  /**
+   * Set the list of method resolvers to use in this evaluation context.
+   * <p>Replaces any previously configured method resolvers.
+   */
   public void setMethodResolvers(List<MethodResolver> methodResolvers) {
     this.methodResolvers = methodResolvers;
   }
 
+  /**
+   * Get the list of method resolvers to use in this evaluation context.
+   */
   @Override
   public List<MethodResolver> getMethodResolvers() {
     return initMethodResolvers();
   }
 
+  /**
+   * Add the supplied method resolver to this evaluation context.
+   *
+   * @param resolver the method resolver to add
+   * @see #getMethodResolvers()
+   * @see #setMethodResolvers(List)
+   * @see #removeMethodResolver(MethodResolver)
+   */
   public void addMethodResolver(MethodResolver resolver) {
     addBeforeDefault(initMethodResolvers(), resolver);
   }
 
+  /**
+   * Remove the supplied method resolver from this evaluation context.
+   *
+   * @param methodResolver the method resolver to remove
+   * @return {@code true} if the method resolver was removed, {@code false}
+   * if the method resolver was not configured in this evaluation context
+   * @see #getMethodResolvers()
+   * @see #setMethodResolvers(List)
+   * @see #addMethodResolver(MethodResolver)
+   */
   public boolean removeMethodResolver(MethodResolver methodResolver) {
     return initMethodResolvers().remove(methodResolver);
   }
 
-  public void setBeanResolver(BeanResolver beanResolver) {
+  /**
+   * Set the {@link BeanResolver} to use for looking up beans, if any.
+   */
+  public void setBeanResolver(@Nullable BeanResolver beanResolver) {
     this.beanResolver = beanResolver;
   }
 
+  /**
+   * Get the configured {@link BeanResolver} for looking up beans, if any.
+   */
   @Override
   @Nullable
   public BeanResolver getBeanResolver() {
@@ -263,11 +361,17 @@ public class StandardEvaluationContext implements EvaluationContext {
     return this.typeLocator;
   }
 
+  /**
+   * Set the {@link TypeConverter} for value conversion.
+   */
   public void setTypeConverter(TypeConverter typeConverter) {
     Assert.notNull(typeConverter, "TypeConverter is required");
     this.typeConverter = typeConverter;
   }
 
+  /**
+   * Get the configured {@link TypeConverter} for value conversion.
+   */
   @Override
   public TypeConverter getTypeConverter() {
     if (this.typeConverter == null) {
@@ -276,21 +380,33 @@ public class StandardEvaluationContext implements EvaluationContext {
     return this.typeConverter;
   }
 
+  /**
+   * Set the {@link TypeComparator} for comparing pairs of objects.
+   */
   public void setTypeComparator(TypeComparator typeComparator) {
     Assert.notNull(typeComparator, "TypeComparator is required");
     this.typeComparator = typeComparator;
   }
 
+  /**
+   * Get the configured {@link TypeComparator} for comparing pairs of objects.
+   */
   @Override
   public TypeComparator getTypeComparator() {
     return this.typeComparator;
   }
 
+  /**
+   * Set the {@link OperatorOverloader} for mathematical operations.
+   */
   public void setOperatorOverloader(OperatorOverloader operatorOverloader) {
     Assert.notNull(operatorOverloader, "OperatorOverloader is required");
     this.operatorOverloader = operatorOverloader;
   }
 
+  /**
+   * Get the configured {@link OperatorOverloader} for mathematical operations.
+   */
   @Override
   public OperatorOverloader getOperatorOverloader() {
     return this.operatorOverloader;
