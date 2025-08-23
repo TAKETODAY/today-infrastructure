@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ package infra.annotation.config.aop;
 import org.junit.jupiter.api.Test;
 
 import infra.aop.config.AopConfigUtils;
+import infra.aop.framework.autoproxy.AutoProxyUtils;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.config.BeanDefinition;
 import infra.context.annotation.config.AutoConfigurations;
@@ -41,16 +42,17 @@ class NonAspectJAopAutoConfigurationTests {
   @Test
   void whenAspectJIsAbsentAndProxyTargetClassIsEnabledProxyCreatorBeanIsDefined() {
     this.contextRunner.run((context) -> {
-      BeanDefinition autoProxyCreator = context.getBeanFactory()
-              .getBeanDefinition(AopConfigUtils.AUTO_PROXY_CREATOR_BEAN_NAME);
-      assertThat(autoProxyCreator.getPropertyValues().get("proxyTargetClass").getValue()).isEqualTo(Boolean.TRUE);
+      BeanDefinition defaultProxyConfig = context.getBeanFactory()
+              .getBeanDefinition(AutoProxyUtils.DEFAULT_PROXY_CONFIG_BEAN_NAME);
+      assertThat(defaultProxyConfig.getPropertyValues().getPropertyValue("proxyTargetClass")).isEqualTo(Boolean.TRUE);
     });
   }
 
   @Test
   void whenAspectJIsAbsentAndProxyTargetClassIsDisabledNoProxyCreatorBeanIsDefined() {
-    contextRunner.withPropertyValues("infra.aop.proxy-target-class:false")
-            .run(context -> assertThat(context).doesNotHaveBean(AopConfigUtils.AUTO_PROXY_CREATOR_BEAN_NAME));
+    this.contextRunner.withPropertyValues("infra.aop.proxy-target-class:false")
+            .run((context) -> assertThat(context).doesNotHaveBean(AutoProxyUtils.DEFAULT_PROXY_CONFIG_BEAN_NAME)
+                    .doesNotHaveBean(AopConfigUtils.AUTO_PROXY_CREATOR_BEAN_NAME));
   }
 
 }

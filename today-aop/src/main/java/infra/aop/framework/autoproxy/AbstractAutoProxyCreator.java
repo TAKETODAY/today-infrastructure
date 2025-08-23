@@ -522,8 +522,8 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
    * @see AutoProxyUtils#shouldProxyTargetClass
    */
   protected boolean shouldProxyTargetClass(Class<?> beanClass, @Nullable String beanName) {
-    return this.beanFactory instanceof ConfigurableBeanFactory configurableBeanFactory
-            && AutoProxyUtils.shouldProxyTargetClass(configurableBeanFactory, beanName);
+    return this.beanFactory instanceof ConfigurableBeanFactory cbf
+            && AutoProxyUtils.shouldProxyTargetClass(cbf, beanName);
   }
 
   /**

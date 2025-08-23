@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@ import infra.util.ObjectUtils;
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/28 17:10</a>
  * @see AbstractAutoProxyCreator
+ * @see AbstractAdvisingBeanPostProcessor
  * @since 4.0
  */
 public class ProxyProcessorSupport extends ProxyConfig implements Ordered, BeanClassLoaderAware, AopInfrastructureBean {
@@ -155,7 +156,8 @@ public class ProxyProcessorSupport extends ProxyConfig implements Ordered, BeanC
    * @return whether the given interface is an internal language interface
    */
   protected boolean isInternalLanguageInterface(Class<?> ifc) {
-    return ifc.getName().endsWith(".bytecode.proxy.Factory")
+    return ifc.getName().equals("groovy.lang.GroovyObject")
+            || ifc.getName().endsWith(".bytecode.proxy.Factory")
             || ifc.getName().endsWith(".bytebuddy.MockAccess");
   }
 

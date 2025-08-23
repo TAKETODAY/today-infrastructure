@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -129,6 +129,7 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
   /** Package-visible field that indicates MergedBeanDefinitionPostProcessor having been applied. */
   boolean postProcessed = false;
 
+  @Nullable
   Method[] initMethodArray;
 
   /** Package-visible field that indicates a before-instantiation post-processor having kicked in. */
@@ -283,6 +284,7 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
     super(original);
   }
 
+  @Nullable
   @Override
   public String getParentName() {
     return null;

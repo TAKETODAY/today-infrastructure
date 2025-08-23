@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@ import infra.logging.LoggerFactory;
  * @since 4.0 2022/1/11 23:38
  */
 public class AutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
+
   private static final Logger log = LoggerFactory.getLogger(AutoProxyRegistrar.class);
 
   /**
@@ -68,8 +69,10 @@ public class AutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
       }
       Object mode = candidate.get("mode");
       Object proxyTargetClass = candidate.get("proxyTargetClass");
-      if (mode != null && proxyTargetClass != null && AdviceMode.class == mode.getClass() &&
-              Boolean.class == proxyTargetClass.getClass()) {
+      if (mode != null
+              && proxyTargetClass != null
+              && AdviceMode.class == mode.getClass()
+              && Boolean.class == proxyTargetClass.getClass()) {
         candidateFound = true;
         if (mode == AdviceMode.PROXY) {
           AopConfigUtils.registerAutoProxyCreatorIfNecessary(context.getRegistry());
