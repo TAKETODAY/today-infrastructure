@@ -60,6 +60,7 @@ import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.BeanNotOfRequiredTypeException;
+import infra.beans.factory.FactoryBean;
 import infra.beans.factory.InjectionPoint;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.NoUniqueBeanDefinitionException;
@@ -162,10 +163,10 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   private final ConcurrentHashMap<Class<?>, String[]> singletonBeanNamesByType = new ConcurrentHashMap<>(64);
 
   /** Map from bean name to merged BeanDefinitionHolder. @since 4.0 */
-  private final Map<String, BeanDefinitionHolder> mergedBeanDefinitionHolders = new ConcurrentHashMap<>(256);
+  private final ConcurrentHashMap<String, BeanDefinitionHolder> mergedBeanDefinitionHolders = new ConcurrentHashMap<>(256);
 
-  // Set of bean definition names with a primary marker. */
-  private final Set<String> primaryBeanNames = ConcurrentHashMap.newKeySet(16);
+  /** Map of bean definition names with a primary marker plus corresponding type. */
+  private final ConcurrentHashMap<String, Class<?>> primaryBeanNamesWithType = new ConcurrentHashMap<>(16);
 
   private final NamedThreadLocal<PreInstantiation> preInstantiationThread =
           new NamedThreadLocal<>("Pre-instantiation thread marker");
@@ -379,9 +380,17 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @Override
   protected void addSingleton(String beanName, Object singletonObject) {
     super.addSingleton(beanName, singletonObject);
+
     Predicate<Class<?>> filter = (beanType -> beanType != Object.class && beanType.isInstance(singletonObject));
     this.allBeanNamesByType.keySet().removeIf(filter);
     this.singletonBeanNamesByType.keySet().removeIf(filter);
+
+    if (this.primaryBeanNamesWithType.containsKey(beanName) && singletonObject != NullValue.INSTANCE) {
+      Class<?> beanType = singletonObject instanceof FactoryBean<?> fb ? getTypeForFactoryBean(fb) : singletonObject.getClass();
+      if (beanType != null) {
+        this.primaryBeanNamesWithType.put(beanName, beanType);
+      }
+    }
   }
 
   @Override
@@ -501,7 +510,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   protected void cacheMergedBeanDefinition(RootBeanDefinition mbd, String beanName) {
     super.cacheMergedBeanDefinition(mbd, beanName);
     if (mbd.isPrimary()) {
-      this.primaryBeanNames.add(beanName);
+      this.primaryBeanNamesWithType.put(beanName, Void.class);
     }
   }
 
@@ -785,7 +794,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
     // Cache a primary marker for the given bean.
     if (def.isPrimary()) {
-      primaryBeanNames.add(beanName);
+      this.primaryBeanNamesWithType.put(beanName, Void.class);
     }
   }
 
@@ -1602,7 +1611,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     destroySingleton(beanName);
 
     // Remove a cached primary marker for the given bean.
-    primaryBeanNames.remove(beanName);
+    primaryBeanNamesWithType.remove(beanName);
 
     // Notify all post-processors that the specified bean definition has been reset.
     for (MergedBeanDefinitionPostProcessor processor : postProcessors().definitions) {
@@ -2361,8 +2370,12 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    * not matching the given bean name.
    */
   private boolean hasPrimaryConflict(String beanName, Class<?> dependencyType) {
-    for (String candidate : this.primaryBeanNames) {
-      if (isTypeMatch(candidate, dependencyType) && !candidate.equals(beanName)) {
+    for (Map.Entry<String, Class<?>> candidate : this.primaryBeanNamesWithType.entrySet()) {
+      String candidateName = candidate.getKey();
+      Class<?> candidateType = candidate.getValue();
+      if (!candidateName.equals(beanName) &&
+              (candidateType != Void.class ? dependencyType.isAssignableFrom(candidateType) :  // cached singleton class for primary bean
+                      isTypeMatch(candidateName, dependencyType))) {  // not instantiated yet or not a singleton
         return true;
       }
     }
