@@ -18,6 +18,7 @@
 package infra.web.socket;
 
 import infra.lang.Nullable;
+import infra.util.concurrent.Future;
 
 /**
  * The Web Socket Handler represents an object that can handle websocket conversations.
@@ -86,17 +87,18 @@ public abstract class WebSocketHandler {
    * @param message the message data.
    * @since 5.0
    */
-  public void handleMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
+  @Nullable
+  public Future<Void> handleMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
     if (delegate != null) {
-      delegate.handleMessage(session, message);
+      return delegate.handleMessage(session, message);
     }
     else {
-      switch (message.getType()) {
+      return switch (message.getType()) {
         case PING -> handlePingMessage(session, message);
         case PONG -> handlePongMessage(session, message);
         case TEXT -> handleTextMessage(session, message);
         case BINARY -> handleBinaryMessage(session, message);
-      }
+      };
     }
   }
 
@@ -137,28 +139,36 @@ public abstract class WebSocketHandler {
     }
   }
 
-  protected void handlePingMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
+  @Nullable
+  protected Future<Void> handlePingMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
     if (delegate != null) {
-      delegate.handlePingMessage(session, message);
+      return delegate.handlePingMessage(session, message);
     }
+    return null;
   }
 
-  protected void handlePongMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
+  @Nullable
+  protected Future<Void> handlePongMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
     if (delegate != null) {
       delegate.handlePongMessage(session, message);
     }
+    return null;
   }
 
-  protected void handleTextMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
+  @Nullable
+  protected Future<Void> handleTextMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
     if (delegate != null) {
       delegate.handleTextMessage(session, message);
     }
+    return null;
   }
 
-  protected void handleBinaryMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
+  @Nullable
+  protected Future<Void> handleBinaryMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
     if (delegate != null) {
       delegate.handleBinaryMessage(session, message);
     }
+    return null;
   }
 
 }

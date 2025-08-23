@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.web.socket.handler;
 
 import infra.lang.Nullable;
+import infra.util.concurrent.Future;
 import infra.web.socket.CloseStatus;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketMessage;
@@ -43,9 +44,11 @@ public class BinaryWebSocketHandler extends WebSocketHandler {
     super(delegate);
   }
 
+  @Nullable
   @Override
-  protected final void handleTextMessage(WebSocketSession session, WebSocketMessage message) {
+  protected final Future<Void> handleTextMessage(WebSocketSession session, WebSocketMessage message) {
     session.close(CloseStatus.NOT_ACCEPTABLE.withReason("Text messages not supported"));
+    return null;
   }
 
 }

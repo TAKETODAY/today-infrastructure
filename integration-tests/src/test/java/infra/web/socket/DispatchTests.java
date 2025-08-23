@@ -121,10 +121,12 @@ class DispatchTests {
       this.dataLatch = dataLatch;
     }
 
+    @Nullable
     @Override
-    protected void handleTextMessage(WebSocketSession session, WebSocketMessage message) {
+    protected Future<Void> handleTextMessage(WebSocketSession session, WebSocketMessage message) {
       messages.add(message.getPayloadAsText());
       dataLatch.countDown();
+      return null;
     }
 
     @Override
@@ -154,13 +156,15 @@ class DispatchTests {
       sessions.add(session);
     }
 
+    @Nullable
     @Override
-    protected void handleTextMessage(WebSocketSession session, WebSocketMessage message) {
+    protected Future<Void> handleTextMessage(WebSocketSession session, WebSocketMessage message) {
       for (WebSocketSession current : sessions) {
         if (session != current) {
           current.send(message.retainedDuplicate());
         }
       }
+      return null;
     }
 
     @Override

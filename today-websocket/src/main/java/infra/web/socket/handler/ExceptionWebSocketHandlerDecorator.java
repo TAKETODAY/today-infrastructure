@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,10 @@
 
 package infra.web.socket.handler;
 
+import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.concurrent.Future;
 import infra.web.socket.CloseStatus;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketMessage;
@@ -51,14 +53,16 @@ public class ExceptionWebSocketHandlerDecorator extends WebSocketHandler {
     }
   }
 
+  @Nullable
   @Override
-  public void handleMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
+  public Future<Void> handleMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
     try {
-      super.handleMessage(session, message);
+      return super.handleMessage(session, message);
     }
     catch (Throwable ex) {
       tryCloseWithError(session, ex, logger);
     }
+    return null;
   }
 
   @Override
