@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -159,6 +159,13 @@ class TransactionalApplicationListenerMethodAdapterTests {
   }
 
   @Test
+  void withTransactionalAnnotationBeforeCommit() {
+    RestrictedTransactionalEventListenerFactory factory = new RestrictedTransactionalEventListenerFactory();
+    Method m = ReflectionUtils.findMethod(SampleEvents.class, "withTransactionalAnnotationBeforeCommit", String.class);
+    assertThatNoException().isThrownBy(() -> factory.createApplicationListener("test", SampleEvents.class, m));
+  }
+
+  @Test
   void withTransactionalAnnotationOnEnclosingClass() {
     RestrictedTransactionalEventListenerFactory factory = new RestrictedTransactionalEventListenerFactory();
     Method m = ReflectionUtils.findMethod(SampleEvents.SampleEventsWithTransactionalAnnotation.class, "defaultPhase", String.class);
@@ -275,6 +282,11 @@ class TransactionalApplicationListenerMethodAdapterTests {
     @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void withAsyncTransactionalAnnotation(String data) {
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    @Transactional
+    public void withTransactionalAnnotationBeforeCommit(String data) {
     }
 
     @Transactional
