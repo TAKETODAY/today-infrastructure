@@ -179,16 +179,28 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
   void refresh() throws ApplicationContextException;
 
   /**
-   * Stop all beans in this application context if necessary, and subsequently
+   * Pause all beans in this application context if necessary, and subsequently
    * restart all auto-startup beans, effectively restoring the lifecycle state
-   * after {@link #refresh()} (typically after a preceding {@link #stop()} call
+   * after {@link #refresh()} (typically after a preceding {@link #pause()} call
    * when a full {@link #start()} of even lazy-starting beans is to be avoided).
    *
-   * @see #stop()
+   * @see #pause()
+   * @see #start()
    * @see SmartLifecycle#isAutoStartup()
    * @since 5.0
    */
   void restart();
+
+  /**
+   * Stop all beans in this application context unless they explicitly opt out of
+   * pausing through {@link SmartLifecycle#isPausable()} returning {@code false}.
+   *
+   * @see #restart()
+   * @see #stop()
+   * @see SmartLifecycle#isPausable()
+   * @since 5.0
+   */
+  void pause();
 
   /**
    * Register a shutdown hook with the JVM runtime, closing this context

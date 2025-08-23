@@ -21,28 +21,28 @@ import infra.context.ApplicationContext;
 import infra.context.ConfigurableApplicationContext;
 
 /**
- * Event raised when an {@code ApplicationContext} gets restarted.
+ * Event raised when an {@code ApplicationContext} gets paused.
  *
- * <p>Note that {@code ContextRestartedEvent} is a specialization of
- * {@link ContextStartedEvent}.
+ * <p>Note that {@code ContextPausedEvent} is a specialization of
+ * {@link ContextStoppedEvent}.
  *
- * @author Sam Brannen
+ * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @see ConfigurableApplicationContext#restart()
- * @see ContextPausedEvent
- * @see ContextStartedEvent
+ * @see ConfigurableApplicationContext#pause()
+ * @see ContextRestartedEvent
+ * @see ContextStoppedEvent
  * @since 5.0
  */
 @SuppressWarnings("serial")
-public class ContextRestartedEvent extends ContextStartedEvent {
+public class ContextPausedEvent extends ContextStoppedEvent {
 
   /**
-   * Create a new {@code ContextRestartedEvent}.
+   * Create a new {@code ContextPausedEvent}.
    *
-   * @param source the {@code ApplicationContext} that has been restarted
+   * @param source the {@code ApplicationContext} that has been paused
    * (must not be {@code null})
    */
-  public ContextRestartedEvent(ApplicationContext source) {
+  public ContextPausedEvent(ApplicationContext source) {
     super(source);
   }
 
