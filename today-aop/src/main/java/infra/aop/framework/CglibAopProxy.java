@@ -672,6 +672,7 @@ class CglibAopProxy implements AopProxy, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    @Nullable
     @Override
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
       Object oldProxy = null;

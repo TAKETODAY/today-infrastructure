@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.aop.framework.autoproxy;
 
+import infra.aop.framework.ProxyConfig;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.config.AutowireCapableBeanFactory;
 import infra.beans.factory.config.BeanDefinition;
@@ -32,9 +33,40 @@ import infra.util.StringUtils;
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see AbstractAutoProxyCreator
+ * @see AbstractBeanFactoryAwareAdvisingPostProcessor
  * @since 4.0 2022/3/9 16:34
  */
 public abstract class AutoProxyUtils {
+
+  /**
+   * The bean name of the internally managed auto-proxy creator.
+   *
+   * @since 5.0
+   */
+  public static final String DEFAULT_PROXY_CONFIG_BEAN_NAME =
+          "infra.aop.framework.autoproxy.defaultProxyConfig";
+
+  /**
+   * Bean definition attribute that may indicate the interfaces to be proxied
+   * (in case of it getting proxied in the first place). The value is either
+   * a single interface {@code Class} or an array of {@code Class}, with an
+   * empty array specifically signalling that all implemented interfaces need
+   * to be proxied.
+   *
+   * @see #determineExposedInterfaces
+   * @since 5.0
+   */
+  public static final String EXPOSED_INTERFACES_ATTRIBUTE =
+          Conventions.getQualifiedAttributeName(AutoProxyUtils.class, "exposedInterfaces");
+
+  /**
+   * Attribute value for specifically signalling that all implemented interfaces
+   * need to be proxied (through an empty {@code Class} array).
+   *
+   * @see #EXPOSED_INTERFACES_ATTRIBUTE
+   * @since 5.0
+   */
+  public static final Object ALL_INTERFACES_ATTRIBUTE_VALUE = new Class<?>[0];
 
   /**
    * Bean definition attribute that may indicate whether a given bean is supposed
@@ -69,9 +101,7 @@ public abstract class AutoProxyUtils {
    * @param beanName the name of the bean
    * @return whether the given bean should be proxied with its target class
    */
-  public static boolean shouldProxyTargetClass(
-          ConfigurableBeanFactory beanFactory, @Nullable String beanName) {
-
+  public static boolean shouldProxyTargetClass(ConfigurableBeanFactory beanFactory, @Nullable String beanName) {
     if (beanName != null && beanFactory.containsBeanDefinition(beanName)) {
       BeanDefinition bd = beanFactory.getBeanDefinition(beanName);
       return Boolean.TRUE.equals(bd.getAttribute(PRESERVE_TARGET_CLASS_ATTRIBUTE));
@@ -89,9 +119,7 @@ public abstract class AutoProxyUtils {
    * @see BeanFactory#getType(String)
    */
   @Nullable
-  public static Class<?> determineTargetClass(
-          ConfigurableBeanFactory beanFactory, @Nullable String beanName) {
-
+  public static Class<?> determineTargetClass(ConfigurableBeanFactory beanFactory, @Nullable String beanName) {
     if (beanName == null) {
       return null;
     }
@@ -112,9 +140,7 @@ public abstract class AutoProxyUtils {
    * @param beanName the name of the bean
    * @param targetClass the corresponding target class
    */
-  static void exposeTargetClass(
-          ConfigurableBeanFactory beanFactory, @Nullable String beanName, Class<?> targetClass) {
-
+  static void exposeTargetClass(ConfigurableBeanFactory beanFactory, @Nullable String beanName, Class<?> targetClass) {
     if (beanName != null && beanFactory.containsBeanDefinition(beanName)) {
       beanFactory.getMergedBeanDefinition(beanName).setAttribute(ORIGINAL_TARGET_CLASS_ATTRIBUTE, targetClass);
     }
@@ -136,6 +162,48 @@ public abstract class AutoProxyUtils {
     }
     return beanName.startsWith(beanClass.getName())
             && beanName.endsWith(AutowireCapableBeanFactory.ORIGINAL_INSTANCE_SUFFIX);
+  }
+
+  /**
+   * Apply default ProxyConfig settings to the given ProxyConfig instance, if necessary.
+   *
+   * @param proxyConfig the current ProxyConfig instance
+   * @param beanFactory the BeanFactory to take the default ProxyConfig from
+   * @see #DEFAULT_PROXY_CONFIG_BEAN_NAME
+   * @see ProxyConfig#copyDefault
+   * @since 5.0
+   */
+  static void applyDefaultProxyConfig(ProxyConfig proxyConfig, BeanFactory beanFactory) {
+    if (beanFactory.containsBean(DEFAULT_PROXY_CONFIG_BEAN_NAME)) {
+      ProxyConfig defaultProxyConfig = beanFactory.getBean(DEFAULT_PROXY_CONFIG_BEAN_NAME, ProxyConfig.class);
+      proxyConfig.copyDefault(defaultProxyConfig);
+    }
+  }
+
+  /**
+   * Determine the specific interfaces for proxying the given bean, if any.
+   * Checks the {@link #EXPOSED_INTERFACES_ATTRIBUTE "exposedInterfaces" attribute}
+   * of the corresponding bean definition.
+   *
+   * @param beanFactory the containing ConfigurableListableBeanFactory
+   * @param beanName the name of the bean
+   * @return whether the given bean should be proxied with its target class
+   * @see #EXPOSED_INTERFACES_ATTRIBUTE
+   * @since 5.0
+   */
+  @Nullable
+  static Class<?>[] determineExposedInterfaces(ConfigurableBeanFactory beanFactory, @Nullable String beanName) {
+    if (beanName != null && beanFactory.containsBeanDefinition(beanName)) {
+      BeanDefinition bd = beanFactory.getBeanDefinition(beanName);
+      Object interfaces = bd.getAttribute(EXPOSED_INTERFACES_ATTRIBUTE);
+      if (interfaces instanceof Class<?>[] ifcs) {
+        return ifcs;
+      }
+      else if (interfaces instanceof Class<?> ifc) {
+        return new Class<?>[] { ifc };
+      }
+    }
+    return null;
   }
 
 }
