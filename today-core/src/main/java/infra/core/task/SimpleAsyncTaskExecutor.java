@@ -334,7 +334,6 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator implement
       this.active = false;
       Set<Thread> threads = this.activeThreads;
       if (threads != null) {
-        threads.forEach(Thread::interrupt);
         synchronized(threads) {
           try {
             if (!threads.isEmpty()) {
@@ -345,6 +344,7 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator implement
             Thread.currentThread().interrupt();
           }
         }
+        threads.forEach(Thread::interrupt);
       }
     }
   }
