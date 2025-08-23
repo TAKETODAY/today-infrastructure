@@ -27,6 +27,8 @@ import java.util.stream.Stream;
 import javax.sql.DataSource;
 
 import infra.beans.BeanUtils;
+import infra.core.conversion.ConversionService;
+import infra.core.conversion.support.DefaultConversionService;
 import infra.jdbc.core.JdbcOperations;
 import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.core.PreparedStatementCreator;
@@ -42,6 +44,7 @@ import infra.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import infra.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import infra.jdbc.core.namedparam.SimplePropertySqlParameterSource;
 import infra.jdbc.core.namedparam.SqlParameterSource;
+import infra.jdbc.support.JdbcAccessor;
 import infra.jdbc.support.KeyHolder;
 import infra.jdbc.support.rowset.SqlRowSet;
 import infra.lang.Assert;
@@ -61,46 +64,86 @@ import infra.lang.Nullable;
  */
 final class DefaultJdbcClient implements JdbcClient {
 
-  private final JdbcOperations classicOps;
-
   private final NamedParameterJdbcOperations namedParamOps;
 
-  private final ConcurrentHashMap<Class<?>, RowMapper<?>> rowMapperCache = new ConcurrentHashMap<>();
+  private final ConversionService conversionService;
+
+  private final Map<Class<?>, RowMapper<?>> rowMapperCache = new ConcurrentHashMap<>();
 
   public DefaultJdbcClient(DataSource dataSource) {
-    this.classicOps = new JdbcTemplate(dataSource);
-    this.namedParamOps = new NamedParameterJdbcTemplate(this.classicOps);
+    this(new JdbcTemplate(dataSource));
   }
 
   public DefaultJdbcClient(JdbcOperations jdbcTemplate) {
-    Assert.notNull(jdbcTemplate, "JdbcTemplate is required");
-    this.classicOps = jdbcTemplate;
-    this.namedParamOps = new NamedParameterJdbcTemplate(jdbcTemplate);
+    this(new NamedParameterJdbcTemplate(jdbcTemplate), null);
   }
 
-  public DefaultJdbcClient(NamedParameterJdbcOperations jdbcTemplate) {
+  public DefaultJdbcClient(NamedParameterJdbcOperations jdbcTemplate, @Nullable ConversionService conversionService) {
     Assert.notNull(jdbcTemplate, "JdbcTemplate is required");
-    this.classicOps = jdbcTemplate.getJdbcOperations();
     this.namedParamOps = jdbcTemplate;
+    this.conversionService =
+            (conversionService != null ? conversionService : DefaultConversionService.getSharedInstance());
   }
 
   @Override
   public StatementSpec sql(String sql) {
-    return new DefaultStatementSpec(sql);
+    return new DefaultStatementSpec(sql, this.namedParamOps);
   }
 
   private final class DefaultStatementSpec implements StatementSpec {
 
     private final String sql;
 
-    private final ArrayList<Object> indexedParams = new ArrayList<>();
+    private JdbcOperations classicOps;
+
+    private NamedParameterJdbcOperations namedParamOps;
+
+    @Nullable
+    private JdbcTemplate customTemplate;
+
+    private final List<Object> indexedParams = new ArrayList<>();
 
     private final MapSqlParameterSource namedParams = new MapSqlParameterSource();
 
     private SqlParameterSource namedParamSource = this.namedParams;
 
-    public DefaultStatementSpec(String sql) {
+    public DefaultStatementSpec(String sql, NamedParameterJdbcOperations namedParamOps) {
       this.sql = sql;
+      this.classicOps = namedParamOps.getJdbcOperations();
+      this.namedParamOps = namedParamOps;
+    }
+
+    private JdbcTemplate enforceCustomTemplate() {
+      if (this.customTemplate == null) {
+        if (!(this.classicOps instanceof JdbcAccessor original)) {
+          throw new IllegalStateException(
+                  "Needs to be bound to a JdbcAccessor for custom settings support: " + this.classicOps);
+        }
+        this.customTemplate = new JdbcTemplate(original);
+        this.classicOps = this.customTemplate;
+        this.namedParamOps = (this.namedParamOps instanceof NamedParameterJdbcTemplate originalNamedParam ?
+                new NamedParameterJdbcTemplate(originalNamedParam, this.customTemplate) :
+                new NamedParameterJdbcTemplate(this.customTemplate));
+      }
+      return this.customTemplate;
+    }
+
+    @Override
+    public StatementSpec withFetchSize(int fetchSize) {
+      enforceCustomTemplate().setFetchSize(fetchSize);
+      return this;
+    }
+
+    @Override
+    public StatementSpec withMaxRows(int maxRows) {
+      enforceCustomTemplate().setMaxRows(maxRows);
+      return this;
+    }
+
+    @Override
+    public StatementSpec withQueryTimeout(int queryTimeout) {
+      enforceCustomTemplate().setQueryTimeout(queryTimeout);
+      return this;
     }
 
     @Override
@@ -130,17 +173,17 @@ final class DefaultJdbcClient implements JdbcClient {
       return this;
     }
 
-    @Override
-    public StatementSpec param(int jdbcIndex, @Nullable Object value, int sqlType) {
-      return param(jdbcIndex, new SqlParameterValue(sqlType, value));
-    }
-
     private void validateIndexedParamValue(@Nullable Object value) {
       if (value instanceof Iterable) {
         throw new IllegalArgumentException("Invalid positional parameter value of type Iterable (" +
                 value.getClass().getSimpleName() +
                 "): Parameter expansion is only supported with named parameters.");
       }
+    }
+
+    @Override
+    public StatementSpec param(int jdbcIndex, @Nullable Object value, int sqlType) {
+      return param(jdbcIndex, new SqlParameterValue(sqlType, value));
     }
 
     @Override
@@ -195,12 +238,13 @@ final class DefaultJdbcClient implements JdbcClient {
               new IndexedParamResultQuerySpec());
     }
 
-    @SuppressWarnings("unchecked")
     @Override
+    @SuppressWarnings({ "unchecked", "NullAway" })
     public <T> MappedQuerySpec<T> query(Class<T> mappedClass) {
       RowMapper<?> rowMapper = rowMapperCache.computeIfAbsent(mappedClass, key ->
-              BeanUtils.isSimpleProperty(mappedClass) ? new SingleColumnRowMapper<>(mappedClass) :
-                      new SimplePropertyRowMapper<>(mappedClass));
+              BeanUtils.isSimpleProperty(mappedClass) ?
+                      new SingleColumnRowMapper<>(mappedClass, conversionService) :
+                      new SimplePropertyRowMapper<>(mappedClass, conversionService));
       return query((RowMapper<T>) rowMapper);
     }
 
@@ -214,18 +258,18 @@ final class DefaultJdbcClient implements JdbcClient {
     @Override
     public void query(RowCallbackHandler rch) {
       if (useNamedParams()) {
-        namedParamOps.query(this.sql, this.namedParamSource, rch);
+        this.namedParamOps.query(this.sql, this.namedParamSource, rch);
       }
       else {
-        classicOps.query(statementCreatorForIndexedParams(), rch);
+        this.classicOps.query(statementCreatorForIndexedParams(), rch);
       }
     }
 
     @Override
     public <T> T query(ResultSetExtractor<T> rse) {
       T result = (useNamedParams() ?
-              namedParamOps.query(this.sql, this.namedParamSource, rse) :
-              classicOps.query(statementCreatorForIndexedParams(), rse));
+              this.namedParamOps.query(this.sql, this.namedParamSource, rse) :
+              this.classicOps.query(statementCreatorForIndexedParams(), rse));
       Assert.state(result != null, "No result from ResultSetExtractor");
       return result;
     }
@@ -233,22 +277,22 @@ final class DefaultJdbcClient implements JdbcClient {
     @Override
     public int update() {
       return (useNamedParams() ?
-              namedParamOps.update(this.sql, this.namedParamSource) :
-              classicOps.update(statementCreatorForIndexedParams()));
+              this.namedParamOps.update(this.sql, this.namedParamSource) :
+              this.classicOps.update(statementCreatorForIndexedParams()));
     }
 
     @Override
     public int update(KeyHolder generatedKeyHolder) {
       return (useNamedParams() ?
-              namedParamOps.update(this.sql, this.namedParamSource, generatedKeyHolder) :
-              classicOps.update(statementCreatorForIndexedParamsWithKeys(null), generatedKeyHolder));
+              this.namedParamOps.update(this.sql, this.namedParamSource, generatedKeyHolder) :
+              this.classicOps.update(statementCreatorForIndexedParamsWithKeys(null), generatedKeyHolder));
     }
 
     @Override
     public int update(KeyHolder generatedKeyHolder, String... keyColumnNames) {
       return (useNamedParams() ?
-              namedParamOps.update(this.sql, this.namedParamSource, generatedKeyHolder, keyColumnNames) :
-              classicOps.update(statementCreatorForIndexedParamsWithKeys(keyColumnNames), generatedKeyHolder));
+              this.namedParamOps.update(this.sql, this.namedParamSource, generatedKeyHolder, keyColumnNames) :
+              this.classicOps.update(statementCreatorForIndexedParamsWithKeys(keyColumnNames), generatedKeyHolder));
     }
 
     private boolean useNamedParams() {
@@ -278,7 +322,7 @@ final class DefaultJdbcClient implements JdbcClient {
       return pscf.newPreparedStatementCreator(this.indexedParams);
     }
 
-    private final class IndexedParamResultQuerySpec implements ResultQuerySpec {
+    private class IndexedParamResultQuerySpec implements ResultQuerySpec {
 
       @Override
       public SqlRowSet rowSet() {
@@ -301,7 +345,7 @@ final class DefaultJdbcClient implements JdbcClient {
       }
     }
 
-    private final class NamedParamResultQuerySpec implements ResultQuerySpec {
+    private class NamedParamResultQuerySpec implements ResultQuerySpec {
 
       @Override
       public SqlRowSet rowSet() {
@@ -324,7 +368,7 @@ final class DefaultJdbcClient implements JdbcClient {
       }
     }
 
-    private final class IndexedParamMappedQuerySpec<T> implements MappedQuerySpec<T> {
+    private class IndexedParamMappedQuerySpec<T> implements MappedQuerySpec<T> {
 
       private final RowMapper<T> rowMapper;
 
@@ -343,7 +387,7 @@ final class DefaultJdbcClient implements JdbcClient {
       }
     }
 
-    private final class NamedParamMappedQuerySpec<T> implements MappedQuerySpec<T> {
+    private class NamedParamMappedQuerySpec<T> implements MappedQuerySpec<T> {
 
       private final RowMapper<T> rowMapper;
 

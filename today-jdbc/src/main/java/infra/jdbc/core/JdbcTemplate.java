@@ -163,7 +163,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
    *
    * @see #setDataSource
    */
-  public JdbcTemplate() { }
+  public JdbcTemplate() {
+  }
 
   /**
    * Construct a new JdbcTemplate, given a DataSource to obtain connections from.
@@ -188,6 +189,27 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
     setDataSource(dataSource);
     setLazyInit(lazyInit);
     afterPropertiesSet();
+  }
+
+  /**
+   * Copy constructor for a derived JdbcTemplate.
+   *
+   * @param original the original template to copy from
+   * @since 5.0
+   */
+  public JdbcTemplate(JdbcAccessor original) {
+    setDataSource(original.getDataSource());
+    setExceptionTranslator(original.getExceptionTranslator());
+    if (original instanceof JdbcTemplate ot) {
+      setLazyInit(ot.isLazyInit());
+      setIgnoreWarnings(ot.isIgnoreWarnings());
+      setFetchSize(ot.getFetchSize());
+      setMaxRows(ot.getMaxRows());
+      setQueryTimeout(ot.getQueryTimeout());
+      setSkipResultsProcessing(ot.isSkipResultsProcessing());
+      setSkipUndeclaredResults(ot.isSkipUndeclaredResults());
+      setResultsMapCaseInsensitive(ot.isResultsMapCaseInsensitive());
+    }
   }
 
   /**

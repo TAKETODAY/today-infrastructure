@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,24 +27,19 @@ import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
+import infra.core.conversion.ConversionService;
 import infra.dao.support.DataAccessUtils;
 import infra.jdbc.core.JdbcOperations;
+import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.core.ResultSetExtractor;
 import infra.jdbc.core.RowCallbackHandler;
 import infra.jdbc.core.RowMapper;
-import infra.jdbc.core.JdbcTemplate;
-import infra.jdbc.core.SimplePropertyRowMapper;
-import infra.jdbc.core.SingleColumnRowMapper;
 import infra.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import infra.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import infra.jdbc.core.namedparam.SqlParameterSource;
 import infra.jdbc.support.KeyHolder;
-import infra.jdbc.support.GeneratedKeyHolder;
 import infra.jdbc.support.rowset.SqlRowSet;
 import infra.lang.Nullable;
-import infra.jdbc.core.namedparam.AbstractSqlParameterSource;
-import infra.jdbc.core.namedparam.MapSqlParameterSource;
-import infra.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import infra.jdbc.core.namedparam.SimplePropertySqlParameterSource;
 
 /**
  * A fluent {@link JdbcClient} with common JDBC query and update operations,
@@ -111,20 +106,63 @@ public interface JdbcClient {
 
   /**
    * Create a {@code JdbcClient} for the given {@link NamedParameterJdbcOperations} delegate,
-   * typically an {@link NamedParameterJdbcTemplate}.
+   * typically an {@link infra.jdbc.core.namedparam.NamedParameterJdbcTemplate}.
    * <p>Use this factory method to reuse existing {@code NamedParameterJdbcTemplate}
    * configuration, including its underlying {@code JdbcTemplate} and {@code DataSource}.
    *
    * @param jdbcTemplate the delegate to perform operations on
    */
   static JdbcClient create(NamedParameterJdbcOperations jdbcTemplate) {
-    return new DefaultJdbcClient(jdbcTemplate);
+    return new DefaultJdbcClient(jdbcTemplate, null);
+  }
+
+  /**
+   * Create a {@code JdbcClient} for the given {@link NamedParameterJdbcOperations} delegate,
+   * typically an {@link infra.jdbc.core.namedparam.NamedParameterJdbcTemplate}.
+   * <p>Use this factory method to reuse existing {@code NamedParameterJdbcTemplate}
+   * configuration, including its underlying {@code JdbcTemplate} and {@code DataSource},
+   * along with a custom {@link ConversionService} for queries with mapped classes.
+   *
+   * @param jdbcTemplate the delegate to perform operations on
+   * @param conversionService a {@link ConversionService} for converting fetched JDBC values
+   * to mapped classes in {@link StatementSpec#query(Class)}
+   * @since 5.0
+   */
+  static JdbcClient create(NamedParameterJdbcOperations jdbcTemplate, ConversionService conversionService) {
+    return new DefaultJdbcClient(jdbcTemplate, conversionService);
   }
 
   /**
    * A statement specification for parameter bindings and query/update execution.
    */
   interface StatementSpec {
+
+    /**
+     * Apply the given fetch size to any subsequent query statement.
+     *
+     * @param fetchSize the fetch size
+     * @see infra.jdbc.core.JdbcTemplate#setFetchSize
+     * @since 5.0
+     */
+    StatementSpec withFetchSize(int fetchSize);
+
+    /**
+     * Apply the given maximum number of rows to any subsequent query statement.
+     *
+     * @param maxRows the maximum number of rows
+     * @see infra.jdbc.core.JdbcTemplate#setMaxRows
+     * @since 5.0
+     */
+    StatementSpec withMaxRows(int maxRows);
+
+    /**
+     * Apply the given query timeout to any subsequent query statement.
+     *
+     * @param queryTimeout the query timeout in seconds
+     * @see infra.jdbc.core.JdbcTemplate#setQueryTimeout
+     * @since 5.0
+     */
+    StatementSpec withQueryTimeout(int queryTimeout);
 
     /**
      * Bind a positional JDBC statement parameter for "?" placeholder resolution
@@ -169,7 +207,7 @@ public interface JdbcClient {
      * @param name the parameter name
      * @param value the parameter value to bind
      * @return this statement specification (for chaining)
-     * @see MapSqlParameterSource#addValue(String, Object)
+     * @see infra.jdbc.core.namedparam.MapSqlParameterSource#addValue(String, Object)
      */
     StatementSpec param(String name, @Nullable Object value);
 
@@ -181,7 +219,7 @@ public interface JdbcClient {
      * @param value the parameter value to bind
      * @param sqlType the associated SQL type (see {@link java.sql.Types})
      * @return this statement specification (for chaining)
-     * @see MapSqlParameterSource#addValue(String, Object, int)
+     * @see infra.jdbc.core.namedparam.MapSqlParameterSource#addValue(String, Object, int)
      */
     StatementSpec param(String name, @Nullable Object value, int sqlType);
 
@@ -226,13 +264,13 @@ public interface JdbcClient {
      * based on its JavaBean properties, record components, or raw fields.
      * A Map instance can be provided as a complete parameter source as well.
      *
-     * @param namedParamObject a custom parameter object (e.g. a JavaBean,
+     * @param namedParamObject a custom parameter object (for example, a JavaBean,
      * record class, or field holder) with named properties serving as
      * statement parameters
      * @return this statement specification (for chaining)
      * @see #paramSource(SqlParameterSource)
-     * @see MapSqlParameterSource
-     * @see SimplePropertySqlParameterSource
+     * @see infra.jdbc.core.namedparam.MapSqlParameterSource
+     * @see infra.jdbc.core.namedparam.SimplePropertySqlParameterSource
      */
     StatementSpec paramSource(Object namedParamObject);
 
@@ -243,7 +281,7 @@ public interface JdbcClient {
      *
      * @param namedParamSource a custom {@link SqlParameterSource} instance
      * @return this statement specification (for chaining)
-     * @see AbstractSqlParameterSource#registerSqlType
+     * @see infra.jdbc.core.namedparam.AbstractSqlParameterSource#registerSqlType
      */
     StatementSpec paramSource(SqlParameterSource namedParamSource);
 
@@ -265,8 +303,8 @@ public interface JdbcClient {
      * JavaBean / record class / field holder for a multi-column mapping)
      * @return the mapped query specification
      * @see #query(RowMapper)
-     * @see SingleColumnRowMapper
-     * @see SimplePropertyRowMapper
+     * @see infra.jdbc.core.SingleColumnRowMapper
+     * @see infra.jdbc.core.SimplePropertyRowMapper
      */
     <T> MappedQuerySpec<T> query(Class<T> mappedClass);
 
@@ -297,6 +335,7 @@ public interface JdbcClient {
      * @return the value returned by the ResultSetExtractor
      * @see java.sql.PreparedStatement#executeQuery()
      */
+    @Nullable
     <T> T query(ResultSetExtractor<T> rse);
 
     /**
@@ -309,22 +348,26 @@ public interface JdbcClient {
 
     /**
      * Execute the provided SQL statement as an update.
+     * <p>This method requires support for generated keys in the JDBC driver.
      *
      * @param generatedKeyHolder a KeyHolder that will hold the generated keys
-     * (typically a {@link GeneratedKeyHolder})
+     * (typically a {@link infra.jdbc.support.GeneratedKeyHolder})
      * @return the number of rows affected
      * @see java.sql.PreparedStatement#executeUpdate()
+     * @see java.sql.DatabaseMetaData#supportsGetGeneratedKeys()
      */
     int update(KeyHolder generatedKeyHolder);
 
     /**
      * Execute the provided SQL statement as an update.
+     * <p>This method requires support for generated keys in the JDBC driver.
      *
      * @param generatedKeyHolder a KeyHolder that will hold the generated keys
-     * (typically a {@link GeneratedKeyHolder})
+     * (typically a {@link infra.jdbc.support.GeneratedKeyHolder})
      * @param keyColumnNames names of the columns that will have keys generated for them
      * @return the number of rows affected
      * @see java.sql.PreparedStatement#executeUpdate()
+     * @see java.sql.DatabaseMetaData#supportsGetGeneratedKeys()
      */
     int update(KeyHolder generatedKeyHolder, String... keyColumnNames);
   }
