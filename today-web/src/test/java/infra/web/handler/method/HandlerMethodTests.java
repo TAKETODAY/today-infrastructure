@@ -38,7 +38,7 @@ class HandlerMethodTests {
   void shouldFindAnnotationOnMethodInGenericAbstractSuperclass() {
     Method processTwo = getMethod("processTwo", String.class);
 
-    HandlerMethod annotatedMethod = new HandlerMethod(new Object(), processTwo);
+    HandlerMethod annotatedMethod = new HandlerMethod(new GenericInterfaceImpl(), processTwo);
 
     assertThat(annotatedMethod.hasMethodAnnotation(Handler.class)).isTrue();
   }
@@ -47,7 +47,7 @@ class HandlerMethodTests {
   void shouldFindAnnotationOnMethodInGenericInterface() {
     Method processOneAndTwo = getMethod("processOneAndTwo", Long.class, Object.class);
 
-    HandlerMethod annotatedMethod = new HandlerMethod(new Object(), processOneAndTwo);
+    HandlerMethod annotatedMethod = new HandlerMethod(new GenericInterfaceImpl(), processOneAndTwo);
 
     assertThat(annotatedMethod.hasMethodAnnotation(Handler.class)).isTrue();
   }
@@ -56,7 +56,7 @@ class HandlerMethodTests {
   void shouldFindAnnotationOnMethodParameterInGenericAbstractSuperclass() {
     Method processTwo = getMethod("processTwo", String.class);
 
-    HandlerMethod annotatedMethod = new HandlerMethod(new Object(), processTwo);
+    HandlerMethod annotatedMethod = new HandlerMethod(new GenericInterfaceImpl(), processTwo);
     MethodParameter[] methodParameters = annotatedMethod.getMethodParameters();
 
     assertThat(methodParameters).hasSize(1);

@@ -121,7 +121,7 @@ public class HandlerMethod implements AsyncHandler {
 
   /** @since 4.0 */
   @Nullable
-  private volatile ArrayList<Annotation[][]> interfaceParameterAnnotations;
+  private volatile ArrayList<Annotation[][]> inheritedParameterAnnotations;
 
   /**
    * cors config cache
@@ -226,7 +226,7 @@ public class HandlerMethod implements AsyncHandler {
     this.responseBody = other.responseBody;
     this.corsConfig = other.corsConfig;
     this.returnTypeParameter = other.returnTypeParameter;
-    this.interfaceParameterAnnotations = other.interfaceParameterAnnotations;
+    this.inheritedParameterAnnotations = other.inheritedParameterAnnotations;
   }
 
   /**
@@ -245,7 +245,7 @@ public class HandlerMethod implements AsyncHandler {
     this.responseBody = other.responseBody;
     this.corsConfig = other.corsConfig;
     this.returnTypeParameter = other.returnTypeParameter;
-    this.interfaceParameterAnnotations = other.interfaceParameterAnnotations;
+    this.inheritedParameterAnnotations = other.inheritedParameterAnnotations;
   }
 
   // ---- useful methods
@@ -448,18 +448,32 @@ public class HandlerMethod implements AsyncHandler {
     return initDescription(beanType, method);
   }
 
-  private ArrayList<Annotation[][]> getInterfaceParameterAnnotations() {
-    ArrayList<Annotation[][]> parameterAnnotations = this.interfaceParameterAnnotations;
+  private ArrayList<Annotation[][]> getInheritedParameterAnnotations() {
+    var parameterAnnotations = this.inheritedParameterAnnotations;
     if (parameterAnnotations == null) {
       parameterAnnotations = new ArrayList<>();
-      for (Class<?> ifc : ClassUtils.getAllInterfacesForClassAsSet(this.method.getDeclaringClass())) {
-        for (Method candidate : ifc.getMethods()) {
-          if (isOverrideFor(candidate)) {
-            parameterAnnotations.add(candidate.getParameterAnnotations());
+      Class<?> clazz = this.method.getDeclaringClass();
+      while (clazz != null) {
+        for (Class<?> ifc : clazz.getInterfaces()) {
+          for (Method candidate : ifc.getMethods()) {
+            if (isOverrideFor(candidate)) {
+              parameterAnnotations.add(candidate.getParameterAnnotations());
+            }
+          }
+        }
+        clazz = clazz.getSuperclass();
+        if (clazz == Object.class) {
+          clazz = null;
+        }
+        if (clazz != null) {
+          for (Method candidate : clazz.getMethods()) {
+            if (isOverrideFor(candidate)) {
+              parameterAnnotations.add(candidate.getParameterAnnotations());
+            }
           }
         }
       }
-      this.interfaceParameterAnnotations = parameterAnnotations;
+      this.inheritedParameterAnnotations = parameterAnnotations;
     }
     return parameterAnnotations;
   }
@@ -700,7 +714,7 @@ public class HandlerMethod implements AsyncHandler {
         anns = super.getParameterAnnotations();
         int index = getParameterIndex();
         if (index >= 0) {
-          for (Annotation[][] ifcAnns : getInterfaceParameterAnnotations()) {
+          for (Annotation[][] ifcAnns : getInheritedParameterAnnotations()) {
             if (index < ifcAnns.length) {
               Annotation[] paramAnns = ifcAnns[index];
               if (paramAnns.length > 0) {
