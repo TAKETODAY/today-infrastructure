@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -97,13 +97,13 @@ public class WsNettyChannelHandler extends NettyChannelHandler {
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    var socketHolder = WebSocketHolder.find(ctx.channel());
-    if (socketHolder != null) {
+    var holder = WebSocketHolder.find(ctx.channel());
+    if (holder != null) {
       try {
-        socketHolder.wsHandler.onError(socketHolder.session, cause);
+        holder.wsHandler.onError(holder.session, cause);
       }
       catch (Throwable e) {
-        tryCloseWithError(socketHolder.session, e, log);
+        tryCloseWithError(holder.session, e, log);
       }
     }
     else {
