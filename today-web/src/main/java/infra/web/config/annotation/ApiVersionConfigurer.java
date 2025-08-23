@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import infra.http.MediaType;
 import infra.lang.Assert;
@@ -63,6 +64,9 @@ public class ApiVersionConfigurer {
 
   @Nullable
   private ApiVersionDeprecationHandler deprecationHandler;
+
+  @Nullable
+  private Predicate<Comparable<?>> supportedVersionPredicate;
 
   /**
    * Add resolver to extract the version from a request header.
@@ -202,6 +206,17 @@ public class ApiVersionConfigurer {
     return this;
   }
 
+  /**
+   * Provide a {@link Predicate} to perform supported version checks with, in
+   * effect taking over the supported version check and superseding the
+   * {@link #addSupportedVersions} and {@link #detectSupportedVersions}.
+   *
+   * @param predicate the predicate to use
+   */
+  public void setSupportedVersionPredicate(@Nullable Predicate<Comparable<?>> predicate) {
+    this.supportedVersionPredicate = predicate;
+  }
+
   @Nullable
   protected ApiVersionStrategy getApiVersionStrategy() {
     if (this.versionResolvers.isEmpty()) {
@@ -211,8 +226,8 @@ public class ApiVersionConfigurer {
 
     var strategy = new DefaultApiVersionStrategy(this.versionResolvers,
             this.versionParser != null ? this.versionParser : new SemanticApiVersionParser(),
-            this.versionRequired != null ? this.versionRequired : true,
-            this.defaultVersion, this.detectSupportedVersions, this.deprecationHandler);
+            this.versionRequired != null ? this.versionRequired : true, this.defaultVersion,
+            this.detectSupportedVersions, this.deprecationHandler, supportedVersionPredicate);
 
     for (String supportedVersion : supportedVersions) {
       strategy.addSupportedVersion(supportedVersion);
