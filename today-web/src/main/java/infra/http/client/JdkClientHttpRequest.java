@@ -40,6 +40,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
@@ -116,12 +117,14 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
   @Override
   protected ClientHttpResponse executeInternal(HttpHeaders headers, @Nullable Body body) throws IOException {
     CompletableFuture<HttpResponse<InputStream>> responseFuture = null;
+    TimeoutHandler timeoutHandler = null;
+
     try {
       HttpRequest request = buildRequest(headers, body);
       responseFuture = this.httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofInputStream());
 
       if (this.timeout != null) {
-        TimeoutHandler timeoutHandler = new TimeoutHandler(responseFuture, this.timeout);
+        timeoutHandler = new TimeoutHandler(responseFuture, this.timeout);
         HttpResponse<InputStream> response = responseFuture.get();
         InputStream inputStream = timeoutHandler.wrapInputStream(response);
         return new JdkClientHttpResponse(response, inputStream);
@@ -139,8 +142,11 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
     catch (ExecutionException ex) {
       Throwable cause = ex.getCause();
 
-      if (cause instanceof CancellationException) {
-        throw new HttpTimeoutException("Request timed out");
+      if (cause instanceof CancellationException ce) {
+        if (timeoutHandler != null) {
+          timeoutHandler.handleCancellationException(ce);
+        }
+        throw new IOException("Request cancelled", cause);
       }
       if (cause instanceof UncheckedIOException uioEx) {
         throw uioEx.getCause();
@@ -154,6 +160,12 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
       else {
         throw new IOException(cause.getMessage(), cause);
       }
+    }
+    catch (CancellationException ex) {
+      if (timeoutHandler != null) {
+        timeoutHandler.handleCancellationException(ex);
+      }
+      throw new IOException("Request cancelled", ex);
     }
   }
 
@@ -246,11 +258,14 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
 
     private final CompletableFuture<Void> timeoutFuture;
 
+    private final AtomicBoolean timeout = new AtomicBoolean(false);
+
     private TimeoutHandler(CompletableFuture<HttpResponse<InputStream>> future, Duration timeout) {
       this.timeoutFuture = new CompletableFuture<Void>()
               .completeOnTimeout(null, timeout.toMillis(), TimeUnit.MILLISECONDS);
 
       this.timeoutFuture.thenRun(() -> {
+        this.timeout.set(true);
         if (future.cancel(true) || future.isCompletedExceptionally() || !future.isDone()) {
           return;
         }
@@ -278,6 +293,13 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
         }
       };
     }
+
+    public void handleCancellationException(CancellationException ex) throws HttpTimeoutException {
+      if (this.timeout.get()) {
+        throw new HttpTimeoutException(ex.getMessage());
+      }
+    }
+
   }
 
 }
