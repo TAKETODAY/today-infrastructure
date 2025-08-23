@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.context.annotation;
@@ -25,6 +25,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
 
+import example.scannable.DefaultNamedComponent;
+import example.scannable.JakartaManagedBeanComponent;
+import example.scannable.JakartaNamedComponent;
+import example.scannable.JavaxManagedBeanComponent;
+import example.scannable.JavaxNamedComponent;
 import infra.beans.factory.annotation.AnnotatedBeanDefinition;
 import infra.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import infra.beans.factory.config.BeanDefinition;
@@ -35,11 +40,6 @@ import infra.core.annotation.AliasFor;
 import infra.stereotype.Component;
 import infra.stereotype.Controller;
 import infra.stereotype.Service;
-import example.scannable.DefaultNamedComponent;
-import example.scannable.JakartaManagedBeanComponent;
-import example.scannable.JakartaNamedComponent;
-import example.scannable.JavaxManagedBeanComponent;
-import example.scannable.JavaxNamedComponent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -156,19 +156,16 @@ class AnnotationBeanNameGeneratorTests {
   }
 
   @Test
-
   void generateBeanNameFromComposedControllerAnnotationWithoutName() {
     assertGeneratedNameIsDefault(ComposedControllerAnnotationWithoutName.class);
   }
 
   @Test
-
   void generateBeanNameFromComposedControllerAnnotationWithBlankName() {
     assertGeneratedNameIsDefault(ComposedControllerAnnotationWithBlankName.class);
   }
 
   @Test
-
   void generateBeanNameFromComposedControllerAnnotationWithStringValue() {
     assertGeneratedName(ComposedControllerAnnotationWithStringValue.class, "restController");
   }

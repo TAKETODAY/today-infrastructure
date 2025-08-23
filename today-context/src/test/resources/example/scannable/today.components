@@ -6,6 +6,7 @@ example.scannable.FooServiceImpl=infra.stereotype.Component,example.scannable.Fo
 example.scannable.ScopedProxyTestBean=example.scannable.FooService
 example.scannable.StubFooDao=infra.stereotype.Component
 example.scannable.NamedStubDao=infra.stereotype.Component
+example.scannable.OtherFooService=infra.stereotype.Component,example.scannable.FooService
 example.scannable.ServiceInvocationCounter=infra.stereotype.Component
 example.scannable.sub.BarComponent=infra.stereotype.Component
 example.scannable.JakartaManagedBeanComponent=jakarta.annotation.ManagedBean
