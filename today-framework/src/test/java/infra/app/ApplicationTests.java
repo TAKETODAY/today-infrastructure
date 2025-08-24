@@ -1408,8 +1408,7 @@ class ApplicationTests {
 
   @Test
   void shouldStopKeepAliveThreadIfContextIsClosed() {
-    Application application = Application.forBuilder(ExampleConfig.class)
-            .type(ApplicationType.NORMAL)
+    Application application = Application.forNormalApplication(ExampleConfig.class)
             .keepAlive().application();
     assertThat(application.isKeepAlive()).isTrue();
     this.context = application.run();
