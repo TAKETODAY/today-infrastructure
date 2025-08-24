@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ package infra.beans.factory;
 
 import infra.beans.BeansException;
 import infra.beans.factory.config.BeanPostProcessor;
+import infra.lang.Nullable;
 
 /**
  * Factory hook that allows for custom modification of new bean instances
@@ -49,6 +50,7 @@ public interface InitializationBeanPostProcessor extends BeanPostProcessor {
    * @throws BeansException in case of errors
    * @see InitializingBean#afterPropertiesSet
    */
+  @Nullable
   default Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
     return bean;
   }
@@ -71,6 +73,7 @@ public interface InitializationBeanPostProcessor extends BeanPostProcessor {
    * @see InitializingBean#afterPropertiesSet
    * @see FactoryBean
    */
+  @Nullable
   default Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
     return bean;
   }

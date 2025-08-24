@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -182,7 +182,8 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
    * @param candidateAdvisors the Advisors that have already been identified as
    * applying to a given bean
    */
-  protected void extendAdvisors(List<Advisor> candidateAdvisors) { }
+  protected void extendAdvisors(List<Advisor> candidateAdvisors) {
+  }
 
   /**
    * This auto-proxy creator always returns pre-filtered Advisors.
