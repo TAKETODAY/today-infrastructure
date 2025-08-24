@@ -1514,6 +1514,27 @@ public class Application {
   }
 
   /**
+   * Creates a new {@link ApplicationBuilder} instance initialized with the specified sources.
+   * This method serves as a convenient entry point for constructing application builders
+   * by delegating to the {@link ApplicationBuilder#forSources(Class...)} method.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   *   ApplicationBuilder builder = forNormalApplication(MyAppConfig.class, AnotherConfig.class);
+   *   // Further configure the builder or build the application context
+   * }</pre>
+   *
+   * @param sources the configuration classes or sources to initialize the builder with;
+   * typically annotated with {@code @Configuration} or similar annotations
+   * @return a new instance of {@link ApplicationBuilder} configured with the provided sources
+   * @since 5.0
+   */
+  public static ApplicationBuilder forNormalApplication(Class<?>... sources) {
+    return ApplicationBuilder.forSources(sources)
+            .type(ApplicationType.NORMAL);
+  }
+
+  /**
    * Static helper that can be used to exit a {@link Application} and obtain a
    * code indicating success (0) or otherwise. Does not throw exceptions but should
    * print stack traces of any encountered. Applies the specified

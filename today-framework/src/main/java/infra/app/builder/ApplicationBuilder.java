@@ -624,6 +624,27 @@ public class ApplicationBuilder {
     return this;
   }
 
+  /**
+   * Whether to keep the application alive even if there are no more non-daemon threads.
+   *
+   * @since 5.0
+   */
+  public ApplicationBuilder keepAlive() {
+    return keepAlive(true);
+  }
+
+  /**
+   * Whether to keep the application alive even if there are no more non-daemon threads.
+   *
+   * @param keepAlive whether to keep the application alive even if there are no more
+   * non-daemon threads
+   * @since 5.0
+   */
+  public ApplicationBuilder keepAlive(boolean keepAlive) {
+    application.setKeepAlive(keepAlive);
+    return this;
+  }
+
   // static
 
   public static ApplicationBuilder forSources(Class<?>... sources) {
