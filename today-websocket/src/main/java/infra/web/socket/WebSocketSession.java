@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,15 @@ import infra.util.concurrent.Future;
  * A WebSocket session abstraction. Allows sending messages over a WebSocket
  * connection and closing it.
  *
+ * <p> A send method is any of the {@code sendText}, {@code sendBinary},
+ * {@code sendPing}, {@code sendPong} and {@code close} methods of
+ * {@code WebSocketSession}. A send method initiates a send operation and returns a
+ * {@code Future} which completes once the operation has completed.
+ * If the {@code Future} completes normally the operation is
+ * considered succeeded. If the {@code Future} completes
+ * exceptionally, the operation is considered failed. An operation that has been
+ * initiated but not yet completed is considered pending.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0 2021/4/5 14:16
  */
@@ -43,7 +52,7 @@ public abstract class WebSocketSession extends AttributeAccessorSupport implemen
   private final String id = idGenerator.generateId().toString();
 
   /**
-   * Session Id
+   * Session ID
    */
   public String getId() {
     return id;
@@ -172,6 +181,15 @@ public abstract class WebSocketSession extends AttributeAccessorSupport implemen
   public boolean isActive() {
     return isOpen();
   }
+
+  /**
+   * Closes this WebSocket's input and output abruptly.
+   *
+   * <p> When this method returns both the input and the output will have been
+   * closed. Any pending send operations will fail with {@code IOException}.
+   * Subsequent invocations of {@code abort} will have no effect.
+   */
+  public abstract void abort();
 
   /**
    * Close the current conversation with a normal status code and no reason phrase.

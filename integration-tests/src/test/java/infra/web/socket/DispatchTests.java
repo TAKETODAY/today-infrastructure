@@ -129,9 +129,11 @@ class DispatchTests {
       return null;
     }
 
+    @Nullable
     @Override
-    public void onClose(WebSocketSession session, CloseStatus status) {
+    public Future<Void> onClose(WebSocketSession session, CloseStatus status) {
       latch.countDown();
+      return null;
     }
 
   }
@@ -167,10 +169,12 @@ class DispatchTests {
       return null;
     }
 
+    @Nullable
     @Override
-    public void onClose(WebSocketSession session, CloseStatus status) throws Throwable {
+    public Future<Void> onClose(WebSocketSession session, CloseStatus status) {
       super.onClose(session, status);
       sessions.remove(session);
+      return null;
     }
   }
 

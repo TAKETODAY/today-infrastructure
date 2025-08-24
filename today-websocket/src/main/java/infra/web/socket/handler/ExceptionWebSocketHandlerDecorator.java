@@ -55,9 +55,13 @@ public class ExceptionWebSocketHandlerDecorator extends WebSocketHandler {
 
   @Nullable
   @Override
-  public Future<Void> handleMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
+  public Future<Void> handleMessage(WebSocketSession session, WebSocketMessage message) {
     try {
-      return super.handleMessage(session, message);
+      Future<Void> future = super.handleMessage(session, message);
+      if (future != null) {
+        future.onFailed(ex -> tryCloseWithError(session, ex, logger));
+      }
+      return future;
     }
     catch (Throwable ex) {
       tryCloseWithError(session, ex, logger);
@@ -75,14 +79,20 @@ public class ExceptionWebSocketHandlerDecorator extends WebSocketHandler {
     }
   }
 
+  @Nullable
   @Override
-  public void onClose(WebSocketSession session, CloseStatus closeStatus) {
+  public Future<Void> onClose(WebSocketSession session, CloseStatus closeStatus) {
     try {
-      super.onClose(session, closeStatus);
+      Future<Void> future = super.onClose(session, closeStatus);
+      if (future != null) {
+        future.onFailed(ex -> logger.warn("Unhandled exception after connection closed for {}", this, ex));
+      }
+      return future;
     }
     catch (Throwable ex) {
       logger.warn("Unhandled exception after connection closed for {}", this, ex);
     }
+    return null;
   }
 
   public static void tryCloseWithError(WebSocketSession session, Throwable exception, Logger logger) {

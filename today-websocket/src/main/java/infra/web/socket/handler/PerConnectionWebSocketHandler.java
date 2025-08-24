@@ -75,7 +75,7 @@ public class PerConnectionWebSocketHandler extends WebSocketHandler implements B
 
   @Nullable
   @Override
-  public Future<Void> handleMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
+  public Future<Void> handleMessage(WebSocketSession session, WebSocketMessage message) {
     return getHandler(session).handleMessage(session, message);
   }
 
@@ -85,9 +85,10 @@ public class PerConnectionWebSocketHandler extends WebSocketHandler implements B
   }
 
   @Override
-  public void onClose(WebSocketSession session, CloseStatus status) throws Throwable {
+  @Nullable
+  public Future<Void> onClose(WebSocketSession session, CloseStatus status) {
     try {
-      getHandler(session).onClose(session, status);
+      return getHandler(session).onClose(session, status);
     }
     finally {
       destroyHandler(session);

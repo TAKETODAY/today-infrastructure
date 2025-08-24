@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,8 @@
 
 package infra.web.socket.server.support;
 
-import infra.core.io.buffer.NettyDataBufferFactory;
 import infra.lang.Nullable;
 import infra.web.socket.WebSocketHandler;
-import infra.web.socket.WebSocketSession;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 import io.netty.util.AttributeMap;
@@ -29,23 +27,17 @@ import io.netty.util.AttributeMap;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/11/28 17:32
  */
-final class WebSocketHolder {
+final class WebSocketAttribute {
 
-  private static final AttributeKey<WebSocketHolder> KEY = AttributeKey.valueOf(WebSocketHolder.class, "KEY");
+  private static final AttributeKey<WebSocketAttribute> KEY = AttributeKey.valueOf(WebSocketAttribute.class, "KEY");
 
   public final WebSocketHandler wsHandler;
 
-  public final WebSocketSession session;
+  public final NettyWebSocketSession session;
 
-  /**
-   * @since 5.0
-   */
-  public final NettyDataBufferFactory allocator;
-
-  private WebSocketHolder(WebSocketHandler wsHandler, NettyWebSocketSession session) {
+  private WebSocketAttribute(WebSocketHandler wsHandler, NettyWebSocketSession session) {
     this.wsHandler = wsHandler;
     this.session = session;
-    this.allocator = session.bufferFactory();
   }
 
   public void unbind(AttributeMap attributes) {
@@ -53,11 +45,11 @@ final class WebSocketHolder {
   }
 
   public static void bind(Channel channel, WebSocketHandler wsHandler, NettyWebSocketSession session) {
-    channel.attr(KEY).set(new WebSocketHolder(wsHandler, session));
+    channel.attr(KEY).set(new WebSocketAttribute(wsHandler, session));
   }
 
   @Nullable
-  public static WebSocketHolder find(AttributeMap attributes) {
+  public static WebSocketAttribute find(AttributeMap attributes) {
     return attributes.attr(KEY).get();
   }
 

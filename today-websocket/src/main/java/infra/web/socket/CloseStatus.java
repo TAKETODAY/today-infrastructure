@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ public final class CloseStatus {
   public static final CloseStatus NORMAL = new CloseStatus(1000);
 
   /**
-   * "1001 indicates that an endpoint is "going away", such as a server going down or a
+   * "1001 indicates that an endpoint is 'going away', such as a server going down or a
    * browser having navigated away from a page."
    */
   public static final CloseStatus GOING_AWAY = new CloseStatus(1001);
@@ -205,6 +205,10 @@ public final class CloseStatus {
   public CloseStatus withReason(String reason) {
     Assert.hasText(reason, "Reason must not be empty");
     return new CloseStatus(this.code, reason);
+  }
+
+  public boolean equalsCode(CloseStatus other) {
+    return this.code == other.code;
   }
 
   @Override

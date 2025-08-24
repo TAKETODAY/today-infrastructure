@@ -79,7 +79,7 @@ public class LoggingWebSocketHandler extends WebSocketHandler implements Handsha
 
   @Nullable
   @Override
-  public Future<Void> handleMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
+  public Future<Void> handleMessage(WebSocketSession session, WebSocketMessage message) {
     if (logger.isTraceEnabled()) {
       logger.trace("Handling {} in {}", message, session);
     }
@@ -94,12 +94,13 @@ public class LoggingWebSocketHandler extends WebSocketHandler implements Handsha
     super.onError(session, throwable);
   }
 
+  @Nullable
   @Override
-  public void onClose(WebSocketSession session, CloseStatus status) throws Throwable {
+  public Future<Void> onClose(WebSocketSession session, CloseStatus status) {
     if (logger.isDebugEnabled()) {
       logger.debug("{} closed with {}", session, status);
     }
-    super.onClose(session, status);
+    return super.onClose(session, status);
   }
 
 }

@@ -179,7 +179,7 @@ public class NettyApplication {
   static class WebSocket0 extends WebSocketHandler implements HandshakeCapable {
 
     @Override
-    protected Future<Void> handleTextMessage(WebSocketSession session, WebSocketMessage message) throws IOException {
+    protected Future<Void> handleTextMessage(WebSocketSession session, WebSocketMessage message) {
       System.out.println("handleTextMessage" + message);
       session.send(message.retain());
       return Future.ok();
@@ -198,8 +198,9 @@ public class NettyApplication {
     }
 
     @Override
-    public void onClose(WebSocketSession session, CloseStatus status) {
+    public Future<Void> onClose(WebSocketSession session, CloseStatus status) {
       System.out.println("onClose " + status);
+      return Future.ok();
     }
   }
 
@@ -209,7 +210,7 @@ public class NettyApplication {
       NettyWebSocketClient client = new NettyWebSocketClient();
       client.connect(new WebSocketHandler() {
                 @Override
-                protected Future<Void> handleTextMessage(WebSocketSession session, WebSocketMessage message) throws Exception {
+                protected Future<Void> handleTextMessage(WebSocketSession session, WebSocketMessage message) {
                   System.out.println("handleTextMessage: " + message);
                   session.close();
                   return Future.ok();

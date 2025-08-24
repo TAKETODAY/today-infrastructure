@@ -107,7 +107,7 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
     NettyWebSocketSession session = createSession(selectedProtocol, nettyContext, allocator);
     session.setAttributes(attributes);
 
-    WebSocketHolder.bind(channel, wsHandler, session);
+    WebSocketAttribute.bind(channel, wsHandler, session);
     ChannelPromise writePromise = channel.newPromise();
 
     var handshakeChannel = new HandshakeChannel(channel, writePromise);

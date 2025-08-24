@@ -45,7 +45,6 @@ import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketSession;
 import infra.web.socket.client.AbstractWebSocketClient;
 import infra.web.socket.server.support.NettyWebSocketSession;
-import infra.web.socket.server.support.WsNettyChannelHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFactory;
@@ -409,13 +408,6 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
   }
 
   /**
-   * process close frame
-   */
-  protected void processCloseFrame(ChannelHandlerContext ctx) {
-    ctx.channel().close();
-  }
-
-  /**
    * default Channel is NioSocketChannel
    */
   private ChannelFactory<?> channelFactory() {
@@ -481,36 +473,20 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
       if (session != null) {
-        try {
-          handler.onClose(session, CloseStatus.NORMAL);
-        }
-        catch (Throwable e) {
-          throw ExceptionUtils.sneakyThrow(e);
-        }
+        handler.onClose(session, CloseStatus.NO_CLOSE_FRAME);
       }
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
       if (session != null) {
-        if (msg instanceof CloseWebSocketFrame cwsf) {
-          try {
-            handler.onClose(session, new CloseStatus(cwsf.statusCode(), cwsf.reasonText()));
-            session = null;
-            processCloseFrame(ctx);
-          }
-          catch (Throwable e) {
-            throw ExceptionUtils.sneakyThrow(e);
-          }
+        if (msg instanceof CloseWebSocketFrame cf) {
+          CloseStatus closeStatus = new CloseStatus(cf.statusCode(), cf.reasonText());
+          session.onClose(handler, closeStatus, logger);
+          session = null;
         }
         else if (msg instanceof WebSocketFrame frame) {
-          try {
-            var message = WsNettyChannelHandler.adaptMessage(session.bufferFactory(), frame);
-            handler.handleMessage(session, message);
-          }
-          catch (Throwable e) {
-            tryCloseWithError(session, e, logger);
-          }
+          session.handleMessage(handler, frame, logger);
         }
       }
       else if (msg instanceof FullHttpResponse res) {

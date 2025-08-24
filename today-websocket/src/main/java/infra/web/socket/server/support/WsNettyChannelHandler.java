@@ -17,23 +17,13 @@
 
 package infra.web.socket.server.support;
 
-import java.util.Map;
-
 import infra.context.ApplicationContext;
-import infra.core.io.buffer.DataBuffer;
-import infra.core.io.buffer.NettyDataBufferFactory;
-import infra.lang.Assert;
 import infra.web.server.support.NettyChannelHandler;
 import infra.web.server.support.NettyRequestConfig;
 import infra.web.socket.CloseStatus;
-import infra.web.socket.WebSocketMessage;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 
 import static infra.web.socket.handler.ExceptionWebSocketHandlerDecorator.tryCloseWithError;
@@ -43,12 +33,6 @@ import static infra.web.socket.handler.ExceptionWebSocketHandlerDecorator.tryClo
  * @since 4.0 2024/4/28 15:02
  */
 public class WsNettyChannelHandler extends NettyChannelHandler {
-
-  private static final Map<Class<?>, WebSocketMessage.Type> messageTypes = Map.of(
-          TextWebSocketFrame.class, infra.web.socket.WebSocketMessage.Type.TEXT,
-          PingWebSocketFrame.class, WebSocketMessage.Type.PING,
-          PongWebSocketFrame.class, WebSocketMessage.Type.PONG,
-          BinaryWebSocketFrame.class, WebSocketMessage.Type.BINARY);
 
   public WsNettyChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context) {
     super(requestConfig, context);
@@ -63,32 +47,23 @@ public class WsNettyChannelHandler extends NettyChannelHandler {
   @Override
   protected void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
     Channel channel = ctx.channel();
-    WebSocketHolder holder = WebSocketHolder.find(channel);
-    if (holder == null) {
+    WebSocketAttribute attr = WebSocketAttribute.find(channel);
+    if (attr == null) {
       return;
     }
-    if (frame instanceof CloseWebSocketFrame closeFrame) {
-      int statusCode = closeFrame.statusCode();
-      String reasonText = closeFrame.reasonText();
-      CloseStatus closeStatus = new CloseStatus(statusCode, reasonText);
-      close(channel, closeStatus);
-      channel.close();
+    if (frame instanceof CloseWebSocketFrame cf) {
+      CloseStatus closeStatus = new CloseStatus(cf.statusCode(), cf.reasonText());
+      onClose(channel, closeStatus);
     }
     else {
-      try {
-        var message = adaptMessage(holder.allocator, frame);
-        holder.wsHandler.handleMessage(holder.session, message);
-      }
-      catch (Throwable e) {
-        tryCloseWithError(holder.session, e, log);
-      }
+      attr.session.handleMessage(attr.wsHandler, frame, log);
     }
   }
 
   @Override
   public void channelInactive(ChannelHandlerContext ctx) {
     try {
-      close(ctx.channel(), CloseStatus.NORMAL);
+      onClose(ctx.channel(), CloseStatus.NO_CLOSE_FRAME);
     }
     finally {
       ctx.fireChannelInactive();
@@ -97,13 +72,13 @@ public class WsNettyChannelHandler extends NettyChannelHandler {
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    var holder = WebSocketHolder.find(ctx.channel());
-    if (holder != null) {
+    var attr = WebSocketAttribute.find(ctx.channel());
+    if (attr != null) {
       try {
-        holder.wsHandler.onError(holder.session, cause);
+        attr.wsHandler.onError(attr.session, cause);
       }
       catch (Throwable e) {
-        tryCloseWithError(holder.session, e, log);
+        tryCloseWithError(attr.session, e, log);
       }
     }
     else {
@@ -111,31 +86,12 @@ public class WsNettyChannelHandler extends NettyChannelHandler {
     }
   }
 
-  private static void close(Channel channel, CloseStatus closeStatus) {
-    WebSocketHolder holder = WebSocketHolder.find(channel);
-    if (holder != null) {
-      try {
-        holder.unbind(channel);
-        holder.wsHandler.onClose(holder.session, closeStatus);
-      }
-      catch (Throwable ex) {
-        log.warn("Unhandled on-close exception for {}", holder.session, ex);
-      }
+  private static void onClose(Channel channel, CloseStatus closeStatus) {
+    WebSocketAttribute attr = WebSocketAttribute.find(channel);
+    if (attr != null) {
+      attr.unbind(channel);
+      attr.session.onClose(attr.wsHandler, closeStatus, log);
     }
-  }
-
-  /**
-   * Adapt WebSocketFrame to {@link WebSocketMessage}
-   *
-   * @param frame WebSocketFrame
-   * @return websocket message
-   * @since 5.0
-   */
-  public static WebSocketMessage adaptMessage(NettyDataBufferFactory allocator, WebSocketFrame frame) {
-    WebSocketMessage.Type messageType = messageTypes.get(frame.getClass());
-    Assert.state(messageType != null, "Unexpected message type");
-    DataBuffer payload = allocator.wrap(frame.content());
-    return new WebSocketMessage(messageType, payload, frame, frame.isFinalFragment());
   }
 
 }
