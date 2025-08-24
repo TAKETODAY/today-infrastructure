@@ -322,7 +322,7 @@ final class DefaultJdbcClient implements JdbcClient {
       return pscf.newPreparedStatementCreator(this.indexedParams);
     }
 
-    private class IndexedParamResultQuerySpec implements ResultQuerySpec {
+    private final class IndexedParamResultQuerySpec implements ResultQuerySpec {
 
       @Override
       public SqlRowSet rowSet() {
@@ -345,7 +345,7 @@ final class DefaultJdbcClient implements JdbcClient {
       }
     }
 
-    private class NamedParamResultQuerySpec implements ResultQuerySpec {
+    private final class NamedParamResultQuerySpec implements ResultQuerySpec {
 
       @Override
       public SqlRowSet rowSet() {
