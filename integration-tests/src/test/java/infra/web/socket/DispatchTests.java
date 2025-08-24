@@ -153,26 +153,20 @@ class DispatchTests {
     }
 
     @Override
-    public void onOpen(WebSocketSession session) throws Throwable {
-      super.onOpen(session);
+    public void onOpen(WebSocketSession session) {
       sessions.add(session);
     }
 
     @Nullable
     @Override
     protected Future<Void> handleTextMessage(WebSocketSession session, WebSocketMessage message) {
-      for (WebSocketSession current : sessions) {
-        if (session != current) {
-          current.send(message.retainedDuplicate());
-        }
-      }
-      return null;
+      return Future.combine(sessions.stream().filter(item -> item != session)
+              .map(current -> current.send(message.retainedDuplicate()))).asVoid();
     }
 
     @Nullable
     @Override
     public Future<Void> onClose(WebSocketSession session, CloseStatus status) {
-      super.onClose(session, status);
       sessions.remove(session);
       return null;
     }
