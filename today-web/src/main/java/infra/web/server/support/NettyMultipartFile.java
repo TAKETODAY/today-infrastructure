@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -110,9 +110,9 @@ final class NettyMultipartFile extends AbstractMultipartFile implements Multipar
   }
 
   @Override
-  public void transferTo(Path dest) throws IOException, IllegalStateException {
+  public long transferTo(Path dest) throws IOException, IllegalStateException {
     try (var channel = FileChannel.open(dest, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
-      transferTo(channel, 0, fileUpload.length());
+      return transferTo(channel, 0, fileUpload.length());
     }
   }
 
