@@ -15,30 +15,29 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.gradle.testkit;
+package infra.core.type.classreading;
 
-import org.gradle.util.GradleVersion;
-
-import java.util.List;
+import infra.core.type.AbstractAnnotationMetadataTests;
+import infra.core.type.AnnotationMetadata;
 
 /**
- * Versions of Gradle used for testing.
+ * Tests for {@link SimpleAnnotationMetadata} and
+ * {@link SimpleAnnotationMetadataReadingVisitor} on Java < 24,
+ * and for the ClassFile API variant on Java >= 24.
  *
- * @author Scott Frederick
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @author Phillip Webb
  */
-public final class GradleVersions {
+class DefaultAnnotationMetadataTests extends AbstractAnnotationMetadataTests {
 
-  private GradleVersions() {
-  }
-
-  public static List<String> allCompatible() {
-    return List.of(GradleVersion.current().getVersion());
-  }
-
-  public static String minimumCompatible() {
-    return allCompatible().get(0);
+  @Override
+  protected AnnotationMetadata get(Class<?> source) {
+    try {
+      return MetadataReaderFactory.create(source.getClassLoader())
+              .getMetadataReader(source.getName()).getAnnotationMetadata();
+    }
+    catch (Exception ex) {
+      throw new IllegalStateException(ex);
+    }
   }
 
 }
