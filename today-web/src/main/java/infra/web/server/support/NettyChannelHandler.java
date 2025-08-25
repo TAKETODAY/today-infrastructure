@@ -35,7 +35,6 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
-import io.netty.util.ReferenceCountUtil;
 
 import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFactory;
 
@@ -88,7 +87,6 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
     }
     else if (msg instanceof WebSocketFrame) {
       handleWebSocketFrame(ctx, (WebSocketFrame) msg);
-      ReferenceCountUtil.safeRelease(msg);
     }
     else {
       ctx.fireChannelRead(msg);
