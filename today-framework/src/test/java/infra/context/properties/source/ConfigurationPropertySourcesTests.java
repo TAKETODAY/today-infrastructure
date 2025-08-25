@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 
 package infra.context.properties.source;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -35,6 +34,7 @@ import infra.core.env.PropertySources;
 import infra.core.env.PropertySourcesPropertyResolver;
 import infra.core.env.StandardEnvironment;
 import infra.core.env.SystemEnvironmentPropertySource;
+import infra.core.testfixture.DisabledIfInContinuousIntegration;
 import infra.origin.Origin;
 import infra.origin.OriginLookup;
 
@@ -141,7 +141,6 @@ class ConfigurationPropertySourcesTests {
   }
 
   @Test
-    // gh-20625
   void environmentPropertyAccessWhenImmutableShouldBePerformant() {
     long baseline = testPropertySourcePerformance(false);
     long immutable = testPropertySourcePerformance(true);
@@ -149,7 +148,6 @@ class ConfigurationPropertySourcesTests {
   }
 
   @Test
-    // gh-20625
   void environmentPropertyAccessWhenMutableWithCacheShouldBePerformant() {
     StandardEnvironment environment = createPerformanceTestEnvironment(false);
     long uncached = testPropertySourcePerformance(environment);
@@ -158,14 +156,13 @@ class ConfigurationPropertySourcesTests {
     assertThat(cached).isLessThan(uncached / 2);
   }
 
-  @Test // gh-20625
-  @Disabled("for manual testing")
+  @Test
+  @DisabledIfInContinuousIntegration
   void environmentPropertyAccessWhenMutableShouldBeTolerable() {
     assertThat(testPropertySourcePerformance(false)).isLessThan(5000);
   }
 
   @Test
-    // gh-21416
   void descendantOfPropertyAccessWhenMutableWithCacheShouldBePerformant() {
     Function<StandardEnvironment, Long> descendantOfPerformance = (environment) -> {
       Iterable<ConfigurationPropertySource> sources = ConfigurationPropertySources.get(environment);
