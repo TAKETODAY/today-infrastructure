@@ -28,7 +28,6 @@ import infra.http.MediaType;
 import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
-import infra.web.RequestContext;
 
 /**
  * A specialization of {@link ResponseBodyEmitter} for sending
@@ -42,8 +41,6 @@ import infra.web.RequestContext;
  */
 public class SseEmitter extends ResponseBodyEmitter {
 
-  private static final MediaType TEXT_PLAIN = MediaType.TEXT_PLAIN.withCharset(StandardCharsets.UTF_8);
-
   /**
    * Guards access to write operations on the response.
    */
@@ -53,28 +50,19 @@ public class SseEmitter extends ResponseBodyEmitter {
    * Create a new SseEmitter instance.
    */
   public SseEmitter() {
-    super();
+    this(null);
   }
 
   /**
    * Create a SseEmitter with a custom timeout value.
-   * <p>By default not set in which case the default configured in the MVC
+   * <p>By default, not set in which case the default configured in the MVC
    * Java Config or the MVC namespace is used, or if that's not set, then the
    * timeout depends on the default of the underlying server.
    *
    * @param timeout the timeout value in milliseconds
    */
-  public SseEmitter(Long timeout) {
-    super(timeout);
-  }
-
-  @Override
-  protected void extendResponse(RequestContext outputMessage) {
-    super.extendResponse(outputMessage);
-
-    if (outputMessage.getResponseContentType() == null) {
-      outputMessage.setContentType(MediaType.TEXT_EVENT_STREAM_VALUE);
-    }
+  public SseEmitter(@Nullable Long timeout) {
+    super(timeout, MediaType.TEXT_EVENT_STREAM);
   }
 
   /**
@@ -195,7 +183,9 @@ public class SseEmitter extends ResponseBodyEmitter {
    */
   private static final class SseEventBuilderImpl implements SseEventBuilder {
 
-    private final ArrayList<DataWithMediaType> dataToSend = new ArrayList<>();
+    private static final MediaType TEXT_PLAIN = MediaType.TEXT_PLAIN.withCharset(StandardCharsets.UTF_8);
+
+    private final ArrayList<DataWithMediaType> dataToSend = new ArrayList<>(1);
 
     @Nullable
     private StringBuilder sb;

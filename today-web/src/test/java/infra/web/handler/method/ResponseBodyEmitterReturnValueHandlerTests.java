@@ -45,6 +45,7 @@ import reactor.core.publisher.Sinks;
 
 import static infra.core.ResolvableType.forClassWithGenerics;
 import static infra.web.ResolvableMethod.on;
+import static infra.web.handler.method.ResponseBodyEmitter.forChunkedTransferEncoding;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -117,7 +118,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
   @Test
   public void responseBodyEmitter() throws Exception {
     HandlerMethod handlerMethod = on(TestController.class).resolveHandlerMethod(ResponseBodyEmitter.class);
-    ResponseBodyEmitter emitter = new ResponseBodyEmitter();
+    ResponseBodyEmitter emitter = forChunkedTransferEncoding();
     this.handler.handleReturnValue(webRequest, handlerMethod, emitter);
 
     assertThat(this.request.isAsyncStarted()).isTrue();
@@ -154,7 +155,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
     AsyncWebRequest asyncWebRequest = mock(AsyncWebRequest.class);
     webRequest.setAsyncRequest(asyncWebRequest);
 
-    ResponseBodyEmitter emitter = new ResponseBodyEmitter(19000L);
+    ResponseBodyEmitter emitter = ResponseBodyEmitter.forChunkedTransferEncoding(19000L);
     emitter.onTimeout(Mockito.mock(Runnable.class));
     emitter.onCompletion(Mockito.mock(Runnable.class));
 
@@ -174,7 +175,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
     AsyncWebRequest asyncWebRequest = mock(AsyncWebRequest.class);
     webRequest.setAsyncRequest(asyncWebRequest);
 
-    ResponseBodyEmitter emitter = new ResponseBodyEmitter(19000L);
+    ResponseBodyEmitter emitter = ResponseBodyEmitter.forChunkedTransferEncoding(19000L);
     emitter.onError(Mockito.mock(Consumer.class));
     emitter.onCompletion(Mockito.mock(Runnable.class));
 

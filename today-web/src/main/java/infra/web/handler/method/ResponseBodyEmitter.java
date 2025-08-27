@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageConverter;
@@ -43,12 +44,12 @@ import infra.web.async.DeferredResult;
  * <p>Supported as a return type on its own as well as within a
  * {@link ResponseEntity}.
  *
- * <pre>
- * &#064;GET("/stream")
+ * <pre>{@code
+ * @GET("/stream")
  * public ResponseBodyEmitter handle() {
- * 	   ResponseBodyEmitter emitter = new ResponseBodyEmitter();
- * 	   // Pass the emitter to another component...
- * 	   return emitter;
+ *   ResponseBodyEmitter emitter = forChunkedTransferEncoding();
+ *   // Pass the emitter to another component...
+ *   return emitter;
  * }
  *
  * // in another thread
@@ -59,11 +60,12 @@ import infra.web.async.DeferredResult;
  *
  * // and done
  * emitter.complete();
- * </pre>
+ * }</pre>
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see #forChunkedTransferEncoding()
  * @since 4.0 2022/4/8 23:54
  */
 public class ResponseBodyEmitter {
@@ -72,17 +74,10 @@ public class ResponseBodyEmitter {
   private final Long timeout;
 
   @Nullable
-  private Handler handler;
-
-  /** Store send data before handler is initialized. */
-  private final ArrayList<DataWithMediaType> earlySendAttempts = new ArrayList<>();
+  private final MediaType contentType;
 
   /** Store successful completion before the handler is initialized. */
   private final AtomicBoolean complete = new AtomicBoolean();
-
-  /** Store an error before the handler is initialized. */
-  @Nullable
-  private Throwable failure;
 
   private final DefaultCallback timeoutCallback = new DefaultCallback();
 
@@ -90,23 +85,29 @@ public class ResponseBodyEmitter {
 
   private final DefaultCallback completionCallback = new DefaultCallback();
 
-  /**
-   * Create a new ResponseBodyEmitter instance.
-   */
-  public ResponseBodyEmitter() {
-    this.timeout = null;
-  }
+  /** Store send data before handler is initialized. */
+  private final ArrayList<DataWithMediaType> earlySendAttempts = new ArrayList<>();
+
+  /** Store an error before the handler is initialized. */
+  @Nullable
+  private Throwable failure;
+
+  @Nullable
+  private Handler handler;
 
   /**
    * Create a ResponseBodyEmitter with a custom timeout value.
-   * <p>By default not set in which case the default configured in the MVC
+   * <p>By default, not set in which case the default configured in the MVC
    * Java Config or the MVC namespace is used, or if that's not set, then the
    * timeout depends on the default of the underlying server.
    *
    * @param timeout the timeout value in milliseconds
+   * @param contentType response content-type header
+   * @since 5.0
    */
-  public ResponseBodyEmitter(@Nullable Long timeout) {
+  protected ResponseBodyEmitter(@Nullable Long timeout, @Nullable MediaType contentType) {
     this.timeout = timeout;
+    this.contentType = contentType;
   }
 
   /**
@@ -136,8 +137,8 @@ public class ResponseBodyEmitter {
       }
     }
     else {
-      handler.onTimeout(timeoutCallback);
       handler.onError(errorCallback);
+      handler.onTimeout(timeoutCallback);
       handler.onCompletion(completionCallback);
     }
   }
@@ -155,9 +156,15 @@ public class ResponseBodyEmitter {
    * if the ResponseBodyEmitter is wrapped in a ResponseEntity, but before the
    * response is committed, i.e. before the response body has been written to.
    * <p>The default implementation is empty.
+   *
+   * @see HttpHeaders#TRANSFER_ENCODING
+   * @see HttpHeaders#CHUNKED
    */
-  protected void extendResponse(RequestContext outputMessage) {
-
+  protected void extendResponse(RequestContext context) {
+    context.setHeader(HttpHeaders.TRANSFER_ENCODING, HttpHeaders.CHUNKED);
+    if (contentType != null && context.getResponseContentType() == null) {
+      context.setContentType(contentType);
+    }
   }
 
   /**
@@ -312,6 +319,54 @@ public class ResponseBodyEmitter {
   @Override
   public String toString() {
     return "ResponseBodyEmitter@" + ObjectUtils.getIdentityHexString(this);
+  }
+
+  /**
+   * Create ResponseBodyEmitter in chunked Transfer-Encoding without timeout
+   *
+   * @since 5.0
+   */
+  public static ResponseBodyEmitter forChunkedTransferEncoding() {
+    return new ResponseBodyEmitter(null, null);
+  }
+
+  /**
+   * Create a ResponseBodyEmitter with a custom timeout value.
+   * <p>By default, not set in which case the default configured in the MVC
+   * Java Config or the MVC namespace is used, or if that's not set, then the
+   * timeout depends on the default of the underlying server.
+   *
+   * @param timeout the timeout value in milliseconds
+   */
+  public static ResponseBodyEmitter forChunkedTransferEncoding(@Nullable Long timeout) {
+    return new ResponseBodyEmitter(timeout, null);
+  }
+
+  /**
+   * Create a ResponseBodyEmitter with a custom content-type.
+   * <p>By default, not set in which case the default configured in the MVC
+   * Java Config or the MVC namespace is used, or if that's not set, then the
+   * timeout depends on the default of the underlying server.
+   *
+   * @param contentType response content-type header
+   * @since 5.0
+   */
+  public static ResponseBodyEmitter forChunkedTransferEncoding(@Nullable MediaType contentType) {
+    return new ResponseBodyEmitter(null, contentType);
+  }
+
+  /**
+   * Create a ResponseBodyEmitter with a custom timeout value.
+   * <p>By default, not set in which case the default configured in the MVC
+   * Java Config or the MVC namespace is used, or if that's not set, then the
+   * timeout depends on the default of the underlying server.
+   *
+   * @param timeout the timeout value in milliseconds
+   * @param contentType response content-type header
+   * @since 5.0
+   */
+  public static ResponseBodyEmitter forChunkedTransferEncoding(@Nullable Long timeout, @Nullable MediaType contentType) {
+    return new ResponseBodyEmitter(timeout, contentType);
   }
 
   /**

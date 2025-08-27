@@ -135,7 +135,7 @@ xref:integration/rest-clients.adoc#rest-message-conversion[`HttpMessageConverter
 ----
 @GetMapping("/events")
 public ResponseBodyEmitter handle() {
-  ResponseBodyEmitter emitter = new ResponseBodyEmitter();
+  ResponseBodyEmitter emitter = ResponseBodyEmitter.forChunkedTransferEncoding();
   // 其他地方引用 emitter 变量.
   return emitter;
 }
@@ -146,7 +146,7 @@ public class MyHttpRequestHandler implements HttpRequestHandler {
   @Nullable
   @Override
   public ResponseBodyEmitter handleRequest(RequestContext request) throws Throwable {
-    ResponseBodyEmitter emitter = new ResponseBodyEmitter();
+    ResponseBodyEmitter emitter = ResponseBodyEmitter.forChunkedTransferEncoding();
     // 其他地方引用 emitter 变量.
     return emitter;
   }

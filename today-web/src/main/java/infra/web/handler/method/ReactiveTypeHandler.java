@@ -70,8 +70,6 @@ final class ReactiveTypeHandler {
 
   private static final Logger log = LoggerFactory.getLogger(ReactiveTypeHandler.class);
 
-  private static final long STREAMING_TIMEOUT_VALUE = -1;
-
   private static final MediaType WILDCARD_SUBTYPE_SUFFIXED_BY_NDJSON = MediaType.valueOf("application/*+x-ndjson");
 
   private final TaskExecutor taskExecutor;
@@ -125,22 +123,21 @@ final class ReactiveTypeHandler {
     Class<?> elementClass = elementType.toClass();
 
     if (adapter.isMultiValue()) {
-      var mediaTypes = (presetMediaType != null ? List.of(presetMediaType) : getMediaTypes(request));
+      var mediaTypes = presetMediaType != null ? List.of(presetMediaType) : getMediaTypes(request);
       if (mediaTypes.stream().anyMatch(MediaType.TEXT_EVENT_STREAM::includes)
               || ServerSentEvent.class.isAssignableFrom(elementClass)) {
-        var emitter = new SseEmitter(STREAMING_TIMEOUT_VALUE);
+        var emitter = new SseEmitter();
         new SseEmitterSubscriber(emitter, taskExecutor).connect(adapter, returnValue);
         return emitter;
       }
       if (CharSequence.class.isAssignableFrom(elementClass)) {
-        var mediaType = mediaTypes.stream().filter(MimeType::isConcrete).findFirst();
-        var emitter = getEmitter(mediaType.orElse(MediaType.TEXT_PLAIN));
+        var emitter = createEmitter(mediaTypes.stream().filter(MimeType::isConcrete).findFirst().orElse(MediaType.TEXT_PLAIN));
         new TextEmitterSubscriber(emitter, taskExecutor).connect(adapter, returnValue);
         return emitter;
       }
       MediaType streamingResponseType = findConcreteStreamingMediaType(mediaTypes);
       if (streamingResponseType != null) {
-        ResponseBodyEmitter emitter = getEmitter(streamingResponseType);
+        ResponseBodyEmitter emitter = createEmitter(streamingResponseType);
         new JsonEmitterSubscriber(emitter, this.taskExecutor).connect(adapter, returnValue);
         return emitter;
       }
@@ -151,9 +148,7 @@ final class ReactiveTypeHandler {
     new DeferredResultSubscriber(result, adapter, elementType)
             .connect(adapter, returnValue);
 
-    request.getAsyncManager()
-            .startDeferredResultProcessing(result);
-
+    request.getAsyncManager().startDeferredResultProcessing(result);
     return null;
   }
 
@@ -208,14 +203,8 @@ final class ReactiveTypeHandler {
     return contentNegotiationManager.resolveMediaTypes(request);
   }
 
-  private ResponseBodyEmitter getEmitter(MediaType mediaType) {
-    return new ResponseBodyEmitter(STREAMING_TIMEOUT_VALUE) {
-      @Override
-      protected void extendResponse(RequestContext outputMessage) {
-        // FIXME 不使用继承方式
-        outputMessage.setContentType(mediaType.toString());
-      }
-    };
+  private ResponseBodyEmitter createEmitter(MediaType mediaType) {
+    return new ResponseBodyEmitter(null, mediaType);
   }
 
   private abstract static class AbstractEmitterSubscriber implements Subscriber<Object>, Runnable {

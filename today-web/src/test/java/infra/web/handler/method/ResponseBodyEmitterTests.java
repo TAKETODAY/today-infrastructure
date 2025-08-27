@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ class ResponseBodyEmitterTests {
   @Mock
   private ResponseBodyEmitter.Handler handler;
 
-  private final ResponseBodyEmitter emitter = new ResponseBodyEmitter();
+  private final ResponseBodyEmitter emitter = ResponseBodyEmitter.forChunkedTransferEncoding();
 
   @Test
   void sendBeforeHandlerInitialized() throws Exception {
