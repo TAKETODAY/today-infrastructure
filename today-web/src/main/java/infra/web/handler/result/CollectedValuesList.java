@@ -15,12 +15,30 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-/**
- * Web handler result supporting
- */
-@NonNullApi
-@NonNullFields
 package infra.web.handler.result;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import java.util.ArrayList;
+import java.util.List;
+
+import infra.core.ResolvableType;
+
+/**
+ * List of collect values where all elements are a specified type.
+ *
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0 2025/8/27 21:31
+ */
+@SuppressWarnings("serial")
+public class CollectedValuesList extends ArrayList<Object> {
+
+  private final ResolvableType elementType;
+
+  CollectedValuesList(ResolvableType elementType) {
+    this.elementType = elementType;
+  }
+
+  public ResolvableType getReturnType() {
+    return ResolvableType.forClassWithGenerics(List.class, this.elementType);
+  }
+
+}

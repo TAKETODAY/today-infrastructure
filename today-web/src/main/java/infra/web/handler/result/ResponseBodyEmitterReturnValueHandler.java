@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.handler.method;
+package infra.web.handler.result;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -38,7 +38,7 @@ import infra.lang.Nullable;
 import infra.web.RequestContext;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.async.DeferredResult;
-import infra.web.handler.result.SmartReturnValueHandler;
+import infra.web.handler.method.HandlerMethod;
 
 /**
  * Handler for return values of type {@link ResponseBodyEmitter} and sub-classes
@@ -191,20 +191,20 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
     }
     emitter.extendResponse(request);
 
-    HttpMessageConvertingHandler responseBodyEmitter;
+    HttpMessageConvertingHandler convertingHandler;
     // the response will ignore further header changes
     // Headers will be flushed at the first write
     try {
       DeferredResult<?> deferredResult = new DeferredResult<>(emitter.getTimeout());
       request.getAsyncManager().startDeferredResultProcessing(deferredResult, handler);
-      responseBodyEmitter = new HttpMessageConvertingHandler(request, deferredResult);
+      convertingHandler = new HttpMessageConvertingHandler(request, deferredResult);
     }
     catch (Throwable ex) {
       emitter.initializeWithError(ex);
       throw ex;
     }
 
-    emitter.initialize(responseBodyEmitter);
+    emitter.initialize(convertingHandler);
   }
 
   /**

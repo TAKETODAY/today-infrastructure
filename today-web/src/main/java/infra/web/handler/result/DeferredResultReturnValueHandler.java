@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ public class DeferredResultReturnValueHandler implements HandlerMethodReturnValu
 
   @Override
   @SuppressWarnings("unchecked")
-  public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue == null) {
       return;
     }

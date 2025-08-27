@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.handler.method;
+package infra.web.handler.result;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,6 +38,7 @@ import infra.mock.web.MockAsyncContext;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.async.AsyncWebRequest;
 import infra.web.async.WebAsyncManager;
+import infra.web.handler.method.HandlerMethod;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.StandardMockAsyncWebRequest;
 import reactor.core.publisher.Flux;
@@ -45,7 +46,7 @@ import reactor.core.publisher.Sinks;
 
 import static infra.core.ResolvableType.forClassWithGenerics;
 import static infra.web.ResolvableMethod.on;
-import static infra.web.handler.method.ResponseBodyEmitter.forChunkedTransferEncoding;
+import static infra.web.handler.result.ResponseBodyEmitter.forChunkedTransferEncoding;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;

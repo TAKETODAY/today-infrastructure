@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.handler.method;
+package infra.web.handler.result;
 
 import java.io.IOException;
 import java.util.ArrayList;

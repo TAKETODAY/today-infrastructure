@@ -51,6 +51,7 @@ import infra.web.annotation.ResponseBody;
 import infra.web.annotation.ResponseStatus;
 import infra.web.cors.CorsConfiguration;
 import infra.web.handler.AsyncHandler;
+import infra.web.handler.result.CollectedValuesList;
 
 /**
  * Encapsulates information about a handler method consisting of a
@@ -589,6 +590,7 @@ public class HandlerMethod implements AsyncHandler {
     /**
      * Bridge to controller method-level annotations.
      */
+    @Nullable
     @Override
     public <A extends Annotation> A getMethodAnnotation(Class<A> annotationType) {
       return target.getMethodAnnotation(annotationType);
@@ -629,7 +631,7 @@ public class HandlerMethod implements AsyncHandler {
     public ConcurrentResultMethodParameter(@Nullable Object returnValue) {
       super(-1);
       this.returnValue = returnValue;
-      this.returnType = returnValue instanceof ReactiveTypeHandler.CollectedValuesList list
+      this.returnType = returnValue instanceof CollectedValuesList list
               ? list.getReturnType()
               : ResolvableType.forType(super.getGenericParameterType()).getGeneric();
     }
@@ -660,9 +662,8 @@ public class HandlerMethod implements AsyncHandler {
     public <T extends Annotation> boolean hasMethodAnnotation(Class<T> annotationType) {
       // Ensure @ResponseBody-style handling for values collected from a reactive type
       // even if actual return type is ResponseEntity<Flux<T>>
-      return (super.hasMethodAnnotation(annotationType)
-              || (annotationType == ResponseBody.class &&
-              this.returnValue instanceof ReactiveTypeHandler.CollectedValuesList));
+      return super.hasMethodAnnotation(annotationType)
+              || (annotationType == ResponseBody.class && this.returnValue instanceof CollectedValuesList);
     }
 
     @Override
@@ -697,6 +698,7 @@ public class HandlerMethod implements AsyncHandler {
       return HandlerMethod.this.getBeanType();
     }
 
+    @Nullable
     @Override
     public <T extends Annotation> T getMethodAnnotation(Class<T> annotationType) {
       return HandlerMethod.this.getMethodAnnotation(annotationType);

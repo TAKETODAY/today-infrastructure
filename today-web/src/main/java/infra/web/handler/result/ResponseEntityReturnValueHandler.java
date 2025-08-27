@@ -15,13 +15,13 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.handler.method;
+package infra.web.handler.result;
 
 import infra.http.HttpEntity;
 import infra.lang.Nullable;
 import infra.web.RequestContext;
+import infra.web.ReturnValueHandler;
 import infra.web.bind.resolver.HttpEntityMethodProcessor;
-import infra.web.handler.result.HandlerMethodReturnValueHandler;
 
 /**
  * Handler for return values of type {@link infra.http.ResponseEntity}
@@ -41,7 +41,7 @@ import infra.web.handler.result.HandlerMethodReturnValueHandler;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-public class ResponseEntityReturnValueHandler implements HandlerMethodReturnValueHandler {
+public class ResponseEntityReturnValueHandler implements ReturnValueHandler {
 
   private final HttpEntityMethodProcessor httpEntityMethodProcessor;
 

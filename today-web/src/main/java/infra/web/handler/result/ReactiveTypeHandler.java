@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.handler.method;
+package infra.web.handler.result;
 
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
@@ -23,7 +23,6 @@ import org.reactivestreams.Subscription;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -489,23 +488,6 @@ final class ReactiveTypeHandler {
       else {
         this.result.setResult(null);
       }
-    }
-  }
-
-  /**
-   * List of collect values where all elements are a specified type.
-   */
-  @SuppressWarnings("serial")
-  static class CollectedValuesList extends ArrayList<Object> {
-
-    private final ResolvableType elementType;
-
-    CollectedValuesList(ResolvableType elementType) {
-      this.elementType = elementType;
-    }
-
-    public ResolvableType getReturnType() {
-      return ResolvableType.forClassWithGenerics(List.class, this.elementType);
     }
   }
 
