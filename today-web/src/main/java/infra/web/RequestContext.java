@@ -2088,6 +2088,17 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   /**
+   * merge headers to response http-headers
+   *
+   * @since 3.0
+   */
+  public void addHeaders(@Nullable HttpHeaders headers) {
+    if (CollectionUtils.isNotEmpty(headers)) {
+      responseHeaders().addAll(headers);
+    }
+  }
+
+  /**
    * Removes the header with the specified name from the response headers.
    *
    * <p>This method checks if the {@code responseHeaders} map is not null and then
@@ -2158,17 +2169,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
       this.responseHeaders = responseHeaders;
     }
     return responseHeaders;
-  }
-
-  /**
-   * merge headers to response http-headers
-   *
-   * @since 3.0
-   */
-  public void mergeToResponse(@Nullable HttpHeaders headers) {
-    if (CollectionUtils.isNotEmpty(headers)) {
-      responseHeaders().addAll(headers);
-    }
   }
 
   /**

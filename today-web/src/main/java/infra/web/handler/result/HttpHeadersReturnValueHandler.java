@@ -43,7 +43,7 @@ public class HttpHeadersReturnValueHandler implements HandlerMethodReturnValueHa
   @Override
   public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) {
     if (returnValue instanceof HttpHeaders headers && !headers.isEmpty()) {
-      context.mergeToResponse(headers);
+      context.addHeaders(headers);
     }
   }
 
