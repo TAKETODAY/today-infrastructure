@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,9 +67,6 @@ public class MockServerHttpRequest extends AbstractHttpRequest implements Server
 
   @Nullable
   private HttpHeaders headers;
-
-  @Nullable
-  private ServerHttpAsyncRequestControl asyncRequestControl;
 
   private final HttpMethod method;
 
@@ -214,18 +211,6 @@ public class MockServerHttpRequest extends AbstractHttpRequest implements Server
     else {
       return this.mockRequest.getInputStream();
     }
-  }
-
-  @Override
-  public ServerHttpAsyncRequestControl getAsyncRequestControl(ServerHttpResponse response) {
-    if (this.asyncRequestControl == null) {
-      if (!(response instanceof MockServerHttpResponse servletServerResponse)) {
-        throw new IllegalArgumentException(
-                "Response must be a ServletServerHttpResponse: " + response.getClass());
-      }
-      this.asyncRequestControl = new MockServerHttpAsyncRequestControl(this, servletServerResponse);
-    }
-    return this.asyncRequestControl;
   }
 
   /**
