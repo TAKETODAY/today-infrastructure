@@ -184,7 +184,10 @@ public class NettyRequestContext extends RequestContext {
   private Integer queryStringIndex;
 
   @Nullable
-  private InetSocketAddress inetSocketAddress;
+  private InetSocketAddress localAddress;
+
+  @Nullable
+  private ServerHttpResponse httpOutputMessage;
 
   protected NettyRequestContext(ApplicationContext context, ChannelHandlerContext ctx,
           FullHttpRequest request, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
@@ -206,7 +209,7 @@ public class NettyRequestContext extends RequestContext {
   }
 
   private InetSocketAddress localAddress() {
-    InetSocketAddress inetSocketAddress = this.inetSocketAddress;
+    InetSocketAddress inetSocketAddress = this.localAddress;
     if (inetSocketAddress == null) {
       SocketAddress socketAddress = channel.localAddress();
       if (socketAddress instanceof InetSocketAddress address) {
@@ -215,7 +218,7 @@ public class NettyRequestContext extends RequestContext {
       else {
         inetSocketAddress = new InetSocketAddress("localhost", 8080);
       }
-      this.inetSocketAddress = inetSocketAddress;
+      this.localAddress = inetSocketAddress;
     }
     return inetSocketAddress;
   }
@@ -452,7 +455,12 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public ServerHttpResponse asHttpOutputMessage() {
-    return new NettyHttpOutputMessage();
+    ServerHttpResponse response = this.httpOutputMessage;
+    if (response == null) {
+      response = new NettyHttpOutputMessage();
+      this.httpOutputMessage = response;
+    }
+    return response;
   }
 
   @Override
