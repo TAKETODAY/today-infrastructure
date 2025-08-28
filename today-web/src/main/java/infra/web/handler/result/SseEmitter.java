@@ -37,6 +37,7 @@ import infra.util.StringUtils;
  * @author Juergen Hoeller
  * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see ResponseBodyEmitter#forServerSentEvents
  * @since 4.0 2022/4/8 23:55
  */
 public class SseEmitter extends ResponseBodyEmitter {
@@ -45,13 +46,6 @@ public class SseEmitter extends ResponseBodyEmitter {
    * Guards access to write operations on the response.
    */
   private final ReentrantLock writeLock = new ReentrantLock();
-
-  /**
-   * Create a new SseEmitter instance.
-   */
-  public SseEmitter() {
-    this(null);
-  }
 
   /**
    * Create a SseEmitter with a custom timeout value.

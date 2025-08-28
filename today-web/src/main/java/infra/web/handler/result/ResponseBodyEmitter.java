@@ -370,6 +370,28 @@ public class ResponseBodyEmitter {
   }
 
   /**
+   * Create a new SseEmitter instance.
+   *
+   * @since 5.0
+   */
+  public static SseEmitter forServerSentEvents() {
+    return new SseEmitter(null);
+  }
+
+  /**
+   * Create a SseEmitter with a custom timeout value.
+   * <p>By default, not set in which case the default configured in the MVC
+   * Java Config or the MVC namespace is used, or if that's not set, then the
+   * timeout depends on the default of the underlying server.
+   *
+   * @param timeout the timeout value in milliseconds
+   * @since 5.0
+   */
+  public static SseEmitter forServerSentEvents(@Nullable Long timeout) {
+    return new SseEmitter(timeout);
+  }
+
+  /**
    * Contract to handle the sending of event data, the completion of event
    * sending, and the registration of callbacks to be invoked in case of
    * timeout, error, and completion for any reason (including from the

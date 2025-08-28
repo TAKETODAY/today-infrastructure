@@ -191,7 +191,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
   @Test
   public void sseEmitter() throws Exception {
     HandlerMethod type = on(TestController.class).resolveHandlerMethod(SseEmitter.class);
-    SseEmitter emitter = new SseEmitter();
+    SseEmitter emitter = ResponseBodyEmitter.forServerSentEvents();
     this.handler.handleReturnValue(webRequest, type, emitter);
 
     assertThat(this.request.isAsyncStarted()).isTrue();
@@ -256,7 +256,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
   @Test
   public void responseEntitySse() throws Exception {
     HandlerMethod type = on(TestController.class).resolveHandlerMethod(ResponseEntity.class, SseEmitter.class);
-    SseEmitter emitter = new SseEmitter();
+    SseEmitter emitter = ResponseBodyEmitter.forServerSentEvents();
     ResponseEntity<SseEmitter> entity = ResponseEntity.ok().header("foo", "bar").body(emitter);
     this.handler.handleReturnValue(webRequest, type, entity);
     emitter.complete();

@@ -48,7 +48,7 @@ class SseEmitterTests {
   @BeforeEach
   public void setup() throws IOException {
     this.handler = new TestHandler();
-    this.emitter = new SseEmitter();
+    this.emitter = ResponseBodyEmitter.forServerSentEvents(null);
     this.emitter.initialize(this.handler);
   }
 

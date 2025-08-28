@@ -125,7 +125,7 @@ final class ReactiveTypeHandler {
       var mediaTypes = presetMediaType != null ? List.of(presetMediaType) : getMediaTypes(request);
       if (mediaTypes.stream().anyMatch(MediaType.TEXT_EVENT_STREAM::includes)
               || ServerSentEvent.class.isAssignableFrom(elementClass)) {
-        var emitter = new SseEmitter();
+        var emitter = ResponseBodyEmitter.forServerSentEvents();
         new SseEmitterSubscriber(emitter, taskExecutor).connect(adapter, returnValue);
         return emitter;
       }
@@ -136,7 +136,7 @@ final class ReactiveTypeHandler {
       }
       MediaType streamingResponseType = findConcreteStreamingMediaType(mediaTypes);
       if (streamingResponseType != null) {
-        ResponseBodyEmitter emitter = createEmitter(streamingResponseType);
+        var emitter = createEmitter(streamingResponseType);
         new JsonEmitterSubscriber(emitter, this.taskExecutor).connect(adapter, returnValue);
         return emitter;
       }
