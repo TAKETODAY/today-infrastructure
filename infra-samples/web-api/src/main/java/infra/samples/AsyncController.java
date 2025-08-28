@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 package infra.samples;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
@@ -27,6 +26,7 @@ import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ExceptionUtils;
+import infra.util.concurrent.Future;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
 import infra.web.annotation.GET;
@@ -43,39 +43,38 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/async")
-public class AsyncController {
-  private final Logger log = LoggerFactory.getLogger(getClass());
+class AsyncController {
 
-  private final Executor executor;
+  private final Logger logger = LoggerFactory.getLogger(getClass());
 
   @GET("/deferred-result")
   public DeferredResult<String> deferredResult(@Nullable Long timeout) {
     DeferredResult<String> result = new DeferredResult<>(timeout, "Timeout");
-    executor.execute(() -> {
-      log.info("异步任务开始执行");
+    Future.run(() -> {
+      logger.info("异步任务开始执行");
 
       ExceptionUtils.sneakyThrow(() -> TimeUnit.SECONDS.sleep(2));
 
-      log.info("异步任务执行结束，开始返回");
+      logger.info("异步任务执行结束，开始返回");
 
       if (result.setResult("result from " + Thread.currentThread().getName())) {
-        log.info("返回结果设置成功");
+        logger.info("返回结果设置成功");
       }
       else {
-        log.info("返回结果设置失败，已经返回任务可能超时");
+        logger.info("返回结果设置失败，已经返回任务可能超时");
       }
 
-      log.info("异步任务执行结束");
+      logger.info("异步任务执行结束");
     });
 
     result.onTimeout(() ->
-            log.warn("任务执行超时了"));
+            logger.warn("任务执行超时了"));
 
     result.onCompletion(() ->
-            log.info("结束回调"));
+            logger.info("结束回调"));
 
     result.onError(throwable ->
-            log.error("出现异常", throwable));
+            logger.error("出现异常", throwable));
 
     return result;
   }
@@ -85,12 +84,12 @@ public class AsyncController {
     return () -> {
       // 可以获取 RequestContext
       RequestContext request = RequestContextHolder.getRequired();
-      log.info("异步任务开始执行");
+      logger.info("异步任务开始执行");
 //        TimeUnit.SECONDS.sleep(2);
       LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(2));
       HttpHeaders headers = request.getHeaders();
-      log.info(headers.toString());
-      log.info("异步任务执行结束，开始返回");
+      logger.info(headers.toString());
+      logger.info("异步任务执行结束，开始返回");
       return "result from " + Thread.currentThread().getName();
     };
   }

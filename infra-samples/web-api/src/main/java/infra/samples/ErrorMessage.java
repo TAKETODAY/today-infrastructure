@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,12 +25,10 @@ import infra.core.style.ToStringBuilder;
  */
 public class ErrorMessage {
 
-  private String message;
-
-  public ErrorMessage() { }
+  private final String message;
 
   public ErrorMessage(String message) {
-    this.setMessage(message);
+    this.message = message;
   }
 
   public static ErrorMessage failed(String message) {
@@ -39,10 +37,6 @@ public class ErrorMessage {
 
   public String getMessage() {
     return message;
-  }
-
-  public void setMessage(String message) {
-    this.message = message;
   }
 
   @Override

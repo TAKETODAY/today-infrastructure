@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,17 +18,18 @@
 package infra.samples;
 
 import java.io.IOException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import infra.util.ExceptionUtils;
+import infra.util.concurrent.Future;
 import infra.web.annotation.GET;
 import infra.web.annotation.RequestMapping;
 import infra.web.annotation.RestController;
-import infra.web.handler.method.SseEmitter;
+import infra.web.handler.result.ResponseBodyEmitter;
+import infra.web.handler.result.SseEmitter;
 import lombok.RequiredArgsConstructor;
 
-import static infra.web.handler.method.SseEmitter.event;
+import static infra.web.handler.result.SseEmitter.event;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -38,16 +39,14 @@ import static infra.web.handler.method.SseEmitter.event;
 @RequiredArgsConstructor
 @RequestMapping("/sse")
 public class SseController {
-  private final Executor executor;
 
   @GET("/simple")
   public SseEmitter sseEmitter() {
-    SseEmitter sseEmitter = new SseEmitter();
+    SseEmitter sseEmitter = ResponseBodyEmitter.forServerSentEvents();
 
-    executor.execute(() -> {
+    Future.run(() -> {
       for (int i = 0; i < 5; i++) {
         try {
-
           sseEmitter.send(event()
                   .id("id-" + i)
                   .name("event-name-" + i)

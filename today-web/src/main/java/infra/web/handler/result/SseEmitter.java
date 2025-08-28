@@ -64,7 +64,7 @@ public class SseEmitter extends ResponseBodyEmitter {
    * <pre>{@code
    * // static import of SseEmitter.*
    *
-   * SseEmitter emitter = new SseEmitter();
+   * SseEmitter emitter = forServerSentEvents();
    * emitter.send(event().data(myObject));
    * }</pre>
    * <p>Please, see {@link ResponseBodyEmitter#send(Object) parent Javadoc}
@@ -84,7 +84,7 @@ public class SseEmitter extends ResponseBodyEmitter {
    * <pre>{@code
    * // static import of SseEmitter.*
    *
-   * SseEmitter emitter = new SseEmitter();
+   * SseEmitter emitter = forServerSentEvents();
    * emitter.send(event().data(myObject, MediaType.APPLICATION_JSON));
    * }</pre>
    * <p>Please, see {@link ResponseBodyEmitter#send(Object) parent Javadoc}
@@ -103,7 +103,7 @@ public class SseEmitter extends ResponseBodyEmitter {
    * Send an SSE event prepared with the given builder. For example:
    * <pre>{@code
    * // static import of SseEmitter
-   * SseEmitter emitter = new SseEmitter();
+   * SseEmitter emitter = forServerSentEvents();
    * emitter.send(event().name("update").id("1").data(myObject));
    * }</pre>
    *

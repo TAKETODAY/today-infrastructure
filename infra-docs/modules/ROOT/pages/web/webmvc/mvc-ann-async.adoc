@@ -181,7 +181,7 @@ emitter.complete();
 ----
 @GetMapping(path="/events", produces=MediaType.TEXT_EVENT_STREAM_VALUE)
 public SseEmitter streamEvents() {
-  SseEmitter emitter = new SseEmitter();
+  SseEmitter emitter = forServerSentEvents();
   // 在此处配置并使用 `emitter` 发送事件
   return emitter;
 }
@@ -192,7 +192,7 @@ public class MyHttpRequestHandler implements HttpRequestHandler {
   @Nullable
   @Override
   public SseEmitter handleRequest(RequestContext request) throws Throwable {
-    SseEmitter emitter = new SseEmitter();
+    SseEmitter emitter = forServerSentEvents();
     // 其他地方引用 emitter 变量.
     return emitter;
   }
