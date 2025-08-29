@@ -109,12 +109,12 @@ public class ConfigTreePropertySource extends EnumerablePropertySource<Path> imp
 
   private ConfigTreePropertySource(String name, Path sourceDirectory, Set<Option> options) {
     super(name, sourceDirectory);
-    if (!Files.exists(sourceDirectory)) {
-      throw new IllegalArgumentException("Directory '" + sourceDirectory + "' does not exist");
+    if (Files.notExists(sourceDirectory)) {
+      throw new IllegalArgumentException("Directory '%s' does not exist".formatted(sourceDirectory));
     }
 
     if (!Files.isDirectory(sourceDirectory)) {
-      throw new IllegalArgumentException("File '" + sourceDirectory + "' is not a directory");
+      throw new IllegalArgumentException("File '%s' is not a directory".formatted(sourceDirectory));
     }
     this.options = options;
     this.propertyFiles = PropertyFile.findAll(sourceDirectory, options);

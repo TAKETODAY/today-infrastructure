@@ -221,7 +221,7 @@ public class ApplicationTemp {
    */
   private Path createDirectory(Path path) throws UncheckedIOException {
     try {
-      if (!Files.exists(path)) {
+      if (Files.notExists(path)) {
         Files.createDirectories(path, getFileAttributes(path.getFileSystem()));
       }
       return path;
@@ -249,7 +249,7 @@ public class ApplicationTemp {
     Assert.state(StringUtils.isNotEmpty(property), "No 'java.io.tmpdir' property set");
     Path tempDirectory = Paths.get(property);
 
-    if (!Files.exists(tempDirectory)) {
+    if (Files.notExists(tempDirectory)) {
       throw new IllegalStateException("Temp directory '%s' does not exist".formatted(tempDirectory));
     }
 
