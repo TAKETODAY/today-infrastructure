@@ -140,7 +140,7 @@ public class ApplicationTemp {
    * a candidate file name
    * @throws UncheckedIOException if an I/O error occurs or {@code dir} does not exist
    */
-  public Path createFile(@Nullable String subDir, String prefix) {
+  public Path createFile(@Nullable String subDir, @Nullable String prefix) {
     return createFile(subDir, prefix, null);
   }
 
