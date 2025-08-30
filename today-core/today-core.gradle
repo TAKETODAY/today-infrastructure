@@ -27,6 +27,7 @@ dependencies {
   optional("jakarta.annotation:jakarta.annotation-api")
   optional("io.micrometer:context-propagation")
 
+  testCompileOnly("com.github.ben-manes.caffeine:caffeine")
   testImplementation("jakarta.xml.bind:jakarta.xml.bind-api")
   testImplementation("com.google.code.findbugs:jsr305")
   testImplementation("com.fasterxml.woodstox:woodstox-core")

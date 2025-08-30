@@ -290,11 +290,11 @@ public abstract class AbstractAnnotationMetadataTests {
     void getComplexAttributeTypesReturnsAll() {
       MultiValueMap<String, Object> attributes =
               get(WithComplexAttributeTypes.class).getAllAnnotationAttributes(ComplexAttributes.class.getName());
-      assertThat(attributes).containsOnlyKeys("names", "count", "type", "subAnnotation");
+      assertThat(attributes).containsOnlyKeys("names", "count", "types", "subAnnotation");
       assertThat(attributes.get("names")).hasSize(1);
       assertThat(attributes.get("names").get(0)).isEqualTo(new String[] { "first", "second" });
-      assertThat(attributes.get("count")).containsExactlyInAnyOrder(TestEnum.ONE);
-      assertThat(attributes.get("type")).containsExactlyInAnyOrder(TestEnum.class);
+      assertThat(attributes.get("count").get(0)).isEqualTo(new TestEnum[] { TestEnum.ONE, TestEnum.TWO });
+      assertThat(attributes.get("types").get(0)).isEqualTo(new Class[] { TestEnum.class });
       assertThat(attributes.get("subAnnotation")).hasSize(1);
     }
 
@@ -312,8 +312,8 @@ public abstract class AbstractAnnotationMetadataTests {
     void getAnnotationAttributeIntType() {
       MultiValueMap<String, Object> attributes =
               get(WithIntType.class).getAllAnnotationAttributes(ComplexAttributes.class.getName());
-      assertThat(attributes).containsOnlyKeys("names", "count", "type", "subAnnotation");
-      assertThat(attributes.get("type")).contains(int.class);
+      assertThat(attributes).containsOnlyKeys("names", "count", "types", "subAnnotation");
+      assertThat(attributes.get("types").get(0)).isEqualTo(new Class[] { int.class });
     }
 
     @Test
@@ -453,13 +453,13 @@ public abstract class AbstractAnnotationMetadataTests {
 
     }
 
-    @ComplexAttributes(names = { "first", "second" }, count = TestEnum.ONE,
-            type = TestEnum.class, subAnnotation = @SubAnnotation(name = "spring"))
+    @ComplexAttributes(names = { "first", "second" }, count = { TestEnum.ONE, TestEnum.TWO },
+            types = { TestEnum.class }, subAnnotation = @SubAnnotation(name = "spring"))
     @Metadata(mv = { 42 })
     public static class WithComplexAttributeTypes {
     }
 
-    @ComplexAttributes(names = "void", count = TestEnum.ONE, type = int.class,
+    @ComplexAttributes(names = "void", count = TestEnum.ONE, types = int.class,
             subAnnotation = @SubAnnotation(name = "spring"))
     public static class WithIntType {
 
@@ -470,9 +470,9 @@ public abstract class AbstractAnnotationMetadataTests {
 
       String[] names();
 
-      TestEnum count();
+      TestEnum[] count();
 
-      Class<?> type();
+      Class<?>[] types();
 
       SubAnnotation subAnnotation();
     }
@@ -483,7 +483,15 @@ public abstract class AbstractAnnotationMetadataTests {
     }
 
     public enum TestEnum {
-      ONE, TWO, THREE
+      ONE {
+
+      },
+      TWO {
+
+      },
+      THREE {
+
+      }
     }
 
     @RepeatableAnnotation(name = "first")
@@ -549,11 +557,8 @@ public abstract class AbstractAnnotationMetadataTests {
 
     @Test
     void declaredMethodsToString() {
-      List<String> methods = get(TestMethods.class).getDeclaredMethods().stream()
-              .filter(method -> method.getMethodName().startsWith("test")).map(Object::toString).toList();
-      List<String> expected = Arrays.stream(TestMethods.class.getDeclaredMethods())
-              .filter(method -> method.getName().startsWith("test")).map(Object::toString) // jacoco
-              .toList();
+      List<String> methods = get(TestMethods.class).getDeclaredMethods().stream().map(Object::toString).toList();
+      List<String> expected = Arrays.stream(TestMethods.class.getDeclaredMethods()).map(Object::toString).toList();
       assertThat(methods).containsExactlyInAnyOrderElementsOf(expected);
     }
 

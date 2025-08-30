@@ -17,8 +17,19 @@
 
 package infra.core.type.classreading;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 import infra.core.type.AbstractAnnotationMetadataTests;
 import infra.core.type.AnnotationMetadata;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link SimpleAnnotationMetadata} and
@@ -31,12 +42,29 @@ class SimpleAnnotationMetadataTests extends AbstractAnnotationMetadataTests {
   @Override
   protected AnnotationMetadata get(Class<?> source) {
     try {
-      return MetadataReaderFactory.create(source.getClassLoader())
-              .getMetadataReader(source.getName()).getAnnotationMetadata();
+      return new SimpleMetadataReaderFactory(
+              source.getClassLoader()).getMetadataReader(
+              source.getName()).getAnnotationMetadata();
     }
-    catch (Exception ex) {
+    catch (IOException ex) {
       throw new IllegalStateException(ex);
     }
+  }
+
+  @Test
+  void getClassAttributeWhenUnknownClass() {
+    var annotation = get(WithClassMissingFromClasspath.class).getAnnotations().get(ClassAttributes.class);
+    assertThat(annotation.getStringArray("types")).contains("com.github.benmanes.caffeine.cache.Caffeine");
+    assertThatIllegalArgumentException().isThrownBy(() -> annotation.getClassArray("types"));
+  }
+
+  @ClassAttributes(types = { Caffeine.class })
+  public static class WithClassMissingFromClasspath {
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  public @interface ClassAttributes {
+    Class<?>[] types();
   }
 
 }
