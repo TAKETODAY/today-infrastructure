@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +44,8 @@ public class JdkClientHttpRequestFactory implements ClientHttpRequestFactory {
 
   @Nullable
   private Duration readTimeout;
+
+  private boolean compression = false;
 
   /**
    * Create a new instance of the {@code JdkClientHttpRequestFactory}
@@ -102,9 +104,18 @@ public class JdkClientHttpRequestFactory implements ClientHttpRequestFactory {
     this.readTimeout = readTimeout;
   }
 
+  /**
+   * Set whether support for uncompressing "gzip" and "deflate" HTTP responses is enabled.
+   *
+   * @since 5.0
+   */
+  public void enableCompression(boolean enable) {
+    this.compression = enable;
+  }
+
   @Override
   public ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod) {
-    return new JdkClientHttpRequest(this.httpClient, uri, httpMethod, this.executor, this.readTimeout);
+    return new JdkClientHttpRequest(this.httpClient, uri, httpMethod, this.executor, this.readTimeout, this.compression);
   }
 
 }

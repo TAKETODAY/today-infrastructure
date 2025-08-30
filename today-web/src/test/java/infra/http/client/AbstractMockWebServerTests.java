@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,11 +20,17 @@ package infra.http.client;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
+import java.io.ByteArrayOutputStream;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.GZIPOutputStream;
+
+import infra.http.HttpHeaders;
 import infra.util.StringUtils;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
+import okio.Buffer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -105,6 +111,33 @@ public abstract class AbstractMockWebServerTests {
           String headerName = request.getPath().replace("/header/", "");
           return new MockResponse().setBody(headerName + ":" + request.getHeader(headerName)).setResponseCode(200);
         }
+        else if (request.getPath().startsWith("/compress/") && request.getBody() != null) {
+          String encoding = request.getPath().replace("/compress/", "");
+          String requestBody = request.getBody().readUtf8();
+          ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+          if (encoding.equals("deflate")) {
+            try (DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(outputStream)) {
+              deflaterOutputStream.write(requestBody.getBytes());
+              deflaterOutputStream.flush();
+            }
+          }
+          // compress anyway with gzip
+          else {
+            encoding = "gzip";
+            try (GZIPOutputStream gzipOutputStream = new GZIPOutputStream(outputStream)) {
+              gzipOutputStream.write(requestBody.getBytes());
+              gzipOutputStream.flush();
+            }
+          }
+          Buffer buffer = new Buffer();
+          buffer.write(outputStream.toByteArray());
+          MockResponse response = new MockResponse();
+          response.setBody(buffer);
+          response.setResponseCode(200);
+          response.setHeader(HttpHeaders.CONTENT_ENCODING, encoding);
+          return response;
+        }
+
         return new MockResponse().setResponseCode(404);
       }
       catch (Throwable exc) {
