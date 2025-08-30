@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.http.converter.json;
@@ -34,78 +31,77 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Roy Clarkson
  */
-public class GsonFactoryBeanTests {
+class GsonFactoryBeanTests {
 
   private static final String DATE_FORMAT = "yyyy-MM-dd";
 
-  private GsonFactoryBean factory = new GsonFactoryBean();
+  private final GsonFactoryBean factory = new GsonFactoryBean();
 
   @Test
-  public void serializeNulls() throws Exception {
+  void serializeNulls() {
     this.factory.setSerializeNulls(true);
     this.factory.afterPropertiesSet();
     Gson gson = this.factory.getObject();
     StringBean bean = new StringBean();
-    String result = gson.toJson(bean);
-    assertThat(result).isEqualTo("{\"name\":null}");
+
+    assertThat(gson.toJson(bean)).isEqualTo("{\"name\":null}");
   }
 
   @Test
-  public void serializeNullsFalse() throws Exception {
+  void serializeNullsFalse() {
     this.factory.setSerializeNulls(false);
     this.factory.afterPropertiesSet();
     Gson gson = this.factory.getObject();
     StringBean bean = new StringBean();
-    String result = gson.toJson(bean);
-    assertThat(result).isEqualTo("{}");
+
+    assertThat(gson.toJson(bean)).isEqualTo("{}");
   }
 
   @Test
-  public void prettyPrinting() throws Exception {
+  void prettyPrinting() {
     this.factory.setPrettyPrinting(true);
     this.factory.afterPropertiesSet();
     Gson gson = this.factory.getObject();
     StringBean bean = new StringBean();
     bean.setName("Jason");
-    String result = gson.toJson(bean);
-    assertThat(result.contains("  \"name\": \"Jason\"")).isTrue();
+    assertThat(gson.toJson(bean)).contains("  \"name\": \"Jason\"");
   }
 
   @Test
-  public void prettyPrintingFalse() throws Exception {
+  void prettyPrintingFalse() {
     this.factory.setPrettyPrinting(false);
     this.factory.afterPropertiesSet();
     Gson gson = this.factory.getObject();
     StringBean bean = new StringBean();
     bean.setName("Jason");
-    String result = gson.toJson(bean);
-    assertThat(result).isEqualTo("{\"name\":\"Jason\"}");
+
+    assertThat(gson.toJson(bean)).isEqualTo("{\"name\":\"Jason\"}");
   }
 
   @Test
-  public void disableHtmlEscaping() throws Exception {
+  void disableHtmlEscaping() {
     this.factory.setDisableHtmlEscaping(true);
     this.factory.afterPropertiesSet();
     Gson gson = this.factory.getObject();
     StringBean bean = new StringBean();
     bean.setName("Bob=Bob");
-    String result = gson.toJson(bean);
-    assertThat(result).isEqualTo("{\"name\":\"Bob=Bob\"}");
+
+    assertThat(gson.toJson(bean)).isEqualTo("{\"name\":\"Bob=Bob\"}");
   }
 
   @Test
-  public void disableHtmlEscapingFalse() throws Exception {
+  void disableHtmlEscapingFalse() {
     this.factory.setDisableHtmlEscaping(false);
     this.factory.afterPropertiesSet();
     Gson gson = this.factory.getObject();
     StringBean bean = new StringBean();
     bean.setName("Bob=Bob");
-    String result = gson.toJson(bean);
-    assertThat(result).isEqualTo("{\"name\":\"Bob\\u003dBob\"}");
+
+    assertThat(gson.toJson(bean)).isEqualTo("{\"name\":\"Bob\\u003dBob\"}");
   }
 
   @Test
-  public void customizeDateFormatPattern() throws Exception {
+  void customizeDateFormatPattern() {
     this.factory.setDateFormatPattern(DATE_FORMAT);
     this.factory.afterPropertiesSet();
     Gson gson = this.factory.getObject();
@@ -117,12 +113,12 @@ public class GsonFactoryBeanTests {
     cal.set(Calendar.DATE, 1);
     Date date = cal.getTime();
     bean.setDate(date);
-    String result = gson.toJson(bean);
-    assertThat(result).isEqualTo("{\"date\":\"2014-01-01\"}");
+
+    assertThat(gson.toJson(bean)).isEqualTo("{\"date\":\"2014-01-01\"}");
   }
 
   @Test
-  public void customizeDateFormatNone() throws Exception {
+  void customizeDateFormatNone() {
     this.factory.afterPropertiesSet();
     Gson gson = this.factory.getObject();
     DateBean bean = new DateBean();
@@ -133,43 +129,44 @@ public class GsonFactoryBeanTests {
     cal.set(Calendar.DATE, 1);
     Date date = cal.getTime();
     bean.setDate(date);
-    String result = gson.toJson(bean);
-    assertThat(result.startsWith("{\"date\":\"Jan 1, 2014")).isTrue();
-    assertThat(result.endsWith("12:00:00 AM\"}")).isTrue();
+    // \p{Zs} matches any Unicode space character
+    assertThat(gson.toJson(bean))
+            .startsWith("{\"date\":\"Jan 1, 2014")
+            .matches(".+?12:00:00\\p{Zs}AM\"}");
   }
 
   @Test
-  public void base64EncodeByteArrays() throws Exception {
+  void base64EncodeByteArrays() {
     this.factory.setBase64EncodeByteArrays(true);
     this.factory.afterPropertiesSet();
     Gson gson = this.factory.getObject();
     ByteArrayBean bean = new ByteArrayBean();
     bean.setBytes(new byte[] { 0x1, 0x2 });
-    String result = gson.toJson(bean);
-    assertThat(result).isEqualTo("{\"bytes\":\"AQI\\u003d\"}");
+
+    assertThat(gson.toJson(bean)).isEqualTo("{\"bytes\":\"AQI\\u003d\"}");
   }
 
   @Test
-  public void base64EncodeByteArraysDisableHtmlEscaping() throws Exception {
+  void base64EncodeByteArraysDisableHtmlEscaping() {
     this.factory.setBase64EncodeByteArrays(true);
     this.factory.setDisableHtmlEscaping(true);
     this.factory.afterPropertiesSet();
     Gson gson = this.factory.getObject();
     ByteArrayBean bean = new ByteArrayBean();
     bean.setBytes(new byte[] { 0x1, 0x2 });
-    String result = gson.toJson(bean);
-    assertThat(result).isEqualTo("{\"bytes\":\"AQI=\"}");
+
+    assertThat(gson.toJson(bean)).isEqualTo("{\"bytes\":\"AQI=\"}");
   }
 
   @Test
-  public void base64EncodeByteArraysFalse() throws Exception {
+  void base64EncodeByteArraysFalse() {
     this.factory.setBase64EncodeByteArrays(false);
     this.factory.afterPropertiesSet();
     Gson gson = this.factory.getObject();
     ByteArrayBean bean = new ByteArrayBean();
     bean.setBytes(new byte[] { 0x1, 0x2 });
-    String result = gson.toJson(bean);
-    assertThat(result).isEqualTo("{\"bytes\":[1,2]}");
+
+    assertThat(gson.toJson(bean)).isEqualTo("{\"bytes\":[1,2]}");
   }
 
   private static class StringBean {
