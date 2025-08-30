@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import infra.lang.Nullable;
-import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,8 +35,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class DefaultApiVersionStrategyTests {
 
   private static final SemanticApiVersionParser parser = new SemanticApiVersionParser();
-
-  private static final RequestContext request = new MockRequestContext();
 
   @Test
   void defaultVersionIsParsed() {
@@ -114,7 +111,11 @@ class DefaultApiVersionStrategyTests {
   }
 
   private void validateVersion(@Nullable String version, DefaultApiVersionStrategy strategy) {
-    strategy.validateVersion(version != null ? parser.parseVersion(version) : null, request);
+    MockRequestContext request = new MockRequestContext();
+    if (version != null) {
+      request.setParameter("api-version", version);
+    }
+    strategy.resolveParseAndValidateVersion(request);
   }
 
 }
