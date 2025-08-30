@@ -343,7 +343,7 @@ class WebMvcConfigurationSupportTests {
 
     @Override
     public void configureApiVersioning(ApiVersionConfigurer configurer) {
-      configurer.useRequestHeader("X-API-Version");
+      configurer.useRequestHeader("X-API-Version").setVersionRequired(false);
     }
 
     @Override

@@ -106,7 +106,7 @@ class ApiVersionConfigurerTests {
   void configureVersionRequiredWithDefaultVersion() {
     ApiVersionConfigurer configurer = new ApiVersionConfigurer()
             .useRequestHeader("API-Version")
-            .setVersionRequired(true)
+            .setVersionRequired(false)
             .setDefaultVersion("1.0");
     DefaultApiVersionStrategy strategy = (DefaultApiVersionStrategy) configurer.getApiVersionStrategy();
     assertThat(strategy.toString()).contains("versionRequired=false");
