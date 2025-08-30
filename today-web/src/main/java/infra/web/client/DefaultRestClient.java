@@ -143,7 +143,7 @@ final class DefaultRestClient implements RestClient {
     this.bufferingPredicate = bufferingPredicate;
     this.messageConverters = messageConverters;
     this.builder = builder;
-    this.defaultStatusHandler = StatusHandler.defaultHandler(messageConverters);
+    this.defaultStatusHandler = StatusHandler.createDefaultStatusHandler(messageConverters);
     this.ignoreStatusHandlers = ignoreStatusHandlers;
     this.detectEmptyMessageBody = detectEmptyMessageBody;
     this.apiVersionInserter = apiVersionInserter;

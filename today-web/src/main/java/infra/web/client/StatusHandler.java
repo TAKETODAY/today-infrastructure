@@ -34,6 +34,7 @@ import infra.lang.Assert;
  * @since 4.0
  */
 final class StatusHandler {
+
   private StatusHandler() {
   }
 
@@ -43,7 +44,7 @@ final class StatusHandler {
     return new FuncErrorHandler(predicate, errorHandler);
   }
 
-  public static ResponseErrorHandler defaultHandler(List<HttpMessageConverter<?>> messageConverters) {
+  public static ResponseErrorHandler createDefaultStatusHandler(List<HttpMessageConverter<?>> messageConverters) {
     DefaultResponseErrorHandler handler = new DefaultResponseErrorHandler();
     handler.setMessageConverters(messageConverters);
     return handler;

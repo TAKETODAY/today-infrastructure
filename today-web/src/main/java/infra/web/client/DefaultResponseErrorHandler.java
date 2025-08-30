@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -119,41 +119,6 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
   }
 
   /**
-   * Return error message with details from the response body. For example:
-   * <pre>
-   * 404 Not Found on GET request for "https://example.com": [{'id': 123, 'message': 'my message'}]
-   * </pre>
-   */
-  private String getErrorMessage(int rawStatusCode, String statusText,
-          @Nullable byte[] responseBody, @Nullable Charset charset, HttpRequest request) {
-
-    StringBuilder msg = new StringBuilder(rawStatusCode + " " + statusText);
-
-    msg.append(" on ").append(request.getMethod()).append(" request");
-    msg.append(" for \"");
-    String urlString = request.getURI().toString();
-    int idx = urlString.indexOf('?');
-    if (idx != -1) {
-      msg.append(urlString, 0, idx);
-    }
-    else {
-      msg.append(urlString);
-    }
-
-    msg.append("\": ");
-    if (responseBody == null || responseBody.length == 0) {
-      msg.append("[no body]");
-    }
-    else {
-      charset = (charset != null ? charset : StandardCharsets.UTF_8);
-      String bodyText = new String(responseBody, charset);
-      bodyText = LogFormatUtils.formatValue(bodyText, -1, true);
-      msg.append(bodyText);
-    }
-    return msg.toString();
-  }
-
-  /**
    * Handle the error based on the resolved status code.
    *
    * <p>The default implementation delegates to
@@ -234,6 +199,41 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
   @Nullable
   protected Charset getCharset(ClientHttpResponse response) {
     return RestClientUtils.getCharset(response);
+  }
+
+  /**
+   * Return error message with details from the response body. For example:
+   * <pre>
+   * 404 Not Found on GET request for "https://example.com": [{'id': 123, 'message': 'my message'}]
+   * </pre>
+   */
+  private String getErrorMessage(int rawStatusCode, String statusText,
+          @Nullable byte[] responseBody, @Nullable Charset charset, HttpRequest request) {
+
+    StringBuilder msg = new StringBuilder(rawStatusCode + " " + statusText);
+
+    msg.append(" on ").append(request.getMethod()).append(" request");
+    msg.append(" for \"");
+    String urlString = request.getURI().toString();
+    int idx = urlString.indexOf('?');
+    if (idx != -1) {
+      msg.append(urlString, 0, idx);
+    }
+    else {
+      msg.append(urlString);
+    }
+
+    msg.append("\": ");
+    if (responseBody == null || responseBody.length == 0) {
+      msg.append("[no body]");
+    }
+    else {
+      charset = (charset != null ? charset : StandardCharsets.UTF_8);
+      String bodyText = new String(responseBody, charset);
+      bodyText = LogFormatUtils.formatValue(bodyText, -1, true);
+      msg.append(bodyText);
+    }
+    return msg.toString();
   }
 
 }
