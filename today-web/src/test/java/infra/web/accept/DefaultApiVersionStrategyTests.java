@@ -26,6 +26,7 @@ import infra.lang.Nullable;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
@@ -93,6 +94,14 @@ class DefaultApiVersionStrategyTests {
     assertThatThrownBy(() -> validateVersion("1.2", strategy)).isInstanceOf(InvalidApiVersionException.class);
   }
 
+  @Test
+  void versionRequiredAndDefaultVersionSet() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> new DefaultApiVersionStrategy(List.of(request -> request.getParameter("api-version")), new SemanticApiVersionParser(),
+                    true, "1.2", true, null, version -> true))
+            .withMessage("versionRequired cannot be set to true if a defaultVersion is also configured");
+  }
+
   private static DefaultApiVersionStrategy apiVersionStrategy() {
     return apiVersionStrategy(null, false, null);
   }
@@ -107,7 +116,7 @@ class DefaultApiVersionStrategyTests {
 
     return new DefaultApiVersionStrategy(
             List.of(request -> request.getParameter("api-version")), new SemanticApiVersionParser(),
-            true, defaultVersion, detectSupportedVersions, null, supportedVersionPredicate);
+            null, defaultVersion, detectSupportedVersions, null, supportedVersionPredicate);
   }
 
   private void validateVersion(@Nullable String version, DefaultApiVersionStrategy strategy) {
