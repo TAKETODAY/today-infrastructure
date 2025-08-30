@@ -41,7 +41,6 @@ import infra.core.io.Resource;
 import infra.tests.sample.beans.ResourceTestBean;
 import infra.util.FileCopyUtils;
 import infra.util.ObjectUtils;
-import infra.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -302,16 +301,16 @@ class ClassPathXmlApplicationContextTests {
   }
 
   private void assertOneMessageSourceOnly(ClassPathXmlApplicationContext ctx, Object myMessageSource) {
-    String[] beanNamesForType = StringUtils.toStringArray(ctx.getBeanNamesForType(StaticMessageSource.class));
+    String[] beanNamesForType = ctx.getBeanNamesForType(StaticMessageSource.class);
     assertThat(beanNamesForType).hasSize(1);
     assertThat(beanNamesForType[0]).isEqualTo("myMessageSource");
-    beanNamesForType = StringUtils.toStringArray(ctx.getBeanNamesForType(StaticMessageSource.class, true, true));
+    beanNamesForType = ctx.getBeanNamesForType(StaticMessageSource.class, true, true);
     assertThat(beanNamesForType).hasSize(1);
     assertThat(beanNamesForType[0]).isEqualTo("myMessageSource");
-    beanNamesForType = StringUtils.toStringArray(BeanFactoryUtils.beanNamesForTypeIncludingAncestors(ctx, StaticMessageSource.class));
+    beanNamesForType = (BeanFactoryUtils.beanNamesForTypeIncludingAncestors(ctx, StaticMessageSource.class));
     assertThat(beanNamesForType).hasSize(1);
     assertThat(beanNamesForType[0]).isEqualTo("myMessageSource");
-    beanNamesForType = StringUtils.toStringArray(BeanFactoryUtils.beanNamesForTypeIncludingAncestors(ctx, StaticMessageSource.class, true, true));
+    beanNamesForType = (BeanFactoryUtils.beanNamesForTypeIncludingAncestors(ctx, StaticMessageSource.class, true, true));
     assertThat(beanNamesForType).hasSize(1);
     assertThat(beanNamesForType[0]).isEqualTo("myMessageSource");
 

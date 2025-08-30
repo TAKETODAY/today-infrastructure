@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ import infra.context.ConfigurableApplicationContext;
 import infra.context.MessageSource;
 import infra.context.annotation.DependsOn;
 import infra.context.annotation.Lazy;
+import infra.context.annotation.Primary;
 import infra.context.support.AbstractApplicationContext;
 import infra.core.io.PatternResourceLoader;
 import infra.core.io.ResourceLoader;
@@ -43,6 +44,7 @@ import jakarta.annotation.PostConstruct;
  */
 @Service
 @Lazy
+@Primary
 @DependsOn("myNamedComponent")
 public abstract class FooServiceImpl implements FooService {
 

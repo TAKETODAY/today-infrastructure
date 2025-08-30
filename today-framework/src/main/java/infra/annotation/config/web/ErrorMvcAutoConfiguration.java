@@ -17,6 +17,7 @@
 
 package infra.annotation.config.web;
 
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +41,6 @@ import infra.context.condition.InfraCondition;
 import infra.context.condition.SearchStrategy;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.type.AnnotatedTypeMetadata;
-import infra.http.MediaType;
 import infra.lang.Nullable;
 import infra.logging.LoggerFactory;
 import infra.stereotype.Component;
@@ -165,29 +165,30 @@ public class ErrorMvcAutoConfiguration {
         LoggerFactory.getLogger(StaticView.class).error(message);
         return;
       }
-      request.setContentType(MediaType.TEXT_HTML);
-      StringBuilder builder = new StringBuilder();
+
+      PrintWriter writer = request.getWriter();
       Object timestamp = model.get("timestamp");
       Object message = model.get("message");
       Object trace = model.get("trace");
 
-      if (request.getContentType() == null) {
+      if (request.getResponseContentType() == null) {
         request.setContentType(getContentType());
       }
 
-      builder.append("<html><body><h1>Whitelabel Error Page</h1>")
+      writer.append("<html><body><h1>Whitelabel Error Page</h1>")
               .append("<p>This application has no explicit mapping for /error, so you are seeing this as a fallback.</p>")
-              .append("<div id='created'>").append(timestamp).append("</div>")
+              .append("<div id='created'>").append(String.valueOf(timestamp)).append("</div>")
               .append("<div>There was an unexpected error (type=").append(htmlEscape(model.get("error")))
               .append(", status=").append(htmlEscape(model.get("status"))).append(").</div>");
       if (message != null) {
-        builder.append("<div>").append(htmlEscape(message)).append("</div>");
+        writer.append("<div>").append(htmlEscape(message)).append("</div>");
       }
       if (trace != null) {
-        builder.append("<div style='white-space:pre-wrap;'>").append(htmlEscape(trace)).append("</div>");
+        writer.append("<div style='white-space:pre-wrap;'>").append(htmlEscape(trace)).append("</div>");
       }
-      builder.append("</body></html>");
-      request.getWriter().append(builder.toString());
+      writer.append("</body></html>");
+
+      writer.flush();
     }
 
     @Nullable

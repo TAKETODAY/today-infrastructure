@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@ import java.util.List;
 
 import infra.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator;
 import infra.aop.aspectj.autoproxy.AspectJAwareAdvisorAutoProxyCreator;
+import infra.aop.framework.ProxyConfig;
+import infra.aop.framework.autoproxy.AutoProxyUtils;
 import infra.aop.framework.autoproxy.InfrastructureAdvisorAutoProxyCreator;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.BeanDefinitionRegistry;
@@ -41,6 +43,7 @@ import infra.lang.Nullable;
  * @author Rob Harrop
  * @author Juergen Hoeller
  * @author Mark Fisher
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see AopNamespaceUtils
  * @since 4.0
  */
@@ -101,32 +104,35 @@ public abstract class AopConfigUtils {
   }
 
   public static void forceAutoProxyCreatorToUseClassProxying(BeanDefinitionRegistry registry) {
-    if (registry.containsBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME)) {
-      BeanDefinition definition = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
-      definition.getPropertyValues().add("proxyTargetClass", Boolean.TRUE);
-    }
+    defaultProxyConfig(registry).getPropertyValues().add("proxyTargetClass", Boolean.TRUE);
   }
 
   public static void forceAutoProxyCreatorToExposeProxy(BeanDefinitionRegistry registry) {
-    if (registry.containsBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME)) {
-      BeanDefinition definition = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
-      definition.getPropertyValues().add("exposeProxy", Boolean.TRUE);
+    defaultProxyConfig(registry).getPropertyValues().add("exposeProxy", Boolean.TRUE);
+  }
+
+  private static BeanDefinition defaultProxyConfig(BeanDefinitionRegistry registry) {
+    if (registry.containsBeanDefinition(AutoProxyUtils.DEFAULT_PROXY_CONFIG_BEAN_NAME)) {
+      return registry.getBeanDefinition(AutoProxyUtils.DEFAULT_PROXY_CONFIG_BEAN_NAME);
     }
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(ProxyConfig.class);
+    beanDefinition.setSource(AopConfigUtils.class);
+    beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+    beanDefinition.setEnableDependencyInjection(false);
+    registry.registerBeanDefinition(AutoProxyUtils.DEFAULT_PROXY_CONFIG_BEAN_NAME, beanDefinition);
+    return beanDefinition;
   }
 
   @Nullable
-  private static BeanDefinition registerOrEscalateApcAsRequired(
-          Class<?> cls, BeanDefinitionRegistry registry, @Nullable Object source) {
-
+  private static BeanDefinition registerOrEscalateApcAsRequired(Class<?> cls, BeanDefinitionRegistry registry, @Nullable Object source) {
     Assert.notNull(registry, "BeanDefinitionRegistry is required");
-
     if (registry.containsBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME)) {
-      BeanDefinition apcDefinition = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
-      if (!cls.getName().equals(apcDefinition.getBeanClassName())) {
-        int currentPriority = findPriorityForClass(apcDefinition.getBeanClassName());
+      BeanDefinition def = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
+      if (!cls.getName().equals(def.getBeanClassName())) {
+        int currentPriority = findPriorityForClass(def.getBeanClassName());
         int requiredPriority = findPriorityForClass(cls);
         if (currentPriority < requiredPriority) {
-          apcDefinition.setBeanClassName(cls.getName());
+          def.setBeanClassName(cls.getName());
         }
       }
       return null;
@@ -134,9 +140,9 @@ public abstract class AopConfigUtils {
 
     RootBeanDefinition beanDefinition = new RootBeanDefinition(cls);
     beanDefinition.setSource(source);
-    beanDefinition.getPropertyValues().add("order", Ordered.HIGHEST_PRECEDENCE);
-    beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
     beanDefinition.setEnableDependencyInjection(false);
+    beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+    beanDefinition.getPropertyValues().add("order", Ordered.HIGHEST_PRECEDENCE);
     registry.registerBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME, beanDefinition);
     return beanDefinition;
   }

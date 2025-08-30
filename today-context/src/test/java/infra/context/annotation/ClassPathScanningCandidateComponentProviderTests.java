@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,20 +30,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import infra.beans.factory.annotation.AnnotatedBeanDefinition;
-import infra.beans.factory.config.BeanDefinition;
-import infra.context.index.CandidateComponentsTestClassLoader;
-import infra.core.env.ConfigurableEnvironment;
-import infra.core.env.StandardEnvironment;
-import infra.core.io.ClassPathResource;
-import infra.core.io.DefaultResourceLoader;
-import infra.core.type.filter.AnnotationTypeFilter;
-import infra.core.type.filter.AssignableTypeFilter;
-import infra.core.type.filter.RegexPatternTypeFilter;
-import infra.stereotype.Component;
-import infra.stereotype.Controller;
-import infra.stereotype.Repository;
-import infra.stereotype.Service;
 import example.gh24375.AnnotatedComponent;
 import example.indexed.IndexedJakartaManagedBeanComponent;
 import example.indexed.IndexedJakartaNamedComponent;
@@ -65,10 +51,25 @@ import example.scannable.JavaxNamedComponent;
 import example.scannable.MessageBean;
 import example.scannable.NamedComponent;
 import example.scannable.NamedStubDao;
+import example.scannable.OtherFooService;
 import example.scannable.ScopedProxyTestBean;
 import example.scannable.ServiceInvocationCounter;
 import example.scannable.StubFooDao;
 import example.scannable.sub.BarComponent;
+import infra.beans.factory.annotation.AnnotatedBeanDefinition;
+import infra.beans.factory.config.BeanDefinition;
+import infra.context.index.CandidateComponentsTestClassLoader;
+import infra.core.env.ConfigurableEnvironment;
+import infra.core.env.StandardEnvironment;
+import infra.core.io.ClassPathResource;
+import infra.core.io.DefaultResourceLoader;
+import infra.core.type.filter.AnnotationTypeFilter;
+import infra.core.type.filter.AssignableTypeFilter;
+import infra.core.type.filter.RegexPatternTypeFilter;
+import infra.stereotype.Component;
+import infra.stereotype.Controller;
+import infra.stereotype.Repository;
+import infra.stereotype.Service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -80,7 +81,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Stephane Nicoll
  * @since 4.0 2021/12/9 21:53
  */
-public class ClassPathScanningCandidateComponentProviderTests {
+class ClassPathScanningCandidateComponentProviderTests {
 
   private static final String TEST_BASE_PACKAGE = "example.scannable";
   private static final String TEST_PROFILE_PACKAGE = "example.profilescan";
@@ -90,15 +91,15 @@ public class ClassPathScanningCandidateComponentProviderTests {
           ClassPathScanningCandidateComponentProviderTests.class.getClassLoader(),
           new ClassPathResource("today.components", NamedComponent.class));
 
-  private static final Set<Class<?>> springComponents = Set.of(
+  private static final Set<Class<?>> infraComponents = Set.of(
           DefaultNamedComponent.class,
-          NamedComponent.class,
           FooServiceImpl.class,
-          StubFooDao.class,
+          NamedComponent.class,
           NamedStubDao.class,
+          OtherFooService.class,
           ServiceInvocationCounter.class,
-          BarComponent.class
-  );
+          StubFooDao.class,
+          BarComponent.class);
 
   private static final Set<Class<?>> scannedJakartaComponents = Set.of(
           JakartaNamedComponent.class,
@@ -135,7 +136,7 @@ public class ClassPathScanningCandidateComponentProviderTests {
   private void testDefault(ClassPathScanningCandidateComponentProvider provider, String basePackage,
           boolean includeScannedJakartaComponents, boolean includeScannedJavaxComponents, boolean includeIndexedComponents) {
 
-    Set<Class<?>> expectedTypes = new HashSet<>(springComponents);
+    Set<Class<?>> expectedTypes = new HashSet<>(infraComponents);
     if (includeScannedJakartaComponents) {
       expectedTypes.addAll(scannedJakartaComponents);
     }
@@ -239,7 +240,8 @@ public class ClassPathScanningCandidateComponentProviderTests {
     Set<AnnotatedBeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
     assertScannedBeanDefinitions(candidates);
     // Interfaces/Abstract class are filtered out automatically.
-    assertBeanTypes(candidates, AutowiredQualifierFooService.class, FooServiceImpl.class, ScopedProxyTestBean.class);
+    assertBeanTypes(candidates,
+            AutowiredQualifierFooService.class, FooServiceImpl.class, OtherFooService.class, ScopedProxyTestBean.class);
   }
 
   @Test
@@ -263,7 +265,8 @@ public class ClassPathScanningCandidateComponentProviderTests {
     provider.addExcludeFilter(new AnnotationTypeFilter(Repository.class));
     Set<AnnotatedBeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
     assertScannedBeanDefinitions(candidates);
-    assertBeanTypes(candidates, NamedComponent.class, ServiceInvocationCounter.class, BarComponent.class);
+    assertBeanTypes(candidates,
+            NamedComponent.class, ServiceInvocationCounter.class, BarComponent.class);
   }
 
   @Test
@@ -309,7 +312,7 @@ public class ClassPathScanningCandidateComponentProviderTests {
     Set<AnnotatedBeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
     assertScannedBeanDefinitions(candidates);
     assertBeanTypes(candidates, FooServiceImpl.class, StubFooDao.class, ServiceInvocationCounter.class,
-            BarComponent.class, JakartaManagedBeanComponent.class, JavaxManagedBeanComponent.class);
+            BarComponent.class, JakartaManagedBeanComponent.class, JavaxManagedBeanComponent.class, OtherFooService.class);
   }
 
   @Test
@@ -327,7 +330,8 @@ public class ClassPathScanningCandidateComponentProviderTests {
     provider.addExcludeFilter(new AnnotationTypeFilter(Service.class));
     provider.addExcludeFilter(new AnnotationTypeFilter(Controller.class));
     Set<AnnotatedBeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
-    assertBeanTypes(candidates, NamedComponent.class, ServiceInvocationCounter.class, BarComponent.class);
+    assertBeanTypes(candidates,
+            NamedComponent.class, ServiceInvocationCounter.class, BarComponent.class);
   }
 
   @Test
@@ -360,8 +364,9 @@ public class ClassPathScanningCandidateComponentProviderTests {
     provider.addIncludeFilter(new AnnotationTypeFilter(Component.class));
     provider.addIncludeFilter(new AssignableTypeFilter(FooServiceImpl.class));
     Set<AnnotatedBeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
-    assertBeanTypes(candidates, NamedComponent.class, ServiceInvocationCounter.class, FooServiceImpl.class,
-            BarComponent.class, DefaultNamedComponent.class, NamedStubDao.class, StubFooDao.class);
+    assertBeanTypes(candidates,
+            DefaultNamedComponent.class, FooServiceImpl.class, NamedComponent.class, NamedStubDao.class,
+            OtherFooService.class, ServiceInvocationCounter.class, StubFooDao.class, BarComponent.class);
   }
 
   @Test
@@ -371,8 +376,9 @@ public class ClassPathScanningCandidateComponentProviderTests {
     provider.addIncludeFilter(new AssignableTypeFilter(FooServiceImpl.class));
     provider.addExcludeFilter(new AssignableTypeFilter(FooService.class));
     Set<AnnotatedBeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
-    assertBeanTypes(candidates, NamedComponent.class, ServiceInvocationCounter.class, BarComponent.class,
-            DefaultNamedComponent.class, NamedStubDao.class, StubFooDao.class);
+    assertBeanTypes(candidates,
+            DefaultNamedComponent.class, NamedComponent.class, NamedStubDao.class,
+            ServiceInvocationCounter.class, StubFooDao.class, BarComponent.class);
   }
 
   @Test

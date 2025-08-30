@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,7 +81,7 @@ public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProx
     if (sorted != null) {
       ArrayList<Advisor> result = new ArrayList<>(advisors.size());
       for (PartiallyComparableAdvisorHolder pcAdvisor : sorted) {
-        result.add(pcAdvisor.getAdvisor());
+        result.add(pcAdvisor.advisor());
       }
       return result;
     }
@@ -102,7 +102,6 @@ public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProx
 
   @Override
   protected boolean shouldSkip(Class<?> beanClass, String beanName) {
-    // TODO: Consider optimization by caching the list of the aspect names
     List<Advisor> candidateAdvisors = findCandidateAdvisors();
     for (Advisor advisor : candidateAdvisors) {
       if (advisor instanceof AspectJPointcutAdvisor pointcutAdvisor
@@ -139,17 +138,13 @@ public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProx
       return 0;
     }
 
-    public Advisor getAdvisor() {
-      return this.advisor;
-    }
-
     @Override
     public String toString() {
       Advice advice = this.advisor.getAdvice();
       StringBuilder sb = new StringBuilder(ClassUtils.getShortName(advice.getClass()));
       boolean appended = false;
-      if (this.advisor instanceof Ordered) {
-        sb.append(": order = ").append(((Ordered) this.advisor).getOrder());
+      if (this.advisor instanceof Ordered ordered) {
+        sb.append(": order = ").append(ordered.getOrder());
         appended = true;
       }
       if (advice instanceof AbstractAspectJAdvice ajAdvice) {

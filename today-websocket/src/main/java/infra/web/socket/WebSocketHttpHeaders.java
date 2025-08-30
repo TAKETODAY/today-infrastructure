@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 import infra.http.HttpHeaders;
+import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 
@@ -59,6 +60,7 @@ public class WebSocketHttpHeaders extends HttpHeaders {
    * @param headers the HTTP headers to wrap
    */
   public WebSocketHttpHeaders(HttpHeaders headers) {
+    Assert.notNull(headers, "headers is required");
     this.headers = headers;
   }
 

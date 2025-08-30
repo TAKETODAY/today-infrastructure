@@ -20,6 +20,7 @@ package infra.samples.config;
 import infra.context.annotation.Configuration;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.concurrent.Future;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketMessage;
 import infra.web.socket.WebSocketSession;
@@ -35,7 +36,8 @@ import infra.web.socket.handler.TextWebSocketHandler;
 @EnableWebSocket
 @Configuration(proxyBeanMethods = false)
 public class WebSocketConfig implements WebSocketConfigurer {
-  private final Logger log = LoggerFactory.getLogger(getClass());
+
+  private final Logger logger = LoggerFactory.getLogger(getClass());
 
   @Override
   public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
@@ -47,10 +49,10 @@ public class WebSocketConfig implements WebSocketConfigurer {
     return new TextWebSocketHandler() {
 
       @Override
-      protected void handleTextMessage(WebSocketSession session, WebSocketMessage message) {
-        session.send(message.retain())
+      protected Future<Void> handleTextMessage(WebSocketSession session, WebSocketMessage message) {
+        return session.send(message.retain())
                 .onFailure(e -> {
-                  log.error("消息 '{}' 发送失败", message, e);
+                  logger.error("消息 '{}' 发送失败", message, e);
                 });
       }
     };

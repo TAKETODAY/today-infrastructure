@@ -38,8 +38,8 @@ import infra.jdbc.core.ResultSetExtractor;
 import infra.jdbc.core.RowCallbackHandler;
 import infra.jdbc.core.RowMapper;
 import infra.jdbc.core.SqlParameter;
-import infra.jdbc.support.KeyHolder;
 import infra.jdbc.core.simple.JdbcClient;
+import infra.jdbc.support.KeyHolder;
 import infra.jdbc.support.rowset.SqlRowSet;
 import infra.lang.Assert;
 import infra.lang.Nullable;
@@ -105,6 +105,19 @@ public class NamedParameterJdbcTemplate implements NamedParameterJdbcOperations 
   public NamedParameterJdbcTemplate(JdbcOperations classicJdbcTemplate) {
     Assert.notNull(classicJdbcTemplate, "JdbcTemplate is required");
     this.classicJdbcTemplate = classicJdbcTemplate;
+  }
+
+  /**
+   * Copy constructor for a derived NamedParameterJdbcTemplate.
+   *
+   * @param original the original NamedParameterJdbcTemplate to copy from
+   * @param classicJdbcTemplate the actual JdbcTemplate delegate to use
+   * @since 5.0
+   */
+  public NamedParameterJdbcTemplate(NamedParameterJdbcTemplate original, JdbcTemplate classicJdbcTemplate) {
+    Assert.notNull(classicJdbcTemplate, "JdbcTemplate is required");
+    this.classicJdbcTemplate = classicJdbcTemplate;
+    this.parsedSqlCache = original.parsedSqlCache;
   }
 
   /**

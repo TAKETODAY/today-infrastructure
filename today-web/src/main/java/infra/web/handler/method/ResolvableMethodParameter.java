@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@ package infra.web.handler.method;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Objects;
-import java.util.Optional;
 
 import infra.core.AttributeAccessorSupport;
 import infra.core.MethodParameter;
@@ -67,9 +66,6 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
   @Nullable
   private ResolvableType resolvableType;
 
-  @Nullable
-  private ResolvableMethodParameter nestedParam;
-
   /**
    * @since 4.0
    */
@@ -78,19 +74,10 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
     this.resolvableType = other.resolvableType;
     this.namedValueInfo = other.namedValueInfo;
     this.typeDescriptor = other.typeDescriptor; // @since 3.0.1
-    this.nestedParam = other.nestedParam; // @since 3.0.1
   }
 
   public ResolvableMethodParameter(MethodParameter parameter) {
     this.parameter = parameter;
-  }
-
-  ResolvableMethodParameter(ResolvableMethodParameter other, MethodParameter parameter) {
-    this.parameter = parameter;
-    this.nestedParam = other.nestedParam;
-    this.resolvableType = other.resolvableType;
-    this.namedValueInfo = other.namedValueInfo;
-    this.typeDescriptor = other.typeDescriptor; // @since 3.0.1
   }
 
   public boolean isArray() {
@@ -315,25 +302,8 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
     return parameter.getParameterType();
   }
 
-  public Class<?> getComponentType() {
-    return getParameterType().getComponentType();
-  }
-
   public MethodParameter getParameter() {
     return parameter;
-  }
-
-  /**
-   * Return whether this method indicates a parameter which is not required:
-   * either in the form of Java 8's {@link java.util.Optional}, any variant
-   * of a parameter-level {@code Nullable} annotation (such as from JSR-305
-   * or the FindBugs set of annotations), or a language-level nullable type
-   * declaration or {@code Continuation} parameter in Kotlin.
-   *
-   * @since 4.0
-   */
-  public boolean isOptional() {
-    return parameter.isOptional();
   }
 
   /**
@@ -346,59 +316,6 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
    */
   public boolean isNullable() {
     return parameter.isNullable();
-  }
-
-  /**
-   * Return a variant of this {@code MethodParameter} which points to
-   * the same parameter but one nesting level deeper in case of a
-   * {@link java.util.Optional} declaration.
-   *
-   * @see #isOptional()
-   * @see #nested()
-   * @since 4.0
-   */
-  public ResolvableMethodParameter nestedIfOptional() {
-    return getParameterType() == Optional.class ? nested() : this;
-  }
-
-  /**
-   * Return a variant of this {@code ResolvableMethodParameter} which points to the
-   * same parameter but one nesting level deeper.
-   *
-   * @since 4.0
-   */
-  public ResolvableMethodParameter nested() {
-    return nested((Integer) null);
-  }
-
-  /**
-   * Return a variant of this {@code ResolvableMethodParameter} which points to the
-   * same parameter but one nesting level deeper.
-   *
-   * @param typeIndex the type index for the new nesting level
-   * @since 4.0
-   */
-  public ResolvableMethodParameter nested(@Nullable Integer typeIndex) {
-    ResolvableMethodParameter nestedParam = this.nestedParam;
-    if (nestedParam != null && typeIndex == null) {
-      return nestedParam;
-    }
-
-    MethodParameter methodParameter = parameter.nested(typeIndex);
-    if (methodParameter == parameter) {
-      nestedParam = this;
-    }
-    else {
-      nestedParam = nested(methodParameter);
-    }
-    if (typeIndex == null) {
-      this.nestedParam = nestedParam;
-    }
-    return nestedParam;
-  }
-
-  protected ResolvableMethodParameter nested(MethodParameter parameter) {
-    return new ResolvableMethodParameter(this, parameter);
   }
 
   //

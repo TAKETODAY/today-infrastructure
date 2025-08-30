@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,6 @@
 
 package infra.web.handler.result;
 
-import infra.lang.Nullable;
-import infra.web.HandlerExceptionHandler;
-import infra.web.RequestContext;
 import infra.web.ReturnValueHandler;
 import infra.web.handler.method.HandlerMethod;
 
@@ -49,37 +46,6 @@ public interface HandlerMethodReturnValueHandler extends ReturnValueHandler {
    */
   default boolean supportsHandlerMethod(HandlerMethod handler) {
     return false;
-  }
-
-  /**
-   * Handle result of the handler
-   *
-   * @param context Current HTTP request context
-   * @param handler handler may be HandlerMethod
-   * @param returnValue Handler execution result
-   * Or {@link HandlerExceptionHandler} return value
-   * @throws Exception return-value handled failed
-   */
-  @Override
-  default void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
-    HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
-    if (handlerMethod != null) {
-      handleHandlerMethodReturnValue(context, handlerMethod, returnValue);
-    }
-  }
-
-  /**
-   * Handle result of the handler
-   *
-   * @param context Current HTTP request context
-   * @param handler HandlerMethod
-   * @param returnValue Handler execution result
-   * Or {@link HandlerExceptionHandler} return value
-   * @throws Exception return-value handled failed
-   */
-  default void handleHandlerMethodReturnValue(
-          RequestContext context, HandlerMethod handler, @Nullable Object returnValue) throws Exception {
-
   }
 
 }

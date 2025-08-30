@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,15 +17,12 @@
 
 package infra.web.server.reactive.context;
 
-import java.util.Set;
-
 import infra.beans.BeansException;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.ApplicationContextException;
 import infra.http.server.reactive.HttpHandler;
 import infra.lang.Nullable;
-import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 import infra.web.server.WebServer;
 import infra.web.server.context.ConfigurableWebServerApplicationContext;
@@ -108,15 +105,15 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
 
   protected String getWebServerFactoryBeanName() {
     // Use bean names so that we don't consider the hierarchy
-    Set<String> beanNames = getBeanFactory().getBeanNamesForType(ReactiveWebServerFactory.class);
-    if (beanNames.isEmpty()) {
+    var beanNames = getBeanFactory().getBeanNamesForType(ReactiveWebServerFactory.class);
+    if (beanNames.length == 0) {
       throw new MissingWebServerFactoryBeanException(getClass(), ReactiveWebServerFactory.class);
     }
-    if (beanNames.size() > 1) {
+    if (beanNames.length > 1) {
       throw new ApplicationContextException("Unable to start ReactiveWebApplicationContext due to multiple "
-              + "ReactiveWebServerFactory beans : " + StringUtils.collectionToCommaDelimitedString(beanNames));
+              + "ReactiveWebServerFactory beans : " + StringUtils.arrayToCommaDelimitedString(beanNames));
     }
-    return CollectionUtils.firstElement(beanNames);
+    return beanNames[0];
   }
 
   protected ReactiveWebServerFactory getWebServerFactory(ConfigurableBeanFactory beanFactory, String factoryBeanName) {
@@ -131,17 +128,17 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
    */
   protected HttpHandler getHttpHandler() {
     // Use bean names so that we don't consider the hierarchy
-    Set<String> beanNames = getBeanFactory().getBeanNamesForType(HttpHandler.class);
-    if (beanNames.isEmpty()) {
+    var beanNames = getBeanFactory().getBeanNamesForType(HttpHandler.class);
+    if (beanNames.length == 0) {
       throw new ApplicationContextException(
               "Unable to start ReactiveWebApplicationContext due to missing HttpHandler bean.");
     }
-    if (beanNames.size() > 1) {
+    if (beanNames.length > 1) {
       throw new ApplicationContextException(
               "Unable to start ReactiveWebApplicationContext due to multiple HttpHandler beans : "
-                      + StringUtils.collectionToCommaDelimitedString(beanNames));
+                      + StringUtils.arrayToCommaDelimitedString(beanNames));
     }
-    return getBeanFactory().getBean(CollectionUtils.firstElement(beanNames), HttpHandler.class);
+    return getBeanFactory().getBean(beanNames[0], HttpHandler.class);
   }
 
   /**

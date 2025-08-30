@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ import infra.mock.api.MockResponse;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpMockResponse;
 import infra.web.async.DeferredResult;
+import infra.web.handler.result.SseEmitter;
 import infra.web.mock.MockUtils;
 
 /**
@@ -161,7 +162,7 @@ public class MockAsyncContext implements AsyncContext {
    * Java config or the XML namespace, as well as be overridden per request on
    * {@link DeferredResult DeferredResult}
    * or on
-   * {@link infra.web.handler.method.SseEmitter SseEmitter}.
+   * {@link SseEmitter SseEmitter}.
    *
    * @param timeout the timeout value to use.
    * @see AsyncContext#setTimeout(long)

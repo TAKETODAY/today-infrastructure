@@ -57,6 +57,7 @@ public class ProblemDetail implements Serializable {
 
   private static final URI BLANK_TYPE = URI.create("about:blank");
 
+  @Nullable
   private URI type = BLANK_TYPE;
 
   @Nullable
@@ -180,8 +181,7 @@ public class ProblemDetail implements Serializable {
    * @param type the problem type
    * @see #withType(URI)
    */
-  public void setType(URI type) {
-    Assert.notNull(type, "'type' is required");
+  public void setType(@Nullable URI type) {
     this.type = type;
   }
 
@@ -276,6 +276,7 @@ public class ProblemDetail implements Serializable {
   /**
    * Return the configured {@link #setType(URI) problem type}.
    */
+  @Nullable
   public URI getType() {
     return this.type;
   }

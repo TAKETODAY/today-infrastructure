@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,11 +48,11 @@ class CookieSessionIdResolverTests {
   @Test
   void construct() {
     assertThat(new CookieSessionIdResolver().getCookieName()).isEqualTo(CookieProperties.DEFAULT_COOKIE_NAME);
-    assertThat(new CookieSessionIdResolver("cookie-name").getCookieName()).isEqualTo("cookie-name");
-    assertThat(new CookieSessionIdResolver(new CookieProperties()).getCookieName()).isEqualTo(CookieProperties.DEFAULT_COOKIE_NAME);
+    assertThat(SessionIdResolver.forCookie("cookie-name").getCookieName()).isEqualTo("cookie-name");
+    assertThat(SessionIdResolver.forCookie(new CookieProperties()).getCookieName()).isEqualTo(CookieProperties.DEFAULT_COOKIE_NAME);
     CookieProperties config = new CookieProperties();
     config.setName(null);
-    assertThat(new CookieSessionIdResolver(config).getCookieName()).isEqualTo(CookieProperties.DEFAULT_COOKIE_NAME);
+    assertThat(SessionIdResolver.forCookie(config).getCookieName()).isEqualTo(CookieProperties.DEFAULT_COOKIE_NAME);
   }
 
   @Test

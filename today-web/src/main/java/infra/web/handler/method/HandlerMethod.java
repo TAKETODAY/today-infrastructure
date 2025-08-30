@@ -51,6 +51,7 @@ import infra.web.annotation.ResponseBody;
 import infra.web.annotation.ResponseStatus;
 import infra.web.cors.CorsConfiguration;
 import infra.web.handler.AsyncHandler;
+import infra.web.handler.result.CollectedValuesList;
 
 /**
  * Encapsulates information about a handler method consisting of a
@@ -121,7 +122,7 @@ public class HandlerMethod implements AsyncHandler {
 
   /** @since 4.0 */
   @Nullable
-  private volatile ArrayList<Annotation[][]> interfaceParameterAnnotations;
+  private volatile ArrayList<Annotation[][]> inheritedParameterAnnotations;
 
   /**
    * cors config cache
@@ -226,7 +227,7 @@ public class HandlerMethod implements AsyncHandler {
     this.responseBody = other.responseBody;
     this.corsConfig = other.corsConfig;
     this.returnTypeParameter = other.returnTypeParameter;
-    this.interfaceParameterAnnotations = other.interfaceParameterAnnotations;
+    this.inheritedParameterAnnotations = other.inheritedParameterAnnotations;
   }
 
   /**
@@ -245,7 +246,7 @@ public class HandlerMethod implements AsyncHandler {
     this.responseBody = other.responseBody;
     this.corsConfig = other.corsConfig;
     this.returnTypeParameter = other.returnTypeParameter;
-    this.interfaceParameterAnnotations = other.interfaceParameterAnnotations;
+    this.inheritedParameterAnnotations = other.inheritedParameterAnnotations;
   }
 
   // ---- useful methods
@@ -448,18 +449,32 @@ public class HandlerMethod implements AsyncHandler {
     return initDescription(beanType, method);
   }
 
-  private ArrayList<Annotation[][]> getInterfaceParameterAnnotations() {
-    ArrayList<Annotation[][]> parameterAnnotations = this.interfaceParameterAnnotations;
+  private ArrayList<Annotation[][]> getInheritedParameterAnnotations() {
+    var parameterAnnotations = this.inheritedParameterAnnotations;
     if (parameterAnnotations == null) {
       parameterAnnotations = new ArrayList<>();
-      for (Class<?> ifc : ClassUtils.getAllInterfacesForClassAsSet(this.method.getDeclaringClass())) {
-        for (Method candidate : ifc.getMethods()) {
-          if (isOverrideFor(candidate)) {
-            parameterAnnotations.add(candidate.getParameterAnnotations());
+      Class<?> clazz = this.method.getDeclaringClass();
+      while (clazz != null) {
+        for (Class<?> ifc : clazz.getInterfaces()) {
+          for (Method candidate : ifc.getMethods()) {
+            if (isOverrideFor(candidate)) {
+              parameterAnnotations.add(candidate.getParameterAnnotations());
+            }
+          }
+        }
+        clazz = clazz.getSuperclass();
+        if (clazz == Object.class) {
+          clazz = null;
+        }
+        if (clazz != null) {
+          for (Method candidate : clazz.getMethods()) {
+            if (isOverrideFor(candidate)) {
+              parameterAnnotations.add(candidate.getParameterAnnotations());
+            }
           }
         }
       }
-      this.interfaceParameterAnnotations = parameterAnnotations;
+      this.inheritedParameterAnnotations = parameterAnnotations;
     }
     return parameterAnnotations;
   }
@@ -475,7 +490,7 @@ public class HandlerMethod implements AsyncHandler {
     }
     for (int i = 0; i < paramTypes.length; i++) {
       if (paramTypes[i] !=
-              ResolvableType.forParameter(candidate, i, this.method.getDeclaringClass()).resolve()) {
+              ResolvableType.forParameter(candidate, i, this.method.getDeclaringClass()).toClass()) {
         return false;
       }
     }
@@ -575,6 +590,7 @@ public class HandlerMethod implements AsyncHandler {
     /**
      * Bridge to controller method-level annotations.
      */
+    @Nullable
     @Override
     public <A extends Annotation> A getMethodAnnotation(Class<A> annotationType) {
       return target.getMethodAnnotation(annotationType);
@@ -615,7 +631,7 @@ public class HandlerMethod implements AsyncHandler {
     public ConcurrentResultMethodParameter(@Nullable Object returnValue) {
       super(-1);
       this.returnValue = returnValue;
-      this.returnType = returnValue instanceof ReactiveTypeHandler.CollectedValuesList list
+      this.returnType = returnValue instanceof CollectedValuesList list
               ? list.getReturnType()
               : ResolvableType.forType(super.getGenericParameterType()).getGeneric();
     }
@@ -646,9 +662,8 @@ public class HandlerMethod implements AsyncHandler {
     public <T extends Annotation> boolean hasMethodAnnotation(Class<T> annotationType) {
       // Ensure @ResponseBody-style handling for values collected from a reactive type
       // even if actual return type is ResponseEntity<Flux<T>>
-      return (super.hasMethodAnnotation(annotationType)
-              || (annotationType == ResponseBody.class &&
-              this.returnValue instanceof ReactiveTypeHandler.CollectedValuesList));
+      return super.hasMethodAnnotation(annotationType)
+              || (annotationType == ResponseBody.class && this.returnValue instanceof CollectedValuesList);
     }
 
     @Override
@@ -683,6 +698,7 @@ public class HandlerMethod implements AsyncHandler {
       return HandlerMethod.this.getBeanType();
     }
 
+    @Nullable
     @Override
     public <T extends Annotation> T getMethodAnnotation(Class<T> annotationType) {
       return HandlerMethod.this.getMethodAnnotation(annotationType);
@@ -700,7 +716,7 @@ public class HandlerMethod implements AsyncHandler {
         anns = super.getParameterAnnotations();
         int index = getParameterIndex();
         if (index >= 0) {
-          for (Annotation[][] ifcAnns : getInterfaceParameterAnnotations()) {
+          for (Annotation[][] ifcAnns : getInheritedParameterAnnotations()) {
             if (index < ifcAnns.length) {
               Annotation[] paramAnns = ifcAnns[index];
               if (paramAnns.length > 0) {

@@ -98,8 +98,7 @@ final class PostProcessorRegistrationDelegate {
       ArrayList<BeanDefinitionRegistryPostProcessor> currentRegistryProcessors = new ArrayList<>();
 
       // First, invoke the BeanDefinitionRegistryPostProcessors that implement PriorityOrdered.
-      Set<String> postProcessorNames =
-              beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
+      var postProcessorNames = beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
       for (String ppName : postProcessorNames) {
         if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
           currentRegistryProcessors.add(beanFactory.getBean(ppName, BeanDefinitionRegistryPostProcessor.class));
@@ -154,8 +153,7 @@ final class PostProcessorRegistrationDelegate {
 
     // Do not initialize FactoryBeans here: We need to leave all regular beans
     // uninitialized to let the bean factory post-processors apply to them!
-    Set<String> postProcessorNames =
-            beanFactory.getBeanNamesForType(BeanFactoryPostProcessor.class, true, false);
+    var postProcessorNames = beanFactory.getBeanNamesForType(BeanFactoryPostProcessor.class, true, false);
 
     // Separate between BeanFactoryPostProcessors that implement PriorityOrdered,
     // Ordered, and the rest.
@@ -212,12 +210,12 @@ final class PostProcessorRegistrationDelegate {
     // instantiated (via getBean() invocations) or registered in the ApplicationContext
     // in the wrong order.
 
-    Set<String> postProcessorNames = beanFactory.getBeanNamesForType(BeanPostProcessor.class, true, false);
+    var postProcessorNames = beanFactory.getBeanNamesForType(BeanPostProcessor.class, true, false);
 
     // Register BeanPostProcessorChecker that logs an info message when
     // a bean is created during BeanPostProcessor instantiation, i.e. when
     // a bean is not eligible for getting processed by all BeanPostProcessors.
-    int beanProcessorTargetCount = beanFactory.getBeanPostProcessorCount() + 1 + postProcessorNames.size();
+    int beanProcessorTargetCount = beanFactory.getBeanPostProcessorCount() + 1 + postProcessorNames.length;
     beanFactory.addBeanPostProcessor(new BeanPostProcessorChecker(
             beanFactory, postProcessorNames, beanProcessorTargetCount));
 
@@ -290,7 +288,7 @@ final class PostProcessorRegistrationDelegate {
   static <T extends BeanPostProcessor> List<T> loadBeanPostProcessors(
           ConfigurableBeanFactory beanFactory, Class<T> beanPostProcessorType) {
 
-    Set<String> postProcessorNames = beanFactory.getBeanNamesForType(beanPostProcessorType, true, false);
+    var postProcessorNames = beanFactory.getBeanNamesForType(beanPostProcessorType, true, false);
     List<T> postProcessors = new ArrayList<>();
     for (String ppName : postProcessorNames) {
       postProcessors.add(beanFactory.getBean(ppName, beanPostProcessorType));
@@ -376,12 +374,12 @@ final class PostProcessorRegistrationDelegate {
 
     private final ConfigurableBeanFactory beanFactory;
 
-    private final Set<String> postProcessorNames;
+    private final String[] postProcessorNames;
 
     private final int beanPostProcessorTargetCount;
 
     public BeanPostProcessorChecker(ConfigurableBeanFactory beanFactory,
-            Set<String> postProcessorNames, int beanPostProcessorTargetCount) {
+            String[] postProcessorNames, int beanPostProcessorTargetCount) {
 
       this.beanFactory = beanFactory;
       this.postProcessorNames = postProcessorNames;

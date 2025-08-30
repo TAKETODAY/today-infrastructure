@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,15 +19,18 @@ package infra.jdbc.core.simple;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import infra.core.io.ClassRelativeResourceLoader;
 import infra.jdbc.datasource.embedded.EmbeddedDatabase;
 import infra.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import infra.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import infra.jdbc.datasource.init.DatabasePopulator;
 import infra.jdbc.support.GeneratedKeyHolder;
 import infra.jdbc.support.KeyHolder;
-import infra.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -67,7 +70,7 @@ class JdbcClientIntegrationTests {
 
   @Test
   void updateWithGeneratedKeys() {
-    int expectedId = 2;
+    int expectedId = 1;
     String firstName = "Jane";
     String lastName = "Smith";
 
@@ -85,7 +88,7 @@ class JdbcClientIntegrationTests {
 
   @Test
   void updateWithGeneratedKeysAndKeyColumnNames() {
-    int expectedId = 2;
+    int expectedId = 1;
     String firstName = "Jane";
     String lastName = "Smith";
 
@@ -103,7 +106,7 @@ class JdbcClientIntegrationTests {
 
   @Test
   void updateWithGeneratedKeysUsingNamedParameters() {
-    int expectedId = 2;
+    int expectedId = 1;
     String firstName = "Jane";
     String lastName = "Smith";
 
@@ -122,7 +125,7 @@ class JdbcClientIntegrationTests {
 
   @Test
   void updateWithGeneratedKeysAndKeyColumnNamesUsingNamedParameters() {
-    int expectedId = 2;
+    int expectedId = 1;
     String firstName = "Jane";
     String lastName = "Smith";
 
@@ -137,6 +140,112 @@ class JdbcClientIntegrationTests {
     assertThat(generatedKeyHolder.getKey()).isEqualTo(expectedId);
     assertNumUsers(2);
     assertUser(expectedId, firstName, lastName);
+  }
+
+  @Nested  // gh-34768
+  class ReusedNamedParameterTests {
+
+    private static final String QUERY1 = """
+            select * from users
+            	where
+            		first_name in ('Bogus', :name) or
+            		last_name in (:name, 'Bogus')
+            	order by last_name
+            """;
+
+    private static final String QUERY2 = """
+            select * from users
+            	where
+            		first_name in (:names) or
+            		last_name in (:names)
+            	order by last_name
+            """;
+
+    @BeforeEach
+    void insertTestUsers() {
+      jdbcClient.sql(INSERT_WITH_JDBC_PARAMS).params("John", "John").update();
+      jdbcClient.sql(INSERT_WITH_JDBC_PARAMS).params("John", "Smith").update();
+      jdbcClient.sql(INSERT_WITH_JDBC_PARAMS).params("Smith", "Smith").update();
+      assertNumUsers(4);
+    }
+
+    @Test
+    void selectWithReusedNamedParameter() {
+      List<User> users = jdbcClient.sql(QUERY1)
+              .param("name", "John")
+              .query(User.class)
+              .list();
+
+      assertResults(users);
+    }
+
+    @Test
+    void selectWithReusedNamedParameterFromBeanProperties() {
+      List<User> users = jdbcClient.sql(QUERY1)
+              .paramSource(new Name("John"))
+              .query(User.class)
+              .list();
+
+      assertResults(users);
+    }
+
+    @Test
+    void selectWithReusedNamedParameterAndMaxRows() {
+      List<User> users = jdbcClient.sql(QUERY1)
+              .withFetchSize(1)
+              .withMaxRows(1)
+              .withQueryTimeout(1)
+              .param("name", "John")
+              .query(User.class)
+              .list();
+
+      assertSingleResult(users);
+    }
+
+    @Test
+    void selectWithReusedNamedParameterList() {
+      List<User> users = jdbcClient.sql(QUERY2)
+              .param("names", List.of("John", "Bogus"))
+              .query(User.class)
+              .list();
+
+      assertResults(users);
+    }
+
+    @Test
+    void selectWithReusedNamedParameterListFromBeanProperties() {
+      List<User> users = jdbcClient.sql(QUERY2)
+              .paramSource(new Names(List.of("John", "Bogus")))
+              .query(User.class)
+              .list();
+
+      assertResults(users);
+    }
+
+    @Test
+    void selectWithReusedNamedParameterListAndMaxRows() {
+      List<User> users = jdbcClient.sql(QUERY2)
+              .withFetchSize(1)
+              .withMaxRows(1)
+              .withQueryTimeout(1)
+              .paramSource(new Names(List.of("John", "Bogus")))
+              .query(User.class)
+              .list();
+
+      assertSingleResult(users);
+    }
+
+    private static void assertResults(List<User> users) {
+      assertThat(users).containsExactly(new User(1, "John", "John"), new User(2, "John", "Smith"));
+    }
+
+    private static void assertSingleResult(List<User> users) {
+      assertThat(users).containsExactly(new User(1, "John", "John"));
+    }
+
+    record Name(String name) { }
+
+    record Names(List<String> names) { }
   }
 
   private void assertNumUsers(long count) {

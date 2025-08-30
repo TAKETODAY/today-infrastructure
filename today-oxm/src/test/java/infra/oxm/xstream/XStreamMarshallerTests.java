@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,9 +18,12 @@
 package infra.oxm.xstream;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.extended.EncodedByteArrayConverter;
+import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
 import com.thoughtworks.xstream.core.DefaultConverterLookup;
 import com.thoughtworks.xstream.core.TreeMarshallingStrategy;
+import com.thoughtworks.xstream.io.HierarchicalStreamDriver;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 import com.thoughtworks.xstream.io.json.JsonHierarchicalStreamDriver;
@@ -43,6 +46,7 @@ import org.xmlunit.builder.Input;
 import org.xmlunit.xpath.JAXPXPathEngine;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -65,15 +69,21 @@ import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import infra.oxm.MarshallingFailureException;
+import infra.oxm.UnmarshallingFailureException;
 import infra.oxm.XmlContent;
 import infra.util.ExceptionUtils;
 import infra.util.xml.StaxUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Arjen Poutsma
@@ -384,6 +394,121 @@ class XStreamMarshallerTests {
     marshaller.marshal(flight, result);
     String expected = "<flight><number>42</number></flight>";
     assertThat(XmlContent.from(writer)).isSimilarToIgnoringWhitespace(expected);
+  }
+
+  @Test
+  void marshalsObjectWithCustomNameCoder() throws Exception {
+    XmlFriendlyNameCoder nameCoder = new XmlFriendlyNameCoder("_-", "_");
+    marshaller.setNameCoder(nameCoder);
+    Writer writer = new StringWriter();
+    Flight flight = new Flight();
+    flight.setFlightNumber(42L);
+    marshaller.marshal(flight, new StreamResult(writer));
+    assertThat(XmlContent.from(writer)).isSimilarTo("<flight><flightNumber>42</flightNumber></flight>");
+  }
+
+  @Test
+  void unmarshalsObjectWithCustomNameCoder() throws Exception {
+    XmlFriendlyNameCoder nameCoder = new XmlFriendlyNameCoder("_-", "_");
+    marshaller.setNameCoder(nameCoder);
+    String xml = "<flight><flightNumber>42</flightNumber></flight>";
+    Object result = marshaller.unmarshal(new StreamSource(new StringReader(xml)));
+    assertThat(result).isInstanceOf(Flight.class);
+    assertThat(((Flight) result).getFlightNumber()).isEqualTo(42L);
+  }
+
+  @Test
+  void marshalsObjectWithCustomStreamDriver() throws Exception {
+    StaxDriver driver = new StaxDriver();
+    marshaller.setStreamDriver(driver);
+    Writer writer = new StringWriter();
+    Flight flight = new Flight();
+    flight.setFlightNumber(42L);
+    marshaller.marshal(flight, new StreamResult(writer));
+    assertThat(XmlContent.from(writer)).isSimilarTo("<flight><flightNumber>42</flightNumber></flight>");
+  }
+
+  @Test
+  void unmarshalsObjectWithCustomStreamDriver() throws Exception {
+    StaxDriver driver = new StaxDriver();
+    marshaller.setStreamDriver(driver);
+    String xml = "<flight><flightNumber>42</flightNumber></flight>";
+    Object result = marshaller.unmarshal(new StreamSource(new StringReader(xml)));
+    assertThat(result).isInstanceOf(Flight.class);
+    assertThat(((Flight) result).getFlightNumber()).isEqualTo(42L);
+  }
+
+  @Test
+  void customReflectionProviderIsUsed() throws Exception {
+    marshaller.setReflectionProvider(new PureJavaReflectionProvider());
+    Writer writer = new StringWriter();
+    Flight flight = new Flight();
+    flight.setFlightNumber(42L);
+    marshaller.marshal(flight, new StreamResult(writer));
+    assertThat(XmlContent.from(writer)).isSimilarTo("<flight><flightNumber>42</flightNumber></flight>");
+  }
+
+  @Test
+  void invalidXmlThrowsUnmarshallingException() {
+    String invalidXml = "<flight><flightNumber>invalid</flightNumber></flight>";
+    assertThatExceptionOfType(UnmarshallingFailureException.class)
+            .isThrownBy(() -> marshaller.unmarshal(new StreamSource(new StringReader(invalidXml))));
+  }
+
+  @Test
+  void customConverterIsApplied() throws Exception {
+    Converter customConverter = mock(Converter.class);
+    marshaller.setConverters(customConverter);
+    Writer writer = new StringWriter();
+    Flight flight = new Flight();
+    flight.setFlightNumber(42L);
+    marshaller.marshal(flight, new StreamResult(writer));
+    assertThat(XmlContent.from(writer)).isSimilarTo("<flight><flightNumber>42</flightNumber></flight>");
+  }
+
+  @Test
+  void marshallingToInvalidDestinationThrowsException() {
+    Flight flight = new Flight();
+    assertThatExceptionOfType(MarshallingFailureException.class)
+            .isThrownBy(() -> marshaller.marshal(flight, new StreamResult(new Writer() {
+              @Override
+              public void write(char[] cbuf, int off, int len) throws IOException {
+                throw new IOException("Test exception");
+              }
+
+              @Override
+              public void flush() { }
+
+              @Override
+              public void close() { }
+            })));
+  }
+
+  @Test
+  void unmarshalWithInvalidTypeThrowsException() {
+    String xml = "<person><age>not a number</age></person>";
+    assertThatExceptionOfType(UnmarshallingFailureException.class)
+            .isThrownBy(() -> marshaller.unmarshal(new StreamSource(new StringReader(xml))));
+  }
+
+  @Test
+  void marshalWithCustomStreamDriver() throws Exception {
+    HierarchicalStreamDriver driver = mock(HierarchicalStreamDriver.class);
+    HierarchicalStreamWriter writer = mock(HierarchicalStreamWriter.class);
+    when(driver.createWriter(any(Writer.class))).thenReturn(writer);
+
+    marshaller.setStreamDriver(driver);
+    marshaller.marshal(flight, new StreamResult(new StringWriter()));
+
+    verify(driver).createWriter(any(Writer.class));
+    verify(writer).startNode("flight");
+  }
+
+  @Test
+  void unmarshalWithDefaultTypeSecurity() {
+    String xml = "<object-factory>dangerous</object-factory>";
+    assertThatExceptionOfType(UnmarshallingFailureException.class)
+            .isThrownBy(() -> marshaller.unmarshal(new StreamSource(new StringReader(xml))));
   }
 
   private static void assertXpathExists(String xPathExpression, String inXMLString) {

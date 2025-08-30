@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,10 @@
 
 package infra.web.socket.handler;
 
+import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.concurrent.Future;
 import infra.web.socket.CloseStatus;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketMessage;
@@ -51,14 +53,20 @@ public class ExceptionWebSocketHandlerDecorator extends WebSocketHandler {
     }
   }
 
+  @Nullable
   @Override
-  public void handleMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
+  public Future<Void> handleMessage(WebSocketSession session, WebSocketMessage message) {
     try {
-      super.handleMessage(session, message);
+      Future<Void> future = super.handleMessage(session, message);
+      if (future != null) {
+        future.onFailed(ex -> tryCloseWithError(session, ex, logger));
+      }
+      return future;
     }
     catch (Throwable ex) {
       tryCloseWithError(session, ex, logger);
     }
+    return null;
   }
 
   @Override
@@ -71,14 +79,20 @@ public class ExceptionWebSocketHandlerDecorator extends WebSocketHandler {
     }
   }
 
+  @Nullable
   @Override
-  public void onClose(WebSocketSession session, CloseStatus closeStatus) {
+  public Future<Void> onClose(WebSocketSession session, CloseStatus closeStatus) {
     try {
-      super.onClose(session, closeStatus);
+      Future<Void> future = super.onClose(session, closeStatus);
+      if (future != null) {
+        future.onFailed(ex -> logger.warn("Unhandled exception after connection closed for {}", this, ex));
+      }
+      return future;
     }
     catch (Throwable ex) {
       logger.warn("Unhandled exception after connection closed for {}", this, ex);
     }
+    return null;
   }
 
   public static void tryCloseWithError(WebSocketSession session, Throwable exception, Logger logger) {

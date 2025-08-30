@@ -486,7 +486,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
         }
       }
       try {
-        return wrapCacheValue(method, doGet(cache, key, () -> unwrapReturnValue(invokeOperation(invoker))));
+        return wrapCacheValue(method, doGet(cache, key, k -> unwrapReturnValue(invokeOperation(invoker))));
       }
       catch (Cache.ValueRetrievalException ex) {
         // Directly propagate ThrowableWrapper from the invoker,

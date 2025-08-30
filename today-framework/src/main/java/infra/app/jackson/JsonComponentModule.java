@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.BiConsumer;
 
 import infra.aot.generate.GenerationContext;
@@ -49,6 +48,7 @@ import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.lang.Assert;
+import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 /**
@@ -159,9 +159,10 @@ public class JsonComponentModule extends SimpleModule implements BeanFactoryAwar
 
   static class JsonComponentBeanFactoryInitializationAotProcessor implements BeanFactoryInitializationAotProcessor {
 
+    @Nullable
     @Override
     public BeanFactoryInitializationAotContribution processAheadOfTime(ConfigurableBeanFactory beanFactory) {
-      Set<String> jsonComponents = beanFactory.getBeanNamesForAnnotation(JsonComponent.class);
+      var jsonComponents = beanFactory.getBeanNamesForAnnotation(JsonComponent.class);
       HashMap<Class<?>, List<Class<?>>> innerComponents = new HashMap<>();
       for (String jsonComponent : jsonComponents) {
         Class<?> type = beanFactory.getType(jsonComponent, true);
@@ -176,7 +177,6 @@ public class JsonComponentModule extends SimpleModule implements BeanFactoryAwar
     }
   }
 
-  @SuppressWarnings("removal")
   private static final class JsonComponentAotContribution implements BeanFactoryInitializationAotContribution {
 
     private final Map<Class<?>, List<Class<?>>> innerComponents;

@@ -35,7 +35,7 @@ class DefaultApiVersionInserterTests {
 
   @Test
   void versionInsertedAsHeader() {
-    ApiVersionInserter inserter = ApiVersionInserter.forHeader("X-API-Version").build();
+    ApiVersionInserter inserter = ApiVersionInserter.forHeader("X-API-Version");
     HttpHeaders headers = HttpHeaders.forWritable();
 
     inserter.insertVersion("v1", headers);
@@ -45,7 +45,7 @@ class DefaultApiVersionInserterTests {
 
   @Test
   void versionInsertedAsQueryParam() {
-    ApiVersionInserter inserter = ApiVersionInserter.forQueryParam("version").build();
+    ApiVersionInserter inserter = ApiVersionInserter.forQueryParam("version");
     URI uri = URI.create("https://api.example.com/users");
 
     URI result = inserter.insertVersion("v1", uri);
@@ -55,7 +55,7 @@ class DefaultApiVersionInserterTests {
 
   @Test
   void versionInsertedAsPathSegment() {
-    ApiVersionInserter inserter = ApiVersionInserter.forPathSegment(0).build();
+    ApiVersionInserter inserter = ApiVersionInserter.forPathSegment(0);
     URI uri = URI.create("https://api.example.com/users");
 
     URI result = inserter.insertVersion("v1", uri);
@@ -66,7 +66,8 @@ class DefaultApiVersionInserterTests {
   @Test
   void versionInsertedWithCustomFormatter() {
     ApiVersionFormatter formatter = version -> "version-" + version;
-    ApiVersionInserter inserter = ApiVersionInserter.forHeader("X-Version")
+    ApiVersionInserter inserter = ApiVersionInserter.builder()
+            .useHeader("X-Version")
             .withVersionFormatter(formatter)
             .build();
     HttpHeaders headers = HttpHeaders.forWritable();
@@ -78,9 +79,9 @@ class DefaultApiVersionInserterTests {
 
   @Test
   void multipleVersionInsertionPoints() {
-    ApiVersionInserter inserter = ApiVersionInserter.forHeader("X-Version")
-            .fromQueryParam("ver")
-            .fromPathSegment(1)
+    ApiVersionInserter inserter = ApiVersionInserter.builder().useHeader("X-Version")
+            .useQueryParam("ver")
+            .usePathSegment(1)
             .build();
 
     URI uri = URI.create("https://api.example.com/users/123");
@@ -95,7 +96,7 @@ class DefaultApiVersionInserterTests {
 
   @Test
   void invalidPathSegmentIndex() {
-    ApiVersionInserter inserter = ApiVersionInserter.forPathSegment(5).build();
+    ApiVersionInserter inserter = ApiVersionInserter.forPathSegment(5);
     URI uri = URI.create("https://api.example.com/users");
 
     assertThatThrownBy(() -> inserter.insertVersion("v1", uri))
@@ -105,14 +106,14 @@ class DefaultApiVersionInserterTests {
 
   @Test
   void noInsertionPointConfigured() {
-    assertThatThrownBy(() -> ApiVersionInserter.forHeader(null).build())
+    assertThatThrownBy(() -> ApiVersionInserter.forHeader(null))
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Expected 'header', 'queryParam', or 'pathSegmentIndex' to be configured");
+            .hasMessageContaining("Expected 'header', 'queryParam', 'mediaTypeParam', or 'pathSegmentIndex' to be configured");
   }
 
   @Test
   void preservesExistingQueryParams() {
-    ApiVersionInserter inserter = ApiVersionInserter.forQueryParam("version").build();
+    ApiVersionInserter inserter = ApiVersionInserter.forQueryParam("version");
     URI uri = URI.create("https://api.example.com/users?sort=asc");
 
     URI result = inserter.insertVersion("v1", uri);
@@ -122,7 +123,7 @@ class DefaultApiVersionInserterTests {
 
   @Test
   void versionInsertedAsMiddlePathSegment() {
-    ApiVersionInserter inserter = ApiVersionInserter.forPathSegment(1).build();
+    ApiVersionInserter inserter = ApiVersionInserter.forPathSegment(1);
     URI uri = URI.create("https://api.example.com/users/details/info");
 
     URI result = inserter.insertVersion("v1", uri);
@@ -132,9 +133,9 @@ class DefaultApiVersionInserterTests {
 
   @Test
   void complexUriWithMultipleVersions() {
-    ApiVersionInserter inserter = ApiVersionInserter.forHeader("X-Version")
-            .fromQueryParam("api-version")
-            .fromPathSegment(0)
+    ApiVersionInserter inserter = ApiVersionInserter.builder().useHeader("X-Version")
+            .useQueryParam("api-version")
+            .usePathSegment(0)
             .build();
 
     URI uri = URI.create("https://api.example.com/users?page=1&sort=desc");
@@ -150,7 +151,7 @@ class DefaultApiVersionInserterTests {
 
   @Test
   void emptyPathSegments() {
-    ApiVersionInserter inserter = ApiVersionInserter.forPathSegment(0).build();
+    ApiVersionInserter inserter = ApiVersionInserter.forPathSegment(0);
     URI uri = URI.create("https://api.example.com");
 
     URI result = inserter.insertVersion("v1", uri);
@@ -161,7 +162,7 @@ class DefaultApiVersionInserterTests {
   @Test
   void versionFormatterReturningNull() {
     ApiVersionFormatter formatter = version -> null;
-    ApiVersionInserter inserter = ApiVersionInserter.forHeader("X-Version")
+    ApiVersionInserter inserter = ApiVersionInserter.builder().useHeader("X-Version")
             .withVersionFormatter(formatter)
             .build();
 
@@ -178,7 +179,7 @@ class DefaultApiVersionInserterTests {
   @Test
   void nullVersionWithNonNullFormatter() {
     ApiVersionFormatter formatter = version -> version == null ? "latest" : version.toString();
-    ApiVersionInserter inserter = ApiVersionInserter.forHeader("X-Version")
+    ApiVersionInserter inserter = ApiVersionInserter.builder().useHeader("X-Version")
             .withVersionFormatter(formatter)
             .build();
 
@@ -190,9 +191,9 @@ class DefaultApiVersionInserterTests {
 
   @Test
   void emptyStringVersion() {
-    ApiVersionInserter inserter = ApiVersionInserter.forHeader("X-Version")
-            .fromQueryParam("ver")
-            .fromPathSegment(0)
+    ApiVersionInserter inserter = ApiVersionInserter.builder().useHeader("X-Version")
+            .useQueryParam("ver")
+            .usePathSegment(0)
             .build();
 
     URI uri = URI.create("https://api.example.com/users");
@@ -207,7 +208,7 @@ class DefaultApiVersionInserterTests {
 
   @Test
   void uriWithFragmentAndQuery() {
-    ApiVersionInserter inserter = ApiVersionInserter.forPathSegment(0).build();
+    ApiVersionInserter inserter = ApiVersionInserter.forPathSegment(0);
     URI uri = URI.create("https://api.example.com/users?q=test#fragment");
 
     URI result = inserter.insertVersion("v1", uri);

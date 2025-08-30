@@ -115,8 +115,7 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
   }
 
   @Override
-  protected ContextLoader resolveContextLoader(Class<?> testClass,
-          List<ContextConfigurationAttributes> configAttributesList) {
+  protected ContextLoader resolveContextLoader(Class<?> testClass, List<ContextConfigurationAttributes> configAttributesList) {
     Class<?>[] classes = getClasses(testClass);
     if (ObjectUtils.isNotEmpty(classes)) {
       for (ContextConfigurationAttributes configAttributes : configAttributesList) {
@@ -191,8 +190,7 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
     return isFromConfiguration(mergedConfig, configurations[configurations.length - 1]);
   }
 
-  private boolean isFromConfiguration(MergedContextConfiguration candidateConfig,
-          ContextConfiguration configuration) {
+  private boolean isFromConfiguration(MergedContextConfiguration candidateConfig, ContextConfiguration configuration) {
     ContextConfigurationAttributes attributes = new ContextConfigurationAttributes(candidateConfig.getTestClass(),
             configuration);
     Set<Class<?>> configurationClasses = new HashSet<>(Arrays.asList(attributes.getClasses()));

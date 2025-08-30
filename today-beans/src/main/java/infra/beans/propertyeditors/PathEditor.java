@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -105,7 +105,7 @@ public class PathEditor extends PropertyEditorSupport {
     if (resource == null) {
       setValue(null);
     }
-    else if (nioPathCandidate && !resource.exists()) {
+    else if (nioPathCandidate && (!resource.isFile() || !resource.exists())) {
       setValue(Paths.get(text).normalize());
     }
     else {

@@ -18,6 +18,7 @@
 package infra.web.socket;
 
 import infra.lang.Nullable;
+import infra.util.concurrent.Future;
 
 /**
  * The Web Socket Handler represents an object that can handle websocket conversations.
@@ -84,41 +85,71 @@ public abstract class WebSocketHandler {
    * Called when the message has been fully received.
    *
    * @param message the message data.
+   * @return a {@code Future} which completes when the {@code WebSocketMessage}
+   * may be reclaimed; or {@code null} if it may be reclaimed immediately
    * @since 5.0
    */
-  public void handleMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
+  @Nullable
+  public Future<Void> handleMessage(WebSocketSession session, WebSocketMessage message) {
     if (delegate != null) {
-      delegate.handleMessage(session, message);
+      return delegate.handleMessage(session, message);
     }
     else {
-      switch (message.getType()) {
+      return switch (message.getType()) {
         case PING -> handlePingMessage(session, message);
         case PONG -> handlePongMessage(session, message);
         case TEXT -> handleTextMessage(session, message);
         case BINARY -> handleBinaryMessage(session, message);
-      }
+      };
     }
   }
 
   /**
-   * This method is called immediately prior to the session with the remote
-   * peer being closed. It is called whether the session is being closed
-   * because the remote peer initiated a close and sent a close frame, or
-   * whether the local websocket container or this endpoint requests to close
-   * the session. The developer may take this last opportunity to retrieve
-   * session attributes such as the ID, or any application data it holds before
-   * it becomes unavailable after the completion of the method. Developers should
-   * not attempt to modify the session from within this method, or send new
-   * messages from this call as the underlying
-   * connection will not be able to send them at this stage.
+   * Receives a Close message indicating the WebSocket's input has been
+   * closed.
+   *
+   * <p>This is the last invocation from the specified {@code WebSocketSession}.
+   * By the time this invocation begins the WebSocket's input will have
+   * been closed.
+   *
+   * <p>A Close message consists of a status code and a reason for
+   * closing. The status code is an integer from the range
+   * {@code 1000 <= code <= 65535}. The {@code reason} is a string which
+   * has a UTF-8 representation not longer than {@code 123} bytes.
+   *
+   * <p> If the WebSocket's output is not already closed, the
+   * {@code Future} returned by this method will be used as an
+   * indication that the WebSocket's output may be closed. The WebSocket
+   * will close its output at the earliest of completion of the returned
+   * {@code Future} or invoking either of the {@code sendClose}
+   * or {@code abort} methods.
+   *
+   * <p> To specify a custom closure code or reason code the
+   * {@code close} method may be invoked from inside the
+   * {@code onClose} invocation:
+   * {@snippet :
+   * public Future<Void> onClose(WebSocketSession session, CloseStatus status) {
+   *    session.close(CUSTOM_STATUS_CODE, CUSTOM_REASON);
+   *    return Future.ok();
+   * }}
    *
    * @param session the session about to be closed.
    * @param status the reason the session was closed.
+   * @return a {@code Future} which completes when the
+   * {@code WebSocketSession} may be closed; or {@code null} if it may be
+   * closed immediately
+   * @implSpec The default implementation of this method returns
+   * {@code null}, indicating that the output should be closed
+   * immediately.
+   * @apiNote Returning a {@code Future} that never completes,
+   * effectively disables the reciprocating closure of the output.
    */
-  public void onClose(WebSocketSession session, CloseStatus status) throws Throwable {
+  @Nullable
+  public Future<Void> onClose(WebSocketSession session, CloseStatus status) {
     if (delegate != null) {
       delegate.onClose(session, status);
     }
+    return null;
   }
 
   /**
@@ -137,28 +168,86 @@ public abstract class WebSocketHandler {
     }
   }
 
-  protected void handlePingMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
+  /**
+   * A Ping message has been received.
+   *
+   * <p> As guaranteed by the WebSocket Protocol, the message consists of
+   * not more than {@code 125} bytes. These bytes are located from the
+   * buffer's position to its limit.
+   *
+   * <p> Given that the WebSocket implementation will automatically send a
+   * reciprocal pong when a ping is received, it is rarely required to
+   * send a pong message explicitly when a ping is received.
+   *
+   * @param session the session on which the data has been received
+   * @param message websocket message data
+   * @return a {@code Future} which completes when the {@code WebSocketMessage}
+   * may be reclaimed; or {@code null} if it may be reclaimed immediately
+   */
+  @Nullable
+  protected Future<Void> handlePingMessage(WebSocketSession session, WebSocketMessage message) {
     if (delegate != null) {
-      delegate.handlePingMessage(session, message);
+      return delegate.handlePingMessage(session, message);
     }
+    return null;
   }
 
-  protected void handlePongMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
+  /**
+   * A Pong message has been received.
+   *
+   * <p> As guaranteed by the WebSocket Protocol, the message consists of
+   * not more than {@code 125} bytes. These bytes are located from the
+   * buffer's position to its limit.
+   *
+   * @param session the session on which the data has been received
+   * @param message websocket message data
+   * @return a {@code Future} which completes when the {@code WebSocketMessage}
+   * may be reclaimed; or {@code null} if it may be reclaimed immediately
+   */
+  @Nullable
+  protected Future<Void> handlePongMessage(WebSocketSession session, WebSocketMessage message) {
     if (delegate != null) {
       delegate.handlePongMessage(session, message);
     }
+    return null;
   }
 
-  protected void handleTextMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
+  /**
+   * A textual data has been received.
+   *
+   * <p> Return a {@code Future} which will be used by the
+   * {@code WebSocketSession} as an indication it may reclaim the
+   * {@link WebSocketMessage#getPayloadAsText}. Do not access the data after
+   * this {@code Future} has completed.
+   *
+   * @param session the session on which the data has been received
+   * @param message websocket message data
+   * @return a {@code Future} which completes when the {@code WebSocketMessage}
+   * may be reclaimed; or {@code null} if it may be reclaimed immediately
+   * @see WebSocketMessage#getPayloadAsText()
+   */
+  @Nullable
+  protected Future<Void> handleTextMessage(WebSocketSession session, WebSocketMessage message) {
     if (delegate != null) {
       delegate.handleTextMessage(session, message);
     }
+    return null;
   }
 
-  protected void handleBinaryMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
+  /**
+   * A binary data has been received.
+   *
+   * @param session the session on which the data has been received
+   * @param message websocket message data
+   * @return a {@code Future} which completes when the {@code WebSocketMessage}
+   * may be reclaimed; or {@code null} if it may be reclaimed immediately
+   */
+  @Nullable
+  protected Future<Void> handleBinaryMessage(WebSocketSession session, WebSocketMessage message) {
     if (delegate != null) {
       delegate.handleBinaryMessage(session, message);
     }
+    return null;
   }
 
 }

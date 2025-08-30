@@ -25,6 +25,7 @@ import java.util.Properties;
 import infra.aop.framework.ProxyFactory;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.NoSuchBeanDefinitionException;
+import infra.core.ResolvableType;
 import infra.core.testfixture.io.SerializationTestUtils;
 import infra.lang.Nullable;
 import infra.transaction.PlatformTransactionManager;
@@ -35,6 +36,7 @@ import infra.transaction.TransactionStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -153,6 +155,8 @@ class TransactionInterceptorTests extends AbstractTransactionAspectTests {
     TransactionInterceptor ti = simpleTransactionInterceptor(beanFactory);
     DefaultTransactionAttribute attribute = new DefaultTransactionAttribute();
     attribute.setQualifier("fooTransactionManager");
+
+    given(beanFactory.getBeanNamesForType(any(Class.class))).willReturn(new String[0]);
 
     assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
             .isThrownBy(() -> ti.determineTransactionManager(attribute, null))
@@ -299,6 +303,8 @@ class TransactionInterceptorTests extends AbstractTransactionAspectTests {
     given(beanFactory.isTypeMatch(name, PlatformTransactionManager.class)).willReturn(true);
     given(beanFactory.getBean(name, TransactionManager.class)).willReturn(transactionManager);
     given(beanFactory.getBean(name, PlatformTransactionManager.class)).willReturn(transactionManager);
+    given(beanFactory.getBeanNamesForType(any(Class.class))).willReturn(new String[0]);
+    given(beanFactory.getBeanNamesForType(any(ResolvableType.class))).willReturn(new String[0]);
     return transactionManager;
   }
 

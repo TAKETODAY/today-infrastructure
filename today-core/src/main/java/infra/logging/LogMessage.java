@@ -57,7 +57,7 @@ public abstract class LogMessage {
     return this.result;
   }
 
-  abstract String buildString();
+  protected abstract String buildString();
 
   /**
    * Build a lazily resolving message from the given supplier.
@@ -140,7 +140,7 @@ public abstract class LogMessage {
     }
 
     @Override
-    String buildString() {
+    public String buildString() {
       return this.supplier.get().toString();
     }
   }
@@ -182,7 +182,7 @@ public abstract class LogMessage {
     }
 
     @Override
-    String buildString() {
+    protected String buildString() {
       return MessageFormatter.format(this.format, new Object[] { this.arg1, this.arg2 });
     }
   }
@@ -201,7 +201,7 @@ public abstract class LogMessage {
     }
 
     @Override
-    String buildString() {
+    protected String buildString() {
       return MessageFormatter.format(this.format, new Object[] { this.arg1, this.arg2, this.arg3 });
     }
   }
@@ -222,7 +222,7 @@ public abstract class LogMessage {
     }
 
     @Override
-    String buildString() {
+    protected String buildString() {
       return MessageFormatter.format(this.format, new Object[] { this.arg1, this.arg2, this.arg3, this.arg4 });
     }
   }
@@ -237,7 +237,7 @@ public abstract class LogMessage {
     }
 
     @Override
-    String buildString() {
+    protected String buildString() {
       return MessageFormatter.format(this.format, this.args);
     }
   }

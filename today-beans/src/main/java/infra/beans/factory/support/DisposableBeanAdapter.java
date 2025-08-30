@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import infra.beans.factory.BeanDefinitionValidationException;
@@ -411,13 +412,28 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
     if (destroyMethodName == null) {
       destroyMethodName = beanDefinition.getDestroyMethodName();
       boolean autoCloseable = AutoCloseable.class.isAssignableFrom(target);
+      boolean executorService = ExecutorService.class.isAssignableFrom(target);
       if (AbstractBeanDefinition.INFER_METHOD.equals(destroyMethodName)
-              || (destroyMethodName == null && autoCloseable)) {
+              || (destroyMethodName == null && (autoCloseable || executorService))) {
         // Only perform destroy method inference in case of the bean
         // not explicitly implementing the DisposableBean interface
         destroyMethodName = null;
         if (!(DisposableBean.class.isAssignableFrom(target))) {
-          if (autoCloseable) {
+          if (executorService) {
+            destroyMethodName = SHUTDOWN_METHOD_NAME;
+            try {
+              // On JDK 19+, avoid the ExecutorService-level AutoCloseable default implementation
+              // which awaits task termination for 1 day, even for delayed tasks such as cron jobs.
+              // Custom close() implementations in ExecutorService subclasses are still accepted.
+              if (target.getMethod(CLOSE_METHOD_NAME).getDeclaringClass() != ExecutorService.class) {
+                destroyMethodName = CLOSE_METHOD_NAME;
+              }
+            }
+            catch (NoSuchMethodException ex) {
+              // Ignore - stick with shutdown()
+            }
+          }
+          else if (autoCloseable) {
             destroyMethodName = CLOSE_METHOD_NAME;
           }
           else {
@@ -435,8 +451,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
           }
         }
       }
-      beanDefinition.resolvedDestroyMethodName =
-              destroyMethodName != null ? destroyMethodName : "";
+      beanDefinition.resolvedDestroyMethodName = destroyMethodName != null ? destroyMethodName : "";
     }
     return StringUtils.isEmpty(destroyMethodName) ? null : new String[] { destroyMethodName };
   }

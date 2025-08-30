@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,12 @@
 
 package infra.cache;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 import infra.cache.annotation.Cacheable;
 import infra.lang.Nullable;
+import infra.util.function.ThrowingFunction;
 
 /**
  * Interface that defines common cache operations.
@@ -67,7 +67,7 @@ public interface Cache {
    * a cached {@code null} value. A straight {@code null} being
    * returned means that the cache contains no mapping for this key.
    * @see #get(Object, Class)
-   * @see #get(Object, Callable)
+   * @see #get(Object, ThrowingFunction)
    */
   @Nullable
   ValueWrapper get(Object key);
@@ -109,10 +109,10 @@ public interface Cache {
    * @return the value to which this cache maps the specified key
    * @throws ValueRetrievalException if the {@code valueLoader} throws an exception
    * @see #get(Object)
-   * @since 4.0
+   * @since 5.0
    */
   @Nullable
-  <T> T get(Object key, Callable<T> valueLoader);
+  <K, V> V get(K key, ThrowingFunction<? super K, ? extends V> valueLoader);
 
   /**
    * Return the value to which this cache maps the specified key,
@@ -167,7 +167,7 @@ public interface Cache {
    * within a {@link CompletableFuture} which will never be {@code null}.
    * The provided future is expected to produce a value or raise an exception.
    * @see #retrieve(Object)
-   * @see #get(Object, Callable)
+   * @see #get(Object, ThrowingFunction)
    */
   default <T> CompletableFuture<T> retrieve(Object key, Supplier<CompletableFuture<T>> valueLoader) {
     throw new UnsupportedOperationException(
@@ -300,7 +300,7 @@ public interface Cache {
   }
 
   /**
-   * Wrapper exception to be thrown from {@link #get(Object, Callable)}
+   * Wrapper exception to be thrown from {@link #get(Object, ThrowingFunction)}
    * in case of the value loader callback failing with an exception.
    */
   @SuppressWarnings("serial")
@@ -309,7 +309,7 @@ public interface Cache {
     @Nullable
     private final Object key;
 
-    public ValueRetrievalException(@Nullable Object key, Callable<?> loader, Throwable ex) {
+    public ValueRetrievalException(@Nullable Object key, Object loader, Throwable ex) {
       super(String.format("Value for key '%s' could not be loaded using '%s'", key, loader), ex);
       this.key = key;
     }

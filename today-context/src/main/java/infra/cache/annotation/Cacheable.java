@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.concurrent.Callable;
 
 import infra.aot.hint.annotation.Reflective;
 import infra.cache.Cache;
@@ -32,6 +31,7 @@ import infra.cache.interceptor.CacheResolver;
 import infra.cache.interceptor.KeyGenerator;
 import infra.cache.interceptor.SimpleCacheResolver;
 import infra.core.annotation.AliasFor;
+import infra.util.function.ThrowingFunction;
 
 /**
  * Annotation indicating that the result of invoking a method (or all methods
@@ -200,7 +200,7 @@ public @interface Cacheable {
    * support it in a synchronized fashion. Check your provider documentation for
    * more details on the actual semantics.
    *
-   * @see Cache#get(Object, Callable)
+   * @see Cache#get(Object, ThrowingFunction)
    */
   boolean sync() default false;
 

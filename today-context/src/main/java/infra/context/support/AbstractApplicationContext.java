@@ -70,7 +70,9 @@ import infra.context.PayloadApplicationEvent;
 import infra.context.ResourceLoaderAware;
 import infra.context.event.ApplicationEventMulticaster;
 import infra.context.event.ContextClosedEvent;
+import infra.context.event.ContextPausedEvent;
 import infra.context.event.ContextRefreshedEvent;
+import infra.context.event.ContextRestartedEvent;
 import infra.context.event.ContextStartedEvent;
 import infra.context.event.ContextStoppedEvent;
 import infra.context.event.SimpleApplicationEventMulticaster;
@@ -459,17 +461,17 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 
   @Nullable
   @Override
-  public String getMessage(String code, @Nullable Object[] args, @Nullable String defaultMessage, Locale locale) {
+  public String getMessage(String code, @Nullable Object[] args, @Nullable String defaultMessage, @Nullable Locale locale) {
     return getMessageSource().getMessage(code, args, defaultMessage, locale);
   }
 
   @Override
-  public String getMessage(String code, @Nullable Object[] args, Locale locale) throws NoSuchMessageException {
+  public String getMessage(String code, @Nullable Object[] args, @Nullable Locale locale) throws NoSuchMessageException {
     return getMessageSource().getMessage(code, args, locale);
   }
 
   @Override
-  public String getMessage(MessageSourceResolvable resolvable, Locale locale) throws NoSuchMessageException {
+  public String getMessage(MessageSourceResolvable resolvable, @Nullable Locale locale) throws NoSuchMessageException {
     return getMessageSource().getMessage(resolvable, locale);
   }
 
@@ -1235,7 +1237,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   }
 
   @Override
-  public Set<String> getBeanNamesForAnnotation(Class<? extends Annotation> annotationType) {
+  public String[] getBeanNamesForAnnotation(Class<? extends Annotation> annotationType) {
     assertBeanFactoryActive();
     return getBeanFactory().getBeanNamesForAnnotation(annotationType);
   }
@@ -1296,13 +1298,13 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   }
 
   @Override
-  public Set<String> getBeanNamesForType(@Nullable Class<?> type) {
+  public String[] getBeanNamesForType(@Nullable Class<?> type) {
     assertBeanFactoryActive();
     return getBeanFactory().getBeanNamesForType(type);
   }
 
   @Override
-  public Set<String> getBeanNamesForType(@Nullable Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
+  public String[] getBeanNamesForType(@Nullable Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
     assertBeanFactoryActive();
     return getBeanFactory().getBeanNamesForType(type, includeNonSingletons, allowEagerInit);
   }
@@ -1326,13 +1328,13 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   }
 
   @Override
-  public Set<String> getBeanNamesForType(ResolvableType requiredType) {
+  public String[] getBeanNamesForType(ResolvableType requiredType) {
     assertBeanFactoryActive();
     return getBeanFactory().getBeanNamesForType(requiredType);
   }
 
   @Override
-  public Set<String> getBeanNamesForType(ResolvableType type, boolean includeNonSingletons, boolean allowEagerInit) {
+  public String[] getBeanNamesForType(ResolvableType type, boolean includeNonSingletons, boolean allowEagerInit) {
     assertBeanFactoryActive();
     return getBeanFactory().getBeanNamesForType(type, includeNonSingletons, allowEagerInit);
   }
@@ -1385,7 +1387,13 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   @Override
   public void restart() {
     getLifecycleProcessor().onRestart();
-    publishEvent(new ContextStartedEvent(this));
+    publishEvent(new ContextRestartedEvent(this));
+  }
+
+  @Override
+  public void pause() {
+    getLifecycleProcessor().onPause();
+    publishEvent(new ContextPausedEvent(this));
   }
 
   @Override
@@ -1591,7 +1599,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 
     // Do not initialize FactoryBeans here: We need to leave all regular beans
     // uninitialized to let post-processors apply to them!
-    Set<String> listenerBeanNames = getBeanNamesForType(ApplicationListener.class, true, false);
+    var listenerBeanNames = getBeanNamesForType(ApplicationListener.class, true, false);
     for (String listenerBeanName : listenerBeanNames) {
       eventMulticaster.addApplicationListenerBean(listenerBeanName);
     }

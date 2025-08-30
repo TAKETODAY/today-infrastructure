@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ package infra.beans.factory.support;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
+import java.util.concurrent.ExecutorService;
 
 import infra.util.ReflectionUtils;
 
@@ -59,8 +60,33 @@ class RootBeanDefinitionTests {
   }
 
   @Test
-  void resolveDestroyMethodWithMatchingCandidateReplacedInferredVaue() {
+  void resolveDestroyMethodWithMatchingCandidateReplacedForCloseMethod() {
     RootBeanDefinition beanDefinition = new RootBeanDefinition(BeanWithCloseMethod.class);
+    beanDefinition.setDestroyMethodName(AbstractBeanDefinition.INFER_METHOD);
+    beanDefinition.resolveDestroyMethodIfNecessary();
+    assertThat(beanDefinition.getDestroyMethodNames()).containsExactly("close");
+  }
+
+  @Test
+  void resolveDestroyMethodWithMatchingCandidateReplacedForShutdownMethod() {
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(BeanWithShutdownMethod.class);
+    beanDefinition.setDestroyMethodName(AbstractBeanDefinition.INFER_METHOD);
+    beanDefinition.resolveDestroyMethodIfNecessary();
+    assertThat(beanDefinition.getDestroyMethodNames()).containsExactly("shutdown");
+  }
+
+  @Test
+  void resolveDestroyMethodWithMatchingCandidateReplacedForExecutorService() {
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(BeanImplementingExecutorService.class);
+    beanDefinition.setDestroyMethodName(AbstractBeanDefinition.INFER_METHOD);
+    beanDefinition.resolveDestroyMethodIfNecessary();
+    assertThat(beanDefinition.getDestroyMethodNames()).containsExactly("shutdown");
+    // even on JDK 19+ where the ExecutorService interface declares a default AutoCloseable implementation
+  }
+
+  @Test
+  void resolveDestroyMethodWithMatchingCandidateReplacedForAutoCloseableExecutorService() {
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(BeanImplementingExecutorServiceAndAutoCloseable.class);
     beanDefinition.setDestroyMethodName(AbstractBeanDefinition.INFER_METHOD);
     beanDefinition.resolveDestroyMethodIfNecessary();
     assertThat(beanDefinition.getDestroyMethodNames()).containsExactly("close");
@@ -84,6 +110,22 @@ class RootBeanDefinitionTests {
 
   static class BeanWithCloseMethod {
 
+    public void close() {
+    }
+  }
+
+  static class BeanWithShutdownMethod {
+
+    public void shutdown() {
+    }
+  }
+
+  abstract static class BeanImplementingExecutorService implements ExecutorService {
+  }
+
+  abstract static class BeanImplementingExecutorServiceAndAutoCloseable implements ExecutorService, AutoCloseable {
+
+    @Override
     public void close() {
     }
   }

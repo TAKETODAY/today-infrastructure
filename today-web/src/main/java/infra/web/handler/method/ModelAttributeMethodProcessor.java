@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -345,14 +345,11 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
             || (annotationNotRequired && !BeanUtils.isSimpleProperty(returnType.getParameterType()));
   }
 
-  /**
-   * Add non-null return values to the {@link BindingContext}.
-   */
   @Override
-  public void handleHandlerMethodReturnValue(
-          RequestContext context, HandlerMethod handler, @Nullable Object returnValue) {
-    if (returnValue != null) {
-      String name = ModelHandler.getNameForReturnValue(returnValue, handler);
+  public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+    HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
+    if (handlerMethod != null && returnValue != null) {
+      String name = ModelHandler.getNameForReturnValue(returnValue, handlerMethod);
       context.binding().addAttribute(name, returnValue);
     }
   }

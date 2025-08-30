@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import infra.core.testfixture.DisabledIfInContinuousIntegration;
 import infra.http.HttpHeaders;
 import infra.lang.Nullable;
 import infra.util.concurrent.Future;
@@ -51,6 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2024/9/28 22:27
  */
+@DisabledIfInContinuousIntegration
 class HttpServiceIntegrationTests {
 
   public static Stream<Arguments> arguments() {

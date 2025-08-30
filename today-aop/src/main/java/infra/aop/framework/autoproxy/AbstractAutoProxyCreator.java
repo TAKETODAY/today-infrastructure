@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -125,12 +125,6 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
   @Nullable
   private BeanFactory beanFactory;
 
-  /**
-   * Indicates whether or not the proxy should be frozen. Overridden from super
-   * to prevent the configuration from becoming frozen too early.
-   */
-  private boolean freezeProxy = false;
-
   @Nullable
   private transient TargetSourceCreator[] customTargetSourceCreators;
 
@@ -181,22 +175,6 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
   }
 
   /**
-   * Set whether or not the proxy should be frozen, preventing advice
-   * from being added to it once it is created.
-   * <p>Overridden from the super class to prevent the proxy configuration
-   * from being frozen before the proxy is created.
-   */
-  @Override
-  public void setFrozen(boolean frozen) {
-    this.freezeProxy = frozen;
-  }
-
-  @Override
-  public boolean isFrozen() {
-    return this.freezeProxy;
-  }
-
-  /**
    * Set the common interceptors. These must be bean names in the current factory.
    * They can be of any advice or advisor type supports.
    * <p>If this property isn't set, there will be zero common interceptors.
@@ -218,6 +196,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
   @Override
   public void setBeanFactory(BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
+    AutoProxyUtils.applyDefaultProxyConfig(this, beanFactory);
   }
 
   /**
@@ -445,6 +424,24 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
 
     ProxyFactory proxyFactory = new ProxyFactory();
     proxyFactory.copyFrom(this);
+    proxyFactory.setFrozen(false);
+
+    if (shouldProxyTargetClass(beanClass, beanName)) {
+      proxyFactory.setProxyTargetClass(true);
+    }
+    else {
+      Class<?>[] ifcs = this.beanFactory instanceof ConfigurableBeanFactory cbf
+              ? AutoProxyUtils.determineExposedInterfaces(cbf, beanName) : null;
+      if (ifcs != null) {
+        proxyFactory.setProxyTargetClass(false);
+        for (Class<?> ifc : ifcs) {
+          proxyFactory.addInterface(ifc);
+        }
+      }
+      if (ifcs != null ? ifcs.length == 0 : !proxyFactory.isProxyTargetClass()) {
+        evaluateProxyInterfaces(beanClass, proxyFactory);
+      }
+    }
 
     if (proxyFactory.isProxyTargetClass()) {
       // Explicit handling of JDK proxy targets and lambdas (for introduction advice scenarios)
@@ -455,32 +452,23 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
         }
       }
     }
-    else {
-      // No proxyTargetClass flag enforced, let's apply our default checks...
-      if (shouldProxyTargetClass(beanClass, beanName)) {
-        proxyFactory.setProxyTargetClass(true);
-      }
-      else {
-        evaluateProxyInterfaces(beanClass, proxyFactory);
-      }
-    }
 
     Advisor[] advisors = buildAdvisors(beanName, specificInterceptors);
     proxyFactory.addAdvisors(advisors);
     proxyFactory.setTargetSource(targetSource);
     customizeProxyFactory(proxyFactory);
 
-    proxyFactory.setFrozen(this.freezeProxy);
+    proxyFactory.setFrozen(isFrozen());
     if (advisorsPreFiltered()) {
       proxyFactory.setPreFiltered(true);
     }
 
     // Use original ClassLoader if bean class not locally loaded in overriding class loader
     ClassLoader classLoader = getProxyClassLoader();
-    if (classLoader instanceof SmartClassLoader && classLoader != beanClass.getClassLoader()) {
-      classLoader = ((SmartClassLoader) classLoader).getOriginalClassLoader();
+    if (classLoader instanceof SmartClassLoader scl && classLoader != beanClass.getClassLoader()) {
+      classLoader = scl.getOriginalClassLoader();
     }
-    return (classOnly ? proxyFactory.getProxyClass(classLoader) : proxyFactory.getProxy(classLoader));
+    return classOnly ? proxyFactory.getProxyClass(classLoader) : proxyFactory.getProxy(classLoader);
   }
 
   /**
@@ -534,8 +522,8 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
    * @see AutoProxyUtils#shouldProxyTargetClass
    */
   protected boolean shouldProxyTargetClass(Class<?> beanClass, @Nullable String beanName) {
-    return this.beanFactory instanceof ConfigurableBeanFactory configurableBeanFactory
-            && AutoProxyUtils.shouldProxyTargetClass(configurableBeanFactory, beanName);
+    return this.beanFactory instanceof ConfigurableBeanFactory cbf
+            && AutoProxyUtils.shouldProxyTargetClass(cbf, beanName);
   }
 
   /**

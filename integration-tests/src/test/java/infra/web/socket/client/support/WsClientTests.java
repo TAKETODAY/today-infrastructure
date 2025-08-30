@@ -28,6 +28,7 @@ import infra.core.io.buffer.DataBuffer;
 import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.concurrent.Future;
 import infra.web.RequestContext;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketMessage;
@@ -85,7 +86,7 @@ class WsClientTests {
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, WebSocketMessage message) {
+    protected Future<Void> handleTextMessage(WebSocketSession session, WebSocketMessage message) {
       assertThat(message.getPayloadAsText()).isEqualTo("Hello World");
       log.info("server handleTextMessage: {}", message);
       session.send(message.retain());
@@ -93,6 +94,7 @@ class WsClientTests {
         DataBuffer buffer = factory.copiedBuffer("hello");
         return WebSocketMessage.binary(buffer);
       });
+      return Future.ok();
     }
 
   }
@@ -111,10 +113,11 @@ class WsClientTests {
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, WebSocketMessage message) {
+    protected Future<Void> handleTextMessage(WebSocketSession session, WebSocketMessage message) {
       log.info("client handleTextMessage: {}", message);
       assertThat(message.getPayloadAsText()).isEqualTo("Hello World");
       latch.countDown();
+      return Future.ok();
     }
 
   }

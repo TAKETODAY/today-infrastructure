@@ -19,8 +19,11 @@ package infra.web.client;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import infra.http.HttpHeaders;
+import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.web.util.UriComponentsBuilder;
@@ -42,17 +45,22 @@ public final class DefaultApiVersionInserter implements ApiVersionInserter {
   private final String queryParam;
 
   @Nullable
+  private final String mediaTypeParam;
+
+  @Nullable
   private final Integer pathSegmentIndex;
 
   private final ApiVersionFormatter versionFormatter;
 
   DefaultApiVersionInserter(@Nullable String header, @Nullable String queryParam,
-          @Nullable Integer pathSegmentIndex, @Nullable ApiVersionFormatter formatter) {
-    Assert.isTrue(header != null || queryParam != null || pathSegmentIndex != null,
-            "Expected 'header', 'queryParam', or 'pathSegmentIndex' to be configured");
+          @Nullable String mediaTypeParam, @Nullable Integer pathSegmentIndex,
+          @Nullable ApiVersionFormatter formatter) {
+    Assert.isTrue(header != null || queryParam != null || mediaTypeParam != null || pathSegmentIndex != null,
+            "Expected 'header', 'queryParam', 'mediaTypeParam', or 'pathSegmentIndex' to be configured");
 
     this.header = header;
     this.queryParam = queryParam;
+    this.mediaTypeParam = mediaTypeParam;
     this.pathSegmentIndex = pathSegmentIndex;
     this.versionFormatter = formatter != null ? formatter : Object::toString;
   }
@@ -88,7 +96,17 @@ public final class DefaultApiVersionInserter implements ApiVersionInserter {
   @Override
   public void insertVersion(Object version, HttpHeaders headers) {
     if (this.header != null) {
-      headers.set(this.header, this.versionFormatter.formatVersion(version));
+      String formattedVersion = this.versionFormatter.formatVersion(version);
+      headers.set(this.header, formattedVersion);
+    }
+    if (this.mediaTypeParam != null) {
+      MediaType contentType = headers.getContentType();
+      if (contentType != null) {
+        Map<String, String> params = new LinkedHashMap<>(contentType.getParameters());
+        params.put(this.mediaTypeParam, this.versionFormatter.formatVersion(version));
+        contentType = new MediaType(contentType, params);
+        headers.setContentType(contentType);
+      }
     }
   }
 

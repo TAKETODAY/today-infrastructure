@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -136,7 +136,7 @@ class ConfigurationWithFactoryBeanEarlyDeductionTests {
   }
 
   private void assertContainsMyBeanName(AnnotationConfigApplicationContext context) {
-    assertContainsMyBeanName(context.getBeanNamesForType(MyBean.class, true, false).toArray(String[]::new));
+    assertContainsMyBeanName(context.getBeanNamesForType(MyBean.class, true, false));
   }
 
   private void assertContainsMyBeanName(String[] names) {
@@ -150,7 +150,7 @@ class ConfigurationWithFactoryBeanEarlyDeductionTests {
     @Override
     public void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) throws BeansException {
       ResolvableType typeToMatch = ResolvableType.forClassWithGenerics(MyBean.class, String.class);
-      this.names = beanFactory.getBeanNamesForType(typeToMatch, true, false).toArray(String[]::new);
+      this.names = beanFactory.getBeanNamesForType(typeToMatch, true, false);
     }
 
     public String[] getNames() {

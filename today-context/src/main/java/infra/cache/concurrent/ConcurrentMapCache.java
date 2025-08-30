@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 
 package infra.cache.concurrent;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -30,6 +29,7 @@ import infra.cache.support.SimpleCacheManager;
 import infra.core.serializer.support.SerializationDelegate;
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.util.function.ThrowingFunction;
 
 /**
  * Simple {@link Cache} implementation based on the
@@ -149,13 +149,13 @@ public class ConcurrentMapCache extends AbstractValueAdaptingCache {
     return this.store.get(key);
   }
 
-  @SuppressWarnings("unchecked")
-  @Override
   @Nullable
-  public <T> T get(Object key, Callable<T> valueLoader) {
-    return (T) fromStoreValue(this.store.computeIfAbsent(key, k -> {
+  @Override
+  @SuppressWarnings("unchecked")
+  public <K, V> V get(K key, ThrowingFunction<? super K, ? extends V> valueLoader) {
+    return (V) fromStoreValue(this.store.computeIfAbsent(key, k -> {
       try {
-        return toStoreValue(valueLoader.call());
+        return toStoreValue(valueLoader.apply((K) k));
       }
       catch (Throwable ex) {
         throw new ValueRetrievalException(key, valueLoader, ex);
@@ -229,6 +229,7 @@ public class ConcurrentMapCache extends AbstractValueAdaptingCache {
     }
   }
 
+  @Nullable
   @Override
   protected Object fromStoreValue(@Nullable Object storeValue) {
     if (storeValue != null && this.serialization != null) {

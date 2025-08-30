@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -274,12 +274,20 @@ public class GenericTableMetaDataProvider implements TableMetaDataProvider {
     }
   }
 
+  /**
+   * This implementation delegates to {@link #catalogNameToUse}.
+   */
   @Override
   @Nullable
   public String metaDataCatalogNameToUse(@Nullable String catalogName) {
     return catalogNameToUse(catalogName);
   }
 
+  /**
+   * This implementation delegates to {@link #schemaNameToUse}.
+   *
+   * @see #getDefaultSchema()
+   */
   @Override
   @Nullable
   public String metaDataSchemaNameToUse(@Nullable String schemaName) {
@@ -403,7 +411,7 @@ public class GenericTableMetaDataProvider implements TableMetaDataProvider {
     try {
       tableColumns = databaseMetaData.getColumns(
               metaDataCatalogName, metaDataSchemaName, metaDataTableName, null);
-      while (tableColumns.next()) {
+      while (tableColumns != null && tableColumns.next()) {
         String columnName = tableColumns.getString("COLUMN_NAME");
         int dataType = tableColumns.getInt("DATA_TYPE");
         if (dataType == Types.DECIMAL) {

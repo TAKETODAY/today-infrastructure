@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -217,9 +217,8 @@ public class ProtobufDecoder extends ProtobufCodecSupport implements Decoder<Mes
             }
             if (this.maxMessageSize > 0 && this.messageBytesToRead > this.maxMessageSize) {
               throw new DataBufferLimitException(
-                      "The number of bytes to read for message " +
-                              "(" + this.messageBytesToRead + ") exceeds " +
-                              "the configured limit (" + this.maxMessageSize + ")");
+                      "The number of bytes to read for message (%d) exceeds the configured limit (%d)"
+                              .formatted(this.messageBytesToRead, this.maxMessageSize));
             }
             this.output = input.factory().allocateBuffer(this.messageBytesToRead);
           }

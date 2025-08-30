@@ -998,7 +998,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     return initializeBean(existingBean, beanName, bd);
   }
 
-  public void populateBean(String beanName, RootBeanDefinition merged, BeanWrapper beanWrapper) {
+  public void populateBean(String beanName, RootBeanDefinition merged, @Nullable BeanWrapper beanWrapper) {
     if (beanWrapper == null) {
       if (merged.hasPropertyValues()) {
         throw new BeanCreationException(
@@ -2056,6 +2056,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
       super(field, false, eager);
     }
 
+    @Nullable
     @Override
     public String getDependencyName() {
       return null;

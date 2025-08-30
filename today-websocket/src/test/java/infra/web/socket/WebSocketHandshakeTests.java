@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ import infra.beans.factory.annotation.Autowired;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.lang.Nullable;
+import infra.util.concurrent.Future;
 import infra.web.HandlerExceptionHandler;
 import infra.web.RequestContext;
 import infra.web.socket.client.WebSocketClient;
@@ -142,12 +143,14 @@ class WebSocketHandshakeTests extends AbstractWebSocketIntegrationTests {
       return this.transportError;
     }
 
+    @Nullable
     @Override
-    public void handleMessage(WebSocketSession session, WebSocketMessage message) {
+    public Future<Void> handleMessage(WebSocketSession session, WebSocketMessage message) {
       this.receivedMessages.add(message);
       if (this.receivedMessages.size() >= this.waitMessageCount) {
         this.latch.countDown();
       }
+      return null;
     }
 
     @Override

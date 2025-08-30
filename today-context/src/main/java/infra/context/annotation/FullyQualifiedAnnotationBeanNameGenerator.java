@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,8 @@ import infra.lang.Assert;
  * <p>Favor this bean naming strategy over {@code AnnotationBeanNameGenerator} if
  * you run into naming conflicts due to multiple autodetected components having the
  * same non-qualified class name (i.e., classes with identical names but residing in
- * different packages).
+ * different packages). If you need such conflict avoidance for {@link Bean @Bean}
+ * methods as well, consider {@link FullyQualifiedConfigurationBeanNameGenerator}.
  *
  * <p>Note that an instance of this class is used by default for configuration-level
  * import purposes; whereas, the default for component scanning purposes is a plain

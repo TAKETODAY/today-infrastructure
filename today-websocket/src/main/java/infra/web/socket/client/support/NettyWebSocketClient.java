@@ -45,7 +45,6 @@ import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketSession;
 import infra.web.socket.client.AbstractWebSocketClient;
 import infra.web.socket.server.support.NettyWebSocketSession;
-import infra.web.socket.server.support.WsNettyChannelHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFactory;
@@ -57,7 +56,8 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.MultiThreadIoEventLoopGroup;
+import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.FullHttpResponse;
@@ -127,7 +127,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
   private ChannelFactory<?> channelFactory;
 
   @Nullable
-  private NioEventLoopGroup eventLoopGroup;
+  private EventLoopGroup eventLoopGroup;
 
   /**
    * the number of threads that will be used by
@@ -231,7 +231,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
    * The {@link EventLoopGroup} which is used to handle all the events for the to-be-created
    * {@link Channel}
    */
-  public void setEventLoopGroup(@Nullable NioEventLoopGroup eventLoopGroup) {
+  public void setEventLoopGroup(@Nullable EventLoopGroup eventLoopGroup) {
     this.eventLoopGroup = eventLoopGroup;
   }
 
@@ -332,7 +332,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
    * @since 5.0
    */
   protected Bootstrap createBootstrap(ChannelHandler handler, boolean secure) {
-    NioEventLoopGroup eventLoopGroup = eventLoopGroup();
+    EventLoopGroup eventLoopGroup = eventLoopGroup();
     ChannelFactory<?> channelFactory = channelFactory();
     Bootstrap bootstrap = new Bootstrap();
     processBootstrap(bootstrap);
@@ -408,13 +408,6 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
   }
 
   /**
-   * process close frame
-   */
-  protected void processCloseFrame(ChannelHandlerContext ctx) {
-    ctx.channel().close();
-  }
-
-  /**
    * default Channel is NioSocketChannel
    */
   private ChannelFactory<?> channelFactory() {
@@ -426,11 +419,12 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
     return channelFactory;
   }
 
-  private NioEventLoopGroup eventLoopGroup() {
-    NioEventLoopGroup eventLoopGroup = this.eventLoopGroup;
+  private EventLoopGroup eventLoopGroup() {
+    EventLoopGroup eventLoopGroup = this.eventLoopGroup;
     if (eventLoopGroup == null) {
-      eventLoopGroup = new NioEventLoopGroup(ioThreadCount,
-              new DefaultThreadFactory(ioThreadPoolName == null ? "websocket-client" : ioThreadPoolName));
+      eventLoopGroup = new MultiThreadIoEventLoopGroup(ioThreadCount,
+              new DefaultThreadFactory(ioThreadPoolName == null ? "websocket-client" : ioThreadPoolName),
+              NioIoHandler.newFactory());
       this.eventLoopGroup = eventLoopGroup;
     }
     return eventLoopGroup;
@@ -479,36 +473,20 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
       if (session != null) {
-        try {
-          handler.onClose(session, CloseStatus.NORMAL);
-        }
-        catch (Throwable e) {
-          throw ExceptionUtils.sneakyThrow(e);
-        }
+        handler.onClose(session, CloseStatus.NO_CLOSE_FRAME);
       }
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
       if (session != null) {
-        if (msg instanceof CloseWebSocketFrame cwsf) {
-          try {
-            handler.onClose(session, new CloseStatus(cwsf.statusCode(), cwsf.reasonText()));
-            session = null;
-            processCloseFrame(ctx);
-          }
-          catch (Throwable e) {
-            throw ExceptionUtils.sneakyThrow(e);
-          }
+        if (msg instanceof CloseWebSocketFrame cf) {
+          CloseStatus closeStatus = new CloseStatus(cf.statusCode(), cf.reasonText());
+          session.onClose(handler, closeStatus, logger);
+          session = null;
         }
         else if (msg instanceof WebSocketFrame frame) {
-          try {
-            var message = WsNettyChannelHandler.adaptMessage(session.bufferFactory(), frame);
-            handler.handleMessage(session, message);
-          }
-          catch (Throwable e) {
-            tryCloseWithError(session, e, logger);
-          }
+          session.handleMessage(handler, frame, logger);
         }
       }
       else if (msg instanceof FullHttpResponse res) {

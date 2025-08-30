@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.BeanInitializationException;
@@ -478,9 +477,9 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
     configureViewResolvers(registry);
     var viewResolvers = new ArrayList<>(registry.getViewResolvers());
     if (applicationContext != null) {
-      Set<String> names = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
+      var names = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
               applicationContext, ViewResolver.class, true, false);
-      if (names.size() == 1) {
+      if (names.length == 1) {
         // add default
         viewResolvers.add(new UrlBasedViewResolver());
         configureDefaultViewResolvers(viewResolvers);

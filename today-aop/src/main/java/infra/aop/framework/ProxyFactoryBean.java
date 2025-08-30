@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import infra.aop.Advisor;
 import infra.aop.TargetSource;
@@ -510,12 +509,10 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
    * Add all global interceptors and pointcuts.
    */
   private void addGlobalAdvisors(BeanFactory beanFactory, String prefix) {
-    Set<String> globalAdvisorNames =
-            BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory, Advisor.class);
-    Set<String> globalInterceptorNames =
-            BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory, Interceptor.class);
-    if (globalAdvisorNames.size() > 0 || globalInterceptorNames.size() > 0) {
-      ArrayList<Object> beans = new ArrayList<>(globalAdvisorNames.size() + globalInterceptorNames.size());
+    var globalAdvisorNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory, Advisor.class);
+    var globalInterceptorNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory, Interceptor.class);
+    if (globalAdvisorNames.length > 0 || globalInterceptorNames.length > 0) {
+      ArrayList<Object> beans = new ArrayList<>(globalAdvisorNames.length + globalInterceptorNames.length);
       for (String name : globalAdvisorNames) {
         if (name.startsWith(prefix)) {
           beans.add(beanFactory.getBean(name));

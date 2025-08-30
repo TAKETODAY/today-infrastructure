@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -115,7 +115,7 @@ public abstract class BindErrorUtils {
 
     @Override
     @Nullable
-    protected String getDefaultMessage(MessageSourceResolvable resolvable, Locale locale) {
+    protected String getDefaultMessage(MessageSourceResolvable resolvable, @Nullable Locale locale) {
       String message = super.getDefaultMessage(resolvable, locale);
       return (resolvable instanceof FieldError error ? error.getField() + ": " + message : message);
     }

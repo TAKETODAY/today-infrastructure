@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
-import java.util.Set;
 
 import infra.beans.factory.FactoryBean;
 import infra.beans.factory.config.InstantiationAwareBeanPostProcessor;
@@ -82,10 +81,11 @@ public class Spr8954Tests {
   }
 
   /**
+   *
    */
   @Test
   public void findsFactoryBeanNameByTypeWithoutInstantiation() {
-    Set<String> names = bf.getBeanNamesForType(AnInterface.class, false, false);
+    var names = bf.getBeanNamesForType(AnInterface.class, false, false);
     assertThat(names).contains("&foo");
 
     Map<String, AnInterface> beans = bf.getBeansOfType(AnInterface.class, false, false);

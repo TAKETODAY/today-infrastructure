@@ -281,12 +281,16 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
    * @return a list of supported protocols, or an empty list if none available
    */
   protected final List<String> determineHandlerSupportedProtocols(WebSocketHandler handler) {
-    WebSocketHandler handlerToCheck = handler.getRawHandler();
     List<String> subProtocols = null;
-    if (handlerToCheck instanceof SubProtocolCapable) {
-      subProtocols = ((SubProtocolCapable) handlerToCheck).getSubProtocols();
+    if (handler instanceof SubProtocolCapable spc) {
+      subProtocols = spc.getSubProtocols();
     }
-    return (subProtocols != null ? subProtocols : Collections.emptyList());
+    else {
+      if (handler.getRawHandler() instanceof SubProtocolCapable spc) {
+        subProtocols = spc.getSubProtocols();
+      }
+    }
+    return subProtocols != null ? subProtocols : Collections.emptyList();
   }
 
   /**
@@ -301,7 +305,9 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
    */
   protected List<WebSocketExtension> filterRequestedExtensions(RequestContext request,
           List<WebSocketExtension> requestedExtensions, List<WebSocketExtension> supportedExtensions) {
-
+    if (requestedExtensions.isEmpty()) {
+      return Collections.emptyList();
+    }
     ArrayList<WebSocketExtension> result = new ArrayList<>(requestedExtensions.size());
     for (WebSocketExtension extension : requestedExtensions) {
       if (supportedExtensions.contains(extension)) {

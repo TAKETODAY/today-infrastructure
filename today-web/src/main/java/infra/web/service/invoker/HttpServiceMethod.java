@@ -97,7 +97,7 @@ final class HttpServiceMethod {
   private static MethodParameter[] initMethodParameters(Method method) {
     int count = method.getParameterCount();
     if (count == 0) {
-      return new MethodParameter[0];
+      return MethodParameter.EMPTY_ARRAY;
     }
 
     ParameterNameDiscoverer nameDiscoverer = ParameterNameDiscoverer.getSharedInstance();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,21 +46,22 @@ public class MethodBasedEvaluationContext extends StandardEvaluationContext {
 
   private final Method method;
 
+  @Nullable
   private final Object[] arguments;
 
   private final ParameterNameDiscoverer parameterNameDiscoverer;
 
   private boolean argumentsLoaded = false;
 
-  public MethodBasedEvaluationContext(Object rootObject, Method method,
-          Object[] arguments, ParameterNameDiscoverer parameterNameDiscoverer) {
+  public MethodBasedEvaluationContext(@Nullable Object rootObject, Method method,
+          @Nullable Object[] arguments, ParameterNameDiscoverer parameterNameDiscoverer) {
     super(rootObject);
     this.method = method;
     this.arguments = arguments;
     this.parameterNameDiscoverer = parameterNameDiscoverer;
   }
 
-  public MethodBasedEvaluationContext(Object rootObject, Method method, Object[] arguments,
+  public MethodBasedEvaluationContext(@Nullable Object rootObject, Method method, @Nullable Object[] arguments,
           ParameterNameDiscoverer parameterNameDiscoverer, StandardEvaluationContext shared) {
     super(rootObject, shared);
     this.method = method;

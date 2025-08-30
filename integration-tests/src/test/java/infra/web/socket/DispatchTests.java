@@ -121,15 +121,19 @@ class DispatchTests {
       this.dataLatch = dataLatch;
     }
 
+    @Nullable
     @Override
-    protected void handleTextMessage(WebSocketSession session, WebSocketMessage message) {
+    protected Future<Void> handleTextMessage(WebSocketSession session, WebSocketMessage message) {
       messages.add(message.getPayloadAsText());
       dataLatch.countDown();
+      return null;
     }
 
+    @Nullable
     @Override
-    public void onClose(WebSocketSession session, CloseStatus status) {
+    public Future<Void> onClose(WebSocketSession session, CloseStatus status) {
       latch.countDown();
+      return null;
     }
 
   }
@@ -149,24 +153,22 @@ class DispatchTests {
     }
 
     @Override
-    public void onOpen(WebSocketSession session) throws Throwable {
-      super.onOpen(session);
+    public void onOpen(WebSocketSession session) {
       sessions.add(session);
     }
 
+    @Nullable
     @Override
-    protected void handleTextMessage(WebSocketSession session, WebSocketMessage message) {
-      for (WebSocketSession current : sessions) {
-        if (session != current) {
-          current.send(message.retainedDuplicate());
-        }
-      }
+    protected Future<Void> handleTextMessage(WebSocketSession session, WebSocketMessage message) {
+      return Future.combine(sessions.stream().filter(item -> item != session)
+              .map(current -> current.send(message.retainedDuplicate()))).asVoid();
     }
 
+    @Nullable
     @Override
-    public void onClose(WebSocketSession session, CloseStatus status) throws Throwable {
-      super.onClose(session, status);
+    public Future<Void> onClose(WebSocketSession session, CloseStatus status) {
       sessions.remove(session);
+      return null;
     }
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,18 +20,35 @@ package infra.jdbc.core.metadata;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
+import infra.lang.Nullable;
+
 /**
  * The PostgreSQL specific implementation of {@link TableMetaDataProvider}.
  * Supports a feature for retrieving generated keys without the JDBC 3.0
- * {@code getGeneratedKeys} support.
+ * {@code getGeneratedKeys} support. Also, it processes PostgreSQL-returned
+ * catalog and schema names from {@code DatabaseMetaData} in the given case.
  *
  * @author Thomas Risberg
+ * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class PostgresTableMetaDataProvider extends GenericTableMetaDataProvider {
 
   public PostgresTableMetaDataProvider(DatabaseMetaData databaseMetaData) throws SQLException {
     super(databaseMetaData);
+  }
+
+  @Nullable
+  @Override
+  public String metaDataCatalogNameToUse(@Nullable String catalogName) {
+    return catalogName;
+  }
+
+  @Nullable
+  @Override
+  public String metaDataSchemaNameToUse(@Nullable String schemaName) {
+    return schemaName != null ? schemaName : getDefaultSchema();
   }
 
   @Override

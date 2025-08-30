@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,11 +40,10 @@ import infra.util.StringUtils;
  * <li>Annotations -- for selecting handlers annotated in a specific way.
  * </ul>
  * <p>Composability methods on {@link Predicate} can be used :
- * <pre class="code">
- * Predicate&lt;Class&lt;?&gt;&gt; predicate =
- * 		HandlerTypePredicate.forAnnotation(RestController.class)
- * 				.and(HandlerTypePredicate.forBasePackage("org.example"));
- * </pre>
+ * <pre>{@code
+ * Predicate<Class<?>> predicate = HandlerTypePredicate.forAnnotation(RestController.class)
+ *         .and(HandlerTypePredicate.forBasePackage("org.example"));
+ * }</pre>
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -53,15 +52,16 @@ import infra.util.StringUtils;
 public final class HandlerTypePredicate implements Predicate<Class<?>> {
 
   private final Set<String> basePackages;
+
   private final List<Class<?>> assignableTypes;
+
   private final List<Class<? extends Annotation>> annotations;
 
   /**
    * Private constructor. See static factory methods.
    */
   private HandlerTypePredicate(Set<String> basePackages,
-          List<Class<?>> assignableTypes,
-          List<Class<? extends Annotation>> annotations) {
+          List<Class<?>> assignableTypes, List<Class<? extends Annotation>> annotations) {
     this.annotations = Collections.unmodifiableList(annotations);
     this.basePackages = Collections.unmodifiableSet(basePackages);
     this.assignableTypes = Collections.unmodifiableList(assignableTypes);

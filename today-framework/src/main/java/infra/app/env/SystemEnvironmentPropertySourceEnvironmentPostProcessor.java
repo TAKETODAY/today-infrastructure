@@ -80,8 +80,7 @@ public class SystemEnvironmentPropertySourceEnvironmentPostProcessor implements 
   /**
    * {@link SystemEnvironmentPropertySource} that also tracks {@link Origin}.
    */
-  protected static class OriginAwareSystemEnvironmentPropertySource
-          extends SystemEnvironmentPropertySource implements OriginLookup<String> {
+  protected static class OriginAwareSystemEnvironmentPropertySource extends SystemEnvironmentPropertySource implements OriginLookup<String> {
 
     @Nullable
     private final String prefix;

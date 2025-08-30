@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,10 +19,13 @@ package infra.context;
 
 import java.util.Locale;
 
+import infra.lang.Nullable;
+
 /**
  * Exception thrown when a message can't be resolved.
  *
  * @author Rod Johnson
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
@@ -34,7 +37,7 @@ public class NoSuchMessageException extends RuntimeException {
    * @param code the code that could not be resolved for given locale
    * @param locale the locale that was used to search for the code within
    */
-  public NoSuchMessageException(String code, Locale locale) {
+  public NoSuchMessageException(String code, @Nullable Locale locale) {
     super("No message found under code '" + code + "' for locale '" + locale + "'.");
   }
 

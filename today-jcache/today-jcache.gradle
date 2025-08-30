@@ -4,16 +4,12 @@ dependencies {
   api(project(":today-beans"))
   api(project(":today-context"))
   api(project(":today-core"))
+  api(project(":today-context-support"))
   optional(project(":today-jdbc"))
   optional(project(":today-tx"))
   optional(project(":today-aop"))
 
-  optional("jakarta.activation:jakarta.activation-api")
-  optional("jakarta.mail:jakarta.mail-api")
   optional("javax.cache:cache-api")
-  optional("com.github.ben-manes.caffeine:caffeine")
-  optional("org.freemarker:freemarker")
-  optional("jakarta.transaction:jakarta.transaction-api")  // for @jakarta.transaction.Transactional support
 
   testImplementation(project(":today-context"))
   testImplementation(testFixtures(project(":today-beans")))
@@ -24,8 +20,6 @@ dependencies {
   testImplementation("jakarta.annotation:jakarta.annotation-api")
   testRuntimeOnly("org.ehcache:jcache")
   testRuntimeOnly("org.ehcache:ehcache")
-  testRuntimeOnly("org.glassfish:jakarta.el")
-  testRuntimeOnly("com.sun.mail:jakarta.mail")
   testFixturesApi("org.junit.jupiter:junit-jupiter-api")
   testFixturesImplementation("org.assertj:assertj-core")
   testFixturesImplementation("org.mockito:mockito-core")

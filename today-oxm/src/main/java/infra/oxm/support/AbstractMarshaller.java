@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -470,7 +470,7 @@ public abstract class AbstractMarshaller implements Marshaller, Unmarshaller {
       if (!isSupportDtd()) {
         throw new UnmarshallingFailureException("NPE while unmarshalling. " +
                 "This can happen on JDK 1.6 due to the presence of DTD " +
-                "declarations, which are disabled.");
+                "declarations, which are disabled.", null);
       }
       throw ex;
     }

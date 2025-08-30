@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@ import java.lang.reflect.Method;
 
 import infra.context.ApplicationListener;
 import infra.core.annotation.AnnotatedElementUtils;
+import infra.transaction.event.TransactionPhase;
+import infra.transaction.event.TransactionalApplicationListenerMethodAdapter;
 import infra.transaction.event.TransactionalEventListenerFactory;
 
 /**
@@ -39,20 +41,21 @@ public class RestrictedTransactionalEventListenerFactory extends TransactionalEv
 
   @Override
   public ApplicationListener<?> createApplicationListener(String beanName, Class<?> type, Method method) {
-    Transactional txAnn = AnnotatedElementUtils.findMergedAnnotation(method, Transactional.class);
-
-    if (txAnn == null) {
-      txAnn = AnnotatedElementUtils.findMergedAnnotation(type, Transactional.class);
-    }
-
-    if (txAnn != null) {
-      Propagation propagation = txAnn.propagation();
-      if (propagation != Propagation.REQUIRES_NEW && propagation != Propagation.NOT_SUPPORTED) {
-        throw new IllegalStateException("@TransactionalEventListener method must not be annotated with " +
-                "@Transactional unless when declared as REQUIRES_NEW or NOT_SUPPORTED: " + method);
+    var adapter = new TransactionalApplicationListenerMethodAdapter(beanName, type, method);
+    if (adapter.getTransactionPhase() != TransactionPhase.BEFORE_COMMIT) {
+      Transactional txAnn = AnnotatedElementUtils.findMergedAnnotation(method, Transactional.class);
+      if (txAnn == null) {
+        txAnn = AnnotatedElementUtils.findMergedAnnotation(type, Transactional.class);
+      }
+      if (txAnn != null) {
+        Propagation propagation = txAnn.propagation();
+        if (propagation != Propagation.REQUIRES_NEW && propagation != Propagation.NOT_SUPPORTED) {
+          throw new IllegalStateException("@TransactionalEventListener method must not be annotated with " +
+                  "@Transactional unless when declared as REQUIRES_NEW or NOT_SUPPORTED: " + method);
+        }
       }
     }
-    return super.createApplicationListener(beanName, type, method);
+    return adapter;
   }
 
 }

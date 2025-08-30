@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -712,7 +712,6 @@ class BeanFactoryGenericsTests {
   }
 
   @Test
-
   void parameterizedInstanceFactoryMethodWithTempClassLoader() {
     StandardBeanFactory bf = new StandardBeanFactory();
     bf.setTempClassLoader(new OverridingClassLoader(getClass().getClassLoader()));
@@ -748,9 +747,9 @@ class BeanFactoryGenericsTests {
     assertThat(nb.getDoubleStore()).isSameAs(bf.getBean("doubleStore"));
     assertThat(nb.getFloatStore()).isSameAs(bf.getBean("floatStore"));
 
-    String[] numberStoreNames = bf.getBeanNamesForType(ResolvableType.forClass(NumberStore.class)).toArray(new String[0]);
-    String[] doubleStoreNames = bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(NumberStore.class, Double.class)).toArray(new String[0]);
-    String[] floatStoreNames = bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(NumberStore.class, Float.class)).toArray(new String[0]);
+    String[] numberStoreNames = bf.getBeanNamesForType(ResolvableType.forClass(NumberStore.class));
+    String[] doubleStoreNames = bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(NumberStore.class, Double.class));
+    String[] floatStoreNames = bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(NumberStore.class, Float.class));
     assertThat(numberStoreNames).hasSize(2);
     assertThat(numberStoreNames[0]).isEqualTo("doubleStore");
     assertThat(numberStoreNames[1]).isEqualTo("floatStore");
@@ -785,9 +784,9 @@ class BeanFactoryGenericsTests {
     assertThat(nb.getDoubleStore()).isSameAs(store1);
     assertThat(nb.getFloatStore()).isSameAs(store2);
 
-    String[] numberStoreNames = bf.getBeanNamesForType(ResolvableType.forClass(NumberStore.class)).toArray(new String[0]);
-    String[] doubleStoreNames = bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(NumberStore.class, Double.class)).toArray(new String[0]);
-    String[] floatStoreNames = bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(NumberStore.class, Float.class)).toArray(new String[0]);
+    String[] numberStoreNames = bf.getBeanNamesForType(ResolvableType.forClass(NumberStore.class));
+    String[] doubleStoreNames = bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(NumberStore.class, Double.class));
+    String[] floatStoreNames = bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(NumberStore.class, Float.class));
     assertThat(numberStoreNames).hasSize(2);
     assertThat(numberStoreNames[0]).isEqualTo("store1");
     assertThat(numberStoreNames[1]).isEqualTo("store2");

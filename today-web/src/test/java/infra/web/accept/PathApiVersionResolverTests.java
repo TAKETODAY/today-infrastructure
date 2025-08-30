@@ -23,6 +23,7 @@ import infra.mock.api.http.HttpMockRequest;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.web.mock.MockRequestContext;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 /**
@@ -35,6 +36,11 @@ class PathApiVersionResolverTests {
   void resolve() {
     testResolve(0, "/1.0/path", "1.0");
     testResolve(1, "/app/1.1/path", "1.1");
+  }
+
+  @Test
+  void insufficientPathSegments() {
+    assertThatThrownBy(() -> testResolve(0, "/", "1.0")).isInstanceOf(InvalidApiVersionException.class);
   }
 
   private static void testResolve(int index, String requestUri, String expected) {

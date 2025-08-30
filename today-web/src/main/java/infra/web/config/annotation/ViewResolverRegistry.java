@@ -224,7 +224,7 @@ public class ViewResolverRegistry {
 
   private boolean notFoundBeanOfType(Class<?> beanType) {
     return this.applicationContext != null
-            && CollectionUtils.isEmpty(BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
+            && ObjectUtils.isEmpty(BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
             this.applicationContext, beanType, false, false));
   }
 

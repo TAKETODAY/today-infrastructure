@@ -26,6 +26,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.net.http.HttpResponse.BodySubscribers;
 import java.net.http.HttpTimeoutException;
 import java.nio.ByteBuffer;
 import java.time.Duration;
@@ -40,6 +41,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.InflaterInputStream;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
@@ -63,25 +67,7 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
 
   private static final Set<String> DISALLOWED_HEADERS = disallowedHeaders();
 
-  /**
-   * By default, {@link HttpRequest} does not allow {@code Connection},
-   * {@code Content-Length}, {@code Expect}, {@code Host}, or {@code Upgrade}
-   * headers to be set, but this can be overriden with the
-   * {@code jdk.httpclient.allowRestrictedHeaders} system property.
-   *
-   * @see jdk.internal.net.http.common.Utils#getDisallowedHeaders()
-   */
-  private static Set<String> disallowedHeaders() {
-    TreeSet<String> headers = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-    headers.addAll(Set.of("connection", "content-length", "expect", "host", "upgrade"));
-
-    String headersToAllow = System.getProperty("jdk.httpclient.allowRestrictedHeaders");
-    if (headersToAllow != null) {
-      Set<String> toAllow = StringUtils.commaDelimitedListToSet(headersToAllow);
-      headers.removeAll(toAllow);
-    }
-    return Collections.unmodifiableSet(headers);
-  }
+  private static final List<String> SUPPORTED_ENCODINGS = List.of("gzip", "deflate");
 
   private final HttpClient httpClient;
 
@@ -94,13 +80,17 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
   @Nullable
   private final Duration timeout;
 
-  public JdkClientHttpRequest(HttpClient httpClient, URI uri,
-          HttpMethod method, Executor executor, @Nullable Duration readTimeout) {
+  private final boolean compression;
+
+  JdkClientHttpRequest(HttpClient httpClient, URI uri, HttpMethod method,
+          Executor executor, @Nullable Duration readTimeout, boolean compression) {
+
     this.httpClient = httpClient;
     this.uri = uri;
     this.method = method;
     this.executor = executor;
     this.timeout = readTimeout;
+    this.compression = compression;
   }
 
   @Override
@@ -116,12 +106,14 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
   @Override
   protected ClientHttpResponse executeInternal(HttpHeaders headers, @Nullable Body body) throws IOException {
     CompletableFuture<HttpResponse<InputStream>> responseFuture = null;
+    TimeoutHandler timeoutHandler = null;
+
     try {
       HttpRequest request = buildRequest(headers, body);
-      responseFuture = this.httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofInputStream());
+      responseFuture = this.httpClient.sendAsync(request, this.compression ? new DecompressingBodyHandler() : HttpResponse.BodyHandlers.ofInputStream());
 
       if (this.timeout != null) {
-        TimeoutHandler timeoutHandler = new TimeoutHandler(responseFuture, this.timeout);
+        timeoutHandler = new TimeoutHandler(responseFuture, this.timeout);
         HttpResponse<InputStream> response = responseFuture.get();
         InputStream inputStream = timeoutHandler.wrapInputStream(response);
         return new JdkClientHttpResponse(response, inputStream);
@@ -139,8 +131,11 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
     catch (ExecutionException ex) {
       Throwable cause = ex.getCause();
 
-      if (cause instanceof CancellationException) {
-        throw new HttpTimeoutException("Request timed out");
+      if (cause instanceof CancellationException ce) {
+        if (timeoutHandler != null) {
+          timeoutHandler.handleCancellationException(ce);
+        }
+        throw new IOException("Request cancelled", cause);
       }
       if (cause instanceof UncheckedIOException uioEx) {
         throw uioEx.getCause();
@@ -155,12 +150,19 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
         throw new IOException(cause.getMessage(), cause);
       }
     }
+    catch (CancellationException ex) {
+      if (timeoutHandler != null) {
+        timeoutHandler.handleCancellationException(ex);
+      }
+      throw new IOException("Request cancelled", ex);
+    }
   }
 
   @Override
   protected Future<ClientHttpResponse> asyncInternal(HttpHeaders headers, @Nullable Body body, @Nullable Executor executor) {
     HttpRequest request = buildRequest(headers, body);
-    var responseFuture = Future.forAdaption(httpClient.sendAsync(request, BodyHandlers.ofInputStream()), executor);
+    var responseFuture = Future.forAdaption(httpClient.sendAsync(request,
+            this.compression ? new DecompressingBodyHandler() : BodyHandlers.ofInputStream()), executor);
     if (timeout != null) {
       responseFuture = responseFuture.timeout(timeout);
     }
@@ -170,6 +172,12 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
   private HttpRequest buildRequest(HttpHeaders headers, @Nullable Body body) {
     HttpRequest.Builder builder = HttpRequest.newBuilder()
             .uri(this.uri);
+
+    if (this.compression) {
+      if (!headers.containsKey(HttpHeaders.ACCEPT_ENCODING)) {
+        headers.addAll(HttpHeaders.ACCEPT_ENCODING, SUPPORTED_ENCODINGS);
+      }
+    }
 
     for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
       String headerName = entry.getKey();
@@ -214,6 +222,26 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
     }
   }
 
+  /**
+   * By default, {@link HttpRequest} does not allow {@code Connection},
+   * {@code Content-Length}, {@code Expect}, {@code Host}, or {@code Upgrade}
+   * headers to be set, but this can be overriden with the
+   * {@code jdk.httpclient.allowRestrictedHeaders} system property.
+   *
+   * @see jdk.internal.net.http.common.Utils#getDisallowedHeaders()
+   */
+  private static Set<String> disallowedHeaders() {
+    TreeSet<String> headers = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+    headers.addAll(Set.of("connection", "content-length", "expect", "host", "upgrade"));
+
+    String headersToAllow = System.getProperty("jdk.httpclient.allowRestrictedHeaders");
+    if (headersToAllow != null) {
+      Set<String> toAllow = StringUtils.commaDelimitedListToSet(headersToAllow);
+      headers.removeAll(toAllow);
+    }
+    return Collections.unmodifiableSet(headers);
+  }
+
   private static final class ByteBufferMapper implements OutputStreamPublisher.ByteMapper<ByteBuffer> {
 
     @Override
@@ -246,11 +274,14 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
 
     private final CompletableFuture<Void> timeoutFuture;
 
+    private final AtomicBoolean timeout = new AtomicBoolean(false);
+
     private TimeoutHandler(CompletableFuture<HttpResponse<InputStream>> future, Duration timeout) {
       this.timeoutFuture = new CompletableFuture<Void>()
               .completeOnTimeout(null, timeout.toMillis(), TimeUnit.MILLISECONDS);
 
       this.timeoutFuture.thenRun(() -> {
+        this.timeout.set(true);
         if (future.cancel(true) || future.isCompletedExceptionally() || !future.isDone()) {
           return;
         }
@@ -277,6 +308,43 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
           super.close();
         }
       };
+    }
+
+    public void handleCancellationException(CancellationException ex) throws HttpTimeoutException {
+      if (this.timeout.get()) {
+        throw new HttpTimeoutException(ex.getMessage());
+      }
+    }
+
+  }
+
+  /**
+   * BodyHandler that checks the Content-Encoding header and applies the appropriate decompression algorithm.
+   * Supports Gzip and Deflate encoded responses.
+   */
+  private static final class DecompressingBodyHandler implements HttpResponse.BodyHandler<InputStream> {
+
+    @Override
+    public HttpResponse.BodySubscriber<InputStream> apply(HttpResponse.ResponseInfo responseInfo) {
+      String contentEncoding = responseInfo.headers().firstValue(HttpHeaders.CONTENT_ENCODING).orElse(null);
+      if (contentEncoding != null) {
+        if (contentEncoding.equalsIgnoreCase("gzip")) {
+          return BodySubscribers.mapping(BodySubscribers.ofInputStream(),
+                  (InputStream is) -> {
+                    try {
+                      return new GZIPInputStream(is);
+                    }
+                    catch (IOException ex) {
+                      throw new UncheckedIOException(ex);
+                    }
+                  });
+        }
+        else if (contentEncoding.equalsIgnoreCase("deflate")) {
+          return BodySubscribers.mapping(BodySubscribers.ofInputStream(), InflaterInputStream::new);
+        }
+      }
+
+      return BodySubscribers.ofInputStream();
     }
   }
 

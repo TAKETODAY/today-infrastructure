@@ -710,8 +710,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see BeanFactoryUtils#beanNamesForTypeIncludingAncestors(BeanFactory, Class)
    * @since 3.0
    */
-  @Modifiable
-  Set<String> getBeanNamesForType(@Nullable Class<?> type);
+  String[] getBeanNamesForType(@Nullable Class<?> type);
 
   /**
    * Return the names of beans matching the given type (including subclasses),
@@ -746,8 +745,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see BeanFactoryUtils#beanNamesForTypeIncludingAncestors(BeanFactory, Class, boolean, boolean)
    * @since 3.0
    */
-  @Modifiable
-  Set<String> getBeanNamesForType(@Nullable Class<?> type, boolean includeNonSingletons, boolean allowEagerInit);
+  String[] getBeanNamesForType(@Nullable Class<?> type, boolean includeNonSingletons, boolean allowEagerInit);
 
   /**
    * Return the names of beans matching the given type (including subclasses),
@@ -775,8 +773,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see BeanFactoryUtils#beanNamesForTypeIncludingAncestors(BeanFactory, ResolvableType)
    * @since 4.0
    */
-  @Modifiable
-  Set<String> getBeanNamesForType(ResolvableType type);
+  String[] getBeanNamesForType(ResolvableType type);
 
   /**
    * Return the names of beans matching the given type (including subclasses),
@@ -811,8 +808,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see BeanFactoryUtils#beanNamesForTypeIncludingAncestors(BeanFactory, ResolvableType, boolean, boolean)
    * @since 4.0
    */
-  @Modifiable
-  Set<String> getBeanNamesForType(ResolvableType type, boolean includeNonSingletons, boolean allowEagerInit);
+  String[] getBeanNamesForType(ResolvableType type, boolean includeNonSingletons, boolean allowEagerInit);
 
   /**
    * Find all names of beans which are annotated with the supplied {@link Annotation}
@@ -826,8 +822,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see #findSynthesizedAnnotation(String, Class)
    * @since 4.0
    */
-  @Modifiable
-  Set<String> getBeanNamesForAnnotation(Class<? extends Annotation> annotationType);
+  String[] getBeanNamesForAnnotation(Class<? extends Annotation> annotationType);
 
   /**
    * Return a provider for the specified bean, allowing for lazy on-demand retrieval

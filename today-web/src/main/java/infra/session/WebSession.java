@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@ package infra.session;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Map;
 
 import infra.core.AttributeAccessor;
@@ -206,12 +205,11 @@ public interface WebSession extends AttributeAccessor {
   /**
    * Return the names Iterator.
    *
+   * @see #getAttributeNames()
    * @since 4.0
    */
   @Override
-  default Iterable<String> attributeNames() {
-    return Arrays.asList(getAttributeNames());
-  }
+  Iterable<String> attributeNames();
 
   /**
    * Returns {@code true} if this map contains no key-value mappings.

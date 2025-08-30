@@ -22,8 +22,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import infra.http.MediaType;
+import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.web.accept.ApiVersionDeprecationHandler;
 import infra.web.accept.ApiVersionParser;
@@ -50,7 +52,8 @@ public class ApiVersionConfigurer {
   @Nullable
   private ApiVersionParser<?> versionParser;
 
-  private boolean versionRequired = true;
+  @Nullable
+  private Boolean versionRequired;
 
   @Nullable
   private String defaultVersion;
@@ -61,6 +64,9 @@ public class ApiVersionConfigurer {
 
   @Nullable
   private ApiVersionDeprecationHandler deprecationHandler;
+
+  @Nullable
+  private Predicate<Comparable<?>> supportedVersionPredicate;
 
   /**
    * Add resolver to extract the version from a request header.
@@ -200,15 +206,28 @@ public class ApiVersionConfigurer {
     return this;
   }
 
+  /**
+   * Provide a {@link Predicate} to perform supported version checks with, in
+   * effect taking over the supported version check and superseding the
+   * {@link #addSupportedVersions} and {@link #detectSupportedVersions}.
+   *
+   * @param predicate the predicate to use
+   */
+  public void setSupportedVersionPredicate(@Nullable Predicate<Comparable<?>> predicate) {
+    this.supportedVersionPredicate = predicate;
+  }
+
   @Nullable
   protected ApiVersionStrategy getApiVersionStrategy() {
     if (this.versionResolvers.isEmpty()) {
+      Assert.state(isNotCustomized(), "API version config customized, but no ApiVersionResolver provided");
       return null;
     }
 
     var strategy = new DefaultApiVersionStrategy(this.versionResolvers,
             this.versionParser != null ? this.versionParser : new SemanticApiVersionParser(),
-            this.versionRequired, this.defaultVersion, this.detectSupportedVersions, this.deprecationHandler);
+            this.versionRequired != null ? this.versionRequired : true, this.defaultVersion,
+            this.detectSupportedVersions, this.deprecationHandler, supportedVersionPredicate);
 
     for (String supportedVersion : supportedVersions) {
       strategy.addSupportedVersion(supportedVersion);
@@ -217,4 +236,8 @@ public class ApiVersionConfigurer {
     return strategy;
   }
 
+  private boolean isNotCustomized() {
+    return (this.versionParser == null && this.versionRequired == null &&
+            this.defaultVersion == null && this.supportedVersions.isEmpty());
+  }
 }

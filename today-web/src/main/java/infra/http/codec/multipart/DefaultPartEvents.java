@@ -20,7 +20,6 @@ package infra.http.codec.multipart;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DefaultDataBufferFactory;
 import infra.http.HttpHeaders;
-import infra.lang.Assert;
 
 /**
  * Default implementations of {@link PartEvent} and subtypes.
@@ -32,30 +31,22 @@ import infra.lang.Assert;
 abstract class DefaultPartEvents {
 
   public static FormPartEvent form(HttpHeaders headers) {
-    Assert.notNull(headers, "Headers is required");
     return new DefaultFormFieldPartEvent(headers);
   }
 
   public static FormPartEvent form(HttpHeaders headers, String value) {
-    Assert.notNull(headers, "Headers is required");
-    Assert.notNull(value, "Value is required");
     return new DefaultFormFieldPartEvent(headers, value);
   }
 
   public static FilePartEvent file(HttpHeaders headers, DataBuffer dataBuffer, boolean isLast) {
-    Assert.notNull(headers, "Headers is required");
-    Assert.notNull(dataBuffer, "DataBuffer is required");
     return new DefaultFilePartEvent(headers, dataBuffer, isLast);
   }
 
   public static FilePartEvent file(HttpHeaders headers) {
-    Assert.notNull(headers, "Headers is required");
     return new DefaultFilePartEvent(headers);
   }
 
   public static PartEvent create(HttpHeaders headers, DataBuffer dataBuffer, boolean isLast) {
-    Assert.notNull(headers, "Headers is required");
-    Assert.notNull(dataBuffer, "DataBuffer is required");
     if (headers.getContentDisposition().getFilename() != null) {
       return file(headers, dataBuffer, isLast);
     }
@@ -65,7 +56,6 @@ abstract class DefaultPartEvents {
   }
 
   public static PartEvent create(HttpHeaders headers) {
-    Assert.notNull(headers, "Headers is required");
     if (headers.getContentDisposition().getFilename() != null) {
       return file(headers);
     }

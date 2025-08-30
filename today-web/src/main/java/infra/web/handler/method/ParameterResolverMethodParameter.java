@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,11 +39,6 @@ final class ParameterResolverMethodParameter extends ResolvableMethodParameter {
     this.resolvers = resolvers;
   }
 
-  ParameterResolverMethodParameter(ResolvableMethodParameter other, MethodParameter parameter, ParameterResolvingRegistry resolvers) {
-    super(other, parameter);
-    this.resolvers = resolvers;
-  }
-
   @Override
   @Nullable
   public Object resolveParameter(final RequestContext request) throws Throwable {
@@ -53,11 +48,6 @@ final class ParameterResolverMethodParameter extends ResolvableMethodParameter {
       this.strategy = strategy;
     }
     return strategy.resolveArgument(request, this);
-  }
-
-  @Override
-  protected ResolvableMethodParameter nested(MethodParameter parameter) {
-    return new ParameterResolverMethodParameter(this, parameter, resolvers);
   }
 
 }

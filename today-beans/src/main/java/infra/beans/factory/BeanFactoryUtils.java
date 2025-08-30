@@ -18,9 +18,9 @@
 package infra.beans.factory;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
@@ -28,6 +28,8 @@ import infra.beans.BeansException;
 import infra.core.ResolvableType;
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.util.CollectionUtils;
+import infra.util.StringUtils;
 
 /**
  * Convenience methods operating on bean factories, in particular
@@ -132,17 +134,17 @@ public abstract class BeanFactoryUtils {
    * @see #beanNamesIncludingAncestors
    */
   public static int countBeansIncludingAncestors(BeanFactory factory) {
-    return beanNamesIncludingAncestors(factory).size();
+    return beanNamesIncludingAncestors(factory).length;
   }
 
   /**
    * Return all bean names in the factory, including ancestor factories.
    *
    * @param factory the bean factory
-   * @return the set of matching bean names, or an empty array if none
+   * @return the array of matching bean names, or an empty array if none
    * @see #beanNamesForTypeIncludingAncestors
    */
-  public static Set<String> beanNamesIncludingAncestors(BeanFactory factory) {
+  public static String[] beanNamesIncludingAncestors(BeanFactory factory) {
     return beanNamesForTypeIncludingAncestors(factory, Object.class);
   }
 
@@ -157,17 +159,16 @@ public abstract class BeanFactoryUtils {
    *
    * @param factory the bean factory
    * @param type the type that beans must match (as a {@code ResolvableType})
-   * @return the set of matching bean names, or an empty array if none
+   * @return the array of matching bean names, or an empty array if none
    * @see BeanFactory#getBeansOfType(ResolvableType, boolean, boolean)
    */
-  public static Set<String> beanNamesForTypeIncludingAncestors(BeanFactory factory, ResolvableType type) {
+  public static String[] beanNamesForTypeIncludingAncestors(BeanFactory factory, ResolvableType type) {
     Assert.notNull(factory, "BeanFactory is required");
-    Set<String> result = factory.getBeanNamesForType(type);
+    var result = factory.getBeanNamesForType(type);
     if (factory instanceof HierarchicalBeanFactory hbf) {
       if (hbf.getParentBeanFactory() != null) {
-        Set<String> parentResult = beanNamesForTypeIncludingAncestors(
-                hbf.getParentBeanFactory(), type);
-        mergeNamesWithParent(result, parentResult, hbf);
+        String[] parentResult = beanNamesForTypeIncludingAncestors(hbf.getParentBeanFactory(), type);
+        result = mergeNamesWithParent(result, parentResult, hbf);
       }
     }
     return result;
@@ -192,19 +193,19 @@ public abstract class BeanFactoryUtils {
    * "factory-bean" reference) for the type check. Note that FactoryBeans need to be
    * eagerly initialized to determine their type: So be aware that passing in "true"
    * for this flag will initialize FactoryBeans and "factory-bean" references.
-   * @return the set of matching bean names, or an empty array if none
+   * @return the array of matching bean names, or an empty array if none
    * @see BeanFactory#getBeanNamesForType(ResolvableType, boolean, boolean)
    */
-  public static Set<String> beanNamesForTypeIncludingAncestors(
+  public static String[] beanNamesForTypeIncludingAncestors(
           BeanFactory factory, ResolvableType type, boolean includeNonSingletons, boolean allowEagerInit) {
 
     Assert.notNull(factory, "BeanFactory is required");
-    Set<String> result = factory.getBeanNamesForType(type, includeNonSingletons, allowEagerInit);
+    var result = factory.getBeanNamesForType(type, includeNonSingletons, allowEagerInit);
     if (factory instanceof HierarchicalBeanFactory hbf) {
       if (hbf.getParentBeanFactory() != null) {
-        Set<String> parentResult = beanNamesForTypeIncludingAncestors(
+        String[] parentResult = beanNamesForTypeIncludingAncestors(
                 hbf.getParentBeanFactory(), type, includeNonSingletons, allowEagerInit);
-        mergeNamesWithParent(result, parentResult, hbf);
+        result = mergeNamesWithParent(result, parentResult, hbf);
       }
     }
     return result;
@@ -221,17 +222,17 @@ public abstract class BeanFactoryUtils {
    *
    * @param factory the bean factory
    * @param type the type that beans must match (as a {@code Class})
-   * @return the set of matching bean names, or an empty array if none
+   * @return the array of matching bean names, or an empty array if none
    * @see BeanFactory#getBeanNamesForType(Class)
    */
-  public static Set<String> beanNamesForTypeIncludingAncestors(BeanFactory factory, Class<?> type) {
+  public static String[] beanNamesForTypeIncludingAncestors(BeanFactory factory, Class<?> type) {
     Assert.notNull(factory, "BeanFactory is required");
-    Set<String> result = factory.getBeanNamesForType(type);
+    var result = factory.getBeanNamesForType(type);
     if (factory instanceof HierarchicalBeanFactory hbf) {
       if (hbf.getParentBeanFactory() != null) {
-        Set<String> parentResult = beanNamesForTypeIncludingAncestors(
+        String[] parentResult = beanNamesForTypeIncludingAncestors(
                 hbf.getParentBeanFactory(), type);
-        mergeNamesWithParent(result, parentResult, hbf);
+        result = mergeNamesWithParent(result, parentResult, hbf);
       }
     }
     return result;
@@ -256,19 +257,19 @@ public abstract class BeanFactoryUtils {
    * eagerly initialized to determine their type: So be aware that passing in "true"
    * for this flag will initialize FactoryBeans and "factory-bean" references.
    * @param type the type that beans must match
-   * @return the set of matching bean names, or an empty array if none
+   * @return the array of matching bean names, or an empty array if none
    * @see BeanFactory#getBeanNamesForType(Class, boolean, boolean)
    */
-  public static Set<String> beanNamesForTypeIncludingAncestors(
+  public static String[] beanNamesForTypeIncludingAncestors(
           BeanFactory factory, Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
 
     Assert.notNull(factory, "BeanFactory is required");
-    Set<String> result = factory.getBeanNamesForType(type, includeNonSingletons, allowEagerInit);
+    var result = factory.getBeanNamesForType(type, includeNonSingletons, allowEagerInit);
     if (factory instanceof HierarchicalBeanFactory hbf) {
       if (hbf.getParentBeanFactory() != null) {
-        Set<String> parentResult = beanNamesForTypeIncludingAncestors(
+        String[] parentResult = beanNamesForTypeIncludingAncestors(
                 hbf.getParentBeanFactory(), type, includeNonSingletons, allowEagerInit);
-        mergeNamesWithParent(result, parentResult, hbf);
+        result = mergeNamesWithParent(result, parentResult, hbf);
       }
     }
     return result;
@@ -281,19 +282,17 @@ public abstract class BeanFactoryUtils {
    *
    * @param factory the bean factory
    * @param annotationType the type of annotation to look for
-   * @return the set of matching bean names, or an empty array if none
+   * @return the array of matching bean names, or an empty array if none
    * @see BeanFactory#getBeanNamesForAnnotation(Class)
    */
-  public static Set<String> beanNamesForAnnotationIncludingAncestors(
-          BeanFactory factory, Class<? extends Annotation> annotationType) {
-
+  public static String[] beanNamesForAnnotationIncludingAncestors(BeanFactory factory, Class<? extends Annotation> annotationType) {
     Assert.notNull(factory, "BeanFactory is required");
-    Set<String> result = factory.getBeanNamesForAnnotation(annotationType);
+    var result = factory.getBeanNamesForAnnotation(annotationType);
     if (factory instanceof HierarchicalBeanFactory hbf) {
       if (hbf.getParentBeanFactory() != null) {
-        Set<String> parentResult = beanNamesForAnnotationIncludingAncestors(
+        String[] parentResult = beanNamesForAnnotationIncludingAncestors(
                 hbf.getParentBeanFactory(), annotationType);
-        mergeNamesWithParent(result, parentResult, hbf);
+        result = mergeNamesWithParent(result, parentResult, hbf);
       }
     }
     return result;
@@ -519,19 +518,23 @@ public abstract class BeanFactoryUtils {
   /**
    * Merge the given bean names result with the given parent result.
    *
-   * @param result the local bean name result ,the merged result (possibly the local result as-is)
+   * @param result the local bean name result
    * @param parentResult the parent bean name result (possibly empty)
    * @param hbf the local bean factory
+   * @return the merged result (possibly the local result as-is)
    */
-  private static void mergeNamesWithParent(Set<String> result,
-          Set<String> parentResult, HierarchicalBeanFactory hbf) {
-    if (!parentResult.isEmpty()) {
-      for (String beanName : parentResult) {
-        if (!result.contains(beanName) && !hbf.containsLocalBean(beanName)) {
-          result.add(beanName);
-        }
+  private static String[] mergeNamesWithParent(String[] result, String[] parentResult, HierarchicalBeanFactory hbf) {
+    if (parentResult.length == 0) {
+      return result;
+    }
+    ArrayList<String> merged = new ArrayList<>(result.length + parentResult.length);
+    CollectionUtils.addAll(merged, result);
+    for (String beanName : parentResult) {
+      if (!merged.contains(beanName) && !hbf.containsLocalBean(beanName)) {
+        merged.add(beanName);
       }
     }
+    return StringUtils.toStringArray(merged);
   }
 
   /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.oxm;
 
+import infra.lang.Nullable;
+
 /**
  * Base class for exception thrown when a marshalling or unmarshalling error occurs.
  *
@@ -30,22 +32,13 @@ package infra.oxm;
 public abstract class MarshallingException extends XmlMappingException {
 
   /**
-   * Construct a {@code MarshallingException} with the specified detail message.
-   *
-   * @param msg the detail message
-   */
-  protected MarshallingException(String msg) {
-    super(msg);
-  }
-
-  /**
    * Construct a {@code MarshallingException} with the specified detail message
    * and nested exception.
    *
    * @param msg the detail message
    * @param cause the nested exception
    */
-  protected MarshallingException(String msg, Throwable cause) {
+  protected MarshallingException(@Nullable String msg, @Nullable Throwable cause) {
     super(msg, cause);
   }
 

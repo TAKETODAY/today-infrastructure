@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Predicate;
 
 import infra.lang.Assert;
 import infra.lang.Nullable;
@@ -54,6 +55,8 @@ public class DefaultApiVersionStrategy implements ApiVersionStrategy {
   @Nullable
   private final ApiVersionDeprecationHandler deprecationHandler;
 
+  private final Predicate<Comparable<?>> supportedVersionPredicate;
+
   /**
    * Create an instance.
    *
@@ -71,7 +74,8 @@ public class DefaultApiVersionStrategy implements ApiVersionStrategy {
    */
   public DefaultApiVersionStrategy(List<ApiVersionResolver> versionResolvers,
           ApiVersionParser<?> versionParser, boolean versionRequired, @Nullable String defaultVersion,
-          boolean detectSupportedVersions, @Nullable ApiVersionDeprecationHandler deprecationHandler) {
+          boolean detectSupportedVersions, @Nullable ApiVersionDeprecationHandler deprecationHandler,
+          @Nullable Predicate<Comparable<?>> supportedVersionPredicate) {
 
     Assert.notEmpty(versionResolvers, "At least one ApiVersionResolver is required");
     Assert.notNull(versionParser, "ApiVersionParser is required");
@@ -82,6 +86,7 @@ public class DefaultApiVersionStrategy implements ApiVersionStrategy {
     this.defaultVersion = defaultVersion != null ? versionParser.parseVersion(defaultVersion) : null;
     this.detectSupportedVersions = detectSupportedVersions;
     this.deprecationHandler = deprecationHandler;
+    this.supportedVersionPredicate = initSupportedVersionPredicate(supportedVersionPredicate);
   }
 
   @Nullable
@@ -162,7 +167,7 @@ public class DefaultApiVersionStrategy implements ApiVersionStrategy {
       return;
     }
 
-    if (!isSupportedVersion(requestVersion)) {
+    if (!supportedVersionPredicate.test(requestVersion)) {
       throw new InvalidApiVersionException(requestVersion.toString());
     }
   }
@@ -174,15 +179,23 @@ public class DefaultApiVersionStrategy implements ApiVersionStrategy {
     }
   }
 
-  private boolean isSupportedVersion(Comparable<?> requestVersion) {
-    return (this.supportedVersions.contains(requestVersion) ||
-            this.detectSupportedVersions && this.detectedVersions.contains(requestVersion));
+  private Predicate<Comparable<?>> initSupportedVersionPredicate(@Nullable Predicate<Comparable<?>> predicate) {
+    return predicate != null ? predicate : new DefaultVersionPredicatePredicate();
   }
 
   @Override
   public String toString() {
     return "DefaultApiVersionStrategy[supportedVersions=%s, mappedVersions=%s, detectSupportedVersions=%s, versionRequired=%s, defaultVersion=%s]"
             .formatted(this.supportedVersions, this.detectedVersions, this.detectSupportedVersions, this.versionRequired, this.defaultVersion);
+  }
+
+  private final class DefaultVersionPredicatePredicate implements Predicate<Comparable<?>> {
+
+    @Override
+    public boolean test(Comparable<?> version) {
+      return supportedVersions.contains(version) || (detectSupportedVersions && detectedVersions.contains(version));
+    }
+
   }
 
 }

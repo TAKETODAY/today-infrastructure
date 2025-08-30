@@ -63,6 +63,8 @@ import infra.util.ReflectionUtils;
  */
 public class MethodParameter implements AnnotatedElement {
 
+  public static final MethodParameter[] EMPTY_ARRAY = new MethodParameter[0];
+
   private final Executable executable;
 
   private final int parameterIndex;

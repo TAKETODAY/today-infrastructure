@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,53 +17,49 @@
 
 package infra.context.event;
 
-import infra.beans.factory.BeanFactory;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationEvent;
 
 /**
- * Base class for events raised for an {@code ApplicationContext}.
+ * Base class for events raised for an {@link ApplicationContext}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @author Juergen Hoeller
+ * @author Sam Brannen
  * @since 2018-09-09 23:05
  */
 @SuppressWarnings("serial")
 public abstract class ApplicationContextEvent extends ApplicationEvent {
 
+  /**
+   * Create a new {@code ApplicationContextEvent}.
+   *
+   * @param source the {@link ApplicationContext} that the event is raised for
+   * (must not be {@code null})
+   */
   public ApplicationContextEvent(ApplicationContext source) {
     super(source);
   }
 
   /**
-   * @since 4.0
+   * Get the {@link ApplicationContext} that the event was raised for.
+   *
+   * @return the {@code ApplicationContext} that the event was raised for
+   * @see #getApplicationContext()
+   * @since 5.0
    */
-  @SuppressWarnings("unchecked")
-  public final <T> T getSource(Class<T> requiredType) {
-    if (requiredType.isInstance(super.getSource())) {
-      throw new IllegalArgumentException("source must be a " + requiredType);
-    }
-    return (T) super.getSource();
+  @Override
+  public ApplicationContext getSource() {
+    return getApplicationContext();
   }
 
   /**
-   * @since 4.0
-   */
-  public final BeanFactory getBeanFactory() {
-    return getApplicationContext().getBeanFactory();
-  }
-
-  /**
-   * @since 4.0
-   */
-  public final <T> T unwrapFactory(Class<T> requiredType) {
-    return getApplicationContext().unwrapFactory(requiredType);
-  }
-
-  /**
-   * Get the {@code ApplicationContext} that the event was raised for.
+   * Get the {@link ApplicationContext} that the event was raised for.
+   *
+   * @see #getSource()
    */
   public final ApplicationContext getApplicationContext() {
-    return (ApplicationContext) getSource();
+    return (ApplicationContext) super.getSource();
   }
 
 }

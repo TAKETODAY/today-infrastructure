@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.oxm;
 
 import infra.core.NestedRuntimeException;
+import infra.lang.Nullable;
 
 /**
  * Root of the hierarchy of Object XML Mapping exceptions.
@@ -33,7 +34,7 @@ public abstract class XmlMappingException extends NestedRuntimeException {
    *
    * @param msg the detail message
    */
-  public XmlMappingException(String msg) {
+  public XmlMappingException(@Nullable String msg) {
     super(msg);
   }
 
@@ -44,7 +45,7 @@ public abstract class XmlMappingException extends NestedRuntimeException {
    * @param msg the detail message
    * @param cause the nested exception
    */
-  public XmlMappingException(String msg, Throwable cause) {
+  public XmlMappingException(@Nullable String msg, @Nullable Throwable cause) {
     super(msg, cause);
   }
 

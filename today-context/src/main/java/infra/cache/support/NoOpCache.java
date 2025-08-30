@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,13 @@
 
 package infra.cache.support;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 import infra.cache.Cache;
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.util.function.ThrowingFunction;
 
 /**
  * A no operation {@link Cache} implementation suitable for disabling caching.
@@ -71,13 +71,13 @@ public class NoOpCache implements Cache {
     return null;
   }
 
-  @Override
   @Nullable
-  public <T> T get(Object key, Callable<T> valueLoader) {
+  @Override
+  public <K, V> V get(K key, ThrowingFunction<? super K, ? extends V> valueLoader) {
     try {
-      return valueLoader.call();
+      return valueLoader.applyWithException(key);
     }
-    catch (Exception ex) {
+    catch (Throwable ex) {
       throw new ValueRetrievalException(key, valueLoader, ex);
     }
   }

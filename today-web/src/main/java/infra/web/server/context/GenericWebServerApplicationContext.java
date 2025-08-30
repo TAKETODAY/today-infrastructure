@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,6 @@
 
 package infra.web.server.context;
 
-import java.util.Set;
-
 import infra.beans.BeansException;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.config.ConfigurableBeanFactory;
@@ -26,7 +24,6 @@ import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.ApplicationContextException;
 import infra.context.support.GenericApplicationContext;
 import infra.lang.Nullable;
-import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 import infra.web.RequestContextUtils;
 import infra.web.server.ChannelWebServerFactory;
@@ -110,15 +107,15 @@ public class GenericWebServerApplicationContext extends GenericApplicationContex
    */
   private ChannelWebServerFactory getWebServerFactory() {
     // Use bean names so that we don't consider the hierarchy
-    Set<String> beanNames = beanFactory.getBeanNamesForType(ChannelWebServerFactory.class);
-    if (beanNames.isEmpty()) {
+    var beanNames = beanFactory.getBeanNamesForType(ChannelWebServerFactory.class);
+    if (beanNames.length == 0) {
       throw new MissingWebServerFactoryBeanException(getClass(), ChannelWebServerFactory.class);
     }
-    if (beanNames.size() > 1) {
+    if (beanNames.length > 1) {
       throw new ApplicationContextException("Unable to start WebServerApplicationContext due to multiple WebServerFactory beans : "
-              + StringUtils.collectionToCommaDelimitedString(beanNames));
+              + StringUtils.arrayToCommaDelimitedString(beanNames));
     }
-    return beanFactory.getBean(CollectionUtils.firstElement(beanNames), ChannelWebServerFactory.class);
+    return beanFactory.getBean(beanNames[0], ChannelWebServerFactory.class);
   }
 
   /**

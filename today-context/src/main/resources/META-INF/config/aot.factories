@@ -8,6 +8,5 @@ infra.validation.beanvalidation.BeanValidationBeanRegistrationAotProcessor
 
 infra.aot.hint.RuntimeHintsRegistrar= \
 infra.ui.template.TemplateRuntimeHints,\
-infra.mail.javamail.JavaMailMimeTypesRuntimeHints,\
 infra.format.support.FormattingConversionServiceRuntimeHints,\
 infra.ui.freemarker.FreeMarkerTemplateAvailabilityProvider.Hints

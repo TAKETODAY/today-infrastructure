@@ -136,8 +136,8 @@ class ImportTests {
   @Test
   void reproSpr9023() {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(B.class);
-    assertThat(ctx.getBeanNamesForType(B.class).iterator().next()).isEqualTo("config-b");
-    assertThat(ctx.getBeanNamesForType(A.class).iterator().next()).isEqualTo("config-a");
+    assertThat(ctx.getBeanNamesForType(B.class)[0]).isEqualTo("config-b");
+    assertThat(ctx.getBeanNamesForType(A.class)[0]).isEqualTo("config-a");
     ctx.close();
   }
 

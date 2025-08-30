@@ -135,7 +135,7 @@ xref:integration/rest-clients.adoc#rest-message-conversion[`HttpMessageConverter
 ----
 @GetMapping("/events")
 public ResponseBodyEmitter handle() {
-  ResponseBodyEmitter emitter = new ResponseBodyEmitter();
+  ResponseBodyEmitter emitter = ResponseBodyEmitter.forChunkedTransferEncoding();
   // 其他地方引用 emitter 变量.
   return emitter;
 }
@@ -146,7 +146,7 @@ public class MyHttpRequestHandler implements HttpRequestHandler {
   @Nullable
   @Override
   public ResponseBodyEmitter handleRequest(RequestContext request) throws Throwable {
-    ResponseBodyEmitter emitter = new ResponseBodyEmitter();
+    ResponseBodyEmitter emitter = ResponseBodyEmitter.forChunkedTransferEncoding();
     // 其他地方引用 emitter 变量.
     return emitter;
   }
@@ -181,7 +181,7 @@ emitter.complete();
 ----
 @GetMapping(path="/events", produces=MediaType.TEXT_EVENT_STREAM_VALUE)
 public SseEmitter streamEvents() {
-  SseEmitter emitter = new SseEmitter();
+  SseEmitter emitter = forServerSentEvents();
   // 在此处配置并使用 `emitter` 发送事件
   return emitter;
 }
@@ -192,7 +192,7 @@ public class MyHttpRequestHandler implements HttpRequestHandler {
   @Nullable
   @Override
   public SseEmitter handleRequest(RequestContext request) throws Throwable {
-    SseEmitter emitter = new SseEmitter();
+    SseEmitter emitter = forServerSentEvents();
     // 其他地方引用 emitter 变量.
     return emitter;
   }

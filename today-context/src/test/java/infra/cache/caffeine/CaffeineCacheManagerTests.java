@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.cache.caffeine;
@@ -74,11 +74,11 @@ public class CaffeineCacheManagerTests {
     assertThat(cache1.get("key3").get()).isNull();
     cache1.evict("key3");
     assertThat(cache1.get("key3")).isNull();
-    assertThat(cache1.get("key3", () -> "value3")).isEqualTo("value3");
-    assertThat(cache1.get("key3", () -> "value3")).isEqualTo("value3");
+    assertThat((String) cache1.get("key3", (k) -> "value3")).isEqualTo("value3");
+    assertThat((String) cache1.get("key3", (k) -> "value3")).isEqualTo("value3");
     cache1.evict("key3");
-    assertThat(cache1.get("key3", () -> (String) null)).isNull();
-    assertThat(cache1.get("key3", () -> (String) null)).isNull();
+    assertThat((String) cache1.get("key3", (k) -> (String) null)).isNull();
+    assertThat((String) cache1.get("key3", (k) -> (String) null)).isNull();
   }
 
   @Test
@@ -105,11 +105,11 @@ public class CaffeineCacheManagerTests {
     assertThat(cache1.get("key3").get()).isNull();
     cache1.evict("key3");
     assertThat(cache1.get("key3")).isNull();
-    assertThat(cache1.get("key3", () -> "value3")).isEqualTo("value3");
-    assertThat(cache1.get("key3", () -> "value3")).isEqualTo("value3");
+    assertThat((String) cache1.get("key3", (k) -> "value3")).isEqualTo("value3");
+    assertThat((String) cache1.get("key3", (k) -> "value3")).isEqualTo("value3");
     cache1.evict("key3");
-    assertThat(cache1.get("key3", () -> (String) null)).isNull();
-    assertThat(cache1.get("key3", () -> (String) null)).isNull();
+    assertThat((String) cache1.get("key3", (k) -> (String) null)).isNull();
+    assertThat((String) cache1.get("key3", (k) -> (String) null)).isNull();
 
     assertThatIllegalStateException().isThrownBy(() -> cache1.retrieve("key1"));
     assertThatIllegalStateException().isThrownBy(() -> cache1.retrieve("key2"));
@@ -168,11 +168,11 @@ public class CaffeineCacheManagerTests {
     assertThat(cache1.get("key3").get()).isNull();
     cache1.evict("key3");
     assertThat(cache1.get("key3")).isNull();
-    assertThat(cache1.get("key3", () -> "value3")).isEqualTo("value3");
-    assertThat(cache1.get("key3", () -> "value3")).isEqualTo("value3");
+    assertThat((String) cache1.get("key3", (k) -> "value3")).isEqualTo("value3");
+    assertThat((String) cache1.get("key3", (k) -> "value3")).isEqualTo("value3");
     cache1.evict("key3");
-    assertThat(cache1.get("key3", () -> (String) null)).isNull();
-    assertThat(cache1.get("key3", () -> (String) null)).isNull();
+    assertThat((String) cache1.get("key3", (k) -> (String) null)).isNull();
+    assertThat((String) cache1.get("key3", (k) -> (String) null)).isNull();
 
     assertThat(cache1.retrieve("key1").join()).isEqualTo("value1");
     assertThat(cache1.retrieve("key2").join()).isEqualTo(2);

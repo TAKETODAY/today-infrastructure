@@ -58,38 +58,38 @@ public class WebClientVersionTests {
 
   @Test
   void header() {
-    performRequest(ApiVersionInserter.forHeader("X-API-Version"));
+    performRequest(ApiVersionInserter.builder().useHeader("X-API-Version"));
     expectRequest(request -> assertThat(request.getHeader("X-API-Version")).isEqualTo("1.2"));
   }
 
   @Test
   void queryParam() {
-    performRequest(ApiVersionInserter.forQueryParam("api-version"));
+    performRequest(ApiVersionInserter.builder().useQueryParam("api-version"));
     expectRequest(request -> assertThat(request.getPath()).isEqualTo("/path?api-version=1.2"));
   }
 
   @Test
   void pathSegmentIndexLessThanSize() {
-    performRequest(ApiVersionInserter.forPathSegment(0).withVersionFormatter(v -> "v" + v));
+    performRequest(ApiVersionInserter.builder().usePathSegment(0).withVersionFormatter(v -> "v" + v));
     expectRequest(request -> assertThat(request.getPath()).isEqualTo("/v1.2/path"));
   }
 
   @Test
   void pathSegmentIndexEqualToSize() {
-    performRequest(ApiVersionInserter.forPathSegment(1).withVersionFormatter(v -> "v" + v));
+    performRequest(ApiVersionInserter.builder().usePathSegment(1).withVersionFormatter(v -> "v" + v));
     expectRequest(request -> assertThat(request.getPath()).isEqualTo("/path/v1.2"));
   }
 
   @Test
   void pathSegmentIndexGreaterThanSize() {
     assertThatIllegalStateException()
-            .isThrownBy(() -> performRequest(ApiVersionInserter.forPathSegment(2)))
+            .isThrownBy(() -> performRequest(ApiVersionInserter.builder().usePathSegment(2)))
             .withMessage("Cannot insert version into '/path' at path segment index 2");
   }
 
   @Test
   void defaultVersion() {
-    ApiVersionInserter inserter = ApiVersionInserter.forHeader("X-API-Version").build();
+    ApiVersionInserter inserter = ApiVersionInserter.builder().useHeader("X-API-Version").build();
     WebClient webClient = webClientBuilder.defaultApiVersion(1.2).apiVersionInserter(inserter).build();
     webClient.get().uri("/path").retrieve().bodyToMono(String.class).block();
 

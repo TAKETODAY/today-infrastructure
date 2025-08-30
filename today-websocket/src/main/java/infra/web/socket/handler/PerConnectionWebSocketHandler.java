@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,8 +22,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
+import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.concurrent.Future;
 import infra.web.socket.CloseStatus;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketMessage;
@@ -71,9 +73,10 @@ public class PerConnectionWebSocketHandler extends WebSocketHandler implements B
     handler.onOpen(session);
   }
 
+  @Nullable
   @Override
-  public void handleMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
-    getHandler(session).handleMessage(session, message);
+  public Future<Void> handleMessage(WebSocketSession session, WebSocketMessage message) {
+    return getHandler(session).handleMessage(session, message);
   }
 
   @Override
@@ -82,9 +85,10 @@ public class PerConnectionWebSocketHandler extends WebSocketHandler implements B
   }
 
   @Override
-  public void onClose(WebSocketSession session, CloseStatus status) throws Throwable {
+  @Nullable
+  public Future<Void> onClose(WebSocketSession session, CloseStatus status) {
     try {
-      getHandler(session).onClose(session, status);
+      return getHandler(session).onClose(session, status);
     }
     finally {
       destroyHandler(session);

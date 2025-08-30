@@ -347,10 +347,18 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
     SingletonBeanRegistry sbr = null;
     if (registry instanceof SingletonBeanRegistry) {
       sbr = (SingletonBeanRegistry) registry;
-      if (!this.localBeanNameGeneratorSet) {
-        BeanNameGenerator generator = (BeanNameGenerator) sbr.getSingleton(AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR);
-        if (generator != null) {
-          this.importBeanNameGenerator = generator;
+      var configGenerator = (BeanNameGenerator) sbr.getSingleton(AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR);
+      if (configGenerator != null) {
+        if (this.localBeanNameGeneratorSet) {
+          if (configGenerator instanceof ConfigurationBeanNameGenerator
+                  && configGenerator != this.importBeanNameGenerator) {
+            throw new IllegalStateException("Context-level ConfigurationBeanNameGenerator [" +
+                    configGenerator + "] must not be overridden with processor-level generator [" +
+                    this.importBeanNameGenerator + "]");
+          }
+        }
+        else {
+          this.importBeanNameGenerator = configGenerator;
         }
       }
     }

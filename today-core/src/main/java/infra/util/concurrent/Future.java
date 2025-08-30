@@ -34,6 +34,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -1932,16 +1933,39 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    */
   @SuppressWarnings({ "unchecked" })
   public static <V> Future<V> forAdaption(CompletionStage<V> stage, @Nullable Executor executor) {
-    Promise<V> promise = forPromise(executor);
-    stage.whenCompleteAsync((v, failure) -> {
-      if (failure != null) {
-        promise.tryFailure(failure);
-      }
-      else {
-        promise.trySuccess(v);
-      }
-    }, promise.executor());
-    promise.onCompleted(Futures.propagateCancel, stage);
+    return create(promise -> {
+      stage.whenCompleteAsync((v, failure) -> {
+        if (failure != null) {
+          promise.tryFailure(failure);
+        }
+        else {
+          promise.trySuccess(v);
+        }
+      }, promise.executor());
+
+      promise.onCompleted(Futures.propagateCancel, stage);
+    }, executor);
+  }
+
+  /**
+   * Creates a new Promise instance.
+   *
+   * @throws NullPointerException consumer is null
+   */
+  public static <V> Promise<V> create(Consumer<Promise<V>> consumer) {
+    return create(consumer, defaultScheduler);
+  }
+
+  /**
+   * Creates a new Promise instance.
+   *
+   * @param executor the {@link Executor} which is used to notify
+   * the Promise once it is complete.
+   * @throws NullPointerException consumer is null
+   */
+  public static <V> Promise<V> create(Consumer<Promise<V>> consumer, @Nullable Executor executor) {
+    Promise<V> promise = new Promise<>(executor);
+    consumer.accept(promise);
     return promise;
   }
 
@@ -2139,6 +2163,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public static FutureCombiner combine(Collection /*<Future<?>>*/ futures) {
+    Assert.notNull(futures, "Futures is required");
     return new FutureCombiner(true, futures);
   }
 
@@ -2150,9 +2175,10 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @param futures a stream of {@link Future}
    * @since 5.0
    */
-  @SuppressWarnings({ "rawtypes" })
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public static FutureCombiner combine(Stream /*<Future<?>>*/ futures) {
-    return combine(futures.toList());
+    Assert.notNull(futures, "Futures is required");
+    return new FutureCombiner(true, futures.toList());
   }
 
   private final class NotifyTask implements Runnable {

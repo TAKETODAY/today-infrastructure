@@ -63,6 +63,7 @@ import infra.stereotype.Component;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
+import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
 
@@ -357,7 +358,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     return result;
   }
 
-  private Set<String> getBeanNamesForAnnotation(BeanFactory beanFactory, Class<? extends Annotation> annotationType) {
+  private String[] getBeanNamesForAnnotation(BeanFactory beanFactory, Class<? extends Annotation> annotationType) {
     LinkedHashSet<String> foundBeanNames = new LinkedHashSet<>();
     for (String beanName : beanFactory.getBeanDefinitionNames()) {
       if (beanFactory instanceof ConfigurableBeanFactory cbf) {
@@ -377,7 +378,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
         }
       }
     }
-    return foundBeanNames;
+    return StringUtils.toStringArray(foundBeanNames);
   }
 
   private boolean containsBean(ConfigurableBeanFactory beanFactory, String beanName, boolean considerHierarchy) {
@@ -486,8 +487,8 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
   }
 
   @Nullable
-  private static Map<String, BeanDefinition> putAll(@Nullable Map<String, BeanDefinition> result, Collection<String> beanNames, BeanFactory beanFactory) {
-    if (CollectionUtils.isEmpty(beanNames)) {
+  private static Map<String, BeanDefinition> putAll(@Nullable Map<String, BeanDefinition> result, String[] beanNames, BeanFactory beanFactory) {
+    if (ObjectUtils.isEmpty(beanNames)) {
       return result;
     }
     if (result == null) {

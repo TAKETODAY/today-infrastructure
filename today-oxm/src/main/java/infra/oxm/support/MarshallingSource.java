@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -126,7 +126,7 @@ public class MarshallingSource extends SAXSource {
     @Nullable
     private LexicalHandler lexicalHandler;
 
-    private MarshallingXMLReader(Marshaller marshaller, Object content) {
+    MarshallingXMLReader(Marshaller marshaller, Object content) {
       Assert.notNull(marshaller, "'marshaller' is required");
       Assert.notNull(content, "'content' is required");
       this.marshaller = marshaller;

@@ -66,6 +66,8 @@ import infra.web.bind.resolver.RequestResponseBodyMethodProcessor;
 import infra.web.bind.support.WebBindingInitializer;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.handler.ReturnValueHandlerManager;
+import infra.web.handler.result.ResponseBodyEmitter;
+import infra.web.handler.result.SseEmitter;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.support.StaticWebApplicationContext;
 import infra.web.testfixture.ReflectionTestUtils;
@@ -500,7 +502,7 @@ class RequestMappingHandlerAdapterTests {
 
     public ResponseEntity<?> handle(@RequestParam String q) throws IOException {
       if (q.equals("sse")) {
-        SseEmitter emitter = new SseEmitter();
+        SseEmitter emitter = ResponseBodyEmitter.forServerSentEvents();
         emitter.send("event 1");
         emitter.send("event 2");
         emitter.complete();

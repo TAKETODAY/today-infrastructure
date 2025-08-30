@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,10 +95,10 @@ public class FreeMarkerViewResolver extends AbstractTemplateViewResolver {
 
   /**
    * Delegates to {@code super.loadView(viewName, locale)} for standard behavior
-   * and then to {@link #postProcessView(FreeMarkerView)} for customization.
+   * and then to {@link #postProcessView(FreeMarkerView, Locale)} for customization.
    *
    * @see UrlBasedViewResolver#loadView(String, Locale)
-   * @see #postProcessView(FreeMarkerView)
+   * @see #postProcessView(FreeMarkerView, Locale)
    * @since 5.0
    */
   @Override
@@ -106,7 +106,7 @@ public class FreeMarkerViewResolver extends AbstractTemplateViewResolver {
   protected View loadView(String viewName, Locale locale) throws Exception {
     View view = super.loadView(viewName, locale);
     if (view instanceof FreeMarkerView freeMarkerView) {
-      postProcessView(freeMarkerView);
+      postProcessView(freeMarkerView, locale);
     }
     return view;
   }
@@ -124,12 +124,13 @@ public class FreeMarkerViewResolver extends AbstractTemplateViewResolver {
    * encoding has been configured for the template file, this method does not
    * modify the supplied {@code FreeMarkerView}.
    *
+   * @param locale the Locale to retrieve the view for
    * @see #loadView(String, Locale)
    * @see #setContentType(String)
    * @see infra.web.view.AbstractView#setContentType(String)
    * @since 5.0
    */
-  protected void postProcessView(FreeMarkerView freeMarkerView) {
+  protected void postProcessView(FreeMarkerView freeMarkerView, Locale locale) {
     // If an explicit content type has been configured for all views, it has
     // already been set in the view in UrlBasedViewResolver#buildView(String),
     // and there is no need to override it here.
@@ -153,6 +154,10 @@ public class FreeMarkerViewResolver extends AbstractTemplateViewResolver {
         logger.debug("Setting Content-Type for view [%s] to: %s".formatted(freeMarkerView, contentType));
       }
       freeMarkerView.setContentType(contentType);
+    }
+
+    if (freeMarkerView.getLocale() == null) {
+      freeMarkerView.setLocale(locale);
     }
   }
 }

@@ -89,13 +89,16 @@ public final class HttpServiceProxyFactory {
    * @param <S> the HTTP service type
    * @return the created proxy
    */
+  @SuppressWarnings("unchecked")
   public <S> S createClient(Class<S> serviceType) {
     List<HttpServiceMethod> httpServiceMethods =
             MethodIntrospector.filterMethods(serviceType, this::isExchangeMethod).stream()
                     .map(method -> createHttpServiceMethod(serviceType, method))
                     .toList();
 
-    return ProxyFactory.getProxy(serviceType, new HttpServiceMethodInterceptor(httpServiceMethods));
+    MethodInterceptor interceptor = new HttpServiceMethodInterceptor(httpServiceMethods);
+    ProxyFactory factory = new ProxyFactory(serviceType, interceptor);
+    return (S) factory.getProxy(serviceType.getClassLoader());
   }
 
   private boolean isExchangeMethod(Method method) {

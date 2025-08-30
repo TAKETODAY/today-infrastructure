@@ -2243,6 +2243,32 @@ class FutureTests {
     assertTrue(notified.get());
   }
 
+  @Test
+  void create() {
+    Promise<String> promise = Future.create(this::handleAsync);
+
+    assertThat(promise.awaitUninterruptibly(10000)).isTrue();
+    assertThat(promise.isCancelled()).isFalse();
+    assertThat(promise.isDone()).isTrue();
+    assertThat(promise.isSuccess()).isTrue();
+    assertThat(promise.getNow()).isEqualTo("success");
+
+    assertThatThrownBy(() -> Future.create(null))
+            .isInstanceOf(NullPointerException.class);
+  }
+
+  private void handleAsync(Promise<String> promise) {
+    Future.run(() -> {
+      try {
+        Thread.sleep(500);
+        promise.setSuccess("success");
+      }
+      catch (InterruptedException e) {
+        promise.setFailure(e);
+      }
+    });
+  }
+
   static Executor directExecutor() {
     return Runnable::run;
   }

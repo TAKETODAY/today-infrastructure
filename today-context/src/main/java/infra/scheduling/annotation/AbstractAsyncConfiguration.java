@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 
 package infra.scheduling.annotation;
 
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -32,7 +31,6 @@ import infra.context.annotation.ImportAware;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.type.AnnotationMetadata;
 import infra.lang.Nullable;
-import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 import infra.util.function.SingletonSupplier;
 
@@ -75,14 +73,14 @@ public abstract class AbstractAsyncConfiguration implements ImportAware, BeanFac
   @Override
   public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
     var asyncConfigurer = SingletonSupplier.from(() -> {
-      Set<String> configurers = beanFactory.getBeanNamesForType(AsyncConfigurer.class);
+      var configurers = beanFactory.getBeanNamesForType(AsyncConfigurer.class);
       if (ObjectUtils.isEmpty(configurers)) {
         return null;
       }
-      if (configurers.size() > 1) {
+      if (configurers.length > 1) {
         throw new IllegalStateException("Only one AsyncConfigurer may exist");
       }
-      return beanFactory.getBean(CollectionUtils.firstElement(configurers), AsyncConfigurer.class);
+      return beanFactory.getBean(configurers[0], AsyncConfigurer.class);
     });
 
     this.executor = adapt(asyncConfigurer, AsyncConfigurer::getAsyncExecutor);

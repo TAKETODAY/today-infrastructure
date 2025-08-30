@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.http.server;
@@ -32,6 +29,7 @@ import infra.lang.Nullable;
  *
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 3.0
  */
 public interface ServerHttpRequest extends HttpRequest, HttpInputMessage {
@@ -53,11 +51,5 @@ public interface ServerHttpRequest extends HttpRequest, HttpInputMessage {
    * Return the address of the remote client.
    */
   InetSocketAddress getRemoteAddress();
-
-  /**
-   * Return a control that allows putting the request in asynchronous mode so the
-   * response remains open until closed explicitly from the current or another thread.
-   */
-  ServerHttpAsyncRequestControl getAsyncRequestControl(ServerHttpResponse response);
 
 }

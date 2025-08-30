@@ -111,7 +111,9 @@ public class FileUrlResource extends UrlResource implements WritableResource {
 
   @Override
   public FileUrlResource createRelative(String relativePath) throws MalformedURLException {
-    return new FileUrlResource(createRelativeURL(relativePath));
+    FileUrlResource resource = new FileUrlResource(createRelativeURL(relativePath));
+    resource.useCaches = this.useCaches;
+    return resource;
   }
 
 }

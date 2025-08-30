@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,6 @@ import infra.web.bind.resolver.date.DateParameterResolver;
 import infra.web.bind.resolver.date.LocalDateParameterResolver;
 import infra.web.bind.resolver.date.LocalDateTimeParameterResolver;
 import infra.web.bind.resolver.date.LocalTimeParameterResolver;
-import infra.web.handler.method.ModelAndViewMethodArgumentResolver;
 import infra.web.handler.method.ModelAttributeMethodProcessor;
 import infra.web.handler.method.RequestBodyAdvice;
 import infra.web.handler.method.ResolvableMethodParameter;

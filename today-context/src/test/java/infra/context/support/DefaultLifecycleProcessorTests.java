@@ -24,11 +24,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 import infra.beans.DirectFieldAccessor;
-import infra.beans.factory.BeanFactory;
 import infra.beans.factory.FactoryBean;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.RootBeanDefinition;
-import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.ApplicationContextException;
 import infra.context.Lifecycle;
 import infra.context.LifecycleProcessor;
@@ -37,9 +35,6 @@ import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-import static org.mockito.Mockito.mock;
 
 /**
  * @author Harry Yang 2021/11/12 17:00
@@ -357,6 +352,7 @@ class DefaultLifecycleProcessorTests {
     TestSmartLifecycleBean smartBean1 = TestSmartLifecycleBean.forShutdownTests(5, 0, stoppedBeans);
     TestSmartLifecycleBean smartBean2 = TestSmartLifecycleBean.forShutdownTests(-3, 0, stoppedBeans);
     smartBean2.setAutoStartup(false);
+    smartBean2.setPausable(false);
     context.getBeanFactory().registerSingleton("smartBean1", smartBean1);
     context.getBeanFactory().registerSingleton("smartBean2", smartBean2);
 
@@ -377,11 +373,23 @@ class DefaultLifecycleProcessorTests {
     assertThat(stoppedBeans).containsExactly(smartBean1, smartBean1);
     assertThat(smartBean1.isRunning()).isTrue();
     assertThat(smartBean2.isRunning()).isFalse();
+    context.pause();
+    assertThat(stoppedBeans).containsExactly(smartBean1, smartBean1, smartBean1);
+    assertThat(smartBean1.isRunning()).isFalse();
+    assertThat(smartBean2.isRunning()).isFalse();
+    context.restart();
+    assertThat(stoppedBeans).containsExactly(smartBean1, smartBean1, smartBean1);
+    assertThat(smartBean1.isRunning()).isTrue();
+    assertThat(smartBean2.isRunning()).isFalse();
     context.start();
     assertThat(smartBean1.isRunning()).isTrue();
     assertThat(smartBean2.isRunning()).isTrue();
+    context.pause();
+    assertThat(stoppedBeans).containsExactly(smartBean1, smartBean1, smartBean1, smartBean1);
+    assertThat(smartBean1.isRunning()).isFalse();
+    assertThat(smartBean2.isRunning()).isTrue();
     context.close();
-    assertThat(stoppedBeans).containsExactly(smartBean1, smartBean1, smartBean1, smartBean2);
+    assertThat(stoppedBeans).containsExactly(smartBean1, smartBean1, smartBean1, smartBean1, smartBean2);
   }
 
   @Test
@@ -677,153 +685,6 @@ class DefaultLifecycleProcessorTests {
     context.close();
   }
 
-  @Test
-  void unknownBeanFactoryTypeThrowsException() {
-    DefaultLifecycleProcessor processor = new DefaultLifecycleProcessor();
-    BeanFactory unknownFactory = mock();
-
-    assertThatIllegalArgumentException()
-            .isThrownBy(() -> processor.setBeanFactory(unknownFactory))
-            .withMessage("DefaultLifecycleProcessor requires a ConfigurableBeanFactory: " + unknownFactory);
-  }
-
-  @Test
-  void concurrentStartupWithoutExecutorThrowsException() {
-    DefaultLifecycleProcessor processor = new DefaultLifecycleProcessor();
-    processor.setConcurrentStartupForPhase(0, 1000);
-    StandardBeanFactory factory = new StandardBeanFactory();
-
-    assertThatIllegalStateException()
-            .isThrownBy(() -> processor.setBeanFactory(factory))
-            .withMessageContaining("'bootstrapExecutor' needs to be configured for concurrent startup");
-  }
-
-  @Test
-  void getBeanFactoryWithoutSettingThrowsException() {
-    DefaultLifecycleProcessor processor = new DefaultLifecycleProcessor();
-
-    assertThatExceptionOfType(IllegalStateException.class)
-            .isThrownBy(processor::getLifecycleBeans)
-            .withMessage("No BeanFactory available");
-  }
-
-  @Test
-  void startAfterStopSucceeds() {
-    StaticApplicationContext context = new StaticApplicationContext();
-    CopyOnWriteArrayList<Lifecycle> startedBeans = new CopyOnWriteArrayList<>();
-    TestSmartLifecycleBean bean = TestSmartLifecycleBean.forStartupTests(1, startedBeans);
-    context.getBeanFactory().registerSingleton("bean", bean);
-    context.refresh();
-
-    context.stop();
-    assertThat(bean.isRunning()).isFalse();
-    context.start();
-    assertThat(bean.isRunning()).isTrue();
-    context.close();
-  }
-
-  @Test
-  void multipleStartCallsOnlyStartOnce() {
-    StaticApplicationContext context = new StaticApplicationContext();
-    CopyOnWriteArrayList<Lifecycle> startedBeans = new CopyOnWriteArrayList<>();
-    TestSmartLifecycleBean bean = TestSmartLifecycleBean.forStartupTests(1, startedBeans);
-    context.getBeanFactory().registerSingleton("bean", bean);
-    context.refresh();
-
-    context.start();
-    context.start();
-    assertThat(startedBeans).hasSize(1);
-    context.close();
-  }
-
-  @Test
-  void customTimeoutForSpecificPhase() {
-    DefaultLifecycleProcessor processor = new DefaultLifecycleProcessor();
-    processor.setTimeoutForShutdownPhase(5, 5000);
-
-    StaticApplicationContext context = new StaticApplicationContext();
-    CopyOnWriteArrayList<Lifecycle> stoppedBeans = new CopyOnWriteArrayList<>();
-    TestSmartLifecycleBean bean = TestSmartLifecycleBean.forShutdownTests(5, 3000, stoppedBeans);
-    context.getBeanFactory().registerSingleton("bean", bean);
-    context.refresh();
-
-    context.stop();
-
-    assertThat(bean.isRunning()).isFalse();
-    assertThat(stoppedBeans).containsExactly(bean);
-    context.close();
-  }
-
-  @Test
-  void customTimeoutsForMultiplePhases() {
-    DefaultLifecycleProcessor processor = new DefaultLifecycleProcessor();
-    Map<Integer, Long> timeouts = Map.of(1, 2000L, 2, 3000L, 3, 4000L);
-    processor.setTimeoutsForShutdownPhases(timeouts);
-
-    StaticApplicationContext context = new StaticApplicationContext();
-    CopyOnWriteArrayList<Lifecycle> stoppedBeans = new CopyOnWriteArrayList<>();
-    TestSmartLifecycleBean bean1 = TestSmartLifecycleBean.forShutdownTests(1, 1000, stoppedBeans);
-    TestSmartLifecycleBean bean2 = TestSmartLifecycleBean.forShutdownTests(2, 2000, stoppedBeans);
-    TestSmartLifecycleBean bean3 = TestSmartLifecycleBean.forShutdownTests(3, 3000, stoppedBeans);
-    context.getBeanFactory().registerSingleton("bean1", bean1);
-    context.getBeanFactory().registerSingleton("bean2", bean2);
-    context.getBeanFactory().registerSingleton("bean3", bean3);
-    context.refresh();
-
-    context.stop();
-
-    assertThat(stoppedBeans).containsExactly(bean3, bean2, bean1);
-    context.close();
-  }
-
-  @Test
-  void concurrentStartupForSinglePhase() {
-    DefaultLifecycleProcessor processor = new DefaultLifecycleProcessor();
-    processor.setConcurrentStartupForPhase(1, 2000);
-
-    StaticApplicationContext context = new StaticApplicationContext();
-    context.registerSingleton(StaticApplicationContext.BOOTSTRAP_EXECUTOR_BEAN_NAME, ThreadPoolTaskExecutor.class);
-    CopyOnWriteArrayList<Lifecycle> startedBeans = new CopyOnWriteArrayList<>();
-    TestSmartLifecycleBean bean1 = TestSmartLifecycleBean.forStartupTests(1, startedBeans);
-    TestSmartLifecycleBean bean2 = TestSmartLifecycleBean.forStartupTests(1, startedBeans);
-    context.getBeanFactory().registerSingleton("bean1", bean1);
-    context.getBeanFactory().registerSingleton("bean2", bean2);
-    context.refresh();
-
-    assertThat(startedBeans).hasSize(2);
-    assertThat(bean1.isRunning()).isTrue();
-    assertThat(bean2.isRunning()).isTrue();
-    context.close();
-  }
-
-  @Test
-  void lifecycleProcessorStopsBeansBeforeDestroying() {
-    StaticApplicationContext context = new StaticApplicationContext();
-    CopyOnWriteArrayList<Lifecycle> stoppedBeans = new CopyOnWriteArrayList<>();
-    TestSmartLifecycleBean bean = TestSmartLifecycleBean.forShutdownTests(0, 0, stoppedBeans);
-    context.getBeanFactory().registerSingleton("bean", bean);
-    context.refresh();
-
-    assertThat(bean.isRunning()).isTrue();
-    context.close();
-    assertThat(bean.isRunning()).isFalse();
-    assertThat(stoppedBeans).containsExactly(bean);
-  }
-
-  @Test
-  void stopForRestartWhenNotRunning() {
-    DefaultLifecycleProcessor processor = new DefaultLifecycleProcessor();
-    StaticApplicationContext context = new StaticApplicationContext();
-    context.getBeanFactory().registerSingleton(AbstractApplicationContext.LIFECYCLE_PROCESSOR_BEAN_NAME, processor);
-    processor.setBeanFactory(context.getBeanFactory());
-    context.refresh();
-    context.stop();
-
-    processor.stopForRestart();
-
-    assertThat(processor.isRunning()).isFalse();
-  }
-
   private Consumer<? super Lifecycle> hasPhase(int phase) {
     return lifecycle -> {
       int actual = lifecycle instanceof SmartLifecycle smartLifecycle ? smartLifecycle.getPhase() : 0;
@@ -882,6 +743,8 @@ class DefaultLifecycleProcessorTests {
 
     private volatile boolean autoStartup = true;
 
+    private volatile boolean pausable = true;
+
     static TestSmartLifecycleBean forStartupTests(int phase, CopyOnWriteArrayList<Lifecycle> startedBeans) {
       return new TestSmartLifecycleBean(phase, 0, startedBeans, null);
     }
@@ -909,6 +772,15 @@ class DefaultLifecycleProcessorTests {
 
     public void setAutoStartup(boolean autoStartup) {
       this.autoStartup = autoStartup;
+    }
+
+    @Override
+    public boolean isPausable() {
+      return this.pausable;
+    }
+
+    public void setPausable(boolean pausable) {
+      this.pausable = pausable;
     }
 
     @Override

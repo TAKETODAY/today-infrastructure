@@ -337,27 +337,27 @@ public class SimpleJndiBeanFactory extends JndiLocatorSupport implements BeanFac
   }
 
   @Override
-  public Set<String> getBeanNamesForType(@Nullable Class<?> type) {
+  public String[] getBeanNamesForType(@Nullable Class<?> type) {
     throw new UnsupportedOperationException("SimpleJndiBeanFactory does not support getBeanNamesForType");
   }
 
   @Override
-  public Set<String> getBeanNamesForType(@Nullable Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
+  public String[] getBeanNamesForType(@Nullable Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
     throw new UnsupportedOperationException("SimpleJndiBeanFactory does not support getBeanNamesForType");
   }
 
   @Override
-  public Set<String> getBeanNamesForType(ResolvableType type) {
+  public String[] getBeanNamesForType(ResolvableType type) {
     throw new UnsupportedOperationException("SimpleJndiBeanFactory does not support getBeanNamesForType");
   }
 
   @Override
-  public Set<String> getBeanNamesForType(ResolvableType type, boolean includeNonSingletons, boolean allowEagerInit) {
+  public String[] getBeanNamesForType(ResolvableType type, boolean includeNonSingletons, boolean allowEagerInit) {
     throw new UnsupportedOperationException("SimpleJndiBeanFactory does not support getBeanNamesForType");
   }
 
   @Override
-  public Set<String> getBeanNamesForAnnotation(Class<? extends Annotation> annotationType) {
+  public String[] getBeanNamesForAnnotation(Class<? extends Annotation> annotationType) {
     throw new UnsupportedOperationException("SimpleJndiBeanFactory does not support getBeanNamesForAnnotation");
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,6 +72,20 @@ public class SingleColumnRowMapper<T> implements RowMapper<T> {
     if (requiredType != Object.class) {
       setRequiredType(requiredType);
     }
+  }
+
+  /**
+   * Create a new {@code SingleColumnRowMapper}.
+   *
+   * @param requiredType the type that each result object is expected to match
+   * @param conversionService a {@link ConversionService} for converting a fetched value
+   * @since 5.0
+   */
+  public SingleColumnRowMapper(Class<T> requiredType, @Nullable ConversionService conversionService) {
+    if (requiredType != Object.class) {
+      setRequiredType(requiredType);
+    }
+    setConversionService(conversionService);
   }
 
   /**

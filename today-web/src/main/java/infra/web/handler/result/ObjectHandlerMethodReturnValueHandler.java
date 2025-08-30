@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.web.handler.result;
 
 import java.util.List;
 
+import infra.lang.Nullable;
 import infra.web.RequestContext;
 import infra.web.ReturnValueHandler;
 import infra.web.handler.SelectableReturnValueHandler;
@@ -64,13 +63,12 @@ public class ObjectHandlerMethodReturnValueHandler implements HandlerMethodRetur
   }
 
   @Override
-  public void handleReturnValue(
-          RequestContext context, Object handler, Object returnValue) throws Exception {
+  public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     delegate.handleReturnValue(context, handler, returnValue);
   }
 
   @Override
-  public boolean supportsReturnValue(Object returnValue) {
+  public boolean supportsReturnValue(@Nullable Object returnValue) {
     return delegate.supportsReturnValue(returnValue);
   }
 

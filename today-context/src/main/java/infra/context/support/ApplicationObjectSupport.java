@@ -111,7 +111,8 @@ public abstract class ApplicationObjectSupport implements ApplicationContextAwar
    * @throws ApplicationContextException if thrown by ApplicationContext methods
    * @see #setApplicationContext
    */
-  protected void initApplicationContext() { }
+  protected void initApplicationContext() {
+  }
 
   /**
    * Return the ApplicationContext that this object is associated with.

@@ -40,6 +40,7 @@ import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ResourceUtils;
+import infra.util.concurrent.Future;
 import infra.web.RequestContext;
 import infra.web.annotation.ExceptionHandler;
 import infra.web.annotation.GET;
@@ -178,14 +179,16 @@ public class NettyApplication {
   static class WebSocket0 extends WebSocketHandler implements HandshakeCapable {
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, WebSocketMessage message) throws IOException {
+    protected Future<Void> handleTextMessage(WebSocketSession session, WebSocketMessage message) {
       System.out.println("handleTextMessage" + message);
       session.send(message.retain());
+      return Future.ok();
     }
 
     @Override
-    protected void handleBinaryMessage(WebSocketSession session, WebSocketMessage message) {
+    protected Future<Void> handleBinaryMessage(WebSocketSession session, WebSocketMessage message) {
       System.out.println("handleBinaryMessage" + message);
+      return Future.ok();
     }
 
     @Override
@@ -195,8 +198,9 @@ public class NettyApplication {
     }
 
     @Override
-    public void onClose(WebSocketSession session, CloseStatus status) {
+    public Future<Void> onClose(WebSocketSession session, CloseStatus status) {
       System.out.println("onClose " + status);
+      return Future.ok();
     }
   }
 
@@ -206,9 +210,10 @@ public class NettyApplication {
       NettyWebSocketClient client = new NettyWebSocketClient();
       client.connect(new WebSocketHandler() {
                 @Override
-                protected void handleTextMessage(WebSocketSession session, WebSocketMessage message) throws Exception {
+                protected Future<Void> handleTextMessage(WebSocketSession session, WebSocketMessage message) {
                   System.out.println("handleTextMessage: " + message);
                   session.close();
+                  return Future.ok();
                 }
 
               }, "ws://localhost:8080/endpoint")

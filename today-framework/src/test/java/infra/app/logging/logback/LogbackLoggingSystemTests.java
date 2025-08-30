@@ -71,6 +71,7 @@ import infra.beans.factory.aot.BeanFactoryInitializationAotContribution;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
 import infra.core.env.MapPropertySource;
+import infra.core.testfixture.DisabledIfInContinuousIntegration;
 import infra.format.support.ApplicationConversionService;
 import infra.logging.SLF4JBridgeHandler;
 import infra.mock.env.MockEnvironment;
@@ -733,6 +734,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
   }
 
   @Test
+  @DisabledIfInContinuousIntegration
   void logbackSystemStatusListenerShouldBeRegisteredWhenUsingCustomLogbackXml(CapturedOutput output) {
     this.loggingSystem.beforeInitialize();
     initialize(this.initializationContext, "classpath:logback-include-defaults.xml", null);

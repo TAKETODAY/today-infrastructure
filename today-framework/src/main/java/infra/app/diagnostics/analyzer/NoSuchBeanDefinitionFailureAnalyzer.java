@@ -19,6 +19,7 @@ package infra.app.diagnostics.analyzer;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -131,8 +132,8 @@ class NoSuchBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyz
     if (type == null) {
       return Collections.emptyList();
     }
-    Set<String> beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(this.beanFactory, type);
-    return beanNames.stream()
+    var beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(this.beanFactory, type);
+    return Arrays.stream(beanNames)
             .map(beanName -> new UserConfigurationResult(getFactoryMethodMetadata(beanName),
                     beanFactory.getBean(beanName) == null))
             .collect(Collectors.toList());

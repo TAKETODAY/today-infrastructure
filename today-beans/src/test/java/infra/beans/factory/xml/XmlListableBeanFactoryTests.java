@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import infra.beans.BeansException;
 import infra.beans.PropertyValues;
@@ -110,14 +109,14 @@ public class XmlListableBeanFactoryTests extends AbstractBeanFactoryTests {
   }
 
   protected void assertTestBeanCount(int count) {
-    Set<String> defNames = getBeanFactory().getBeanNamesForType(TestBean.class, true, false);
-    assertThat(defNames.size() == count).as("We should have " + count + " beans for class infra.beans.testfixture.beans.TestBean, not " +
-            defNames.size()).isTrue();
+    var defNames = getBeanFactory().getBeanNamesForType(TestBean.class, true, false);
+    assertThat(defNames.length == count)
+            .as("We should have " + count + " beans for class infra.beans.testfixture.beans.TestBean, not " + defNames.length).isTrue();
 
     int countIncludingFactoryBeans = count + 2;
-    Set<String> names = getBeanFactory().getBeanNamesForType(TestBean.class, true, true);
-    assertThat(names.size() == countIncludingFactoryBeans).as("We should have " + countIncludingFactoryBeans +
-            " beans for class infra.beans.testfixture.beans.TestBean, not " + names.size()).isTrue();
+    var names = getBeanFactory().getBeanNamesForType(TestBean.class, true, true);
+    assertThat(names.length == countIncludingFactoryBeans).as("We should have " + countIncludingFactoryBeans +
+            " beans for class infra.beans.testfixture.beans.TestBean, not " + names.length).isTrue();
   }
 
   @Test

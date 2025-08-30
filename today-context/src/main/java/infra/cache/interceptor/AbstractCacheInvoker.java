@@ -17,13 +17,13 @@
 
 package infra.cache.interceptor;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 import infra.cache.Cache;
 import infra.lang.Nullable;
 import infra.util.function.SingletonSupplier;
+import infra.util.function.ThrowingFunction;
 
 /**
  * A base component for invoking {@link Cache} operations and using a
@@ -83,16 +83,16 @@ public abstract class AbstractCacheInvoker {
   }
 
   /**
-   * Execute {@link Cache#get(Object, Callable)} on the specified
+   * Execute {@link Cache#get(Object, ThrowingFunction)} on the specified
    * {@link Cache} and invoke the error handler if an exception occurs.
    * Invokes the {@code valueLoader} if the handler does not throw any
    * exception, which simulates a cache read-through in case of error.
    *
-   * @see Cache#get(Object, Callable)
+   * @see Cache#get(Object, ThrowingFunction)
    * @since 5.0
    */
   @Nullable
-  protected <T> T doGet(Cache cache, Object key, Callable<T> valueLoader) {
+  protected Object doGet(Cache cache, Object key, ThrowingFunction<Object, Object> valueLoader) {
     try {
       return cache.get(key, valueLoader);
     }
@@ -102,9 +102,9 @@ public abstract class AbstractCacheInvoker {
     catch (RuntimeException ex) {
       getErrorHandler().handleCacheGetError(ex, cache, key);
       try {
-        return valueLoader.call();
+        return valueLoader.applyWithException(key);
       }
-      catch (Exception ex2) {
+      catch (Throwable ex2) {
         throw new Cache.ValueRetrievalException(key, valueLoader, ex);
       }
     }

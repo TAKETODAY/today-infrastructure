@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -99,7 +99,7 @@ public abstract class MessageSourceSupport {
    * @return the rendered default message (with resolved arguments)
    * @see #formatMessage(String, Object[], java.util.Locale)
    */
-  protected String renderDefaultMessage(String defaultMessage, @Nullable Object[] args, Locale locale) {
+  protected String renderDefaultMessage(String defaultMessage, @Nullable Object[] args, @Nullable Locale locale) {
     return formatMessage(defaultMessage, args, locale);
   }
 
@@ -114,7 +114,7 @@ public abstract class MessageSourceSupport {
    * @param locale the Locale used for formatting
    * @return the formatted message (with resolved arguments)
    */
-  protected String formatMessage(String msg, @Nullable Object[] args, Locale locale) {
+  protected String formatMessage(String msg, @Nullable Object[] args, @Nullable Locale locale) {
     if (!isAlwaysUseMessageFormat() && ObjectUtils.isEmpty(args)) {
       return msg;
     }
@@ -148,7 +148,7 @@ public abstract class MessageSourceSupport {
    * @param locale the Locale to create a {@code MessageFormat} for
    * @return the {@code MessageFormat} instance
    */
-  protected MessageFormat createMessageFormat(String msg, Locale locale) {
+  protected MessageFormat createMessageFormat(String msg, @Nullable Locale locale) {
     return new MessageFormat(msg, locale);
   }
 
@@ -161,7 +161,7 @@ public abstract class MessageSourceSupport {
    * @param locale the Locale to resolve against
    * @return the resolved argument array
    */
-  protected Object[] resolveArguments(@Nullable Object[] args, Locale locale) {
+  protected Object[] resolveArguments(@Nullable Object[] args, @Nullable Locale locale) {
     return (args != null ? args : new Object[0]);
   }
 

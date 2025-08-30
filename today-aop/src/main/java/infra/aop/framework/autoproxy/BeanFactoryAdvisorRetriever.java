@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@ package infra.aop.framework.autoproxy;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import infra.aop.Advisor;
 import infra.beans.factory.BeanCreationException;
@@ -46,7 +45,7 @@ public class BeanFactoryAdvisorRetriever {
   private final ConfigurableBeanFactory beanFactory;
 
   @Nullable
-  private volatile Set<String> cachedAdvisorBeanNames;
+  private volatile String[] cachedAdvisorBeanNames;
 
   /**
    * Create a new BeanFactoryAdvisorRetrievalHelper for the given BeanFactory.
@@ -67,7 +66,7 @@ public class BeanFactoryAdvisorRetriever {
    */
   public List<Advisor> retrieveAdvisorBeans() {
     // Determine list of advisor bean names, if not cached already.
-    Set<String> advisorNames = this.cachedAdvisorBeanNames;
+    var advisorNames = this.cachedAdvisorBeanNames;
     if (advisorNames == null) {
       // Do not initialize FactoryBeans here: We need to leave all regular beans
       // uninitialized to let the auto-proxy creator apply to them!
@@ -75,7 +74,7 @@ public class BeanFactoryAdvisorRetriever {
               beanFactory, Advisor.class, true, false);
       this.cachedAdvisorBeanNames = advisorNames;
     }
-    if (advisorNames.isEmpty()) {
+    if (advisorNames.length == 0) {
       return new ArrayList<>();
     }
 

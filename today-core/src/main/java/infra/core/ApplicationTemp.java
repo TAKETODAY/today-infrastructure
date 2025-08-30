@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ import infra.util.StringUtils;
  */
 public class ApplicationTemp {
   private static final String TEMP_SUB_DIR = TodayStrategies.getProperty(
-          "infra.app.temp-prefix", ApplicationTemp.class.getName());
+          "infra.app.sub-temp-dir", ApplicationTemp.class.getName());
 
   public static final ApplicationTemp instance = new ApplicationTemp();
 
@@ -140,7 +140,7 @@ public class ApplicationTemp {
    * a candidate file name
    * @throws UncheckedIOException if an I/O error occurs or {@code dir} does not exist
    */
-  public Path createFile(@Nullable String subDir, String prefix) {
+  public Path createFile(@Nullable String subDir, @Nullable String prefix) {
     return createFile(subDir, prefix, null);
   }
 
@@ -221,7 +221,7 @@ public class ApplicationTemp {
    */
   private Path createDirectory(Path path) throws UncheckedIOException {
     try {
-      if (!Files.exists(path)) {
+      if (Files.notExists(path)) {
         Files.createDirectories(path, getFileAttributes(path.getFileSystem()));
       }
       return path;
@@ -249,7 +249,7 @@ public class ApplicationTemp {
     Assert.state(StringUtils.isNotEmpty(property), "No 'java.io.tmpdir' property set");
     Path tempDirectory = Paths.get(property);
 
-    if (!Files.exists(tempDirectory)) {
+    if (Files.notExists(tempDirectory)) {
       throw new IllegalStateException("Temp directory '%s' does not exist".formatted(tempDirectory));
     }
 

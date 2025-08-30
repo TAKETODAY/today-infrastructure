@@ -16,7 +16,7 @@
  */
 
 /**
- * Web result supporting
+ * Web handler result supporting
  */
 @NonNullApi
 @NonNullFields

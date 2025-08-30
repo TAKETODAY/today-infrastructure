@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.util.pattern;
@@ -26,6 +23,8 @@ import java.text.MessageFormat;
  * Exception that is thrown when there is a problem with the pattern being parsed.
  *
  * @author Andy Clement
+ * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
@@ -99,12 +98,14 @@ public class PatternParseException extends IllegalArgumentException {
     CANNOT_HAVE_ADJACENT_CAPTURES("Adjacent captures are not allowed"),
     ILLEGAL_CHARACTER_AT_START_OF_CAPTURE_DESCRIPTOR("Char ''{0}'' not allowed at start of captured variable name"),
     ILLEGAL_CHARACTER_IN_CAPTURE_DESCRIPTOR("Char ''{0}'' is not allowed in a captured variable name"),
-    NO_MORE_DATA_EXPECTED_AFTER_CAPTURE_THE_REST("No more pattern data allowed after '{*...}' or '**' pattern element"),
+    CANNOT_HAVE_MANY_MULTISEGMENT_PATHELEMENTS("Multiple '{*...}' or '**' pattern elements are not allowed"),
+    INVALID_LOCATION_FOR_MULTISEGMENT_PATHELEMENT("'{*...}' or '**' pattern elements should be placed at the start or end of the pattern"),
+    MULTISEGMENT_PATHELEMENT_NOT_FOLLOWED_BY_LITERAL("'{*...}' or '**' pattern elements should be followed by a literal path element"),
     BADLY_FORMED_CAPTURE_THE_REST("Expected form when capturing the rest of the path is simply '{*...}'"),
     MISSING_REGEX_CONSTRAINT("Missing regex constraint on capture"),
     ILLEGAL_DOUBLE_CAPTURE("Not allowed to capture ''{0}'' twice in the same pattern"),
     REGEX_PATTERN_SYNTAX_EXCEPTION("Exception occurred in regex pattern compilation"),
-    CAPTURE_ALL_IS_STANDALONE_CONSTRUCT("'{*...}' can only be preceded by a path separator");
+    CAPTURE_ALL_IS_STANDALONE_CONSTRUCT("'{*...}' cannot be mixed with other path elements in the same path segment");
 
     private final String message;
 

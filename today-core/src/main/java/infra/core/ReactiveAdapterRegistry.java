@@ -33,6 +33,7 @@ import infra.lang.Nullable;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.ReflectionUtils;
 import infra.util.concurrent.Future;
+import infra.util.concurrent.PublisherFuture;
 import reactor.adapter.JdkFlowAdapter;
 import reactor.blockhound.BlockHound;
 import reactor.blockhound.integration.BlockHoundIntegration;
@@ -253,37 +254,30 @@ public class ReactiveAdapterRegistry {
     void registerAdapters(ReactiveAdapterRegistry registry) {
       // Register Flux and Mono before Publisher...
 
-      registry.registerReactiveType(
-              ReactiveTypeDescriptor.singleOptionalValue(Mono.class, Mono::empty),
+      registry.registerReactiveType(ReactiveTypeDescriptor.singleOptionalValue(Mono.class, Mono::empty),
               source -> (Mono<?>) source,
               Mono::from);
 
-      registry.registerReactiveType(
-              ReactiveTypeDescriptor.multiValue(Flux.class, Flux::empty),
+      registry.registerReactiveType(ReactiveTypeDescriptor.multiValue(Flux.class, Flux::empty),
               source -> (Flux<?>) source,
               Flux::from);
 
-      registry.registerReactiveType(
-              ReactiveTypeDescriptor.multiValue(Publisher.class, Flux::empty),
+      registry.registerReactiveType(ReactiveTypeDescriptor.multiValue(Publisher.class, Flux::empty),
               source -> (Publisher<?>) source,
               source -> source);
 
-      registry.registerReactiveType(
-              ReactiveTypeDescriptor.nonDeferredAsyncValue(CompletionStage.class, EmptyCompletableFuture::new),
+      registry.registerReactiveType(ReactiveTypeDescriptor.nonDeferredAsyncValue(CompletionStage.class, EmptyCompletableFuture::new),
               source -> Mono.fromCompletionStage((CompletionStage<?>) source),
               source -> Mono.from(source).toFuture());
 
-      registry.registerReactiveType(
-              ReactiveTypeDescriptor.multiValue(Flow.Publisher.class, () -> EMPTY_FLOW),
+      registry.registerReactiveType(ReactiveTypeDescriptor.multiValue(Flow.Publisher.class, () -> EMPTY_FLOW),
               source -> JdkFlowAdapter.flowPublisherToFlux((Flow.Publisher<?>) source),
               JdkFlowAdapter::publisherToFlowPublisher);
 
       // @since 5.0
-      registry.registerReactiveType(
-              ReactiveTypeDescriptor.nonDeferredAsyncValue(Future.class, Future::ok),
-              source -> Mono.fromCompletionStage(((Future<?>) source).completable()),
-              source -> Future.forAdaption(Mono.from(source).toFuture()));
-
+      registry.registerReactiveType(ReactiveTypeDescriptor.nonDeferredAsyncValue(Future.class, Future::ok),
+              source -> FutureMono.of((Future<?>) source),
+              PublisherFuture::of);
     }
   }
 

@@ -349,7 +349,7 @@ class ConfigurationClassEnhancer {
             Object[] beanMethodArgs, MethodProxy cglibMethodProxy) throws Throwable {
 
       ConfigurableBeanFactory beanFactory = getBeanFactory(enhancedConfigInstance);
-      String beanName = BeanAnnotationHelper.determineBeanNameFor(beanMethod);
+      String beanName = BeanAnnotationHelper.determineBeanNameFor(beanMethod, beanFactory);
 
       // Determine whether this bean is a scoped-proxy
       if (BeanAnnotationHelper.isScopedProxy(beanMethod)) {
@@ -451,7 +451,7 @@ class ConfigurationClassEnhancer {
         }
         Method currentlyInvoked = InstantiationStrategy.getCurrentlyInvokedFactoryMethod();
         if (currentlyInvoked != null) {
-          String outerBeanName = BeanAnnotationHelper.determineBeanNameFor(currentlyInvoked);
+          String outerBeanName = BeanAnnotationHelper.determineBeanNameFor(currentlyInvoked, beanFactory);
           beanFactory.registerDependentBean(beanName, outerBeanName);
         }
         return beanInstance;

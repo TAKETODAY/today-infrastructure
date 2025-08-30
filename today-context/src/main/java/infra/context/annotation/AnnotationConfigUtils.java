@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ package infra.context.annotation;
 
 import java.util.function.Consumer;
 
+import infra.aop.framework.autoproxy.AutoProxyUtils;
 import infra.beans.factory.annotation.AnnotatedBeanDefinition;
 import infra.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import infra.beans.factory.annotation.DisableDependencyInjection;
@@ -275,6 +276,21 @@ public abstract class AnnotationConfigUtils {
         definition.setEnableDependencyInjection(false);
       }
     }
+
+    MergedAnnotation<Proxyable> proxyable = annotations.get(Proxyable.class);
+    if (proxyable.isPresent()) {
+      ProxyType mode = proxyable.getEnum("value", ProxyType.class);
+      if (mode == ProxyType.TARGET_CLASS) {
+        definition.setAttribute(AutoProxyUtils.PRESERVE_TARGET_CLASS_ATTRIBUTE, Boolean.TRUE);
+      }
+      else {
+        Class<?>[] ifcs = proxyable.getClassArray("interfaces");
+        if (ifcs.length > 0 || mode == ProxyType.INTERFACES) {
+          definition.setAttribute(AutoProxyUtils.EXPOSED_INTERFACES_ATTRIBUTE, ifcs);
+        }
+      }
+    }
+
   }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,6 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
-import io.netty.util.ReferenceCountUtil;
 
 import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFactory;
 
@@ -72,7 +71,12 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
       var nettyContext = createContext(ctx, request);
       RequestContextHolder.set(nettyContext);
       try {
-        handleRequest(nettyContext); // handling HTTP request
+        if (request.decoderResult().cause() != null) {
+          processDispatchResult(nettyContext, null, null, request.decoderResult().cause());
+        }
+        else {
+          handleRequest(nettyContext); // handling HTTP request
+        }
       }
       catch (Throwable e) {
         exceptionCaught(ctx, e);
@@ -83,7 +87,6 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
     }
     else if (msg instanceof WebSocketFrame) {
       handleWebSocketFrame(ctx, (WebSocketFrame) msg);
-      ReferenceCountUtil.safeRelease(msg);
     }
     else {
       ctx.fireChannelRead(msg);

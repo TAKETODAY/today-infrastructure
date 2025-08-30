@@ -40,6 +40,7 @@ public class Promise<V> extends AbstractFuture<V> {
    *
    * @param executor the {@link Executor} which is used to notify
    * the Promise once it is complete.
+   * @see Future#forPromise(Executor)
    */
   protected Promise(@Nullable Executor executor) {
     super(executor);

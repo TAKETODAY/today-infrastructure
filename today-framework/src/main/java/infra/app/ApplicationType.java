@@ -54,12 +54,12 @@ public enum ApplicationType {
 
   public static final String REACTOR_INDICATOR_CLASS = ReactiveStreams.REACTOR_INDICATOR_CLASS;
 
-  public static final String NETTY_INDICATOR_CLASS = "io.netty.bootstrap.ServerBootstrap";
+  public static final String NETTY_WEB_INDICATOR_CLASS = "io.netty.handler.codec.http.HttpRequest";
 
   public static ApplicationType forDefaults() {
     ClassLoader classLoader = ApplicationType.class.getClassLoader();
     if (ClassUtils.isPresent(WEB_INDICATOR_CLASS, classLoader)
-            && ClassUtils.isPresent(NETTY_INDICATOR_CLASS, classLoader)) {
+            && ClassUtils.isPresent(NETTY_WEB_INDICATOR_CLASS, classLoader)) {
       return ApplicationType.NETTY_WEB;
     }
     return ApplicationType.NORMAL;
@@ -70,7 +70,7 @@ public enum ApplicationType {
     @Override
     public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
       registerTypeIfPresent(WEB_INDICATOR_CLASS, classLoader, hints);
-      registerTypeIfPresent(NETTY_INDICATOR_CLASS, classLoader, hints);
+      registerTypeIfPresent(NETTY_WEB_INDICATOR_CLASS, classLoader, hints);
       registerTypeIfPresent(REACTOR_INDICATOR_CLASS, classLoader, hints);
     }
 

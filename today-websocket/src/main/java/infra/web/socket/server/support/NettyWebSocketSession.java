@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,14 +18,18 @@
 package infra.web.socket.server.support;
 
 import java.net.InetSocketAddress;
+import java.util.Map;
 import java.util.Objects;
 
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.NettyDataBuffer;
 import infra.core.io.buffer.NettyDataBufferFactory;
+import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.logging.Logger;
 import infra.util.concurrent.Future;
 import infra.web.socket.CloseStatus;
+import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketMessage;
 import infra.web.socket.WebSocketSession;
 import io.netty.buffer.ByteBuf;
@@ -39,8 +43,12 @@ import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.CharsetUtil;
+import io.netty.util.ReferenceCountUtil;
 
+import static infra.web.socket.CloseStatus.NO_CLOSE_FRAME;
+import static infra.web.socket.CloseStatus.NO_STATUS_CODE;
 import static infra.web.socket.PromiseAdapter.adapt;
+import static infra.web.socket.handler.ExceptionWebSocketHandlerDecorator.tryCloseWithError;
 
 /**
  * Netty websocket session
@@ -50,16 +58,27 @@ import static infra.web.socket.PromiseAdapter.adapt;
  */
 public class NettyWebSocketSession extends WebSocketSession {
 
+  private static final Map<Class<?>, WebSocketMessage.Type> messageTypes = Map.of(
+          TextWebSocketFrame.class, infra.web.socket.WebSocketMessage.Type.TEXT,
+          PingWebSocketFrame.class, WebSocketMessage.Type.PING,
+          PongWebSocketFrame.class, WebSocketMessage.Type.PONG,
+          BinaryWebSocketFrame.class, WebSocketMessage.Type.BINARY);
+
   private final boolean secure;
 
   private final Channel channel;
 
   private final NettyDataBufferFactory allocator;
 
-  protected NettyWebSocketSession(boolean secure, Channel channel, NettyDataBufferFactory allocator) {
+  @Nullable
+  private final String acceptedProtocol;
+
+  protected NettyWebSocketSession(boolean secure, Channel channel,
+          NettyDataBufferFactory allocator, @Nullable String acceptedProtocol) {
     this.secure = secure;
     this.channel = channel;
     this.allocator = allocator;
+    this.acceptedProtocol = acceptedProtocol;
   }
 
   @Override
@@ -129,6 +148,11 @@ public class NettyWebSocketSession extends WebSocketSession {
   }
 
   @Override
+  public void abort() {
+    channel.close();
+  }
+
+  @Override
   public Future<Void> close(CloseStatus status) {
     return adapt(channel.writeAndFlush(new CloseWebSocketFrame(status.getCode(), status.getReason()))
             .addListener(ChannelFutureListener.CLOSE));
@@ -142,8 +166,75 @@ public class NettyWebSocketSession extends WebSocketSession {
 
   @Nullable
   @Override
+  public InetSocketAddress getLocalAddress() {
+    return (InetSocketAddress) channel.localAddress();
+  }
+
+  @Nullable
+  @Override
   public String getAcceptedProtocol() {
-    return null;
+    return acceptedProtocol;
+  }
+
+  /**
+   * internal use only
+   *
+   * @see WebSocketHandler#onClose
+   */
+  public void onClose(WebSocketHandler handler, CloseStatus closeStatus, Logger logger) {
+    try {
+      Future<Void> future = handler.onClose(this, closeStatus);
+      if (logger.isDebugEnabled()) {
+        logger.debug("Exiting onClose {} returned {}", this, future);
+      }
+      if (channel.isActive()) {
+        CloseStatus status;
+        if (closeStatus.equalsCode(NO_STATUS_CODE) || closeStatus.equalsCode(NO_CLOSE_FRAME)) {
+          status = CloseStatus.NORMAL;
+          logger.debug("Using statusCode {} instead of {}", status, closeStatus);
+        }
+        else {
+          status = closeStatus;
+        }
+        if (future != null) {
+          future.onCompleted(f -> {
+            logger.debug("Future returned by onClose completed result={} error={}", f.getNow(), f.getCause());
+            close(status);
+          });
+        }
+        else {
+          close(status);
+        }
+      }
+    }
+    catch (Throwable ex) {
+      logger.warn("Unhandled on-close exception for {}", this, ex);
+    }
+  }
+
+  /**
+   * internal use only
+   *
+   * @see WebSocketHandler#handleMessage(WebSocketSession, WebSocketMessage)
+   */
+  public void handleMessage(WebSocketHandler handler, WebSocketFrame frame, Logger logger) {
+    try {
+      WebSocketMessage.Type messageType = messageTypes.get(frame.getClass());
+      Assert.state(messageType != null, "Unexpected message type");
+      DataBuffer payload = allocator.wrap(frame.content());
+      var message = new WebSocketMessage(messageType, payload, frame, frame.isFinalFragment());
+      Future<Void> future = handler.handleMessage(this, message);
+      if (future != null) {
+        future.onFinally(message::release);
+      }
+      else {
+        message.release();
+      }
+    }
+    catch (Throwable e) {
+      ReferenceCountUtil.safeRelease(frame);
+      tryCloseWithError(this, e, logger);
+    }
   }
 
   @Override

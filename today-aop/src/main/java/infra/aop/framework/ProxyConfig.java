@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 import infra.lang.Assert;
+import infra.lang.Nullable;
 
 /**
  * Convenience superclass for configuration used in creating proxies,
@@ -28,19 +29,29 @@ import infra.lang.Assert;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
- * @author TODAY 2021/2/1 20:23
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see AdvisedSupport
- * @since 3.0
+ * @since 3.0 2021/2/1 20:23
  */
 public class ProxyConfig implements Serializable {
+
   @Serial
   private static final long serialVersionUID = 1L;
 
-  boolean opaque = false;
-  boolean exposeProxy = false;
-  private boolean frozen = false;
-  private boolean optimize = false;
-  private boolean proxyTargetClass = false;
+  @Nullable
+  private Boolean proxyTargetClass;
+
+  @Nullable
+  private Boolean optimize;
+
+  @Nullable
+  private Boolean opaque;
+
+  @Nullable
+  private Boolean exposeProxy;
+
+  @Nullable
+  private Boolean frozen;
 
   /**
    * Set whether to proxy the target class directly, instead of just proxying
@@ -48,10 +59,10 @@ public class ProxyConfig implements Serializable {
    * <p>Set this to "true" to force proxying for the TargetSource's exposed
    * target class. If that target class is an interface, a JDK proxy will be
    * created for the given interface. If that target class is any other class,
-   * a Standard proxy will be created for the given class.
+   * a CGLIB proxy will be created for the given class.
    * <p>Note: Depending on the configuration of the concrete proxy factory,
    * the proxy-target-class behavior will also be applied if no interfaces
-   * have been specified (and no interface auto-detection is activated).
+   * have been specified (and no interface autodetection is activated).
    *
    * @see infra.aop.TargetSource#getTargetClass()
    */
@@ -63,7 +74,7 @@ public class ProxyConfig implements Serializable {
    * Return whether to proxy the target class directly as well as any interfaces.
    */
   public boolean isProxyTargetClass() {
-    return this.proxyTargetClass;
+    return (this.proxyTargetClass != null && this.proxyTargetClass);
   }
 
   /**
@@ -83,7 +94,7 @@ public class ProxyConfig implements Serializable {
    * Return whether proxies should perform aggressive optimizations.
    */
   public boolean isOptimize() {
-    return this.optimize;
+    return this.optimize != null && this.optimize;
   }
 
   /**
@@ -101,7 +112,7 @@ public class ProxyConfig implements Serializable {
    * prevented from being cast to {@link Advised}.
    */
   public boolean isOpaque() {
-    return this.opaque;
+    return this.opaque != null && this.opaque;
   }
 
   /**
@@ -122,7 +133,7 @@ public class ProxyConfig implements Serializable {
    * each invocation.
    */
   public boolean isExposeProxy() {
-    return this.exposeProxy;
+    return this.exposeProxy != null && this.exposeProxy;
   }
 
   /**
@@ -139,7 +150,7 @@ public class ProxyConfig implements Serializable {
    * Return whether the config is frozen, and no advice changes can be made.
    */
   public boolean isFrozen() {
-    return this.frozen;
+    return (this.frozen != null && this.frozen);
   }
 
   /**
@@ -154,6 +165,32 @@ public class ProxyConfig implements Serializable {
     this.optimize = other.optimize;
     this.exposeProxy = other.exposeProxy;
     this.proxyTargetClass = other.proxyTargetClass;
+  }
+
+  /**
+   * Copy default settings from the other config object,
+   * for settings that have not been locally set.
+   *
+   * @param other object to copy configuration from
+   * @since 5.0
+   */
+  public void copyDefault(ProxyConfig other) {
+    Assert.notNull(other, "Other ProxyConfig object is required");
+    if (this.proxyTargetClass == null) {
+      this.proxyTargetClass = other.proxyTargetClass;
+    }
+    if (this.optimize == null) {
+      this.optimize = other.optimize;
+    }
+    if (this.opaque == null) {
+      this.opaque = other.opaque;
+    }
+    if (this.exposeProxy == null) {
+      this.exposeProxy = other.exposeProxy;
+    }
+    if (this.frozen == null) {
+      this.frozen = other.frozen;
+    }
   }
 
   @Override
