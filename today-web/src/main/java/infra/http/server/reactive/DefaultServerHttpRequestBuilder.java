@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,6 +60,9 @@ class DefaultServerHttpRequestBuilder implements ServerHttpRequest.Builder {
 
   @Nullable
   private InetSocketAddress remoteAddress;
+
+  @Nullable
+  private InetSocketAddress localAddress;
 
   private final Flux<DataBuffer> body;
 
@@ -135,9 +138,15 @@ class DefaultServerHttpRequestBuilder implements ServerHttpRequest.Builder {
   }
 
   @Override
+  public ServerHttpRequest.Builder localAddress(InetSocketAddress localAddress) {
+    this.localAddress = localAddress;
+    return this;
+  }
+
+  @Override
   public ServerHttpRequest build() {
     return new MutatedServerHttpRequest(getUriToUse(), this.contextPath, this.httpMethodValue,
-            this.sslInfo, this.remoteAddress, this.headers, this.body, this.originalRequest);
+            this.sslInfo, this.remoteAddress, localAddress, this.headers, this.body, this.originalRequest);
   }
 
   private URI getUriToUse() {
@@ -192,11 +201,15 @@ class DefaultServerHttpRequestBuilder implements ServerHttpRequest.Builder {
     @Nullable
     private final InetSocketAddress remoteAddress;
 
+    @Nullable
+    private final InetSocketAddress localAddress;
+
     public MutatedServerHttpRequest(URI uri, @Nullable String contextPath,
             String method, @Nullable SslInfo sslInfo, @Nullable InetSocketAddress remoteAddress,
-            HttpHeaders headers, Flux<DataBuffer> body, ServerHttpRequest originalRequest) {
+            InetSocketAddress localAddress, HttpHeaders headers, Flux<DataBuffer> body, ServerHttpRequest originalRequest) {
 
       super(uri, contextPath, headers);
+      this.localAddress = localAddress;
       this.body = body;
       this.methodValue = method;
       this.originalRequest = originalRequest;
@@ -217,13 +230,13 @@ class DefaultServerHttpRequestBuilder implements ServerHttpRequest.Builder {
     @Override
     @Nullable
     public InetSocketAddress getLocalAddress() {
-      return this.originalRequest.getLocalAddress();
+      return localAddress;
     }
 
     @Override
     @Nullable
     public InetSocketAddress getRemoteAddress() {
-      return this.remoteAddress;
+      return remoteAddress;
     }
 
     @Override
