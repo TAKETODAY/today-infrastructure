@@ -22,7 +22,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -405,7 +404,7 @@ class StringUtilsTests {
   }
 
   @Test
-  public void applyRelativePath() throws IOException {
+  void applyRelativePath() {
     final String relativePath = StringUtils.applyRelativePath("D:/java/", "1.txt");
     final String relativePath1 = StringUtils.applyRelativePath("D:/java", "1.txt");
     final String relativePath2 = StringUtils.applyRelativePath("D:/java/2.txt", "1.txt");
@@ -416,6 +415,21 @@ class StringUtilsTests {
 
     assert StringUtils.applyRelativePath("index", "TODAY").equals("TODAY");
 
+    // Basic combination
+    assertThat(StringUtils.applyRelativePath("mypath/myfile", "otherfile")).isEqualTo("mypath/otherfile");
+    // Relative path starts with slash
+    assertThat(StringUtils.applyRelativePath("mypath/myfile", "/otherfile")).isEqualTo("mypath/otherfile");
+    // Includes root path
+    assertThat(StringUtils.applyRelativePath("/mypath/myfile", "otherfile")).isEqualTo("/mypath/otherfile");
+    assertThat(StringUtils.applyRelativePath("/mypath/myfile", "/otherfile")).isEqualTo("/mypath/otherfile");
+    // When base path has no slash
+    assertThat(StringUtils.applyRelativePath("myfile", "otherfile")).isEqualTo("otherfile");
+    // Keep parent directory token as-is
+    assertThat(StringUtils.applyRelativePath("mypath/myfile", "../otherfile")).isEqualTo("mypath/../otherfile");
+    // Base path ends with slash
+    assertThat(StringUtils.applyRelativePath("mypath/", "otherfile")).isEqualTo("mypath/otherfile");
+    // Empty relative path
+    assertThat(StringUtils.applyRelativePath("mypath/myfile", "")).isEqualTo("mypath/");
   }
 
   @Test
