@@ -72,6 +72,7 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
+import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
@@ -155,7 +156,7 @@ public class NettyRequestContext extends RequestContext {
   public final HttpHeaders nettyResponseHeaders;
   // UNSAFE fields END
 
-  private final FullHttpRequest request;
+  private final HttpRequest request;
 
   // headers and status-code is written? default = false
   private final AtomicBoolean committed = new AtomicBoolean();
@@ -724,7 +725,7 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   @SuppressWarnings("unchecked")
-  public final FullHttpRequest nativeRequest() {
+  public final HttpRequest nativeRequest() {
     return request;
   }
 

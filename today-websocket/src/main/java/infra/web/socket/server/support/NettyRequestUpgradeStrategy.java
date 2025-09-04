@@ -36,9 +36,9 @@ import infra.web.socket.server.RequestUpgradeStrategy;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelPromise;
-import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.websocketx.WebSocketDecoderConfig;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 
@@ -95,7 +95,7 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
       throw new IllegalStateException("not running in netty");
     }
 
-    FullHttpRequest request = nettyContext.nativeRequest();
+    HttpRequest request = nettyContext.nativeRequest();
     var handshaker = createHandshakeFactory(request, selectedExtensions).newHandshaker(request);
     Channel channel = nettyContext.channel;
     if (handshaker == null) {
@@ -151,7 +151,7 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
     return new NettyWebSocketSession(context.config.secure, context.channel, allocator, selectedProtocol);
   }
 
-  protected WebSocketServerHandshakerFactory createHandshakeFactory(FullHttpRequest request, List<WebSocketExtension> selectedExtensions) {
+  protected WebSocketServerHandshakerFactory createHandshakeFactory(HttpRequest request, List<WebSocketExtension> selectedExtensions) {
     return new WebSocketServerHandshakerFactory(request.uri(), null, decoderConfig);
   }
 
