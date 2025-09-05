@@ -163,7 +163,7 @@ public class ForwardedHeaderTransformer implements Function<ServerHttpRequest, S
     String[] rawPrefixes = StringUtils.tokenizeToStringArray(header, ",");
     for (String rawPrefix : rawPrefixes) {
       int endIndex = rawPrefix.length();
-      while (endIndex > 1 && rawPrefix.charAt(endIndex - 1) == '/') {
+      while (endIndex > 0 && rawPrefix.charAt(endIndex - 1) == '/') {
         endIndex--;
       }
       prefix.append((endIndex != rawPrefix.length() ? rawPrefix.substring(0, endIndex) : rawPrefix));
