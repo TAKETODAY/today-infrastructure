@@ -64,13 +64,13 @@ final class MultipartResolutionDelegate {
 
     Class<?> parameterType = parameter.getNestedParameterType();
     if (Multipart.class.isAssignableFrom(parameterType)) {
-      return CollectionUtils.firstElement(request.getMultipartRequest().multipartData(name));
+      return CollectionUtils.firstElement(request.multipartRequest().multipartData(name));
     }
     else if (isMultipartCollection(parameter, parameterType)) {
-      return request.getMultipartRequest().multipartData(name);
+      return request.multipartRequest().multipartData(name);
     }
     else if (isMultipartArray(parameterType)) {
-      List<Multipart> parts = request.getMultipartRequest().multipartData(name);
+      List<Multipart> parts = request.multipartRequest().multipartData(name);
       if (parts == null) {
         return null;
       }

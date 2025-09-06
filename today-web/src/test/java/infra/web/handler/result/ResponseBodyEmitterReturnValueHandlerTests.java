@@ -248,7 +248,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
 
     assertThat(this.request.isAsyncStarted()).isTrue();
 
-    WebAsyncManager asyncManager = webRequest.getAsyncManager();
+    WebAsyncManager asyncManager = webRequest.asyncManager();
     assertThat(asyncManager.getConcurrentResult()).isSameAs(ex);
     assertThat(this.response.getContentType()).isEqualTo("text/event-stream");
   }

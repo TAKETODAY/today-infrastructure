@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -87,7 +87,7 @@ class DefaultServerRequestBuilderTests {
     assertThat(result.params().getFirst("baz")).isEqualTo("qux");
     assertThat(result.params().getFirst("quux")).isEqualTo("quuz");
 
-    assertThat(result.remoteAddress()).contains(new InetSocketAddress("127.0.0.1", 80));
+    assertThat(result.remoteAddress()).isEqualTo(InetSocketAddress.createUnresolved("127.0.0.1", 80));
 
     String body = result.body(String.class);
     assertThat(body).isEqualTo("baz");

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -107,8 +107,8 @@ final class TestMockDispatcher extends MockDispatcher {
 
   private void registerAsyncResultInterceptors(RequestContext context) {
     var interceptor = new MvcResultProcessingInterceptor();
-    context.getAsyncManager().registerCallableInterceptor(KEY, interceptor);
-    context.getAsyncManager().registerDeferredResultInterceptor(KEY, interceptor);
+    context.asyncManager().registerCallableInterceptor(KEY, interceptor);
+    context.asyncManager().registerDeferredResultInterceptor(KEY, interceptor);
   }
 
   private DefaultMvcResult getMvcResult(RequestContext request) {

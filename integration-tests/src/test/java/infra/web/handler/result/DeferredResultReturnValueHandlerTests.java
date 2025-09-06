@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -123,12 +123,12 @@ class DeferredResultReturnValueHandlerTests {
     this.handler.handleReturnValue(webRequest, returnType, returnValue);
 
     assertThat(this.request.isAsyncStarted()).isTrue();
-    assertThat(webRequest.getAsyncManager().hasConcurrentResult()).isFalse();
+    assertThat(webRequest.asyncManager().hasConcurrentResult()).isFalse();
 
     setResultTask.run();
 
-    assertThat(webRequest.getAsyncManager().hasConcurrentResult()).isTrue();
-    assertThat(webRequest.getAsyncManager().getConcurrentResult()).isEqualTo(expectedValue);
+    assertThat(webRequest.asyncManager().hasConcurrentResult()).isTrue();
+    assertThat(webRequest.asyncManager().getConcurrentResult()).isEqualTo(expectedValue);
   }
 
   @SuppressWarnings("unused")

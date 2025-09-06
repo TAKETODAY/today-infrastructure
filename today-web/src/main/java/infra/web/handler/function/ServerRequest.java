@@ -117,7 +117,7 @@ public interface ServerRequest extends ServerResponse.Context {
   /**
    * Get the remote address to which this request is connected, if available.
    */
-  Optional<InetSocketAddress> remoteAddress();
+  InetSocketAddress remoteAddress();
 
   /**
    * Get the readers used to convert the body of this request.
@@ -247,7 +247,7 @@ public interface ServerRequest extends ServerResponse.Context {
    * @return the multipart data, mapping from name to part(s)
    * @throws IOException if an I/O error occurred during the retrieval
    * @throws infra.web.bind.NotMultipartRequestException if this request is not of type {@code "multipart/form-data"}
-   * @see RequestContext#getMultipartRequest()
+   * @see RequestContext#multipartRequest()
    * @see MultipartRequest#multipartData()
    */
   MultiValueMap<String, Multipart> multipartData() throws IOException;

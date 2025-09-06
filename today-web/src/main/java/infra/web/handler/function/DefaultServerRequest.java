@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.time.Instant;
@@ -79,8 +80,6 @@ class DefaultServerRequest implements ServerRequest {
 
   private final RequestContext requestContext;
 
-  private final Map<String, Object> attributes;
-
   private final MultiValueMap<String, String> params;
 
   private final List<HttpMessageConverter<?>> messageConverters;
@@ -103,7 +102,6 @@ class DefaultServerRequest implements ServerRequest {
     this.params = requestContext.getParameters();
     this.requestPath = requestContext.getRequestPath();
     this.messageConverters = List.copyOf(messageConverters);
-    this.attributes = requestContext.getAttributes();
     this.headers = new DefaultRequestHeaders(requestContext.getHeaders());
   }
 
@@ -140,10 +138,7 @@ class DefaultServerRequest implements ServerRequest {
   @Override
   public MultiValueMap<String, HttpCookie> cookies() {
     HttpCookie[] cookies = requestContext.getCookies();
-    if (cookies == null) {
-      cookies = new HttpCookie[0];
-    }
-    MultiValueMap<String, HttpCookie> result = new LinkedMultiValueMap<>(cookies.length);
+    var result = new LinkedMultiValueMap<String, HttpCookie>(cookies.length);
     for (HttpCookie cookie : cookies) {
       result.add(cookie.getName(), cookie);
     }
@@ -156,9 +151,8 @@ class DefaultServerRequest implements ServerRequest {
   }
 
   @Override
-  public Optional<InetSocketAddress> remoteAddress() {
-    return Optional.of(new InetSocketAddress(
-            requestContext.getRemoteAddress(), requestContext.getServerPort()));
+  public InetSocketAddress remoteAddress() {
+    return requestContext.remoteAddress();
   }
 
   @Override
@@ -187,8 +181,7 @@ class DefaultServerRequest implements ServerRequest {
     if (type instanceof Class<?> clazz) {
       return clazz;
     }
-    if (type instanceof ParameterizedType parameterizedType &&
-            parameterizedType.getRawType() instanceof Class<?> rawType) {
+    if (type instanceof ParameterizedType pt && pt.getRawType() instanceof Class<?> rawType) {
       return rawType;
     }
     return Object.class;
@@ -196,9 +189,9 @@ class DefaultServerRequest implements ServerRequest {
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   private <T> T bodyInternal(Type bodyType, Class bodyClass) throws IOException {
-    MediaType contentType = this.headers.contentType().orElse(MediaType.APPLICATION_OCTET_STREAM);
+    MediaType contentType = headers.contentType().orElse(MediaType.APPLICATION_OCTET_STREAM);
 
-    for (HttpMessageConverter<?> messageConverter : this.messageConverters) {
+    for (HttpMessageConverter<?> messageConverter : messageConverters) {
       if (messageConverter instanceof GenericHttpMessageConverter<?> genericMessageConverter) {
         if (genericMessageConverter.canRead(bodyType, bodyClass, contentType)) {
           return (T) genericMessageConverter.read(bodyType, bodyClass, requestContext);
@@ -212,8 +205,8 @@ class DefaultServerRequest implements ServerRequest {
   }
 
   private List<MediaType> getSupportedMediaTypes(Class<?> bodyClass) {
-    List<MediaType> result = new ArrayList<>(this.messageConverters.size());
-    for (HttpMessageConverter<?> converter : this.messageConverters) {
+    var result = new ArrayList<MediaType>(messageConverters.size());
+    for (HttpMessageConverter<?> converter : messageConverters) {
       result.addAll(converter.getSupportedMediaTypes(bodyClass));
     }
     MimeTypeUtils.sortBySpecificity(result);
@@ -257,8 +250,7 @@ class DefaultServerRequest implements ServerRequest {
 
   @Override
   public Map<String, Object> attributes() {
-    // TODO requestContext.getAttributes()
-    return this.attributes;
+    return requestContext.getAttributes();
   }
 
   @Override
@@ -284,7 +276,7 @@ class DefaultServerRequest implements ServerRequest {
   public MultiValueMap<String, Multipart> multipartData() throws IOException {
     MultiValueMap<String, Multipart> result = this.parts;
     if (result == null) {
-      result = requestContext.getMultipartRequest().multipartData();
+      result = requestContext.multipartRequest().multipartData();
       this.parts = result;
     }
     return result;
@@ -515,6 +507,16 @@ class DefaultServerRequest implements ServerRequest {
     @Override
     public String getRemoteAddress() {
       throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public SocketAddress localAddress() {
+      return context.localAddress();
+    }
+
+    @Override
+    public InetSocketAddress remoteAddress() {
+      return context.remoteAddress();
     }
 
     @Override
