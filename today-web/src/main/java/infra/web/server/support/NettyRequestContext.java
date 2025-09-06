@@ -69,7 +69,6 @@ import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.DefaultHeaders;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
-import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
@@ -191,7 +190,7 @@ public class NettyRequestContext extends RequestContext {
   private ServerHttpResponse httpOutputMessage;
 
   protected NettyRequestContext(ApplicationContext context, ChannelHandlerContext ctx,
-          FullHttpRequest request, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
+          HttpRequest request, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
     super(context, dispatcherHandler);
     this.config = config;
     this.request = request;

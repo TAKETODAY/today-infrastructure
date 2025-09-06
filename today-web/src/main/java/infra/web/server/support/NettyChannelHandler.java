@@ -30,7 +30,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
@@ -67,7 +67,7 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
 
   @Override
   public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
-    if (msg instanceof FullHttpRequest request) {
+    if (msg instanceof HttpRequest request) {
       var nettyContext = createContext(ctx, request);
       RequestContextHolder.set(nettyContext);
       try {
@@ -97,7 +97,7 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
     ctx.fireChannelRead(frame);
   }
 
-  protected NettyRequestContext createContext(ChannelHandlerContext ctx, FullHttpRequest httpRequest) {
+  protected NettyRequestContext createContext(ChannelHandlerContext ctx, HttpRequest httpRequest) {
     return new NettyRequestContext(getApplicationContext(), ctx, httpRequest, requestConfig, this);
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ package infra.web.server.support;
 import java.util.List;
 
 import infra.http.HttpHeaders;
+import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 import infra.web.bind.NotMultipartRequestException;
 import infra.web.multipart.MaxUploadSizeExceededException;
@@ -42,12 +43,13 @@ final class NettyMultipartRequest extends AbstractMultipartRequest {
     this.context = context;
   }
 
+  @Nullable
   @Override
   public HttpHeaders getMultipartHeaders(String paramOrFileName) {
-    List<InterfaceHttpData> bodyHttpDatas = context.requestDecoder().getBodyHttpDatas(paramOrFileName);
-    if (bodyHttpDatas != null) {
+    List<InterfaceHttpData> bodyHttpList = context.requestDecoder().getBodyHttpDatas(paramOrFileName);
+    if (bodyHttpList != null) {
       HttpHeaders headers = HttpHeaders.forWritable();
-      for (InterfaceHttpData bodyHttpData : bodyHttpDatas) {
+      for (InterfaceHttpData bodyHttpData : bodyHttpList) {
         if (bodyHttpData instanceof FileUpload httpData) {
           String contentType = httpData.getContentType();
           headers.setOrRemove(HttpHeaders.CONTENT_TYPE, contentType);

@@ -302,7 +302,7 @@ public abstract class WebUtils {
 
   public static void cleanupMultipartRequest(@Nullable MultiValueMap<String, Multipart> multipartFiles) {
     if (CollectionUtils.isNotEmpty(multipartFiles)) {
-      for (Map.Entry<String, List<Multipart>> entry : multipartFiles.entrySet()) {
+      for (var entry : multipartFiles.entrySet()) {
         List<Multipart> value = entry.getValue();
         for (Multipart multipartFile : value) {
           try {
