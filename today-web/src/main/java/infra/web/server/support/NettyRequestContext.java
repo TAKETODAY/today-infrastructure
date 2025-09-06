@@ -184,9 +184,6 @@ public class NettyRequestContext extends RequestContext {
   private Integer queryStringIndex;
 
   @Nullable
-  private InetSocketAddress localAddress;
-
-  @Nullable
   private ServerHttpResponse httpOutputMessage;
 
   protected NettyRequestContext(ApplicationContext context, ChannelHandlerContext ctx,
@@ -208,29 +205,40 @@ public class NettyRequestContext extends RequestContext {
     return config.secure ? Constant.HTTPS : Constant.HTTP;
   }
 
-  private InetSocketAddress localAddress() {
-    InetSocketAddress inetSocketAddress = this.localAddress;
-    if (inetSocketAddress == null) {
-      SocketAddress socketAddress = channel.localAddress();
-      if (socketAddress instanceof InetSocketAddress address) {
-        inetSocketAddress = address;
-      }
-      else {
-        inetSocketAddress = new InetSocketAddress("localhost", 8080);
-      }
-      this.localAddress = inetSocketAddress;
-    }
-    return inetSocketAddress;
-  }
-
   @Override
   public int getServerPort() {
-    return localAddress().getPort();
+    SocketAddress socketAddress = localAddress();
+    if (socketAddress instanceof InetSocketAddress) {
+      return ((InetSocketAddress) socketAddress).getPort();
+    }
+    throw new IllegalStateException("unable to determine server port");
   }
 
   @Override
   public String getServerName() {
-    return localAddress().getHostString();
+    SocketAddress socketAddress = localAddress();
+    if (socketAddress instanceof InetSocketAddress) {
+      return ((InetSocketAddress) socketAddress).getHostString();
+    }
+    throw new IllegalStateException("unable to determine server name");
+  }
+
+  @Override
+  public String getRemoteAddress() {
+    if (remoteAddress == null) {
+      remoteAddress = remoteAddress().getAddress().getHostAddress();
+    }
+    return remoteAddress;
+  }
+
+  @Override
+  public InetSocketAddress remoteAddress() {
+    return (InetSocketAddress) channel.remoteAddress();
+  }
+
+  @Override
+  public SocketAddress localAddress() {
+    return channel.localAddress();
   }
 
   @Override
@@ -273,15 +281,6 @@ public class NettyRequestContext extends RequestContext {
       host = "localhost";
     }
     return getScheme() + "://" + host + StringUtils.prependLeadingSlash(getRequestURI());
-  }
-
-  @Override
-  public final String getRemoteAddress() {
-    if (remoteAddress == null) {
-      InetSocketAddress remote = (InetSocketAddress) channel.remoteAddress();
-      remoteAddress = remote.getAddress().getHostAddress();
-    }
-    return remoteAddress;
   }
 
   @Override

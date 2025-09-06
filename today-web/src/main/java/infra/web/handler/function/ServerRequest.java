@@ -117,7 +117,7 @@ public interface ServerRequest extends ServerResponse.Context {
   /**
    * Get the remote address to which this request is connected, if available.
    */
-  Optional<InetSocketAddress> remoteAddress();
+  InetSocketAddress remoteAddress();
 
   /**
    * Get the readers used to convert the body of this request.
