@@ -544,8 +544,8 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public AsyncWebRequest getAsyncWebRequest() {
-    return getDelegate().getAsyncWebRequest();
+  public AsyncWebRequest asyncWebRequest() {
+    return getDelegate().asyncWebRequest();
   }
 
   @Override
@@ -554,8 +554,8 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public MultipartRequest getMultipartRequest() {
-    return getDelegate().getMultipartRequest();
+  public MultipartRequest multipartRequest() {
+    return getDelegate().multipartRequest();
   }
 
   @Override
@@ -639,8 +639,8 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public WebAsyncManager getAsyncManager() {
-    return getDelegate().getAsyncManager();
+  public WebAsyncManager asyncManager() {
+    return getDelegate().asyncManager();
   }
 
   @Override

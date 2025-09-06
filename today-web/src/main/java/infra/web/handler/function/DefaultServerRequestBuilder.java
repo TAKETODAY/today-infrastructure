@@ -249,7 +249,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
 
     @Override
     public MultiValueMap<String, Multipart> multipartData() throws IOException {
-      return requestContext.getMultipartRequest().multipartData();
+      return requestContext.multipartRequest().multipartData();
     }
 
     @Override

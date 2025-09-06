@@ -87,7 +87,7 @@ class DefaultServerRequestBuilderTests {
     assertThat(result.params().getFirst("baz")).isEqualTo("qux");
     assertThat(result.params().getFirst("quux")).isEqualTo("quuz");
 
-    assertThat(result.remoteAddress()).isEqualTo(new InetSocketAddress("127.0.0.1", 80));
+    assertThat(result.remoteAddress()).isEqualTo(InetSocketAddress.createUnresolved("127.0.0.1", 80));
 
     String body = result.body(String.class);
     assertThat(body).isEqualTo("baz");

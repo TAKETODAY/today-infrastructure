@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -371,7 +371,7 @@ public final class WebAsyncManager {
   }
 
   private AsyncWebRequest getAsyncWebRequest() {
-    return requestContext.getAsyncWebRequest();
+    return requestContext.asyncWebRequest();
   }
 
   private String formatRequestUri() {
@@ -498,8 +498,7 @@ public final class WebAsyncManager {
 
   @Nullable
   public static Object findHttpRequestHandler(RequestContext request) {
-    var asyncManager = request.getAsyncManager();
-    Object[] concurrentResultContext = asyncManager.getConcurrentResultContext();
+    Object[] concurrentResultContext = request.asyncManager().getConcurrentResultContext();
     if (concurrentResultContext != null && concurrentResultContext.length == 1) {
       return concurrentResultContext[0];
     }

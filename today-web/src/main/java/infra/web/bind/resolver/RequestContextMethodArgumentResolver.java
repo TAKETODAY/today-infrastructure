@@ -91,7 +91,7 @@ public class RequestContextMethodArgumentResolver implements ParameterResolvingS
               "Current request is not of type [%s]: %s".formatted(paramType.getName(), request));
     }
     if (MultipartRequest.class.isAssignableFrom(paramType)) {
-      MultipartRequest multipartRequest = request.getMultipartRequest();
+      MultipartRequest multipartRequest = request.multipartRequest();
       if (paramType.isInstance(multipartRequest)) {
         return multipartRequest;
       }
@@ -100,7 +100,7 @@ public class RequestContextMethodArgumentResolver implements ParameterResolvingS
     }
     if (InputStream.class.isAssignableFrom(paramType)) {
       InputStream inputStream = request.getInputStream();
-      if (inputStream != null && !paramType.isInstance(inputStream)) {
+      if (!paramType.isInstance(inputStream)) {
         throw new IllegalStateException(
                 "Request input stream is not of type [%s]: %s".formatted(paramType.getName(), inputStream));
       }
@@ -108,7 +108,7 @@ public class RequestContextMethodArgumentResolver implements ParameterResolvingS
     }
     else if (OutputStream.class.isAssignableFrom(paramType)) {
       OutputStream outputStream = request.getOutputStream();
-      if (outputStream != null && !paramType.isInstance(outputStream)) {
+      if (!paramType.isInstance(outputStream)) {
         throw new IllegalStateException(
                 "Response output stream is not of type [%s]: %s".formatted(paramType.getName(), outputStream));
       }
@@ -116,7 +116,7 @@ public class RequestContextMethodArgumentResolver implements ParameterResolvingS
     }
     else if (Reader.class.isAssignableFrom(paramType)) {
       Reader reader = request.getReader();
-      if (reader != null && !paramType.isInstance(reader)) {
+      if (!paramType.isInstance(reader)) {
         throw new IllegalStateException(
                 "Request body reader is not of type [%s]: %s".formatted(paramType.getName(), reader));
       }
@@ -124,7 +124,7 @@ public class RequestContextMethodArgumentResolver implements ParameterResolvingS
     }
     else if (Writer.class.isAssignableFrom(paramType)) {
       PrintWriter writer = request.getWriter();
-      if (writer != null && !paramType.isInstance(writer)) {
+      if (!paramType.isInstance(writer)) {
         throw new IllegalStateException(
                 "Request body writer is not of type [%s]: %s".formatted(paramType.getName(), writer));
       }

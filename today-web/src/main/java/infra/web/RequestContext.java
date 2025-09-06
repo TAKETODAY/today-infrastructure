@@ -889,7 +889,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @see #isMultipart()
    * @since 4.0
    */
-  public MultipartRequest getMultipartRequest() {
+  public MultipartRequest multipartRequest() {
     var multipartRequest = this.multipartRequest;
     if (multipartRequest == null) {
       multipartRequest = createMultipartRequest();
@@ -959,7 +959,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return the current {@code AsyncWebRequest} instance, or a newly created instance
    * if none has been initialized yet
    */
-  public AsyncWebRequest getAsyncWebRequest() {
+  public AsyncWebRequest asyncWebRequest() {
     var asyncRequest = this.asyncRequest;
     if (asyncRequest == null) {
       asyncRequest = createAsyncWebRequest();
@@ -1008,7 +1008,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return the {@code WebAsyncManager} instance associated with this object,
    * ensuring it is initialized before returning
    */
-  public WebAsyncManager getAsyncManager() {
+  public WebAsyncManager asyncManager() {
     WebAsyncManager webAsyncManager = this.webAsyncManager;
     if (webAsyncManager == null) {
       webAsyncManager = createWebAsyncManager();
@@ -1032,7 +1032,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
     if (factory == null) {
       factory = new WebAsyncManagerFactory();
     }
-    return factory.getWebAsyncManager(this);
+    return factory.createWebAsyncManager(this);
   }
 
   // ---------------------------------------------------------------------

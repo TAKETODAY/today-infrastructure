@@ -479,7 +479,7 @@ public class WebDataBinder extends DataBinder {
   public PropertyValues getValuesToBind(RequestContext request) {
     PropertyValues pv = new PropertyValues(request.getParameters().toArrayMap(String[]::new));
     if (request.isMultipart()) {
-      var multipartFiles = request.getMultipartRequest().getMultipartFiles();
+      var multipartFiles = request.multipartRequest().getMultipartFiles();
       if (!multipartFiles.isEmpty()) {
         bindMultipart(multipartFiles, pv);
       }
@@ -650,7 +650,7 @@ public class WebDataBinder extends DataBinder {
     @Nullable
     private Object getMultipartValue(String name, Class<?> paramType) {
       if (request.isMultipart()) {
-        List<MultipartFile> files = request.getMultipartRequest().getFiles(name);
+        List<MultipartFile> files = request.multipartRequest().getFiles(name);
         if (CollectionUtils.isNotEmpty(files)) {
           return files.size() == 1 ? files.get(0) : files;
         }

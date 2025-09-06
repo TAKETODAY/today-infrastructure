@@ -56,7 +56,7 @@ public class AsyncTaskMethodReturnValueHandler implements HandlerMethodReturnVal
       if (this.beanFactory != null) {
         task.setBeanFactory(this.beanFactory);
       }
-      context.getAsyncManager().startCallableProcessing(task, handler);
+      context.asyncManager().startCallableProcessing(task, handler);
     }
     else if (HandlerMethod.isHandler(handler)) {
       startCallableProcessing(context, handler, returnValue);

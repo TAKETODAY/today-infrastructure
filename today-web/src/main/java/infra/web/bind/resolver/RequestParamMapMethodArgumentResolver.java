@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,10 +72,10 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
       // MultiValueMap
       Class<?> valueType = resolvableType.as(MultiValueMap.class).getGeneric(1).resolve();
       if (valueType == MultipartFile.class) {
-        return context.getMultipartRequest().getMultipartFiles();
+        return context.multipartRequest().getMultipartFiles();
       }
       else if (valueType == Multipart.class) {
-        return context.getMultipartRequest().multipartData();
+        return context.multipartRequest().multipartData();
       }
       else {
         return context.getParameters();
@@ -86,10 +86,10 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
       // Regular Map
       Class<?> valueType = resolvableType.asMap().getGeneric(1).resolve();
       if (valueType == MultipartFile.class) {
-        return context.getMultipartRequest().getFileMap();
+        return context.multipartRequest().getFileMap();
       }
       else if (valueType == Multipart.class) {
-        return context.getMultipartRequest().multipartData().toSingleValueMap();
+        return context.multipartRequest().multipartData().toSingleValueMap();
       }
       else {
         return context.getParameters().toSingleValueMap();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,8 +49,9 @@ import infra.util.ClassUtils;
  * @author TODAY 2021/9/10 22:34
  * @since 4.0
  */
-public class LocalVariableTableParameterNameDiscoverer
-        extends ParameterNameDiscoverer implements Function<Class<?>, Map<Executable, String[]>> {
+public class LocalVariableTableParameterNameDiscoverer extends ParameterNameDiscoverer
+        implements Function<Class<?>, Map<Executable, String[]>> {
+
   private static final Logger log = LoggerFactory.getLogger(LocalVariableTableParameterNameDiscoverer.class);
 
   // marker object for classes that do not have any debug info
@@ -60,6 +61,7 @@ public class LocalVariableTableParameterNameDiscoverer
   private final ConcurrentHashMap<Class<?>, Map<Executable, String[]>>
           parameterNamesCache = new ConcurrentHashMap<>(32);
 
+  @Nullable
   @Override
   public String[] doGet(Executable executable) {
     Class<?> declaringClass = executable.getDeclaringClass();
