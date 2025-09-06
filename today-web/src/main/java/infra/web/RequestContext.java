@@ -72,8 +72,7 @@ import infra.web.async.AsyncWebRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.async.WebAsyncManagerFactory;
 import infra.web.multipart.MultipartRequest;
-import infra.web.util.UriComponents;
-import infra.web.util.UriComponentsBuilder;
+import infra.web.util.WebUtils;
 
 import static infra.lang.Constant.DEFAULT_CHARSET;
 
@@ -949,7 +948,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * <p>Example usage:
    * <pre>{@code
    *   // Retrieve the async web request
-   *   AsyncWebRequest asyncRequest = context.getAsyncWebRequest();
+   *   AsyncWebRequest asyncRequest = context.asyncWebRequest();
    *
    *   // Perform operations on the async request
    *   asyncRequest.setAttribute("key", "value");
@@ -996,7 +995,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * <p>Example usage:
    * <pre>{@code
    *   // Retrieve the WebAsyncManager instance
-   *   WebAsyncManager asyncManager = getAsyncManager();
+   *   WebAsyncManager asyncManager = asyncManager();
    *
    *   // Use the WebAsyncManager to manage asynchronous operations
    *   asyncManager.startCallableProcessing(() -> {
@@ -1151,33 +1150,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
   public boolean isCorsRequest() {
     Boolean corsRequestFlag = this.corsRequestFlag;
     if (corsRequestFlag == null) {
-      String origin = requestHeaders().getFirst(HttpHeaders.ORIGIN);
-      if (origin == null) {
-        corsRequestFlag = false;
-      }
-      else {
-        UriComponents originUrl = UriComponentsBuilder.forOriginHeader(origin).build();
-        String scheme = getScheme();
-        String host = getServerName();
-        int port = getServerPort();
-        corsRequestFlag = !(Objects.equals(scheme, originUrl.getScheme())
-                && Objects.equals(host, originUrl.getHost())
-                && getPort(scheme, port) == getPort(originUrl.getScheme(), originUrl.getPort()));
-      }
+      corsRequestFlag = !WebUtils.isSameOrigin(this);
+      this.corsRequestFlag = corsRequestFlag;
     }
     return corsRequestFlag;
-  }
-
-  protected static int getPort(@Nullable String scheme, int port) {
-    if (port == -1) {
-      if ("http".equals(scheme) || "ws".equals(scheme)) {
-        port = 80;
-      }
-      else if ("https".equals(scheme) || "wss".equals(scheme)) {
-        port = 443;
-      }
-    }
-    return port;
   }
 
   /**
