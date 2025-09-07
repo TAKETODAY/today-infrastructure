@@ -53,6 +53,8 @@ import infra.web.util.WebUtils;
  */
 public class DispatcherHandler extends InfraHandler {
 
+  private final ArrayHolder<RequestCompletedListener> requestCompletedActions = ArrayHolder.forGenerator(RequestCompletedListener[]::new);
+
   /** Action mapping registry */
   private HandlerMapping handlerMapping;
 
@@ -78,12 +80,10 @@ public class DispatcherHandler extends InfraHandler {
 
   private NotFoundHandler notFoundHandler;
 
-  private final ArrayHolder<RequestCompletedListener> requestCompletedActions = ArrayHolder.forGenerator(RequestCompletedListener[]::new);
-
+  @Nullable
   protected WebAsyncManagerFactory webAsyncManagerFactory;
 
   public DispatcherHandler() {
-
   }
 
   /**
@@ -101,6 +101,130 @@ public class DispatcherHandler extends InfraHandler {
    */
   public DispatcherHandler(ApplicationContext context) {
     super(context);
+  }
+
+  public void setHandlerMapping(HandlerMapping handlerMapping) {
+    Assert.notNull(handlerMapping, "HandlerMapping is required");
+    this.handlerMapping = handlerMapping;
+  }
+
+  public void setHandlerAdapter(HandlerAdapter handlerAdapter) {
+    Assert.notNull(handlerAdapter, "HandlerAdapter is required");
+    this.handlerAdapter = handlerAdapter;
+  }
+
+  public void setExceptionHandler(HandlerExceptionHandler exceptionHandler) {
+    Assert.notNull(exceptionHandler, "exceptionHandler is required");
+    this.exceptionHandler = exceptionHandler;
+  }
+
+  /**
+   * Set ReturnValueHandlerManager
+   *
+   * @param returnValueHandler ReturnValueHandlerManager
+   */
+  public void setReturnValueHandler(ReturnValueHandlerManager returnValueHandler) {
+    Assert.notNull(returnValueHandler, "ReturnValueHandlerManager is required");
+    this.returnValueHandler = returnValueHandler;
+  }
+
+  /**
+   * Set whether to detect all HandlerMapping beans in this handler's context. Otherwise,
+   * just a single bean with name "HandlerMapping" will be expected.
+   * <p>Default is "true". Turn this off if you want this handler to use a single
+   * HandlerMapping, despite multiple HandlerMapping beans being defined in the context.
+   *
+   * @since 4.0
+   */
+  public void setDetectAllHandlerMapping(boolean detectAllHandlerMapping) {
+    this.detectAllHandlerMapping = detectAllHandlerMapping;
+  }
+
+  /**
+   * Set whether to detect all HandlerAdapter beans in this handler's context. Otherwise,
+   * just a single bean with name "handlerAdapter" will be expected.
+   * <p>Default is "true". Turn this off if you want this handler to use a single
+   * HandlerAdapter, despite multiple HandlerAdapter beans being defined in the context.
+   *
+   * @since 4.0
+   */
+  public void setDetectAllHandlerAdapters(boolean detectAllHandlerAdapters) {
+    this.detectAllHandlerAdapters = detectAllHandlerAdapters;
+  }
+
+  /**
+   * Set whether to detect all HandlerExceptionHandler beans in this handler's context. Otherwise,
+   * just a single bean with name "handlerExceptionHandler" will be expected.
+   * <p>Default is "true". Turn this off if you want this handler to use a single
+   * HandlerExceptionHandler, despite multiple HandlerExceptionHandler beans being defined in the context.
+   *
+   * @since 4.0
+   */
+  public void setDetectAllHandlerExceptionHandlers(boolean detectAllHandlerExceptionHandlers) {
+    this.detectAllHandlerExceptionHandlers = detectAllHandlerExceptionHandlers;
+  }
+
+  /**
+   * Set whether to throw a HandlerNotFoundException when no Handler was found for this request.
+   * This exception can then be caught with a HandlerExceptionHandler or an
+   * {@code @ExceptionHandler} controller method.
+   *
+   * @since 4.0
+   */
+  public void setThrowExceptionIfNoHandlerFound(boolean throwExceptionIfNoHandlerFound) {
+    this.throwExceptionIfNoHandlerFound = throwExceptionIfNoHandlerFound;
+  }
+
+  /**
+   * Set not found handler
+   *
+   * @param notFoundHandler HttpRequestHandler
+   * @since 4.0
+   */
+  public void setNotFoundHandler(NotFoundHandler notFoundHandler) {
+    Assert.notNull(notFoundHandler, "NotFoundHandler is required");
+    this.notFoundHandler = notFoundHandler;
+  }
+
+  /**
+   * Set WebAsyncManagerFactory
+   *
+   * @param factory WebAsyncManagerFactory
+   * @since 4.0
+   */
+  public void setWebAsyncManagerFactory(WebAsyncManagerFactory factory) {
+    Assert.notNull(factory, "WebAsyncManagerFactory is required");
+    this.webAsyncManagerFactory = factory;
+  }
+
+  /**
+   * add RequestHandledListener array to the list of listeners to be notified when a request is handled.
+   *
+   * @param array RequestHandledListener array
+   * @since 4.0
+   */
+  public void addRequestCompletedActions(@Nullable RequestCompletedListener... array) {
+    requestCompletedActions.addAll(array);
+  }
+
+  /**
+   * add RequestHandledListener list to the list of listeners to be notified when a request is handled.
+   *
+   * @param list RequestHandledListener list
+   * @since 4.0
+   */
+  public void addRequestCompletedActions(@Nullable Collection<RequestCompletedListener> list) {
+    requestCompletedActions.addAll(list);
+  }
+
+  /**
+   * Set RequestHandledListener list to the list of listeners to be notified when a request is handled.
+   *
+   * @param list RequestHandledListener list
+   * @since 4.0
+   */
+  public void setRequestCompletedActions(@Nullable Collection<RequestCompletedListener> list) {
+    requestCompletedActions.set(list);
   }
 
   @Override
@@ -482,130 +606,6 @@ public class DispatcherHandler extends InfraHandler {
       }
     }
     request.requestCompleted(null);
-  }
-
-  public void setHandlerMapping(HandlerMapping handlerMapping) {
-    Assert.notNull(handlerMapping, "HandlerMapping is required");
-    this.handlerMapping = handlerMapping;
-  }
-
-  public void setHandlerAdapter(HandlerAdapter handlerAdapter) {
-    Assert.notNull(handlerAdapter, "HandlerAdapter is required");
-    this.handlerAdapter = handlerAdapter;
-  }
-
-  public void setExceptionHandler(HandlerExceptionHandler exceptionHandler) {
-    Assert.notNull(exceptionHandler, "exceptionHandler is required");
-    this.exceptionHandler = exceptionHandler;
-  }
-
-  /**
-   * Set ReturnValueHandlerManager
-   *
-   * @param returnValueHandler ReturnValueHandlerManager
-   */
-  public void setReturnValueHandler(ReturnValueHandlerManager returnValueHandler) {
-    Assert.notNull(returnValueHandler, "ReturnValueHandlerManager is required");
-    this.returnValueHandler = returnValueHandler;
-  }
-
-  /**
-   * Set whether to detect all HandlerMapping beans in this handler's context. Otherwise,
-   * just a single bean with name "HandlerMapping" will be expected.
-   * <p>Default is "true". Turn this off if you want this handler to use a single
-   * HandlerMapping, despite multiple HandlerMapping beans being defined in the context.
-   *
-   * @since 4.0
-   */
-  public void setDetectAllHandlerMapping(boolean detectAllHandlerMapping) {
-    this.detectAllHandlerMapping = detectAllHandlerMapping;
-  }
-
-  /**
-   * Set whether to detect all HandlerAdapter beans in this handler's context. Otherwise,
-   * just a single bean with name "handlerAdapter" will be expected.
-   * <p>Default is "true". Turn this off if you want this handler to use a single
-   * HandlerAdapter, despite multiple HandlerAdapter beans being defined in the context.
-   *
-   * @since 4.0
-   */
-  public void setDetectAllHandlerAdapters(boolean detectAllHandlerAdapters) {
-    this.detectAllHandlerAdapters = detectAllHandlerAdapters;
-  }
-
-  /**
-   * Set whether to detect all HandlerExceptionHandler beans in this handler's context. Otherwise,
-   * just a single bean with name "handlerExceptionHandler" will be expected.
-   * <p>Default is "true". Turn this off if you want this handler to use a single
-   * HandlerExceptionHandler, despite multiple HandlerExceptionHandler beans being defined in the context.
-   *
-   * @since 4.0
-   */
-  public void setDetectAllHandlerExceptionHandlers(boolean detectAllHandlerExceptionHandlers) {
-    this.detectAllHandlerExceptionHandlers = detectAllHandlerExceptionHandlers;
-  }
-
-  /**
-   * Set whether to throw a HandlerNotFoundException when no Handler was found for this request.
-   * This exception can then be caught with a HandlerExceptionHandler or an
-   * {@code @ExceptionHandler} controller method.
-   *
-   * @since 4.0
-   */
-  public void setThrowExceptionIfNoHandlerFound(boolean throwExceptionIfNoHandlerFound) {
-    this.throwExceptionIfNoHandlerFound = throwExceptionIfNoHandlerFound;
-  }
-
-  /**
-   * Set not found handler
-   *
-   * @param notFoundHandler HttpRequestHandler
-   * @since 4.0
-   */
-  public void setNotFoundHandler(NotFoundHandler notFoundHandler) {
-    Assert.notNull(notFoundHandler, "NotFoundHandler is required");
-    this.notFoundHandler = notFoundHandler;
-  }
-
-  /**
-   * Set WebAsyncManagerFactory
-   *
-   * @param factory WebAsyncManagerFactory
-   * @since 4.0
-   */
-  public void setWebAsyncManagerFactory(WebAsyncManagerFactory factory) {
-    Assert.notNull(factory, "WebAsyncManagerFactory is required");
-    this.webAsyncManagerFactory = factory;
-  }
-
-  /**
-   * add RequestHandledListener array to the list of listeners to be notified when a request is handled.
-   *
-   * @param array RequestHandledListener array
-   * @since 4.0
-   */
-  public void addRequestCompletedActions(@Nullable RequestCompletedListener... array) {
-    requestCompletedActions.addAll(array);
-  }
-
-  /**
-   * add RequestHandledListener list to the list of listeners to be notified when a request is handled.
-   *
-   * @param list RequestHandledListener list
-   * @since 4.0
-   */
-  public void addRequestCompletedActions(@Nullable Collection<RequestCompletedListener> list) {
-    requestCompletedActions.addAll(list);
-  }
-
-  /**
-   * Set RequestHandledListener list to the list of listeners to be notified when a request is handled.
-   *
-   * @param list RequestHandledListener list
-   * @since 4.0
-   */
-  public void setRequestCompletedActions(@Nullable Collection<RequestCompletedListener> list) {
-    requestCompletedActions.set(list);
   }
 
   // @since 4.0
