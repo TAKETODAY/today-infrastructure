@@ -17,7 +17,12 @@
 
 package infra.web.socket.server.support;
 
+import java.util.concurrent.Executor;
+
 import infra.context.ApplicationContext;
+import infra.logging.Logger;
+import infra.logging.LoggerFactory;
+import infra.web.DispatcherHandler;
 import infra.web.server.support.NettyChannelHandler;
 import infra.web.server.support.NettyRequestConfig;
 import infra.web.socket.CloseStatus;
@@ -32,10 +37,13 @@ import static infra.web.socket.handler.ExceptionWebSocketHandlerDecorator.tryClo
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/4/28 15:02
  */
-public class WsNettyChannelHandler extends NettyChannelHandler {
+final class WsNettyChannelHandler extends NettyChannelHandler {
 
-  public WsNettyChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context) {
-    super(requestConfig, context);
+  private static final Logger log = LoggerFactory.getLogger(WsNettyChannelHandler.class);
+
+  WsNettyChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context,
+          DispatcherHandler dispatcherHandler, Executor executor) {
+    super(requestConfig, context, dispatcherHandler, executor);
   }
 
   /**

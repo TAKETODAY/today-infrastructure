@@ -162,7 +162,6 @@ public class MockWrappingController extends AbstractController
   /**
    * Destroy the wrapped Servlet instance.
    *
-   * @see MockApi#destroy()
    */
   @Override
   public void destroy() {

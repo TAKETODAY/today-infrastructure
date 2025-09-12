@@ -18,6 +18,7 @@
 package infra.annotation.config.web.netty;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 
 import infra.annotation.ConditionalOnWebApplication;
 import infra.annotation.ConditionalOnWebApplication.Type;
@@ -39,22 +40,23 @@ import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
-import infra.web.server.ChannelWebServerFactory;
+import infra.web.DispatcherHandler;
+import infra.web.server.GenericWebServerFactory;
 import infra.web.server.ServerProperties;
 import infra.web.server.ServerProperties.Netty.Multipart;
 import infra.web.server.Ssl;
 import infra.web.server.WebServerFactoryCustomizerBeanPostProcessor;
 import infra.web.server.error.SendErrorHandler;
 import infra.web.server.support.ChannelConfigurer;
-import infra.web.server.support.NettyChannelHandler;
+import infra.web.server.support.NettyChannelHandlerFactory;
+import infra.web.server.support.ChannelHandlerFactory;
 import infra.web.server.support.NettyRequestConfig;
 import infra.web.server.support.NettyWebServerFactory;
 import infra.web.server.support.ServerBootstrapCustomizer;
-import infra.web.socket.server.support.WsNettyChannelHandler;
+import infra.web.server.support.StandardNettyWebEnvironment;
+import infra.web.socket.server.support.WsChannelHandlerFactory;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
-
-import static infra.web.server.ChannelWebServerFactory.CHANNEL_HANDLER_BEAN_NAME;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for a netty web server.
@@ -74,21 +76,28 @@ public class NettyWebServerFactoryAutoConfiguration {
   }
 
   @Component
-  @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public static WebServerFactoryCustomizerBeanPostProcessor webServerFactoryCustomizerBeanPostProcessor() {
     return new WebServerFactoryCustomizerBeanPostProcessor();
   }
 
-  @Component(CHANNEL_HANDLER_BEAN_NAME)
+  @Component
+  @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnMissingBean(name = CHANNEL_HANDLER_BEAN_NAME)
-  public static NettyChannelHandler nettyChannelHandler(ApplicationContext context,
-          WebMvcProperties webMvcProperties, NettyRequestConfig requestConfig) {
-    NettyChannelHandler handler = createChannelHandler(context, requestConfig, context.getClassLoader());
+  public static DispatcherHandler dispatcherHandler(ApplicationContext context, WebMvcProperties webMvcProperties) {
+    DispatcherHandler handler = new DispatcherHandler(context);
     handler.setThrowExceptionIfNoHandlerFound(webMvcProperties.throwExceptionIfNoHandlerFound);
     handler.setEnableLoggingRequestDetails(webMvcProperties.logRequestDetails);
+    handler.setEnvironment(new StandardNettyWebEnvironment());
     return handler;
+  }
+
+  @Component
+  @ConditionalOnMissingBean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  public static ChannelHandlerFactory nettyChannelHandlerFactory(ApplicationContext context,
+          NettyRequestConfig requestConfig, DispatcherHandler dispatcherHandler, Executor executor) {
+    return createChannelHandlerFactory(requestConfig, context, dispatcherHandler, executor, context.getClassLoader());
   }
 
   /**
@@ -97,7 +106,7 @@ public class NettyWebServerFactoryAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public static ChannelWebServerFactory nettyWebServerFactory(ServerProperties serverProperties,
+  public static GenericWebServerFactory nettyWebServerFactory(ServerProperties serverProperties,
           @Nullable ChannelConfigurer channelConfigurer, @Nullable SslBundles sslBundles,
           @Nullable List<ServerBootstrapCustomizer> customizers, @Nullable ApplicationTemp applicationTemp) {
     NettyWebServerFactory factory = new NettyWebServerFactory();
@@ -143,17 +152,19 @@ public class NettyWebServerFactoryAutoConfiguration {
     }
   }
 
-  private static NettyChannelHandler createChannelHandler(ApplicationContext context,
-          NettyRequestConfig requestConfig, @Nullable ClassLoader classLoader) {
+  private static ChannelHandlerFactory createChannelHandlerFactory(NettyRequestConfig requestConfig, ApplicationContext context,
+          DispatcherHandler dispatcherHandler, Executor executor, @Nullable ClassLoader classLoader) {
     if (ClassUtils.isPresent("infra.web.socket.server.support.WsNettyChannelHandler", classLoader)) {
-      return Ws.createChannelHandler(context, requestConfig);
+      return Ws.createChannelHandler(requestConfig, context, dispatcherHandler, executor);
     }
-    return new NettyChannelHandler(requestConfig, context);
+
+    return new NettyChannelHandlerFactory(requestConfig, context, dispatcherHandler, executor);
   }
 
   static class Ws {
-    private static NettyChannelHandler createChannelHandler(ApplicationContext context, NettyRequestConfig requestConfig) {
-      return new WsNettyChannelHandler(requestConfig, context);
+    private static WsChannelHandlerFactory createChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context,
+            DispatcherHandler dispatcherHandler, Executor executor) {
+      return new WsChannelHandlerFactory(requestConfig, context, dispatcherHandler, executor);
     }
   }
 

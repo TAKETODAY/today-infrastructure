@@ -15,18 +15,17 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.server;
+package infra.web.server.support;
+
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
 
 /**
- * Tagging interface for factories that create a {@link WebServer}.
- *
- * @author Phillip Webb
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see WebServer
- * @see GenericWebServerFactory
- * @see infra.web.server.reactive.ReactiveWebServerFactory
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0 2025/9/7 21:31
  */
-public interface WebServerFactory {
+public interface ChannelHandlerFactory {
+
+  ChannelHandler createChannelHandler(Channel channel);
 
 }

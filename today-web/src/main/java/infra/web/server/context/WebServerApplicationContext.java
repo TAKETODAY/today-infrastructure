@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ public interface WebServerApplicationContext extends ApplicationContext {
    * @return {@code true} if the server namespace of the context matches
    */
   static boolean hasServerNamespace(ApplicationContext context, String serverNamespace) {
-    return (context instanceof WebServerApplicationContext serverCtx)
+    return context instanceof WebServerApplicationContext serverCtx
             && ObjectUtils.nullSafeEquals(serverCtx.getServerNamespace(), serverNamespace);
   }
 
@@ -73,10 +73,10 @@ public interface WebServerApplicationContext extends ApplicationContext {
    * @return the server namespace or {@code null} if the context is not a
    * {@link WebServerApplicationContext}
    */
+  @Nullable
   static String getServerNamespace(ApplicationContext context) {
-    return (context instanceof WebServerApplicationContext serverCtx)
+    return context instanceof WebServerApplicationContext serverCtx
             ? serverCtx.getServerNamespace() : null;
-
   }
 
 }

@@ -1,0 +1,59 @@
+/*
+ * Copyright 2017 - 2025 the original author or authors.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
+ */
+
+package infra.web.server.support;
+
+import java.util.concurrent.Executor;
+
+import infra.context.ApplicationContext;
+import infra.lang.Assert;
+import infra.web.DispatcherHandler;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
+
+/**
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0 2025/9/9 21:54
+ */
+public class NettyChannelHandlerFactory implements ChannelHandlerFactory {
+
+  protected final NettyRequestConfig requestConfig;
+
+  protected final ApplicationContext context;
+
+  protected final DispatcherHandler dispatcherHandler;
+
+  protected final Executor executor;
+
+  public NettyChannelHandlerFactory(NettyRequestConfig requestConfig, ApplicationContext context,
+          DispatcherHandler dispatcherHandler, Executor executor) {
+    Assert.notNull(executor, "Executor is required");
+    Assert.notNull(context, "ApplicationContext is required");
+    Assert.notNull(requestConfig, "NettyRequestConfig is required");
+    Assert.notNull(dispatcherHandler, "DispatcherHandler is required");
+    this.context = context;
+    this.executor = executor;
+    this.requestConfig = requestConfig;
+    this.dispatcherHandler = dispatcherHandler;
+  }
+
+  @Override
+  public ChannelHandler createChannelHandler(Channel channel) {
+    return new NettyChannelHandler(requestConfig, context, dispatcherHandler, executor);
+  }
+
+}

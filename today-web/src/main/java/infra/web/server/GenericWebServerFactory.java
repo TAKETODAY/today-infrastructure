@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,22 +17,13 @@
 
 package infra.web.server;
 
-import io.netty.channel.ChannelHandler;
-
 /**
- * Factory interface that can be used to create a netty {@link WebServer}.
+ * Factory interface that can be used to create a {@link WebServer}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/4/25 16:46
  */
-public interface ChannelWebServerFactory extends WebServerFactory {
-
-  /**
-   * {@link ChannelHandler} bean name
-   *
-   * @see #getWebServer(ChannelHandler)
-   */
-  String CHANNEL_HANDLER_BEAN_NAME = "nettyChannelHandler";
+public interface GenericWebServerFactory extends WebServerFactory {
 
   /**
    * Gets a new fully configured but paused {@link WebServer} instance. Clients should
@@ -40,11 +31,9 @@ public interface ChannelWebServerFactory extends WebServerFactory {
    * called (which happens when the {@code ApplicationContext} has been fully
    * refreshed).
    *
-   * @param channelHandler the HTTP handler in charge of processing requests
    * @return a fully configured and started {@link WebServer}
    * @see WebServer#stop()
-   * @see #CHANNEL_HANDLER_BEAN_NAME
    */
-  WebServer getWebServer(ChannelHandler channelHandler);
+  WebServer getWebServer();
 
 }

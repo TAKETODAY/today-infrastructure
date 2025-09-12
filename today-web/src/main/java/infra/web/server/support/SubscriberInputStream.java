@@ -15,9 +15,10 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.http.client;
+package infra.web.server.support;
 
-import java.io.IOException;
+import org.reactivestreams.Subscription;
+
 import java.io.InputStream;
 import java.util.ConcurrentModificationException;
 import java.util.Objects;
@@ -28,13 +29,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 import infra.lang.Assert;
 import infra.lang.Nullable;
-import infra.logging.Logger;
-import infra.logging.LoggerFactory;
+import io.netty.buffer.ByteBuf;
 import reactor.core.Exceptions;
 
 /**
@@ -50,28 +48,12 @@ import reactor.core.Exceptions;
  * and stored buffers are read. If the {@code InputStream} is closed,
  * the {@link Flow.Subscription} is cancelled, and stored buffers released.
  *
- * <p>Note that this class has a near duplicate in
- * {@link infra.core.io.buffer.SubscriberInputStream}.
- *
- * @param <T> the publisher byte buffer type
- * @author Oleh Dokuka
- * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-final class SubscriberInputStream<T> extends InputStream implements Flow.Subscriber<T> {
-
-  private static final Logger logger = LoggerFactory.getLogger(SubscriberInputStream.class);
+final class SubscriberInputStream extends InputStream {
 
   private static final Object READY = new Object();
-
-  private static final byte[] DONE = new byte[0];
-
-  private static final byte[] CLOSED = new byte[0];
-
-  private final Function<T, byte[]> mapper;
-
-  private final Consumer<T> onDiscardHandler;
 
   private final int prefetch;
 
@@ -79,23 +61,21 @@ final class SubscriberInputStream<T> extends InputStream implements Flow.Subscri
 
   private final ReentrantLock lock;
 
-  private final Queue<T> queue;
+  private final Queue<ByteBuf> queue;
 
   private final AtomicReference<Object> parkedThread = new AtomicReference<>();
 
   private final AtomicInteger workAmount = new AtomicInteger();
 
-  volatile boolean closed;
+  private volatile boolean closed;
 
   private int consumed;
 
   @Nullable
-  private byte[] available;
-
-  private int position;
+  private ByteBuf available;
 
   @Nullable
-  private Flow.Subscription subscription;
+  private Subscription subscription;
 
   private boolean done;
 
@@ -105,28 +85,17 @@ final class SubscriberInputStream<T> extends InputStream implements Flow.Subscri
   /**
    * Create an instance.
    *
-   * @param mapper function to transform byte buffers to {@code byte[]};
-   * the function should also release the byte buffer if necessary.
-   * @param onDiscardHandler a callback to release byte buffers if the
-   * {@link InputStream} is closed prematurely.
    * @param demand the number of buffers to request initially, and buffer
    * internally on an ongoing basis.
    */
-  SubscriberInputStream(Function<T, byte[]> mapper, Consumer<T> onDiscardHandler, int demand) {
-    Assert.notNull(mapper, "mapper is required");
-    Assert.notNull(onDiscardHandler, "onDiscardHandler is required");
-    Assert.isTrue(demand > 0, "demand must be greater than 0");
-
-    this.mapper = mapper;
-    this.onDiscardHandler = onDiscardHandler;
+  SubscriberInputStream(int demand) {
     this.prefetch = demand;
     this.limit = (demand == Integer.MAX_VALUE ? Integer.MAX_VALUE : demand - (demand >> 2));
     this.queue = new ArrayBlockingQueue<>(demand);
     this.lock = new ReentrantLock(false);
   }
 
-  @Override
-  public void onSubscribe(Flow.Subscription subscription) {
+  public void onSubscribe(Subscription subscription) {
     if (this.subscription != null) {
       subscription.cancel();
       return;
@@ -136,10 +105,7 @@ final class SubscriberInputStream<T> extends InputStream implements Flow.Subscri
     subscription.request(this.prefetch == Integer.MAX_VALUE ? Long.MAX_VALUE : this.prefetch);
   }
 
-  @Override
-  public void onNext(T buffer) {
-    Assert.notNull(buffer, "Buffer is required");
-
+  public void onNext(ByteBuf buffer) {
     if (this.done) {
       discard(buffer);
       return;
@@ -153,7 +119,7 @@ final class SubscriberInputStream<T> extends InputStream implements Flow.Subscri
 
     int previousWorkState = addWork();
     if (previousWorkState == Integer.MIN_VALUE) {
-      T value = this.queue.poll();
+      ByteBuf value = this.queue.poll();
       if (value != null) {
         discard(value);
       }
@@ -165,7 +131,6 @@ final class SubscriberInputStream<T> extends InputStream implements Flow.Subscri
     }
   }
 
-  @Override
   public void onError(Throwable throwable) {
     if (this.done) {
       return;
@@ -178,7 +143,6 @@ final class SubscriberInputStream<T> extends InputStream implements Flow.Subscri
     }
   }
 
-  @Override
   public void onComplete() {
     if (this.done) {
       return;
@@ -228,28 +192,33 @@ final class SubscriberInputStream<T> extends InputStream implements Flow.Subscri
     }
 
     try {
-      byte[] next = getNextOrAwait();
+      ByteBuf next = getNextOrAwait();
 
-      if (next == DONE) {
-        this.closed = true;
-        cleanAndFinalize();
-        if (this.error == null) {
+      if (next == null) {
+        if (done) {
+          this.closed = true;
+          cleanAndFinalize();
+          if (this.error == null) {
+            return -1;
+          }
+          else {
+            throw Exceptions.propagate(this.error);
+          }
+        }
+        else if (closed) {
+          cleanAndFinalize();
           return -1;
         }
         else {
-          throw Exceptions.propagate(this.error);
+          return -1;
         }
       }
-      else if (next == CLOSED) {
-        cleanAndFinalize();
-        return -1;
-      }
 
-      return next[this.position++] & 0xFF;
+      return next.readByte() & 0xFF;
     }
     catch (Throwable ex) {
       this.closed = true;
-      requiredSubscriber().cancel();
+      cancel();
       cleanAndFinalize();
       throw Exceptions.propagate(ex);
     }
@@ -274,40 +243,42 @@ final class SubscriberInputStream<T> extends InputStream implements Flow.Subscri
 
     try {
       for (int j = 0; j < len; ) {
-        byte[] next = getNextOrAwait();
+        ByteBuf next = getNextOrAwait();
 
-        if (next == DONE) {
-          cleanAndFinalize();
-          if (this.error == null) {
-            this.closed = true;
-            return j == 0 ? -1 : j;
+        if (next == null) {
+          if (done) {
+            cleanAndFinalize();
+            if (this.error == null) {
+              this.closed = true;
+              return j == 0 ? -1 : j;
+            }
+            else {
+              if (j == 0) {
+                this.closed = true;
+                throw Exceptions.propagate(this.error);
+              }
+              return j;
+            }
+          }
+          else if (closed) {
+            cancel();
+            cleanAndFinalize();
+            return -1;
           }
           else {
-            if (j == 0) {
-              this.closed = true;
-              throw Exceptions.propagate(this.error);
-            }
-
             return j;
           }
         }
-        else if (next == CLOSED) {
-          requiredSubscriber().cancel();
-          cleanAndFinalize();
-          return -1;
-        }
-        int i = this.position;
-        for (; i < next.length && j < len; i++, j++) {
-          b[off + j] = next[i];
-        }
-        this.position = i;
+        int initialReadPosition = next.readerIndex();
+        next.readBytes(b, off + j, Math.min(len - j, next.readableBytes()));
+        j += next.readerIndex() - initialReadPosition;
       }
 
       return len;
     }
     catch (Throwable ex) {
       this.closed = true;
-      requiredSubscriber().cancel();
+      cancel();
       cleanAndFinalize();
       throw Exceptions.propagate(ex);
     }
@@ -316,22 +287,23 @@ final class SubscriberInputStream<T> extends InputStream implements Flow.Subscri
     }
   }
 
-  byte[] getNextOrAwait() {
-    if (this.available == null || this.available.length - this.position == 0) {
+  @Nullable
+  private ByteBuf getNextOrAwait() {
+    if (this.available == null || this.available.readableBytes() == 0) {
+      discard(this.available);
       this.available = null;
 
       int actualWorkAmount = this.workAmount.getAcquire();
       for (; ; ) {
         if (this.closed) {
-          return CLOSED;
+          return null;
         }
 
         boolean done = this.done;
-        T buffer = this.queue.poll();
+        ByteBuf buffer = this.queue.poll();
         if (buffer != null) {
           int consumed = ++this.consumed;
-          this.position = 0;
-          this.available = this.mapper.apply(buffer);
+          this.available = buffer;
           if (consumed == this.limit) {
             this.consumed = 0;
             requiredSubscriber().request(this.limit);
@@ -340,7 +312,7 @@ final class SubscriberInputStream<T> extends InputStream implements Flow.Subscri
         }
 
         if (done) {
-          return DONE;
+          return null;
         }
 
         actualWorkAmount = this.workAmount.addAndGet(-actualWorkAmount);
@@ -353,12 +325,13 @@ final class SubscriberInputStream<T> extends InputStream implements Flow.Subscri
     return this.available;
   }
 
-  void cleanAndFinalize() {
+  private void cleanAndFinalize() {
+    discard(this.available);
     this.available = null;
 
     for (; ; ) {
       int workAmount = this.workAmount.getPlain();
-      T value;
+      ByteBuf value;
       while ((value = this.queue.poll()) != null) {
         discard(value);
       }
@@ -370,7 +343,7 @@ final class SubscriberInputStream<T> extends InputStream implements Flow.Subscri
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     if (this.closed) {
       return;
     }
@@ -385,7 +358,7 @@ final class SubscriberInputStream<T> extends InputStream implements Flow.Subscri
     }
 
     try {
-      requiredSubscriber().cancel();
+      cancel();
       cleanAndFinalize();
     }
     finally {
@@ -393,19 +366,18 @@ final class SubscriberInputStream<T> extends InputStream implements Flow.Subscri
     }
   }
 
-  private Flow.Subscription requiredSubscriber() {
+  private Subscription requiredSubscriber() {
     Assert.state(this.subscription != null, "Subscriber must be subscribed to use InputStream");
     return this.subscription;
   }
 
-  void discard(T buffer) {
-    try {
-      this.onDiscardHandler.accept(buffer);
-    }
-    catch (Throwable ex) {
-      if (logger.isDebugEnabled()) {
-        logger.debug("Failed to release {}: {}", buffer.getClass().getSimpleName(), buffer, ex);
-      }
+  private void cancel() {
+    requiredSubscriber().cancel();
+  }
+
+  private void discard(@Nullable ByteBuf buffer) {
+    if (buffer != null) {
+      buffer.release();
     }
   }
 

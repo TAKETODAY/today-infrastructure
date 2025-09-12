@@ -60,15 +60,14 @@ import infra.web.async.WebAsyncManager;
 import infra.web.multipart.MultipartRequest;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.DefaultHeaders;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
@@ -87,7 +86,6 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 import io.netty.handler.stream.ChunkedNioFile;
 import io.netty.handler.stream.ChunkedWriteHandler;
-import io.netty.util.ReferenceCountUtil;
 import io.netty.util.internal.PlatformDependent;
 
 import static io.netty.util.internal.StringUtil.decodeHexByte;
@@ -186,12 +184,15 @@ public class NettyRequestContext extends RequestContext {
   @Nullable
   private ServerHttpResponse httpOutputMessage;
 
-  protected NettyRequestContext(ApplicationContext context, ChannelHandlerContext ctx,
+  @Nullable
+  private SubscriberInputStream inputStream;
+
+  protected NettyRequestContext(ApplicationContext context, Channel channel,
           HttpRequest request, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
     super(context, dispatcherHandler);
     this.config = config;
     this.request = request;
-    this.channel = ctx.channel();
+    this.channel = channel;
     this.nettyResponseHeaders = config.httpHeadersFactory.newHeaders();
   }
 
@@ -293,9 +294,19 @@ public class NettyRequestContext extends RequestContext {
     return new PrintWriter(getOutputStream(), true, config.writerCharset);
   }
 
+  public void addContent(HttpContent httpContent) {
+    if (inputStream == null) {
+      inputStream = new SubscriberInputStream(128);
+    }
+    inputStream.onNext(httpContent.content());
+  }
+
   @Override
   protected InputStream createInputStream() {
-    return new ByteBufInputStream(request.content());
+    if (inputStream == null) {
+      inputStream = new SubscriberInputStream(128);
+    }
+    return inputStream;
   }
 
   @Override
@@ -408,7 +419,7 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public long getContentLength() {
-    return request.content().readableBytes();
+    return requestHeaders().getContentLength();
   }
 
   @Override
@@ -484,10 +495,10 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   protected void requestCompletedInternal(@Nullable Throwable notHandled) {
-    int cnt = request.refCnt();
-    if (cnt != 0) {
-      ReferenceCountUtil.safeRelease(request);
+    if (inputStream != null) {
+      inputStream.close();
     }
+
     if (requestDecoder != null) {
       requestDecoder.destroy();
     }
