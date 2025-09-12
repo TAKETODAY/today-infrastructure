@@ -26,6 +26,9 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
+import infra.core.io.FileSystemResource;
+import infra.core.io.Resource;
+import infra.util.ExceptionUtils;
 import infra.web.multipart.MultipartFile;
 import infra.web.multipart.support.AbstractMultipartFile;
 import io.netty.buffer.ByteBuf;
@@ -113,6 +116,18 @@ final class NettyMultipartFile extends AbstractMultipartFile implements Multipar
   public long transferTo(Path dest) throws IOException, IllegalStateException {
     try (var channel = FileChannel.open(dest, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
       return transferTo(channel, 0, fileUpload.length());
+    }
+  }
+
+  @Override
+  public Resource getResource() {
+    try {
+      return fileUpload.isInMemory()
+              ? super.getResource() : new FileSystemResource(fileUpload.getFile());
+    }
+    catch (IOException e) {
+      // never get here
+      throw ExceptionUtils.sneakyThrow(e);
     }
   }
 
