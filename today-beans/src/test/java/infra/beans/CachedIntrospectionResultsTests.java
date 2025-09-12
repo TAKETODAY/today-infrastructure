@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,10 +33,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Chris Beams
  * @author Arjen Poutsma
  */
-public class CachedIntrospectionResultsTests {
+class CachedIntrospectionResultsTests {
 
   @Test
-  public void acceptAndClearClassLoader() throws Exception {
+  void acceptAndClearClassLoader() throws Exception {
     BeanWrapper bw = new BeanWrapperImpl(TestBean.class);
     assertThat(bw.isWritableProperty("name")).isTrue();
     assertThat(bw.isWritableProperty("age")).isTrue();
@@ -48,9 +48,10 @@ public class CachedIntrospectionResultsTests {
     Class<?> tbClass = child.loadClass("infra.beans.testfixture.beans.TestBean");
     assertThat(CachedIntrospectionResults.strongClassCache.containsKey(tbClass)).isFalse();
     CachedIntrospectionResults.acceptClassLoader(child);
-
+    bw = new BeanWrapperImpl(tbClass);
+    assertThat(bw.isWritableProperty("name")).isTrue();
+    assertThat(bw.isWritableProperty("age")).isTrue();
     CachedIntrospectionResults.forClass(tbClass);
-
     assertThat(CachedIntrospectionResults.strongClassCache.containsKey(tbClass)).isTrue();
     CachedIntrospectionResults.clearClassLoader(child);
     assertThat(CachedIntrospectionResults.strongClassCache.containsKey(tbClass)).isFalse();
@@ -59,7 +60,7 @@ public class CachedIntrospectionResultsTests {
   }
 
   @Test
-  public void clearClassLoaderForSystemClassLoader() throws Exception {
+  void clearClassLoaderForSystemClassLoader() {
     BeanUtils.getPropertyDescriptors(ArrayList.class);
     assertThat(CachedIntrospectionResults.strongClassCache.containsKey(ArrayList.class)).isTrue();
     CachedIntrospectionResults.clearClassLoader(ArrayList.class.getClassLoader());
@@ -67,7 +68,7 @@ public class CachedIntrospectionResultsTests {
   }
 
   @Test
-  public void shouldUseExtendedBeanInfoWhenApplicable() throws NoSuchMethodException, SecurityException {
+  void shouldUseExtendedBeanInfoWhenApplicable() throws NoSuchMethodException, SecurityException {
     // given a class with a non-void returning setter method
     @SuppressWarnings("unused")
     class C {
