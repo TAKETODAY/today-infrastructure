@@ -35,7 +35,6 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
@@ -145,7 +144,7 @@ public class NettyChannelHandler extends ChannelInboundHandlerAdapter {
       this.request = request;
       this.context = createContext(channel, request);
       this.multipart = context.isMultipart();
-     }
+    }
 
     public void addContent(HttpContent httpContent) {
       if (httpContent instanceof LastHttpContent) {

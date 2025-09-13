@@ -296,7 +296,7 @@ public class NettyRequestContext extends RequestContext {
 
   public void addContent(HttpContent httpContent) {
     if (inputStream == null) {
-      inputStream = new SubscriberInputStream(128);
+      inputStream = new SubscriberInputStream(channel, 128);
     }
     inputStream.onNext(httpContent.content());
   }
@@ -304,7 +304,7 @@ public class NettyRequestContext extends RequestContext {
   @Override
   protected InputStream createInputStream() {
     if (inputStream == null) {
-      inputStream = new SubscriberInputStream(128);
+      inputStream = new SubscriberInputStream(channel, 128);
     }
     return inputStream;
   }

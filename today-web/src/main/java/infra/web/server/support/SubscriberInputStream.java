@@ -17,109 +17,111 @@
 
 package infra.web.server.support;
 
-import org.reactivestreams.Subscription;
-
 import java.io.InputStream;
+import java.util.ArrayDeque;
 import java.util.ConcurrentModificationException;
 import java.util.Objects;
 import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Flow;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 
-import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.util.ExceptionUtils;
 import io.netty.buffer.ByteBuf;
-import reactor.core.Exceptions;
+import io.netty.channel.Channel;
+import io.netty.handler.codec.http.TooLongHttpContentException;
 
 /**
  * An {@link InputStream} backed by {@link Flow.Subscriber Flow.Subscriber}
- * receiving byte buffers from a {@link Flow.Publisher} source.
+ * receiving byte buffers from a source.
  *
- * <p>Byte buffers are stored in a queue. The {@code demand} constructor value
- * determines the number of buffers requested initially. When storage falls
- * below a {@code (demand - (demand >> 2))} limit, a request is made to refill
- * the queue.
- *
- * <p>The {@code InputStream} terminates after an onError or onComplete signal,
- * and stored buffers are read. If the {@code InputStream} is closed,
- * the {@link Flow.Subscription} is cancelled, and stored buffers released.
- *
- * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
  */
 final class SubscriberInputStream extends InputStream {
 
   private static final Object READY = new Object();
 
-  private final int prefetch;
-
-  private final int limit;
-
   private final ReentrantLock lock;
 
-  private final Queue<ByteBuf> queue;
+  private final Channel channel;
+
+  private final int capacity;
+
+  private final long maxContentLength = 0;
 
   private final AtomicReference<Object> parkedThread = new AtomicReference<>();
 
   private final AtomicInteger workAmount = new AtomicInteger();
 
-  private volatile boolean closed;
+  private final AtomicBoolean cancelled = new AtomicBoolean();
 
-  private int consumed;
+  // 跟踪已接收的总字节数
+  private final AtomicLong receivedBytes = new AtomicLong(0);
+
+  private volatile boolean closed;
 
   @Nullable
   private ByteBuf available;
 
   @Nullable
-  private Subscription subscription;
+  private Queue<ByteBuf> queue;
 
   private boolean done;
 
   @Nullable
   private Throwable error;
 
-  /**
-   * Create an instance.
-   *
-   * @param demand the number of buffers to request initially, and buffer
-   * internally on an ongoing basis.
-   */
-  SubscriberInputStream(int demand) {
-    this.prefetch = demand;
-    this.limit = (demand == Integer.MAX_VALUE ? Integer.MAX_VALUE : demand - (demand >> 2));
-    this.queue = new ArrayBlockingQueue<>(demand);
+  SubscriberInputStream(Channel channel) {
+    this.channel = channel;
+    this.capacity = 32;
     this.lock = new ReentrantLock(false);
   }
 
-  public void onSubscribe(Subscription subscription) {
-    if (this.subscription != null) {
-      subscription.cancel();
-      return;
-    }
-
-    this.subscription = subscription;
-    subscription.request(this.prefetch == Integer.MAX_VALUE ? Long.MAX_VALUE : this.prefetch);
+  /**
+   * @param capacity the buffer capacity
+   */
+  SubscriberInputStream(Channel channel, int capacity) {
+    this.channel = channel;
+    this.capacity = capacity;
+    this.lock = new ReentrantLock(false);
   }
 
   public void onNext(ByteBuf buffer) {
-    if (this.done) {
+    if (this.done || this.cancelled.get()) {
       discard(buffer);
       return;
     }
 
-    if (!this.queue.offer(buffer)) {
+    // 检查内容长度限制
+    long currentBytes = receivedBytes.get();
+    int bufferSize = buffer.readableBytes();
+    if (currentBytes + bufferSize > maxContentLength) {
+      discard(buffer);
+      this.error = new TooLongHttpContentException(String.format("Content length exceeded %d bytes", maxContentLength));
+      this.done = true;
+      return;
+    }
+
+    Queue<ByteBuf> queue = getQueue();
+    if (queue.size() >= capacity) {
       discard(buffer);
       this.error = new RuntimeException("Buffer overflow");
       this.done = true;
+      return;
     }
+
+    queue.offer(buffer);
+    receivedBytes.addAndGet(bufferSize);
 
     int previousWorkState = addWork();
     if (previousWorkState == Integer.MIN_VALUE) {
-      ByteBuf value = this.queue.poll();
+      ByteBuf value = queue.poll();
       if (value != null) {
         discard(value);
       }
@@ -129,6 +131,15 @@ final class SubscriberInputStream extends InputStream {
     if (previousWorkState == 0) {
       resume();
     }
+  }
+
+  private Queue<ByteBuf> getQueue() {
+    Queue<ByteBuf> queue = this.queue;
+    if (queue == null) {
+      queue = new ArrayDeque<>(capacity);
+      this.queue = queue;
+    }
+    return queue;
   }
 
   public void onError(Throwable throwable) {
@@ -172,11 +183,9 @@ final class SubscriberInputStream extends InputStream {
   }
 
   private void resume() {
-    if (this.parkedThread != READY) {
-      Object old = this.parkedThread.getAndSet(READY);
-      if (old != READY) {
-        LockSupport.unpark((Thread) old);
-      }
+    Object last = parkedThread.getAndSet(READY);
+    if (last != READY) {
+      LockSupport.unpark((Thread) last);
     }
   }
 
@@ -202,7 +211,7 @@ final class SubscriberInputStream extends InputStream {
             return -1;
           }
           else {
-            throw Exceptions.propagate(this.error);
+            throw ExceptionUtils.sneakyThrow(this.error);
           }
         }
         else if (closed) {
@@ -220,7 +229,7 @@ final class SubscriberInputStream extends InputStream {
       this.closed = true;
       cancel();
       cleanAndFinalize();
-      throw Exceptions.propagate(ex);
+      throw ExceptionUtils.sneakyThrow(ex);
     }
     finally {
       this.lock.unlock();
@@ -255,7 +264,7 @@ final class SubscriberInputStream extends InputStream {
             else {
               if (j == 0) {
                 this.closed = true;
-                throw Exceptions.propagate(this.error);
+                throw ExceptionUtils.sneakyThrow(this.error);
               }
               return j;
             }
@@ -280,7 +289,7 @@ final class SubscriberInputStream extends InputStream {
       this.closed = true;
       cancel();
       cleanAndFinalize();
-      throw Exceptions.propagate(ex);
+      throw ExceptionUtils.sneakyThrow(ex);
     }
     finally {
       this.lock.unlock();
@@ -295,19 +304,15 @@ final class SubscriberInputStream extends InputStream {
 
       int actualWorkAmount = this.workAmount.getAcquire();
       for (; ; ) {
-        if (this.closed) {
+        if (this.closed || this.cancelled.get()) {
           return null;
         }
 
         boolean done = this.done;
-        ByteBuf buffer = this.queue.poll();
+        Queue<ByteBuf> queue = this.queue;
+        ByteBuf buffer = queue != null ? queue.poll() : null;
         if (buffer != null) {
-          int consumed = ++this.consumed;
           this.available = buffer;
-          if (consumed == this.limit) {
-            this.consumed = 0;
-            requiredSubscriber().request(this.limit);
-          }
           break;
         }
 
@@ -317,6 +322,7 @@ final class SubscriberInputStream extends InputStream {
 
         actualWorkAmount = this.workAmount.addAndGet(-actualWorkAmount);
         if (actualWorkAmount == 0) {
+          requestNext();
           await();
         }
       }
@@ -329,11 +335,16 @@ final class SubscriberInputStream extends InputStream {
     discard(this.available);
     this.available = null;
 
+    receivedBytes.set(0);
+
     for (; ; ) {
       int workAmount = this.workAmount.getPlain();
-      ByteBuf value;
-      while ((value = this.queue.poll()) != null) {
-        discard(value);
+      Queue<ByteBuf> queue = this.queue;
+      if (queue != null) {
+        ByteBuf value;
+        while ((value = queue.poll()) != null) {
+          discard(value);
+        }
       }
 
       if (this.workAmount.weakCompareAndSetPlain(workAmount, Integer.MIN_VALUE)) {
@@ -366,13 +377,16 @@ final class SubscriberInputStream extends InputStream {
     }
   }
 
-  private Subscription requiredSubscriber() {
-    Assert.state(this.subscription != null, "Subscriber must be subscribed to use InputStream");
-    return this.subscription;
+  public long getReceivedBytes() {
+    return receivedBytes.get();
   }
 
   private void cancel() {
-    requiredSubscriber().cancel();
+    cancelled.set(true);
+  }
+
+  private void requestNext() {
+    channel.read();
   }
 
   private void discard(@Nullable ByteBuf buffer) {
@@ -402,6 +416,61 @@ final class SubscriberInputStream extends InputStream {
     }
     // clear the resume indicator so that the next await call will park without a resume()
     this.parkedThread.lazySet(null);
+  }
+
+  // 添加自适应自旋配置
+  private static final int SPIN_THRESHOLD = 1000;
+  private static final int CPU_CORES = Runtime.getRuntime().availableProcessors();
+  private static final int MAX_SPIN = CPU_CORES > 1 ? 1000 : 0;
+
+  private final AtomicInteger successiveSpins = new AtomicInteger();
+
+  private void adaptiveWait() {
+    Thread toUnpark = Thread.currentThread();
+    int currentSpinCount = calculateSpinCount();
+
+    while (true) {
+      Object current = this.parkedThread.get();
+      if (current == READY) {
+        // 自旋成功，增加下次自旋次数
+        successiveSpins.incrementAndGet();
+        break;
+      }
+
+      if (current != null && current != toUnpark) {
+        throw new IllegalStateException("Only one (Virtual)Thread can await!");
+      }
+
+      // 先尝试自旋
+      if (currentSpinCount > 0) {
+        currentSpinCount--;
+        if (currentSpinCount % 10 == 0) { // 降低 CPU 压力
+          Thread.onSpinWait();
+        }
+        continue;
+      }
+
+      // 自旋失败，降低下次自旋次数
+      successiveSpins.decrementAndGet();
+
+      // 切换到 park 模式
+      if (this.parkedThread.compareAndSet(null, toUnpark)) {
+        LockSupport.park();
+      }
+    }
+
+    this.parkedThread.lazySet(null);
+  }
+
+  private int calculateSpinCount() {
+    if (MAX_SPIN <= 0) {
+      return 0; // 单核系统直接放弃自旋
+    }
+
+    int successSpins = successiveSpins.get();
+    // 根据历史成功率动态调整自旋次数
+    return Math.min(MAX_SPIN, Math.max(0,
+            SPIN_THRESHOLD + (successSpins * 10)));
   }
 
 }
