@@ -4,10 +4,26 @@ import java.time.OffsetDateTime
 
 apply plugin: "signing"
 apply plugin: 'java-library'
+apply plugin: 'me.champeau.jmh'
 
 // Currently commented out due to ZipException: archive is not a ZIP archive
 // apply plugin: 'io.github.goooler.shadow'
 apply from: "$rootDir/gradle/publications.gradle"
+
+dependencies {
+  jmh 'org.openjdk.jmh:jmh-core:1.37'
+  jmh 'org.openjdk.jmh:jmh-generator-annprocess:1.37'
+  jmh 'org.openjdk.jmh:jmh-generator-bytecode:1.37'
+  jmh 'net.sf.jopt-simple:jopt-simple'
+}
+
+jmh {
+  duplicateClassesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.findByName("processJmhResources").configure {
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
 
 jar {
   manifest.attributes["Implementation-Title"] = project.name
