@@ -17,14 +17,12 @@
 
 package infra.web.server.support;
 
-import java.util.ArrayList;
 import java.util.concurrent.Executor;
 
 import infra.context.ApplicationContext;
 import infra.lang.Nullable;
 import infra.web.DispatcherHandler;
 import infra.web.HttpStatusProvider;
-import infra.web.RequestContextHolder;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
@@ -36,7 +34,6 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 
 import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFactory;
@@ -57,7 +54,7 @@ public class NettyChannelHandler extends ChannelInboundHandlerAdapter {
 
   protected final Executor executor;
 
-  private HttpHandler httpHandler;
+  private HttpContext httpContext;
 
   protected NettyChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context,
           DispatcherHandler dispatcherHandler, Executor executor) {
@@ -71,12 +68,12 @@ public class NettyChannelHandler extends ChannelInboundHandlerAdapter {
   public final void channelRead(final ChannelHandlerContext ctx, final Object msg) {
     if (msg instanceof HttpRequest request) {
       Channel channel = ctx.channel();
-      HttpHandler httpHandler = new HttpHandler(channel, request);
-      this.httpHandler = httpHandler;
-      executor.execute(httpHandler);
+      HttpContext httpContext = new HttpContext(channel, request, requestConfig, context, dispatcherHandler, this);
+      this.httpContext = httpContext;
+      executor.execute(httpContext);
     }
     else if (msg instanceof HttpContent content) {
-      httpHandler.addContent(content);
+      httpContext.onDataReceived(content);
     }
     else if (msg instanceof WebSocketFrame) {
       handleWebSocketFrame(ctx, (WebSocketFrame) msg);
@@ -90,16 +87,12 @@ public class NettyChannelHandler extends ChannelInboundHandlerAdapter {
     ctx.fireChannelRead(frame);
   }
 
-  protected NettyRequestContext createContext(Channel channel, HttpRequest httpRequest) {
-    return new NettyRequestContext(context, channel, httpRequest, requestConfig, dispatcherHandler);
-  }
-
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     handleException(ctx.channel(), cause);
   }
 
-  private void handleException(Channel channel, Throwable cause) {
+  void handleException(Channel channel, Throwable cause) {
     HttpResponse response = createErrorResponse(cause);
     if (response != null) {
       channel.writeAndFlush(response)
@@ -123,60 +116,10 @@ public class NettyChannelHandler extends ChannelInboundHandlerAdapter {
 
   @Override
   public void channelInactive(ChannelHandlerContext ctx) {
+    if (httpContext != null) {
+      httpContext.channelInactive();
+    }
     ctx.fireChannelInactive();
-  }
-
-  class HttpHandler implements Runnable {
-
-    private final Channel channel;
-
-    private final HttpRequest request;
-
-    private final NettyRequestContext context;
-
-    private final boolean multipart;
-
-    @Nullable
-    private ArrayList<HttpContent> contents;
-
-    HttpHandler(Channel channel, HttpRequest request) {
-      this.channel = channel;
-      this.request = request;
-      this.context = createContext(channel, request);
-      this.multipart = context.isMultipart();
-    }
-
-    public void addContent(HttpContent httpContent) {
-      if (httpContent instanceof LastHttpContent) {
-
-      }
-      else {
-        if (contents == null) {
-          contents = new ArrayList<>();
-        }
-        contents.add(httpContent);
-      }
-      context.addContent(httpContent);
-    }
-
-    @Override
-    public void run() {
-      RequestContextHolder.set(context);
-      try {
-        if (request.decoderResult().cause() != null) {
-          dispatcherHandler.processDispatchResult(context, null, null, request.decoderResult().cause());
-        }
-        else {
-          dispatcherHandler.handleRequest(context); // handling HTTP request
-        }
-      }
-      catch (Throwable e) {
-        handleException(channel, e);
-      }
-      finally {
-        RequestContextHolder.cleanup();
-      }
-    }
   }
 
 }

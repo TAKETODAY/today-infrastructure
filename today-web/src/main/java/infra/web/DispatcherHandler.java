@@ -478,7 +478,7 @@ public class DispatcherHandler extends InfraHandler {
    * Handle the result of handler selection and handler invocation, which is
    * either a view or an Exception to be resolved to a view.
    */
-  public void processDispatchResult(RequestContext request, @Nullable Object handler,
+  protected void processDispatchResult(RequestContext request, @Nullable Object handler,
           @Nullable Object returnValue, @Nullable Throwable exception) throws Throwable {
 
     if (handler instanceof HandlerWrapper wrapper) {

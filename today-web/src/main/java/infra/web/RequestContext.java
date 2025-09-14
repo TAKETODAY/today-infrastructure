@@ -2234,6 +2234,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
   protected void writeHeaders() {
   }
 
+  protected final void processException(Throwable exception) throws Throwable {
+    dispatcherHandler.processDispatchResult(this, null, null, exception);
+  }
+
   @Override
   public String toString() {
     String url = URLDecoder.decode(getRequestURL(), StandardCharsets.UTF_8);

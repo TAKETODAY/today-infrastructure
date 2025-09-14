@@ -371,10 +371,7 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
    * @param channelHandlerFactory NettyChannelHandlerFactory
    */
   protected ChannelInitializer<Channel> createChannelInitializer(Netty netty, ChannelHandlerFactory channelHandlerFactory) {
-    var initializer = createInitializer(channelHandlerFactory);
-    initializer.setHttpDecoderConfig(createHttpDecoderConfig(netty));
-    initializer.setMaxContentLength(netty.maxContentLength.toBytes());
-    return initializer;
+    return createInitializer(channelHandlerFactory, createHttpDecoderConfig(netty));
   }
 
   protected final HttpDecoderConfig createHttpDecoderConfig(Netty netty) {
@@ -433,15 +430,15 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
     nettyConfig = netty;
   }
 
-  private NettyChannelInitializer createInitializer(ChannelHandlerFactory factory) {
+  private NettyChannelInitializer createInitializer(ChannelHandlerFactory factory, HttpDecoderConfig config) {
     Ssl ssl = getSsl();
     if (Ssl.isEnabled(ssl)) {
-      SSLNettyChannelInitializer initializer = new SSLNettyChannelInitializer(factory,
+      SSLNettyChannelInitializer initializer = new SSLNettyChannelInitializer(factory, config,
               channelConfigurer, isHttp2Enabled(), ssl, getSslBundle(), getServerNameSslBundles());
       addBundleUpdateHandler(ssl, initializer::updateSSLBundle);
       return initializer;
     }
-    return new NettyChannelInitializer(factory, channelConfigurer);
+    return new NettyChannelInitializer(factory, channelConfigurer, config);
   }
 
   private InetSocketAddress getListenAddress() {

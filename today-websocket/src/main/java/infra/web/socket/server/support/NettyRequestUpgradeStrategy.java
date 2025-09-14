@@ -33,9 +33,12 @@ import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketSession;
 import infra.web.socket.server.HandshakeFailureException;
 import infra.web.socket.server.RequestUpgradeStrategy;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelPromise;
+import io.netty.handler.codec.http.DefaultFullHttpRequest;
+import io.netty.handler.codec.http.EmptyHttpHeaders;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
@@ -111,7 +114,9 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
     ChannelPromise writePromise = channel.newPromise();
 
     var handshakeChannel = new HandshakeChannel(channel, writePromise);
-    ChannelFuture handshakeF = handshaker.handshake(handshakeChannel, request);
+    ChannelFuture handshakeF = handshaker.handshake(handshakeChannel,
+            new DefaultFullHttpRequest(request.protocolVersion(), request.method(), request.uri(),
+                    Unpooled.EMPTY_BUFFER, request.headers(), EmptyHttpHeaders.INSTANCE));
     if (handshakeF.isDone() && !handshakeF.isSuccess()) {
       throw new HandshakeFailureException("Handshake failed", handshakeF.cause());
     }

@@ -17,9 +17,7 @@
 
 package infra.web.server.support;
 
-import infra.lang.Assert;
 import infra.lang.Nullable;
-import infra.util.DataSize;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
@@ -42,24 +40,16 @@ sealed class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
   private final ChannelConfigurer channelConfigurer;
 
   /**
-   * the maximum length of the aggregated content.
-   * If the length of the aggregated content exceeds this value,
-   */
-  private long maxContentLength = DataSize.ofMegabytes(100).toBytes(); // FIXME
-
-  /**
    * A configuration object for specifying the behaviour
    * of {@link HttpObjectDecoder} and its subclasses.
    */
-  private HttpDecoderConfig httpDecoderConfig = new HttpDecoderConfig()
-          .setMaxInitialLineLength(4096)
-          .setMaxHeaderSize(8192)
-          .setMaxChunkSize(8192)
-          .setValidateHeaders(true);
+  private final HttpDecoderConfig httpDecoderConfig;
 
-  protected NettyChannelInitializer(ChannelHandlerFactory channelHandlerFactory, @Nullable ChannelConfigurer channelConfigurer) {
+  protected NettyChannelInitializer(ChannelHandlerFactory channelHandlerFactory,
+          @Nullable ChannelConfigurer channelConfigurer, HttpDecoderConfig httpDecoderConfig) {
     this.channelHandlerFactory = channelHandlerFactory;
     this.channelConfigurer = channelConfigurer;
+    this.httpDecoderConfig = httpDecoderConfig;
   }
 
   @Override
@@ -81,28 +71,6 @@ sealed class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
   @Override
   public boolean isSharable() {
     return true;
-  }
-
-  //
-
-  /**
-   * Set a configuration object for specifying the behaviour
-   * of {@link HttpObjectDecoder} and its subclasses.
-   */
-  public void setHttpDecoderConfig(HttpDecoderConfig httpDecoderConfig) {
-    Assert.notNull(httpDecoderConfig, "HttpDecoderConfig is required");
-    this.httpDecoderConfig = httpDecoderConfig;
-  }
-
-  /**
-   * Set the maximum length of the aggregated content.
-   * If the length of the aggregated content exceeds this value,
-   *
-   * @param maxContentLength the maximum length of the aggregated content.
-   * If the length of the aggregated content exceeds this value,
-   */
-  public void setMaxContentLength(long maxContentLength) {
-    this.maxContentLength = maxContentLength;
   }
 
 }

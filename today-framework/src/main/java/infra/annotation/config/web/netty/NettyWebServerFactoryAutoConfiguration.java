@@ -22,8 +22,10 @@ import java.util.concurrent.Executor;
 
 import infra.annotation.ConditionalOnWebApplication;
 import infra.annotation.ConditionalOnWebApplication.Type;
+import infra.annotation.config.task.TaskExecutionAutoConfiguration;
 import infra.annotation.config.web.ErrorMvcAutoConfiguration;
 import infra.annotation.config.web.WebMvcProperties;
+import infra.beans.factory.annotation.Qualifier;
 import infra.beans.factory.config.BeanDefinition;
 import infra.context.ApplicationContext;
 import infra.context.annotation.Lazy;
@@ -48,13 +50,14 @@ import infra.web.server.Ssl;
 import infra.web.server.WebServerFactoryCustomizerBeanPostProcessor;
 import infra.web.server.error.SendErrorHandler;
 import infra.web.server.support.ChannelConfigurer;
-import infra.web.server.support.NettyChannelHandlerFactory;
 import infra.web.server.support.ChannelHandlerFactory;
+import infra.web.server.support.NettyChannelHandlerFactory;
 import infra.web.server.support.NettyRequestConfig;
 import infra.web.server.support.NettyWebServerFactory;
 import infra.web.server.support.ServerBootstrapCustomizer;
+import infra.web.server.support.ServiceExecutor;
 import infra.web.server.support.StandardNettyWebEnvironment;
-import infra.web.socket.server.support.WsChannelHandlerFactory;
+import infra.web.socket.server.support.WsNettyChannelHandlerFactory;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 
@@ -96,8 +99,16 @@ public class NettyWebServerFactoryAutoConfiguration {
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public static ChannelHandlerFactory nettyChannelHandlerFactory(ApplicationContext context,
-          NettyRequestConfig requestConfig, DispatcherHandler dispatcherHandler, Executor executor) {
+          NettyRequestConfig requestConfig, DispatcherHandler dispatcherHandler, @ServiceExecutor Executor executor) {
     return createChannelHandlerFactory(requestConfig, context, dispatcherHandler, executor, context.getClassLoader());
+  }
+
+  @Component
+  @ServiceExecutor
+  @ConditionalOnMissingBean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  public static Executor serviceExecutor(@Qualifier(TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME) Executor executor) {
+    return executor;
   }
 
   /**
@@ -108,7 +119,8 @@ public class NettyWebServerFactoryAutoConfiguration {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public static GenericWebServerFactory nettyWebServerFactory(ServerProperties serverProperties,
           @Nullable ChannelConfigurer channelConfigurer, @Nullable SslBundles sslBundles,
-          @Nullable List<ServerBootstrapCustomizer> customizers, @Nullable ApplicationTemp applicationTemp) {
+          @Nullable List<ServerBootstrapCustomizer> customizers, @Nullable ApplicationTemp applicationTemp,
+          ChannelHandlerFactory channelHandlerFactory) {
     NettyWebServerFactory factory = new NettyWebServerFactory();
 
     serverProperties.applyTo(factory, sslBundles, applicationTemp);
@@ -116,6 +128,7 @@ public class NettyWebServerFactoryAutoConfiguration {
     factory.applyFrom(serverProperties.netty);
     factory.setBootstrapCustomizers(customizers);
     factory.setChannelConfigurer(channelConfigurer);
+    factory.setChannelHandlerFactory(channelHandlerFactory);
     return factory;
   }
 
@@ -137,6 +150,7 @@ public class NettyWebServerFactoryAutoConfiguration {
             .headersFactory(DefaultHttpHeadersFactory.headersFactory()
                     .withValidation(server.netty.validateHeaders))
             .sendErrorHandler(sendErrorHandler)
+            .maxContentLength(server.netty.maxContentLength.toBytes())
             .build();
   }
 
@@ -162,9 +176,9 @@ public class NettyWebServerFactoryAutoConfiguration {
   }
 
   static class Ws {
-    private static WsChannelHandlerFactory createChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context,
+    private static WsNettyChannelHandlerFactory createChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context,
             DispatcherHandler dispatcherHandler, Executor executor) {
-      return new WsChannelHandlerFactory(requestConfig, context, dispatcherHandler, executor);
+      return new WsNettyChannelHandlerFactory(requestConfig, context, dispatcherHandler, executor);
     }
   }
 

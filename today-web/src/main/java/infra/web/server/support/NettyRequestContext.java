@@ -19,7 +19,6 @@ package infra.web.server.support;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
@@ -67,7 +66,6 @@ import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.DefaultHeaders;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
-import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
@@ -80,8 +78,6 @@ import io.netty.handler.codec.http.cookie.CookieHeaderNames;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.multipart.Attribute;
-import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
-import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 import io.netty.handler.stream.ChunkedNioFile;
@@ -96,7 +92,7 @@ import static io.netty.util.internal.StringUtil.decodeHexByte;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-07-04 21:24
  */
-public class NettyRequestContext extends RequestContext {
+public abstract class NettyRequestContext extends RequestContext {
 
   /**
    * System property to configure the nio file chunk size when ssl is enabled.
@@ -153,7 +149,7 @@ public class NettyRequestContext extends RequestContext {
   public final HttpHeaders nettyResponseHeaders;
   // UNSAFE fields END
 
-  private final HttpRequest request;
+  protected final HttpRequest request;
 
   // headers and status-code is written? default = false
   private final AtomicBoolean committed = new AtomicBoolean();
@@ -162,9 +158,6 @@ public class NettyRequestContext extends RequestContext {
 
   @Nullable
   private String remoteAddress;
-
-  @Nullable
-  private InterfaceHttpPostRequestDecoder requestDecoder;
 
   // response
   @Nullable
@@ -183,9 +176,6 @@ public class NettyRequestContext extends RequestContext {
 
   @Nullable
   private ServerHttpResponse httpOutputMessage;
-
-  @Nullable
-  private SubscriberInputStream inputStream;
 
   protected NettyRequestContext(ApplicationContext context, Channel channel,
           HttpRequest request, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
@@ -294,21 +284,6 @@ public class NettyRequestContext extends RequestContext {
     return new PrintWriter(getOutputStream(), true, config.writerCharset);
   }
 
-  public void addContent(HttpContent httpContent) {
-    if (inputStream == null) {
-      inputStream = new SubscriberInputStream(channel, 128);
-    }
-    inputStream.onNext(httpContent.content());
-  }
-
-  @Override
-  protected InputStream createInputStream() {
-    if (inputStream == null) {
-      inputStream = new SubscriberInputStream(channel, 128);
-    }
-    return inputStream;
-  }
-
   @Override
   protected infra.http.HttpHeaders createRequestHeaders() {
     HttpHeaders headers = request.headers();
@@ -316,6 +291,7 @@ public class NettyRequestContext extends RequestContext {
     for (Map.Entry<String, String> header : headers) {
       ret.add(header.getKey(), header.getValue());
     }
+    // todo Netty4HttpHeaders nettyHeaders = new Netty4HttpHeaders(headers);
     return ret;
   }
 
@@ -385,9 +361,7 @@ public class NettyRequestContext extends RequestContext {
       parseParameters(parameters, queryString);
     }
 
-    HttpMethod method = getMethod();
-    if (method != HttpMethod.GET && method != HttpMethod.HEAD
-            && StringUtils.startsWithIgnoreCase(getContentType(), MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
+    if (isFormURLEncoded()) {
       for (InterfaceHttpData data : requestDecoder().getBodyHttpDatas()) {
         if (data instanceof Attribute) {
           try {
@@ -402,25 +376,12 @@ public class NettyRequestContext extends RequestContext {
     return parameters;
   }
 
-  InterfaceHttpPostRequestDecoder requestDecoder() {
-    InterfaceHttpPostRequestDecoder requestDecoder = this.requestDecoder;
-    if (requestDecoder == null) {
-      if (isMultipart()) {
-        requestDecoder = new HttpPostMultipartRequestDecoder(config.httpDataFactory, request, config.postRequestDecoderCharset);
-      }
-      else {
-        requestDecoder = new HttpPostStandardRequestDecoder(config.httpDataFactory, request, config.postRequestDecoderCharset);
-      }
-      requestDecoder.setDiscardThreshold(0);
-      this.requestDecoder = requestDecoder;
-    }
-    return requestDecoder;
-  }
+  protected abstract boolean isFormURLEncoded();
 
-  @Override
-  public long getContentLength() {
-    return requestHeaders().getContentLength();
-  }
+  /**
+   * blocking get InterfaceHttpPostRequestDecoder
+   */
+  protected abstract InterfaceHttpPostRequestDecoder requestDecoder();
 
   @Override
   public void sendRedirect(String location) {
@@ -443,7 +404,7 @@ public class NettyRequestContext extends RequestContext {
    *
    * @return HTTP response body
    */
-  public final ByteBuf responseBody() {
+  private ByteBuf responseBody() {
     ByteBuf responseBody = this.responseBody;
     if (responseBody == null) {
       var bodyFactory = config.responseBodyFactory;
@@ -495,13 +456,6 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   protected void requestCompletedInternal(@Nullable Throwable notHandled) {
-    if (inputStream != null) {
-      inputStream.close();
-    }
-
-    if (requestDecoder != null) {
-      requestDecoder.destroy();
-    }
     if (notHandled != null) {
       return;
     }

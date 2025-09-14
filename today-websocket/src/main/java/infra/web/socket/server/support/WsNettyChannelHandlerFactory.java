@@ -30,9 +30,9 @@ import io.netty.channel.ChannelHandler;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/9/9 22:20
  */
-public class WsChannelHandlerFactory extends NettyChannelHandlerFactory {
+public class WsNettyChannelHandlerFactory extends NettyChannelHandlerFactory {
 
-  public WsChannelHandlerFactory(NettyRequestConfig requestConfig, ApplicationContext context,
+  public WsNettyChannelHandlerFactory(NettyRequestConfig requestConfig, ApplicationContext context,
           DispatcherHandler dispatcherHandler, Executor executor) {
     super(requestConfig, context, dispatcherHandler, executor);
   }

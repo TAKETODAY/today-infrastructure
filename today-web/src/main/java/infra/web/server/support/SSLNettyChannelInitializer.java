@@ -33,6 +33,7 @@ import infra.util.ExceptionUtils;
 import infra.util.ObjectUtils;
 import infra.web.server.Ssl;
 import io.netty.channel.Channel;
+import io.netty.handler.codec.http.HttpDecoderConfig;
 import io.netty.handler.codec.http2.Http2SecurityUtil;
 import io.netty.handler.ssl.ApplicationProtocolConfig;
 import io.netty.handler.ssl.ApplicationProtocolNames;
@@ -72,9 +73,9 @@ final class SSLNettyChannelInitializer extends NettyChannelInitializer {
 
   private volatile SslContext sslContext;
 
-  public SSLNettyChannelInitializer(ChannelHandlerFactory factory, @Nullable ChannelConfigurer configurer,
+  public SSLNettyChannelInitializer(ChannelHandlerFactory factory, HttpDecoderConfig config, @Nullable ChannelConfigurer configurer,
           boolean http2Enabled, Ssl ssl, SslBundle sslBundle, Map<String, SslBundle> serverNameSslBundles) {
-    super(factory, configurer);
+    super(factory, configurer, config);
     this.http2Enabled = http2Enabled;
     this.handshakeTimeout = ssl.handshakeTimeout.toMillis();
     this.clientAuth = Ssl.ClientAuth.map(ssl.clientAuth, ClientAuth.NONE, ClientAuth.OPTIONAL, ClientAuth.REQUIRE);

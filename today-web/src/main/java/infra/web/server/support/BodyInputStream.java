@@ -18,23 +18,20 @@
 package infra.web.server.support;
 
 import java.io.InputStream;
-import java.util.ArrayDeque;
 import java.util.ConcurrentModificationException;
 import java.util.Objects;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 
 import infra.lang.Nullable;
 import infra.util.ExceptionUtils;
+import infra.util.concurrent.Awaiter;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
-import io.netty.handler.codec.http.TooLongHttpContentException;
 
 /**
  * An {@link InputStream} backed by {@link Flow.Subscriber Flow.Subscriber}
@@ -43,9 +40,7 @@ import io.netty.handler.codec.http.TooLongHttpContentException;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
  */
-final class SubscriberInputStream extends InputStream {
-
-  private static final Object READY = new Object();
+class BodyInputStream extends InputStream {
 
   private final ReentrantLock lock;
 
@@ -53,62 +48,38 @@ final class SubscriberInputStream extends InputStream {
 
   private final int capacity;
 
-  private final long maxContentLength = 0;
-
-  private final AtomicReference<Object> parkedThread = new AtomicReference<>();
+  private final Awaiter awaiter;
 
   private final AtomicInteger workAmount = new AtomicInteger();
 
   private final AtomicBoolean cancelled = new AtomicBoolean();
 
-  // 跟踪已接收的总字节数
-  private final AtomicLong receivedBytes = new AtomicLong(0);
+  private final Queue<ByteBuf> queue;
 
   private volatile boolean closed;
 
   @Nullable
   private ByteBuf available;
 
-  @Nullable
-  private Queue<ByteBuf> queue;
-
   private boolean done;
 
   @Nullable
   private Throwable error;
 
-  SubscriberInputStream(Channel channel) {
+  BodyInputStream(Channel channel, Awaiter awaiter) {
     this.channel = channel;
-    this.capacity = 32;
+    this.awaiter = awaiter;
+    this.capacity = 128;
+    this.queue = new ConcurrentLinkedQueue<>();
     this.lock = new ReentrantLock(false);
   }
 
-  /**
-   * @param capacity the buffer capacity
-   */
-  SubscriberInputStream(Channel channel, int capacity) {
-    this.channel = channel;
-    this.capacity = capacity;
-    this.lock = new ReentrantLock(false);
-  }
-
-  public void onNext(ByteBuf buffer) {
+  public void onDataReceived(ByteBuf buffer) {
     if (this.done || this.cancelled.get()) {
       discard(buffer);
       return;
     }
 
-    // 检查内容长度限制
-    long currentBytes = receivedBytes.get();
-    int bufferSize = buffer.readableBytes();
-    if (currentBytes + bufferSize > maxContentLength) {
-      discard(buffer);
-      this.error = new TooLongHttpContentException(String.format("Content length exceeded %d bytes", maxContentLength));
-      this.done = true;
-      return;
-    }
-
-    Queue<ByteBuf> queue = getQueue();
     if (queue.size() >= capacity) {
       discard(buffer);
       this.error = new RuntimeException("Buffer overflow");
@@ -117,7 +88,6 @@ final class SubscriberInputStream extends InputStream {
     }
 
     queue.offer(buffer);
-    receivedBytes.addAndGet(bufferSize);
 
     int previousWorkState = addWork();
     if (previousWorkState == Integer.MIN_VALUE) {
@@ -131,15 +101,6 @@ final class SubscriberInputStream extends InputStream {
     if (previousWorkState == 0) {
       resume();
     }
-  }
-
-  private Queue<ByteBuf> getQueue() {
-    Queue<ByteBuf> queue = this.queue;
-    if (queue == null) {
-      queue = new ArrayDeque<>(capacity);
-      this.queue = queue;
-    }
-    return queue;
   }
 
   public void onError(Throwable throwable) {
@@ -183,10 +144,7 @@ final class SubscriberInputStream extends InputStream {
   }
 
   private void resume() {
-    Object last = parkedThread.getAndSet(READY);
-    if (last != READY) {
-      LockSupport.unpark((Thread) last);
-    }
+    awaiter.resume();
   }
 
   /* InputStream implementation */
@@ -309,8 +267,7 @@ final class SubscriberInputStream extends InputStream {
         }
 
         boolean done = this.done;
-        Queue<ByteBuf> queue = this.queue;
-        ByteBuf buffer = queue != null ? queue.poll() : null;
+        ByteBuf buffer = queue.poll();
         if (buffer != null) {
           this.available = buffer;
           break;
@@ -323,7 +280,7 @@ final class SubscriberInputStream extends InputStream {
         actualWorkAmount = this.workAmount.addAndGet(-actualWorkAmount);
         if (actualWorkAmount == 0) {
           requestNext();
-          await();
+          awaiter.await();
         }
       }
     }
@@ -335,16 +292,11 @@ final class SubscriberInputStream extends InputStream {
     discard(this.available);
     this.available = null;
 
-    receivedBytes.set(0);
-
     for (; ; ) {
       int workAmount = this.workAmount.getPlain();
-      Queue<ByteBuf> queue = this.queue;
-      if (queue != null) {
-        ByteBuf value;
-        while ((value = queue.poll()) != null) {
-          discard(value);
-        }
+      ByteBuf value;
+      while ((value = queue.poll()) != null) {
+        discard(value);
       }
 
       if (this.workAmount.weakCompareAndSetPlain(workAmount, Integer.MIN_VALUE)) {
@@ -377,100 +329,18 @@ final class SubscriberInputStream extends InputStream {
     }
   }
 
-  public long getReceivedBytes() {
-    return receivedBytes.get();
-  }
-
   private void cancel() {
     cancelled.set(true);
   }
 
   private void requestNext() {
-    channel.read();
+//    channel.read();
   }
 
   private void discard(@Nullable ByteBuf buffer) {
     if (buffer != null) {
       buffer.release();
     }
-  }
-
-  private void await() {
-    Thread toUnpark = Thread.currentThread();
-
-    while (true) {
-      Object current = this.parkedThread.get();
-      if (current == READY) {
-        break;
-      }
-
-      if (current != null && current != toUnpark) {
-        throw new IllegalStateException("Only one (Virtual)Thread can await!");
-      }
-
-      if (this.parkedThread.compareAndSet(null, toUnpark)) {
-        LockSupport.park();
-        // we don't just break here because park() can wake up spuriously
-        // if we got a proper resume, get() == READY and the loop will quit above
-      }
-    }
-    // clear the resume indicator so that the next await call will park without a resume()
-    this.parkedThread.lazySet(null);
-  }
-
-  // 添加自适应自旋配置
-  private static final int SPIN_THRESHOLD = 1000;
-  private static final int CPU_CORES = Runtime.getRuntime().availableProcessors();
-  private static final int MAX_SPIN = CPU_CORES > 1 ? 1000 : 0;
-
-  private final AtomicInteger successiveSpins = new AtomicInteger();
-
-  private void adaptiveWait() {
-    Thread toUnpark = Thread.currentThread();
-    int currentSpinCount = calculateSpinCount();
-
-    while (true) {
-      Object current = this.parkedThread.get();
-      if (current == READY) {
-        // 自旋成功，增加下次自旋次数
-        successiveSpins.incrementAndGet();
-        break;
-      }
-
-      if (current != null && current != toUnpark) {
-        throw new IllegalStateException("Only one (Virtual)Thread can await!");
-      }
-
-      // 先尝试自旋
-      if (currentSpinCount > 0) {
-        currentSpinCount--;
-        if (currentSpinCount % 10 == 0) { // 降低 CPU 压力
-          Thread.onSpinWait();
-        }
-        continue;
-      }
-
-      // 自旋失败，降低下次自旋次数
-      successiveSpins.decrementAndGet();
-
-      // 切换到 park 模式
-      if (this.parkedThread.compareAndSet(null, toUnpark)) {
-        LockSupport.park();
-      }
-    }
-
-    this.parkedThread.lazySet(null);
-  }
-
-  private int calculateSpinCount() {
-    if (MAX_SPIN <= 0) {
-      return 0; // 单核系统直接放弃自旋
-    }
-
-    int successSpins = successiveSpins.get();
-    // 根据历史成功率动态调整自旋次数
-    return Math.min(MAX_SPIN, Math.max(0,
-            SPIN_THRESHOLD + (successSpins * 10)));
   }
 
 }
