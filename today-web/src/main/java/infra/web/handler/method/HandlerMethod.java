@@ -150,12 +150,13 @@ public class HandlerMethod implements AsyncHandler {
     this.bean = bean;
     this.method = method;
     this.messageSource = messageSource;
-    this.bridgedMethod = ReflectionUtils.makeAccessible(BridgeMethodResolver.findBridgedMethod(method));
+    this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
     this.beanType = ClassUtils.getUserClass(bean);
     this.returnType = bridgedMethod.getReturnType();
     this.parameters = initMethodParameters();
     this.responseBody = computeResponseBody();
     evaluateResponseStatus();
+    ReflectionUtils.makeAccessible(bridgedMethod);
   }
 
   /**
@@ -172,22 +173,14 @@ public class HandlerMethod implements AsyncHandler {
     this.method = bean.getClass().getMethod(methodName, parameterTypes);
     this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
     this.returnType = bridgedMethod.getReturnType();
-    ReflectionUtils.makeAccessible(bridgedMethod);
     this.parameters = initMethodParameters();
     this.responseBody = computeResponseBody();
     evaluateResponseStatus();
+    ReflectionUtils.makeAccessible(bridgedMethod);
   }
 
   /**
    * Create an instance from a bean name, a method, and a {@code BeanFactory}.
-   */
-  public HandlerMethod(String beanName, BeanFactory beanFactory, Method method) {
-    this(beanName, beanFactory, null, method);
-  }
-
-  /**
-   * Variant of {@link #HandlerMethod(String, BeanFactory, Method)} that
-   * also accepts a {@link MessageSource}.
    */
   public HandlerMethod(String beanName, BeanFactory beanFactory, @Nullable MessageSource messageSource, Method method) {
     Assert.notNull(method, "Method is required");
@@ -686,6 +679,7 @@ public class HandlerMethod implements AsyncHandler {
 
     protected HandlerMethodParameter(HandlerMethodParameter original) {
       super(original);
+      this.combinedAnnotations = original.combinedAnnotations;
     }
 
     @Override

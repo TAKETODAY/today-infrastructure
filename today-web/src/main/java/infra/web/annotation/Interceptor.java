@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.annotation;
@@ -30,7 +27,22 @@ import infra.core.annotation.AliasFor;
 import infra.web.HandlerInterceptor;
 
 /**
- * Declarative interceptor configuration
+ * Declarative interceptor configuration annotation.
+ * <p>
+ * This annotation is used to declare {@link HandlerInterceptor} implementations
+ * to be applied to a class or method. It supports specifying interceptors by type
+ * or by bean name, and allows for both inclusion and exclusion of interceptors.
+ * <p>
+ * The order of interceptor execution is determined
+ * by the order in which they are specified.
+ *
+ * <pre>{@code
+ * // Example usage:
+ * @Interceptor(value = {MyInterceptor.class}, excludeNames = "auditInterceptor")
+ * public class MyController {
+ *
+ * }
+ * }</pre>
  *
  * @author TODAY
  * @since 2018-11-17 21:23
@@ -41,38 +53,45 @@ import infra.web.HandlerInterceptor;
 public @interface Interceptor {
 
   /**
-   * configure Interceptors
+   * Specify {@link HandlerInterceptor} types to include.
    * <p>
-   * The order of interceptors execution is related to the position of the interceptor
+   * The order of execution follows the order of declaration.
+   *
+   * @return array of HandlerInterceptor classes to include
    */
   @AliasFor(attribute = "include")
   Class<? extends HandlerInterceptor>[] value() default {};
 
   /**
-   * configure Interceptors
+   * Specify {@link HandlerInterceptor} types to include.
    * <p>
-   * The order of interceptors execution is related to the position of the interceptor
+   * The order of execution follows the order of declaration.
+   *
+   * @return array of HandlerInterceptor classes to include
    */
   @AliasFor(attribute = "value")
   Class<? extends HandlerInterceptor>[] include() default {};
 
   /**
-   * configure Interceptors, use bean's name
+   * Specify bean names of {@link HandlerInterceptor} to include.
    * <p>
    * The order of interceptors execution is related to the position of the interceptor
    *
-   * <p>
-   * this config add after {@link #include()}
+   * @return array of bean names to include
    */
   String[] includeNames() default {};
 
   /**
-   * Exclude {@link HandlerInterceptor}
+   * Specify {@link HandlerInterceptor} types to exclude.
+   *
+   * @return array of HandlerInterceptor classes to exclude
    */
   Class<? extends HandlerInterceptor>[] exclude() default {};
 
   /**
-   * Exclude HandlerInterceptor from bean's name
+   * Specify bean names of {@link HandlerInterceptor} to exclude.
+   *
+   * @return array of bean names to exclude
    */
   String[] excludeNames() default {};
 
