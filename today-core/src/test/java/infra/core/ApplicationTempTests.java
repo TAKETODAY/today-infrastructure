@@ -184,7 +184,7 @@ class ApplicationTempTests {
   @Test
   void createFileWithNullPrefixAndSuffix() throws IOException {
     ApplicationTemp temp = new ApplicationTemp();
-    Path file = temp.createFile(null, null, null);
+    Path file = temp.createFile(null, null);
     assertThat(file).exists();
     assertThat(file.getParent()).isEqualTo(temp.getDir());
   }

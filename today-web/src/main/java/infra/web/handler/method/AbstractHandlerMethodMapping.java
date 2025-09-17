@@ -358,10 +358,6 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * @return the created HandlerMethod
    */
   protected HandlerMethod createHandlerMethod(Object handler, Method method) {
-    if (handler instanceof String beanName) {
-      ApplicationContext context = obtainApplicationContext();
-      return new HandlerMethod(beanName, context.getBeanFactory(), context, method);
-    }
     return new HandlerMethod(handler, method);
   }
 
@@ -536,7 +532,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
   }
 
   /**
-   * Get list of intercepters.
+   * Get list of interceptors.
    *
    * @param controllerClass controller class
    * @param action method
