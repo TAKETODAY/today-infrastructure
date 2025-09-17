@@ -47,7 +47,7 @@ final class HttpContext extends NettyRequestContext implements Runnable {
   private long receivedBytes = 0;
 
   @Nullable
-  private BodyInputStream requestBody;
+  private volatile BodyInputStream requestBody;
 
   @Nullable
   private Boolean formURLEncoded;
@@ -60,7 +60,7 @@ final class HttpContext extends NettyRequestContext implements Runnable {
     super(context, channel, request, config, dispatcherHandler);
     this.channelHandler = channelHandler;
     this.contentLength = HttpUtil.getContentLength(request, -1L);
-    if (contentLength != -1 && config.maxContentLength > contentLength) {
+    if (contentLength != -1 && contentLength > config.maxContentLength) {
       // todo handle maxContentLength
       request.setDecoderResult(DecoderResult.failure(new TooLongHttpContentException(
               String.format("Content length exceeded '%d' bytes", config.maxContentLength))));
@@ -85,6 +85,9 @@ final class HttpContext extends NettyRequestContext implements Runnable {
 
     if (isMultipart() || isFormURLEncoded()) {
       requestDecoderInternal().offer(httpContent);
+      if (httpContent instanceof LastHttpContent) {
+        awaiter.resume();
+      }
     }
     else {
       if (httpContent instanceof LastHttpContent) {
@@ -94,6 +97,9 @@ final class HttpContext extends NettyRequestContext implements Runnable {
             inputStream.onDataReceived(httpContent.content());
           }
           inputStream.onComplete();
+        }
+        else if (bufferSize > 0) {
+          requestBody().onDataReceived(httpContent.content());
         }
       }
       else {
@@ -108,8 +114,15 @@ final class HttpContext extends NettyRequestContext implements Runnable {
   }
 
   private BodyInputStream requestBody() {
+    BodyInputStream requestBody = this.requestBody;
     if (requestBody == null) {
-      requestBody = new BodyInputStream(channel, awaiter);
+      synchronized(this) {
+        requestBody = this.requestBody;
+        if (requestBody == null) {
+          requestBody = new BodyInputStream(channel, awaiter);
+        }
+        this.requestBody = requestBody;
+      }
     }
     return requestBody;
   }
