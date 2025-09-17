@@ -140,8 +140,8 @@ public class ApplicationTemp {
    * a candidate file name
    * @throws UncheckedIOException if an I/O error occurs or {@code dir} does not exist
    */
-  public Path createFile(@Nullable String subDir, @Nullable String prefix) {
-    return createFile(subDir, prefix, null);
+  public Path createFile(@Nullable String subDir, @Nullable String prefix, FileAttribute<?>... attrs) {
+    return createFile(subDir, prefix, null, attrs);
   }
 
   /**
@@ -185,9 +185,9 @@ public class ApplicationTemp {
    * a candidate file name
    * @throws UncheckedIOException if an I/O error occurs or {@code dir} does not exist
    */
-  public Path createFile(@Nullable String subDir, @Nullable String prefix, @Nullable String suffix) {
+  public Path createFile(@Nullable String subDir, @Nullable String prefix, @Nullable String suffix, FileAttribute<?>... attrs) {
     try {
-      return Files.createTempFile(getDir(subDir), prefix, suffix);
+      return Files.createTempFile(getDir(subDir), prefix, suffix, attrs);
     }
     catch (IOException e) {
       throw new UncheckedIOException("Files.createTempFile IO error", e);
