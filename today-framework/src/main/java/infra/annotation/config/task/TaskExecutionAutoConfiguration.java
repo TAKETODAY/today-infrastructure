@@ -162,7 +162,7 @@ public class TaskExecutionAutoConfiguration {
       super(ConfigurationPhase.REGISTER_BEAN);
     }
 
-    @ConditionalOnMissingBean(Executor.class)
+    @ConditionalOnMissingBean(name = APPLICATION_TASK_EXECUTOR_BEAN_NAME)
     private static final class ExecutorBeanCondition {
 
     }
