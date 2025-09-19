@@ -23,6 +23,7 @@ import java.util.concurrent.Executor;
 import infra.annotation.ConditionalOnWebApplication;
 import infra.annotation.ConditionalOnWebApplication.Type;
 import infra.annotation.config.task.TaskExecutionAutoConfiguration;
+import infra.annotation.config.task.TaskExecutionProperties;
 import infra.annotation.config.web.ErrorMvcAutoConfiguration;
 import infra.annotation.config.web.WebMvcProperties;
 import infra.beans.factory.annotation.Qualifier;
@@ -46,20 +47,25 @@ import infra.web.DispatcherHandler;
 import infra.web.server.GenericWebServerFactory;
 import infra.web.server.ServerProperties;
 import infra.web.server.ServerProperties.Netty.Multipart;
+import infra.web.server.ServiceExecutor;
 import infra.web.server.Ssl;
 import infra.web.server.WebServerFactoryCustomizerBeanPostProcessor;
 import infra.web.server.error.SendErrorHandler;
 import infra.web.server.support.ChannelConfigurer;
 import infra.web.server.support.ChannelHandlerFactory;
+import infra.web.server.support.JUCServiceExecutor;
 import infra.web.server.support.NettyChannelHandlerFactory;
 import infra.web.server.support.NettyRequestConfig;
 import infra.web.server.support.NettyWebServerFactory;
 import infra.web.server.support.ServerBootstrapCustomizer;
-import infra.web.server.support.ServiceExecutor;
 import infra.web.server.support.StandardNettyWebEnvironment;
 import infra.web.socket.server.support.WsNettyChannelHandlerFactory;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
+
+import static infra.annotation.config.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
+import static infra.annotation.config.task.TaskExecutionAutoConfiguration.TaskExecutorConfiguration;
+import static infra.annotation.config.task.TaskExecutionAutoConfiguration.threadPoolTaskExecutorBuilder;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for a netty web server.
@@ -72,7 +78,7 @@ import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @ConditionalOnWebApplication(type = Type.NETTY)
 @EnableConfigurationProperties(ServerProperties.class)
-@DisableDIAutoConfiguration(after = ErrorMvcAutoConfiguration.class)
+@DisableDIAutoConfiguration(after = { ErrorMvcAutoConfiguration.class, TaskExecutionAutoConfiguration.class })
 public class NettyWebServerFactoryAutoConfiguration {
 
   private NettyWebServerFactoryAutoConfiguration() {
@@ -99,16 +105,19 @@ public class NettyWebServerFactoryAutoConfiguration {
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public static ChannelHandlerFactory nettyChannelHandlerFactory(ApplicationContext context,
-          NettyRequestConfig requestConfig, DispatcherHandler dispatcherHandler, @ServiceExecutor Executor executor) {
+          NettyRequestConfig requestConfig, DispatcherHandler dispatcherHandler, ServiceExecutor executor) {
     return createChannelHandlerFactory(requestConfig, context, dispatcherHandler, executor, context.getClassLoader());
   }
 
   @Component
-  @ServiceExecutor
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public static Executor serviceExecutor(@Qualifier(TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME) Executor executor) {
-    return executor;
+  public static ServiceExecutor serviceExecutor(@Qualifier(APPLICATION_TASK_EXECUTOR_BEAN_NAME) @Nullable Executor executor) {
+    if (executor == null) {
+      executor = TaskExecutorConfiguration.applicationTaskExecutor(
+              threadPoolTaskExecutorBuilder(new TaskExecutionProperties(), List.of(), null));
+    }
+    return new JUCServiceExecutor(executor);
   }
 
   /**
@@ -167,7 +176,7 @@ public class NettyWebServerFactoryAutoConfiguration {
   }
 
   private static ChannelHandlerFactory createChannelHandlerFactory(NettyRequestConfig requestConfig, ApplicationContext context,
-          DispatcherHandler dispatcherHandler, Executor executor, @Nullable ClassLoader classLoader) {
+          DispatcherHandler dispatcherHandler, ServiceExecutor executor, @Nullable ClassLoader classLoader) {
     if (ClassUtils.isPresent("infra.web.socket.server.support.WsNettyChannelHandler", classLoader)) {
       return Ws.createChannelHandler(requestConfig, context, dispatcherHandler, executor);
     }
@@ -177,7 +186,7 @@ public class NettyWebServerFactoryAutoConfiguration {
 
   static class Ws {
     private static WsNettyChannelHandlerFactory createChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context,
-            DispatcherHandler dispatcherHandler, Executor executor) {
+            DispatcherHandler dispatcherHandler, ServiceExecutor executor) {
       return new WsNettyChannelHandlerFactory(requestConfig, context, dispatcherHandler, executor);
     }
   }

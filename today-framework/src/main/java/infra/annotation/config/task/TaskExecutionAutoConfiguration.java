@@ -40,6 +40,7 @@ import infra.core.env.Environment;
 import infra.core.task.SimpleAsyncTaskExecutor;
 import infra.core.task.TaskDecorator;
 import infra.core.task.TaskExecutor;
+import infra.lang.Nullable;
 import infra.scheduling.annotation.AsyncConfigurer;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 import infra.scheduling.support.SimpleAsyncTaskExecutorBuilder;
@@ -72,7 +73,7 @@ public class TaskExecutionAutoConfiguration {
   @Component
   @ConditionalOnMissingBean(ThreadPoolTaskExecutorBuilder.class)
   public static ThreadPoolTaskExecutorBuilder threadPoolTaskExecutorBuilder(TaskExecutionProperties properties,
-          List<ThreadPoolTaskExecutorCustomizer> customizers, ObjectProvider<TaskDecorator> taskDecorator) {
+          List<ThreadPoolTaskExecutorCustomizer> customizers, @Nullable TaskDecorator taskDecorator) {
     TaskExecutionProperties.Pool pool = properties.getPool();
     ThreadPoolTaskExecutorBuilder builder = new ThreadPoolTaskExecutorBuilder();
     builder = builder.queueCapacity(pool.getQueueCapacity());
@@ -86,7 +87,7 @@ public class TaskExecutionAutoConfiguration {
     builder = builder.awaitTerminationPeriod(shutdown.getAwaitTerminationPeriod());
     builder = builder.threadNamePrefix(properties.getThreadNamePrefix());
     builder = builder.customizers(customizers);
-    builder = builder.taskDecorator(taskDecorator.getIfUnique());
+    builder = builder.taskDecorator(taskDecorator);
     return builder;
   }
 
@@ -162,7 +163,7 @@ public class TaskExecutionAutoConfiguration {
       super(ConfigurationPhase.REGISTER_BEAN);
     }
 
-    @ConditionalOnMissingBean(name = APPLICATION_TASK_EXECUTOR_BEAN_NAME)
+    @ConditionalOnMissingBean(Executor.class)
     private static final class ExecutorBeanCondition {
 
     }

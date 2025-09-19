@@ -75,6 +75,7 @@ final class HttpContext extends NettyRequestContext implements Runnable {
     int bufferSize = httpContent.content().readableBytes();
     if (currentBytes + bufferSize > config.maxContentLength) {
       httpContent.release();
+      BodyInputStream requestBody = this.requestBody;
       if (requestBody != null) {
         requestBody.onError(new TooLongHttpContentException(String.format("Content length exceeded %d bytes", config.maxContentLength)));
       }
@@ -188,9 +189,10 @@ final class HttpContext extends NettyRequestContext implements Runnable {
   }
 
   private void cleanup() {
+    BodyInputStream requestBody = this.requestBody;
     if (requestBody != null) {
       requestBody.close();
-      requestBody = null;
+      this.requestBody = null;
     }
 
     if (requestDecoder != null) {

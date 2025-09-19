@@ -17,12 +17,13 @@
 
 package infra.web.server.support;
 
-import java.util.concurrent.Executor;
+import java.io.IOException;
 
 import infra.context.ApplicationContext;
 import infra.lang.Nullable;
 import infra.web.DispatcherHandler;
 import infra.web.HttpStatusProvider;
+import infra.web.server.ServiceExecutor;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
@@ -52,12 +53,12 @@ public class NettyChannelHandler extends ChannelInboundHandlerAdapter {
 
   protected final DispatcherHandler dispatcherHandler;
 
-  protected final Executor executor;
+  protected final ServiceExecutor executor;
 
   private HttpContext httpContext;
 
   protected NettyChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context,
-          DispatcherHandler dispatcherHandler, Executor executor) {
+          DispatcherHandler dispatcherHandler, ServiceExecutor executor) {
     this.context = context;
     this.executor = executor;
     this.requestConfig = requestConfig;
@@ -65,12 +66,12 @@ public class NettyChannelHandler extends ChannelInboundHandlerAdapter {
   }
 
   @Override
-  public final void channelRead(final ChannelHandlerContext ctx, final Object msg) {
+  public final void channelRead(final ChannelHandlerContext ctx, final Object msg) throws IOException {
     if (msg instanceof HttpRequest request) {
       Channel channel = ctx.channel();
       HttpContext httpContext = new HttpContext(channel, request, requestConfig, context, dispatcherHandler, this);
       this.httpContext = httpContext;
-      executor.execute(httpContext);
+      executor.execute(httpContext, httpContext);
     }
     else if (msg instanceof HttpContent content) {
       httpContext.onDataReceived(content);

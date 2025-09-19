@@ -17,11 +17,10 @@
 
 package infra.web.server.support;
 
-import java.util.concurrent.Executor;
-
 import infra.context.ApplicationContext;
 import infra.lang.Assert;
 import infra.web.DispatcherHandler;
+import infra.web.server.ServiceExecutor;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 
@@ -37,11 +36,11 @@ public class NettyChannelHandlerFactory implements ChannelHandlerFactory {
 
   protected final DispatcherHandler dispatcherHandler;
 
-  protected final Executor executor;
+  protected final ServiceExecutor executor;
 
   public NettyChannelHandlerFactory(NettyRequestConfig requestConfig, ApplicationContext context,
-          DispatcherHandler dispatcherHandler, Executor executor) {
-    Assert.notNull(executor, "Executor is required");
+          DispatcherHandler dispatcherHandler, ServiceExecutor executor) {
+    Assert.notNull(executor, "ServiceExecutor is required");
     Assert.notNull(context, "ApplicationContext is required");
     Assert.notNull(requestConfig, "NettyRequestConfig is required");
     Assert.notNull(dispatcherHandler, "DispatcherHandler is required");

@@ -17,12 +17,11 @@
 
 package infra.web.socket.server.support;
 
-import java.util.concurrent.Executor;
-
 import infra.context.ApplicationContext;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.web.DispatcherHandler;
+import infra.web.server.ServiceExecutor;
 import infra.web.server.support.NettyChannelHandler;
 import infra.web.server.support.NettyRequestConfig;
 import infra.web.socket.CloseStatus;
@@ -42,7 +41,7 @@ final class WsNettyChannelHandler extends NettyChannelHandler {
   private static final Logger log = LoggerFactory.getLogger(WsNettyChannelHandler.class);
 
   WsNettyChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context,
-          DispatcherHandler dispatcherHandler, Executor executor) {
+          DispatcherHandler dispatcherHandler, ServiceExecutor executor) {
     super(requestConfig, context, dispatcherHandler, executor);
   }
 

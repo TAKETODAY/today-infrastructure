@@ -17,10 +17,9 @@
 
 package infra.web.socket.server.support;
 
-import java.util.concurrent.Executor;
-
 import infra.context.ApplicationContext;
 import infra.web.DispatcherHandler;
+import infra.web.server.ServiceExecutor;
 import infra.web.server.support.NettyChannelHandlerFactory;
 import infra.web.server.support.NettyRequestConfig;
 import io.netty.channel.Channel;
@@ -33,7 +32,7 @@ import io.netty.channel.ChannelHandler;
 public class WsNettyChannelHandlerFactory extends NettyChannelHandlerFactory {
 
   public WsNettyChannelHandlerFactory(NettyRequestConfig requestConfig, ApplicationContext context,
-          DispatcherHandler dispatcherHandler, Executor executor) {
+          DispatcherHandler dispatcherHandler, ServiceExecutor executor) {
     super(requestConfig, context, dispatcherHandler, executor);
   }
 

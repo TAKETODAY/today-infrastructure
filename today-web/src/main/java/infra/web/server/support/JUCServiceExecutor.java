@@ -17,24 +17,36 @@
 
 package infra.web.server.support;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.io.IOException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 
-import infra.beans.factory.annotation.Qualifier;
+import infra.http.HttpStatus;
+import infra.lang.Assert;
+import infra.web.RequestContext;
+import infra.web.server.ServiceExecutor;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @since 5.0 2025/9/14 21:03
+ * @since 5.0 2025/9/18 15:59
  */
-@Qualifier
-@Inherited
-@Documented
-@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE, ElementType.ANNOTATION_TYPE })
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ServiceExecutor {
+public class JUCServiceExecutor implements ServiceExecutor {
+  private final Executor executor;
+
+  public JUCServiceExecutor(Executor executor) {
+    Assert.notNull(executor, "Executor is required");
+    this.executor = executor;
+  }
+
+  @Override
+  public void execute(RequestContext ctx, Runnable command) throws IOException {
+    try {
+      executor.execute(command);
+    }
+    catch (RejectedExecutionException e) {
+      ctx.setStatus(HttpStatus.SERVICE_UNAVAILABLE);
+      ctx.flush();
+    }
+  }
 
 }
