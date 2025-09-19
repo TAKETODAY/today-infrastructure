@@ -22,7 +22,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.concurrent.locks.ReentrantLock;
 
 import infra.http.MediaType;
 import infra.lang.Nullable;
@@ -41,11 +40,6 @@ import infra.util.StringUtils;
  * @since 4.0 2022/4/8 23:55
  */
 public class SseEmitter extends ResponseBodyEmitter {
-
-  /**
-   * Guards access to write operations on the response.
-   */
-  private final ReentrantLock writeLock = new ReentrantLock();
 
   /**
    * Create a SseEmitter with a custom timeout value.
