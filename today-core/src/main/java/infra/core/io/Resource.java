@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 
 import infra.lang.Nullable;
 import infra.util.FileCopyUtils;
@@ -53,6 +54,7 @@ import infra.util.FileCopyUtils;
  * @since 2.1.6 2019-05-14 19:55
  */
 public interface Resource extends InputStreamSource {
+
   Resource[] EMPTY_ARRAY = {};
 
   /**
@@ -106,6 +108,18 @@ public interface Resource extends InputStreamSource {
    * @see #getInputStream()
    */
   File getFile() throws IOException;
+
+  /**
+   * Return an NIO Path handle for this resource.
+   * <p>Note: This works for files in non-default file systems as well.
+   *
+   * @throws java.io.FileNotFoundException if the resource cannot be resolved as a file
+   * @throws IOException in case of general resolution/reading failures
+   * @since 5.0
+   */
+  default Path getFilePath() throws IOException {
+    return getFile().toPath();
+  }
 
   /**
    * Return the contents of this resource as a byte array.

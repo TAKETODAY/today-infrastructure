@@ -25,6 +25,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -130,6 +131,7 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
     this.extensions.put(coding, extension.startsWith(".") ? extension : "." + extension);
   }
 
+  @Nullable
   @Override
   protected Resource resolveResourceInternal(@Nullable RequestContext request,
           String requestPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
@@ -178,9 +180,9 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
     return extension;
   }
 
+  @Nullable
   @Override
-  protected String resolveUrlPathInternal(
-          String resourceUrlPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
+  protected String resolveUrlPathInternal(String resourceUrlPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
     return chain.resolveUrlPath(resourceUrlPath, locations);
   }
 
@@ -190,7 +192,9 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
   static final class EncodedResource extends AbstractResource implements HttpResource {
 
     private final String coding;
+
     private final Resource encoded;
+
     private final Resource original;
 
     EncodedResource(Resource original, String coding, String extension) throws IOException {
@@ -232,6 +236,11 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
     @Override
     public File getFile() throws IOException {
       return this.encoded.getFile();
+    }
+
+    @Override
+    public Path getFilePath() throws IOException {
+      return encoded.getFilePath();
     }
 
     @Override
