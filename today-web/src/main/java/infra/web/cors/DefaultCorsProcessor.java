@@ -67,6 +67,9 @@ public class DefaultCorsProcessor implements CorsProcessor {
   @Override
   public boolean process(@Nullable CorsConfiguration config, RequestContext context) throws IOException {
     if (config == null) {
+      if (log.isDebugEnabled() && context.isCorsRequest()) {
+        log.debug("Skip: no CORS configuration has been provided");
+      }
       return true;
     }
 
