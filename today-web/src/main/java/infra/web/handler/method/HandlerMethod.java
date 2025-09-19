@@ -19,6 +19,7 @@ package infra.web.handler.method;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -460,7 +461,7 @@ public class HandlerMethod implements AsyncHandler {
           clazz = null;
         }
         if (clazz != null) {
-          for (Method candidate : clazz.getMethods()) {
+          for (Method candidate : clazz.getDeclaredMethods()) {
             if (isOverrideFor(candidate)) {
               parameterAnnotations.add(candidate.getParameterAnnotations());
             }
@@ -473,8 +474,9 @@ public class HandlerMethod implements AsyncHandler {
   }
 
   private boolean isOverrideFor(Method candidate) {
-    if (!candidate.getName().equals(this.method.getName()) ||
-            candidate.getParameterCount() != this.method.getParameterCount()) {
+    if (Modifier.isPrivate(candidate.getModifiers())
+            || !candidate.getName().equals(this.method.getName())
+            || (candidate.getParameterCount() != this.method.getParameterCount())) {
       return false;
     }
     Class<?>[] paramTypes = this.method.getParameterTypes();
