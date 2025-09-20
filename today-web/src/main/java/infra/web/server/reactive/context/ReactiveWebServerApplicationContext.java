@@ -44,6 +44,7 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
   @Nullable
   private volatile WebServerManager serverManager;
 
+  @Nullable
   private String serverNamespace;
 
   /**
@@ -151,7 +152,7 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
   @Override
   public WebServer getWebServer() {
     WebServerManager serverManager = this.serverManager;
-    return (serverManager != null) ? serverManager.webServer : null;
+    return serverManager != null ? serverManager.webServer : null;
   }
 
   @Nullable
@@ -161,7 +162,7 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
   }
 
   @Override
-  public void setServerNamespace(String serverNamespace) {
+  public void setServerNamespace(@Nullable String serverNamespace) {
     this.serverNamespace = serverNamespace;
   }
 

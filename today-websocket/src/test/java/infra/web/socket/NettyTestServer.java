@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.web.socket;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
+import infra.web.DispatcherHandler;
 import infra.web.server.WebServer;
 import infra.web.server.support.NettyRequestConfig;
 import infra.web.server.support.NettyWebServerFactory;
@@ -32,7 +33,7 @@ public class NettyTestServer implements WebSocketTestServer {
 
   WebServer webServer;
 
-  WsNettyChannelHandler channelHandler;
+  DispatcherHandler dispatcherHandler;
 
   @Override
   public void setup(AnnotationConfigApplicationContext wac) {
@@ -43,7 +44,7 @@ public class NettyTestServer implements WebSocketTestServer {
             })
             .build();
 
-    channelHandler = new WsNettyChannelHandler(requestConfig, wac);
+    dispatcherHandler = new WsNettyChannelHandler(requestConfig, wac);
   }
 
   @Override
@@ -51,13 +52,13 @@ public class NettyTestServer implements WebSocketTestServer {
     NettyWebServerFactory factory = new NettyWebServerFactory();
     factory.setPort(0);
 
-    channelHandler.init();
-    webServer = factory.getWebServer(channelHandler);
+    dispatcherHandler.start();
+    webServer = factory.getWebServer();
     webServer.start();
   }
 
   @Override
-  public void stop() throws Exception {
+  public void stop() {
     if (webServer != null) {
       webServer.stop();
     }

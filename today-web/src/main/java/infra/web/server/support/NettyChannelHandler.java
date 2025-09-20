@@ -17,20 +17,21 @@
 
 package infra.web.server.support;
 
-import infra.beans.factory.SmartInitializingSingleton;
+import java.io.IOException;
+
 import infra.context.ApplicationContext;
-import infra.core.env.ConfigurableEnvironment;
-import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.web.DispatcherHandler;
 import infra.web.HttpStatusProvider;
-import infra.web.RequestContextHolder;
+import infra.web.server.ServiceExecutor;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandler;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
@@ -44,46 +45,36 @@ import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFact
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-07-04 21:50
  */
-public class NettyChannelHandler extends DispatcherHandler implements ChannelInboundHandler, SmartInitializingSingleton {
+public class NettyChannelHandler extends ChannelInboundHandlerAdapter {
 
   protected final NettyRequestConfig requestConfig;
 
-  public NettyChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context) {
-    super(context);
-    Assert.notNull(context, "ApplicationContext is required");
-    Assert.notNull(requestConfig, "NettyRequestConfig is required");
+  protected final ApplicationContext context;
+
+  protected final DispatcherHandler dispatcherHandler;
+
+  protected final ServiceExecutor executor;
+
+  private HttpContext httpContext;
+
+  protected NettyChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context,
+          DispatcherHandler dispatcherHandler, ServiceExecutor executor) {
+    this.context = context;
+    this.executor = executor;
     this.requestConfig = requestConfig;
+    this.dispatcherHandler = dispatcherHandler;
   }
 
   @Override
-  public void afterSingletonsInstantiated() {
-    init();
-  }
-
-  @Override
-  protected ConfigurableEnvironment createEnvironment() {
-    return new StandardNettyWebEnvironment();
-  }
-
-  @Override
-  public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
-    if (msg instanceof FullHttpRequest request) {
-      var nettyContext = createContext(ctx, request);
-      RequestContextHolder.set(nettyContext);
-      try {
-        if (request.decoderResult().cause() != null) {
-          processDispatchResult(nettyContext, null, null, request.decoderResult().cause());
-        }
-        else {
-          handleRequest(nettyContext); // handling HTTP request
-        }
-      }
-      catch (Throwable e) {
-        exceptionCaught(ctx, e);
-      }
-      finally {
-        RequestContextHolder.cleanup();
-      }
+  public final void channelRead(final ChannelHandlerContext ctx, final Object msg) throws IOException {
+    if (msg instanceof HttpRequest request) {
+      Channel channel = ctx.channel();
+      HttpContext httpContext = new HttpContext(channel, request, requestConfig, context, dispatcherHandler, this);
+      this.httpContext = httpContext;
+      executor.execute(httpContext, httpContext);
+    }
+    else if (msg instanceof HttpContent content) {
+      httpContext.onDataReceived(content);
     }
     else if (msg instanceof WebSocketFrame) {
       handleWebSocketFrame(ctx, (WebSocketFrame) msg);
@@ -97,21 +88,21 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
     ctx.fireChannelRead(frame);
   }
 
-  protected NettyRequestContext createContext(ChannelHandlerContext ctx, FullHttpRequest httpRequest) {
-    return new NettyRequestContext(getApplicationContext(), ctx, httpRequest, requestConfig, this);
-  }
-
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    HttpResponse response = createErrorResponse(ctx, cause);
+    handleException(ctx.channel(), cause);
+  }
+
+  void handleException(Channel channel, Throwable cause) {
+    HttpResponse response = createErrorResponse(cause);
     if (response != null) {
-      ctx.writeAndFlush(response)
+      channel.writeAndFlush(response)
               .addListener(ChannelFutureListener.CLOSE);
     }
   }
 
   @Nullable
-  protected HttpResponse createErrorResponse(ChannelHandlerContext ctx, Throwable cause) {
+  protected HttpResponse createErrorResponse(Throwable cause) {
     var statusCode = HttpStatusProvider.getStatusCode(cause);
     return new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(statusCode.first.value()),
             Unpooled.EMPTY_BUFFER, requestConfig.httpHeadersFactory, trailersFactory());
@@ -120,48 +111,16 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
   //
 
   @Override
-  public void handlerAdded(ChannelHandlerContext ctx) {
-    // no-op
-  }
-
-  @Override
-  public void handlerRemoved(ChannelHandlerContext ctx) {
-    // no-op
-  }
-
-  @Override
-  public void channelRegistered(ChannelHandlerContext ctx) {
-    ctx.fireChannelRegistered();
-  }
-
-  @Override
-  public void channelUnregistered(ChannelHandlerContext ctx) {
-    ctx.fireChannelUnregistered();
-  }
-
-  @Override
   public void channelActive(ChannelHandlerContext ctx) {
     ctx.fireChannelActive();
   }
 
   @Override
   public void channelInactive(ChannelHandlerContext ctx) {
+    if (httpContext != null) {
+      httpContext.channelInactive();
+    }
     ctx.fireChannelInactive();
-  }
-
-  @Override
-  public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
-    ctx.fireUserEventTriggered(evt);
-  }
-
-  @Override
-  public void channelWritabilityChanged(ChannelHandlerContext ctx) {
-    ctx.fireChannelWritabilityChanged();
-  }
-
-  @Override
-  public void channelReadComplete(ChannelHandlerContext ctx) {
-    ctx.fireChannelReadComplete();
   }
 
 }

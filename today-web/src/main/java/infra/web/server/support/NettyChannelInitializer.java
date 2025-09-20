@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,11 @@
 
 package infra.web.server.support;
 
-import infra.lang.Assert;
 import infra.lang.Nullable;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.handler.codec.http.HttpDecoderConfig;
-import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpObjectDecoder;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
@@ -36,42 +34,22 @@ import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
  */
 sealed class NettyChannelInitializer extends ChannelInitializer<Channel> implements ChannelHandler permits SSLNettyChannelInitializer {
 
-  private final ChannelHandler nettyChannelHandler;
+  private final ChannelHandlerFactory channelHandlerFactory;
 
   @Nullable
   private final ChannelConfigurer channelConfigurer;
 
   /**
-   * the maximum length of the aggregated content.
-   * If the length of the aggregated content exceeds this value,
-   *
-   * @see HttpObjectAggregator#maxContentLength
-   */
-  private int maxContentLength = 1024 * 1024 * 64;
-
-  /**
-   * If a 100-continue response is detected but the content
-   * length is too large then true means close the connection.
-   * otherwise the connection will remain open and data will be
-   * consumed and discarded until the next request is received.
-   *
-   * @see HttpObjectAggregator#closeOnExpectationFailed
-   */
-  private boolean closeOnExpectationFailed = false;
-
-  /**
    * A configuration object for specifying the behaviour
    * of {@link HttpObjectDecoder} and its subclasses.
    */
-  private HttpDecoderConfig httpDecoderConfig = new HttpDecoderConfig()
-          .setMaxInitialLineLength(4096)
-          .setMaxHeaderSize(8192)
-          .setMaxChunkSize(8192)
-          .setValidateHeaders(true);
+  private final HttpDecoderConfig httpDecoderConfig;
 
-  protected NettyChannelInitializer(ChannelHandler channelHandler, @Nullable ChannelConfigurer channelConfigurer) {
-    this.nettyChannelHandler = channelHandler;
+  protected NettyChannelInitializer(ChannelHandlerFactory channelHandlerFactory,
+          @Nullable ChannelConfigurer channelConfigurer, HttpDecoderConfig httpDecoderConfig) {
+    this.channelHandlerFactory = channelHandlerFactory;
     this.channelConfigurer = channelConfigurer;
+    this.httpDecoderConfig = httpDecoderConfig;
   }
 
   @Override
@@ -79,9 +57,8 @@ sealed class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
     preInitChannel(channelConfigurer, ch);
     ch.pipeline()
             .addLast("HttpServerCodec", new HttpServerCodec(httpDecoderConfig))
-            .addLast("HttpObjectAggregator", new HttpObjectAggregator(maxContentLength, closeOnExpectationFailed))
             .addLast("HttpServerExpectContinueHandler", new HttpServerExpectContinueHandler())
-            .addLast("NettyChannelHandler", nettyChannelHandler)
+            .addLast("NettyChannelHandler", channelHandlerFactory.createChannelHandler(ch))
             .remove(this);
   }
 
@@ -94,41 +71,6 @@ sealed class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
   @Override
   public boolean isSharable() {
     return true;
-  }
-
-  //
-
-  /**
-   * Set a configuration object for specifying the behaviour
-   * of {@link HttpObjectDecoder} and its subclasses.
-   */
-  public void setHttpDecoderConfig(HttpDecoderConfig httpDecoderConfig) {
-    Assert.notNull(httpDecoderConfig, "HttpDecoderConfig is required");
-    this.httpDecoderConfig = httpDecoderConfig;
-  }
-
-  /**
-   * Set the maximum length of the aggregated content.
-   * If the length of the aggregated content exceeds this value,
-   *
-   * @param maxContentLength the maximum length of the aggregated content.
-   * If the length of the aggregated content exceeds this value,
-   * @see HttpObjectAggregator#maxContentLength
-   */
-  public void setMaxContentLength(int maxContentLength) {
-    this.maxContentLength = maxContentLength;
-  }
-
-  /**
-   * Set If a 100-continue response is detected but the content
-   * length is too large then true means close the connection.
-   * otherwise the connection will remain open and data will be
-   * consumed and discarded until the next request is received.
-   *
-   * @see HttpObjectAggregator#closeOnExpectationFailed
-   */
-  public void setCloseOnExpectationFailed(boolean closeOnExpectationFailed) {
-    this.closeOnExpectationFailed = closeOnExpectationFailed;
   }
 
 }
