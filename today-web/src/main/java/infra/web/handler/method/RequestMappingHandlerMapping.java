@@ -32,7 +32,7 @@ import infra.context.ApplicationContext;
 import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.MethodParameter;
 import infra.core.ParameterNameDiscoverer;
-import infra.core.PathMatcher;
+import infra.util.PathMatcher;
 import infra.core.StringValueResolver;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.annotation.MergedAnnotation;

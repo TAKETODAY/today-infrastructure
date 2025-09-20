@@ -33,7 +33,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import infra.core.AntPathMatcher;
+import infra.util.AntPathMatcher;
 import infra.core.io.AbstractResource;
 import infra.core.io.Resource;
 import infra.http.HttpHeaders;

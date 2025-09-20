@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ import infra.aot.hint.ResourceHints;
 import infra.aot.hint.ResourcePatternHint;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.TypeReference;
-import infra.core.AntPathMatcher;
+import infra.util.AntPathMatcher;
 import infra.lang.Assert;
 
 /**

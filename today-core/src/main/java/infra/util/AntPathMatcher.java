@@ -15,13 +15,11 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.core;
+package infra.util;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
@@ -30,7 +28,6 @@ import java.util.regex.Pattern;
 import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.lang.Nullable;
-import infra.util.StringUtils;
 
 /**
  * {@link PathMatcher} implementation for Ant-style path patterns.
@@ -564,11 +561,11 @@ public class AntPathMatcher implements PathMatcher {
   }
 
   @Override
-  public List<String> extractVariableNames(String pattern) {
+  public String[] extractVariableNames(String pattern) {
     if (isPattern(pattern)) {
-      return getStringMatcher(pattern).variableNames;
+      return StringUtils.toStringArray(getStringMatcher(pattern).variableNames);
     }
-    return Collections.emptyList();
+    return Constant.EMPTY_STRING_ARRAY;
   }
 
   /**
@@ -844,7 +841,9 @@ public class AntPathMatcher implements PathMatcher {
         if (matcher.matches()) {
           final int groupCount = matcher.groupCount();
           if (variableNames.size() != groupCount) {
-            throwIllegalArgumentException();
+            throw new IllegalArgumentException(("The number of capturing groups in the pattern segment %s does not match the number of " +
+                    "URI template variables it defines, which can occur if capturing groups are used in a URI template regex. " +
+                    "Use non-capturing groups instead.").formatted(this.pattern));
           }
           final String[] ret = new String[groupCount];
           for (int i = 0; i < groupCount; i++) {
@@ -854,12 +853,6 @@ public class AntPathMatcher implements PathMatcher {
         }
       }
       return null;
-    }
-
-    protected void throwIllegalArgumentException() {
-      throw new IllegalArgumentException(
-              "The number of capturing groups in the pattern segment %s does not match the number of URI template variables it defines, which can occur if capturing groups are used in a URI template regex. Use non-capturing groups instead."
-                      .formatted(this.pattern));
     }
 
     /**
@@ -958,7 +951,10 @@ public class AntPathMatcher implements PathMatcher {
         return 1;
       }
 
-      if (info1.prefixPattern && info2.doubleWildcards == 0) {
+      if (info1.prefixPattern && info2.prefixPattern) {
+        return info2.getLength() - info1.getLength();
+      }
+      else if (info1.prefixPattern && info2.doubleWildcards == 0) {
         return 1;
       }
       else if (info2.prefixPattern && info1.doubleWildcards == 0) {
