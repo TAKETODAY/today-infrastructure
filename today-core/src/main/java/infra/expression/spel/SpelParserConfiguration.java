@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ public class SpelParserConfiguration {
    *
    * @see #getCompilerMode()
    */
-  public static final String SPRING_EXPRESSION_COMPILER_MODE_PROPERTY_NAME = "spel.compiler.mode";
+  public static final String EXPRESSION_COMPILER_MODE_PROPERTY_NAME = "spel.compiler.mode";
 
   /**
    * System property to configure the maximum length for SpEL expressions: {@value}.
@@ -58,7 +58,7 @@ public class SpelParserConfiguration {
   public static final int DEFAULT_MAX_EXPRESSION_LENGTH;
 
   static {
-    String compilerMode = TodayStrategies.getProperty(SPRING_EXPRESSION_COMPILER_MODE_PROPERTY_NAME);
+    String compilerMode = TodayStrategies.getProperty(EXPRESSION_COMPILER_MODE_PROPERTY_NAME);
     defaultCompilerMode = compilerMode != null ? SpelCompilerMode.valueOf(compilerMode.toUpperCase(Locale.ROOT)) : SpelCompilerMode.OFF;
     DEFAULT_MAX_EXPRESSION_LENGTH = TodayStrategies.getInt(MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME, 10_000);
   }
