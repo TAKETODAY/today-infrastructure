@@ -158,6 +158,7 @@ public class FileSystemResource extends AbstractResource implements WritableReso
   /**
    * @since 4.0
    */
+  @Override
   public Path getFilePath() {
     return filePath;
   }

@@ -22,8 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Comparator;
 import java.util.Map;
 
-import infra.core.AntPathMatcher;
-import infra.core.PathMatcher;
 import infra.util.RouteMatcher.Route;
 
 import static org.assertj.core.api.Assertions.assertThat;

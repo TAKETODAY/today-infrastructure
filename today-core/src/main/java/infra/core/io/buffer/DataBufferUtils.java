@@ -21,7 +21,6 @@ import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -222,8 +221,8 @@ public abstract class DataBufferUtils {
   public static Flux<DataBuffer> read(Resource resource, long position, DataBufferFactory bufferFactory, int bufferSize) {
     try {
       if (resource.isFile()) {
-        File file = resource.getFile();
-        return readAsynchronousFileChannel(() -> AsynchronousFileChannel.open(file.toPath(), StandardOpenOption.READ),
+        Path filePath = resource.getFilePath();
+        return readAsynchronousFileChannel(() -> AsynchronousFileChannel.open(filePath, StandardOpenOption.READ),
                 position, bufferFactory, bufferSize);
       }
     }

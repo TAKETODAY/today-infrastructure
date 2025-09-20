@@ -20,7 +20,7 @@ package infra.web.handler.result;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 import infra.http.HttpHeaders;
@@ -76,24 +76,37 @@ public class ResponseBodyEmitter {
   @Nullable
   private final MediaType contentType;
 
-  /** Store successful completion before the handler is initialized. */
-  private final AtomicBoolean complete = new AtomicBoolean();
-
   private final DefaultCallback timeoutCallback = new DefaultCallback();
 
   private final ErrorCallback errorCallback = new ErrorCallback();
 
   private final DefaultCallback completionCallback = new DefaultCallback();
 
-  /** Store send data before handler is initialized. */
+  /**
+   * Store send data before handler is initialized.
+   */
   private final ArrayList<DataWithMediaType> earlySendAttempts = new ArrayList<>();
 
-  /** Store an error before the handler is initialized. */
+  /**
+   * Guards access to write operations on the response.
+   *
+   * @since 5.0
+   */
+  protected final ReentrantLock writeLock = new ReentrantLock();
+
+  /**
+   * Store an error before the handler is initialized.
+   */
   @Nullable
   private Throwable failure;
 
   @Nullable
   private Handler handler;
+
+  /**
+   * Store successful completion before the handler is initialized.
+   */
+  private boolean complete;
 
   /**
    * Create a ResponseBodyEmitter with a custom timeout value.
@@ -116,55 +129,6 @@ public class ResponseBodyEmitter {
   @Nullable
   public Long getTimeout() {
     return timeout;
-  }
-
-  synchronized void initialize(Handler handler) throws IOException {
-    this.handler = handler;
-
-    try {
-      sendInternal(earlySendAttempts);
-    }
-    finally {
-      earlySendAttempts.clear();
-    }
-
-    if (complete.get()) {
-      if (failure != null) {
-        handler.completeWithError(failure);
-      }
-      else {
-        handler.complete();
-      }
-    }
-    else {
-      handler.onError(errorCallback);
-      handler.onTimeout(timeoutCallback);
-      handler.onCompletion(completionCallback);
-    }
-  }
-
-  void initializeWithError(Throwable ex) {
-    if (complete.compareAndSet(false, true)) {
-      failure = ex;
-      earlySendAttempts.clear();
-      errorCallback.accept(ex);
-    }
-  }
-
-  /**
-   * Invoked after the response is updated with the status code and headers,
-   * if the ResponseBodyEmitter is wrapped in a ResponseEntity, but before the
-   * response is committed, i.e. before the response body has been written to.
-   * <p>The default implementation is empty.
-   *
-   * @see HttpHeaders#TRANSFER_ENCODING
-   * @see HttpHeaders#CHUNKED
-   */
-  protected void extendResponse(RequestContext context) {
-    context.setHeader(HttpHeaders.TRANSFER_ENCODING, HttpHeaders.CHUNKED);
-    if (contentType != null && context.getResponseContentType() == null) {
-      context.setContentType(contentType);
-    }
   }
 
   /**
@@ -194,24 +158,30 @@ public class ResponseBodyEmitter {
    * @throws IOException raised when an I/O error occurs
    * @throws java.lang.IllegalStateException wraps any other errors
    */
-  public synchronized void send(Object object, @Nullable MediaType mediaType) throws IOException {
-    if (complete.get()) {
-      throw new IllegalStateException("ResponseBodyEmitter has already completed%s"
-              .formatted(failure != null ? " with error: " + failure : ""));
+  public void send(Object object, @Nullable MediaType mediaType) throws IOException {
+    writeLock.lock();
+    try {
+      if (complete) {
+        throw new IllegalStateException("ResponseBodyEmitter has already completed%s"
+                .formatted(failure != null ? " with error: " + failure : ""));
+      }
+      if (handler != null) {
+        try {
+          handler.send(object, mediaType);
+        }
+        catch (IOException ex) {
+          throw ex;
+        }
+        catch (Throwable ex) {
+          throw new IllegalStateException("Failed to send " + object, ex);
+        }
+      }
+      else {
+        earlySendAttempts.add(new DataWithMediaType(object, mediaType));
+      }
     }
-    if (handler != null) {
-      try {
-        handler.send(object, mediaType);
-      }
-      catch (IOException ex) {
-        throw ex;
-      }
-      catch (Throwable ex) {
-        throw new IllegalStateException("Failed to send " + object, ex);
-      }
-    }
-    else {
-      earlySendAttempts.add(new DataWithMediaType(object, mediaType));
+    finally {
+      writeLock.unlock();
     }
   }
 
@@ -224,12 +194,18 @@ public class ResponseBodyEmitter {
    * @throws IOException raised when an I/O error occurs
    * @throws java.lang.IllegalStateException wraps any other errors
    */
-  public synchronized void send(Collection<DataWithMediaType> items) throws IOException {
-    if (complete.get()) {
-      throw new IllegalStateException("ResponseBodyEmitter has already completed%s"
-              .formatted(failure != null ? " with error: " + failure : ""));
+  public void send(Collection<DataWithMediaType> items) throws IOException {
+    writeLock.lock();
+    try {
+      if (complete) {
+        throw new IllegalStateException("ResponseBodyEmitter has already completed%s"
+                .formatted(failure != null ? " with error: " + failure : ""));
+      }
+      sendInternal(items);
     }
-    sendInternal(items);
+    finally {
+      writeLock.unlock();
+    }
   }
 
   private void sendInternal(Collection<DataWithMediaType> items) throws IOException {
@@ -261,8 +237,15 @@ public class ResponseBodyEmitter {
    * related events such as an error while {@link #send(Object) sending}.
    */
   public void complete() {
-    if (complete.compareAndSet(false, true) && handler != null) {
-      handler.complete();
+    writeLock.lock();
+    try {
+      complete = true;
+      if (handler != null) {
+        handler.complete();
+      }
+    }
+    finally {
+      writeLock.unlock();
     }
   }
 
@@ -278,11 +261,16 @@ public class ResponseBodyEmitter {
    * {@link #send(Object) sending}.
    */
   public void completeWithError(Throwable ex) {
-    if (complete.compareAndSet(false, true)) {
+    writeLock.lock();
+    try {
+      complete = true;
       failure = ex;
       if (handler != null) {
         handler.completeWithError(ex);
       }
+    }
+    finally {
+      writeLock.unlock();
     }
   }
 
@@ -292,7 +280,13 @@ public class ResponseBodyEmitter {
    * <p>As of 5.0, one can register multiple callbacks for this event.
    */
   public void onTimeout(Runnable callback) {
-    timeoutCallback.addDelegate(callback);
+    writeLock.lock();
+    try {
+      timeoutCallback.addDelegate(callback);
+    }
+    finally {
+      writeLock.unlock();
+    }
   }
 
   /**
@@ -302,7 +296,13 @@ public class ResponseBodyEmitter {
    * <p>As of 5.0, one can register multiple callbacks for this event.
    */
   public void onError(Consumer<Throwable> callback) {
-    errorCallback.addDelegate(callback);
+    writeLock.lock();
+    try {
+      errorCallback.addDelegate(callback);
+    }
+    finally {
+      writeLock.unlock();
+    }
   }
 
   /**
@@ -313,7 +313,73 @@ public class ResponseBodyEmitter {
    * <p>As of 5.0, one can register multiple callbacks for this event.
    */
   public void onCompletion(Runnable callback) {
-    completionCallback.addDelegate(callback);
+    writeLock.lock();
+    try {
+      completionCallback.addDelegate(callback);
+    }
+    finally {
+      writeLock.unlock();
+    }
+  }
+
+  void initialize(Handler handler) throws IOException {
+    writeLock.lock();
+    try {
+      this.handler = handler;
+
+      try {
+        sendInternal(earlySendAttempts);
+      }
+      finally {
+        earlySendAttempts.clear();
+      }
+
+      if (complete) {
+        if (failure != null) {
+          handler.completeWithError(failure);
+        }
+        else {
+          handler.complete();
+        }
+      }
+      else {
+        handler.onTimeout(timeoutCallback);
+        handler.onError(errorCallback);
+        handler.onCompletion(completionCallback);
+      }
+    }
+    finally {
+      writeLock.unlock();
+    }
+  }
+
+  void initializeWithError(Throwable ex) {
+    writeLock.lock();
+    try {
+      complete = true;
+      failure = ex;
+      earlySendAttempts.clear();
+      errorCallback.accept(ex);
+    }
+    finally {
+      writeLock.unlock();
+    }
+  }
+
+  /**
+   * Invoked after the response is updated with the status code and headers,
+   * if the ResponseBodyEmitter is wrapped in a ResponseEntity, but before the
+   * response is committed, i.e. before the response body has been written to.
+   * <p>The default implementation is empty.
+   *
+   * @see HttpHeaders#TRANSFER_ENCODING
+   * @see HttpHeaders#CHUNKED
+   */
+  protected void extendResponse(RequestContext context) {
+    context.setHeader(HttpHeaders.TRANSFER_ENCODING, HttpHeaders.CHUNKED);
+    if (contentType != null && context.getResponseContentType() == null) {
+      context.setContentType(contentType);
+    }
   }
 
   @Override
@@ -441,13 +507,13 @@ public class ResponseBodyEmitter {
 
     private final ArrayList<Runnable> delegates = new ArrayList<>(1);
 
-    public synchronized void addDelegate(Runnable delegate) {
+    public void addDelegate(Runnable delegate) {
       delegates.add(delegate);
     }
 
     @Override
     public void run() {
-      complete.compareAndSet(false, true);
+      ResponseBodyEmitter.this.complete = true;
       for (Runnable delegate : delegates) {
         delegate.run();
       }
@@ -458,13 +524,13 @@ public class ResponseBodyEmitter {
 
     private final ArrayList<Consumer<Throwable>> delegates = new ArrayList<>(1);
 
-    public synchronized void addDelegate(Consumer<Throwable> callback) {
+    public void addDelegate(Consumer<Throwable> callback) {
       delegates.add(callback);
     }
 
     @Override
     public void accept(Throwable t) {
-      complete.compareAndSet(false, true);
+      ResponseBodyEmitter.this.complete = true;
       for (Consumer<Throwable> delegate : delegates) {
         delegate.accept(t);
       }

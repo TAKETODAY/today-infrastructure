@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,11 +34,11 @@ import infra.core.Ordered;
  *        super(ConfigurationPhase.PARSE_CONFIGURATION);
  *    }
  *
- *    &#064;ConditionalOnJndi()
+ *    @ConditionalOnJndi()
  *    static class OnJndi {
  *    }
  *
- *    &#064;ConditionalOnProperty("something")
+ *    @ConditionalOnProperty("something")
  *    static class OnProperty {
  *    }
  *

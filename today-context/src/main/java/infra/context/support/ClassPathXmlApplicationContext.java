@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@ package infra.context.support;
 import infra.beans.BeansException;
 import infra.beans.factory.xml.XmlBeanDefinitionReader;
 import infra.context.ApplicationContext;
-import infra.core.AntPathMatcher;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.lang.Assert;
@@ -35,7 +34,7 @@ import infra.lang.Nullable;
  * <p>The config location defaults can be overridden via {@link #getConfigLocations},
  * Config locations can either denote concrete files like "/myfiles/context.xml"
  * or Ant-style patterns like "/myfiles/*-context.xml" (see the
- * {@link AntPathMatcher} javadoc for pattern details).
+ * {@link infra.util.AntPathMatcher} javadoc for pattern details).
  *
  * <p>Note: In case of multiple config locations, later bean definitions will
  * override ones defined in earlier loaded files. This can be leveraged to
@@ -66,7 +65,8 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
    * @see #setConfigLocations
    * @see #afterPropertiesSet()
    */
-  public ClassPathXmlApplicationContext() { }
+  public ClassPathXmlApplicationContext() {
+  }
 
   /**
    * Create a new ClassPathXmlApplicationContext for bean-style configuration.

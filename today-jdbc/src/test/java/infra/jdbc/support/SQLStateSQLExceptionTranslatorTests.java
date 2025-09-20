@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Juergen Hoeller
  * @author Chris Beams
  */
-public class SQLStateSQLExceptionTranslatorTests {
+class SQLStateSQLExceptionTranslatorTests {
 
   private final SQLExceptionTranslator translator = new SQLStateSQLExceptionTranslator();
 
@@ -88,6 +88,16 @@ public class SQLStateSQLExceptionTranslatorTests {
     // gh-31554
   void translateDuplicateKeySapHana() {
     assertTranslation("23000", 301, DuplicateKeyException.class);
+  }
+
+  @Test
+  void translateDuplicateKeyInformix1() {
+    assertTranslation("23000", -239, DuplicateKeyException.class);
+  }
+
+  @Test
+  void translateDuplicateKeyInformix2() {
+    assertTranslation("23000", -268, DuplicateKeyException.class);
   }
 
   @Test

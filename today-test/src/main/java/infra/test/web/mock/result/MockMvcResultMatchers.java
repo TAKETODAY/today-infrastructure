@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ import java.util.Map;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import infra.core.AntPathMatcher;
+import infra.util.AntPathMatcher;
 import infra.lang.Nullable;
 import infra.test.web.mock.ResultMatcher;
 import infra.web.util.UriComponentsBuilder;
