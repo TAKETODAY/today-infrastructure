@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.util.function;
 
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
 import infra.lang.Assert;
@@ -39,13 +40,18 @@ import infra.lang.Nullable;
 public class SingletonSupplier<T> implements Supplier<T> {
 
   @Nullable
-  private volatile T singletonInstance;
-
-  @Nullable
   private final Supplier<? extends T> defaultSupplier;
 
   @Nullable
   private final Supplier<? extends T> instanceSupplier;
+
+  /**
+   * Guards access to write operations on the {@code singletonInstance} field.
+   */
+  private final ReentrantLock writeLock = new ReentrantLock();
+
+  @Nullable
+  private volatile T singletonInstance;
 
   /**
    * Build a {@code SingletonSupplier} with the given singleton instance
@@ -54,7 +60,7 @@ public class SingletonSupplier<T> implements Supplier<T> {
    * @param instance the singleton instance (potentially {@code null})
    * @param defaultSupplier the default supplier as a fallback
    */
-  public SingletonSupplier(@Nullable T instance, Supplier<? extends T> defaultSupplier) {
+  public SingletonSupplier(@Nullable T instance, @Nullable Supplier<? extends T> defaultSupplier) {
     this.instanceSupplier = null;
     this.singletonInstance = instance;
     this.defaultSupplier = defaultSupplier;
@@ -67,17 +73,17 @@ public class SingletonSupplier<T> implements Supplier<T> {
    * @param instanceSupplier the immediate instance supplier
    * @param defaultSupplier the default supplier as a fallback
    */
-  public SingletonSupplier(@Nullable Supplier<? extends T> instanceSupplier, Supplier<? extends T> defaultSupplier) {
+  public SingletonSupplier(@Nullable Supplier<? extends T> instanceSupplier, @Nullable Supplier<? extends T> defaultSupplier) {
     this.defaultSupplier = defaultSupplier;
     this.instanceSupplier = instanceSupplier;
   }
 
-  private SingletonSupplier(Supplier<? extends T> supplier) {
+  private SingletonSupplier(@Nullable Supplier<? extends T> supplier) {
     this.defaultSupplier = null;
     this.instanceSupplier = supplier;
   }
 
-  private SingletonSupplier(T singletonInstance) {
+  private SingletonSupplier(@Nullable T singletonInstance) {
     this.defaultSupplier = null;
     this.instanceSupplier = null;
     this.singletonInstance = singletonInstance;
@@ -93,7 +99,8 @@ public class SingletonSupplier<T> implements Supplier<T> {
   public T get() {
     T instance = this.singletonInstance;
     if (instance == null) {
-      synchronized(this) {
+      writeLock.lock();
+      try {
         instance = this.singletonInstance;
         if (instance == null) {
           if (instanceSupplier != null) {
@@ -104,6 +111,9 @@ public class SingletonSupplier<T> implements Supplier<T> {
           }
           this.singletonInstance = instance;
         }
+      }
+      finally {
+        writeLock.unlock();
       }
     }
     return instance;
