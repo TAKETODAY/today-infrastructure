@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.client;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
@@ -37,7 +35,6 @@ import infra.lang.Nullable;
  *
  * @author Brian Clozel
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see <a href="https://tools.ietf.org/html/rfc7230#section-3.3.3">RFC 7230 Section 3.3.3</a>
  * @since 4.0
  */
 class IntrospectingClientHttpResponse extends ClientHttpResponseDecorator implements ClientHttpResponse {
@@ -50,15 +47,19 @@ class IntrospectingClientHttpResponse extends ClientHttpResponseDecorator implem
   }
 
   /**
-   * Indicates whether the response has a message body.
+   * Indicates whether the response might have a message body.
    * <p>Implementation returns {@code false} for:
    * <ul>
    * <li>a response status of {@code 1XX}, {@code 204} or {@code 304}</li>
    * <li>a {@code Content-Length} header of {@code 0}</li>
    * </ul>
+   * <p>In other cases, the server could use a {@code Transfer-Encoding} header or just
+   * write the body and close the response. Reading the message body is then the only way
+   * to check for the presence of a body.
    *
-   * @return {@code true} if the response has a message body, {@code false} otherwise
+   * @return {@code true} if the response might have a message body, {@code false} otherwise
    * @throws IOException in case of I/O errors
+   * @see <a href="https://tools.ietf.org/html/rfc7230#section-3.3.3">RFC 7230 Section 3.3.3</a>
    */
   public boolean hasMessageBody() throws IOException {
     HttpStatusCode statusCode = getStatusCode();
@@ -87,32 +88,37 @@ class IntrospectingClientHttpResponse extends ClientHttpResponseDecorator implem
     if (body == null) {
       return true;
     }
-    if (body.markSupported()) {
-      body.mark(1);
-      if (body.read() == -1) {
-        return true;
+    try {
+      if (body.markSupported()) {
+        body.mark(1);
+        if (body.read() == -1) {
+          return true;
+        }
+        else {
+          body.reset();
+          return false;
+        }
       }
       else {
-        body.reset();
-        return false;
+        this.pushbackInputStream = new PushbackInputStream(body);
+        int b = this.pushbackInputStream.read();
+        if (b == -1) {
+          return true;
+        }
+        else {
+          this.pushbackInputStream.unread(b);
+          return false;
+        }
       }
     }
-    else {
-      this.pushbackInputStream = new PushbackInputStream(body);
-      int b = this.pushbackInputStream.read();
-      if (b == -1) {
-        return true;
-      }
-      else {
-        this.pushbackInputStream.unread(b);
-        return false;
-      }
+    catch (EOFException exc) {
+      return true;
     }
   }
 
   @Override
   public InputStream getBody() throws IOException {
-    return this.pushbackInputStream != null ? this.pushbackInputStream : super.getBody();
+    return this.pushbackInputStream != null ? this.pushbackInputStream : delegate.getBody();
   }
 
 }

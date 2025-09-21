@@ -40,7 +40,6 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.application.CreateStartScripts;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.jvm.application.scripts.TemplateBasedScriptGenerator;
-import org.gradle.util.GradleVersion;
 
 import java.io.File;
 import java.io.IOException;
@@ -208,32 +207,27 @@ final class ApplicationPluginAction implements PluginApplicationAction {
   }
 
   private void configureFilePermissions(CopySpec copySpec, int mode) {
-    if (GradleVersion.current().compareTo(GradleVersion.version("8.3")) >= 0) {
-      try {
-        Method filePermissions = copySpec.getClass().getMethod("filePermissions", Action.class);
-        filePermissions.invoke(copySpec, new Action<Object>() {
+    try {
+      Method filePermissions = copySpec.getClass().getMethod("filePermissions", Action.class);
+      filePermissions.invoke(copySpec, new Action<>() {
 
-          @Override
-          public void execute(Object filePermissions) {
-            String unixPermissions = Integer.toString(mode, 8);
-            try {
-              Method unix = filePermissions.getClass().getMethod("unix", String.class);
-              unix.invoke(filePermissions, unixPermissions);
-            }
-            catch (Exception ex) {
-              throw new GradleException("Failed to set file permissions to '" + unixPermissions + "'",
-                      ex);
-            }
+        @Override
+        public void execute(Object filePermissions) {
+          String unixPermissions = Integer.toString(mode, 8);
+          try {
+            Method unix = filePermissions.getClass().getMethod("unix", String.class);
+            unix.invoke(filePermissions, unixPermissions);
           }
+          catch (Exception ex) {
+            throw new GradleException("Failed to set file permissions to '" + unixPermissions + "'",
+                    ex);
+          }
+        }
 
-        });
-      }
-      catch (Exception ex) {
-        throw new GradleException("Failed to set file permissions", ex);
-      }
+      });
     }
-    else {
-      copySpec.setFileMode(mode);
+    catch (Exception ex) {
+      throw new GradleException("Failed to set file permissions", ex);
     }
   }
 

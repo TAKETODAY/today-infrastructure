@@ -17,7 +17,7 @@ dependencies {
   // implementation("org.asciidoctor:asciidoctor-gradle-jvm:3.3.2")
   implementation "io.spring.javaformat:spring-javaformat-gradle-plugin:${javaFormatVersion}"
   implementation "org.apache.maven:maven-artifact:3.6.3"
-  implementation 'cn.taketoday:today-core:5.0.0-Draft.1'
+  implementation 'cn.taketoday:today-core:5.0-Draft.2'
 }
 
 gradlePlugin {

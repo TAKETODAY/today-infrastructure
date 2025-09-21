@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,6 @@ import org.gradle.api.specs.Specs;
 import org.gradle.api.tasks.WorkResult;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.api.tasks.util.PatternSet;
-import org.gradle.util.GradleVersion;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,7 +42,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import infra.lang.Version;
 
@@ -142,27 +140,24 @@ class InfraArchiveSupport {
   }
 
   private Integer getDirMode(CopySpec copySpec) {
-    return getMode(copySpec, "getDirPermissions", copySpec::getDirMode);
+    return getMode(copySpec, "getDirPermissions");
   }
 
   private Integer getFileMode(CopySpec copySpec) {
-    return getMode(copySpec, "getFilePermissions", copySpec::getFileMode);
+    return getMode(copySpec, "getFilePermissions");
   }
 
   @SuppressWarnings("unchecked")
-  private Integer getMode(CopySpec copySpec, String methodName, Supplier<Integer> fallback) {
-    if (GradleVersion.current().compareTo(GradleVersion.version("8.3")) >= 0) {
-      try {
-        Object filePermissions = ((Property<Object>) copySpec.getClass().getMethod(methodName).invoke(copySpec))
-                .getOrNull();
-        return (filePermissions != null)
-                ? (int) filePermissions.getClass().getMethod("toUnixNumeric").invoke(filePermissions) : null;
-      }
-      catch (Exception ex) {
-        throw new GradleException("Failed to get permissions", ex);
-      }
+  private Integer getMode(CopySpec copySpec, String methodName) {
+    try {
+      Object filePermissions = ((Property<Object>) copySpec.getClass().getMethod(methodName).invoke(copySpec))
+              .getOrNull();
+      return (filePermissions != null)
+              ? (int) filePermissions.getClass().getMethod("toUnixNumeric").invoke(filePermissions) : null;
     }
-    return fallback.get();
+    catch (Exception ex) {
+      throw new GradleException("Failed to get permissions", ex);
+    }
   }
 
   private boolean isUsingDefaultLoader(Jar jar) {
