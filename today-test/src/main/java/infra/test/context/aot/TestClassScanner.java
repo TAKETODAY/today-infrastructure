@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -85,12 +85,12 @@ class TestClassScanner {
 
   // JUnit Jupiter
   private static final String EXTEND_WITH_ANNOTATION_NAME = "org.junit.jupiter.api.extension.ExtendWith";
-  private static final String SPRING_EXTENSION_NAME = "infra.test.context.junit.jupiter.InfraExtension";
+  private static final String EXTENSION_NAME = "infra.test.context.junit.jupiter.InfraExtension";
 
   // JUnit 4
   private static final String RUN_WITH_ANNOTATION_NAME = "org.junit.runner.RunWith";
-  private static final String SPRING_JUNIT4_CLASS_RUNNER_NAME = "infra.test.context.junit4.InfraJUnit4ClassRunner";
-  private static final String SPRING_RUNNER_NAME = "infra.test.context.junit4.InfraRunner";
+  private static final String JUNIT4_CLASS_RUNNER_NAME = "infra.test.context.junit4.InfraJUnit4ClassRunner";
+  private static final String RUNNER_NAME = "infra.test.context.junit4.InfraRunner";
 
   private final Logger logger = LoggerFactory.getLogger(TestClassScanner.class);
 
@@ -187,7 +187,7 @@ class TestClassScanner {
             .map(annotation -> annotation.getClassArray(VALUE))
             .flatMap(Arrays::stream)
             .map(Class::getName)
-            .anyMatch(SPRING_EXTENSION_NAME::equals);
+            .anyMatch(EXTENSION_NAME::equals);
   }
 
   private static boolean isJUnit4InfraTestClass(Class<?> clazz) {
@@ -195,7 +195,7 @@ class TestClassScanner {
             MergedAnnotations.from(clazz, INHERITED_ANNOTATIONS).get(RUN_WITH_ANNOTATION_NAME);
     if (mergedAnnotation.isPresent()) {
       String name = mergedAnnotation.getClass(VALUE).getName();
-      return (SPRING_JUNIT4_CLASS_RUNNER_NAME.equals(name) || SPRING_RUNNER_NAME.equals(name));
+      return (JUNIT4_CLASS_RUNNER_NAME.equals(name) || RUNNER_NAME.equals(name));
     }
     return false;
   }
