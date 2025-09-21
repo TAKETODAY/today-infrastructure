@@ -32,7 +32,8 @@ import infra.util.DataSize;
 import infra.web.server.ServerProperties;
 import infra.web.server.Ssl;
 import infra.web.server.context.AnnotationConfigWebServerApplicationContext;
-import infra.web.server.support.NettyChannelHandler;
+import infra.web.server.support.ChannelHandlerFactory;
+import infra.web.server.support.NettyChannelHandlerFactory;
 import infra.web.server.support.NettyWebServerFactory;
 import infra.web.server.support.StandardNettyWebEnvironment;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -154,7 +155,7 @@ class NettyWebServerFactoryAutoConfigurationTests {
   void wsNotPresent() {
     contextRunner.run(context -> {
 //      assertThat(context.getBean(DISPATCHER_HANDLER_BEAN_NAME).getClass()).isSameAs(NettyChannelHandler.class);
-      assertThat(context.getBean(NettyChannelHandler.class).getClass()).isSameAs(NettyChannelHandler.class);
+      assertThat(context.getBean(ChannelHandlerFactory.class).getClass()).isSameAs(NettyChannelHandlerFactory.class);
     });
   }
 
