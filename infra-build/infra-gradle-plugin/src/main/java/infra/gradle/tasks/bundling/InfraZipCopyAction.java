@@ -30,7 +30,6 @@ import org.gradle.api.java.archives.Manifest;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.WorkResult;
 import org.gradle.api.tasks.WorkResults;
-import org.gradle.util.GradleVersion;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -466,14 +465,7 @@ class InfraZipCopyAction implements CopyAction {
     }
 
     private int getPermissions(FileCopyDetails details) {
-      return GradleVersion.current().compareTo(GradleVersion.version("8.3")) >= 0
-              ? details.getPermissions().toUnixNumeric()
-              : getMode(details);
-    }
-
-    @SuppressWarnings("deprecation")
-    private int getMode(FileCopyDetails details) {
-      return details.getMode();
+      return details.getPermissions().toUnixNumeric();
     }
 
   }
