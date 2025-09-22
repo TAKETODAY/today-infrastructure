@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,6 @@ import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.artifacts.ResolvableDependencies;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.artifacts.result.ResolvedArtifactResult;
-import org.gradle.api.internal.file.archive.ZipCopyAction;
 import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.internal.component.external.model.ModuleComponentArtifactIdentifier;
@@ -394,12 +393,6 @@ abstract class AbstractInfraArchiveTests<T extends Jar & InfraArchive> {
         assertThat(entry.getTime()).isEqualTo(expectedTime);
       }
     }
-  }
-
-  @Test
-  void constantTimestampMatchesGradleInternalTimestamp() {
-    assertThat(DefaultTimeZoneOffset.INSTANCE.removeFrom(InfraZipCopyAction.CONSTANT_TIME_FOR_ZIP_ENTRIES))
-            .isEqualTo(ZipCopyAction.CONSTANT_TIME_FOR_ZIP_ENTRIES);
   }
 
   @Test
