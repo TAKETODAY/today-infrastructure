@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +18,9 @@
 package infra.gradle.tasks.buildinfo;
 
 import org.gradle.api.Project;
+import org.gradle.api.internal.artifacts.DefaultBuildIdentifier;
 import org.gradle.api.internal.project.ProjectInternal;
-import org.gradle.initialization.GradlePropertiesController;
+import org.gradle.api.internal.properties.GradlePropertiesController;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -175,7 +176,7 @@ class BuildInfoTests {
     Project project = GradleProjectBuilder.builder().withProjectDir(projectDir).withName(projectName).build();
     ((ProjectInternal) project).getServices()
             .get(GradlePropertiesController.class)
-            .loadGradlePropertiesFrom(projectDir, false);
+            .loadGradleProperties(new DefaultBuildIdentifier(((ProjectInternal) project).getBuildPath()), projectDir, false);
     return project;
   }
 
