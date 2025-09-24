@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,8 +37,6 @@ import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
-import infra.util.function.SingletonSupplier;
-
 /**
  * The properties that are written into the {@code build-info.properties} file.
  *
@@ -51,7 +49,7 @@ public abstract class BuildInfoProperties implements Serializable {
 
   private final SetProperty<String> excludes;
 
-  private final Supplier<String> creationTime = SingletonSupplier.from(new CurrentIsoInstantSupplier());
+  private final Supplier<String> creationTime = new CurrentIsoInstantSupplier();
 
   @Inject
   public BuildInfoProperties(Project project, SetProperty<String> excludes) {
