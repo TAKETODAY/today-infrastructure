@@ -24,6 +24,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.aot.hint.annotation.Reflective;
+import infra.core.annotation.AliasFor;
 
 /**
  * A common annotation specifying a concurrency limit for an individual method,
@@ -57,11 +58,40 @@ import infra.aot.hint.annotation.Reflective;
 public @interface ConcurrencyLimit {
 
   /**
-   * The applicable concurrency limit: 1 by default,
-   * effectively locking the target instance for each method invocation.
-   * <p>Specify a limit higher than 1 for pool-like throttling, constraining
-   * the number of concurrent invocations similar to the upper bound of a pool.
+   * Alias for {@link #limit()}.
+   * <p>Intended to be used when no other attributes are needed &mdash; for
+   * example, {@code @ConcurrencyLimit(5)}.
+   *
+   * @see #limitString()
    */
-  int value() default 1;
+  @AliasFor("limit")
+  int value() default Integer.MIN_VALUE;
+
+  /**
+   * The concurrency limit.
+   * <p>Specify {@code 1} to effectively lock the target instance for each method
+   * invocation.
+   * <p>Specify a limit greater than {@code 1} for pool-like throttling, constraining
+   * the number of concurrent invocations similar to the upper bound of a pool.
+   * <p>Specify {@code -1} for unbounded concurrency.
+   *
+   * @see #value()
+   * @see #limitString()
+   * @see infra.util.ConcurrencyThrottleSupport#UNBOUNDED_CONCURRENCY
+   */
+  @AliasFor("value")
+  int limit() default Integer.MIN_VALUE;
+
+  /**
+   * The concurrency limit, as a configurable String.
+   * <p>A non-empty value specified here overrides the {@link #limit()} and
+   * {@link #value()} attributes.
+   * <p>This supports Infra-style "${...}" placeholders as well as SpEL expressions.
+   * <p>See the Javadoc for {@link #limit()} for details on supported values.
+   *
+   * @see #limit()
+   * @see infra.util.ConcurrencyThrottleSupport#UNBOUNDED_CONCURRENCY
+   */
+  String limitString() default "";
 
 }
