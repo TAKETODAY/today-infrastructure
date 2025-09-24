@@ -81,8 +81,9 @@ public class MapConfigurationPropertySource implements IterableConfigurationProp
    * @param name the name
    * @param value the value
    */
-  public void put(@Nullable Object name, Object value) {
-    this.source.put((name != null) ? name.toString() : null, value);
+  public void put(Object name, Object value) {
+    Assert.notNull(name, "'name' is required");
+    this.source.put(name.toString(), value);
   }
 
   @Override
@@ -90,6 +91,7 @@ public class MapConfigurationPropertySource implements IterableConfigurationProp
     return this.source;
   }
 
+  @Nullable
   @Override
   public ConfigurationProperty getConfigurationProperty(ConfigurationPropertyName name) {
     return this.delegate.getConfigurationProperty(name);
