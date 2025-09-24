@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -713,6 +713,7 @@ public class NestedJarFile extends JarFile {
     JarEntryInputStream(ZipContent.Entry entry) throws IOException {
       this.uncompressedSize = entry.getUncompressedSize();
       this.content = entry.openContent();
+      this.remaining = this.uncompressedSize;
     }
 
     @Override
@@ -734,9 +735,6 @@ public class NestedJarFile extends JarFile {
         }
         result = count;
       }
-      if (this.remaining == 0) {
-        close();
-      }
       return result;
     }
 
@@ -747,9 +745,6 @@ public class NestedJarFile extends JarFile {
         result = (n > 0) ? maxForwardSkip(n) : maxBackwardSkip(n);
         this.pos += result;
         this.remaining -= result;
-      }
-      if (this.remaining == 0) {
-        close();
       }
       return result;
     }
