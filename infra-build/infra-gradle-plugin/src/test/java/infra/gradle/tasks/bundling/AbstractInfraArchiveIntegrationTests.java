@@ -651,6 +651,9 @@ abstract class AbstractInfraArchiveIntegrationTests {
     catch (IOException ex) {
       throw new RuntimeException(ex);
     }
+    new File(this.gradleBuild.getProjectDir(), "alpha").mkdir();
+    new File(this.gradleBuild.getProjectDir(), "bravo").mkdir();
+    new File(this.gradleBuild.getProjectDir(), "charlie").mkdir();
   }
 
   private void writeMainClass() {
