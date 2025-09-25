@@ -40,11 +40,11 @@ import infra.core.ApplicationTemp;
 import infra.core.Ordered;
 import infra.core.ssl.SslBundles;
 import infra.lang.Nullable;
+import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
 import infra.web.DispatcherHandler;
-import infra.web.server.GenericWebServerFactory;
 import infra.web.server.ServerProperties;
 import infra.web.server.ServerProperties.Netty.Multipart;
 import infra.web.server.ServiceExecutor;
@@ -114,8 +114,11 @@ public class NettyWebServerFactoryAutoConfiguration {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public static ServiceExecutor serviceExecutor(@Qualifier(APPLICATION_TASK_EXECUTOR_BEAN_NAME) @Nullable Executor executor) {
     if (executor == null) {
-      executor = TaskExecutorConfiguration.applicationTaskExecutor(
+      ThreadPoolTaskExecutor taskExecutor = TaskExecutorConfiguration.applicationTaskExecutor(
               threadPoolTaskExecutorBuilder(new TaskExecutionProperties(), List.of(), null));
+      taskExecutor.initialize();
+      taskExecutor.start();
+      executor = taskExecutor;
     }
     return new JUCServiceExecutor(executor);
   }
@@ -126,7 +129,7 @@ public class NettyWebServerFactoryAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public static GenericWebServerFactory nettyWebServerFactory(ServerProperties serverProperties,
+  public static NettyWebServerFactory nettyWebServerFactory(ServerProperties serverProperties,
           @Nullable ChannelConfigurer channelConfigurer, @Nullable SslBundles sslBundles,
           @Nullable List<ServerBootstrapCustomizer> customizers, @Nullable ApplicationTemp applicationTemp,
           ChannelHandlerFactory channelHandlerFactory) {

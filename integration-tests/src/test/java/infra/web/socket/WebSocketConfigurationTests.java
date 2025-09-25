@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ class WebSocketConfigurationTests extends AbstractWebSocketIntegrationTests {
     WebSocketSession session = this.webSocketClient.connect(
             new WebSocketHandler() { }, getWsBaseUrl() + "/ws").get();
 
-    TestHandler serverHandler = this.wac.getBean(TestHandler.class);
+    TestHandler serverHandler = this.ctx.getBean(TestHandler.class);
     assertThat(serverHandler.connectLatch.await(2, TimeUnit.SECONDS)).isTrue();
 
     session.close();

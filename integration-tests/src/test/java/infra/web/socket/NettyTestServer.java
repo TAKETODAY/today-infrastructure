@@ -17,13 +17,13 @@
 
 package infra.web.socket;
 
+import infra.annotation.config.web.ErrorMvcAutoConfiguration;
+import infra.annotation.config.web.WebMvcAutoConfiguration;
+import infra.annotation.config.web.netty.NettyWebServerFactoryAutoConfiguration;
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.web.DispatcherHandler;
 import infra.web.server.WebServer;
-import infra.web.server.support.NettyRequestConfig;
 import infra.web.server.support.NettyWebServerFactory;
-import infra.web.socket.server.support.WsNettyChannelHandler;
-import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
+import infra.web.server.support.StandardNettyWebEnvironment;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -33,26 +33,19 @@ public class NettyTestServer implements WebSocketTestServer {
 
   WebServer webServer;
 
-  DispatcherHandler dispatcherHandler;
-
   @Override
-  public void setup(AnnotationConfigApplicationContext wac) {
-    NettyRequestConfig requestConfig = NettyRequestConfig.forBuilder(false)
-            .httpDataFactory(new DefaultHttpDataFactory())
-            .sendErrorHandler((request, message) -> {
-
-            })
-            .build();
-
-    dispatcherHandler = new WsNettyChannelHandler(requestConfig, wac);
+  public void setup(AnnotationConfigApplicationContext ctx) {
+    ctx.setEnvironment(new StandardNettyWebEnvironment());
+    ctx.register(NettyWebServerFactoryAutoConfiguration.class);
+    ctx.register(ErrorMvcAutoConfiguration.class);
+    ctx.register(WebMvcAutoConfiguration.class);
   }
 
   @Override
-  public void start() throws Exception {
-    NettyWebServerFactory factory = new NettyWebServerFactory();
+  public void start(AnnotationConfigApplicationContext ctx) {
+    NettyWebServerFactory factory = ctx.getBean(NettyWebServerFactory.class);
     factory.setPort(0);
 
-    dispatcherHandler.start();
     webServer = factory.getWebServer();
     webServer.start();
   }
