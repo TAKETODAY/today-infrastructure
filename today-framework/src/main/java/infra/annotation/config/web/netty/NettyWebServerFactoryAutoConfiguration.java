@@ -168,7 +168,7 @@ public class NettyWebServerFactoryAutoConfiguration {
       if (multipart.fieldSizeThreshold != null) {
         return new DefaultHttpDataFactory(multipart.fieldSizeThreshold.toBytes(), multipart.charset);
       }
-      return new DefaultHttpDataFactory();
+      return new DefaultHttpDataFactory(multipart.charset);
     }
     else {
       return new DefaultHttpDataFactory(StringUtils.hasText(multipart.baseDir), multipart.charset);

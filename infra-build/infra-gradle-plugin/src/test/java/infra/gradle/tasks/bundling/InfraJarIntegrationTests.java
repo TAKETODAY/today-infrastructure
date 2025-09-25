@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.gradle.tasks.bundling;
 
 import org.gradle.testkit.runner.BuildResult;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.TestTemplate;
 
 import java.io.IOException;
@@ -45,6 +46,7 @@ class InfraJarIntegrationTests extends AbstractInfraArchiveIntegrationTests {
 
   @TestTemplate
   void whenAResolvableCopyOfAnUnresolvableConfigurationIsResolvedThenResolutionSucceeds() {
+    Assumptions.assumeTrue(this.gradleBuild.gradleVersionIsLessThan("9.0-milestone-1"));
     this.gradleBuild.expectDeprecationWarningsWithAtLeastVersion("8.0").build("build");
   }
 
@@ -53,10 +55,18 @@ class InfraJarIntegrationTests extends AbstractInfraArchiveIntegrationTests {
     copyClasspathApplication();
     BuildResult result = this.gradleBuild.build("launch");
     String output = result.getOutput();
-    assertThat(output).containsPattern("1\\. .*classes");
-    assertThat(output).containsPattern("2\\. .*library-1.0-SNAPSHOT.jar");
-    assertThat(output).containsPattern("3\\. .*commons-lang3-3.9.jar");
-    assertThat(output).containsPattern("4\\. .*infra-jarmode-layertools.*.jar");
+    if (this.gradleBuild.gradleVersionIsLessThan("9.0.0-rc-1")) {
+      assertThat(output).containsPattern("1\\. .*classes");
+      assertThat(output).containsPattern("2\\. .*library-1.0-SNAPSHOT.jar");
+      assertThat(output).containsPattern("3\\. .*commons-lang3-3.9.jar");
+      assertThat(output).containsPattern("4\\. .*infra-jarmode-layertools.*.jar");
+    }
+    else {
+      assertThat(output).containsPattern("1\\. .*classes");
+      assertThat(output).containsPattern("2\\. .*commons-lang3-3.9.jar");
+      assertThat(output).containsPattern("3\\. .*library-1.0-SNAPSHOT.jar");
+      assertThat(output).containsPattern("4\\. .*infra-jarmode-layertools.*.jar");
+    }
     assertThat(output).doesNotContain("5. ");
   }
 
@@ -65,10 +75,18 @@ class InfraJarIntegrationTests extends AbstractInfraArchiveIntegrationTests {
     copyClasspathApplication();
     BuildResult result = this.gradleBuild.build("launch");
     String output = result.getOutput();
-    assertThat(output).containsPattern("1\\. .*classes");
-    assertThat(output).containsPattern("2\\. .*infra-jarmode-layertools.*.jar");
-    assertThat(output).containsPattern("3\\. .*library-1.0-SNAPSHOT.jar");
-    assertThat(output).containsPattern("4\\. .*commons-lang3-3.9.jar");
+    if (this.gradleBuild.gradleVersionIsLessThan("9.0.0-rc-1")) {
+      assertThat(output).containsPattern("1\\. .*classes");
+      assertThat(output).containsPattern("2\\. .*infra-jarmode-layertools.*.jar");
+      assertThat(output).containsPattern("3\\. .*library-1.0-SNAPSHOT.jar");
+      assertThat(output).containsPattern("4\\. .*commons-lang3-3.9.jar");
+    }
+    else {
+      assertThat(output).containsPattern("1\\. .*classes");
+      assertThat(output).containsPattern("2\\. .*infra-jarmode-layertools.*.jar");
+      assertThat(output).containsPattern("3\\. .*commons-lang3-3.9.jar");
+      assertThat(output).containsPattern("4\\. .*library-1.0-SNAPSHOT.jar");
+    }
     assertThat(output).doesNotContain("5. ");
   }
 

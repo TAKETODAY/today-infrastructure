@@ -8,7 +8,7 @@ plugins {
 apply plugin: 'io.spring.dependency-management'
 
 repositories {
-	maven { url 'file:repository' }
+	maven { url = "repository" }
 }
 
 dependencyManagement {
