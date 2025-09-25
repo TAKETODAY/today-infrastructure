@@ -100,7 +100,9 @@ final class HttpContext extends NettyRequestContext implements Runnable {
           inputStream.onComplete();
         }
         else if (bufferSize > 0) {
-          requestBody().onDataReceived(httpContent.content());
+          inputStream = requestBody();
+          inputStream.onDataReceived(httpContent.content());
+          inputStream.onComplete();
         }
       }
       else {
