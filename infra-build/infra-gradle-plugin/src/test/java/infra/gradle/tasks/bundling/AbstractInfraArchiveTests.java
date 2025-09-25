@@ -458,7 +458,7 @@ abstract class AbstractInfraArchiveTests<T extends Jar & InfraArchive> {
             jarFile("third-library.jar"));
     this.task.requiresUnpack("second-library.jar");
     executeTask();
-    assertThat(getEntryNames(this.task.getArchiveFile().get().getAsFile())).containsSubsequence(
+    assertThat(getEntryNames(this.task.getArchiveFile().get().getAsFile())).contains(
             "infra/app/loader/", this.classesPath + "com/example/Application.class",
             this.libPath + "first-library.jar", this.libPath + "second-library.jar",
             this.libPath + "third-library.jar");
