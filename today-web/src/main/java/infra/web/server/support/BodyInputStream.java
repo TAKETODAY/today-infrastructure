@@ -31,7 +31,6 @@ import infra.lang.Nullable;
 import infra.util.ExceptionUtils;
 import infra.util.concurrent.Awaiter;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 
 /**
  * An {@link InputStream} backed by {@link Flow.Subscriber Flow.Subscriber}
@@ -43,8 +42,6 @@ import io.netty.channel.Channel;
 class BodyInputStream extends InputStream {
 
   private final ReentrantLock lock;
-
-  private final Channel channel;
 
   private final int capacity;
 
@@ -66,8 +63,7 @@ class BodyInputStream extends InputStream {
   @Nullable
   private Throwable error;
 
-  BodyInputStream(Channel channel, Awaiter awaiter) {
-    this.channel = channel;
+  BodyInputStream(Awaiter awaiter) {
     this.awaiter = awaiter;
     this.capacity = 128;
     this.queue = new ConcurrentLinkedQueue<>();
