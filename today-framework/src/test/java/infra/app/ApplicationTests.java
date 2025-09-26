@@ -1598,7 +1598,7 @@ class ApplicationTests {
     }
 
     @Override
-    public void setBannerMode(@Nullable Banner.Mode bannerMode) {
+    public void setBannerMode(Banner.@Nullable Mode bannerMode) {
       super.setBannerMode(bannerMode);
       this.bannerMode = bannerMode;
     }

@@ -143,8 +143,6 @@ final class AnnotationTypeMapping {
     this.annotationValueSource = new AnnotationTypeMapping[methods.size()];
     this.aliasedBy = resolveAliasedForTargets();
     processAliases();
-    addConventionMappings();
-    addConventionAnnotationValues();
     this.synthesizable = computeSynthesizableFlag(visitedAnnotationTypes);
   }
 
@@ -304,54 +302,6 @@ final class AnnotationTypeMapping {
       }
     }
     return -1;
-  }
-
-  private void addConventionMappings() {
-    if (this.distance == 0) {
-      return;
-    }
-    int[] mappings = this.conventionMappings;
-    Method[] attributes = this.methods.attributes;
-    for (int i = 0; i < mappings.length; i++) {
-      String name = attributes[i].getName();
-      int mapped = this.root.methods.indexOf(name);
-      if (!MergedAnnotation.VALUE.equals(name) && mapped != -1) {
-        MirrorSets.MirrorSet mirrors = mirrorSets.getAssigned(i);
-        mappings[i] = mapped;
-        if (mirrors != null) {
-          for (int j = 0; j < mirrors.size; j++) {
-            mappings[mirrors.getAttributeIndex(j)] = mapped;
-          }
-        }
-      }
-    }
-  }
-
-  private void addConventionAnnotationValues() {
-    Method[] attributes = this.methods.attributes;
-    for (int i = 0; i < attributes.length; i++) {
-      Method attribute = attributes[i];
-      boolean isValueAttribute = MergedAnnotation.VALUE.equals(attribute.getName());
-      AnnotationTypeMapping mapping = this;
-      while (mapping != null && mapping.distance > 0) {
-        int mapped = mapping.methods.indexOf(attribute.getName());
-        if (mapped != -1 && isBetterConventionAnnotationValue(i, isValueAttribute, mapping)) {
-          this.annotationValueMappings[i] = mapped;
-          this.annotationValueSource[i] = mapping;
-        }
-        mapping = mapping.source;
-      }
-    }
-  }
-
-  private boolean isBetterConventionAnnotationValue(
-          int index, boolean isValueAttribute, AnnotationTypeMapping mapping) {
-
-    if (this.annotationValueMappings[index] == -1) {
-      return true;
-    }
-    int existingDistance = this.annotationValueSource[index].distance;
-    return !isValueAttribute && existingDistance > mapping.distance;
   }
 
   @SuppressWarnings("unchecked")
@@ -637,11 +587,6 @@ final class AnnotationTypeMapping {
       return mirrorSets[index];
     }
 
-    @Nullable
-    MirrorSet getAssigned(int attributeIndex) {
-      return assigned[attributeIndex];
-    }
-
     int[] resolve(@Nullable Object source, @Nullable Object annotation, ValueExtractor valueExtractor) {
       if (methods.size() == 0) {
         return EMPTY_INT_ARRAY;
@@ -716,9 +661,6 @@ final class AnnotationTypeMapping {
         return methods.get(attributeIndex);
       }
 
-      int getAttributeIndex(int index) {
-        return this.indexes[index];
-      }
     }
   }
 

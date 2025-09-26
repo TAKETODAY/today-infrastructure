@@ -107,8 +107,7 @@ public class RepeatableContainers {
    * (potentially an empty array), or {@code null} if the supplied annotation is
    * not a supported container annotation
    */
-  @Nullable
-  Annotation[] findRepeatedAnnotations(Annotation annotation) {
+  Annotation @Nullable [] findRepeatedAnnotations(Annotation annotation) {
     if (this.parent == null) {
       return null;
     }

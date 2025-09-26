@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 import infra.core.TypeDescriptor;
 import infra.core.conversion.ConversionFailedException;
 import infra.core.conversion.ConversionService;
-import infra.format.annotation.DurationFormat;
+import infra.format.annotation.DurationFormat.Style;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -131,7 +131,7 @@ class StringToDurationConverterTests {
   @ConversionServiceTest
   void convertWhenStyleMismatchShouldThrowException(ConversionService conversionService) {
     assertThatExceptionOfType(ConversionFailedException.class)
-            .isThrownBy(() -> convert(conversionService, "10s", null, DurationFormat.Style.ISO8601));
+            .isThrownBy(() -> convert(conversionService, "10s", null, Style.ISO8601));
   }
 
   @ConversionServiceTest
@@ -145,7 +145,7 @@ class StringToDurationConverterTests {
   }
 
   private Duration convert(ConversionService conversionService,
-          @Nullable String source, @Nullable ChronoUnit unit, @Nullable DurationFormat.Style style) {
+          @Nullable String source, @Nullable ChronoUnit unit, @Nullable Style style) {
     return (Duration) conversionService.convert(source, TypeDescriptor.forObject(source),
             MockDurationTypeDescriptor.get(unit, style));
   }
