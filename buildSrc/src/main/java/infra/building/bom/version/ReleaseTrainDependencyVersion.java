@@ -103,10 +103,7 @@ final class ReleaseTrainDependencyVersion implements DependencyVersion {
       return false;
     }
     ReleaseTrainDependencyVersion other = (ReleaseTrainDependencyVersion) obj;
-    if (!this.original.equals(other.original)) {
-      return false;
-    }
-    return true;
+    return this.original.equals(other.original);
   }
 
   @Override
