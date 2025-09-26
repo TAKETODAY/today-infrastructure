@@ -17,6 +17,8 @@
 
 package infra.web.server.error;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
@@ -29,7 +31,6 @@ import infra.http.HttpStatus.Series;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.ui.template.TemplateAvailabilityProviders;
 import infra.util.FileCopyUtils;
 import infra.web.RequestContext;

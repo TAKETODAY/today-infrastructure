@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.app.logging.logback;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Map;
 
 import ch.qos.logback.classic.pattern.MDCConverter;
@@ -24,7 +26,6 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.pattern.DynamicConverter;
 import infra.app.logging.CorrelationIdFormatter;
 import infra.core.env.Environment;
-import infra.lang.Nullable;
 
 /**
  * Logback {@link DynamicConverter} to convert a {@link CorrelationIdFormatter} pattern

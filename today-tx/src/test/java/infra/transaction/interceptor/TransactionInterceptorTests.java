@@ -17,6 +17,7 @@
 
 package infra.transaction.interceptor;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
@@ -27,7 +28,6 @@ import infra.beans.factory.BeanFactory;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.core.ResolvableType;
 import infra.core.testfixture.io.SerializationTestUtils;
-import infra.lang.Nullable;
 import infra.transaction.PlatformTransactionManager;
 import infra.transaction.TransactionDefinition;
 import infra.transaction.TransactionException;

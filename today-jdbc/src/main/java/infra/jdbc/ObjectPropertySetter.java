@@ -17,6 +17,8 @@
 
 package infra.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -26,7 +28,6 @@ import infra.core.conversion.ConversionService;
 import infra.jdbc.type.SmartTypeHandler;
 import infra.jdbc.type.TypeHandler;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * for any pojo

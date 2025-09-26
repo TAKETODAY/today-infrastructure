@@ -17,11 +17,12 @@
 
 package infra.web.util.pattern;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.regex.PatternSyntaxException;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.web.util.pattern.PatternParseException.PatternMessage;
 
 /**

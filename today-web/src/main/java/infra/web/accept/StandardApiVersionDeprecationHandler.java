@@ -17,6 +17,8 @@
 
 package infra.web.accept;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -28,7 +30,6 @@ import java.util.function.Predicate;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 
 /**

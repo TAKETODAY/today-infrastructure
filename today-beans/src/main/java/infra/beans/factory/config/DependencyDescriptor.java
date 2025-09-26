@@ -17,6 +17,8 @@
 
 package infra.beans.factory.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serial;
@@ -37,7 +39,6 @@ import infra.core.MethodParameter;
 import infra.core.ParameterNameDiscoverer;
 import infra.core.ResolvableType;
 import infra.core.TypeDescriptor;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 /**

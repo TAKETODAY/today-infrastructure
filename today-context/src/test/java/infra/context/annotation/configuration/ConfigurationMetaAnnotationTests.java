@@ -23,9 +23,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import infra.beans.testfixture.beans.TestBean;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.annotation.AliasFor;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;

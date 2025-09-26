@@ -17,6 +17,8 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.InvocationTargetException;
@@ -29,7 +31,6 @@ import infra.beans.BeansException;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.lang.NullValue;
-import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
 

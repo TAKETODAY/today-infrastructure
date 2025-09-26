@@ -17,11 +17,12 @@
 
 package infra.web.bind;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.NestedRuntimeException;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.ProblemDetail;
-import infra.lang.Nullable;
 import infra.web.ErrorResponse;
 
 /**

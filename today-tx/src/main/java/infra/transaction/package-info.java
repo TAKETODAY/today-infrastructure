@@ -20,9 +20,7 @@
  * management system); an exception hierarchy for Infra transaction infrastructure;
  * and transaction manager, definition, and status interfaces.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.transaction;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

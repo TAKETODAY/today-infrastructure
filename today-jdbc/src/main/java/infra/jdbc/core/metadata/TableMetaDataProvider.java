@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jdbc.core.metadata;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.List;
@@ -26,7 +28,6 @@ import javax.sql.DataSource;
 import infra.dao.DataAccessResourceFailureException;
 import infra.jdbc.support.JdbcUtils;
 import infra.jdbc.support.MetaDataAccessException;
-import infra.lang.Nullable;
 
 /**
  * Interface specifying the API to be implemented by a class providing table meta-data.

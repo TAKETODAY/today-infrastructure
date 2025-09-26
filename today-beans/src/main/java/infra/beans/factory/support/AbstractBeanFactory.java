@@ -17,6 +17,8 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyEditor;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -75,7 +77,6 @@ import infra.core.StringValueResolver;
 import infra.core.conversion.ConversionService;
 import infra.lang.Assert;
 import infra.lang.NullValue;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;

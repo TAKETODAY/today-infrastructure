@@ -18,7 +18,7 @@
 package infra.samples;
 
 import infra.http.HttpStatus;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import infra.stereotype.Component;
 import infra.web.NotFoundHandler;
 import infra.web.RequestContext;

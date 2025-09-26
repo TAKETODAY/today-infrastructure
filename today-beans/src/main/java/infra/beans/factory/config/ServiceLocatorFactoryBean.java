@@ -16,6 +16,8 @@
  */
 package infra.beans.factory.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -31,7 +33,6 @@ import infra.beans.factory.InitializingBean;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
 

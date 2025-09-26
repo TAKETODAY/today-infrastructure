@@ -17,6 +17,8 @@
 
 package infra.http.server.reactive;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -26,7 +28,6 @@ import java.util.Set;
 import java.util.function.Function;
 
 import infra.http.HttpHeaders;
-import infra.lang.Nullable;
 import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.StringUtils;
 import infra.web.util.ForwardedHeaderUtils;

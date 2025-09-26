@@ -17,6 +17,8 @@
 
 package infra.core.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
@@ -31,7 +33,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import infra.lang.Constant;
-import infra.lang.Nullable;
 
 /**
  * {@link MergedAnnotations} implementation that searches for and adapts

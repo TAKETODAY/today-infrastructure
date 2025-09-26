@@ -17,6 +17,8 @@
 
 package infra.jmx.export;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -67,7 +69,6 @@ import infra.jmx.export.notification.NotificationPublisherAware;
 import infra.jmx.support.JmxUtils;
 import infra.jmx.support.MBeanRegistrationSupport;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;

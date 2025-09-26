@@ -17,6 +17,8 @@
 
 package infra.context.condition;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,7 +30,6 @@ import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.context.annotation.config.AutoConfigurationImportFilter;
 import infra.context.annotation.config.AutoConfigurationMetadata;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 

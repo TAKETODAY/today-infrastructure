@@ -17,6 +17,8 @@
 
 package infra.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.sql.PreparedStatement;
@@ -33,7 +35,6 @@ import infra.beans.BeanProperty;
 import infra.jdbc.parsing.QueryParameter;
 import infra.jdbc.type.TypeHandler;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

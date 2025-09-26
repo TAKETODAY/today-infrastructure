@@ -7,9 +7,7 @@
  * {@link infra.http.codec.HttpMessageWriter} for reading and
  * writing the body of HTTP requests and responses.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.http.codec;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

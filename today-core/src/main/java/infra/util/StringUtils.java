@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.nio.charset.Charset;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -39,7 +41,6 @@ import java.util.stream.Collectors;
 
 import infra.lang.Constant;
 import infra.lang.Contract;
-import infra.lang.Nullable;
 
 /**
  * Miscellaneous {@link String} utility methods.

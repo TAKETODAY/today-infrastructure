@@ -17,6 +17,8 @@
 
 package infra.core.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
@@ -24,7 +26,6 @@ import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
 
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 /**

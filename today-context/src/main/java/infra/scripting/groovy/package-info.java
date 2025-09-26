@@ -20,9 +20,7 @@
  * <a href="http://www.groovy-lang.org/">Groovy</a>
  * into Infra scripting infrastructure.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.scripting.groovy;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

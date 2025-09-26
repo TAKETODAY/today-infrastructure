@@ -30,7 +30,7 @@ import java.util.concurrent.CountDownLatch;
 import infra.app.InfraApplication;
 import infra.app.test.context.InfraTest;
 import infra.app.test.web.server.LocalServerPort;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.context.ActiveProfiles;

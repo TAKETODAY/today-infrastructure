@@ -17,6 +17,8 @@
 
 package infra.web.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
@@ -24,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 
 /**

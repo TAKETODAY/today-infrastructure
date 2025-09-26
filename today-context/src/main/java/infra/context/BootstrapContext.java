@@ -17,6 +17,8 @@
 
 package infra.context;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
@@ -62,7 +64,6 @@ import infra.core.type.classreading.MetadataReader;
 import infra.core.type.classreading.MetadataReaderFactory;
 import infra.lang.Assert;
 import infra.lang.ClassInstantiator;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.util.CollectionUtils;
 

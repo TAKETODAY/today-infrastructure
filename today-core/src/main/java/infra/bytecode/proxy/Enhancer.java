@@ -17,6 +17,8 @@
 
 package infra.bytecode.proxy;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -61,7 +63,6 @@ import infra.bytecode.core.RejectModifierPredicate;
 import infra.bytecode.core.VisibilityPredicate;
 import infra.bytecode.core.WeakCacheKey;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;

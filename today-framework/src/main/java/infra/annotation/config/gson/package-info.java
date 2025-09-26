@@ -18,9 +18,7 @@
 /**
  * Auto-configuration for GSON.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.annotation.config.gson;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

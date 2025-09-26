@@ -15,9 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.test.web.reactive.server;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

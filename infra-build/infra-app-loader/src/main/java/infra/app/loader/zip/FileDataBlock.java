@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.function.Supplier;
 
 import infra.app.loader.log.DebugLogger;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Reference counted {@link DataBlock} implementation backed by a {@link FileChannel} with

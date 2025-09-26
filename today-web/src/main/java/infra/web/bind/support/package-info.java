@@ -18,9 +18,7 @@
 /**
  * Support classes for web data binding.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.bind.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -17,11 +17,11 @@
 
 package infra.logging;
 
+import org.jspecify.annotations.Nullable;
+
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
-
-import infra.lang.Nullable;
 
 //contributors: lizongbo: proposed special treatment of array parameter values
 //Joern Huxhorn: pointed out double[] omission, suggested deep array copy

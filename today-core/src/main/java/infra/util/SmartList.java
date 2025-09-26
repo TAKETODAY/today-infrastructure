@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Array;
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -32,7 +34,6 @@ import java.util.function.Consumer;
 import java.util.function.IntFunction;
 
 import infra.core.ArraySizeTrimmer;
-import infra.lang.Nullable;
 
 /**
  * A List which is optimised for the sizes of 0 and 1,

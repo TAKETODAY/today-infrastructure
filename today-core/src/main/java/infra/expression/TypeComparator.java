@@ -17,8 +17,9 @@
 
 package infra.expression;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.expression.spel.support.StandardTypeComparator;
-import infra.lang.Nullable;
 
 /**
  * Instances of a type comparator should be able to compare pairs of objects for equality.

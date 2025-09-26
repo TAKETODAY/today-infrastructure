@@ -17,10 +17,11 @@
 
 package infra.scheduling.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Instant;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.scheduling.SchedulingAwareRunnable;
 
 /**

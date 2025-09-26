@@ -17,6 +17,8 @@
 
 package infra.format.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.Set;
@@ -37,7 +39,6 @@ import infra.format.Formatter;
 import infra.format.FormatterRegistry;
 import infra.format.Parser;
 import infra.format.Printer;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
 

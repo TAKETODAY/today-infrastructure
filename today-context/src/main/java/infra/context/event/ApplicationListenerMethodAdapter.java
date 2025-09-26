@@ -17,6 +17,7 @@
 
 package infra.context.event;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
@@ -50,8 +51,6 @@ import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.core.annotation.Order;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.NonNull;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
@@ -355,7 +354,6 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
   }
 
   @Override
-  @NonNull
   public String getListenerId() {
     String id = this.listenerId;
     if (id == null) {

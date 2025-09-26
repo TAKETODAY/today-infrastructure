@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -30,7 +32,6 @@ import java.nio.file.Files;
 
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 
 /**
  * Simple utility methods for file and stream copying. All copy methods use a block size

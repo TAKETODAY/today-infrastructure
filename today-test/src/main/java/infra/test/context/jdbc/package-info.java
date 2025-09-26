@@ -19,9 +19,7 @@
  * JDBC support classes for the <em>TestContext Framework</em>,
  * including support for declarative SQL script execution via {@code @Sql}.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.test.context.jdbc;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

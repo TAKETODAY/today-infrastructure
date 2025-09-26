@@ -17,6 +17,8 @@
 
 package infra.context.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.time.Duration;
@@ -96,7 +98,6 @@ import infra.core.io.ResourceConsumer;
 import infra.core.io.ResourceLoader;
 import infra.core.io.SmartResourceConsumer;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;

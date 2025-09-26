@@ -21,6 +21,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import infra.aot.generate.GenerationContext;
@@ -29,7 +30,6 @@ import infra.aot.test.generate.TestGenerationContext;
 import infra.beans.factory.aot.BeanFactoryInitializationAotContribution;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
-import infra.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

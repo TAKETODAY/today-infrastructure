@@ -17,12 +17,13 @@
 
 package infra.core.type.classreading;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 
 import infra.bytecode.ClassReader;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
-import infra.lang.Nullable;
 
 /**
  * Simple implementation of the {@link MetadataReaderFactory} interface,

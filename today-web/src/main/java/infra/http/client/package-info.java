@@ -3,9 +3,7 @@
  * contains the {@code ClientHttpRequest} and {@code ClientHttpResponse},
  * as well as a basic implementation of these interfaces.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.http.client;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

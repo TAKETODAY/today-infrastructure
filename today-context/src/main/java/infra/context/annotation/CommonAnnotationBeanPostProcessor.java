@@ -17,6 +17,8 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyDescriptor;
 import java.io.Serial;
 import java.io.Serializable;
@@ -73,7 +75,6 @@ import infra.javapoet.ClassName;
 import infra.javapoet.CodeBlock;
 import infra.jndi.support.SimpleJndiBeanFactory;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;

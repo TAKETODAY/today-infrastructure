@@ -17,10 +17,11 @@
 
 package infra.core.type.classreading;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.bytecode.Opcodes;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.type.MethodMetadata;
-import infra.lang.Nullable;
 
 /**
  * {@link MethodMetadata} created from a {@link SimpleMethodMetadataReadingVisitor}.

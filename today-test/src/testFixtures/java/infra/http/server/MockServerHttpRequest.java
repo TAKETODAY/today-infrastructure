@@ -39,7 +39,7 @@ import infra.http.HttpMethod;
 import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import infra.mock.api.MockRequest;
 import infra.mock.api.http.HttpMockRequest;
 import infra.util.ArrayIterator;

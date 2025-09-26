@@ -17,6 +17,8 @@
 
 package infra.core.ssl.jks;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
@@ -31,7 +33,6 @@ import infra.core.io.ResourceLoader;
 import infra.core.ssl.SslStoreBundle;
 import infra.core.style.ToStringBuilder;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 import infra.util.function.SingletonSupplier;
 

@@ -17,6 +17,8 @@
 
 package infra.app.logging.java;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,7 +42,6 @@ import infra.core.Ordered;
 import infra.core.annotation.Order;
 import infra.core.io.Resource;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.StreamUtils;
 import infra.util.StringUtils;

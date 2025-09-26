@@ -17,6 +17,8 @@
 
 package infra.beans.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -29,7 +31,6 @@ import infra.beans.BeanProperty;
 import infra.beans.NoSuchPropertyException;
 import infra.beans.NotWritablePropertyException;
 import infra.core.Pair;
-import infra.lang.Nullable;
 import infra.reflect.SetterMethod;
 import infra.util.ObjectUtils;
 

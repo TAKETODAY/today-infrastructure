@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.app.context.config;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -34,7 +35,6 @@ import infra.app.context.config.ConfigDataEnvironmentContributor.Kind;
 import infra.context.properties.source.ConfigurationPropertyName;
 import infra.core.conversion.ConversionService;
 import infra.core.conversion.support.DefaultConversionService;
-import infra.lang.Nullable;
 import infra.mock.env.MockPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;

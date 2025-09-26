@@ -17,13 +17,14 @@
 
 package infra.context.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Locale;
 
 import infra.context.HierarchicalMessageSource;
 import infra.context.MessageSource;
 import infra.context.MessageSourceResolvable;
 import infra.context.NoSuchMessageException;
-import infra.lang.Nullable;
 
 /**
  * Empty {@link MessageSource} that delegates all calls to the parent MessageSource.

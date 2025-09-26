@@ -17,7 +17,7 @@
 
 package infra.reflect;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * @author TODAY 2019-10-18 22:35

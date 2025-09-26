@@ -17,13 +17,14 @@
 
 package infra.cache.interceptor;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ObjectUtils;

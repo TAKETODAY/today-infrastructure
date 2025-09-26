@@ -23,9 +23,7 @@
  * <p>Provide an extension of the {@code CachingConfigurer} that exposes
  * the exception cache resolver to use, see {@code JCacheConfigurer}.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.cache.jcache.config;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

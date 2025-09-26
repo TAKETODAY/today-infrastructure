@@ -16,6 +16,8 @@
  */
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Array;
 import java.nio.charset.Charset;
 import java.time.ZoneId;
@@ -32,7 +34,6 @@ import infra.core.conversion.support.DefaultConversionService;
 import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.lang.Contract;
-import infra.lang.Nullable;
 
 /**
  * Miscellaneous object utility methods.

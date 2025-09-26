@@ -18,9 +18,7 @@
 /**
  * Ahead-of-time (AOT) support for the <em>Infra TestContext Framework</em>.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.test.context.aot;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

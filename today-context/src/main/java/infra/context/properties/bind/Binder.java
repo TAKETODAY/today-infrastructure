@@ -17,6 +17,8 @@
 
 package infra.context.properties.bind;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,7 +45,6 @@ import infra.core.env.ConfigurableEnvironment;
 import infra.format.support.ApplicationConversionService;
 import infra.format.support.DefaultFormattingConversionService;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ConcurrentReferenceHashMap;
 
 /**

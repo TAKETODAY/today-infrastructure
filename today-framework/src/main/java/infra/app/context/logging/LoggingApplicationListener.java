@@ -17,6 +17,8 @@
 
 package infra.app.context.logging;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.FileNotFoundException;
 import java.util.Collections;
 import java.util.List;
@@ -51,7 +53,6 @@ import infra.core.Ordered;
 import infra.core.ResolvableType;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.LinkedMultiValueMap;

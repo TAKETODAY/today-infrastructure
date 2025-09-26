@@ -28,7 +28,7 @@ import infra.beans.factory.annotation.Qualifier;
 import infra.beans.factory.support.AbstractBeanDefinition;
 import infra.context.support.GenericApplicationContext;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>

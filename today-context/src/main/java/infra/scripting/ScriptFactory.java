@@ -17,10 +17,11 @@
 
 package infra.scripting;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 
 import infra.core.io.ResourceLoader;
-import infra.lang.Nullable;
 import infra.scripting.support.ScriptFactoryPostProcessor;
 
 /**

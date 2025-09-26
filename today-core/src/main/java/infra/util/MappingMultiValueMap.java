@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -29,7 +31,6 @@ import java.util.function.Function;
 
 import infra.core.ArraySizeTrimmer;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Simple implementation of {@link MultiValueMap} that wraps a {@link Map},

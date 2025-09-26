@@ -17,6 +17,8 @@
 
 package infra.http;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.nio.charset.Charset;
@@ -31,7 +33,6 @@ import java.util.Optional;
 
 import infra.core.io.Resource;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.InvalidMimeTypeException;
 import infra.util.MimeType;

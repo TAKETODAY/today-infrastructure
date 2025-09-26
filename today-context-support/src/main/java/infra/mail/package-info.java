@@ -19,9 +19,7 @@
  * Framework's generic mail infrastructure.
  * Concrete implementations are provided in the subpackages.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.mail;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -17,6 +17,8 @@
 
 package infra.scripting.bsh;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -27,7 +29,6 @@ import bsh.Primitive;
 import bsh.XThis;
 import infra.core.NestedRuntimeException;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;

@@ -155,8 +155,8 @@ final class SymbolTable {
       int nameAndTypeItemOffset;
       switch (itemTag) {
         case Symbol.CONSTANT_FIELDREF_TAG,
-                Symbol.CONSTANT_METHODREF_TAG,
-                Symbol.CONSTANT_INTERFACE_METHODREF_TAG -> {
+             Symbol.CONSTANT_METHODREF_TAG,
+             Symbol.CONSTANT_INTERFACE_METHODREF_TAG -> {
           nameAndTypeItemOffset = classReader.getItem(classReader.readUnsignedShort(itemOffset + 2));
           addConstantMemberReference(itemIndex, itemTag,
                   classReader.readClass(itemOffset, charBuffer),
@@ -190,7 +190,7 @@ final class SymbolTable {
                   classReader.readUnsignedShort(itemOffset));
         }
         case Symbol.CONSTANT_STRING_TAG, Symbol.CONSTANT_CLASS_TAG, Symbol.CONSTANT_METHOD_TYPE_TAG,
-                Symbol.CONSTANT_MODULE_TAG, Symbol.CONSTANT_PACKAGE_TAG -> addConstantUtf8Reference(
+             Symbol.CONSTANT_MODULE_TAG, Symbol.CONSTANT_PACKAGE_TAG -> addConstantUtf8Reference(
                 itemIndex, itemTag, classReader.readUTF8(itemOffset, charBuffer));
         default -> throw new IllegalArgumentException();
       }
@@ -1121,8 +1121,8 @@ final class SymbolTable {
    */
   int addMergedType(final int typeTableIndex1, final int typeTableIndex2) {
     long data = typeTableIndex1 < typeTableIndex2
-                ? typeTableIndex1 | (((long) typeTableIndex2) << 32)
-                : typeTableIndex2 | (((long) typeTableIndex1) << 32);
+            ? typeTableIndex1 | (((long) typeTableIndex2) << 32)
+            : typeTableIndex2 | (((long) typeTableIndex1) << 32);
     int hashCode = hash(Symbol.MERGED_TYPE_TAG, typeTableIndex1 + typeTableIndex2);
     Entry entry = get(hashCode);
     while (entry != null) {

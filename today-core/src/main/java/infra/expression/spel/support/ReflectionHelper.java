@@ -17,6 +17,8 @@
 
 package infra.expression.spel.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
@@ -34,7 +36,6 @@ import infra.expression.EvaluationException;
 import infra.expression.TypeConverter;
 import infra.expression.spel.SpelEvaluationException;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ReflectiveMethodInvoker;

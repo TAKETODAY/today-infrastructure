@@ -17,6 +17,8 @@
 
 package infra.web.accept;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -24,7 +26,6 @@ import java.util.TreeSet;
 import java.util.function.Predicate;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 
 /**

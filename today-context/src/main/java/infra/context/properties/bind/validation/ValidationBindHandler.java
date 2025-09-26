@@ -17,6 +17,8 @@
 
 package infra.context.properties.bind.validation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -33,7 +35,6 @@ import infra.context.properties.bind.DataObjectPropertyName;
 import infra.context.properties.source.ConfigurationProperty;
 import infra.context.properties.source.ConfigurationPropertyName;
 import infra.core.ResolvableType;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.validation.AbstractBindingResult;
 import infra.validation.BeanPropertyBindingResult;

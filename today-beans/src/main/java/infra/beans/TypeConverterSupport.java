@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 package infra.beans;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Field;
 
 import infra.core.MethodParameter;
 import infra.core.TypeDescriptor;
 import infra.core.conversion.ConversionException;
 import infra.core.conversion.ConverterNotFoundException;
-import infra.lang.Nullable;
 
 /**
  * Base implementation of the {@link TypeConverter} interface, using a package-private delegate.

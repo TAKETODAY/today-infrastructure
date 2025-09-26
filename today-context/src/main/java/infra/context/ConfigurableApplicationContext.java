@@ -17,6 +17,8 @@
 
 package infra.context;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.Executor;
 
 import infra.beans.factory.config.BeanFactoryPostProcessor;
@@ -28,7 +30,6 @@ import infra.core.env.ConfigurableEnvironment;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ProtocolResolver;
 import infra.core.task.TaskExecutor;
-import infra.lang.Nullable;
 
 /**
  * SPI interface to be implemented by most if not all application contexts.

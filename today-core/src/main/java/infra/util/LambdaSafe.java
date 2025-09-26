@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -27,7 +29,6 @@ import java.util.stream.Stream;
 
 import infra.core.ResolvableType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

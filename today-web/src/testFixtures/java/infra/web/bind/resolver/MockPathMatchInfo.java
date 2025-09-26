@@ -20,7 +20,7 @@ package infra.web.bind.resolver;
 import java.util.HashMap;
 import java.util.Map;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import infra.util.MultiValueMap;
 import infra.web.util.pattern.PathMatchInfo;
 

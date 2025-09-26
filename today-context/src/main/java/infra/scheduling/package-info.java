@@ -19,9 +19,7 @@
  * General exceptions for scheduling support,
  * independent of any specific scheduling system.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.scheduling;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

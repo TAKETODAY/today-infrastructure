@@ -17,6 +17,8 @@
 
 package infra.web.socket;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,7 +30,6 @@ import java.util.function.BiConsumer;
 
 import infra.http.HttpHeaders;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 
 /**

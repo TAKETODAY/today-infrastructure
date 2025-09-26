@@ -17,6 +17,8 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -44,7 +46,6 @@ import infra.beans.factory.config.RuntimeBeanNameReference;
 import infra.beans.factory.config.RuntimeBeanReference;
 import infra.beans.factory.config.TypedStringValue;
 import infra.lang.NullValue;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;

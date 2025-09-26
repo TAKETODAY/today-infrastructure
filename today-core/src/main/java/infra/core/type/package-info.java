@@ -18,9 +18,7 @@
 /**
  * Core support package for type introspection.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.core.type;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.aop.config;
 
+import org.jspecify.annotations.Nullable;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -27,7 +28,6 @@ import infra.beans.factory.config.TypedStringValue;
 import infra.beans.factory.support.ManagedList;
 import infra.beans.factory.xml.BeanDefinitionParser;
 import infra.beans.factory.xml.ParserContext;
-import infra.lang.Nullable;
 
 /**
  * {@link BeanDefinitionParser} for the {@code aspectj-autoproxy} tag,

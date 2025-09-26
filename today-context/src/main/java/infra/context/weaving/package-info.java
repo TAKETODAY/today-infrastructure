@@ -19,9 +19,7 @@
  * Load-time weaving support for a Framework application context, building on Framework's
  * {@link infra.instrument.classloading.LoadTimeWeaver} abstraction.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.context.weaving;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

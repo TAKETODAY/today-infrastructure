@@ -18,9 +18,7 @@
 /**
  * Support classes for reading annotation and class-level metadata.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.core.type.classreading;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

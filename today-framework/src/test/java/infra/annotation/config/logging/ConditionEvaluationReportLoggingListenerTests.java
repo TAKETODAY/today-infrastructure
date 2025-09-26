@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,11 +25,13 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
-import infra.app.Application;
-import infra.app.ApplicationArguments;
 import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
 import infra.annotation.config.web.WebMvcAutoConfiguration;
+import infra.app.Application;
+import infra.app.ApplicationArguments;
+import infra.app.context.event.ApplicationFailedEvent;
+import infra.app.logging.LogLevel;
 import infra.app.test.system.CapturedOutput;
 import infra.app.test.system.OutputCaptureExtension;
 import infra.beans.factory.NoSuchBeanDefinitionException;
@@ -38,8 +40,6 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.condition.ConditionEvaluationReport;
-import infra.app.context.event.ApplicationFailedEvent;
-import infra.app.logging.LogLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;

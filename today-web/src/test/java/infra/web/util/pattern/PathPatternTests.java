@@ -17,6 +17,7 @@
 
 package infra.web.util.pattern;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -27,10 +28,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import infra.util.AntPathMatcher;
 import infra.http.server.PathContainer;
 import infra.http.server.PathContainer.Element;
-import infra.lang.Nullable;
+import infra.util.AntPathMatcher;
 import infra.web.util.pattern.PathPattern.PathRemainingMatchInfo;
 
 import static org.assertj.core.api.Assertions.assertThat;

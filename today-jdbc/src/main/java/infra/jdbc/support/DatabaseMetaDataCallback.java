@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +19,6 @@ package infra.jdbc.support;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-
-import infra.lang.NonNull;
 
 /**
  * A callback interface used by the JdbcUtils class. Implementations of this
@@ -48,6 +46,6 @@ public interface DatabaseMetaDataCallback<T> {
    * @throws MetaDataAccessException in case of other failures while
    * extracting meta-data (for example, reflection failure)
    */
-  T processMetaData(@NonNull DatabaseMetaData dbmd) throws SQLException, MetaDataAccessException;
+  T processMetaData(DatabaseMetaData dbmd) throws SQLException, MetaDataAccessException;
 
 }

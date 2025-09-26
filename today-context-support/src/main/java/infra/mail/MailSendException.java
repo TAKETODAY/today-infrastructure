@@ -17,12 +17,13 @@
 
 package infra.mail;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 /**

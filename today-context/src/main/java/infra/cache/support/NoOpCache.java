@@ -17,12 +17,13 @@
 
 package infra.cache.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 import infra.cache.Cache;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.function.ThrowingFunction;
 
 /**

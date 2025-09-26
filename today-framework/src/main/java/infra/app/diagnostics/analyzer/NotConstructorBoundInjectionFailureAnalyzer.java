@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.app.diagnostics.analyzer;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 
 import infra.app.diagnostics.FailureAnalysis;
@@ -32,7 +34,6 @@ import infra.context.properties.bind.ConstructorBinding;
 import infra.core.Ordered;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
-import infra.lang.Nullable;
 
 /**
  * An {@link AbstractInjectionFailureAnalyzer} for

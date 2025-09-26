@@ -18,6 +18,7 @@
 package infra.validation.beanvalidation;
 
 import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,7 +42,6 @@ import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.ParameterNameDiscoverer;
 import infra.core.io.Resource;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.VisibleForTesting;
 import infra.util.CollectionUtils;
 import infra.util.ReflectionUtils;

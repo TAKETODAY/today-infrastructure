@@ -17,10 +17,11 @@
 
 package infra.core.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Arrays;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**

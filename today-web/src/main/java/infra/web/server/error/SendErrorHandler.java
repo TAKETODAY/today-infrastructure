@@ -17,9 +17,10 @@
 
 package infra.web.server.error;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 
 /**

@@ -22,9 +22,7 @@
  * <p>A BeanWrapper object may be used to set and get bean properties,
  * singly or in bulk.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.beans;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

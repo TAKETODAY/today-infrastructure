@@ -19,9 +19,7 @@
  * Provides a strategy interface for Large OBject handling,
  * as well as a customizable default implementation.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jdbc.support.lob;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

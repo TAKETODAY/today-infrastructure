@@ -17,6 +17,8 @@
 
 package infra.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
@@ -25,8 +27,6 @@ import java.util.Objects;
 
 import infra.core.AttributeAccessor;
 import infra.core.Conventions;
-import infra.lang.Experimental;
-import infra.lang.Nullable;
 import infra.ui.Model;
 import infra.ui.ModelMap;
 import infra.util.MultiValueMap;
@@ -260,7 +260,6 @@ public class RedirectModel extends ModelMap implements Serializable, Comparable<
    * @return a {@link RedirectModel} instance
    */
   @Nullable
-  @Experimental
   public static RedirectModel findOutputModel(AttributeAccessor attributeAccessor) {
     Object attribute = attributeAccessor.getAttribute(RedirectModel.OUTPUT_ATTRIBUTE);
     if (attribute instanceof RedirectModel) {

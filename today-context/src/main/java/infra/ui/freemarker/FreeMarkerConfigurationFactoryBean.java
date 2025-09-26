@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.ui.freemarker;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 
 import freemarker.template.Configuration;
@@ -24,7 +26,6 @@ import freemarker.template.TemplateException;
 import infra.beans.factory.FactoryBean;
 import infra.beans.factory.InitializingBean;
 import infra.context.ResourceLoaderAware;
-import infra.lang.Nullable;
 
 /**
  * Factory bean that creates a FreeMarker Configuration and provides it as

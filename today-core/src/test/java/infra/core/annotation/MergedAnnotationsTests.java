@@ -48,7 +48,6 @@ import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.core.annotation.subpackage.NonPublicAnnotatedClass;
 import infra.core.testfixture.stereotype.Component;
 import infra.core.testfixture.stereotype.Indexed;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.MultiValueMap;
 import infra.util.ReflectionUtils;
@@ -2962,7 +2961,6 @@ class MergedAnnotationsTests {
 
   interface NullableAnnotatedInterface {
 
-    @Nullable
     void fromInterfaceImplementedByRoot();
   }
 

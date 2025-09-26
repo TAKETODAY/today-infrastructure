@@ -17,6 +17,8 @@
 
 package infra.context.properties.bind;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -32,7 +34,6 @@ import infra.core.ResolvableType;
 import infra.core.style.ToStringBuilder;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.function.SingletonSupplier;
 

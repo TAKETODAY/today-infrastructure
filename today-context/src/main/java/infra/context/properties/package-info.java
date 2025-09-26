@@ -21,9 +21,7 @@
  * @see infra.context.properties.ConfigurationProperties
  * @see infra.context.properties.EnableConfigurationProperties
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.context.properties;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

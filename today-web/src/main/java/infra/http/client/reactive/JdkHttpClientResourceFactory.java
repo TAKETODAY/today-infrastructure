@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.http.client.reactive;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.http.HttpClient;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -26,7 +28,6 @@ import java.util.concurrent.ThreadFactory;
 import infra.beans.factory.DisposableBean;
 import infra.beans.factory.InitializingBean;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.scheduling.concurrent.CustomizableThreadFactory;
 
 /**

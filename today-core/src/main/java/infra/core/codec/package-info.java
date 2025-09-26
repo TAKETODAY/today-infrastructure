@@ -20,9 +20,7 @@
  * {@link infra.core.codec.Decoder} abstractions to convert
  * between a reactive stream of bytes and Java objects.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.core.codec;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

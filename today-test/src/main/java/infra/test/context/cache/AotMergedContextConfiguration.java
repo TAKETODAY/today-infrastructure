@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.test.context.cache;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.util.Collections;
 
@@ -25,7 +27,6 @@ import infra.context.ApplicationContextInitializer;
 import infra.core.style.DefaultToStringStyler;
 import infra.core.style.DefaultValueStyler;
 import infra.core.style.ToStringBuilder;
-import infra.lang.Nullable;
 import infra.test.context.CacheAwareContextLoaderDelegate;
 import infra.test.context.MergedContextConfiguration;
 

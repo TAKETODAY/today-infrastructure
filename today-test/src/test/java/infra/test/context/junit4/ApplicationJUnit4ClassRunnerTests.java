@@ -25,7 +25,6 @@ import java.lang.annotation.RetentionPolicy;
 
 import infra.test.annotation.Timed;
 import infra.test.context.TestContextManager;
-import infra.test.context.junit4.JUnit4ClassRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

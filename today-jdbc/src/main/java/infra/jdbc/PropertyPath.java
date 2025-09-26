@@ -17,10 +17,11 @@
 
 package infra.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.BeanMetadata;
 import infra.beans.BeanProperty;
 import infra.beans.PropertyAccessorUtils;
-import infra.lang.Nullable;
 
 /**
  * Represents a path to a nested property within a Java object, allowing traversal

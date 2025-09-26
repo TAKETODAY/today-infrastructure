@@ -18,9 +18,7 @@
 /**
  * Support for styling values as Strings, with ToStringBuilder as central class.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.core.style;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

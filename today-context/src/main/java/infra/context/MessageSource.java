@@ -17,11 +17,12 @@
 
 package infra.context;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Locale;
 
 import infra.context.support.ReloadableResourceBundleMessageSource;
 import infra.context.support.ResourceBundleMessageSource;
-import infra.lang.Nullable;
 
 /**
  * Strategy interface for resolving messages, with support for the parameterization

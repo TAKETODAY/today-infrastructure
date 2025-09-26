@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.format.support;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
 
@@ -35,7 +37,6 @@ import infra.format.FormatterRegistrar;
 import infra.format.FormatterRegistry;
 import infra.format.Parser;
 import infra.format.Printer;
-import infra.lang.Nullable;
 
 /**
  * A factory providing convenient access to a {@link FormattingConversionService}

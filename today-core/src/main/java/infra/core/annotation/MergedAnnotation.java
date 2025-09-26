@@ -17,6 +17,8 @@
 
 package infra.core.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
 import java.lang.reflect.AnnotatedElement;
@@ -28,7 +30,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import infra.lang.Constant;
-import infra.lang.Nullable;
 
 /**
  * A single merged annotation returned from a {@link MergedAnnotations}

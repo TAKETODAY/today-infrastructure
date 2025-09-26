@@ -3,9 +3,7 @@
  * and {@link infra.http.codec.ServerCodecConfigurer} based on the converter
  * implementations from {@code infra.http.codec.json} and co.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.http.codec.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

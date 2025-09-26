@@ -17,6 +17,8 @@
 
 package infra.http.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.time.Duration;
@@ -25,7 +27,6 @@ import java.util.concurrent.Executor;
 import infra.core.task.SimpleAsyncTaskExecutor;
 import infra.http.HttpMethod;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * {@link ClientHttpRequestFactory} implementation based on the Java

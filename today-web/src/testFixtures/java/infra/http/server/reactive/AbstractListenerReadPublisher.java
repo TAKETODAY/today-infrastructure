@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DefaultDataBufferFactory;
 import infra.lang.Assert;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import infra.logging.LogDelegateFactory;
 import infra.logging.Logger;
 import reactor.core.publisher.Operators;

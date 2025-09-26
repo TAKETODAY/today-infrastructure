@@ -18,9 +18,7 @@
 /**
  * This package contains classes and interfaces for working with JDBC (Java Database Connectivity).
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jdbc;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

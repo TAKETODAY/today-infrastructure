@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.web.bind.resolver;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -26,7 +28,6 @@ import infra.core.MethodParameter;
 import infra.http.ProblemDetail;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotReadableException;
-import infra.lang.Nullable;
 import infra.web.ErrorResponse;
 import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.RequestContext;

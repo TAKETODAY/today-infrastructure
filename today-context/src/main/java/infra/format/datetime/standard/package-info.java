@@ -18,9 +18,7 @@
 /**
  * Integration with the JSR-310 <code>java.time</code> package in JDK 8.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.format.datetime.standard;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

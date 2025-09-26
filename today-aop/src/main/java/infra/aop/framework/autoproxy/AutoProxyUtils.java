@@ -17,13 +17,14 @@
 
 package infra.aop.framework.autoproxy;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.aop.framework.ProxyConfig;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.config.AutowireCapableBeanFactory;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.Conventions;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**

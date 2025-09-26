@@ -19,6 +19,7 @@ package infra.aop.framework;
 
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.Interceptor;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -44,7 +45,6 @@ import infra.beans.factory.FactoryBeanNotInitializedException;
 import infra.core.Ordered;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

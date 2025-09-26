@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.test.web.client;
+
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.URI;
@@ -35,7 +37,6 @@ import infra.http.HttpMethod;
 import infra.http.client.ClientHttpRequest;
 import infra.http.client.ClientHttpResponse;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Base class for {@code RequestExpectationManager} implementations responsible

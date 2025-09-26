@@ -17,6 +17,8 @@
 
 package infra.scripting.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.InvocationTargetException;
@@ -28,7 +30,6 @@ import javax.script.ScriptEngineManager;
 import infra.beans.factory.BeanClassLoaderAware;
 import infra.core.ConstructorNotFoundException;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.scripting.ScriptCompilationException;
 import infra.scripting.ScriptFactory;
 import infra.scripting.ScriptSource;

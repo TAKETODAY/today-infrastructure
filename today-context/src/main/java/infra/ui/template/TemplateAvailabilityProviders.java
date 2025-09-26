@@ -17,6 +17,8 @@
 
 package infra.ui.template;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -28,7 +30,6 @@ import infra.context.ApplicationContext;
 import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.lang.VisibleForTesting;
 

@@ -21,9 +21,7 @@
  * {@link infra.test.web.client.response.MockRestResponseCreators}
  * to gain access to instances of those implementations.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.test.web.client.response;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

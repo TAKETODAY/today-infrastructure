@@ -17,6 +17,8 @@
 
 package infra.beans.factory.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Arrays;
 
 import infra.beans.BeanMetadataAttributeAccessor;
@@ -25,7 +27,6 @@ import infra.beans.factory.BeanNameAware;
 import infra.beans.factory.support.ChildBeanDefinition;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 

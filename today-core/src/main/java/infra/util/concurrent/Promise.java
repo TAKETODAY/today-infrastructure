@@ -17,9 +17,9 @@
 
 package infra.util.concurrent;
 
-import java.util.concurrent.Executor;
+import org.jspecify.annotations.Nullable;
 
-import infra.lang.Nullable;
+import java.util.concurrent.Executor;
 
 /**
  * Special {@link Future} which is writable.

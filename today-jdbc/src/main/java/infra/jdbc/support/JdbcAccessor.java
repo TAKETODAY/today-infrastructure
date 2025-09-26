@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jdbc.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
@@ -26,13 +28,12 @@ import javax.sql.DataSource;
 import infra.dao.DataAccessException;
 import infra.jdbc.SQLWarningException;
 import infra.jdbc.UncategorizedSQLException;
+import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.core.SqlProvider;
 import infra.jdbc.format.SqlStatementLogger;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.jdbc.core.JdbcTemplate;
 
 /**
  * Base class for {@link JdbcTemplate} and

@@ -19,9 +19,7 @@
  * This package provides declarative creation and registration of
  * Framework-managed beans as JMX MBeans.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jmx.export;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

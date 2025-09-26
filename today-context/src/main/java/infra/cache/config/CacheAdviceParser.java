@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.cache.config;
 
+import org.jspecify.annotations.Nullable;
 import org.w3c.dom.Element;
 
 import java.util.ArrayList;
@@ -38,7 +39,6 @@ import infra.cache.interceptor.CacheOperation;
 import infra.cache.interceptor.CachePutOperation;
 import infra.cache.interceptor.CacheableOperation;
 import infra.cache.interceptor.NameMatchCacheOperationSource;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 import infra.util.xml.DomUtils;
 

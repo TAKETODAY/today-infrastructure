@@ -17,6 +17,8 @@
 
 package infra.app.builder;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -42,7 +44,6 @@ import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
 import infra.format.support.ApplicationConversionService;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 

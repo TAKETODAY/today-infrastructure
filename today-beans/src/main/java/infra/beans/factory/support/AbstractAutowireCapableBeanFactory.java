@@ -17,6 +17,8 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -76,7 +78,6 @@ import infra.core.PriorityOrdered;
 import infra.core.ResolvableType;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.lang.NullValue;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;

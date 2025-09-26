@@ -17,6 +17,8 @@
 
 package infra.expression.spel.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
@@ -38,7 +40,6 @@ import infra.expression.PropertyAccessor;
 import infra.expression.TypedValue;
 import infra.expression.spel.CompilablePropertyAccessor;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.reflect.Property;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;

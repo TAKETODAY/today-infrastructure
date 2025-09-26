@@ -25,6 +25,7 @@ import java.util.function.Consumer;
 
 import javax.lang.model.element.Modifier;
 
+import infra.aop.AopInfrastructureBean;
 import infra.aot.generate.MethodReference;
 import infra.aot.generate.MethodReference.ArgumentCodeGenerator;
 import infra.aot.test.generate.TestGenerationContext;
@@ -46,7 +47,6 @@ import infra.core.test.tools.TestCompiler;
 import infra.javapoet.CodeBlock;
 import infra.javapoet.MethodSpec;
 import infra.javapoet.ParameterizedTypeName;
-import infra.aop.AopInfrastructureBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

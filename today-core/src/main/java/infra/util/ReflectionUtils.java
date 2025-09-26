@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
@@ -39,7 +41,6 @@ import infra.core.ConstructorNotFoundException;
 import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.lang.Contract;
-import infra.lang.Nullable;
 
 /**
  * Simple utility class for working with the reflection API and handling

@@ -17,11 +17,12 @@
 
 package infra.web.context.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Supplier;
 
 import infra.beans.factory.config.Scope;
 import infra.core.AttributeAccessor;
-import infra.lang.Nullable;
 
 /**
  * Abstract {@link Scope} implementation that reads from a particular scope

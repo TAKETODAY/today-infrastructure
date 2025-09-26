@@ -17,6 +17,8 @@
 
 package infra.validation.beanvalidation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -32,7 +34,6 @@ import infra.beans.factory.aot.BeanRegistrationCode;
 import infra.beans.factory.support.RegisteredBean;
 import infra.core.ResolvableType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

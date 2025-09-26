@@ -22,6 +22,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.h2.jdbcx.JdbcDataSource;
+import org.jspecify.annotations.Nullable;
 import org.postgresql.ds.PGSimpleDataSource;
 
 import java.beans.PropertyVetoException;
@@ -41,8 +42,6 @@ import infra.core.ResolvableType;
 import infra.jdbc.datasource.SimpleDriverDataSource;
 import infra.jdbc.datasource.embedded.EmbeddedDatabase;
 import infra.lang.Assert;
-import infra.lang.NonNull;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
@@ -380,7 +379,7 @@ public final class DataSourceBuilder<T extends DataSource> {
       return this.dataSourceType;
     }
 
-    protected void add(DataSourceProperty property, @Nullable Getter<T, String> getter, @NonNull Setter<T, String> setter) {
+    protected void add(DataSourceProperty property, @Nullable Getter<T, String> getter, Setter<T, String> setter) {
       add(property, String.class, getter, setter);
     }
 
@@ -544,7 +543,7 @@ public final class DataSourceBuilder<T extends DataSource> {
 
     private final Class<T> dataSourceType;
 
-    ReflectionDataSourceProperties(@NonNull Class<T> dataSourceType) {
+    ReflectionDataSourceProperties(Class<T> dataSourceType) {
       Assert.notNull(dataSourceType, "No supported DataSource type found");
       Map<DataSourceProperty, Method> getters = new HashMap<>();
       Map<DataSourceProperty, Method> setters = new HashMap<>();

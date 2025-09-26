@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.expression.spel.standard;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -78,7 +80,6 @@ import infra.expression.spel.ast.StringLiteral;
 import infra.expression.spel.ast.Ternary;
 import infra.expression.spel.ast.TypeReference;
 import infra.expression.spel.ast.VariableReference;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**

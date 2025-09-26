@@ -17,7 +17,8 @@
 
 package infra.web;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import infra.web.handler.method.HandlerMethod;
 
 /**

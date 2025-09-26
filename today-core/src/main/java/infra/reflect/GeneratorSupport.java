@@ -17,6 +17,8 @@
 
 package infra.reflect;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
@@ -33,7 +35,6 @@ import infra.bytecode.core.DefaultGeneratorStrategy;
 import infra.bytecode.core.EmitUtils;
 import infra.core.NestedRuntimeException;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.MapCache;
 import infra.util.ReflectionUtils;

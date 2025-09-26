@@ -17,6 +17,7 @@
 
 package infra.beans;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.beans.PropertyEditorSupport;
@@ -47,7 +48,6 @@ import infra.core.TypeDescriptor;
 import infra.core.conversion.ConversionFailedException;
 import infra.core.conversion.support.DefaultConversionService;
 import infra.core.conversion.support.GenericConversionService;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

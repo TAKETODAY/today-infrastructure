@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,14 +17,14 @@
 
 package infra.aot.nativex;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Path;
 import java.util.function.Consumer;
-
-import infra.lang.Nullable;
 
 /**
  * A {@link NativeConfigurationWriter} implementation that writes the

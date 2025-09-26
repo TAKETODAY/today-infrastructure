@@ -17,11 +17,14 @@
 
 package infra.test.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Closeable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
@@ -39,7 +42,6 @@ import infra.core.env.PropertySources;
 import infra.core.env.StandardEnvironment;
 import infra.core.env.SystemEnvironmentPropertySource;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**
@@ -376,7 +378,7 @@ public final class TestPropertyValues {
      * @return the {@link Pair} instance or {@code null}
      */
     @Nullable
-    public static Pair fromMapEntry(@Nullable Map.Entry<String, String> entry) {
+    public static Pair fromMapEntry(@Nullable Entry<String, String> entry) {
       return (entry != null) ? of(entry.getKey(), entry.getValue()) : null;
     }
 

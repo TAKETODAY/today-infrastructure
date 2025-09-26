@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jdbc.core.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.InputStream;
 import java.io.Reader;
 import java.sql.PreparedStatement;
@@ -30,7 +32,6 @@ import infra.jdbc.object.StoredProcedure;
 import infra.jdbc.support.lob.DefaultLobHandler;
 import infra.jdbc.support.lob.LobCreator;
 import infra.jdbc.support.lob.LobHandler;
-import infra.lang.Nullable;
 
 /**
  * Object to represent an SQL BLOB/CLOB value parameter. BLOBs can either be an

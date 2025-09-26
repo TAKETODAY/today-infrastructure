@@ -17,12 +17,13 @@
 
 package infra.annotation.config.transaction.jta;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.annotation.config.transaction.TransactionManagerCustomizers;
 import infra.context.annotation.Configuration;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnJndi;
 import infra.context.condition.ConditionalOnMissingBean;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.transaction.TransactionManager;
 import infra.transaction.jta.JtaTransactionManager;

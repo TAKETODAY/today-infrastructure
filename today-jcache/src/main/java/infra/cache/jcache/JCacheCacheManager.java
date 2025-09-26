@@ -17,6 +17,8 @@
 
 package infra.cache.jcache;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
@@ -26,7 +28,6 @@ import javax.cache.Caching;
 import infra.cache.Cache;
 import infra.cache.transaction.AbstractTransactionSupportingCacheManager;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * {@link infra.cache.CacheManager} implementation

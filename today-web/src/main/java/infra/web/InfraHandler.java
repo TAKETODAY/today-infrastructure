@@ -17,6 +17,8 @@
 
 package infra.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +44,6 @@ import infra.core.env.Environment;
 import infra.core.env.EnvironmentCapable;
 import infra.core.env.StandardEnvironment;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;

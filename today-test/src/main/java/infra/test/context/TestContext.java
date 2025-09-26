@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.test.context;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.function.Function;
@@ -24,8 +26,7 @@ import java.util.function.Function;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationEvent;
 import infra.core.AttributeAccessor;
-import infra.lang.Nullable;
-import infra.test.annotation.DirtiesContext;
+import infra.test.annotation.DirtiesContext.HierarchyMode;
 
 /**
  * {@code TestContext} encapsulates the context in which a test is executed,
@@ -144,7 +145,7 @@ public interface TestContext extends AttributeAccessor, Serializable {
    * @param hierarchyMode the context cache clearing mode to be applied if the
    * context is part of a hierarchy (may be {@code null})
    */
-  void markApplicationContextDirty(@Nullable DirtiesContext.HierarchyMode hierarchyMode);
+  void markApplicationContextDirty(@Nullable HierarchyMode hierarchyMode);
 
   /**
    * Update this test context to reflect the state of the currently executing test.

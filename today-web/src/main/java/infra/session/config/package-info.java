@@ -21,9 +21,7 @@
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/1/2 09:59
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.session.config;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

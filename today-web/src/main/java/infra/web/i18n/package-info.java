@@ -3,9 +3,7 @@
  * Provides standard LocaleResolver implementations,
  * and a HandlerInterceptor for locale changes.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.i18n;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

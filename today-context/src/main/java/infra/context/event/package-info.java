@@ -19,9 +19,7 @@
  * Support classes for application events, like standard context events.
  * To be supported by all major application context implementations.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.context.event;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

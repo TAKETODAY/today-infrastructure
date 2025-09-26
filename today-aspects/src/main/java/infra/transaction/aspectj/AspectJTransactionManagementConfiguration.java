@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,14 +18,14 @@
 package infra.transaction.aspectj;
 
 import infra.beans.factory.config.BeanDefinition;
+import infra.context.annotation.Configuration;
+import infra.context.annotation.Role;
+import infra.stereotype.Component;
 import infra.transaction.annotation.AbstractTransactionManagementConfiguration;
 import infra.transaction.annotation.EnableTransactionManagement;
 import infra.transaction.annotation.TransactionManagementConfigurationSelector;
 import infra.transaction.config.TransactionManagementConfigUtils;
 import infra.transaction.interceptor.TransactionAttributeSource;
-import infra.context.annotation.Configuration;
-import infra.context.annotation.Role;
-import infra.stereotype.Component;
 
 /**
  * {@code @Configuration} class that registers the infrastructure beans necessary

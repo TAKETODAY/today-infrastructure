@@ -17,6 +17,8 @@
 
 package infra.core.ssl.pem;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -30,7 +32,6 @@ import java.util.function.Supplier;
 import infra.core.ssl.SslStoreBundle;
 import infra.core.style.ToStringBuilder;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 import infra.util.function.SingletonSupplier;
 

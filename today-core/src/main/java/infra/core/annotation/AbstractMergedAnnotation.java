@@ -17,12 +17,13 @@
 
 package infra.core.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.NoSuchElementException;
 import java.util.function.Predicate;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Abstract base class for {@link MergedAnnotation} implementations.

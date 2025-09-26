@@ -18,9 +18,7 @@
 /**
  * Test support classes for Infra I/O support.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.core.test.io.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

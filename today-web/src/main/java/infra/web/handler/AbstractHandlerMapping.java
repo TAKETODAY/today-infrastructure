@@ -17,6 +17,8 @@
 
 package infra.web.handler;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +31,6 @@ import infra.context.support.ApplicationObjectSupport;
 import infra.core.Ordered;
 import infra.core.StringValueResolver;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.LogDelegateFactory;
 import infra.logging.Logger;
 import infra.util.CollectionUtils;

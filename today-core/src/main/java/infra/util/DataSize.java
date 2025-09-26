@@ -17,13 +17,14 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * A data size, such as '12MB'. This class models data size in terms of

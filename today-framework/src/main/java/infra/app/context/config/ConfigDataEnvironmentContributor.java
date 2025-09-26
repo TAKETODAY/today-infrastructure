@@ -17,6 +17,8 @@
 
 package infra.app.context.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -34,7 +36,6 @@ import infra.context.properties.source.ConfigurationPropertySource;
 import infra.core.conversion.ConversionService;
 import infra.core.env.Environment;
 import infra.core.env.PropertySource;
-import infra.lang.Nullable;
 import infra.origin.OriginLookup;
 import infra.util.CollectionUtils;
 

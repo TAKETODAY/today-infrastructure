@@ -17,6 +17,8 @@
 
 package infra.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.InputStream;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -25,7 +27,6 @@ import java.sql.Time;
 import java.sql.Timestamp;
 
 import infra.jdbc.type.TypeHandler;
-import infra.lang.Nullable;
 
 /**
  * An abstract class that provides a mechanism to bind values to a

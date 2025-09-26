@@ -17,6 +17,8 @@
 
 package infra.jdbc.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,7 +29,6 @@ import java.util.function.Function;
 import infra.beans.BeanMetadata;
 import infra.beans.BeanProperty;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 
 /**

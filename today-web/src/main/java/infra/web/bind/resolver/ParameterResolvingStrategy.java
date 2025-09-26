@@ -17,7 +17,8 @@
 
 package infra.web.bind.resolver;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import infra.web.RequestContext;
 import infra.web.bind.MethodParameterResolvingException;
 import infra.web.handler.method.ResolvableMethodParameter;

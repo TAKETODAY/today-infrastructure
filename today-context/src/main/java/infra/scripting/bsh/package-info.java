@@ -21,9 +21,7 @@
  * (and <a href="https://code.google.com/p/beanshell2/">BeanShell2</a>)
  * into Framework's scripting infrastructure.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.scripting.bsh;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -17,13 +17,14 @@
 
 package infra.annotation.config.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import infra.context.properties.ConfigurationProperties;
 import infra.http.MediaType;
-import infra.lang.Nullable;
 import infra.validation.DefaultMessageCodesResolver;
 import infra.web.view.UrlBasedViewResolver;
 

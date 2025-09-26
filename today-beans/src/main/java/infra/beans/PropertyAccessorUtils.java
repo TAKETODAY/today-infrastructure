@@ -17,7 +17,7 @@
 
 package infra.beans;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Utility methods for classes that perform bean property access

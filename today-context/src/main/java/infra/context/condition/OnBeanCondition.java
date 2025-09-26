@@ -17,6 +17,8 @@
 
 package infra.context.condition;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -58,7 +60,6 @@ import infra.core.annotation.MergedAnnotations;
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.core.type.MethodMetadata;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;

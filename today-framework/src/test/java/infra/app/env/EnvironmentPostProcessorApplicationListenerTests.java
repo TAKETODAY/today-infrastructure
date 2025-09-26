@@ -17,6 +17,7 @@
 
 package infra.app.env;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -62,7 +63,6 @@ import infra.core.io.ResourceLoader;
 import infra.core.test.tools.Compiled;
 import infra.core.test.tools.TestCompiler;
 import infra.javapoet.ClassName;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.mock.env.MockEnvironment;
 import infra.mock.env.MockPropertySource;

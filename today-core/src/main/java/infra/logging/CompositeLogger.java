@@ -17,10 +17,10 @@
 
 package infra.logging;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.util.List;
-
-import infra.lang.Nullable;
 
 /**
  * Implementation of {@link Logger} that wraps a list of loggers and delegates

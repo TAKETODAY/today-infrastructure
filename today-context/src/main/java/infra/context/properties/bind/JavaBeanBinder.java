@@ -17,6 +17,8 @@
 
 package infra.context.properties.bind;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.Introspector;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -41,7 +43,6 @@ import infra.core.BridgeMethodResolver;
 import infra.core.MethodParameter;
 import infra.core.ResolvableType;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 
 /**

@@ -19,9 +19,7 @@
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/4/8 16:41
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.persistence.sql;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

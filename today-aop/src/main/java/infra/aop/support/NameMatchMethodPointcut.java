@@ -17,12 +17,13 @@
 
 package infra.aop.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import infra.core.ArraySizeTrimmer;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.PatternMatchUtils;
 

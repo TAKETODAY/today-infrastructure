@@ -17,6 +17,8 @@
 
 package infra.web.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,7 +54,6 @@ import infra.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
 import infra.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import infra.http.converter.yaml.MappingJackson2YamlHttpMessageConverter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;

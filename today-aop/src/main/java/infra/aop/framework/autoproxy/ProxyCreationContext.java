@@ -17,8 +17,9 @@
 
 package infra.aop.framework.autoproxy;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.NamedThreadLocal;
-import infra.lang.Nullable;
 
 /**
  * Holder for the current proxy creation context, as exposed by auto-proxy creators

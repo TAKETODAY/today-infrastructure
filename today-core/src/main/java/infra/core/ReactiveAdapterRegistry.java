@@ -17,6 +17,7 @@
 
 package infra.core;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.FlowAdapters;
 import org.reactivestreams.Publisher;
 
@@ -29,7 +30,6 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Flow;
 import java.util.function.Function;
 
-import infra.lang.Nullable;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.ReflectionUtils;
 import infra.util.concurrent.Future;

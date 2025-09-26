@@ -17,6 +17,8 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
@@ -87,7 +89,6 @@ import infra.core.annotation.Order;
 import infra.lang.Assert;
 import infra.lang.Modifiable;
 import infra.lang.NullValue;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;

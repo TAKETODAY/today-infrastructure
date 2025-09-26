@@ -17,6 +17,8 @@
 
 package infra.aot.nativex;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -37,7 +39,6 @@ import infra.aot.hint.ReflectionHints;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.TypeHint;
 import infra.aot.hint.TypeReference;
-import infra.lang.Nullable;
 
 /**
  * Collect {@link ReflectionHints} as map attributes ready for JSON serialization for the GraalVM

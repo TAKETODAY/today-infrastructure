@@ -17,6 +17,8 @@
 
 package infra.core.io;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -25,7 +27,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 
-import infra.lang.Nullable;
 import infra.util.FileCopyUtils;
 
 /**

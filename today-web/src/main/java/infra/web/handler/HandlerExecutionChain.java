@@ -17,7 +17,8 @@
 
 package infra.web.handler;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import infra.web.HandlerAdapter;
 import infra.web.HandlerInterceptor;
 import infra.web.HandlerMapping;

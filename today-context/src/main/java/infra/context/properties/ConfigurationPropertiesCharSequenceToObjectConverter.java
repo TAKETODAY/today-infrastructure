@@ -17,6 +17,8 @@
 
 package infra.context.properties;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.Set;
 
@@ -24,7 +26,6 @@ import infra.core.TypeDescriptor;
 import infra.core.conversion.ConditionalGenericConverter;
 import infra.core.conversion.ConversionService;
 import infra.format.support.ApplicationConversionService;
-import infra.lang.Nullable;
 
 /**
  * @author Phillip Webb

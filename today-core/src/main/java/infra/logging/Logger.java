@@ -17,10 +17,11 @@
 
 package infra.logging;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 
 /**

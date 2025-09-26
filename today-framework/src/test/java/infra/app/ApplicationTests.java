@@ -19,6 +19,7 @@ package infra.app;
 
 import org.assertj.core.api.Condition;
 import org.awaitility.Awaitility;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -112,7 +113,6 @@ import infra.core.io.ResourceLoader;
 import infra.core.testfixture.DisabledIfInContinuousIntegration;
 import infra.format.support.ApplicationConversionService;
 import infra.http.server.reactive.HttpHandler;
-import infra.lang.Nullable;
 import infra.mock.env.MockEnvironment;
 import infra.stereotype.Component;
 import infra.test.classpath.ForkedClassPath;

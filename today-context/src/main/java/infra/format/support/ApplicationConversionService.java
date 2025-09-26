@@ -17,6 +17,8 @@
 
 package infra.format.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -51,7 +53,6 @@ import infra.format.FormatterRegistry;
 import infra.format.Parser;
 import infra.format.Printer;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**

@@ -17,6 +17,8 @@
 
 package infra.jndi.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,7 +43,6 @@ import infra.core.ResolvableType;
 import infra.core.annotation.MergedAnnotation;
 import infra.jndi.JndiLocatorSupport;
 import infra.jndi.TypeMismatchNamingException;
-import infra.lang.Nullable;
 
 /**
  * Simple JNDI-based implementation of Framework's

@@ -19,9 +19,7 @@
  * Various {@link infra.aop.TargetSource} implementations for use
  * with Infra AOP.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.aop.target;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

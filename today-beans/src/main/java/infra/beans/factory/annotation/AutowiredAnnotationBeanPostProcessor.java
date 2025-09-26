@@ -17,6 +17,8 @@
 
 package infra.beans.factory.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -87,7 +89,6 @@ import infra.core.type.classreading.SimpleMetadataReaderFactory;
 import infra.javapoet.ClassName;
 import infra.javapoet.CodeBlock;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

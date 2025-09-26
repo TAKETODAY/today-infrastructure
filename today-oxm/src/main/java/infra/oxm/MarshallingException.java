@@ -17,7 +17,7 @@
 
 package infra.oxm;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Base class for exception thrown when a marshalling or unmarshalling error occurs.

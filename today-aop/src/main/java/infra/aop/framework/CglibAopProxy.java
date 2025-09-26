@@ -17,6 +17,8 @@
 
 package infra.aop.framework;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -48,7 +50,6 @@ import infra.bytecode.proxy.NoOp;
 import infra.bytecode.transform.UndeclaredThrowableStrategy;
 import infra.core.SmartClassLoader;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

@@ -20,9 +20,7 @@
  * Use {@link infra.test.web.mock.setup.MockMvcBuilders}
  * to access to instances of those implementations.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.test.web.mock.setup;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

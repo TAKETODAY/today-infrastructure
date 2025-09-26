@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.web.server;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -27,7 +29,6 @@ import infra.context.properties.ConfigurationProperties;
 import infra.context.properties.NestedConfigurationProperty;
 import infra.core.ApplicationTemp;
 import infra.core.ssl.SslBundles;
-import infra.lang.Nullable;
 import infra.util.DataSize;
 import infra.web.server.error.ErrorProperties;
 import io.netty.channel.EventLoopGroup;

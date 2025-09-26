@@ -17,6 +17,8 @@
 
 package infra.core.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Map;
@@ -26,7 +28,6 @@ import infra.core.annotation.AnnotationAttributes;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.RepeatableContainers;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 
 /**

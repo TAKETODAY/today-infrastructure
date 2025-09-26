@@ -18,9 +18,7 @@
 /**
  * Support classes for annotation-driven tests.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.test.annotation;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

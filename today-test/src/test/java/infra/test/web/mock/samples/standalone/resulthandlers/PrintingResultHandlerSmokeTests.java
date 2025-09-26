@@ -22,12 +22,12 @@ import org.junit.jupiter.api.Test;
 
 import java.io.StringWriter;
 
+import infra.mock.api.http.Cookie;
+import infra.mock.api.http.HttpMockResponse;
 import infra.stereotype.Controller;
 import infra.test.web.mock.result.PrintingResultHandler;
 import infra.web.annotation.RequestMapping;
 import infra.web.annotation.ResponseBody;
-import infra.mock.api.http.Cookie;
-import infra.mock.api.http.HttpMockResponse;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.get;
 import static infra.test.web.mock.result.MockMvcResultHandlers.log;

@@ -17,8 +17,9 @@
 
 package infra.web.handler.result;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.BeanFactory;
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 import infra.web.async.WebAsyncTask;
 import infra.web.handler.method.HandlerMethod;

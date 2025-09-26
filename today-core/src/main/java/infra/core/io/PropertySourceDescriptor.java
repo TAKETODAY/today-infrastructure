@@ -17,11 +17,12 @@
 
 package infra.core.io;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.List;
 
 import infra.core.env.PropertySource;
-import infra.lang.Nullable;
 
 /**
  * Describe a {@link PropertySource}.

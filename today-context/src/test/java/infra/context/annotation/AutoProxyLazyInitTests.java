@@ -25,9 +25,9 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import infra.aop.framework.autoproxy.BeanNameAutoProxyCreator;
 import infra.aop.framework.autoproxy.target.LazyInitTargetSourceCreator;
 import infra.aop.target.AbstractBeanFactoryTargetSource;
+import infra.context.ApplicationListener;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.event.ApplicationContextEvent;
-import infra.context.ApplicationListener;
 import jakarta.annotation.PreDestroy;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -22,9 +22,7 @@
  * patterns, including a consistent approach to configuration management.
  * Builds on the infra.beans package.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.beans.factory;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

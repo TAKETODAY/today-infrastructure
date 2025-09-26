@@ -18,6 +18,7 @@
 package infra.aop.framework.autoproxy;
 
 import org.aopalliance.aop.Advice;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serial;
 import java.lang.reflect.Constructor;
@@ -51,7 +52,6 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
 import infra.core.SmartClassLoader;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

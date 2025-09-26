@@ -17,7 +17,7 @@
 
 package infra.core;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Simple strategy interface for resolving a String value.

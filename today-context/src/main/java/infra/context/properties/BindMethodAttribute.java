@@ -17,13 +17,14 @@
 
 package infra.context.properties;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.context.ApplicationContext;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.properties.bind.BindMethod;
 import infra.core.AttributeAccessor;
-import infra.lang.Nullable;
 
 /**
  * Allows a {@link BindMethod} value to be stored and retrieved from an

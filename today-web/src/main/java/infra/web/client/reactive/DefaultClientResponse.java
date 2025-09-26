@@ -17,6 +17,8 @@
 
 package infra.web.client.reactive;
 
+import org.jspecify.annotations.Nullable;
+
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
@@ -45,7 +47,6 @@ import infra.http.codec.HttpMessageReader;
 import infra.http.server.reactive.ServerHttpResponse;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.MimeType;
 import infra.util.MultiValueMap;
 import infra.web.reactive.function.BodyExtractor;

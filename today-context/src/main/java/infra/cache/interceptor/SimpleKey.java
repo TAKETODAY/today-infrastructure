@@ -17,6 +17,8 @@
 
 package infra.cache.interceptor;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serial;
@@ -24,7 +26,6 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * A simple key as returned from the {@link SimpleKeyGenerator}.

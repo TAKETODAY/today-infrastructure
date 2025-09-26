@@ -17,6 +17,8 @@
 
 package infra.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -42,7 +44,6 @@ import infra.jdbc.support.JdbcUtils;
 import infra.jdbc.type.ObjectTypeHandler;
 import infra.jdbc.type.TypeHandler;
 import infra.jdbc.type.TypeHandlerManager;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;

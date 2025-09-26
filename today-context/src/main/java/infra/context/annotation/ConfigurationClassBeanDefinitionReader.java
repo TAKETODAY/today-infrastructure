@@ -49,7 +49,6 @@ import infra.core.type.MethodMetadata;
 import infra.core.type.StandardAnnotationMetadata;
 import infra.core.type.StandardMethodMetadata;
 import infra.lang.Assert;
-import infra.lang.NonNull;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.stereotype.Component;
@@ -513,7 +512,6 @@ class ConfigurationClassBeanDefinitionReader {
     }
 
     @Override
-    @NonNull
     public MethodMetadata getFactoryMethodMetadata() {
       return this.factoryMethodMetadata;
     }

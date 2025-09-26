@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -28,7 +30,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.EnumSet;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
 

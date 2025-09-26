@@ -17,6 +17,8 @@
 
 package infra.context.aot;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -46,7 +48,6 @@ import infra.javapoet.CodeBlock;
 import infra.javapoet.MethodSpec;
 import infra.javapoet.TypeName;
 import infra.javapoet.TypeSpec;
-import infra.lang.Nullable;
 
 /**
  * Internal code generator to create the {@link ApplicationContextInitializer}.

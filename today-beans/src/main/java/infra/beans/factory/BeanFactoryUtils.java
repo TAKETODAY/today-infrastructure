@@ -17,6 +17,8 @@
 
 package infra.beans.factory;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -27,7 +29,6 @@ import java.util.function.Supplier;
 import infra.beans.BeansException;
 import infra.core.ResolvableType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 

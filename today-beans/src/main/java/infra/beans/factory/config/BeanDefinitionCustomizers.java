@@ -17,10 +17,11 @@
 
 package infra.beans.factory.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 

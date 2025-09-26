@@ -20,9 +20,7 @@
  * contains the {@code ServerHttpRequest} and {@code ServerHttpResponse},
  * as well as a Web-based implementation of these interfaces.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.http.server;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

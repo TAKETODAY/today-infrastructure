@@ -17,6 +17,8 @@
 
 package infra.beans.factory.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
@@ -34,7 +36,6 @@ import infra.beans.factory.support.AbstractBeanDefinition;
 import infra.beans.factory.support.AutowireCandidateQualifier;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.core.annotation.AnnotationUtils;
-import infra.lang.Nullable;
 
 /**
  * Convenience methods performing bean lookups related to Framework-specific annotations,

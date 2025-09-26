@@ -17,6 +17,8 @@
 
 package infra.beans;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -29,7 +31,6 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 
 import infra.beans.support.BeanInstantiator;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.util.ClassUtils;
 import infra.util.ConcurrentReferenceHashMap;

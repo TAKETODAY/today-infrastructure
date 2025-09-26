@@ -19,9 +19,7 @@
  * {@link infra.context.ApplicationEvent ApplicationEvents} triggered by
  * Framework.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.app.context.event;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -17,6 +17,8 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.function.Supplier;
 
@@ -35,7 +37,6 @@ import infra.core.env.EnvironmentCapable;
 import infra.core.env.StandardEnvironment;
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 

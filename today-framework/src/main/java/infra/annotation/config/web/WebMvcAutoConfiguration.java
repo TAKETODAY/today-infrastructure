@@ -17,6 +17,8 @@
 
 package infra.annotation.config.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.List;
@@ -46,7 +48,6 @@ import infra.format.support.ApplicationConversionService;
 import infra.format.support.FormattingConversionService;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;

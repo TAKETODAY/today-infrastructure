@@ -17,6 +17,8 @@
 
 package infra.context.properties.bind;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyEditor;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -42,7 +44,6 @@ import infra.core.conversion.ConverterNotFoundException;
 import infra.core.conversion.support.GenericConversionService;
 import infra.core.io.Resource;
 import infra.format.support.ApplicationConversionService;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 
 /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +21,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import infra.dao.DataAccessException;
-import infra.jdbc.core.PreparedStatementCallback;
 import infra.jdbc.core.JdbcTemplate;
+import infra.jdbc.core.PreparedStatementCallback;
 import infra.jdbc.support.lob.LobCreator;
 import infra.jdbc.support.lob.LobHandler;
 import infra.lang.Assert;

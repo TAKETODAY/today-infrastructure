@@ -17,6 +17,8 @@
 
 package infra.core.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
@@ -31,7 +33,6 @@ import infra.core.ResolvableType;
 import infra.core.annotation.MergedAnnotations.Search;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.beans.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyEditor;
 import java.lang.reflect.Method;
 
@@ -26,7 +28,6 @@ import infra.beans.SimpleTypeConverter;
 import infra.beans.TypeConverter;
 import infra.beans.TypeMismatchException;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 import infra.util.ReflectiveMethodInvoker;
 

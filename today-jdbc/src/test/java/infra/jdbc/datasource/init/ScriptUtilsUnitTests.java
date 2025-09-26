@@ -29,7 +29,6 @@ import java.util.List;
 import infra.core.io.ClassPathResource;
 import infra.core.io.EncodedResource;
 
-import static infra.jdbc.datasource.init.ScriptUtils.splitSqlScript;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

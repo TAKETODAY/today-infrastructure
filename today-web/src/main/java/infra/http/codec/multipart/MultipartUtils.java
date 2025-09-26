@@ -17,6 +17,8 @@
 
 package infra.http.codec.multipart;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.nio.channels.Channel;
 import java.nio.charset.Charset;
@@ -27,7 +29,6 @@ import java.nio.file.Path;
 import infra.http.HttpHeaders;
 import infra.http.HttpMessage;
 import infra.http.MediaType;
-import infra.lang.Nullable;
 
 /**
  * Various static utility methods for dealing with multipart parsing.

@@ -18,9 +18,7 @@
 /**
  * SQL dialects
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.persistence.platform;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

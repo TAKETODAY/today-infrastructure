@@ -17,6 +17,8 @@
 
 package test.framework;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.util.Map;
 
@@ -36,7 +38,6 @@ import infra.core.io.Resource;
 import infra.core.style.ToStringBuilder;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ResourceUtils;

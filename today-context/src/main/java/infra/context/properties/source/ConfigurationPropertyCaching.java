@@ -17,11 +17,12 @@
 
 package infra.context.properties.source;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 
 import infra.core.env.ConfigurableEnvironment;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Interface that can be used to control configuration property source caches.

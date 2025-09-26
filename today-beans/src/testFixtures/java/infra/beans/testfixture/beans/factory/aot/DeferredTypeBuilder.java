@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,12 @@
 
 package infra.beans.testfixture.beans.factory.aot;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Consumer;
 
 import infra.javapoet.TypeSpec;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * {@link TypeSpec.Builder} {@link Consumer} that can be used to defer the to

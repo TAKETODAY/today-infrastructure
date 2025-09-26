@@ -17,6 +17,8 @@
 
 package infra.jdbc.core.namedparam;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
@@ -42,7 +44,6 @@ import infra.jdbc.core.simple.JdbcClient;
 import infra.jdbc.support.KeyHolder;
 import infra.jdbc.support.rowset.SqlRowSet;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ConcurrentLruCache;
 import infra.util.ObjectUtils;
 

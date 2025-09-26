@@ -26,13 +26,14 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.function.Function;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Helper base class for {@link JsonDeserializer} implementations that deserialize

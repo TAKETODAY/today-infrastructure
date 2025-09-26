@@ -17,11 +17,11 @@
 
 package infra.context.properties.source;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.function.Consumer;
-
-import infra.lang.Nullable;
 
 /**
  * {@link ConfigurationPropertyCaching} for an {@link Iterable iterable} set of

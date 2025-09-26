@@ -17,6 +17,8 @@
 
 package infra.bytecode.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayDeque;
@@ -29,7 +31,6 @@ import infra.bytecode.MethodVisitor;
 import infra.bytecode.Opcodes;
 import infra.expression.spel.SpelNode;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 
 /**

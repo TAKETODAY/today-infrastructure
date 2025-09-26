@@ -17,11 +17,10 @@
 
 package infra.logging;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.spi.LocationAwareLogger;
 
 import java.io.Serial;
-
-import infra.lang.Nullable;
 
 /**
  * LocationAwareLogger

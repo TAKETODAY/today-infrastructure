@@ -17,12 +17,13 @@
 
 package infra.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.HashSet;
 import java.util.Set;
 
 import infra.context.ApplicationContext;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * RequestContext decorator that makes all beans in a

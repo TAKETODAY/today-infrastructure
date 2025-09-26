@@ -18,11 +18,11 @@
 package infra.aop.support;
 
 import org.aopalliance.aop.Advice;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serializable;
 
 import infra.aop.Pointcut;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 /**

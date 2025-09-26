@@ -17,6 +17,8 @@
 
 package infra.reflect;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -30,8 +32,6 @@ import infra.bytecode.core.CodeEmitter;
 import infra.bytecode.core.EmitUtils;
 import infra.bytecode.core.MethodInfo;
 import infra.lang.Assert;
-import infra.lang.NonNull;
-import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 
 /**
@@ -164,7 +164,7 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
     return forReflective(field);
   }
 
-  private static PropertyAccessor getPropertyAccessor(Field field, MethodInvoker accessor, @NonNull Method writeMethod) {
+  private static PropertyAccessor getPropertyAccessor(Field field, MethodInvoker accessor, Method writeMethod) {
     return new PropertyAccessor() {
 
       @Nullable
@@ -185,7 +185,7 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
     };
   }
 
-  private static PropertyAccessor getPropertyAccessor(MethodInvoker accessor, Field field, @NonNull Method readMethod) {
+  private static PropertyAccessor getPropertyAccessor(MethodInvoker accessor, Field field, Method readMethod) {
     return new PropertyAccessor() {
       @Override
       public Object get(Object obj) {

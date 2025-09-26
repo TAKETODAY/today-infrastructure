@@ -17,6 +17,8 @@
 
 package infra.web.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,7 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
@@ -47,8 +48,7 @@ public class DefaultUriBuilderFactory implements UriBuilderFactory {
   @Nullable
   private final UriComponentsBuilder baseUri;
 
-  @Nullable
-  private UriComponentsBuilder.ParserType parserType;
+  private UriComponentsBuilder.@Nullable ParserType parserType;
 
   private EncodingMode encodingMode = EncodingMode.TEMPLATE_AND_VALUES;
 
@@ -115,8 +115,7 @@ public class DefaultUriBuilderFactory implements UriBuilderFactory {
    *
    * @since 5.0
    */
-  @Nullable
-  public UriComponentsBuilder.ParserType getParserType() {
+  public UriComponentsBuilder.@Nullable ParserType getParserType() {
     return this.parserType;
   }
 

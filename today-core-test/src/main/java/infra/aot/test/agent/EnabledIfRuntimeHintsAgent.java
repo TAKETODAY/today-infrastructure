@@ -17,14 +17,14 @@
 
 package infra.aot.test.agent;
 
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.condition.EnabledIf;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.condition.EnabledIf;
 
 import infra.aot.agent.RuntimeHintsAgent;
 

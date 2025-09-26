@@ -17,6 +17,8 @@
 
 package infra.annotation.config.web.netty;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 import infra.annotation.ConditionalOnWebApplication;
@@ -35,7 +37,6 @@ import infra.context.properties.EnableConfigurationProperties;
 import infra.core.ApplicationTemp;
 import infra.core.Ordered;
 import infra.core.ssl.SslBundles;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;

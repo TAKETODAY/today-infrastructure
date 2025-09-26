@@ -20,6 +20,7 @@ package infra.scripting.groovy;
 import org.codehaus.groovy.control.CompilationFailedException;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.CompilationCustomizer;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.lang.reflect.InaccessibleObjectException;
@@ -35,7 +36,6 @@ import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.ConstructorNotFoundException;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.scripting.ScriptCompilationException;
 import infra.scripting.ScriptFactory;
 import infra.scripting.ScriptSource;

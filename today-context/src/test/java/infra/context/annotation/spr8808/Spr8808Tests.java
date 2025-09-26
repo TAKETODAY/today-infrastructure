@@ -19,9 +19,9 @@ package infra.context.annotation.spr8808;
 
 import org.junit.jupiter.api.Test;
 
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.ComponentScan;
 import infra.context.annotation.Configuration;
-import infra.context.annotation.AnnotationConfigApplicationContext;
 
 /**
  * Tests cornering the bug in which @Configuration classes that @ComponentScan themselves

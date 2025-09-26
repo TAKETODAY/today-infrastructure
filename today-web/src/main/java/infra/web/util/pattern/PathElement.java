@@ -17,7 +17,8 @@
 
 package infra.web.util.pattern;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import infra.web.util.pattern.PathPattern.MatchingContext;
 
 /**

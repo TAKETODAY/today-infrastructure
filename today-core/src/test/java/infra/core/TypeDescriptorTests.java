@@ -17,6 +17,7 @@
 
 package infra.core;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -42,7 +43,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import infra.lang.Nullable;
 import infra.reflect.Property;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;

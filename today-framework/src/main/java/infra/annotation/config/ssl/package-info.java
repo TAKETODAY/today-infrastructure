@@ -18,9 +18,7 @@
 /**
  * Auto-configuration for SSL bundles.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.annotation.config.ssl;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

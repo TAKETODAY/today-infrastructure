@@ -17,6 +17,8 @@
 
 package infra.context.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -34,7 +36,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import infra.beans.factory.BeanClassLoaderAware;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**

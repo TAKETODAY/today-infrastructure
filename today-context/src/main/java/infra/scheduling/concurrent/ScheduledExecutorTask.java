@@ -17,10 +17,11 @@
 
 package infra.scheduling.concurrent;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.TimeUnit;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * JavaBean that describes a scheduled executor task, consisting of the

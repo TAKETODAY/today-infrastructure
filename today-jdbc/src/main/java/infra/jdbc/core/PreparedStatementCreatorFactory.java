@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jdbc.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -30,7 +32,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import infra.dao.InvalidDataAccessApiUsageException;
-import infra.lang.Nullable;
 
 /**
  * Helper class that efficiently creates multiple {@link PreparedStatementCreator}

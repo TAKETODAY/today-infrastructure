@@ -18,11 +18,10 @@
 package infra.aop.aspectj;
 
 import org.aspectj.weaver.tools.ShadowMatch;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import infra.lang.Nullable;
 
 /**
  * Internal {@link ShadowMatch} utilities.

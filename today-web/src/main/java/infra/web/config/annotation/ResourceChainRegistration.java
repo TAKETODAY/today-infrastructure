@@ -17,13 +17,14 @@
 
 package infra.web.config.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import infra.cache.Cache;
 import infra.cache.concurrent.ConcurrentMapCache;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.web.resource.CachingResourceResolver;
 import infra.web.resource.CachingResourceTransformer;

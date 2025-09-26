@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
 import infra.app.loader.log.DebugLogger;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Internal utility class for working with the string content of zip records. Provides

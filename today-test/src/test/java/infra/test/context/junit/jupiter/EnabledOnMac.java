@@ -23,8 +23,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import infra.test.context.junit.jupiter.EnabledIf;
-
 /**
  * Demo <em>composed annotation</em> for {@link EnabledIf @EnabledIf} that
  * enables a test class or test method if the current operating system is

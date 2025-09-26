@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ package infra.aop.aspectj.annotation;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.reflect.PerClauseKind;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -32,7 +33,6 @@ import infra.aop.aspectj.AspectJExpressionPointcut;
 import infra.aop.aspectj.AspectJPrecedenceInformation;
 import infra.aop.aspectj.InstantiationModelAwarePointcutAdvisor;
 import infra.aop.support.DynamicMethodMatcherPointcut;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 /**

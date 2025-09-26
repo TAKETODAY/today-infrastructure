@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.test.web.mock.samples.client.standalone;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -27,7 +28,6 @@ import java.util.Map;
 
 import infra.http.MediaType;
 import infra.http.client.MultipartBodyBuilder;
-import infra.lang.Nullable;
 import infra.mock.api.http.Part;
 import infra.stereotype.Controller;
 import infra.test.web.mock.client.MockMvcWebTestClient;

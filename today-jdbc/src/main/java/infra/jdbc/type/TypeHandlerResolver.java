@@ -17,6 +17,8 @@
 
 package infra.jdbc.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.List;
@@ -25,7 +27,6 @@ import infra.beans.BeanProperty;
 import infra.beans.BeanUtils;
 import infra.core.annotation.MergedAnnotation;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * A resolver interface for determining the appropriate {@link TypeHandler} for a given
