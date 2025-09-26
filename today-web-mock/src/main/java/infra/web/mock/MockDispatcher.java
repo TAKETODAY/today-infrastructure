@@ -163,7 +163,7 @@ public class MockDispatcher extends DispatcherHandler implements MockApi, Serial
     mockConfig.getMockContext().log("Initializing Infra %s '%s'".formatted(getClass().getSimpleName(), servletName));
     log.info("Initializing Servlet '{}'", servletName);
 
-    init();
+    start();
   }
 
   @Override
