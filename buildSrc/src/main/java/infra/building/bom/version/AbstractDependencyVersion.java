@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ abstract class AbstractDependencyVersion implements DependencyVersion {
   @Override
   public int compareTo(DependencyVersion other) {
     ComparableVersion otherComparable = (other instanceof AbstractDependencyVersion otherVersion)
-                                        ? otherVersion.comparableVersion : new ComparableVersion(other.toString());
+            ? otherVersion.comparableVersion : new ComparableVersion(other.toString());
     return this.comparableVersion.compareTo(otherComparable);
   }
 
@@ -53,10 +53,7 @@ abstract class AbstractDependencyVersion implements DependencyVersion {
       return false;
     }
     AbstractDependencyVersion other = (AbstractDependencyVersion) obj;
-    if (!this.comparableVersion.equals(other.comparableVersion)) {
-      return false;
-    }
-    return true;
+    return this.comparableVersion.equals(other.comparableVersion);
   }
 
   @Override
