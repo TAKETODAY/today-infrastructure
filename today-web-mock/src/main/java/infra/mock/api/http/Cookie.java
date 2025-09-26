@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+
+import infra.util.ExceptionUtils;
 
 /**
  * Creates a cookie, a small amount of information sent by a servlet to a Web browser, saved by the browser, and later
@@ -362,7 +364,7 @@ public class Cookie implements Cloneable, Serializable {
       return clone;
     }
     catch (CloneNotSupportedException e) {
-      throw new RuntimeException(e.getMessage());
+      throw ExceptionUtils.sneakyThrow(e);
     }
   }
 
