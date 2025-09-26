@@ -17,6 +17,8 @@
 
 package infra.web.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +36,6 @@ import infra.http.HttpStatusCode;
 import infra.http.client.ClientHttpResponse;
 import infra.http.client.ClientHttpResponseDecorator;
 import infra.http.converter.HttpMessageConverter;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.LogFormatUtils;
 

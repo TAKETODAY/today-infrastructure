@@ -17,10 +17,11 @@
 
 package infra.persistence;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import infra.lang.Nullable;
 import infra.persistence.sql.Restriction;
 
 /**

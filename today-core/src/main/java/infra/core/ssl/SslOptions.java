@@ -17,12 +17,13 @@
 
 package infra.core.ssl;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.Set;
 
 import javax.net.ssl.SSLEngine;
 
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**

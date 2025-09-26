@@ -17,6 +17,8 @@
 
 package infra.web.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
@@ -27,7 +29,6 @@ import java.util.StringTokenizer;
 import infra.core.Conventions;
 import infra.http.HttpHeaders;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.LoggerFactory;
 import infra.session.WebSession;
 import infra.util.CollectionUtils;

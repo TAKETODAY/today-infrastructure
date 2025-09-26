@@ -17,9 +17,10 @@
 
 package infra.web.handler.result;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.Callable;
 
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 import infra.web.handler.method.HandlerMethod;
 

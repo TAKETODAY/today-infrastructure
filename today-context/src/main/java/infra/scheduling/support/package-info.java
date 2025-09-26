@@ -18,9 +18,7 @@
 /**
  * Generic support classes for scheduling.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.scheduling.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

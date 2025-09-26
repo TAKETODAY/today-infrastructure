@@ -17,10 +17,11 @@
 
 package infra.context.properties.source;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.List;
 
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 /**

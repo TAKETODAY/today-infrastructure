@@ -17,7 +17,7 @@
 
 package infra.oxm;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Exception thrown on marshalling validation failure.

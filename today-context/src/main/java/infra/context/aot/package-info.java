@@ -18,9 +18,7 @@
 /**
  * AOT support for application contexts.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.context.aot;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

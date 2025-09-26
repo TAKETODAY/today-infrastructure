@@ -17,6 +17,7 @@
 
 package infra.web.handler;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -24,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import infra.core.annotation.SynthesizingMethodParameter;
-import infra.lang.Nullable;
 import infra.web.MockResolvableMethodParameter;
 import infra.web.annotation.RequestParam;
 import infra.web.handler.method.ResolvableMethodParameter;

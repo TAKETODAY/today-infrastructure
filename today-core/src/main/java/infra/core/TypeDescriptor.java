@@ -17,6 +17,8 @@
 
 package infra.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
@@ -36,7 +38,6 @@ import infra.core.annotation.AnnotatedElementAdapter;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.conversion.ConversionService;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.reflect.Property;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;

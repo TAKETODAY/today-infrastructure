@@ -32,7 +32,7 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import infra.util.StreamUtils;
 import infra.util.StringUtils;
 

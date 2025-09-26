@@ -17,6 +17,8 @@
 
 package infra.util.concurrent;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledFuture;
@@ -27,7 +29,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ExceptionUtils;

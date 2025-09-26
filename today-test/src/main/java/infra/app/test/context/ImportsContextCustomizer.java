@@ -17,6 +17,8 @@
 
 package infra.app.test.context;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.util.Collections;
 import java.util.HashSet;
@@ -48,7 +50,6 @@ import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.Order;
 import infra.core.style.ToStringBuilder;
 import infra.core.type.AnnotationMetadata;
-import infra.lang.Nullable;
 import infra.test.context.ContextCustomizer;
 import infra.test.context.MergedContextConfiguration;
 import infra.util.ReflectionUtils;

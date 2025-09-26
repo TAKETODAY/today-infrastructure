@@ -18,9 +18,7 @@
 /**
  * Mock implementations of reactive HTTP client contracts.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.mock.http.client.reactive;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

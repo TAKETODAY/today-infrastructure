@@ -17,6 +17,8 @@
 
 package infra.cache.concurrent;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -28,7 +30,6 @@ import infra.cache.support.AbstractValueAdaptingCache;
 import infra.cache.support.SimpleCacheManager;
 import infra.core.serializer.support.SerializationDelegate;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.function.ThrowingFunction;
 
 /**

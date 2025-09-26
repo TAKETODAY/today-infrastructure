@@ -17,6 +17,8 @@
 
 package infra.web.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -26,7 +28,6 @@ import java.util.stream.Collectors;
 import infra.context.MessageSource;
 import infra.context.MessageSourceResolvable;
 import infra.context.support.StaticMessageSource;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 import infra.validation.FieldError;
 

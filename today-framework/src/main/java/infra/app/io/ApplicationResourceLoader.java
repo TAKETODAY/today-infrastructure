@@ -17,6 +17,8 @@
 
 package infra.app.io;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -33,7 +35,6 @@ import infra.core.io.ProtocolResolver;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.util.StringUtils;
 

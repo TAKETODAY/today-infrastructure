@@ -19,9 +19,7 @@
  * Context metadata abstraction for the configuration and execution
  * of table inserts and stored procedure calls.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jdbc.core.metadata;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

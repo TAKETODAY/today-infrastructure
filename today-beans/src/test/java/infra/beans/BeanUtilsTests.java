@@ -18,6 +18,7 @@
 package infra.beans;
 
 import org.assertj.core.api.SoftAssertions;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -50,7 +51,6 @@ import infra.bytecode.proxy.MethodInterceptor;
 import infra.core.ConstructorNotFoundException;
 import infra.core.io.Resource;
 import infra.core.io.ResourceEditor;
-import infra.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

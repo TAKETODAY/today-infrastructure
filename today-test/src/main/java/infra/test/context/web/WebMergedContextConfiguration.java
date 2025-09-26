@@ -17,6 +17,8 @@
 
 package infra.test.context.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.util.List;
 import java.util.Set;
@@ -24,7 +26,6 @@ import java.util.Set;
 import infra.context.ApplicationContextInitializer;
 import infra.core.io.PropertySourceDescriptor;
 import infra.core.style.ToStringBuilder;
-import infra.lang.Nullable;
 import infra.test.context.ActiveProfiles;
 import infra.test.context.CacheAwareContextLoaderDelegate;
 import infra.test.context.ContextConfiguration;

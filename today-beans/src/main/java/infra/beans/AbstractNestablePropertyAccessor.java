@@ -17,6 +17,8 @@
 
 package infra.beans;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyChangeEvent;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -37,7 +39,6 @@ import infra.core.TypeDescriptor;
 import infra.core.conversion.ConversionException;
 import infra.core.conversion.ConverterNotFoundException;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;

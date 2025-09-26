@@ -17,6 +17,8 @@
 
 package infra.annotation.config.context;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.Duration;
@@ -48,7 +50,6 @@ import infra.core.io.PathMatchingPatternResourceLoader;
 import infra.core.io.PropertiesUtils;
 import infra.core.io.Resource;
 import infra.core.type.AnnotatedTypeMetadata;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.util.CollectionUtils;
 import infra.util.ConcurrentReferenceHashMap;

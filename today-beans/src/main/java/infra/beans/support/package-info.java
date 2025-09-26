@@ -19,9 +19,7 @@
  * Classes supporting the infra.beans package,
  * such as utility classes for sorting and holding lists of beans.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.beans.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

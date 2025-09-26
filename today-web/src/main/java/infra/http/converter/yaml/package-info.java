@@ -18,9 +18,7 @@
 /**
  * Provides an {@code HttpMessageConverter} for the YAML data format.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.http.converter.yaml;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

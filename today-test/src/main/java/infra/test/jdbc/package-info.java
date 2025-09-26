@@ -18,9 +18,7 @@
 /**
  * Support classes for tests based on JDBC.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.test.jdbc;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

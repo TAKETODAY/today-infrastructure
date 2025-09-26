@@ -18,9 +18,7 @@
 /**
  * Core package for AOT infrastructure.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.aot;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -2,9 +2,7 @@
  * Classes supporting the {@code infra.web.client} package.
  * Contains a base class for RestTemplate usage.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.client.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

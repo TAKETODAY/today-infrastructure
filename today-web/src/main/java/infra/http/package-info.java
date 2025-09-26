@@ -19,9 +19,7 @@
  * Contains a basic abstraction over client/server-side HTTP. This package contains
  * the {@code HttpInputMessage} and {@code HttpOutputMessage} interfaces.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.http;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

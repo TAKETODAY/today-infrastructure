@@ -35,10 +35,10 @@ import org.aspectj.weaver.reflect.ReflectionBasedReferenceTypeDelegate;
 import org.aspectj.weaver.reflect.ReflectionVar;
 import org.aspectj.weaver.reflect.ShadowMatchImpl;
 import org.aspectj.weaver.tools.ShadowMatch;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Field;
 
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
 

@@ -17,13 +17,14 @@
 
 package infra.instrument.classloading;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import infra.core.OverridingClassLoader;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
 

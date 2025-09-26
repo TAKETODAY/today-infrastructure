@@ -17,6 +17,8 @@
 
 package infra.web.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.nio.charset.Charset;
 import java.util.function.Function;
 
@@ -26,7 +28,6 @@ import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 
 /**
  * Common base class for exceptions that contain actual HTTP response data.

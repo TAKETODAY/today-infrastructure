@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.http.converter.xml;
 
+import org.jspecify.annotations.Nullable;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -36,7 +37,6 @@ import infra.core.annotation.AnnotationUtils;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.http.converter.HttpMessageConversionException;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import jakarta.xml.bind.JAXBElement;
 import jakarta.xml.bind.JAXBException;

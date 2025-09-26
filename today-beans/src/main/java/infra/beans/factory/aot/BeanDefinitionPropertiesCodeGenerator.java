@@ -17,6 +17,8 @@
 
 package infra.beans.factory.aot;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.ArrayDeque;
@@ -58,7 +60,6 @@ import infra.beans.factory.support.RootBeanDefinition;
 import infra.core.ReactiveStreams;
 import infra.javapoet.CodeBlock;
 import infra.javapoet.CodeBlock.Builder;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;

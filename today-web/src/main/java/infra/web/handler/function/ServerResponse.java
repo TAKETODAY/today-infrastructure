@@ -17,6 +17,7 @@
 
 package infra.web.handler.function;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.io.IOException;
@@ -43,7 +44,6 @@ import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverter;
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 import infra.web.ErrorResponse;
 import infra.web.HttpRequestHandler;

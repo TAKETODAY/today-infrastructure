@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.web.mock.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -28,7 +30,6 @@ import infra.core.io.AbstractFileResolvingResource;
 import infra.core.io.ContextResource;
 import infra.core.io.Resource;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.mock.api.MockContext;
 import infra.util.ResourceUtils;
 import infra.util.StringUtils;

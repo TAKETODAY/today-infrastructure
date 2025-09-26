@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,15 +17,17 @@
 
 package infra.test.context.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 
 import infra.context.ApplicationContext;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.annotation.DirtiesContext;
+import infra.test.annotation.DirtiesContext.HierarchyMode;
 import infra.test.context.TestContext;
 import infra.test.context.TestContextAnnotationUtils;
 
@@ -53,7 +55,7 @@ public abstract class AbstractDirtiesContextTestExecutionListener extends Abstra
   /**
    * Mark the {@linkplain ApplicationContext application context} of the supplied
    * {@linkplain TestContext test context} as
-   * {@linkplain TestContext#markApplicationContextDirty(DirtiesContext.HierarchyMode) dirty}
+   * {@linkplain TestContext#markApplicationContextDirty(HierarchyMode) dirty}
    * and set {@link DependencyInjectionTestExecutionListener#REINJECT_DEPENDENCIES_ATTRIBUTE
    * REINJECT_DEPENDENCIES_ATTRIBUTE} in the test context to {@code true}.
    *
@@ -63,7 +65,7 @@ public abstract class AbstractDirtiesContextTestExecutionListener extends Abstra
    * context is part of a hierarchy; may be {@code null}
    * @since 4.0
    */
-  protected void dirtyContext(TestContext testContext, @Nullable DirtiesContext.HierarchyMode hierarchyMode) {
+  protected void dirtyContext(TestContext testContext, @Nullable HierarchyMode hierarchyMode) {
     testContext.markApplicationContextDirty(hierarchyMode);
     testContext.setAttribute(DependencyInjectionTestExecutionListener.REINJECT_DEPENDENCIES_ATTRIBUTE, Boolean.TRUE);
   }
@@ -109,7 +111,7 @@ public abstract class AbstractDirtiesContextTestExecutionListener extends Abstra
     }
 
     if ((methodMode == requiredMethodMode) || (classMode == requiredClassMode)) {
-      DirtiesContext.HierarchyMode hierarchyMode = (methodAnnotated ? methodAnn.hierarchyMode() : classAnn.hierarchyMode());
+      HierarchyMode hierarchyMode = (methodAnnotated ? methodAnn.hierarchyMode() : classAnn.hierarchyMode());
       dirtyContext(testContext, hierarchyMode);
     }
   }

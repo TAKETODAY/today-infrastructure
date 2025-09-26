@@ -17,6 +17,8 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Predicate;
 
 import infra.beans.factory.Aware;
@@ -30,7 +32,6 @@ import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
 import infra.core.type.AnnotationMetadata;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 
 /**
  * Interface to be implemented by types that determine which @{@link Configuration}

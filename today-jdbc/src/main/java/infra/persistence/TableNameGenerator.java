@@ -17,12 +17,13 @@
 
 package infra.persistence;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**

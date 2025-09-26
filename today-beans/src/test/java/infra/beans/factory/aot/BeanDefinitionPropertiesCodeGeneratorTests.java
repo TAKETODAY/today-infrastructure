@@ -18,6 +18,7 @@
 package infra.beans.factory.aot;
 
 import org.assertj.core.api.InstanceOfAssertFactories;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
@@ -59,7 +60,6 @@ import infra.core.test.tools.TestCompiler;
 import infra.javapoet.CodeBlock;
 import infra.javapoet.MethodSpec;
 import infra.javapoet.ParameterizedTypeName;
-import infra.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

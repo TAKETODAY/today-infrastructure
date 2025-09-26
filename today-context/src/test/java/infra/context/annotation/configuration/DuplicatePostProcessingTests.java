@@ -27,8 +27,8 @@ import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
 import infra.context.ApplicationEvent;
 import infra.context.ApplicationListener;
-import infra.context.annotation.Bean;
 import infra.context.annotation.AnnotationConfigApplicationContext;
+import infra.context.annotation.Bean;
 
 /**
  * @author Andy Wilkinson

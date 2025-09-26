@@ -17,6 +17,8 @@
 
 package infra.web.mock;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +28,6 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 import infra.http.DefaultHttpHeaders;
-import infra.lang.Nullable;
 import infra.mock.api.http.Part;
 import infra.util.FileCopyUtils;
 import infra.web.multipart.MultipartFile;

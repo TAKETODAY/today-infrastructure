@@ -17,8 +17,9 @@
 
 package infra.web.bind.resolver;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.http.HttpRequest;
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.util.UriComponentsBuilder;

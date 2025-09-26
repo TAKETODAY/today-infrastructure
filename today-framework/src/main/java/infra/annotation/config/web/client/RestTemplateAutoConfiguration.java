@@ -17,6 +17,8 @@
 
 package infra.annotation.config.web.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
@@ -26,7 +28,6 @@ import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.http.converter.HttpMessageConverters;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.web.client.RestTemplate;
 import infra.web.client.config.RestTemplateBuilder;

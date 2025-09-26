@@ -17,6 +17,8 @@
 
 package infra.context.weaving;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.instrument.ClassFileTransformer;
 
 import infra.beans.factory.BeanClassLoaderAware;
@@ -27,7 +29,6 @@ import infra.instrument.classloading.LoadTimeWeaver;
 import infra.instrument.classloading.ReflectiveLoadTimeWeaver;
 import infra.instrument.classloading.TomcatLoadTimeWeaver;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

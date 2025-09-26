@@ -17,6 +17,8 @@
 
 package infra.context.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +30,6 @@ import infra.context.HierarchicalMessageSource;
 import infra.context.MessageSource;
 import infra.context.MessageSourceResolvable;
 import infra.context.NoSuchMessageException;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.validation.FieldError;
 

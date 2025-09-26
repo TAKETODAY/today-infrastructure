@@ -1,9 +1,7 @@
 /**
  * JSON encoder and decoder support.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.http.codec.json;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -17,6 +17,8 @@
 
 package infra.web.config.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -26,7 +28,6 @@ import infra.beans.factory.BeanInitializationException;
 import infra.context.ApplicationContext;
 import infra.core.Ordered;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.web.HandlerMapping;
 import infra.web.HttpRequestHandler;
 import infra.web.NotFoundHandler;

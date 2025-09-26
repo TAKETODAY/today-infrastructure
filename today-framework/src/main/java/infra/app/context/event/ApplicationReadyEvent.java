@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 package infra.app.context.event;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.time.Duration;
 
 import infra.app.Application;
 import infra.app.ApplicationArguments;
 import infra.context.ConfigurableApplicationContext;
-import infra.lang.Nullable;
 
 /**
  * Event published as late as conceivably possible to indicate that the application is

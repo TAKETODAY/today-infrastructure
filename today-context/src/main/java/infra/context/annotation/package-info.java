@@ -20,9 +20,7 @@
  * annotations, component-scanning, and Java-based metadata for creating
  * Infra-managed objects.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.context.annotation;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

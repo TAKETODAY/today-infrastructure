@@ -17,9 +17,10 @@
 
 package infra.app.io;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.io.FileSystemResource;
 import infra.core.io.Resource;
-import infra.lang.Nullable;
 
 /**
  * Strategy interface registered in {@code spring.factories} and used by

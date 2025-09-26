@@ -18,9 +18,7 @@
 /**
  * AOT support for bean factories.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.beans.factory.aot;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

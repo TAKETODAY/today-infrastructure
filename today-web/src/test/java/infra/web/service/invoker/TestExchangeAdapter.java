@@ -17,11 +17,12 @@
 
 package infra.web.service.invoker;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collections;
 
 import infra.core.ParameterizedTypeReference;
 import infra.http.ResponseEntity;
-import infra.lang.Nullable;
 import infra.util.concurrent.Future;
 import infra.web.client.ClientResponse;
 import infra.web.testfixture.http.MockClientHttpResponse;

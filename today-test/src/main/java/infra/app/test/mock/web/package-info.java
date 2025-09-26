@@ -18,9 +18,7 @@
 /**
  * Mock web classes specific to Infra.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.app.test.mock.web;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

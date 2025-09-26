@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.jdbc.type;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -47,7 +48,6 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
-import infra.lang.Nullable;
 import infra.util.function.ThrowingBiFunction;
 
 import static org.assertj.core.api.Assertions.assertThat;

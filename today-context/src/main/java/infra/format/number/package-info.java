@@ -18,9 +18,7 @@
 /**
  * Formatters for {@code java.lang.Number} properties.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.format.number;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

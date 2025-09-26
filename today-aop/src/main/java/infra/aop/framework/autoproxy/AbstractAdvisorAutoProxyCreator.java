@@ -17,6 +17,8 @@
 
 package infra.aop.framework.autoproxy;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 import infra.aop.Advisor;
@@ -30,7 +32,6 @@ import infra.core.Ordered;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.core.annotation.Order;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Generic auto proxy creator that builds AOP proxies for specific beans

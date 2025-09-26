@@ -17,6 +17,8 @@
 
 package infra.context.condition;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +29,6 @@ import infra.context.annotation.ConditionContext;
 import infra.context.annotation.config.AutoConfigurationMetadata;
 import infra.core.Ordered;
 import infra.core.type.AnnotatedTypeMetadata;
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;

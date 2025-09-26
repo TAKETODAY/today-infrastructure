@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,12 +22,12 @@ import com.jayway.jsonpath.JsonPath;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.StringStartsWith;
+import org.jspecify.annotations.Nullable;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.test.util.JsonPathExpectationsHelper;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.ResultMatcher;

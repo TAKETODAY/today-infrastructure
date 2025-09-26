@@ -17,12 +17,13 @@
 
 package infra.context.support;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.BeansException;
 import infra.beans.factory.xml.XmlBeanDefinitionReader;
 import infra.context.ApplicationContext;
 import infra.core.io.FileSystemResource;
 import infra.core.io.Resource;
-import infra.lang.Nullable;
 
 /**
  * Standalone XML application context, taking the context definition files

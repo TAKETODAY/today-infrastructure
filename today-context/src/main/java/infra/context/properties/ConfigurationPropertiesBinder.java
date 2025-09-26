@@ -17,6 +17,8 @@
 
 package infra.context.properties;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -51,7 +53,6 @@ import infra.core.annotation.MergedAnnotations;
 import infra.core.conversion.ConversionService;
 import infra.core.env.PropertySources;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.validation.Errors;
 import infra.validation.Validator;
 import infra.validation.annotation.Validated;

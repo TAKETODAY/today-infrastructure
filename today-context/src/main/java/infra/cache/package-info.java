@@ -19,9 +19,7 @@
  * Infra generic cache abstraction.
  * Concrete implementations are provided in the subpackages.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.cache;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

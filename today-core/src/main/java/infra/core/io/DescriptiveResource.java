@@ -17,12 +17,13 @@
 
 package infra.core.io;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
 import infra.lang.Constant;
-import infra.lang.Nullable;
 
 /**
  * Simple {@link Resource} implementation that holds a resource description

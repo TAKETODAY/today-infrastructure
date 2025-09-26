@@ -22,16 +22,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 
 import infra.context.ApplicationContext;
-import infra.mock.web.MockContextImpl;
 import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.test.context.TestContext;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.WebApplicationContext;
-import infra.test.context.web.MockTestExecutionListener;
-import infra.test.context.web.WebAppConfiguration;
 
 import static infra.test.context.web.MockTestExecutionListener.POPULATED_REQUEST_CONTEXT_HOLDER_ATTRIBUTE;
 import static infra.test.context.web.MockTestExecutionListener.RESET_REQUEST_CONTEXT_HOLDER_ATTRIBUTE;

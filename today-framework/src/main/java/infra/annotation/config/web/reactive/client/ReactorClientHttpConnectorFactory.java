@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.annotation.config.web.reactive.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +30,6 @@ import infra.core.ssl.SslManagerBundle;
 import infra.core.ssl.SslOptions;
 import infra.http.client.ReactorResourceFactory;
 import infra.http.client.reactive.ReactorClientHttpConnector;
-import infra.lang.Nullable;
 import infra.util.function.ThrowingConsumer;
 import io.netty.handler.ssl.SslContextBuilder;
 import reactor.netty.http.client.HttpClient;

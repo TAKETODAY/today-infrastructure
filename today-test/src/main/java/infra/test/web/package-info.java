@@ -18,9 +18,7 @@
 /**
  * Helper classes for unit tests based on Framework's web support.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.test.web;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

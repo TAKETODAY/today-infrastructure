@@ -25,9 +25,7 @@
  * which defines a shared ValidatorFactory/Validator setup for availability
  * to other Framework components.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.validation.beanvalidation;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

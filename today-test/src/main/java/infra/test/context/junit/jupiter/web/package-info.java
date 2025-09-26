@@ -19,9 +19,7 @@
  * Web support for integrating the <em>TestContext Framework</em>
  * with the JUnit Jupiter extension model in JUnit 5.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.test.context.junit.jupiter.web;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

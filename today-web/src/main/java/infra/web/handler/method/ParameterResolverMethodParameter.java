@@ -17,8 +17,9 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.MethodParameter;
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.ParameterResolvingStrategy;

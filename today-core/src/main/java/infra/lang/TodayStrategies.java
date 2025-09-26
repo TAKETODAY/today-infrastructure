@@ -17,6 +17,8 @@
 
 package infra.lang;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;

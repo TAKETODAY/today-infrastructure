@@ -17,6 +17,8 @@
 
 package infra.beans.factory;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +36,6 @@ import infra.beans.factory.support.RootBeanDefinition;
 import infra.core.ResolvableType;
 import infra.core.annotation.MergedAnnotation;
 import infra.lang.Modifiable;
-import infra.lang.Nullable;
 
 /**
  * The root interface for accessing a bean container.

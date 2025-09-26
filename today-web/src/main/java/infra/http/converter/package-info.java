@@ -1,9 +1,7 @@
 /**
  * Provides an HttpMessageConverter abstraction to convert between Java objects and HTTP input/output messages.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.http.converter;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

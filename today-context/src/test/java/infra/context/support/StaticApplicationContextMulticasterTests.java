@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.context.support;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -36,7 +37,6 @@ import infra.core.ResolvableType;
 import infra.core.io.ClassPathResource;
 import infra.core.io.EncodedResource;
 import infra.core.io.Resource;
-import infra.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

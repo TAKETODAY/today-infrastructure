@@ -17,11 +17,12 @@
 
 package infra.beans;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 import infra.core.ResolvableType;
 import infra.core.TypeDescriptor;
-import infra.lang.Nullable;
 
 /**
  * Default {@link BeanWrapper} implementation that should be sufficient

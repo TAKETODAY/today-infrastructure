@@ -17,6 +17,8 @@
 
 package infra.app;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -30,7 +32,6 @@ import infra.core.ansi.AnsiOutput;
 import infra.core.env.Environment;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
-import infra.lang.Nullable;
 import infra.lang.Version;
 import infra.logging.Logger;
 

@@ -17,6 +17,8 @@
 
 package infra.core.io;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -58,7 +60,6 @@ import java.util.zip.ZipException;
 
 import infra.core.NativeDetector;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.AntPathMatcher;

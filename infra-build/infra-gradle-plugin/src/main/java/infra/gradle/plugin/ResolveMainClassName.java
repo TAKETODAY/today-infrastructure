@@ -43,7 +43,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import infra.app.loader.tools.MainClassFinder;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * {@link Task} for resolving the name of the application's main class.

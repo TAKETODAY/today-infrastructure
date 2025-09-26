@@ -18,9 +18,7 @@
 /**
  * Support package for declarative scheduling configuration.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.scheduling.config;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -17,12 +17,13 @@
 
 package infra.web.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 
 /**

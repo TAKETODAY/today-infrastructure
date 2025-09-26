@@ -17,6 +17,8 @@
 
 package infra.core.io;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -25,7 +27,6 @@ import java.nio.charset.Charset;
 import java.util.Objects;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Holder that combines a {@link Resource} descriptor with a specific encoding

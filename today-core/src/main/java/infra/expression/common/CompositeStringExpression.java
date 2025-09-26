@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,13 @@
 
 package infra.expression.common;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.TypeDescriptor;
 import infra.expression.EvaluationContext;
 import infra.expression.EvaluationException;
 import infra.expression.Expression;
 import infra.expression.TypedValue;
-import infra.lang.Nullable;
 
 /**
  * Represents a template expression broken into pieces. Each piece will be an Expression

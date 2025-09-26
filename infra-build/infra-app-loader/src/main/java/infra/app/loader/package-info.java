@@ -24,9 +24,7 @@
  * @see infra.app.loader.JarLauncher
  * @see infra.app.loader.WarLauncher
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.app.loader;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

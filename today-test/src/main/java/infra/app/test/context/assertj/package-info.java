@@ -19,9 +19,7 @@
  * AssertJ support for ApplicationContexts.
  */
 
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.app.test.context.assertj;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

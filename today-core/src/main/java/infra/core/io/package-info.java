@@ -18,9 +18,7 @@
 /**
  * Generic abstraction for (file-based) resources, used throughout the framework.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.core.io;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

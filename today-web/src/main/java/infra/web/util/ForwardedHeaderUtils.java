@@ -17,13 +17,14 @@
 
 package infra.web.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import infra.http.HttpHeaders;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**

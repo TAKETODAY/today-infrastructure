@@ -17,6 +17,8 @@
 
 package infra.util.concurrent;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
@@ -43,7 +45,6 @@ import java.util.stream.Stream;
 import infra.core.Pair;
 import infra.core.Triple;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.LoggerFactory;
 import infra.util.ExceptionUtils;
 import infra.util.function.ThrowingBiFunction;

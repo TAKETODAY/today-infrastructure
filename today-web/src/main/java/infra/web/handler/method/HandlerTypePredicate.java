@@ -17,6 +17,8 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,7 +28,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import infra.core.annotation.AnnotatedElementUtils;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;

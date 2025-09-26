@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Import;
 import infra.core.MethodParameter;
 import infra.http.converter.StringHttpMessageConverter;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import infra.mock.web.MockContextImpl;
 import infra.web.MockResolvableMethodParameter;
 import infra.web.RequestContext;

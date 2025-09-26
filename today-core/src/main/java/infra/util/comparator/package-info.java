@@ -19,9 +19,7 @@
  * Useful generic {@code java.util.Comparator} implementations,
  * such as an invertible comparator and a compound comparator.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.util.comparator;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

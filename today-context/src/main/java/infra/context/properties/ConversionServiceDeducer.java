@@ -17,6 +17,8 @@
 
 package infra.context.properties;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +30,6 @@ import infra.core.conversion.ConversionService;
 import infra.core.conversion.support.DefaultConversionService;
 import infra.format.support.ApplicationConversionService;
 import infra.format.support.FormattingConversionService;
-import infra.lang.Nullable;
 
 /**
  * Utility to deduce the {@link ConversionService} to use for configuration properties

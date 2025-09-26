@@ -17,6 +17,8 @@
 
 package infra.core.io;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +26,6 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * {@link Resource} implementation for a given byte array.

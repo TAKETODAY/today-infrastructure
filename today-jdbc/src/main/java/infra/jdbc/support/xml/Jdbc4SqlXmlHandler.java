@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.jdbc.support.xml;
 
+import org.jspecify.annotations.Nullable;
 import org.w3c.dom.Document;
 
 import java.io.IOException;
@@ -33,7 +34,6 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 
 import infra.dao.DataAccessResourceFailureException;
-import infra.lang.Nullable;
 
 /**
  * Default implementation of the {@link SqlXmlHandler} interface.

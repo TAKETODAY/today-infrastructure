@@ -17,6 +17,8 @@
 
 package infra.context;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Instant;
 
 import infra.beans.factory.BeanFactory;
@@ -27,7 +29,6 @@ import infra.core.env.Environment;
 import infra.core.env.EnvironmentCapable;
 import infra.core.io.PatternResourceLoader;
 import infra.core.io.ResourceLoader;
-import infra.lang.Nullable;
 
 /**
  * Central interface to provide configuration for an application.

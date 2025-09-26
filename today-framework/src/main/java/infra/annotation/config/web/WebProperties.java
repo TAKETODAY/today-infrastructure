@@ -17,6 +17,8 @@
 
 package infra.annotation.config.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
@@ -25,7 +27,6 @@ import java.util.concurrent.TimeUnit;
 import infra.context.properties.ConfigurationProperties;
 import infra.format.annotation.DurationUnit;
 import infra.http.CacheControl;
-import infra.lang.Nullable;
 import infra.util.PropertyMapper;
 
 /**

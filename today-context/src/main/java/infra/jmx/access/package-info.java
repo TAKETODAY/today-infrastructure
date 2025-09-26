@@ -18,9 +18,7 @@
 /**
  * Provides support for accessing remote MBean resources.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jmx.access;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

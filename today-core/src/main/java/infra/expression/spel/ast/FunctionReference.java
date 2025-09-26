@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.expression.spel.ast;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
@@ -36,7 +38,6 @@ import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
 import infra.expression.spel.support.ReflectionHelper;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
 

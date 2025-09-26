@@ -19,6 +19,7 @@ package infra.validation.beanvalidation;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -37,7 +38,6 @@ import infra.core.ReactiveAdapterRegistry;
 import infra.core.ReactiveStreams;
 import infra.core.annotation.AnnotationUtils;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.VisibleForTesting;
 import infra.util.ReflectionUtils;
 import infra.validation.BeanPropertyBindingResult;

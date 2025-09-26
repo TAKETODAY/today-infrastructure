@@ -16,6 +16,8 @@
  */
 package infra.beans;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -33,7 +35,6 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;

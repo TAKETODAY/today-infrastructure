@@ -17,6 +17,7 @@
 
 package infra.beans;
 
+import org.jspecify.annotations.Nullable;
 import org.xml.sax.InputSource;
 
 import java.beans.PropertyEditor;
@@ -74,7 +75,6 @@ import infra.beans.propertyeditors.ZoneIdEditor;
 import infra.core.conversion.ConversionService;
 import infra.core.io.Resource;
 import infra.core.io.ResourceArrayPropertyEditor;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**

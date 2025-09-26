@@ -20,9 +20,7 @@
  * a PlatformTransactionManager for a single DataSource,
  * and various simple DataSource implementations.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jdbc.datasource;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

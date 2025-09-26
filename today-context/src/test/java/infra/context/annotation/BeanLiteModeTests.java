@@ -22,9 +22,6 @@ package infra.context.annotation;
 
 import org.junit.jupiter.api.Test;
 
-import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.context.annotation.Bean;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

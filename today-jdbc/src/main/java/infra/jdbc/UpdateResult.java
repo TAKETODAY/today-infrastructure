@@ -17,6 +17,8 @@
 
 package infra.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,7 +29,6 @@ import infra.core.conversion.ConversionException;
 import infra.core.conversion.ConversionService;
 import infra.jdbc.type.TypeHandler;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 
 /**

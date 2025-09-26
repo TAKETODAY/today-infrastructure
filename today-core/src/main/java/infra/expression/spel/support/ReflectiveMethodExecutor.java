@@ -17,6 +17,8 @@
 
 package infra.expression.spel.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
@@ -26,7 +28,6 @@ import infra.expression.AccessException;
 import infra.expression.EvaluationContext;
 import infra.expression.MethodExecutor;
 import infra.expression.TypedValue;
-import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 
 /**

@@ -17,6 +17,8 @@
 
 package infra.transaction.interceptor;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.lang.reflect.Method;
 import java.util.Properties;
@@ -33,7 +35,6 @@ import infra.core.ReactiveAdapter;
 import infra.core.ReactiveAdapterRegistry;
 import infra.core.ReactiveStreams;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.transaction.NoTransactionException;

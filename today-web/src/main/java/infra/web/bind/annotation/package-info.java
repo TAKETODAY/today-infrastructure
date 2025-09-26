@@ -19,9 +19,7 @@
  * Annotations for binding requests to controllers and handler methods
  * as well as for binding request parameters to method arguments.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.bind.annotation;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

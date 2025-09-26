@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,14 +23,14 @@ import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 
+import infra.app.jdbc.HikariCheckpointRestoreLifecycle;
+import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.beans.BeansException;
 import infra.beans.factory.InitializationBeanPostProcessor;
 import infra.beans.factory.config.BeanPostProcessor;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
-import infra.app.jdbc.HikariCheckpointRestoreLifecycle;
-import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.jdbc.datasource.DelegatingDataSource;
 import infra.test.classpath.ClassPathExclusions;
 

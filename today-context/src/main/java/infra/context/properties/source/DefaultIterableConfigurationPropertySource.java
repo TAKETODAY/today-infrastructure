@@ -17,6 +17,8 @@
 
 package infra.context.properties.source;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
@@ -36,7 +38,6 @@ import infra.core.env.MapPropertySource;
 import infra.core.env.PropertySource;
 import infra.core.env.StandardEnvironment;
 import infra.core.env.SystemEnvironmentPropertySource;
-import infra.lang.Nullable;
 import infra.origin.Origin;
 import infra.origin.OriginLookup;
 import infra.origin.PropertySourceOrigin;

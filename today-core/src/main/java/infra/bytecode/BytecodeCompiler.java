@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.bytecode;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.InvocationTargetException;
@@ -30,7 +32,6 @@ import java.util.function.Consumer;
 
 import infra.bytecode.core.CodeGenerationException;
 import infra.core.SmartClassLoader;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.util.ReflectionUtils;
 

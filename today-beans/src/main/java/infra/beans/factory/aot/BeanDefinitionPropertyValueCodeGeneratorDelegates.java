@@ -17,6 +17,8 @@
 
 package infra.beans.factory.aot;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -39,7 +41,6 @@ import infra.beans.factory.support.ManagedMap;
 import infra.beans.factory.support.ManagedSet;
 import infra.javapoet.AnnotationSpec;
 import infra.javapoet.CodeBlock;
-import infra.lang.Nullable;
 
 /**
  * Code generator {@link Delegate} for common bean definition property values.

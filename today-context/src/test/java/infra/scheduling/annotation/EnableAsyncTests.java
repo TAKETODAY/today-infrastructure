@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.scheduling.annotation;
 
 import org.awaitility.Awaitility;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.ElementType;
@@ -49,7 +50,6 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.annotation.Lazy;
 import infra.core.Ordered;
-import infra.lang.Nullable;
 import infra.scheduling.concurrent.CustomizableThreadFactory;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 import infra.stereotype.Component;

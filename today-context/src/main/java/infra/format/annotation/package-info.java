@@ -18,9 +18,7 @@
 /**
  * Annotations for declaratively configuring field formatting rules.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.format.annotation;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

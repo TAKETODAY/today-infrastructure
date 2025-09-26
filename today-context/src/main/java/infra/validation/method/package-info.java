@@ -30,9 +30,7 @@
  * </ul>
  */
 
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.validation.method;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

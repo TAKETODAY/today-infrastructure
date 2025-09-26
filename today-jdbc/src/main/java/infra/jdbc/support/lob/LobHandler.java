@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,12 @@
 
 package infra.jdbc.support.lob;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.InputStream;
 import java.io.Reader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import infra.lang.Nullable;
 
 /**
  * Abstraction for handling large binary fields and large text fields in

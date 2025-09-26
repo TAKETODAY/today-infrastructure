@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.bytecode.commons;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
@@ -31,7 +33,6 @@ import infra.bytecode.ClassVisitor;
 import infra.bytecode.FieldVisitor;
 import infra.bytecode.MethodVisitor;
 import infra.bytecode.Opcodes;
-import infra.lang.Nullable;
 
 /**
  * A {@link ClassVisitor} that adds a serial version unique identifier to a class if missing. A

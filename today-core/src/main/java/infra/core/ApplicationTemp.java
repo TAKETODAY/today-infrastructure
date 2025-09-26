@@ -17,6 +17,8 @@
 
 package infra.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -31,7 +33,6 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Set;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.util.StringUtils;
 

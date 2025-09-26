@@ -20,9 +20,7 @@
  *
  * @see infra.test.web.client.MockRestServiceServer
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.test.web.client;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

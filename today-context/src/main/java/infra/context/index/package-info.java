@@ -18,9 +18,7 @@
 /**
  * Support package for reading and managing the components index.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.context.index;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

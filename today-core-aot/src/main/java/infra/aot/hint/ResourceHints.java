@@ -17,6 +17,8 @@
 
 package infra.aot.hint;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -27,7 +29,6 @@ import java.util.stream.Stream;
 
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**

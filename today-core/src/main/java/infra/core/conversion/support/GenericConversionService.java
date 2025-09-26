@@ -17,6 +17,8 @@
 
 package infra.core.conversion.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -42,7 +44,6 @@ import infra.core.conversion.ConverterRegistry;
 import infra.core.conversion.GenericConverter;
 import infra.core.conversion.GenericConverter.ConvertiblePair;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.StringUtils;

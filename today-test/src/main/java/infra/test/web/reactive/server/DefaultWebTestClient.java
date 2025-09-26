@@ -22,6 +22,7 @@ import com.jayway.jsonpath.spi.mapper.MappingProvider;
 
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.net.URI;
@@ -47,7 +48,6 @@ import infra.http.MediaType;
 import infra.http.client.reactive.ClientHttpConnector;
 import infra.http.client.reactive.ClientHttpRequest;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.test.util.AssertionErrors;
 import infra.test.util.ExceptionCollector;
 import infra.test.util.JsonExpectationsHelper;

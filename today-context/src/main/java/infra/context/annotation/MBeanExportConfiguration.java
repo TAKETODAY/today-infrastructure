@@ -17,6 +17,8 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Map;
 
 import javax.management.MBeanServer;
@@ -31,7 +33,6 @@ import infra.core.type.AnnotationMetadata;
 import infra.jmx.export.annotation.AnnotationMBeanExporter;
 import infra.jmx.support.RegistrationPolicy;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.util.StringUtils;
 

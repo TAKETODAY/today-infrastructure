@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ package infra.context.aot;
 
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.assertj.core.api.ObjectArrayAssert;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -36,7 +37,6 @@ import infra.context.testfixture.context.aot.scan.reflective.ReflectiveOnType;
 import infra.context.testfixture.context.aot.scan.reflective2.Reflective2OnType;
 import infra.context.testfixture.context.aot.scan.reflective2.reflective21.Reflective21OnType;
 import infra.context.testfixture.context.aot.scan.reflective2.reflective22.Reflective22OnType;
-import infra.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

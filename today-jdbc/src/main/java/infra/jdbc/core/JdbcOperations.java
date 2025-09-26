@@ -17,6 +17,8 @@
 
 package infra.jdbc.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +31,6 @@ import infra.jdbc.core.simple.JdbcClient;
 import infra.jdbc.support.GeneratedKeyHolder;
 import infra.jdbc.support.KeyHolder;
 import infra.jdbc.support.rowset.SqlRowSet;
-import infra.lang.Nullable;
 
 /**
  * Interface specifying a basic set of JDBC operations.

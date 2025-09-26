@@ -17,6 +17,7 @@
 
 package infra.jdbc.support;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
@@ -30,7 +31,6 @@ import infra.dao.PessimisticLockingFailureException;
 import infra.dao.QueryTimeoutException;
 import infra.dao.TransientDataAccessResourceException;
 import infra.jdbc.BadSqlGrammarException;
-import infra.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

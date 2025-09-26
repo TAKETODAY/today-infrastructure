@@ -18,9 +18,7 @@
 /**
  * Provides extensible support for initializing databases through scripts.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jdbc.datasource.init;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

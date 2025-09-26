@@ -17,6 +17,8 @@
 
 package infra.http.codec;
 
+import org.jspecify.annotations.Nullable;
+
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Collections;
@@ -32,7 +34,6 @@ import infra.core.io.buffer.DataBufferLimitException;
 import infra.core.io.buffer.DefaultDataBufferFactory;
 import infra.http.MediaType;
 import infra.http.ReactiveHttpInputMessage;
-import infra.lang.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

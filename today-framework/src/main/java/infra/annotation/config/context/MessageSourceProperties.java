@@ -17,6 +17,8 @@
 
 package infra.annotation.config.context;
 
+import org.jspecify.annotations.Nullable;
+
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -26,7 +28,6 @@ import java.util.List;
 import infra.context.properties.ConfigurationProperties;
 import infra.core.io.Resource;
 import infra.format.annotation.DurationUnit;
-import infra.lang.Nullable;
 
 /**
  * Configuration properties for Message Source.

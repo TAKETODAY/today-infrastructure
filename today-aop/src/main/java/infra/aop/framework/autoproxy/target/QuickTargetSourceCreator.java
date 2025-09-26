@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,12 @@
 
 package infra.aop.framework.autoproxy.target;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.aop.target.AbstractBeanFactoryTargetSource;
 import infra.aop.target.CommonsPool2TargetSource;
 import infra.aop.target.PrototypeTargetSource;
 import infra.aop.target.ThreadLocalTargetSource;
-import infra.lang.Nullable;
 
 /**
  * Convenient TargetSourceCreator using bean name prefixes to create one of three

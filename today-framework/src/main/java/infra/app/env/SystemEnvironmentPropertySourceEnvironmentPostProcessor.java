@@ -17,6 +17,8 @@
 
 package infra.app.env;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Map;
 
 import infra.app.Application;
@@ -25,7 +27,6 @@ import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.PropertySource;
 import infra.core.env.StandardEnvironment;
 import infra.core.env.SystemEnvironmentPropertySource;
-import infra.lang.Nullable;
 import infra.origin.Origin;
 import infra.origin.OriginLookup;
 import infra.origin.SystemEnvironmentOrigin;

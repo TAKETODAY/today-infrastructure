@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -26,7 +28,6 @@ import java.util.Set;
 import java.util.function.Function;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

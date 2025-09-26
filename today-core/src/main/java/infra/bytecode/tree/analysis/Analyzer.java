@@ -337,8 +337,8 @@ public class Analyzer<V extends Value> implements Opcodes {
                         || insnNode.getOpcode() == Opcodes.DLOAD
                         || insnNode.getOpcode() == Opcodes.LSTORE
                         || insnNode.getOpcode() == Opcodes.DSTORE)
-                ? 2
-                : 1;
+                        ? 2
+                        : 1;
         maxLocals = Math.max(maxLocals, local + size);
       }
       else if (insnNode instanceof IincInsnNode iincInsnNode) {

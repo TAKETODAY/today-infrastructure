@@ -17,6 +17,8 @@
 
 package infra.http;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,7 +26,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 
 /**

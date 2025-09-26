@@ -25,10 +25,10 @@ import infra.test.web.Person;
 import infra.test.web.mock.MockMvc;
 import infra.ui.Model;
 import infra.validation.Errors;
+import infra.web.RedirectModel;
 import infra.web.annotation.GetMapping;
 import infra.web.annotation.PathVariable;
 import infra.web.annotation.PostMapping;
-import infra.web.RedirectModel;
 import jakarta.validation.Valid;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.get;

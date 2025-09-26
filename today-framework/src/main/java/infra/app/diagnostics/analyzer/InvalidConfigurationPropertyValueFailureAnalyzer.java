@@ -17,6 +17,8 @@
 
 package infra.app.diagnostics.analyzer;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,7 +30,6 @@ import infra.app.diagnostics.FailureAnalyzer;
 import infra.context.properties.source.InvalidConfigurationPropertyValueException;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.PropertySource;
-import infra.lang.Nullable;
 import infra.origin.Origin;
 import infra.origin.OriginLookup;
 import infra.origin.PropertySourceOrigin;

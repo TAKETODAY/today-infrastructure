@@ -50,6 +50,7 @@ import com.thoughtworks.xstream.mapper.MapperWrapper;
 import com.thoughtworks.xstream.security.ForbiddenClassException;
 import com.thoughtworks.xstream.security.TypePermission;
 
+import org.jspecify.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -78,7 +79,6 @@ import javax.xml.transform.stream.StreamSource;
 
 import infra.beans.factory.BeanClassLoaderAware;
 import infra.beans.factory.InitializingBean;
-import infra.lang.Nullable;
 import infra.oxm.MarshallingFailureException;
 import infra.oxm.UncategorizedMappingException;
 import infra.oxm.UnmarshallingFailureException;

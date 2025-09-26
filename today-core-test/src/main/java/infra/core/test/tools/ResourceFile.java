@@ -17,10 +17,10 @@
 
 package infra.core.test.tools;
 
+import org.assertj.core.api.AssertProvider;
+
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-
-import org.assertj.core.api.AssertProvider;
 
 import infra.core.io.InputStreamSource;
 import infra.util.FileCopyUtils;

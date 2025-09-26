@@ -17,6 +17,7 @@
 
 package infra.web.service.invoker;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.net.URI;
@@ -29,7 +30,6 @@ import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.http.client.MultipartBodyBuilder;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 import infra.web.util.UriBuilderFactory;
 

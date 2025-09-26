@@ -21,10 +21,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.spi.ExtendedLogger;
 import org.apache.logging.log4j.spi.LoggerContext;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serial;
-
-import infra.lang.Nullable;
 
 /**
  * @author TODAY

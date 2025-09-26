@@ -20,6 +20,11 @@ package infra.context.annotation;
 import org.aspectj.lang.annotation.Aspect;
 import org.junit.jupiter.api.Test;
 
+import example.scannable.CustomComponent;
+import example.scannable.FooService;
+import example.scannable.FooServiceImpl;
+import example.scannable.NamedStubDao;
+import example.scannable.StubFooDao;
 import infra.beans.BeanInstantiationException;
 import infra.beans.factory.BeanCreationException;
 import infra.beans.factory.NoSuchBeanDefinitionException;
@@ -37,11 +42,6 @@ import infra.core.io.ClassPathResource;
 import infra.core.type.filter.AnnotationTypeFilter;
 import infra.core.type.filter.AssignableTypeFilter;
 import infra.stereotype.Component;
-import example.scannable.CustomComponent;
-import example.scannable.FooService;
-import example.scannable.FooServiceImpl;
-import example.scannable.NamedStubDao;
-import example.scannable.StubFooDao;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

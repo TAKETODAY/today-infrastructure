@@ -17,11 +17,11 @@
 
 package infra.web.config.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Predicate;
-
-import infra.lang.Nullable;
 
 /**
  * Assist with configuring {@code HandlerMapping}'s with path matching options.

@@ -27,6 +27,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import example.profilescan.ProfileAnnotatedComponent;
+import example.scannable.AutowiredQualifierFooService;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.support.ClassPathXmlApplicationContext;
@@ -34,8 +36,6 @@ import infra.context.support.GenericXmlApplicationContext;
 import infra.core.type.classreading.MetadataReader;
 import infra.core.type.classreading.MetadataReaderFactory;
 import infra.core.type.filter.TypeFilter;
-import example.profilescan.ProfileAnnotatedComponent;
-import example.scannable.AutowiredQualifierFooService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

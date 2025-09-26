@@ -20,7 +20,6 @@ package infra.test.context.support;
 import org.junit.jupiter.api.Test;
 
 import infra.test.context.MergedContextConfiguration;
-import infra.test.context.support.GenericPropertiesContextLoader;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 

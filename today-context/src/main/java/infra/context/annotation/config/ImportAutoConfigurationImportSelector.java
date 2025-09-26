@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.context.annotation.config;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -35,7 +37,6 @@ import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.io.ClassPathResource;
 import infra.core.type.AnnotationMetadata;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
@@ -71,7 +72,7 @@ public class ImportAutoConfigurationImportSelector extends AutoConfigurationImpo
 
   @Override
   protected List<String> getCandidateConfigurations(
-      AnnotationMetadata metadata, @Nullable AnnotationAttributes attributes) {
+          AnnotationMetadata metadata, @Nullable AnnotationAttributes attributes) {
     ArrayList<String> candidates = new ArrayList<>();
 
     Map<Class<?>, List<Annotation>> annotations = getAnnotations(metadata);
@@ -84,7 +85,7 @@ public class ImportAutoConfigurationImportSelector extends AutoConfigurationImpo
   }
 
   private void collectCandidateConfigurations(Class<?> source,
-      List<Annotation> annotations, List<String> candidates) {
+          List<Annotation> annotations, List<String> candidates) {
     for (Annotation annotation : annotations) {
       candidates.addAll(getConfigurationsForAnnotation(source, annotation));
     }
@@ -97,17 +98,17 @@ public class ImportAutoConfigurationImportSelector extends AutoConfigurationImpo
     }
     Collection<String> strategiesNames = getStrategiesNames(source);
     return strategiesNames.stream()
-        .map((name) -> {
-          if (name.startsWith(OPTIONAL_PREFIX)) {
-            name = name.substring(OPTIONAL_PREFIX.length());
-            if (!present(name)) {
-              return null;
-            }
-          }
-          return name;
-        })
-        .filter(Objects::nonNull)
-        .toList();
+            .map((name) -> {
+              if (name.startsWith(OPTIONAL_PREFIX)) {
+                name = name.substring(OPTIONAL_PREFIX.length());
+                if (!present(name)) {
+                  return null;
+                }
+              }
+              return name;
+            })
+            .filter(Objects::nonNull)
+            .toList();
   }
 
   protected Collection<String> getStrategiesNames(Class<?> source) {
@@ -157,7 +158,7 @@ public class ImportAutoConfigurationImportSelector extends AutoConfigurationImpo
   }
 
   private void collectAnnotations(Class<?> source,
-      MultiValueMap<Class<?>, Annotation> annotations, HashSet<Class<?>> seen) {
+          MultiValueMap<Class<?>, Annotation> annotations, HashSet<Class<?>> seen) {
     if (source != null && seen.add(source)) {
       for (Annotation annotation : source.getDeclaredAnnotations()) {
         if (!AnnotationUtils.isInJavaLangAnnotationPackage(annotation)) {

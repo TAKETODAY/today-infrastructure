@@ -17,9 +17,9 @@
 
 package infra.web.socket;
 
-import java.util.List;
+import org.jspecify.annotations.Nullable;
 
-import infra.lang.Nullable;
+import java.util.List;
 
 /**
  * An interface for WebSocket handlers that support sub-protocols as defined in RFC 6455.

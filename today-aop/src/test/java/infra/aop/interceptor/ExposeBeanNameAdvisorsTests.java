@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,9 +20,9 @@ package infra.aop.interceptor;
 import org.junit.jupiter.api.Test;
 
 import infra.aop.framework.ProxyFactory;
+import infra.beans.factory.NamedBean;
 import infra.beans.testfixture.beans.ITestBean;
 import infra.beans.testfixture.beans.TestBean;
-import infra.beans.factory.NamedBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

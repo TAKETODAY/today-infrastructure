@@ -17,6 +17,8 @@
 
 package infra.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -43,7 +45,6 @@ import infra.core.SerializableTypeWrapper.MethodParameterTypeProvider;
 import infra.core.SerializableTypeWrapper.ParameterTypeProvider;
 import infra.core.SerializableTypeWrapper.TypeProvider;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ConcurrentReferenceHashMap;

@@ -19,6 +19,7 @@ package infra.resilience.annotation;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,7 +35,6 @@ import infra.context.expression.EmbeddedValueResolverAware;
 import infra.core.StringValueResolver;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.StringUtils;
 

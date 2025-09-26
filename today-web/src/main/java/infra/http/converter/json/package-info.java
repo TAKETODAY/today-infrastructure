@@ -1,9 +1,7 @@
 /**
  * Provides HttpMessageConverter implementations for handling JSON.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.http.converter.json;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

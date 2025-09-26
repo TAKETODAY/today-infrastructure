@@ -16,12 +16,13 @@
  */
 package infra.scripting.bsh;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 
 import bsh.EvalError;
 import infra.beans.factory.BeanClassLoaderAware;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.scripting.ScriptCompilationException;
 import infra.scripting.ScriptFactory;
 import infra.scripting.ScriptSource;

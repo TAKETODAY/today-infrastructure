@@ -17,6 +17,8 @@
 
 package infra.app.logging.logback;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
@@ -32,7 +34,6 @@ import ch.qos.logback.core.pattern.Converter;
 import ch.qos.logback.core.spi.ContextAware;
 import ch.qos.logback.core.spi.LifeCycle;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Allows programmatic configuration of logback which is usually faster than parsing XML.

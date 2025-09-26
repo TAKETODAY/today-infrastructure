@@ -18,9 +18,7 @@
 /**
  * Low level support for Cloud deployments.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.app.cloud;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

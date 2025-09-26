@@ -18,9 +18,7 @@
 /**
  * An API for defining Formatters to format field model values for display in a UI.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.format;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

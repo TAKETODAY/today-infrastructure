@@ -17,6 +17,8 @@
 
 package infra.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -25,7 +27,6 @@ import infra.beans.factory.config.AutowireCapableBeanFactory;
 import infra.context.ApplicationContext;
 import infra.core.Ordered;
 import infra.core.annotation.AnnotationAwareOrderComparator;
-import infra.lang.Nullable;
 import infra.web.handler.AbstractHandlerMapping;
 import infra.web.handler.BeanNameUrlHandlerMapping;
 import infra.web.handler.HandlerExecutionChain;

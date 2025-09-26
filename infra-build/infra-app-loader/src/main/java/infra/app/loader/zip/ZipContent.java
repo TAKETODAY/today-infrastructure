@@ -34,7 +34,7 @@ import java.util.function.Function;
 import java.util.zip.ZipEntry;
 
 import infra.app.loader.log.DebugLogger;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides raw access to content from a regular or nested zip file. This class performs

@@ -17,9 +17,9 @@
 
 package infra.web.service.invoker;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
-import infra.lang.Nullable;
 import infra.web.service.annotation.GetExchange;
 import infra.web.util.DefaultUriBuilderFactory;
 import infra.web.util.UriBuilderFactory;

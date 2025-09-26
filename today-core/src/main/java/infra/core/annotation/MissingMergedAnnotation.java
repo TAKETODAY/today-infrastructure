@@ -17,6 +17,8 @@
 
 package infra.core.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.List;
@@ -24,8 +26,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import infra.lang.Nullable;
 
 /**
  * An {@link AbstractMergedAnnotation} used as the implementation of

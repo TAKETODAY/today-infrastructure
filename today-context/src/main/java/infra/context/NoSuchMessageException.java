@@ -17,9 +17,9 @@
 
 package infra.context;
 
-import java.util.Locale;
+import org.jspecify.annotations.Nullable;
 
-import infra.lang.Nullable;
+import java.util.Locale;
 
 /**
  * Exception thrown when a message can't be resolved.

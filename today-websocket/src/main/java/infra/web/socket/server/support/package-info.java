@@ -19,9 +19,7 @@
  * Server-side support classes including container-specific strategies
  * for upgrading a request.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.socket.server.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

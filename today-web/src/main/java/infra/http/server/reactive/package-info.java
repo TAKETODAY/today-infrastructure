@@ -24,9 +24,7 @@
  * <p>Also provides implementations adapting to different runtimes
  * including Netty + Reactor IO.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.http.server.reactive;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

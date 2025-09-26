@@ -17,6 +17,8 @@
 
 package infra.context.properties.bind.handler;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -31,7 +33,6 @@ import infra.context.properties.source.ConfigurationProperty;
 import infra.context.properties.source.ConfigurationPropertyName;
 import infra.context.properties.source.ConfigurationPropertySource;
 import infra.context.properties.source.IterableConfigurationPropertySource;
-import infra.lang.Nullable;
 
 /**
  * {@link BindHandler} to enforce that all configuration properties under the root name

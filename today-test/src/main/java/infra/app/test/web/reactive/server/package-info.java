@@ -19,9 +19,7 @@
  * Infra support for testing server endpoints via
  * {@link infra.test.web.reactive.server.WebTestClient}.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.app.test.web.reactive.server;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

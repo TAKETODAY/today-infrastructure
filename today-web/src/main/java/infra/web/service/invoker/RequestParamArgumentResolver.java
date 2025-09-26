@@ -17,10 +17,11 @@
 
 package infra.web.service.invoker;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.MethodParameter;
 import infra.core.conversion.ConversionService;
 import infra.http.MediaType;
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 import infra.web.annotation.RequestParam;
 

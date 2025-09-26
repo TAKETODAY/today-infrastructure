@@ -17,6 +17,8 @@
 
 package infra.context.event;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -36,7 +38,6 @@ import infra.context.ApplicationListener;
 import infra.core.ResolvableType;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.test.context.junit4;
 
+import org.jspecify.annotations.Nullable;
+
 import javax.sql.DataSource;
 
 import infra.beans.factory.annotation.Autowired;
@@ -27,7 +29,6 @@ import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.core.SqlParameterValue;
 import infra.jdbc.datasource.init.ResourceDatabasePopulator;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.test.annotation.Commit;
 import infra.test.annotation.Rollback;
 import infra.test.context.ContextConfiguration;

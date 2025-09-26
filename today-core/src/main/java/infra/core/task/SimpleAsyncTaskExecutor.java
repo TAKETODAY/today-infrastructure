@@ -17,6 +17,8 @@
 
 package infra.core.task;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serializable;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -24,7 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadFactory;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ConcurrencyThrottleSupport;
 import infra.util.CustomizableThreadCreator;
 import infra.util.concurrent.Future;

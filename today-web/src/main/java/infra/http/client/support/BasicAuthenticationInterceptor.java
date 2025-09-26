@@ -17,6 +17,8 @@
 
 package infra.http.client.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 
@@ -25,7 +27,6 @@ import infra.http.HttpRequest;
 import infra.http.client.ClientHttpRequestExecution;
 import infra.http.client.ClientHttpRequestInterceptor;
 import infra.http.client.ClientHttpResponse;
-import infra.lang.Nullable;
 
 /**
  * {@link ClientHttpRequestInterceptor} to apply a given HTTP Basic Authentication

@@ -21,9 +21,7 @@
  * @see infra.core.ansi.AnsiOutput
  * @since 4.0
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.core.ansi;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -17,6 +17,8 @@
 
 package infra.context.annotation.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -29,7 +31,6 @@ import java.util.List;
 
 import infra.core.io.UrlResource;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Contains {@code @Configuration} import candidates, usually auto-configurations.

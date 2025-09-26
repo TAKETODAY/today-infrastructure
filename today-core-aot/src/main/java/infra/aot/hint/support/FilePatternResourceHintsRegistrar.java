@@ -17,13 +17,14 @@
 
 package infra.aot.hint.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import infra.aot.hint.ResourceHints;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ResourceUtils;
 

@@ -17,6 +17,8 @@
 
 package infra.app.cloud;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,7 +28,6 @@ import infra.core.env.EnumerablePropertySource;
 import infra.core.env.Environment;
 import infra.core.env.PropertySource;
 import infra.core.env.StandardEnvironment;
-import infra.lang.Nullable;
 
 /**
  * Simple detection for well known cloud platforms. Detection can be forced using the

@@ -18,9 +18,7 @@
 /**
  * Convenience classes for using Infra AOP API.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.aop.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

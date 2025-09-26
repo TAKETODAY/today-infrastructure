@@ -2,9 +2,7 @@
  * Support classes for XSLT,
  * providing a View implementation for XSLT stylesheets.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.view.xslt;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,9 @@
 
 package infra.aop.framework.autoproxy;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.BeanNameAware;
-import infra.lang.Nullable;
 
 /**
  * {@code BeanPostProcessor} implementation that creates AOP proxies based on all

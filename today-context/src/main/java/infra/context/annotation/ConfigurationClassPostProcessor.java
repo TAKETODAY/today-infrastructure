@@ -17,6 +17,8 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.reflect.Constructor;
@@ -104,7 +106,6 @@ import infra.javapoet.MethodSpec;
 import infra.javapoet.NameAllocator;
 import infra.javapoet.ParameterizedTypeName;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.stereotype.Component;

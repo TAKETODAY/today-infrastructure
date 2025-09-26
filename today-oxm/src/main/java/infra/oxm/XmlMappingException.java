@@ -17,8 +17,9 @@
 
 package infra.oxm;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.NestedRuntimeException;
-import infra.lang.Nullable;
 
 /**
  * Root of the hierarchy of Object XML Mapping exceptions.

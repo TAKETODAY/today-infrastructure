@@ -17,6 +17,8 @@
 
 package infra.web.handler.function.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +30,6 @@ import infra.http.converter.AllEncompassingFormHttpMessageConverter;
 import infra.http.converter.ByteArrayHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.web.RequestContext;
 import infra.web.accept.DefaultApiVersionStrategy;

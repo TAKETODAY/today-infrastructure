@@ -18,9 +18,7 @@
 /**
  * Provides a strategy for looking up JDBC DataSources by name.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jdbc.datasource.lookup;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

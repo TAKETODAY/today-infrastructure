@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -38,7 +40,6 @@ import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.core.io.UrlResource;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 import static infra.lang.Constant.BLANK;
 import static infra.lang.Constant.PATH_SEPARATOR;

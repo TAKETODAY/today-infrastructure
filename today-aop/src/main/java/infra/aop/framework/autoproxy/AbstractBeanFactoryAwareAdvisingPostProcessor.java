@@ -17,6 +17,8 @@
 
 package infra.aop.framework.autoproxy;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 
 import infra.aop.framework.AbstractAdvisingBeanPostProcessor;
@@ -24,7 +26,6 @@ import infra.aop.framework.ProxyFactory;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.config.ConfigurableBeanFactory;
-import infra.lang.Nullable;
 
 /**
  * Extension of {@link AbstractAdvisingBeanPostProcessor} which implements

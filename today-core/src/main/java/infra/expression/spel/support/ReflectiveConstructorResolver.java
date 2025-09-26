@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.expression.spel.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +33,6 @@ import infra.expression.ConstructorResolver;
 import infra.expression.EvaluationContext;
 import infra.expression.EvaluationException;
 import infra.expression.TypeConverter;
-import infra.lang.Nullable;
 
 /**
  * A constructor resolver that uses reflection to locate the constructor that should be invoked.

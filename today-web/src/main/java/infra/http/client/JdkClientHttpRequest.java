@@ -17,6 +17,8 @@
 
 package infra.http.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,7 +49,6 @@ import java.util.zip.InflaterInputStream;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
-import infra.lang.Nullable;
 import infra.util.StreamUtils;
 import infra.util.StringUtils;
 import infra.util.concurrent.Future;

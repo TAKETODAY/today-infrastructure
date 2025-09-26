@@ -19,9 +19,7 @@
  * Provides a strategy for MBeanInfo assembly. Used by MBeanExporter to
  * determine the attributes and operations to expose for Framework-managed beans.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jmx.export.assembler;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

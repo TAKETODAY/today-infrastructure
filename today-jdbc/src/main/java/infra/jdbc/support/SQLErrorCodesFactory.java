@@ -17,6 +17,8 @@
 
 package infra.jdbc.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.DatabaseMetaData;
 import java.util.Collections;
 import java.util.Map;
@@ -29,7 +31,6 @@ import infra.beans.factory.xml.XmlBeanDefinitionReader;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ConcurrentReferenceHashMap;

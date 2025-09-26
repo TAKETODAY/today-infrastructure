@@ -17,9 +17,10 @@
 
 package infra.validation;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.BeanWrapper;
 import infra.beans.ConfigurablePropertyAccessor;
-import infra.lang.Nullable;
 
 /**
  * Special implementation of the Errors and BindingResult interfaces,

@@ -17,6 +17,8 @@
 
 package infra.jdbc.core.simple;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,7 +36,6 @@ import infra.jdbc.core.SqlParameter;
 import infra.jdbc.core.metadata.CallMetaDataContext;
 import infra.jdbc.core.namedparam.SqlParameterSource;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.StringUtils;

@@ -17,6 +17,8 @@
 
 package infra.http.converter;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -41,7 +43,6 @@ import infra.http.MediaType;
 import infra.http.StreamingHttpOutputMessage;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MimeTypeUtils;

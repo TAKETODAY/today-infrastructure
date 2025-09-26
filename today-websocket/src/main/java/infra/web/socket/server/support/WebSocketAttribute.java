@@ -17,7 +17,8 @@
 
 package infra.web.socket.server.support;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import infra.web.socket.WebSocketHandler;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;

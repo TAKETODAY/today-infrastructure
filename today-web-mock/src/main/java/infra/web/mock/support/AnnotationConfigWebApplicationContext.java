@@ -17,6 +17,8 @@
 
 package infra.web.mock.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -38,7 +40,6 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.ScopeMetadataResolver;
 import infra.context.support.GenericApplicationContext;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;

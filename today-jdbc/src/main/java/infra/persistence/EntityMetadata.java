@@ -17,6 +17,8 @@
 
 package infra.persistence;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
@@ -29,7 +31,6 @@ import infra.beans.BeanProperty;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.style.ToStringBuilder;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**

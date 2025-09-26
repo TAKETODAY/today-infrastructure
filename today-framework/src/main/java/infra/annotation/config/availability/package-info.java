@@ -18,9 +18,7 @@
 /**
  * Auto-configuration for application availability features.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.annotation.config.availability;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

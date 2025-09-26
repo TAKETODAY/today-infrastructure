@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +22,11 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
 
+import infra.app.test.context.InfraTest;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.ApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.ImportAutoConfiguration;
-import infra.app.test.context.InfraTest;
 import infra.test.annotation.DirtiesContext;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -19,7 +19,6 @@ package infra.test.util;
 
 import org.junit.jupiter.api.Test;
 
-import infra.test.util.ExceptionCollector;
 import infra.test.util.ExceptionCollector.Executable;
 
 import static org.assertj.core.api.Assertions.assertThat;

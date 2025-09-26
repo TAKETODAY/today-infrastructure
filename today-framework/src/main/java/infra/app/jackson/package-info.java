@@ -18,9 +18,7 @@
 /**
  * Custom enhancements and support for the Jackson project.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.app.jackson;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

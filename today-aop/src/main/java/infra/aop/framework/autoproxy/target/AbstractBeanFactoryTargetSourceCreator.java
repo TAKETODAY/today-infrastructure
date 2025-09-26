@@ -17,6 +17,8 @@
 
 package infra.aop.framework.autoproxy.target;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.HashMap;
 
 import infra.aop.AopInfrastructureBean;
@@ -31,7 +33,6 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.AbstractBeanFactory;
 import infra.beans.factory.support.GenericBeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

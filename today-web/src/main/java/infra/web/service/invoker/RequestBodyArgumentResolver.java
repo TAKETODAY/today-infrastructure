@@ -17,6 +17,8 @@
 
 package infra.web.service.invoker;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.MethodParameter;
 import infra.core.ParameterizedTypeReference;
 import infra.core.ReactiveAdapter;
@@ -24,7 +26,6 @@ import infra.core.ReactiveAdapterRegistry;
 import infra.core.ReactiveStreams;
 import infra.http.StreamingHttpOutputMessage;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.web.annotation.RequestBody;
 
 /**

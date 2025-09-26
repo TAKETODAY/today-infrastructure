@@ -17,9 +17,10 @@
 
 package infra.persistence;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Locale;
 
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 

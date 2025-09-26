@@ -17,10 +17,10 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Comparator;
 import java.util.Map;
-
-import infra.lang.Nullable;
 
 /**
  * Contract for matching routes to patterns.

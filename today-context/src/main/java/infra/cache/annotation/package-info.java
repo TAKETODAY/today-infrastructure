@@ -20,9 +20,7 @@
  * Hooked into Framework's cache interception infrastructure via
  * {@link infra.cache.interceptor.CacheOperationSource}.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.cache.annotation;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

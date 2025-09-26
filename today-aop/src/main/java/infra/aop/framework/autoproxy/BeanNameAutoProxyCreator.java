@@ -17,6 +17,8 @@
 
 package infra.aop.framework.autoproxy;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +26,6 @@ import infra.aop.TargetSource;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.FactoryBean;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.PatternMatchUtils;
 
 /**

@@ -17,6 +17,8 @@
 
 package infra.annotation.config.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
@@ -32,7 +34,6 @@ import infra.jdbc.core.ConnectionCallback;
 import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**

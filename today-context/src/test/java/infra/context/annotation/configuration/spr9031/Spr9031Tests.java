@@ -23,12 +23,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import infra.beans.factory.annotation.Autowired;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.ComponentScan;
 import infra.context.annotation.ComponentScan.Filter;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.annotation.configuration.spr9031.scanpackage.Spr9031Component;
-import infra.context.annotation.AnnotationConfigApplicationContext;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 

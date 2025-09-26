@@ -17,6 +17,8 @@
 
 package infra.jdbc.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigDecimal;
@@ -41,7 +43,6 @@ import java.util.Map;
 
 import infra.jdbc.core.support.SqlLobValue;
 import infra.jdbc.support.SqlValue;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;

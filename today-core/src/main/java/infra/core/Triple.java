@@ -17,11 +17,12 @@
 
 package infra.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Optional;
 
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 /**

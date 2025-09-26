@@ -18,9 +18,7 @@
 /**
  * Annotation-based setup for Web MVC.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.config.annotation;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

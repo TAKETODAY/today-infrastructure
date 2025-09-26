@@ -17,13 +17,14 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Simple stop watch, allowing for timing of a number of tasks, exposing total

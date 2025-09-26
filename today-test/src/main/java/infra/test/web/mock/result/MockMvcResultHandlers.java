@@ -17,12 +17,13 @@
 
 package infra.test.web.mock.result;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.web.mock.MvcResult;

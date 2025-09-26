@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,12 @@
 
 package infra.web.mock;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.util.function.Consumer;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.mock.api.AsyncContext;
 import infra.mock.api.AsyncEvent;
 import infra.mock.api.AsyncListener;

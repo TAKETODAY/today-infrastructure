@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.aop.aspectj.annotation;
 
 import org.aopalliance.aop.Advice;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -30,7 +31,6 @@ import infra.aop.aspectj.AspectJAroundAdvice;
 import infra.aop.aspectj.AspectJExpressionPointcut;
 import infra.aop.aspectj.AspectJMethodBeforeAdvice;
 import infra.aop.framework.AopConfigException;
-import infra.lang.Nullable;
 
 /**
  * Interface for factories that can create Framework AOP Advisors from classes

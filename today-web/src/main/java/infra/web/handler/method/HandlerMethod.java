@@ -17,6 +17,8 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -39,7 +41,6 @@ import infra.core.i18n.LocaleContextHolder;
 import infra.http.HttpStatusCode;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

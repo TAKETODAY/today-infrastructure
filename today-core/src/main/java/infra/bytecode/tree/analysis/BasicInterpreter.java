@@ -150,7 +150,7 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
       case DNEG, I2D, L2D, F2D:
         return BasicValue.DOUBLE_VALUE;
       case IFEQ, IFNE, IFLT, IFGE, IFGT, IFLE, TABLESWITCH, LOOKUPSWITCH, IRETURN, LRETURN, FRETURN,
-              DRETURN, ARETURN, PUTSTATIC, ATHROW, MONITORENTER, MONITOREXIT, IFNULL, IFNONNULL:
+           DRETURN, ARETURN, PUTSTATIC, ATHROW, MONITORENTER, MONITOREXIT, IFNULL, IFNONNULL:
         return null;
       case GETFIELD:
         return newValue(Type.forDescriptor(((FieldInsnNode) insn).desc));
@@ -191,7 +191,7 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
           throws AnalyzerException {
     return switch (insn.getOpcode()) {
       case IALOAD, BALOAD, CALOAD, SALOAD, IADD, ISUB, IMUL, IDIV, IREM, ISHL,
-              ISHR, IUSHR, IAND, IOR, IXOR, LCMP, FCMPL, FCMPG, DCMPL, DCMPG -> BasicValue.INT_VALUE;
+           ISHR, IUSHR, IAND, IOR, IXOR, LCMP, FCMPL, FCMPG, DCMPL, DCMPG -> BasicValue.INT_VALUE;
       case FALOAD, FADD, FSUB, FMUL, FDIV, FREM -> BasicValue.FLOAT_VALUE;
       case LALOAD, LADD, LSUB, LMUL, LDIV, LREM, LSHL, LSHR, LUSHR, LAND, LOR, LXOR -> BasicValue.LONG_VALUE;
       case DALOAD, DADD, DSUB, DMUL, DDIV, DREM -> BasicValue.DOUBLE_VALUE;

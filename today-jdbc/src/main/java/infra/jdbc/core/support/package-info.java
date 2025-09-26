@@ -19,9 +19,7 @@
  * Classes supporting the {@code infra.jdbc.core} package.
  * Contains a DAO base class for JdbcTemplate usage.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jdbc.core.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

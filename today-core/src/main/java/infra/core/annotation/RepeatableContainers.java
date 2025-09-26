@@ -17,6 +17,8 @@
 
 package infra.core.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Repeatable;
 import java.lang.reflect.Method;
@@ -25,7 +27,6 @@ import java.util.function.Function;
 
 import infra.lang.Assert;
 import infra.lang.NullValue;
-import infra.lang.Nullable;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.ObjectUtils;
 
@@ -106,8 +107,7 @@ public class RepeatableContainers {
    * (potentially an empty array), or {@code null} if the supplied annotation is
    * not a supported container annotation
    */
-  @Nullable
-  Annotation[] findRepeatedAnnotations(Annotation annotation) {
+  Annotation @Nullable [] findRepeatedAnnotations(Annotation annotation) {
     if (this.parent == null) {
       return null;
     }

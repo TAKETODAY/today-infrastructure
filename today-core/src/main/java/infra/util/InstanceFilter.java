@@ -17,11 +17,12 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.Collections;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * A simple instance filter that checks if a given instance match based on

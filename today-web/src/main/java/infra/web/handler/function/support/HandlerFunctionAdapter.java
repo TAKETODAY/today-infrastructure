@@ -17,8 +17,9 @@
 
 package infra.web.handler.function.support;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.Ordered;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.LogFormatUtils;

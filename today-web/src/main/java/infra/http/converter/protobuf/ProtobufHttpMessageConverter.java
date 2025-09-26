@@ -24,6 +24,8 @@ import com.google.protobuf.MessageOrBuilder;
 import com.google.protobuf.TextFormat;
 import com.google.protobuf.util.JsonFormat;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -41,7 +43,6 @@ import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.converter.HttpMessageNotWritableException;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ConcurrentReferenceHashMap;
 
@@ -304,7 +305,7 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
 
     private final JsonFormat.Printer printer;
 
-    public ProtobufJavaUtilSupport(@Nullable JsonFormat.Parser parser, @Nullable JsonFormat.Printer printer) {
+    public ProtobufJavaUtilSupport(JsonFormat.@Nullable Parser parser, JsonFormat.@Nullable Printer printer) {
       this.parser = (parser != null ? parser : JsonFormat.parser());
       this.printer = (printer != null ? printer : JsonFormat.printer());
     }

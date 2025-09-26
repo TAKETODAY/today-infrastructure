@@ -35,7 +35,7 @@ import infra.core.ResolvableType;
 import infra.core.task.SyncTaskExecutor;
 import infra.http.MediaType;
 import infra.http.codec.ServerSentEvent;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.BindingContext;

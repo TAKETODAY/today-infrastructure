@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.http.client;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.FlowAdapters;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscription;
@@ -32,7 +33,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
-import infra.lang.Nullable;
 import infra.util.StreamUtils;
 import infra.util.concurrent.Future;
 import infra.util.concurrent.Promise;

@@ -17,12 +17,13 @@
 
 package infra.core.i18n;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Locale;
 import java.util.TimeZone;
 
 import infra.core.NamedInheritableThreadLocal;
 import infra.core.NamedThreadLocal;
-import infra.lang.Nullable;
 
 /**
  * Simple holder class that associates a LocaleContext instance

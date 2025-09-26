@@ -17,6 +17,8 @@
 
 package infra.core.io.buffer;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -24,7 +26,6 @@ import java.nio.charset.Charset;
 import java.util.function.IntPredicate;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Provides a convenient implementation of the {@link DataBuffer} interface

@@ -17,12 +17,13 @@
 
 package infra.aot.agent;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.instrument.Instrumentation;
 import java.util.ArrayList;
 import java.util.List;
 
 import infra.aot.hint.RuntimeHints;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**

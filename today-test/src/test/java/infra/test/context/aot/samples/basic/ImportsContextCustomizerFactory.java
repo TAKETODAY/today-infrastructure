@@ -17,6 +17,9 @@
 
 package infra.test.context.aot.samples.basic;
 
+import java.util.Arrays;
+import java.util.List;
+
 import infra.aot.AotDetector;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotatedBeanDefinitionReader;
@@ -26,9 +29,6 @@ import infra.test.context.ContextConfigurationAttributes;
 import infra.test.context.ContextCustomizer;
 import infra.test.context.ContextCustomizerFactory;
 import infra.test.context.MergedContextConfiguration;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Emulates {@code ImportsContextCustomizerFactory} from Infra testing support.

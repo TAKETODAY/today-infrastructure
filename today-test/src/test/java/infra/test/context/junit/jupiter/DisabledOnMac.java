@@ -23,8 +23,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import infra.test.context.junit.jupiter.DisabledIf;
-
 /**
  * Demo <em>composed annotation</em> for {@link DisabledIf @DisabledIf} that
  * disables a test class or test method if the current operating system is

@@ -17,6 +17,8 @@
 
 package infra.core.conversion.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.nio.charset.Charset;
 import java.util.Currency;
 import java.util.Locale;
@@ -25,7 +27,6 @@ import java.util.regex.Pattern;
 
 import infra.core.conversion.ConversionService;
 import infra.core.conversion.ConverterRegistry;
-import infra.lang.Nullable;
 
 /**
  * A specialization of {@link GenericConversionService} configured by default

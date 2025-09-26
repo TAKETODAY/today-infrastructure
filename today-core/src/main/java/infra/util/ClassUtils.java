@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Closeable;
 import java.io.Externalizable;
 import java.io.File;
@@ -63,7 +65,6 @@ import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 
 /**
  * @author Juergen Hoeller

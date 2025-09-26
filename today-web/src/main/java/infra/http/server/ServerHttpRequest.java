@@ -17,12 +17,13 @@
 
 package infra.http.server;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.InetSocketAddress;
 import java.security.Principal;
 
 import infra.http.HttpInputMessage;
 import infra.http.HttpRequest;
-import infra.lang.Nullable;
 
 /**
  * Represents a server-side HTTP request.

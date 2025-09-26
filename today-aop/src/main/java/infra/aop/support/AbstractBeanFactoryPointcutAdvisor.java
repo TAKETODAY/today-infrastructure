@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.aop.support;
 
 import org.aopalliance.aop.Advice;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -26,7 +27,6 @@ import java.io.Serial;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Abstract BeanFactory-based PointcutAdvisor that allows for any Advice

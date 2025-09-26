@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.aot.hint;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
@@ -26,7 +28,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * A hint that describes the need for reflection on a {@link Method} or

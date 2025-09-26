@@ -17,12 +17,13 @@
 
 package infra.beans;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 /**

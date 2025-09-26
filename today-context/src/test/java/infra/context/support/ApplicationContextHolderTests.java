@@ -17,6 +17,7 @@
 
 package infra.context.support;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -45,7 +46,6 @@ import infra.core.env.Environment;
 import infra.core.io.Resource;
 import infra.core.io.ResourceConsumer;
 import infra.core.io.SmartResourceConsumer;
-import infra.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

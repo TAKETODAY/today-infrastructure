@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.cache.jcache.interceptor;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.function.Supplier;
@@ -34,7 +36,6 @@ import infra.cache.interceptor.KeyGenerator;
 import infra.cache.interceptor.SimpleCacheResolver;
 import infra.cache.interceptor.SimpleKeyGenerator;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.function.SingletonSupplier;
 import infra.util.function.SupplierUtils;
 

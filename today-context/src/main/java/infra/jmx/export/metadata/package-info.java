@@ -19,9 +19,7 @@
  * Provides generic JMX metadata classes and basic support for reading
  * JMX metadata in a provider-agnostic manner.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jmx.export.metadata;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

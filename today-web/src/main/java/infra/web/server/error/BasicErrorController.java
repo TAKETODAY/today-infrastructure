@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.web.server.error;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +27,6 @@ import infra.http.HttpStatus;
 import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
 import infra.http.ResponseEntity;
-import infra.lang.Nullable;
 import infra.stereotype.Controller;
 import infra.util.ExceptionUtils;
 import infra.util.MimeTypeUtils;

@@ -19,9 +19,7 @@
  * Support package for EJB/Jakarta EE-related configuration,
  * with XML schema being the primary configuration format.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.ejb.config;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +19,8 @@ package infra.annotation.config.validation;
 
 import org.junit.jupiter.api.Test;
 
-import infra.context.annotation.config.AutoConfigurations;
 import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.context.annotation.config.AutoConfigurations;
 import infra.test.classpath.ClassPathExclusions;
 import infra.validation.beanvalidation.MethodValidationPostProcessor;
 import jakarta.validation.Validator;

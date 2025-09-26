@@ -17,6 +17,8 @@
 
 package infra.beans;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyDescriptor;
 import java.io.Serial;
 import java.lang.reflect.Field;
@@ -27,7 +29,6 @@ import infra.beans.support.BeanInstantiator;
 import infra.core.MethodParameter;
 import infra.core.conversion.ConversionService;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.reflect.Property;
 import infra.reflect.PropertyAccessor;
 import infra.reflect.SetterMethod;

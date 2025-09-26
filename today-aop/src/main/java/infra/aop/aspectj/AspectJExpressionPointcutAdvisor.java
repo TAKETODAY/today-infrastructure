@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,12 @@
 
 package infra.aop.aspectj;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.aop.Pointcut;
 import infra.aop.support.AbstractGenericPointcutAdvisor;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
-import infra.lang.Nullable;
 
 /**
  * Framework AOP Advisor that can be used for any AspectJ pointcut expression.

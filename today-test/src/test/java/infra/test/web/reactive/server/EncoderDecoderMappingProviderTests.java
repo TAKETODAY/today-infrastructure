@@ -28,7 +28,6 @@ import java.util.Map;
 
 import infra.http.codec.json.Jackson2JsonDecoder;
 import infra.http.codec.json.Jackson2JsonEncoder;
-import infra.test.web.reactive.server.EncoderDecoderMappingProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -25,7 +25,6 @@ import java.net.URISyntaxException;
 import infra.http.HttpMethod;
 import infra.http.client.ClientHttpRequest;
 import infra.mock.http.client.MockClientHttpRequest;
-import infra.test.web.client.UnorderedRequestExpectationManager;
 
 import static infra.http.HttpMethod.GET;
 import static infra.test.web.client.ExpectedCount.max;

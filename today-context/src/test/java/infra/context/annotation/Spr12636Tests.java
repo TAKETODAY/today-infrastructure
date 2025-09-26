@@ -26,9 +26,9 @@ import infra.aop.support.AopUtils;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.ConfigurableApplicationContext;
 import infra.core.annotation.Order;
-import infra.stereotype.Component;
 import infra.scheduling.annotation.Async;
 import infra.scheduling.annotation.EnableAsync;
+import infra.stereotype.Component;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

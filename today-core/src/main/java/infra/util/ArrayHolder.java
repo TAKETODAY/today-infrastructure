@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +38,6 @@ import java.util.stream.Stream;
 
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * It is used for the scenario of changing less and reading more frequently.

@@ -17,6 +17,8 @@
 
 package infra.annotation.config.web.reactive;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.annotation.ConditionalOnWebApplication;
 import infra.beans.factory.annotation.DisableDependencyInjection;
 import infra.beans.factory.config.ConfigurableBeanFactory;
@@ -38,7 +40,6 @@ import infra.core.ssl.SslBundles;
 import infra.core.type.AnnotationMetadata;
 import infra.http.ReactiveHttpInputMessage;
 import infra.http.server.reactive.ForwardedHeaderTransformer;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.util.ObjectUtils;
 import infra.web.server.ServerProperties;

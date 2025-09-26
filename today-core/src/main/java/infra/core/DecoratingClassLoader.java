@@ -17,11 +17,12 @@
 
 package infra.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Base class for decorating ClassLoaders such as {@link OverridingClassLoader}

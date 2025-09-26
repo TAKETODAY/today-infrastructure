@@ -17,7 +17,8 @@
 
 package infra.web.socket.handler;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.concurrent.Future;

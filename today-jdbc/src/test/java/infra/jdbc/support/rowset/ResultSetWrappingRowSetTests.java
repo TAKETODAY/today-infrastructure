@@ -32,7 +32,6 @@ import java.sql.Timestamp;
 
 import infra.jdbc.InvalidResultSetAccessException;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;

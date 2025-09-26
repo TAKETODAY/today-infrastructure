@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.http.codec.multipart;
 
 import org.assertj.core.api.Assertions;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -46,7 +47,6 @@ import infra.core.io.buffer.DataBufferFactory;
 import infra.core.io.buffer.DataBufferUtils;
 import infra.core.io.buffer.NettyDataBufferFactory;
 import infra.http.MediaType;
-import infra.lang.Nullable;
 import infra.web.testfixture.http.server.reactive.MockServerHttpRequest;
 import io.netty.buffer.PooledByteBufAllocator;
 import reactor.core.Exceptions;

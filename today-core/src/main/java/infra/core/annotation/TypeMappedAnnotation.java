@@ -17,6 +17,8 @@
 
 package infra.core.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Member;
@@ -31,7 +33,6 @@ import java.util.function.Predicate;
 
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;

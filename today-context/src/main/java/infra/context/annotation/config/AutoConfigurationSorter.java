@@ -17,6 +17,8 @@
 
 package infra.context.annotation.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -35,7 +37,6 @@ import infra.core.type.AnnotationMetadata;
 import infra.core.type.classreading.MetadataReader;
 import infra.core.type.classreading.MetadataReaderFactory;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Sort {@link EnableAutoConfiguration auto-configuration} classes into priority order by

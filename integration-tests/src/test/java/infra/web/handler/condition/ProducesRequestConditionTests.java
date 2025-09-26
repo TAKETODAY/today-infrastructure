@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import infra.http.MediaType;
-import infra.lang.NonNull;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.web.accept.ContentNegotiationManager;
@@ -194,7 +193,6 @@ public class ProducesRequestConditionTests {
     assertThat(html.compareTo(xml, createContext(request))).isEqualTo(0);
     assertThat(xml.compareTo(html, createContext(request))).isEqualTo(0);
 
-
     request = createRequest("text/html;q=0.9,application/xml");
 
     assertThat(html.compareTo(xml, createContext(request)) > 0).isTrue();
@@ -353,7 +351,6 @@ public class ProducesRequestConditionTests {
     assertThat(result).isNull();
   }
 
-  @NonNull
   private MockRequestContext createContext(HttpMockRequest request) {
     return new MockRequestContext(null, request, null);
   }

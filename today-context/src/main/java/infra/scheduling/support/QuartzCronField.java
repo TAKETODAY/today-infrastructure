@@ -17,6 +17,8 @@
 
 package infra.scheduling.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.DateTimeException;
 import java.time.DayOfWeek;
 import java.time.temporal.ChronoField;
@@ -26,7 +28,6 @@ import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Extension of {@link CronField} for

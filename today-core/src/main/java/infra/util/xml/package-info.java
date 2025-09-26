@@ -19,9 +19,7 @@
  * Miscellaneous utility classes for XML parsing and transformation,
  * such as error handlers that log warnings via Logging.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.util.xml;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

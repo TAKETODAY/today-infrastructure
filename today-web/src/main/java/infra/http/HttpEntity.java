@@ -17,9 +17,10 @@
 
 package infra.http;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Objects;
 
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 

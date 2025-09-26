@@ -17,9 +17,10 @@
 
 package infra.web.handler.result;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 import infra.web.ReturnValueHandler;
 import infra.web.handler.SelectableReturnValueHandler;

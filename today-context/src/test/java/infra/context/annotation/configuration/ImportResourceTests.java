@@ -27,10 +27,10 @@ import infra.aop.support.AopUtils;
 import infra.beans.factory.annotation.Autowired;
 import infra.beans.factory.annotation.Value;
 import infra.beans.testfixture.beans.TestBean;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.ImportResource;
-import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.env.MapPropertySource;
 import infra.core.env.PropertySource;
 

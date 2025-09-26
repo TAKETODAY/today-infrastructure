@@ -17,6 +17,8 @@
 
 package infra.web.server.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,7 +50,6 @@ import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.server.ServerHttpResponse;
 import infra.http.support.Netty4HttpHeaders;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
@@ -754,8 +755,7 @@ public class NettyRequestContext extends RequestContext {
    * @param name value for the SameSite Attribute
    * @return enum value for the provided name or null
    */
-  @Nullable
-  static CookieHeaderNames.SameSite forSameSite(@Nullable String name) {
+  static CookieHeaderNames.@Nullable SameSite forSameSite(@Nullable String name) {
     if (name != null) {
       for (var each : CookieHeaderNames.SameSite.class.getEnumConstants()) {
         if (each.name().equalsIgnoreCase(name)) {

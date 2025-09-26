@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.web.mock.support;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.context.support.AbstractApplicationContext;
 import infra.core.env.AbstractEnvironment;
 import infra.core.env.Environment;
@@ -26,7 +28,6 @@ import infra.core.env.PropertySources;
 import infra.core.env.StandardEnvironment;
 import infra.jndi.JndiLocatorDelegate;
 import infra.jndi.JndiPropertySource;
-import infra.lang.Nullable;
 import infra.mock.api.MockConfig;
 import infra.mock.api.MockContext;
 import infra.util.ClassUtils;

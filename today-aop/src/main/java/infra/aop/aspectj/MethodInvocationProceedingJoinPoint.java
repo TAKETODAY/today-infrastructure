@@ -23,6 +23,7 @@ import org.aspectj.lang.Signature;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.aspectj.lang.reflect.SourceLocation;
 import org.aspectj.runtime.internal.AroundClosure;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -30,7 +31,6 @@ import java.lang.reflect.Modifier;
 import infra.aop.ProxyMethodInvocation;
 import infra.core.ParameterNameDiscoverer;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * An implementation of the AspectJ {@link ProceedingJoinPoint} interface

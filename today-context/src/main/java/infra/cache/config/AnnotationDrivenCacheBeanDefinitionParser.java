@@ -17,6 +17,7 @@
 
 package infra.cache.config;
 
+import org.jspecify.annotations.Nullable;
 import org.w3c.dom.Element;
 
 import infra.aop.config.AopNamespaceUtils;
@@ -29,7 +30,6 @@ import infra.beans.factory.xml.BeanDefinitionParser;
 import infra.beans.factory.xml.ParserContext;
 import infra.cache.interceptor.BeanFactoryCacheOperationSourceAdvisor;
 import infra.cache.interceptor.CacheInterceptor;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
 

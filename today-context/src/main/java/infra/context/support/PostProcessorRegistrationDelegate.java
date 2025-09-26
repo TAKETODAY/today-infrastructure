@@ -17,6 +17,8 @@
 
 package infra.context.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -46,7 +48,6 @@ import infra.beans.factory.support.StandardBeanFactory;
 import infra.core.OrderComparator;
 import infra.core.Ordered;
 import infra.core.PriorityOrdered;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

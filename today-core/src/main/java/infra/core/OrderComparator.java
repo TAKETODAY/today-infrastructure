@@ -17,11 +17,12 @@
 
 package infra.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.util.xml;
 
+import org.jspecify.annotations.Nullable;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
@@ -43,7 +44,6 @@ import javax.xml.stream.events.StartDocument;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**
@@ -119,8 +119,8 @@ class StaxEventXMLReader extends AbstractStaxXMLReader {
         }
         case XMLStreamConstants.PROCESSING_INSTRUCTION -> handleProcessingInstruction((ProcessingInstruction) event);
         case XMLStreamConstants.CHARACTERS,
-                XMLStreamConstants.SPACE,
-                XMLStreamConstants.CDATA -> handleCharacters(event.asCharacters());
+             XMLStreamConstants.SPACE,
+             XMLStreamConstants.CDATA -> handleCharacters(event.asCharacters());
         case XMLStreamConstants.END_DOCUMENT -> {
           handleEndDocument();
           documentEnded = true;

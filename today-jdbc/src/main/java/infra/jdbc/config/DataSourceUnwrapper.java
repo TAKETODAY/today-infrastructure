@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jdbc.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.Wrapper;
 
 import javax.sql.DataSource;
@@ -24,7 +26,6 @@ import javax.sql.DataSource;
 import infra.aop.framework.AopProxyUtils;
 import infra.aop.support.AopUtils;
 import infra.jdbc.datasource.DelegatingDataSource;
-import infra.lang.Nullable;
 
 /**
  * Unwraps a {@link DataSource} that may have been proxied or wrapped in a custom

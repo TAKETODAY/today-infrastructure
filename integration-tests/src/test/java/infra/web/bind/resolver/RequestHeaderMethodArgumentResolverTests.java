@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,6 @@ import java.util.UUID;
 import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.annotation.SynthesizingMethodParameter;
 import infra.format.support.DefaultFormattingConversionService;
-import infra.lang.NonNull;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.util.ReflectionUtils;
@@ -103,7 +102,6 @@ class RequestHeaderMethodArgumentResolverTests {
 
   }
 
-  @NonNull
   private SynthesizingMethodParameter getParameter(Method method, int parameterIndex) {
     SynthesizingMethodParameter parameter = new SynthesizingMethodParameter(method, parameterIndex);
     parameter.initParameterNameDiscovery(discoverer);

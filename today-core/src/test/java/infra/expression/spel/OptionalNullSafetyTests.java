@@ -17,6 +17,7 @@
 
 package infra.expression.spel;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,6 @@ import java.util.Optional;
 import infra.expression.Expression;
 import infra.expression.spel.standard.SpelExpressionParser;
 import infra.expression.spel.support.StandardEvaluationContext;
-import infra.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

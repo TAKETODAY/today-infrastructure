@@ -17,11 +17,12 @@
 
 package infra.validation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyEditor;
 import java.util.Map;
 
 import infra.beans.PropertyEditorRegistry;
-import infra.lang.Nullable;
 
 /**
  * General interface that represents binding results. Extends the

@@ -17,6 +17,8 @@
 
 package infra.core.type.classreading;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
@@ -26,7 +28,6 @@ import infra.bytecode.Opcodes;
 import infra.bytecode.Type;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
-import infra.lang.Nullable;
 
 /**
  * ASM method visitor that creates {@link SimpleMethodMetadata}.

@@ -18,9 +18,7 @@
 /**
  * Web server error supporting
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.server.error;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

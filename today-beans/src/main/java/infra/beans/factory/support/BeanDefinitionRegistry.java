@@ -17,11 +17,12 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.BeanDefinitionStoreException;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.config.BeanDefinition;
 import infra.core.AliasRegistry;
-import infra.lang.Nullable;
 
 /**
  * Interface for registries that hold bean definitions, for example BeanDefinition.

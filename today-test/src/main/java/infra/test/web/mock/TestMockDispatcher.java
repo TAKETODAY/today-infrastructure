@@ -17,13 +17,14 @@
 
 package infra.test.web.mock;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
 import infra.context.ApplicationContext;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.mock.api.MockException;
 import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;

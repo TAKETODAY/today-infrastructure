@@ -17,6 +17,8 @@
 
 package infra.context.event;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
@@ -41,7 +43,6 @@ import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.core.annotation.AnnotationUtils;
 import infra.expression.spel.support.StandardEvaluationContext;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.stereotype.Component;

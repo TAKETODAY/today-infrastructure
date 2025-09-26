@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.format.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Period;
 import java.util.Collections;
 import java.util.Set;
@@ -26,7 +28,6 @@ import infra.core.conversion.Converter;
 import infra.core.conversion.GenericConverter;
 import infra.format.annotation.PeriodFormat;
 import infra.format.annotation.PeriodUnit;
-import infra.lang.Nullable;
 
 /**
  * {@link Converter} to convert from a {@link Number} to a {@link Period}. Supports

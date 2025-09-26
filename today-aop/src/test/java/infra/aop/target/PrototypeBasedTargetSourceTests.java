@@ -20,12 +20,12 @@ package infra.aop.target;
 import org.junit.jupiter.api.Test;
 
 import infra.aop.TargetSource;
-import infra.beans.testfixture.beans.SerializablePerson;
-import infra.beans.testfixture.beans.TestBean;
 import infra.beans.PropertyValues;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
+import infra.beans.testfixture.beans.SerializablePerson;
+import infra.beans.testfixture.beans.TestBean;
 import infra.core.testfixture.io.SerializationTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

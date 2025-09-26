@@ -17,6 +17,8 @@
 
 package infra.resilience.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.aop.framework.ProxyProcessorSupport;
 import infra.beans.factory.config.BeanDefinition;
 import infra.context.annotation.Bean;
@@ -25,7 +27,6 @@ import infra.context.annotation.ImportAware;
 import infra.context.annotation.Role;
 import infra.core.annotation.AnnotationAttributes;
 import infra.core.type.AnnotationMetadata;
-import infra.lang.Nullable;
 
 /**
  * {@code @Configuration} class that registers the Spring infrastructure beans necessary

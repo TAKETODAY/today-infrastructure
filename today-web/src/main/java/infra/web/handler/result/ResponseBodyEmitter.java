@@ -17,6 +17,8 @@
 
 package infra.web.handler.result;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,7 +29,6 @@ import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageConverter;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.web.RequestContext;
 import infra.web.async.DeferredResult;

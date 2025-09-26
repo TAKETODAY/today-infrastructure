@@ -17,6 +17,8 @@
 
 package infra.beans.factory.aot;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Member;
@@ -48,7 +50,6 @@ import infra.javapoet.CodeBlock;
 import infra.javapoet.CodeBlock.Builder;
 import infra.javapoet.MethodSpec;
 import infra.javapoet.ParameterizedTypeName;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.function.ThrowingSupplier;
 

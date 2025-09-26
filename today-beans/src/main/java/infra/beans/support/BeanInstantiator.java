@@ -17,6 +17,8 @@
 
 package infra.beans.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -28,7 +30,6 @@ import infra.beans.BeanInstantiationException;
 import infra.beans.BeanUtils;
 import infra.core.ConstructorNotFoundException;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.reflect.MethodAccessor;
 import infra.reflect.MethodInvoker;
 import infra.reflect.ReflectionException;

@@ -17,6 +17,8 @@
 
 package infra.aop.aspectj.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 import infra.aop.Advisor;
@@ -28,7 +30,6 @@ import infra.beans.factory.aot.BeanFactoryInitializationAotContribution;
 import infra.beans.factory.aot.BeanFactoryInitializationAotProcessor;
 import infra.beans.factory.aot.BeanFactoryInitializationCode;
 import infra.beans.factory.config.ConfigurableBeanFactory;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**

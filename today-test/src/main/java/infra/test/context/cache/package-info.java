@@ -18,9 +18,7 @@
 /**
  * Support for context caching within the <em>TestContext Framework</em>.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.test.context.cache;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

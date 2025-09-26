@@ -17,6 +17,8 @@
 
 package infra.http.server.reactive;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.function.Consumer;
@@ -27,7 +29,6 @@ import infra.http.HttpMethod;
 import infra.http.HttpRequest;
 import infra.http.ReactiveHttpInputMessage;
 import infra.http.server.RequestPath;
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 
 /**

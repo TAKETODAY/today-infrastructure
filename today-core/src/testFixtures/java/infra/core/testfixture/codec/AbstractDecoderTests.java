@@ -29,7 +29,7 @@ import infra.core.codec.Decoder;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.testfixture.io.buffer.AbstractLeakCheckingTests;
 import infra.lang.Assert;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import infra.util.MimeType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

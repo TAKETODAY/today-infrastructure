@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.expression.common;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -27,7 +29,6 @@ import infra.expression.ExpressionParser;
 import infra.expression.ParseException;
 import infra.expression.ParserContext;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * An expression parser that understands templates. It can be subclassed by expression

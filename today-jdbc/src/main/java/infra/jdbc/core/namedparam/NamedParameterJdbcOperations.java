@@ -17,6 +17,8 @@
 
 package infra.jdbc.core.namedparam;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -25,18 +27,17 @@ import infra.dao.DataAccessException;
 import infra.jdbc.IncorrectResultSetColumnCountException;
 import infra.jdbc.core.ColumnMapRowMapper;
 import infra.jdbc.core.JdbcOperations;
+import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.core.PreparedStatementCallback;
 import infra.jdbc.core.ResultSetExtractor;
 import infra.jdbc.core.RowCallbackHandler;
 import infra.jdbc.core.RowMapper;
-import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.core.SingleColumnRowMapper;
 import infra.jdbc.core.SqlRowSetResultSetExtractor;
-import infra.jdbc.support.KeyHolder;
 import infra.jdbc.core.simple.JdbcClient;
 import infra.jdbc.support.GeneratedKeyHolder;
+import infra.jdbc.support.KeyHolder;
 import infra.jdbc.support.rowset.SqlRowSet;
-import infra.lang.Nullable;
 
 /**
  * Interface specifying a basic set of JDBC operations allowing the use

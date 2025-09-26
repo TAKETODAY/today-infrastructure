@@ -17,9 +17,10 @@
 
 package infra.reflect;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 
-import infra.lang.Nullable;
 import infra.lang.VisibleForTesting;
 import infra.util.ObjectUtils;
 

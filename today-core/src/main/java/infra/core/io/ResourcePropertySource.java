@@ -17,12 +17,13 @@
 
 package infra.core.io;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
 import infra.core.env.PropertiesPropertySource;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**

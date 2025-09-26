@@ -17,6 +17,8 @@
 
 package infra.app.logging.logback;
 
+import org.jspecify.annotations.Nullable;
+
 import java.nio.charset.Charset;
 
 import ch.qos.logback.classic.Level;
@@ -36,7 +38,6 @@ import infra.app.logging.LogFile;
 import infra.core.ansi.AnsiColor;
 import infra.core.ansi.AnsiElement;
 import infra.core.ansi.AnsiStyle;
-import infra.lang.Nullable;
 import infra.util.ExceptionUtils;
 import infra.util.StringUtils;
 

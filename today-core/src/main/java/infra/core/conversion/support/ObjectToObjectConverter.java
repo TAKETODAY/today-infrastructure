@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.core.conversion.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
@@ -28,7 +30,6 @@ import java.util.Set;
 import infra.core.TypeDescriptor;
 import infra.core.conversion.ConditionalGenericConverter;
 import infra.core.conversion.ConversionFailedException;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.ReflectionUtils;
@@ -150,8 +151,8 @@ final class ObjectToObjectConverter implements ConditionalGenericConverter {
   private static boolean isApplicable(Executable executable, Class<?> sourceClass) {
     if (executable instanceof Method method) {
       return !Modifier.isStatic(method.getModifiers())
-             ? ClassUtils.isAssignable(method.getDeclaringClass(), sourceClass)
-             : method.getParameterTypes()[0] == sourceClass;
+              ? ClassUtils.isAssignable(method.getDeclaringClass(), sourceClass)
+              : method.getParameterTypes()[0] == sourceClass;
     }
     if (executable instanceof Constructor<?> constructor) {
       return constructor.getParameterTypes()[0] == sourceClass;
@@ -168,8 +169,8 @@ final class ObjectToObjectConverter implements ConditionalGenericConverter {
 
     Method method = ReflectionUtils.getMethodIfAvailable(sourceClass, "to" + targetClass.getSimpleName());
     return method != null
-                   && !Modifier.isStatic(method.getModifiers())
-                   && ClassUtils.isAssignable(targetClass, method.getReturnType()) ? method : null;
+            && !Modifier.isStatic(method.getModifiers())
+            && ClassUtils.isAssignable(targetClass, method.getReturnType()) ? method : null;
   }
 
   @Nullable

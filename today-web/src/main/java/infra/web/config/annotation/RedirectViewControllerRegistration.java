@@ -17,10 +17,11 @@
 
 package infra.web.config.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.context.ApplicationContext;
 import infra.http.HttpStatusCode;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.web.handler.mvc.ParameterizableViewController;
 import infra.web.view.RedirectView;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +19,9 @@ package infra.cache.aspectj;
 
 import infra.beans.factory.config.BeanDefinition;
 import infra.cache.annotation.AbstractCachingConfiguration;
-import infra.cache.config.CacheManagementConfigUtils;
 import infra.cache.annotation.CachingConfigurationSelector;
 import infra.cache.annotation.EnableCaching;
+import infra.cache.config.CacheManagementConfigUtils;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Role;
 import infra.stereotype.Component;

@@ -17,6 +17,8 @@
 
 package infra.core.env;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,7 +30,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**

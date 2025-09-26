@@ -17,6 +17,8 @@
 
 package infra.annotation.config.web.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
@@ -31,7 +33,6 @@ import infra.core.Ordered;
 import infra.core.annotation.Order;
 import infra.core.ssl.SslBundles;
 import infra.http.converter.HttpMessageConverters;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.stereotype.Prototype;
 import infra.web.client.RestClient;

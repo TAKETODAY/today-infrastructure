@@ -17,6 +17,8 @@
 
 package infra.jdbc.datasource;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.ConnectionBuilder;
@@ -28,7 +30,6 @@ import javax.sql.DataSource;
 
 import infra.beans.factory.InitializingBean;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * JDBC {@link DataSource} implementation that delegates all calls

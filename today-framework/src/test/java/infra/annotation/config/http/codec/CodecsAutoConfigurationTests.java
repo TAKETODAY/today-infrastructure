@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,11 +26,11 @@ import java.util.List;
 
 import infra.annotation.config.http.CodecProperties;
 import infra.annotation.config.http.CodecsAutoConfiguration;
+import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.core.annotation.AnnotationAwareOrderComparator;
-import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.http.codec.CodecConfigurer;
 import infra.http.codec.CodecCustomizer;
 import infra.http.codec.support.DefaultClientCodecConfigurer;

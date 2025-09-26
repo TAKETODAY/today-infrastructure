@@ -18,9 +18,7 @@
 /**
  * Test utilities to run application contexts for testing.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.app.test.context.runner;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

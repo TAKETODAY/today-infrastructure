@@ -18,9 +18,7 @@
 /**
  * Core interfaces for Framework's scripting support.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.scripting;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

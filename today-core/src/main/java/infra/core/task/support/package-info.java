@@ -19,9 +19,7 @@
  * Support classes for TaskExecutor abstraction.
  * Includes an adapter for the standard ExecutorService interface.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.core.task.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

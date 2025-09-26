@@ -17,6 +17,8 @@
 
 package infra.beans.propertyeditors;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyEditorSupport;
 import java.io.IOException;
 import java.net.URI;
@@ -24,7 +26,6 @@ import java.net.URISyntaxException;
 
 import infra.core.io.ClassPathResource;
 import infra.core.io.ResourceLoader;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
 

@@ -17,9 +17,9 @@
 
 package infra.core;
 
-import java.io.Serializable;
+import org.jspecify.annotations.Nullable;
 
-import infra.lang.Nullable;
+import java.io.Serializable;
 
 /**
  * Handy class for wrapping {@code Exceptions} with a root cause.

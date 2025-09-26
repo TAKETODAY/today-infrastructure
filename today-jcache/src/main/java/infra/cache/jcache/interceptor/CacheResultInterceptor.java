@@ -17,6 +17,8 @@
 
 package infra.cache.jcache.interceptor;
 
+import org.jspecify.annotations.Nullable;
+
 import javax.cache.annotation.CacheResult;
 
 import infra.cache.Cache;
@@ -25,7 +27,6 @@ import infra.cache.interceptor.CacheOperationInvocationContext;
 import infra.cache.interceptor.CacheOperationInvoker;
 import infra.cache.interceptor.CacheResolver;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ExceptionTypeFilter;
 import infra.util.SerializationUtils;
 

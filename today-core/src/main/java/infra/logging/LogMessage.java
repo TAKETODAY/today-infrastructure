@@ -17,10 +17,11 @@
 
 package infra.logging;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Supplier;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * A simple log message type for use with Commons Logging, allowing

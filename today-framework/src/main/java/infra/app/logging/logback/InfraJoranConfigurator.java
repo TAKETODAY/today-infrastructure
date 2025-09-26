@@ -17,6 +17,8 @@
 
 package infra.app.logging.logback;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,7 +67,6 @@ import infra.core.NativeDetector;
 import infra.core.io.ByteArrayResource;
 import infra.core.io.ClassPathResource;
 import infra.core.io.PropertiesUtils;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ReflectionUtils;

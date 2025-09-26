@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,13 @@
 
 package infra.test.util;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import infra.aop.framework.ProxyFactory;
 import infra.aop.support.AopUtils;
-import infra.lang.Nullable;
 import infra.test.util.subpackage.Component;
 import infra.test.util.subpackage.LegacyEntity;
 import infra.test.util.subpackage.Person;

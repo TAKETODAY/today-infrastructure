@@ -17,6 +17,8 @@
 
 package infra.core.ssl.pem;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.security.PrivateKey;
@@ -26,7 +28,6 @@ import java.util.function.Supplier;
 
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.function.SingletonSupplier;
 import infra.util.function.ThrowingSupplier;

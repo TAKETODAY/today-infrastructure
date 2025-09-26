@@ -17,6 +17,7 @@
 
 package infra.jdbc.type;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.sql.CallableStatement;
@@ -26,7 +27,6 @@ import java.sql.SQLException;
 
 import infra.beans.BeanMetadata;
 import infra.beans.BeanProperty;
-import infra.lang.Nullable;
 import infra.persistence.model.UserModel;
 
 import static org.assertj.core.api.Assertions.assertThat;

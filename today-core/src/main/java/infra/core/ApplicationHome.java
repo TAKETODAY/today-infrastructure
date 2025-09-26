@@ -17,6 +17,8 @@
 
 package infra.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,7 +32,6 @@ import java.util.Enumeration;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
 

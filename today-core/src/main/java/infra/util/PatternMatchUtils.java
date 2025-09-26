@@ -17,7 +17,7 @@
 
 package infra.util;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Utility methods for simple pattern matching, in particular for Spring's typical

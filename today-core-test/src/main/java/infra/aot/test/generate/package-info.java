@@ -18,9 +18,7 @@
 /**
  * Test support for core AOT classes.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.aot.test.generate;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

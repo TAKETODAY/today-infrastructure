@@ -17,6 +17,8 @@
 
 package infra.core.ansi;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -24,7 +26,6 @@ import java.util.function.IntFunction;
 
 import infra.core.env.PropertyResolver;
 import infra.core.env.PropertySource;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**

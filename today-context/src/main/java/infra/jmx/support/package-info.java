@@ -19,9 +19,7 @@
  * Contains support classes for connecting to local and remote {@code MBeanServer}s
  * and for exposing an {@code MBeanServer} to remote clients.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jmx.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

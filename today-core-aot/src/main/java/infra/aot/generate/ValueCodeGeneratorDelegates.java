@@ -17,6 +17,8 @@
 
 package infra.aot.generate;
 
+import org.jspecify.annotations.Nullable;
+
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,7 +36,6 @@ import java.util.stream.Stream;
 import infra.aot.generate.ValueCodeGenerator.Delegate;
 import infra.core.ResolvableType;
 import infra.javapoet.CodeBlock;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 

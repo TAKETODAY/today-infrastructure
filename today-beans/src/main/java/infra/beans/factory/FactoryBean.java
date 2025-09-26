@@ -17,9 +17,10 @@
 
 package infra.beans.factory;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.config.BeanDefinition;
 import infra.core.AttributeAccessor;
-import infra.lang.Nullable;
 
 /**
  * Interface to be implemented by objects used within a {@link BeanFactory} which

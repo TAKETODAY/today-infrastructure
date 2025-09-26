@@ -20,13 +20,14 @@ package infra.cache.support;
 import com.github.benmanes.caffeine.cache.AsyncCache;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import infra.cache.Cache;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.function.ThrowingFunction;
 
 /**

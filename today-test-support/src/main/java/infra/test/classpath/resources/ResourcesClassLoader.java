@@ -17,6 +17,8 @@
 
 package infra.test.classpath.resources;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
@@ -26,7 +28,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 
 import infra.core.SmartClassLoader;
-import infra.lang.Nullable;
 
 /**
  * A {@link ClassLoader} that provides access to {@link Resources resources}.

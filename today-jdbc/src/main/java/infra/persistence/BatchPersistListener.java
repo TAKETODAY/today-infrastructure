@@ -17,7 +17,7 @@
 
 package infra.persistence;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A listener interface for monitoring batch persistence operations.

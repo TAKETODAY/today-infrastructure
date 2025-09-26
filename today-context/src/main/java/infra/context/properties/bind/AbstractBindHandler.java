@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,10 @@
 
 package infra.context.properties.bind;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.context.properties.source.ConfigurationPropertyName;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Abstract base class for {@link BindHandler} implementations.

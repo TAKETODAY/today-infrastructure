@@ -17,13 +17,14 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 
 import infra.core.GenericTypeResolver;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.type.AnnotationMetadata;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Convenient base class for {@link ImportSelector} implementations that select imports

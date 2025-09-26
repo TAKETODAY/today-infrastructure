@@ -17,6 +17,8 @@
 
 package infra.jdbc.core.simple;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -39,7 +41,6 @@ import infra.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import infra.jdbc.core.namedparam.SqlParameterSource;
 import infra.jdbc.support.KeyHolder;
 import infra.jdbc.support.rowset.SqlRowSet;
-import infra.lang.Nullable;
 
 /**
  * A fluent {@link JdbcClient} with common JDBC query and update operations,

@@ -18,9 +18,7 @@
 /**
  * Support package for annotation-driven bean configuration.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.beans.factory.annotation;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

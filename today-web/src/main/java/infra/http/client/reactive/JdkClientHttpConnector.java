@@ -17,6 +17,8 @@
 
 package infra.http.client.reactive;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -35,7 +37,6 @@ import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.ResponseCookie;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 

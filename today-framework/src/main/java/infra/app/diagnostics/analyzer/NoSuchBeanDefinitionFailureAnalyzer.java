@@ -17,6 +17,8 @@
 
 package infra.app.diagnostics.analyzer;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,7 +46,6 @@ import infra.core.type.MethodMetadata;
 import infra.core.type.classreading.CachingMetadataReaderFactory;
 import infra.core.type.classreading.MetadataReader;
 import infra.core.type.classreading.MetadataReaderFactory;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
 

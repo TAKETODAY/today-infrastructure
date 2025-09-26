@@ -17,10 +17,11 @@
 
 package infra.expression.spel;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Locale;
 
 import infra.expression.spel.standard.SpelExpressionParser;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 
 /**

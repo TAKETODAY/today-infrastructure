@@ -17,10 +17,11 @@
 
 package infra.web.view;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Locale;
 
 import infra.beans.factory.InitializingBean;
-import infra.lang.Nullable;
 
 /**
  * Abstract base class for URL-based views. Provides a consistent way of

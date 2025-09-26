@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.io.IOException;
@@ -52,7 +53,6 @@ import infra.http.converter.json.MappingJacksonValue;
 import infra.http.server.reactive.ServerHttpRequest;
 import infra.http.server.reactive.ServerHttpResponse;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.LogFormatUtils;
 import infra.util.MimeType;

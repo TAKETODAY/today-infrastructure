@@ -17,6 +17,7 @@
 
 package infra.core.conversion.support;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.awt.Color;
@@ -43,7 +44,6 @@ import infra.core.conversion.ConverterNotFoundException;
 import infra.core.conversion.GenericConverter;
 import infra.core.io.DescriptiveResource;
 import infra.core.io.Resource;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 import static java.util.Comparator.naturalOrder;

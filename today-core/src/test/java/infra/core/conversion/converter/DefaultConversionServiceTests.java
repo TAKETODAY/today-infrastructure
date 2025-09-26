@@ -17,6 +17,7 @@
 
 package infra.core.conversion.converter;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -59,7 +60,6 @@ import infra.core.conversion.ConversionFailedException;
 import infra.core.conversion.Converter;
 import infra.core.conversion.ConverterNotFoundException;
 import infra.core.conversion.support.DefaultConversionService;
-import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

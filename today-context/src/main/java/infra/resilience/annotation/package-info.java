@@ -18,9 +18,7 @@
 /**
  * Annotation-based retry and concurrency limit support.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.resilience.annotation;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

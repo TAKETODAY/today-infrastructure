@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 package infra.app.diagnostics.analyzer;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 import infra.app.diagnostics.AbstractFailureAnalyzer;
 import infra.app.diagnostics.FailureAnalysis;
 import infra.context.properties.bind.BindException;
 import infra.context.properties.bind.validation.BindValidationException;
-import infra.lang.Nullable;
 import infra.origin.Origin;
 import infra.validation.FieldError;
 import infra.validation.ObjectError;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 
 package infra.transaction.support;
 
-import infra.lang.NonNull;
 import infra.transaction.CannotCreateTransactionException;
 import infra.transaction.TransactionDefinition;
 
@@ -69,7 +68,7 @@ class TestTransactionManager extends AbstractPlatformTransactionManager {
   }
 
   @Override
-  protected void doCommit(@NonNull DefaultTransactionStatus status) {
+  protected void doCommit(DefaultTransactionStatus status) {
     if (!TRANSACTION.equals(status.getTransaction())) {
       throw new IllegalArgumentException("Not the same transaction object");
     }
@@ -85,7 +84,7 @@ class TestTransactionManager extends AbstractPlatformTransactionManager {
   }
 
   @Override
-  protected void doSetRollbackOnly(@NonNull DefaultTransactionStatus status) {
+  protected void doSetRollbackOnly(DefaultTransactionStatus status) {
     if (!TRANSACTION.equals(status.getTransaction())) {
       throw new IllegalArgumentException("Not the same transaction object");
     }

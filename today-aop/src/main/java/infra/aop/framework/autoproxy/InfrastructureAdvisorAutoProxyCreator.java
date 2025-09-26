@@ -17,9 +17,10 @@
 
 package infra.aop.framework.autoproxy;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.ConfigurableBeanFactory;
-import infra.lang.Nullable;
 
 /**
  * Auto-proxy creator that considers infrastructure Advisor beans only,

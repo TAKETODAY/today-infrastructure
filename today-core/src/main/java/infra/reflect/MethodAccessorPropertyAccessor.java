@@ -17,9 +17,9 @@
 
 package infra.reflect;
 
-import java.lang.reflect.Method;
+import org.jspecify.annotations.Nullable;
 
-import infra.lang.Nullable;
+import java.lang.reflect.Method;
 
 /**
  * MethodInvoker PropertyAccessor implementation

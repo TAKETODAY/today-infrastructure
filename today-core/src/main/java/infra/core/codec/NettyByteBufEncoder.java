@@ -17,6 +17,7 @@
 
 package infra.core.codec;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.util.Map;
@@ -25,7 +26,6 @@ import infra.core.ResolvableType;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
 import infra.core.io.buffer.NettyDataBufferFactory;
-import infra.lang.Nullable;
 import infra.util.MimeType;
 import io.netty.buffer.ByteBuf;
 import reactor.core.publisher.Flux;

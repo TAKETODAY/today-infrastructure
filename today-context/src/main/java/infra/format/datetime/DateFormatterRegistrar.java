@@ -17,6 +17,8 @@
 
 package infra.format.datetime;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Calendar;
 import java.util.Date;
 
@@ -25,7 +27,6 @@ import infra.core.conversion.ConverterRegistry;
 import infra.format.FormatterRegistrar;
 import infra.format.FormatterRegistry;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Configures basic date formatting for use with Framework, primarily for

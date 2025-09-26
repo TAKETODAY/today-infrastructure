@@ -17,6 +17,8 @@
 
 package infra.web.socket.server.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -24,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import infra.http.HttpStatus;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;

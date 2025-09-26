@@ -17,10 +17,11 @@
 
 package infra.session;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 import infra.core.Conventions;
-import infra.lang.Nullable;
 import infra.session.config.CookieProperties;
 import infra.web.RequestContext;
 

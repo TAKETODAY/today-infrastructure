@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
 
 package infra.context.event;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.context.ApplicationEvent;
 import infra.context.ApplicationListener;
 import infra.core.ResolvableType;
-import infra.lang.Nullable;
 
 /**
  * {@link infra.context.ApplicationListener} decorator that filters
@@ -53,7 +54,7 @@ public class SourceFilteringListener implements GenericApplicationListener {
   public SourceFilteringListener(Object source, ApplicationListener<?> delegate) {
     this.source = source;
     this.delegate = (delegate instanceof GenericApplicationListener ?
-                     (GenericApplicationListener) delegate : new GenericApplicationListenerAdapter(delegate));
+            (GenericApplicationListener) delegate : new GenericApplicationListenerAdapter(delegate));
   }
 
   /**

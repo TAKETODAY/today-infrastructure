@@ -17,6 +17,8 @@
 
 package infra.web.handler.function;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -30,7 +32,6 @@ import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 import infra.web.async.DeferredResult;
 

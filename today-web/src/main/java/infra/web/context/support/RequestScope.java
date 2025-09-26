@@ -17,9 +17,10 @@
 
 package infra.web.context.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Supplier;
 
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
 import infra.web.RequestContextUtils;

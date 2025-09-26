@@ -17,13 +17,14 @@
 
 package infra.scheduling.concurrent;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 
 import infra.beans.factory.DisposableBean;
 import infra.beans.factory.FactoryBean;
 import infra.beans.factory.InitializingBean;
-import infra.lang.Nullable;
 
 /**
  * A Framework {@link FactoryBean} that builds and exposes a preconfigured {@link ForkJoinPool}.
@@ -40,8 +41,7 @@ public class ForkJoinPoolFactoryBean implements FactoryBean<ForkJoinPool>, Initi
 
   private ForkJoinPool.ForkJoinWorkerThreadFactory threadFactory = ForkJoinPool.defaultForkJoinWorkerThreadFactory;
 
-  @Nullable
-  private Thread.UncaughtExceptionHandler uncaughtExceptionHandler;
+  private Thread.@Nullable UncaughtExceptionHandler uncaughtExceptionHandler;
 
   private boolean asyncMode = false;
 

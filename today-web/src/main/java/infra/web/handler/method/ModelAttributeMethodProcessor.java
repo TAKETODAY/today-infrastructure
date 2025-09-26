@@ -17,6 +17,8 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.Map;
@@ -28,7 +30,6 @@ import infra.core.ResolvableType;
 import infra.core.TypeDescriptor;
 import infra.core.conversion.ConversionService;
 import infra.core.conversion.Converter;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 import infra.validation.BindException;

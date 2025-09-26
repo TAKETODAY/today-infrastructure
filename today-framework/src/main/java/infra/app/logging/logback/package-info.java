@@ -18,9 +18,7 @@
 /**
  * Support for the Logback logging library.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.app.logging.logback;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

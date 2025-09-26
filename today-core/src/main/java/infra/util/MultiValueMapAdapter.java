@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -27,7 +29,6 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Adapts a given {@link Map} to the {@link MultiValueMap} contract.

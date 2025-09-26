@@ -18,9 +18,7 @@
 /**
  * Web client test utilities.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.app.test.web.client;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

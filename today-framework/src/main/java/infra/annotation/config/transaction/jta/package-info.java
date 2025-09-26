@@ -18,9 +18,7 @@
 /**
  * Auto-configuration for JTA.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.annotation.config.transaction.jta;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

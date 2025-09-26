@@ -20,9 +20,7 @@
  * Provides an extended JavaMailSender interface and a MimeMessageHelper
  * class for convenient population of a JavaMail MimeMessage.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.mail.javamail;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

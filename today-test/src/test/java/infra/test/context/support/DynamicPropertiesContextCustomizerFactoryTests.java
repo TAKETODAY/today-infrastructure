@@ -26,8 +26,6 @@ import java.util.List;
 import infra.test.context.ContextConfigurationAttributes;
 import infra.test.context.DynamicPropertyRegistry;
 import infra.test.context.DynamicPropertySource;
-import infra.test.context.support.DynamicPropertiesContextCustomizer;
-import infra.test.context.support.DynamicPropertiesContextCustomizerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

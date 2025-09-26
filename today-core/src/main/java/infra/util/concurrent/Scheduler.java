@@ -42,7 +42,7 @@ import infra.lang.TodayStrategies;
  *   private final ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1);
  *
  *   @Override
- *   public void execute(@NonNull Runnable command) {
+ *   public void execute(Runnable command) {
  *     scheduledThreadPool.execute(command);
  *   }
  *
@@ -72,7 +72,7 @@ import infra.lang.TodayStrategies;
  *   private final ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1);
  *
  *   @Override
- *   public void execute(@NonNull Runnable command) {
+ *   public void execute(Runnable command) {
  *     forkJoinPool.execute(command);
  *   }
  *

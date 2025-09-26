@@ -21,9 +21,7 @@
 /**
  * Annotation support for runtime hints.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.aot.hint.annotation;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

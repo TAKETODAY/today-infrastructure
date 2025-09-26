@@ -28,9 +28,7 @@
  * and caching, dependency injection of test fixtures, and transactional test
  * management with default rollback semantics.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.test.context;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

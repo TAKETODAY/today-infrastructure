@@ -17,6 +17,8 @@
 
 package infra.context.weaving;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.BeansException;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
@@ -25,7 +27,6 @@ import infra.beans.factory.config.BeanPostProcessor;
 import infra.context.ConfigurableApplicationContext;
 import infra.instrument.classloading.LoadTimeWeaver;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * {@link BeanPostProcessor}

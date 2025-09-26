@@ -18,9 +18,7 @@
 /**
  * Type Conversion System
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.core.conversion;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

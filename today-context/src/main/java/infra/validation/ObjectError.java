@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,13 @@
 
 package infra.validation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 
 import infra.beans.PropertyAccessException;
 import infra.context.support.DefaultMessageSourceResolvable;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Encapsulates an object error, that is, a global reason for rejecting

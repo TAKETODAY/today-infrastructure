@@ -17,6 +17,8 @@
 
 package infra.web.view.groovy;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -35,7 +37,6 @@ import infra.core.i18n.LocaleContextHolder;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**

@@ -17,6 +17,8 @@
 
 package infra.web.resource;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +39,6 @@ import infra.core.io.AbstractResource;
 import infra.core.io.Resource;
 import infra.http.HttpHeaders;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 
 /**

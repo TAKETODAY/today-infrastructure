@@ -19,9 +19,7 @@
  * Abstraction for determining the current Locale,
  * plus global holder that exposes a thread-bound Locale.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.core.i18n;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

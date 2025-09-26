@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,10 +18,10 @@
 package infra.test.web.mock.result;
 
 import org.hamcrest.Matcher;
+import org.jspecify.annotations.Nullable;
 
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
-import infra.lang.Nullable;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.ResultMatcher;
 
@@ -105,8 +105,7 @@ public class StatusResultMatchers {
             HttpStatus.Series.SERVER_ERROR, getHttpStatusSeries(result));
   }
 
-  @Nullable
-  private HttpStatus.Series getHttpStatusSeries(MvcResult result) {
+  private HttpStatus.@Nullable Series getHttpStatusSeries(MvcResult result) {
     return HttpStatus.Series.resolve(result.getRequestContext().getStatus());
   }
 

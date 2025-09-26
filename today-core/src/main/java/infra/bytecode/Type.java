@@ -17,6 +17,8 @@
 
 package infra.bytecode;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Member;
@@ -25,8 +27,6 @@ import java.util.Map;
 
 import infra.bytecode.commons.MethodSignature;
 import infra.lang.Constant;
-import infra.lang.NonNull;
-import infra.lang.Nullable;
 
 /**
  * A Java field or method type. This class can be used to make it easier to manipulate type and
@@ -679,9 +679,7 @@ public final class Type {
    *  Object, Object ,Class -> Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Class;
    * </pre>
    */
-  @NonNull
-  public static String getDescriptor(
-          String parameterTypes, int startIdx, int endIdx, boolean defaultPackage) {
+  public static String getDescriptor(String parameterTypes, int startIdx, int endIdx, boolean defaultPackage) {
     StringBuilder argDescriptor = new StringBuilder(parameterTypes.length() + 16);
     int splitIndex = parameterTypes.indexOf(',');// ,'s index
     while (splitIndex != -1) {

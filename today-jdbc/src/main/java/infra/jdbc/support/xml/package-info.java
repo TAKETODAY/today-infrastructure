@@ -18,9 +18,7 @@
 /**
  * Abstraction for handling fields of SQLXML data type.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jdbc.support.xml;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

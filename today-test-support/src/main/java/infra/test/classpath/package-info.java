@@ -18,9 +18,7 @@
 /**
  * Custom JUnit extension to change the classpath.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.test.classpath;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

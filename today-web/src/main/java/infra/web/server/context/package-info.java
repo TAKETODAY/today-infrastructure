@@ -19,9 +19,7 @@
  * Web integrations with Infra {@link infra.context.ApplicationContext
  * ApplicationContext}.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.server.context;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -17,6 +17,7 @@
 
 package infra.beans.factory;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -40,7 +41,6 @@ import infra.beans.testfixture.beans.factory.DummyFactory;
 import infra.bytecode.proxy.NoOp;
 import infra.core.annotation.AliasFor;
 import infra.core.io.Resource;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 import static infra.core.testfixture.io.ResourceTestUtils.qualifiedResource;

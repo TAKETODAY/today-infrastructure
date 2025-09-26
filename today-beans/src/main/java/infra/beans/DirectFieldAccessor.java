@@ -17,6 +17,8 @@
 
 package infra.beans;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.Modifier;
@@ -24,7 +26,6 @@ import java.util.HashMap;
 
 import infra.core.ResolvableType;
 import infra.core.TypeDescriptor;
-import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 
 /**

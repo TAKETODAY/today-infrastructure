@@ -41,7 +41,7 @@ import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.MappingJackson2HttpMessageConverter;
 import infra.http.converter.json.MappingJacksonValue;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;

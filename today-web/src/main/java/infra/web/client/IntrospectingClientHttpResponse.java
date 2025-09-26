@@ -17,6 +17,8 @@
 
 package infra.web.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +28,6 @@ import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.client.ClientHttpResponse;
 import infra.http.client.ClientHttpResponseDecorator;
-import infra.lang.Nullable;
 
 /**
  * Implementation of {@link ClientHttpResponse} that can not only check if

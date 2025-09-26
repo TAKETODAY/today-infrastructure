@@ -18,9 +18,7 @@
 /**
  * Transactional support classes for the <em>TestContext Framework</em>.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.test.context.transaction;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

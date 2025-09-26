@@ -34,10 +34,10 @@ import java.util.List;
 import infra.jdbc.JdbcConnection;
 import infra.jdbc.PersistenceException;
 import infra.jdbc.RepositoryManager;
-import infra.jdbc.issues.pojos.Issue1Pojo;
-import infra.jdbc.issues.pojos.KeyValueEntity;
 import infra.jdbc.Row;
 import infra.jdbc.Table;
+import infra.jdbc.issues.pojos.Issue1Pojo;
+import infra.jdbc.issues.pojos.KeyValueEntity;
 
 import static org.junit.Assert.assertEquals;
 

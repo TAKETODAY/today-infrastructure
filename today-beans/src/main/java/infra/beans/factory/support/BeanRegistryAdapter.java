@@ -17,6 +17,8 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -33,7 +35,6 @@ import infra.core.ParameterizedTypeReference;
 import infra.core.ResolvableType;
 import infra.core.env.Environment;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 
 /**

@@ -22,9 +22,9 @@ import org.junit.jupiter.api.Test;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import javax.annotation.Nonnull;
+import javax.annotation.concurrent.ThreadSafe;
 
-import infra.lang.Nullable;
+import infra.lang.Contract;
 import infra.util.ObjectUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,8 +69,8 @@ class AnnotationFilterTests {
   }
 
   @Test
-  void plainWhenInfraLangAnnotationReturnsFalse() {
-    assertThat(AnnotationFilter.PLAIN.matches(Nullable.class)).isTrue();
+  void plainWhenSpringLangAnnotationReturnsTrue() {
+    assertThat(AnnotationFilter.PLAIN.matches(Contract.class)).isTrue();
   }
 
   @Test
@@ -85,12 +85,7 @@ class AnnotationFilterTests {
 
   @Test
   void javaWhenJavaxAnnotationReturnsTrue() {
-    assertThat(AnnotationFilter.JAVA.matches(Nonnull.class)).isTrue();
-  }
-
-  @Test
-  void javaWhenSpringLangAnnotationReturnsFalse() {
-    assertThat(AnnotationFilter.JAVA.matches(Nullable.class)).isFalse();
+    assertThat(AnnotationFilter.JAVA.matches(ThreadSafe.class)).isTrue();
   }
 
   @Test
@@ -99,10 +94,8 @@ class AnnotationFilterTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   void noneReturnsFalse() {
     assertThat(AnnotationFilter.NONE.matches(Retention.class)).isFalse();
-    assertThat(AnnotationFilter.NONE.matches(Nullable.class)).isFalse();
     assertThat(AnnotationFilter.NONE.matches(TestAnnotation.class)).isFalse();
   }
 

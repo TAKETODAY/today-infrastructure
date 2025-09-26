@@ -17,6 +17,8 @@
 
 package infra.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -30,7 +32,6 @@ import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ArrayHolder;
 import infra.util.ExceptionUtils;
 import infra.util.StringUtils;

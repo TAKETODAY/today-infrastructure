@@ -17,7 +17,7 @@
   -->
 
 <!DOCTYPE suppressions PUBLIC "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
-        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+    "https://checkstyle.org/dtds/suppressions_1_2.dtd">
 <suppressions>
 
   <!-- Global: generated sources -->
@@ -26,10 +26,6 @@
 
   <!-- Global: package-info.java -->
   <suppress files="(^(?!.+[\\/]src[\\/]main[\\/]java[\\/]).*)|(.*infra-docs.*)" checks="JavadocPackage" />
-  <suppress files="(^(?!.+[\\/]src[\\/]main[\\/]java[\\/].*package-info\.java))|(.*infra-docs.*)|(.*infra-build.*)|(.*today-(context-indexer|instrument).*)"
-          checks="RegexpSinglelineJava" id="packageLevelNonNullApiAnnotation" />
-  <suppress files="(^(?!.+[\\/]src[\\/]main[\\/]java[\\/].*package-info\.java))|(.*infra-docs.*)|(.*infra-build.*)|(.*today-(context-indexer|instrument).*)"
-          checks="RegexpSinglelineJava" id="packageLevelNonNullFieldsAnnotation" />
 
   <!-- Global: tests and test fixtures -->
   <suppress files="[\\/]src[\\/](test|testFixtures)[\\/](java|java21)[\\/]"
@@ -47,9 +43,7 @@
   <suppress files="infra[\\/]docs[\\/].+" checks="IllegalImport" id="bannedJUnitJupiterImports" />
 
   <!-- today-aop -->
-  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]org[\\/]aopalliance[\\/]" checks="IllegalImport" id="bannedImports" message="javax" />
-  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]org[\\/]aopalliance[\\/]" checks="RegexpSinglelineJava" id="packageLevelNonNullApiAnnotation" />
-  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]org[\\/]aopalliance[\\/]" checks="RegexpSinglelineJava" id="packageLevelNonNullFieldsAnnotation" />
+  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]org[\\/]aopalliance[\\/]" checks="IllegalImport" id="bannedNullabilityImports" message="javax" />
 
   <!-- today-beans -->
   <suppress files="TypeMismatchException" checks="MutableException" />
@@ -73,11 +67,8 @@
   <suppress
           files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/](core|util|lang|logging)[\\/](Version|SystemPropertyUtils|JavaLoggingFactory|LoggerFactory|MessageFormatter)"
           checks="RegexpSinglelineJava" id="systemOutErrPrint" />
-  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]lang[\\/]" checks="IllegalImport" id="bannedImports" message="javax" />
-  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]lang[\\/]" checks="RegexpSinglelineJava" id="packageLevelNonNullApiAnnotation" />
-  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]lang[\\/]" checks="RegexpSinglelineJava" id="packageLevelNonNullFieldsAnnotation" />
-  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]core[\\/]annotation[\\/]" checks="IllegalImport" id="bannedImports" message="javax" />
-  <suppress files="[\\/]src[\\/]test[\\/]java[\\/]infra[\\/]core[\\/]annotation[\\/]" checks="IllegalImport" id="bannedImports" message="javax" />
+  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]lang[\\/]" checks="IllegalImport" id="bannedNullabilityImports" message="javax" />
+  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]core[\\/]annotation[\\/]" checks="IllegalImport" id="bannedNullabilityImports" message="javax" />
   <suppress files="ByteArrayEncoder" checks="InfraLambda" />
   <suppress files="SocketUtils" checks="HideUtilityClassConstructor" />
   <suppress files="ResolvableType" checks="FinalClass" />
@@ -150,7 +141,7 @@
   <!-- infra-app-loader-tools -->
 
   <suppress files="infra.app.loader.tools.SignalUtils"
-          checks="IllegalImport" id="bannedImports" message="javax" />
+          checks="IllegalImport" id="bannedNullabilityImports" message="javax" />
 
   <!-- infra-jarmode-layertools -->
 
@@ -170,8 +161,5 @@
 
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]retry[\\/]" checks="JavadocPackage" />
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]classify[\\/]" checks="JavadocPackage" />
-
-  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]util[\\/]function[\\/]" checks="RegexpSinglelineJava" id="packageLevelNonNullApiAnnotation" />
-  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]util[\\/]function[\\/]" checks="RegexpSinglelineJava" id="packageLevelNonNullFieldsAnnotation" />
 
 </suppressions>

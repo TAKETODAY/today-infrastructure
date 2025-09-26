@@ -8,9 +8,7 @@
  * by subclassing the AbstractView class in this package can be
  * very helpful if an application has unusual view requirements.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.view;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

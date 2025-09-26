@@ -17,6 +17,8 @@
 
 package infra.validation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -25,7 +27,6 @@ import java.util.List;
 
 import infra.beans.BeanUtils;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;

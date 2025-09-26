@@ -17,6 +17,7 @@
 
 package infra.web.client.reactive.support;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import infra.http.MediaType;
-import infra.lang.Nullable;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.annotation.PathVariable;

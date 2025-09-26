@@ -17,6 +17,7 @@
 
 package infra.web.client.support;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -39,7 +40,6 @@ import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.ResponseEntity;
 import infra.http.StreamingHttpOutputMessage;
-import infra.lang.Nullable;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.annotation.CookieValue;

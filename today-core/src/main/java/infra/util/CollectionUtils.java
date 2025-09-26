@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,8 +50,6 @@ import java.util.function.Predicate;
 
 import infra.core.ArraySizeTrimmer;
 import infra.lang.Assert;
-import infra.lang.NonNull;
-import infra.lang.Nullable;
 
 /**
  * @author TODAY 2019-12-29 23:39
@@ -203,7 +203,6 @@ public abstract class CollectionUtils {
    * @return ArrayLost of input elements
    * @since 4.0
    */
-  @NonNull
   @SafeVarargs
   public static <E> ArrayList<E> newArrayList(@Nullable E... elements) {
     if (ObjectUtils.isNotEmpty(elements)) {
@@ -463,7 +462,7 @@ public abstract class CollectionUtils {
    * {@link EnumMap}
    * @since 3.0
    */
-  public static <K, V> Map<K, V> createMap(@NonNull Class<?> mapType) {
+  public static <K, V> Map<K, V> createMap(Class<?> mapType) {
     return createMap(mapType, null, 0);
   }
 

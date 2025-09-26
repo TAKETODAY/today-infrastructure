@@ -17,6 +17,8 @@
 
 package infra.aop.support.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 
 import infra.aop.ClassFilter;
@@ -24,7 +26,6 @@ import infra.aop.MethodMatcher;
 import infra.aop.Pointcut;
 import infra.core.annotation.AnnotationUtils;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Simple Pointcut that looks for a specific Java 5 annotation

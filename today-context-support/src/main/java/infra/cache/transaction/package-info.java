@@ -19,9 +19,7 @@
  * Transaction-aware decorators for the infra.cache package.
  * Provides synchronization of put operations with Infra-managed transactions.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.cache.transaction;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

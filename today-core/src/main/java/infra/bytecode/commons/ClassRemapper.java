@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.bytecode.commons;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 import infra.bytecode.AnnotationVisitor;
@@ -27,7 +29,6 @@ import infra.bytecode.MethodVisitor;
 import infra.bytecode.ModuleVisitor;
 import infra.bytecode.RecordComponentVisitor;
 import infra.bytecode.TypePath;
-import infra.lang.Nullable;
 
 /**
  * A {@link ClassVisitor} that remaps types with a {@link Remapper}.
@@ -97,8 +98,8 @@ public class ClassRemapper extends ClassVisitor {
     AnnotationVisitor annotationVisitor =
             super.visitAnnotation(remapper.mapDesc(descriptor), visible);
     return annotationVisitor == null
-           ? null
-           : createAnnotationRemapper(descriptor, annotationVisitor);
+            ? null
+            : createAnnotationRemapper(descriptor, annotationVisitor);
   }
 
   @Override
@@ -107,8 +108,8 @@ public class ClassRemapper extends ClassVisitor {
     AnnotationVisitor annotationVisitor =
             super.visitTypeAnnotation(typeRef, typePath, remapper.mapDesc(descriptor), visible);
     return annotationVisitor == null
-           ? null
-           : createAnnotationRemapper(descriptor, annotationVisitor);
+            ? null
+            : createAnnotationRemapper(descriptor, annotationVisitor);
   }
 
   @Override

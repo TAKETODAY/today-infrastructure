@@ -17,6 +17,8 @@
 
 package infra.web.view;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -33,7 +35,6 @@ import infra.context.support.ApplicationObjectSupport;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.LogMessage;
 import infra.util.CollectionUtils;
 import infra.util.LogFormatUtils;

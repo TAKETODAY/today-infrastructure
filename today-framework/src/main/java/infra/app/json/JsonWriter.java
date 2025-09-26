@@ -17,6 +17,8 @@
 
 package infra.app.json;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,7 +35,6 @@ import java.util.function.UnaryOperator;
 import infra.app.json.JsonValueWriter.Series;
 import infra.app.json.JsonWriter.Member.Extractor;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 

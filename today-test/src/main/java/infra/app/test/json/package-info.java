@@ -18,9 +18,7 @@
 /**
  * Support for testing JSON.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.app.test.json;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ package infra.aop.interceptor;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serial;
 
@@ -28,7 +29,6 @@ import infra.aop.support.DefaultIntroductionAdvisor;
 import infra.aop.support.DefaultPointcutAdvisor;
 import infra.aop.support.DelegatingIntroductionInterceptor;
 import infra.beans.factory.NamedBean;
-import infra.lang.Nullable;
 
 /**
  * Convenient methods for creating advisors that may be used when autoproxying beans

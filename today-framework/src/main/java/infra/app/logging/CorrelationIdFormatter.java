@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.app.logging;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Arrays;
@@ -31,7 +33,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 

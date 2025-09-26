@@ -17,9 +17,7 @@
 /**
  * Configuration support for WebSocket request handling.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.socket.config;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

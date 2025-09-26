@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,12 +21,12 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.weaver.tools.JoinPointMatch;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
 import infra.aop.ProxyMethodInvocation;
-import infra.lang.Nullable;
 
 /**
  * Framework AOP around advice (MethodInterceptor) that wraps

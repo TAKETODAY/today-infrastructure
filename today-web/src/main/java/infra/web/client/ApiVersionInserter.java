@@ -17,10 +17,11 @@
 
 package infra.web.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 
 import infra.http.HttpHeaders;
-import infra.lang.Nullable;
 
 /**
  * Contract to determine how to insert an API version into the URI or headers

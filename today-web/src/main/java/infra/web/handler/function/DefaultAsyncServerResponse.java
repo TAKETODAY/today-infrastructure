@@ -17,6 +17,8 @@
 
 package infra.web.handler.function;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -28,7 +30,6 @@ import java.util.function.Function;
 import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 import infra.web.RequestContext;
 import infra.web.async.DeferredResult;

@@ -17,6 +17,8 @@
 
 package infra.web.config.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,7 +28,6 @@ import java.util.function.Predicate;
 
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.web.accept.ApiVersionDeprecationHandler;
 import infra.web.accept.ApiVersionParser;
 import infra.web.accept.ApiVersionResolver;

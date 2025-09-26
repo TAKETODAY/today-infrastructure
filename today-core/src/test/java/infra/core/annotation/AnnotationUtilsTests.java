@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
@@ -35,13 +34,13 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.RegEx;
+import javax.annotation.Syntax;
+import javax.annotation.concurrent.ThreadSafe;
 
 import infra.core.Ordered;
 import infra.core.annotation.subpackage.NonPublicAnnotatedClass;
-import infra.core.testfixture.stereotype.Indexed;
-import infra.lang.NonNullApi;
+import infra.core.testfixture.stereotype.Component;
 
 import static infra.core.annotation.AnnotationUtils.VALUE;
 import static infra.core.annotation.AnnotationUtils.findAnnotation;
@@ -82,7 +81,6 @@ class AnnotationUtilsTests {
     assertThat(findAnnotation(m, Order.class)).isNotNull();
   }
 
-  // @since 4.0
   @Test
   void findMethodAnnotationWithAnnotationOnMethodInInterface() throws Exception {
     Method m = Leaf.class.getMethod("fromInterfaceImplementedByRoot");
@@ -94,7 +92,6 @@ class AnnotationUtilsTests {
     assertThat(findAnnotation(m, Order.class)).isNotNull();
   }
 
-  // @since 4.0
   @Test
   void findMethodAnnotationWithMetaAnnotationOnLeaf() throws Exception {
     Method m = Leaf.class.getMethod("metaAnnotatedOnLeaf");
@@ -103,20 +100,12 @@ class AnnotationUtilsTests {
     assertThat(findAnnotation(m, Order.class)).isNotNull();
   }
 
-  // @since 4.0
   @Test
   void findMethodAnnotationWithMetaMetaAnnotationOnLeaf() throws Exception {
     Method m = Leaf.class.getMethod("metaMetaAnnotatedOnLeaf");
     assertThat(m.getAnnotation(Component.class)).isNull();
     assertThat(getAnnotation(m, Component.class)).isNull();
     assertThat(findAnnotation(m, Component.class)).isNotNull();
-  }
-
-  @Indexed
-  @Retention(RetentionPolicy.RUNTIME)
-  @Target({ ElementType.TYPE, ElementType.METHOD })
-  public @interface Component {
-    String value() default "";
   }
 
   @Test
@@ -127,7 +116,6 @@ class AnnotationUtilsTests {
     assertThat(findAnnotation(m, Order.class)).isNotNull();
   }
 
-  // @since 4.0
   @Test
   void findMethodAnnotationWithMetaAnnotationOnRoot() throws Exception {
     Method m = Leaf.class.getMethod("metaAnnotatedOnRoot");
@@ -159,19 +147,15 @@ class AnnotationUtilsTests {
     assertThat(getAnnotation(bridgeMethod, Order.class)).isNull();
     assertThat(findAnnotation(bridgeMethod, Order.class)).isNotNull();
 
-    boolean runningInEclipse = StackWalker.getInstance().walk(stream ->
-            stream.anyMatch(stackFrame -> stackFrame.getClassName().startsWith("org.eclipse.jdt")));
     // As of JDK 8, invoking getAnnotation() on a bridge method actually finds an
-    // annotation on its 'bridged' method [1]; however, the Eclipse compiler will not
-    // support this until Eclipse 4.9 [2]. Thus, we effectively ignore the following
+    // annotation on its 'bridged' method [1]; however, the Eclipse compiler does
+    // not support this [2]. Thus, we effectively ignore the following
     // assertion if the test is currently executing within the Eclipse IDE.
     //
     // [1] https://bugs.openjdk.java.net/browse/JDK-6695379
     // [2] https://bugs.eclipse.org/bugs/show_bug.cgi?id=495396
     //
-    if (!runningInEclipse) {
-      assertThat(bridgeMethod.getAnnotation(Transactional.class)).isNotNull();
-    }
+    assertThat(bridgeMethod.getAnnotation(Transactional.class)).isNotNull();
     assertThat(getAnnotation(bridgeMethod, Transactional.class)).isNotNull();
     assertThat(findAnnotation(bridgeMethod, Transactional.class)).isNotNull();
   }
@@ -198,7 +182,6 @@ class AnnotationUtilsTests {
   }
 
   @Test
-
   void findMethodAnnotationFromGenericInterface() throws Exception {
     Method method = ImplementsInterfaceWithGenericAnnotatedMethod.class.getMethod("foo", String.class);
     Order order = findAnnotation(method, Order.class);
@@ -206,7 +189,6 @@ class AnnotationUtilsTests {
   }
 
   @Test
-
   void findMethodAnnotationFromGenericSuperclass() throws Exception {
     Method method = ExtendsBaseClassWithGenericAnnotatedMethod.class.getMethod("foo", String.class);
     Order order = findAnnotation(method, Order.class);
@@ -227,15 +209,13 @@ class AnnotationUtilsTests {
     assertThat(order).isNotNull();
   }
 
-  // @since 4.0
   @Test
   void findClassAnnotationFavorsMoreLocallyDeclaredComposedAnnotationsOverAnnotationsOnInterfaces() {
     Component component = findAnnotation(ClassWithLocalMetaAnnotationAndMetaAnnotatedInterface.class, Component.class);
     assertThat(component).isNotNull();
-    assertThat(component.value()).contains("meta2");
+    assertThat(component.value()).isEqualTo("meta2");
   }
 
-  // @since 4.0
   @Test
   void findClassAnnotationFavorsMoreLocallyDeclaredComposedAnnotationsOverInheritedAnnotations() {
     Transactional transactional = findAnnotation(SubSubClassWithInheritedAnnotation.class, Transactional.class);
@@ -243,26 +223,25 @@ class AnnotationUtilsTests {
     assertThat(transactional.readOnly()).as("readOnly flag for SubSubClassWithInheritedAnnotation").isTrue();
   }
 
-  // @since 4.0
   @Test
   void findClassAnnotationFavorsMoreLocallyDeclaredComposedAnnotationsOverInheritedComposedAnnotations() {
     Component component = findAnnotation(SubSubClassWithInheritedMetaAnnotation.class, Component.class);
     assertThat(component).isNotNull();
-    assertThat(component.value()).contains("meta2");
+    assertThat(component.value()).isEqualTo("meta2");
   }
 
   @Test
   void findClassAnnotationOnMetaMetaAnnotatedClass() {
     Component component = findAnnotation(MetaMetaAnnotatedClass.class, Component.class);
     assertThat(component).as("Should find meta-annotation on composed annotation on class").isNotNull();
-    assertThat(component.value()).contains("meta2");
+    assertThat(component.value()).isEqualTo("meta2");
   }
 
   @Test
   void findClassAnnotationOnMetaMetaMetaAnnotatedClass() {
     Component component = findAnnotation(MetaMetaMetaAnnotatedClass.class, Component.class);
     assertThat(component).as("Should find meta-annotation on meta-annotation on composed annotation on class").isNotNull();
-    assertThat(component.value()).contains("meta2");
+    assertThat(component.value()).isEqualTo("meta2");
   }
 
   @Test
@@ -278,42 +257,36 @@ class AnnotationUtilsTests {
     assertThat(component).as("Should not find @Component on MetaCycleAnnotatedClass").isNull();
   }
 
-  // @since 4.0
   @Test
   void findClassAnnotationOnInheritedAnnotationInterface() {
     Transactional tx = findAnnotation(InheritedAnnotationInterface.class, Transactional.class);
     assertThat(tx).as("Should find @Transactional on InheritedAnnotationInterface").isNotNull();
   }
 
-  // @since 4.0
   @Test
   void findClassAnnotationOnSubInheritedAnnotationInterface() {
     Transactional tx = findAnnotation(SubInheritedAnnotationInterface.class, Transactional.class);
     assertThat(tx).as("Should find @Transactional on SubInheritedAnnotationInterface").isNotNull();
   }
 
-  // @since 4.0
   @Test
   void findClassAnnotationOnSubSubInheritedAnnotationInterface() {
     Transactional tx = findAnnotation(SubSubInheritedAnnotationInterface.class, Transactional.class);
     assertThat(tx).as("Should find @Transactional on SubSubInheritedAnnotationInterface").isNotNull();
   }
 
-  // @since 4.0
   @Test
   void findClassAnnotationOnNonInheritedAnnotationInterface() {
     Order order = findAnnotation(NonInheritedAnnotationInterface.class, Order.class);
     assertThat(order).as("Should find @Order on NonInheritedAnnotationInterface").isNotNull();
   }
 
-  // @since 4.0
   @Test
   void findClassAnnotationOnSubNonInheritedAnnotationInterface() {
     Order order = findAnnotation(SubNonInheritedAnnotationInterface.class, Order.class);
     assertThat(order).as("Should find @Order on SubNonInheritedAnnotationInterface").isNotNull();
   }
 
-  // @since 4.0
   @Test
   void findClassAnnotationOnSubSubNonInheritedAnnotationInterface() {
     Order order = findAnnotation(SubSubNonInheritedAnnotationInterface.class, Order.class);
@@ -323,8 +296,8 @@ class AnnotationUtilsTests {
   @Test
   void findAnnotationDeclaringClassForAllScenarios() {
     // no class-level annotation
-    assertThat((Object) findAnnotationDeclaringClass(Transactional.class, NonAnnotatedInterface.class)).isNull();
-    assertThat((Object) findAnnotationDeclaringClass(Transactional.class, NonAnnotatedClass.class)).isNull();
+    assertThat(findAnnotationDeclaringClass(Transactional.class, NonAnnotatedInterface.class)).isNull();
+    assertThat(findAnnotationDeclaringClass(Transactional.class, NonAnnotatedClass.class)).isNull();
 
     // inherited class-level annotation; note: @Transactional is inherited
     assertThat(findAnnotationDeclaringClass(Transactional.class, InheritedAnnotationInterface.class)).isEqualTo(InheritedAnnotationInterface.class);
@@ -344,8 +317,8 @@ class AnnotationUtilsTests {
   void findAnnotationDeclaringClassForTypesWithSingleCandidateType() {
     // no class-level annotation
     List<Class<? extends Annotation>> transactionalCandidateList = Collections.singletonList(Transactional.class);
-    assertThat((Object) findAnnotationDeclaringClassForTypes(transactionalCandidateList, NonAnnotatedInterface.class)).isNull();
-    assertThat((Object) findAnnotationDeclaringClassForTypes(transactionalCandidateList, NonAnnotatedClass.class)).isNull();
+    assertThat(findAnnotationDeclaringClassForTypes(transactionalCandidateList, NonAnnotatedInterface.class)).isNull();
+    assertThat(findAnnotationDeclaringClassForTypes(transactionalCandidateList, NonAnnotatedClass.class)).isNull();
 
     // inherited class-level annotation; note: @Transactional is inherited
     assertThat(findAnnotationDeclaringClassForTypes(transactionalCandidateList, InheritedAnnotationInterface.class)).isEqualTo(InheritedAnnotationInterface.class);
@@ -367,8 +340,8 @@ class AnnotationUtilsTests {
     List<Class<? extends Annotation>> candidates = asList(Transactional.class, Order.class);
 
     // no class-level annotation
-    assertThat((Object) findAnnotationDeclaringClassForTypes(candidates, NonAnnotatedInterface.class)).isNull();
-    assertThat((Object) findAnnotationDeclaringClassForTypes(candidates, NonAnnotatedClass.class)).isNull();
+    assertThat(findAnnotationDeclaringClassForTypes(candidates, NonAnnotatedInterface.class)).isNull();
+    assertThat(findAnnotationDeclaringClassForTypes(candidates, NonAnnotatedClass.class)).isNull();
 
     // inherited class-level annotation; note: @Transactional is inherited
     assertThat(findAnnotationDeclaringClassForTypes(candidates, InheritedAnnotationInterface.class)).isEqualTo(InheritedAnnotationInterface.class);
@@ -417,7 +390,7 @@ class AnnotationUtilsTests {
     // inherited class-level annotation; note: @Transactional is inherited
     assertThat(isAnnotationInherited(Transactional.class, InheritedAnnotationInterface.class)).isFalse();
     // isAnnotationInherited() does not currently traverse interface hierarchies.
-    // Thus the following, though perhaps counter intuitive, must be false:
+    // Thus the following, though perhaps counterintuitive, must be false:
     assertThat(isAnnotationInherited(Transactional.class, SubInheritedAnnotationInterface.class)).isFalse();
     assertThat(isAnnotationInherited(Transactional.class, InheritedAnnotationClass.class)).isFalse();
     assertThat(isAnnotationInherited(Transactional.class, SubInheritedAnnotationClass.class)).isTrue();
@@ -432,9 +405,8 @@ class AnnotationUtilsTests {
   @Test
   void isAnnotationMetaPresentForPlainType() {
     assertThat(isAnnotationMetaPresent(Order.class, Documented.class)).isTrue();
-    assertThat(isAnnotationMetaPresent(NonNullApi.class, Documented.class)).isTrue();
-    assertThat(isAnnotationMetaPresent(NonNullApi.class, Nonnull.class)).isTrue();
-    assertThat(isAnnotationMetaPresent(ParametersAreNonnullByDefault.class, Nonnull.class)).isTrue();
+    assertThat(isAnnotationMetaPresent(ThreadSafe.class, Documented.class)).isTrue();
+    assertThat(isAnnotationMetaPresent(RegEx.class, Syntax.class)).isTrue();
   }
 
   @Test
@@ -444,7 +416,7 @@ class AnnotationUtilsTests {
 
     AnnotationAttributes attributes = (AnnotationAttributes) getAnnotationAttributes(component);
     assertThat(attributes).isNotNull();
-    assertThat(attributes.getStringArray(VALUE)).as("value attribute: ").contains("webController");
+    assertThat(attributes.getString(VALUE)).as("value attribute: ").isEqualTo("webController");
     assertThat(attributes.annotationType()).isEqualTo(Component.class);
   }
 
@@ -505,9 +477,9 @@ class AnnotationUtilsTests {
   }
 
   @Test
-  void getValueFromNonPublicAnnotation() throws Exception {
+  void getValueFromNonPublicAnnotation() {
     Annotation[] declaredAnnotations = NonPublicAnnotatedClass.class.getDeclaredAnnotations();
-    assertThat(declaredAnnotations.length).isEqualTo(1);
+    assertThat(declaredAnnotations).hasSize(1);
     Annotation annotation = declaredAnnotations[0];
     assertThat(annotation).isNotNull();
     assertThat(annotation.annotationType().getSimpleName()).isEqualTo("NonPublicAnnotation");
@@ -527,7 +499,7 @@ class AnnotationUtilsTests {
   @Test
   void getDefaultValueFromNonPublicAnnotation() {
     Annotation[] declaredAnnotations = NonPublicAnnotatedClass.class.getDeclaredAnnotations();
-    assertThat(declaredAnnotations.length).isEqualTo(1);
+    assertThat(declaredAnnotations).hasSize(1);
     Annotation annotation = declaredAnnotations[0];
     assertThat(annotation).isNotNull();
     assertThat(annotation.annotationType().getSimpleName()).isEqualTo("NonPublicAnnotation");
@@ -563,7 +535,7 @@ class AnnotationUtilsTests {
 
     Set<ContextConfig> annotations = getRepeatableAnnotations(ConfigHierarchyTestCase.class, ContextConfig.class, null);
     assertThat(annotations).isNotNull();
-    assertThat(annotations.size()).as("size if container type is omitted: ").isEqualTo(0);
+    assertThat(annotations).as("size if container type is omitted: ").isEmpty();
 
     annotations = getRepeatableAnnotations(ConfigHierarchyTestCase.class, ContextConfig.class, Hierarchy.class);
     assertThat(annotations).isNotNull();
@@ -578,7 +550,7 @@ class AnnotationUtilsTests {
   @Test
   void getRepeatableAnnotationsDeclaredOnClass() {
     final List<String> expectedValuesJava = asList("A", "B", "C");
-    final List<String> expectedValuesSpring = asList("A", "B", "C", "meta1");
+    final List<String> expectedValuesInfra = asList("A", "B", "C", "meta1");
 
     // Java 8
     MyRepeatable[] array = MyRepeatableClass.class.getAnnotationsByType(MyRepeatable.class);
@@ -586,24 +558,23 @@ class AnnotationUtilsTests {
     List<String> values = stream(array).map(MyRepeatable::value).collect(toList());
     assertThat(values).isEqualTo(expectedValuesJava);
 
-    //
     Set<MyRepeatable> set = getRepeatableAnnotations(MyRepeatableClass.class, MyRepeatable.class, MyRepeatableContainer.class);
     assertThat(set).isNotNull();
     values = set.stream().map(MyRepeatable::value).collect(toList());
-    assertThat(values).isEqualTo(expectedValuesSpring);
+    assertThat(values).isEqualTo(expectedValuesInfra);
 
     // When container type is omitted and therefore inferred from @Repeatable
     set = getRepeatableAnnotations(MyRepeatableClass.class, MyRepeatable.class);
     assertThat(set).isNotNull();
     values = set.stream().map(MyRepeatable::value).collect(toList());
-    assertThat(values).isEqualTo(expectedValuesSpring);
+    assertThat(values).isEqualTo(expectedValuesInfra);
   }
 
   @Test
   void getRepeatableAnnotationsDeclaredOnSuperclass() {
     final Class<?> clazz = SubMyRepeatableClass.class;
     final List<String> expectedValuesJava = asList("A", "B", "C");
-    final List<String> expectedValuesSpring = asList("A", "B", "C", "meta1");
+    final List<String> expectedValuesInfra = asList("A", "B", "C", "meta1");
 
     // Java 8
     MyRepeatable[] array = clazz.getAnnotationsByType(MyRepeatable.class);
@@ -611,24 +582,23 @@ class AnnotationUtilsTests {
     List<String> values = stream(array).map(MyRepeatable::value).collect(toList());
     assertThat(values).isEqualTo(expectedValuesJava);
 
-    //
     Set<MyRepeatable> set = getRepeatableAnnotations(clazz, MyRepeatable.class, MyRepeatableContainer.class);
     assertThat(set).isNotNull();
     values = set.stream().map(MyRepeatable::value).collect(toList());
-    assertThat(values).isEqualTo(expectedValuesSpring);
+    assertThat(values).isEqualTo(expectedValuesInfra);
 
     // When container type is omitted and therefore inferred from @Repeatable
     set = getRepeatableAnnotations(clazz, MyRepeatable.class);
     assertThat(set).isNotNull();
     values = set.stream().map(MyRepeatable::value).collect(toList());
-    assertThat(values).isEqualTo(expectedValuesSpring);
+    assertThat(values).isEqualTo(expectedValuesInfra);
   }
 
   @Test
   void getRepeatableAnnotationsDeclaredOnClassAndSuperclass() {
     final Class<?> clazz = SubMyRepeatableWithAdditionalLocalDeclarationsClass.class;
     final List<String> expectedValuesJava = asList("X", "Y", "Z");
-    final List<String> expectedValuesSpring = asList("X", "Y", "Z", "meta2");
+    final List<String> expectedValuesInfra = asList("X", "Y", "Z", "meta2");
 
     // Java 8
     MyRepeatable[] array = clazz.getAnnotationsByType(MyRepeatable.class);
@@ -636,24 +606,23 @@ class AnnotationUtilsTests {
     List<String> values = stream(array).map(MyRepeatable::value).collect(toList());
     assertThat(values).isEqualTo(expectedValuesJava);
 
-    //
     Set<MyRepeatable> set = getRepeatableAnnotations(clazz, MyRepeatable.class, MyRepeatableContainer.class);
     assertThat(set).isNotNull();
     values = set.stream().map(MyRepeatable::value).collect(toList());
-    assertThat(values).isEqualTo(expectedValuesSpring);
+    assertThat(values).isEqualTo(expectedValuesInfra);
 
     // When container type is omitted and therefore inferred from @Repeatable
     set = getRepeatableAnnotations(clazz, MyRepeatable.class);
     assertThat(set).isNotNull();
     values = set.stream().map(MyRepeatable::value).collect(toList());
-    assertThat(values).isEqualTo(expectedValuesSpring);
+    assertThat(values).isEqualTo(expectedValuesInfra);
   }
 
   @Test
   void getRepeatableAnnotationsDeclaredOnMultipleSuperclasses() {
     final Class<?> clazz = SubSubMyRepeatableWithAdditionalLocalDeclarationsClass.class;
     final List<String> expectedValuesJava = asList("X", "Y", "Z");
-    final List<String> expectedValuesSpring = asList("X", "Y", "Z", "meta2");
+    final List<String> expectedValuesInfra = asList("X", "Y", "Z", "meta2");
 
     // Java 8
     MyRepeatable[] array = clazz.getAnnotationsByType(MyRepeatable.class);
@@ -661,23 +630,22 @@ class AnnotationUtilsTests {
     List<String> values = stream(array).map(MyRepeatable::value).collect(toList());
     assertThat(values).isEqualTo(expectedValuesJava);
 
-    //
     Set<MyRepeatable> set = getRepeatableAnnotations(clazz, MyRepeatable.class, MyRepeatableContainer.class);
     assertThat(set).isNotNull();
     values = set.stream().map(MyRepeatable::value).collect(toList());
-    assertThat(values).isEqualTo(expectedValuesSpring);
+    assertThat(values).isEqualTo(expectedValuesInfra);
 
     // When container type is omitted and therefore inferred from @Repeatable
     set = getRepeatableAnnotations(clazz, MyRepeatable.class);
     assertThat(set).isNotNull();
     values = set.stream().map(MyRepeatable::value).collect(toList());
-    assertThat(values).isEqualTo(expectedValuesSpring);
+    assertThat(values).isEqualTo(expectedValuesInfra);
   }
 
   @Test
   void getDeclaredRepeatableAnnotationsDeclaredOnClass() {
     final List<String> expectedValuesJava = asList("A", "B", "C");
-    final List<String> expectedValuesSpring = asList("A", "B", "C", "meta1");
+    final List<String> expectedValuesInfra = asList("A", "B", "C", "meta1");
 
     // Java 8
     MyRepeatable[] array = MyRepeatableClass.class.getDeclaredAnnotationsByType(MyRepeatable.class);
@@ -685,18 +653,17 @@ class AnnotationUtilsTests {
     List<String> values = stream(array).map(MyRepeatable::value).collect(toList());
     assertThat(values).isEqualTo(expectedValuesJava);
 
-    //
     Set<MyRepeatable> set = getDeclaredRepeatableAnnotations(
             MyRepeatableClass.class, MyRepeatable.class, MyRepeatableContainer.class);
     assertThat(set).isNotNull();
     values = set.stream().map(MyRepeatable::value).collect(toList());
-    assertThat(values).isEqualTo(expectedValuesSpring);
+    assertThat(values).isEqualTo(expectedValuesInfra);
 
     // When container type is omitted and therefore inferred from @Repeatable
     set = getDeclaredRepeatableAnnotations(MyRepeatableClass.class, MyRepeatable.class);
     assertThat(set).isNotNull();
     values = set.stream().map(MyRepeatable::value).collect(toList());
-    assertThat(values).isEqualTo(expectedValuesSpring);
+    assertThat(values).isEqualTo(expectedValuesInfra);
   }
 
   @Test
@@ -706,21 +673,20 @@ class AnnotationUtilsTests {
     // Java 8
     MyRepeatable[] array = clazz.getDeclaredAnnotationsByType(MyRepeatable.class);
     assertThat(array).isNotNull();
-    assertThat(array.length).isEqualTo(0);
+    assertThat(array).isEmpty();
 
-    //
     Set<MyRepeatable> set = getDeclaredRepeatableAnnotations(clazz, MyRepeatable.class, MyRepeatableContainer.class);
     assertThat(set).isNotNull();
-    assertThat(set).hasSize(0);
+    assertThat(set).isEmpty();
 
     // When container type is omitted and therefore inferred from @Repeatable
     set = getDeclaredRepeatableAnnotations(clazz, MyRepeatable.class);
     assertThat(set).isNotNull();
-    assertThat(set).hasSize(0);
+    assertThat(set).isEmpty();
   }
 
   @Test
-  void synthesizeAnnotationWithImplicitAliasesWithMissingDefaultValues() throws Exception {
+  void synthesizeAnnotationWithImplicitAliasesWithMissingDefaultValues() {
     Class<?> clazz = ImplicitAliasesWithMissingDefaultValuesContextConfigClass.class;
     Class<ImplicitAliasesWithMissingDefaultValuesContextConfig> annotationType =
             ImplicitAliasesWithMissingDefaultValuesContextConfig.class;
@@ -736,7 +702,7 @@ class AnnotationUtilsTests {
   }
 
   @Test
-  void synthesizeAnnotationWithImplicitAliasesWithDifferentDefaultValues() throws Exception {
+  void synthesizeAnnotationWithImplicitAliasesWithDifferentDefaultValues() {
     Class<?> clazz = ImplicitAliasesWithDifferentDefaultValuesContextConfigClass.class;
     Class<ImplicitAliasesWithDifferentDefaultValuesContextConfig> annotationType =
             ImplicitAliasesWithDifferentDefaultValuesContextConfig.class;
@@ -751,7 +717,7 @@ class AnnotationUtilsTests {
   }
 
   @Test
-  void synthesizeAnnotationWithImplicitAliasesWithDuplicateValues() throws Exception {
+  void synthesizeAnnotationWithImplicitAliasesWithDuplicateValues() {
     Class<?> clazz = ImplicitAliasesWithDuplicateValuesContextConfigClass.class;
     Class<ImplicitAliasesWithDuplicateValuesContextConfig> annotationType =
             ImplicitAliasesWithDuplicateValuesContextConfig.class;
@@ -769,7 +735,7 @@ class AnnotationUtilsTests {
   }
 
   @Test
-  void synthesizeAnnotationFromMapWithoutAttributeAliases() throws Exception {
+  void synthesizeAnnotationFromMapWithoutAttributeAliases() {
     Component component = WebController.class.getAnnotation(Component.class);
     assertThat(component).isNotNull();
 
@@ -778,13 +744,13 @@ class AnnotationUtilsTests {
     assertThat(synthesizedComponent).isNotNull();
 
     assertThat(synthesizedComponent).isNotSameAs(component);
-    assertThat(component.value()).as("value from component: ").contains("webController");
-    assertThat(synthesizedComponent.value()).as("value from synthesized component: ").contains("webController");
+    assertThat(component.value()).as("value from component: ").isEqualTo("webController");
+    assertThat(synthesizedComponent.value()).as("value from synthesized component: ").isEqualTo("webController");
   }
 
   @Test
   @SuppressWarnings("unchecked")
-  void synthesizeAnnotationFromMapWithNestedMap() throws Exception {
+  void synthesizeAnnotationFromMapWithNestedMap() {
     ComponentScanSingleFilter componentScan =
             ComponentScanSingleFilterClass.class.getAnnotation(ComponentScanSingleFilter.class);
     assertThat(componentScan).isNotNull();
@@ -813,7 +779,7 @@ class AnnotationUtilsTests {
 
   @Test
   @SuppressWarnings("unchecked")
-  void synthesizeAnnotationFromMapWithNestedArrayOfMaps() throws Exception {
+  void synthesizeAnnotationFromMapWithNestedArrayOfMaps() {
     ComponentScan componentScan = ComponentScanClass.class.getAnnotation(ComponentScan.class);
     assertThat(componentScan).isNotNull();
 
@@ -843,7 +809,7 @@ class AnnotationUtilsTests {
   }
 
   @Test
-  void synthesizeAnnotationFromDefaultsWithoutAttributeAliases() throws Exception {
+  void synthesizeAnnotationFromDefaultsWithoutAttributeAliases() {
     AnnotationWithDefaults annotationWithDefaults = synthesizeAnnotation(AnnotationWithDefaults.class);
     assertThat(annotationWithDefaults).isNotNull();
     assertThat(annotationWithDefaults.text()).as("text: ").isEqualTo("enigma");
@@ -852,15 +818,15 @@ class AnnotationUtilsTests {
   }
 
   @Test
-  void synthesizeAnnotationFromDefaultsWithAttributeAliases() throws Exception {
+  void synthesizeAnnotationFromDefaultsWithAttributeAliases() {
     ContextConfig contextConfig = synthesizeAnnotation(ContextConfig.class);
     assertThat(contextConfig).isNotNull();
-    assertThat(contextConfig.value()).as("value: ").isEqualTo("");
-    assertThat(contextConfig.location()).as("location: ").isEqualTo("");
+    assertThat(contextConfig.value()).as("value: ").isEmpty();
+    assertThat(contextConfig.location()).as("location: ").isEmpty();
   }
 
   @Test
-  void synthesizeAnnotationFromMapWithMinimalAttributesWithAttributeAliases() throws Exception {
+  void synthesizeAnnotationFromMapWithMinimalAttributesWithAttributeAliases() {
     Map<String, Object> map = Collections.singletonMap("location", "test.xml");
     ContextConfig contextConfig = synthesizeAnnotation(map, ContextConfig.class, null);
     assertThat(contextConfig).isNotNull();
@@ -869,7 +835,7 @@ class AnnotationUtilsTests {
   }
 
   @Test
-  void synthesizeAnnotationFromMapWithAttributeAliasesThatOverrideArraysWithSingleElements() throws Exception {
+  void synthesizeAnnotationFromMapWithAttributeAliasesThatOverrideArraysWithSingleElements() {
     Map<String, Object> map = Collections.singletonMap("value", "/foo");
     Get get = synthesizeAnnotation(map, Get.class, null);
     assertThat(get).isNotNull();
@@ -884,7 +850,7 @@ class AnnotationUtilsTests {
   }
 
   @Test
-  void synthesizeAnnotationFromMapWithImplicitAttributeAliases() throws Exception {
+  void synthesizeAnnotationFromMapWithImplicitAttributeAliases() {
     assertAnnotationSynthesisFromMapWithImplicitAliases("value");
     assertAnnotationSynthesisFromMapWithImplicitAliases("location1");
     assertAnnotationSynthesisFromMapWithImplicitAliases("location2");
@@ -893,7 +859,7 @@ class AnnotationUtilsTests {
     assertAnnotationSynthesisFromMapWithImplicitAliases("groovyScript");
   }
 
-  private void assertAnnotationSynthesisFromMapWithImplicitAliases(String attributeNameAndValue) throws Exception {
+  private void assertAnnotationSynthesisFromMapWithImplicitAliases(String attributeNameAndValue) {
     Map<String, Object> map = Collections.singletonMap(attributeNameAndValue, attributeNameAndValue);
     ImplicitAliasesContextConfig config = synthesizeAnnotation(map, ImplicitAliasesContextConfig.class, null);
     assertThat(config).isNotNull();
@@ -906,12 +872,12 @@ class AnnotationUtilsTests {
   }
 
   @Test
-  void synthesizeAnnotationFromMapWithMissingAttributeValue() throws Exception {
+  void synthesizeAnnotationFromMapWithMissingAttributeValue() {
     assertMissingTextAttribute(Collections.emptyMap());
   }
 
   @Test
-  void synthesizeAnnotationFromMapWithNullAttributeValue() throws Exception {
+  void synthesizeAnnotationFromMapWithNullAttributeValue() {
     Map<String, Object> map = Collections.singletonMap("text", null);
     assertThat(map.containsKey("text")).isTrue();
     assertMissingTextAttribute(map);
@@ -924,16 +890,16 @@ class AnnotationUtilsTests {
   }
 
   @Test
-  void synthesizeAnnotationFromMapWithAttributeOfIncorrectType() throws Exception {
+  void synthesizeAnnotationFromMapWithAttributeOfIncorrectType() {
     Map<String, Object> map = Collections.singletonMap(VALUE, 42L);
     assertThatIllegalStateException().isThrownBy(() ->
                     synthesizeAnnotation(map, Component.class, null).value())
-            .withMessageContaining("Attribute 'value' in annotation infra.core.annotation.AnnotationUtilsTests$Component "
-                    + "should be compatible with java.lang.String but a java.lang.Long value was returned");
+            .withMessageContaining("Attribute 'value' in annotation infra.core.testfixture.stereotype.Component " +
+                    "should be compatible with java.lang.String but a java.lang.Long value was returned");
   }
 
   @Test
-  void synthesizeAnnotationFromAnnotationAttributesWithoutAttributeAliases() throws Exception {
+  void synthesizeAnnotationFromAnnotationAttributesWithoutAttributeAliases() {
     // 1) Get an annotation
     Component component = WebController.class.getAnnotation(Component.class);
     assertThat(component).isNotNull();
@@ -949,13 +915,12 @@ class AnnotationUtilsTests {
     // 4) Verify that the original and synthesized annotations are equivalent
     assertThat(synthesizedComponent).isNotSameAs(component);
     assertThat(synthesizedComponent).isEqualTo(component);
-    assertThat(component.value()).as("value from component: ").contains("webController");
-    assertThat(synthesizedComponent.value()).as("value from synthesized component: ").contains("webController");
+    assertThat(component.value()).as("value from component: ").isEqualTo("webController");
+    assertThat(synthesizedComponent.value()).as("value from synthesized component: ").isEqualTo("webController");
   }
 
   @Test
-    // gh-22702
-  void findAnnotationWithRepeatablesElements() throws Exception {
+  void findAnnotationWithRepeatablesElements() {
     assertThat(AnnotationUtils.findAnnotation(TestRepeatablesClass.class,
             TestRepeatable.class)).isNull();
     assertThat(AnnotationUtils.findAnnotation(TestRepeatablesClass.class,
@@ -963,8 +928,7 @@ class AnnotationUtilsTests {
   }
 
   @Test
-    // gh-23856
-  void findAnnotationFindsRepeatableContainerOnComposedAnnotationMetaAnnotatedWithRepeatableAnnotations() throws Exception {
+  void findAnnotationFindsRepeatableContainerOnComposedAnnotationMetaAnnotatedWithRepeatableAnnotations() {
     MyRepeatableContainer annotation = AnnotationUtils.findAnnotation(MyRepeatableMeta1And2.class, MyRepeatableContainer.class);
 
     assertThat(annotation).isNotNull();
@@ -972,7 +936,6 @@ class AnnotationUtilsTests {
   }
 
   @Test
-    // gh-23856
   void findAnnotationFindsRepeatableContainerOnComposedAnnotationMetaAnnotatedWithRepeatableAnnotationsOnMethod() throws Exception {
     Method method = getClass().getDeclaredMethod("methodWithComposedAnnotationMetaAnnotatedWithRepeatableAnnotations");
     MyRepeatableContainer annotation = AnnotationUtils.findAnnotation(method, MyRepeatableContainer.class);
@@ -982,8 +945,7 @@ class AnnotationUtilsTests {
   }
 
   @Test
-    // gh-23929
-  void findDeprecatedAnnotation() throws Exception {
+  void findDeprecatedAnnotation() {
     assertThat(getAnnotation(DeprecatedClass.class, Deprecated.class)).isNotNull();
     assertThat(getAnnotation(SubclassOfDeprecatedClass.class, Deprecated.class)).isNull();
     assertThat(findAnnotation(DeprecatedClass.class, Deprecated.class)).isNotNull();
@@ -1137,7 +1099,7 @@ class AnnotationUtilsTests {
     boolean readOnly() default false;
   }
 
-  public static abstract class Foo<T> {
+  public abstract static class Foo<T> {
 
     @Order(1)
     public abstract void something(T arg);
@@ -1247,7 +1209,7 @@ class AnnotationUtilsTests {
     }
   }
 
-  public static abstract class BaseClassWithGenericAnnotatedMethod<T> {
+  public abstract static class BaseClassWithGenericAnnotatedMethod<T> {
 
     @Order
     abstract void foo(T t);
@@ -1325,12 +1287,12 @@ class AnnotationUtilsTests {
           SubMyRepeatableWithAdditionalLocalDeclarationsClass {
   }
 
-  enum HttpMethod {
+  enum RequestMethod {
     GET, POST
   }
 
   /**
-   * Mock of {@code infra.web.annotation.RequestMapping}.
+   * Mock of {@code infra.web.bind.annotation.RequestMapping}.
    */
   @Retention(RetentionPolicy.RUNTIME)
   @interface WebMapping {
@@ -1343,15 +1305,15 @@ class AnnotationUtilsTests {
     @AliasFor(attribute = "value")
     String[] path() default "";
 
-    HttpMethod[] method() default {};
+    RequestMethod[] method() default {};
   }
 
   /**
-   * Mock of {@code infra.web.annotation.GetMapping}, except
+   * Mock of {@code infra.web.bind.annotation.GetMapping}, except
    * that the String arrays are overridden with single String elements.
    */
   @Retention(RetentionPolicy.RUNTIME)
-  @WebMapping(method = HttpMethod.GET, name = "")
+  @WebMapping(method = RequestMethod.GET, name = "")
   @interface Get {
 
     @AliasFor(annotation = WebMapping.class)
@@ -1366,9 +1328,10 @@ class AnnotationUtilsTests {
    * that the path is overridden by convention with single String element.
    */
   @Retention(RetentionPolicy.RUNTIME)
-  @WebMapping(method = HttpMethod.POST, name = "")
+  @WebMapping(method = RequestMethod.POST, name = "")
   @interface Post {
 
+    // Do NOT use @AliasFor here
     String path() default "";
   }
 
@@ -1379,7 +1342,7 @@ class AnnotationUtilsTests {
     public void handleMappedWithValueAttribute() {
     }
 
-    @WebMapping(path = "/test", name = "bar", method = { HttpMethod.GET, HttpMethod.POST })
+    @WebMapping(path = "/test", name = "bar", method = { RequestMethod.GET, RequestMethod.POST })
     public void handleMappedWithPathAttribute() {
     }
 
@@ -1398,7 +1361,7 @@ class AnnotationUtilsTests {
     /**
      * mapping is logically "equal" to handleMappedWithPathAttribute().
      */
-    @WebMapping(value = "/test", path = "/test", name = "bar", method = { HttpMethod.GET, HttpMethod.POST })
+    @WebMapping(value = "/test", path = "/test", name = "bar", method = { RequestMethod.GET, RequestMethod.POST })
     public void handleMappedWithSamePathAndValueAttributes() {
     }
 

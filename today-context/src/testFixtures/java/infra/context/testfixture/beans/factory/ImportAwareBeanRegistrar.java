@@ -22,7 +22,7 @@ import infra.beans.factory.BeanRegistry;
 import infra.context.annotation.ImportAware;
 import infra.core.env.Environment;
 import infra.core.type.AnnotationMetadata;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class ImportAwareBeanRegistrar implements BeanRegistrar, ImportAware {
 

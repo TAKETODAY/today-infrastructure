@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,10 @@
 
 package infra.beans.factory;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.BeansException;
 import infra.core.ResolvableType;
-import infra.lang.NonNull;
-import infra.lang.Nullable;
 
 /**
  * Exception thrown when a {@code BeanFactory} is asked for a bean instance for which it
@@ -107,7 +107,7 @@ public class NoSuchBeanDefinitionException extends BeansException {
    * @param type full type declaration of the missing bean
    * @since 4.0
    */
-  public NoSuchBeanDefinitionException(@NonNull ResolvableType type) {
+  public NoSuchBeanDefinitionException(ResolvableType type) {
     super("No qualifying bean of type '%s' available".formatted(type));
     this.beanName = null;
     this.resolvableType = type;
@@ -120,7 +120,7 @@ public class NoSuchBeanDefinitionException extends BeansException {
    * @param message detailed message describing the problem
    * @since 4.0
    */
-  public NoSuchBeanDefinitionException(@NonNull ResolvableType type, String message) {
+  public NoSuchBeanDefinitionException(ResolvableType type, String message) {
     super("No qualifying bean of type '%s' available: %s".formatted(type, message));
     this.beanName = null;
     this.resolvableType = type;

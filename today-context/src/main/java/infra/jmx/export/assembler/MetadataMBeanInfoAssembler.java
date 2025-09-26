@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.jmx.export.assembler;
+
+import org.jspecify.annotations.Nullable;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
@@ -38,7 +40,6 @@ import infra.jmx.export.metadata.ManagedOperation;
 import infra.jmx.export.metadata.ManagedOperationParameter;
 import infra.jmx.export.metadata.ManagedResource;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 
@@ -211,11 +212,11 @@ public class MetadataMBeanInfoAssembler extends AbstractReflectiveMBeanInfoAssem
     Method writeMethod = propertyDescriptor.getWriteMethod();
 
     ManagedAttribute getter = readMethod != null
-                              ? obtainAttributeSource().getManagedAttribute(readMethod)
-                              : null;
+            ? obtainAttributeSource().getManagedAttribute(readMethod)
+            : null;
     ManagedAttribute setter = writeMethod != null
-                              ? obtainAttributeSource().getManagedAttribute(writeMethod)
-                              : null;
+            ? obtainAttributeSource().getManagedAttribute(writeMethod)
+            : null;
 
     if (getter != null && StringUtils.hasText(getter.getDescription())) {
       return getter.getDescription();

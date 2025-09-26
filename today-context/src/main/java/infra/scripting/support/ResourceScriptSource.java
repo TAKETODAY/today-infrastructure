@@ -17,6 +17,8 @@
 
 package infra.scripting.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
@@ -25,7 +27,6 @@ import infra.core.io.EncodedResource;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.scripting.ScriptSource;

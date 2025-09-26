@@ -17,6 +17,8 @@
 
 package infra.web.client.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.concurrent.Executor;
@@ -28,7 +30,6 @@ import infra.http.HttpMethod;
 import infra.http.ResponseEntity;
 import infra.http.StreamingHttpOutputMessage;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.concurrent.Future;
 import infra.web.client.ClientResponse;
 import infra.web.client.RestClient;

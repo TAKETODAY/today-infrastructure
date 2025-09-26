@@ -17,6 +17,8 @@
 
 package infra.beans.factory.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyEditor;
 import java.util.Iterator;
 import java.util.concurrent.Executor;
@@ -36,7 +38,6 @@ import infra.core.Ordered;
 import infra.core.StringValueResolver;
 import infra.core.conversion.ConversionService;
 import infra.core.task.TaskExecutor;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**

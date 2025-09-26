@@ -64,10 +64,17 @@ class TypeMappedAnnotationTests {
   void mappingConventionAliasToMetaAnnotationReturnsMappedValues() {
     TypeMappedAnnotation<?> annotation = getTypeMappedAnnotation(
             WithConventionAliasToMetaAnnotation.class,
+            ConventionAliasToMetaAnnotation.class);
+    assertThat(annotation.getString("value")).isEqualTo("value");
+    assertThat(annotation.getString("convention")).isEqualTo("convention");
+
+    annotation = getTypeMappedAnnotation(
+            WithConventionAliasToMetaAnnotation.class,
             ConventionAliasToMetaAnnotation.class,
             ConventionAliasMetaAnnotationTarget.class);
-    assertThat(annotation.getString("value")).isEqualTo("");
-    assertThat(annotation.getString("convention")).isEqualTo("convention");
+    assertThat(annotation.getString("value")).isEmpty();
+    // Convention-based annotation attribute overrides are no longer supported as of
+    assertThat(annotation.getString("convention")).isEmpty();
   }
 
   @Test

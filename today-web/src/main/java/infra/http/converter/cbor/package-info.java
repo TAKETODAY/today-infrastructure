@@ -1,9 +1,7 @@
 /**
  * Provides an HttpMessageConverter for the CBOR data format.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.http.converter.cbor;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -24,9 +24,7 @@
  * <p>These <em>mocks</em> are useful for developing <em>out-of-container</em>
  * unit tests for code that depends on environment-specific properties.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.mock.env;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -17,10 +17,11 @@
 
 package infra.core.env;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**

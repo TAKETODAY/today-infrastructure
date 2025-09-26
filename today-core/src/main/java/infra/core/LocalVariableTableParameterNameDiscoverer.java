@@ -17,6 +17,8 @@
 
 package infra.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Executable;
@@ -32,7 +34,6 @@ import infra.bytecode.MethodVisitor;
 import infra.bytecode.Opcodes;
 import infra.bytecode.Type;
 import infra.bytecode.commons.MethodSignature;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

@@ -17,6 +17,8 @@
 
 package infra.scheduling.concurrent;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -37,7 +39,6 @@ import infra.core.task.SimpleAsyncTaskExecutor;
 import infra.core.task.TaskExecutor;
 import infra.core.task.TaskRejectedException;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.LoggerFactory;
 import infra.scheduling.TaskScheduler;
 import infra.scheduling.Trigger;

@@ -17,6 +17,7 @@
 
 package infra.beans.factory.annotation;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -78,7 +79,6 @@ import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.core.annotation.Order;
 import infra.core.testfixture.io.SerializationTestUtils;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 

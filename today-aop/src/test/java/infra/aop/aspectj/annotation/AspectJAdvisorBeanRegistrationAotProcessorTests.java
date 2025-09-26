@@ -17,6 +17,7 @@
 
 package infra.aop.aspectj.annotation;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import infra.aot.generate.GenerationContext;
@@ -27,7 +28,6 @@ import infra.beans.factory.aot.BeanRegistrationAotContribution;
 import infra.beans.factory.support.RegisteredBean;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
-import infra.lang.Nullable;
 
 import static infra.aot.hint.predicate.RuntimeHintsPredicates.reflection;
 import static org.assertj.core.api.Assertions.assertThat;

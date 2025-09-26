@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -28,7 +30,6 @@ import javax.sql.DataSource;
 import infra.dao.DataAccessException;
 import infra.dao.InvalidDataAccessApiUsageException;
 import infra.jdbc.datasource.DataSourceUtils;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.transaction.HeuristicCompletionException;

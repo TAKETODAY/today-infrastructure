@@ -18,9 +18,7 @@
 /**
  * Client-side abstractions for WebSocket applications.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.socket.client;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

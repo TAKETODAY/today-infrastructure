@@ -17,6 +17,7 @@
 
 package infra.http.codec.multipart;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.util.Map;
@@ -30,7 +31,6 @@ import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.http.ReactiveHttpOutputMessage;
 import infra.http.codec.HttpMessageWriter;
-import infra.lang.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

@@ -18,9 +18,7 @@
 /**
  * AspectJ-based caching support.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.cache.aspectj;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

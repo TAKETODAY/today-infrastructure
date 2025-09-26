@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,13 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.Set;
 
 import infra.beans.factory.annotation.AnnotatedBeanDefinition;
 import infra.beans.factory.config.BeanDefinition;
-import infra.lang.Nullable;
 
 /**
  * Simple {@link ScopeMetadataResolver} implementation that follows JSR-330 scoping rules:

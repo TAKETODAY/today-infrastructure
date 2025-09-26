@@ -17,6 +17,8 @@
 
 package infra.test.context.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.annotation.Annotation;
@@ -47,7 +49,6 @@ import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.core.io.ResourcePropertySource;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.context.TestContextAnnotationUtils;

@@ -83,7 +83,7 @@ public class SourceInterpreter extends Interpreter<SourceValue> implements Opcod
           final AbstractInsnNode insn, final SourceValue value1, final SourceValue value2) {
     int size = switch (insn.getOpcode()) {
       case LALOAD, DALOAD, LADD, DADD, LSUB, DSUB, LMUL, DMUL,
-              LDIV, DDIV, LREM, DREM, LSHL, LSHR, LUSHR, LAND, LOR, LXOR -> 2;
+           LDIV, DDIV, LREM, DREM, LSHL, LSHR, LUSHR, LAND, LOR, LXOR -> 2;
       default -> 1;
     };
     return new SourceValue(size, insn);

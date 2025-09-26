@@ -18,9 +18,7 @@
 /**
  * Support package for the Java 6 ServiceLoader facility.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.beans.factory.serviceloader;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -21,9 +21,7 @@
 /**
  * Common MVC logic for matching incoming requests based on conditions.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.handler.condition;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

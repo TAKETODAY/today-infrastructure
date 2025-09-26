@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -24,7 +26,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
 
 import infra.core.NestedException;
-import infra.lang.Nullable;
 import infra.util.function.ThrowingRunnable;
 import infra.util.function.ThrowingSupplier;
 

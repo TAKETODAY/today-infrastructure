@@ -17,6 +17,7 @@
 
 package infra.mock.http.server.reactive;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.net.InetSocketAddress;
@@ -39,7 +40,6 @@ import infra.http.MediaType;
 import infra.http.server.reactive.AbstractServerHttpRequest;
 import infra.http.server.reactive.SslInfo;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MimeType;
 import infra.util.MultiValueMap;

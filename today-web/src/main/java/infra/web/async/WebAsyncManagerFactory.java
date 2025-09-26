@@ -17,6 +17,8 @@
 
 package infra.web.async;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -24,7 +26,6 @@ import infra.beans.factory.BeanFactoryUtils;
 import infra.context.ApplicationContext;
 import infra.core.task.AsyncTaskExecutor;
 import infra.core.task.SimpleAsyncTaskExecutor;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.web.RequestContext;

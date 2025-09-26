@@ -26,7 +26,6 @@ import java.net.URISyntaxException;
 import infra.http.HttpMethod;
 import infra.http.client.ClientHttpRequest;
 import infra.mock.http.client.MockClientHttpRequest;
-import infra.test.web.client.SimpleRequestExpectationManager;
 
 import static infra.http.HttpMethod.GET;
 import static infra.http.HttpMethod.POST;

@@ -17,12 +17,13 @@
 
 package infra.jdbc.parsing;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Objects;
 
 import infra.jdbc.ParameterBinder;
-import infra.lang.Nullable;
 
 /**
  * Represents a query parameter used in SQL statements. This class encapsulates

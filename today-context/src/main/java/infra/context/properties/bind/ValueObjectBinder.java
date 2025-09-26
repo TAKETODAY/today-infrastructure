@@ -17,6 +17,8 @@
 
 package infra.context.properties.bind;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -43,7 +45,6 @@ import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.conversion.ConversionException;
 import infra.lang.NullValue;
-import infra.lang.Nullable;
 import infra.logging.LogMessage;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;

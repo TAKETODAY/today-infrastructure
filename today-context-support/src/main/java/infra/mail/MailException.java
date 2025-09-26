@@ -17,8 +17,9 @@
 
 package infra.mail;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.NestedRuntimeException;
-import infra.lang.Nullable;
 
 /**
  * Base class for all mail exceptions.

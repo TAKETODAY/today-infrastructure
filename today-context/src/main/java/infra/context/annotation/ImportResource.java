@@ -88,7 +88,8 @@ public @interface ImportResource {
    * all other resources will be processed
    * with an {@link infra.beans.factory.xml.XmlBeanDefinitionReader
    * XmlBeanDefinitionReader}.
-   *F
+   * F
+   *
    * @see #locations
    * @see #value
    */

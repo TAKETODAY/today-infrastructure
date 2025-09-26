@@ -17,6 +17,8 @@
 
 package infra.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -31,7 +33,6 @@ import java.util.stream.StreamSupport;
 
 import infra.dao.IncorrectResultSizeDataAccessException;
 import infra.jdbc.support.JdbcUtils;
-import infra.lang.Nullable;
 
 /**
  * Iterator for a {@link ResultSet}. Tricky part here is getting

@@ -17,7 +17,7 @@
 
 package infra.bytecode;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A visitor to visit a Java class. The methods of this class must be called in the following order:

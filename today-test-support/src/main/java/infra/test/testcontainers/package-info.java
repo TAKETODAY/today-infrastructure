@@ -18,9 +18,7 @@
 /**
  * Support for testing with Testcontainers.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.test.testcontainers;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

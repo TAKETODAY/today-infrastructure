@@ -17,9 +17,9 @@
 
 package infra.util;
 
-import java.util.Collection;
+import org.jspecify.annotations.Nullable;
 
-import infra.lang.Nullable;
+import java.util.Collection;
 
 /**
  * An {@link InstanceFilter} implementation that handles exception types. A type

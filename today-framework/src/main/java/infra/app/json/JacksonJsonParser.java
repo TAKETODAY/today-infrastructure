@@ -20,10 +20,10 @@ package infra.app.json;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 import java.util.Map;
-
-import infra.lang.Nullable;
 
 /**
  * Thin wrapper to adapt Jackson 2 {@link ObjectMapper} to {@link JsonParser}.

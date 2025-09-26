@@ -17,6 +17,8 @@
 
 package infra.aot.hint.predicate;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
@@ -36,7 +38,6 @@ import infra.aot.hint.TypeHint;
 import infra.aot.hint.TypeReference;
 import infra.core.MethodIntrospector;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 
 /**

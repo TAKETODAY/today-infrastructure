@@ -18,9 +18,7 @@
 /**
  * Provides core helpers that are not specific to any part of the framework.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.core;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

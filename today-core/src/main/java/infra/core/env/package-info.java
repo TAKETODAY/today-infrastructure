@@ -19,9 +19,7 @@
  * environment abstraction consisting of bean definition
  * profile and hierarchical property source support.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.core.env;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

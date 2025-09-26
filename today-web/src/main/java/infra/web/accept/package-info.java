@@ -12,9 +12,7 @@
  * <p>{@link infra.web.accept.ContentNegotiationManager} is used to delegate to one
  * ore more of the above strategies in a specific order.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.accept;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

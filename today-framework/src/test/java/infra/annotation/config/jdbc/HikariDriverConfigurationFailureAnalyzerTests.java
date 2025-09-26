@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,10 +21,10 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import org.junit.jupiter.api.Test;
 
+import infra.app.diagnostics.FailureAnalysis;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.ImportAutoConfiguration;
-import infra.app.diagnostics.FailureAnalysis;
 import infra.jdbc.CannotGetJdbcConnectionException;
 import infra.jdbc.datasource.DataSourceUtils;
 import infra.test.util.TestPropertyValues;

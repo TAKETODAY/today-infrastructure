@@ -17,6 +17,8 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.ConstructorProperties;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -67,7 +69,6 @@ import infra.core.ParameterNameDiscoverer;
 import infra.core.ResolvableType;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;

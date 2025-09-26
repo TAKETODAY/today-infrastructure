@@ -17,11 +17,12 @@
 
 package infra.jmx.export.metadata;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 
 import infra.jmx.export.MBeanExporter;
 import infra.jmx.export.assembler.MetadataMBeanInfoAssembler;
-import infra.lang.Nullable;
 
 /**
  * Interface used by the {@code MetadataMBeanInfoAssembler} to

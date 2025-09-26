@@ -20,6 +20,7 @@ package infra.http.codec.protobuf;
 import com.google.protobuf.Message;
 import com.google.protobuf.util.JsonFormat;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.io.IOException;
@@ -33,7 +34,6 @@ import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
 import infra.http.MediaType;
 import infra.http.codec.HttpMessageEncoder;
-import infra.lang.Nullable;
 import infra.util.FastByteArrayOutputStream;
 import infra.util.MimeType;
 import reactor.core.publisher.Flux;

@@ -17,6 +17,8 @@
 
 package infra.context.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.util.Properties;
 
@@ -35,7 +37,6 @@ import infra.core.env.PropertySource;
 import infra.core.env.PropertySources;
 import infra.core.env.PropertySourcesPropertyResolver;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Specialization of {@link PlaceholderConfigurerSupport} that resolves ${...} placeholders

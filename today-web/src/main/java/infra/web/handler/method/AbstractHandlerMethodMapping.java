@@ -17,6 +17,8 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,7 +46,6 @@ import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.MapCache;
 import infra.util.ObjectUtils;

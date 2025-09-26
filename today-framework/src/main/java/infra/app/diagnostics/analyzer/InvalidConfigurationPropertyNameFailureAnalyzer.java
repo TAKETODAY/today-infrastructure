@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 package infra.app.diagnostics.analyzer;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.stream.Collectors;
 
 import infra.app.diagnostics.AbstractFailureAnalyzer;
 import infra.app.diagnostics.FailureAnalysis;
 import infra.beans.factory.BeanCreationException;
 import infra.context.properties.source.InvalidConfigurationPropertyNameException;
-import infra.lang.Nullable;
 
 /**
  * An {@link AbstractFailureAnalyzer} that performs analysis of failures caused by

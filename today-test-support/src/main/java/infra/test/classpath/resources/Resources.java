@@ -17,6 +17,8 @@
 
 package infra.test.classpath.resources;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
@@ -37,7 +39,6 @@ import java.util.Map;
 import java.util.Set;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.FileSystemUtils;
 import infra.util.function.ThrowingConsumer;
 

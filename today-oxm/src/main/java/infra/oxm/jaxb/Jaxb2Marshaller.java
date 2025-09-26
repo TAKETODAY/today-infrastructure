@@ -17,6 +17,7 @@
 
 package infra.oxm.jaxb;
 
+import org.jspecify.annotations.Nullable;
 import org.w3c.dom.ls.LSResourceResolver;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -72,7 +73,6 @@ import infra.beans.factory.InitializingBean;
 import infra.core.annotation.AnnotationUtils;
 import infra.core.io.Resource;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.oxm.GenericMarshaller;
@@ -161,20 +161,16 @@ public class Jaxb2Marshaller implements MimeMarshaller, MimeUnmarshaller,
   @Nullable
   private Map<String, ?> unmarshallerProperties;
 
-  @Nullable
-  private Marshaller.Listener marshallerListener;
+  private Marshaller.@Nullable Listener marshallerListener;
 
-  @Nullable
-  private Unmarshaller.Listener unmarshallerListener;
+  private Unmarshaller.@Nullable Listener unmarshallerListener;
 
   @Nullable
   private ValidationEventHandler validationEventHandler;
 
-  @Nullable
-  private XmlAdapter<?, ?>[] adapters;
+  private XmlAdapter<?, ?> @Nullable [] adapters;
 
-  @Nullable
-  private Resource[] schemaResources;
+  private Resource @Nullable [] schemaResources;
 
   private String schemaLanguage = XMLConstants.W3C_XML_SCHEMA_NS_URI;
 

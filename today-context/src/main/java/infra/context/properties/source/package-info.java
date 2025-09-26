@@ -20,9 +20,7 @@
  *
  * @see infra.context.properties.source.ConfigurationPropertySource
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.context.properties.source;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

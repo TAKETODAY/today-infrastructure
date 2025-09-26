@@ -24,10 +24,10 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import infra.beans.factory.annotation.Value;
 import infra.beans.testfixture.beans.ITestBean;
 import infra.beans.testfixture.beans.TestBean;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.support.PropertySourcesPlaceholderConfigurer;
-import infra.context.annotation.AnnotationConfigApplicationContext;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 

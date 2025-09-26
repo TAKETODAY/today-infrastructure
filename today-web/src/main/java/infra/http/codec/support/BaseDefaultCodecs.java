@@ -17,6 +17,8 @@
 
 package infra.http.codec.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -63,7 +65,6 @@ import infra.http.codec.multipart.PartHttpMessageWriter;
 import infra.http.codec.protobuf.ProtobufDecoder;
 import infra.http.codec.protobuf.ProtobufEncoder;
 import infra.http.codec.protobuf.ProtobufHttpMessageWriter;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 

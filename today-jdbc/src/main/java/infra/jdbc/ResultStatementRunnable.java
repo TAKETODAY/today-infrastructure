@@ -17,7 +17,7 @@
 
 package infra.jdbc;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a method with a {@link JdbcConnection} and an optional argument.

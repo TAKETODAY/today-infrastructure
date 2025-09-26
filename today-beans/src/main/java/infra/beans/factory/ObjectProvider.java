@@ -17,6 +17,8 @@
 
 package infra.beans.factory;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -31,7 +33,6 @@ import infra.beans.factory.annotation.Autowired;
 import infra.core.OrderComparator;
 import infra.core.Ordered;
 import infra.core.annotation.Order;
-import infra.lang.Nullable;
 
 /**
  * A variant of {@link Supplier} designed specifically for injection points,

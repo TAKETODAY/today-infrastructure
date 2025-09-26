@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.web.socket.client;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
@@ -25,7 +26,6 @@ import java.util.List;
 
 import infra.context.Lifecycle;
 import infra.http.HttpHeaders;
-import infra.lang.Nullable;
 import infra.util.concurrent.Future;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketHttpHeaders;

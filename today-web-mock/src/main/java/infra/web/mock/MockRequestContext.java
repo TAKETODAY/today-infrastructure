@@ -17,6 +17,8 @@
 
 package infra.web.mock;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,7 +44,6 @@ import infra.http.HttpMethod;
 import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
-import infra.lang.Nullable;
 import infra.mock.api.http.Cookie;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpMockResponse;

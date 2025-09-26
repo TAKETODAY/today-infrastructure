@@ -32,6 +32,7 @@ import org.aspectj.weaver.tools.PointcutParser;
 import org.aspectj.weaver.tools.PointcutPrimitive;
 import org.aspectj.weaver.tools.ShadowMatch;
 import org.aspectj.weaver.tools.UnsupportedPointcutPrimitiveException;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -55,7 +56,6 @@ import infra.beans.factory.annotation.BeanFactoryAnnotationUtils;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

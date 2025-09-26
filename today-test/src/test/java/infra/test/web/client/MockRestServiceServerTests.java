@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.net.SocketException;
 import java.time.Duration;
 
-import infra.test.web.client.MockRestServiceServer;
 import infra.test.web.client.MockRestServiceServer.MockRestServiceServerBuilder;
 import infra.web.client.RestTemplate;
 

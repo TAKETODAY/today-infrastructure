@@ -17,6 +17,8 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Objects;
@@ -27,7 +29,6 @@ import infra.core.ResolvableType;
 import infra.core.TypeDescriptor;
 import infra.core.annotation.MergedAnnotations;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 import infra.web.RequestContext;

@@ -17,6 +17,7 @@
 
 package infra.expression.spel;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,6 @@ import infra.expression.spel.standard.SpelExpression;
 import infra.expression.spel.support.StandardEvaluationContext;
 import infra.expression.spel.support.StandardTypeConverter;
 import infra.expression.spel.support.StandardTypeLocator;
-import infra.lang.Nullable;
 
 import static infra.expression.spel.SpelMessage.FUNCTION_MUST_BE_STATIC;
 import static infra.expression.spel.SpelMessage.INCORRECT_NUMBER_OF_ARGUMENTS_TO_FUNCTION;

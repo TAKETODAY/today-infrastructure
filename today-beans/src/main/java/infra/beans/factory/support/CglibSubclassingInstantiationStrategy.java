@@ -17,6 +17,8 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
@@ -36,7 +38,6 @@ import infra.bytecode.proxy.MethodProxy;
 import infra.bytecode.proxy.NoOp;
 import infra.core.ResolvableType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.StringUtils;

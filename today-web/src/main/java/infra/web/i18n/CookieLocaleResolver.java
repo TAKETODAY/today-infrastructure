@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.web.i18n;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -24,7 +26,6 @@ import infra.core.i18n.LocaleContext;
 import infra.core.i18n.SimpleLocaleContext;
 import infra.core.i18n.TimeZoneAwareLocaleContext;
 import infra.http.HttpCookie;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 import infra.web.LocaleContextResolver;
 import infra.web.LocaleResolver;

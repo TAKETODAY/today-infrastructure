@@ -21,9 +21,7 @@
  * {@link infra.test.web.mock.request.MockMvcRequestBuilders}
  * to gain access to instances of those implementations.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.test.web.mock.request;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

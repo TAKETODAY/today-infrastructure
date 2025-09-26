@@ -17,6 +17,8 @@
 
 package infra.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Map;
@@ -26,7 +28,6 @@ import infra.beans.BeanUtils;
 import infra.jdbc.core.ResultSetExtractor;
 import infra.jdbc.support.JdbcUtils;
 import infra.jdbc.type.TypeHandler;
-import infra.lang.Nullable;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.MapCache;
 

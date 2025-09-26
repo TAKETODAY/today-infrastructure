@@ -20,10 +20,10 @@ package infra.context.annotation.spr12334;
 import org.junit.jupiter.api.Test;
 
 import infra.context.BootstrapContext;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.annotation.ImportBeanDefinitionRegistrar;
-import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.type.AnnotationMetadata;
 
 /**

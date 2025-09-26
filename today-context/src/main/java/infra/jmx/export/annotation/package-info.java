@@ -20,9 +20,7 @@
  * Hooked into Framework's JMX export infrastructure
  * via a special JmxAttributeSource implementation.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jmx.export.annotation;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

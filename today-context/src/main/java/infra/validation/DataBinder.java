@@ -17,6 +17,8 @@
 
 package infra.validation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyEditor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
@@ -58,7 +60,6 @@ import infra.core.conversion.ConversionService;
 import infra.format.Formatter;
 import infra.format.support.FormatterPropertyEditorAdapter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;

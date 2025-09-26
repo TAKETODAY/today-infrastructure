@@ -17,6 +17,8 @@
 
 package infra.instrument.classloading;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.instrument.ClassFileTransformer;
@@ -29,7 +31,6 @@ import java.util.HashMap;
 import infra.core.DecoratingClassLoader;
 import infra.core.OverridingClassLoader;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.FileCopyUtils;
 import infra.util.StringUtils;
 

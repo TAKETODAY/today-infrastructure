@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 package infra.validation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
 
 import infra.context.MessageSource;
 import infra.core.i18n.LocaleContextHolder;
-import infra.lang.Nullable;
 import jakarta.validation.MessageInterpolator;
 
 /**
@@ -122,7 +123,7 @@ class MessageSourceMessageInterpolator implements MessageInterpolator {
     parameter = replaceParameters(parameter, locale, visitedParameters);
     String value = this.messageSource.getMessage(parameter, null, null, locale);
     return (value != null && !isUsingCodeAsDefaultMessage(value, parameter))
-           ? replaceParameters(value, locale, visitedParameters) : null;
+            ? replaceParameters(value, locale, visitedParameters) : null;
   }
 
   private boolean isUsingCodeAsDefaultMessage(String value, String parameter) {

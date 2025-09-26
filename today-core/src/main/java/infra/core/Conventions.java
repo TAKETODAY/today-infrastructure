@@ -16,6 +16,8 @@
  */
 package infra.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Proxy;
@@ -23,7 +25,6 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**

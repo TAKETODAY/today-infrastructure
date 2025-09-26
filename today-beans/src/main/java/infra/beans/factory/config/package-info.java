@@ -18,9 +18,7 @@
 /**
  * SPI interfaces and configuration-related convenience classes for bean factories.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.beans.factory.config;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

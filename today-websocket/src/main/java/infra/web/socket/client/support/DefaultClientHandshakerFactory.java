@@ -17,13 +17,14 @@
 
 package infra.web.socket.client.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 import java.time.Duration;
 import java.util.List;
 
 import infra.http.HttpHeaders;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.DataSize;
 import infra.util.StringUtils;
 import infra.web.socket.WebSocketExtension;

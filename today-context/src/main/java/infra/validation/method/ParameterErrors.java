@@ -17,10 +17,11 @@
 
 package infra.validation.method;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 import infra.core.MethodParameter;
-import infra.lang.Nullable;
 import infra.validation.Errors;
 import infra.validation.FieldError;
 import infra.validation.ObjectError;

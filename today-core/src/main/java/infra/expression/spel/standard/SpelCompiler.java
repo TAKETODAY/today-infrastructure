@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.expression.spel.standard;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.bytecode.BytecodeCompiler;
@@ -28,7 +30,6 @@ import infra.expression.Expression;
 import infra.expression.spel.CompiledExpression;
 import infra.expression.spel.SpelParserConfiguration;
 import infra.expression.spel.ast.SpelNodeImpl;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

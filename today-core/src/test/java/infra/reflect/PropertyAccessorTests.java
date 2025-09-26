@@ -18,6 +18,7 @@
 package infra.reflect;
 
 import org.assertj.core.api.WithAssertions;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +26,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 import static infra.reflect.ReadOnlyPropertyAccessor.classToString;

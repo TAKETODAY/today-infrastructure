@@ -17,6 +17,8 @@
 
 package infra.expression.spel.ast;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +31,6 @@ import infra.expression.TypedValue;
 import infra.expression.spel.ExpressionState;
 import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 

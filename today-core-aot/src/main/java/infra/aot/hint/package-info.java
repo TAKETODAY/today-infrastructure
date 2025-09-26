@@ -22,9 +22,7 @@
  * Support for registering the need for reflection, resources, java
  * serialization and proxies at runtime.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.aot.hint;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

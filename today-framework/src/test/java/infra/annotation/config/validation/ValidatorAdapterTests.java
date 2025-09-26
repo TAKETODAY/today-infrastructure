@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,12 +22,12 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 
+import infra.app.test.context.FilteredClassLoader;
+import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.ApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.core.io.ClassPathResource;
-import infra.app.test.context.FilteredClassLoader;
-import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.validation.Errors;
 import infra.validation.MapBindingResult;
 import infra.validation.SmartValidator;

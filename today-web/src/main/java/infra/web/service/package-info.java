@@ -22,9 +22,7 @@
  * Annotations to declare an HTTP service contract with request methods along
  * with a proxy factory backed by client-driven implementation.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.service;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

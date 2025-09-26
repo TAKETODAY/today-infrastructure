@@ -17,6 +17,8 @@
 
 package infra.annotation.config.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +43,6 @@ import infra.context.condition.InfraCondition;
 import infra.context.condition.SearchStrategy;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.type.AnnotatedTypeMetadata;
-import infra.lang.Nullable;
 import infra.logging.LoggerFactory;
 import infra.stereotype.Component;
 import infra.ui.template.TemplateAvailabilityProviders;

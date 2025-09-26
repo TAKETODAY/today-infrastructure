@@ -17,6 +17,8 @@
 
 package infra.web.view;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -29,7 +31,6 @@ import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
 import infra.core.Ordered;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.PatternMatchUtils;
 import infra.web.RequestContext;

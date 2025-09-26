@@ -17,6 +17,8 @@
 
 package infra.app.json;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
@@ -34,7 +36,6 @@ import infra.app.json.JsonWriter.MemberPath;
 import infra.app.json.JsonWriter.NameProcessor;
 import infra.app.json.JsonWriter.ValueProcessor;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.LambdaSafe;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;

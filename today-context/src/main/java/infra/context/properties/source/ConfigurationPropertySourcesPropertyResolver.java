@@ -17,12 +17,13 @@
 
 package infra.context.properties.source;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.conversion.ConversionFailedException;
 import infra.core.env.AbstractPropertyResolver;
 import infra.core.env.PropertySource;
 import infra.core.env.PropertySources;
 import infra.core.env.PropertySourcesPropertyResolver;
-import infra.lang.Nullable;
 
 /**
  * Alternative {@link PropertySourcesPropertyResolver} implementation that recognizes

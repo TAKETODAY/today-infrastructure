@@ -18,9 +18,7 @@
 /**
  * Support for AOP-based scoping of target objects, with configurable backend.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.aop.scope;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

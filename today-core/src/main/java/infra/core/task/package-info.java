@@ -19,9 +19,7 @@
  * This package defines core TaskExecutor abstraction,
  * and provides SyncTaskExecutor and SimpleAsyncTaskExecutor implementations.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.core.task;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

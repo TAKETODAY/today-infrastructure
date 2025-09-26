@@ -17,6 +17,8 @@
 
 package infra.reflect;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -32,7 +34,6 @@ import infra.bytecode.core.CodeEmitter;
 import infra.bytecode.core.EmitUtils;
 import infra.bytecode.core.MethodInfo;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.LoggerFactory;
 import infra.util.ReflectionUtils;
 

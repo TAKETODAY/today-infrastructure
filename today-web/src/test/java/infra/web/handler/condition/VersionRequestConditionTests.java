@@ -17,6 +17,7 @@
 
 package infra.web.handler.condition;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +25,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import infra.lang.Nullable;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.web.HandlerMapping;
 import infra.web.RequestContext;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.core.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.Iterator;
@@ -28,7 +30,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 
@@ -179,8 +180,8 @@ final class MergedAnnotationsCollection implements MergedAnnotations {
         }
         MergedAnnotation<A> candidate =
                 mappingIndex == 0 ?
-                (MergedAnnotation<A>) root :
-                TypeMappedAnnotation.createIfPossible(mapping, root, IntrospectionFailureLogger.INFO);
+                        (MergedAnnotation<A>) root :
+                        TypeMappedAnnotation.createIfPossible(mapping, root, IntrospectionFailureLogger.INFO);
         if (candidate != null && (predicate == null || predicate.test(candidate))) {
           if (selector.isBestCandidate(candidate)) {
             return candidate;

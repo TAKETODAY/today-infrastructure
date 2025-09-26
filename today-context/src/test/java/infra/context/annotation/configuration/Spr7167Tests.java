@@ -26,9 +26,9 @@ import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.BeanFactoryPostProcessor;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.context.ConfigurableApplicationContext;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.context.annotation.AnnotationConfigApplicationContext;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 

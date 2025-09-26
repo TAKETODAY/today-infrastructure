@@ -17,6 +17,8 @@
 
 package infra.web.cors;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +31,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import infra.http.HttpMethod;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 

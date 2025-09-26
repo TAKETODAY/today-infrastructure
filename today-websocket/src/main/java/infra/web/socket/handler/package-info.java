@@ -18,9 +18,7 @@
  * Convenient {@link infra.web.socket.WebSocketHandler}
  * implementations and decorators.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.socket.handler;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

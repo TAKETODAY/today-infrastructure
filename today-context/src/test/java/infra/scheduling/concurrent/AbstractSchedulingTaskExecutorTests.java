@@ -18,6 +18,7 @@
 package infra.scheduling.concurrent;
 
 import org.awaitility.Awaitility;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import infra.beans.factory.DisposableBean;
 import infra.core.task.AsyncTaskExecutor;
 import infra.core.testfixture.DisabledIfInContinuousIntegration;
-import infra.lang.Nullable;
 import infra.util.concurrent.Future;
 
 import static org.assertj.core.api.Assertions.assertThat;

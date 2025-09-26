@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.context.annotation;
+
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.Set;
@@ -34,7 +36,6 @@ import infra.core.Ordered;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.Order;
 import infra.core.type.AnnotationMetadata;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.stereotype.Component;

@@ -17,6 +17,8 @@
 
 package infra.http.codec.multipart;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -31,7 +33,6 @@ import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.http.MediaTypeFactory;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

@@ -17,6 +17,8 @@
 
 package infra.core.ssl.pem;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -33,7 +35,6 @@ import java.util.stream.Collectors;
 
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.StreamUtils;
 import infra.util.StringUtils;
 

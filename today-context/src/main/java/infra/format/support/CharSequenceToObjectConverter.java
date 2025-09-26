@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.format.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.Set;
 
@@ -24,7 +26,6 @@ import infra.core.TypeDescriptor;
 import infra.core.conversion.ConditionalGenericConverter;
 import infra.core.conversion.ConversionService;
 import infra.core.conversion.GenericConverter;
-import infra.lang.Nullable;
 
 /**
  * {@link ConditionalGenericConverter} to convert {@link CharSequence} type by delegating

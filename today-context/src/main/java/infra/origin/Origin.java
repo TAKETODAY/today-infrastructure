@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,12 @@
 
 package infra.origin;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-
-import infra.lang.Nullable;
 
 /**
  * Interface that uniquely represents the origin of an item. For example, an item loaded

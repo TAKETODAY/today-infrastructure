@@ -17,6 +17,8 @@
 
 package infra.web.socket.server.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.Objects;
@@ -25,7 +27,6 @@ import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.NettyDataBuffer;
 import infra.core.io.buffer.NettyDataBufferFactory;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.util.concurrent.Future;
 import infra.web.socket.CloseStatus;

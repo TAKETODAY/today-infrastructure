@@ -17,6 +17,8 @@
 
 package infra.http;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.util.Collection;
 import java.util.List;
@@ -27,7 +29,6 @@ import java.util.function.BiConsumer;
 import java.util.function.IntFunction;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.MultiValueMap;
 

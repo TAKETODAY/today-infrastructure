@@ -17,6 +17,8 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +32,6 @@ import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.core.type.AnnotationMetadata;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.MultiValueMap;
 

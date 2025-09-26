@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.context.properties.source;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -27,7 +29,6 @@ import infra.core.env.PropertySource;
 import infra.core.env.PropertySource.StubPropertySource;
 import infra.core.env.PropertySources;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.origin.OriginLookup;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.ConcurrentReferenceHashMap.ReferenceType;

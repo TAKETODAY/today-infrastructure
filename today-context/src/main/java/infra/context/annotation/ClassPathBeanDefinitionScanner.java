@@ -17,6 +17,8 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -38,7 +40,6 @@ import infra.core.io.PathMatchingPatternResourceLoader;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.stereotype.Controller;
 import infra.stereotype.Repository;

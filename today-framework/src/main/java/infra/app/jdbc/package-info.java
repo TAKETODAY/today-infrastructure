@@ -18,9 +18,7 @@
 /**
  * Support JDBC
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.app.jdbc;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

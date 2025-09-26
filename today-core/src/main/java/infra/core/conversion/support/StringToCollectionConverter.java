@@ -17,6 +17,8 @@
 
 package infra.core.conversion.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
@@ -24,7 +26,6 @@ import java.util.Set;
 import infra.core.TypeDescriptor;
 import infra.core.conversion.ConditionalGenericConverter;
 import infra.core.conversion.ConversionService;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 

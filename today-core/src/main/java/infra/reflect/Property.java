@@ -17,6 +17,8 @@
 
 package infra.reflect;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
@@ -35,7 +37,6 @@ import infra.core.TypeDescriptor;
 import infra.core.annotation.MergedAnnotations;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;

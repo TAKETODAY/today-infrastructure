@@ -17,6 +17,8 @@
 
 package infra.web.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -56,7 +58,6 @@ import infra.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
 import infra.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import infra.http.converter.yaml.MappingJackson2YamlHttpMessageConverter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.MimeTypeUtils;
 import infra.web.util.AbstractUriTemplateHandler;

@@ -17,12 +17,13 @@
 
 package infra.web.handler.mvc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Supplier;
 
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
-import infra.lang.Nullable;
 import infra.web.HttpRequestHandler;
 import infra.web.RedirectModel;
 import infra.web.RequestContext;

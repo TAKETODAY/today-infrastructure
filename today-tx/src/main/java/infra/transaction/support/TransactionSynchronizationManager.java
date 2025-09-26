@@ -17,12 +17,13 @@
 
 package infra.transaction.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
 import infra.core.NamedThreadLocal;
 import infra.core.Ordered;
-import infra.lang.Nullable;
 
 /**
  * Central delegate that manages resources and transaction synchronizations per thread.

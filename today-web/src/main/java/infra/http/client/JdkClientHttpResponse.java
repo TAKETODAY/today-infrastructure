@@ -17,6 +17,8 @@
 
 package infra.http.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.http.HttpClient;
@@ -25,7 +27,6 @@ import java.net.http.HttpResponse;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
-import infra.lang.Nullable;
 import infra.util.StreamUtils;
 
 /**

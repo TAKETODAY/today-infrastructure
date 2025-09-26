@@ -17,6 +17,8 @@
 
 package infra.web.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 
@@ -25,7 +27,6 @@ import infra.http.HttpInputMessage;
 import infra.http.HttpMessage;
 import infra.http.MediaType;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.FileCopyUtils;
 
 /**

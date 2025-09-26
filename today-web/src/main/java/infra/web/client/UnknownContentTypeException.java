@@ -17,13 +17,14 @@
 
 package infra.web.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
-import infra.lang.Nullable;
 
 /**
  * Raised when no suitable

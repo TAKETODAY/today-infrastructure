@@ -19,6 +19,7 @@ package infra.aop.interceptor;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
@@ -33,7 +34,6 @@ import infra.core.Ordered;
 import infra.core.task.AsyncTaskExecutor;
 import infra.core.task.SimpleAsyncTaskExecutor;
 import infra.core.task.TaskExecutor;
-import infra.lang.Nullable;
 
 /**
  * AOP Alliance {@code MethodInterceptor} that processes method invocations

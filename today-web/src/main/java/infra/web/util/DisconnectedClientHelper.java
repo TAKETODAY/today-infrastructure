@@ -17,12 +17,13 @@
 
 package infra.web.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

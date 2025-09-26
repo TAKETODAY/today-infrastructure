@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,13 @@
 
 package infra.core.ssl;
 
+import org.jspecify.annotations.Nullable;
+
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManagerFactory;
-
-import infra.lang.Nullable;
 
 /**
  * Default implementation of {@link SslManagerBundle}.

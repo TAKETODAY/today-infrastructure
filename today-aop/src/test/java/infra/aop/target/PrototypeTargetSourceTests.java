@@ -20,9 +20,9 @@ package infra.aop.target;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import infra.beans.testfixture.beans.SideEffectBean;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.beans.factory.xml.XmlBeanDefinitionReader;
+import infra.beans.testfixture.beans.SideEffectBean;
 
 import static infra.core.testfixture.io.ResourceTestUtils.qualifiedResource;
 import static org.assertj.core.api.Assertions.assertThat;

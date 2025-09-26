@@ -17,6 +17,8 @@
 
 package infra.jdbc.datasource;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -29,7 +31,6 @@ import infra.jdbc.CannotGetJdbcConnectionException;
 import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.support.JdbcTransactionManager;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.transaction.TransactionDefinition;

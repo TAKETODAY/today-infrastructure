@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.DeclareParents;
 import org.aspectj.lang.annotation.Pointcut;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -49,7 +50,6 @@ import infra.beans.factory.BeanFactory;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.annotation.AnnotationUtils;
 import infra.core.conversion.ConvertingComparator;
-import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 import infra.util.ReflectionUtils.MethodFilter;
 import infra.util.StringUtils;

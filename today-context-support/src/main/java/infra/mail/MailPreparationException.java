@@ -17,7 +17,7 @@
 
 package infra.mail;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Exception to be thrown by user code if a mail cannot be prepared properly,

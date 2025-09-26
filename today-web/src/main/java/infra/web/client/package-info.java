@@ -19,9 +19,7 @@
  * Core package of the client-side web support.
  * Provides the RestTemplate and RestClient.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.client;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

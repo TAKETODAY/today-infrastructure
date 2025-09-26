@@ -18,9 +18,7 @@
 /**
  * SSL trust material provider for Java KeyStores.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.core.ssl.jks;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

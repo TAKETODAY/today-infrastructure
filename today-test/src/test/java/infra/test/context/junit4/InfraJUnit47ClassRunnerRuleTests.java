@@ -24,7 +24,6 @@ import org.junit.runner.RunWith;
 
 import infra.test.context.TestExecutionListeners;
 import infra.test.context.aot.DisabledInAotMode;
-import infra.test.context.junit4.InfraRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -17,7 +17,8 @@
 
 package infra.persistence.support;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import infra.persistence.EntityProperty;
 import infra.persistence.PropertyConditionStrategy;
 import infra.persistence.sql.Restriction;

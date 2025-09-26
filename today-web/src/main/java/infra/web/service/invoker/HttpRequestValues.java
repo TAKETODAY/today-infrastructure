@@ -17,6 +17,8 @@
 
 package infra.web.service.invoker;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Collections;
@@ -33,7 +35,6 @@ import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;

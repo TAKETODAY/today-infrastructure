@@ -17,9 +17,10 @@
 
 package infra.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 
-import infra.lang.Nullable;
 import infra.util.ExceptionUtils;
 
 /**

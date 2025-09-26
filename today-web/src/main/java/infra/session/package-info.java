@@ -21,9 +21,7 @@
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0 2021/4/2 21:01
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.session;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

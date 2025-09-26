@@ -18,9 +18,7 @@
 /**
  * Support infrastructure for bean definition parsing.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.beans.factory.parsing;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

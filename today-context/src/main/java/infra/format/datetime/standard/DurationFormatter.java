@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,15 @@
 
 package infra.format.datetime.standard;
 
+import org.jspecify.annotations.Nullable;
+
 import java.text.ParseException;
 import java.time.Duration;
 import java.util.Locale;
 
 import infra.format.Formatter;
 import infra.format.annotation.DurationFormat;
-import infra.lang.Nullable;
+import infra.format.annotation.DurationFormat.Unit;
 
 /**
  * {@link Formatter} implementation for a JSR-310 {@link Duration},
@@ -39,8 +41,9 @@ import infra.lang.Nullable;
 class DurationFormatter implements Formatter<Duration> {
 
   private final DurationFormat.Style style;
+
   @Nullable
-  private final DurationFormat.Unit defaultUnit;
+  private final Unit defaultUnit;
 
   /**
    * Create a {@code DurationFormatter} following JSR-310's parsing rules for a Duration
@@ -71,7 +74,7 @@ class DurationFormatter implements Formatter<Duration> {
    * @param style the {@code DurationStyle} to use
    * @param defaultUnit the {@code DurationFormat.Unit} to fall back to when parsing and printing
    */
-  public DurationFormatter(DurationFormat.Style style, @Nullable DurationFormat.Unit defaultUnit) {
+  public DurationFormatter(DurationFormat.Style style, @Nullable Unit defaultUnit) {
     this.style = style;
     this.defaultUnit = defaultUnit;
   }

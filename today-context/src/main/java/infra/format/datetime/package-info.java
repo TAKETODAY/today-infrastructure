@@ -18,9 +18,7 @@
 /**
  * Formatters for {@code java.util.Date} properties.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.format.datetime;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

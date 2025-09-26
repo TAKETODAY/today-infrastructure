@@ -17,6 +17,8 @@
 
 package infra.web.config.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -27,7 +29,6 @@ import infra.core.io.Resource;
 import infra.core.io.UrlResource;
 import infra.http.CacheControl;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.web.NotFoundHandler;
 import infra.web.resource.PathResourceResolver;

@@ -17,11 +17,11 @@
 
 package infra.app;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Set;
-
-import infra.lang.Nullable;
 
 /**
  * {@link Thread.UncaughtExceptionHandler} to suppress handling already logged exceptions and
@@ -37,14 +37,13 @@ class StartupExceptionHandler implements Thread.UncaughtExceptionHandler {
 
   private static final LoggedExceptionHandlerThreadLocal handler = new LoggedExceptionHandlerThreadLocal();
 
-  @Nullable
-  private final Thread.UncaughtExceptionHandler parent;
+  private final Thread.@Nullable UncaughtExceptionHandler parent;
 
   private final ArrayList<Throwable> loggedExceptions = new ArrayList<>();
 
   private int exitCode = 0;
 
-  StartupExceptionHandler(@Nullable Thread.UncaughtExceptionHandler parent) {
+  StartupExceptionHandler(Thread.@Nullable UncaughtExceptionHandler parent) {
     this.parent = parent;
   }
 

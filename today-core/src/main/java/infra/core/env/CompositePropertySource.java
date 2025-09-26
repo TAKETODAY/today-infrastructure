@@ -17,10 +17,11 @@
 
 package infra.core.env;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**

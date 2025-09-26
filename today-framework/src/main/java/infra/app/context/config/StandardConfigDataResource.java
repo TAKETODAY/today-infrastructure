@@ -17,13 +17,14 @@
 
 package infra.app.context.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 
 import infra.core.io.FileSystemResource;
 import infra.core.io.FileUrlResource;
 import infra.core.io.Resource;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * {@link ConfigDataResource} backed by a {@link Resource}.

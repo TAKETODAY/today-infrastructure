@@ -19,9 +19,7 @@
  * Support classes for the infra.cache package.
  * Provides abstract classes for cache managers and caches.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.cache.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -35,9 +35,9 @@ import infra.core.io.ClassPathResource;
 import infra.jdbc.BadSqlGrammarException;
 import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.datasource.AbstractDriverBasedDataSource;
+import infra.jdbc.datasource.embedded.EmbeddedDatabaseFactory;
 import infra.jdbc.datasource.embedded.EmbeddedDatabaseFactoryBean;
 import infra.jdbc.datasource.init.DataSourceInitializer;
-import infra.jdbc.datasource.embedded.EmbeddedDatabaseFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

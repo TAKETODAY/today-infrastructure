@@ -21,12 +21,8 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.instrument.ClassFileTransformer;
 
-import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.context.annotation.Configuration;
-import infra.context.annotation.EnableLoadTimeWeaving;
 import infra.context.annotation.EnableLoadTimeWeaving.AspectJWeaving;
 import infra.instrument.classloading.LoadTimeWeaver;
-import infra.context.annotation.LoadTimeWeavingConfigurer;
 
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;

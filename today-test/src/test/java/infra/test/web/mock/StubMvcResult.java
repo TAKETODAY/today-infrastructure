@@ -20,11 +20,10 @@ package infra.test.web.mock;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.HandlerInterceptor;
+import infra.web.RedirectModel;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
 import infra.web.view.ModelAndView;
-import infra.web.RedirectModel;
-import infra.test.web.mock.MvcResult;
 
 /**
  * A stub implementation of the {@link MvcResult} contract.

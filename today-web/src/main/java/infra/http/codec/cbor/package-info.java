@@ -18,9 +18,7 @@
 /**
  * Jackson CBOR supporting
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.http.codec.cbor;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

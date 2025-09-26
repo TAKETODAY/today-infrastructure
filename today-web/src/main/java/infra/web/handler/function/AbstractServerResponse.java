@@ -17,6 +17,8 @@
 
 package infra.web.handler.function;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,7 +27,6 @@ import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpStatusCode;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.web.RequestContext;

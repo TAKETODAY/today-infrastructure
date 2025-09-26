@@ -17,6 +17,8 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Consumer;
 
 import infra.aop.framework.autoproxy.AutoProxyUtils;
@@ -39,7 +41,6 @@ import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.core.type.AnnotationMetadata;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**

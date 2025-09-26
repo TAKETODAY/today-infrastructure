@@ -19,9 +19,7 @@
  * Support classes for JNDI usage,
  * including a JNDI-based BeanFactory implementation.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jndi.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

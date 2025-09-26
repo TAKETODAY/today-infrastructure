@@ -17,6 +17,8 @@
 
 package infra.web.mock;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Enumeration;
 import java.util.Properties;
 
@@ -24,7 +26,6 @@ import infra.beans.factory.BeanNameAware;
 import infra.beans.factory.DisposableBean;
 import infra.beans.factory.InitializingBean;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.mock.api.MockApi;
 import infra.mock.api.MockConfig;
 import infra.mock.api.MockContext;

@@ -26,7 +26,6 @@ import java.util.List;
 
 import infra.http.HttpMethod;
 import infra.mock.http.client.MockClientHttpRequest;
-import infra.test.web.client.match.MockRestRequestMatchers;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.containsString;

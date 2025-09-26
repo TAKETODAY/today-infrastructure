@@ -17,6 +17,8 @@
 
 package infra.web.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.net.URI;
@@ -33,8 +35,6 @@ import java.util.function.BiFunction;
 import java.util.function.UnaryOperator;
 
 import infra.lang.Assert;
-import infra.lang.NonNull;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
@@ -207,7 +207,6 @@ final class HierarchicalUriComponents extends UriComponents {
   }
 
   @Override
-  @NonNull
   public String getPath() {
     return this.path.getPath();
   }

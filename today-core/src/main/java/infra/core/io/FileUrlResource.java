@@ -17,6 +17,8 @@
 
 package infra.core.io;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -27,7 +29,6 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 
-import infra.lang.Nullable;
 import infra.util.ResourceUtils;
 
 /**

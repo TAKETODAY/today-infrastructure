@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,11 +34,11 @@ import javax.management.ObjectName;
 
 import infra.annotation.config.jmx.JmxAutoConfiguration;
 import infra.aop.framework.ProxyFactory;
+import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.InitializationBeanPostProcessor;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
-import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.jdbc.datasource.DelegatingDataSource;
 
 import static org.assertj.core.api.Assertions.assertThat;

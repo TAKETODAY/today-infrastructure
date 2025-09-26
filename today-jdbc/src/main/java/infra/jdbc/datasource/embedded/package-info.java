@@ -18,9 +18,7 @@
 /**
  * Provides extensible support for creating embedded database instances.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jdbc.datasource.embedded;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -20,9 +20,7 @@
  * such as abstract base classes for ApplicationContext
  * implementations and a MessageSource implementation.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.context.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

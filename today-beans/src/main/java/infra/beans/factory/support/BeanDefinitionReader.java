@@ -17,11 +17,12 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.BeanDefinitionStoreException;
 import infra.core.io.PatternResourceLoader;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
-import infra.lang.Nullable;
 
 /**
  * Simple interface for bean definition readers that specifies load methods with

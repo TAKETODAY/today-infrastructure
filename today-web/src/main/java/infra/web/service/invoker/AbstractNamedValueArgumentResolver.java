@@ -17,6 +17,8 @@
 
 package infra.web.service.invoker;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -28,7 +30,6 @@ import infra.core.TypeDescriptor;
 import infra.core.conversion.ConversionService;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ObjectUtils;

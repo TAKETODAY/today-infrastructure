@@ -82,7 +82,7 @@ public class BasicVerifier extends BasicInterpreter {
     BasicValue expected;
     switch (insn.getOpcode()) {
       case INEG, IINC, I2F, I2L, I2D, I2B, I2C, I2S, IFEQ, IFNE, IFLT, IFGE, IFGT, IFLE, TABLESWITCH, LOOKUPSWITCH,
-              IRETURN, NEWARRAY, ANEWARRAY -> expected = BasicValue.INT_VALUE;
+           IRETURN, NEWARRAY, ANEWARRAY -> expected = BasicValue.INT_VALUE;
       case FNEG, F2I, F2L, F2D, FRETURN -> expected = BasicValue.FLOAT_VALUE;
       case LNEG, L2I, L2F, L2D, LRETURN -> expected = BasicValue.LONG_VALUE;
       case DNEG, D2I, D2F, D2L, DRETURN -> expected = BasicValue.DOUBLE_VALUE;
@@ -153,7 +153,7 @@ public class BasicVerifier extends BasicInterpreter {
         expected2 = BasicValue.INT_VALUE;
       }
       case IADD, ISUB, IMUL, IDIV, IREM, ISHL, ISHR, IUSHR, IAND, IOR,
-              IXOR, IF_ICMPEQ, IF_ICMPNE, IF_ICMPLT, IF_ICMPGE, IF_ICMPGT, IF_ICMPLE -> {
+           IXOR, IF_ICMPEQ, IF_ICMPNE, IF_ICMPLT, IF_ICMPGE, IF_ICMPGT, IF_ICMPLE -> {
         expected1 = BasicValue.INT_VALUE;
         expected2 = BasicValue.INT_VALUE;
       }

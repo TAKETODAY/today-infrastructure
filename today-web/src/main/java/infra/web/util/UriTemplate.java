@@ -17,6 +17,8 @@
 
 package infra.web.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
@@ -27,7 +29,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 
 /**

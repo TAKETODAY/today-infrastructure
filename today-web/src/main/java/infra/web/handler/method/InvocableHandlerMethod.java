@@ -17,6 +17,8 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -27,7 +29,6 @@ import java.util.stream.IntStream;
 import infra.beans.factory.BeanFactory;
 import infra.context.MessageSource;
 import infra.http.HttpStatusCode;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 import infra.web.HttpRequestHandler;
 import infra.web.RequestContext;

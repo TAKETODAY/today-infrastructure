@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.scheduling.concurrent;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -38,7 +40,6 @@ import infra.context.support.DefaultLifecycleProcessor;
 import infra.core.task.SimpleAsyncTaskExecutor;
 import infra.core.task.VirtualThreadTaskExecutor;
 import infra.jndi.JndiLocatorDelegate;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CustomizableThreadCreator;

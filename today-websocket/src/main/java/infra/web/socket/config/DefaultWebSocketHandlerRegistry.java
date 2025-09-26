@@ -17,12 +17,13 @@
 
 package infra.web.socket.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 import infra.web.HttpRequestHandler;
 import infra.web.handler.SimpleUrlHandlerMapping;

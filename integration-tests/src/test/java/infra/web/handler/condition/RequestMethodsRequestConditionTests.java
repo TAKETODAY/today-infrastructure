@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@ import java.util.Collections;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
-import infra.lang.NonNull;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.web.mock.MockRequestContext;
@@ -68,7 +67,6 @@ public class RequestMethodsRequestConditionTests {
     testNoMatch(condition, OPTIONS);
   }
 
-  @NonNull
   private MockRequestContext createContext(HttpMockRequest request) {
     return new MockRequestContext(null, request, null);
   }

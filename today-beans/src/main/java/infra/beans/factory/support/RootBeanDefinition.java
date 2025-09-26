@@ -17,6 +17,8 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
@@ -34,7 +36,6 @@ import infra.beans.factory.config.BeanDefinitionHolder;
 import infra.beans.factory.config.ConstructorArgumentValues;
 import infra.core.ResolvableType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**

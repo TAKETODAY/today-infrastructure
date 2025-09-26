@@ -18,9 +18,7 @@
 /**
  * Test support for {@link infra.context.annotation.config.TypeExcludeFilter}.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.app.test.context.filter;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

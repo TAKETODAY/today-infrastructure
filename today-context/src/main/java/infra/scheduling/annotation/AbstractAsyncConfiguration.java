@@ -17,6 +17,8 @@
 
 package infra.scheduling.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -30,7 +32,6 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.ImportAware;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.type.AnnotationMetadata;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.function.SingletonSupplier;
 

@@ -17,6 +17,7 @@
 
 package infra.web.client.reactive;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.net.URI;
@@ -40,7 +41,6 @@ import infra.http.client.reactive.ClientHttpConnector;
 import infra.http.client.reactive.ClientHttpRequest;
 import infra.http.client.reactive.ClientHttpResponse;
 import infra.http.codec.ClientCodecConfigurer;
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 import infra.web.client.ApiVersionFormatter;
 import infra.web.client.ApiVersionInserter;

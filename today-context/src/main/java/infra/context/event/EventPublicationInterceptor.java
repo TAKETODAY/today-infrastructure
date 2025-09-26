@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ package infra.context.event;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
@@ -30,8 +31,6 @@ import infra.context.ApplicationEventPublisher;
 import infra.context.ApplicationEventPublisherAware;
 import infra.context.ApplicationListener;
 import infra.lang.Assert;
-import infra.lang.NonNull;
-import infra.lang.Nullable;
 
 /**
  * {@link MethodInterceptor Interceptor} that publishes an
@@ -92,7 +91,7 @@ public class EventPublicationInterceptor implements MethodInterceptor, Applicati
   }
 
   @Override
-  public void setApplicationEventPublisher(@NonNull ApplicationEventPublisher applicationEventPublisher) {
+  public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
     this.applicationEventPublisher = applicationEventPublisher;
   }
 
@@ -115,7 +114,6 @@ public class EventPublicationInterceptor implements MethodInterceptor, Applicati
     return retVal;
   }
 
-  @NonNull
   private Object getEventObject(MethodInvocation invocation) throws Exception {
     if (applicationEventSupplier != null) {
       return applicationEventSupplier.get();

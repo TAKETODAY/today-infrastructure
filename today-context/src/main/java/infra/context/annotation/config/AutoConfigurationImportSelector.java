@@ -17,6 +17,8 @@
 
 package infra.context.annotation.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -41,7 +43,6 @@ import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
 import infra.core.type.AnnotationMetadata;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;

@@ -19,9 +19,7 @@
  * Provides the core JDBC framework, based on JdbcTemplate
  * and its associated callback interfaces and helper objects.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jdbc.core;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

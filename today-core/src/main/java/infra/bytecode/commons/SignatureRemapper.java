@@ -58,8 +58,8 @@ public class SignatureRemapper extends SignatureVisitor {
     String remappedOuter = remapper.mapType(outerClassName) + '$';
     String remappedName = remapper.mapType(className);
     int index = remappedName.startsWith(remappedOuter)
-                ? remappedOuter.length()
-                : remappedName.lastIndexOf('$') + 1;
+            ? remappedOuter.length()
+            : remappedName.lastIndexOf('$') + 1;
     signatureVisitor.visitInnerClassType(remappedName.substring(index));
   }
 

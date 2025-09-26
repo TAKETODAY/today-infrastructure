@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -24,7 +26,6 @@ import java.lang.reflect.Modifier;
 
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 
 /**
  * Helper class that allows for specifying a reflective method to invoke in a declarative

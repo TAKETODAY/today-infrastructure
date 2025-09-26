@@ -17,13 +17,14 @@
 
 package infra.core.type.filter;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
 
 import infra.core.annotation.AnnotationUtils;
 import infra.core.type.AnnotationMetadata;
 import infra.core.type.classreading.MetadataReader;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**

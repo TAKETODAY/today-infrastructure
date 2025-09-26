@@ -17,6 +17,8 @@
 
 package infra.validation.beanvalidation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,7 +45,6 @@ import infra.core.MethodParameter;
 import infra.core.ParameterNameDiscoverer;
 import infra.core.annotation.AnnotationUtils;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.validation.BeanPropertyBindingResult;
 import infra.validation.BindingResult;
 import infra.validation.DefaultMessageCodesResolver;

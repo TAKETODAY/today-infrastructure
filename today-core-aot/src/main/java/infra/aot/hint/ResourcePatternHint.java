@@ -17,11 +17,12 @@
 
 package infra.aot.hint;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Objects;
 
-import infra.util.AntPathMatcher;
 import infra.lang.Assert;
-import infra.lang.Nullable;
+import infra.util.AntPathMatcher;
 
 /**
  * A hint that describes resources that should be made available at runtime.

@@ -20,9 +20,7 @@
  *
  * @author TODAY 2021/3/27 10:33
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.reflect;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

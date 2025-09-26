@@ -19,10 +19,10 @@ package infra.aop.interceptor;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serializable;
 
-import infra.lang.Nullable;
 import infra.util.ConcurrencyThrottleSupport;
 
 /**

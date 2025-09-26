@@ -17,10 +17,10 @@
 
 package infra.core.test.tools;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Iterator;
 import java.util.stream.Stream;
-
-import infra.lang.Nullable;
 
 /**
  * An immutable collection of {@link ResourceFile} instances.

@@ -17,13 +17,14 @@
 
 package infra.beans.factory.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import infra.beans.factory.FactoryBean;
 import infra.beans.factory.InitializingBean;
 import infra.core.YamlProcessor;
-import infra.lang.Nullable;
 
 /**
  * Factory for a {@code Map} that reads from a YAML source, preserving the

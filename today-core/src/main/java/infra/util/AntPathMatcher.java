@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -27,7 +29,6 @@ import java.util.regex.Pattern;
 
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 
 /**
  * {@link PathMatcher} implementation for Ant-style path patterns.

@@ -17,6 +17,8 @@
 
 package infra.web.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -25,7 +27,6 @@ import java.util.Map;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.web.util.UriComponentsBuilder;
 
 /**

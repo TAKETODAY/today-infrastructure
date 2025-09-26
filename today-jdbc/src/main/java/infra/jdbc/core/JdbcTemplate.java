@@ -17,6 +17,8 @@
 
 package infra.jdbc.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.BatchUpdateException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -53,7 +55,6 @@ import infra.jdbc.support.KeyHolder;
 import infra.jdbc.support.SQLExceptionTranslator;
 import infra.jdbc.support.rowset.SqlRowSet;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.LogMessage;
 import infra.util.CollectionUtils;
 import infra.util.LinkedCaseInsensitiveMap;

@@ -17,6 +17,7 @@
 
 package infra.web.client.reactive;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.net.URI;
@@ -28,7 +29,6 @@ import infra.core.ParameterizedTypeReference;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.client.reactive.ClientHttpRequest;
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 import infra.web.reactive.function.BodyInserter;
 import reactor.core.publisher.Mono;

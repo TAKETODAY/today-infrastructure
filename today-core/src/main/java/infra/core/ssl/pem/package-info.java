@@ -18,9 +18,7 @@
 /**
  * SSL trust material provider for PEM-encoded certificates.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.core.ssl.pem;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

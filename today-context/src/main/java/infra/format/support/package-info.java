@@ -19,9 +19,7 @@
  * Support classes for the formatting package,
  * providing common implementations as well as adapters.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.format.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

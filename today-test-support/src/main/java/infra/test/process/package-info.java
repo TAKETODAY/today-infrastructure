@@ -18,9 +18,7 @@
 /**
  * Classes to help when shelling out to processes in tests.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.test.process;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

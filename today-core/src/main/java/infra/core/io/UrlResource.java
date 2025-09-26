@@ -16,6 +16,8 @@
  */
 package infra.core.io;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +33,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ResourceUtils;
 import infra.util.StringUtils;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,12 @@
 
 package infra.app.diagnostics.analyzer;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.app.diagnostics.FailureAnalysis;
 import infra.beans.factory.InjectionPoint;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.FactoryMethodBeanException;
-import infra.lang.Nullable;
 
 /**
  * An {@link AbstractInjectionFailureAnalyzer} that performs analysis of failures caused

@@ -17,6 +17,8 @@
 
 package infra.jdbc.datasource.init;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.sql.Connection;
@@ -30,7 +32,6 @@ import infra.core.io.EncodedResource;
 import infra.core.io.Resource;
 import infra.jdbc.datasource.DataSourceUtils;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.StringUtils;

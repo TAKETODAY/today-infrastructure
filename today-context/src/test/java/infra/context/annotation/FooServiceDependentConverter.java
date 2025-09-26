@@ -20,9 +20,9 @@
 
 package infra.context.annotation;
 
+import example.scannable.FooService;
 import infra.beans.testfixture.beans.TestBean;
 import infra.core.conversion.Converter;
-import example.scannable.FooService;
 
 /**
  * @author Juergen Hoeller

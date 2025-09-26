@@ -17,12 +17,12 @@
 
 package infra.bytecode.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.function.Function;
-
-import infra.lang.Nullable;
 
 /**
  * @param <V> value

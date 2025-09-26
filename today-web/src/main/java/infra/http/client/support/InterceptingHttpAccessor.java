@@ -17,6 +17,8 @@
 
 package infra.http.client.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +27,6 @@ import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.ClientHttpRequestInterceptor;
 import infra.http.client.InterceptingClientHttpRequestFactory;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.web.client.RestTemplate;
 

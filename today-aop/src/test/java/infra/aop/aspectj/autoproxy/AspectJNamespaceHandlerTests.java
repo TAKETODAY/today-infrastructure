@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 
 import infra.aop.config.AopConfigUtils;
 import infra.aop.config.AopNamespaceUtils;
-import infra.beans.testfixture.beans.CollectingReaderEventListener;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.parsing.PassThroughSourceExtractor;
 import infra.beans.factory.parsing.SourceExtractor;
@@ -31,6 +30,7 @@ import infra.beans.factory.support.StandardBeanFactory;
 import infra.beans.factory.xml.ParserContext;
 import infra.beans.factory.xml.XmlBeanDefinitionReader;
 import infra.beans.factory.xml.XmlReaderContext;
+import infra.beans.testfixture.beans.CollectingReaderEventListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -17,6 +17,8 @@
 
 package infra.core.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
@@ -34,7 +36,6 @@ import java.util.Set;
 import infra.core.BridgeMethodResolver;
 import infra.core.type.AnnotationMetadata;
 import infra.core.type.StandardAnnotationMetadata;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.ReflectionUtils;

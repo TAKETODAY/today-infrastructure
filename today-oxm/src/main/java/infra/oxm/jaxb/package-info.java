@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +19,7 @@
  * Package providing integration of <a href="https://java.sun.com/webservices/jaxb/">JAXB</a>
  * with Infra O/X Mapping support.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.oxm.jaxb;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

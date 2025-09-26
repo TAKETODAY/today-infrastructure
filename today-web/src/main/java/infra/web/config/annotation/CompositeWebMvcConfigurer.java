@@ -17,12 +17,13 @@
 
 package infra.web.config.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import infra.format.FormatterRegistry;
 import infra.http.converter.HttpMessageConverter;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.validation.Validator;
 import infra.web.ErrorResponse;

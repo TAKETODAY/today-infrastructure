@@ -17,13 +17,14 @@
 
 package infra.util.concurrent;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * A skeletal {@link Future} implementation which represents

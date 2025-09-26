@@ -17,8 +17,9 @@
 
 package infra.scheduling;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.task.TaskExecutor;
-import infra.lang.Nullable;
 import infra.scheduling.annotation.Scheduled;
 import infra.scheduling.config.TaskSchedulerRouter;
 

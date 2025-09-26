@@ -21,6 +21,7 @@ import org.crac.CheckpointException;
 import org.crac.Core;
 import org.crac.RestoreException;
 import org.crac.management.CRaCMXBean;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,7 +51,6 @@ import infra.context.Phased;
 import infra.context.SmartLifecycle;
 import infra.core.NativeDetector;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;

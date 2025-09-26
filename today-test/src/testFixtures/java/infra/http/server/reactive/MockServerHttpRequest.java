@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,19 +35,18 @@ import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.lang.NonNull;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import infra.logging.Logger;
-import infra.util.LinkedCaseInsensitiveMap;
-import infra.util.MultiValueMap;
-import infra.util.StringUtils;
 import infra.mock.api.AsyncContext;
 import infra.mock.api.AsyncEvent;
 import infra.mock.api.AsyncListener;
-import infra.mock.api.ReadListener;
 import infra.mock.api.MockInputStream;
+import infra.mock.api.ReadListener;
 import infra.mock.api.http.Cookie;
 import infra.mock.api.http.HttpMockRequest;
+import infra.util.LinkedCaseInsensitiveMap;
+import infra.util.MultiValueMap;
+import infra.util.StringUtils;
 import reactor.core.publisher.Flux;
 
 /**
@@ -176,13 +175,11 @@ class MockServerHttpRequest extends AbstractServerHttpRequest {
   }
 
   @Override
-  @NonNull
   public InetSocketAddress getLocalAddress() {
     return new InetSocketAddress(this.request.getLocalAddr(), this.request.getLocalPort());
   }
 
   @Override
-  @NonNull
   public InetSocketAddress getRemoteAddress() {
     return new InetSocketAddress(this.request.getRemoteHost(), this.request.getRemotePort());
   }

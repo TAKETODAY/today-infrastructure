@@ -17,7 +17,7 @@
 
 package infra.web;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a interface for handling HTTP requests. This interface

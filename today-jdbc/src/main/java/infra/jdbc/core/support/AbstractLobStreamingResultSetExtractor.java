@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jdbc.core.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,7 +28,6 @@ import infra.dao.EmptyResultDataAccessException;
 import infra.dao.IncorrectResultSizeDataAccessException;
 import infra.jdbc.LobRetrievalFailureException;
 import infra.jdbc.core.ResultSetExtractor;
-import infra.lang.Nullable;
 import infra.jdbc.support.lob.LobHandler;
 import infra.util.FileCopyUtils;
 

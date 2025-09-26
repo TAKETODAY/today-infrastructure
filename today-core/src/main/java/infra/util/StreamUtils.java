@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayOutputStream;
 import java.io.FilterInputStream;
 import java.io.FilterOutputStream;
@@ -30,7 +32,6 @@ import java.nio.charset.StandardCharsets;
 import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.lang.Contract;
-import infra.lang.Nullable;
 
 /**
  * Simple utility methods for dealing with streams. The copy methods of this class are

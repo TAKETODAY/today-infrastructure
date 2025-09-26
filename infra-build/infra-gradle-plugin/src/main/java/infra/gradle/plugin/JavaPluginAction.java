@@ -55,7 +55,7 @@ import java.util.stream.Stream;
 import infra.gradle.dsl.InfraApplicationExtension;
 import infra.gradle.tasks.bundling.InfraJar;
 import infra.gradle.tasks.run.InfraRun;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import infra.util.StringUtils;
 
 /**

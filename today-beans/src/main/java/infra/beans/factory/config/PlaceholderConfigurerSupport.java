@@ -17,6 +17,8 @@
 
 package infra.beans.factory.config;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.BeanDefinitionStoreException;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
@@ -25,7 +27,6 @@ import infra.beans.factory.annotation.Value;
 import infra.core.StringValueResolver;
 import infra.core.env.AbstractPropertyResolver;
 import infra.core.env.PropertySource;
-import infra.lang.Nullable;
 import infra.util.PropertyPlaceholderHandler;
 
 /**

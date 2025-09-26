@@ -17,6 +17,8 @@
 
 package infra.persistence;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -50,7 +52,6 @@ import infra.jdbc.datasource.DataSourceUtils;
 import infra.jdbc.format.SqlStatementLogger;
 import infra.lang.Assert;
 import infra.lang.Descriptive;
-import infra.lang.Nullable;
 import infra.logging.LogMessage;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;

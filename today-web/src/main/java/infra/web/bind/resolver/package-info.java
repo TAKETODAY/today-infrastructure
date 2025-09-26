@@ -20,9 +20,7 @@
  *
  * @author TODAY 2021/9/23 21:53
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.bind.resolver;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

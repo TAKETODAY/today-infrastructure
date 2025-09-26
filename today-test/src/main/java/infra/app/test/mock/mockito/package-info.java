@@ -18,9 +18,7 @@
 /**
  * Mockito integration for tests.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.app.test.mock.mockito;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

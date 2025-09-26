@@ -17,6 +17,8 @@
 
 package infra.web.handler.result;
 
+import org.jspecify.annotations.Nullable;
+
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 
@@ -24,7 +26,6 @@ import javax.imageio.ImageIO;
 
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 import infra.web.handler.method.HandlerMethod;
 

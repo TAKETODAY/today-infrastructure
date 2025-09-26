@@ -17,12 +17,13 @@
 
 package infra.web.multipart.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
-import infra.lang.Nullable;
 import infra.util.ExceptionUtils;
 import infra.web.multipart.MultipartFile;
 

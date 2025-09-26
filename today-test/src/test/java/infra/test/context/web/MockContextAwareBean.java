@@ -17,8 +17,8 @@
 
 package infra.test.context.web;
 
-import infra.web.mock.MockContextAware;
 import infra.mock.api.MockContext;
+import infra.web.mock.MockContextAware;
 
 /**
  * @author Sam Brannen

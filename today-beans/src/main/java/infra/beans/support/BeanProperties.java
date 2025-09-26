@@ -17,6 +17,8 @@
 
 package infra.beans.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Map;
 import java.util.Set;
 
@@ -28,7 +30,6 @@ import infra.beans.NoSuchPropertyException;
 import infra.beans.SimpleTypeConverter;
 import infra.beans.TypeConverter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 /**

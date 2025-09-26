@@ -17,6 +17,8 @@
 
 package infra.aop.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +32,6 @@ import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.core.Ordered;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Utility class for handling registration of AOP auto-proxy creators.

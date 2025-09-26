@@ -23,8 +23,8 @@ import java.net.URL;
 
 import infra.stereotype.Controller;
 import infra.test.web.mock.MockMvc;
-import infra.web.annotation.PostMapping;
 import infra.web.RedirectModel;
+import infra.web.annotation.PostMapping;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.post;
 import static infra.test.web.mock.result.MockMvcResultMatchers.flash;

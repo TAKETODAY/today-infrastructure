@@ -18,14 +18,14 @@
 package infra.test.web.mock.result;
 
 import org.hamcrest.Matcher;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import infra.util.AntPathMatcher;
-import infra.lang.Nullable;
 import infra.test.web.mock.ResultMatcher;
+import infra.util.AntPathMatcher;
 import infra.web.util.UriComponentsBuilder;
 
 import static infra.test.util.AssertionErrors.assertEquals;

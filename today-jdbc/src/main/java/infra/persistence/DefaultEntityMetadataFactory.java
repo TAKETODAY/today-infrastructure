@@ -17,6 +17,8 @@
 
 package infra.persistence;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -26,7 +28,6 @@ import infra.core.annotation.MergedAnnotations;
 import infra.jdbc.type.TypeHandler;
 import infra.jdbc.type.TypeHandlerManager;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**

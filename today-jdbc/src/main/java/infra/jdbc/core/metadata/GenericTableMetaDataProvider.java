@@ -17,6 +17,8 @@
 
 package infra.jdbc.core.metadata;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,7 +32,6 @@ import java.util.Map;
 
 import infra.dao.DataAccessResourceFailureException;
 import infra.jdbc.support.JdbcUtils;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

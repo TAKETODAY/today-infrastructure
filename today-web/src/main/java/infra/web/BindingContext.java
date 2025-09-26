@@ -17,12 +17,13 @@
 
 package infra.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import infra.core.ResolvableType;
-import infra.lang.Nullable;
 import infra.ui.Model;
 import infra.ui.ModelMap;
 import infra.validation.BindingResult;

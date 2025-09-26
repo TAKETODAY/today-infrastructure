@@ -17,12 +17,12 @@
 
 package infra.web.accept;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.function.Predicate;
 
-import infra.lang.Nullable;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;

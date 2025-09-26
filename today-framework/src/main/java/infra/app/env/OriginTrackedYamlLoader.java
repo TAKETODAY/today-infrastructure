@@ -17,6 +17,7 @@
 
 package infra.app.env;
 
+import org.jspecify.annotations.Nullable;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -41,7 +42,6 @@ import java.util.regex.Pattern;
 
 import infra.core.YamlProcessor;
 import infra.core.io.Resource;
-import infra.lang.Nullable;
 import infra.origin.Origin;
 import infra.origin.OriginTrackedValue;
 import infra.origin.TextResourceOrigin;

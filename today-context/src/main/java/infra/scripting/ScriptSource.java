@@ -17,9 +17,9 @@
 
 package infra.scripting;
 
-import java.io.IOException;
+import org.jspecify.annotations.Nullable;
 
-import infra.lang.Nullable;
+import java.io.IOException;
 
 /**
  * Interface that defines the source of a script.

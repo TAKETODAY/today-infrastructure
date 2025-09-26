@@ -18,9 +18,7 @@
 /**
  * Custom JUnit 4 {@code Rules} used in the <em>TestContext Framework</em>.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.test.context.junit4.rules;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

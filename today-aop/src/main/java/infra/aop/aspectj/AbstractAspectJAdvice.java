@@ -23,6 +23,7 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.weaver.tools.JoinPointMatch;
 import org.aspectj.weaver.tools.PointcutParameter;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -44,7 +45,6 @@ import infra.aop.support.StaticMethodMatcher;
 import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.ParameterNameDiscoverer;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ReflectionUtils;

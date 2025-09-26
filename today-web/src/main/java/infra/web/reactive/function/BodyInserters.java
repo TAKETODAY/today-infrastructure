@@ -17,6 +17,7 @@
 
 package infra.web.reactive.function;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.io.OutputStream;
@@ -42,7 +43,6 @@ import infra.http.codec.HttpMessageWriter;
 import infra.http.codec.ServerSentEvent;
 import infra.http.server.reactive.ServerHttpResponse;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.client.reactive.WebClient;

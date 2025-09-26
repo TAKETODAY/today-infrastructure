@@ -17,6 +17,7 @@
 
 package infra.web.socket;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.TestInfo;
 
 import java.net.URI;
@@ -28,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.lang.Nullable;
 import infra.util.concurrent.Future;
 import infra.web.HandlerExceptionHandler;
 import infra.web.RequestContext;

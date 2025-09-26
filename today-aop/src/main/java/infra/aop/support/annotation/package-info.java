@@ -18,9 +18,7 @@
 /**
  * Annotation support for AOP pointcuts.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.aop.support.annotation;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

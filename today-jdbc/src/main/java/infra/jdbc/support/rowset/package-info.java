@@ -19,9 +19,7 @@
  * Provides a convenient holder for disconnected result sets.
  * Supported by JdbcTemplate, but can be used independently too.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jdbc.support.rowset;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

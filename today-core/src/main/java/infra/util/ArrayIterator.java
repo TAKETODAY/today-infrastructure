@@ -17,13 +17,13 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-
-import infra.lang.Nullable;
 
 /**
  * Iterator over an array.

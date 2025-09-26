@@ -18,9 +18,7 @@
 /**
  * Auto-configuration for jackson.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.annotation.config.jackson;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

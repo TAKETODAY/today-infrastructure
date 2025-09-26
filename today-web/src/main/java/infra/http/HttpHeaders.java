@@ -17,6 +17,8 @@
 
 package infra.http;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
@@ -47,7 +49,6 @@ import java.util.stream.Collectors;
 
 import infra.lang.Assert;
 import infra.lang.Modifiable;
-import infra.lang.Nullable;
 import infra.lang.Unmodifiable;
 import infra.util.CollectionUtils;
 import infra.util.LinkedCaseInsensitiveMap;

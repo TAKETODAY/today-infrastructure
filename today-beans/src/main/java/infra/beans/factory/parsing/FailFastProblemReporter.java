@@ -17,7 +17,8 @@
 
 package infra.beans.factory.parsing;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

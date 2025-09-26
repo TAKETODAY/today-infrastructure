@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.AbstractCollection;
@@ -32,8 +34,6 @@ import java.util.Spliterator;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
-
-import infra.lang.Nullable;
 
 /**
  * {@link LinkedHashMap} variant that stores String keys in a case-insensitive

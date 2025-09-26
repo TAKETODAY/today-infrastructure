@@ -17,6 +17,8 @@
 
 package infra.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Locale;
@@ -30,7 +32,6 @@ import infra.context.ApplicationContext;
 import infra.core.i18n.LocaleContext;
 import infra.core.i18n.LocaleContextHolder;
 import infra.core.i18n.TimeZoneAwareLocaleContext;
-import infra.lang.Nullable;
 import infra.session.SessionManager;
 import infra.session.WebSession;
 import infra.util.CollectionUtils;

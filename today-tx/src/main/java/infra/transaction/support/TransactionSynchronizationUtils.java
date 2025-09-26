@@ -17,12 +17,13 @@
 
 package infra.transaction.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 import infra.aop.scope.ScopedObject;
 import infra.core.InfraProxy;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

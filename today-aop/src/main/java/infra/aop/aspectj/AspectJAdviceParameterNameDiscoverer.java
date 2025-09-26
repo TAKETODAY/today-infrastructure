@@ -21,6 +21,7 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.weaver.tools.PointcutParser;
 import org.aspectj.weaver.tools.PointcutPrimitive;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -32,7 +33,6 @@ import java.util.List;
 import java.util.Set;
 
 import infra.core.ParameterNameDiscoverer;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**

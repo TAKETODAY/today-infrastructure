@@ -18,6 +18,7 @@
 package infra.validation.beanvalidation;
 
 import org.hibernate.validator.internal.constraintvalidators.bv.PatternValidator;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -40,7 +41,6 @@ import infra.beans.factory.support.RegisteredBean;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.core.OverridingClassLoader;
-import infra.lang.Nullable;
 import jakarta.validation.Constraint;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

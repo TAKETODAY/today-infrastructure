@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.http.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ConcurrentModificationException;
@@ -32,7 +34,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import reactor.core.Exceptions;
@@ -81,7 +82,7 @@ final class SubscriberInputStream<T> extends InputStream implements Flow.Subscri
 
   private final Queue<T> queue;
 
-  private final AtomicReference<Object> parkedThread = new AtomicReference<>();
+  private final AtomicReference<@Nullable Object> parkedThread = new AtomicReference<>();
 
   private final AtomicInteger workAmount = new AtomicInteger();
 
@@ -89,13 +90,11 @@ final class SubscriberInputStream<T> extends InputStream implements Flow.Subscri
 
   private int consumed;
 
-  @Nullable
-  private byte[] available;
+  private byte @Nullable [] available;
 
   private int position;
 
-  @Nullable
-  private Flow.Subscription subscription;
+  private Flow.@Nullable Subscription subscription;
 
   private boolean done;
 

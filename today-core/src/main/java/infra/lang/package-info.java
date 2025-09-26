@@ -1,6 +1,5 @@
-
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +21,7 @@
  * @author TODAY 2021/10/11 23:24
  * @since 4.0
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.lang;
 
+import org.jspecify.annotations.NullMarked;

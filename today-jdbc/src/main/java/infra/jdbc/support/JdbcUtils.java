@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.jdbc.support;
+
+import org.jspecify.annotations.Nullable;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
@@ -37,7 +39,6 @@ import javax.sql.DataSource;
 import infra.jdbc.CannotGetJdbcConnectionException;
 import infra.jdbc.datasource.DataSourceUtils;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.NumberUtils;

@@ -17,6 +17,8 @@
 
 package infra.mail.javamail;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,7 +28,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.mail.MailAuthenticationException;
 import infra.mail.MailException;
 import infra.mail.MailParseException;

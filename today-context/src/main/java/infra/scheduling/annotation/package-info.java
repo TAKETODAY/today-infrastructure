@@ -18,9 +18,7 @@
 /**
  * Java 5 annotation for asynchronous method execution.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.scheduling.annotation;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

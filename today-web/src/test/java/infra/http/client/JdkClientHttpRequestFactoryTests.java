@@ -17,6 +17,7 @@
 
 package infra.http.client;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -28,7 +29,6 @@ import java.nio.charset.StandardCharsets;
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
-import infra.lang.Nullable;
 import infra.util.StreamUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

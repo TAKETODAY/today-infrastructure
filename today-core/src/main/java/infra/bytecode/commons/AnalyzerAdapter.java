@@ -433,8 +433,8 @@ public class AnalyzerAdapter extends MethodVisitor {
   private void pushDescriptor(final String fieldOrMethodDescriptor) {
     String descriptor =
             fieldOrMethodDescriptor.charAt(0) == '('
-            ? Type.forReturnType(fieldOrMethodDescriptor).getDescriptor()
-            : fieldOrMethodDescriptor;
+                    ? Type.forReturnType(fieldOrMethodDescriptor).getDescriptor()
+                    : fieldOrMethodDescriptor;
     switch (descriptor.charAt(0)) {
       case 'V':
         return;

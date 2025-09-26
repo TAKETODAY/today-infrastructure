@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.scheduling.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -33,7 +35,6 @@ import infra.beans.factory.DisposableBean;
 import infra.beans.factory.InitializingBean;
 import infra.core.env.Environment;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.scheduling.TaskScheduler;
 import infra.scheduling.Trigger;
 import infra.scheduling.annotation.EnableAsync;
@@ -160,7 +161,7 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
    */
   public List<TriggerTask> getTriggerTaskList() {
     return this.triggerTasks != null
-           ? Collections.unmodifiableList(this.triggerTasks) : Collections.emptyList();
+            ? Collections.unmodifiableList(this.triggerTasks) : Collections.emptyList();
   }
 
   /**
@@ -190,7 +191,7 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
    */
   public List<CronTask> getCronTaskList() {
     return this.cronTasks != null
-           ? Collections.unmodifiableList(this.cronTasks) : Collections.emptyList();
+            ? Collections.unmodifiableList(this.cronTasks) : Collections.emptyList();
   }
 
   /**
@@ -220,7 +221,7 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
    */
   public List<IntervalTask> getFixedRateTaskList() {
     return this.fixedRateTasks != null
-           ? Collections.unmodifiableList(this.fixedRateTasks) : Collections.emptyList();
+            ? Collections.unmodifiableList(this.fixedRateTasks) : Collections.emptyList();
   }
 
   /**
@@ -250,7 +251,7 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
    */
   public List<IntervalTask> getFixedDelayTaskList() {
     return this.fixedDelayTasks != null
-           ? Collections.unmodifiableList(this.fixedDelayTasks) : Collections.emptyList();
+            ? Collections.unmodifiableList(this.fixedDelayTasks) : Collections.emptyList();
   }
 
   /**

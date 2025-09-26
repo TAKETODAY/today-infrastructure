@@ -18,9 +18,7 @@
 /**
  * Request context date parameter resolvers
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.bind.resolver.date;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

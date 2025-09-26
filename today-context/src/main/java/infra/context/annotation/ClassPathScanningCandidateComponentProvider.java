@@ -17,6 +17,8 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -46,7 +48,6 @@ import infra.core.type.filter.AnnotationTypeFilter;
 import infra.core.type.filter.AssignableTypeFilter;
 import infra.core.type.filter.TypeFilter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.stereotype.Controller;
 import infra.stereotype.Indexed;

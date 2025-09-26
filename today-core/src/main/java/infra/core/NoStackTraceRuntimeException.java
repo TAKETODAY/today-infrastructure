@@ -17,9 +17,9 @@
 
 package infra.core;
 
-import java.io.Serial;
+import org.jspecify.annotations.Nullable;
 
-import infra.lang.Nullable;
+import java.io.Serial;
 
 /**
  * @author TODAY 2021/7/27 20:50

@@ -17,12 +17,13 @@
 
 package infra.jdbc.format;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.Statement;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import infra.core.style.ToStringBuilder;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;

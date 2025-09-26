@@ -17,6 +17,8 @@
 
 package infra.beans.factory.aot;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,7 +33,6 @@ import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.util.ObjectUtils;
 

@@ -17,14 +17,14 @@
 
 package infra.logging;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
-
-import infra.lang.Nullable;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>

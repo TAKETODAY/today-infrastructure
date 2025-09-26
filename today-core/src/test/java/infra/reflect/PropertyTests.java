@@ -17,6 +17,7 @@
 
 package infra.reflect;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -24,8 +25,6 @@ import java.lang.reflect.Method;
 import infra.core.annotation.AnnotationFilter;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.RepeatableContainers;
-import infra.lang.NonNull;
-import infra.lang.Nullable;
 import infra.lang.Required;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,7 +46,6 @@ class PropertyTests {
     assertThat(annotations.get(Nullable.class).isPresent()).isTrue();
     assertThat(annotations.get(Override.class).isPresent()).isFalse();
     assertThat(annotations.get(Required.class).isPresent()).isTrue();
-    assertThat(annotations.get(NonNull.class).isPresent()).isTrue();
   }
 
   static class Bean implements Ifc {
@@ -70,7 +68,6 @@ class PropertyTests {
     @Nullable
     Integer getInt();
 
-    @NonNull
     void setInt(Integer val);
 
   }

@@ -17,6 +17,7 @@
 
 package infra.cache.annotation;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -37,7 +38,6 @@ import infra.cache.interceptor.LoggingCacheErrorHandler;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.lang.Nullable;
 import infra.util.concurrent.Future;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

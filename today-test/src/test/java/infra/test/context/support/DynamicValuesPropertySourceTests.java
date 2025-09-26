@@ -22,8 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.function.Supplier;
 
-import infra.test.context.support.DynamicValuesPropertySource;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

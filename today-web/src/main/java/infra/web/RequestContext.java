@@ -17,6 +17,8 @@
 
 package infra.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,7 +65,6 @@ import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
 import infra.lang.Assert;
 import infra.lang.NullValue;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;

@@ -26,8 +26,6 @@ import java.util.Set;
 
 import infra.context.ApplicationContextInitializer;
 import infra.context.ConfigurableApplicationContext;
-import infra.test.context.ContextCustomizer;
-import infra.test.context.MergedContextConfiguration;
 import infra.test.context.cache.ContextCache;
 import infra.test.context.support.AnnotationConfigContextLoader;
 import infra.test.context.support.GenericXmlContextLoader;

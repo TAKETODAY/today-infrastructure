@@ -2,9 +2,7 @@
  * Miscellaneous web utility classes, such as HTML escaping,
  * Log4j initialization, and cookie handling.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.util;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

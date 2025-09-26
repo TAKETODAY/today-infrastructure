@@ -17,6 +17,8 @@
 
 package infra.jdbc.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.SQLException;
 import java.util.Set;
 
@@ -29,7 +31,6 @@ import infra.dao.PessimisticLockingFailureException;
 import infra.dao.QueryTimeoutException;
 import infra.dao.TransientDataAccessResourceException;
 import infra.jdbc.BadSqlGrammarException;
-import infra.lang.Nullable;
 
 /**
  * {@link SQLExceptionTranslator} implementation that analyzes the SQL state in

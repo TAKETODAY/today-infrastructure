@@ -17,6 +17,8 @@
 
 package infra.http;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.net.URI;
@@ -25,7 +27,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Representation for an RFC 9457 problem detail. Includes spec-defined

@@ -17,6 +17,7 @@
 
 package infra.context.properties;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 
@@ -29,7 +30,6 @@ import infra.core.conversion.GenericConverter;
 import infra.format.Formatter;
 import infra.format.support.ApplicationConversionService;
 import infra.format.support.FormattingConversionService;
-import infra.lang.Nullable;
 
 /**
  * Factory for creating a {@link Stream stream} of {@link Arguments} for use in a

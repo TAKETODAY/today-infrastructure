@@ -17,7 +17,7 @@
 
 package infra.bytecode;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * @author TODAY 2021/7/28 22:43

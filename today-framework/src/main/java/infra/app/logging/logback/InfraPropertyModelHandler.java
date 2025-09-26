@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.app.logging.logback;
 
+import org.jspecify.annotations.Nullable;
+
 import ch.qos.logback.core.Context;
 import ch.qos.logback.core.joran.action.ActionUtil;
 import ch.qos.logback.core.joran.action.ActionUtil.Scope;
@@ -27,7 +29,6 @@ import ch.qos.logback.core.model.processor.ModelInterpretationContext;
 import ch.qos.logback.core.model.util.PropertyModelHandlerHelper;
 import ch.qos.logback.core.util.OptionHelper;
 import infra.core.env.Environment;
-import infra.lang.Nullable;
 
 /**
  * Logback {@link ModelHandlerBase model handler} to support {@code <infra-property>}

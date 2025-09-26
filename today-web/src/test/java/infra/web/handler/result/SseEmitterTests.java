@@ -17,6 +17,7 @@
 
 package infra.web.handler.result;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +29,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import infra.http.MediaType;
-import infra.lang.Nullable;
 
 import static infra.web.handler.result.SseEmitter.event;
 import static org.assertj.core.api.Assertions.assertThat;

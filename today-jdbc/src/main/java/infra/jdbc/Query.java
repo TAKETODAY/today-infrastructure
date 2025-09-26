@@ -17,6 +17,8 @@
 
 package infra.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.InputStream;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -26,7 +28,6 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 
 import infra.jdbc.type.TypeHandler;
-import infra.lang.Nullable;
 
 /**
  * Represents a query object that extends {@link AbstractQuery} and provides methods to

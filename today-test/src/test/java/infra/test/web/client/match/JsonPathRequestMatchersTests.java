@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import infra.mock.http.client.MockClientHttpRequest;
-import infra.test.web.client.match.JsonPathRequestMatchers;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.hamcrest.Matchers.equalTo;

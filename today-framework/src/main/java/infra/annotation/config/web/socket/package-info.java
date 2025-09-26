@@ -18,9 +18,7 @@
 /**
  * Auto-configuration for websocket
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.annotation.config.web.socket;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

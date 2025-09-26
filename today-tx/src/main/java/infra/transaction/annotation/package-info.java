@@ -3,9 +3,7 @@
  * Hooked into Framework transaction interception infrastructure
  * via a special TransactionAttributeSource implementation.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.transaction.annotation;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

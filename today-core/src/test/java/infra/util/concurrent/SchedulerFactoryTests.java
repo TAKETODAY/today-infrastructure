@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,8 +24,6 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-
-import infra.lang.NonNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -56,7 +54,7 @@ class SchedulerFactoryTests {
     final ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1);
 
     @Override
-    public void execute(@NonNull Runnable command) {
+    public void execute(Runnable command) {
       forkJoinPool.execute(command);
     }
 

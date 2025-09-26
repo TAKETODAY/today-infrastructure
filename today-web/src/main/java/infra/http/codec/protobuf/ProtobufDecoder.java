@@ -21,6 +21,7 @@ import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.ExtensionRegistry;
 import com.google.protobuf.Message;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.io.IOException;
@@ -39,7 +40,6 @@ import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferLimitException;
 import infra.core.io.buffer.DataBufferUtils;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.MimeType;
 import reactor.core.publisher.Flux;

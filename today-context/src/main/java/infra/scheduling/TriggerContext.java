@@ -17,10 +17,10 @@
 
 package infra.scheduling;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Clock;
 import java.time.Instant;
-
-import infra.lang.Nullable;
 
 /**
  * Context object encapsulating last execution times and last completion time

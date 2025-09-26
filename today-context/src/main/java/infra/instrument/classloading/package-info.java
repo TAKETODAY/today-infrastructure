@@ -19,9 +19,7 @@
  * Support package for load time weaving based on class loaders,
  * as required by JPA providers (but not JPA-specific).
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.instrument.classloading;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

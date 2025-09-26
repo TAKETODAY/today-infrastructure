@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ package infra.http.codec.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.nio.CharBuffer;
@@ -32,7 +33,6 @@ import infra.core.codec.CharBufferDecoder;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DefaultDataBufferFactory;
 import infra.http.converter.json.Jackson2ObjectMapperBuilder;
-import infra.lang.Nullable;
 import infra.util.MimeType;
 import reactor.core.publisher.Flux;
 

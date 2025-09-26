@@ -17,11 +17,11 @@
 
 package infra.context.properties.source;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-
-import infra.lang.Nullable;
 
 /**
  * A filtered {@link IterableConfigurationPropertySource}.

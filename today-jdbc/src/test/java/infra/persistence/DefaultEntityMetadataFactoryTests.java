@@ -17,6 +17,7 @@
 
 package infra.persistence;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.ElementType;
@@ -27,7 +28,6 @@ import java.util.function.Consumer;
 
 import infra.beans.BeanMetadata;
 import infra.beans.BeanProperty;
-import infra.lang.Nullable;
 import infra.persistence.model.UserModel;
 
 import static org.assertj.core.api.Assertions.assertThat;

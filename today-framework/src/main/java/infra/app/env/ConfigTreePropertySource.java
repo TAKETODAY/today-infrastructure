@@ -17,6 +17,8 @@
 
 package infra.app.env;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,7 +44,6 @@ import infra.core.io.PathResource;
 import infra.core.io.Resource;
 import infra.format.support.ApplicationConversionService;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.origin.Origin;
 import infra.origin.OriginLookup;
 import infra.origin.OriginProvider;

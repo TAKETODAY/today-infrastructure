@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.test.context.cache;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 import infra.aot.AotDetector;
@@ -24,7 +26,6 @@ import infra.context.ApplicationContext;
 import infra.context.ApplicationContextInitializer;
 import infra.context.support.GenericApplicationContext;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.annotation.DirtiesContext.HierarchyMode;

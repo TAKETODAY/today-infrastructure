@@ -18,9 +18,7 @@
 /**
  * Auto-configuration for FreeMarker.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.annotation.config.freemarker;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

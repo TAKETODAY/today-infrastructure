@@ -17,9 +17,10 @@
 
 package infra.web.service.invoker;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.ParameterizedTypeReference;
 import infra.http.ResponseEntity;
-import infra.lang.Nullable;
 import infra.util.concurrent.Future;
 import infra.web.client.ClientResponse;
 

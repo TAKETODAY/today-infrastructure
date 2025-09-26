@@ -17,6 +17,7 @@
 
 package infra.web.config.annotation;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -35,7 +36,6 @@ import infra.http.HttpStatus;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.MappingJackson2HttpMessageConverter;
-import infra.lang.Nullable;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
 import infra.scheduling.concurrent.ConcurrentTaskExecutor;

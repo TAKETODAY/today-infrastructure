@@ -17,9 +17,9 @@
 
 package infra.logging;
 
-import java.io.Serial;
+import org.jspecify.annotations.Nullable;
 
-import infra.lang.Nullable;
+import java.io.Serial;
 
 /**
  * @author TODAY 2021/11/5 22:53

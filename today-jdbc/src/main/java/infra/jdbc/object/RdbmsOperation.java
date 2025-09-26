@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jdbc.object;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.ResultSet;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -31,11 +33,10 @@ import infra.beans.factory.InitializingBean;
 import infra.dao.InvalidDataAccessApiUsageException;
 import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.core.SqlParameter;
+import infra.jdbc.support.SQLExceptionTranslator;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.jdbc.support.SQLExceptionTranslator;
 
 /**
  * An "RDBMS operation" is a multi-threaded, reusable object representing a query,

@@ -17,6 +17,8 @@
 
 package infra.transaction.interceptor;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Enumeration;
@@ -27,7 +29,6 @@ import java.util.Properties;
 import infra.beans.factory.InitializingBean;
 import infra.context.expression.EmbeddedValueResolverAware;
 import infra.core.StringValueResolver;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

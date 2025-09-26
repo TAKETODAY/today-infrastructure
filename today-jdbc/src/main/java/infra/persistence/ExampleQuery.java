@@ -17,6 +17,8 @@
 
 package infra.persistence;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -26,7 +28,6 @@ import java.util.function.Consumer;
 
 import infra.core.annotation.MergedAnnotation;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.logging.LogMessage;
 import infra.persistence.PropertyConditionStrategy.Condition;
