@@ -19,7 +19,6 @@ package infra.context.annotation;
 
 import java.io.Serial;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -54,7 +53,6 @@ import infra.lang.NonNull;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.stereotype.Component;
-import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
@@ -183,9 +181,6 @@ class ConfigurationClassBeanDefinitionReader {
     MergedAnnotations annotations = metadata.getAnnotations();
     MergedAnnotation<Component> component = annotations.get(Component.class);
     Assert.state(component.isPresent(), "No @Component annotation attributes");
-
-    // Consider name and any aliases
-    ArrayList<String> names = CollectionUtils.newArrayList(component.getStringArray("name"));
 
     // Consider name and any aliases.
     String[] explicitNames = component.getStringArray("name");
