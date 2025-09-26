@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +19,9 @@ package infra.http.codec;
 
 import org.reactivestreams.Publisher;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -190,19 +191,19 @@ public class ResourceHttpMessageWriter implements HttpMessageWriter<Resource> {
   private static Mono<Void> zeroCopy(Resource resource,
           @Nullable ResourceRegion region, ReactiveHttpOutputMessage message, Map<String, Object> hints) {
 
-    if (message instanceof ZeroCopyHttpOutputMessage zeroCopyHttpOutputMessage && resource.isFile()) {
+    if (message instanceof ZeroCopyHttpOutputMessage zchom && resource.isFile()) {
       try {
-        File file = resource.getFile();
+        Path filePath = resource.getFilePath();
         long pos = region != null ? region.getPosition() : 0;
-        long count = region != null ? region.getCount() : file.length();
+        long count = region != null ? region.getCount() : Files.size(filePath);
         if (logger.isDebugEnabled()) {
           String formatted = region != null ? "region " + pos + "-" + (count) + " of " : "";
           logger.debug("{}Zero-copy {}[{}]", Hints.getLogPrefix(hints), formatted, resource);
         }
-        return zeroCopyHttpOutputMessage.writeWith(file, pos, count);
+        return zchom.writeWith(filePath, pos, count);
       }
       catch (IOException ex) {
-        // should not happen
+        // returning null below leads to fallback code path
       }
     }
     return null;

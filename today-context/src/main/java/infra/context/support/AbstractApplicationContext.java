@@ -128,7 +128,7 @@ import infra.util.ReflectionUtils;
  *
  * <p>Implements resource loading by extending
  * {@link DefaultResourceLoader}.
- * Consequently treats non-URL resource paths as class path resources
+ * Consequently, treats non-URL resource paths as class path resources
  * (supporting full class path resource names that include the package path,
  * e.g. "mypackage/myresource.dat"), unless the {@link #getResourceByPath}
  * method is overridden in a subclass.
@@ -152,8 +152,6 @@ import infra.util.ReflectionUtils;
  */
 @SuppressWarnings({ "unchecked" })
 public abstract class AbstractApplicationContext extends DefaultResourceLoader implements ConfigurableApplicationContext {
-
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   /**
    * The name of the {@link LifecycleProcessor} bean in the context.
@@ -188,15 +186,29 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
    */
   public static final String APPLICATION_EVENT_MULTICASTER_BEAN_NAME = "applicationEventMulticaster";
 
-  private Instant startupDate = Instant.now();
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-  @Nullable
-  private ConfigurableEnvironment environment;
+  private final ArrayList<BeanFactoryPostProcessor> factoryPostProcessors = new ArrayList<>();
+
+  /** Statically specified listeners. @since 4.0 */
+  private final LinkedHashSet<ApplicationListener<?>> applicationListeners = new LinkedHashSet<>();
+
+  /** @since 4.0 */
+  private final PatternResourceLoader patternResourceLoader = getPatternResourceLoader();
+
+  /** Flag that indicates whether this context is currently active. */
+  private final AtomicBoolean active = new AtomicBoolean();
+
+  /** Flag that indicates whether this context has been closed already. @since 4.0 */
+  private final AtomicBoolean closed = new AtomicBoolean();
+
+  /** Synchronization lock for "refresh" and "close". */
+  private final ReentrantLock startupShutdownLock = new ReentrantLock();
+
+  private Instant startupDate = Instant.now();
 
   // @since 2.1.5
   private State state = State.NONE;
-
-  private final ArrayList<BeanFactoryPostProcessor> factoryPostProcessors = new ArrayList<>();
 
   /** Unique id for this context, if any. @since 4.0 */
   private String id = ObjectUtils.identityToString(this);
@@ -209,9 +221,6 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   private ApplicationContext parent;
 
   /** @since 4.0 */
-  private final PatternResourceLoader patternResourceLoader = getPatternResourceLoader();
-
-  /** @since 4.0 */
 
   @Nullable
   private ExpressionEvaluator expressionEvaluator;
@@ -220,6 +229,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   @Nullable
   private Thread shutdownHook;
 
+  /** Currently active startup/shutdown thread. */
+  @Nullable
+  private volatile Thread startupShutdownThread;
+
   /** LifecycleProcessor for managing the lifecycle of beans within this context. @since 4.0 */
   @Nullable
   private LifecycleProcessor lifecycleProcessor;
@@ -227,9 +240,6 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   /** Helper class used in event publishing. @since 4.0 */
   @Nullable
   private ApplicationEventMulticaster applicationEventMulticaster;
-
-  /** Statically specified listeners. @since 4.0 */
-  private final LinkedHashSet<ApplicationListener<?>> applicationListeners = new LinkedHashSet<>();
 
   /** Local listeners registered before refresh. @since 4.0 */
   @Nullable
@@ -246,23 +256,14 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   @Nullable
   private BootstrapContext bootstrapContext;
 
-  /** Flag that indicates whether this context is currently active. */
-  private final AtomicBoolean active = new AtomicBoolean();
-
-  /** Flag that indicates whether this context has been closed already. @since 4.0 */
-  private final AtomicBoolean closed = new AtomicBoolean();
-
-  /** Synchronization lock for "refresh" and "close". */
-  private final ReentrantLock startupShutdownLock = new ReentrantLock();
-
-  /** Currently active startup/shutdown thread. */
   @Nullable
-  private volatile Thread startupShutdownThread;
+  private ConfigurableEnvironment environment;
 
   /**
    * Create a new AbstractApplicationContext with no parent.
    */
-  public AbstractApplicationContext() { }
+  public AbstractApplicationContext() {
+  }
 
   /**
    * Create a new AbstractApplicationContext with the given parent context.
@@ -759,7 +760,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
    *
    * @param beanFactory the bean factory used by the application context
    */
-  protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) { }
+  protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
+  }
 
   /**
    * Instantiate and invoke all registered BeanFactoryPostProcessor beans,
@@ -1756,7 +1758,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
    *
    * @since 4.0
    */
-  protected void closeBeanFactory() { }
+  protected void closeBeanFactory() {
+  }
 
   /**
    * Subclasses must return their internal bean factory here. They should implement the

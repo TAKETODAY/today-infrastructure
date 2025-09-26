@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.net.InetSocketAddress;
 import java.net.URI;
 
 import infra.http.AbstractHttpRequest;
@@ -515,7 +516,6 @@ class ForwardedHeaderUtilsTests {
   }
 
   @Test
-    // gh-25737
   void fromHttpRequestForwardedHeaderComma() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addHeader("Forwarded", "for=192.0.2.0,for=192.0.2.1;proto=https;host=192.0.2.3:9090");
@@ -532,6 +532,28 @@ class ForwardedHeaderUtilsTests {
     assertThat(result.getPath()).isEqualTo("/rest/mobile/users/1");
     assertThat(result.getPort()).isEqualTo(9090);
     assertThat(result.toUriString()).isEqualTo("https://192.0.2.3:9090/rest/mobile/users/1");
+  }
+
+  @Test
+  void fromHttpRequestXForwardedHeaderForIpv6Formatting() {
+    HttpHeaders headers = HttpHeaders.forWritable();
+    headers.add("X-Forwarded-For", "fd00:fefe:1::4, 192.168.0.1");
+
+    InetSocketAddress address =
+            ForwardedHeaderUtils.parseForwardedFor(URI.create("https://example.com"), headers, null);
+
+    assertThat(address.getHostName()).isEqualTo("[fd00:fefe:1::4]");
+  }
+
+  @Test
+  void parseForwardedByHeader() {
+    HttpHeaders headers = HttpHeaders.forWritable();
+    headers.add("Forwarded", "by=[fd00:fefe:1::4], 192.168.0.1");
+
+    InetSocketAddress address =
+            ForwardedHeaderUtils.parseForwardedBy(URI.create("https://example.com"), headers, null);
+
+    assertThat(address.getHostName()).isEqualTo("[fd00:fefe:1::4]");
   }
 
 }

@@ -58,8 +58,7 @@ public abstract class CachedExpressionEvaluator {
   /**
    * Create a new instance with the specified {@link SpelExpressionParser}.
    */
-  protected CachedExpressionEvaluator(SpelExpressionParser parser,
-          ParameterNameDiscoverer parameterNameDiscoverer) {
+  protected CachedExpressionEvaluator(SpelExpressionParser parser, ParameterNameDiscoverer parameterNameDiscoverer) {
     Assert.notNull(parser, "SpelExpressionParser is required");
     Assert.notNull(parameterNameDiscoverer, "ParameterNameDiscoverer is required");
     this.parser = parser;

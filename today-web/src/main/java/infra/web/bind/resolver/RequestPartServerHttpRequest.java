@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,7 +67,7 @@ public class RequestPartServerHttpRequest extends HttpRequestDecorator implement
     super(request);
     this.request = request;
     this.requestPartName = requestPartName;
-    this.multipartRequest = request.getMultipartRequest();
+    this.multipartRequest = request.multipartRequest();
     HttpHeaders multipartHeaders = multipartRequest.getMultipartHeaders(requestPartName);
     if (multipartHeaders == null) {
       throw new MissingRequestPartException(requestPartName);

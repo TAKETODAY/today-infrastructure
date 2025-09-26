@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -134,8 +136,23 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   }
 
   @Override
+  public int getRemotePort() {
+    return request.getRemotePort();
+  }
+
+  @Override
   public int getServerPort() {
     return request.getServerPort();
+  }
+
+  @Override
+  public InetSocketAddress remoteAddress() {
+    return InetSocketAddress.createUnresolved(request.getRemoteHost(), request.getRemotePort());
+  }
+
+  @Override
+  public SocketAddress localAddress() {
+    return InetSocketAddress.createUnresolved(request.getLocalAddr(), request.getLocalPort());
   }
 
   @SuppressWarnings("unchecked")

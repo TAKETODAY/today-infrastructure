@@ -709,10 +709,8 @@ public abstract class RequestPredicates {
 
     private ContentTypePredicate(Set<MediaType> mediaTypes) {
       super(headers -> {
-        MediaType contentType =
-                headers.contentType().orElse(MediaType.APPLICATION_OCTET_STREAM);
-        boolean match = mediaTypes.stream()
-                .anyMatch(mediaType -> mediaType.includes(contentType));
+        MediaType contentType = headers.contentType().orElse(MediaType.APPLICATION_OCTET_STREAM);
+        boolean match = mediaTypes.stream().anyMatch(mediaType -> mediaType.includes(contentType));
         traceMatch("Content-Type", mediaTypes, contentType, match);
         return match;
       });
@@ -1185,7 +1183,7 @@ public abstract class RequestPredicates {
     }
 
     @Override
-    public Optional<InetSocketAddress> remoteAddress() {
+    public InetSocketAddress remoteAddress() {
       return request.remoteAddress();
     }
 

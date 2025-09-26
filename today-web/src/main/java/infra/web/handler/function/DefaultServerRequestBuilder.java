@@ -29,7 +29,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 import infra.core.ParameterizedTypeReference;
@@ -81,7 +80,6 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
 
   private final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
-  @Nullable
   private InetSocketAddress remoteAddress;
 
   private byte[] body = new byte[0];
@@ -97,7 +95,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
     this.messageConverters = new ArrayList<>(other.messageConverters());
     this.method = other.method();
     this.uri = other.uri();
-    this.remoteAddress = other.remoteAddress().orElse(null);
+    this.remoteAddress = other.remoteAddress();
 
     params.addAll(other.params());
     cookies.addAll(other.cookies());
@@ -185,6 +183,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
 
   @Override
   public ServerRequest.Builder remoteAddress(InetSocketAddress remoteAddress) {
+    Assert.notNull(remoteAddress, "remoteAddress is required");
     this.remoteAddress = remoteAddress;
     return this;
   }
@@ -215,7 +214,6 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
 
     private final MultiValueMap<String, String> params;
 
-    @Nullable
     private final InetSocketAddress remoteAddress;
 
     @Nullable
@@ -223,7 +221,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
 
     public BuiltServerRequest(RequestContext requestContext, HttpMethod method, URI uri, HttpHeaders headers,
             MultiValueMap<String, HttpCookie> cookies, Map<String, Object> attributes, MultiValueMap<String, String> params,
-            @Nullable InetSocketAddress remoteAddress, byte[] body, List<HttpMessageConverter<?>> messageConverters,
+            InetSocketAddress remoteAddress, byte[] body, List<HttpMessageConverter<?>> messageConverters,
             @Nullable ApiVersionStrategy versionStrategy) {
 
       this.uri = uri;
@@ -251,7 +249,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
 
     @Override
     public MultiValueMap<String, Multipart> multipartData() throws IOException {
-      return requestContext.getMultipartRequest().multipartData();
+      return requestContext.multipartRequest().multipartData();
     }
 
     @Override
@@ -275,8 +273,8 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
     }
 
     @Override
-    public Optional<InetSocketAddress> remoteAddress() {
-      return Optional.ofNullable(this.remoteAddress);
+    public InetSocketAddress remoteAddress() {
+      return remoteAddress;
     }
 
     @Override

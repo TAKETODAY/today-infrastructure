@@ -19,10 +19,16 @@ package infra.util;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -45,8 +51,8 @@ class FileSystemUtilsTests {
   }
 
   @Test
-  void deleteRecursively() throws Exception {
-    File root = new File("./tmp/root");
+  void deleteRecursively(@TempDir File tempDir) throws Exception {
+    File root = new File(tempDir, "root");
     File child = new File(root, "child");
     File grandchild = new File(child, "grandchild");
 
@@ -55,22 +61,22 @@ class FileSystemUtilsTests {
     File bar = new File(child, "bar.txt");
     bar.createNewFile();
 
-    assertThat(root.exists()).isTrue();
-    assertThat(child.exists()).isTrue();
-    assertThat(grandchild.exists()).isTrue();
-    assertThat(bar.exists()).isTrue();
+    assertThat(root).exists();
+    assertThat(child).exists();
+    assertThat(grandchild).exists();
+    assertThat(bar).exists();
 
     FileSystemUtils.deleteRecursively(root);
 
-    assertThat(root.exists()).isFalse();
-    assertThat(child.exists()).isFalse();
-    assertThat(grandchild.exists()).isFalse();
-    assertThat(bar.exists()).isFalse();
+    assertThat(root).doesNotExist();
+    assertThat(child).doesNotExist();
+    assertThat(grandchild).doesNotExist();
+    assertThat(bar).doesNotExist();
   }
 
   @Test
-  void copyRecursively() throws Exception {
-    File src = new File("./tmp/src");
+  void copyRecursively(@TempDir File tempDir) throws Exception {
+    File src = new File(tempDir, "src");
     File child = new File(src, "child");
     File grandchild = new File(child, "grandchild");
 
@@ -84,12 +90,27 @@ class FileSystemUtilsTests {
     assertThat(grandchild).exists();
     assertThat(bar).exists();
 
-    File dest = new File("./dest");
+    File dest = new File(tempDir, "/dest");
     FileSystemUtils.copyRecursively(src, dest);
 
     assertThat(dest).exists();
-    assertThat(new File(dest, child.getName())).exists();
+    assertThat(new File(dest, "child")).exists();
+    assertThat(new File(dest, "child/bar.txt")).exists();
 
+    String destPath = dest.toString().replace('\\', '/');
+    if (!destPath.startsWith("/")) {
+      destPath = "/" + destPath;
+    }
+    URI uri = URI.create("jar:file:" + destPath + "/archive.zip");
+    Map<String, String> env = Map.of("create", "true");
+    FileSystem zipfs = FileSystems.newFileSystem(uri, env);
+    Path ziproot = zipfs.getPath("/");
+    FileSystemUtils.copyRecursively(src.toPath(), ziproot);
+
+    assertThat(zipfs.getPath("/child")).exists();
+    assertThat(zipfs.getPath("/child/bar.txt")).exists();
+
+    zipfs.close();
     FileSystemUtils.deleteRecursively(src);
     assertThat(src).doesNotExist();
   }

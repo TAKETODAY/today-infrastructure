@@ -110,7 +110,7 @@ public class PathEditor extends PropertyEditorSupport {
     }
     else {
       try {
-        setValue(resource.getFile().toPath());
+        setValue(resource.getFilePath());
       }
       catch (IOException ex) {
         String msg = "Could not resolve \"%s\" to 'java.nio.file.Path' for %s: %s".formatted(text, resource, ex.getMessage());

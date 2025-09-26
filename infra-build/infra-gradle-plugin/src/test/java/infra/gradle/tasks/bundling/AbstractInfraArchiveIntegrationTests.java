@@ -22,6 +22,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.TaskOutcome;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.TestTemplate;
 
 import java.io.BufferedReader;
@@ -593,7 +594,12 @@ abstract class AbstractInfraArchiveIntegrationTests {
 
   @TestTemplate
   void dirModeAndFileModeAreApplied() throws IOException {
-    BuildResult result = this.gradleBuild.build(this.taskName);
+    Assumptions.assumeTrue(this.gradleBuild.gradleVersionIsLessThan("9.0-milestone-1"));
+    BuildResult result = this.gradleBuild.expectDeprecationWarningsWithAtLeastVersion("8.8-rc-1")
+            .expectDeprecationMessages("The CopyProcessingSpec.setDirMode(Integer) method has been deprecated",
+                    "The CopyProcessingSpec.setFileMode(Integer) method has been deprecated",
+                    "upgrading_version_8.html#unix_file_permissions_deprecated")
+            .build(this.taskName);
     assertThat(result.task(":" + this.taskName).getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
     try (ZipFile jarFile = new ZipFile(new File(this.gradleBuild.getProjectDir(), "build/libs").listFiles()[0])) {
       Enumeration<ZipArchiveEntry> entries = jarFile.getEntries();
@@ -651,6 +657,9 @@ abstract class AbstractInfraArchiveIntegrationTests {
     catch (IOException ex) {
       throw new RuntimeException(ex);
     }
+    new File(this.gradleBuild.getProjectDir(), "alpha").mkdir();
+    new File(this.gradleBuild.getProjectDir(), "bravo").mkdir();
+    new File(this.gradleBuild.getProjectDir(), "charlie").mkdir();
   }
 
   private void writeMainClass() {

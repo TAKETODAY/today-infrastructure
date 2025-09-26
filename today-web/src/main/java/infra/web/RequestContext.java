@@ -23,6 +23,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
@@ -70,8 +72,7 @@ import infra.web.async.AsyncWebRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.async.WebAsyncManagerFactory;
 import infra.web.multipart.MultipartRequest;
-import infra.web.util.UriComponents;
-import infra.web.util.UriComponentsBuilder;
+import infra.web.util.WebUtils;
 
 import static infra.lang.Constant.DEFAULT_CHARSET;
 
@@ -323,6 +324,47 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   public abstract int getServerPort();
 
+  /**
+   * Returns the Internet Protocol (IP) address of the client or last proxy that
+   * sent the request.
+   *
+   * @return a <code>String</code> containing the IP address of the client that
+   * sent the request
+   */
+  public abstract String getRemoteAddress();
+
+  /**
+   * Returns the Internet Protocol (IP) source port the remote end of the connection on which the request was received. By
+   * default, this is either the port of the client or last proxy that sent the request. In some cases, protocol specific
+   * mechanisms such as <a href="https://tools.ietf.org/html/rfc7239">RFC 7239</a> may be used to obtain a port different
+   * to that of the actual TCP/IP connection.
+   *
+   * @return an integer specifying the port number
+   * @since 5.0
+   */
+  public int getRemotePort() {
+    return remoteAddress().getPort();
+  }
+
+  /**
+   * Returns the local address where this server is bound to. The returned
+   * {@link SocketAddress} is supposed to be down-cast into more concrete
+   * type such as {@link InetSocketAddress} to retrieve the detailed
+   * information.
+   *
+   * @return the local address of this server.
+   * @since 5.0
+   */
+  public abstract SocketAddress localAddress();
+
+  /**
+   * Get the remote address to which this request is connected, if available.
+   *
+   * @return the remote address of this request.
+   * @since 5.0
+   */
+  public abstract InetSocketAddress remoteAddress();
+
   // @since 4.0
   @Override
   public URI getURI() {
@@ -413,55 +455,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   protected RequestPath readRequestPath() {
     return RequestPath.parse(getRequestURI(), null);
-  }
-
-  /**
-   * Sets the matching metadata for this handler. The matching metadata provides
-   * information about how a handler is matched to a specific request or context.
-   * This method allows setting or updating the metadata, which can be null if no
-   * matching information is available.
-   *
-   * @param handlerMatchingMetadata the metadata to set, or null if no metadata is available
-   */
-  public void setMatchingMetadata(@Nullable HandlerMatchingMetadata handlerMatchingMetadata) {
-    this.matchingMetadata = handlerMatchingMetadata;
-  }
-
-  /**
-   * Returns the {@code HandlerMatchingMetadata} associated with this instance,
-   * if available. This metadata typically contains information about how a
-   * handler matches certain criteria, such as request mappings in a web
-   * application context.
-   *
-   * <p>If no matching metadata has been set, this method will return
-   * {@code null}. Ensure proper null checks when using the returned value.</p>
-   *
-   * @return the {@code HandlerMatchingMetadata} associated with this instance,
-   * or {@code null} if no metadata is available
-   */
-  @Nullable
-  public HandlerMatchingMetadata getMatchingMetadata() {
-    return this.matchingMetadata;
-  }
-
-  /**
-   * Returns the {@code HandlerMatchingMetadata} associated with this instance.
-   *
-   * <p>This method retrieves the metadata that describes how a handler matches
-   * a specific request. If the metadata is not set, an exception is thrown to
-   * indicate that it is required.
-   *
-   * @return the {@code HandlerMatchingMetadata} instance associated with this handler
-   * @throws IllegalStateException if the {@code HandlerMatchingMetadata} is not set
-   */
-  public HandlerMatchingMetadata matchingMetadata() {
-    HandlerMatchingMetadata matchingMetadata = this.matchingMetadata;
-    Assert.state(matchingMetadata != null, "HandlerMatchingMetadata is required");
-    return matchingMetadata;
-  }
-
-  public boolean hasMatchingMetadata() {
-    return matchingMetadata != null;
   }
 
   protected abstract String readRequestURI();
@@ -779,15 +772,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
   protected abstract String readMethod();
 
   /**
-   * Returns the Internet Protocol (IP) address of the client or last proxy that
-   * sent the request.
-   *
-   * @return a <code>String</code> containing the IP address of the client that
-   * sent the request
-   */
-  public abstract String getRemoteAddress();
-
-  /**
    * Returns the length, in bytes, of the request body and made available by the
    * input stream, or -1 if the length is not known.
    *
@@ -904,7 +888,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @see #isMultipart()
    * @since 4.0
    */
-  public MultipartRequest getMultipartRequest() {
+  public MultipartRequest multipartRequest() {
     var multipartRequest = this.multipartRequest;
     if (multipartRequest == null) {
       multipartRequest = createMultipartRequest();
@@ -964,7 +948,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * <p>Example usage:
    * <pre>{@code
    *   // Retrieve the async web request
-   *   AsyncWebRequest asyncRequest = context.getAsyncWebRequest();
+   *   AsyncWebRequest asyncRequest = context.asyncWebRequest();
    *
    *   // Perform operations on the async request
    *   asyncRequest.setAttribute("key", "value");
@@ -974,7 +958,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return the current {@code AsyncWebRequest} instance, or a newly created instance
    * if none has been initialized yet
    */
-  public AsyncWebRequest getAsyncWebRequest() {
+  public AsyncWebRequest asyncWebRequest() {
     var asyncRequest = this.asyncRequest;
     if (asyncRequest == null) {
       asyncRequest = createAsyncWebRequest();
@@ -1011,7 +995,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * <p>Example usage:
    * <pre>{@code
    *   // Retrieve the WebAsyncManager instance
-   *   WebAsyncManager asyncManager = getAsyncManager();
+   *   WebAsyncManager asyncManager = asyncManager();
    *
    *   // Use the WebAsyncManager to manage asynchronous operations
    *   asyncManager.startCallableProcessing(() -> {
@@ -1023,7 +1007,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return the {@code WebAsyncManager} instance associated with this object,
    * ensuring it is initialized before returning
    */
-  public WebAsyncManager getAsyncManager() {
+  public WebAsyncManager asyncManager() {
     WebAsyncManager webAsyncManager = this.webAsyncManager;
     if (webAsyncManager == null) {
       webAsyncManager = createWebAsyncManager();
@@ -1047,7 +1031,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
     if (factory == null) {
       factory = new WebAsyncManagerFactory();
     }
-    return factory.getWebAsyncManager(this);
+    return factory.createWebAsyncManager(this);
   }
 
   // ---------------------------------------------------------------------
@@ -1166,33 +1150,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
   public boolean isCorsRequest() {
     Boolean corsRequestFlag = this.corsRequestFlag;
     if (corsRequestFlag == null) {
-      String origin = requestHeaders().getFirst(HttpHeaders.ORIGIN);
-      if (origin == null) {
-        corsRequestFlag = false;
-      }
-      else {
-        UriComponents originUrl = UriComponentsBuilder.forOriginHeader(origin).build();
-        String scheme = getScheme();
-        String host = getServerName();
-        int port = getServerPort();
-        corsRequestFlag = !(ObjectUtils.nullSafeEquals(scheme, originUrl.getScheme())
-                && ObjectUtils.nullSafeEquals(host, originUrl.getHost())
-                && getPort(scheme, port) == getPort(originUrl.getScheme(), originUrl.getPort()));
-      }
+      corsRequestFlag = !WebUtils.isSameOrigin(this);
+      this.corsRequestFlag = corsRequestFlag;
     }
     return corsRequestFlag;
-  }
-
-  protected static int getPort(@Nullable String scheme, int port) {
-    if (port == -1) {
-      if ("http".equals(scheme) || "ws".equals(scheme)) {
-        port = 80;
-      }
-      else if ("https".equals(scheme) || "wss".equals(scheme)) {
-        port = 443;
-      }
-    }
-    return port;
   }
 
   /**
@@ -1585,6 +1546,55 @@ public abstract class RequestContext extends AttributeAccessorSupport
       }
     }
     return -1;
+  }
+
+  /**
+   * Sets the matching metadata for this handler. The matching metadata provides
+   * information about how a handler is matched to a specific request or context.
+   * This method allows setting or updating the metadata, which can be null if no
+   * matching information is available.
+   *
+   * @param handlerMatchingMetadata the metadata to set, or null if no metadata is available
+   */
+  public void setMatchingMetadata(@Nullable HandlerMatchingMetadata handlerMatchingMetadata) {
+    this.matchingMetadata = handlerMatchingMetadata;
+  }
+
+  /**
+   * Returns the {@code HandlerMatchingMetadata} associated with this instance,
+   * if available. This metadata typically contains information about how a
+   * handler matches certain criteria, such as request mappings in a web
+   * application context.
+   *
+   * <p>If no matching metadata has been set, this method will return
+   * {@code null}. Ensure proper null checks when using the returned value.</p>
+   *
+   * @return the {@code HandlerMatchingMetadata} associated with this instance,
+   * or {@code null} if no metadata is available
+   */
+  @Nullable
+  public HandlerMatchingMetadata getMatchingMetadata() {
+    return this.matchingMetadata;
+  }
+
+  /**
+   * Returns the {@code HandlerMatchingMetadata} associated with this instance.
+   *
+   * <p>This method retrieves the metadata that describes how a handler matches
+   * a specific request. If the metadata is not set, an exception is thrown to
+   * indicate that it is required.
+   *
+   * @return the {@code HandlerMatchingMetadata} instance associated with this handler
+   * @throws IllegalStateException if the {@code HandlerMatchingMetadata} is not set
+   */
+  public HandlerMatchingMetadata matchingMetadata() {
+    HandlerMatchingMetadata matchingMetadata = this.matchingMetadata;
+    Assert.state(matchingMetadata != null, "HandlerMatchingMetadata is required");
+    return matchingMetadata;
+  }
+
+  public boolean hasMatchingMetadata() {
+    return matchingMetadata != null;
   }
 
   /**

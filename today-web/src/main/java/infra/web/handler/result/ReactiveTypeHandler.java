@@ -147,7 +147,7 @@ final class ReactiveTypeHandler {
     new DeferredResultSubscriber(result, adapter, elementType)
             .connect(adapter, returnValue);
 
-    request.getAsyncManager().startDeferredResultProcessing(result);
+    request.asyncManager().startDeferredResultProcessing(result);
     return null;
   }
 

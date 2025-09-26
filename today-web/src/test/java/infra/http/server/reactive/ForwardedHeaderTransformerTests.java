@@ -90,7 +90,6 @@ class ForwardedHeaderTransformerTests {
   }
 
   @Test
-    // gh-23305
   void xForwardedPrefixShouldNotLeadToDecodedPath() {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("X-Forwarded-Prefix", "/prefix");
@@ -118,7 +117,6 @@ class ForwardedHeaderTransformerTests {
   }
 
   @Test
-    //
   void shouldNotDoubleEncode() {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("Forwarded", "host=84.198.58.199;proto=https");
@@ -135,7 +133,6 @@ class ForwardedHeaderTransformerTests {
   }
 
   @Test
-    // gh-30137
   void shouldHandleUnencodedUri() {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("Forwarded", "host=84.198.58.199;proto=https");
@@ -169,6 +166,17 @@ class ForwardedHeaderTransformerTests {
 
     assertThat(request.getURI()).isEqualTo(URI.create("https://example.com/first/second/path"));
     assertThat(request.getPath().value()).isEqualTo("/first/second/path");
+    assertForwardedHeadersRemoved(request);
+  }
+
+  @Test
+  void shouldRemoveSingleTrailingSlash() {
+    HttpHeaders headers = HttpHeaders.forWritable();
+    headers.add("X-Forwarded-Prefix", "/prefix,/");
+    ServerHttpRequest request = this.requestMutator.apply(getRequest(headers));
+
+    assertThat(request.getURI()).isEqualTo(URI.create("https://example.com/prefix/path"));
+    assertThat(request.getPath().value()).isEqualTo("/prefix/path");
     assertForwardedHeadersRemoved(request);
   }
 
@@ -221,6 +229,25 @@ class ForwardedHeaderTransformerTests {
     request = this.requestMutator.apply(request);
     assertThat(request.getRemoteAddress()).isNotNull();
     assertThat(request.getRemoteAddress().getHostName()).isEqualTo("203.0.113.195");
+  }
+
+  @Test
+  void forwardedBy() {
+    HttpHeaders headers = HttpHeaders.forWritable();
+    headers.add("Forwarded", "by=\"203.0.113.195:4711\";host=84.198.58.199;proto=https");
+
+    InetSocketAddress localAddress = new InetSocketAddress("example.client", 47011);
+
+    ServerHttpRequest request = MockServerHttpRequest
+            .method(HttpMethod.GET, URI.create("https://example.com/a%20b?q=a%2Bb"))
+            .localAddress(localAddress)
+            .headers(headers)
+            .build();
+
+    request = this.requestMutator.apply(request);
+    assertThat(request.getLocalAddress()).isNotNull();
+    assertThat(request.getLocalAddress().getHostName()).isEqualTo("203.0.113.195");
+    assertThat(request.getLocalAddress().getPort()).isEqualTo(4711);
   }
 
   private MockServerHttpRequest getRequest(HttpHeaders headers) {

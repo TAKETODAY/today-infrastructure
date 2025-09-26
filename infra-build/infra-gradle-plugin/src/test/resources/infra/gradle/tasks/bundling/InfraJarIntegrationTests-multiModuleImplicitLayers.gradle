@@ -1,46 +1,46 @@
-
-
 plugins {
-	id 'java'
-	id 'infra.application' version '{version}'
+  id 'java'
+  id 'infra.application' version '{version}'
 }
 
 subprojects {
-	apply plugin: 'java'
-	group = 'org.example.projects'
-	version = '1.2.3'
-	if (it.name == 'bravo') {
-		dependencies {
-			implementation(project(':charlie'))
-		}
-	}
+  apply plugin: 'java'
+  group = 'org.example.projects'
+  version = '1.2.3'
+  if (it.name == 'bravo') {
+    dependencies {
+      implementation(project(':charlie'))
+    }
+  }
 }
 
 infraJar {
-	mainClass = 'com.example.Application'
+  mainClass = 'com.example.Application'
 }
 
 repositories {
-	mavenCentral()
-	maven { url "file:repository" }
+  mavenCentral()
+  maven {
+    url = "repository"
+  }
 }
 
 dependencies {
-	implementation(project(':alpha'))
-	implementation(project(':bravo'))
-	implementation("com.example:library:1.0-SNAPSHOT")
-	implementation("org.apache.commons:commons-lang3:3.9")
-	implementation("cn.taketoday:today-core:5.0.0-Draft.1")
+  implementation(project(':alpha'))
+  implementation(project(':bravo'))
+  implementation("com.example:library:1.0-SNAPSHOT")
+  implementation("org.apache.commons:commons-lang3:3.9")
+  implementation("cn.taketoday:today-core:5.0.0-Draft.1")
 }
 
-task listLayers(type: JavaExec) {
-	classpath = infraJar.outputs.files
-	systemProperties = [ "jarmode": "layertools" ]
-	args "list"
+tasks.register('listLayers', JavaExec) {
+  classpath = infraJar.outputs.files
+  systemProperties = ["jarmode": "layertools"]
+  args "list"
 }
 
-task extractLayers(type: JavaExec) {
-	classpath = infraJar.outputs.files
-	systemProperties = [ "jarmode": "layertools" ]
-	args "extract"
+tasks.register('extractLayers', JavaExec) {
+  classpath = infraJar.outputs.files
+  systemProperties = ["jarmode": "layertools"]
+  args "extract"
 }

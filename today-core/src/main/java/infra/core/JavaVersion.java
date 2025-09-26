@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
 package infra.core;
 
 import java.io.Console;
+import java.io.Reader;
+import java.text.NumberFormat;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
@@ -65,15 +67,29 @@ public enum JavaVersion {
   /**
    * Java 22.
    */
-  TWENTY_TWO("22", Console.class, "isTerminal");
+  TWENTY_TWO("22", Console.class, "isTerminal"),
+
+  /**
+   * Java 23.
+   *
+   * @since 5.0
+   */
+  TWENTY_THREE("23", NumberFormat.class, "isStrict"),
+
+  /**
+   * Java 24.
+   *
+   * @since 5.0
+   */
+  TWENTY_FOUR("24", Reader.class, "of", CharSequence.class);
 
   private final String name;
 
   private final boolean available;
 
-  JavaVersion(String name, Class<?> clazz, String methodName) {
+  JavaVersion(String name, Class<?> versionSpecificClass, String versionSpecificMethod, Class<?>... paramTypes) {
     this.name = name;
-    this.available = ReflectionUtils.hasMethod(clazz, methodName);
+    this.available = ReflectionUtils.hasMethod(versionSpecificClass, versionSpecificMethod, paramTypes);
   }
 
   @Override

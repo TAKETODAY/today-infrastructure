@@ -25,6 +25,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -32,7 +33,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import infra.core.AntPathMatcher;
+import infra.util.AntPathMatcher;
 import infra.core.io.AbstractResource;
 import infra.core.io.Resource;
 import infra.http.HttpHeaders;
@@ -160,6 +161,7 @@ public class VersionResourceResolver extends AbstractResourceResolver {
     return this;
   }
 
+  @Nullable
   @Override
   protected Resource resolveResourceInternal(@Nullable RequestContext request,
           String requestPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
@@ -197,10 +199,9 @@ public class VersionResourceResolver extends AbstractResourceResolver {
     }
   }
 
+  @Nullable
   @Override
-  protected String resolveUrlPathInternal(String resourceUrlPath,
-          List<? extends Resource> locations, ResourceResolvingChain chain) {
-
+  protected String resolveUrlPathInternal(String resourceUrlPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
     String baseUrl = chain.resolveUrlPath(resourceUrlPath, locations);
     if (StringUtils.hasText(baseUrl)) {
       VersionStrategy versionStrategy = getStrategyForPath(resourceUrlPath);
@@ -276,6 +277,11 @@ public class VersionResourceResolver extends AbstractResourceResolver {
     @Override
     public File getFile() throws IOException {
       return this.original.getFile();
+    }
+
+    @Override
+    public Path getFilePath() throws IOException {
+      return original.getFilePath();
     }
 
     @Override

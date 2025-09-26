@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -74,7 +74,8 @@ public class MockDispatcher extends DispatcherHandler implements MockApi, Serial
   /** Should we publish the context as a MockContext attribute?. */
   private boolean publishContext = true;
 
-  public MockDispatcher() { }
+  public MockDispatcher() {
+  }
 
   /**
    * Create a new {@code InfraHandler} with the given application context. This

@@ -28,7 +28,7 @@ jobs:
         java:
 #          - version: 21
 #            toolchain: true
-          - version: 24
+          - version: 25
             toolchain: true
       fail-fast: false
       max-parallel: 4

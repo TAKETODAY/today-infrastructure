@@ -35,7 +35,7 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.config.EmbeddedValueResolver;
 import infra.context.ApplicationContext;
 import infra.context.support.ApplicationObjectSupport;
-import infra.core.AntPathMatcher;
+import infra.util.AntPathMatcher;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.http.HttpStatusCode;

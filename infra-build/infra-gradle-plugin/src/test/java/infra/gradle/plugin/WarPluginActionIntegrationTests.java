@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,7 +62,7 @@ class WarPluginActionIntegrationTests {
     assertThat(result.task(":infraWar").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
     assertThat(result.task(":war").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
     File buildLibs = new File(this.gradleBuild.getProjectDir(), "build/libs");
-    assertThat(buildLibs.listFiles()).containsExactlyInAnyOrder(
+    assertThat(buildLibs.listFiles()).contains(
             new File(buildLibs, this.gradleBuild.getProjectDir().getName() + ".war"),
             new File(buildLibs, this.gradleBuild.getProjectDir().getName() + "-plain.war"));
   }

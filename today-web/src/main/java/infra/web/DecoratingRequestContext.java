@@ -23,6 +23,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.URI;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
@@ -229,6 +231,21 @@ public abstract class DecoratingRequestContext extends RequestContext {
   @Override
   public String getRemoteAddress() {
     return getDelegate().getRemoteAddress();
+  }
+
+  @Override
+  public int getRemotePort() {
+    return getDelegate().getRemotePort();
+  }
+
+  @Override
+  public SocketAddress localAddress() {
+    return getDelegate().localAddress();
+  }
+
+  @Override
+  public InetSocketAddress remoteAddress() {
+    return getDelegate().remoteAddress();
   }
 
   @Override
@@ -527,8 +544,8 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public AsyncWebRequest getAsyncWebRequest() {
-    return getDelegate().getAsyncWebRequest();
+  public AsyncWebRequest asyncWebRequest() {
+    return getDelegate().asyncWebRequest();
   }
 
   @Override
@@ -537,8 +554,8 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public MultipartRequest getMultipartRequest() {
-    return getDelegate().getMultipartRequest();
+  public MultipartRequest multipartRequest() {
+    return getDelegate().multipartRequest();
   }
 
   @Override
@@ -622,8 +639,8 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public WebAsyncManager getAsyncManager() {
-    return getDelegate().getAsyncManager();
+  public WebAsyncManager asyncManager() {
+    return getDelegate().asyncManager();
   }
 
   @Override

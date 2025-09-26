@@ -75,7 +75,7 @@ public class DeferredResultReturnValueHandler implements HandlerMethodReturnValu
       throw new IllegalStateException("Unexpected return value type: " + returnValue);
     }
 
-    context.getAsyncManager().startDeferredResultProcessing(result, handler);
+    context.asyncManager().startDeferredResultProcessing(result, handler);
   }
 
   private DeferredResult<Object> adaptListenableFuture(Future<Object> future) {

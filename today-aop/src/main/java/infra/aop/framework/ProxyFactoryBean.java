@@ -92,8 +92,8 @@ import infra.util.ObjectUtils;
  * @see Advised
  * @since 4.0
  */
-public class ProxyFactoryBean extends ProxyCreatorSupport
-        implements FactoryBean<Object>, BeanClassLoaderAware, BeanFactoryAware {
+public class ProxyFactoryBean extends ProxyCreatorSupport implements FactoryBean<Object>, BeanClassLoaderAware, BeanFactoryAware {
+
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -275,6 +275,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
    *
    * @see infra.aop.TargetSource#getTargetClass
    */
+  @Nullable
   @Override
   public Class<?> getObjectType() {
     synchronized(this) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ import java.util.HashMap;
 
 import infra.core.MethodParameter;
 import infra.core.ParameterNameDiscoverer;
-import infra.core.annotation.SynthesizingMethodParameter;
 import infra.lang.Assert;
 import infra.util.ObjectUtils;
 
@@ -47,21 +46,6 @@ public class ResolvableParameterFactory {
   public ResolvableParameterFactory(ParameterNameDiscoverer parameterNameDiscoverer) {
     Assert.notNull(parameterNameDiscoverer, "parameterNameDiscoverer is required");
     this.parameterNameDiscoverer = parameterNameDiscoverer;
-  }
-
-  public ResolvableMethodParameter[] createArray(Method method) {
-    final int length = method.getParameterCount();
-    if (length == 0) {
-      return EMPTY;
-    }
-    final ResolvableMethodParameter[] ret = new ResolvableMethodParameter[length];
-    for (int i = 0; i < length; i++) {
-      MethodParameter parameter = new SynthesizingMethodParameter(method, i);
-      parameter.initParameterNameDiscovery(parameterNameDiscoverer);
-      ret[i] = createParameter(parameter);
-    }
-
-    return ret;
   }
 
   public ResolvableMethodParameter[] createArray(HandlerMethod handlerMethod) {

@@ -37,6 +37,7 @@ import infra.core.ansi.AnsiColor;
 import infra.core.ansi.AnsiElement;
 import infra.core.ansi.AnsiStyle;
 import infra.lang.Nullable;
+import infra.util.ExceptionUtils;
 import infra.util.StringUtils;
 
 /**
@@ -209,7 +210,7 @@ class DefaultLogbackConfiguration {
       return OptionHelper.substVars(val, config.getContext());
     }
     catch (ScanException ex) {
-      throw new RuntimeException(ex);
+      throw ExceptionUtils.sneakyThrow(ex);
     }
   }
 

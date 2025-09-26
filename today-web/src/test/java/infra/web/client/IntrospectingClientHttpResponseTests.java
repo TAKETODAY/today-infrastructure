@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,17 +12,24 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.client;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.ByteArrayInputStream;
+import java.io.EOFException;
 import java.io.InputStream;
+import java.util.stream.Stream;
 
+import infra.http.HttpStatus;
+import infra.http.HttpStatusCode;
 import infra.http.client.ClientHttpResponse;
+import infra.mock.http.client.MockClientHttpResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -39,21 +43,52 @@ import static org.mockito.Mockito.mock;
  */
 class IntrospectingClientHttpResponseTests {
 
-  private final ClientHttpResponse response = mock(ClientHttpResponse.class);
+  @ParameterizedTest
+  @MethodSource("noBodyHttpStatus")
+  void noMessageBodyWhenStatus(HttpStatus status) throws Exception {
+    var response = new MockClientHttpResponse(new byte[0], status);
+    var wrapped = new IntrospectingClientHttpResponse(response);
 
-  private final IntrospectingClientHttpResponse responseWrapper = new IntrospectingClientHttpResponse(response);
+    assertThat(wrapped.hasMessageBody()).isFalse();
+  }
+
+  static Stream<HttpStatusCode> noBodyHttpStatus() {
+    return Stream.of(HttpStatus.NO_CONTENT, HttpStatus.EARLY_HINTS, HttpStatus.NOT_MODIFIED);
+  }
 
   @Test
-  void messageBodyDoesNotExist() throws Exception {
-    given(response.getBody()).willReturn(null);
-    assertThat(responseWrapper.hasEmptyMessageBody()).isTrue();
+  void noMessageBodyWhenContentLength0() throws Exception {
+    var response = new MockClientHttpResponse(new byte[0], HttpStatus.OK);
+    response.getHeaders().setContentLength(0);
+    var wrapped = new IntrospectingClientHttpResponse(response);
+
+    assertThat(wrapped.hasMessageBody()).isFalse();
+  }
+
+  @Test
+  void emptyMessageWhenNullInputStream() throws Exception {
+    ClientHttpResponse mockResponse = mock();
+    given(mockResponse.getBody()).willReturn(null);
+    var wrappedMock = new IntrospectingClientHttpResponse(mockResponse);
+    assertThat(wrappedMock.hasEmptyMessageBody()).isTrue();
   }
 
   @Test
   void messageBodyExists() throws Exception {
-    InputStream stream = new ByteArrayInputStream("content".getBytes());
-    given(response.getBody()).willReturn(stream);
-    assertThat(responseWrapper.hasEmptyMessageBody()).isFalse();
+    var stream = new ByteArrayInputStream("content".getBytes());
+    var response = new MockClientHttpResponse(stream, HttpStatus.OK);
+    var wrapped = new IntrospectingClientHttpResponse(response);
+    assertThat(wrapped.hasEmptyMessageBody()).isFalse();
+  }
+
+  @Test
+  void emptyMessageWhenEOFException() throws Exception {
+    ClientHttpResponse mockResponse = mock();
+    InputStream stream = mock();
+    given(mockResponse.getBody()).willReturn(stream);
+    given(stream.read()).willThrow(new EOFException());
+    var wrappedMock = new IntrospectingClientHttpResponse(mockResponse);
+    assertThat(wrappedMock.hasEmptyMessageBody()).isTrue();
   }
 
 }

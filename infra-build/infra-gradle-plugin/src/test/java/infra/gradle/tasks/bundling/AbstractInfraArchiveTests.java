@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,6 @@ import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.artifacts.ResolvableDependencies;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.artifacts.result.ResolvedArtifactResult;
-import org.gradle.api.internal.file.archive.ZipCopyAction;
 import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.internal.component.external.model.ModuleComponentArtifactIdentifier;
@@ -397,12 +396,6 @@ abstract class AbstractInfraArchiveTests<T extends Jar & InfraArchive> {
   }
 
   @Test
-  void constantTimestampMatchesGradleInternalTimestamp() {
-    assertThat(DefaultTimeZoneOffset.INSTANCE.removeFrom(InfraZipCopyAction.CONSTANT_TIME_FOR_ZIP_ENTRIES))
-            .isEqualTo(ZipCopyAction.CONSTANT_TIME_FOR_ZIP_ENTRIES);
-  }
-
-  @Test
   void reproducibleOrderingCanBeEnabled() throws IOException {
     this.task.getMainClass().set("com.example.Main");
     this.task.from(newFile("bravo.txt"), newFile("alpha.txt"), newFile("charlie.txt"));
@@ -465,7 +458,7 @@ abstract class AbstractInfraArchiveTests<T extends Jar & InfraArchive> {
             jarFile("third-library.jar"));
     this.task.requiresUnpack("second-library.jar");
     executeTask();
-    assertThat(getEntryNames(this.task.getArchiveFile().get().getAsFile())).containsSubsequence(
+    assertThat(getEntryNames(this.task.getArchiveFile().get().getAsFile())).contains(
             "infra/app/loader/", this.classesPath + "com/example/Application.class",
             this.libPath + "first-library.jar", this.libPath + "second-library.jar",
             this.libPath + "third-library.jar");

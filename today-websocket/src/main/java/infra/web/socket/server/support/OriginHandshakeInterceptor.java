@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,6 @@ import infra.web.RequestContext;
 import infra.web.cors.CorsConfiguration;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.server.HandshakeInterceptor;
-import infra.web.util.WebUtils;
 
 /**
  * An interceptor to check request {@code Origin} header value against a
@@ -51,7 +50,8 @@ public class OriginHandshakeInterceptor implements HandshakeInterceptor {
   /**
    * Default constructor with only same origin requests allowed.
    */
-  public OriginHandshakeInterceptor() { }
+  public OriginHandshakeInterceptor() {
+  }
 
   /**
    * Constructor using the specified allowed origin values.
@@ -114,7 +114,7 @@ public class OriginHandshakeInterceptor implements HandshakeInterceptor {
 
   @Override
   public boolean beforeHandshake(RequestContext request, WebSocketHandler wsHandler, Map<String, Object> attributes) {
-    if (!WebUtils.isSameOrigin(request) && corsConfiguration.checkOrigin(request.getHeaders().getOrigin()) == null) {
+    if (request.isCorsRequest() && corsConfiguration.checkOrigin(request.getHeaders().getOrigin()) == null) {
       request.setStatus(HttpStatus.FORBIDDEN);
       if (logger.isDebugEnabled()) {
         logger.debug("Handshake request rejected, Origin header value {} not allowed", request.getHeaders().getOrigin());

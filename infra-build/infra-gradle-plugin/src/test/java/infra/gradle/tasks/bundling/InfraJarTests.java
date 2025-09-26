@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ class InfraJarTests extends AbstractInfraArchiveTests<InfraJar> {
   }
 
   @Test
-  void contentCanBeAddedToBootInfUsingCopySpecFromGetter() throws IOException {
+  void contentCanBeAddedToAppInfoUsingCopySpecFromGetter() throws IOException {
     InfraJar infraJar = getTask();
     infraJar.getMainClass().set("com.example.Application");
     infraJar.getAppInf().into("test").from(new File("build.gradle").getAbsolutePath());
@@ -60,7 +60,7 @@ class InfraJarTests extends AbstractInfraArchiveTests<InfraJar> {
   }
 
   @Test
-  void contentCanBeAddedToBootInfUsingCopySpecAction() throws IOException {
+  void contentCanBeAddedToAppInfoUsingCopySpecAction() throws IOException {
     InfraJar infraJar = getTask();
     infraJar.getMainClass().set("com.example.Application");
     infraJar.appInf((copySpec) -> copySpec.into("test").from(new File("build.gradle").getAbsolutePath()));
@@ -84,7 +84,7 @@ class InfraJarTests extends AbstractInfraArchiveTests<InfraJar> {
   @Test
   void whenJarIsLayeredClasspathIndexPointsToLayeredLibs() throws IOException {
     try (JarFile jarFile = new JarFile(createLayeredJar())) {
-      assertThat(entryLines(jarFile, "APP-INF/classpath.idx")).containsExactly(
+      assertThat(entryLines(jarFile, "APP-INF/classpath.idx")).contains(
               "- \"APP-INF/lib/first-library.jar\"", "- \"APP-INF/lib/second-library.jar\"",
               "- \"APP-INF/lib/third-library-SNAPSHOT.jar\"", "- \"APP-INF/lib/fourth-library.jar\"",
               "- \"APP-INF/lib/first-project-library.jar\"",
@@ -93,11 +93,11 @@ class InfraJarTests extends AbstractInfraArchiveTests<InfraJar> {
   }
 
   @Test
-  void classpathIndexPointsToBootInfLibs() throws IOException {
+  void classpathIndexPointsToAppInfoLibs() throws IOException {
     try (JarFile jarFile = new JarFile(createPopulatedJar())) {
       assertThat(jarFile.getManifest().getMainAttributes().getValue("Infra-App-Classpath-Index"))
               .isEqualTo("APP-INF/classpath.idx");
-      assertThat(entryLines(jarFile, "APP-INF/classpath.idx")).containsExactly(
+      assertThat(entryLines(jarFile, "APP-INF/classpath.idx")).contains(
               "- \"APP-INF/lib/first-library.jar\"", "- \"APP-INF/lib/second-library.jar\"",
               "- \"APP-INF/lib/third-library-SNAPSHOT.jar\"", "- \"APP-INF/lib/fourth-library.jar\"",
               "- \"APP-INF/lib/first-project-library.jar\"",

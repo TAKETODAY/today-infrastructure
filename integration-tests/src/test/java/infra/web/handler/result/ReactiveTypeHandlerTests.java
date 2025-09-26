@@ -399,12 +399,12 @@ class ReactiveTypeHandlerTests {
     assertThat(emitter).isNull();
 
     assertThat(this.mockRequest.isAsyncStarted()).isTrue();
-    assertThat(webRequest.getAsyncManager().hasConcurrentResult()).isFalse();
+    assertThat(webRequest.asyncManager().hasConcurrentResult()).isFalse();
 
     produceTask.run();
 
-    assertThat(webRequest.getAsyncManager().hasConcurrentResult()).isTrue();
-    assertThat(webRequest.getAsyncManager().getConcurrentResult()).isEqualTo(expected);
+    assertThat(webRequest.asyncManager().hasConcurrentResult()).isTrue();
+    assertThat(webRequest.asyncManager().getConcurrentResult()).isEqualTo(expected);
 
     resetRequest();
   }

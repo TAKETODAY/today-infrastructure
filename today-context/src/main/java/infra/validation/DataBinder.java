@@ -76,7 +76,7 @@ import infra.validation.annotation.ValidationAnnotationUtils;
  *
  * <p><strong>WARNING</strong>: Data binding can lead to security issues by exposing
  * parts of the object graph that are not meant to be accessed or modified by
- * external clients. Therefore the design and use of data binding should be considered
+ * external clients. Therefore, the design and use of data binding should be considered
  * carefully with regard to security. For more details, please refer to the dedicated
  * sections on data binding for
  * <a href="https://docs.today-tech.cn/today-infrastructure/web/webmvc.html#mvc">Infra Web MVC</a>
@@ -635,7 +635,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    *
    * @param nameResolver the resolver to use
    */
-  public void setNameResolver(NameResolver nameResolver) {
+  public void setNameResolver(@Nullable NameResolver nameResolver) {
     this.nameResolver = nameResolver;
   }
 

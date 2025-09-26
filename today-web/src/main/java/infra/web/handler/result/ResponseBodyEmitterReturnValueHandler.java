@@ -196,7 +196,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
     // Headers will be flushed at the first write
     try {
       DeferredResult<?> deferredResult = new DeferredResult<>(emitter.getTimeout());
-      request.getAsyncManager().startDeferredResultProcessing(deferredResult, handler);
+      request.asyncManager().startDeferredResultProcessing(deferredResult, handler);
       convertingHandler = new HttpMessageConvertingHandler(request, deferredResult);
     }
     catch (Throwable ex) {

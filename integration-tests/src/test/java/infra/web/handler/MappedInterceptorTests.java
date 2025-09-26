@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,13 +24,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import infra.core.PathMatcher;
 import infra.lang.Nullable;
+import infra.util.PathMatcher;
 import infra.web.HandlerInterceptor;
 import infra.web.RequestContext;
 import infra.web.i18n.LocaleChangeInterceptor;
@@ -183,8 +182,9 @@ class MappedInterceptorTests {
     }
 
     @Override
-    public List<String> extractVariableNames(String pattern) {
+    public String[] extractVariableNames(String pattern) {
       return null;
     }
+    
   }
 }

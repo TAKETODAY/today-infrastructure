@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,6 @@ import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 import infra.web.RequestContext;
 import infra.web.async.DeferredResult;
-import infra.web.async.WebAsyncManager;
 
 /**
  * Default {@link AsyncServerResponse} implementation.
@@ -105,8 +104,7 @@ final class DefaultAsyncServerResponse extends ErrorHandlingServerResponse imple
   }
 
   static void writeAsync(RequestContext request, DeferredResult<?> deferredResult) throws Exception {
-    WebAsyncManager asyncManager = request.getAsyncManager();
-    asyncManager.startDeferredResultProcessing(deferredResult);
+    request.asyncManager().startDeferredResultProcessing(deferredResult);
   }
 
   private DeferredResult<ServerResponse> createDeferredResult(RequestContext request) {

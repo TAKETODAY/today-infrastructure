@@ -19,7 +19,9 @@ package infra.samples;
 
 import infra.http.ProblemDetail;
 import infra.http.ResponseEntity;
+import infra.lang.Nullable;
 import infra.web.annotation.GET;
+import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestMapping;
 import infra.web.annotation.RestController;
 
@@ -32,8 +34,8 @@ import infra.web.annotation.RestController;
 class ResponseEntityController {
 
   @GET
-  public ResponseEntity<String> entity() {
-    return ResponseEntity.ok("entity");
+  public ResponseEntity<String> entity(@RequestBody @Nullable String body) {
+    return ResponseEntity.ok(body == null ? "entity" : body);
   }
 
   @GET("/problem-detail")
@@ -42,4 +44,5 @@ class ResponseEntityController {
             .header("X-test", "test")
             .build();
   }
+
 }

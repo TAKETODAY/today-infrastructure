@@ -226,8 +226,8 @@ public class ApiVersionConfigurer {
 
     var strategy = new DefaultApiVersionStrategy(this.versionResolvers,
             this.versionParser != null ? this.versionParser : new SemanticApiVersionParser(),
-            this.versionRequired != null ? this.versionRequired : true, this.defaultVersion,
-            this.detectSupportedVersions, this.deprecationHandler, supportedVersionPredicate);
+            this.versionRequired, this.defaultVersion, this.detectSupportedVersions,
+            this.deprecationHandler, supportedVersionPredicate);
 
     for (String supportedVersion : supportedVersions) {
       strategy.addSupportedVersion(supportedVersion);

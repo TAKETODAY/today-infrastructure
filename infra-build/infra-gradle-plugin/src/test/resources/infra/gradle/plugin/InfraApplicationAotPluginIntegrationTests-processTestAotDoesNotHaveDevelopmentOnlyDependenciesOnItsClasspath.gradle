@@ -9,7 +9,7 @@ apply plugin: 'infra.application.aot'
 
 repositories {
 	mavenCentral()
-	maven { url 'file:repository' }
+	maven { url = "repository" }
 }
 
 configurations.all {

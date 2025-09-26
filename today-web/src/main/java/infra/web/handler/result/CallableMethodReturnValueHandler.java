@@ -44,7 +44,7 @@ public class CallableMethodReturnValueHandler implements HandlerMethodReturnValu
   @Override
   public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof Callable<?> callable) {
-      context.getAsyncManager().startCallableProcessing(callable, handler);
+      context.asyncManager().startCallableProcessing(callable, handler);
     }
     else if (HandlerMethod.isHandler(handler)) {
       startCallableProcessing(context, handler, returnValue);
@@ -52,7 +52,7 @@ public class CallableMethodReturnValueHandler implements HandlerMethodReturnValu
   }
 
   static void startCallableProcessing(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
-    context.getAsyncManager().startCallableProcessing(() -> returnValue, handler);
+    context.asyncManager().startCallableProcessing(() -> returnValue, handler);
   }
 
 }

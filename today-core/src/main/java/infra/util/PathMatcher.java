@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,15 +14,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
-package infra.core;
+
+package infra.util;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
 
 /**
- * @author TODAY <br>
- * 2019-03-26 10:19
+ * Strategy interface for {@code String}-based path matching.
+ *
+ * <p>The default implementation is {@link AntPathMatcher}, supporting the
+ * Ant-style pattern syntax.
+ *
+ * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 2019-03-26 10:19
  */
 public interface PathMatcher {
 
@@ -139,6 +145,6 @@ public interface PathMatcher {
    */
   String[] extractVariables(String pattern, String path);
 
-  List<String> extractVariableNames(String pattern);
+  String[] extractVariableNames(String pattern);
 
 }
