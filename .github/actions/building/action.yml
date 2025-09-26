@@ -16,7 +16,7 @@ inputs:
   java-version:
     description: 'Java version to compile and test with'
     required: false
-    default: '24'
+    default: '25'
   publish:
     description: 'Whether to publish artifacts ready for deployment to Artifactory'
     required: false
@@ -68,6 +68,7 @@ runs:
         java-version: |
           ${{ inputs.java-early-access == 'true' && format('{0}-ea', inputs.java-version) || inputs.java-version }}
           ${{ inputs.java-toolchain == 'true' && '17' || '' }}
+          25
         gpg-passphrase: ${{ inputs.gpg-passphrase }}
         gpg-private-key: ${{ inputs.gpg-private-key }}
         server-id: ${{ inputs.server-id }}
