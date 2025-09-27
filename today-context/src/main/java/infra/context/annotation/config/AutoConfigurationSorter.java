@@ -48,6 +48,7 @@ import infra.lang.Assert;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/1 11:54
  */
+@SuppressWarnings("NullAway")
 class AutoConfigurationSorter {
 
   private final MetadataReaderFactory metadataReaderFactory;

@@ -94,8 +94,8 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
   }
 
   @Override
-  protected final ConditionOutcome[] getOutcomes(String[] configClasses, AutoConfigurationMetadata configMetadata) {
-    ConditionOutcome[] outcomes = new ConditionOutcome[configClasses.length];
+  protected final @Nullable ConditionOutcome[] getOutcomes(String[] configClasses, AutoConfigurationMetadata configMetadata) {
+    @Nullable ConditionOutcome[] outcomes = new ConditionOutcome[configClasses.length];
     for (int i = 0; i < outcomes.length; i++) {
       String autoConfigurationClass = configClasses[i];
       if (autoConfigurationClass != null) {

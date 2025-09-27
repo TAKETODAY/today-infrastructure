@@ -66,8 +66,8 @@ public class ObjectError extends DefaultMessageSourceResolvable {
    * @param arguments the array of arguments to be used to resolve this message
    * @param defaultMessage the default message to be used to resolve this message
    */
-  public ObjectError(String objectName, @Nullable String[] codes,
-          @Nullable Object[] arguments, @Nullable String defaultMessage) {
+  public ObjectError(String objectName, String @Nullable [] codes,
+          Object @Nullable [] arguments, @Nullable String defaultMessage) {
 
     super(codes, arguments, defaultMessage);
     Assert.notNull(objectName, "Object name is required");

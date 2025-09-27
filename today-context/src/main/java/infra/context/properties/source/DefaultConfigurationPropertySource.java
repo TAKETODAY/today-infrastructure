@@ -56,6 +56,7 @@ import infra.origin.PropertySourceOrigin;
  * @see DefaultIterableConfigurationPropertySource
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 class DefaultConfigurationPropertySource implements ConfigurationPropertySource {
 
   private static final PropertyMapper[] DEFAULT_MAPPERS = {

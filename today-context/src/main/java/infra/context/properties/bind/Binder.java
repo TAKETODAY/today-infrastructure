@@ -56,6 +56,7 @@ import infra.util.ConcurrentReferenceHashMap;
  * @author Madhura Bhave
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public class Binder {
 
   private static final Set<Class<?>> NON_BEAN_CLASSES = Set.of(Object.class, Class.class);

@@ -44,8 +44,10 @@ import infra.util.CollectionUtils;
 public abstract class FilteringInfraCondition extends InfraCondition
         implements AutoConfigurationImportFilter, BeanFactoryAware, BeanClassLoaderAware {
 
+  @SuppressWarnings("NullAway.Init")
   private BeanFactory beanFactory;
 
+  @SuppressWarnings("NullAway.Init")
   private ClassLoader beanClassLoader;
 
   @Override
@@ -69,21 +71,22 @@ public abstract class FilteringInfraCondition extends InfraCondition
   @Override
   public boolean[] match(String[] configClasses, AutoConfigurationMetadata configMetadata) {
     ConditionEvaluationReport report = ConditionEvaluationReport.find(this.beanFactory);
-    ConditionOutcome[] outcomes = getOutcomes(configClasses, configMetadata);
+    @Nullable ConditionOutcome[] outcomes = getOutcomes(configClasses, configMetadata);
     boolean[] match = new boolean[outcomes.length];
     for (int i = 0; i < outcomes.length; i++) {
-      match[i] = (outcomes[i] == null || outcomes[i].isMatch());
-      if (!match[i] && outcomes[i] != null) {
-        logOutcome(configClasses[i], outcomes[i]);
+      ConditionOutcome outcome = outcomes[i];
+      match[i] = (outcome == null || outcome.isMatch());
+      if (!match[i] && outcome != null) {
+        logOutcome(configClasses[i], outcome);
         if (report != null) {
-          report.recordConditionEvaluation(configClasses[i], this, outcomes[i]);
+          report.recordConditionEvaluation(configClasses[i], this, outcome);
         }
       }
     }
     return match;
   }
 
-  protected abstract ConditionOutcome[] getOutcomes(String[] configClasses, AutoConfigurationMetadata configMetadata);
+  protected abstract @Nullable ConditionOutcome[] getOutcomes(String[] configClasses, AutoConfigurationMetadata configMetadata);
 
   protected final List<String> filter(@Nullable Collection<String> classNames, ClassNameFilter classNameFilter, @Nullable ClassLoader classLoader) {
     if (CollectionUtils.isEmpty(classNames)) {

@@ -56,6 +56,7 @@ import infra.util.ConcurrentReferenceHashMap;
  * @see PropertyMapper
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPropertySource
         implements IterableConfigurationPropertySource, CachingConfigurationPropertySource {
 
@@ -63,8 +64,7 @@ class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPro
 
   private final SoftReferenceConfigurationPropertyCache<Cache> cache;
 
-  @Nullable
-  private volatile ConfigurationPropertyName[] configurationPropertyNames;
+  private volatile ConfigurationPropertyName @Nullable [] configurationPropertyNames;
 
   @Nullable
   private final Map<ConfigurationPropertyName, ConfigurationPropertyState> containsDescendantOfCache;
@@ -355,8 +355,8 @@ class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPro
     private record Data(Map<ConfigurationPropertyName, Set<String>> mappings,
             @Nullable Map<String, ConfigurationPropertyName> reverseMappings,
             @Nullable Set<ConfigurationPropertyName> descendants,
-            @Nullable ConfigurationPropertyName[] configurationPropertyNames,
-            @Nullable Map<String, Object> systemEnvironmentCopy, @Nullable String[] lastUpdated) {
+            ConfigurationPropertyName @Nullable [] configurationPropertyNames,
+            @Nullable Map<String, Object> systemEnvironmentCopy, String @Nullable [] lastUpdated) {
 
     }
 

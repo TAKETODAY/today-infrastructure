@@ -28,6 +28,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import infra.lang.Assert;
+import infra.lang.Contract;
 
 /**
  * Exception thrown when more than one mutually exclusive configuration property has been
@@ -84,11 +85,12 @@ public class MutuallyExclusiveConfigurationPropertiesException extends RuntimeEx
   }
 
   @Nullable
+  @Contract("null -> null; !null -> !null")
   private static Set<String> asSet(@Nullable Collection<String> collection) {
     return collection != null ? new LinkedHashSet<>(collection) : null;
   }
 
-  private static String buildMessage(Set<String> mutuallyExclusiveNames, Set<String> configuredNames) {
+  private static String buildMessage(@Nullable Set<String> mutuallyExclusiveNames, @Nullable Set<String> configuredNames) {
     Assert.isTrue(configuredNames != null && configuredNames.size() > 1,
             "ConfiguredNames must contain 2 or more names");
     Assert.isTrue(mutuallyExclusiveNames != null && mutuallyExclusiveNames.size() > 1,
@@ -104,6 +106,7 @@ public class MutuallyExclusiveConfigurationPropertiesException extends RuntimeEx
    *
    * @param entries a consumer used to populate the entries to check
    */
+  @SuppressWarnings("NullAway")
   public static void throwIfMultipleNonNullValuesIn(Consumer<Map<String, Object>> entries) {
     LinkedHashMap<String, Object> map = new LinkedHashMap<>();
     entries.accept(map);

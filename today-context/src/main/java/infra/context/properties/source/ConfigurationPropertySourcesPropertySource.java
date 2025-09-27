@@ -48,11 +48,13 @@ class ConfigurationPropertySourcesPropertySource extends PropertySource<Iterable
   }
 
   @Override
+  @Nullable
   public Object getProperty(String name) {
     ConfigurationProperty configurationProperty = findConfigurationProperty(name);
     return configurationProperty != null ? configurationProperty.getValue() : null;
   }
 
+  @Nullable
   @Override
   public Origin getOrigin(String name) {
     return Origin.from(findConfigurationProperty(name));

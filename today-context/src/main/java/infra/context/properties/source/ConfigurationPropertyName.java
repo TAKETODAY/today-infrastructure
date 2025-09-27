@@ -56,6 +56,7 @@ import infra.util.StringUtils;
  * @see ConfigurationPropertySource
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public final class ConfigurationPropertyName implements Comparable<ConfigurationPropertyName> {
 
   private static final String EMPTY_STRING = "";

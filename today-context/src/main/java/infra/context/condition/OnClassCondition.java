@@ -146,8 +146,7 @@ final class OnClassCondition extends FilteringInfraCondition implements Conditio
 
     private final Thread thread;
 
-    @Nullable
-    private volatile ConditionOutcome[] outcomes;
+    private volatile ConditionOutcome @Nullable [] outcomes;
 
     @Nullable
     private volatile Throwable failure;
@@ -190,6 +189,7 @@ final class OnClassCondition extends FilteringInfraCondition implements Conditio
       return getOutcomes(this.configClasses, this.start, this.end, this.configMetadata);
     }
 
+    @SuppressWarnings("NullAway")
     private ConditionOutcome[] getOutcomes(String[] autoConfigurationClasses,
             int start, int end, AutoConfigurationMetadata autoConfigurationMetadata) {
       ConditionOutcome[] outcomes = new ConditionOutcome[end - start];

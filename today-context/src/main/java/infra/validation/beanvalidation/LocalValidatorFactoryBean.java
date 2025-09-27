@@ -106,8 +106,7 @@ public class LocalValidatorFactoryBean extends InfraValidatorAdapter
   @Nullable
   private ParameterNameDiscoverer parameterNameDiscoverer = ParameterNameDiscoverer.getSharedInstance();
 
-  @Nullable
-  private Resource[] mappingLocations;
+  private Resource @Nullable [] mappingLocations;
 
   private final Map<String, String> validationPropertyMap = new HashMap<>();
 

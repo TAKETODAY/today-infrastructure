@@ -69,6 +69,7 @@ class PrefixedConfigurationPropertySource implements ConfigurationPropertySource
     return this.source.containsDescendantOf(getPrefixedName(name));
   }
 
+  @Nullable
   @Override
   public Object getUnderlyingSource() {
     return this.source.getUnderlyingSource();

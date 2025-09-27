@@ -480,7 +480,7 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
   public String[] getBeanNamesForAnnotation(Class<? extends Annotation> annotationType) {
     List<String> results = new ArrayList<>();
     for (String beanName : this.beans.keySet()) {
-      if (findAnnotationOnBean(beanName, annotationType) != null) {
+      if (findAnnotationOnBean(beanName, annotationType).isPresent()) {
         results.add(beanName);
       }
     }
@@ -498,7 +498,7 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
 
     Map<String, Object> results = new LinkedHashMap<>();
     for (String beanName : this.beans.keySet()) {
-      if (findAnnotationOnBean(beanName, annotationType) != null) {
+      if (findAnnotationOnBean(beanName, annotationType).isPresent()) {
         results.put(beanName, getBean(beanName));
       }
     }

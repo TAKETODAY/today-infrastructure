@@ -116,6 +116,7 @@ public final class ConfigurationPropertiesBean {
    *
    * @return the configuration properties annotation
    */
+  @SuppressWarnings("NullAway")
   public ConfigurationProperties getAnnotation() {
     return this.bindTarget.getAnnotation(ConfigurationProperties.class);
   }
@@ -154,6 +155,7 @@ public final class ConfigurationPropertiesBean {
     return propertiesBeans;
   }
 
+  @SuppressWarnings("NullAway")
   private static Map<String, ConfigurationPropertiesBean> getAll(ConfigurableApplicationContext applicationContext) {
     Map<String, ConfigurationPropertiesBean> propertiesBeans = new LinkedHashMap<>();
     ConfigurableBeanFactory beanFactory = applicationContext.getBeanFactory();
@@ -180,7 +182,7 @@ public final class ConfigurationPropertiesBean {
       if (beanFactory.getBeanDefinition(beanName).isAbstract()) {
         return false;
       }
-      if (beanFactory.findAnnotationOnBean(beanName, ConfigurationProperties.class) != null) {
+      if (beanFactory.findAnnotationOnBean(beanName, ConfigurationProperties.class).isPresent()) {
         return true;
       }
       Method factoryMethod = findFactoryMethod(beanFactory, beanName);
@@ -274,6 +276,7 @@ public final class ConfigurationPropertiesBean {
     return null;
   }
 
+  @SuppressWarnings("NullAway")
   static ConfigurationPropertiesBean forValueObject(Class<?> beanType, String beanName) {
     Bindable<Object> bindTarget = createBindTarget(null, beanType, null);
 
@@ -293,8 +296,7 @@ public final class ConfigurationPropertiesBean {
     return (annotations != null) ? Bindable.of(type).withAnnotations(annotations) : null;
   }
 
-  @Nullable
-  private static Annotation[] findAnnotations(@Nullable Object instance, Class<?> type, @Nullable Method factory) {
+  private static Annotation @Nullable [] findAnnotations(@Nullable Object instance, Class<?> type, @Nullable Method factory) {
     ConfigurationProperties annotation = findAnnotation(instance, type, factory, ConfigurationProperties.class);
     if (annotation == null) {
       return null;
@@ -304,6 +306,7 @@ public final class ConfigurationPropertiesBean {
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private static <A extends Annotation> A findAnnotation(@Nullable Object instance, Class<?> type,
           @Nullable Method factory, Class<A> annotationType) {
     MergedAnnotation<A> annotation = MergedAnnotation.missing();

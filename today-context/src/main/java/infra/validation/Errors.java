@@ -154,7 +154,7 @@ public interface Errors {
    * @param defaultMessage fallback default message
    * @see #rejectValue(String, String, Object[], String)
    */
-  void reject(String errorCode, @Nullable Object[] errorArgs, @Nullable String defaultMessage);
+  void reject(String errorCode, Object @Nullable [] errorArgs, @Nullable String defaultMessage);
 
   /**
    * Register a field error for the specified field of the current object
@@ -208,7 +208,7 @@ public interface Errors {
    * @see #reject(String, Object[], String)
    */
   void rejectValue(@Nullable String field, String errorCode,
-          @Nullable Object[] errorArgs, @Nullable String defaultMessage);
+          Object @Nullable [] errorArgs, @Nullable String defaultMessage);
 
   /**
    * Add all errors from the given {@code Errors} instance to this

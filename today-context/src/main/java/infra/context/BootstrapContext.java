@@ -312,6 +312,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
    * @see ConstructorNotFoundException If there is no suitable constructor
    */
   @Override
+  @SuppressWarnings("NullAway")
   public <T> T instantiate(Class<T> clazz) {
     Assert.notNull(clazz, "Class is required");
     if (clazz.isInterface()) {
@@ -464,6 +465,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
   /**
    * Return the MetadataReaderFactory used by this component provider.
    */
+  @SuppressWarnings("NullAway")
   public final MetadataReaderFactory getMetadataReaderFactory() {
     if (this.metadataReaderFactory == null) {
       // try to bind ResourceLoader to MetadataReaderFactory

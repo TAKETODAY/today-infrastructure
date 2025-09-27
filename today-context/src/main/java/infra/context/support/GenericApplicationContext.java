@@ -335,6 +335,7 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
     beanFactory.removeBeanDefinition(beanName);
   }
 
+  @Nullable
   @Override
   public BeanDefinition getBeanDefinition(Class<?> beanClass) {
     return beanFactory.getBeanDefinition(beanClass);

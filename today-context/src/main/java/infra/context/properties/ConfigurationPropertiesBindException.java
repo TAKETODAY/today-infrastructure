@@ -59,6 +59,7 @@ public class ConfigurationPropertiesBindException extends BeanCreationException 
     return this.bean.getAnnotation();
   }
 
+  @SuppressWarnings("NullAway")
   private static String getMessage(ConfigurationPropertiesBean bean) {
     ConfigurationProperties annotation = bean.getAnnotation();
     return "Could not bind properties to '%s' : prefix=%s, ignoreInvalidFields=%s, ignoreUnknownFields=%s"

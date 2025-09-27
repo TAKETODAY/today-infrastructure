@@ -79,7 +79,7 @@ final class BindConverter {
     this.delegates = delegates;
   }
 
-  public boolean canConvert(@Nullable Object source, ResolvableType type, @Nullable Annotation... targetAnnotations) {
+  public boolean canConvert(@Nullable Object source, ResolvableType type, Annotation @Nullable ... targetAnnotations) {
     TypeDescriptor sourceType = TypeDescriptor.forObject(source);
     TypeDescriptor targetType = new TypeDescriptor(type, null, targetAnnotations);
     for (ConversionService service : this.delegates) {

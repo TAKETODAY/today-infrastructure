@@ -279,6 +279,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
 
   @Override
   @Nullable
+  @SuppressWarnings("NullAway")
   public BeanFactoryInitializationAotContribution processAheadOfTime(ConfigurableBeanFactory beanFactory) {
     boolean hasPropertySourceDescriptors = CollectionUtils.isNotEmpty(this.propertySourceDescriptors);
     boolean hasImportRegistry = beanFactory.containsBean(IMPORT_REGISTRY_BEAN_NAME);
@@ -512,6 +513,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
     }
 
     @Override
+    @Nullable
     public PropertyValues processDependencies(@Nullable PropertyValues propertyValues, Object bean, String beanName) {
       // postProcessDependencies method attempts to autowire other configuration beans.
       if (bean instanceof EnhancedConfiguration enhancedConfiguration) {

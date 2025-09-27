@@ -53,6 +53,7 @@ import infra.util.ReflectionUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 class JavaBeanBinder implements DataObjectBinder {
 
   private static final String HAS_KNOWN_BINDABLE_PROPERTIES_CACHE = JavaBeanBinder.class.getName()
@@ -280,7 +281,7 @@ class JavaBeanBinder implements DataObjectBinder {
       super(type, resolvedType);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "NullAway" })
     BeanSupplier<T> getSupplier(Bindable<T> target) {
       return new BeanSupplier<>(() -> {
         T instance = null;
