@@ -421,8 +421,7 @@ class JavaBeanBinder implements DataObjectBinder {
       }
     }
 
-    @Nullable
-    Annotation[] getAnnotations() {
+    Annotation @Nullable [] getAnnotations() {
       try {
         return (this.field != null) ? this.field.getDeclaredAnnotations() : null;
       }

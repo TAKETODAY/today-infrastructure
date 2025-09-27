@@ -63,6 +63,7 @@ import infra.util.StringUtils;
  * @see EnableAutoConfiguration
  * @since 4.0 2022/2/1 02:37
  */
+@SuppressWarnings("NullAway")
 public class AutoConfigurationImportSelector implements DeferredImportSelector,
         BeanClassLoaderAware, BootstrapContextAware, Ordered, Predicate<String> {
 
@@ -78,8 +79,10 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
 
   protected BootstrapContext bootstrapContext;
 
+  @Nullable
   private volatile ConfigurationClassFilter configurationClassFilter;
 
+  @Nullable
   private volatile AutoConfigurationReplacements autoConfigurationReplacements;
 
   public AutoConfigurationImportSelector() {
@@ -267,6 +270,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
    *
    * @return excluded auto-configurations
    */
+  @SuppressWarnings("NullAway")
   protected List<String> getExcludeAutoConfigurationsProperty() {
     Environment environment = getEnvironment();
     if (environment == null) {

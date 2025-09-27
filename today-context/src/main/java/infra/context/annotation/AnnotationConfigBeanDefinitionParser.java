@@ -36,6 +36,7 @@ import infra.beans.factory.xml.ParserContext;
  * @see AnnotationConfigUtils
  * @since 4.0 2022/3/7 18:04
  */
+@SuppressWarnings("NullAway")
 public class AnnotationConfigBeanDefinitionParser implements BeanDefinitionParser {
 
   @Override

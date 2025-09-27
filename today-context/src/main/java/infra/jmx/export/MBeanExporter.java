@@ -174,12 +174,10 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
   private final Set<String> excludedBeans = new HashSet<>();
 
   /** The MBeanExporterListeners registered with this exporter. */
-  @Nullable
-  private MBeanExporterListener[] listeners;
+  private MBeanExporterListener @Nullable [] listeners;
 
   /** The NotificationListeners to register for the MBeans registered by this exporter. */
-  @Nullable
-  private NotificationListenerBean[] notificationListeners;
+  private NotificationListenerBean @Nullable [] notificationListeners;
 
   /** Map of actually registered NotificationListeners. */
   private final Map<NotificationListenerBean, ObjectName[]> registeredNotificationListeners = new LinkedHashMap<>();
@@ -478,7 +476,7 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
       }
     }
     catch (Throwable ex) {
-      throw new MBeanExportException("Unable to generate ObjectName for MBean [" + managedResource + "]", ex);
+      throw new MBeanExportException("Unable to generate ObjectName for MBean [%s]".formatted(managedResource), ex);
     }
     registerManagedResource(managedResource, objectName);
     return objectName;
@@ -500,7 +498,7 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
     }
     catch (JMException ex) {
       throw new UnableToRegisterMBeanException(
-              "Unable to register MBean [" + managedResource + "] with object name [" + objectName + "]", ex);
+              "Unable to register MBean [%s] with object name [%s]".formatted(managedResource, objectName), ex);
     }
   }
 
@@ -550,8 +548,8 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
       }
       // Allow the assembler a chance to vote for bean inclusion.
       if ((mode == AUTODETECT_ASSEMBLER || mode == AUTODETECT_ALL)
-              && assembler instanceof AutodetectCapableMBeanInfoAssembler assembler) {
-        autodetect(beans, assembler::includeBean);
+              && assembler instanceof AutodetectCapableMBeanInfoAssembler a) {
+        autodetect(beans, a::includeBean);
       }
     }
 
@@ -597,6 +595,7 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
    * @see #registerBeanInstance
    * @see #registerLazyInit
    */
+  @SuppressWarnings("NullAway")
   protected ObjectName registerBeanNameOrInstance(Object mapValue, String beanKey) throws MBeanExportException {
     try {
       if (mapValue instanceof String beanName) {

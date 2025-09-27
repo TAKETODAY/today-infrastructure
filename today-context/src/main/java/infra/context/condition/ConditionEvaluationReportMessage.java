@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import infra.lang.Assert;
 import infra.util.ClassUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
@@ -129,6 +130,7 @@ public class ConditionEvaluationReportMessage {
     Map<String, ConditionEvaluationReport.ConditionAndOutcomes> result = new LinkedHashMap<>();
     for (String shortName : shortNames) {
       List<String> fullyQualifiedNames = map.get(shortName);
+      Assert.state(fullyQualifiedNames != null, "'fullyQualifiedNames' is required");
       if (fullyQualifiedNames.size() > 1) {
         fullyQualifiedNames.forEach(
                 (fullyQualifiedName) -> result.put(fullyQualifiedName, outcomes.get(fullyQualifiedName)));

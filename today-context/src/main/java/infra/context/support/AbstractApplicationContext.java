@@ -1102,7 +1102,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   }
 
   @Override
-  public void setEnvironment(@Nullable ConfigurableEnvironment environment) {
+  public void setEnvironment(ConfigurableEnvironment environment) {
     this.environment = environment;
   }
 
@@ -1155,6 +1155,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public <T> T getBean(Class<T> requiredType, @Nullable Object @Nullable ... args) throws BeansException {
     assertBeanFactoryActive();
     return getBeanFactory().getBean(requiredType, args);

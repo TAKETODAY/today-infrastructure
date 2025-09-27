@@ -585,6 +585,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
    *
    * @see #setInterceptorNames
    */
+  @SuppressWarnings("NullAway")
   private Advisor[] resolveInterceptorNames() {
     BeanFactory bf = this.beanFactory;
     ConfigurableBeanFactory cbf = (bf instanceof ConfigurableBeanFactory ? (ConfigurableBeanFactory) bf : null);

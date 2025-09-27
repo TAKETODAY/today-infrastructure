@@ -199,6 +199,7 @@ final class InstantiationModelAwarePointcutAdvisorImpl
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public boolean isAfterAdvice() {
     if (this.isAfterAdvice == null) {
       determineAdviceType();

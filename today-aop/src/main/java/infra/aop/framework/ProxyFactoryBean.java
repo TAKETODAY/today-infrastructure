@@ -434,6 +434,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport implements FactoryBean
    * is added. Interceptors added programmatically through the factory API
    * are unaffected by such changes.
    */
+  @SuppressWarnings("NullAway")
   private synchronized void initializeAdvisorChain() throws AopConfigException, BeansException {
     if (this.advisorChainInitialized || ObjectUtils.isEmpty(interceptorNames)) {
       return;

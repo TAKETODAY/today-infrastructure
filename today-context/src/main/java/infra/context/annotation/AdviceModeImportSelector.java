@@ -95,7 +95,6 @@ public abstract class AdviceModeImportSelector<A extends Annotation> implements 
    * @return array containing classes to import (empty array if none;
    * {@code null} if the given {@code AdviceMode} is unknown)
    */
-  @Nullable
-  protected abstract String[] selectImports(AdviceMode adviceMode);
+  protected abstract String @Nullable [] selectImports(AdviceMode adviceMode);
 
 }

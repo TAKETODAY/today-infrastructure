@@ -55,6 +55,7 @@ final class ComponentMethod {
     return new Location(this.configurationClass.resource, this.metadata);
   }
 
+  @SuppressWarnings("NullAway")
   public void validate(ProblemReporter problemReporter) {
     if ("void".equals(metadata.getReturnTypeName())) {
       // declared as void: potential misuse of @Bean, maybe meant as init method instead?

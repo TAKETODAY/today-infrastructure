@@ -270,7 +270,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
    * @throws BeanDefinitionStoreException if registration failed
    */
   private <T> void doRegisterBean(Class<T> beanClass, @Nullable String name, @Nullable Supplier<T> supplier,
-          @Nullable Class<? extends Annotation>[] qualifiers, @Nullable BeanDefinitionCustomizer[] customizers) {
+          Class<? extends Annotation> @Nullable [] qualifiers, BeanDefinitionCustomizer @Nullable [] customizers) {
 
     var definition = new AnnotatedGenericBeanDefinition(beanClass);
 
@@ -325,7 +325,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
     return new StandardEnvironment();
   }
 
-  private void applyDynamicCustomizers(BeanDefinition definition, @Nullable BeanDefinitionCustomizer[] dynamicCustomizers) {
+  private void applyDynamicCustomizers(BeanDefinition definition, BeanDefinitionCustomizer @Nullable [] dynamicCustomizers) {
     // dynamic customize
     if (ObjectUtils.isNotEmpty(dynamicCustomizers)) {
       for (BeanDefinitionCustomizer dynamicCustomizer : dynamicCustomizers) {

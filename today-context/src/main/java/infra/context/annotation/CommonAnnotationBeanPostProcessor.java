@@ -357,6 +357,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
   }
 
   @Override
+  @Nullable
   public PropertyValues processDependencies(@Nullable PropertyValues propertyValues, Object bean, String beanName) {
     InjectionMetadata metadata = findResourceMetadata(beanName, bean.getClass(), propertyValues);
     try {
@@ -392,6 +393,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
     }
   }
 
+  @SuppressWarnings("NullAway")
   private InjectionMetadata findResourceMetadata(String beanName, Class<?> clazz, @Nullable PropertyValues pvs) {
     // Fall back to class name as cache key, for backwards compatibility with custom callers.
     String cacheKey = StringUtils.isNotEmpty(beanName) ? beanName : clazz.getName();

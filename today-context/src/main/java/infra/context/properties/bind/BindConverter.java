@@ -144,7 +144,7 @@ final class BindConverter {
    */
   private static class TypeConverterConversionService extends GenericConversionService {
 
-    TypeConverterConversionService(Consumer<PropertyEditorRegistry> initializer) {
+    TypeConverterConversionService(@Nullable Consumer<PropertyEditorRegistry> initializer) {
       ApplicationConversionService.addDelimitedStringConverters(this);
       addConverter(new TypeConverterConverter(initializer));
     }
@@ -216,6 +216,7 @@ final class BindConverter {
     }
 
     @Override
+    @Nullable
     public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
       return createTypeConverter().convertIfNecessary(source, targetType.getType(), targetType);
     }

@@ -850,6 +850,7 @@ class ConfigurationClassParser {
               deferredImport.configurationClass);
     }
 
+    @SuppressWarnings("NullAway")
     public void processGroupImports() {
       for (DeferredImportSelectorGrouping grouping : groupings.values()) {
         Predicate<String> exclusionFilter = grouping.getCandidateFilter();

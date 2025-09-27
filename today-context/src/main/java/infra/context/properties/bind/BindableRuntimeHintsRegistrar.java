@@ -162,6 +162,7 @@ public class BindableRuntimeHintsRegistrar implements RuntimeHintsRegistrar {
       this(bindable, false, new HashSet<>());
     }
 
+    @SuppressWarnings("NullAway")
     private Processor(Bindable<?> bindable, boolean nestedType, Set<Class<?>> seen) {
       this.type = bindable.getType().getRawClass();
       this.bindConstructor = (bindable.getBindMethod() != BindMethod.JAVA_BEAN)

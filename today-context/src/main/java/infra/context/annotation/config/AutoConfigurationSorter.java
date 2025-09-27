@@ -52,13 +52,14 @@ class AutoConfigurationSorter {
 
   private final MetadataReaderFactory metadataReaderFactory;
 
+  @Nullable
   private final AutoConfigurationMetadata autoConfigurationMetadata;
 
   @Nullable
   private final UnaryOperator<String> replacementMapper;
 
   AutoConfigurationSorter(MetadataReaderFactory metadataReaderFactory,
-          AutoConfigurationMetadata autoConfigurationMetadata, @Nullable UnaryOperator<String> replacementMapper) {
+          @Nullable AutoConfigurationMetadata autoConfigurationMetadata, @Nullable UnaryOperator<String> replacementMapper) {
     Assert.notNull(metadataReaderFactory, "MetadataReaderFactory required");
     this.replacementMapper = replacementMapper;
     this.metadataReaderFactory = metadataReaderFactory;
@@ -97,7 +98,7 @@ class AutoConfigurationSorter {
   }
 
   private void doSortByAfterAnnotation(AutoConfigurationClasses classes,
-          List<String> toSort, Set<String> sorted, Set<String> processing, String current) {
+          List<String> toSort, Set<String> sorted, Set<String> processing, @Nullable String current) {
     if (current == null) {
       current = toSort.remove(0);
     }
@@ -125,7 +126,7 @@ class AutoConfigurationSorter {
     private final LinkedHashMap<String, AutoConfigurationClass> classes = new LinkedHashMap<>();
 
     AutoConfigurationClasses(MetadataReaderFactory metadataReaderFactory,
-            AutoConfigurationMetadata autoConfigurationMetadata, Collection<String> classNames) {
+            @Nullable AutoConfigurationMetadata autoConfigurationMetadata, Collection<String> classNames) {
       addToClasses(metadataReaderFactory, autoConfigurationMetadata, classNames, true);
     }
 
@@ -134,7 +135,7 @@ class AutoConfigurationSorter {
     }
 
     private void addToClasses(MetadataReaderFactory metadataReaderFactory,
-            AutoConfigurationMetadata autoConfigurationMetadata, Collection<String> classNames, boolean required) {
+            @Nullable AutoConfigurationMetadata autoConfigurationMetadata, Collection<String> classNames, boolean required) {
       for (String className : classNames) {
         if (!this.classes.containsKey(className)) {
           AutoConfigurationClass autoConfigurationClass = new AutoConfigurationClass(className,
@@ -175,16 +176,20 @@ class AutoConfigurationSorter {
 
     private final MetadataReaderFactory metadataReaderFactory;
 
+    @Nullable
     private final AutoConfigurationMetadata autoConfigurationMetadata;
 
+    @Nullable
     private volatile AnnotationMetadata annotationMetadata;
 
+    @Nullable
     private volatile Set<String> before;
 
+    @Nullable
     private volatile Set<String> after;
 
     AutoConfigurationClass(String className, MetadataReaderFactory metadataReaderFactory,
-            AutoConfigurationMetadata autoConfigurationMetadata) {
+            @Nullable AutoConfigurationMetadata autoConfigurationMetadata) {
       this.className = className;
       this.metadataReaderFactory = metadataReaderFactory;
       this.autoConfigurationMetadata = autoConfigurationMetadata;
@@ -203,19 +208,22 @@ class AutoConfigurationSorter {
     }
 
     Set<String> getBefore() {
-      if (this.before == null) {
-        this.before = getClassNames("AutoConfigureBefore", AutoConfigureBefore.class);
+      Set<String> before = this.before;
+      if (before == null) {
+        this.before = before = getClassNames("AutoConfigureBefore", AutoConfigureBefore.class);
       }
-      return this.before;
+      return before;
     }
 
     Set<String> getAfter() {
-      if (this.after == null) {
-        this.after = getClassNames("AutoConfigureAfter", AutoConfigureAfter.class);
+      Set<String> after = this.after;
+      if (after == null) {
+        this.after = after = getClassNames("AutoConfigureAfter", AutoConfigureAfter.class);
       }
-      return this.after;
+      return after;
     }
 
+    @SuppressWarnings("NullAway")
     private Set<String> getClassNames(String metadataKey, Class<? extends Annotation> annotation) {
       Set<String> annotationValue = wasProcessed()
               ? this.autoConfigurationMetadata.getSet(this.className, metadataKey, Collections.emptySet())
@@ -234,6 +242,7 @@ class AutoConfigurationSorter {
       return replaced;
     }
 
+    @SuppressWarnings("NullAway")
     private int getOrder() {
       if (wasProcessed()) {
         return this.autoConfigurationMetadata.getInteger(this.className, "AutoConfigureOrder",
@@ -260,16 +269,17 @@ class AutoConfigurationSorter {
     }
 
     private AnnotationMetadata getAnnotationMetadata() {
-      if (this.annotationMetadata == null) {
+      AnnotationMetadata annotationMetadata = this.annotationMetadata;
+      if (annotationMetadata == null) {
         try {
           MetadataReader metadataReader = this.metadataReaderFactory.getMetadataReader(this.className);
-          this.annotationMetadata = metadataReader.getAnnotationMetadata();
+          this.annotationMetadata = annotationMetadata = metadataReader.getAnnotationMetadata();
         }
         catch (IOException ex) {
           throw new IllegalStateException("Unable to read meta-data for class " + this.className, ex);
         }
       }
-      return this.annotationMetadata;
+      return annotationMetadata;
     }
 
   }

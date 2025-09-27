@@ -53,6 +53,7 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/7 18:04
  */
+@SuppressWarnings("NullAway")
 public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
 
   private static final String BASE_PACKAGE_ATTRIBUTE = "base-package";

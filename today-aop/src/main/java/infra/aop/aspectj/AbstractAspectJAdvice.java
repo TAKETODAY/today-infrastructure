@@ -558,6 +558,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
    * @param ex the exception thrown by the method execution (may be null)
    * @return the empty array if there are no arguments
    */
+  @SuppressWarnings("NullAway")
   protected @Nullable Object[] argBinding(JoinPoint jp, @Nullable JoinPointMatch jpMatch,
           @Nullable Object returnValue, @Nullable Throwable ex) {
 

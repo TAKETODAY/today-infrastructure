@@ -135,6 +135,7 @@ public class BeanFactoryAspectInstanceFactory implements MetadataAwareAspectInst
    * @see Order
    */
   @Override
+  @SuppressWarnings("NullAway")
   public int getOrder() {
     Class<?> type = this.beanFactory.getType(this.name);
     if (type != null) {

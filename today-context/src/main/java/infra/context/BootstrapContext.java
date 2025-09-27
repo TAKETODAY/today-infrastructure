@@ -322,7 +322,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
     try {
       int i = 0;
       Parameter[] parameters = constructor.getParameters();
-      Object[] args = new Object[parameters.length];
+      @Nullable Object[] args = new Object[parameters.length];
       for (Parameter parameter : parameters) {
         Object arg = findProvided(parameter);
         args[i++] = arg;
@@ -387,6 +387,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
     throw new IllegalStateException("Illegal method parameter type: " + parameterType.getName());
   }
 
+  @SuppressWarnings("NullAway")
   private void invokeAwareMethods(Object bean) {
     if (bean instanceof Aware) {
       if (bean instanceof BeanClassLoaderAware aware) {

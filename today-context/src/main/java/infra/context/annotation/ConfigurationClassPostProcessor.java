@@ -610,10 +610,10 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
 
     private final List<PropertySourceDescriptor> descriptors;
 
-    private final Function<String, Resource> resourceResolver;
+    private final Function<String, @Nullable Resource> resourceResolver;
 
     PropertySourcesAotContribution(List<PropertySourceDescriptor> descriptors,
-            Function<String, Resource> resourceResolver) {
+            Function<String, @Nullable Resource> resourceResolver) {
       this.descriptors = descriptors;
       this.resourceResolver = resourceResolver;
     }

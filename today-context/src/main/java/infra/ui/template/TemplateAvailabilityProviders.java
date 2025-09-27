@@ -118,6 +118,7 @@ public class TemplateAvailabilityProviders {
    * @return a {@link TemplateAvailabilityProvider} or null
    */
   @Nullable
+  @SuppressWarnings("NullAway")
   public TemplateAvailabilityProvider getProvider(String view, ApplicationContext applicationContext) {
     Assert.notNull(applicationContext, "ApplicationContext is required");
     return getProvider(view, applicationContext.getEnvironment(), applicationContext.getClassLoader(), applicationContext);

@@ -327,6 +327,7 @@ class ConfigurationClassBeanDefinitionReader {
             || !(disableAllDependencyInjection || annotations.isPresent(DisableDependencyInjection.class));
   }
 
+  @SuppressWarnings("NullAway")
   private boolean isOverriddenByExistingDefinition(ComponentMethod componentMethod, String beanName, ConfigurationClassBeanDefinition newBeanDef) {
     if (!bootstrapContext.containsBeanDefinition(beanName)) {
       return false;

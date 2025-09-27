@@ -147,8 +147,7 @@ public class NotificationListenerHolder {
    *
    * @throws MalformedObjectNameException if an {@code ObjectName} is malformed
    */
-  @Nullable
-  public ObjectName[] getResolvedObjectNames() throws MalformedObjectNameException {
+  public ObjectName @Nullable [] getResolvedObjectNames() throws MalformedObjectNameException {
     if (this.mappedObjectNames == null) {
       return null;
     }
