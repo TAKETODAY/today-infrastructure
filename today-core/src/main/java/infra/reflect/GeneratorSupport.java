@@ -141,6 +141,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
 
   protected abstract boolean cannotAccess();
 
+  @SuppressWarnings("NullAway")
   protected ClassLoader getClassLoader() {
     if (classLoader == null) {
       classLoader = targetClass.getClassLoader();
@@ -247,7 +248,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
     EmitUtils.nullConstructor(ce);
   }
 
-  protected String[] getInterfaces() {
+  protected String @Nullable [] getInterfaces() {
     return null;
   }
 

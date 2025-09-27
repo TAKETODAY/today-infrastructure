@@ -55,7 +55,6 @@ public interface TargetedAccessor {
    * @return an array of classes that this accessor is suitable for
    * (or {@code null} or an empty array if a generic accessor)
    */
-  @Nullable
-  Class<?>[] getSpecificTargetClasses();
+  Class<?> @Nullable [] getSpecificTargetClasses();
 
 }

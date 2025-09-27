@@ -78,7 +78,7 @@ final class JavaLoggingLogger extends infra.logging.Logger {
   }
 
   @Override
-  protected void logInternal(Level level, String format, @Nullable Throwable t, @Nullable Object[] args) {
+  protected void logInternal(Level level, String format, @Nullable Throwable t, @Nullable Object @Nullable [] args) {
     java.util.logging.Level levelToJavaLevel = levelToJavaLevel(level);
     if (logger.isLoggable(levelToJavaLevel)) {
       String message = MessageFormatter.format(format, args);

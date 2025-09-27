@@ -104,7 +104,7 @@ public class MethodReference extends SpelNodeImpl {
 
   @Override
   protected ValueRef getValueRef(ExpressionState state) throws EvaluationException {
-    Object[] arguments = getArguments(state);
+    @Nullable Object[] arguments = getArguments(state);
     if (state.getActiveContextObject().getValue() == null) {
       if (!isNullSafe()) {
         throw nullTargetException(getArgumentTypes(arguments));
@@ -120,14 +120,14 @@ public class MethodReference extends SpelNodeImpl {
     TypedValue contextObject = state.getActiveContextObject();
     Object target = contextObject.getValue();
     TypeDescriptor targetType = contextObject.getTypeDescriptor();
-    Object[] arguments = getArguments(state);
+    @Nullable Object[] arguments = getArguments(state);
     TypedValue result = getValueInternal(evaluationContext, target, targetType, arguments);
     updateExitTypeDescriptor();
     return result;
   }
 
   private TypedValue getValueInternal(EvaluationContext evaluationContext, @Nullable Object target,
-          @Nullable TypeDescriptor targetType, Object[] arguments) {
+          @Nullable TypeDescriptor targetType, @Nullable Object[] arguments) {
 
     List<TypeDescriptor> argumentTypes = getArgumentTypes(arguments);
     Optional<?> fallbackOptionalTarget = null;
@@ -234,8 +234,8 @@ public class MethodReference extends SpelNodeImpl {
             FormatHelper.formatMethodForMessage(this.name, argumentTypes));
   }
 
-  private Object[] getArguments(ExpressionState state) {
-    Object[] arguments = new Object[getChildCount()];
+  private @Nullable Object[] getArguments(ExpressionState state) {
+    @Nullable Object[] arguments = new Object[getChildCount()];
     for (int i = 0; i < arguments.length; i++) {
       // Make the root object the active context again for evaluating the parameter expressions
       try {
@@ -249,8 +249,8 @@ public class MethodReference extends SpelNodeImpl {
     return arguments;
   }
 
-  private List<TypeDescriptor> getArgumentTypes(Object... arguments) {
-    List<TypeDescriptor> descriptors = new ArrayList<>(arguments.length);
+  private List<TypeDescriptor> getArgumentTypes(@Nullable Object... arguments) {
+    List<@Nullable TypeDescriptor> descriptors = new ArrayList<>(arguments.length);
     for (Object argument : arguments) {
       descriptors.add(TypeDescriptor.forObject(argument));
     }

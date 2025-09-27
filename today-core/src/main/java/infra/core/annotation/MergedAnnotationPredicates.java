@@ -122,11 +122,11 @@ public abstract class MergedAnnotationPredicates {
    */
   private static class FirstRunOfPredicate<A extends Annotation> implements Predicate<MergedAnnotation<A>> {
 
-    private final Function<? super @Nullable MergedAnnotation<A>, ?> valueExtractor;
+    private final Function<? super MergedAnnotation<A>, ?> valueExtractor;
 
     private boolean hasLastValue;
 
-    @Nullable
+    @SuppressWarnings("NullAway.Init")
     private Object lastValue;
 
     FirstRunOfPredicate(Function<? super MergedAnnotation<A>, ?> valueExtractor) {
@@ -135,6 +135,7 @@ public abstract class MergedAnnotationPredicates {
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public boolean test(@Nullable MergedAnnotation<A> annotation) {
       if (!this.hasLastValue) {
         this.hasLastValue = true;
@@ -161,6 +162,7 @@ public abstract class MergedAnnotationPredicates {
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public boolean test(@Nullable MergedAnnotation<A> annotation) {
       K key = this.keyExtractor.apply(annotation);
       return this.seen.add(key);

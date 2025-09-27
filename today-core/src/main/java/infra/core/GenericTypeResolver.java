@@ -119,8 +119,7 @@ public abstract class GenericTypeResolver {
    * @return the resolved type of each argument, with the array size matching the
    * number of actual type arguments, or {@code null} if not resolvable
    */
-  @Nullable
-  public static Class<?>[] resolveTypeArguments(Class<?> clazz, Class<?> genericIfc) {
+  public static Class<?> @Nullable [] resolveTypeArguments(Class<?> clazz, Class<?> genericIfc) {
     ResolvableType type = ResolvableType.forClass(clazz).as(genericIfc);
     if (!type.hasGenerics() || !type.hasResolvableGenerics()) {
       return null;
@@ -279,6 +278,7 @@ public abstract class GenericTypeResolver {
           implements ResolvableType.VariableResolver {
 
     @Override
+    @Nullable
     public ResolvableType resolveVariable(TypeVariable<?> variable) {
       Type type = this.typeVariableMap.get(variable);
       return (type != null ? ResolvableType.forType(type) : null);

@@ -97,7 +97,7 @@ final class Log4j2Logger extends Logger {
   }
 
   @Override
-  protected void logInternal(Level level, String format, @Nullable Throwable t, @Nullable Object[] args) {
+  protected void logInternal(Level level, String format, @Nullable Throwable t, @Nullable Object @Nullable [] args) {
     final Message message = new Message() {
 
       @Serial
@@ -114,7 +114,7 @@ final class Log4j2Logger extends Logger {
 
       @Nullable
       @Override
-      public Object[] getParameters() {
+      public Object @Nullable [] getParameters() {
         return args;
       }
 

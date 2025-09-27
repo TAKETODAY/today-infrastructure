@@ -46,6 +46,7 @@ public interface FutureListener<F extends Future<?>> extends EventListener {
 
   // Static Factory Methods
 
+  @SuppressWarnings("NullAway")
   static <V, F extends Future<V>, C> FutureListener<F> forAdaption(FutureContextListener<F, C> listener, @Nullable C context) {
     Assert.notNull(listener, "listener is required");
     return future -> listener.operationComplete(future, context);
@@ -65,6 +66,7 @@ public interface FutureListener<F extends Future<?>> extends EventListener {
    * @see Promise#setFailure(Throwable)
    * @see AbstractFuture#tryFailure(Throwable)
    */
+  @SuppressWarnings("NullAway")
   static <V, F extends Future<V>> FutureListener<F> forAdaption(SuccessCallback<V> onSuccess, @Nullable FailureCallback onFailed) {
     Assert.notNull(onSuccess, "successCallback is required");
     return future -> {

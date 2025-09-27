@@ -46,6 +46,7 @@ public abstract class ExceptionUtils {
    * @see InvocationTargetException
    * @see UndeclaredThrowableException
    */
+  @SuppressWarnings("NullAway")
   public static Throwable unwrapIfNecessary(Throwable ex) {
     Throwable unwrapped = ex;
     while (true) {

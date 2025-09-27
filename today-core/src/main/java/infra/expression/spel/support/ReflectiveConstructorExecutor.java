@@ -53,7 +53,7 @@ public class ReflectiveConstructorExecutor implements ConstructorExecutor {
   }
 
   @Override
-  public TypedValue execute(EvaluationContext context, Object... arguments) throws AccessException {
+  public TypedValue execute(EvaluationContext context, @Nullable Object... arguments) throws AccessException {
     try {
       ReflectionHelper.convertArguments(
               context.getTypeConverter(), arguments, this.ctor, this.varargsPosition);

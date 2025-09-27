@@ -38,6 +38,7 @@ import infra.core.annotation.AnnotatedElementAdapter;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.conversion.ConversionService;
 import infra.lang.Assert;
+import infra.lang.Contract;
 import infra.reflect.Property;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
@@ -595,7 +596,7 @@ public class TypeDescriptor implements Serializable {
    * @see #narrow(Object)
    */
   @Nullable
-  public TypeDescriptor getMapValueDescriptor(Object mapValue) {
+  public TypeDescriptor getMapValueDescriptor(@Nullable Object mapValue) {
     return narrow(mapValue, getMapValueDescriptor());
   }
 
@@ -689,6 +690,7 @@ public class TypeDescriptor implements Serializable {
    * @return the type descriptor
    */
   @Nullable
+  @Contract("null -> null")
   public static TypeDescriptor forObject(@Nullable Object source) {
     return source != null ? valueOf(source.getClass()) : null;
   }

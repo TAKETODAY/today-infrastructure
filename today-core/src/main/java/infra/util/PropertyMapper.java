@@ -369,6 +369,7 @@ public final class PropertyMapper {
    */
   private record NullPointerExceptionSafeSupplier<T>(Supplier<T> supplier) implements Supplier<T> {
 
+    @Nullable
     @Override
     public T get() {
       try {

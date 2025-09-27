@@ -50,8 +50,7 @@ public abstract class SerializationUtils {
    * @param object the object to serialize
    * @return an array of bytes representing the object in a portable fashion
    */
-  @Nullable
-  public static byte[] serialize(@Nullable Object object) {
+  public static byte @Nullable [] serialize(@Nullable Object object) {
     if (object == null) {
       return null;
     }
@@ -79,7 +78,7 @@ public abstract class SerializationUtils {
    */
   @Deprecated
   @Nullable
-  public static Object deserialize(@Nullable byte[] bytes) {
+  public static Object deserialize(byte @Nullable [] bytes) {
     if (bytes == null) {
       return null;
     }

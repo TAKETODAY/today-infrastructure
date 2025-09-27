@@ -289,8 +289,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 
   // Internal helpers
 
-  @Nullable
-  private ResolvableType[] getRequiredTypeInfo(Class<?> converterClass, Class<?> genericIfc) {
+  private ResolvableType @Nullable [] getRequiredTypeInfo(Class<?> converterClass, Class<?> genericIfc) {
     ResolvableType resolvableType = ResolvableType.forClass(converterClass).as(genericIfc);
     ResolvableType[] generics = resolvableType.getGenerics();
     if (generics.length < 2) {
@@ -340,17 +339,17 @@ public class GenericConversionService implements ConfigurableConversionService {
   /**
    * Adapts a {@link Converter} to a {@link GenericConverter}.
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   private final class ConverterAdapter implements ConditionalGenericConverter {
 
     private final ConvertiblePair typeInfo;
 
     private final ResolvableType targetType;
 
-    private final Converter<Object, Object> converter;
+    private final Converter converter;
 
     public ConverterAdapter(Converter<?, ?> converter, ResolvableType sourceType, ResolvableType targetType) {
-      this.converter = (Converter<Object, Object>) converter;
+      this.converter = converter;
       this.typeInfo = new ConvertiblePair(sourceType.toClass(), targetType.toClass());
       this.targetType = targetType;
     }
@@ -399,14 +398,15 @@ public class GenericConversionService implements ConfigurableConversionService {
   /**
    * Adapts a {@link ConverterFactory} to a {@link GenericConverter}.
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   private final class ConverterFactoryAdapter implements ConditionalGenericConverter {
 
     private final ConvertiblePair typeInfo;
-    private final ConverterFactory<Object, Object> converterFactory;
+
+    private final ConverterFactory converterFactory;
 
     public ConverterFactoryAdapter(ConverterFactory<?, ?> converterFactory, ConvertiblePair typeInfo) {
-      this.converterFactory = (ConverterFactory<Object, Object>) converterFactory;
+      this.converterFactory = converterFactory;
       this.typeInfo = typeInfo;
     }
 

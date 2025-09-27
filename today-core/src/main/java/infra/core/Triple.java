@@ -38,6 +38,7 @@ import infra.util.ObjectUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/8/24 14:52
  */
+@SuppressWarnings("NullAway")
 public final class Triple<A, B, C> implements Serializable {
 
   @Serial

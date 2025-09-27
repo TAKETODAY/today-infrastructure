@@ -111,6 +111,7 @@ public abstract class ObjectUtils {
    * @param obj the object to check
    * @since 3.0
    */
+  @Contract("null -> false")
   public static boolean isArray(@Nullable Object obj) {
     return obj != null && obj.getClass().isArray();
   }
@@ -122,6 +123,7 @@ public abstract class ObjectUtils {
    * @param array the array to check
    * @see #isEmpty(Object)
    */
+  @Contract("null -> true")
   public static boolean isEmpty(@Nullable Object @Nullable [] array) {
     return array == null || array.length == 0;
   }
@@ -133,6 +135,7 @@ public abstract class ObjectUtils {
    * @param array the array to check
    * @see #isEmpty(Object[])
    */
+  @Contract("null -> false")
   public static boolean isNotEmpty(@Nullable Object @Nullable [] array) {
     return array != null && array.length != 0;
   }

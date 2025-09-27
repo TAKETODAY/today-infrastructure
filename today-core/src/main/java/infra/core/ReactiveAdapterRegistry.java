@@ -34,6 +34,8 @@ import infra.util.ConcurrentReferenceHashMap;
 import infra.util.ReflectionUtils;
 import infra.util.concurrent.Future;
 import infra.util.concurrent.PublisherFuture;
+import io.smallrye.mutiny.Multi;
+import io.smallrye.mutiny.Uni;
 import reactor.adapter.JdkFlowAdapter;
 import reactor.blockhound.BlockHound;
 import reactor.blockhound.integration.BlockHoundIntegration;
@@ -347,14 +349,14 @@ public class ReactiveAdapterRegistry {
         Method multiPublisher = ReflectionUtils.getMethod(
                 io.smallrye.mutiny.groups.MultiCreate.class, "publisher", Flow.Publisher.class);
         registry.registerReactiveType(uniDesc,
-                uni -> FlowAdapters.toPublisher((Flow.Publisher<Object>) Objects.requireNonNull(
-                        ReflectionUtils.invokeMethod(uniToPublisher, ((io.smallrye.mutiny.Uni<?>) uni).convert()))),
-                publisher -> ReflectionUtils.invokeMethod(uniPublisher, io.smallrye.mutiny.Uni.createFrom(),
-                        FlowAdapters.toFlowPublisher(publisher)));
+                uni -> FlowAdapters.toPublisher((Flow.Publisher<Object>)
+                        Objects.requireNonNull(ReflectionUtils.invokeMethod(uniToPublisher, ((Uni<?>) uni).convert()))),
+                publisher -> Objects.requireNonNull(ReflectionUtils.invokeMethod(uniPublisher, Uni.createFrom(),
+                        FlowAdapters.toFlowPublisher(publisher))));
         registry.registerReactiveType(multiDesc,
                 multi -> FlowAdapters.toPublisher((Flow.Publisher<Object>) multi),
-                publisher -> ReflectionUtils.invokeMethod(multiPublisher, io.smallrye.mutiny.Multi.createFrom(),
-                        FlowAdapters.toFlowPublisher(publisher)));
+                publisher -> Objects.requireNonNull(ReflectionUtils.invokeMethod(multiPublisher, Multi.createFrom(),
+                        FlowAdapters.toFlowPublisher(publisher))));
       }
       else {
         // Mutiny 1 based on Reactive Streams

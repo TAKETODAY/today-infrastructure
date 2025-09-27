@@ -28,6 +28,7 @@ import infra.expression.spel.ExpressionState;
 import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
 import infra.expression.spel.support.BooleanTypedValue;
+import infra.lang.Contract;
 
 /**
  * Represents the boolean AND operation.
@@ -65,6 +66,7 @@ public class OpAnd extends Operator {
     }
   }
 
+  @Contract("null -> fail")
   private void assertValueNotNull(@Nullable Boolean value) {
     if (value == null) {
       throw new SpelEvaluationException(SpelMessage.TYPE_CONVERSION_ERROR, "null", "boolean");

@@ -61,8 +61,8 @@ public class MapPropertyResolver extends TypedPropertyResolver implements Iterab
     return false;
   }
 
-  @Nullable
-  public <T> T getProperty(String key, Class<T> targetValueType, boolean resolveNestedPlaceholders) {
+  @Override
+  public <T> @Nullable T getProperty(String key, Class<T> targetValueType, boolean resolveNestedPlaceholders) {
     if (this.keyValues != null) {
       if (log.isTraceEnabled()) {
         log.trace("Searching for key '{}' in map '{}'", key, keyValues);

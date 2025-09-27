@@ -74,8 +74,7 @@ public class ConstructorReference extends SpelNodeImpl {
 
   private final boolean isArrayConstructor;
 
-  @Nullable
-  private final SpelNodeImpl[] dimensions;
+  private final SpelNodeImpl @Nullable [] dimensions;
 
   // TODO is this caching safe - passing the expression around will mean this executor is also being passed around
   /** The cached executor that may be reused on subsequent evaluations. */
@@ -123,7 +122,7 @@ public class ConstructorReference extends SpelNodeImpl {
    * @throws EvaluationException if there is a problem creating the object
    */
   private TypedValue createNewInstance(ExpressionState state) throws EvaluationException {
-    Object[] arguments = new Object[getChildCount() - 1];
+    @Nullable Object[] arguments = new Object[getChildCount() - 1];
     List<TypeDescriptor> argumentTypes = new ArrayList<>(getChildCount() - 1);
     for (int i = 0; i < arguments.length; i++) {
       TypedValue childValue = this.children[i + 1].getValueInternal(state);
@@ -360,7 +359,7 @@ public class ConstructorReference extends SpelNodeImpl {
 
   private Object createReferenceTypeArray(ExpressionState state,
           TypeConverter typeConverter, SpelNodeImpl[] children, Class<?> componentType) {
-    Object[] newArray = (Object[]) Array.newInstance(componentType, children.length);
+    @Nullable Object[] newArray = (Object[]) Array.newInstance(componentType, children.length);
     TypeDescriptor toTypeDescriptor = TypeDescriptor.valueOf(componentType);
     for (int i = 0; i < newArray.length; i++) {
       Object arrayEntry = children[i].getValue(state);

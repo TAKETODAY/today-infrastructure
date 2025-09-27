@@ -33,11 +33,10 @@ final class MethodAccessorSetterMethod implements SetterMethod {
   }
 
   @Override
-  public void set(Object obj, Object value) {
+  public void set(Object obj, @Nullable Object value) {
     accessor.invoke(obj, new Object[] { value });
   }
 
-  @Nullable
   @Override
   public Method getWriteMethod() {
     return accessor.getMethod();

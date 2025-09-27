@@ -835,8 +835,7 @@ public class AntPathMatcher implements PathMatcher {
       return start == end ? Constant.BLANK : Pattern.quote(s.substring(start, end));
     }
 
-    @Nullable
-    public String[] extractVariables(String str) {
+    public String @Nullable [] extractVariables(String str) {
       if (pattern != null) {
         Matcher matcher = this.pattern.matcher(str);
         if (matcher.matches()) {

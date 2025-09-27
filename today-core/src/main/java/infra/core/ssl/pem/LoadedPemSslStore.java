@@ -49,6 +49,7 @@ final class LoadedPemSslStore implements PemSslStore {
 
   private final SingletonSupplier<PrivateKey> privateKeySupplier;
 
+  @SuppressWarnings("NullAway")
   LoadedPemSslStore(PemSslStoreDetails details, ResourceLoader resourceLoader) {
     Assert.notNull(details, "Details is required");
     Assert.notNull(resourceLoader, "ResourceLoader is required");

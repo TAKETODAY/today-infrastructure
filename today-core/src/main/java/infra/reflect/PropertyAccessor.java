@@ -39,6 +39,7 @@ import infra.util.ReflectionUtils;
  */
 public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Accessor {
 
+  @Nullable
   @Override
   public abstract Object get(Object obj) throws ReflectionException;
 

@@ -27,6 +27,7 @@ import infra.expression.spel.ExpressionState;
 import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
 import infra.expression.spel.support.BooleanTypedValue;
+import infra.lang.Contract;
 
 /**
  * Represents the boolean OR operation.
@@ -38,7 +39,7 @@ import infra.expression.spel.support.BooleanTypedValue;
  */
 public class OpOr extends Operator {
 
-  public OpOr(int startPos, int endPos, SpelNodeImpl... operands) {
+  public OpOr(int startPos, int endPos, SpelNodeImpl @Nullable ... operands) {
     super("or", startPos, endPos, operands);
     this.exitTypeDescriptor = "Z";
   }
@@ -64,6 +65,7 @@ public class OpOr extends Operator {
     }
   }
 
+  @Contract("null -> fail")
   private void assertValueNotNull(@Nullable Boolean value) {
     if (value == null) {
       throw new SpelEvaluationException(SpelMessage.TYPE_CONVERSION_ERROR, "null", "boolean");

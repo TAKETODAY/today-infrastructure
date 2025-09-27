@@ -49,6 +49,7 @@ import infra.lang.Assert;
  * @see #get(Object)
  * @since 4.0
  */
+@SuppressWarnings({ "unchecked", "NullAway" })
 public final class ConcurrentLruCache<K, V> {
 
   private final int capacity;

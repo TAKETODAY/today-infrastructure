@@ -126,7 +126,7 @@ public class MapCache<Key, Value, Param> {
    * the specified key, or null if the computed value is null
    */
   @Nullable
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "NullAway" })
   public final Value get(Key key, @Nullable Function<Key, Value> mappingFunction) {
     Value value = mapping.get(key);
     if (value == null) {

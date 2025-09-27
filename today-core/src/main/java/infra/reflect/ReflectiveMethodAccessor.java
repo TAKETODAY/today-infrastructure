@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +15,8 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package infra.reflect;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 
@@ -37,7 +39,7 @@ final class ReflectiveMethodAccessor extends MethodInvoker implements MethodAcce
   }
 
   @Override
-  public Object invoke(final Object obj, final Object[] args) {
+  public Object invoke(final Object obj, final @Nullable Object @Nullable [] args) {
     try {
       return getMethod().invoke(obj, args);
     }

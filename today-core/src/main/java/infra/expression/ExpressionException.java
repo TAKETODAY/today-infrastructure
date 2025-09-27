@@ -164,6 +164,7 @@ public class ExpressionException extends RuntimeException {
    *
    * @since 4.0
    */
+  @SuppressWarnings("NullAway") // Dataflow analysis limitation
   public String getSimpleMessage() {
     return super.getMessage();
   }

@@ -151,6 +151,7 @@ public class InlineList extends SpelNodeImpl {
     codeflow.pushDescriptor("Ljava/util/List");
   }
 
+  @SuppressWarnings("NullAway")
   void generateClinitCode(String clazzname, String constantFieldName, MethodVisitor mv, CodeFlow codeflow, boolean nested) {
     mv.visitTypeInsn(NEW, "java/util/ArrayList");
     mv.visitInsn(DUP);

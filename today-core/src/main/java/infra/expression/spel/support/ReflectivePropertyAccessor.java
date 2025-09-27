@@ -91,7 +91,6 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
    *
    * @param allowWrite whether to allow write operations on a target instance
    * @see #canWrite
-   * @since 4.3.15
    */
   public ReflectivePropertyAccessor(boolean allowWrite) {
     this.allowWrite = allowWrite;
@@ -101,8 +100,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
    * Returns {@code null} which means this is a general purpose accessor.
    */
   @Override
-  @Nullable
-  public Class<?>[] getSpecificTargetClasses() {
+  public Class<?> @Nullable [] getSpecificTargetClasses() {
     return null;
   }
 
@@ -597,8 +595,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
     }
 
     @Override
-    @Nullable
-    public Class<?>[] getSpecificTargetClasses() {
+    public Class<?> @Nullable [] getSpecificTargetClasses() {
       throw new UnsupportedOperationException("Should not be called on an OptimalPropertyAccessor");
     }
 

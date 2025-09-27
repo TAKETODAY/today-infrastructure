@@ -105,7 +105,7 @@ public class ReflectiveMethodExecutor implements MethodExecutor {
   }
 
   @Override
-  public TypedValue execute(EvaluationContext context, Object target, Object... arguments) throws AccessException {
+  public TypedValue execute(EvaluationContext context, Object target, @Nullable Object... arguments) throws AccessException {
     try {
       this.argumentConversionOccurred = ReflectionHelper.convertArguments(
               context.getTypeConverter(), arguments, this.originalMethod, this.varargsPosition);

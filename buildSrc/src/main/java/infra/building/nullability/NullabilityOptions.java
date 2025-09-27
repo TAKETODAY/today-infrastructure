@@ -67,6 +67,7 @@ public abstract class NullabilityOptions {
 		}
 		options.put("NullAway:CustomContractAnnotations", String.join(",", customContractAnnotations));
 		options.put("NullAway:JSpecifyMode", "true");
+		options.put("NullAway:UnannotatedSubPackages", "infra.bytecode");
 		if (checking == Checking.TESTS) {
 			options.put("NullAway:HandleTestAssertionLibraries", "true");
 		}

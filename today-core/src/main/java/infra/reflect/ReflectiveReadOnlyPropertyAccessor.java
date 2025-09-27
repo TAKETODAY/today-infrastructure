@@ -43,7 +43,9 @@ final class ReflectiveReadOnlyPropertyAccessor extends ReadOnlyPropertyAccessor 
     this.readMethod = ReflectionUtils.makeAccessible(readMethod);
   }
 
+  @Nullable
   @Override
+  @SuppressWarnings("NullAway")
   public Object get(final Object obj) {
     if (readMethod != null) {
       return ReflectionUtils.invokeMethod(readMethod, obj);

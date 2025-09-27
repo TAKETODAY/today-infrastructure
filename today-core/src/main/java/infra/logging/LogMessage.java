@@ -166,6 +166,7 @@ public abstract class LogMessage {
     }
 
     @Override
+    @Nullable
     protected String buildString() {
       return MessageFormatter.format(this.format, this.arg1);
     }

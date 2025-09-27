@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.expression.spel;
+
+import org.jspecify.annotations.Nullable;
 
 import infra.expression.EvaluationException;
 
@@ -37,27 +39,27 @@ public class SpelEvaluationException extends EvaluationException {
 
   private final SpelMessage message;
 
-  private final Object[] inserts;
+  private final @Nullable Object[] inserts;
 
-  public SpelEvaluationException(SpelMessage message, Object... inserts) {
+  public SpelEvaluationException(SpelMessage message, @Nullable Object... inserts) {
     super(message.formatMessage(inserts));
     this.message = message;
     this.inserts = inserts;
   }
 
-  public SpelEvaluationException(int position, SpelMessage message, Object... inserts) {
+  public SpelEvaluationException(int position, SpelMessage message, @Nullable Object... inserts) {
     super(position, message.formatMessage(inserts));
     this.message = message;
     this.inserts = inserts;
   }
 
-  public SpelEvaluationException(int position, Throwable cause, SpelMessage message, Object... inserts) {
+  public SpelEvaluationException(int position, @Nullable Throwable cause, SpelMessage message, @Nullable Object... inserts) {
     super(position, message.formatMessage(inserts), cause);
     this.message = message;
     this.inserts = inserts;
   }
 
-  public SpelEvaluationException(Throwable cause, SpelMessage message, Object... inserts) {
+  public SpelEvaluationException(@Nullable Throwable cause, SpelMessage message, @Nullable Object... inserts) {
     super(message.formatMessage(inserts), cause);
     this.message = message;
     this.inserts = inserts;
@@ -80,7 +82,7 @@ public class SpelEvaluationException extends EvaluationException {
   /**
    * Return the message inserts.
    */
-  public Object[] getInserts() {
+  public @Nullable Object @Nullable [] getInserts() {
     return this.inserts;
   }
 

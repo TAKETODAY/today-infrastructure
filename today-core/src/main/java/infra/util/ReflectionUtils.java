@@ -690,7 +690,7 @@ public abstract class ReflectionUtils {
    * @return the invocation result, if any
    */
   @Nullable
-  public static Object invokeMethod(Method method, @Nullable Object target, Object... args) {
+  public static Object invokeMethod(Method method, @Nullable Object target, @Nullable Object @Nullable ... args) {
     try {
       return method.invoke(target, args);
     }

@@ -1279,11 +1279,9 @@ public abstract class StringUtils {
    * @see java.lang.Character#isWhitespace
    * @since 3.0
    */
-  @Nullable
-  @Contract("null -> null")
-  public static String trimAllWhitespace(@Nullable String str) {
-    if (str == null) {
-      return null;
+  public static String trimAllWhitespace(String str) {
+    if (isEmpty(str)) {
+      return str;
     }
     return trimAllWhitespace((CharSequence) str).toString();
   }

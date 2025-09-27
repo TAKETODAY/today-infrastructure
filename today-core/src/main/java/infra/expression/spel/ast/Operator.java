@@ -55,7 +55,7 @@ public abstract class Operator extends SpelNodeImpl {
   @Nullable
   protected String rightActualDescriptor;
 
-  public Operator(String payload, int startPos, int endPos, SpelNodeImpl... operands) {
+  public Operator(String payload, int startPos, int endPos, SpelNodeImpl @Nullable ... operands) {
     super(startPos, endPos, operands);
     this.operatorName = payload;
   }

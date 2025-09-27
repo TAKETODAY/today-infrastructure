@@ -142,8 +142,7 @@ public class OverridingClassLoader extends DecoratingClassLoader {
    * or {@code null} if no class defined for that name
    * @throws ClassNotFoundException if the class for the given name couldn't be loaded
    */
-  @Nullable
-  protected byte[] loadBytesForClass(String name) throws ClassNotFoundException {
+  protected byte @Nullable [] loadBytesForClass(String name) throws ClassNotFoundException {
     InputStream is = openStreamForClass(name);
     if (is == null) {
       return null;

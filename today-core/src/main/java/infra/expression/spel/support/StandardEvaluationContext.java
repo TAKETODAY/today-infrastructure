@@ -133,6 +133,7 @@ public class StandardEvaluationContext implements EvaluationContext {
   /**
    * Create a {@code StandardEvaluationContext} with the given root object.
    */
+  @SuppressWarnings("NullAway")
   protected StandardEvaluationContext(StandardEvaluationContext shared) {
     this.typeLocator = shared.getTypeLocator();
     this.typeConverter = shared.getTypeConverter();

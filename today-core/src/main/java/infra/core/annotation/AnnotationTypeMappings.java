@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
+import infra.lang.Contract;
 import infra.util.ConcurrentReferenceHashMap;
 
 /**
@@ -86,7 +87,7 @@ final class AnnotationTypeMappings implements Iterable<AnnotationTypeMapping> {
   }
 
   private void addMetaAnnotationsToQueue(Deque<AnnotationTypeMapping> queue, AnnotationTypeMapping source) {
-    Annotation[] metaAnnotations = AnnotationsScanner.getDeclaredAnnotations(source.annotationType, false);
+    @Nullable Annotation[] metaAnnotations = AnnotationsScanner.getDeclaredAnnotations(source.annotationType, false);
     for (Annotation metaAnnotation : metaAnnotations) {
       if (isNotMappable(source, metaAnnotation)) {
         continue;
@@ -125,6 +126,7 @@ final class AnnotationTypeMappings implements Iterable<AnnotationTypeMapping> {
     }
   }
 
+  @Contract("_, null -> true")
   private boolean isNotMappable(AnnotationTypeMapping source, @Nullable Annotation metaAnnotation) {
     return metaAnnotation == null
             || filter.matches(metaAnnotation)

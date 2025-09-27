@@ -179,7 +179,7 @@ abstract class AnnotationsScanner {
       if (hasPlainJavaAnnotationsOnly(source)) {
         return null;
       }
-      Annotation[] annotations = getDeclaredAnnotations(source, false);
+      @Nullable Annotation[] annotations = getDeclaredAnnotations(source, false);
       result = processor.doWithAnnotations(context, aggregateIndex[0], source, annotations);
       if (result != null) {
         return result;
@@ -318,6 +318,7 @@ abstract class AnnotationsScanner {
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private static Method[] getBaseTypeMethods(Class<?> baseType) {
     if (baseType == Object.class || hasPlainJavaAnnotationsOnly(baseType)) {
       return Constant.EMPTY_METHODS;
@@ -422,9 +423,10 @@ abstract class AnnotationsScanner {
     return null;
   }
 
-  static Annotation[] getDeclaredAnnotations(AnnotatedElement source, boolean defensive) {
+  @SuppressWarnings("NullAway") // Dataflow analysis limitation
+  static @Nullable Annotation[] getDeclaredAnnotations(AnnotatedElement source, boolean defensive) {
     boolean cached = false;
-    Annotation[] annotations = declaredAnnotationCache.get(source);
+    @Nullable Annotation[] annotations = declaredAnnotationCache.get(source);
     if (annotations != null) {
       cached = true;
     }
@@ -434,6 +436,7 @@ abstract class AnnotationsScanner {
         boolean allIgnored = true;
         for (int i = 0; i < annotations.length; i++) {
           Annotation annotation = annotations[i];
+          //noinspection DataFlowIssue
           if (isIgnorable(annotation.annotationType()) ||
                   !AttributeMethods.forAnnotationType(annotation.annotationType()).isValid(annotation)) {
             annotations[i] = null;
@@ -444,6 +447,7 @@ abstract class AnnotationsScanner {
         }
         annotations = allIgnored ? Constant.EMPTY_ANNOTATIONS : annotations;
         if (source instanceof Class || source instanceof Member) {
+          //noinspection NullableProblems
           declaredAnnotationCache.put(source, annotations);
           cached = true;
         }

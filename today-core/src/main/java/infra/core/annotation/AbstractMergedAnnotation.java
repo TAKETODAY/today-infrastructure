@@ -197,6 +197,7 @@ abstract class AbstractMergedAnnotation<A extends Annotation> implements MergedA
     return asMap(mergedAnnotation -> new AnnotationAttributes(mergedAnnotation.getType()), adaptations);
   }
 
+  @Nullable
   @Override
   public A synthesize(Predicate<? super MergedAnnotation<A>> condition) throws NoSuchElementException {
     return condition.test(this) ? synthesize() : null;

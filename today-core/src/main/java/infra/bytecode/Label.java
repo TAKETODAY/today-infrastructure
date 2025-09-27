@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -275,6 +275,7 @@ public class Label {
   // -----------------------------------------------------------------------------------------------
 
   /** Constructs a new label. */
+  @SuppressWarnings("NullAway")
   public Label() {
     // Nothing to do.
   }
@@ -501,6 +502,7 @@ public class Label {
    * @param subroutineId the id of the subroutine starting with the basic block corresponding to
    * this label.
    */
+  @SuppressWarnings("NullAway")
   final void markSubroutine(final short subroutineId) {
     // Data flow algorithm: put this basic block in a list of blocks to process (which are blocks
     // belonging to subroutine subroutineId) and, while there are blocks to process, remove one from
@@ -536,6 +538,7 @@ public class Label {
    * @param subroutineCaller a basic block that ends with a jsr to the basic block corresponding to
    * this label. This label is supposed to correspond to the start of a subroutine.
    */
+  @SuppressWarnings("NullAway")
   final void addSubroutineRetSuccessors(final Label subroutineCaller) {
     // Data flow algorithm: put this basic block in a list blocks to process (which are blocks
     // belonging to a subroutine starting with this label) and, while there are blocks to process,

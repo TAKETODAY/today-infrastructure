@@ -356,8 +356,7 @@ public class FastByteArrayOutputStream extends OutputStream {
 
     private final Iterator<byte[]> buffersIterator;
 
-    @Nullable
-    private byte[] currentBuffer;
+    private byte @Nullable [] currentBuffer;
 
     private int currentBufferLength = 0;
 

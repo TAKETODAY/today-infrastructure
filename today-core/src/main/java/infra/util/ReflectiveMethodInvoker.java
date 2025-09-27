@@ -57,8 +57,7 @@ public class ReflectiveMethodInvoker {
   @Nullable
   private String staticMethod;
 
-  @Nullable
-  private Object[] arguments;
+  private Object @Nullable [] arguments;
 
   /** The method we will call. */
   @Nullable
@@ -182,7 +181,7 @@ public class ReflectiveMethodInvoker {
     Assert.notNull(targetClass, "Either 'targetClass' or 'targetObject' is required");
     Assert.notNull(targetMethod, "Property 'targetMethod' is required");
 
-    Object[] arguments = getArguments();
+    @Nullable Object[] arguments = getArguments();
     Class<?>[] argTypes = new Class<?>[arguments.length];
     for (int i = 0; i < arguments.length; ++i) {
       Object argument = arguments[i];
@@ -329,7 +328,7 @@ public class ReflectiveMethodInvoker {
    * @param args the arguments to match
    * @return the accumulated weight for all arguments
    */
-  public static int getTypeDifferenceWeight(Class<?>[] paramTypes, Object[] args) {
+  public static int getTypeDifferenceWeight(Class<?>[] paramTypes, @Nullable Object[] args) {
     int result = 0;
     for (int i = 0; i < paramTypes.length; i++) {
       Class<?> paramType = paramTypes[i];

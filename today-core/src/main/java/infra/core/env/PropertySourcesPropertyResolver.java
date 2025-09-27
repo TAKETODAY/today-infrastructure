@@ -69,6 +69,7 @@ public class PropertySourcesPropertyResolver extends TypedPropertyResolver imple
   }
 
   @Nullable
+  @Override
   public <T> T getProperty(String key, Class<T> targetValueType, boolean resolveNestedPlaceholders) {
     boolean traceEnabled = log.isTraceEnabled();
     if (this.propertySources != null) {

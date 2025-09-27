@@ -43,6 +43,7 @@ public abstract class TypedPropertyResolver extends AbstractPropertyResolver {
     return getProperty(key, String.class, false);
   }
 
+  @Nullable
   public abstract <T> T getProperty(
           String key, Class<T> targetValueType, boolean resolveNestedPlaceholders);
 

@@ -478,7 +478,7 @@ public abstract class AnnotatedElementUtils {
    * @see #getAllAnnotationAttributes(AnnotatedElement, String, boolean, boolean)
    */
   @Nullable
-  public static MultiValueMap<String, Object> getAllAnnotationAttributes(AnnotatedElement element, String annotationName) {
+  public static MultiValueMap<String, @Nullable Object> getAllAnnotationAttributes(AnnotatedElement element, String annotationName) {
     return getAllAnnotationAttributes(element, annotationName, false, false);
   }
 
@@ -502,7 +502,7 @@ public abstract class AnnotatedElementUtils {
    * attributes from all annotations found, or {@code null} if not found
    */
   @Nullable
-  public static MultiValueMap<String, Object> getAllAnnotationAttributes(AnnotatedElement element,
+  public static MultiValueMap<String, @Nullable Object> getAllAnnotationAttributes(AnnotatedElement element,
           String annotationName, final boolean classValuesAsString, final boolean nestedAnnotationsAsMap) {
 
     var adaptations = MergedAnnotation.Adapt.values(classValuesAsString, nestedAnnotationsAsMap);

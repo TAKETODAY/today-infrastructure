@@ -140,6 +140,7 @@ final class Futures {
    * @param <R> The result type of the mapper function, and of the returned future.
    * @return A new future instance that will complete with the mapped result of the given future.
    */
+  @SuppressWarnings("NullAway")
   public static <V, R> Future<R> map(Future<V> future, ThrowingFunction<V, R> mapper) {
     if (future.isFailed()) {
       // Cast is safe because the result type is not used in failed futures.
@@ -302,6 +303,7 @@ final class Futures {
    * @param <R> Result type of {@code f}
    * @return A new Future that returns both Future results.
    */
+  @SuppressWarnings("NullAway")
   public static <U, R, V> Future<R> zipWith(Future<V> future, Future<U> that, ThrowingBiFunction<V, U, R> combinator) {
     Promise<R> recipient = Future.forPromise(future.executor);
     future.onCompleted(completed -> {
@@ -439,6 +441,7 @@ final class Futures {
     return (FutureContextListener<Future<V>, Promise<R>>) (FutureContextListener<?, ?>) PASS_THROUGH;
   }
 
+  @SuppressWarnings("NullAway")
   static <A, B> void propagateUncommonCompletion(Future<? extends A> completed, Promise<B> recipient) {
     if (completed.isCancelled()) {
       // Don't check or log if cancellation propagation fails.
@@ -475,7 +478,6 @@ final class Futures {
       this.mapper = mapper;
     }
 
-    @Nullable
     @Override
     public R call() {
       try {
@@ -499,6 +501,7 @@ final class Futures {
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public void operationComplete(Future<T> completed) {
       if (completed.isSuccess()) {
         try {
@@ -527,6 +530,7 @@ final class Futures {
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public void operationComplete(Future<T> completed) {
       if (completed.isSuccess()) {
         try {
@@ -662,6 +666,7 @@ final class Futures {
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public void operationComplete(Future<T> completed) {
       if (!recipient.isDone()) {
         if (completed.isCancelled()) {
@@ -699,6 +704,7 @@ final class Futures {
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public void operationComplete(Future<T> completed) {
       if (!recipient.isDone()) {
         if (completed.isCancelled()) {

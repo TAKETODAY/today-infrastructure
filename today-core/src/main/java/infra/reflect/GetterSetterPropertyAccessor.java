@@ -35,6 +35,7 @@ final class GetterSetterPropertyAccessor extends PropertyAccessor {
     this.writeMethod = writeMethod;
   }
 
+  @Nullable
   @Override
   public Object get(final Object obj) {
     return readMethod.get(obj);
@@ -45,13 +46,16 @@ final class GetterSetterPropertyAccessor extends PropertyAccessor {
     writeMethod.set(obj, value);
   }
 
+  @Nullable
   @Override
   public Method getReadMethod() {
     return readMethod.getReadMethod();
   }
 
+  @Nullable
   @Override
   public Method getWriteMethod() {
     return writeMethod.getWriteMethod();
   }
+
 }

@@ -87,7 +87,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
    * @throws ExceptionInInitializerError if the initialization provoked by this method fails.
    */
   @Override
-  public abstract Object invoke(Object obj, @Nullable Object[] args);
+  public abstract Object invoke(Object obj, @Nullable Object @Nullable [] args);
 
   @Override
   public Method getMethod() {

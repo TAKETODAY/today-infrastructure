@@ -116,7 +116,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
 
   private TypeMappedAnnotation(AnnotationTypeMapping mapping, @Nullable ClassLoader classLoader,
           @Nullable Object source, @Nullable Object rootAttributes, ValueExtractor valueExtractor,
-          int aggregateIndex, @Nullable int[] resolvedRootMirrors) {
+          int aggregateIndex, int @Nullable [] resolvedRootMirrors) {
 
     this.mapping = mapping;
     this.classLoader = classLoader;
@@ -126,12 +126,10 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
     this.aggregateIndex = aggregateIndex;
     this.useMergedValues = true;
     this.attributeFilter = null;
-    this.resolvedRootMirrors =
-            resolvedRootMirrors != null
-                    ? resolvedRootMirrors : mapping.root.mirrorSets.resolve(source, rootAttributes, valueExtractor);
-    this.resolvedMirrors =
-            getDistance() == 0
-                    ? resolvedRootMirrors : mapping.mirrorSets.resolve(source, this, this::getValueForMirrorResolution);
+    this.resolvedRootMirrors = resolvedRootMirrors != null ? resolvedRootMirrors :
+            mapping.root.mirrorSets.resolve(source, rootAttributes, this.valueExtractor);
+    this.resolvedMirrors = getDistance() == 0 ? this.resolvedRootMirrors :
+            mapping.mirrorSets.resolve(source, this, this::getValueForMirrorResolution);
   }
 
   private TypeMappedAnnotation(AnnotationTypeMapping mapping, @Nullable ClassLoader classLoader,
@@ -242,6 +240,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
     return (MergedAnnotation<T>[]) getRequiredValue(attributeIndex, attributeName);
   }
 
+  @Nullable
   @Override
   public <T> T getDefaultValue(String attributeName, Class<T> type) {
     int attributeIndex = getAttributeIndex(attributeName, false);
@@ -442,7 +441,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
   }
 
   @Nullable
-  private Object getValueForMirrorResolution(Method attribute, Object annotation) {
+  private Object getValueForMirrorResolution(Method attribute, @Nullable Object annotation) {
     int attributeIndex = mapping.methods.indexOf(attribute);
     boolean valueAttribute = VALUE.equals(attribute.getName());
     return getValue(attributeIndex, !valueAttribute, true);
