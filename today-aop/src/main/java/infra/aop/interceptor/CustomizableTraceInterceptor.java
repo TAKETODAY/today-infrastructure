@@ -251,6 +251,7 @@ public class CustomizableTraceInterceptor extends AbstractTraceInterceptor {
    * @see #setExceptionMessage
    */
   @Override
+  @Nullable
   protected Object invokeUnderTrace(MethodInvocation invocation, Logger logger) throws Throwable {
     String name = ClassUtils.getQualifiedMethodName(invocation.getMethod());
     StopWatch stopWatch = new StopWatch(name);
@@ -397,7 +398,7 @@ public class CustomizableTraceInterceptor extends AbstractTraceInterceptor {
     while (matcher.find()) {
       String match = matcher.group();
       if (!ALLOWED_PLACEHOLDERS.contains(match)) {
-        throw new IllegalArgumentException("Placeholder [" + match + "] is not valid");
+        throw new IllegalArgumentException("Placeholder [%s] is not valid".formatted(match));
       }
     }
   }

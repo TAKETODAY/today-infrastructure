@@ -44,8 +44,7 @@ public interface MessageSourceResolvable {
    *
    * @return a String array of codes which are associated with this message
    */
-  @Nullable
-  String[] getCodes();
+  String @Nullable [] getCodes();
 
   /**
    * Return the array of arguments to be used to resolve this message.
@@ -55,8 +54,7 @@ public interface MessageSourceResolvable {
    * placeholders within the message text
    * @see java.text.MessageFormat
    */
-  @Nullable
-  default Object[] getArguments() {
+  default Object @Nullable [] getArguments() {
     return null;
   }
 

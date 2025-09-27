@@ -92,7 +92,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    *
    * @return a new instance object
    */
-  public Object newInstance(@Nullable Object[] args) {
+  public Object newInstance(@Nullable Object @Nullable [] args) {
     return getInstantiator().instantiate(args);
   }
 
@@ -286,6 +286,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    * @return {@link BeanMetadata}
    * @see ClassUtils#isSimpleType(Class)
    */
+  @SuppressWarnings("NullAway")
   public static BeanMetadata forClass(Class<?> beanClass) {
     return metadataMappings.get(beanClass);
   }
@@ -324,6 +325,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
       super(new ConcurrentReferenceHashMap<>());
     }
 
+    @SuppressWarnings("NullAway")
     static BeanPropertiesHolder computeProperties(BeanMetadata metadata) {
       return beanPropertiesMappings.get(metadata);
     }

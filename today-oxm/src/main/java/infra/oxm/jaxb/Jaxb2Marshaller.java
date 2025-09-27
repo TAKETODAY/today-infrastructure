@@ -146,11 +146,9 @@ public class Jaxb2Marshaller implements MimeMarshaller, MimeUnmarshaller,
   @Nullable
   private String contextPath;
 
-  @Nullable
-  private Class<?>[] classesToBeBound;
+  private Class<?> @Nullable [] classesToBeBound;
 
-  @Nullable
-  private String[] packagesToScan;
+  private String @Nullable [] packagesToScan;
 
   @Nullable
   private Map<String, ?> jaxbContextProperties;
@@ -240,15 +238,14 @@ public class Jaxb2Marshaller implements MimeMarshaller, MimeUnmarshaller,
    * <p>Setting either this property, {@link #setContextPath "contextPath"}
    * or {@link #setPackagesToScan "packagesToScan"} is required.
    */
-  public void setClassesToBeBound(@Nullable Class<?>... classesToBeBound) {
+  public void setClassesToBeBound(Class<?> @Nullable ... classesToBeBound) {
     this.classesToBeBound = classesToBeBound;
   }
 
   /**
    * Return the list of Java classes to be recognized by a newly created JAXBContext.
    */
-  @Nullable
-  public Class<?>[] getClassesToBeBound() {
+  public Class<?> @Nullable [] getClassesToBeBound() {
     return this.classesToBeBound;
   }
 
@@ -259,15 +256,14 @@ public class Jaxb2Marshaller implements MimeMarshaller, MimeUnmarshaller,
    * <p>Setting either this property, {@link #setContextPath "contextPath"} or
    * {@link #setClassesToBeBound "classesToBeBound"} is required.
    */
-  public void setPackagesToScan(@Nullable String... packagesToScan) {
+  public void setPackagesToScan(String @Nullable ... packagesToScan) {
     this.packagesToScan = packagesToScan;
   }
 
   /**
    * Return the packages to search for JAXB2 annotations.
    */
-  @Nullable
-  public String[] getPackagesToScan() {
+  public String @Nullable [] getPackagesToScan() {
     return this.packagesToScan;
   }
 

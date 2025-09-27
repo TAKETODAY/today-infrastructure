@@ -66,6 +66,7 @@ class Slf4jLogger extends Logger {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   protected void logInternal(Level level, String format, @Nullable Throwable t, @Nullable Object @Nullable [] args) {
     final String msg = MessageFormatter.format(format, args);
     switch (level) {

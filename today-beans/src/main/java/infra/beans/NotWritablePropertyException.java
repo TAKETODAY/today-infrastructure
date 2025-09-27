@@ -31,8 +31,7 @@ import org.jspecify.annotations.Nullable;
  */
 public class NotWritablePropertyException extends InvalidPropertyException {
 
-  @Nullable
-  private final String[] possibleMatches;
+  private final String @Nullable [] possibleMatches;
 
   /**
    * Create a new NotWritablePropertyException.
@@ -81,7 +80,7 @@ public class NotWritablePropertyException extends InvalidPropertyException {
    * @param possibleMatches suggestions for actual bean property names
    * that closely match the invalid property name
    */
-  public NotWritablePropertyException(Class<?> beanClass, String propertyName, String msg, @Nullable String[] possibleMatches) {
+  public NotWritablePropertyException(Class<?> beanClass, String propertyName, String msg, String @Nullable [] possibleMatches) {
     super(beanClass, propertyName, msg);
     this.possibleMatches = possibleMatches;
   }
@@ -90,8 +89,7 @@ public class NotWritablePropertyException extends InvalidPropertyException {
    * Return suggestions for actual bean property names that closely match
    * the invalid property name, if any.
    */
-  @Nullable
-  public String[] getPossibleMatches() {
+  public String @Nullable [] getPossibleMatches() {
     return this.possibleMatches;
   }
 

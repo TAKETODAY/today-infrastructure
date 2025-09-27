@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.expression;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * This exception wraps (as cause) a checked exception thrown by some method that SpEL
  * invokes. It differs from a SpelEvaluationException because this indicates the
@@ -30,7 +32,7 @@ package infra.expression;
 @SuppressWarnings("serial")
 public class ExpressionInvocationTargetException extends EvaluationException {
 
-  public ExpressionInvocationTargetException(int position, String message, Throwable cause) {
+  public ExpressionInvocationTargetException(int position, String message, @Nullable Throwable cause) {
     super(position, message, cause);
   }
 

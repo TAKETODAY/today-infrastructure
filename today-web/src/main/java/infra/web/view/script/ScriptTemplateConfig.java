@@ -63,8 +63,7 @@ public interface ScriptTemplateConfig {
   /**
    * Return the scripts to be loaded by the script engine (library or user provided).
    */
-  @Nullable
-  String[] getScripts();
+  String @Nullable [] getScripts();
 
   /**
    * Return the object where the render function belongs (optional).

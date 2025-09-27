@@ -116,6 +116,7 @@ public class ArgumentConvertingMethodInvoker extends ReflectiveMethodInvoker {
    * @see #doFindMatchingMethod
    */
   @Override
+  @Nullable
   protected Method findMatchingMethod() {
     Method matchingMethod = super.findMatchingMethod();
     // Second pass: look for method where arguments can be converted to parameter types.
@@ -138,7 +139,8 @@ public class ArgumentConvertingMethodInvoker extends ReflectiveMethodInvoker {
    * @return a matching method, or {@code null} if none
    */
   @Nullable
-  protected Method doFindMatchingMethod(Object[] arguments) {
+  @SuppressWarnings("NullAway")
+  protected Method doFindMatchingMethod(@Nullable Object[] arguments) {
     TypeConverter converter = getTypeConverter();
     if (converter != null) {
       String targetMethod = getTargetMethod();
@@ -148,14 +150,14 @@ public class ArgumentConvertingMethodInvoker extends ReflectiveMethodInvoker {
       Assert.state(targetClass != null, "No target class set");
       Method[] candidates = ReflectionUtils.getAllDeclaredMethods(targetClass);
       int minTypeDiffWeight = Integer.MAX_VALUE;
-      Object[] argumentsToUse = null;
+      @Nullable Object[] argumentsToUse = null;
       for (Method candidate : candidates) {
         if (candidate.getName().equals(targetMethod)) {
           // Check if the inspected method has the correct number of parameters.
           int parameterCount = candidate.getParameterCount();
           if (parameterCount == argCount) {
             Class<?>[] paramTypes = candidate.getParameterTypes();
-            Object[] convertedArguments = new Object[argCount];
+            @Nullable Object[] convertedArguments = new Object[argCount];
             boolean match = true;
             for (int j = 0; j < argCount && match; j++) {
               // Verify that the supplied argument is assignable to the method parameter.

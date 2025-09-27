@@ -63,7 +63,7 @@ public class AspectJAfterReturningAdvice extends AbstractAspectJAdvice
   }
 
   @Override
-  public void afterReturning(Object returnValue, MethodInvocation invocation) throws Throwable {
+  public void afterReturning(@Nullable Object returnValue, MethodInvocation invocation) throws Throwable {
     if (shouldInvokeOnReturnValueOf(invocation.getMethod(), returnValue)) {
       invokeAdviceMethod(getJoinPointMatch(), returnValue, null);
     }

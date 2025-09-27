@@ -74,8 +74,7 @@ public class DefaultTableNameGenerator implements TableNameGenerator {
   @Nullable
   private String prefixToAppend;
 
-  @Nullable
-  private String[] suffixArrayToRemove;
+  private String @Nullable []suffixArrayToRemove;
 
   private boolean lowercase = true;
 
@@ -218,7 +217,7 @@ public class DefaultTableNameGenerator implements TableNameGenerator {
    * @param suffixToRemove an array of suffixes to remove from the generated table name.
    * Can be <code>null</code> if no suffix removal is required.
    */
-  public void setSuffixArrayToRemove(@Nullable String... suffixToRemove) {
+  public void setSuffixArrayToRemove(String @Nullable ... suffixToRemove) {
     this.suffixArrayToRemove = suffixToRemove;
   }
 

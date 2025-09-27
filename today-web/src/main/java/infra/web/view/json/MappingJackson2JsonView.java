@@ -168,8 +168,8 @@ public class MappingJackson2JsonView extends AbstractJackson2View {
       }
     }
     return extractValueFromSingleKeyModel && result.size() == 1
-           ? result.values().iterator().next()
-           : result;
+            ? result.values().iterator().next()
+            : result;
   }
 
   @Override

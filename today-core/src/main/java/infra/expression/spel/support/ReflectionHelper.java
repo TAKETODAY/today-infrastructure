@@ -257,7 +257,7 @@ public abstract class ReflectionHelper {
    * @return {@code true} if some kind of conversion occurred on an argument
    * @throws SpelEvaluationException if a problem occurs during conversion
    */
-  public static boolean convertAllArguments(TypeConverter converter, Object[] arguments, Method method)
+  public static boolean convertAllArguments(TypeConverter converter, @Nullable Object[] arguments, Method method)
           throws SpelEvaluationException {
 
     Integer varargsPosition = (method.isVarArgs() ? method.getParameterCount() - 1 : null);

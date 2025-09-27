@@ -110,8 +110,8 @@ final class DefaultPathContainer extends PathContainer {
       String segment = (end != -1 ? path.substring(begin, end) : path.substring(begin));
       if (!segment.isEmpty()) {
         elements.add(options.shouldDecodeAndParseSegments()
-                     ? decodeAndParsePathSegment(segment)
-                     : DefaultPathSegment.from(segment, separatorElement));
+                ? decodeAndParsePathSegment(segment)
+                : DefaultPathSegment.from(segment, separatorElement));
       }
       if (end == -1) {
         break;
@@ -250,8 +250,8 @@ final class DefaultPathContainer extends PathContainer {
      */
     static DefaultPathSegment from(String value, DefaultSeparator separator) {
       String valueToMatch = value.contains(separator.encodedSequence())
-                            ? value.replaceAll(separator.encodedSequence(), separator.value())
-                            : value;
+              ? value.replaceAll(separator.encodedSequence(), separator.value())
+              : value;
       return from(value, valueToMatch);
     }
 

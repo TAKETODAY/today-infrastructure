@@ -300,7 +300,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   }
 
   @Override
-  public RestClient.Builder defaultCookie(String cookie, @Nullable String... values) {
+  public RestClient.Builder defaultCookie(String cookie, String @Nullable ... values) {
     initCookies().setOrRemove(cookie, values);
     return this;
   }

@@ -133,11 +133,9 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
   @Nullable
   private Boolean exposeContextBeansAsAttributes;
 
-  @Nullable
-  private String[] exposedContextBeanNames;
+  private String @Nullable [] exposedContextBeanNames;
 
-  @Nullable
-  private String[] viewNames;
+  private String @Nullable [] viewNames;
 
   private int order = Ordered.LOWEST_PRECEDENCE;
 
@@ -376,7 +374,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
    *
    * @see AbstractView#setExposedContextBeanNames
    */
-  public void setExposedContextBeanNames(@Nullable String... exposedContextBeanNames) {
+  public void setExposedContextBeanNames(String @Nullable ... exposedContextBeanNames) {
     this.exposedContextBeanNames = exposedContextBeanNames;
   }
 
@@ -393,7 +391,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
    *
    * @see #canHandle
    */
-  public void setViewNames(@Nullable String... viewNames) {
+  public void setViewNames(String @Nullable ... viewNames) {
     this.viewNames = viewNames;
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@ package infra.aop.interceptor;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serializable;
 
@@ -69,6 +70,7 @@ public final class ExposeInvocationInterceptor implements MethodInterceptor, Ord
    * @throws IllegalStateException if there is no AOP invocation in progress,
    * or if the ExposeInvocationInterceptor was not added to this interceptor chain
    */
+  @SuppressWarnings("NullAway")
   public static MethodInvocation currentInvocation() throws IllegalStateException {
     MethodInvocation mi = invocation.get();
     if (mi == null) {
@@ -85,9 +87,11 @@ public final class ExposeInvocationInterceptor implements MethodInterceptor, Ord
   /**
    * Ensures that only the canonical instance can be created.
    */
-  private ExposeInvocationInterceptor() { }
+  private ExposeInvocationInterceptor() {
+  }
 
   @Override
+  @Nullable
   public Object invoke(MethodInvocation mi) throws Throwable {
     MethodInvocation oldInvocation = invocation.get();
     invocation.set(mi);

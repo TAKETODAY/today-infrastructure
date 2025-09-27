@@ -76,8 +76,7 @@ public abstract class RdbmsOperation implements InitializingBean {
 
   private boolean returnGeneratedKeys = false;
 
-  @Nullable
-  private String[] generatedKeysColumnNames;
+  private String @Nullable []generatedKeysColumnNames;
 
   @Nullable
   private String sql;
@@ -221,7 +220,7 @@ public abstract class RdbmsOperation implements InitializingBean {
    *
    * @see java.sql.Connection#prepareStatement(String, String[])
    */
-  public void setGeneratedKeysColumnNames(@Nullable String... names) {
+  public void setGeneratedKeysColumnNames(String @Nullable ... names) {
     if (isCompiled()) {
       throw new InvalidDataAccessApiUsageException(
               "The column names for the generated keys must be set before the operation is compiled");
@@ -232,8 +231,7 @@ public abstract class RdbmsOperation implements InitializingBean {
   /**
    * Return the column names of the auto generated keys.
    */
-  @Nullable
-  public String[] getGeneratedKeysColumnNames() {
+  public String @Nullable [] getGeneratedKeysColumnNames() {
     return this.generatedKeysColumnNames;
   }
 

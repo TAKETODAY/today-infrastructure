@@ -38,8 +38,9 @@ final class ReflectiveMethodAccessor extends MethodInvoker implements MethodAcce
     this.handleReflectionException = handleReflectionException;
   }
 
+  @Nullable
   @Override
-  public Object invoke(final Object obj, final @Nullable Object @Nullable [] args) {
+  public Object invoke(@Nullable Object obj, final @Nullable Object @Nullable [] args) {
     try {
       return getMethod().invoke(obj, args);
     }

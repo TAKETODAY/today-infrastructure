@@ -72,8 +72,7 @@ public class ConfigurableMimeFileTypeMap extends FileTypeMap implements Initiali
   /**
    * Used to configure additional mappings.
    */
-  @Nullable
-  private String[] mappings;
+  private String @Nullable []mappings;
 
   /**
    * The delegate FileTypeMap, compiled from the mappings in the mapping file

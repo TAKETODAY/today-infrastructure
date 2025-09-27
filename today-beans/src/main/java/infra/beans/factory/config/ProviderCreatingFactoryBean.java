@@ -84,6 +84,7 @@ public class ProviderCreatingFactoryBean extends AbstractFactoryBean<Provider<Ob
   private record TargetBeanProvider(BeanFactory beanFactory, String targetBeanName)
           implements Provider<Object>, Serializable {
 
+    @SuppressWarnings("NullAway")
     @Override
     public Object get() throws BeansException {
       return this.beanFactory.getBean(this.targetBeanName);

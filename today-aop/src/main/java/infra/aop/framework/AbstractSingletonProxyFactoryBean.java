@@ -51,14 +51,11 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
   @Nullable
   private Object target;
 
-  @Nullable
-  private Class<?>[] proxyInterfaces;
+  private Class<?> @Nullable [] proxyInterfaces;
 
-  @Nullable
-  private Object[] preInterceptors;
+  private Object @Nullable [] preInterceptors;
 
-  @Nullable
-  private Object[] postInterceptors;
+  private Object @Nullable [] postInterceptors;
 
   /** Default is global AdvisorAdapterRegistry. */
   private AdvisorAdapterRegistry advisorAdapterRegistry = DefaultAdvisorAdapterRegistry.getInstance();
@@ -90,7 +87,7 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
    * out which interfaces need proxying by analyzing the target,
    * proxying all the interfaces that the target object implements.
    */
-  public void setProxyInterfaces(Class<?>[] proxyInterfaces) {
+  public void setProxyInterfaces(Class<?> @Nullable [] proxyInterfaces) {
     this.proxyInterfaces = proxyInterfaces;
   }
 
@@ -102,7 +99,7 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
    *
    * @see PerformanceMonitorInterceptor
    */
-  public void setPreInterceptors(Object[] preInterceptors) {
+  public void setPreInterceptors(Object @Nullable [] preInterceptors) {
     this.preInterceptors = preInterceptors;
   }
 
@@ -112,7 +109,7 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
    * <p>You may specify any AOP Alliance MethodInterceptors or other
    * Framework AOP Advices, as well as Framework AOP Advisors.
    */
-  public void setPostInterceptors(Object[] postInterceptors) {
+  public void setPostInterceptors(Object @Nullable [] postInterceptors) {
     this.postInterceptors = postInterceptors;
   }
 
@@ -213,7 +210,8 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
    *
    * @param proxyFactory the AOP ProxyFactory about to be used
    */
-  protected void postProcessProxyFactory(ProxyFactory proxyFactory) { }
+  protected void postProcessProxyFactory(ProxyFactory proxyFactory) {
+  }
 
   @Override
   public Object getObject() {

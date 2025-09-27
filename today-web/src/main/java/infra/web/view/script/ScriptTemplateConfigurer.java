@@ -66,8 +66,7 @@ public class ScriptTemplateConfigurer implements ScriptTemplateConfig {
   @Nullable
   private Boolean sharedEngine;
 
-  @Nullable
-  private String[] scripts;
+  private String @Nullable [] scripts;
 
   @Nullable
   private String renderObject;
@@ -87,7 +86,8 @@ public class ScriptTemplateConfigurer implements ScriptTemplateConfig {
   /**
    * Default constructor.
    */
-  public ScriptTemplateConfigurer() { }
+  public ScriptTemplateConfigurer() {
+  }
 
   /**
    * Create a new ScriptTemplateConfigurer using the given engine name.
@@ -189,13 +189,12 @@ public class ScriptTemplateConfigurer implements ScriptTemplateConfig {
    * @see #setResourceLoaderPath
    * @see <a href="https://www.webjars.org">WebJars</a>
    */
-  public void setScripts(@Nullable String... scriptNames) {
+  public void setScripts(String @Nullable ... scriptNames) {
     this.scripts = scriptNames;
   }
 
   @Override
-  @Nullable
-  public String[] getScripts() {
+  public String @Nullable [] getScripts() {
     return this.scripts;
   }
 

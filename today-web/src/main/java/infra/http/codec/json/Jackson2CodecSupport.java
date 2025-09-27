@@ -187,8 +187,8 @@ public abstract class Jackson2CodecSupport {
       return result;
     }
     return ProblemDetail.class.isAssignableFrom(elementClass)
-           ? getMediaTypesForProblemDetail()
-           : getMimeTypes();
+            ? getMediaTypesForProblemDetail()
+            : getMimeTypes();
   }
 
   protected boolean notSupportsMimeType(@Nullable MimeType mimeType) {

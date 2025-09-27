@@ -395,8 +395,7 @@ public class AutoProxyCreatorTests {
     }
 
     @Override
-    @Nullable
-    protected Object[] getAdvicesAndAdvisorsForBean(Class<?> beanClass, String name, @Nullable TargetSource customTargetSource) {
+    protected Object @Nullable [] getAdvicesAndAdvisorsForBean(Class<?> beanClass, String name, @Nullable TargetSource customTargetSource) {
       if (StaticMessageSource.class.equals(beanClass)) {
         return AbstractAutoProxyCreator.DO_NOT_PROXY;
       }

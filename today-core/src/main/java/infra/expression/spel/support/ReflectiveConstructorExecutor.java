@@ -53,6 +53,7 @@ public class ReflectiveConstructorExecutor implements ConstructorExecutor {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public TypedValue execute(EvaluationContext context, @Nullable Object... arguments) throws AccessException {
     try {
       ReflectionHelper.convertArguments(

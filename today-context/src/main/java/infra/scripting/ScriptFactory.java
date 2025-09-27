@@ -88,7 +88,7 @@ public interface ScriptFactory {
    * @throws ScriptCompilationException if script compilation failed
    */
   @Nullable
-  Object getScriptedObject(ScriptSource scriptSource, @Nullable Class<?>... actualInterfaces)
+  Object getScriptedObject(ScriptSource scriptSource, Class<?> @Nullable ... actualInterfaces)
           throws IOException, ScriptCompilationException;
 
   /**

@@ -69,6 +69,7 @@ public class LazyInitTargetSource extends AbstractBeanFactoryTargetSource {
 
   @Override
   @Nullable
+  @SuppressWarnings("NullAway")
   public synchronized Object getTarget() throws BeansException {
     if (this.target == null) {
       this.target = getBeanFactory().getBean(getTargetBeanName());
@@ -83,6 +84,7 @@ public class LazyInitTargetSource extends AbstractBeanFactoryTargetSource {
    *
    * @param targetObject the target object that has just been instantiated (and configured)
    */
-  protected void postProcessTargetObject(Object targetObject) { }
+  protected void postProcessTargetObject(Object targetObject) {
+  }
 
 }

@@ -102,8 +102,7 @@ public class CustomEditorConfigurer implements BeanFactoryPostProcessor, Ordered
 
   private int order = Ordered.LOWEST_PRECEDENCE;  // default: same as non-Ordered
 
-  @Nullable
-  private PropertyEditorRegistrar[] propertyEditorRegistrars;
+  private PropertyEditorRegistrar @Nullable [] propertyEditorRegistrars;
 
   @Nullable
   private Map<Class<?>, Class<? extends PropertyEditor>> customEditors;

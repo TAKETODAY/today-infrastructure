@@ -1073,15 +1073,14 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    *
    * @see #setInitMethodName
    */
-  public void setInitMethodNames(@Nullable String... initMethodNames) {
+  public void setInitMethodNames(String @Nullable ... initMethodNames) {
     this.initMethodNames = initMethodNames;
   }
 
   /**
    * Return the names of the initializer methods.
    */
-  @Nullable
-  public String[] getInitMethodNames() {
+  public String @Nullable [] getInitMethodNames() {
     return this.initMethodNames;
   }
 
@@ -1134,15 +1133,14 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    *
    * @see #setDestroyMethodName
    */
-  public void setDestroyMethodNames(@Nullable String... destroyMethodNames) {
+  public void setDestroyMethodNames(String @Nullable ... destroyMethodNames) {
     this.destroyMethodNames = destroyMethodNames;
   }
 
   /**
    * Return the names of the destroy methods.
    */
-  @Nullable
-  public String[] getDestroyMethodNames() {
+  public String @Nullable [] getDestroyMethodNames() {
     return this.destroyMethodNames;
   }
 

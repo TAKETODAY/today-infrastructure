@@ -45,8 +45,7 @@ import infra.util.StringUtils;
  */
 public class BeanPropertySqlParameterSource extends AbstractSqlParameterSource {
 
-  @Nullable
-  private String[] propertyNames;
+  private String @Nullable []propertyNames;
 
   private final BeanWrapper beanWrapper;
 

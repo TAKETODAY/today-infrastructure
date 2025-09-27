@@ -698,8 +698,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * values
    * @see #getParameters()
    */
-  @Nullable
-  public String[] getParameters(String name) {
+  public String @Nullable [] getParameters(String name) {
     var parameters = getParameters();
     if (CollectionUtils.isEmpty(parameters)) {
       return null;

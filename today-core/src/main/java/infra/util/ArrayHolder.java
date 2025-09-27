@@ -101,7 +101,8 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
   }
 
   @SafeVarargs
-  public final void addAll(@Nullable E... array) {
+  @SuppressWarnings("NullAway")
+  public final void addAll(@Nullable E @Nullable ... array) {
     if (ObjectUtils.isNotEmpty(array)) {
       ArrayList<E> objects = new ArrayList<>(array.length + size());
       CollectionUtils.addAll(objects, this.array);

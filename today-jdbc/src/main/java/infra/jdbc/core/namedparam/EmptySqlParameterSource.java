@@ -55,8 +55,7 @@ public class EmptySqlParameterSource implements SqlParameterSource {
   }
 
   @Override
-  @Nullable
-  public String[] getParameterNames() {
+  public String @Nullable [] getParameterNames() {
     return null;
   }
 

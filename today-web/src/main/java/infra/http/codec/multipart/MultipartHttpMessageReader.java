@@ -109,8 +109,8 @@ public class MultipartHttpMessageReader extends LoggingCodecSupport implements H
                 LogFormatUtils.traceDebug(
                         logger, traceOn -> Hints.getLogPrefix(hints) + "Parsed " +
                                 (isEnableLoggingRequestDetails()
-                                 ? LogFormatUtils.formatValue(map, !traceOn)
-                                 : "parts " + map.keySet() + " (content masked)"));
+                                        ? LogFormatUtils.formatValue(map, !traceOn)
+                                        : "parts " + map.keySet() + " (content masked)"));
               })
               .map(this::toMultiValueMap);
     }

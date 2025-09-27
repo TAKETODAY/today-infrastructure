@@ -281,6 +281,7 @@ public class ScriptFactoryPostProcessor implements SmartInstantiationAwareBeanPo
     return null;
   }
 
+  @Nullable
   @Override
   public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) {
     // We only apply special treatment to ScriptFactory implementations here.
@@ -480,7 +481,7 @@ public class ScriptFactoryPostProcessor implements SmartInstantiationAwareBeanPo
    * @return the config interface
    * @see InterfaceMaker
    */
-  protected Class<?> createConfigInterface(BeanDefinition bd, @Nullable Class<?>[] interfaces) {
+  protected Class<?> createConfigInterface(BeanDefinition bd, Class<?> @Nullable [] interfaces) {
     InterfaceMaker maker = new InterfaceMaker();
     PropertyValues propertyValues = bd.getPropertyValues();
     if (propertyValues != null) {
@@ -550,7 +551,7 @@ public class ScriptFactoryPostProcessor implements SmartInstantiationAwareBeanPo
    * @see ScriptFactory#getScriptedObject
    */
   protected BeanDefinition createScriptedObjectBeanDefinition(BeanDefinition bd,
-          String scriptFactoryBeanName, ScriptSource scriptSource, @Nullable Class<?>[] interfaces) {
+          String scriptFactoryBeanName, ScriptSource scriptSource, Class<?> @Nullable [] interfaces) {
 
     BeanDefinition objectBd = bd.cloneBeanDefinition();
     objectBd.setFactoryBeanName(scriptFactoryBeanName);
@@ -571,7 +572,7 @@ public class ScriptFactoryPostProcessor implements SmartInstantiationAwareBeanPo
    * @return the generated proxy
    * @see RefreshableScriptTargetSource
    */
-  protected Object createRefreshableProxy(TargetSource ts, @Nullable Class<?>[] interfaces, boolean proxyTargetClass) {
+  protected Object createRefreshableProxy(TargetSource ts, Class<?> @Nullable [] interfaces, boolean proxyTargetClass) {
     ProxyFactory proxyFactory = new ProxyFactory();
     proxyFactory.setTargetSource(ts);
     ClassLoader classLoader = this.beanClassLoader;

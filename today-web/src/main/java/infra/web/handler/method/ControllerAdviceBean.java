@@ -330,7 +330,7 @@ public class ControllerAdviceBean implements Ordered {
     return adviceBeans;
   }
 
-  static boolean isCandidate(@Nullable Class<?> beanType, @Nullable Class<?>[] types) {
+  static boolean isCandidate(@Nullable Class<?> beanType, Class<?> @Nullable [] types) {
     if (ObjectUtils.isEmpty(types)) {
       return true;
     }

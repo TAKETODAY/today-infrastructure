@@ -66,8 +66,8 @@ public class StringMultipartFileEditor extends PropertyEditorSupport {
     if (value instanceof MultipartFile multipartFile) {
       try {
         super.setValue(this.charsetName != null
-                       ? new String(multipartFile.getBytes(), this.charsetName)
-                       : new String(multipartFile.getBytes()));
+                ? new String(multipartFile.getBytes(), this.charsetName)
+                : new String(multipartFile.getBytes()));
       }
       catch (IOException ex) {
         throw new IllegalArgumentException("Cannot read contents of multipart file", ex);

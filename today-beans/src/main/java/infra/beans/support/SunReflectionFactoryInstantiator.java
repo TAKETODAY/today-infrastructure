@@ -40,6 +40,7 @@ import infra.util.ReflectionUtils;
  * @author TODAY 2021/9/5 16:42
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public final class SunReflectionFactoryInstantiator extends BeanInstantiator {
   private static final Object reflectionFactory;
   private static final Method newConstructorForSerialization;
@@ -65,7 +66,7 @@ public final class SunReflectionFactoryInstantiator extends BeanInstantiator {
   }
 
   @Override
-  protected Object doInstantiate(@Nullable Object[] args) throws Throwable {
+  protected Object doInstantiate(@Nullable Object @Nullable [] args) throws Throwable {
     return constructor.newInstance(); // serialization
   }
 

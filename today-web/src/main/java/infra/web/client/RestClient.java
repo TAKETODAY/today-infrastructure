@@ -381,7 +381,7 @@ public interface RestClient {
      * @param values the cookie values
      * @since 5.0
      */
-    Builder defaultCookie(String cookie, @Nullable String... values);
+    Builder defaultCookie(String cookie, String @Nullable ... values);
 
     /**
      * Provides access to every {@link #defaultCookie(String, String...)}

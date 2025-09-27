@@ -182,7 +182,7 @@ public abstract class BeanInstantiator {
    * @return the newly instantiated object
    * @throws BeanInstantiationException if the instantiation process fails
    */
-  public final Object instantiate(@Nullable Object[] args) {
+  public final Object instantiate(@Nullable Object @Nullable [] args) {
     try {
       return doInstantiate(args);
     }
@@ -195,7 +195,7 @@ public abstract class BeanInstantiator {
   }
 
   // internal new-instance impl @since 4.0
-  protected abstract Object doInstantiate(@Nullable Object[] args)
+  protected abstract Object doInstantiate(@Nullable Object @Nullable [] args)
           throws Throwable;
 
   //---------------------------------------------------------------------
@@ -444,7 +444,7 @@ public abstract class BeanInstantiator {
    * instantiating beans.
    * @throws IllegalArgumentException if the provided function is null.
    */
-  public static BeanInstantiator forFunction(Function<Object[], ?> function) {
+  public static BeanInstantiator forFunction(Function<@Nullable Object[], ?> function) {
     Assert.notNull(function, "instance function is required");
     return new FunctionInstantiator(function);
   }

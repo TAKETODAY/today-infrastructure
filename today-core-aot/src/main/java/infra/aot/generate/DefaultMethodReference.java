@@ -62,6 +62,7 @@ public class DefaultMethodReference implements MethodReference {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public CodeBlock toInvokeCodeBlock(ArgumentCodeGenerator argumentCodeGenerator,
           @Nullable ClassName targetClassName) {
     String methodName = this.method.name;
@@ -118,7 +119,7 @@ public class DefaultMethodReference implements MethodReference {
     return this.method.modifiers.contains(Modifier.STATIC);
   }
 
-  private boolean isSameDeclaringClass(ClassName declaringClass) {
+  private boolean isSameDeclaringClass(@Nullable ClassName declaringClass) {
     return this.declaringClass == null || this.declaringClass.equals(declaringClass);
   }
 

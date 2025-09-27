@@ -114,7 +114,7 @@ public class PropertyPathFactoryBean implements FactoryBean<Object>, BeanNameAwa
    * containing bean factory (e.g. "testBean")
    * @see #setTargetObject
    */
-  public void setTargetBeanName(@Nullable String targetBeanName) {
+  public void setTargetBeanName(String targetBeanName) {
     this.targetBeanName = StringUtils.trimAllWhitespace(targetBeanName);
   }
 
@@ -124,7 +124,7 @@ public class PropertyPathFactoryBean implements FactoryBean<Object>, BeanNameAwa
    * @param propertyPath the property path, potentially nested
    * (e.g. "age" or "spouse.age")
    */
-  public void setPropertyPath(@Nullable String propertyPath) {
+  public void setPropertyPath(String propertyPath) {
     this.propertyPath = StringUtils.trimAllWhitespace(propertyPath);
   }
 
@@ -153,6 +153,7 @@ public class PropertyPathFactoryBean implements FactoryBean<Object>, BeanNameAwa
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public void setBeanFactory(BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
 
@@ -191,6 +192,7 @@ public class PropertyPathFactoryBean implements FactoryBean<Object>, BeanNameAwa
 
   @Override
   @Nullable
+  @SuppressWarnings("NullAway")
   public Object getObject() throws BeansException {
     BeanWrapper target = this.targetBeanWrapper;
     if (target != null) {
@@ -212,6 +214,7 @@ public class PropertyPathFactoryBean implements FactoryBean<Object>, BeanNameAwa
     return target.getPropertyValue(propertyPath);
   }
 
+  @Nullable
   @Override
   public Class<?> getObjectType() {
     return this.resultType;

@@ -17,6 +17,7 @@
 
 package infra.annotation.config.context;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -229,12 +230,12 @@ class MessageSourceAutoConfigurationTests {
   static class TestMessageSource implements MessageSource {
 
     @Override
-    public String getMessage(String code, Object[] args, String defaultMessage, Locale locale) {
+    public String getMessage(String code, Object @Nullable [] args, String defaultMessage, Locale locale) {
       return code;
     }
 
     @Override
-    public String getMessage(String code, Object[] args, Locale locale) {
+    public String getMessage(String code, Object @Nullable [] args, Locale locale) {
       return code;
     }
 

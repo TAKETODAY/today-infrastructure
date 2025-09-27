@@ -57,8 +57,7 @@ import infra.util.StringUtils;
  * @see #setStaticField
  * @since 4.0 2021/11/30 14:46
  */
-public class FieldRetrievingFactoryBean
-        implements FactoryBean<Object>, BeanNameAware, BeanClassLoaderAware, InitializingBean {
+public class FieldRetrievingFactoryBean implements FactoryBean<Object>, BeanNameAware, BeanClassLoaderAware, InitializingBean {
 
   @Nullable
   private Class<?> targetClass;
@@ -171,6 +170,7 @@ public class FieldRetrievingFactoryBean
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public void afterPropertiesSet() throws ClassNotFoundException, NoSuchFieldException {
     if (this.targetClass != null && this.targetObject != null) {
       throw new IllegalArgumentException("Specify either targetClass or targetObject, not both");
@@ -228,6 +228,7 @@ public class FieldRetrievingFactoryBean
     }
   }
 
+  @Nullable
   @Override
   public Class<?> getObjectType() {
     return (this.fieldObject != null ? this.fieldObject.getType() : null);

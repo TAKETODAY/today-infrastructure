@@ -42,6 +42,7 @@ import infra.lang.Assert;
 public class AnnotationMatchingPointcut implements Pointcut {
 
   private final ClassFilter classFilter;
+
   private final MethodMatcher methodMatcher;
 
   /**
@@ -90,6 +91,7 @@ public class AnnotationMatchingPointcut implements Pointcut {
    * @see AnnotationClassFilter#AnnotationClassFilter(Class, boolean)
    * @see AnnotationMethodMatcher#AnnotationMethodMatcher(Class, boolean)
    */
+  @SuppressWarnings("NullAway")
   public AnnotationMatchingPointcut(@Nullable Class<? extends Annotation> classAnnotationType,
           @Nullable Class<? extends Annotation> methodAnnotationType, boolean checkInherited) {
     Assert.isTrue((classAnnotationType != null || methodAnnotationType != null),

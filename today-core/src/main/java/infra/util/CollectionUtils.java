@@ -171,7 +171,8 @@ public abstract class CollectionUtils {
    * @param elements Elements instance
    */
   @SafeVarargs
-  public static <E> HashSet<E> newHashSet(@Nullable E... elements) {
+  @SuppressWarnings("NullAway")
+  public static <E> HashSet<E> newHashSet(@Nullable E @Nullable ... elements) {
     if (ObjectUtils.isNotEmpty(elements)) {
       HashSet<E> ret = new HashSet<>(Math.max((int) (elements.length / DEFAULT_LOAD_FACTOR) + 1, 16));
       addAll(ret, elements);
@@ -193,7 +194,8 @@ public abstract class CollectionUtils {
    * @since 4.0
    */
   @SafeVarargs
-  public static <E> LinkedHashSet<E> newLinkedHashSet(@Nullable E... elements) {
+  @SuppressWarnings("NullAway")
+  public static <E> LinkedHashSet<E> newLinkedHashSet(@Nullable E @Nullable ... elements) {
     if (ObjectUtils.isNotEmpty(elements)) {
       LinkedHashSet<E> ret = new LinkedHashSet<>(Math.max((int) (elements.length / DEFAULT_LOAD_FACTOR) + 1, 16));
       addAll(ret, elements);
@@ -211,7 +213,8 @@ public abstract class CollectionUtils {
    * @since 4.0
    */
   @SafeVarargs
-  public static <E> ArrayList<E> newArrayList(@Nullable E... elements) {
+  @SuppressWarnings("NullAway")
+  public static <E> ArrayList<E> newArrayList(@Nullable E @Nullable ... elements) {
     if (ObjectUtils.isNotEmpty(elements)) {
       final ArrayList<E> ret = new ArrayList<>(elements.length);
       addAll(ret, elements);
@@ -803,7 +806,7 @@ public abstract class CollectionUtils {
   /**
    * @since 4.0
    */
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings({ "rawtypes", "unchecked", "NullAway" })
   public static void addAll(ArrayHolder c, @Nullable Object @Nullable [] elements) {
     if (elements != null) {
       c.addAll(elements);
@@ -1036,7 +1039,7 @@ public abstract class CollectionUtils {
    */
   @Nullable
   @Contract("null -> null")
-  public static <T> T lastElement(@Nullable final T @Nullable [] array) {
+  public static <T extends @Nullable Object> T lastElement(@Nullable final T @Nullable [] array) {
     if (array == null || array.length == 0) {
       return null;
     }

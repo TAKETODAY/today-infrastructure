@@ -107,7 +107,7 @@ public class BeanDefinitionStoreException extends FatalBeanException {
    * @param cause the root cause (may be {@code null})
    * @since 4.0
    */
-  public BeanDefinitionStoreException(@Nullable String resourceDescription, @Nullable String beanName, String msg, @Nullable Throwable cause) {
+  public BeanDefinitionStoreException(@Nullable String resourceDescription, @Nullable String beanName, @Nullable String msg, @Nullable Throwable cause) {
     super("Invalid bean definition with name '%s' defined in %s: %s".formatted(beanName, resourceDescription, msg),
             cause);
     this.resourceDescription = resourceDescription;

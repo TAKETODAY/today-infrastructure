@@ -86,8 +86,9 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
    * @throws NullPointerException if the specified object is null and the method is an instance method.
    * @throws ExceptionInInitializerError if the initialization provoked by this method fails.
    */
+  @Nullable
   @Override
-  public abstract Object invoke(Object obj, @Nullable Object @Nullable [] args);
+  public abstract Object invoke(@Nullable Object obj, @Nullable Object @Nullable [] args);
 
   @Override
   public Method getMethod() {

@@ -27,6 +27,7 @@ import infra.util.ClassUtils;
  *
  * @author Phillip Webb
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see BeanInstanceSupplier
  * @see AutowiredMethodArgumentsResolver
  * @since 4.0
@@ -82,6 +83,7 @@ public interface AutowiredArguments {
    *
    * @return the arguments as an object array
    */
+  @Nullable
   Object[] toArray();
 
   /**
@@ -91,7 +93,7 @@ public interface AutowiredArguments {
    * @param arguments the arguments
    * @return a new {@link AutowiredArguments} instance
    */
-  static AutowiredArguments of(Object[] arguments) {
+  static AutowiredArguments of(@Nullable Object[] arguments) {
     Assert.notNull(arguments, "'arguments' is required");
     return () -> arguments;
   }

@@ -37,8 +37,7 @@ import infra.util.StringUtils;
  */
 public class SQLErrorCodes {
 
-  @Nullable
-  private String[] databaseProductNames;
+  private String @Nullable []databaseProductNames;
 
   private boolean useSqlStateForTranslation = false;
 
@@ -86,12 +85,11 @@ public class SQLErrorCodes {
    * Set this property to specify multiple database names that contains spaces,
    * in which case we can not use bean names for lookup.
    */
-  public void setDatabaseProductNames(@Nullable String... databaseProductNames) {
+  public void setDatabaseProductNames(String @Nullable ... databaseProductNames) {
     this.databaseProductNames = databaseProductNames;
   }
 
-  @Nullable
-  public String[] getDatabaseProductNames() {
+  public String @Nullable [] getDatabaseProductNames() {
     return this.databaseProductNames;
   }
 

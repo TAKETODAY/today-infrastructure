@@ -112,6 +112,7 @@ final class Log4j2Logger extends Logger {
         return t;
       }
 
+      @SuppressWarnings("NullAway")
       @Nullable
       @Override
       public Object @Nullable [] getParameters() {
@@ -120,6 +121,7 @@ final class Log4j2Logger extends Logger {
 
       @Nullable
       @Override
+      @SuppressWarnings("NullAway")
       public String getFormattedMessage() {
         if (msg == null) {
           msg = MessageFormatter.format(format, args);

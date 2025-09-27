@@ -77,6 +77,7 @@ public class BeanFactoryAspectInstanceFactory implements MetadataAwareAspectInst
    * @param type the type that should be introspected by AspectJ
    * ({@code null} indicates resolution through {@link BeanFactory#getType} via the bean name)
    */
+  @SuppressWarnings("NullAway")
   public BeanFactoryAspectInstanceFactory(BeanFactory beanFactory, String name, @Nullable Class<?> type) {
     Assert.notNull(beanFactory, "BeanFactory is required");
     Assert.notNull(name, "Bean name is required");
@@ -91,6 +92,7 @@ public class BeanFactoryAspectInstanceFactory implements MetadataAwareAspectInst
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public Object getAspectInstance() {
     return this.beanFactory.getBean(this.name);
   }

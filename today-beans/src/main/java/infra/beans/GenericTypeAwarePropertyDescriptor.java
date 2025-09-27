@@ -100,7 +100,7 @@ final class GenericTypeAwarePropertyDescriptor extends PropertyDescriptor {
           this.ambiguousWriteMethods = ambiguousCandidates;
         }
       }
-      this.writeMethodParameter = new MethodParameter(this.writeMethod, 0).withContainingClass(this.beanClass);
+      this.writeMethodParameter = new MethodParameter(writeMethod, 0).withContainingClass(this.beanClass);
     }
 
     if (readMethod != null) {

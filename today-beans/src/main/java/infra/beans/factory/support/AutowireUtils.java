@@ -161,7 +161,7 @@ abstract class AutowireUtils {
    * @return the resolved target return type or the standard method return type
    */
   public static Class<?> resolveReturnTypeForFactoryMethod(
-          Method method, Object[] args, @Nullable ClassLoader classLoader) {
+          Method method, @Nullable Object[] args, @Nullable ClassLoader classLoader) {
     Assert.notNull(method, "Method is required");
     Assert.notNull(args, "Argument array is required");
 
@@ -317,6 +317,7 @@ abstract class AutowireUtils {
   private record ObjectFactoryDelegatingInvocationHandler(Supplier<?> objectFactory)
           implements InvocationHandler, Serializable {
 
+    @Nullable
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) {
       return switch (method.getName()) {

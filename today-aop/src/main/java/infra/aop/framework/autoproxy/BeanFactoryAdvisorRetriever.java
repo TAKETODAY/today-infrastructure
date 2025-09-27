@@ -41,12 +41,12 @@ import infra.logging.LoggerFactory;
  * @since 4.0
  */
 public class BeanFactoryAdvisorRetriever {
+
   private static final Logger logger = LoggerFactory.getLogger(BeanFactoryAdvisorRetriever.class);
 
   private final ConfigurableBeanFactory beanFactory;
 
-  @Nullable
-  private volatile String[] cachedAdvisorBeanNames;
+  private volatile String @Nullable [] cachedAdvisorBeanNames;
 
   /**
    * Create a new BeanFactoryAdvisorRetrievalHelper for the given BeanFactory.

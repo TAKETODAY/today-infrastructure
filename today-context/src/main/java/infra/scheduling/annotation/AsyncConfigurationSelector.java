@@ -44,8 +44,7 @@ public class AsyncConfigurationSelector extends AdviceModeImportSelector<EnableA
    * respectively.
    */
   @Override
-  @Nullable
-  public String[] selectImports(AdviceMode adviceMode) {
+  public String @Nullable [] selectImports(AdviceMode adviceMode) {
     return switch (adviceMode) {
       case PROXY -> new String[] { ProxyAsyncConfiguration.class.getName() };
       case ASPECTJ -> new String[] { ASYNC_EXECUTION_ASPECT_CONFIGURATION_CLASS_NAME };

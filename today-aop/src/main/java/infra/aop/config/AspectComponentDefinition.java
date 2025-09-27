@@ -40,8 +40,8 @@ public class AspectComponentDefinition extends CompositeComponentDefinition {
 
   private final BeanReference[] beanReferences;
 
-  public AspectComponentDefinition(String aspectName, @Nullable BeanDefinition[] beanDefinitions,
-          @Nullable BeanReference[] beanReferences, @Nullable Object source) {
+  public AspectComponentDefinition(String aspectName, BeanDefinition @Nullable [] beanDefinitions,
+          BeanReference @Nullable [] beanReferences, @Nullable Object source) {
 
     super(aspectName, source);
     this.beanDefinitions = (beanDefinitions != null ? beanDefinitions : new BeanDefinition[0]);

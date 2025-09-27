@@ -54,8 +54,7 @@ public class DataClassRowMapper<T> extends BeanPropertyRowMapper<T> {
   @Nullable
   private BeanInstantiator mappedInstantiator;
 
-  @Nullable
-  private String[] constructorParameterNames;
+  private String @Nullable []constructorParameterNames;
 
   @Nullable
   private TypeDescriptor[] constructorParameterTypes;

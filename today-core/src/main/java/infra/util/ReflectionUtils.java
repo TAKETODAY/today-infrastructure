@@ -178,7 +178,7 @@ public abstract class ReflectionUtils {
    * @param ex the exception to rethrow
    * @throws RuntimeException the rethrown exception
    */
-  public static void rethrowRuntimeException(Throwable ex) {
+  public static void rethrowRuntimeException(@Nullable Throwable ex) {
     if (ex instanceof RuntimeException) {
       throw (RuntimeException) ex;
     }
@@ -244,7 +244,7 @@ public abstract class ReflectionUtils {
    * @see Class#getMethod
    * @since 4.0
    */
-  public static Method getMethod(Class<?> clazz, String methodName, @Nullable Class<?>... paramTypes) {
+  public static Method getMethod(Class<?> clazz, String methodName, Class<?> @Nullable ... paramTypes) {
     Assert.notNull(clazz, "Class is required");
     Assert.notNull(methodName, "Method name is required");
     if (paramTypes != null) {

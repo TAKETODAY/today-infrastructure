@@ -104,8 +104,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport implements FactoryBean
    */
   public static final String GLOBAL_SUFFIX = "*";
 
-  @Nullable
-  private String[] interceptorNames;
+  private String @Nullable [] interceptorNames;
 
   @Nullable
   private String targetName;
@@ -481,6 +480,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport implements FactoryBean
    * We need to do this every time a new prototype instance is returned,
    * to return distinct instances of prototype Advisors and Advices.
    */
+  @SuppressWarnings("NullAway")
   private List<Advisor> freshAdvisorChain() {
     Advisor[] advisors = getAdvisors();
     ArrayList<Advisor> freshAdvisors = new ArrayList<>(advisors.length);
@@ -551,6 +551,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport implements FactoryBean
    * this class's TargetSource member. Otherwise, we get the target bean and wrap
    * it in a TargetSource if necessary.
    */
+  @SuppressWarnings("NullAway")
   private TargetSource freshTargetSource() {
     if (targetName == null) {
       // Not refreshing target: bean name not specified in 'interceptorNames'

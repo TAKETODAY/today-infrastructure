@@ -396,8 +396,7 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
    * @return one or more preferred constructors, or {@code null} if none
    * (in which case the regular no-arg default constructor will be called)
    */
-  @Nullable
-  public Constructor<?>[] getPreferredConstructors() {
+  public Constructor<?> @Nullable [] getPreferredConstructors() {
     Object attribute = getAttribute(PREFERRED_CONSTRUCTORS_ATTRIBUTE);
     if (attribute == null) {
       return null;

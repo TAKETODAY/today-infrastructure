@@ -185,7 +185,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
         return null;
       }
       executor = targetExecutor instanceof AsyncTaskExecutor ate
-                 ? ate : new TaskExecutorAdapter(targetExecutor);
+              ? ate : new TaskExecutorAdapter(targetExecutor);
       this.executors.put(method, executor);
     }
     return executor;
@@ -214,6 +214,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
    * @see #getExecutorQualifier(Method)
    */
   @Nullable
+  @SuppressWarnings("NullAway")
   protected Executor findQualifiedExecutor(@Nullable BeanFactory beanFactory, String qualifier) {
     if (beanFactory == null) {
       throw new IllegalStateException("BeanFactory must be set on %s to access qualified executor '%s'"

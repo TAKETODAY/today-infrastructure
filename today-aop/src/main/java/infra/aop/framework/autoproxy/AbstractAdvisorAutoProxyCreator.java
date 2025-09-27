@@ -77,8 +77,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
   }
 
   @Override
-  @Nullable
-  protected Object[] getAdvicesAndAdvisorsForBean(
+  protected Object @Nullable [] getAdvicesAndAdvisorsForBean(
           Class<?> beanClass, String beanName, @Nullable TargetSource targetSource) {
 
     List<Advisor> advisors = findEligibleAdvisors(beanClass, beanName);

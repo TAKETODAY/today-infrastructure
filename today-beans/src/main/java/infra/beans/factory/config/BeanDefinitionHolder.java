@@ -66,7 +66,7 @@ public class BeanDefinitionHolder extends BeanNameHolder implements BeanMetadata
    * @param beanName the name of the bean, as specified for the bean definition
    * @param aliases alias names for the bean, or {@code null} if none
    */
-  public BeanDefinitionHolder(BeanDefinition beanDefinition, String beanName, @Nullable String[] aliases) {
+  public BeanDefinitionHolder(BeanDefinition beanDefinition, String beanName, String @Nullable [] aliases) {
     super(beanName, computeAliases(beanDefinition, aliases));
     Assert.notNull(beanDefinition, "BeanDefinition is required");
     this.beanDefinition = beanDefinition;
@@ -177,8 +177,7 @@ public class BeanDefinitionHolder extends BeanNameHolder implements BeanMetadata
     return ObjectUtils.nullSafeHash(this.beanDefinition, this.beanName, this.aliases);
   }
 
-  @Nullable
-  static String[] computeAliases(BeanDefinition beanDefinition, @Nullable String[] aliases) {
+  static String @Nullable [] computeAliases(BeanDefinition beanDefinition, String @Nullable [] aliases) {
     if (ObjectUtils.isNotEmpty(aliases)) {
       return aliases;
     }

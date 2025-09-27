@@ -51,7 +51,7 @@ public class NameMatchMethodPointcut
    *
    * @see #setMappedNames
    */
-  public void setMappedName(@Nullable String mappedName) {
+  public void setMappedName(String mappedName) {
     setMappedNames(mappedName);
   }
 
@@ -62,7 +62,7 @@ public class NameMatchMethodPointcut
    *
    * @see ArrayList#clear()
    */
-  public void setMappedNames(@Nullable String... mappedNames) {
+  public void setMappedNames(String @Nullable ... mappedNames) {
     this.mappedNames.clear();
     CollectionUtils.addAll(this.mappedNames, mappedNames);
     trimToSize();

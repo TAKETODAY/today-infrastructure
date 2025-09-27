@@ -89,8 +89,7 @@ class NoUniqueBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnal
     return (resourceDescription != null) ? resourceDescription : "unknown location";
   }
 
-  @Nullable
-  private String[] extractBeanNames(NoUniqueBeanDefinitionException cause) {
+  private String @Nullable []extractBeanNames(NoUniqueBeanDefinitionException cause) {
     if (cause.getMessage().contains("but found")) {
       return StringUtils.commaDelimitedListToStringArray(
               cause.getMessage().substring(cause.getMessage().lastIndexOf(':') + 1).trim());

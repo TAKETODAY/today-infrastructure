@@ -99,8 +99,7 @@ public class FreeMarkerConfigurationFactory {
   @Nullable
   private List<TemplateLoader> postTemplateLoaders;
 
-  @Nullable
-  private String[] templateLoaderPaths;
+  private String @Nullable []templateLoaderPaths;
 
   private ResourceLoader resourceLoader = new DefaultResourceLoader();
 
@@ -223,7 +222,7 @@ public class FreeMarkerConfigurationFactory {
    * @see freemarker.template.Configuration#setDirectoryForTemplateLoading
    * @see InfraTemplateLoader
    */
-  public void setTemplateLoaderPaths(@Nullable String... templateLoaderPaths) {
+  public void setTemplateLoaderPaths(String @Nullable ... templateLoaderPaths) {
     this.templateLoaderPaths = templateLoaderPaths;
   }
 

@@ -147,9 +147,8 @@ public class BeanRegistryAdapter implements BeanRegistry {
       super(original);
     }
 
-    @Nullable
     @Override
-    public Constructor<?>[] getPreferredConstructors() {
+    public Constructor<?> @Nullable [] getPreferredConstructors() {
       if (this.getInstanceSupplier() != null) {
         return null;
       }

@@ -387,8 +387,7 @@ public class BeanDefinitionParserDelegate {
    * Return any patterns provided in the 'default-autowire-candidates'
    * attribute of the top-level {@code <beans/>} element.
    */
-  @Nullable
-  public String[] getAutowireCandidatePatterns() {
+  public String @Nullable [] getAutowireCandidatePatterns() {
     String candidatePattern = this.defaults.getAutowireCandidates();
     return candidatePattern != null ? StringUtils.commaDelimitedListToStringArray(candidatePattern) : null;
   }
@@ -409,6 +408,7 @@ public class BeanDefinitionParserDelegate {
    * {@link ProblemReporter}.
    */
   @Nullable
+  @SuppressWarnings("NullAway")
   public BeanDefinitionHolder parseBeanDefinitionElement(Element ele, @Nullable BeanDefinition containingBean) {
     String id = ele.getAttribute(ID_ATTRIBUTE);
     String nameAttr = ele.getAttribute(NAME_ATTRIBUTE);

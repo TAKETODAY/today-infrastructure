@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,10 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.aot.nativex.feature;
+
+import org.jspecify.annotations.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -65,9 +64,9 @@ class ThrowawayClassLoader extends ClassLoader {
     String resourceName = name.replace('.', '/') + ".class";
     InputStream inputStream = this.resourceLoader.getResourceAsStream(resourceName);
     if (inputStream == null) {
-      return null;
+      throw new ClassNotFoundException(name);
     }
-    try {
+    try (inputStream) {
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
       inputStream.transferTo(outputStream);
       byte[] bytes = outputStream.toByteArray();
@@ -79,6 +78,7 @@ class ThrowawayClassLoader extends ClassLoader {
     }
   }
 
+  @Nullable
   @Override
   protected URL findResource(String name) {
     return this.resourceLoader.getResource(name);

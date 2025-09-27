@@ -73,14 +73,14 @@ class DefaultResourceResolvingChain implements ResourceResolvingChain {
   public Resource resolveResource(
           @Nullable RequestContext request, String requestPath, List<? extends Resource> locations) {
     return resolver != null && nextChain != null
-           ? resolver.resolveResource(request, requestPath, locations, nextChain) : null;
+            ? resolver.resolveResource(request, requestPath, locations, nextChain) : null;
   }
 
   @Override
   @Nullable
   public String resolveUrlPath(String resourcePath, List<? extends Resource> locations) {
     return resolver != null && nextChain != null ?
-           resolver.resolveUrlPath(resourcePath, locations, nextChain) : null;
+            resolver.resolveUrlPath(resourcePath, locations, nextChain) : null;
   }
 
 }

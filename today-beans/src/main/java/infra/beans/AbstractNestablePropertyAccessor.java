@@ -92,16 +92,6 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 
   /**
    * Create a new empty accessor. Wrapped instance needs to be set afterwards.
-   * Registers default editors.
-   *
-   * @see #setWrappedInstance
-   */
-  protected AbstractNestablePropertyAccessor() {
-    this(true);
-  }
-
-  /**
-   * Create a new empty accessor. Wrapped instance needs to be set afterwards.
    *
    * @param registerDefaultEditors whether to register default editors
    * (can be suppressed if the accessor won't need any type conversion)
@@ -286,7 +276,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     }
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings({ "unchecked", "rawtypes", "NullAway" })
   private void processKeyedProperty(PropertyTokenHolder tokens, PropertyValue pv) {
     Object propValue = getPropertyHoldingValue(tokens);
     PropertyHandler ph = getLocalPropertyHandler(tokens.actualName);
@@ -1075,8 +1065,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 
     public String canonicalName;
 
-    @Nullable
-    public String[] keys;
+    public String @Nullable [] keys;
   }
 
 }

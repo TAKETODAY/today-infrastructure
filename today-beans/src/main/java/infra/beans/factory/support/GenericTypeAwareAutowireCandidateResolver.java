@@ -75,6 +75,7 @@ public class GenericTypeAwareAutowireCandidateResolver
    * Match the given dependency type with its generic type information against the given
    * candidate bean definition.
    */
+  @SuppressWarnings("NullAway")
   protected boolean checkGenericTypeMatch(BeanDefinitionHolder bdHolder, DependencyDescriptor descriptor) {
     ResolvableType dependencyType = descriptor.getResolvableType();
     if (dependencyType.getType() instanceof Class) {

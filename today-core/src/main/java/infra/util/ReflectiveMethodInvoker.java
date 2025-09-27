@@ -57,6 +57,7 @@ public class ReflectiveMethodInvoker {
   @Nullable
   private String staticMethod;
 
+  @Nullable
   private Object @Nullable [] arguments;
 
   /** The method we will call. */
@@ -142,13 +143,14 @@ public class ReflectiveMethodInvoker {
    * Set arguments for the method invocation. If this property is not set,
    * or the Object array is of length 0, a method with no arguments is assumed.
    */
-  public void setArguments(Object... arguments) {
+  public void setArguments(@Nullable Object @Nullable ... arguments) {
     this.arguments = arguments;
   }
 
   /**
    * Return the arguments for the method invocation.
    */
+  @Nullable
   public Object[] getArguments() {
     return (this.arguments != null ? this.arguments : EMPTY_ARGUMENTS);
   }
@@ -225,7 +227,7 @@ public class ReflectiveMethodInvoker {
   @Nullable
   protected Method findMatchingMethod() {
     String targetMethod = getTargetMethod();
-    Object[] arguments = getArguments();
+    @Nullable Object[] arguments = getArguments();
     int argCount = arguments.length;
 
     Class<?> targetClass = getTargetClass();

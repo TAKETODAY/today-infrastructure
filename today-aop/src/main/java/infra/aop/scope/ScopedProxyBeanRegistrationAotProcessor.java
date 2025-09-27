@@ -54,6 +54,7 @@ class ScopedProxyBeanRegistrationAotProcessor implements BeanRegistrationAotProc
   private static final Logger logger = LoggerFactory.getLogger(ScopedProxyBeanRegistrationAotProcessor.class);
 
   @Override
+  @Nullable
   public BeanRegistrationAotContribution processAheadOfTime(RegisteredBean registeredBean) {
     Class<?> beanClass = registeredBean.getBeanClass();
     if (beanClass.equals(ScopedProxyFactoryBean.class)) {

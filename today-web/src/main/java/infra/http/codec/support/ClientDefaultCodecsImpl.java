@@ -54,10 +54,10 @@ class ClientDefaultCodecsImpl extends BaseDefaultCodecs implements ClientCodecCo
   protected void extendObjectReaders(List<HttpMessageReader<?>> objectReaders) {
 
     Decoder<?> decoder = this.sseDecoder != null
-                         ? this.sseDecoder
-                         : jackson2Present
-                           ? getJackson2JsonDecoder()
-                           : null;
+            ? this.sseDecoder
+            : jackson2Present
+                    ? getJackson2JsonDecoder()
+                    : null;
 
     addCodec(objectReaders, new ServerSentEventHttpMessageReader(decoder));
   }

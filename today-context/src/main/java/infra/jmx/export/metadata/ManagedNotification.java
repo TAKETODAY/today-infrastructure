@@ -29,8 +29,7 @@ import infra.util.StringUtils;
  */
 public class ManagedNotification {
 
-  @Nullable
-  private String[] notificationTypes;
+  private String @Nullable []notificationTypes;
 
   @Nullable
   private String name;
@@ -49,15 +48,14 @@ public class ManagedNotification {
   /**
    * Set a list of notification types.
    */
-  public void setNotificationTypes(@Nullable String... notificationTypes) {
+  public void setNotificationTypes(String @Nullable ... notificationTypes) {
     this.notificationTypes = notificationTypes;
   }
 
   /**
    * Return the list of notification types.
    */
-  @Nullable
-  public String[] getNotificationTypes() {
+  public String @Nullable [] getNotificationTypes() {
     return this.notificationTypes;
   }
 

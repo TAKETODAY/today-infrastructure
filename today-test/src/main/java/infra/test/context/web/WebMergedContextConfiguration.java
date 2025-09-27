@@ -107,7 +107,7 @@ public class WebMergedContextConfiguration extends MergedContextConfiguration {
    * delegate with which to retrieve the parent context
    * @param parent the parent configuration or {@code null} if there is no parent
    */
-  public WebMergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, @Nullable Class<?>[] classes,
+  public WebMergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, Class<?> @Nullable [] classes,
           @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
           @Nullable String[] activeProfiles, @Nullable String[] propertySourceLocations, @Nullable String[] propertySourceProperties,
           String resourceBasePath, ContextLoader contextLoader,
@@ -143,7 +143,7 @@ public class WebMergedContextConfiguration extends MergedContextConfiguration {
    * delegate with which to retrieve the parent context
    * @param parent the parent configuration or {@code null} if there is no parent
    */
-  public WebMergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, @Nullable Class<?>[] classes,
+  public WebMergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, Class<?> @Nullable [] classes,
           @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
           @Nullable String[] activeProfiles, @Nullable String[] propertySourceLocations, @Nullable String[] propertySourceProperties,
           @Nullable Set<ContextCustomizer> contextCustomizers, String resourceBasePath, ContextLoader contextLoader,
@@ -179,7 +179,7 @@ public class WebMergedContextConfiguration extends MergedContextConfiguration {
    * delegate with which to retrieve the parent {@code ApplicationContext}
    * @param parent the parent configuration or {@code null} if there is no parent
    */
-  public WebMergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, @Nullable Class<?>[] classes,
+  public WebMergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, Class<?> @Nullable [] classes,
           @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
           @Nullable String[] activeProfiles,
           List<PropertySourceDescriptor> propertySourceDescriptors, @Nullable String[] propertySourceProperties,

@@ -56,8 +56,8 @@ public class ByteArrayHttpMessageConverter extends AbstractHttpMessageConverter<
   public byte[] readInternal(Class<? extends byte[]> clazz, HttpInputMessage message) throws IOException {
     long length = message.getHeaders().getContentLength();
     return length >= 0 && length < Integer.MAX_VALUE
-           ? message.getBody().readNBytes((int) length)
-           : message.getBody().readAllBytes();
+            ? message.getBody().readNBytes((int) length)
+            : message.getBody().readAllBytes();
   }
 
   @Override

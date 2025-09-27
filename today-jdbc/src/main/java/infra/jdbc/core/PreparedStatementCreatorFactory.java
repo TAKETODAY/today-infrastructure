@@ -59,8 +59,7 @@ public class PreparedStatementCreatorFactory {
 
   private boolean returnGeneratedKeys = false;
 
-  @Nullable
-  private String[] generatedKeysColumnNames;
+  private String @Nullable []generatedKeysColumnNames;
 
   /**
    * Create a new factory. Will need to add parameters via the

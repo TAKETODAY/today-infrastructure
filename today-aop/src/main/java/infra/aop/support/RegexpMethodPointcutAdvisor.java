@@ -48,8 +48,7 @@ import infra.util.ObjectUtils;
 @SuppressWarnings("serial")
 public class RegexpMethodPointcutAdvisor extends AbstractGenericPointcutAdvisor {
 
-  @Nullable
-  private String[] patterns;
+  private String @Nullable []patterns;
 
   @Nullable
   private AbstractRegexpMethodPointcut pointcut;

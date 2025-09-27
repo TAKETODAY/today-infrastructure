@@ -93,8 +93,7 @@ public class HttpRequestMethodNotSupportedException extends NestedRuntimeExcepti
   /**
    * Return the actually supported HTTP methods, or {@code null} if not known.
    */
-  @Nullable
-  public String[] getSupportedMethods() {
+  public String @Nullable [] getSupportedMethods() {
     return this.supportedMethods;
   }
 

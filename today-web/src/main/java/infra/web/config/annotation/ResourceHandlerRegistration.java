@@ -99,7 +99,7 @@ public class ResourceHandlerRegistration {
    * @return the same {@link ResourceHandlerRegistration} instance, for
    * chained method invocation
    */
-  public ResourceHandlerRegistration addResourceLocations(@Nullable String... locations) {
+  public ResourceHandlerRegistration addResourceLocations(String @Nullable ... locations) {
     CollectionUtils.addAll(locationValues, locations);
     return this;
   }

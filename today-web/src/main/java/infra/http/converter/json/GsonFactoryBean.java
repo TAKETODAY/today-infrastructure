@@ -112,7 +112,7 @@ public class GsonFactoryBean implements FactoryBean<Gson>, InitializingBean {
   @Override
   public void afterPropertiesSet() {
     GsonBuilder builder = (this.base64EncodeByteArrays ?
-                           GsonBuilderUtils.gsonBuilderWithBase64EncodedByteArrays() : new GsonBuilder());
+            GsonBuilderUtils.gsonBuilderWithBase64EncodedByteArrays() : new GsonBuilder());
     if (this.serializeNulls) {
       builder.serializeNulls();
     }

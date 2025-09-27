@@ -402,12 +402,12 @@ class ApplicationContextHolderTests {
 
     @Nullable
     @Override
-    public String getMessage(String code, @Nullable Object[] args, @Nullable String defaultMessage, Locale locale) {
+    public String getMessage(String code, Object @Nullable [] args, @Nullable String defaultMessage, Locale locale) {
       return "";
     }
 
     @Override
-    public String getMessage(String code, @Nullable Object[] args, Locale locale) throws NoSuchMessageException {
+    public String getMessage(String code, Object @Nullable [] args, Locale locale) throws NoSuchMessageException {
       return "";
     }
 

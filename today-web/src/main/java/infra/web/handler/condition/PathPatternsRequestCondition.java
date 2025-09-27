@@ -141,9 +141,9 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
    */
   public Set<String> getPatternValues() {
     return isEmptyPathMapping() ? EMPTY_PATH :
-           Arrays.stream(patterns)
-                   .map(PathPattern::getPatternString)
-                   .collect(Collectors.toSet());
+            Arrays.stream(patterns)
+                    .map(PathPattern::getPatternString)
+                    .collect(Collectors.toSet());
   }
 
   /**

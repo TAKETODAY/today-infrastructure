@@ -234,6 +234,7 @@ public class AspectJAdviceParameterNameDiscoverer extends ParameterNameDiscovere
    * @return the parameter names
    */
   @Override
+  @SuppressWarnings("NullAway")
   public String @Nullable [] getParameterNames(@Nullable Executable method) {
     if (method instanceof Constructor) {
       if (this.raiseExceptions) {

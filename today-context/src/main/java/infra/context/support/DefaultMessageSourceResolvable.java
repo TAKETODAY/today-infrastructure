@@ -38,11 +38,9 @@ import infra.util.StringUtils;
 @SuppressWarnings("serial")
 public class DefaultMessageSourceResolvable implements MessageSourceResolvable, Serializable {
 
-  @Nullable
-  private final String[] codes;
+  private final String @Nullable [] codes;
 
-  @Nullable
-  private final Object[] arguments;
+  private final Object @Nullable [] arguments;
 
   @Nullable
   private final String defaultMessage;
@@ -92,7 +90,7 @@ public class DefaultMessageSourceResolvable implements MessageSourceResolvable, 
    * @param arguments the array of arguments to be used to resolve this message
    * @param defaultMessage the default message to be used to resolve this message
    */
-  public DefaultMessageSourceResolvable(@Nullable String[] codes, @Nullable Object[] arguments, @Nullable String defaultMessage) {
+  public DefaultMessageSourceResolvable(String @Nullable [] codes, Object @Nullable [] arguments, @Nullable String defaultMessage) {
     this.codes = codes;
     this.arguments = arguments;
     this.defaultMessage = defaultMessage;
@@ -117,14 +115,12 @@ public class DefaultMessageSourceResolvable implements MessageSourceResolvable, 
   }
 
   @Override
-  @Nullable
-  public String[] getCodes() {
+  public String @Nullable [] getCodes() {
     return this.codes;
   }
 
   @Override
-  @Nullable
-  public Object[] getArguments() {
+  public Object @Nullable [] getArguments() {
     return this.arguments;
   }
 

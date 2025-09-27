@@ -145,6 +145,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public TypedValue read(EvaluationContext context, @Nullable Object target, String name) throws AccessException {
     Assert.state(target != null, "Target is required");
     Class<?> type = (target instanceof Class<?> clazz ? clazz : target.getClass());
@@ -502,6 +503,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
    *
    * @see OptimalPropertyAccessor
    */
+  @SuppressWarnings("NullAway")
   public PropertyAccessor createOptimalAccessor(EvaluationContext context, @Nullable Object target, String name) {
     // Don't be clever for arrays or a null target...
     if (target == null) {

@@ -136,6 +136,7 @@ public class SupplierFactoryCreatingFactoryBean extends AbstractFactoryBean<Supp
           implements Supplier<Object>, Serializable {
 
     @Override
+    @SuppressWarnings("NullAway")
     public Object get() throws BeansException {
       return beanFactory.getBean(targetBeanName);
     }

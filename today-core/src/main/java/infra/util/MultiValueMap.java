@@ -81,7 +81,7 @@ public interface MultiValueMap<K, V extends @Nullable Object> extends Map<K, Lis
    * @see ObjectUtils#isNotEmpty(Object[])
    * @since 4.0
    */
-  default void addAll(K key, @Nullable V[] values) {
+  default void addAll(K key, V @Nullable [] values) {
     if (ObjectUtils.isNotEmpty(values)) {
       for (V element : values) {
         add(key, element);

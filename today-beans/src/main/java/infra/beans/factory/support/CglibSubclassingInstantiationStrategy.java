@@ -81,7 +81,7 @@ public class CglibSubclassingInstantiationStrategy extends InstantiationStrategy
 
   @Override
   protected Object instantiateWithMethodInjection(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner,
-          @Nullable Constructor<?> ctor, Object... args) {
+          @Nullable Constructor<?> ctor, @Nullable Object... args) {
 
     // Must generate CGLIB subclass...
     return new CglibSubclassCreator(bd, owner).instantiate(ctor, args);
@@ -114,7 +114,7 @@ public class CglibSubclassingInstantiationStrategy extends InstantiationStrategy
      * Ignored if the {@code ctor} parameter is {@code null}.
      * @return new instance of the dynamically generated subclass
      */
-    public Object instantiate(@Nullable Constructor<?> ctor, Object... args) {
+    public Object instantiate(@Nullable Constructor<?> ctor, @Nullable Object... args) {
       Class<?> subclass = createEnhancedSubclass(this.beanDefinition);
       Object instance;
       if (ctor == null) {
@@ -231,6 +231,7 @@ public class CglibSubclassingInstantiationStrategy extends InstantiationStrategy
       this.owner = owner;
     }
 
+    @Nullable
     @Override
     public Object intercept(Object obj, Method method, Object[] args, MethodProxy mp) throws Throwable {
       // Cast is safe, as CallbackFilter filters are used selectively.

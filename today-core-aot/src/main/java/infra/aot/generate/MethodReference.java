@@ -102,7 +102,7 @@ public interface MethodReference {
      */
     static ArgumentCodeGenerator of(Class<?> argumentType, String argumentCode) {
       return from(candidateType -> candidateType.equals(ClassName.get(argumentType)) ?
-                                   CodeBlock.of(argumentCode) : null);
+              CodeBlock.of(argumentCode) : null);
     }
 
     /**
@@ -114,7 +114,7 @@ public interface MethodReference {
      * @param function the resolver function
      * @return a new {@link ArgumentCodeGenerator} instance backed by the function
      */
-    static ArgumentCodeGenerator from(Function<TypeName, CodeBlock> function) {
+    static ArgumentCodeGenerator from(Function<TypeName, @Nullable CodeBlock> function) {
       return function::apply;
     }
 

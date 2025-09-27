@@ -463,12 +463,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 
   @Nullable
   @Override
-  public String getMessage(String code, @Nullable Object[] args, @Nullable String defaultMessage, @Nullable Locale locale) {
+  public String getMessage(String code, Object @Nullable [] args, @Nullable String defaultMessage, @Nullable Locale locale) {
     return getMessageSource().getMessage(code, args, defaultMessage, locale);
   }
 
   @Override
-  public String getMessage(String code, @Nullable Object[] args, @Nullable Locale locale) throws NoSuchMessageException {
+  public String getMessage(String code, Object @Nullable [] args, @Nullable Locale locale) throws NoSuchMessageException {
     return getMessageSource().getMessage(code, args, locale);
   }
 
@@ -1143,7 +1143,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 
   @Nullable
   @Override
-  public Object getBean(String name, Object... args) throws BeansException {
+  public Object getBean(String name, @Nullable Object @Nullable ... args) throws BeansException {
     assertBeanFactoryActive();
     return getBeanFactory().getBean(name, args);
   }
@@ -1155,7 +1155,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   }
 
   @Override
-  public <T> T getBean(Class<T> requiredType, Object... args) throws BeansException {
+  public <T> T getBean(Class<T> requiredType, @Nullable Object @Nullable ... args) throws BeansException {
     assertBeanFactoryActive();
     return getBeanFactory().getBean(requiredType, args);
   }

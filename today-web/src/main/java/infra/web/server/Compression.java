@@ -39,8 +39,7 @@ public class Compression {
           "application/javascript", "application/json", "application/xml"
   };
 
-  @Nullable
-  private String[] excludedUserAgents = null;
+  private String @Nullable [] excludedUserAgents = null;
 
   private DataSize minResponseSize = DataSize.ofKilobytes(2);
 
@@ -70,8 +69,7 @@ public class Compression {
     this.mimeTypes = mimeTypes;
   }
 
-  @Nullable
-  public String[] getExcludedUserAgents() {
+  public String @Nullable [] getExcludedUserAgents() {
     return this.excludedUserAgents;
   }
 

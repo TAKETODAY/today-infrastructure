@@ -109,6 +109,7 @@ public class StandardAnnotationMetadata extends StandardClassMetadata implements
 
   @Override
   @Nullable
+  @SuppressWarnings("NullAway")
   public MultiValueMap<String, @Nullable Object> getAllAnnotationAttributes(String annotationName, boolean classValuesAsString) {
     if (this.nestedAnnotationsAsMap) {
       return AnnotationMetadata.super.getAllAnnotationAttributes(annotationName, classValuesAsString);

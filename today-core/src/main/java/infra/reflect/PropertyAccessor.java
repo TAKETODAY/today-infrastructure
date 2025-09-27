@@ -188,6 +188,7 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
 
   private static PropertyAccessor getPropertyAccessor(MethodInvoker accessor, Field field, Method readMethod) {
     return new PropertyAccessor() {
+      @Nullable
       @Override
       public Object get(Object obj) {
         return accessor.invoke(obj, null);

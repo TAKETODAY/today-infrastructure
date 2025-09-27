@@ -171,7 +171,7 @@ public interface SmartContextLoader extends ContextLoader {
    * @throws UnsupportedOperationException in this implementation
    */
   @Override
-  default String[] processLocations(Class<?> clazz, @Nullable String... locations) {
+  default String[] processLocations(Class<?> clazz, String @Nullable ... locations) {
     throw new UnsupportedOperationException("""
             SmartContextLoader does not support the ContextLoader SPI. \
             Call processContextConfiguration(ContextConfigurationAttributes) instead.""");

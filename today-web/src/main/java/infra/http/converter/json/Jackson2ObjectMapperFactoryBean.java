@@ -395,7 +395,7 @@ public class Jackson2ObjectMapperFactoryBean
    * Specify one or more modules by class (or class name in XML)
    * to be registered with the {@link ObjectMapper}.
    * <p>Modules specified here will be registered after
-   *  autodetection of JSR-310 and Joda-Time, or Jackson's
+   * autodetection of JSR-310 and Joda-Time, or Jackson's
    * finding of modules (see {@link #setFindModulesViaServiceLoader}),
    * allowing to eventually override their configuration.
    * <p>Specify either this or {@link #setModules}, not both.

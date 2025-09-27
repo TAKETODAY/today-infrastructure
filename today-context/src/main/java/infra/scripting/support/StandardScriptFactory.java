@@ -112,7 +112,7 @@ public class StandardScriptFactory implements ScriptFactory, BeanClassLoaderAwar
    * @param scriptInterfaces the Java interfaces that the scripted object
    * is supposed to implement
    */
-  public StandardScriptFactory(@Nullable String scriptEngineName, String scriptSourceLocator, @Nullable Class<?>... scriptInterfaces) {
+  public StandardScriptFactory(@Nullable String scriptEngineName, String scriptSourceLocator, Class<?> @Nullable ... scriptInterfaces) {
     Assert.hasText(scriptSourceLocator, "'scriptSourceLocator' must not be empty");
     this.scriptEngineName = scriptEngineName;
     this.scriptSourceLocator = scriptSourceLocator;
@@ -130,8 +130,7 @@ public class StandardScriptFactory implements ScriptFactory, BeanClassLoaderAwar
   }
 
   @Override
-  @Nullable
-  public Class<?>[] getScriptInterfaces() {
+  public Class<?> @Nullable [] getScriptInterfaces() {
     return this.scriptInterfaces;
   }
 
@@ -145,7 +144,7 @@ public class StandardScriptFactory implements ScriptFactory, BeanClassLoaderAwar
    */
   @Override
   @Nullable
-  public Object getScriptedObject(ScriptSource scriptSource, @Nullable Class<?>... actualInterfaces)
+  public Object getScriptedObject(ScriptSource scriptSource, Class<?> @Nullable ... actualInterfaces)
           throws IOException, ScriptCompilationException {
 
     Object script = evaluateScript(scriptSource);

@@ -41,6 +41,7 @@ import infra.lang.Assert;
  * @see Logger#trace(Object)
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public abstract class LogMessage {
 
   @Nullable
@@ -166,7 +167,6 @@ public abstract class LogMessage {
     }
 
     @Override
-    @Nullable
     protected String buildString() {
       return MessageFormatter.format(this.format, this.arg1);
     }

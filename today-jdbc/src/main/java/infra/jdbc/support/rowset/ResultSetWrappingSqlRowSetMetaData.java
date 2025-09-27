@@ -40,8 +40,7 @@ public class ResultSetWrappingSqlRowSetMetaData implements SqlRowSetMetaData {
 
   private final ResultSetMetaData resultSetMetaData;
 
-  @Nullable
-  private String[] columnNames;
+  private String @Nullable []columnNames;
 
   /**
    * Create a new ResultSetWrappingSqlRowSetMetaData object

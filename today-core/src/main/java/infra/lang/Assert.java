@@ -336,7 +336,7 @@ public abstract class Assert {
    * @throws IllegalArgumentException if the object array is {@code null} or contains no elements
    */
   @Contract("null, _ -> fail")
-  public static void notEmpty(@Nullable Object[] array, String message) {
+  public static void notEmpty(@Nullable Object @Nullable [] array, String message) {
     if (ObjectUtils.isEmpty(array)) {
       throw new IllegalArgumentException(message);
     }
@@ -355,7 +355,7 @@ public abstract class Assert {
    * @throws IllegalArgumentException if the object array is {@code null} or contains no elements
    */
   @Contract("null, _ -> fail")
-  public static void notEmpty(@Nullable Object[] array, Supplier<String> messageSupplier) {
+  public static void notEmpty(@Nullable Object @Nullable [] array, Supplier<String> messageSupplier) {
     if (ObjectUtils.isEmpty(array)) {
       throw new IllegalArgumentException(nullSafeGet(messageSupplier));
     }
@@ -370,7 +370,7 @@ public abstract class Assert {
    * @param message the exception message to use if the assertion fails
    * @throws IllegalArgumentException if the object array contains a {@code null} element
    */
-  public static void noNullElements(@Nullable Object[] array, String message) {
+  public static void noNullElements(@Nullable Object @Nullable [] array, String message) {
     if (array != null) {
       for (Object element : array) {
         if (element == null) {
@@ -392,7 +392,7 @@ public abstract class Assert {
    * assertion fails
    * @throws IllegalArgumentException if the object array contains a {@code null} element
    */
-  public static void noNullElements(@Nullable Object[] array, Supplier<String> messageSupplier) {
+  public static void noNullElements(@Nullable Object @Nullable [] array, Supplier<String> messageSupplier) {
     if (array != null) {
       for (Object element : array) {
         if (element == null) {

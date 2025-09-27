@@ -649,7 +649,7 @@ public class MBeanClientInterceptor
      * @param name the name of the method
      * @param parameterTypes the arguments in the method signature
      */
-    private MethodCacheKey(String name, @Nullable Class<?>[] parameterTypes) {
+    private MethodCacheKey(String name, Class<?> @Nullable [] parameterTypes) {
       this.name = name;
       this.parameterTypes = (parameterTypes != null ? parameterTypes : new Class<?>[0]);
     }

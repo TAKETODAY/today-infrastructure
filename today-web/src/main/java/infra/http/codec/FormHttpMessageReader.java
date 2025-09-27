@@ -133,8 +133,8 @@ public class FormHttpMessageReader extends LoggingCodecSupport implements HttpMe
   private void logFormData(MultiValueMap<String, String> formData, Map<String, Object> hints) {
     LogFormatUtils.traceDebug(logger, traceOn -> Hints.getLogPrefix(hints) + "Read " +
             (isEnableLoggingRequestDetails() ?
-             LogFormatUtils.formatValue(formData, !traceOn) :
-             "form fields " + formData.keySet() + " (content masked)"));
+                    LogFormatUtils.formatValue(formData, !traceOn) :
+                    "form fields " + formData.keySet() + " (content masked)"));
   }
 
   private Charset getMediaTypeCharset(@Nullable MediaType mediaType) {

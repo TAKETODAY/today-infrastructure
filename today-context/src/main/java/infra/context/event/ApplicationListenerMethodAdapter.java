@@ -259,7 +259,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
     }
   }
 
-  private boolean shouldInvoke(Object event, @Nullable Object[] args) {
+  private boolean shouldInvoke(Object event, Object @Nullable [] args) {
     if (args == null) {
       return false;
     }
@@ -277,8 +277,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
    * Can return {@code null} to indicate that no suitable arguments could be resolved
    * and therefore the method should not be invoked at all for the specified event.
    */
-  @Nullable
-  protected Object[] resolveArguments(ApplicationEvent event) {
+  protected Object @Nullable [] resolveArguments(ApplicationEvent event) {
     ResolvableType declaredEventType = getResolvableType(event);
     if (declaredEventType == null) {
       return null;

@@ -139,7 +139,7 @@ public class SimpleJndiBeanFactory extends JndiLocatorSupport implements BeanFac
   }
 
   @Override
-  public Object getBean(String name, @Nullable Object... args) throws BeansException {
+  public Object getBean(String name, @Nullable Object @Nullable ... args) throws BeansException {
     if (args != null) {
       throw new UnsupportedOperationException(
               "SimpleJndiBeanFactory does not support explicit bean creation arguments");
@@ -153,7 +153,7 @@ public class SimpleJndiBeanFactory extends JndiLocatorSupport implements BeanFac
   }
 
   @Override
-  public <T> T getBean(Class<T> requiredType, @Nullable Object... args) throws BeansException {
+  public <T> T getBean(Class<T> requiredType, @Nullable Object @Nullable ... args) throws BeansException {
     if (args != null) {
       throw new UnsupportedOperationException(
               "SimpleJndiBeanFactory does not support explicit bean creation arguments");
@@ -170,18 +170,16 @@ public class SimpleJndiBeanFactory extends JndiLocatorSupport implements BeanFac
       }
 
       @Override
-      public T get(Object... args) throws BeansException {
+      public T get(@Nullable Object... args) throws BeansException {
         return getBean(requiredType, args);
       }
 
       @Override
-      @Nullable
       public T getIfAvailable() throws BeansException {
         return getBean(requiredType);
       }
 
       @Override
-      @Nullable
       public T getIfUnique() throws BeansException {
         return getBean(requiredType);
       }
@@ -315,7 +313,6 @@ public class SimpleJndiBeanFactory extends JndiLocatorSupport implements BeanFac
     throw new UnsupportedOperationException("SimpleJndiBeanFactory does not support containsBeanDefinition");
   }
 
-  @Nullable
   @Override
   public BeanDefinition getBeanDefinition(String beanName) {
     throw new UnsupportedOperationException("SimpleJndiBeanFactory does not support getBeanDefinition");

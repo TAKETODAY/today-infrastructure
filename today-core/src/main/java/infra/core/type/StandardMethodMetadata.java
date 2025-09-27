@@ -140,6 +140,7 @@ public class StandardMethodMetadata implements MethodMetadata {
 
   @Override
   @Nullable
+  @SuppressWarnings("NullAway")
   public MultiValueMap<String, @Nullable Object> getAllAnnotationAttributes(String annotationName, boolean classValuesAsString) {
     if (this.nestedAnnotationsAsMap) {
       return MethodMetadata.super.getAllAnnotationAttributes(annotationName, classValuesAsString);

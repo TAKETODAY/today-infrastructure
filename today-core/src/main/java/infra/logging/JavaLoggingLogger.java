@@ -78,6 +78,7 @@ final class JavaLoggingLogger extends infra.logging.Logger {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   protected void logInternal(Level level, String format, @Nullable Throwable t, @Nullable Object @Nullable [] args) {
     java.util.logging.Level levelToJavaLevel = levelToJavaLevel(level);
     if (logger.isLoggable(levelToJavaLevel)) {
@@ -98,7 +99,7 @@ final class JavaLoggingLogger extends infra.logging.Logger {
 
     private volatile boolean resolved;
 
-    public LocationResolvingLogRecord(java.util.logging.Level level, String msg) {
+    public LocationResolvingLogRecord(java.util.logging.Level level, @Nullable String msg) {
       super(level, msg);
     }
 

@@ -221,8 +221,8 @@ public abstract class AbstractJackson2View extends AbstractView {
       }
 
       ObjectWriter objectWriter = serializationView != null
-                                  ? this.objectMapper.writerWithView(serializationView)
-                                  : this.objectMapper.writer();
+              ? this.objectMapper.writerWithView(serializationView)
+              : this.objectMapper.writer();
       if (filters != null) {
         objectWriter = objectWriter.with(filters);
       }

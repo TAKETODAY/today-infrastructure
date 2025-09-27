@@ -59,7 +59,7 @@ public class BeanComponentDefinition extends BeanDefinitionHolder implements Com
    * @param beanName the name of the bean
    * @param aliases alias names for the bean, or {@code null} if none
    */
-  public BeanComponentDefinition(BeanDefinition beanDefinition, String beanName, @Nullable String[] aliases) {
+  public BeanComponentDefinition(BeanDefinition beanDefinition, String beanName, String @Nullable [] aliases) {
     this(new BeanDefinitionHolder(beanDefinition, beanName, aliases));
   }
 

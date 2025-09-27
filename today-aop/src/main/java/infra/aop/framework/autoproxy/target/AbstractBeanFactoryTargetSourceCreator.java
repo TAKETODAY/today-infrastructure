@@ -33,6 +33,7 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.AbstractBeanFactory;
 import infra.beans.factory.support.GenericBeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
+import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
@@ -59,6 +60,7 @@ public abstract class AbstractBeanFactoryTargetSourceCreator implements TargetSo
 
   private static final Logger log = LoggerFactory.getLogger(AbstractBeanFactoryTargetSourceCreator.class);
 
+  @Nullable
   private ConfigurableBeanFactory beanFactory;
 
   /** Internally used StandardBeanFactory instances, keyed by bean name. */
@@ -76,10 +78,15 @@ public abstract class AbstractBeanFactoryTargetSourceCreator implements TargetSo
   /**
    * Return the BeanFactory that this TargetSourceCreators runs in.
    */
+  @Nullable
   protected final BeanFactory getBeanFactory() {
     return this.beanFactory;
   }
 
+  private ConfigurableBeanFactory getConfigurableBeanFactory() {
+    Assert.state(this.beanFactory != null, "BeanFactory not set");
+    return this.beanFactory;
+  }
   //---------------------------------------------------------------------
   // Implementation of the TargetSourceCreator interface
   //---------------------------------------------------------------------
@@ -100,7 +107,7 @@ public abstract class AbstractBeanFactoryTargetSourceCreator implements TargetSo
     // We need to override just this bean definition, as it may reference other beans
     // and we're happy to take the parent's definition for those.
     // Always use prototype scope if demanded.
-    BeanDefinition bd = beanFactory.getMergedBeanDefinition(beanName);
+    BeanDefinition bd = getConfigurableBeanFactory().getMergedBeanDefinition(beanName);
     GenericBeanDefinition bdCopy = new GenericBeanDefinition(bd);
     if (isPrototypeBased()) {
       bdCopy.setScope(BeanDefinition.SCOPE_PROTOTYPE);
@@ -123,7 +130,7 @@ public abstract class AbstractBeanFactoryTargetSourceCreator implements TargetSo
   protected StandardBeanFactory getInternalBeanFactoryForBean(String beanName) {
     synchronized(this.internalBeanFactories) {
       return this.internalBeanFactories.computeIfAbsent(
-              beanName, name -> buildInternalBeanFactory(this.beanFactory));
+              beanName, name -> buildInternalBeanFactory(getConfigurableBeanFactory()));
     }
   }
 
@@ -190,7 +197,6 @@ public abstract class AbstractBeanFactoryTargetSourceCreator implements TargetSo
    * @return the AbstractPrototypeBasedTargetSource, or {@code null} if we don't match this
    */
   @Nullable
-  protected abstract AbstractBeanFactoryTargetSource createBeanFactoryTargetSource(
-          Class<?> beanClass, String beanName);
+  protected abstract AbstractBeanFactoryTargetSource createBeanFactoryTargetSource(Class<?> beanClass, String beanName);
 
 }

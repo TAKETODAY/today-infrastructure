@@ -196,7 +196,7 @@ public abstract class Logger implements Serializable {
    * @param format the format string
    * @param arguments a list of 3 or more arguments
    */
-  public void debug(String format, @Nullable Object... arguments) {
+  public void debug(String format, @Nullable Object @Nullable ... arguments) {
     logInternal(arguments, Level.DEBUG, format);
   }
 

@@ -129,6 +129,7 @@ public abstract class AbstractBeanFactoryTargetSource implements TargetSource, B
     return this.beanFactory;
   }
 
+  @Nullable
   @Override
   public Class<?> getTargetClass() {
     Class<?> targetClass = this.targetClass;
@@ -204,8 +205,9 @@ public abstract class AbstractBeanFactoryTargetSource implements TargetSource, B
   public String toString() {
     StringBuilder sb = new StringBuilder(getClass().getSimpleName());
     sb.append(" for target bean '").append(this.targetBeanName).append("'");
-    if (this.targetClass != null) {
-      sb.append(" of type [").append(this.targetClass.getName()).append("]");
+    Class<?> targetClass = this.targetClass;
+    if (targetClass != null) {
+      sb.append(" of type [").append(targetClass.getName()).append("]");
     }
     return sb.toString();
   }

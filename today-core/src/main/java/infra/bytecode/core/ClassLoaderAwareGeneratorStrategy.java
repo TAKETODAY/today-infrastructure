@@ -31,6 +31,7 @@ import org.jspecify.annotations.Nullable;
  */
 public class ClassLoaderAwareGeneratorStrategy extends DefaultGeneratorStrategy {
 
+  @Nullable
   private final ClassLoader classLoader;
 
   @Nullable
@@ -41,7 +42,7 @@ public class ClassLoaderAwareGeneratorStrategy extends DefaultGeneratorStrategy 
    *
    * @param classLoader the ClassLoader to expose as current thread context ClassLoader
    */
-  public ClassLoaderAwareGeneratorStrategy(ClassLoader classLoader) {
+  public ClassLoaderAwareGeneratorStrategy(@Nullable ClassLoader classLoader) {
     this(classLoader, null);
   }
 
@@ -51,7 +52,7 @@ public class ClassLoaderAwareGeneratorStrategy extends DefaultGeneratorStrategy 
    * @param classLoader the ClassLoader to expose as current thread context ClassLoader
    * @since 5.0
    */
-  public ClassLoaderAwareGeneratorStrategy(ClassLoader classLoader, @Nullable GeneratorStrategy delegate) {
+  public ClassLoaderAwareGeneratorStrategy(@Nullable ClassLoader classLoader, @Nullable GeneratorStrategy delegate) {
     this.classLoader = classLoader;
     this.delegate = delegate;
   }

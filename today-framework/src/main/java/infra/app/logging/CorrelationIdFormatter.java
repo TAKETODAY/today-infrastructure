@@ -154,7 +154,7 @@ public final class CorrelationIdFormatter {
    * @param spec a pre-separated specification
    * @return a new {@link CorrelationIdFormatter} instance
    */
-  public static CorrelationIdFormatter of(@Nullable String... spec) {
+  public static CorrelationIdFormatter of(String @Nullable ... spec) {
     return of((spec != null) ? Arrays.asList(spec) : Collections.emptyList());
   }
 

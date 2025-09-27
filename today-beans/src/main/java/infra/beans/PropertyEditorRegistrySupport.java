@@ -217,7 +217,7 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
         defaultEditors = createDefaultEditors();
         this.defaultEditors = defaultEditors;
       }
-      return this.defaultEditors.get(requiredType);
+      return defaultEditors.get(requiredType);
     }
     return null;
   }
@@ -485,6 +485,7 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
    * @return the property type, or {@code null} if not determinable
    */
   @Nullable
+  @SuppressWarnings("NullAway")
   protected Class<?> guessPropertyTypeFromEditors(String propertyName) {
     var editors = this.customEditorsForPath;
     if (editors != null) {

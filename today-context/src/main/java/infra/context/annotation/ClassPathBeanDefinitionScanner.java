@@ -79,8 +79,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 
   private BeanDefinitionDefaults beanDefinitionDefaults = new BeanDefinitionDefaults();
 
-  @Nullable
-  private String[] autowireCandidatePatterns;
+  private String @Nullable [] autowireCandidatePatterns;
 
   private BeanNameGenerator beanNameGenerator = AnnotationBeanNameGenerator.INSTANCE;
 
@@ -212,7 +211,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
    *
    * @param autowireCandidatePatterns the patterns to match against
    */
-  public void setAutowireCandidatePatterns(@Nullable String... autowireCandidatePatterns) {
+  public void setAutowireCandidatePatterns(String @Nullable ... autowireCandidatePatterns) {
     this.autowireCandidatePatterns = autowireCandidatePatterns;
   }
 

@@ -126,6 +126,7 @@ public class MethodReference extends SpelNodeImpl {
     return result;
   }
 
+  @SuppressWarnings("NullAway")
   private TypedValue getValueInternal(EvaluationContext evaluationContext, @Nullable Object target,
           @Nullable TypeDescriptor targetType, @Nullable Object[] arguments) {
 
@@ -441,9 +442,9 @@ public class MethodReference extends SpelNodeImpl {
     @Nullable
     private final TypeDescriptor targetType;
 
-    private final Object[] arguments;
+    private final @Nullable Object[] arguments;
 
-    public MethodValueRef(ExpressionState state, Object[] arguments) {
+    public MethodValueRef(ExpressionState state, @Nullable Object[] arguments) {
       this.evaluationContext = state.getEvaluationContext();
       this.target = state.getActiveContextObject().getValue();
       this.targetType = state.getActiveContextObject().getTypeDescriptor();

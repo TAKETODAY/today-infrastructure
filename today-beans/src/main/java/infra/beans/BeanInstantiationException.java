@@ -31,13 +31,16 @@ import java.lang.reflect.Method;
  */
 public class BeanInstantiationException extends FatalBeanException {
 
+  @Nullable
   private final Class<?> beanClass;
 
+  @Nullable
   private final Method constructingMethod;
 
+  @Nullable
   private final Constructor<?> constructor;
 
-  public BeanInstantiationException(String msg, Throwable cause) {
+  public BeanInstantiationException(String msg, @Nullable Throwable cause) {
     super(msg, cause);
     this.beanClass = null;
     this.constructor = null;
@@ -48,21 +51,21 @@ public class BeanInstantiationException extends FatalBeanException {
     this(beanClass, msg, null);
   }
 
-  public BeanInstantiationException(Class<?> beanClass, String msg, Throwable cause) {
+  public BeanInstantiationException(Class<?> beanClass, String msg, @Nullable Throwable cause) {
     super("Failed to instantiate [%s]: %s".formatted(beanClass.getName(), msg), cause);
     this.beanClass = beanClass;
     this.constructor = null;
     this.constructingMethod = null;
   }
 
-  public BeanInstantiationException(Constructor<?> constructor, String msg, Throwable cause) {
+  public BeanInstantiationException(Constructor<?> constructor, @Nullable String msg, @Nullable Throwable cause) {
     super("Failed to instantiate [%s]: %s".formatted(constructor.getDeclaringClass().getName(), msg), cause);
     this.beanClass = constructor.getDeclaringClass();
     this.constructor = constructor;
     this.constructingMethod = null;
   }
 
-  public BeanInstantiationException(Method constructingMethod, String msg, Throwable cause) {
+  public BeanInstantiationException(Method constructingMethod, @Nullable String msg, @Nullable Throwable cause) {
     super("Failed to instantiate [%s]: %s".formatted(constructingMethod.getReturnType().getName(), msg), cause);
     this.beanClass = constructingMethod.getReturnType();
     this.constructor = null;

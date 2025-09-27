@@ -199,7 +199,7 @@ public final class HandlerTypePredicate implements Predicate<Class<?>> {
      *
      * @param types one or more handler super types
      */
-    public Builder assignableType(@Nullable Class<?>... types) {
+    public Builder assignableType(Class<?> @Nullable ... types) {
       CollectionUtils.addAll(this.assignableTypes, types);
       return this;
     }

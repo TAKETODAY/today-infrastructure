@@ -1582,7 +1582,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    *
    * @param vary the request header names
    */
-  public void setVary(@Nullable String... vary) {
+  public void setVary(String @Nullable ... vary) {
     setOrRemove(VARY, vary == null ? null : toCommaDelimitedString(Arrays.asList(vary)));
   }
 

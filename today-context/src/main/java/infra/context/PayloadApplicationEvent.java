@@ -70,6 +70,7 @@ public class PayloadApplicationEvent<T> extends ApplicationEvent implements Reso
     this.payloadType = payloadType != null ? payloadType : ResolvableType.forInstance(payload);
   }
 
+  @Nullable
   @Override
   public ResolvableType getResolvableType() {
     return ResolvableType.forClassWithGenerics(getClass(), this.payloadType);

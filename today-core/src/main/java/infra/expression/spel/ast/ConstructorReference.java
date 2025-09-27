@@ -121,6 +121,7 @@ public class ConstructorReference extends SpelNodeImpl {
    * @return the new object
    * @throws EvaluationException if there is a problem creating the object
    */
+  @SuppressWarnings("NullAway")
   private TypedValue createNewInstance(ExpressionState state) throws EvaluationException {
     @Nullable Object[] arguments = new Object[getChildCount() - 1];
     List<TypeDescriptor> argumentTypes = new ArrayList<>(getChildCount() - 1);
@@ -230,7 +231,7 @@ public class ConstructorReference extends SpelNodeImpl {
         InlineList initializer = (InlineList) getChild(1);
         sb.append("[] ").append(initializer.toStringAST());
       }
-      else {
+      else if (this.dimensions != null) {
         // new int[3], new java.lang.String[3][4], etc.
         for (SpelNodeImpl dimension : this.dimensions) {
           sb.append('[').append(dimension.toStringAST()).append(']');

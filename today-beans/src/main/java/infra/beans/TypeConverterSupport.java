@@ -37,6 +37,7 @@ import infra.core.conversion.ConverterNotFoundException;
  */
 public abstract class TypeConverterSupport extends PropertyEditorRegistrySupport implements TypeConverter {
 
+  @SuppressWarnings("NullAway")
   protected TypeConverterDelegate typeConverterDelegate;
 
   @Override

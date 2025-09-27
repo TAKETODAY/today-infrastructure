@@ -120,6 +120,7 @@ public abstract class ScopedProxyUtils {
    * @see #getTargetBeanName(String)
    * @see #isScopedTarget(String)
    */
+  @SuppressWarnings("NullAway")
   public static String getOriginalBeanName(@Nullable String targetBeanName) {
     if (isScopedTarget(targetBeanName)) {
       return targetBeanName.substring(TARGET_NAME_PREFIX_LENGTH);

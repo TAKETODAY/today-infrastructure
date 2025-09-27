@@ -35,6 +35,7 @@ final class MethodAccessorPropertyAccessor extends PropertyAccessor {
     this.writeAccessor = writeAccessor;
   }
 
+  @Nullable
   @Override
   public Object get(final Object obj) {
     return readAccessor.invoke(obj, null);

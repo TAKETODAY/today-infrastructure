@@ -38,8 +38,7 @@ import javax.tools.SimpleJavaFileObject;
  */
 class DynamicResourceFileObject extends SimpleJavaFileObject {
 
-  @Nullable
-  private volatile byte[] bytes;
+  private volatile byte @Nullable [] bytes;
 
   DynamicResourceFileObject(String fileName) {
     super(createUri(fileName), Kind.OTHER);
@@ -72,8 +71,7 @@ class DynamicResourceFileObject extends SimpleJavaFileObject {
     this.bytes = bytes;
   }
 
-  @Nullable
-  byte[] getBytes() {
+  byte @Nullable [] getBytes() {
     return this.bytes;
   }
 

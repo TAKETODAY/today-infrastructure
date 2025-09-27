@@ -73,8 +73,7 @@ public class ClassNode extends ClassVisitor {
    * Type#getInternalName}).
    * Map be {@literal null}. there is no interfaces.
    */
-  @Nullable
-  public String[] interfaces;
+  public String @Nullable [] interfaces;
 
   /** The name of the source file from which this class was compiled. May be {@literal null}. */
   @Nullable

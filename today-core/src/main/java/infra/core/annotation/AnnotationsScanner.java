@@ -107,6 +107,7 @@ abstract class AnnotationsScanner {
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private static <C, R> R processClassInheritedAnnotations(C context, Class<?> source, AnnotationsProcessor<C, R> processor) {
     try {
       if (isWithoutHierarchy(source, Search.never)) {
@@ -168,6 +169,7 @@ abstract class AnnotationsScanner {
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private static <C, R> R processClassHierarchy(C context, int[] aggregateIndex, Class<?> source,
           AnnotationsProcessor<C, R> processor, boolean includeInterfaces, Predicate<Class<?>> searchEnclosingClass) {
 
@@ -377,6 +379,7 @@ abstract class AnnotationsScanner {
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private static <C, R> R processMethodAnnotations(C context, int aggregateIndex, Method source, AnnotationsProcessor<C, R> processor) {
 
     @Nullable Annotation[] annotations = getDeclaredAnnotations(source, false);
@@ -398,6 +401,7 @@ abstract class AnnotationsScanner {
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private static <C, R> R processElement(C context, AnnotatedElement source, AnnotationsProcessor<C, R> processor) {
 
     try {

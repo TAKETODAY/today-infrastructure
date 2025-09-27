@@ -87,7 +87,7 @@ public class InterfaceBasedMBeanInfoAssembler extends AbstractConfigurableMBeanI
    * Each entry <strong>MUST</strong> be an interface.
    * @see #setInterfaceMappings
    */
-  public void setManagedInterfaces(@Nullable Class<?>... managedInterfaces) {
+  public void setManagedInterfaces(Class<?> @Nullable ... managedInterfaces) {
     if (managedInterfaces != null) {
       for (Class<?> ifc : managedInterfaces) {
         if (!ifc.isInterface()) {

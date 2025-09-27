@@ -51,8 +51,7 @@ public class LocaleChangeInterceptor implements HandlerInterceptor {
 
   private String paramName = DEFAULT_PARAM_NAME;
 
-  @Nullable
-  private String[] httpMethods;
+  private String @Nullable [] httpMethods;
 
   private boolean ignoreInvalidLocale = false;
 
@@ -80,15 +79,14 @@ public class LocaleChangeInterceptor implements HandlerInterceptor {
    *
    * @param httpMethods the methods
    */
-  public void setHttpMethods(@Nullable String... httpMethods) {
+  public void setHttpMethods(String @Nullable ... httpMethods) {
     this.httpMethods = httpMethods;
   }
 
   /**
    * Return the configured HTTP methods.
    */
-  @Nullable
-  public String[] getHttpMethods() {
+  public String @Nullable [] getHttpMethods() {
     return this.httpMethods;
   }
 

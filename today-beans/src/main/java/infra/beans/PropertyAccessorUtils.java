@@ -184,8 +184,7 @@ public abstract class PropertyAccessorUtils {
    * (as array of the same size)
    * @see #canonicalPropertyName(String)
    */
-  @Nullable
-  public static String[] canonicalPropertyNames(@Nullable String[] propertyNames) {
+  public static String @Nullable [] canonicalPropertyNames(String @Nullable [] propertyNames) {
     if (propertyNames == null) {
       return null;
     }

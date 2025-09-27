@@ -43,6 +43,7 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
     getStrategies().addAll(strategyList);
   }
 
+  @Nullable
   @Override
   public Object resolveDependency(DependencyDescriptor descriptor, Context context) {
     for (DependencyResolvingStrategy resolvingStrategy : strategies) {

@@ -39,8 +39,7 @@ class DynamicClassFileObject extends SimpleJavaFileObject {
 
   private final String className;
 
-  @Nullable
-  private volatile byte[] bytes;
+  private volatile byte @Nullable [] bytes;
 
   DynamicClassFileObject(String className) {
     super(createUri(className), Kind.CLASS);
@@ -79,8 +78,7 @@ class DynamicClassFileObject extends SimpleJavaFileObject {
     return this.className;
   }
 
-  @Nullable
-  byte[] getBytes() {
+  byte @Nullable [] getBytes() {
     return this.bytes;
   }
 

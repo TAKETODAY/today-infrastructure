@@ -40,8 +40,7 @@ import infra.util.StringUtils;
 public abstract class AbstractRefreshableConfigApplicationContext extends AbstractRefreshableApplicationContext
         implements BeanNameAware, InitializingBean {
 
-  @Nullable
-  private String[] configLocations;
+  private String @Nullable []configLocations;
 
   private boolean setIdCalled = false;
 
@@ -72,7 +71,7 @@ public abstract class AbstractRefreshableConfigApplicationContext extends Abstra
    * Set the config locations for this application context.
    * <p>If not set, the implementation may use a default as appropriate.
    */
-  public void setConfigLocations(@Nullable String... locations) {
+  public void setConfigLocations(String @Nullable ... locations) {
     if (locations != null) {
       Assert.noNullElements(locations, "Config locations is required");
       this.configLocations = new String[locations.length];

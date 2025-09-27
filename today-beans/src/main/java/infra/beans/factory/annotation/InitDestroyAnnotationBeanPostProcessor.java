@@ -214,7 +214,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
     return metadata;
   }
 
-  private static String[] safeMerge(@Nullable String[] existingNames, Collection<LifecycleMethod> detectedMethods) {
+  private static String[] safeMerge(String @Nullable [] existingNames, Collection<LifecycleMethod> detectedMethods) {
     LinkedHashSet<String> ret = new LinkedHashSet<>();
     for (LifecycleMethod detectedMethod : detectedMethods) {
       ret.add(detectedMethod.identifier);
@@ -445,7 +445,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
 
     public void invoke(Object target, @Nullable DependencyInjector resolver) throws Throwable {
       if (resolver != null) {
-        Object[] args = resolver.resolveArguments(method);
+        @Nullable Object[] args = resolver.resolveArguments(method);
         method.invoke(target, args);
       }
       else {

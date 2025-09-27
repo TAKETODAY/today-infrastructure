@@ -31,12 +31,12 @@ final class MethodAccessorGetterMethod implements GetterMethod {
     this.accessor = accessor;
   }
 
+  @Nullable
   @Override
   public Object get(Object obj) {
     return accessor.invoke(obj, null);
   }
 
-  @Nullable
   @Override
   public Method getReadMethod() {
     return accessor.getMethod();

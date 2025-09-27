@@ -169,7 +169,7 @@ public class BeanProperty extends Property {
    * @throws BeanInstantiationException if the property's type cannot be instantiated,
    * such as when it is a simple value type or lacks a suitable constructor
    */
-  public Object instantiate(@Nullable Object[] args) {
+  public Object instantiate(@Nullable Object @Nullable [] args) {
     BeanInstantiator constructor = this.instantiator;
     if (constructor == null) {
       Class<?> type = getType();

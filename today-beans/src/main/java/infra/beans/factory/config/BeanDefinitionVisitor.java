@@ -223,7 +223,7 @@ public class BeanDefinitionVisitor {
     return value;
   }
 
-  protected void visitArray(Object[] arrayVal) {
+  protected void visitArray(@Nullable Object[] arrayVal) {
     for (int i = 0; i < arrayVal.length; i++) {
       Object elem = arrayVal[i];
       Object newVal = resolveValue(elem);

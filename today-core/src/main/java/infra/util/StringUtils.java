@@ -363,7 +363,8 @@ public abstract class StringUtils {
    * @return the new array (never {@code null})
    * @since 4.0
    */
-  public static String[] addStringToArray(@Nullable String[] array, String str) {
+  @SuppressWarnings("NullAway")
+  public static String[] addStringToArray(@Nullable String @Nullable [] array, String str) {
     if (ObjectUtils.isEmpty(array)) {
       return new String[] { str };
     }
@@ -398,7 +399,7 @@ public abstract class StringUtils {
    * @return the resulting array (of the same size) with trimmed elements
    * @since 4.0
    */
-  public static @Nullable String[] trimArrayElements(@Nullable String[] array) {
+  public static @Nullable String @Nullable [] trimArrayElements(@Nullable String @Nullable [] array) {
     if (ObjectUtils.isEmpty(array)) {
       return array;
     }
@@ -436,7 +437,7 @@ public abstract class StringUtils {
    * @param delim the delimiter to use (typically a ",")
    * @return the delimited {@code String}
    */
-  public static String arrayToDelimitedString(@Nullable Object[] arr, String delim) {
+  public static String arrayToDelimitedString(@Nullable Object @Nullable [] arr, String delim) {
     if (ObjectUtils.isEmpty(arr)) {
       return "";
     }
@@ -459,7 +460,7 @@ public abstract class StringUtils {
    * @param arr the array to display (potentially {@code null} or empty)
    * @return the delimited {@code String}
    */
-  public static String arrayToCommaDelimitedString(@Nullable Object[] arr) {
+  public static String arrayToCommaDelimitedString(@Nullable Object @Nullable [] arr) {
     return arrayToDelimitedString(arr, ",");
   }
 

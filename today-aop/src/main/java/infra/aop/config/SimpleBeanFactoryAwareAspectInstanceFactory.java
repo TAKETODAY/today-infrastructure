@@ -63,6 +63,7 @@ public class SimpleBeanFactoryAwareAspectInstanceFactory implements AspectInstan
    * @see #setAspectBeanName
    */
   @Override
+  @SuppressWarnings("NullAway")
   public Object getAspectInstance() {
     Assert.state(this.beanFactory != null, "No BeanFactory set");
     Assert.state(this.aspectBeanName != null, "No 'aspectBeanName' set");
@@ -81,6 +82,7 @@ public class SimpleBeanFactoryAwareAspectInstanceFactory implements AspectInstan
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public int getOrder() {
     if (this.beanFactory != null && this.aspectBeanName != null &&
             this.beanFactory.isSingleton(this.aspectBeanName) &&

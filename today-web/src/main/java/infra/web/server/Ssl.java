@@ -138,14 +138,12 @@ public class Ssl {
   /**
    * The supported SSL ciphers
    */
-  @Nullable
-  public String[] ciphers;
+  public String @Nullable [] ciphers;
 
   /**
    * The enabled SSL protocols.
    */
-  @Nullable
-  public String[] enabledProtocols;
+  public String @Nullable [] enabledProtocols;
 
   /**
    * Return Whether client authentication is not wanted ("none"), wanted ("want") or

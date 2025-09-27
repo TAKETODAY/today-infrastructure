@@ -142,7 +142,7 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
 
   @Nullable
   @Override
-  public final String getMessage(String code, @Nullable Object[] args, @Nullable String defaultMessage, @Nullable Locale locale) {
+  public final String getMessage(String code, Object @Nullable [] args, @Nullable String defaultMessage, @Nullable Locale locale) {
     String msg = getMessageInternal(code, args, locale);
     if (msg != null) {
       return msg;
@@ -154,7 +154,7 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
   }
 
   @Override
-  public final String getMessage(String code, @Nullable Object[] args, @Nullable Locale locale) throws NoSuchMessageException {
+  public final String getMessage(String code, Object @Nullable [] args, @Nullable Locale locale) throws NoSuchMessageException {
     String msg = getMessageInternal(code, args, locale);
     if (msg != null) {
       return msg;
@@ -211,7 +211,7 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
    * @see #setUseCodeAsDefaultMessage
    */
   @Nullable
-  protected String getMessageInternal(@Nullable String code, @Nullable Object[] args, @Nullable Locale locale) {
+  protected String getMessageInternal(@Nullable String code, Object @Nullable [] args, @Nullable Locale locale) {
     if (code == null) {
       return null;
     }
@@ -269,7 +269,7 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
    * @see #getParentMessageSource()
    */
   @Nullable
-  protected String getMessageFromParent(String code, @Nullable Object[] args, Locale locale) {
+  protected String getMessageFromParent(String code, Object @Nullable [] args, Locale locale) {
     MessageSource parent = getParentMessageSource();
     if (parent != null) {
       if (parent instanceof AbstractMessageSource) {
@@ -348,7 +348,7 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
    * @return an array of arguments with any MessageSourceResolvables resolved
    */
   @Override
-  protected Object[] resolveArguments(@Nullable Object[] args, @Nullable Locale locale) {
+  protected Object[] resolveArguments(Object @Nullable [] args, @Nullable Locale locale) {
     if (ObjectUtils.isEmpty(args)) {
       return super.resolveArguments(args, locale);
     }

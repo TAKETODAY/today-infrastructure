@@ -78,6 +78,7 @@ public final class BeanMap<T> extends AbstractMap<String, Object> implements Map
     return Collections.unmodifiableSet(metadata.getBeanProperties().keySet());
   }
 
+  @Nullable
   @Override
   public Object get(Object key) {
     if (key instanceof String) {
@@ -86,6 +87,7 @@ public final class BeanMap<T> extends AbstractMap<String, Object> implements Map
     throw new IllegalArgumentException("key must be a string");
   }
 
+  @Nullable
   public Object get(Object target, String key) {
     return metadata.getProperty(target, key);
   }
@@ -184,6 +186,7 @@ public final class BeanMap<T> extends AbstractMap<String, Object> implements Map
    * @param name the name of the JavaBean property
    * @return the type of the property, or null if the property does not exist
    */
+  @Nullable
   public Class<?> getPropertyType(String name) {
     BeanProperty beanProperty = metadata.getBeanProperty(name);
     if (beanProperty != null) {

@@ -46,5 +46,5 @@ public abstract class ConstructorAccessor extends BeanInstantiator implements Ac
    * @since 4.0
    */
   @Override
-  public abstract Object doInstantiate(@Nullable Object[] args);
+  public abstract Object doInstantiate(@Nullable Object @Nullable [] args);
 }

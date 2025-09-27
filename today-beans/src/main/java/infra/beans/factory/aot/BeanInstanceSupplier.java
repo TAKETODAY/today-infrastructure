@@ -93,13 +93,12 @@ public final class BeanInstanceSupplier<T> extends AutowiredElementResolver impl
   @Nullable
   private final ThrowingBiFunction<RegisteredBean, AutowiredArguments, T> generatorWithArguments;
 
-  @Nullable
-  private final String[] shortcutBeanNames;
+  private final String @Nullable [] shortcutBeanNames;
 
   private BeanInstanceSupplier(ExecutableLookup lookup,
           @Nullable ThrowingFunction<RegisteredBean, T> generatorWithoutArguments,
           @Nullable ThrowingBiFunction<RegisteredBean, AutowiredArguments, T> generatorWithArguments,
-          @Nullable String[] shortcutBeanNames) {
+          String @Nullable [] shortcutBeanNames) {
 
     this.lookup = lookup;
     this.generatorWithoutArguments = generatorWithoutArguments;
@@ -205,7 +204,7 @@ public final class BeanInstanceSupplier<T> extends AutowiredElementResolver impl
     }
     else {
       Executable executable = this.lookup.get(registeredBean);
-      Object[] arguments = resolveArguments(registeredBean, executable).toArray();
+      @Nullable Object[] arguments = resolveArguments(registeredBean, executable).toArray();
       return invokeBeanSupplier(executable, () -> (T) instantiate(registeredBean, executable, arguments));
     }
   }
@@ -248,9 +247,10 @@ public final class BeanInstanceSupplier<T> extends AutowiredElementResolver impl
     return resolveArguments(registeredBean, this.lookup.get(registeredBean));
   }
 
+  @SuppressWarnings("NullAway")
   private AutowiredArguments resolveArguments(RegisteredBean registeredBean, Executable executable) {
     int parameterCount = executable.getParameterCount();
-    Object[] resolved = new Object[parameterCount];
+    @Nullable Object[] resolved = new Object[parameterCount];
     Assert.isTrue(this.shortcutBeanNames == null || this.shortcutBeanNames.length == resolved.length,
             () -> "'shortcuts' must contain " + resolved.length + " elements");
 
@@ -351,7 +351,7 @@ public final class BeanInstanceSupplier<T> extends AutowiredElementResolver impl
     }
   }
 
-  private Object instantiate(RegisteredBean registeredBean, Executable executable, Object[] args) {
+  private Object instantiate(RegisteredBean registeredBean, Executable executable, @Nullable Object[] args) {
     if (executable instanceof Constructor<?> constructor) {
       if (registeredBean.getBeanFactory() instanceof AbstractAutowireCapableBeanFactory aacb
               && registeredBean.getMergedBeanDefinition().hasMethodOverrides()) {

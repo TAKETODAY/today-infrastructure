@@ -96,8 +96,7 @@ public class BeanNameAutoProxyCreator extends AbstractAutoProxyCreator {
    * @see #setBeanNames(String...)
    */
   @Override
-  @Nullable
-  protected Object[] getAdvicesAndAdvisorsForBean(Class<?> beanClass,
+  protected Object @Nullable [] getAdvicesAndAdvisorsForBean(Class<?> beanClass,
           String beanName, @Nullable TargetSource targetSource) {
 
     return isSupportedBeanName(beanClass, beanName)

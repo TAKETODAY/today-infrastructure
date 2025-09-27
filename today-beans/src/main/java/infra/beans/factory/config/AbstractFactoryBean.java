@@ -135,6 +135,7 @@ public abstract class AbstractFactoryBean<T> implements FactoryBean<T>,
    * @see #getEarlySingletonInterfaces()
    */
   @Override
+  @SuppressWarnings("NullAway")
   public final T getObject() throws Exception {
     if (isSingleton()) {
       return (this.initialized ? this.singletonInstance : getEarlySingletonInstance());
@@ -175,6 +176,7 @@ public abstract class AbstractFactoryBean<T> implements FactoryBean<T>,
    * This abstract method declaration mirrors the method in the FactoryBean
    * interface, for a consistent offering of abstract template methods.
    */
+  @Nullable
   @Override
   public abstract Class<?> getObjectType();
 
@@ -204,8 +206,7 @@ public abstract class AbstractFactoryBean<T> implements FactoryBean<T>,
    * indicate a BeanInstantiationException
    * @see BeanInstantiationException
    */
-  @Nullable
-  protected Class<?>[] getEarlySingletonInterfaces() {
+  protected Class<?> @Nullable [] getEarlySingletonInterfaces() {
     Class<?> type = getObjectType();
     return (type != null && type.isInterface() ? new Class<?>[] { type } : null);
   }
@@ -222,7 +223,6 @@ public abstract class AbstractFactoryBean<T> implements FactoryBean<T>,
    * @see #createBeanInstance()
    */
   protected void destroyInstance(@Nullable T instance) throws Exception {
-
   }
 
   /**

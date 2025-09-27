@@ -111,8 +111,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
    *
    * @see #getAdvicesAndAdvisorsForBean
    */
-  @Nullable
-  protected static final Object[] DO_NOT_PROXY = null;
+  protected static final Object @Nullable [] DO_NOT_PROXY = null;
 
   /**
    * Convenience constant for subclasses: Return value for
@@ -125,8 +124,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
   @Nullable
   private BeanFactory beanFactory;
 
-  @Nullable
-  private transient TargetSourceCreator[] customTargetSourceCreators;
+  private transient TargetSourceCreator @Nullable [] customTargetSourceCreators;
 
   /** Default is no common interceptors. */
   private String[] interceptorNames = new String[0];
@@ -295,8 +293,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
   }
 
   @Override
-  @Nullable
-  public Constructor<?>[] determineCandidateConstructors(Class<?> beanClass, String beanName) {
+  public Constructor<?> @Nullable [] determineCandidateConstructors(Class<?> beanClass, String beanName) {
     return null;
   }
 
@@ -404,19 +401,19 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
    * @see #buildAdvisors
    */
   protected Object createProxy(Class<?> beanClass, @Nullable String beanName,
-          @Nullable Object[] specificInterceptors, TargetSource targetSource) {
+          Object @Nullable [] specificInterceptors, TargetSource targetSource) {
 
     return buildProxy(beanClass, beanName, specificInterceptors, targetSource, false);
   }
 
   private Class<?> createProxyClass(Class<?> beanClass, @Nullable String beanName,
-          @Nullable Object[] specificInterceptors, TargetSource targetSource) {
+          Object @Nullable [] specificInterceptors, TargetSource targetSource) {
 
     return (Class<?>) buildProxy(beanClass, beanName, specificInterceptors, targetSource, true);
   }
 
   private Object buildProxy(Class<?> beanClass, @Nullable String beanName,
-          @Nullable Object[] specificInterceptors, TargetSource targetSource, boolean classOnly) {
+          Object @Nullable [] specificInterceptors, TargetSource targetSource, boolean classOnly) {
 
     if (beanFactory instanceof ConfigurableBeanFactory cbf) {
       AutoProxyUtils.exposeTargetClass(cbf, beanName, beanClass);
@@ -550,7 +547,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
    * specific to this bean (may be empty, but not null)
    * @return the array of Advisors for the given bean
    */
-  protected Advisor[] buildAdvisors(@Nullable String beanName, @Nullable Object[] specificInterceptors) {
+  protected Advisor[] buildAdvisors(@Nullable String beanName, Object @Nullable [] specificInterceptors) {
     // Handle prototypes correctly...
     Advisor[] commonInterceptors = resolveInterceptorNames();
 
@@ -611,7 +608,8 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
    * TargetSource and interfaces and will be used to create the proxy
    * immediately after this method returns
    */
-  protected void customizeProxyFactory(ProxyFactory proxyFactory) { }
+  protected void customizeProxyFactory(ProxyFactory proxyFactory) {
+  }
 
   /**
    * Return whether the given bean is to be proxied, what additional
@@ -630,8 +628,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
    * @see #DO_NOT_PROXY
    * @see #PROXY_WITHOUT_ADDITIONAL_INTERCEPTORS
    */
-  @Nullable
-  protected abstract Object[] getAdvicesAndAdvisorsForBean(
+  protected abstract Object @Nullable [] getAdvicesAndAdvisorsForBean(
           Class<?> beanClass, String beanName, @Nullable TargetSource targetSource);
 
 }

@@ -39,7 +39,7 @@ public class BeanDefinitionCustomizers {
    *
    * @param customizers new customizers
    */
-  public void setCustomizers(@Nullable BeanDefinitionCustomizer... customizers) {
+  public void setCustomizers(BeanDefinitionCustomizer @Nullable ... customizers) {
     if (ObjectUtils.isNotEmpty(customizers)) {
       CollectionUtils.addAll(customizers(), customizers);
     }

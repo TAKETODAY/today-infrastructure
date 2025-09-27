@@ -300,7 +300,7 @@ public class BeanDefinitionValueResolver {
     }
     else if (value instanceof String[] values) {
       boolean actuallyResolved = false;
-      Object[] resolvedValues = new Object[values.length];
+      @Nullable Object[] resolvedValues = new Object[values.length];
       for (int i = 0; i < values.length; i++) {
         String originalValue = values[i];
         Object resolvedValue = doEvaluate(originalValue);

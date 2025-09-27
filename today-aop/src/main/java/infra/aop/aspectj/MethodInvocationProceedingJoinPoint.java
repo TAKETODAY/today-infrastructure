@@ -56,8 +56,7 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint,
 
   private final ProxyMethodInvocation methodInvocation;
 
-  @Nullable
-  private Object[] args;
+  private Object @Nullable [] args;
 
   /** Lazily initialized signature object. */
   @Nullable
@@ -179,8 +178,7 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint,
    */
   private final class MethodSignatureImpl implements MethodSignature {
 
-    @Nullable
-    private volatile String[] parameterNames;
+    private volatile String @Nullable [] parameterNames;
 
     @Override
     public String getName() {
@@ -218,8 +216,7 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint,
     }
 
     @Override
-    @Nullable
-    public String[] getParameterNames() {
+    public String @Nullable [] getParameterNames() {
       String[] parameterNames = this.parameterNames;
       if (parameterNames == null) {
         parameterNames = parameterNameDiscoverer.getParameterNames(getMethod());

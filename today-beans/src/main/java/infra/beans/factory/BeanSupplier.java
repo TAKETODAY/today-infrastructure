@@ -85,6 +85,7 @@ public class BeanSupplier<T> implements Supplier<T>, Serializable {
     return false;
   }
 
+  @SuppressWarnings("NullAway")
   @Override
   public T get() {
     return beanFactory.getBean(beanName, beanType);
@@ -96,13 +97,13 @@ public class BeanSupplier<T> implements Supplier<T>, Serializable {
     return from(beanFactory, null, beanName);
   }
 
-  public static <E> BeanSupplier<E> from(BeanFactory beanFactory, Class<E> beanType, String beanName) {
+  public static <E> BeanSupplier<E> from(BeanFactory beanFactory, @Nullable Class<E> beanType, String beanName) {
     boolean singleton = beanFactory.isSingleton(beanName);
     return from(beanFactory, beanType, beanName, singleton);
   }
 
   public static <E> BeanSupplier<E> from(BeanFactory beanFactory,
-          Class<E> beanType, String beanName, boolean singleton) {
+          @Nullable Class<E> beanType, String beanName, boolean singleton) {
     if (singleton) {
       return new SingletonBeanSupplier<>(beanFactory, beanName, beanType);
     }

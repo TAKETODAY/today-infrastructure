@@ -167,8 +167,8 @@ class RegexPathElement extends PathElement {
         String value = matcher.group(i);
         matchingContext.set(name, value,
                 (i == this.variableNames.size())
-                ? ((PathSegment) matchingContext.pathElements.get(pathIndex)).parameters()
-                : null
+                        ? ((PathSegment) matchingContext.pathElements.get(pathIndex)).parameters()
+                        : null
         );
       }
     }

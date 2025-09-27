@@ -195,13 +195,14 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public <T> T getBean(String name, Class<T> requiredType) {
     return doGetBean(name, requiredType, null, false);
   }
 
   @Nullable
   @Override
-  public Object getBean(String name, Object... args) throws BeansException {
+  public Object getBean(String name, @Nullable Object @Nullable ... args) throws BeansException {
     return doGetBean(name, null, args, false);
   }
 
@@ -217,7 +218,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    * @return an instance of the bean
    * @throws BeansException if the bean could not be created
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "NullAway" })
   @Nullable
   protected final <T> T doGetBean(String name, @Nullable Class<?> requiredType, @Nullable Object @Nullable [] args, boolean typeCheckOnly) throws BeansException {
     // delete $
@@ -389,7 +390,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    * @throws BeanCreationException if the bean could not be created
    * @see NullValue#INSTANCE
    */
-  protected abstract Object createBean(String beanName, RootBeanDefinition merged, @Nullable Object[] args)
+  protected abstract Object createBean(String beanName, RootBeanDefinition merged, @Nullable Object @Nullable [] args)
           throws BeanCreationException;
 
   @Nullable
@@ -931,6 +932,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    * @see #getBean(String)
    * @since 4.0
    */
+  @SuppressWarnings("NullAway")
   protected ResolvableType getTypeForFactoryBean(String beanName, RootBeanDefinition merged, boolean allowInit) {
     try {
       ResolvableType result = getTypeForFactoryBeanFromAttributes(merged);
@@ -2064,6 +2066,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
     }
   }
 
+  @SuppressWarnings("NullAway")
   private void copyRelevantMergedBeanDefinitionCaches(RootBeanDefinition previous, RootBeanDefinition mbd) {
     if (Objects.equals(mbd.getBeanClassName(), previous.getBeanClassName())
             && Objects.equals(mbd.getFactoryBeanName(), previous.getFactoryBeanName())
@@ -2104,7 +2107,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    * @param beanName the name of the bean
    * @param args the arguments for bean creation, if any
    */
-  protected void checkMergedBeanDefinition(RootBeanDefinition mbd, String beanName, @Nullable Object[] args) {
+  protected void checkMergedBeanDefinition(RootBeanDefinition mbd, String beanName, @Nullable Object @Nullable [] args) {
     if (mbd.isAbstract()) {
       throw new BeanIsAbstractException(beanName);
     }

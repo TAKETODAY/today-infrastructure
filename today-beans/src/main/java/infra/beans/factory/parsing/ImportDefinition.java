@@ -34,8 +34,7 @@ public class ImportDefinition implements BeanMetadataElement {
 
   private final String importedResource;
 
-  @Nullable
-  private final Resource[] actualResources;
+  private final Resource @Nullable [] actualResources;
 
   @Nullable
   private final Object source;
@@ -65,7 +64,7 @@ public class ImportDefinition implements BeanMetadataElement {
    * @param importedResource the location of the imported resource
    * @param source the source object (may be {@code null})
    */
-  public ImportDefinition(String importedResource, @Nullable Resource[] actualResources, @Nullable Object source) {
+  public ImportDefinition(String importedResource, Resource @Nullable [] actualResources, @Nullable Object source) {
     Assert.notNull(importedResource, "Imported resource is required");
     this.importedResource = importedResource;
     this.actualResources = actualResources;
@@ -79,8 +78,7 @@ public class ImportDefinition implements BeanMetadataElement {
     return this.importedResource;
   }
 
-  @Nullable
-  public final Resource[] getActualResources() {
+  public final Resource @Nullable [] getActualResources() {
     return this.actualResources;
   }
 

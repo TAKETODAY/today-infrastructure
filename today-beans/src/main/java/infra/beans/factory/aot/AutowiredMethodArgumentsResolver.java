@@ -65,11 +65,10 @@ public final class AutowiredMethodArgumentsResolver extends AutowiredElementReso
 
   private final boolean required;
 
-  @Nullable
-  private final String[] shortcuts;
+  private final String @Nullable [] shortcuts;
 
   private AutowiredMethodArgumentsResolver(String methodName, Class<?>[] parameterTypes,
-          boolean required, @Nullable String[] shortcuts) {
+          boolean required, String @Nullable [] shortcuts) {
 
     Assert.hasText(methodName, "'methodName' must not be empty");
     this.methodName = methodName;
@@ -159,6 +158,7 @@ public final class AutowiredMethodArgumentsResolver extends AutowiredElementReso
    * @param registeredBean the registered bean
    * @param instance the bean instance
    */
+  @SuppressWarnings("NullAway")
   public void resolveAndInvoke(RegisteredBean registeredBean, Object instance) {
     Assert.notNull(registeredBean, "'registeredBean' is required");
     Assert.notNull(instance, "'instance' is required");
@@ -171,14 +171,14 @@ public final class AutowiredMethodArgumentsResolver extends AutowiredElementReso
   }
 
   @Nullable
-  private AutowiredArguments resolveArguments(RegisteredBean registeredBean,
-          Method method) {
+  @SuppressWarnings("NullAway")
+  private AutowiredArguments resolveArguments(RegisteredBean registeredBean, Method method) {
 
     String beanName = registeredBean.getBeanName();
     Class<?> beanClass = registeredBean.getBeanClass();
     ConfigurableBeanFactory beanFactory = registeredBean.getBeanFactory();
     int argumentCount = method.getParameterCount();
-    Object[] arguments = new Object[argumentCount];
+    @Nullable Object[] arguments = new Object[argumentCount];
     Set<String> autowiredBeanNames = new LinkedHashSet<>(argumentCount);
     TypeConverter typeConverter = beanFactory.getTypeConverter();
     for (int i = 0; i < argumentCount; i++) {

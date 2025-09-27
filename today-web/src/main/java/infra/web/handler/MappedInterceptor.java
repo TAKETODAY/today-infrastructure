@@ -121,8 +121,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
   /**
    * Return the patterns this interceptor is mapped to.
    */
-  @Nullable
-  public String[] getPathPatterns() {
+  public String @Nullable [] getPathPatterns() {
     if (ObjectUtils.isNotEmpty(includePatterns)) {
       int i = 0;
       String[] patterns = new String[includePatterns.length];

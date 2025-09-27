@@ -112,6 +112,7 @@ class BeanDefinitionPropertiesCodeGenerator {
             .createValueCodeGenerator(generatedMethods, customDelegates);
   }
 
+  @SuppressWarnings("NullAway")
   CodeBlock generateCode(RootBeanDefinition beanDefinition) {
     CodeBlock.Builder code = CodeBlock.builder();
 
@@ -142,7 +143,7 @@ class BeanDefinitionPropertiesCodeGenerator {
   }
 
   private void addInitDestroyMethods(Builder code, AbstractBeanDefinition beanDefinition,
-          @Nullable String[] methodNames, String format) {
+          String @Nullable [] methodNames, String format) {
     // For Publisher-based destroy methods
     hints.reflection().registerType(TypeReference.of(ReactiveStreams.INDICATOR_CLASS));
     if (ObjectUtils.isNotEmpty(methodNames)) {

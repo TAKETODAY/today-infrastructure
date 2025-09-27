@@ -88,7 +88,7 @@ public class BshScriptFactory implements ScriptFactory, BeanClassLoaderAware {
    * @param scriptInterfaces the Java interfaces that the scripted object
    * is supposed to implement (may be {@code null})
    */
-  public BshScriptFactory(String scriptSourceLocator, @Nullable Class<?>... scriptInterfaces) {
+  public BshScriptFactory(String scriptSourceLocator, Class<?> @Nullable ... scriptInterfaces) {
     Assert.hasText(scriptSourceLocator, "'scriptSourceLocator' must not be empty");
     this.scriptSourceLocator = scriptSourceLocator;
     this.scriptInterfaces = scriptInterfaces;
@@ -105,8 +105,7 @@ public class BshScriptFactory implements ScriptFactory, BeanClassLoaderAware {
   }
 
   @Override
-  @Nullable
-  public Class<?>[] getScriptInterfaces() {
+  public Class<?> @Nullable [] getScriptInterfaces() {
     return this.scriptInterfaces;
   }
 
@@ -125,7 +124,7 @@ public class BshScriptFactory implements ScriptFactory, BeanClassLoaderAware {
    */
   @Override
   @Nullable
-  public Object getScriptedObject(ScriptSource scriptSource, @Nullable Class<?>... actualInterfaces)
+  public Object getScriptedObject(ScriptSource scriptSource, Class<?> @Nullable ... actualInterfaces)
           throws IOException, ScriptCompilationException {
 
     Class<?> clazz;

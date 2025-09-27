@@ -571,6 +571,7 @@ public abstract class BeanFactoryUtils {
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   public static <T> T find(BeanFactory beanFactory, String beanName,
           @Nullable Class<T> requiredType, @Nullable Supplier<T> defaultValue) {
     if (beanFactory.containsBean(beanName)) {

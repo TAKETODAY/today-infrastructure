@@ -219,7 +219,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * @param interfaces array of interfaces to implement, or null
    * @see Factory
    */
-  public void setInterfaces(@Nullable Class<?>... interfaces) {
+  public void setInterfaces(Class<?> @Nullable ... interfaces) {
     this.interfaces = interfaces;
   }
 
@@ -497,7 +497,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     getMethods(superclass, interfaces, methods, null);
   }
 
-  private static void getMethods(Class<?> superclass, @Nullable Class<?>[] interfaces,
+  private static void getMethods(Class<?> superclass, Class<?> @Nullable [] interfaces,
           List<Method> methods, @Nullable List<Method> interfaceMethods) {
     MethodInfo.addAllMethods(superclass, methods);
 

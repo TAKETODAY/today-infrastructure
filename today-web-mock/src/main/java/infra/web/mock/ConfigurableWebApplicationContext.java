@@ -75,8 +75,7 @@ public interface ConfigurableWebApplicationContext extends WebApplicationContext
    * Return the config locations for this web application context,
    * or {@code null} if none specified.
    */
-  @Nullable
-  String[] getConfigLocations();
+  String @Nullable [] getConfigLocations();
 
   /**
    * Set the MockContext for this web application context.

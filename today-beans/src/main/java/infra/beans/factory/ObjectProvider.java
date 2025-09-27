@@ -124,7 +124,7 @@ public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
    * @see #get()
    * @since 4.0
    */
-  default T get(Object... args) throws BeansException {
+  default T get(@Nullable Object... args) throws BeansException {
     throw new UnsupportedOperationException("Retrieval with arguments not supported -" +
             "for custom ObjectProvider classes, implement getObject(Object...) for your purposes");
   }

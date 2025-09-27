@@ -347,6 +347,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public boolean matches(MethodInvocation invocation) {
     Method method = invocation.getMethod();
     ShadowMatch shadowMatch = getTargetShadowMatch(method, invocation.getThis().getClass());

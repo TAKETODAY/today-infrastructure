@@ -211,8 +211,8 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
       }
     }
     return ProblemDetail.class.isAssignableFrom(clazz)
-           ? getMediaTypesForProblemDetail()
-           : getSupportedMediaTypes();
+            ? getMediaTypesForProblemDetail()
+            : getSupportedMediaTypes();
   }
 
   /**
@@ -445,7 +445,7 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
     ObjectMapper objectMapper = this.defaultObjectMapper;
     if (objectMapperRegistrations != null) {
       Class<?> clazz = object instanceof MappingJacksonValue mappingJacksonValue
-                       ? mappingJacksonValue.getValue().getClass() : object.getClass();
+              ? mappingJacksonValue.getValue().getClass() : object.getClass();
       objectMapper = selectObjectMapper(clazz, contentType);
       if (objectMapper == null) {
         throw new IllegalStateException("No ObjectMapper for " + clazz.getName());
@@ -471,7 +471,7 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
       }
 
       ObjectWriter objectWriter = serializationView != null
-                                  ? objectMapper.writerWithView(serializationView) : objectMapper.writer();
+              ? objectMapper.writerWithView(serializationView) : objectMapper.writer();
       if (filters != null) {
         objectWriter = objectWriter.with(filters);
       }

@@ -40,10 +40,9 @@ public class BeanNameHolder {
 
   protected final String beanName;
 
-  @Nullable
-  protected final String[] aliases;
+  protected final String @Nullable [] aliases;
 
-  public BeanNameHolder(String beanName, @Nullable String[] aliases) {
+  public BeanNameHolder(String beanName, String @Nullable [] aliases) {
     Assert.notNull(beanName, "Bean name is required");
     this.beanName = beanName;
     this.aliases = aliases;
@@ -61,8 +60,7 @@ public class BeanNameHolder {
    *
    * @return the array of alias names, or {@code null} if none
    */
-  @Nullable
-  public String[] getAliases() {
+  public String @Nullable [] getAliases() {
     return this.aliases;
   }
 

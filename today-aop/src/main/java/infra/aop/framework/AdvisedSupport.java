@@ -118,8 +118,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    *
    * @since 4.0
    */
-  @Nullable
-  private transient volatile MethodInterceptor[] cachedInterceptors;
+  private transient volatile MethodInterceptor @Nullable [] cachedInterceptors;
 
   /**
    * Optional field for {@link AopProxy} implementations to store metadata in.
@@ -134,7 +133,8 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   /**
    * No-arg constructor for use as a JavaBean.
    */
-  public AdvisedSupport() { }
+  public AdvisedSupport() {
+  }
 
   /**
    * Create a AdvisedSupport instance with the given parameters.

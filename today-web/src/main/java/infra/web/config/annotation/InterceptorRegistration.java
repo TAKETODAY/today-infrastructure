@@ -72,7 +72,7 @@ public class InterceptorRegistration implements Ordered {
    */
   public InterceptorRegistration addPathPatterns(List<String> patterns) {
     this.includePatterns = includePatterns != null ?
-                           includePatterns : new ArrayList<>(patterns.size());
+            includePatterns : new ArrayList<>(patterns.size());
     this.includePatterns.addAll(patterns);
     return this;
   }
@@ -91,7 +91,7 @@ public class InterceptorRegistration implements Ordered {
    */
   public InterceptorRegistration excludePathPatterns(List<String> patterns) {
     this.excludePatterns = excludePatterns != null ?
-                           excludePatterns : new ArrayList<>(patterns.size());
+            excludePatterns : new ArrayList<>(patterns.size());
     this.excludePatterns.addAll(patterns);
     return this;
   }

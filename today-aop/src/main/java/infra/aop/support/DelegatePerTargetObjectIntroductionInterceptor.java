@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.aop.support;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serial;
 import java.util.WeakHashMap;
@@ -84,6 +85,8 @@ public class DelegatePerTargetObjectIntroductionInterceptor extends Introduction
    * method, which handles introduced interfaces and forwarding to the target.
    */
   @Override
+  @Nullable
+  @SuppressWarnings("NullAway")
   public Object invoke(MethodInvocation mi) throws Throwable {
     if (isMethodOnIntroducedInterface(mi)) {
       Object delegate = getIntroductionDelegateFor(mi.getThis());
@@ -112,6 +115,7 @@ public class DelegatePerTargetObjectIntroductionInterceptor extends Introduction
    * that it is introduced into. This method is <strong>never</strong> called for
    * {@link MethodInvocation MethodInvocations} on the introduced interfaces.
    */
+  @Nullable
   protected Object doProceed(MethodInvocation mi) throws Throwable {
     // If we get here, just pass the invocation on.
     return mi.proceed();

@@ -80,6 +80,7 @@ public interface TargetSource extends TargetClassAware {
    * @param target object obtained from a call to {@link #getTarget()}
    * @throws Exception if the object can't be released
    */
-  default void releaseTarget(Object target) throws Exception { }
+  default void releaseTarget(Object target) throws Exception {
+  }
 
 }

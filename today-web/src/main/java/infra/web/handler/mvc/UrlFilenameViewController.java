@@ -123,8 +123,8 @@ public class UrlFilenameViewController extends AbstractUrlViewController {
   protected String extractOperableUrl(RequestContext request) {
     String path = request.getRequestPath().value();
     path = removeSemicolonContent
-           ? WebUtils.removeSemicolonContent(path)
-           : path;
+            ? WebUtils.removeSemicolonContent(path)
+            : path;
     return path;
   }
 

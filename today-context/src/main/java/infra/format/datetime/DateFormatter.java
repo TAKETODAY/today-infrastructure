@@ -79,8 +79,7 @@ public class DateFormatter implements Formatter<Date> {
   @Nullable
   private String pattern;
 
-  @Nullable
-  private String[] fallbackPatterns;
+  private String @Nullable []fallbackPatterns;
 
   private int style = DateFormat.DEFAULT;
 

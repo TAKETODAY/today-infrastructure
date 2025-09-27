@@ -192,8 +192,7 @@ public abstract class AutoProxyUtils {
    * @see #EXPOSED_INTERFACES_ATTRIBUTE
    * @since 5.0
    */
-  @Nullable
-  static Class<?>[] determineExposedInterfaces(ConfigurableBeanFactory beanFactory, @Nullable String beanName) {
+  static Class<?> @Nullable [] determineExposedInterfaces(ConfigurableBeanFactory beanFactory, @Nullable String beanName) {
     if (beanName != null && beanFactory.containsBeanDefinition(beanName)) {
       BeanDefinition bd = beanFactory.getBeanDefinition(beanName);
       Object interfaces = bd.getAttribute(EXPOSED_INTERFACES_ATTRIBUTE);

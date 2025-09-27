@@ -213,8 +213,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  @Nullable
-  public String[] getParameters(String name) {
+  public String @Nullable [] getParameters(String name) {
     return getDelegate().getParameters(name);
   }
 
