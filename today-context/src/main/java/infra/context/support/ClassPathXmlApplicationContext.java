@@ -56,8 +56,7 @@ import infra.lang.Assert;
  */
 public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContext {
 
-  @Nullable
-  private Resource[] configResources;
+  private Resource @Nullable [] configResources;
 
   /**
    * Create a new ClassPathXmlApplicationContext for bean-style configuration.
@@ -216,8 +215,7 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
   }
 
   @Override
-  @Nullable
-  protected Resource[] getConfigResources() {
+  protected Resource @Nullable [] getConfigResources() {
     return this.configResources;
   }
 

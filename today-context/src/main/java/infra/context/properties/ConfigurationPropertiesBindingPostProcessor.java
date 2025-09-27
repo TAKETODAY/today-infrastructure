@@ -54,10 +54,13 @@ public class ConfigurationPropertiesBindingPostProcessor
    */
   public static final String BEAN_NAME = ConfigurationPropertiesBindingPostProcessor.class.getName();
 
+  @SuppressWarnings("NullAway.Init")
   private ApplicationContext applicationContext;
 
+  @SuppressWarnings("NullAway.Init")
   private BeanDefinitionRegistry registry;
 
+  @SuppressWarnings("NullAway.Init")
   private ConfigurationPropertiesBinder binder;
 
   @Override

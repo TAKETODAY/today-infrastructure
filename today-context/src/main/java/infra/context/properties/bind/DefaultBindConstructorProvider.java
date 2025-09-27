@@ -38,6 +38,8 @@ import infra.util.ClassUtils;
  */
 class DefaultBindConstructorProvider implements BindConstructorProvider {
 
+  @SuppressWarnings("NullAway")
+  @Nullable
   @Override
   public Constructor<?> getBindConstructor(Bindable<?> bindable, boolean isNestedConstructorBinding) {
     Constructors constructors = Constructors.getConstructors(
@@ -52,6 +54,7 @@ class DefaultBindConstructorProvider implements BindConstructorProvider {
     return constructors.bind;
   }
 
+  @Nullable
   @Override
   public Constructor<?> getBindConstructor(Class<?> type, boolean isNestedConstructorBinding) {
     Constructors constructors = Constructors.getConstructors(type, isNestedConstructorBinding);

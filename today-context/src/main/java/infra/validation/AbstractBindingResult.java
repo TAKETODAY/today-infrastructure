@@ -98,13 +98,13 @@ public abstract class AbstractBindingResult extends AbstractErrors implements Bi
   }
 
   @Override
-  public void reject(String errorCode, @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
+  public void reject(String errorCode, Object @Nullable [] errorArgs, @Nullable String defaultMessage) {
     addError(new ObjectError(getObjectName(), resolveMessageCodes(errorCode), errorArgs, defaultMessage));
   }
 
   @Override
   public void rejectValue(@Nullable String field, String errorCode,
-          @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
+          Object @Nullable [] errorArgs, @Nullable String defaultMessage) {
 
     if (StringUtils.isEmpty(getNestedPath()) && StringUtils.isEmpty(field)) {
       // We're at the top of the nested object hierarchy,
@@ -270,6 +270,7 @@ public abstract class AbstractBindingResult extends AbstractErrors implements Bi
    * @see #MODEL_KEY_PREFIX
    */
   @Override
+  @SuppressWarnings("NullAway")
   public Map<String, Object> getModel() {
     LinkedHashMap<String, Object> model = new LinkedHashMap<>(2);
     // Mapping from name to target object.
@@ -331,6 +332,7 @@ public abstract class AbstractBindingResult extends AbstractErrors implements Bi
     this.errors.add(error);
   }
 
+  @SuppressWarnings("NullAway")
   @Override
   public void recordFieldValue(String field, Class<?> type, @Nullable Object value) {
     this.fieldTypes.put(field, type);

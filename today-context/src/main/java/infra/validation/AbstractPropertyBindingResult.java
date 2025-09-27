@@ -73,6 +73,7 @@ public abstract class AbstractPropertyBindingResult extends AbstractBindingResul
    * @see #getPropertyAccessor()
    */
   @Override
+  @Nullable
   public PropertyEditorRegistry getPropertyEditorRegistry() {
     return (getTarget() != null ? getPropertyAccessor() : null);
   }
@@ -117,6 +118,7 @@ public abstract class AbstractPropertyBindingResult extends AbstractBindingResul
    * @see #getCustomEditor
    */
   @Override
+  @Nullable
   protected Object formatFieldValue(String field, @Nullable Object value) {
     String fixedField = fixedField(field);
     // Try custom editor...

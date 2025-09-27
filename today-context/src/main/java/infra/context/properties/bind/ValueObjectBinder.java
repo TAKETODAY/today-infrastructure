@@ -70,6 +70,7 @@ class ValueObjectBinder implements DataObjectBinder {
     this.constructorProvider = constructorProvider;
   }
 
+  @SuppressWarnings("NullAway")
   @Nullable
   @Override
   public <T> T bind(ConfigurationPropertyName name, Bindable<T> target,

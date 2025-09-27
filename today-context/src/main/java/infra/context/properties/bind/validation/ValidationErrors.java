@@ -42,6 +42,7 @@ import infra.validation.ObjectError;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public class ValidationErrors implements Iterable<ObjectError> {
 
   private final ConfigurationPropertyName name;

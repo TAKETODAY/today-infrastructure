@@ -51,11 +51,13 @@ public abstract class AbstractBindHandler implements BindHandler {
     this.parent = parent;
   }
 
+  @Nullable
   @Override
   public <T> Bindable<T> onStart(ConfigurationPropertyName name, Bindable<T> target, BindContext context) {
     return this.parent.onStart(name, target, context);
   }
 
+  @Nullable
   @Override
   public Object onSuccess(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Object result) {
     return this.parent.onSuccess(name, target, context, result);
@@ -69,7 +71,7 @@ public abstract class AbstractBindHandler implements BindHandler {
   }
 
   @Override
-  public void onFinish(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Object result)
+  public void onFinish(ConfigurationPropertyName name, Bindable<?> target, BindContext context, @Nullable Object result)
           throws Exception {
     this.parent.onFinish(name, target, context, result);
   }

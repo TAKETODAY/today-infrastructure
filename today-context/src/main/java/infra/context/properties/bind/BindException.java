@@ -81,6 +81,7 @@ public class BindException extends RuntimeException implements OriginProvider {
     return this.property;
   }
 
+  @Nullable
   @Override
   public Origin getOrigin() {
     return Origin.from(this.name);

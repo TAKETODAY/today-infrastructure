@@ -17,6 +17,8 @@
 
 package infra.context.properties;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +46,7 @@ import infra.util.ClassUtils;
 class ConfigurationPropertiesBeanFactoryInitializationAotProcessor implements BeanFactoryInitializationAotProcessor {
 
   @Override
+  @Nullable
   public ConfigurationPropertiesReflectionHintsContribution processAheadOfTime(ConfigurableBeanFactory beanFactory) {
     var beanNames = beanFactory.getBeanNamesForAnnotation(ConfigurationProperties.class);
     List<Bindable<?>> bindables = new ArrayList<>();

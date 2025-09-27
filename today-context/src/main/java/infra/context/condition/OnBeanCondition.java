@@ -172,7 +172,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
       return ConditionOutcome
               .match(spec.message(matchMessage).found("a single bean").items(ConditionMessage.Style.QUOTE, allBeans));
     }
-    var beanDefinitions = getBeanDefinitions(spec.context.getBeanFactory(), allBeans, spec.getStrategy() == SearchStrategy.ALL);
+    var beanDefinitions = getBeanDefinitions(spec.context.getRequiredBeanFactory(), allBeans, spec.getStrategy() == SearchStrategy.ALL);
     List<String> primaryBeans = getPrimaryBeans(beanDefinitions);
     if (primaryBeans.size() == 1) {
       return ConditionOutcome.match(spec.message(matchMessage)
@@ -244,6 +244,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     return result;
   }
 
+  @SuppressWarnings("NullAway")
   private ConfigurableBeanFactory getSearchBeanFactory(Spec<?> spec) {
     ConfigurableBeanFactory beanFactory = spec.context.getBeanFactory();
     if (spec.getStrategy() == SearchStrategy.ANCESTORS) {
@@ -311,6 +312,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private Map<String, BeanDefinition> collectBeanDefinitionsForType(BeanFactory beanFactory, boolean considerHierarchy,
           ResolvableType type, Set<ResolvableType> parameterizedContainers, @Nullable Map<String, BeanDefinition> result) {
     result = putAll(result, beanFactory.getBeanNamesForType(type, true, false), beanFactory);

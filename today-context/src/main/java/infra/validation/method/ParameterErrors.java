@@ -98,7 +98,7 @@ public class ParameterErrors extends ParameterValidationResult implements Errors
   }
 
   @Override
-  public void reject(String errorCode, @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
+  public void reject(String errorCode, Object @Nullable [] errorArgs, @Nullable String defaultMessage) {
     this.errors.reject(errorCode, errorArgs, defaultMessage);
   }
 
@@ -114,7 +114,7 @@ public class ParameterErrors extends ParameterValidationResult implements Errors
 
   @Override
   public void rejectValue(@Nullable String field, String errorCode,
-          @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
+          Object @Nullable [] errorArgs, @Nullable String defaultMessage) {
 
     this.errors.rejectValue(field, errorCode, errorArgs, defaultMessage);
   }

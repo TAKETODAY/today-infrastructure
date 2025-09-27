@@ -35,6 +35,7 @@ import infra.context.properties.bind.DataObjectPropertyName;
 import infra.context.properties.source.ConfigurationProperty;
 import infra.context.properties.source.ConfigurationPropertyName;
 import infra.core.ResolvableType;
+import infra.lang.Assert;
 import infra.util.ObjectUtils;
 import infra.validation.AbstractBindingResult;
 import infra.validation.BeanPropertyBindingResult;
@@ -70,12 +71,14 @@ public class ValidationBindHandler extends AbstractBindHandler {
     this.validators = validators;
   }
 
+  @Nullable
   @Override
   public <T> Bindable<T> onStart(ConfigurationPropertyName name, Bindable<T> target, BindContext context) {
     this.boundTypes.put(name, target.getType());
     return super.onStart(name, target, context);
   }
 
+  @Nullable
   @Override
   public Object onSuccess(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Object result) {
     this.boundResults.put(name, result);
@@ -85,6 +88,7 @@ public class ValidationBindHandler extends AbstractBindHandler {
     return super.onSuccess(name, target, context, result);
   }
 
+  @Nullable
   @Override
   public Object onFailure(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Exception error)
           throws Exception {
@@ -111,11 +115,13 @@ public class ValidationBindHandler extends AbstractBindHandler {
     super.onFinish(name, target, context, result);
   }
 
+  @SuppressWarnings("NullAway")
   private void validate(ConfigurationPropertyName name, Bindable<?> target, BindContext context, @Nullable Object result) {
     if (this.exception == null) {
       Object validationTarget = getValidationTarget(target, context, result);
       Class<?> validationType = target.getBoxedType().resolve();
       if (validationTarget != null) {
+        Assert.state(validationType != null, "'validationType' is required");
         validateAndPush(name, validationTarget, validationType);
       }
     }
@@ -161,7 +167,7 @@ public class ValidationBindHandler extends AbstractBindHandler {
     private final ConfigurationPropertyName name;
 
     protected ValidationResult(ConfigurationPropertyName name, Object target) {
-      super(target, null);
+      super(target, "");
       this.name = name;
     }
 
@@ -170,8 +176,9 @@ public class ValidationBindHandler extends AbstractBindHandler {
       return this.name.toString();
     }
 
+    @Nullable
     @Override
-    public Class<?> getFieldType(String field) {
+    public Class<?> getFieldType(@Nullable String field) {
       ResolvableType type = getBoundField(ValidationBindHandler.this.boundTypes, field);
       Class<?> resolved = (type != null) ? type.resolve() : null;
       if (resolved != null) {
@@ -180,6 +187,7 @@ public class ValidationBindHandler extends AbstractBindHandler {
       return super.getFieldType(field);
     }
 
+    @Nullable
     @Override
     protected Object getActualFieldValue(String field) {
       Object boundField = getBoundField(ValidationBindHandler.this.boundResults, field);
@@ -208,7 +216,10 @@ public class ValidationBindHandler extends AbstractBindHandler {
     }
 
     @Nullable
-    private <T> T getBoundField(Map<ConfigurationPropertyName, T> boundFields, String field) {
+    private <T> T getBoundField(Map<ConfigurationPropertyName, T> boundFields, @Nullable String field) {
+      if (field == null) {
+        return null;
+      }
       try {
         ConfigurationPropertyName name = getName(field);
         T bound = boundFields.get(name);

@@ -60,18 +60,21 @@ public class NoUnboundElementsBindHandler extends AbstractBindHandler {
     this.filter = filter;
   }
 
+  @Nullable
   @Override
   public <T> Bindable<T> onStart(ConfigurationPropertyName name, Bindable<T> target, BindContext context) {
     this.attemptedNames.add(name);
     return super.onStart(name, target, context);
   }
 
+  @Nullable
   @Override
   public Object onSuccess(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Object result) {
     this.boundNames.add(name);
     return super.onSuccess(name, target, context, result);
   }
 
+  @Nullable
   @Override
   public Object onFailure(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Exception error)
           throws Exception {

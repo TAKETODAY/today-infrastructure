@@ -296,8 +296,7 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
     return (annotation != null) ? annotation.classes() : null;
   }
 
-  @Nullable
-  protected String[] getProperties(Class<?> testClass) {
+  protected String @Nullable [] getProperties(Class<?> testClass) {
     InfraTest annotation = getAnnotation(testClass);
     return (annotation != null) ? annotation.properties() : null;
   }

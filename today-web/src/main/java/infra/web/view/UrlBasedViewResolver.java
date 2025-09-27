@@ -378,8 +378,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
     this.exposedContextBeanNames = exposedContextBeanNames;
   }
 
-  @Nullable
-  protected String[] getExposedContextBeanNames() {
+  protected String @Nullable [] getExposedContextBeanNames() {
     return this.exposedContextBeanNames;
   }
 
@@ -399,8 +398,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
    * Return the view names (or name patterns) that can be handled by this
    * {@link ViewResolver}.
    */
-  @Nullable
-  protected String[] getViewNames() {
+  protected String @Nullable [] getViewNames() {
     return this.viewNames;
   }
 

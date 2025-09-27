@@ -144,8 +144,7 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
    * @return an array of Resource objects, or {@code null} if none
    * @see #getConfigLocations()
    */
-  @Nullable
-  protected Resource[] getConfigResources() {
+  protected Resource @Nullable [] getConfigResources() {
     return null;
   }
 

@@ -42,6 +42,7 @@ class CollectionBinder extends IndexedElementsBinder<Collection<Object>> {
     super(context);
   }
 
+  @Nullable
   @Override
   protected Object bindAggregate(ConfigurationPropertyName name,
           Bindable<?> target, AggregateElementBinder elementBinder) {

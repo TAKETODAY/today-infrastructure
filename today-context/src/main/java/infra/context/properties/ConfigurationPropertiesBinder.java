@@ -143,6 +143,7 @@ class ConfigurationPropertiesBinder {
             : new IgnoreTopLevelConverterNotFoundBindHandler();
   }
 
+  @SuppressWarnings("NullAway")
   private ArrayList<Validator> getValidators(Bindable<?> target) {
     ArrayList<Validator> validators = new ArrayList<>(3);
     if (configurationPropertiesValidator != null) {
