@@ -554,7 +554,7 @@ public abstract class Logger implements Serializable {
 
   // internal
 
-  private void logInternal(@Nullable Object[] arguments, Level level, String format) {
+  private void logInternal(@Nullable Object @Nullable [] arguments, Level level, String format) {
     Object lastElement = CollectionUtils.lastElement(arguments);
     if (lastElement instanceof Throwable throwable) {
       logInternal(level, format, throwable, arguments);
@@ -581,6 +581,6 @@ public abstract class Logger implements Serializable {
     };
   }
 
-  protected abstract void logInternal(Level level, String msg, @Nullable Throwable t, @Nullable Object[] args);
+  protected abstract void logInternal(Level level, String msg, @Nullable Throwable t, @Nullable Object @Nullable [] args);
 
 }

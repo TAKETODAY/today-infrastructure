@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.core.annotation;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -108,11 +110,12 @@ public abstract class MergedAnnotationCollectors {
    * @param adaptations the adaptations that should be applied to the annotation values
    * @return a {@link Collector} which collects and synthesizes the
    * annotations into a {@link LinkedMultiValueMap}
-   * @see #toMultiValueMap(UnaryOperator, Adapt...)
+   * @see #toMultiValueMap(Function, MergedAnnotation.Adapt...)
    */
   public static <A extends Annotation>
-  Collector<MergedAnnotation<A>, ?, MultiValueMap<String, Object>> toMultiValueMap(Adapt... adaptations) {
-    return toMultiValueMap(UnaryOperator.identity(), adaptations);
+  Collector<MergedAnnotation<A>, ? extends @Nullable Object, @Nullable MultiValueMap<String, @Nullable Object>> toMultiValueMap(Adapt... adaptations) {
+
+    return toMultiValueMap((MultiValueMap<String, @Nullable Object> t) -> t, adaptations);
   }
 
   /**
@@ -128,11 +131,13 @@ public abstract class MergedAnnotationCollectors {
    * annotations into a {@link LinkedMultiValueMap}
    * @see #toMultiValueMap(Adapt...)
    */
-  public static <A extends Annotation> Collector<MergedAnnotation<A>, ?, MultiValueMap<String, Object>> toMultiValueMap(
-          UnaryOperator<MultiValueMap<String, Object>> finisher, Adapt... adaptations) {
-    Characteristics[] characteristics = ((Object) finisher == Function.identity()) ? IDENTITY_FINISH_CHARACTERISTICS : NO_CHARACTERISTICS;
+  public static <A extends Annotation> Collector<MergedAnnotation<A>, ? extends @Nullable Object, @Nullable MultiValueMap<String, @Nullable Object>>
+  toMultiValueMap(Function<MultiValueMap<String, @Nullable Object>, @Nullable MultiValueMap<String, @Nullable Object>> finisher, Adapt... adaptations) {
+
+    Characteristics[] characteristics = (Object) finisher == Function.identity() ?
+            IDENTITY_FINISH_CHARACTERISTICS : NO_CHARACTERISTICS;
     return Collector.of(LinkedMultiValueMap::new,
-            (map, annotation) -> annotation.asMap(adaptations).forEach(map::add),
+            (MultiValueMap<String, @Nullable Object> map, MergedAnnotation<A> annotation) -> annotation.asMap(adaptations).forEach(map::add),
             MergedAnnotationCollectors::combiner, finisher, characteristics);
   }
 

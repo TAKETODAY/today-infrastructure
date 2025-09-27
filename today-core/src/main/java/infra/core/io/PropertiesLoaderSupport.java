@@ -45,13 +45,11 @@ public abstract class PropertiesLoaderSupport {
   /** Logger available to subclasses. */
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-  @Nullable
-  protected Properties[] localProperties;
+  protected Properties @Nullable [] localProperties;
 
   protected boolean localOverride = false;
 
-  @Nullable
-  private Resource[] locations;
+  private Resource @Nullable [] locations;
 
   private boolean ignoreResourceNotFound = false;
 

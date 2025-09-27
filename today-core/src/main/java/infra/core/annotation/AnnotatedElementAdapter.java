@@ -44,13 +44,12 @@ public final class AnnotatedElementAdapter implements AnnotatedElement, Serializ
 
   public static final AnnotatedElementAdapter EMPTY = new AnnotatedElementAdapter(Constant.EMPTY_ANNOTATIONS, null);
 
-  @Nullable
-  private volatile Annotation[] annotations;
+  private volatile Annotation @Nullable [] annotations;
 
   @Nullable
   private final AnnotatedElement annotated;
 
-  public AnnotatedElementAdapter(@Nullable Annotation[] annotations, @Nullable AnnotatedElement annotated) {
+  public AnnotatedElementAdapter(Annotation @Nullable [] annotations, @Nullable AnnotatedElement annotated) {
     this.annotations = annotations;
     this.annotated = annotated;
   }
@@ -149,7 +148,7 @@ public final class AnnotatedElementAdapter implements AnnotatedElement, Serializ
    * API
    * @return a new {@code AnnotatedElementAdapter}
    */
-  public static AnnotatedElementAdapter forAnnotations(@Nullable Annotation[] annotations) {
+  public static AnnotatedElementAdapter forAnnotations(Annotation @Nullable [] annotations) {
     if (annotations == null || annotations.length == 0) {
       return EMPTY;
     }

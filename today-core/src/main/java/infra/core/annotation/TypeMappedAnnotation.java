@@ -329,33 +329,28 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
   }
 
   @Override
-  public boolean isSynthesizable() {
-    // Is this a mapped annotation for a composed annotation, and are there
-    // annotation attributes (mirrors) that need to be merged?
-    if (getDistance() > 0 && this.resolvedMirrors.length > 0) {
-      return true;
-    }
-    // Is the mapped annotation itself synthesizable?
-    return this.mapping.synthesizable;
-  }
-
-  @Override
   @SuppressWarnings("unchecked")
   protected A createSynthesizedAnnotation() {
-    Class<A> type = getType();
     // Check root annotation
-    Object rootAttributes = this.rootAttributes;
-    if (type.isInstance(rootAttributes) && isNotSynthesizable((Annotation) rootAttributes)) {
-      return (A) rootAttributes;
+    if (this.rootAttributes instanceof Annotation ann && isTargetAnnotation(ann) && isNotSynthesizable(ann)) {
+      return (A) ann;
     }
     // Check meta-annotation
-    else {
-      Annotation annotation = mapping.annotation;
-      if (type.isInstance(annotation) && isNotSynthesizable(annotation)) {
-        return (A) annotation;
-      }
+    Annotation meta = this.mapping.annotation;
+    if (meta != null && isTargetAnnotation(meta) && isNotSynthesizable(meta)) {
+      return (A) meta;
     }
-    return SynthesizedMergedAnnotationInvocationHandler.createProxy(this, type);
+    return SynthesizedMergedAnnotationInvocationHandler.createProxy(this, getType());
+  }
+
+  /**
+   * Determine if the supplied object is an annotation of the required
+   * {@linkplain #getType() type}.
+   *
+   * @param obj the object to check
+   */
+  private boolean isTargetAnnotation(Object obj) {
+    return getType().isInstance(obj);
   }
 
   /**
@@ -371,7 +366,13 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
     if (AnnotationUtils.isSynthesizedAnnotation(annotation)) {
       return true;
     }
-    return !isSynthesizable();
+    // Is this a mapped annotation for a composed annotation, and are there
+    // annotation attributes (mirrors) that need to be merged?
+    if (getDistance() > 0 && this.resolvedMirrors.length > 0) {
+      return false;
+    }
+    // Is the mapped annotation itself synthesizable?
+    return !this.mapping.synthesizable;
   }
 
   @Override

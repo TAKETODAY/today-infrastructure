@@ -26,7 +26,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
-import java.util.function.Supplier;
 
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
@@ -51,9 +50,9 @@ public class JksSslStoreBundle implements SslStoreBundle {
 
   private final ResourceLoader resourceLoader;
 
-  private final Supplier<KeyStore> keyStore;
+  private final SingletonSupplier<KeyStore> keyStore;
 
-  private final Supplier<KeyStore> trustStore;
+  private final SingletonSupplier<KeyStore> trustStore;
 
   /**
    * Create a new {@link JksSslStoreBundle} instance.
@@ -61,7 +60,7 @@ public class JksSslStoreBundle implements SslStoreBundle {
    * @param keyStoreDetails the key store details
    * @param trustStoreDetails the trust store details
    */
-  public JksSslStoreBundle(JksSslStoreDetails keyStoreDetails, JksSslStoreDetails trustStoreDetails) {
+  public JksSslStoreBundle(@Nullable JksSslStoreDetails keyStoreDetails, @Nullable JksSslStoreDetails trustStoreDetails) {
     this(keyStoreDetails, trustStoreDetails, new DefaultResourceLoader());
   }
 
@@ -131,7 +130,7 @@ public class JksSslStoreBundle implements SslStoreBundle {
     return type.equalsIgnoreCase("PKCS11");
   }
 
-  private void loadHardwareKeyStore(KeyStore store, @Nullable String location, @Nullable char[] password)
+  private void loadHardwareKeyStore(KeyStore store, @Nullable String location, char @Nullable [] password)
           throws IOException, NoSuchAlgorithmException, CertificateException {
     if (StringUtils.hasText(location)) {
       throw new IllegalStateException(
@@ -140,7 +139,7 @@ public class JksSslStoreBundle implements SslStoreBundle {
     store.load(null, password);
   }
 
-  private void loadKeyStore(KeyStore store, @Nullable String location, @Nullable char[] password) {
+  private void loadKeyStore(KeyStore store, @Nullable String location, char @Nullable [] password) {
     Assert.state(StringUtils.hasText(location), "Location must not be empty or null");
     try {
       try (InputStream stream = this.resourceLoader.getResource(location).getInputStream()) {

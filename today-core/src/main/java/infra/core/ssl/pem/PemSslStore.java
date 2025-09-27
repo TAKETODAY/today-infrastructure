@@ -73,6 +73,7 @@ public interface PemSslStore {
    *
    * @return the X509 certificates
    */
+  @Nullable
   List<X509Certificate> certificates();
 
   /**
@@ -90,7 +91,9 @@ public interface PemSslStore {
    * @return a new {@link PemSslStore} instance
    */
   default PemSslStore withAlias(@Nullable String alias) {
-    return of(type(), alias, password(), certificates(), privateKey());
+    List<X509Certificate> certificates = certificates();
+    Assert.notNull(certificates, "'certificates' is required");
+    return of(type(), alias, password(), certificates, privateKey());
   }
 
   /**
@@ -100,7 +103,9 @@ public interface PemSslStore {
    * @return a new {@link PemSslStore} instance
    */
   default PemSslStore withPassword(@Nullable String password) {
-    return of(type(), alias(), password, certificates(), privateKey());
+    List<X509Certificate> certificates = certificates();
+    Assert.notNull(certificates, "'certificates' is required");
+    return of(type(), alias(), password, certificates, privateKey());
   }
 
   /**

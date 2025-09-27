@@ -70,6 +70,7 @@ public class AnsiPropertySource extends PropertySource<AnsiElement> {
     this.encode = encode;
   }
 
+  @Nullable
   @Override
   public Object getProperty(String name) {
     if (StringUtils.isNotEmpty(name)) {
@@ -119,6 +120,7 @@ public class AnsiPropertySource extends PropertySource<AnsiElement> {
       this.enums = EnumSet.allOf(enumType);
     }
 
+    @Nullable
     @Override
     AnsiElement getElement(String postfix) {
       for (Enum<?> candidate : this.enums) {
@@ -143,6 +145,7 @@ public class AnsiPropertySource extends PropertySource<AnsiElement> {
       this.factory = factory;
     }
 
+    @Nullable
     @Override
     AnsiElement getElement(String postfix) {
       if (containsOnlyDigits(postfix)) {

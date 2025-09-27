@@ -67,20 +67,22 @@ public interface SslStoreBundle {
    * @param trustStore the trust store or {@code null}
    * @return a new {@link SslStoreBundle} instance
    */
-  static SslStoreBundle of(@Nullable KeyStore keyStore,
-          @Nullable String keyStorePassword, @Nullable KeyStore trustStore) {
-    return new SslStoreBundle() {
+  static SslStoreBundle of(@Nullable KeyStore keyStore, @Nullable String keyStorePassword, @Nullable KeyStore trustStore) {
 
+    return new SslStoreBundle() {
+      @Nullable
       @Override
       public KeyStore getKeyStore() {
         return keyStore;
       }
 
+      @Nullable
       @Override
       public KeyStore getTrustStore() {
         return trustStore;
       }
 
+      @Nullable
       @Override
       public String getKeyStorePassword() {
         return keyStorePassword;

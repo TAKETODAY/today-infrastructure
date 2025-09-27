@@ -102,18 +102,17 @@ public interface Decoder<T> {
     CompletableFuture<T> future = decodeToMono(Mono.just(buffer), targetType, mimeType, hints).toFuture();
     Assert.state(future.isDone(), "DataBuffer decoding should have completed.");
 
-    Throwable failure;
     try {
       return future.get();
     }
     catch (ExecutionException ex) {
-      failure = ex.getCause();
+      Throwable cause = ex.getCause();
+      throw (cause instanceof CodecException codecException ? codecException :
+              new DecodingException("Failed to decode: " + (cause != null ? cause.getMessage() : ex), cause));
     }
     catch (InterruptedException ex) {
-      failure = ex;
+      throw new DecodingException("Interrupted during decode", ex);
     }
-    throw failure instanceof CodecException ? (CodecException) failure :
-            new DecodingException("Failed to decode: " + failure.getMessage(), failure);
   }
 
   /**

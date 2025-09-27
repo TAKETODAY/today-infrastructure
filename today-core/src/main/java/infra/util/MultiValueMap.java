@@ -42,7 +42,7 @@ import infra.lang.Unmodifiable;
  * @since 2.1.7 2020-01-27 13:06
  */
 @SuppressWarnings({ "rawtypes" })
-public interface MultiValueMap<K, V> extends Map<K, List<V>> {
+public interface MultiValueMap<K, V extends @Nullable Object> extends Map<K, List<V>> {
 
   Function defaultMappingFunction = k -> new ArrayList<>(1);
 

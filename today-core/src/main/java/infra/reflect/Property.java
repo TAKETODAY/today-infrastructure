@@ -92,8 +92,7 @@ public class Property implements Member, AnnotatedElement, Serializable {
   /** @since 4.0 */
   private boolean fieldIsNull;
 
-  @Nullable
-  private transient Annotation[] annotations;
+  private transient Annotation @Nullable [] annotations;
 
   @Nullable
   private transient MergedAnnotations mergedAnnotations;
@@ -360,6 +359,7 @@ public class Property implements Member, AnnotatedElement, Serializable {
    * @since 4.0
    */
   @Override
+  @SuppressWarnings("NullAway")
   public Class<?> getDeclaringClass() {
     if (declaringClass == null) {
       if (readMethod != null) {

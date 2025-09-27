@@ -341,9 +341,8 @@ class ValueObjectBinder implements DataObjectBinder {
       this.noParameterNamesHandler = noParameterNamesHandler;
     }
 
-    @Nullable
     @Override
-    public String[] getParameterNames(@Nullable Executable executable) {
+    public String @Nullable [] getParameterNames(@Nullable Executable executable) {
       if (executable instanceof Method) {
         throw new UnsupportedOperationException();
       }

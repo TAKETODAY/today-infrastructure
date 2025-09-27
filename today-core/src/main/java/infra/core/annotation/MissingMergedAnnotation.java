@@ -96,11 +96,13 @@ final class MissingMergedAnnotation<A extends Annotation> extends AbstractMerged
             "Unable to check default value for missing annotation");
   }
 
+  @Nullable
   @Override
   public <T> T getValue(String attributeName, Class<T> type) {
     return null;
   }
 
+  @Nullable
   @Override
   public <T> T getDefaultValue(@Nullable String attributeName, Class<T> type) {
     return null;

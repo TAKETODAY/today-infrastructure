@@ -202,8 +202,7 @@ public class RepeatableContainers {
     }
 
     @Override
-    @Nullable
-    Annotation[] findRepeatedAnnotations(Annotation annotation) {
+    Annotation @Nullable [] findRepeatedAnnotations(Annotation annotation) {
       Method method = getRepeatedAnnotationsMethod(annotation.annotationType());
       if (method != null) {
         return (Annotation[]) AnnotationUtils.invokeAnnotationMethod(method, annotation);
@@ -293,8 +292,7 @@ public class RepeatableContainers {
     }
 
     @Override
-    @Nullable
-    Annotation[] findRepeatedAnnotations(Annotation annotation) {
+    Annotation @Nullable [] findRepeatedAnnotations(Annotation annotation) {
       if (this.container.isAssignableFrom(annotation.annotationType())) {
         return (Annotation[]) AnnotationUtils.invokeAnnotationMethod(valueMethod, annotation);
       }
@@ -302,6 +300,7 @@ public class RepeatableContainers {
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public boolean equals(@Nullable Object other) {
       if (!super.equals(other)) {
         return false;

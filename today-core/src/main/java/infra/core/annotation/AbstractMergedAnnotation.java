@@ -170,16 +170,19 @@ abstract class AbstractMergedAnnotation<A extends Annotation> implements MergedA
   }
 
   @Override
+  @Nullable
   public Object getValue(String attributeName) {
     return getValue(attributeName, Object.class);
   }
 
   @Override
+  @Nullable
   public <T> T getValue(String attributeName, Class<T> type) {
     return getAttributeValue(attributeName, type);
   }
 
   @Override
+  @Nullable
   public Object getDefaultValue(String attributeName) {
     return getDefaultValue(attributeName, Object.class);
   }

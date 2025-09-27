@@ -36,7 +36,6 @@ import java.util.Objects;
 import java.util.TreeSet;
 
 import infra.lang.Assert;
-import infra.lang.Constant;
 
 /**
  * Represents a MIME Type, as originally defined in RFC 2046 and subsequently
@@ -755,7 +754,13 @@ public class MimeType implements Comparable<MimeType>, Serializable {
       else {
         String thisValue = getParameters().get(thisAttribute);
         String otherValue = other.getParameters().get(otherAttribute);
-        comp = thisValue.compareTo(otherValue == null ? Constant.BLANK : otherValue);
+        if (thisValue == null) {
+          throw new IllegalArgumentException("Parameter for " + thisAttribute + " must not be null");
+        }
+        if (otherValue == null) {
+          otherValue = "";
+        }
+        comp = thisValue.compareTo(otherValue);
         if (comp != 0) {
           return comp;
         }

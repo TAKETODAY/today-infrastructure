@@ -281,7 +281,7 @@ public class ReactiveAdapterRegistry {
     }
   }
 
-  private static final class EmptyCompletableFuture<T> extends CompletableFuture<T> {
+  private static final class EmptyCompletableFuture<T> extends CompletableFuture<@Nullable T> {
 
     EmptyCompletableFuture() {
       complete(null);

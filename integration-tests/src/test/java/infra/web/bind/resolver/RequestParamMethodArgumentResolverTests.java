@@ -17,6 +17,7 @@
 
 package infra.web.bind.resolver;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -25,7 +26,6 @@ import java.util.Map;
 
 import infra.beans.propertyeditors.StringTrimmerEditor;
 import infra.core.conversion.support.DefaultConversionService;
-import org.jspecify.annotations.Nullable;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.mock.web.MockMultipartHttpMockRequest;
@@ -274,7 +274,7 @@ class RequestParamMethodArgumentResolverTests {
   }
 
   @Test
-  public void isMultipartRequest() throws Throwable {
+  public void isMultipartRequest() {
     ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class)
             .annotNotPresent(Nullable.class).arg(MultipartFile.class);
     assertThatExceptionOfType(MultipartException.class).isThrownBy(() ->
@@ -515,7 +515,6 @@ class RequestParamMethodArgumentResolverTests {
   }
 
   @Test
-  @SuppressWarnings("rawtypes")
   public void missingOptionalParamArray() throws Throwable {
     ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
     initializer.setConversionService(new DefaultConversionService());
@@ -647,7 +646,7 @@ class RequestParamMethodArgumentResolverTests {
           @RequestParam("name") String paramRequired,
           @RequestParam(name = "name", required = false) String paramNotRequired,
           @RequestParam("name") @Nullable Integer paramOptional,
-          @RequestParam("name") @Nullable Integer[] paramOptionalArray,
+          @RequestParam("name") @Nullable Integer @Nullable [] paramOptionalArray,
           @RequestParam("name") @Nullable List<?> paramOptionalList,
           @RequestParam("mfile") @Nullable MultipartFile multipartFileOptional,
           @RequestParam(defaultValue = "false") Boolean booleanParam) {

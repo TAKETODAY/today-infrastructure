@@ -133,6 +133,7 @@ public class Pair<A, B> implements Map.Entry<A, B>, Serializable {
     return EMPTY;
   }
 
+  @SuppressWarnings("NullAway")
   public static <A, B> Pair<A, B> of(@Nullable A first, @Nullable B second) {
     return new Pair<>(first, second);
   }

@@ -239,8 +239,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
   private static final class AspectJAnnotationParameterNameDiscoverer extends ParameterNameDiscoverer {
 
     @Override
-    @Nullable
-    public String[] getParameterNames(Executable executable) {
+    public String @Nullable [] getParameterNames(Executable executable) {
       if (executable instanceof Method method) {
         if (method.getParameterCount() == 0) {
           return Constant.EMPTY_STRING_ARRAY;

@@ -17,6 +17,7 @@
 
 package infra.web.socket;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -30,7 +31,6 @@ import java.util.concurrent.CountDownLatch;
 import infra.app.InfraApplication;
 import infra.app.test.context.InfraTest;
 import infra.app.test.web.server.LocalServerPort;
-import org.jspecify.annotations.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.context.ActiveProfiles;

@@ -23,6 +23,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
 import infra.lang.Assert;
+import infra.lang.Contract;
 
 /**
  * A {@link java.util.function.Supplier} decorator that caches a singleton result and
@@ -149,6 +150,7 @@ public class SingletonSupplier<T extends @Nullable Object> implements Supplier<T
    * @return the singleton supplier, or {@code null} if the instance was {@code null}
    */
   @Nullable
+  @Contract("null -> null; !null -> !null")
   public static <T> SingletonSupplier<T> ofNullable(@Nullable T instance) {
     return (instance != null ? new SingletonSupplier<>(instance) : null);
   }
@@ -170,6 +172,7 @@ public class SingletonSupplier<T extends @Nullable Object> implements Supplier<T
    * @return the singleton supplier, or {@code null} if the instance supplier was {@code null}
    */
   @Nullable
+  @Contract("null -> null; !null -> !null")
   public static <T> SingletonSupplier<T> ofNullable(@Nullable Supplier<@Nullable T> supplier) {
     return (supplier != null ? new SingletonSupplier<>(supplier) : null);
   }

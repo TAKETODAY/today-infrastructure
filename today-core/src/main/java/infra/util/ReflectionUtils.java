@@ -285,7 +285,7 @@ public abstract class ReflectionUtils {
    * @since 4.0
    */
   @Nullable
-  public static Method getMethodIfAvailable(Class<?> clazz, String methodName, @Nullable Class<?>... paramTypes) {
+  public static Method getMethodIfAvailable(Class<?> clazz, String methodName, Class<?> @Nullable ... paramTypes) {
     Assert.notNull(clazz, "Class is required");
     Assert.notNull(methodName, "Method name is required");
     if (paramTypes != null) {
@@ -612,7 +612,7 @@ public abstract class ReflectionUtils {
    * @return the Method object, or {@code null} if none found
    */
   @Nullable
-  public static Method findMethod(Class<?> clazz, String name, @Nullable Class<?>... paramTypes) {
+  public static Method findMethod(Class<?> clazz, String name, Class<?> @Nullable ... paramTypes) {
     Assert.notNull(clazz, "Class is required");
     Assert.notNull(name, "Method name is required");
     Class<?> searchType = clazz;
@@ -641,6 +641,7 @@ public abstract class ReflectionUtils {
    * @see FunctionalInterface
    * @since 4.0
    */
+  @SuppressWarnings("NullAway")
   public static Method findFunctionalInterfaceMethod(Class clazz) {
     if (clazz.isInterface()) {
       Method found = null;
@@ -1310,6 +1311,7 @@ public abstract class ReflectionUtils {
    * @see Class#getDeclaredConstructor
    * @since 4.0
    */
+  @SuppressWarnings("NullAway")
   public static <T> Constructor<T> accessibleConstructor(Class<T> targetClass, Class<?>... parameterTypes) {
     return makeAccessible(getConstructor(targetClass, parameterTypes));
   }
@@ -1379,7 +1381,7 @@ public abstract class ReflectionUtils {
     }
   }
 
-  public static <T> T invokeConstructor(Constructor<T> constructor, @Nullable Object[] args) {
+  public static <T> T invokeConstructor(Constructor<T> constructor, @Nullable Object @Nullable [] args) {
     try {
       return constructor.newInstance(args);
     }
@@ -1707,7 +1709,8 @@ public abstract class ReflectionUtils {
   /**
    * @since 4.0
    */
-  public static <T> T newInstance(Class<T> type, Class[] parameterTypes, @Nullable Object[] args) {
+  @SuppressWarnings("NullAway")
+  public static <T> T newInstance(Class<T> type, Class[] parameterTypes, @Nullable Object @Nullable [] args) {
     return invokeConstructor(getConstructor(type, parameterTypes), args);
   }
 

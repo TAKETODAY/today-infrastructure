@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,14 +49,14 @@ public @interface SessionAttribute {
   /**
    * Alias for {@link #name}.
    */
-  @AliasFor("name")
+  @AliasFor(annotation = RequestParam.class, attribute = "value")
   String value() default "";
 
   /**
    * The name of the session attribute to bind to.
    * <p>The default name is inferred from the method parameter name.
    */
-  @AliasFor("value")
+  @AliasFor(annotation = RequestParam.class, attribute = "name")
   String name() default "";
 
   /**
@@ -66,6 +66,7 @@ public @interface SessionAttribute {
    * Switch this to {@code false} if you prefer a {@code null} or Java 8
    * {@code java.util.Optional} if the attribute doesn't exist.
    */
+  @AliasFor(annotation = RequestParam.class, attribute = "required")
   boolean required() default true;
 
 }

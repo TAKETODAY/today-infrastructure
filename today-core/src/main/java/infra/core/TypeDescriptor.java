@@ -106,7 +106,7 @@ public class TypeDescriptor implements Serializable {
    * @param type the backing type (or {@code null} if it should get resolved)
    * @param annotations the type annotations
    */
-  public TypeDescriptor(ResolvableType resolvableType, @Nullable Class<?> type, @Nullable Annotation[] annotations) {
+  public TypeDescriptor(ResolvableType resolvableType, @Nullable Class<?> type, Annotation @Nullable [] annotations) {
     this.resolvableType = resolvableType;
     this.type = type != null ? type : resolvableType.toClass();
     this.annotatedElement = AnnotatedElementAdapter.forAnnotations(annotations);

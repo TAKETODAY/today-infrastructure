@@ -48,9 +48,8 @@ public class CompositeParameterNameDiscoverer extends ParameterNameDiscoverer im
     trimToSize();
   }
 
-  @Nullable
   @Override
-  public String[] getParameterNames(Executable executable) {
+  public String @Nullable [] getParameterNames(Executable executable) {
     for (ParameterNameDiscoverer discoverer : discoverers) {
       String[] parameterNames = discoverer.getParameterNames(executable);
       if (parameterNames != null) {
