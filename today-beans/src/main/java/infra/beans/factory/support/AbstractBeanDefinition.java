@@ -203,8 +203,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
   private int dependencyCheck = DEPENDENCY_CHECK_NONE;
 
-  @Nullable
-  private String[] dependsOn;
+  private String @Nullable [] dependsOn;
 
   private boolean autowireCandidate = true;
 
@@ -239,11 +238,9 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   @Nullable
   private MethodOverrides methodOverrides;
 
-  @Nullable
-  private String[] initMethodNames;
+  private String @Nullable [] initMethodNames;
 
-  @Nullable
-  private String[] destroyMethodNames;
+  private String @Nullable [] destroyMethodNames;
 
   private boolean enforceInitMethod = true;
 
@@ -732,7 +729,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    * of dependencies like statics (*ugh*) or database preparation on startup.
    */
   @Override
-  public void setDependsOn(@Nullable String... dependsOn) {
+  public void setDependsOn(String @Nullable ... dependsOn) {
     this.dependsOn = dependsOn;
   }
 
@@ -740,8 +737,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    * Return the bean names that this bean depends on.
    */
   @Override
-  @Nullable
-  public String[] getDependsOn() {
+  public String @Nullable [] getDependsOn() {
     return this.dependsOn;
   }
 

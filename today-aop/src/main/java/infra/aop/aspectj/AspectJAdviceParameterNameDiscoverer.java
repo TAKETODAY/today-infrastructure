@@ -182,6 +182,7 @@ public class AspectJAdviceParameterNameDiscoverer extends ParameterNameDiscovere
 
   private Class<?>[] argumentTypes = new Class<?>[0];
 
+  @Nullable
   private String[] parameterNameBindings = new String[0];
 
   private int numberOfRemainingUnboundArguments;
@@ -233,8 +234,7 @@ public class AspectJAdviceParameterNameDiscoverer extends ParameterNameDiscovere
    * @return the parameter names
    */
   @Override
-  @Nullable
-  public String[] getParameterNames(@Nullable Executable method) {
+  public String @Nullable [] getParameterNames(@Nullable Executable method) {
     if (method instanceof Constructor) {
       if (this.raiseExceptions) {
         throw new UnsupportedOperationException("An advice method can never be a constructor");
@@ -320,7 +320,7 @@ public class AspectJAdviceParameterNameDiscoverer extends ParameterNameDiscovere
     }
   }
 
-  private void bindParameterName(int index, String name) {
+  private void bindParameterName(int index, @Nullable String name) {
     this.parameterNameBindings[index] = name;
     this.numberOfRemainingUnboundArguments--;
   }

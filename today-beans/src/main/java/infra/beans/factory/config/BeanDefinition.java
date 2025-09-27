@@ -156,13 +156,12 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
    * constructor arguments. This property should just be necessary for other kinds
    * of dependencies like statics (*ugh*) or database preparation on startup.
    */
-  void setDependsOn(@Nullable String... dependsOn);
+  void setDependsOn(String @Nullable ... dependsOn);
 
   /**
    * Return the bean names that this bean depends on.
    */
-  @Nullable
-  String[] getDependsOn();
+  String @Nullable [] getDependsOn();
 
   /**
    * Set whether this bean is a candidate for getting autowired into some other bean.

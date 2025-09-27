@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serial;
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Optional;
@@ -36,6 +35,7 @@ import infra.beans.factory.NoUniqueBeanDefinitionException;
 import infra.beans.factory.annotation.NonOrdered;
 import infra.beans.factory.support.AutowireCandidateResolver;
 import infra.core.MethodParameter;
+import infra.core.Nullness;
 import infra.core.ParameterNameDiscoverer;
 import infra.core.ResolvableType;
 import infra.core.TypeDescriptor;
@@ -60,8 +60,7 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
   @Nullable
   private String methodName;
 
-  @Nullable
-  private Class<?>[] parameterTypes;
+  private Class<?> @Nullable [] parameterTypes;
 
   private int parameterIndex;
 
@@ -180,27 +179,11 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
     }
 
     if (this.field != null) {
-      return !(this.field.getType() == Optional.class || hasNullableAnnotation());
+      return !(this.field.getType() == Optional.class || Nullness.forField(this.field) == Nullness.NULLABLE);
     }
     else {
       return !obtainMethodParameter().isOptional();
     }
-  }
-
-  /**
-   * Check whether the underlying field is annotated with any variant of a
-   * {@code Nullable} annotation, e.g. {@code jakarta.annotation.Nullable} or
-   * {@code edu.umd.cs.findbugs.annotations.Nullable}.
-   *
-   * @see Nullable
-   */
-  private boolean hasNullableAnnotation() {
-    for (Annotation annotation : getAnnotations()) {
-      if ("Nullable".equals(annotation.annotationType().getSimpleName())) {
-        return true;
-      }
-    }
-    return false;
   }
 
   /**

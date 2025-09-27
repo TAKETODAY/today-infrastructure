@@ -136,20 +136,20 @@ final class ConstructorResolver {
    * @return a BeanWrapper for the new instance
    */
   public BeanWrapper autowireConstructor(String beanName, RootBeanDefinition merged,
-          @Nullable Constructor<?>[] chosenCtors, @Nullable Object[] explicitArgs) {
+          Constructor<?> @Nullable [] chosenCtors, Object @Nullable [] explicitArgs) {
 
     BeanWrapperImpl wrapper = new BeanWrapperImpl();
     this.beanFactory.initBeanWrapper(wrapper);
 
     Constructor<?> constructorToUse = null;
     ArgumentsHolder argsHolderToUse = null;
-    Object[] argsToUse = null;
+    @Nullable Object[] argsToUse = null;
 
     if (explicitArgs != null) {
       argsToUse = explicitArgs;
     }
     else {
-      Object[] argsToResolve = null;
+      @Nullable Object[] argsToResolve = null;
       synchronized(merged.constructorArgumentLock) {
         constructorToUse = (Constructor<?>) merged.resolvedConstructorOrFactoryMethod;
         if (constructorToUse != null && merged.constructorArgumentsResolved) {
@@ -399,8 +399,7 @@ final class ConstructorResolver {
    * method, or {@code null} if none (-> use constructor argument values from bean definition)
    * @return a BeanWrapper for the new instance
    */
-  public BeanWrapper instantiateUsingFactoryMethod(
-          String beanName, RootBeanDefinition merged, @Nullable Object[] explicitArgs) {
+  public BeanWrapper instantiateUsingFactoryMethod(String beanName, RootBeanDefinition merged, @Nullable Object @Nullable [] explicitArgs) {
     BeanWrapperImpl wrapper = new BeanWrapperImpl();
     beanFactory.initBeanWrapper(wrapper);
 
@@ -435,13 +434,13 @@ final class ConstructorResolver {
 
     Method factoryMethodToUse = null;
     ArgumentsHolder argsHolderToUse = null;
-    Object[] argsToUse = null;
+    @Nullable Object[] argsToUse = null;
 
     if (explicitArgs != null) {
       argsToUse = explicitArgs;
     }
     else {
-      Object[] argsToResolve = null;
+      @Nullable Object[] argsToResolve = null;
       synchronized(merged.constructorArgumentLock) {
         factoryMethodToUse = (Method) merged.resolvedConstructorOrFactoryMethod;
         if (factoryMethodToUse != null && merged.constructorArgumentsResolved) {
@@ -726,7 +725,7 @@ final class ConstructorResolver {
    */
   private ArgumentsHolder createArgumentArray(String beanName, RootBeanDefinition merged,
           @Nullable ConstructorArgumentValues resolvedValues, Class<?>[] paramTypes,
-          @Nullable String[] paramNames, Executable executable, BeanWrapper wrapper,
+          String @Nullable [] paramNames, Executable executable, BeanWrapper wrapper,
           boolean autowiring, boolean fallback) throws UnsatisfiedDependencyException {
 
     TypeConverter customConverter = this.beanFactory.getCustomTypeConverter();
@@ -1354,8 +1353,7 @@ final class ConstructorResolver {
    */
   private static final class ConstructorPropertiesChecker {
 
-    @Nullable
-    public static String[] evaluate(Constructor<?> candidate, int paramCount) {
+    public static String @Nullable [] evaluate(Constructor<?> candidate, int paramCount) {
       ConstructorProperties cp = candidate.getAnnotation(ConstructorProperties.class);
       if (cp != null) {
         String[] names = cp.value();

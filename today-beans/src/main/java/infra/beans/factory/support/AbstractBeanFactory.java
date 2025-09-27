@@ -156,7 +156,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
   private final Set<String> alreadyCreated = ConcurrentHashMap.newKeySet(256);
 
   /** Names of beans that are currently in creation. */
-  private final ThreadLocal<Object> prototypesCurrentlyInCreation =
+  private final ThreadLocal<@Nullable Object> prototypesCurrentlyInCreation =
           new NamedThreadLocal<>("Prototype beans currently in creation");
 
   /** String resolvers to apply e.g. to annotation attribute values. */
@@ -219,7 +219,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    */
   @SuppressWarnings("unchecked")
   @Nullable
-  protected final <T> T doGetBean(String name, @Nullable Class<?> requiredType, @Nullable Object[] args, boolean typeCheckOnly) throws BeansException {
+  protected final <T> T doGetBean(String name, @Nullable Class<?> requiredType, @Nullable Object @Nullable [] args, boolean typeCheckOnly) throws BeansException {
     // delete $
     String beanName = transformedBeanName(name);
     // 1. check singleton cache
@@ -843,6 +843,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
     }
   }
 
+  @Nullable
   @Override
   public Class<?> getType(String beanName) {
     return getType(beanName, true);

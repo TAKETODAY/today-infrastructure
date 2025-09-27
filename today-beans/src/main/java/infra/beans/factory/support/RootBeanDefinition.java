@@ -118,11 +118,11 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 
   /** Package-visible field for caching fully resolved constructor arguments. */
   @Nullable
-  Object[] resolvedConstructorArguments;
+  Object @Nullable [] resolvedConstructorArguments;
 
   /** Package-visible field for caching partly prepared constructor arguments. */
   @Nullable
-  Object[] preparedConstructorArguments;
+  Object @Nullable [] preparedConstructorArguments;
 
   /** Common lock for the two post-processing fields below. */
   final Object postProcessingLock = new Object();
@@ -130,8 +130,7 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
   /** Package-visible field that indicates MergedBeanDefinitionPostProcessor having been applied. */
   boolean postProcessed = false;
 
-  @Nullable
-  Method[] initMethodArray;
+  Method @Nullable [] initMethodArray;
 
   /** Package-visible field that indicates a before-instantiation post-processor having kicked in. */
   @Nullable

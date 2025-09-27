@@ -62,9 +62,8 @@ public class LocalVariableTableParameterNameDiscoverer extends ParameterNameDisc
   private final ConcurrentHashMap<Class<?>, Map<Executable, String[]>>
           parameterNamesCache = new ConcurrentHashMap<>(32);
 
-  @Nullable
   @Override
-  public String[] doGet(Executable executable) {
+  public String @Nullable [] doGet(Executable executable) {
     Class<?> declaringClass = executable.getDeclaringClass();
     Map<Executable, String[]> map = parameterNamesCache.computeIfAbsent(declaringClass, this);
     return map != NO_DEBUG_INFO_MAP ? map.get(executable) : null;

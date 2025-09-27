@@ -26,7 +26,6 @@ import java.lang.reflect.Member;
 import java.util.Objects;
 
 import infra.beans.factory.config.DependencyDescriptor;
-import infra.beans.factory.config.PropertyValueRetriever;
 import infra.core.MethodParameter;
 import infra.lang.Assert;
 import infra.util.ObjectUtils;
@@ -45,13 +44,7 @@ import infra.util.ObjectUtils;
  */
 public class InjectionPoint {
 
-  /**
-   * It shows that the value is not set
-   */
-  public static final Object DO_NOT_SET = PropertyValueRetriever.DO_NOT_SET;
-
-  @Nullable
-  private volatile Annotation[] fieldAnnotations;
+  private volatile Annotation @Nullable [] fieldAnnotations;
 
   @Nullable
   protected MethodParameter methodParameter;
@@ -93,7 +86,8 @@ public class InjectionPoint {
   /**
    * Just available for serialization purposes in subclasses.
    */
-  protected InjectionPoint() { }
+  protected InjectionPoint() {
+  }
 
   /**
    * Return the wrapped MethodParameter, if any.
@@ -185,7 +179,7 @@ public class InjectionPoint {
   @Nullable
   public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
     return this.field != null ? this.field.getAnnotation(annotationType) :
-           obtainMethodParameter().getParameterAnnotation(annotationType);
+            obtainMethodParameter().getParameterAnnotation(annotationType);
   }
 
   @Override

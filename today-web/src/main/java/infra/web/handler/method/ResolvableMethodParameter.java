@@ -307,18 +307,6 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
     return parameter;
   }
 
-  /**
-   * Return whether this method indicates a parameter which can be {@code null}:
-   * either in the form of any variant of a parameter-level {@code Nullable}
-   * annotation (such as from JSR-305 or the FindBugs set of annotations),
-   * or a language-level nullable type declaration
-   *
-   * @since 4.0
-   */
-  public boolean isNullable() {
-    return parameter.isNullable();
-  }
-
   //
 
   /**

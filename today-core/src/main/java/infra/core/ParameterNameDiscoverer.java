@@ -51,8 +51,7 @@ public abstract class ParameterNameDiscoverer {
    * or {@code null} if they cannot
    * @see Executable#getParameterCount()
    */
-  @Nullable
-  public String[] getParameterNames(Executable executable) {
+  public String @Nullable [] getParameterNames(Executable executable) {
     if (executable.getParameterCount() == 0) {
       return Constant.EMPTY_STRING_ARRAY;
     }
@@ -62,8 +61,7 @@ public abstract class ParameterNameDiscoverer {
     return doGet(executable);
   }
 
-  @Nullable
-  protected String[] doGet(Executable executable) {
+  protected String @Nullable [] doGet(Executable executable) {
     return null;
   }
 
@@ -88,8 +86,7 @@ public abstract class ParameterNameDiscoverer {
    * @see DefaultParameterNameDiscoverer
    * @see #getSharedInstance()
    */
-  @Nullable
-  public static String[] findParameterNames(Executable executable) {
+  public static String @Nullable [] findParameterNames(Executable executable) {
     return getSharedInstance().getParameterNames(executable);
   }
 
