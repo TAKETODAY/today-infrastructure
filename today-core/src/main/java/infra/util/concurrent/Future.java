@@ -1373,6 +1373,21 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   }
 
   /**
+   * Returns a Pair of this and that Future result.
+   * <p>
+   * If this Future failed the result contains this failure. Otherwise, the
+   * result contains that failure or a tuple of both successful Future results.
+   *
+   * @param that Another value
+   * @param <U> Result type of {@code that}
+   * @return A new Future that returns both Future results.
+   * @since 5.0
+   */
+  public final <U> Future<Pair<V, U>> zip(U that) {
+    return map(first -> Pair.of(first, that));
+  }
+
+  /**
    * Returns a Triple of this and that Future result.
    * <p>
    * If this Future failed the result contains this failure. Otherwise, the
@@ -1384,6 +1399,19 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    */
   public final <A, B> Future<Triple<V, A, B>> zip(Future<A> thatA, Future<B> thatB) {
     return zipWith(thatA.zip(thatB), (v, ab) -> Triple.of(v, ab.first, ab.second));
+  }
+
+  /**
+   * Returns a Triple of this and that Future result.
+   * <p>
+   * If this Future failed the result contains this failure. Otherwise, the
+   * result contains that failure or a tuple of both successful Future results.
+   *
+   * @return A new Future that returns both Future results.
+   * @since 5.0
+   */
+  public final <A, B> Future<Triple<V, A, B>> zip(A thatA, B thatB) {
+    return map(first -> Triple.of(first, thatA, thatB));
   }
 
   /**
