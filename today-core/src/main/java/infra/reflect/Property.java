@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import infra.core.MethodParameter;
+import infra.core.Nullness;
 import infra.core.ResolvableType;
 import infra.core.TypeDescriptor;
 import infra.core.annotation.MergedAnnotations;
@@ -344,12 +345,14 @@ public class Property implements Member, AnnotatedElement, Serializable {
    * @since 4.0
    */
   public boolean isNullable() {
-    for (Annotation ann : getAnnotations(false)) {
-      if ("Nullable".equals(ann.annotationType().getSimpleName())) {
-        return true;
-      }
+    Field field = getField();
+    if (field != null) {
+      return Nullness.forField(field) == Nullness.NULLABLE;
     }
-    return false;
+    if (readMethod != null) {
+      return Nullness.forMethodReturnType(readMethod) == Nullness.NULLABLE;
+    }
+    return isMethodBased() && Nullness.forMethodParameter(getMethodParameter()) == Nullness.NULLABLE;
   }
 
   /**
