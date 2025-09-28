@@ -157,6 +157,15 @@ class FutureTests {
     assertThat(triple.second).isEqualTo(1);
     assertThat(triple.third).isTrue();
 
+    assertThat(triple).isEqualTo(ok("2").zip(1, true)
+            .onSuccess(result -> {
+              assertThat(result).isNotNull();
+              assertThat(result.first).isEqualTo("2");
+              assertThat(result.second).isEqualTo(1);
+              assertThat(result.third).isEqualTo(true);
+            })
+            .onFailure((e) -> fail("never"))
+            .get());
   }
 
   @Test
