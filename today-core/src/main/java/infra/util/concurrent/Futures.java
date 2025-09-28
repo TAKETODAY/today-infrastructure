@@ -335,6 +335,32 @@ final class Futures {
     return recipient;
   }
 
+  public static <U, R, V> Future<R> zipWith(Future<V> future, U second, ThrowingBiFunction<V, U, R> combinator) {
+    Promise<R> recipient = Future.forPromise(future.executor);
+    future.onCompleted(completed -> {
+      if (completed.isSuccess()) {
+        // succeed
+        try {
+          V first = completed.getNow();
+          recipient.trySuccess(combinator.applyWithException(first, second));
+        }
+        catch (Throwable e) {
+          tryFailure(recipient, e, logger);
+        }
+      }
+      else {
+        propagateUncommonCompletion(completed, recipient);
+      }
+    });
+
+    if (!future.isSuccess()) {
+      // Propagate cancellation if future is either incomplete or failed.
+      // Failed means it could be cancelled, so that needs to be propagated.
+      recipient.onCompleted(propagateCancel, future);
+    }
+    return recipient;
+  }
+
   /**
    * Returns a future that delegates to this future but will finish early (via a {@link
    * TimeoutException}) if the specified duration expires.

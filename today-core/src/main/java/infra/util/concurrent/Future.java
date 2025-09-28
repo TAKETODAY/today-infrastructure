@@ -1368,6 +1368,22 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   }
 
   /**
+   * Returns a Pair of this and that Future result.
+   * <p>
+   * If this Future failed the result contains this failure. Otherwise, the
+   * result contains that failure or a tuple of both successful Future results.
+   *
+   * @param that Another Future
+   * @param <U> Result type of {@code that}
+   * @return A new Future that returns both Future results.
+   * @throws IllegalArgumentException if {@code that} is null
+   * @since 5.0
+   */
+  public final <U> Future<Pair<V, U>> zip(U that) {
+    return Futures.zipWith(this, that, Pair::of);
+  }
+
+  /**
    * Returns a Triple of this and that Future result.
    * <p>
    * If this Future failed the result contains this failure. Otherwise, the

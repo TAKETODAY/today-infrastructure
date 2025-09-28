@@ -103,7 +103,7 @@ class FutureTests {
   @Test
   void zip() throws ExecutionException, InterruptedException {
     Pair<String, Integer> pair = Future.ok("2")
-            .zip(Future.ok(1))
+            .zip(1)
             .onSuccess(result -> {
               assertThat(result).isNotNull();
               assertThat(result.first).isEqualTo("2");
@@ -1191,7 +1191,7 @@ class FutureTests {
   @Test
   void join_success() throws Throwable {
     int res = ok(1)
-            .zip(ok(2))
+            .zip(2)
             .join((pair, cause) -> pair.first + pair.second);
 
     assertThat(res).isEqualTo(3);
