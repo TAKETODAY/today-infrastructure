@@ -225,8 +225,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T extends Annotation> MergedAnnotation<T>[] getAnnotationArray(
-          String attributeName, Class<T> type) throws NoSuchElementException {
+  public <T extends Annotation> MergedAnnotation<T>[] getAnnotationArray(String attributeName, Class<T> type) throws NoSuchElementException {
     Assert.notNull(type, "Type is required");
     int attributeIndex = getAttributeIndex(attributeName, true);
     Method attribute = mapping.methods.get(attributeIndex);

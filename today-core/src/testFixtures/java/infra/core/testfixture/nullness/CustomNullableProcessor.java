@@ -17,10 +17,8 @@
 
 package infra.core.testfixture.nullness;
 
-import infra.core.testfixture.nullness.custom.Nullable;
-
 public interface CustomNullableProcessor {
 
-  @Nullable
+  @infra.core.testfixture.nullness.custom.Nullable
   String process(@infra.core.testfixture.nullness.custom.Nullable String nullable);
 }
