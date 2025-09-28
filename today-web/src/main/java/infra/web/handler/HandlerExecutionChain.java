@@ -42,8 +42,7 @@ public class HandlerExecutionChain implements HandlerWrapper, HandlerAdapterAwar
 
   private HandlerAdapter handlerAdapter;
 
-  @Nullable
-  private final HandlerInterceptor[] interceptors;
+  private final HandlerInterceptor @Nullable [] interceptors;
 
   /**
    * Create a new HandlerExecutionChain.
@@ -61,7 +60,7 @@ public class HandlerExecutionChain implements HandlerWrapper, HandlerAdapterAwar
    * @param interceptors the array of interceptors to apply
    * (in the given order) before the handler itself executes
    */
-  public HandlerExecutionChain(Object handler, @Nullable HandlerInterceptor[] interceptors) {
+  public HandlerExecutionChain(Object handler, HandlerInterceptor @Nullable [] interceptors) {
     this.handler = handler;
     this.interceptors = interceptors;
   }
@@ -98,8 +97,7 @@ public class HandlerExecutionChain implements HandlerWrapper, HandlerAdapterAwar
     return new Chain(interceptors, handler).proceed(request);
   }
 
-  @Nullable
-  public HandlerInterceptor[] getInterceptors() {
+  public HandlerInterceptor @Nullable [] getInterceptors() {
     return interceptors;
   }
 

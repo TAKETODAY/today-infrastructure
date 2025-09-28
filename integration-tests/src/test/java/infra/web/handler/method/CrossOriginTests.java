@@ -30,6 +30,7 @@ import java.util.stream.Stream;
 
 import infra.beans.DirectFieldAccessor;
 import infra.context.support.PropertySourcesPlaceholderConfigurer;
+import infra.core.annotation.AliasFor;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.annotation.AnnotationUtils;
 import infra.core.env.PropertiesPropertySource;
@@ -555,8 +556,10 @@ class CrossOriginTests {
   @CrossOrigin
   private @interface ComposedCrossOrigin {
 
+    @AliasFor(annotation = CrossOrigin.class)
     String[] origins() default {};
 
+    @AliasFor(annotation = CrossOrigin.class)
     String allowCredentials() default "";
   }
 

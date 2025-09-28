@@ -61,8 +61,7 @@ import infra.web.multipart.MultipartFile;
  */
 public abstract class AbstractMultipartFile extends AbstractMultipart implements MultipartFile {
 
-  @Nullable
-  protected byte[] cachedBytes;
+  protected byte @Nullable [] cachedBytes;
 
   @Override
   public void transferTo(File dest) throws IOException {

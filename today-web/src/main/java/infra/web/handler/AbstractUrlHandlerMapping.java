@@ -105,6 +105,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
    */
   @Nullable
   @Override
+  @SuppressWarnings("NullAway")
   protected Object getHandlerInternal(RequestContext request) {
     Object handler = lookupHandler(request);
     if (handler == null) {
@@ -206,7 +207,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
    * @param handler the handler object to validate
    * @param request current HTTP request
    */
-  protected void validateHandler(Object handler, RequestContext request) {
+  protected void validateHandler(@Nullable Object handler, RequestContext request) {
 
   }
 
