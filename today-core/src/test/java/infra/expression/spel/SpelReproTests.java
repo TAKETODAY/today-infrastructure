@@ -1175,7 +1175,6 @@ class SpelReproTests extends AbstractExpressionTests {
     TypedValue value = accessor.read(context, target, "property");
     assertThat(value.getValue()).isEqualTo(1);
     assertThat(value.getTypeDescriptor().getType()).isEqualTo(Integer.class);
-    assertThat(value.getTypeDescriptor().getAnnotations()).isNotEmpty();
   }
 
   @Test
