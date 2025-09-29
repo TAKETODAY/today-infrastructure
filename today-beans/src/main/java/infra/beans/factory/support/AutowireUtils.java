@@ -171,8 +171,8 @@ abstract class AutowireUtils {
     Type genericReturnType = method.getGenericReturnType();
     TypeVariable<Method>[] declaredTypeVariables = method.getTypeParameters();
 
-    // Ensure that the type variable (e.g., T) is declared directly on the method
-    // itself (e.g., via <T>), not on the enclosing class or interface.
+    // Ensure that the type variable (for example, T) is declared directly on the method
+    // itself (for example, via <T>), not on the enclosing class or interface.
     boolean locallyDeclaredTypeVariableMatchesReturnType = false;
     for (TypeVariable<Method> currentTypeVariable : declaredTypeVariables) {
       if (currentTypeVariable.equals(genericReturnType)) {
@@ -197,8 +197,8 @@ abstract class AutowireUtils {
               }
             }
             catch (ClassNotFoundException ex) {
-              throw new IllegalStateException("Failed to resolve value type [" +
-                      typedValue.getTargetTypeName() + "] for factory method argument", ex);
+              throw new IllegalStateException("Failed to resolve value type [%s] for factory method argument"
+                      .formatted(typedValue.getTargetTypeName()), ex);
             }
           }
           else if (arg != null && !(arg instanceof BeanMetadataElement)) {

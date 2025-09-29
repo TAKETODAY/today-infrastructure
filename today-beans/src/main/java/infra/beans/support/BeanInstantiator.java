@@ -444,6 +444,7 @@ public abstract class BeanInstantiator {
    * instantiating beans.
    * @throws IllegalArgumentException if the provided function is null.
    */
+  @SuppressWarnings("NullAway")
   public static BeanInstantiator forFunction(Function<@Nullable Object[], ?> function) {
     Assert.notNull(function, "instance function is required");
     return new FunctionInstantiator(function);
