@@ -76,7 +76,7 @@ public abstract class NullabilityOptions {
 
 	private Map<String, CheckSeverity> checks(Checking checking) {
 		if (checking != Checking.DISABLED) {
-			return Map.of("NullAway", CheckSeverity.OFF);
+			return Map.of("NullAway", CheckSeverity.ERROR);
 		}
 		return Collections.emptyMap();
 	}

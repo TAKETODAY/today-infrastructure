@@ -187,8 +187,7 @@ class CacheAdviceParser extends AbstractSingleBeanDefinitionParser {
 
     private final String method;
 
-    @Nullable
-    private String[] caches;
+    private String @Nullable [] caches;
 
     Props(Element root) {
       String defaultCache = root.getAttribute("cache");

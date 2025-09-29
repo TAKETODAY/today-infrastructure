@@ -64,8 +64,7 @@ import infra.util.StringUtils;
 public class InterfaceBasedMBeanInfoAssembler extends AbstractConfigurableMBeanInfoAssembler
         implements BeanClassLoaderAware, InitializingBean {
 
-  @Nullable
-  private Class<?>[] managedInterfaces;
+  private Class<?> @Nullable [] managedInterfaces;
 
   /** Mappings of bean keys to an array of classes. */
   @Nullable

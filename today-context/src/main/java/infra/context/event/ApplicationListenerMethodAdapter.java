@@ -111,6 +111,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
   @Nullable
   private volatile String listenerId;
 
+  @Nullable
   private ApplicationContext context;
 
   @Nullable
@@ -433,6 +434,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 
   private void publishEvent(@Nullable Object event) {
     if (event != null) {
+      Assert.state(context != null, "No ApplicationContext set");
       context.publishEvent(event);
     }
   }
@@ -470,17 +472,18 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
     }
   }
 
-  private String getInvocationErrorMessage(Object bean, String message, Object[] resolvedArgs) {
+  private String getInvocationErrorMessage(Object bean, String message, @Nullable Object[] resolvedArgs) {
     StringBuilder sb = new StringBuilder(getDetailedErrorMessage(bean, message));
     sb.append("Resolved arguments: \n");
     for (int i = 0; i < resolvedArgs.length; i++) {
       sb.append('[').append(i).append("] ");
-      if (resolvedArgs[i] == null) {
+      Object resolvedArg = resolvedArgs[i];
+      if (resolvedArg == null) {
         sb.append("[null] \n");
       }
       else {
-        sb.append("[type=").append(resolvedArgs[i].getClass().getName()).append("] ");
-        sb.append("[value=").append(resolvedArgs[i]).append("]\n");
+        sb.append("[type=").append(resolvedArg.getClass().getName()).append("] ");
+        sb.append("[value=").append(resolvedArg).append("]\n");
       }
     }
     return sb.toString();

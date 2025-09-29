@@ -50,6 +50,7 @@ import infra.util.StringUtils;
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see #locateMBeanServer
  * @since 4.0
  */
@@ -140,8 +141,7 @@ public abstract class JmxUtils {
    * @return the parameter types as classes
    * @throws ClassNotFoundException if a parameter type could not be resolved
    */
-  @Nullable
-  public static Class<?>[] parameterInfoToTypes(@Nullable MBeanParameterInfo[] paramInfo)
+  public static Class<?> @Nullable [] parameterInfoToTypes(MBeanParameterInfo @Nullable [] paramInfo)
           throws ClassNotFoundException {
 
     return parameterInfoToTypes(paramInfo, ClassUtils.getDefaultClassLoader());
@@ -156,9 +156,8 @@ public abstract class JmxUtils {
    * @return the parameter types as classes
    * @throws ClassNotFoundException if a parameter type could not be resolved
    */
-  @Nullable
-  public static Class<?>[] parameterInfoToTypes(
-          @Nullable MBeanParameterInfo[] paramInfo, @Nullable ClassLoader classLoader)
+  public static Class<?> @Nullable [] parameterInfoToTypes(
+          MBeanParameterInfo @Nullable [] paramInfo, @Nullable ClassLoader classLoader)
           throws ClassNotFoundException {
 
     Class<?>[] types = null;

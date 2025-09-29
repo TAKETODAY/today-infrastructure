@@ -163,8 +163,7 @@ public class InstrumentationLoadTimeWeaver implements LoadTimeWeaver {
           ClassFileTransformer targetTransformer, @Nullable ClassLoader targetClassLoader) implements ClassFileTransformer {
 
     @Override
-    @Nullable
-    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+    public byte @Nullable [] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
             ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 
       if (this.targetClassLoader != loader) {

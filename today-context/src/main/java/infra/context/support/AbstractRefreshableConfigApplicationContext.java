@@ -94,7 +94,6 @@ public abstract class AbstractRefreshableConfigApplicationContext extends Abstra
    * @return an array of resource locations, or {@code null} if none
    * @see #getResources
    */
-  @Nullable
   protected String @Nullable [] getConfigLocations() {
     return (this.configLocations != null ? this.configLocations : getDefaultConfigLocations());
   }

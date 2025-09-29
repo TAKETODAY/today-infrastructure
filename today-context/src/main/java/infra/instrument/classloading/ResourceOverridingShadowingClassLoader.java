@@ -54,7 +54,7 @@ public class ResourceOverridingShadowingClassLoader extends ShadowingClassLoader
   /**
    * Key is asked for value: value is actual value.
    */
-  private final Map<String, String> overrides = new HashMap<>();
+  private final Map<String, @Nullable String> overrides = new HashMap<>();
 
   /**
    * Create a new ResourceOverridingShadowingClassLoader,
@@ -97,6 +97,7 @@ public class ResourceOverridingShadowingClassLoader extends ShadowingClassLoader
     this.overrides.putAll(other.overrides);
   }
 
+  @Nullable
   @Override
   public URL getResource(String requestedPath) {
     if (this.overrides.containsKey(requestedPath)) {

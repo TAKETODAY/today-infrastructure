@@ -132,7 +132,7 @@ class ApplicationContextInitializationCodeGenerator implements BeanFactoryInitia
     this.initializers.add(methodReference);
   }
 
-  private static final class InitializerMethodArgumentCodeGenerator implements Function<TypeName, CodeBlock> {
+  private static final class InitializerMethodArgumentCodeGenerator implements Function<TypeName, @Nullable CodeBlock> {
 
     @Override
     @Nullable

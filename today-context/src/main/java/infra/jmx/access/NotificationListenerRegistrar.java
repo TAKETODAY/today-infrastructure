@@ -43,6 +43,7 @@ import infra.util.CollectionUtils;
  * (typically via a {@link MBeanServerConnection}).
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see #setServer
  * @see #setMappedObjectNames
  * @see #setNotificationListener
@@ -68,8 +69,7 @@ public class NotificationListenerRegistrar extends NotificationListenerHolder
   @Nullable
   private String agentId;
 
-  @Nullable
-  private ObjectName[] actualObjectNames;
+  private ObjectName @Nullable [] actualObjectNames;
 
   /**
    * Set the {@code MBeanServerConnection} used to connect to the

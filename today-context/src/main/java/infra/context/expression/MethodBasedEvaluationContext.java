@@ -47,22 +47,21 @@ public class MethodBasedEvaluationContext extends StandardEvaluationContext {
 
   private final Method method;
 
-  @Nullable
-  private final Object[] arguments;
+  private final Object @Nullable [] arguments;
 
   private final ParameterNameDiscoverer parameterNameDiscoverer;
 
   private boolean argumentsLoaded = false;
 
   public MethodBasedEvaluationContext(@Nullable Object rootObject, Method method,
-          @Nullable Object[] arguments, ParameterNameDiscoverer parameterNameDiscoverer) {
+          Object @Nullable [] arguments, ParameterNameDiscoverer parameterNameDiscoverer) {
     super(rootObject);
     this.method = method;
     this.arguments = arguments;
     this.parameterNameDiscoverer = parameterNameDiscoverer;
   }
 
-  public MethodBasedEvaluationContext(@Nullable Object rootObject, Method method, @Nullable Object[] arguments,
+  public MethodBasedEvaluationContext(@Nullable Object rootObject, Method method, Object @Nullable [] arguments,
           ParameterNameDiscoverer parameterNameDiscoverer, StandardEvaluationContext shared) {
     super(rootObject, shared);
     this.method = method;
@@ -95,7 +94,7 @@ public class MethodBasedEvaluationContext extends StandardEvaluationContext {
     }
 
     // Expose indexed variables as well as parameter names (if discoverable)
-    String[] paramNames = this.parameterNameDiscoverer.getParameterNames(this.method);
+    @Nullable String[] paramNames = this.parameterNameDiscoverer.getParameterNames(this.method);
     int paramCount = (paramNames != null ? paramNames.length : this.method.getParameterCount());
     int argsCount = this.arguments.length;
 

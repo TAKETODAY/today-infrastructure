@@ -58,8 +58,7 @@ public interface ScriptFactory {
    *
    * @return the interfaces for the script
    */
-  @Nullable
-  Class<?>[] getScriptInterfaces();
+  Class<?> @Nullable [] getScriptInterfaces();
 
   /**
    * Return whether the script requires a config interface to be

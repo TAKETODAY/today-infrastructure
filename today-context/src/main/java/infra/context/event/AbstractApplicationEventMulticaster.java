@@ -226,6 +226,7 @@ public abstract class AbstractApplicationEventMulticaster implements Application
    * @param retriever the ListenerRetriever, if supposed to populate one (for caching purposes)
    * @return the pre-filtered list of application listeners for the given event and source type
    */
+  @SuppressWarnings("NullAway") // Dataflow analysis limitation
   private Collection<ApplicationListener<?>> retrieveApplicationListeners(
           ResolvableType eventType, @Nullable Class<?> sourceType, @Nullable CachedListenerRetriever retriever) {
 

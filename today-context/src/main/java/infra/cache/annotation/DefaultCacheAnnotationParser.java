@@ -238,8 +238,7 @@ public class DefaultCacheAnnotationParser implements CacheAnnotationParser, Seri
 
     private final Class<?> target;
 
-    @Nullable
-    private String[] cacheNames;
+    private String @Nullable [] cacheNames;
 
     @Nullable
     private String keyGenerator;

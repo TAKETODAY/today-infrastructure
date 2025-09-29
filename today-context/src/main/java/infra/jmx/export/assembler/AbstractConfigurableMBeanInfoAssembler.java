@@ -41,8 +41,7 @@ import infra.util.StringUtils;
  */
 public abstract class AbstractConfigurableMBeanInfoAssembler extends AbstractReflectiveMBeanInfoAssembler {
 
-  @Nullable
-  private ModelMBeanNotificationInfo[] notificationInfos;
+  private ModelMBeanNotificationInfo @Nullable [] notificationInfos;
 
   private final Map<String, ModelMBeanNotificationInfo[]> notificationInfoMappings = new HashMap<>();
 

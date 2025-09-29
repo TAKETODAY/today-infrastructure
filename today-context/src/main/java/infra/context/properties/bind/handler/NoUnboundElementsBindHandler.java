@@ -85,7 +85,7 @@ public class NoUnboundElementsBindHandler extends AbstractBindHandler {
   }
 
   @Override
-  public void onFinish(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Object result) {
+  public void onFinish(ConfigurationPropertyName name, Bindable<?> target, BindContext context, @Nullable Object result) {
     if (context.getDepth() == 0) {
       checkNoUnboundElements(name, context);
     }

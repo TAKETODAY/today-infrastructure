@@ -109,7 +109,7 @@ public class ValidationBindHandler extends AbstractBindHandler {
   }
 
   @Override
-  public void onFinish(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Object result)
+  public void onFinish(ConfigurationPropertyName name, Bindable<?> target, BindContext context, @Nullable Object result)
           throws Exception {
     validate(name, target, context, result);
     super.onFinish(name, target, context, result);

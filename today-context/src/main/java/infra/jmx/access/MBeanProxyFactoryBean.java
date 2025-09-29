@@ -44,6 +44,7 @@ import infra.util.ClassUtils;
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see MBeanClientInterceptor
  * @see InvalidInvocationException
  * @since 4.0
@@ -105,6 +106,7 @@ public class MBeanProxyFactoryBean extends MBeanClientInterceptor
     return this.mbeanProxy;
   }
 
+  @Nullable
   @Override
   public Class<?> getObjectType() {
     return this.proxyInterface;

@@ -440,6 +440,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private Object executeSynchronized(CacheOperationInvoker invoker, Method method, CacheOperationContexts contexts) {
     CacheOperationContext context = contexts.get(CacheableOperation.class).iterator().next();
     if (isConditionPassing(context, CacheOperationExpressionEvaluator.NO_RESULT)) {

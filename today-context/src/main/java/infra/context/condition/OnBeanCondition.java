@@ -60,6 +60,7 @@ import infra.core.annotation.MergedAnnotations;
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.core.type.MethodMetadata;
 import infra.lang.Assert;
+import infra.lang.Contract;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
@@ -690,6 +691,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
       throw new IllegalStateException("Unable to find bean method " + methodName);
     }
 
+    @Contract("null -> false")
     private boolean isBeanMethod(@Nullable Method method) {
       return method != null && MergedAnnotations.from(method, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY)
               .isPresent(Component.class);

@@ -37,7 +37,8 @@ public class NamedCacheResolver extends AbstractCacheResolver {
   @Nullable
   private Collection<String> cacheNames;
 
-  public NamedCacheResolver() { }
+  public NamedCacheResolver() {
+  }
 
   public NamedCacheResolver(CacheManager cacheManager, String... cacheNames) {
     super(cacheManager);
@@ -52,7 +53,7 @@ public class NamedCacheResolver extends AbstractCacheResolver {
   }
 
   @Override
-  protected Collection<String> getCacheNames(CacheOperationInvocationContext<?> context) {
+  protected @Nullable Collection<String> getCacheNames(CacheOperationInvocationContext<?> context) {
     return this.cacheNames;
   }
 

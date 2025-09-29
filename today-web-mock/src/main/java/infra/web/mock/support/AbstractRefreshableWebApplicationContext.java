@@ -127,7 +127,7 @@ public abstract class AbstractRefreshableWebApplicationContext
   }
 
   @Override
-  public String[] getConfigLocations() {
+  public String @Nullable [] getConfigLocations() {
     return super.getConfigLocations();
   }
 

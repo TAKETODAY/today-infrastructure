@@ -78,8 +78,7 @@ public class ScheduledExecutorFactoryBean extends ExecutorConfigurationSupport i
 
   private int poolSize = 1;
 
-  @Nullable
-  private ScheduledExecutorTask[] scheduledExecutorTasks;
+  private ScheduledExecutorTask @Nullable [] scheduledExecutorTasks;
 
   private boolean removeOnCancelPolicy = false;
 

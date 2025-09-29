@@ -59,8 +59,7 @@ public class StandardScriptFactory implements ScriptFactory, BeanClassLoaderAwar
 
   private final String scriptSourceLocator;
 
-  @Nullable
-  private final Class<?>[] scriptInterfaces;
+  private final Class<?> @Nullable [] scriptInterfaces;
 
   @Nullable
   private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();

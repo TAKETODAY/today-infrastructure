@@ -33,6 +33,7 @@ import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.work.DisableCachingByDefault;
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +44,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import infra.app.loader.tools.MainClassFinder;
-import org.jspecify.annotations.Nullable;
+import infra.lang.Assert;
 
 /**
  * {@link Task} for resolving the name of the application's main class.
@@ -61,7 +62,7 @@ public class ResolveMainClassName extends DefaultTask {
 
   private final Property<String> configuredMainClass;
 
-  private FileCollection classpath;
+  private @Nullable FileCollection classpath;
 
   /**
    * Creates a new instance of the {@code ResolveMainClassName} task.
@@ -79,6 +80,7 @@ public class ResolveMainClassName extends DefaultTask {
    */
   @Classpath
   public FileCollection getClasspath() {
+    Assert.state(this.classpath != null, "'classpath' is required");
     return this.classpath;
   }
 
