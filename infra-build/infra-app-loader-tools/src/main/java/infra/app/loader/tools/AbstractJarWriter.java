@@ -272,6 +272,7 @@ public abstract class AbstractJarWriter implements LoaderClassesWriter {
       entry.getGeneralPurposeBit().useUTF8ForNames(true);
       if (!entry.isDirectory() && entry.getSize() == -1) {
         entryWriter = SizeCalculatingEntryWriter.get(entryWriter);
+        Assert.state(entryWriter != null, "'entryWriter' is required");
         entry.setSize(entryWriter.size());
       }
       entryWriter = addUnpackCommentIfNecessary(entry, entryWriter, unpackHandler);

@@ -43,13 +43,16 @@ class PropertyTests {
     MergedAnnotations annotations = MergedAnnotations.from(property, property.getAnnotations(),
             RepeatableContainers.standard(), AnnotationFilter.JAVA);
 
-    assertThat(annotations.get(Nullable.class).isPresent()).isTrue();
+    assertThat(annotations.get(Nullable.class).isPresent()).isFalse();
     assertThat(annotations.get(Override.class).isPresent()).isFalse();
     assertThat(annotations.get(Required.class).isPresent()).isTrue();
+
+    assertThat(property.isNullable()).isTrue();
   }
 
   static class Bean implements Ifc {
 
+    @Nullable
     @Override
     public Integer getInt() {
       return 0;

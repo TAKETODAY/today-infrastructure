@@ -79,7 +79,7 @@ final class SizeCalculatingEntryWriter implements EntryWriter {
     return this.size;
   }
 
-  static EntryWriter get(@Nullable EntryWriter entryWriter) throws IOException {
+  static @Nullable EntryWriter get(@Nullable EntryWriter entryWriter) throws IOException {
     if (entryWriter == null || entryWriter.size() != -1) {
       return entryWriter;
     }
