@@ -107,7 +107,7 @@ final class ZipString {
    * @return the hash
    * @throws IOException on I/O error
    */
-  static int hash(ByteBuffer buffer, DataBlock dataBlock, long pos, int len, boolean addEndSlash) throws IOException {
+  static int hash(@Nullable ByteBuffer buffer, DataBlock dataBlock, long pos, int len, boolean addEndSlash) throws IOException {
     if (len == 0) {
       return (!addEndSlash) ? EMPTY_HASH : EMPTY_SLASH_HASH;
     }
@@ -184,7 +184,7 @@ final class ZipString {
    * @return {@code -1} if the data block does not start with the char sequence, or a
    * positive number indicating the number of bytes that contain the starting chars
    */
-  static int startsWith(ByteBuffer buffer, DataBlock dataBlock, long pos, int len, CharSequence charSequence) {
+  static int startsWith(@Nullable ByteBuffer buffer, DataBlock dataBlock, long pos, int len, CharSequence charSequence) {
     if (charSequence.isEmpty()) {
       return 0;
     }

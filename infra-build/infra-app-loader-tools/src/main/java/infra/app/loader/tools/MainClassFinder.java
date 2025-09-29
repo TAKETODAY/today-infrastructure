@@ -17,6 +17,8 @@
 
 package infra.app.loader.tools;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileFilter;
@@ -41,7 +43,6 @@ import infra.bytecode.ClassVisitor;
 import infra.bytecode.MethodVisitor;
 import infra.bytecode.Opcodes;
 import infra.bytecode.Type;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Finds any class with a {@code public static main} method by performing a breadth first
@@ -430,6 +431,7 @@ public abstract class MainClassFinder {
       this.annotationName = annotationName;
     }
 
+    @Nullable
     @Override
     public Object doWith(MainClass mainClass) {
       this.mainClasses.add(mainClass);

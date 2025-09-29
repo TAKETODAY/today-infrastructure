@@ -17,12 +17,14 @@
 
 package infra.app.loader.tools;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.jspecify.annotations.Nullable;
+import infra.lang.Assert;
 
 /**
  * Encapsulates information about a single library that may be packed into the archive.
@@ -37,12 +39,11 @@ public class Library {
 
   private final String name;
 
-  private final File file;
+  private final @Nullable File file;
 
-  private final LibraryScope scope;
+  private final @Nullable LibraryScope scope;
 
-  @Nullable
-  private final LibraryCoordinates coordinates;
+  private final @Nullable LibraryCoordinates coordinates;
 
   private final boolean unpackRequired;
 
@@ -71,17 +72,23 @@ public class Library {
    * @param unpackRequired if the library needs to be unpacked before it can be used
    * @param local if the library is local (part of the same build) to the application
    * that is being packaged
-   * @param included if the library is included in the fat jar
+   * @param included if the library is included in the uber jar
+   * @since 2.4.8
    */
-  public Library(@Nullable String name, File file, LibraryScope scope,
+  public Library(@Nullable String name, @Nullable File file, @Nullable LibraryScope scope,
           @Nullable LibraryCoordinates coordinates, boolean unpackRequired, boolean local, boolean included) {
-    this.name = (name != null) ? name : file.getName();
+    this.name = (name != null) ? name : getFileName(file);
     this.file = file;
     this.scope = scope;
     this.coordinates = coordinates;
     this.unpackRequired = unpackRequired;
     this.local = local;
     this.included = included;
+  }
+
+  private static String getFileName(@Nullable File file) {
+    Assert.state(file != null, "'file' is required");
+    return file.getName();
   }
 
   /**
@@ -98,7 +105,7 @@ public class Library {
    *
    * @return the file
    */
-  public File getFile() {
+  public @Nullable File getFile() {
     return this.file;
   }
 
@@ -109,6 +116,7 @@ public class Library {
    * @throws IOException on error
    */
   InputStream openStream() throws IOException {
+    Assert.state(this.file != null, "'file' is required");
     return new FileInputStream(this.file);
   }
 
@@ -117,7 +125,7 @@ public class Library {
    *
    * @return the scope
    */
-  public LibraryScope getScope() {
+  public @Nullable LibraryScope getScope() {
     return this.scope;
   }
 
@@ -126,8 +134,7 @@ public class Library {
    *
    * @return the coordinates
    */
-  @Nullable
-  public LibraryCoordinates getCoordinates() {
+  public @Nullable LibraryCoordinates getCoordinates() {
     return this.coordinates;
   }
 
@@ -142,6 +149,7 @@ public class Library {
   }
 
   long getLastModified() {
+    Assert.state(this.file != null, "'file' is required");
     return this.file.lastModified();
   }
 
@@ -156,7 +164,7 @@ public class Library {
   }
 
   /**
-   * Return if the library is included in the fat jar.
+   * Return if the library is included in the uber jar.
    *
    * @return if the library is included
    */

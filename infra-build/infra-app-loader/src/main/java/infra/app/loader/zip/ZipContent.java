@@ -17,6 +17,8 @@
 
 package infra.app.loader.zip;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -34,7 +36,6 @@ import java.util.function.Function;
 import java.util.zip.ZipEntry;
 
 import infra.app.loader.log.DebugLogger;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Provides raw access to content from a regular or nested zip file. This class performs
@@ -240,7 +241,7 @@ public final class ZipContent implements Closeable {
    * @param name the name of the entry to find
    * @return the entry or {@code null}
    */
-  public boolean hasEntry(CharSequence namePrefix, CharSequence name) {
+  public boolean hasEntry(@Nullable CharSequence namePrefix, CharSequence name) {
     int nameHash = nameHash(namePrefix, name);
     int lookupIndex = getFirstLookupIndex(nameHash);
     int size = size();
@@ -387,7 +388,7 @@ public final class ZipContent implements Closeable {
    * @return a {@link ZipContent} instance
    * @throws IOException on I/O error
    */
-  public static ZipContent open(Path path, String nestedEntryName) throws IOException {
+  public static ZipContent open(Path path, @Nullable String nestedEntryName) throws IOException {
     return open(new Source(path.toAbsolutePath(), nestedEntryName));
   }
 
@@ -412,8 +413,6 @@ public final class ZipContent implements Closeable {
 
   /**
    * Zip content kinds.
-   *
-   * @since 3.2.2
    */
   public enum Kind {
 
@@ -719,8 +718,10 @@ public final class ZipContent implements Closeable {
 
     private final ZipCentralDirectoryFileHeaderRecord centralRecord;
 
+    @Nullable
     private volatile String name;
 
+    @Nullable
     private volatile FileDataBlock content;
 
     /**

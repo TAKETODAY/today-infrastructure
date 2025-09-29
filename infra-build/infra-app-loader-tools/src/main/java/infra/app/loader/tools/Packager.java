@@ -18,6 +18,7 @@
 package infra.app.loader.tools;
 
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
+import org.jspecify.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -42,7 +43,6 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 import infra.lang.Assert;
-import org.jspecify.annotations.Nullable;
 import infra.lang.TodayStrategies;
 import infra.util.StringUtils;
 
@@ -98,6 +98,7 @@ public abstract class Packager {
   @Nullable
   private Layers layers;
 
+  @Nullable
   private LayersIndex layersIndex;
 
   private boolean includeRelevantJarModeJars = true;
@@ -262,6 +263,7 @@ public abstract class Packager {
     String name = getLayout().getLayersIndexFileLocation();
     if (StringUtils.isNotEmpty(name)) {
       Layer layer = layers.getLayer(name);
+      Assert.state(this.layersIndex != null, "'layersIndex' is required");
       this.layersIndex.add(layer, name);
       writer.writeEntry(name, this.layersIndex::writeTo);
     }
@@ -507,7 +509,7 @@ public abstract class Packager {
 
     private final AbstractJarWriter.UnpackHandler unpackHandler;
 
-    private final Function<JarEntry, Library> libraryLookup;
+    private final Function<JarEntry, @Nullable Library> libraryLookup;
 
     PackagedLibraries(Libraries libraries, boolean ensureReproducibleBuild) throws IOException {
       this.libraries = ensureReproducibleBuild ? new TreeMap<>() : new LinkedHashMap<>();
@@ -532,6 +534,7 @@ public abstract class Packager {
       }
     }
 
+    @Nullable
     private Library lookup(JarEntry entry) {
       return this.libraries.get(entry.getName());
     }

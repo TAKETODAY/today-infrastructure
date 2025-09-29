@@ -67,7 +67,7 @@ public abstract class NullabilityOptions {
 		}
 		options.put("NullAway:CustomContractAnnotations", String.join(",", customContractAnnotations));
 		options.put("NullAway:JSpecifyMode", "true");
-		options.put("NullAway:UnannotatedSubPackages", "infra.bytecode");
+		options.put("NullAway:UnannotatedSubPackages", "infra.bytecode,infra.app.loader");
 		if (checking == Checking.TESTS) {
 			options.put("NullAway:HandleTestAssertionLibraries", "true");
 		}
@@ -76,7 +76,7 @@ public abstract class NullabilityOptions {
 
 	private Map<String, CheckSeverity> checks(Checking checking) {
 		if (checking != Checking.DISABLED) {
-			return Map.of("NullAway", CheckSeverity.OFF);
+			return Map.of("NullAway", CheckSeverity.ERROR);
 		}
 		return Collections.emptyMap();
 	}

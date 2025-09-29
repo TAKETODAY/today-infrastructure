@@ -50,7 +50,7 @@ public interface Layout {
    * with '/') or {@code null} if the library should not be included.
    */
   @Nullable
-  String getLibraryLocation(String libraryName, LibraryScope scope);
+  String getLibraryLocation(String libraryName, @Nullable LibraryScope scope);
 
   /**
    * Returns the location of classes within the archive.
