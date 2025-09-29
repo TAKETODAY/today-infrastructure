@@ -219,7 +219,6 @@ class MultipartControllerTests {
   }
 
   @Test
-    
   void multipartRequestWrapped() throws Exception {
     byte[] json = "{\"name\":\"yeeeah\"}".getBytes(StandardCharsets.UTF_8);
     MockMultipartFile jsonPart = new MockMultipartFile("json", "json", "application/json", json);
@@ -278,7 +277,7 @@ class MultipartControllerTests {
 
     @PostMapping("/optionalfilearray")
     public String processOptionalFileArray(
-            @RequestParam @Nullable MultipartFile[] file, @RequestPart Map<String, String> json)
+            @RequestParam MultipartFile @Nullable [] file, @RequestPart Map<String, String> json)
             throws IOException {
 
       if (file != null) {

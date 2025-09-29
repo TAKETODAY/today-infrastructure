@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import infra.core.annotation.AliasFor;
 import infra.test.context.ActiveProfiles;
 import infra.test.context.ContextConfiguration;
 
@@ -39,8 +40,10 @@ import infra.test.context.ContextConfiguration;
 @Target(ElementType.TYPE)
 public @interface ConfigClassesAndProfilesMetaConfig {
 
+  @AliasFor(annotation = ContextConfiguration.class)
   Class<?>[] classes() default {};
 
+  @AliasFor(annotation = ActiveProfiles.class)
   String[] profiles() default {};
 
 }

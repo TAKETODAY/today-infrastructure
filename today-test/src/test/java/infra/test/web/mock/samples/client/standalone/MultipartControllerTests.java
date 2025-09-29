@@ -280,7 +280,7 @@ public class MultipartControllerTests {
 
     @PostMapping("/optionalfilearray")
     public String processOptionalFileArray(
-            @RequestParam @Nullable MultipartFile[] file, @RequestPart Map<String, String> json) throws IOException {
+            @RequestParam MultipartFile @Nullable [] file, @RequestPart Map<String, String> json) throws IOException {
 
       if (file != null) {
         byte[] content = file[0].getBytes();

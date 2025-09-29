@@ -17,6 +17,8 @@
 
 package infra.app.loader.tools;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -28,7 +30,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import infra.core.ApplicationTemp;
-import org.jspecify.annotations.Nullable;
+import infra.lang.Assert;
 import infra.util.StreamUtils;
 
 /**
@@ -139,8 +141,10 @@ final class SizeCalculatingEntryWriter implements EntryWriter {
     }
 
     Object getContent() {
-      return (this.outputStream instanceof ByteArrayOutputStream byteArrayOutputStream)
-             ? byteArrayOutputStream.toByteArray() : this.tempFile;
+      Object result = (this.outputStream instanceof ByteArrayOutputStream byteArrayOutputStream)
+              ? byteArrayOutputStream.toByteArray() : this.tempFile;
+      Assert.state(result != null, "'result' is required");
+      return result;
     }
 
     int getSize() {

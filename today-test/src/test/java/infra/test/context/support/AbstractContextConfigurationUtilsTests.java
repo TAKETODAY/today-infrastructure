@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ import java.util.Set;
 
 import infra.context.ApplicationContextInitializer;
 import infra.context.annotation.Configuration;
+import infra.core.annotation.AliasFor;
 import infra.test.context.ActiveProfiles;
 import infra.test.context.BootstrapContext;
 import infra.test.context.BootstrapTestUtils;
@@ -157,8 +158,10 @@ abstract class AbstractContextConfigurationUtilsTests {
   @Target(ElementType.TYPE)
   public static @interface MetaLocationsFooConfigWithOverrides {
 
+    @AliasFor(annotation = ContextConfiguration.class)
     String[] locations() default "/foo.xml";
 
+    @AliasFor(annotation = ActiveProfiles.class)
     String[] profiles() default "foo";
   }
 

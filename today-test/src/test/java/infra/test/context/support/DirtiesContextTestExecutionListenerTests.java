@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ import org.mockito.BDDMockito;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import infra.core.annotation.AliasFor;
 import infra.test.annotation.DirtiesContext;
 import infra.test.annotation.DirtiesContext.ClassMode;
 import infra.test.annotation.DirtiesContext.HierarchyMode;
@@ -401,8 +402,10 @@ class DirtiesContextTestExecutionListenerTests {
   @Retention(RetentionPolicy.RUNTIME)
   @interface MetaDirtyWithOverrides {
 
+    @AliasFor(annotation = DirtiesContext.class)
     ClassMode classMode() default AFTER_EACH_TEST_METHOD;
 
+    @AliasFor(annotation = DirtiesContext.class)
     HierarchyMode hierarchyMode() default HierarchyMode.CURRENT_LEVEL;
   }
 
