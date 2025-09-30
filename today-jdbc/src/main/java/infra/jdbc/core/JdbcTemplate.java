@@ -1494,7 +1494,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
    * @param args object array with arguments
    * @return the new PreparedStatementSetter to use
    */
-  protected PreparedStatementSetter newArgPreparedStatementSetter(@Nullable Object[] args) {
+  protected PreparedStatementSetter newArgPreparedStatementSetter(Object @Nullable [] args) {
     return new ArgumentPreparedStatementSetter(args);
   }
 

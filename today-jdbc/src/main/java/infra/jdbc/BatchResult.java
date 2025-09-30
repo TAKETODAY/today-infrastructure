@@ -148,6 +148,7 @@ public class BatchResult extends ExecutionResult {
    * @throws GeneratedKeysConversionException Generated Keys conversion failed
    * @throws IllegalArgumentException If conversionService is null
    */
+  @SuppressWarnings("NullAway")
   public <V> V getKey(Class<V> returnType, ConversionService conversionService) {
     Assert.notNull(conversionService, "conversionService is required");
     Object key = getKey();

@@ -103,11 +103,11 @@ public final class Query extends AbstractQuery {
     super(connection, querySQL, generatedKeys);
   }
 
-  public Query(JdbcConnection connection, String querySQL, @Nullable String[] columnNames) {
+  public Query(JdbcConnection connection, String querySQL, String @Nullable [] columnNames) {
     super(connection, querySQL, columnNames);
   }
 
-  protected Query(JdbcConnection connection, String querySQL, boolean generatedKeys, @Nullable String[] columnNames) {
+  protected Query(JdbcConnection connection, String querySQL, boolean generatedKeys, String @Nullable [] columnNames) {
     super(connection, querySQL, generatedKeys, columnNames);
   }
 

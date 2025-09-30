@@ -38,16 +38,19 @@ public class UUIDTypeHandler extends BasicTypeHandler<UUID> {
     ps.setString(parameterIndex, arg.toString());
   }
 
+  @Nullable
   @Override
   public UUID getResult(ResultSet rs, String columnName) throws SQLException {
     return fromString(rs.getString(columnName));
   }
 
+  @Nullable
   @Override
   public UUID getResult(ResultSet rs, int columnIndex) throws SQLException {
     return fromString(rs.getString(columnIndex));
   }
 
+  @Nullable
   @Override
   public UUID getResult(CallableStatement cs, int columnIndex) throws SQLException {
     return fromString(cs.getString(columnIndex));

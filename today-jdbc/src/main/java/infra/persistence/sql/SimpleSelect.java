@@ -60,6 +60,7 @@ public class SimpleSelect implements StatementSequence {
   @Nullable
   private Integer offset;
 
+  @SuppressWarnings("NullAway")
   public SimpleSelect() {
     this.columns = new ArrayList<>();
     this.restrictions = new ArrayList<>();

@@ -44,7 +44,9 @@ public class SelectFragment {
 
   private String[] usedAliases;
 
-  public SelectFragment() { }
+  @SuppressWarnings("NullAway")
+  public SelectFragment() {
+  }
 
   public List<String> getColumns() {
     return columns;

@@ -37,6 +37,7 @@ import infra.jdbc.core.RowMapper;
  *
  * @param <T> the result type
  * @author Thomas Risberg
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see SqlQuery
  */
 public abstract class UpdatableSqlQuery<T> extends SqlQuery<T> {
@@ -64,7 +65,7 @@ public abstract class UpdatableSqlQuery<T> extends SqlQuery<T> {
    * implementation of the {@code updateRow()} method.
    */
   @Override
-  protected RowMapper<T> newRowMapper(@Nullable Object[] parameters, @Nullable Map<?, ?> context) {
+  protected RowMapper<T> newRowMapper(Object @Nullable [] parameters, @Nullable Map<?, ?> context) {
     return new RowMapperImpl(context);
   }
 

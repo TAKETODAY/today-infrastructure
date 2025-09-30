@@ -17,6 +17,8 @@
 
 package infra.jdbc.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.sql.CallableStatement;
@@ -35,12 +37,14 @@ public class BytesInputStreamTypeHandler extends BasicTypeHandler<InputStream> {
     ps.setBinaryStream(parameterIndex, arg);
   }
 
+  @Nullable
   @Override
   public InputStream getResult(ResultSet rs, String columnName) throws SQLException {
     byte[] bytes = rs.getBytes(columnName);
     return bytes != null ? new ByteArrayInputStream(bytes) : null;
   }
 
+  @Nullable
   @Override
   public InputStream getResult(ResultSet rs, int columnIndex) throws SQLException {
     byte[] bytes = rs.getBytes(columnIndex);
@@ -48,6 +52,7 @@ public class BytesInputStreamTypeHandler extends BasicTypeHandler<InputStream> {
   }
 
   @Override
+  @Nullable
   public InputStream getResult(CallableStatement cs, int columnIndex) throws SQLException {
     byte[] bytes = cs.getBytes(columnIndex);
     return bytes != null ? new ByteArrayInputStream(bytes) : null;

@@ -134,6 +134,7 @@ public class DefaultEntityManager implements EntityManager {
     this(repositoryManager, Platform.forClasspath());
   }
 
+  @SuppressWarnings("NullAway")
   public DefaultEntityManager(RepositoryManager repositoryManager, Platform platform) {
     this.dataSource = repositoryManager.getDataSource();
     this.repositoryManager = repositoryManager;

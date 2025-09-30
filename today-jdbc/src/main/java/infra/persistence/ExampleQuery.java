@@ -97,6 +97,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements Condition
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public OrderByClause getOrderByClause(EntityMetadata metadata) {
     if (example instanceof OrderBySource source) {
       OrderByClause orderByClause = source.orderByClause();

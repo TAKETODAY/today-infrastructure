@@ -76,7 +76,7 @@ public abstract class RdbmsOperation implements InitializingBean {
 
   private boolean returnGeneratedKeys = false;
 
-  private String @Nullable []generatedKeysColumnNames;
+  private String @Nullable [] generatedKeysColumnNames;
 
   @Nullable
   private String sql;
@@ -272,7 +272,7 @@ public abstract class RdbmsOperation implements InitializingBean {
    * {@code java.sql.Types} class
    * @throws InvalidDataAccessApiUsageException if the operation is already compiled
    */
-  public void setTypes(@Nullable int[] types) throws InvalidDataAccessApiUsageException {
+  public void setTypes(int @Nullable [] types) throws InvalidDataAccessApiUsageException {
     if (isCompiled()) {
       throw new InvalidDataAccessApiUsageException("Cannot add parameters once query is compiled");
     }
@@ -311,13 +311,14 @@ public abstract class RdbmsOperation implements InitializingBean {
    * @param parameters an array containing the declared {@link SqlParameter} objects
    * @see #declaredParameters
    */
-  public void setParameters(SqlParameter... parameters) {
+  public void setParameters(@Nullable SqlParameter... parameters) {
     if (isCompiled()) {
       throw new InvalidDataAccessApiUsageException("Cannot add parameters once the query is compiled");
     }
     for (int i = 0; i < parameters.length; i++) {
-      if (parameters[i] != null) {
-        this.declaredParameters.add(parameters[i]);
+      SqlParameter parameter = parameters[i];
+      if (parameter != null) {
+        this.declaredParameters.add(parameter);
       }
       else {
         throw new InvalidDataAccessApiUsageException("Cannot add parameter at index %s from %s since it is 'null'"
@@ -403,7 +404,7 @@ public abstract class RdbmsOperation implements InitializingBean {
    * @param parameters the parameters supplied (may be {@code null})
    * @throws InvalidDataAccessApiUsageException if the parameters are invalid
    */
-  protected void validateParameters(@Nullable Object[] parameters) throws InvalidDataAccessApiUsageException {
+  protected void validateParameters(Object @Nullable [] parameters) throws InvalidDataAccessApiUsageException {
     checkCompiled();
     int declaredInParameters = 0;
     for (SqlParameter param : this.declaredParameters) {

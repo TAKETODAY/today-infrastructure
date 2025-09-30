@@ -37,7 +37,7 @@ import infra.util.StringUtils;
  */
 public class SQLErrorCodes {
 
-  private String @Nullable []databaseProductNames;
+  private String @Nullable [] databaseProductNames;
 
   private boolean useSqlStateForTranslation = false;
 
@@ -61,8 +61,7 @@ public class SQLErrorCodes {
 
   private String[] cannotSerializeTransactionCodes = new String[0];
 
-  @Nullable
-  private CustomSQLErrorCodesTranslation[] customTranslations;
+  private CustomSQLErrorCodesTranslation @Nullable [] customTranslations;
 
   @Nullable
   private SQLExceptionTranslator customSqlExceptionTranslator;
@@ -71,7 +70,7 @@ public class SQLErrorCodes {
    * Set this property if the database name contains spaces,
    * in which case we can not use the bean name for lookup.
    */
-  public void setDatabaseProductName(@Nullable String databaseProductName) {
+  public void setDatabaseProductName(String databaseProductName) {
     this.databaseProductNames = new String[] { databaseProductName };
   }
 
@@ -189,8 +188,7 @@ public class SQLErrorCodes {
     this.customTranslations = customTranslations;
   }
 
-  @Nullable
-  public CustomSQLErrorCodesTranslation[] getCustomTranslations() {
+  public CustomSQLErrorCodesTranslation @Nullable [] getCustomTranslations() {
     return this.customTranslations;
   }
 

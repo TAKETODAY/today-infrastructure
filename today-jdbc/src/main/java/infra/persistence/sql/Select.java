@@ -28,6 +28,7 @@ import infra.persistence.platform.Platform;
  * @author Gavin King
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
+@SuppressWarnings("NullAway")
 public class Select implements StatementSequence {
 
   protected CharSequence selectClause;

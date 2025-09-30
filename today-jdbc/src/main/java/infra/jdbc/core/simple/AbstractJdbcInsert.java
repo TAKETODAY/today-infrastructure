@@ -628,7 +628,7 @@ public abstract class AbstractJdbcInsert {
    * @param preparedStatement the PreparedStatement
    * @param values the values to be set
    */
-  private void setParameterValues(PreparedStatement preparedStatement, List<?> values, @Nullable int... columnTypes)
+  private void setParameterValues(PreparedStatement preparedStatement, List<?> values, int @Nullable ... columnTypes)
           throws SQLException {
 
     int colIndex = 0;

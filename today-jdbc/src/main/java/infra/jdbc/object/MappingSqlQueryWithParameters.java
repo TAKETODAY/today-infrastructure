@@ -48,6 +48,7 @@ import infra.jdbc.core.RowMapper;
  * @param <T> the result type
  * @author Rod Johnson
  * @author Thomas Risberg
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @author Jean-Pierre Pawlak
  * @see MappingSqlQuery
  * @see SqlQuery
@@ -75,7 +76,7 @@ public abstract class MappingSqlQueryWithParameters<T> extends SqlQuery<T> {
    * implementation of the mapRow() method.
    */
   @Override
-  protected RowMapper<T> newRowMapper(@Nullable Object[] parameters, @Nullable Map<?, ?> context) {
+  protected RowMapper<T> newRowMapper(Object @Nullable [] parameters, @Nullable Map<?, ?> context) {
     return new RowMapperImpl(parameters, context);
   }
 
@@ -96,7 +97,7 @@ public abstract class MappingSqlQueryWithParameters<T> extends SqlQuery<T> {
    * framework to clean up.
    */
   @Nullable
-  protected abstract T mapRow(ResultSet rs, int rowNum, @Nullable Object[] parameters, @Nullable Map<?, ?> context)
+  protected abstract T mapRow(ResultSet rs, int rowNum, Object @Nullable [] parameters, @Nullable Map<?, ?> context)
           throws SQLException;
 
   /**
@@ -105,8 +106,7 @@ public abstract class MappingSqlQueryWithParameters<T> extends SqlQuery<T> {
    */
   protected class RowMapperImpl implements RowMapper<T> {
 
-    @Nullable
-    private final Object[] params;
+    private final Object @Nullable [] params;
 
     @Nullable
     private final Map<?, ?> context;
@@ -114,7 +114,7 @@ public abstract class MappingSqlQueryWithParameters<T> extends SqlQuery<T> {
     /**
      * Use an array results. More efficient if we know how many results to expect.
      */
-    public RowMapperImpl(@Nullable Object[] parameters, @Nullable Map<?, ?> context) {
+    public RowMapperImpl(Object @Nullable [] parameters, @Nullable Map<?, ?> context) {
       this.params = parameters;
       this.context = context;
     }

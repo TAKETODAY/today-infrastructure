@@ -63,7 +63,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
   }
 
   @Override
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "NullAway" })
   public ResultSetExtractor<T> getResultSetHandler(ResultSetMetaData meta) throws SQLException {
     int columnCount = meta.getColumnCount();
     StringBuilder builder = new StringBuilder(columnCount * 10);

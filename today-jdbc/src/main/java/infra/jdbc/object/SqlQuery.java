@@ -54,6 +54,7 @@ import infra.jdbc.core.namedparam.ParsedSql;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Thomas Risberg
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see SqlUpdate
  */
 public abstract class SqlQuery<T> extends SqlOperation {
@@ -66,7 +67,8 @@ public abstract class SqlQuery<T> extends SqlOperation {
    * <p>The {@code DataSource} and SQL must be supplied before
    * compilation and use.
    */
-  public SqlQuery() { }
+  public SqlQuery() {
+  }
 
   /**
    * Convenient constructor with a {@code DataSource} and SQL string.
@@ -108,7 +110,7 @@ public abstract class SqlQuery<T> extends SqlOperation {
    * @return a List of objects, one per row of the ResultSet. Normally all these
    * will be of the same class, although it is possible to use different types.
    */
-  public List<T> execute(@Nullable Object[] params, @Nullable Map<?, ?> context) throws DataAccessException {
+  public List<T> execute(Object @Nullable [] params, @Nullable Map<?, ?> context) throws DataAccessException {
     validateParameters(params);
     RowMapper<T> rowMapper = newRowMapper(params, context);
     return getJdbcTemplate().query(newPreparedStatementCreator(params), rowMapper);
@@ -263,7 +265,7 @@ public abstract class SqlQuery<T> extends SqlOperation {
    * @see infra.dao.support.DataAccessUtils#singleResult
    */
   @Nullable
-  public T findObject(@Nullable Object[] params, @Nullable Map<?, ?> context) throws DataAccessException {
+  public T findObject(Object @Nullable [] params, @Nullable Map<?, ?> context) throws DataAccessException {
     List<T> results = execute(params, context);
     return DataAccessUtils.singleResult(results);
   }
@@ -386,6 +388,6 @@ public abstract class SqlQuery<T> extends SqlOperation {
    * but it can be useful for creating the objects of the result list.
    * @see #execute
    */
-  protected abstract RowMapper<T> newRowMapper(@Nullable Object[] parameters, @Nullable Map<?, ?> context);
+  protected abstract RowMapper<T> newRowMapper(Object @Nullable [] parameters, @Nullable Map<?, ?> context);
 
 }

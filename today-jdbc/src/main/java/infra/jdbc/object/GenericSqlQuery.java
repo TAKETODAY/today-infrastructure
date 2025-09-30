@@ -32,6 +32,7 @@ import infra.lang.Assert;
  * @param <T> the result type
  * @author Thomas Risberg
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see #setRowMapper
  * @see #setRowMapperClass
  * @since 4.0
@@ -70,7 +71,7 @@ public class GenericSqlQuery<T> extends SqlQuery<T> {
 
   @Override
   @SuppressWarnings("unchecked")
-  protected RowMapper<T> newRowMapper(@Nullable Object[] parameters, @Nullable Map<?, ?> context) {
+  protected RowMapper<T> newRowMapper(Object @Nullable [] parameters, @Nullable Map<?, ?> context) {
     if (this.rowMapper != null) {
       return this.rowMapper;
     }

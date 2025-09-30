@@ -189,6 +189,7 @@ public class SQLErrorCodeSQLExceptionTranslator extends AbstractFallbackSQLExcep
 
   @Override
   @Nullable
+  @SuppressWarnings("NullAway")
   protected DataAccessException doTranslate(String task, @Nullable String sql, SQLException ex) {
     SQLException sqlEx = ex;
     if (sqlEx instanceof BatchUpdateException && sqlEx.getNextException() != null) {

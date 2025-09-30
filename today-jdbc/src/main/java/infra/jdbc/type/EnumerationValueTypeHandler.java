@@ -52,6 +52,7 @@ public class EnumerationValueTypeHandler<T extends Enum<T>> implements TypeHandl
 
   private final Function<T, Object> valueSupplier;
 
+  @SuppressWarnings("NullAway")
   public EnumerationValueTypeHandler(Class<T> type, TypeHandlerManager registry) {
     Assert.notNull(type, "Type argument is required");
     BeanProperty annotatedProperty = getAnnotatedProperty(type);

@@ -45,6 +45,7 @@ public class ArgumentTypePreparedStatementSetter implements PreparedStatementSet
    * @param args the arguments to set
    * @param argTypes the corresponding SQL types of the arguments
    */
+  @SuppressWarnings("NullAway")
   public ArgumentTypePreparedStatementSetter(Object @Nullable [] args, int @Nullable [] argTypes) {
     if ((args != null && argTypes == null) || (args == null && argTypes != null) ||
             (args != null && args.length != argTypes.length)) {

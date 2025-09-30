@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 
 package infra.persistence.sql;
+
+import org.jspecify.annotations.Nullable;
 
 import infra.util.StringUtils;
 
@@ -75,7 +77,7 @@ public abstract class JoinFragment {
    * @param joinType The type of join
    * @param on The additional ON fragment
    */
-  public abstract void addJoin(String tableName, String alias, String[] fkColumns, String[] pkColumns, JoinType joinType, String on);
+  public abstract void addJoin(String tableName, String alias, String[] fkColumns, String[] pkColumns, JoinType joinType, @Nullable String on);
 
   /**
    * Adds a join, with an additional ON clause fragment
@@ -87,7 +89,7 @@ public abstract class JoinFragment {
    * @param joinType The type of join
    * @param on The additional ON fragment
    */
-  public void addJoin(String tableName, String alias, String[][] fkColumns, String[] pkColumns, JoinType joinType, String on) {
+  public void addJoin(String tableName, String alias, String[][] fkColumns, String[] pkColumns, JoinType joinType, @Nullable String on) {
     if (fkColumns.length > 1) {
       throw new UnsupportedOperationException("The join fragment does not support multiple foreign key columns: " + getClass());
     }
@@ -139,7 +141,7 @@ public abstract class JoinFragment {
    * @param condition The fragment
    * @return {@code true} if the condition was added
    */
-  public abstract boolean addCondition(String condition);
+  public abstract boolean addCondition(@Nullable String condition);
 
   /**
    * Make a copy.
@@ -168,7 +170,7 @@ public abstract class JoinFragment {
    * @param on The 'on' condition.
    * @return Returns true if the condition was added, false if the condition was already in 'on' string.
    */
-  protected boolean addCondition(StringBuilder buffer, String on) {
+  protected boolean addCondition(StringBuilder buffer, @Nullable String on) {
     if (StringUtils.isNotEmpty(on)) {
       if (!on.startsWith(" and")) {
         buffer.append(" and ");

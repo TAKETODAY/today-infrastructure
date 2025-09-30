@@ -34,8 +34,7 @@ import java.sql.SQLException;
  */
 class PassThroughBlob implements Blob {
 
-  @Nullable
-  private byte[] content;
+  private byte @Nullable [] content;
 
   @Nullable
   private InputStream binaryStream;

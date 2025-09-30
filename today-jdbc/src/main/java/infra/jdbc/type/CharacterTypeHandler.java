@@ -36,16 +36,19 @@ public class CharacterTypeHandler extends BasicTypeHandler<Character> {
     ps.setString(i, arg.toString());
   }
 
+  @Nullable
   @Override
   public Character getResult(ResultSet rs, String columnName) throws SQLException {
     return getCharacter(rs.getString(columnName));
   }
 
+  @Nullable
   @Override
   public Character getResult(ResultSet rs, int columnIndex) throws SQLException {
     return getCharacter(rs.getString(columnIndex));
   }
 
+  @Nullable
   @Override
   public Character getResult(CallableStatement cs, int columnIndex) throws SQLException {
     return getCharacter(cs.getString(columnIndex));

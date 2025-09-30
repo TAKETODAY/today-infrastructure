@@ -639,7 +639,7 @@ public final class NamedQuery extends AbstractQuery {
    * @see BeanMetadata#forInstance(Object)
    * @see QueryParameter
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "NullAway" })
   public NamedQuery bind(Object pojo) {
     HashMap<String, QueryParameter> queryParameters = this.queryParameters;
     for (BeanProperty property : BeanMetadata.forInstance(pojo)) {
