@@ -66,6 +66,7 @@ public class SimpleSelect implements StatementSequence {
     this.restrictions = new ArrayList<>();
   }
 
+  @SuppressWarnings("NullAway")
   public SimpleSelect(List<String> columns, List<Restriction> restrictions) {
     this.restrictions = restrictions;
     this.columns = columns;

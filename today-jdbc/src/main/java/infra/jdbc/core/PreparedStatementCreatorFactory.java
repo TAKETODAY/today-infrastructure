@@ -59,7 +59,7 @@ public class PreparedStatementCreatorFactory {
 
   private boolean returnGeneratedKeys = false;
 
-  private String @Nullable []generatedKeysColumnNames;
+  private String @Nullable [] generatedKeysColumnNames;
 
   /**
    * Create a new factory. Will need to add parameters via the
@@ -160,7 +160,7 @@ public class PreparedStatementCreatorFactory {
    *
    * @param params the parameter array (may be {@code null})
    */
-  public PreparedStatementSetter newPreparedStatementSetter(@Nullable Object[] params) {
+  public PreparedStatementSetter newPreparedStatementSetter(@Nullable Object @Nullable [] params) {
     return new PreparedStatementCreatorImpl(params != null ? Arrays.asList(params) : Collections.emptyList());
   }
 
@@ -178,7 +178,7 @@ public class PreparedStatementCreatorFactory {
    *
    * @param params the parameter array (may be {@code null})
    */
-  public PreparedStatementCreator newPreparedStatementCreator(@Nullable Object[] params) {
+  public PreparedStatementCreator newPreparedStatementCreator(@Nullable Object @Nullable [] params) {
     return new PreparedStatementCreatorImpl(params != null ? Arrays.asList(params) : Collections.emptyList());
   }
 
@@ -189,7 +189,7 @@ public class PreparedStatementCreatorFactory {
    * the factory's, for example because of named parameter expanding)
    * @param params the parameter array (may be {@code null})
    */
-  public PreparedStatementCreator newPreparedStatementCreator(String sqlToUse, @Nullable Object[] params) {
+  public PreparedStatementCreator newPreparedStatementCreator(String sqlToUse, @Nullable Object @Nullable [] params) {
     return new PreparedStatementCreatorImpl(
             sqlToUse, (params != null ? Arrays.asList(params) : Collections.emptyList()));
   }
@@ -208,6 +208,7 @@ public class PreparedStatementCreatorFactory {
       this(sql, parameters);
     }
 
+    @SuppressWarnings("NullAway")
     public PreparedStatementCreatorImpl(String actualSql, List<?> parameters) {
       this.actualSql = actualSql;
       this.parameters = parameters;
@@ -235,6 +236,7 @@ public class PreparedStatementCreatorFactory {
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
       PreparedStatement ps;
       if (generatedKeysColumnNames != null || returnGeneratedKeys) {
@@ -312,7 +314,7 @@ public class PreparedStatementCreatorFactory {
 
     @Override
     public String toString() {
-      return "PreparedStatementCreator: sql=[" + sql + "]; parameters=" + parameters;
+      return "PreparedStatementCreator: sql=[%s]; parameters=%s".formatted(sql, parameters);
     }
   }
 

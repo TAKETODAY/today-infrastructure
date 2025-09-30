@@ -830,6 +830,7 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public int delete(Object entityOrExample) throws DataAccessException {
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityOrExample.getClass());
 
@@ -946,6 +947,7 @@ public class DefaultEntityManager implements EntityManager {
     return iterate(entityClass, example).first();
   }
 
+  @Nullable
   @Override
   public <T> T findFirst(Class<T> entityClass, @Nullable QueryStatement handler) throws DataAccessException {
     return iterate(entityClass, handler).first();
@@ -964,6 +966,7 @@ public class DefaultEntityManager implements EntityManager {
     return iterate(entityClass, example).unique();
   }
 
+  @Nullable
   @Override
   public <T> T findUnique(Class<T> entityClass, @Nullable QueryStatement handler) throws DataAccessException {
     return iterate(entityClass, handler).unique();

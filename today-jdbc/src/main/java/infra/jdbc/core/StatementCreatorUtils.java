@@ -172,8 +172,7 @@ public abstract class StatementCreatorUtils {
    * @throws SQLException if thrown by PreparedStatement methods
    * @see SqlTypeValue
    */
-  public static void setParameterValue(
-          PreparedStatement ps, int paramIndex, int sqlType, @Nullable Object inValue) throws SQLException {
+  public static void setParameterValue(PreparedStatement ps, int paramIndex, int sqlType, @Nullable Object inValue) throws SQLException {
     setParameterValueInternal(ps, paramIndex, sqlType, null, null, inValue);
   }
 
@@ -497,7 +496,7 @@ public abstract class StatementCreatorUtils {
    * @see DisposableSqlTypeValue#cleanup()
    * @see SqlLobValue#cleanup()
    */
-  public static void cleanupParameters(Object @Nullable ... paramValues) {
+  public static void cleanupParameters(@Nullable Object @Nullable ... paramValues) {
     if (paramValues != null) {
       cleanupParameters(Arrays.asList(paramValues));
     }

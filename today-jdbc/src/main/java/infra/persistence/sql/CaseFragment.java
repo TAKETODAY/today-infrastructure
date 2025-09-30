@@ -18,6 +18,8 @@
 
 package infra.persistence.sql;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.LinkedHashMap;
 
 /**
@@ -50,7 +52,7 @@ public abstract class CaseFragment {
     return this;
   }
 
-  public static String qualify(String prefix, String name) {
+  public static String qualify(@Nullable String prefix, @Nullable String name) {
     if (name == null || prefix == null) {
       throw new NullPointerException("prefix or name were null attempting to build qualified name");
     }

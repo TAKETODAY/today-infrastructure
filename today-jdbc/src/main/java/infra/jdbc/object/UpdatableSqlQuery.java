@@ -65,7 +65,7 @@ public abstract class UpdatableSqlQuery<T> extends SqlQuery<T> {
    * implementation of the {@code updateRow()} method.
    */
   @Override
-  protected RowMapper<T> newRowMapper(Object @Nullable [] parameters, @Nullable Map<?, ?> context) {
+  protected RowMapper<T> newRowMapper(@Nullable Object @Nullable [] parameters, @Nullable Map<?, ?> context) {
     return new RowMapperImpl(context);
   }
 

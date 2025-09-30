@@ -66,7 +66,7 @@ public abstract class MappingSqlQuery<T> extends MappingSqlQueryWithParameters<T
    */
   @Override
   @Nullable
-  protected final T mapRow(ResultSet rs, int rowNum, @Nullable Object[] parameters, @Nullable Map<?, ?> context)
+  protected final T mapRow(ResultSet rs, int rowNum, @Nullable Object @Nullable [] parameters, @Nullable Map<?, ?> context)
           throws SQLException {
 
     return mapRow(rs, rowNum);

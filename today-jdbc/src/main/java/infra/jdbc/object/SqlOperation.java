@@ -110,7 +110,7 @@ public abstract class SqlOperation extends RdbmsOperation {
    *
    * @param params the parameter array (may be {@code null})
    */
-  protected final PreparedStatementCreator newPreparedStatementCreator(@Nullable Object[] params) {
+  protected final PreparedStatementCreator newPreparedStatementCreator(@Nullable Object @Nullable [] params) {
     Assert.state(this.preparedStatementFactory != null, "No PreparedStatementFactory available");
     return this.preparedStatementFactory.newPreparedStatementCreator(params);
   }

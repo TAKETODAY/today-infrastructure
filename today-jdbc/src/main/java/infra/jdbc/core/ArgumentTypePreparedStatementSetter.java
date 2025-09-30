@@ -35,7 +35,7 @@ import infra.dao.InvalidDataAccessApiUsageException;
  */
 public class ArgumentTypePreparedStatementSetter implements PreparedStatementSetter, ParameterDisposer {
 
-  private final Object @Nullable [] args;
+  private final @Nullable Object @Nullable [] args;
 
   private final int @Nullable [] argTypes;
 
@@ -46,7 +46,7 @@ public class ArgumentTypePreparedStatementSetter implements PreparedStatementSet
    * @param argTypes the corresponding SQL types of the arguments
    */
   @SuppressWarnings("NullAway")
-  public ArgumentTypePreparedStatementSetter(Object @Nullable [] args, int @Nullable [] argTypes) {
+  public ArgumentTypePreparedStatementSetter(@Nullable Object @Nullable [] args, int @Nullable [] argTypes) {
     if ((args != null && argTypes == null) || (args == null && argTypes != null) ||
             (args != null && args.length != argTypes.length)) {
       throw new InvalidDataAccessApiUsageException("args and argTypes parameters must match");
@@ -93,7 +93,7 @@ public class ArgumentTypePreparedStatementSetter implements PreparedStatementSet
    * @param argValue the argument value
    * @throws SQLException if thrown by PreparedStatement methods
    */
-  protected void doSetValue(PreparedStatement ps, int parameterPosition, int argType, Object argValue)
+  protected void doSetValue(PreparedStatement ps, int parameterPosition, int argType, @Nullable Object argValue)
           throws SQLException {
 
     StatementCreatorUtils.setParameterValue(ps, parameterPosition, argType, argValue);

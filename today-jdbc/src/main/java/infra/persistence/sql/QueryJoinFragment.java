@@ -55,7 +55,8 @@ public class QueryJoinFragment extends JoinFragment {
     addJoin(tableName, alias, alias, fkColumns, pkColumns, joinType, null);
   }
 
-  public void addJoin(String tableName, String alias, String[][] fkColumns, String[] pkColumns, JoinType joinType, String on) {
+  @Override
+  public void addJoin(String tableName, String alias, String[][] fkColumns, String[] pkColumns, JoinType joinType, @Nullable String on) {
     addJoin(tableName, alias, alias, fkColumns, pkColumns, joinType, on);
   }
 

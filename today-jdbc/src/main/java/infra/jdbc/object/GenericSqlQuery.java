@@ -71,7 +71,7 @@ public class GenericSqlQuery<T> extends SqlQuery<T> {
 
   @Override
   @SuppressWarnings("unchecked")
-  protected RowMapper<T> newRowMapper(Object @Nullable [] parameters, @Nullable Map<?, ?> context) {
+  protected RowMapper<T> newRowMapper(@Nullable Object @Nullable [] parameters, @Nullable Map<?, ?> context) {
     if (this.rowMapper != null) {
       return this.rowMapper;
     }

@@ -76,7 +76,7 @@ public abstract class MappingSqlQueryWithParameters<T> extends SqlQuery<T> {
    * implementation of the mapRow() method.
    */
   @Override
-  protected RowMapper<T> newRowMapper(Object @Nullable [] parameters, @Nullable Map<?, ?> context) {
+  protected RowMapper<T> newRowMapper(@Nullable Object @Nullable [] parameters, @Nullable Map<?, ?> context) {
     return new RowMapperImpl(parameters, context);
   }
 
@@ -97,7 +97,7 @@ public abstract class MappingSqlQueryWithParameters<T> extends SqlQuery<T> {
    * framework to clean up.
    */
   @Nullable
-  protected abstract T mapRow(ResultSet rs, int rowNum, Object @Nullable [] parameters, @Nullable Map<?, ?> context)
+  protected abstract T mapRow(ResultSet rs, int rowNum, @Nullable Object @Nullable [] parameters, @Nullable Map<?, ?> context)
           throws SQLException;
 
   /**
@@ -106,7 +106,7 @@ public abstract class MappingSqlQueryWithParameters<T> extends SqlQuery<T> {
    */
   protected class RowMapperImpl implements RowMapper<T> {
 
-    private final Object @Nullable [] params;
+    private final @Nullable Object @Nullable [] params;
 
     @Nullable
     private final Map<?, ?> context;
@@ -114,7 +114,7 @@ public abstract class MappingSqlQueryWithParameters<T> extends SqlQuery<T> {
     /**
      * Use an array results. More efficient if we know how many results to expect.
      */
-    public RowMapperImpl(Object @Nullable [] parameters, @Nullable Map<?, ?> context) {
+    public RowMapperImpl(@Nullable Object @Nullable [] parameters, @Nullable Map<?, ?> context) {
       this.params = parameters;
       this.context = context;
     }

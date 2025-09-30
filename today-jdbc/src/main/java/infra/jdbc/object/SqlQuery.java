@@ -110,7 +110,7 @@ public abstract class SqlQuery<T> extends SqlOperation {
    * @return a List of objects, one per row of the ResultSet. Normally all these
    * will be of the same class, although it is possible to use different types.
    */
-  public List<T> execute(Object @Nullable [] params, @Nullable Map<?, ?> context) throws DataAccessException {
+  public List<T> execute(@Nullable Object @Nullable [] params, @Nullable Map<?, ?> context) throws DataAccessException {
     validateParameters(params);
     RowMapper<T> rowMapper = newRowMapper(params, context);
     return getJdbcTemplate().query(newPreparedStatementCreator(params), rowMapper);
@@ -388,6 +388,6 @@ public abstract class SqlQuery<T> extends SqlOperation {
    * but it can be useful for creating the objects of the result list.
    * @see #execute
    */
-  protected abstract RowMapper<T> newRowMapper(Object @Nullable [] parameters, @Nullable Map<?, ?> context);
+  protected abstract RowMapper<T> newRowMapper(@Nullable Object @Nullable [] parameters, @Nullable Map<?, ?> context);
 
 }

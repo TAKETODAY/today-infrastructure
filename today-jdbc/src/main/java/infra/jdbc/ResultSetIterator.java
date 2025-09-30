@@ -83,8 +83,8 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
     return false;
   }
 
-  @Nullable
   @Override
+  @SuppressWarnings("NullAway")
   public T next() {
     ResultSetValue<T> result = next;
     if (result == null) {

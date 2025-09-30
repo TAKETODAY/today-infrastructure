@@ -110,7 +110,7 @@ public class SqlQueryTests {
 
     SqlQuery<Integer> query = new MappingSqlQueryWithParameters<Integer>() {
       @Override
-      protected Integer mapRow(ResultSet rs, int rownum, @Nullable Object[] params, @Nullable Map<?, ?> context)
+      protected Integer mapRow(ResultSet rs, int rownum, @Nullable Object @Nullable [] params, @Nullable Map<?, ?> context)
               throws SQLException {
         assertThat(params == null).as("params were null").isTrue();
         assertThat(context == null).as("context was null").isTrue();

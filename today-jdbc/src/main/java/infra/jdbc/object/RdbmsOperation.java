@@ -404,7 +404,7 @@ public abstract class RdbmsOperation implements InitializingBean {
    * @param parameters the parameters supplied (may be {@code null})
    * @throws InvalidDataAccessApiUsageException if the parameters are invalid
    */
-  protected void validateParameters(Object @Nullable [] parameters) throws InvalidDataAccessApiUsageException {
+  protected void validateParameters(@Nullable Object @Nullable [] parameters) throws InvalidDataAccessApiUsageException {
     checkCompiled();
     int declaredInParameters = 0;
     for (SqlParameter param : this.declaredParameters) {

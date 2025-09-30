@@ -74,7 +74,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
     return CACHE.get(new HandlerKey(builder.toString(), this), meta);
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "NullAway" })
   private ResultSetExtractor<T> createHandler(ResultSetMetaData meta) throws SQLException {
     // cache key is ResultSetMetadata + Bean type
     int columnCount = meta.getColumnCount();

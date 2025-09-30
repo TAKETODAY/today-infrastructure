@@ -86,7 +86,7 @@ public class ANSIJoinFragment extends JoinFragment {
   }
 
   public void addJoin(String rhsTableName, String rhsAlias,
-          String[][] lhsColumns, String[] rhsColumns, JoinType joinType, String on) {
+          String[][] lhsColumns, String[] rhsColumns, JoinType joinType, @Nullable String on) {
     final String joinString = switch (joinType) {
       case INNER_JOIN -> " inner join ";
       case LEFT_OUTER_JOIN -> " left outer join ";
