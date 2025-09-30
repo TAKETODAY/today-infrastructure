@@ -71,7 +71,8 @@ public class MetadataMBeanInfoAssembler extends AbstractReflectiveMBeanInfoAssem
    * Create a new {@code MetadataMBeanInfoAssembler} which needs to be
    * configured through the {@link #setAttributeSource} method.
    */
-  public MetadataMBeanInfoAssembler() { }
+  public MetadataMBeanInfoAssembler() {
+  }
 
   /**
    * Create a new {@code MetadataMBeanInfoAssembler} for the given
@@ -267,6 +268,7 @@ public class MetadataMBeanInfoAssembler extends AbstractReflectiveMBeanInfoAssem
    * if no attributes are found.
    */
   @Override
+  @SuppressWarnings("NullAway")
   protected MBeanParameterInfo[] getOperationParameters(Method method, String beanKey) {
     @Nullable ManagedOperationParameter[] params = obtainAttributeSource().getManagedOperationParameters(method);
     if (ObjectUtils.isEmpty(params)) {

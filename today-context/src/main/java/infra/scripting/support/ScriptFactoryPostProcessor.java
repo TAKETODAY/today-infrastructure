@@ -233,6 +233,7 @@ public class ScriptFactoryPostProcessor implements SmartInstantiationAwareBeanPo
 
   @Override
   @Nullable
+  @SuppressWarnings("NullAway")
   public Class<?> predictBeanType(Class<?> beanClass, String beanName) {
     // We only apply special treatment to ScriptFactory implementations here.
     if (!ScriptFactory.class.isAssignableFrom(beanClass)) {

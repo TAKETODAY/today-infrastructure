@@ -90,8 +90,7 @@ public interface JmxAttributeSource {
    * @return the parameter information, or an empty array if no metadata is found
    * @throws InvalidMetadataException in case of invalid metadata
    */
-  @Nullable
-  ManagedOperationParameter[] getManagedOperationParameters(Method method) throws InvalidMetadataException;
+  @Nullable ManagedOperationParameter[] getManagedOperationParameters(Method method) throws InvalidMetadataException;
 
   /**
    * Implementations should return an array of {@link ManagedNotification ManagedNotifications}

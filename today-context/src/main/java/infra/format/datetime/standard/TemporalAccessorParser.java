@@ -62,8 +62,7 @@ public final class TemporalAccessorParser implements Parser<TemporalAccessor> {
 
   private final DateTimeFormatter formatter;
 
-  @Nullable
-  private final String[] fallbackPatterns;
+  private final String @Nullable [] fallbackPatterns;
 
   @Nullable
   private final Object source;
@@ -80,7 +79,7 @@ public final class TemporalAccessorParser implements Parser<TemporalAccessor> {
   }
 
   TemporalAccessorParser(Class<? extends TemporalAccessor> temporalAccessorType,
-          DateTimeFormatter formatter, @Nullable String[] fallbackPatterns, @Nullable Object source) {
+          DateTimeFormatter formatter, String @Nullable [] fallbackPatterns, @Nullable Object source) {
     this.temporalAccessorType = temporalAccessorType;
     this.fallbackPatterns = fallbackPatterns;
     this.formatter = formatter;

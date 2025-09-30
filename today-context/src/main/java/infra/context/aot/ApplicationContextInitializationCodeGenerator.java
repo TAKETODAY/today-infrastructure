@@ -118,6 +118,7 @@ class ApplicationContextInitializationCodeGenerator implements BeanFactoryInitia
     return code.build();
   }
 
+  @SuppressWarnings("NullAway")
   static ArgumentCodeGenerator createInitializerMethodArgumentCodeGenerator() {
     return ArgumentCodeGenerator.from(new InitializerMethodArgumentCodeGenerator());
   }

@@ -43,6 +43,7 @@ import infra.stereotype.Component;
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class ProxyAsyncConfiguration extends AbstractAsyncConfiguration {
 
+  @SuppressWarnings("NullAway")
   @DisableDependencyInjection
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @Component(TaskManagementConfigUtils.ASYNC_ANNOTATION_PROCESSOR_BEAN_NAME)

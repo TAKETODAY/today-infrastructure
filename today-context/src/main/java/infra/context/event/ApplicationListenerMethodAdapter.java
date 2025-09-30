@@ -51,6 +51,7 @@ import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.core.annotation.Order;
 import infra.lang.Assert;
 import infra.lang.Constant;
+import infra.lang.Contract;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
@@ -247,6 +248,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
    *
    * @param event the event to process through the listener method
    */
+  @SuppressWarnings("NullAway")
   public void processEvent(ApplicationEvent event) {
     Object[] args = resolveArguments(event);
     if (shouldInvoke(event, args)) {
@@ -260,6 +262,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
     }
   }
 
+  @Contract("_, null -> false")
   private boolean shouldInvoke(Object event, Object @Nullable [] args) {
     if (args == null) {
       return false;
@@ -323,6 +326,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
    * Invoke the event listener method with the given argument values.
    */
   @Nullable
+  @SuppressWarnings("NullAway")
   protected Object doInvoke(Object[] args) {
     Object bean = getTargetBean();
     // Detect package-protected NullBean instance through equals(null) check

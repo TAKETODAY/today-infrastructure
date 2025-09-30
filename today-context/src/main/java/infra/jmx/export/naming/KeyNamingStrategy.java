@@ -48,6 +48,7 @@ import infra.util.CollectionUtils;
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see #setMappings
  * @see #setMappingLocation
  * @see #setMappingLocations
@@ -72,8 +73,7 @@ public class KeyNamingStrategy implements ObjectNamingStrategy, InitializingBean
    * into the final merged set of {@code Properties} used for {@code ObjectName}
    * resolution.
    */
-  @Nullable
-  private Resource[] mappingLocations;
+  private Resource @Nullable [] mappingLocations;
 
   /**
    * Stores the result of merging the {@code mappings} {@code Properties}

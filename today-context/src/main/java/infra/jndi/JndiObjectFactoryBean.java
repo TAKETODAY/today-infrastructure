@@ -74,8 +74,7 @@ import infra.util.ClassUtils;
 public class JndiObjectFactoryBean extends JndiObjectLocator
         implements FactoryBean<Object>, BeanFactoryAware, BeanClassLoaderAware {
 
-  @Nullable
-  private Class<?>[] proxyInterfaces;
+  private Class<?> @Nullable [] proxyInterfaces;
 
   private boolean lookupOnStartup = true;
 
@@ -219,9 +218,8 @@ public class JndiObjectFactoryBean extends JndiObjectLocator
           this.defaultObject = conversionService.convert(this.defaultObject, getExpectedType());
         }
         catch (ConversionException ex) {
-          throw new IllegalArgumentException("Default object [" + this.defaultObject + "] of type [" +
-                  this.defaultObject.getClass().getName() + "] is not of expected type [" +
-                  getExpectedType().getName() + "] and cannot be converted either", ex);
+          throw new IllegalArgumentException("Default object [%s] of type [%s] is not of expected type [%s] and cannot be converted either"
+                  .formatted(this.defaultObject, this.defaultObject.getClass().getName(), getExpectedType().getName()), ex);
         }
       }
       // Locate specified JNDI object.
@@ -287,6 +285,7 @@ public class JndiObjectFactoryBean extends JndiObjectLocator
   }
 
   @Override
+  @Nullable
   public Class<?> getObjectType() {
     if (this.proxyInterfaces != null) {
       if (this.proxyInterfaces.length == 1) {

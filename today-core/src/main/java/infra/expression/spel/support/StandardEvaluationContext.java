@@ -81,6 +81,7 @@ import infra.lang.Assert;
  */
 public class StandardEvaluationContext implements EvaluationContext {
 
+  @SuppressWarnings("NullAway.Init")
   private TypedValue rootObject;
 
   @Nullable

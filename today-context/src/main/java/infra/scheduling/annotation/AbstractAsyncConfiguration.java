@@ -46,6 +46,7 @@ import infra.util.function.SingletonSupplier;
  * @see EnableAsync
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 @DisableDependencyInjection
 @Configuration(proxyBeanMethods = false)
 public abstract class AbstractAsyncConfiguration implements ImportAware, BeanFactoryAware {

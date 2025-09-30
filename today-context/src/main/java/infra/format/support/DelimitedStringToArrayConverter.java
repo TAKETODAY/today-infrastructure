@@ -34,6 +34,7 @@ import infra.util.StringUtils;
  * Converts a {@link Delimiter delimited} String to an Array.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
 final class DelimitedStringToArrayConverter implements ConditionalGenericConverter {
 
@@ -68,6 +69,7 @@ final class DelimitedStringToArrayConverter implements ConditionalGenericConvert
     Delimiter delimiter = targetType.getAnnotation(Delimiter.class);
     String[] elements = getElements(source, delimiter != null ? delimiter.value() : ",");
     TypeDescriptor elementDescriptor = targetType.getElementDescriptor();
+    Assert.state(elementDescriptor != null, "elementDescriptor is missing");
     Object target = Array.newInstance(elementDescriptor.getType(), elements.length);
     for (int i = 0; i < elements.length; i++) {
       String sourceElement = elements[i];

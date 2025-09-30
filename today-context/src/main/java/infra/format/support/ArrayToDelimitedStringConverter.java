@@ -54,6 +54,7 @@ final class ArrayToDelimitedStringConverter implements ConditionalGenericConvert
     return this.delegate.matches(sourceType, targetType);
   }
 
+  @Nullable
   @Override
   public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
     List<Object> list = Arrays.asList(ObjectUtils.toObjectArray(source));

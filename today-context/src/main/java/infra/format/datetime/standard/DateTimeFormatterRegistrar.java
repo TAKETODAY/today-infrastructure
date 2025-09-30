@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,6 +52,7 @@ import infra.format.annotation.DateTimeFormat.ISO;
  * @see infra.format.datetime.DateFormatterRegistrar
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public class DateTimeFormatterRegistrar implements FormatterRegistrar {
 
   private enum Type {

@@ -109,6 +109,7 @@ public abstract class AbstractCachingConfiguration implements ImportAware, BeanF
 
     private final SingletonSupplier<CachingConfigurer> supplier;
 
+    @SuppressWarnings("NullAway")
     public CachingConfigurerSupplier(Supplier<@Nullable CachingConfigurer> supplier) {
       this.supplier = SingletonSupplier.ofNullable(supplier);
     }
