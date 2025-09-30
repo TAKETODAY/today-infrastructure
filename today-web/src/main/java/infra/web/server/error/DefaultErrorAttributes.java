@@ -111,6 +111,7 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
     }
   }
 
+  @SuppressWarnings("NullAway")
   private void addErrorDetails(Map<String, Object> attributes, RequestContext request, ErrorAttributeOptions options) {
     Throwable error = getError(request);
     if (error != null) {
@@ -165,7 +166,7 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
    * @param error current error, if any
    * @return message to include in the error attributes
    */
-  protected String getMessage(RequestContext request, Throwable error) {
+  protected String getMessage(RequestContext request, @Nullable Throwable error) {
     Object attribute = request.getAttribute(WebUtils.ERROR_MESSAGE_ATTRIBUTE);
     if (attribute instanceof String message && StringUtils.hasText(message)) {
       return message;

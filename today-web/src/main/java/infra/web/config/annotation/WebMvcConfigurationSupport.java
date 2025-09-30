@@ -580,7 +580,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public ParameterResolvingRegistry parameterResolvingRegistry(
-          @Nullable ParameterResolvingStrategy[] strategies, @Nullable RedirectModelManager redirectModelManager,
+          ParameterResolvingStrategy @Nullable [] strategies, @Nullable RedirectModelManager redirectModelManager,
           @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager) {
 
     var registry = new ParameterResolvingRegistry(getMessageConverters());

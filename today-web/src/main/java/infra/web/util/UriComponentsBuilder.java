@@ -603,7 +603,8 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
   }
 
   @Override
-  public UriComponentsBuilder queryParam(String name, Object @Nullable ... values) {
+  @SuppressWarnings("NullAway")
+  public UriComponentsBuilder queryParam(String name, @Nullable Object @Nullable ... values) {
     Assert.notNull(name, "Name is required");
     if (ObjectUtils.isNotEmpty(values)) {
       for (Object value : values) {

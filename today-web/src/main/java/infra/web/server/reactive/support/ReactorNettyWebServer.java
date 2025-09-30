@@ -140,6 +140,7 @@ public class ReactorNettyWebServer implements WebServer {
     return (!message.isEmpty()) ? "Netty started on " + message : "Netty started";
   }
 
+  @SuppressWarnings("NullAway")
   protected String getStartedLogMessage() {
     return getStartedOnMessage(this.disposableServer);
   }

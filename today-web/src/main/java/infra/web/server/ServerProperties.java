@@ -373,6 +373,7 @@ public class ServerProperties {
     /**
      * Connection timeout of the Netty channel.
      */
+    @Nullable
     public Duration connectionTimeout;
 
     /**

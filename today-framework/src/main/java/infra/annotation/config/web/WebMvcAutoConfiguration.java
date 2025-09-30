@@ -277,6 +277,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     return null;
   }
 
+  @Nullable
   @Override
   public Validator mvcValidator() {
     if (ClassUtils.isPresent("jakarta.validation.Validator", getClass().getClassLoader())) {

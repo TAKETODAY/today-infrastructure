@@ -390,7 +390,7 @@ public class DefaultUriBuilderFactory implements UriBuilderFactory {
     }
 
     @Override
-    public DefaultUriBuilder queryParam(String name, Object... values) {
+    public DefaultUriBuilder queryParam(String name, @Nullable Object @Nullable ... values) {
       this.uriComponentsBuilder.queryParam(name, values);
       return this;
     }

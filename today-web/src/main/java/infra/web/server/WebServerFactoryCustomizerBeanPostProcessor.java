@@ -45,6 +45,7 @@ import infra.util.LambdaSafe;
 public class WebServerFactoryCustomizerBeanPostProcessor
         implements InitializationBeanPostProcessor, BeanFactoryAware {
 
+  @SuppressWarnings("NullAway")
   private BeanFactory beanFactory;
 
   @Nullable

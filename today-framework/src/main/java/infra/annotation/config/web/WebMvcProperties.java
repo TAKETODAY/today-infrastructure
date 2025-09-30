@@ -43,7 +43,7 @@ public class WebMvcProperties {
   /**
    * Formatting strategy for message codes. For instance, 'PREFIX_ERROR_CODE'.
    */
-  public DefaultMessageCodesResolver.Format messageCodesResolverFormat;
+  public DefaultMessageCodesResolver.@Nullable Format messageCodesResolverFormat;
 
   public final Format format = new Format();
 
@@ -154,6 +154,7 @@ public class WebMvcProperties {
 
   }
 
+  @SuppressWarnings("NullAway")
   public static class Format {
 
     /**

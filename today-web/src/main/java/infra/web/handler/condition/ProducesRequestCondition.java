@@ -86,7 +86,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
    * @param produces expressions with syntax defined by {@link RequestMapping#produces()}
    * @param headers expressions with syntax defined by {@link RequestMapping#headers()}
    */
-  public ProducesRequestCondition(String[] produces, @Nullable String[] headers) {
+  public ProducesRequestCondition(String[] produces, String @Nullable [] headers) {
     this(produces, headers, null);
   }
 

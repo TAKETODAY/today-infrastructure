@@ -170,6 +170,7 @@ public final class NettyRequestConfig {
     return new Builder(secure);
   }
 
+  @SuppressWarnings("NullAway.Init")
   public static class Builder {
 
     @Nullable

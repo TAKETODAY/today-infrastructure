@@ -120,6 +120,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
   /**
    * Handle the given request.
    */
+  @SuppressWarnings("NullAway")
   protected boolean handleInternal(RequestContext context, CorsConfiguration config, boolean preFlightRequest) throws IOException {
     String requestOrigin = context.requestHeaders().getOrigin();
 

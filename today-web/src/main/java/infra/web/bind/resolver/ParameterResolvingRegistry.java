@@ -69,6 +69,7 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
   private RedirectModelManager redirectModelManager;
 
   // @since 4.0
+  @SuppressWarnings("NullAway.Init")
   private List<HttpMessageConverter<?>> messageConverters;
 
   // @since 4.0
@@ -271,11 +272,11 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
 
   //
 
-  public void addCustomizedStrategies(@Nullable ParameterResolvingStrategy... strategies) {
+  public void addCustomizedStrategies(ParameterResolvingStrategy @Nullable ... strategies) {
     customizedStrategies.add(strategies);
   }
 
-  public void addDefaultStrategies(@Nullable ParameterResolvingStrategy... strategies) {
+  public void addDefaultStrategies(ParameterResolvingStrategy @Nullable ... strategies) {
     defaultStrategies.add(strategies);
   }
 

@@ -17,6 +17,8 @@
 
 package infra.web.config.format;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.format.DateTimeFormatter;
 import java.time.format.ResolverStyle;
 
@@ -30,7 +32,7 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/15 12:59
  */
-@SuppressWarnings("NullAway.Init")
+@SuppressWarnings("NullAway")
 public class DateTimeFormatters {
 
   private DateTimeFormatter dateFormatter;
@@ -104,6 +106,7 @@ public class DateTimeFormatters {
     return this.dateFormatter != null || this.timeFormatter != null || this.dateTimeFormatter != null;
   }
 
+  @Nullable
   private static DateTimeFormatter formatter(String pattern) {
     return StringUtils.hasText(pattern)
             ? DateTimeFormatter.ofPattern(pattern).withResolverStyle(ResolverStyle.SMART) : null;

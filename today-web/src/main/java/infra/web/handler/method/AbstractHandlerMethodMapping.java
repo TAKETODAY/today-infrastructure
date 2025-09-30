@@ -707,6 +707,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     /**
      * Return handler methods by mapping name. Thread-safe for concurrent use.
      */
+    @Nullable
     public List<HandlerMethod> getHandlerMethodsByMappingName(String mappingName) {
       return this.nameLookup.get(mappingName);
     }

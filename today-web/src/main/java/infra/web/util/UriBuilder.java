@@ -195,7 +195,7 @@ public interface UriBuilder {
    * @param values the query parameter values
    * @see #queryParam(String, Collection)
    */
-  UriBuilder queryParam(String name, Object @Nullable ... values);
+  UriBuilder queryParam(String name, @Nullable Object @Nullable ... values);
 
   /**
    * Variant of {@link #queryParam(String, Object...)} with a Collection.

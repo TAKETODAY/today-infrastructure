@@ -145,6 +145,7 @@ public class CompositeRequestCondition extends AbstractRequestCondition<Composit
    */
   @Override
   @Nullable
+  @SuppressWarnings("NullAway")
   public CompositeRequestCondition getMatchingCondition(RequestContext request) {
     if (isEmpty()) {
       return this;

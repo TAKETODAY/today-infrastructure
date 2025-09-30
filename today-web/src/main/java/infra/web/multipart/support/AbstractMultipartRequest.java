@@ -49,11 +49,13 @@ public abstract class AbstractMultipartRequest implements MultipartRequest {
     return getMultipartFiles().keySet().iterator();
   }
 
+  @Nullable
   @Override
   public MultipartFile getFile(String name) {
     return getMultipartFiles().getFirst(name);
   }
 
+  @Nullable
   @Override
   public List<MultipartFile> getFiles(String name) {
     return getMultipartFiles().get(name);

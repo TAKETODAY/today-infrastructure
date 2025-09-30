@@ -93,6 +93,7 @@ public class DefaultErrorViewResolver implements ErrorViewResolver, Ordered {
     this.templateAvailabilityProviders = providers;
   }
 
+  @Nullable
   @Override
   public ModelAndView resolveErrorView(RequestContext request, HttpStatusCode status, Map<String, Object> model) {
     ModelAndView view = resolve(String.valueOf(status.value()), model);
