@@ -65,8 +65,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
   @Nullable
   private Set<?> mappedHandlers;
 
-  @Nullable
-  private Class<?>[] mappedHandlerClasses;
+  private Class<?> @Nullable [] mappedHandlerClasses;
 
   @Nullable
   private Logger warnLogger;
@@ -114,8 +113,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * Return the {@link #setMappedHandlerClasses(Class[]) configured} mapped
    * handler classes.
    */
-  @Nullable
-  protected Class<?>[] getMappedHandlerClasses() {
+  protected Class<?> @Nullable [] getMappedHandlerClasses() {
     return this.mappedHandlerClasses;
   }
 
@@ -201,6 +199,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * @see #setMappedHandlers
    * @see #setMappedHandlerClasses
    */
+  @SuppressWarnings("NullAway")
   protected boolean shouldApplyTo(RequestContext request, @Nullable Object handler) {
     if (this.mappedHandlerPredicate != null) {
       return this.mappedHandlerPredicate.test(handler);

@@ -463,6 +463,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   /**
    * Return this handler's ApplicationContext.
    */
+  @SuppressWarnings("NullAway")
   public final ApplicationContext getApplicationContext() {
     return this.applicationContext;
   }
@@ -527,7 +528,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    * @see #configureAndRefreshApplicationContext
    * @see #applyInitializers
    */
-  public void addContextInitializers(@Nullable ApplicationContextInitializer... initializers) {
+  public void addContextInitializers(ApplicationContextInitializer @Nullable ... initializers) {
     CollectionUtils.addAll(contextInitializers, initializers);
   }
 

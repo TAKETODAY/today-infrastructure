@@ -116,7 +116,7 @@ public class DefaultHttpHeaders extends HttpHeaders {
 
   @Nullable
   @Override
-  public List<String> setOrRemove(String name, @Nullable String[] value) {
+  public List<String> setOrRemove(String name, String @Nullable [] value) {
     return headers.setOrRemove(name, value);
   }
 

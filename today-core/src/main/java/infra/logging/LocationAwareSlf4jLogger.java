@@ -48,7 +48,7 @@ final class LocationAwareSlf4jLogger extends Slf4jLogger {
   }
 
   @Override
-  protected void logInternal(Level level, String format, @Nullable Throwable t, @Nullable Object @Nullable [] args) {
+  protected void logInternal(Level level, @Nullable String format, @Nullable Throwable t, @Nullable Object @Nullable [] args) {
     log.log(null, FQCN, getLevel(level), format, args, t);
   }
 }

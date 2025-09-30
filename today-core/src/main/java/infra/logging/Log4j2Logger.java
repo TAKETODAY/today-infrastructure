@@ -80,7 +80,7 @@ final class Log4j2Logger extends Logger {
   }
 
   @Override
-  protected void logInternal(Level level, Object message, @Nullable Throwable t) {
+  protected void logInternal(Level level, @Nullable Object message, @Nullable Throwable t) {
     if (message instanceof String) {
       // Explicitly pass a String argument, avoiding Log4j's argument expansion
       // for message objects in case of "{}" sequences
@@ -97,7 +97,7 @@ final class Log4j2Logger extends Logger {
   }
 
   @Override
-  protected void logInternal(Level level, String format, @Nullable Throwable t, @Nullable Object @Nullable [] args) {
+  protected void logInternal(Level level, @Nullable String format, @Nullable Throwable t, @Nullable Object @Nullable [] args) {
     final Message message = new Message() {
 
       @Serial

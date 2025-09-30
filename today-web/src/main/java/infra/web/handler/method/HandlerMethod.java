@@ -184,6 +184,7 @@ public class HandlerMethod implements AsyncHandler {
   /**
    * Create an instance from a bean name, a method, and a {@code BeanFactory}.
    */
+  @SuppressWarnings("NullAway")
   public HandlerMethod(String beanName, BeanFactory beanFactory, @Nullable MessageSource messageSource, Method method) {
     Assert.notNull(method, "Method is required");
     Assert.hasText(beanName, "Bean name is required");
@@ -673,8 +674,7 @@ public class HandlerMethod implements AsyncHandler {
    */
   protected class HandlerMethodParameter extends SynthesizingMethodParameter {
 
-    @Nullable
-    private volatile Annotation[] combinedAnnotations;
+    private volatile Annotation @Nullable [] combinedAnnotations;
 
     public HandlerMethodParameter(int index) {
       super(method, index);

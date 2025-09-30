@@ -50,8 +50,7 @@ public class ErrorResponseException extends NestedRuntimeException implements Er
 
   private final String messageDetailCode;
 
-  @Nullable
-  private final Object[] messageDetailArguments;
+  private final Object @Nullable [] messageDetailArguments;
 
   /**
    * Constructor with an {@link HttpStatusCode} and an optional cause.
@@ -76,7 +75,7 @@ public class ErrorResponseException extends NestedRuntimeException implements Er
    * @since 5.0
    */
   public ErrorResponseException(HttpStatusCode status, ProblemDetail body, @Nullable Throwable cause,
-          @Nullable String messageDetailCode, @Nullable Object[] messageDetailArguments) {
+          @Nullable String messageDetailCode, Object @Nullable [] messageDetailArguments) {
     super(null, cause);
     this.status = status;
     this.body = body;
@@ -159,8 +158,7 @@ public class ErrorResponseException extends NestedRuntimeException implements Er
   }
 
   @Override
-  @Nullable
-  public Object[] getDetailMessageArguments() {
+  public Object @Nullable [] getDetailMessageArguments() {
     return this.messageDetailArguments;
   }
 

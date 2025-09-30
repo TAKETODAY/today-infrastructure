@@ -142,7 +142,7 @@ public class MappingMultiValueMap<K, V> extends MultiValueMapAdapter<K, V>
 
   @Nullable
   @Override
-  public List<V> setOrRemove(K key, @Nullable V[] value) {
+  public List<V> setOrRemove(K key, V @Nullable [] value) {
     if (value != null) {
       List<V> values = mappingFunction.apply(key);
       CollectionUtils.addAll(values, value);

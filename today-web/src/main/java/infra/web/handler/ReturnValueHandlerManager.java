@@ -120,6 +120,7 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
     this.messageConverters.add(new AllEncompassingFormHttpMessageConverter());
   }
 
+  @SuppressWarnings("NullAway")
   public ReturnValueHandlerManager(List<HttpMessageConverter<?>> messageConverters) {
     setMessageConverters(messageConverters);
   }

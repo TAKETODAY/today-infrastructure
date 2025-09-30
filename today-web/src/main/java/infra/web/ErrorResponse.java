@@ -123,8 +123,7 @@ public interface ErrorResponse extends HttpStatusProvider {
    *
    * @since 5.0
    */
-  @Nullable
-  default Object[] getDetailMessageArguments() {
+  default Object @Nullable [] getDetailMessageArguments() {
     return null;
   }
 
@@ -139,8 +138,7 @@ public interface ErrorResponse extends HttpStatusProvider {
    * @param locale the {@code Locale} to use for the lookup
    * @since 5.0
    */
-  @Nullable
-  default Object[] getDetailMessageArguments(MessageSource messageSource, Locale locale) {
+  default Object @Nullable [] getDetailMessageArguments(MessageSource messageSource, Locale locale) {
     return getDetailMessageArguments();
   }
 

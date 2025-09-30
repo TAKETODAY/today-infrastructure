@@ -95,8 +95,7 @@ public final class WebAsyncManager {
   @Nullable
   private volatile Object concurrentResult = RESULT_NONE;
 
-  @Nullable
-  private volatile Object[] concurrentResultContext;
+  private volatile @Nullable Object @Nullable [] concurrentResultContext;
 
   /*
    * Whether the concurrentResult is an error.
@@ -159,8 +158,7 @@ public final class WebAsyncManager {
    *
    * @see #clearConcurrentResult()
    */
-  @Nullable
-  public Object[] getConcurrentResultContext() {
+  public @Nullable Object @Nullable [] getConcurrentResultContext() {
     return concurrentResultContext;
   }
 
@@ -278,7 +276,7 @@ public final class WebAsyncManager {
    * @see #getConcurrentResultContext()
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public void startCallableProcessing(Callable<?> callable, Object... processingContext) throws Exception {
+  public void startCallableProcessing(Callable<?> callable, @Nullable Object... processingContext) throws Exception {
     Assert.notNull(callable, "Callable is required");
     startCallableProcessing(new WebAsyncTask(callable), processingContext);
   }
@@ -293,7 +291,7 @@ public final class WebAsyncManager {
    * via {@link #getConcurrentResultContext()}
    * @throws Exception if concurrent processing failed to start
    */
-  public void startCallableProcessing(WebAsyncTask<?> webAsyncTask, Object... processingContext) throws Exception {
+  public void startCallableProcessing(WebAsyncTask<?> webAsyncTask, @Nullable Object... processingContext) throws Exception {
     Assert.notNull(webAsyncTask, "WebAsyncTask is required");
     AsyncWebRequest asyncRequest = getAsyncWebRequest();
 
@@ -421,7 +419,7 @@ public final class WebAsyncManager {
    * @see #getConcurrentResult()
    * @see #getConcurrentResultContext()
    */
-  public void startDeferredResultProcessing(DeferredResult<?> deferred, Object... processingContext) throws Exception {
+  public void startDeferredResultProcessing(DeferredResult<?> deferred, @Nullable Object... processingContext) throws Exception {
     Assert.notNull(deferred, "DeferredResult is required");
     AsyncWebRequest asyncRequest = getAsyncWebRequest();
     Long timeout = deferred.getTimeoutValue();
@@ -482,7 +480,7 @@ public final class WebAsyncManager {
     }
   }
 
-  private void startAsyncProcessing(AsyncWebRequest asyncRequest, Object[] processingContext) {
+  private void startAsyncProcessing(AsyncWebRequest asyncRequest, @Nullable Object[] processingContext) {
     synchronized(WebAsyncManager.this) {
       this.concurrentResult = RESULT_NONE;
       this.concurrentResultContext = processingContext;
@@ -499,7 +497,7 @@ public final class WebAsyncManager {
 
   @Nullable
   public static Object findHttpRequestHandler(RequestContext request) {
-    Object[] concurrentResultContext = request.asyncManager().getConcurrentResultContext();
+    @Nullable Object[] concurrentResultContext = request.asyncManager().getConcurrentResultContext();
     if (concurrentResultContext != null && concurrentResultContext.length == 1) {
       return concurrentResultContext[0];
     }

@@ -192,7 +192,7 @@ public interface MultiValueMap<K, V extends @Nullable Object> extends Map<K, Lis
    * @since 5.0
    */
   @Nullable
-  List<V> setOrRemove(K key, @Nullable V[] value);
+  List<V> setOrRemove(K key, V @Nullable [] value);
 
   /**
    * Associates the specified value with the specified key in this map.

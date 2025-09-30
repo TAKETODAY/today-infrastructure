@@ -601,7 +601,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
         return Locale.LanguageRange.parse(value);
       }
       catch (IllegalArgumentException ignored) {
-        String[] tokens = StringUtils.tokenizeToStringArray(value, ",");
+        @Nullable String[] tokens = StringUtils.tokenizeToStringArray(value, ",");
         for (int i = 0; i < tokens.length; i++) {
           tokens[i] = StringUtils.trimTrailingCharacter(tokens[i], ';');
         }
@@ -1884,7 +1884,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
 
   @Nullable
   @Override
-  public List<String> setOrRemove(String name, @Nullable String[] value) {
+  public List<String> setOrRemove(String name, String @Nullable [] value) {
     return setOrRemove(name, value == null ? null : toCommaDelimitedString(Arrays.asList(value)));
   }
 

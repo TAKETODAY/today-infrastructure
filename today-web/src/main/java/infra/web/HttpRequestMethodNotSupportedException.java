@@ -44,8 +44,7 @@ public class HttpRequestMethodNotSupportedException extends NestedRuntimeExcepti
 
   private final String method;
 
-  @Nullable
-  private final String[] supportedMethods;
+  private final String @Nullable [] supportedMethods;
 
   private final ProblemDetail body;
 
@@ -74,7 +73,7 @@ public class HttpRequestMethodNotSupportedException extends NestedRuntimeExcepti
    * @param method the unsupported HTTP request method
    * @param supportedMethods the actually supported HTTP methods (possibly {@code null})
    */
-  private HttpRequestMethodNotSupportedException(String method, @Nullable String[] supportedMethods) {
+  private HttpRequestMethodNotSupportedException(String method, String @Nullable [] supportedMethods) {
     super("Request method '%s' is not supported".formatted(method));
     this.method = method;
     this.supportedMethods = supportedMethods;

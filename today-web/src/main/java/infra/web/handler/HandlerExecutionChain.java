@@ -60,6 +60,7 @@ public class HandlerExecutionChain implements HandlerWrapper, HandlerAdapterAwar
    * @param interceptors the array of interceptors to apply
    * (in the given order) before the handler itself executes
    */
+  @SuppressWarnings("NullAway")
   public HandlerExecutionChain(Object handler, HandlerInterceptor @Nullable [] interceptors) {
     this.handler = handler;
     this.interceptors = interceptors;

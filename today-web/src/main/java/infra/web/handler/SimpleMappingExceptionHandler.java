@@ -49,8 +49,7 @@ public class SimpleMappingExceptionHandler extends AbstractHandlerExceptionHandl
   @Nullable
   private Properties exceptionMappings;
 
-  @Nullable
-  private Class<?>[] excludedExceptions;
+  private Class<?> @Nullable [] excludedExceptions;
 
   @Nullable
   private String defaultErrorView;

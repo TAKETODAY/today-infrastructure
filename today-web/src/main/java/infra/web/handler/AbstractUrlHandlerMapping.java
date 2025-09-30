@@ -237,6 +237,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
    * @throws BeansException if the handler couldn't be registered
    * @throws IllegalStateException if there is a conflicting handler registered
    */
+  @SuppressWarnings("NullAway")
   public void registerHandler(String urlPath, Object handler) throws BeansException, IllegalStateException {
     Assert.notNull(urlPath, "URL path is required");
     Assert.notNull(handler, "Handler object is required");

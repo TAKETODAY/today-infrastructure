@@ -98,7 +98,7 @@ public class MultiValueMapAdapter<K, V> implements MultiValueMap<K, V>, Serializ
 
   @Nullable
   @Override
-  public List<V> setOrRemove(K key, @Nullable V[] value) {
+  public List<V> setOrRemove(K key, V @Nullable [] value) {
     if (value != null) {
       return targetMap.put(key, CollectionUtils.newArrayList(value));
     }

@@ -84,6 +84,7 @@ public class DispatcherHandler extends InfraHandler {
   @Nullable
   protected WebAsyncManagerFactory webAsyncManagerFactory;
 
+  @SuppressWarnings("NullAway")
   public DispatcherHandler() {
   }
 
@@ -204,7 +205,7 @@ public class DispatcherHandler extends InfraHandler {
    * @param array RequestHandledListener array
    * @since 4.0
    */
-  public void addRequestCompletedActions(@Nullable RequestCompletedListener... array) {
+  public void addRequestCompletedActions(RequestCompletedListener @Nullable ... array) {
     requestCompletedActions.addAll(array);
   }
 

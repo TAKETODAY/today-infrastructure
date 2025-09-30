@@ -161,6 +161,7 @@ public class HandlerMatchingMetadata {
     return getPathMatchInfo().getMatrixVariables();
   }
 
+  @SuppressWarnings("NullAway")
   public MultiValueMap<String, String> getMatrixVariable(String name) {
     return getPathMatchInfo().getMatrixVariables().get(name);
   }

@@ -94,7 +94,7 @@ public class ResponseStatusException extends ErrorResponseException {
    * @since 5.0
    */
   protected ResponseStatusException(HttpStatusCode status, @Nullable String reason, @Nullable Throwable cause,
-          @Nullable String messageDetailCode, @Nullable Object[] messageDetailArguments) {
+          @Nullable String messageDetailCode, Object @Nullable [] messageDetailArguments) {
 
     super(status, ProblemDetail.forStatus(status), cause, messageDetailCode, messageDetailArguments);
     this.reason = reason;
