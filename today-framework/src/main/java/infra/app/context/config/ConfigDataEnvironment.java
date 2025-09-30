@@ -39,6 +39,7 @@ import infra.core.env.Environment;
 import infra.core.env.PropertySource;
 import infra.core.env.PropertySources;
 import infra.core.io.ResourceLoader;
+import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.StringUtils;
@@ -363,7 +364,9 @@ class ConfigDataEnvironment {
           if (traceEnabled)
             logger.trace("Adding imported property source '{}'", propertySource.getName());
           propertySources.addLast(propertySource);
-          environmentUpdateListener.onPropertySourceAdded(propertySource, contributor.location, contributor.resource);
+          ConfigDataLocation location = contributor.location;
+          Assert.state(location != null, "location is required");
+          environmentUpdateListener.onPropertySourceAdded(propertySource, location, contributor.resource);
         }
       }
     }

@@ -118,6 +118,7 @@ public class ApplicationArguments {
       return super.getNonOptionArgs();
     }
 
+    @Nullable
     @Override
     public List<String> getOptionValues(String name) {
       return super.getOptionValues(name);

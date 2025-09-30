@@ -33,6 +33,7 @@ import infra.lang.Assert;
  */
 public abstract class AbstractFailureAnalyzer<T extends Throwable> implements FailureAnalyzer {
 
+  @Nullable
   @Override
   public FailureAnalysis analyze(Throwable failure) {
     T cause = findCause(failure, getCauseType());

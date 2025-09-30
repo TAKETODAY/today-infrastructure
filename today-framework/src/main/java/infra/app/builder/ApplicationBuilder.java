@@ -151,6 +151,7 @@ public class ApplicationBuilder {
    * @param args the command line arguments
    * @return an application context created from the current state
    */
+  @SuppressWarnings("NullAway")
   public ConfigurableApplicationContext run(String... args) {
     if (running.get()) {
       // If already created we just return the existing context

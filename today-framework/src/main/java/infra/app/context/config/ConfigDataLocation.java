@@ -188,6 +188,7 @@ public final class ConfigDataLocation implements OriginProvider {
    * provided
    */
   @Nullable
+  @SuppressWarnings("NullAway")
   public static ConfigDataLocation valueOf(@Nullable String location) {
     boolean optional = location != null && location.startsWith(OPTIONAL_PREFIX);
     if (optional) {

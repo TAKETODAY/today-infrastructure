@@ -305,6 +305,7 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
       return binder;
     }
 
+    @Nullable
     @Override
     public ConfigDataResource getParent() {
       return this.contributor.resource;

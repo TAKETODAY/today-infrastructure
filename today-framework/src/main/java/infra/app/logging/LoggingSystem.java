@@ -215,6 +215,7 @@ public abstract class LoggingSystem {
       return Collections.emptyList();
     }
 
+    @Nullable
     @Override
     public LoggerConfiguration getLoggerConfiguration(String loggerName) {
       return null;

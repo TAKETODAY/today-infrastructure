@@ -111,6 +111,7 @@ public class EnvironmentPostProcessorApplicationListener implements SmartApplica
     return instantiator.instantiate(strategiesNames);
   }
 
+  @SuppressWarnings("NullAway")
   private void addAotGeneratedEnvironmentPostProcessorIfNecessary(List<EnvironmentPostProcessor> postProcessors, Application application) {
     if (AotDetector.useGeneratedArtifacts()) {
       ClassLoader classLoader = (application.getResourceLoader() != null)

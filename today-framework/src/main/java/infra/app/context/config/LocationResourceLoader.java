@@ -135,14 +135,15 @@ class LocationResourceLoader {
     return resources;
   }
 
-  private void validatePattern(String location, ResourceType type) {
+  @SuppressWarnings("NullAway")
+  private void validatePattern(@Nullable String location, ResourceType type) {
     Assert.state(isPattern(location), () -> String.format("Location '%s' must be a pattern", location));
     Assert.state(!location.startsWith(PatternResourceLoader.CLASSPATH_ALL_URL_PREFIX),
             () -> String.format("Location '%s' cannot use classpath wildcards", location));
     Assert.state(StringUtils.countOccurrencesOf(location, "*") == 1,
             () -> String.format("Location '%s' cannot contain multiple wildcards", location));
     String directoryPath = (type != ResourceType.DIRECTORY) ? location.substring(0, location.lastIndexOf("/") + 1)
-                                                            : location;
+            : location;
     Assert.state(directoryPath.endsWith("*/"), () -> String.format("Location '%s' must end with '*/'", location));
   }
 

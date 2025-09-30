@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.app.context.config;
+
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -53,12 +55,12 @@ public class ConfigDataResourceNotFoundException extends ConfigDataNotFoundExcep
    * @param resource the resource that could not be found
    * @param cause the exception cause
    */
-  public ConfigDataResourceNotFoundException(ConfigDataResource resource, Throwable cause) {
+  public ConfigDataResourceNotFoundException(ConfigDataResource resource, @Nullable Throwable cause) {
     this(resource, null, cause);
   }
 
-  private ConfigDataResourceNotFoundException(ConfigDataResource resource, ConfigDataLocation location,
-          Throwable cause) {
+  private ConfigDataResourceNotFoundException(ConfigDataResource resource, @Nullable ConfigDataLocation location,
+          @Nullable Throwable cause) {
     super(getMessage(resource, location), cause);
     Assert.notNull(resource, "Resource is required");
     this.resource = resource;
@@ -83,6 +85,7 @@ public class ConfigDataResourceNotFoundException extends ConfigDataNotFoundExcep
     return this.location;
   }
 
+  @Nullable
   @Override
   public Origin getOrigin() {
     return Origin.from(this.location);
@@ -103,11 +106,11 @@ public class ConfigDataResourceNotFoundException extends ConfigDataNotFoundExcep
     return new ConfigDataResourceNotFoundException(this.resource, location, getCause());
   }
 
-  private static String getMessage(ConfigDataResource resource, ConfigDataLocation location) {
+  private static String getMessage(ConfigDataResource resource, @Nullable ConfigDataLocation location) {
     return String.format("Config data %s cannot be found", getReferenceDescription(resource, location));
   }
 
-  private static String getReferenceDescription(ConfigDataResource resource, ConfigDataLocation location) {
+  private static String getReferenceDescription(ConfigDataResource resource, @Nullable ConfigDataLocation location) {
     String description = String.format("resource '%s'", resource);
     if (location != null) {
       description += String.format(" via location '%s'", location);

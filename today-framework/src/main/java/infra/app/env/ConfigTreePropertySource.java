@@ -287,6 +287,7 @@ public class ConfigTreePropertySource extends EnumerablePropertySource<Path> imp
 
     private volatile byte[] content;
 
+    @SuppressWarnings("NullAway")
     private PropertyFileContent(Path path, Resource resource, Origin origin, boolean cacheContent,
             boolean autoTrimTrailingNewLine) {
       this.path = path;

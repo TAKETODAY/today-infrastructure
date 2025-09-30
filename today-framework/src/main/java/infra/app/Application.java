@@ -156,6 +156,7 @@ import infra.util.function.ThrowingSupplier;
  * @see #Application(Class...)
  * @since 4.0 2021/10/5 23:49
  */
+@SuppressWarnings("NullAway")
 public class Application {
 
   public static final String PROPERTIES_BINDER_PREFIX = "app.main";

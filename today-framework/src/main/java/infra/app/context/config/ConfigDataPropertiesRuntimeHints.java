@@ -35,6 +35,7 @@ import infra.util.ReflectionUtils;
 class ConfigDataPropertiesRuntimeHints implements RuntimeHintsRegistrar {
 
   @Override
+  @SuppressWarnings("NullAway")
   public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
     BindableRuntimeHintsRegistrar.forTypes(ConfigDataProperties.class).registerHints(hints);
     hints.reflection()

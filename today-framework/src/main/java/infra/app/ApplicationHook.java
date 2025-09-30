@@ -57,6 +57,7 @@ public interface ApplicationHook {
         this.delegate = delegate;
       }
 
+      @Nullable
       @Override
       public ApplicationStartupListener getStartupListener(Application application) {
         return this.used.compareAndSet(false, true) ? this.delegate.getStartupListener(application) : null;

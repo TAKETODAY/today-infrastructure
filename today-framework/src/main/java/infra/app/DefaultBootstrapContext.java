@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.app;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -74,6 +76,7 @@ public class DefaultBootstrapContext implements ConfigurableBootstrapContext {
 
   @Override
   @SuppressWarnings("unchecked")
+  @Nullable
   public <T> InstanceSupplier<T> getRegisteredInstanceSupplier(Class<T> type) {
     synchronized(this.instanceSuppliers) {
       return (InstanceSupplier<T>) this.instanceSuppliers.get(type);
@@ -85,17 +88,20 @@ public class DefaultBootstrapContext implements ConfigurableBootstrapContext {
     listeners.add(listener);
   }
 
+  @Nullable
   @Override
   public <T> T get(Class<T> type) throws IllegalStateException {
     return getOrElseThrow(type, () -> new IllegalStateException(type.getName() + " has not been registered"));
   }
 
+  @Nullable
   @Override
   public <T> T getOrElse(Class<T> type, T other) {
     return getOrElseSupply(type, () -> other);
   }
 
   @Override
+  @Nullable
   public <T> T getOrElseSupply(Class<T> type, Supplier<T> other) {
     synchronized(this.instanceSuppliers) {
       InstanceSupplier<?> instanceSupplier = this.instanceSuppliers.get(type);
@@ -104,6 +110,7 @@ public class DefaultBootstrapContext implements ConfigurableBootstrapContext {
   }
 
   @Override
+  @Nullable
   public <T, X extends Throwable> T getOrElseThrow(Class<T> type, Supplier<? extends X> exceptionSupplier) throws X {
     synchronized(this.instanceSuppliers) {
       InstanceSupplier<?> instanceSupplier = this.instanceSuppliers.get(type);
@@ -115,10 +122,13 @@ public class DefaultBootstrapContext implements ConfigurableBootstrapContext {
   }
 
   @SuppressWarnings("unchecked")
-  private <T> T getInstance(Class<T> type, InstanceSupplier<?> instanceSupplier) {
+  private <T> @Nullable T getInstance(Class<T> type, InstanceSupplier<?> instanceSupplier) {
     T instance = (T) this.instances.get(type);
     if (instance == null) {
       instance = (T) instanceSupplier.get(this);
+      if (instance == null) {
+        return null;
+      }
       if (instanceSupplier.getScope() == Scope.SINGLETON) {
         this.instances.put(type, instance);
       }

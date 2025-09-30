@@ -75,7 +75,7 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
   }
 
   @Override
-  public void starting(ConfigurableBootstrapContext bootstrapContext, Class<?> mainApplicationClass, ApplicationArguments arguments) {
+  public void starting(ConfigurableBootstrapContext bootstrapContext, @Nullable Class<?> mainApplicationClass, ApplicationArguments arguments) {
     multicastInitialEvent(new ApplicationStartingEvent(bootstrapContext, application, args));
   }
 
@@ -114,6 +114,7 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public void failed(@Nullable ConfigurableApplicationContext context, Throwable exception) {
     ApplicationFailedEvent event = new ApplicationFailedEvent(application, args, context, exception);
     if (context != null && context.isActive()) {

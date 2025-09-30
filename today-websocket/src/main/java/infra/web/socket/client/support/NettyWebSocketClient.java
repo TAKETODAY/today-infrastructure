@@ -431,6 +431,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
     return eventLoopGroup;
   }
 
+  @SuppressWarnings("NullAway")
   final class MessageHandler extends ChannelInboundHandlerAdapter implements ChannelFutureListener {
 
     private final boolean secure;

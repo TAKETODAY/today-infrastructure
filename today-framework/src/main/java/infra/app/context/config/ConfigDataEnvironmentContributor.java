@@ -294,7 +294,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
     return contributor;
   }
 
-  private boolean hasAnyProfileSpecificChildren(List<ConfigDataEnvironmentContributor> contributors) {
+  private boolean hasAnyProfileSpecificChildren(@Nullable List<ConfigDataEnvironmentContributor> contributors) {
     if (CollectionUtils.isNotEmpty(contributors)) {
       for (ConfigDataEnvironmentContributor contributor : contributors) {
         for (ImportPhase importPhase : ImportPhase.values()) {

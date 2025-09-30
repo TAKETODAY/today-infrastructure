@@ -74,6 +74,7 @@ public class ConfigDataLocationNotFoundException extends ConfigDataNotFoundExcep
     return this.location;
   }
 
+  @Nullable
   @Override
   public Origin getOrigin() {
     return Origin.from(this.location);

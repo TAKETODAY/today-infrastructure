@@ -100,8 +100,7 @@ class ConfigDataProperties {
     @Nullable
     private final CloudPlatform onCloudPlatform;
 
-    @Nullable
-    private final String[] onProfile;
+    private final String @Nullable [] onProfile;
 
     /**
      * Create a new {@link Activate} instance.
@@ -109,7 +108,7 @@ class ConfigDataProperties {
      * @param onCloudPlatform the cloud platform required for activation
      * @param onProfile the profile expression required for activation
      */
-    Activate(@Nullable CloudPlatform onCloudPlatform, @Nullable String[] onProfile) {
+    Activate(@Nullable CloudPlatform onCloudPlatform, String @Nullable [] onProfile) {
       this.onProfile = onProfile;
       this.onCloudPlatform = onCloudPlatform;
     }
@@ -139,6 +138,7 @@ class ConfigDataProperties {
               || (profiles != null && matchesActiveProfiles(profiles::isAccepted));
     }
 
+    @SuppressWarnings("NullAway")
     private boolean matchesActiveProfiles(Predicate<String> activeProfiles) {
       return infra.core.env.Profiles.parse(this.onProfile).matches(activeProfiles);
     }

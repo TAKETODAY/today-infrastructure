@@ -86,6 +86,7 @@ public interface BootstrapRegistry {
    * @param type the instance type
    * @return the registered {@link InstanceSupplier} or {@code null}
    */
+  @Nullable
   <T> InstanceSupplier<T> getRegisteredInstanceSupplier(Class<T> type);
 
   /**
@@ -113,6 +114,7 @@ public interface BootstrapRegistry {
      * bootstrap instances.
      * @return the instance
      */
+    @Nullable
     T get(BootstrapContext context);
 
     /**
@@ -135,6 +137,7 @@ public interface BootstrapRegistry {
       InstanceSupplier<T> parent = this;
       return new InstanceSupplier<>() {
 
+        @Nullable
         @Override
         public T get(BootstrapContext context) {
           return parent.get(context);

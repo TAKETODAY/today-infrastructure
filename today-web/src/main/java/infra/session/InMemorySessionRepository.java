@@ -271,6 +271,7 @@ public class InMemorySessionRepository implements SessionRepository {
     expiredSessionChecker.removeExpiredSessions(clock.instant());
   }
 
+  @SuppressWarnings("NullAway")
   final class InMemoryWebSession extends AbstractWebSession implements WebSession, Serializable, SerializableSession {
 
     @Serial

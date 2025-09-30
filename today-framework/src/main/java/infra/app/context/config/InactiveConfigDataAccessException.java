@@ -23,6 +23,7 @@ import infra.context.properties.source.ConfigurationProperty;
 import infra.context.properties.source.ConfigurationPropertyName;
 import infra.context.properties.source.ConfigurationPropertySource;
 import infra.core.env.PropertySource;
+import infra.lang.Assert;
 import infra.origin.Origin;
 
 /**
@@ -133,7 +134,9 @@ public class InactiveConfigDataAccessException extends ConfigDataException {
     ConfigurationPropertySource source = contributor.configurationPropertySource;
     ConfigurationProperty property = (source != null) ? source.getConfigurationProperty(name) : null;
     if (property != null) {
-      throw new InactiveConfigDataAccessException(contributor.propertySource, contributor.resource, name.toString(),
+      PropertySource<?> propertySource = contributor.propertySource;
+      Assert.state(propertySource != null, "'propertySource' is required");
+      throw new InactiveConfigDataAccessException(propertySource, contributor.resource, name.toString(),
               property.getOrigin());
     }
   }

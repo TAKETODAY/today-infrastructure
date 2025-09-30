@@ -95,12 +95,13 @@ public class Profiles implements Iterable<String> {
     return asUniqueItemList(getProfiles(environment, binder, Type.DEFAULT));
   }
 
+  @SuppressWarnings("NullAway")
   private Collection<String> getProfiles(Environment environment, Binder binder, Type type) {
     String environmentPropertyValue = environment.getProperty(type.name);
     Set<String> environmentPropertyProfiles
             = StringUtils.isEmpty(environmentPropertyValue)
-              ? Collections.emptySet()
-              : StringUtils.commaDelimitedListToSet(StringUtils.trimAllWhitespace(environmentPropertyValue));
+            ? Collections.emptySet()
+            : StringUtils.commaDelimitedListToSet(StringUtils.trimAllWhitespace(environmentPropertyValue));
 
     LinkedHashSet<String> environmentProfiles = new LinkedHashSet<>(Arrays.asList(type.get(environment)));
     BindResult<Set<String>> boundProfiles = binder.bind(type.name, STRING_SET);

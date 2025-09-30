@@ -559,7 +559,8 @@ public abstract class StringUtils {
    * @param path the original path
    * @return the normalized path
    */
-  public static String cleanPath(String path) {
+  @SuppressWarnings("NullAway")
+  public static String cleanPath(@Nullable String path) {
     if (isEmpty(path)) {
       return path;
     }

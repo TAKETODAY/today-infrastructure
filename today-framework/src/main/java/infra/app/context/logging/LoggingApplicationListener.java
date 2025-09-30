@@ -96,6 +96,7 @@ import static infra.context.properties.source.ConfigurationPropertyName.of;
  * @see LoggingSystem#get(ClassLoader)
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public class LoggingApplicationListener implements GenericApplicationListener {
 
   private static final ConfigurationPropertyName LOGGING_LEVEL = of("logging.level");
