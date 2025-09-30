@@ -151,7 +151,7 @@ public class CompositeRequestCondition extends AbstractRequestCondition<Composit
     }
     int length = getLength();
     RequestConditionHolder[] requestConditions = this.requestConditions;
-    RequestConditionHolder[] matchingConditions = new RequestConditionHolder[length];
+    @Nullable RequestConditionHolder[] matchingConditions = new RequestConditionHolder[length];
     for (int i = 0; i < length; i++) {
       matchingConditions[i] = requestConditions[i].getMatchingCondition(request);
       if (matchingConditions[i] == null) {

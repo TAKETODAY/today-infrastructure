@@ -51,8 +51,7 @@ import infra.web.util.UriUtils;
  */
 public class PathResourceResolver extends AbstractResourceResolver {
 
-  @Nullable
-  private Resource[] allowedLocations;
+  private Resource @Nullable [] allowedLocations;
 
   private boolean urlDecode = false;
 
@@ -75,12 +74,11 @@ public class PathResourceResolver extends AbstractResourceResolver {
    * @param locations the list of allowed locations
    * @see ResourceHttpRequestHandler#initAllowedLocations()
    */
-  public void setAllowedLocations(@Nullable Resource... locations) {
+  public void setAllowedLocations(Resource @Nullable ... locations) {
     this.allowedLocations = locations;
   }
 
-  @Nullable
-  public Resource[] getAllowedLocations() {
+  public Resource @Nullable [] getAllowedLocations() {
     return this.allowedLocations;
   }
 
@@ -117,6 +115,7 @@ public class PathResourceResolver extends AbstractResourceResolver {
     return Collections.unmodifiableMap(this.locationCharsets);
   }
 
+  @Nullable
   @Override
   protected Resource resolveResourceInternal(@Nullable RequestContext request,
           String requestPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
@@ -124,6 +123,7 @@ public class PathResourceResolver extends AbstractResourceResolver {
     return getResource(requestPath, request, locations);
   }
 
+  @Nullable
   @Override
   protected String resolveUrlPathInternal(String resourcePath,
           List<? extends Resource> locations, ResourceResolvingChain chain) {

@@ -594,6 +594,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    *
    * @throws IllegalArgumentException if the value cannot be converted to a language range
    */
+  @SuppressWarnings("NullAway")
   public List<Locale.LanguageRange> getAcceptLanguage() {
     String value = getFirst(ACCEPT_LANGUAGE);
     if (StringUtils.hasText(value)) {

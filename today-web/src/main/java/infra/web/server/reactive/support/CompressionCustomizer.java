@@ -84,7 +84,7 @@ final class CompressionCustomizer implements ReactorNettyServerCustomizer {
     };
   }
 
-  private CompressionPredicate getExcludedUserAgentsPredicate(@Nullable String[] excludedUserAgents) {
+  private CompressionPredicate getExcludedUserAgentsPredicate(String @Nullable [] excludedUserAgents) {
     if (ObjectUtils.isEmpty(excludedUserAgents)) {
       return ALWAYS_COMPRESS;
     }

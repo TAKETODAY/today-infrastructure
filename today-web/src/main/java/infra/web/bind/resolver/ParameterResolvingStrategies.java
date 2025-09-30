@@ -149,7 +149,7 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
    *
    * @param resolver resolvers or resolving-strategies
    */
-  public void add(@Nullable ParameterResolvingStrategy... resolver) {
+  public void add(ParameterResolvingStrategy @Nullable ... resolver) {
     CollectionUtils.addAll(strategies, resolver);
   }
 

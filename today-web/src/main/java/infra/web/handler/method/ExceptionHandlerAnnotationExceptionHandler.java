@@ -51,6 +51,7 @@ import infra.web.resource.ResourceHttpRequestHandler;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2.3.7 2019-06-22 19:17
  */
+@SuppressWarnings("NullAway.Init")
 public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerMethodExceptionHandler
         implements ApplicationContextAware, InitializingBean {
 

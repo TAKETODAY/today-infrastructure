@@ -30,6 +30,7 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/15 12:59
  */
+@SuppressWarnings("NullAway.Init")
 public class DateTimeFormatters {
 
   private DateTimeFormatter dateFormatter;

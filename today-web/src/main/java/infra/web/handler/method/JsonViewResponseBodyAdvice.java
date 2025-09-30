@@ -56,9 +56,10 @@ public class JsonViewResponseBodyAdvice extends AbstractMappingJacksonResponseBo
             && returnType.hasMethodAnnotation(JsonView.class);
   }
 
+  @SuppressWarnings("NullAway")
   @Override
   protected void beforeBodyWriteInternal(MappingJacksonValue value,
-          MediaType contentType, MethodParameter returnType, RequestContext request) {
+          MediaType contentType, @Nullable MethodParameter returnType, RequestContext request) {
 
     JsonView ann = returnType.getMethodAnnotation(JsonView.class);
     Assert.state(ann != null, "No JsonView annotation");

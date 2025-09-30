@@ -99,6 +99,7 @@ class CacheResultInterceptor extends AbstractKeyCacheInterceptor<CacheResultOper
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private Cache resolveExceptionCache(CacheOperationInvocationContext<CacheResultOperation> context) {
     CacheResolver exceptionCacheResolver = context.getOperation().getExceptionCacheResolver();
     if (exceptionCacheResolver != null) {

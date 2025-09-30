@@ -66,6 +66,7 @@ public class WebJarsResourceResolver extends AbstractResourceResolver {
     this.webJarAssetLocator = webJarAssetLocator;
   }
 
+  @Nullable
   @Override
   protected Resource resolveResourceInternal(@Nullable RequestContext request,
           String requestPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
@@ -80,6 +81,7 @@ public class WebJarsResourceResolver extends AbstractResourceResolver {
     return resolved;
   }
 
+  @Nullable
   @Override
   protected String resolveUrlPathInternal(String resourceUrlPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
     String path = chain.resolveUrlPath(resourceUrlPath, locations);

@@ -575,7 +575,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    * @since 5.0
    */
   protected ProblemDetail createProblemDetail(Exception ex, HttpStatusCode status, String defaultDetail,
-          @Nullable String detailMessageCode, @Nullable Object[] detailMessageArguments, RequestContext request) {
+          @Nullable String detailMessageCode, Object @Nullable [] detailMessageArguments, RequestContext request) {
 
     var builder = ErrorResponse.builder(ex, status, defaultDetail);
     if (detailMessageCode != null) {

@@ -146,7 +146,7 @@ final class MediaTypeExpression implements Comparable<MediaTypeExpression> {
   // static
 
   @Nullable
-  static ArrayList<MediaTypeExpression> parse(String exprHeader, String[] expressions, @Nullable String[] headers) {
+  static ArrayList<MediaTypeExpression> parse(String exprHeader, String[] expressions, String @Nullable [] headers) {
     LinkedHashSet<MediaTypeExpression> result = null;
     if (ObjectUtils.isNotEmpty(headers)) {
       for (String header : headers) {

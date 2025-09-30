@@ -46,6 +46,7 @@ public abstract class AbstractJCacheConfiguration extends AbstractCachingConfigu
   @Nullable
   protected Supplier<CacheResolver> exceptionCacheResolver;
 
+  @SuppressWarnings("NullAway")
   @Override
   protected void useCachingConfigurer(CachingConfigurerSupplier supplier) {
     super.useCachingConfigurer(supplier);

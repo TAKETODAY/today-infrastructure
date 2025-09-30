@@ -243,6 +243,7 @@ public class ControllerAdviceBean implements Ordered {
    * <p> the bean instance has been resolved it will be cached if it is a
    * singleton, thereby avoiding repeated lookups in the {@code BeanFactory}.
    */
+  @SuppressWarnings("NullAway")
   public Object resolveBean() {
     Object resolvedBean = this.resolvedBean;
     if (resolvedBean == null) {
@@ -306,6 +307,7 @@ public class ControllerAdviceBean implements Ordered {
    * @see OrderComparator
    * @see Ordered
    */
+  @SuppressWarnings("NullAway")
   public static List<ControllerAdviceBean> findAnnotatedBeans(ApplicationContext context, Class<?>... types) {
     BeanFactory beanFactory = context;
     if (context instanceof ConfigurableApplicationContext cac) {

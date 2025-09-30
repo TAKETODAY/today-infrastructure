@@ -210,7 +210,7 @@ public final class HandlerTypePredicate implements Predicate<Class<?>> {
      * @param annotations one or more annotations to check for
      */
     @SuppressWarnings("unchecked")
-    public final Builder annotation(@Nullable Class<? extends Annotation>... annotations) {
+    public final Builder annotation(Class<? extends Annotation> @Nullable ... annotations) {
       CollectionUtils.addAll(this.annotations, annotations);
       return this;
     }

@@ -53,6 +53,7 @@ import infra.web.view.ModelAndView;
  * @see RequestMappingHandlerMapping
  * @since 4.0 2022/4/8 22:46
  */
+@SuppressWarnings("NullAway.Init")
 public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
         implements BeanFactoryAware, InitializingBean {
 

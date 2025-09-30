@@ -23,6 +23,8 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import infra.lang.Contract;
+
 /**
  * Simple server-independent abstraction for SSL configuration.
  *
@@ -168,6 +170,7 @@ public class Ssl {
    * @param ssl the {@link Ssl SSL} instance or {@code null}
    * @return {@code true} is SSL is enabled
    */
+  @Contract("null -> false")
   public static boolean isEnabled(@Nullable Ssl ssl) {
     return ssl != null && ssl.enabled;
   }
@@ -187,6 +190,7 @@ public class Ssl {
   /**
    * @since 5.0
    */
+  @SuppressWarnings("NullAway")
   public static class ServerNameSslBundle {
 
     private String serverName;

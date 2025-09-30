@@ -90,6 +90,7 @@ import infra.web.util.UriComponentsBuilder;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/1 21:59
  */
+@SuppressWarnings("NullAway")
 public class MvcUriComponentsBuilder {
 
   /**
@@ -685,8 +686,7 @@ public class MvcUriComponentsBuilder {
     @Nullable
     private Method controllerMethod;
 
-    @Nullable
-    private Object[] argumentValues;
+    private Object @Nullable [] argumentValues;
 
     ControllerMethodInvocationInterceptor(Class<?> controllerType) {
       this.controllerType = controllerType;
@@ -694,7 +694,7 @@ public class MvcUriComponentsBuilder {
 
     @Override
     @Nullable
-    public Object intercept(@Nullable Object obj, Method method, Object[] args, @Nullable MethodProxy proxy) {
+    public Object intercept(@Nullable Object obj, Method method, Object @Nullable [] args, @Nullable MethodProxy proxy) {
       switch (method.getName()) {
         case "getControllerType":
           return this.controllerType;

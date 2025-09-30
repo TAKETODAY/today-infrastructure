@@ -353,7 +353,7 @@ public interface ErrorResponse extends HttpStatusProvider {
      * @return the same builder instance
      * @see ErrorResponse#getDetailMessageArguments()
      */
-    Builder detailMessageArguments(Object... messageArguments);
+    Builder detailMessageArguments(Object @Nullable ... messageArguments);
 
     /**
      * Set a "dynamic" {@link ProblemDetail#setProperty(String, Object)

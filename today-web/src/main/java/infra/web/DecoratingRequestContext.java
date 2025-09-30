@@ -66,6 +66,7 @@ import infra.web.multipart.MultipartRequest;
  */
 public abstract class DecoratingRequestContext extends RequestContext {
 
+  @SuppressWarnings("NullAway")
   protected DecoratingRequestContext() {
     super(null, null);
   }

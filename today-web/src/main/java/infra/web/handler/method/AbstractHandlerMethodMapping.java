@@ -461,6 +461,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     }
   }
 
+  @SuppressWarnings("NullAway")
   private void addMatchingMappings(Collection<T> mappings, ArrayList<Match<T>> matches, RequestContext request) {
     var registrations = mappingRegistry.registrations;
     for (T mapping : mappings) {

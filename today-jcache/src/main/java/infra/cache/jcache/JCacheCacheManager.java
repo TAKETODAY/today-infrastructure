@@ -54,7 +54,8 @@ public class JCacheCacheManager extends AbstractTransactionSupportingCacheManage
    * <p>The backing JCache {@code javax.cache.CacheManager} can be set via the
    * {@link #setCacheManager} bean property.
    */
-  public JCacheCacheManager() { }
+  public JCacheCacheManager() {
+  }
 
   /**
    * Create a new {@code JCacheCacheManager} for the given backing JCache
@@ -120,6 +121,7 @@ public class JCacheCacheManager extends AbstractTransactionSupportingCacheManage
     return caches;
   }
 
+  @Nullable
   @Override
   protected Cache getMissingCache(String name) {
     CacheManager cacheManager = getCacheManager();

@@ -46,8 +46,10 @@ import infra.util.function.SupplierUtils;
  *
  * @author Stephane Nicoll
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public class DefaultJCacheOperationSource extends AnnotationJCacheOperationSource
         implements BeanFactoryAware, SmartInitializingSingleton {
 
@@ -82,8 +84,7 @@ public class DefaultJCacheOperationSource extends AnnotationJCacheOperationSourc
    * cache resolver and key generator suppliers, applying the corresponding default
    * if a supplier is not resolvable.
    */
-  public DefaultJCacheOperationSource(
-          @Nullable Supplier<CacheManager> cacheManager, @Nullable Supplier<CacheResolver> cacheResolver,
+  public DefaultJCacheOperationSource(@Nullable Supplier<CacheManager> cacheManager, @Nullable Supplier<CacheResolver> cacheResolver,
           @Nullable Supplier<CacheResolver> exceptionCacheResolver, @Nullable Supplier<KeyGenerator> keyGenerator) {
 
     this.cacheManager = SingletonSupplier.ofNullable(cacheManager);

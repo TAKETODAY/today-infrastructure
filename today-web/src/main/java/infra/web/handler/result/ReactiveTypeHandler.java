@@ -190,6 +190,7 @@ final class ReactiveTypeHandler {
     return null; // not a concrete streaming type
   }
 
+  @SuppressWarnings("NullAway")
   @Unmodifiable
   private Collection<MediaType> getMediaTypes(RequestContext request) throws HttpMediaTypeNotAcceptableException {
     HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();

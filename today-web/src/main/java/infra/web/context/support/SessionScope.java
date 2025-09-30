@@ -101,6 +101,7 @@ public class SessionScope extends AbstractRequestContextScope<WebSession> {
    * @return the <code>WebSession</code> associated with this request
    * @see #getSession(RequestContext, boolean)
    */
+  @SuppressWarnings("NullAway")
   private WebSession getSession(RequestContext context) {
     return getSession(context, true);
   }

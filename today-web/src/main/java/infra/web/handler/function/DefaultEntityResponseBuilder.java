@@ -310,6 +310,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
     }
 
     @Nullable
+    @SuppressWarnings("NullAway")
     private static MediaType getContentType(RequestContext response) {
       try {
         return MediaType.parseMediaType(response.getResponseContentType()).removeQualityValue();

@@ -233,6 +233,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
     return ForwardedHeaderUtils.adaptFromForwardedHeaders(request.getURI(), request.getHeaders());
   }
 
+  @SuppressWarnings("NullAway")
   public static UriComponentsBuilder forCurrentRequest() {
     return forHttpRequest(RequestContextHolder.get());
   }
@@ -602,7 +603,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
   }
 
   @Override
-  public UriComponentsBuilder queryParam(String name, @Nullable Object... values) {
+  public UriComponentsBuilder queryParam(String name, Object @Nullable ... values) {
     Assert.notNull(name, "Name is required");
     if (ObjectUtils.isNotEmpty(values)) {
       for (Object value : values) {

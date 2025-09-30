@@ -160,6 +160,7 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
 
   @Override
   @Nullable
+  @SuppressWarnings("NullAway")
   public Object invoke(MethodInvocation invocation) throws Throwable {
     // Avoid Validator invocation on FactoryBean.getObjectType/isSingleton
     if (isFactoryBeanMetadataMethod(invocation.getMethod())) {

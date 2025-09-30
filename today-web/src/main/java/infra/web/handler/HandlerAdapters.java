@@ -46,6 +46,7 @@ public class HandlerAdapters implements HandlerAdapter {
     return selectAdapter(handler) != null;
   }
 
+  @Nullable
   @Override
   public Object handle(RequestContext context, Object handler) throws Throwable {
     if (handler instanceof HttpRequestHandler httpRequestHandler) {

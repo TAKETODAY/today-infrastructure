@@ -103,6 +103,7 @@ public class CachingResourceResolver extends AbstractResourceResolver {
     return Collections.unmodifiableList(this.contentCodings);
   }
 
+  @Nullable
   @Override
   protected Resource resolveResourceInternal(@Nullable RequestContext request,
           String requestPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
@@ -151,6 +152,7 @@ public class CachingResourceResolver extends AbstractResourceResolver {
     return null;
   }
 
+  @Nullable
   @Override
   protected String resolveUrlPathInternal(
           String resourceUrlPath, List<? extends Resource> locations, ResourceResolvingChain chain) {

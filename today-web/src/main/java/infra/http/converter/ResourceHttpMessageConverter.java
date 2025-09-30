@@ -83,6 +83,8 @@ public class ResourceHttpMessageConverter extends AbstractHttpMessageConverter<R
 
     if (this.supportsReadStreaming && InputStreamResource.class == clazz) {
       return new InputStreamResource(inputMessage.getBody()) {
+
+        @Nullable
         @Override
         public String getName() {
           return inputMessage.getHeaders().getContentDisposition().getFilename();
@@ -115,6 +117,7 @@ public class ResourceHttpMessageConverter extends AbstractHttpMessageConverter<R
     return MediaTypeFactory.getMediaType(resource).orElse(MediaType.APPLICATION_OCTET_STREAM);
   }
 
+  @Nullable
   @Override
   protected Long getContentLength(Resource resource, @Nullable MediaType contentType) throws IOException {
     // Don't try to determine contentLength on InputStreamResource - cannot be read afterwards...

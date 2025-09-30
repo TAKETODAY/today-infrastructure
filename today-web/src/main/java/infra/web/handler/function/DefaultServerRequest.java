@@ -354,6 +354,7 @@ class DefaultServerRequest implements ServerRequest {
       return Optional.ofNullable(this.httpHeaders.getContentType());
     }
 
+    @Nullable
     @Override
     public InetSocketAddress host() {
       return this.httpHeaders.getHost();
@@ -389,6 +390,7 @@ class DefaultServerRequest implements ServerRequest {
 
     private final RequestContext context;
 
+    @SuppressWarnings("NullAway")
     protected CheckNotModifiedResponse(RequestContext context) {
       super(null, null);
       this.context = context;

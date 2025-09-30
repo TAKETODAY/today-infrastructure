@@ -73,7 +73,7 @@ public class Compression {
     return this.excludedUserAgents;
   }
 
-  public void setExcludedUserAgents(@Nullable String[] excludedUserAgents) {
+  public void setExcludedUserAgents(String @Nullable [] excludedUserAgents) {
     this.excludedUserAgents = excludedUserAgents;
   }
 

@@ -381,6 +381,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
    * <li>{@link MediaType#ALL}
    * </ul>
    */
+  @SuppressWarnings("NullAway")
   protected Collection<MediaType> getProducibleMediaTypes(RequestContext request, Class<?> valueClass, @Nullable Type targetType) {
     HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
     if (matchingMetadata != null) {

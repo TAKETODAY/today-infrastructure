@@ -85,6 +85,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   @Nullable
   private ParameterResolvingRegistry resolvingRegistry;
 
+  @SuppressWarnings("NullAway.Init")
   private ResolvableParameterFactory parameterFactory;
 
   private ParameterNameDiscoverer parameterNameDiscoverer = ParameterNameDiscoverer.getSharedInstance();
@@ -385,6 +386,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
    *
    * @return a new array with updated patterns
    */
+  @SuppressWarnings("NullAway")
   protected String[] resolveEmbeddedValuesInPatterns(String[] patterns) {
     StringValueResolver embeddedValueResolver = this.embeddedValueResolver;
     if (embeddedValueResolver == null) {

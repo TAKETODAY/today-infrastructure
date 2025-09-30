@@ -98,7 +98,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
    * @param headers expressions with syntax defined by {@link RequestMapping#headers()}
    * @param manager used to determine requested media types
    */
-  public ProducesRequestCondition(String[] produces, @Nullable String[] headers, @Nullable ContentNegotiationManager manager) {
+  public ProducesRequestCondition(String[] produces, String @Nullable [] headers, @Nullable ContentNegotiationManager manager) {
     var expressions = MediaTypeExpression.parse(HttpHeaders.ACCEPT, produces, headers);
     if (expressions != null) {
       Collections.sort(expressions);

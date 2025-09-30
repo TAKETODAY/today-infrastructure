@@ -155,8 +155,9 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
 
   private HttpServer createHttpServer() {
     HttpServer server = HttpServer.create().bindAddress(this::getListenAddress);
-    if (Ssl.isEnabled(getSsl())) {
-      server = customizeSslConfiguration(getSsl(), server);
+    Ssl ssl = getSsl();
+    if (Ssl.isEnabled(ssl)) {
+      server = customizeSslConfiguration(ssl, server);
     }
     if (Compression.isEnabled(getCompression())) {
       server = new CompressionCustomizer(getCompression()).apply(server);

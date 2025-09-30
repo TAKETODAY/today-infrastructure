@@ -84,6 +84,7 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
     this.messageConverters.add(new AllEncompassingFormHttpMessageConverter());
   }
 
+  @SuppressWarnings("NullAway")
   public ParameterResolvingRegistry(List<HttpMessageConverter<?>> messageConverters) {
     setMessageConverters(messageConverters);
   }

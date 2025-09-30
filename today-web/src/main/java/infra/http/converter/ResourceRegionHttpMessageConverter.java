@@ -160,6 +160,7 @@ public class ResourceRegionHttpMessageConverter extends AbstractGenericHttpMessa
     }
   }
 
+  @SuppressWarnings("NullAway")
   private void writeResourceRegionCollection(Collection<ResourceRegion> resourceRegions, HttpOutputMessage outputMessage) throws IOException {
     Assert.notNull(resourceRegions, "Collection of ResourceRegion should not be null");
     HttpHeaders responseHeaders = outputMessage.getHeaders();

@@ -280,6 +280,7 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
    *
    * @return the Method
    */
+  @SuppressWarnings("NullAway")
   public Method getMethod() {
     return parameter.getMethod();
   }

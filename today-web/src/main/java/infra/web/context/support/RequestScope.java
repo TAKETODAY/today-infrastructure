@@ -41,6 +41,7 @@ public class RequestScope extends AbstractRequestContextScope<RequestContext> {
     return doGetBean(context, beanName, objectFactory);
   }
 
+  @Nullable
   @Override
   public Object remove(String name) {
     RequestContext context = RequestContextHolder.getRequired();
@@ -52,6 +53,7 @@ public class RequestScope extends AbstractRequestContextScope<RequestContext> {
     context.setAttribute(beanName, scopedObject);
   }
 
+  @Nullable
   @Override
   protected Object getAttribute(RequestContext context, String beanName) {
     return context.getAttribute(beanName);

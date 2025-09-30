@@ -50,11 +50,9 @@ public final class MappedInterceptor implements HandlerInterceptor {
 
   private static final PathMatcher defaultPathMatcher = new AntPathMatcher();
 
-  @Nullable
-  private final CompiledPattern[] includePatterns;
+  private final CompiledPattern @Nullable [] includePatterns;
 
-  @Nullable
-  private final CompiledPattern[] excludePatterns;
+  private final CompiledPattern @Nullable [] excludePatterns;
 
   private final HandlerInterceptor interceptor;
 
@@ -71,7 +69,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
    * @param parser a parser to use to pre-parse patterns into {@link PathPattern};
    * when not provided, {@link PathPatternParser#defaultInstance} is used.
    */
-  public MappedInterceptor(@Nullable String[] includePatterns, @Nullable String[] excludePatterns,
+  public MappedInterceptor(String @Nullable [] includePatterns, String @Nullable [] excludePatterns,
           HandlerInterceptor interceptor, @Nullable PathPatternParser parser) {
 
     this.includePatterns = CompiledPattern.initPatterns(includePatterns, parser);
@@ -84,7 +82,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
    * {@link #MappedInterceptor(String[], String[], HandlerInterceptor, PathPatternParser)}
    * with include patterns only.
    */
-  public MappedInterceptor(@Nullable String[] includePatterns, HandlerInterceptor interceptor) {
+  public MappedInterceptor(String @Nullable [] includePatterns, HandlerInterceptor interceptor) {
     this(includePatterns, null, interceptor);
   }
 
@@ -93,7 +91,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
    * {@link #MappedInterceptor(String[], String[], HandlerInterceptor, PathPatternParser)}
    * without a provided parser.
    */
-  public MappedInterceptor(@Nullable String[] includePatterns, @Nullable String[] excludePatterns,
+  public MappedInterceptor(String @Nullable [] includePatterns, String @Nullable [] excludePatterns,
           HandlerInterceptor interceptor) {
 
     this(includePatterns, excludePatterns, interceptor, null);
@@ -242,8 +240,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
       }
     }
 
-    @Nullable
-    public static CompiledPattern[] initPatterns(@Nullable String[] patterns, @Nullable PathPatternParser parser) {
+    public static CompiledPattern @Nullable [] initPatterns(String @Nullable [] patterns, @Nullable PathPatternParser parser) {
       if (ObjectUtils.isEmpty(patterns)) {
         return null;
       }

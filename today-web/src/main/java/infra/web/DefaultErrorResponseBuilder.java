@@ -51,8 +51,7 @@ final class DefaultErrorResponseBuilder implements ErrorResponse.Builder {
 
   private String detailMessageCode;
 
-  @Nullable
-  private Object[] detailMessageArguments;
+  private Object @Nullable [] detailMessageArguments;
 
   DefaultErrorResponseBuilder(Throwable ex, ProblemDetail problemDetail) {
     Assert.notNull(ex, "Throwable is required");
@@ -134,7 +133,7 @@ final class DefaultErrorResponseBuilder implements ErrorResponse.Builder {
   }
 
   @Override
-  public ErrorResponse.Builder detailMessageArguments(Object... messageArguments) {
+  public ErrorResponse.Builder detailMessageArguments(Object @Nullable ... messageArguments) {
     this.detailMessageArguments = messageArguments;
     return this;
   }
@@ -172,12 +171,11 @@ final class DefaultErrorResponseBuilder implements ErrorResponse.Builder {
 
     private final String detailMessageCode;
 
-    @Nullable
-    private final Object[] detailMessageArguments;
+    private final Object @Nullable [] detailMessageArguments;
 
     SimpleErrorResponse(Throwable ex, HttpStatusCode statusCode, @Nullable HttpHeaders headers,
             ProblemDetail problemDetail, String typeMessageCode, String titleMessageCode, String detailMessageCode,
-            @Nullable Object[] detailMessageArguments) {
+            Object @Nullable [] detailMessageArguments) {
 
       this.exception = ex;
       this.statusCode = statusCode;
@@ -220,8 +218,7 @@ final class DefaultErrorResponseBuilder implements ErrorResponse.Builder {
     }
 
     @Override
-    @Nullable
-    public Object[] getDetailMessageArguments() {
+    public Object @Nullable [] getDetailMessageArguments() {
       return this.detailMessageArguments;
     }
 

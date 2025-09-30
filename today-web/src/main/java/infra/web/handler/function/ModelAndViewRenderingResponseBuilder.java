@@ -135,6 +135,7 @@ final class ModelAndViewRenderingResponseBuilder implements RenderingResponse.Vi
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public String name() {
       return modelAndView.getViewName();
     }

@@ -353,6 +353,7 @@ public class ViewControllerRegistry extends ApplicationObjectSupport {
   }
 
   /** @since 3.0.3 */
+  @SuppressWarnings("NullAway")
   protected String resolveEmbeddedVariables(String expression) {
     return embeddedValueResolver.resolveStringValue(expression);
   }

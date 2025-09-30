@@ -74,6 +74,7 @@ public interface WebServerApplicationContext extends ApplicationContext {
    * @return the server namespace or {@code null} if the context is not a
    * {@link WebServerApplicationContext}
    */
+  @Nullable
   static String getServerNamespace(ApplicationContext context) {
     return (context instanceof WebServerApplicationContext serverCtx)
             ? serverCtx.getServerNamespace() : null;

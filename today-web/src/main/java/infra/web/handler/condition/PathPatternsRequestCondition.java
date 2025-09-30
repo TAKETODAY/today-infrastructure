@@ -193,8 +193,7 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
     return matches != null ? new PathPatternsRequestCondition(matches) : null;
   }
 
-  @Nullable
-  private PathPattern[] getMatchingPatterns(PathContainer lookupPath) {
+  private PathPattern @Nullable [] getMatchingPatterns(PathContainer lookupPath) {
     PathPattern[] pathPatterns = new PathPattern[patterns.length];
     int i = 0;
     for (PathPattern pattern : patterns) {
@@ -231,6 +230,7 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
    * the best matches on top.
    */
   @Override
+  @SuppressWarnings("NullAway")
   public int compareTo(PathPatternsRequestCondition other, RequestContext request) {
     var iterator = new ArrayIterator<>(patterns);
     var iteratorOther = new ArrayIterator<>(other.patterns);

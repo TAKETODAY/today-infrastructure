@@ -60,6 +60,7 @@ import infra.util.StringUtils;
  * @see ManagedOperation
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public class AnnotationJmxAttributeSource implements JmxAttributeSource, BeanFactoryAware {
 
   @Nullable

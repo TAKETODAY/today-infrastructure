@@ -58,7 +58,7 @@ public class MissingRequestValueException extends RequestBindingException {
    * @since 5.0
    */
   protected MissingRequestValueException(String msg, boolean missingAfterConversion,
-          @Nullable String messageDetailCode, @Nullable Object[] messageDetailArguments) {
+          @Nullable String messageDetailCode, Object @Nullable [] messageDetailArguments) {
 
     super(msg, messageDetailCode, messageDetailArguments);
     this.missingAfterConversion = missingAfterConversion;

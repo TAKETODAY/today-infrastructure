@@ -101,6 +101,7 @@ public class DispatcherHandler extends InfraHandler {
    * @see #initApplicationContext
    * @see #configureAndRefreshApplicationContext
    */
+  @SuppressWarnings("NullAway")
   public DispatcherHandler(ApplicationContext context) {
     super(context);
   }
@@ -317,6 +318,7 @@ public class DispatcherHandler extends InfraHandler {
    *
    * @see SimpleNotFoundHandler
    */
+  @SuppressWarnings("NullAway")
   private void initNotFoundHandler(ApplicationContext context) {
     if (notFoundHandler == null) {
       notFoundHandler = BeanFactoryUtils.find(context, NotFoundHandler.class);
@@ -332,6 +334,7 @@ public class DispatcherHandler extends InfraHandler {
    *
    * @see WebAsyncManagerFactory
    */
+  @SuppressWarnings("NullAway")
   private void initWebAsyncManagerFactory(ApplicationContext context) {
     if (webAsyncManagerFactory == null) {
       setWebAsyncManagerFactory(WebAsyncManagerFactory.find(context));

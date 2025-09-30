@@ -173,7 +173,7 @@ public class ReactorNettyWebServer implements WebServer {
     return server.bindNow();
   }
 
-  private boolean isPermissionDenied(Throwable bindExceptionCause) {
+  private boolean isPermissionDenied(@Nullable Throwable bindExceptionCause) {
     try {
       if (bindExceptionCause instanceof NativeIoException e) {
         return e.expectedErr() == ERROR_NO_EACCES;
