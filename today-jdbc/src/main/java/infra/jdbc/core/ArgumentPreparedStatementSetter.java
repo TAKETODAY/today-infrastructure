@@ -30,15 +30,14 @@ import java.sql.SQLException;
  */
 public class ArgumentPreparedStatementSetter implements PreparedStatementSetter, ParameterDisposer {
 
-  @Nullable
-  private final Object[] args;
+  private final Object @Nullable [] args;
 
   /**
    * Create a new ArgPreparedStatementSetter for the given arguments.
    *
    * @param args the arguments to set
    */
-  public ArgumentPreparedStatementSetter(@Nullable Object[] args) {
+  public ArgumentPreparedStatementSetter(Object @Nullable [] args) {
     this.args = args;
   }
 

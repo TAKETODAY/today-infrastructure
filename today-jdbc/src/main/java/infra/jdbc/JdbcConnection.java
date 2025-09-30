@@ -337,6 +337,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   // Closeable
 
   @Override
+  @SuppressWarnings("NullAway")
   public void close() {
     boolean connectionIsClosed;
     try {
@@ -389,6 +390,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     this.root = DataSourceUtils.getConnection(dataSource);
   }
 
+  @SuppressWarnings("NullAway")
   private void closeConnection() {
     if (transaction != null || DataSourceUtils.isConnectionTransactional(root, dataSource)) {
       DataSourceUtils.releaseConnection(root, dataSource);
@@ -425,6 +427,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     this.rollbackOnClose = rollbackOnClose;
   }
 
+  @SuppressWarnings("NullAway")
   public Connection getJdbcConnection() {
     return root;
   }

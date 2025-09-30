@@ -17,6 +17,8 @@
 
 package infra.transaction.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.AnnotatedElement;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -48,6 +50,7 @@ class TransactionBeanRegistrationAotProcessor implements BeanRegistrationAotProc
 
   private static final String JAKARTA_TRANSACTIONAL_CLASS_NAME = "jakarta.transaction.Transactional";
 
+  @Nullable
   @Override
   public BeanRegistrationAotContribution processAheadOfTime(RegisteredBean registeredBean) {
     Class<?> beanClass = registeredBean.getBeanClass();

@@ -180,7 +180,7 @@ public class MapSqlParameterSource extends AbstractSqlParameterSource {
   }
 
   @Override
-  public String[] getParameterNames() {
+  public String @Nullable [] getParameterNames() {
     return StringUtils.toStringArray(this.values.keySet());
   }
 

@@ -304,7 +304,8 @@ public abstract class AopUtils {
    * @throws Throwable if thrown by the target method
    * @throws AopInvocationException in case of a reflection error
    */
-  public static Object invokeJoinpointUsingReflection(@Nullable Object target, Method method, Object[] args)
+  @Nullable
+  public static Object invokeJoinpointUsingReflection(@Nullable Object target, Method method, @Nullable Object[] args)
           throws Throwable {
 
     // Use reflection to invoke the method.

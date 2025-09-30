@@ -81,7 +81,8 @@ public class SingleConnectionDataSource extends DriverManagerDataSource
   /**
    * Constructor for bean-style configuration.
    */
-  public SingleConnectionDataSource() { }
+  public SingleConnectionDataSource() {
+  }
 
   /**
    * Create a new SingleConnectionDataSource with the given standard
@@ -180,6 +181,7 @@ public class SingleConnectionDataSource extends DriverManagerDataSource
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public Connection getConnection() throws SQLException {
     this.connectionLock.lock();
     try {

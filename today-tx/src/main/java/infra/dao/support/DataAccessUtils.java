@@ -238,6 +238,7 @@ public abstract class DataAccessUtils {
    * has been found in the given Collection
    * @see CollectionUtils#hasUniqueObject
    */
+  @SuppressWarnings("NullAway")
   public static <T> T requiredUniqueResult(@Nullable Collection<T> results) throws IncorrectResultSizeDataAccessException {
     if (CollectionUtils.isEmpty(results)) {
       throw new EmptyResultDataAccessException(1);
@@ -287,8 +288,8 @@ public abstract class DataAccessUtils {
       }
       else {
         throw new TypeMismatchDataAccessException(
-                "Result object is of type [" + result.getClass().getName() +
-                        "] and could not be converted to required type [" + requiredType.getName() + "]");
+                "Result object is of type [%s] and could not be converted to required type [%s]"
+                        .formatted(result.getClass().getName(), requiredType.getName()));
       }
     }
     return (T) result;

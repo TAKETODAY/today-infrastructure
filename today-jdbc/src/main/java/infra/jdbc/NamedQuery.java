@@ -132,11 +132,11 @@ public final class NamedQuery extends AbstractQuery {
     this(connection, queryText, generatedKeys, null);
   }
 
-  public NamedQuery(JdbcConnection connection, String queryText, @Nullable String[] columnNames) {
+  public NamedQuery(JdbcConnection connection, String queryText, String @Nullable [] columnNames) {
     this(connection, queryText, false, columnNames);
   }
 
-  private NamedQuery(JdbcConnection connection, String queryText, boolean generatedKeys, @Nullable String[] columnNames) {
+  private NamedQuery(JdbcConnection connection, String queryText, boolean generatedKeys, String @Nullable [] columnNames) {
     super(connection, queryText, generatedKeys, columnNames);
     RepositoryManager manager = connection.getManager();
     setColumnMappings(manager.getDefaultColumnMappings());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +15,8 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package infra.aop.interceptor;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 
@@ -40,6 +42,6 @@ public interface AsyncUncaughtExceptionHandler {
    * @param method the asynchronous method
    * @param params the parameters used to invoked the method
    */
-  void handleUncaughtException(Throwable ex, Method method, Object... params);
+  void handleUncaughtException(Throwable ex, Method method, @Nullable Object... params);
 
 }

@@ -53,6 +53,7 @@ public class UncategorizedSQLException extends UncategorizedDataAccessException 
   /**
    * Return the underlying SQLException.
    */
+  @SuppressWarnings("NullAway")
   public SQLException getSQLException() {
     return (SQLException) getCause();
   }

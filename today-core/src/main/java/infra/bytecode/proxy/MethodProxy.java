@@ -155,7 +155,7 @@ public final class MethodProxy {
    * without wrapping in an <code>InvocationTargetException</code>
    * @see MethodInterceptor#intercept
    */
-  public Object invoke(Object obj, Object[] args) throws Throwable {
+  public Object invoke(@Nullable Object obj, @Nullable Object[] args) throws Throwable {
     try {
       FastClassInfo fci = init();
       return fci.f1.invoke(fci.i1, obj, args);

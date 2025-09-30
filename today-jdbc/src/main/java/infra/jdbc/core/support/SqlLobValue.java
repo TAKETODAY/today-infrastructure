@@ -89,7 +89,7 @@ public class SqlLobValue implements DisposableSqlTypeValue {
    * @param bytes the byte array containing the BLOB value
    * @see DefaultLobHandler
    */
-  public SqlLobValue(@Nullable byte[] bytes) {
+  public SqlLobValue(byte @Nullable [] bytes) {
     this(bytes, new DefaultLobHandler());
   }
 
@@ -99,7 +99,7 @@ public class SqlLobValue implements DisposableSqlTypeValue {
    * @param bytes the byte array containing the BLOB value
    * @param lobHandler the LobHandler to be used
    */
-  public SqlLobValue(@Nullable byte[] bytes, LobHandler lobHandler) {
+  public SqlLobValue(byte @Nullable [] bytes, LobHandler lobHandler) {
     this.content = bytes;
     this.length = (bytes != null ? bytes.length : 0);
     this.lobCreator = lobHandler.getLobCreator();

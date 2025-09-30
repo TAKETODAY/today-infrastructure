@@ -343,6 +343,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
    */
   @Nullable
   @Override
+  @SuppressWarnings("NullAway")
   public final Object getHandler(final RequestContext request) throws Exception {
     Comparable<?> version = null;
     if (this.apiVersionStrategy != null) {
@@ -465,8 +466,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
             ? null : interceptors.toArray(new HandlerInterceptor[interceptors.size()]));
   }
 
-  @Nullable
-  protected HandlerInterceptor[] getHandlerInterceptors(Object handler) {
+  protected HandlerInterceptor @Nullable [] getHandlerInterceptors(Object handler) {
     return null;
   }
 

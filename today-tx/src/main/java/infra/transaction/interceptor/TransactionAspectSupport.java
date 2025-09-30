@@ -88,6 +88,7 @@ import reactor.core.publisher.Mono;
  * @see #setTransactionAttributeSource
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public abstract class TransactionAspectSupport implements BeanFactoryAware, InitializingBean {
 
   // NOTE: This class must not implement Serializable because it serves as base

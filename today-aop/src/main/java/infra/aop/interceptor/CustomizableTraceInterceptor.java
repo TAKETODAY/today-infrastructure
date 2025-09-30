@@ -301,6 +301,7 @@ public class CustomizableTraceInterceptor extends AbstractTraceInterceptor {
    * {@code $[invocationTime]} placeholder
    * @return the formatted output to write to the log
    */
+  @SuppressWarnings("NullAway")
   protected String replacePlaceholders(String message, MethodInvocation methodInvocation,
           @Nullable Object returnValue, @Nullable Throwable throwable, long invocationTime) {
 

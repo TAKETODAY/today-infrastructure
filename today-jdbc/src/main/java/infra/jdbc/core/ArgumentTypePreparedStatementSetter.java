@@ -35,11 +35,9 @@ import infra.dao.InvalidDataAccessApiUsageException;
  */
 public class ArgumentTypePreparedStatementSetter implements PreparedStatementSetter, ParameterDisposer {
 
-  @Nullable
-  private final Object[] args;
+  private final Object @Nullable [] args;
 
-  @Nullable
-  private final int[] argTypes;
+  private final int @Nullable [] argTypes;
 
   /**
    * Create a new ArgTypePreparedStatementSetter for the given arguments.
@@ -47,7 +45,7 @@ public class ArgumentTypePreparedStatementSetter implements PreparedStatementSet
    * @param args the arguments to set
    * @param argTypes the corresponding SQL types of the arguments
    */
-  public ArgumentTypePreparedStatementSetter(@Nullable Object[] args, @Nullable int[] argTypes) {
+  public ArgumentTypePreparedStatementSetter(Object @Nullable [] args, int @Nullable [] argTypes) {
     if ((args != null && argTypes == null) || (args == null && argTypes != null) ||
             (args != null && args.length != argTypes.length)) {
       throw new InvalidDataAccessApiUsageException("args and argTypes parameters must match");
@@ -62,8 +60,7 @@ public class ArgumentTypePreparedStatementSetter implements PreparedStatementSet
     if (this.args != null && this.argTypes != null) {
       for (int i = 0; i < this.args.length; i++) {
         Object arg = this.args[i];
-        if (arg instanceof Collection && this.argTypes[i] != Types.ARRAY) {
-          Collection<?> entries = (Collection<?>) arg;
+        if (arg instanceof Collection<?> entries && this.argTypes[i] != Types.ARRAY) {
           for (Object entry : entries) {
             if (entry instanceof Object[] valueArray) {
               for (Object argValue : valueArray) {

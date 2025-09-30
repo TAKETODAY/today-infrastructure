@@ -32,11 +32,11 @@ public class TransactionSystemException extends TransactionException {
   @Nullable
   private Throwable applicationException;
 
-  public TransactionSystemException(String msg) {
+  public TransactionSystemException(@Nullable String msg) {
     super(msg);
   }
 
-  public TransactionSystemException(String msg, Throwable cause) {
+  public TransactionSystemException(@Nullable String msg, @Nullable Throwable cause) {
     super(msg, cause);
   }
 
@@ -75,6 +75,7 @@ public class TransactionSystemException extends TransactionException {
    *
    * @return the original exception, or {@code null} if there was none
    */
+  @Nullable
   public Throwable getOriginalException() {
     return (this.applicationException != null ? this.applicationException : getCause());
   }

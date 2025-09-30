@@ -497,7 +497,7 @@ public abstract class StatementCreatorUtils {
    * @see DisposableSqlTypeValue#cleanup()
    * @see SqlLobValue#cleanup()
    */
-  public static void cleanupParameters(@Nullable Object... paramValues) {
+  public static void cleanupParameters(Object @Nullable ... paramValues) {
     if (paramValues != null) {
       cleanupParameters(Arrays.asList(paramValues));
     }
@@ -511,6 +511,7 @@ public abstract class StatementCreatorUtils {
    * @see DisposableSqlTypeValue#cleanup()
    * @see SqlLobValue#cleanup()
    */
+  @SuppressWarnings("NullAway")
   public static void cleanupParameters(@Nullable Collection<?> paramValues) {
     if (paramValues != null) {
       for (Object inValue : paramValues) {

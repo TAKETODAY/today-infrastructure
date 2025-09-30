@@ -204,6 +204,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
    * Used internally by CGLIB. Returns the <code>AbstractClassGenerator</code>
    * that is being used to generate a class in the current thread.
    */
+  @Nullable
   public static AbstractClassGenerator getCurrent() {
     return CURRENT.get();
   }

@@ -89,12 +89,13 @@ import oracle.ucp.jdbc.PoolDataSourceImpl;
  * @see #derivedFrom(DataSource)
  * @since 4.0 2022/2/23 17:22
  */
+@SuppressWarnings("NullAway")
 public final class DataSourceBuilder<T extends DataSource> {
 
   @Nullable
   private final ClassLoader classLoader;
 
-  private final Map<DataSourceProperty, String> values = new HashMap<>();
+  private final Map<DataSourceProperty, @Nullable String> values = new HashMap<>();
 
   @Nullable
   private Class<T> type;
@@ -108,7 +109,7 @@ public final class DataSourceBuilder<T extends DataSource> {
   }
 
   @SuppressWarnings("unchecked")
-  private DataSourceBuilder(T deriveFrom) {
+  private DataSourceBuilder(@Nullable T deriveFrom) {
     Assert.notNull(deriveFrom, "DataSource is required");
     this.classLoader = deriveFrom.getClass().getClassLoader();
     this.type = (Class<T>) deriveFrom.getClass();
@@ -520,7 +521,8 @@ public final class DataSourceBuilder<T extends DataSource> {
       throw new IllegalStateException("Unsupported value type " + this.type);
     }
 
-    private String convertToString(V value) {
+    @Nullable
+    private String convertToString(@Nullable V value) {
       if (value == null) {
         return null;
       }

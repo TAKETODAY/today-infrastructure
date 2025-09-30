@@ -321,7 +321,7 @@ public class NamedParameterJdbcTemplate implements NamedParameterJdbcOperations 
 
   @Override
   public int update(String sql, SqlParameterSource paramSource,
-          KeyHolder generatedKeyHolder, @Nullable String[] keyColumnNames) throws DataAccessException {
+          KeyHolder generatedKeyHolder, String @Nullable [] keyColumnNames) throws DataAccessException {
 
     PreparedStatementCreator psc = getPreparedStatementCreator(sql, paramSource, pscf -> {
       if (keyColumnNames != null) {
@@ -371,7 +371,7 @@ public class NamedParameterJdbcTemplate implements NamedParameterJdbcOperations 
 
   @Override
   public int[] batchUpdate(String sql, SqlParameterSource[] batchArgs,
-          KeyHolder generatedKeyHolder, @Nullable String[] keyColumnNames) {
+          KeyHolder generatedKeyHolder, String @Nullable [] keyColumnNames) {
 
     if (ObjectUtils.isEmpty(batchArgs)) {
       return new int[0];

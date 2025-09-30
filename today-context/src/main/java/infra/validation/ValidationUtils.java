@@ -71,7 +71,7 @@ public abstract class ValidationUtils {
    * {@link Validator#supports(Class) support} the validation of the supplied object's type
    */
   public static void invokeValidator(Validator validator,
-          Object target, Errors errors, @Nullable Object... validationHints) {
+          Object target, Errors errors, Object @Nullable ... validationHints) {
 
     Assert.notNull(validator, "Validator is required");
     Assert.notNull(target, "Target object is required");
@@ -172,7 +172,7 @@ public abstract class ValidationUtils {
    * @param defaultMessage fallback default message
    */
   public static void rejectIfEmpty(Errors errors, String field,
-          String errorCode, @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
+          String errorCode, Object @Nullable [] errorArgs, @Nullable String defaultMessage) {
 
     Assert.notNull(errors, "Errors object is required");
     Object value = errors.getFieldValue(field);
@@ -212,9 +212,7 @@ public abstract class ValidationUtils {
    * @param errorCode the error code, interpretable as message key
    * @param defaultMessage fallback default message
    */
-  public static void rejectIfEmptyOrWhitespace(
-          Errors errors, String field, String errorCode, String defaultMessage) {
-
+  public static void rejectIfEmptyOrWhitespace(Errors errors, String field, String errorCode, String defaultMessage) {
     rejectIfEmptyOrWhitespace(errors, field, errorCode, null, defaultMessage);
   }
 
@@ -233,9 +231,7 @@ public abstract class ValidationUtils {
    * @param errorArgs the error arguments, for argument binding via MessageFormat
    * (can be {@code null})
    */
-  public static void rejectIfEmptyOrWhitespace(
-          Errors errors, String field, String errorCode, @Nullable Object[] errorArgs) {
-
+  public static void rejectIfEmptyOrWhitespace(Errors errors, String field, String errorCode, Object @Nullable [] errorArgs) {
     rejectIfEmptyOrWhitespace(errors, field, errorCode, errorArgs, null);
   }
 
@@ -256,7 +252,7 @@ public abstract class ValidationUtils {
    * @param defaultMessage fallback default message
    */
   public static void rejectIfEmptyOrWhitespace(Errors errors, String field,
-          String errorCode, @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
+          String errorCode, Object @Nullable [] errorArgs, @Nullable String defaultMessage) {
 
     Assert.notNull(errors, "Errors object is required");
     Object value = errors.getFieldValue(field);

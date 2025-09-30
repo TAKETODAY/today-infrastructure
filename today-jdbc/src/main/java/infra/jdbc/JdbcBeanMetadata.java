@@ -93,6 +93,7 @@ public class JdbcBeanMetadata {
     return null;
   }
 
+  @Nullable
   private BeanProperty getProperty(String propertyName) {
     HashMap<String, BeanProperty> beanProperties = this.beanProperties;
     if (beanProperties == null) {

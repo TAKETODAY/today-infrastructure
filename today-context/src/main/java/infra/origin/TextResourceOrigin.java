@@ -71,6 +71,7 @@ public class TextResourceOrigin implements Origin {
     return this.location;
   }
 
+  @Nullable
   @Override
   public Origin getParent() {
     return Origin.from(this.resource);

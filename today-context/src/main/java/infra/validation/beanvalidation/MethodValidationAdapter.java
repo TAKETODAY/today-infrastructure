@@ -221,7 +221,7 @@ public class MethodValidationAdapter implements MethodValidator {
 
   @Override
   public final MethodValidationResult validateArguments(Object target, Method method,
-          @Nullable MethodParameter[] parameters, Object[] arguments, Class<?>[] groups) {
+          MethodParameter @Nullable [] parameters, @Nullable Object[] arguments, Class<?>[] groups) {
 
     Set<ConstraintViolation<Object>> violations =
             invokeValidatorForArguments(target, method, arguments, groups);
@@ -239,7 +239,7 @@ public class MethodValidationAdapter implements MethodValidator {
    * Invoke the validator, and return the resulting violations.
    */
   public final Set<ConstraintViolation<Object>> invokeValidatorForArguments(
-          Object target, Method method, Object[] arguments, Class<?>[] groups) {
+          Object target, Method method, @Nullable Object[] arguments, Class<?>[] groups) {
 
     ExecutableValidator execVal = validator.forExecutables();
     Set<ConstraintViolation<Object>> violations;
@@ -281,7 +281,7 @@ public class MethodValidationAdapter implements MethodValidator {
   }
 
   private MethodValidationResult adaptViolations(Object target, Method method, Set<ConstraintViolation<Object>> violations,
-          Function<Integer, MethodParameter> parameterFunction, Function<Integer, Object> argumentFunction) {
+          Function<Integer, MethodParameter> parameterFunction, Function<Integer, @Nullable Object> argumentFunction) {
 
     Map<Path.Node, ParamValidationResultBuilder> paramViolations = new LinkedHashMap<>();
     Map<Path.Node, ParamErrorsBuilder> nestedViolations = new LinkedHashMap<>();

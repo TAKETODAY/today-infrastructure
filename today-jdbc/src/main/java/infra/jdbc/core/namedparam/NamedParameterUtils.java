@@ -354,9 +354,8 @@ public abstract class NamedParameterUtils {
    * be built into the value array in the form of SqlParameterValue objects.
    * @return the array of values
    */
-  public static Object[] buildValueArray(
-          ParsedSql parsedSql, SqlParameterSource paramSource, @Nullable List<SqlParameter> declaredParams) {
-
+  @SuppressWarnings("NullAway")
+  public static Object[] buildValueArray(ParsedSql parsedSql, SqlParameterSource paramSource, @Nullable List<SqlParameter> declaredParams) {
     Object[] paramArray = new Object[parsedSql.getTotalParameterCount()];
     if (parsedSql.getNamedParameterCount() > 0 && parsedSql.getUnnamedParameterCount() > 0) {
       throw new InvalidDataAccessApiUsageException(
@@ -513,6 +512,7 @@ public abstract class NamedParameterUtils {
     return buildValueArray(parsedSql, new MapSqlParameterSource(paramMap), null);
   }
 
-  private record ParameterHolder(String parameterName, int startIndex, int endIndex) { }
+  private record ParameterHolder(String parameterName, int startIndex, int endIndex) {
+  }
 
 }

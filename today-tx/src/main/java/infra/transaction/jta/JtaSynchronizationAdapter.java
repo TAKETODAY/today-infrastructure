@@ -80,7 +80,7 @@ public class JtaSynchronizationAdapter implements Synchronization {
    * in such a scenario, which is required by the JTA specification as of JTA 1.1).
    */
   public JtaSynchronizationAdapter(TransactionSynchronization frameworkSynchronization,
-                                   @Nullable UserTransaction jtaUserTransaction) {
+          @Nullable UserTransaction jtaUserTransaction) {
 
     this(frameworkSynchronization);
     this.jtaTransaction = jtaUserTransaction;
@@ -100,9 +100,7 @@ public class JtaSynchronizationAdapter implements Synchronization {
    * (can be omitted if the JTA provider itself marks the transaction rollback-only
    * in such a scenario, which is required by the JTA specification as of JTA 1.1)
    */
-  public JtaSynchronizationAdapter(
-          TransactionSynchronization frameworkSynchronization, @Nullable TransactionManager jtaTransactionManager) {
-
+  public JtaSynchronizationAdapter(TransactionSynchronization frameworkSynchronization, @Nullable TransactionManager jtaTransactionManager) {
     this(frameworkSynchronization);
     this.jtaTransaction = new UserTransactionAdapter(jtaTransactionManager);
   }

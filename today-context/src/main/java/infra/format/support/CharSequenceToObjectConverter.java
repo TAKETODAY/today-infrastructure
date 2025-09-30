@@ -102,7 +102,7 @@ class CharSequenceToObjectConverter implements ConditionalGenericConverter {
   @Nullable
   @Override
   public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
-    return this.conversionService.convert(source.toString(), STRING, targetType);
+    return this.conversionService.convert(source != null ? source.toString() : null, STRING, targetType);
   }
 
 }

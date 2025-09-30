@@ -374,7 +374,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
       bindingResult = directFieldAccess ? createDirectFieldBindingResult() : createBeanPropertyBindingResult();
       this.bindingResult = bindingResult;
     }
-    return this.bindingResult;
+    return bindingResult;
   }
 
   /**
@@ -921,6 +921,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private Object createObject(ResolvableType objectType, String nestedPath, ValueResolver valueResolver) {
     Class<?> clazz = objectType.resolve();
     boolean isOptional = (clazz == Optional.class);
@@ -1318,6 +1319,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * @see #getBindingErrorProcessor
    * @see BindingErrorProcessor#processMissingFieldError
    */
+  @SuppressWarnings("NullAway")
   protected void checkRequiredFields(PropertyValues mpvs) {
     String[] requiredFields = getRequiredFields();
     if (ObjectUtils.isNotEmpty(requiredFields)) {

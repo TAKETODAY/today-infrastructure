@@ -138,6 +138,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
    * @since 4.0
    */
   @Nullable
+  @SuppressWarnings("NullAway")
   protected Object lookupHandler(RequestContext request) {
     PathContainer lookupPath = request.getRequestPath();
 

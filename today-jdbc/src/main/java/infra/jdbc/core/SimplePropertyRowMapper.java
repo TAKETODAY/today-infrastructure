@@ -117,8 +117,8 @@ public class SimplePropertyRowMapper<T> implements RowMapper<T> {
     this.mappedConstructor = BeanUtils.obtainConstructor(mappedClass);
     int paramCount = this.mappedConstructor.getParameterCount();
     this.constructorParameterNames = paramCount > 0
-                                     ? BeanUtils.getParameterNames(this.mappedConstructor)
-                                     : Constant.EMPTY_STRING_ARRAY;
+            ? BeanUtils.getParameterNames(this.mappedConstructor)
+            : Constant.EMPTY_STRING_ARRAY;
     this.constructorParameterTypes = new TypeDescriptor[paramCount];
     for (int i = 0; i < paramCount; i++) {
       this.constructorParameterTypes[i] = new TypeDescriptor(new MethodParameter(this.mappedConstructor, i));
@@ -126,6 +126,7 @@ public class SimplePropertyRowMapper<T> implements RowMapper<T> {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public T mapRow(ResultSet rs, int rowNumber) throws SQLException {
     Object[] args = new Object[this.constructorParameterNames.length];
     Set<Integer> usedIndex = new HashSet<>();

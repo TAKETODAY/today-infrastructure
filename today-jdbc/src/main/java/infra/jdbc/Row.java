@@ -29,11 +29,15 @@ import infra.core.conversion.ConversionService;
 /**
  * Represents a result set row.
  */
+@SuppressWarnings("NullAway")
 public final class Row {
 
   private final Object[] values;
+
   private final boolean isCaseSensitive;
+
   private final ConversionService conversionService;
+
   private final Map<String, Integer> columnNameToIdxMap;
 
   public Row(Map<String, Integer> columnNameToIdxMap,

@@ -54,10 +54,9 @@ public class DataClassRowMapper<T> extends BeanPropertyRowMapper<T> {
   @Nullable
   private BeanInstantiator mappedInstantiator;
 
-  private String @Nullable []constructorParameterNames;
+  private String @Nullable [] constructorParameterNames;
 
-  @Nullable
-  private TypeDescriptor[] constructorParameterTypes;
+  private TypeDescriptor @Nullable [] constructorParameterTypes;
 
   /**
    * Create a new {@code DataClassRowMapper} for bean-style configuration.
@@ -65,7 +64,8 @@ public class DataClassRowMapper<T> extends BeanPropertyRowMapper<T> {
    * @see #setMappedClass
    * @see #setConversionService
    */
-  public DataClassRowMapper() { }
+  public DataClassRowMapper() {
+  }
 
   /**
    * Create a new {@code DataClassRowMapper}.
@@ -103,6 +103,7 @@ public class DataClassRowMapper<T> extends BeanPropertyRowMapper<T> {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   protected T constructMappedInstance(ResultSet rs, TypeConverter converter) throws SQLException {
     BeanInstantiator mappedConstructor = this.mappedInstantiator;
     Assert.state(mappedConstructor != null, "Mapped constructor was not initialized");

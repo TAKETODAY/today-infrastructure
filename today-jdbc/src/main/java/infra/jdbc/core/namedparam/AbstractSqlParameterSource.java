@@ -101,6 +101,7 @@ public abstract class AbstractSqlParameterSource implements SqlParameterSource {
    * @see #getParameterNames()
    */
   @Override
+  @SuppressWarnings({ "NullAway" })
   public String toString() {
     String[] parameterNames = getParameterNames();
     if (parameterNames != null) {

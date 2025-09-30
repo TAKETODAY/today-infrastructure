@@ -45,7 +45,7 @@ import infra.util.StringUtils;
  */
 public class BeanPropertySqlParameterSource extends AbstractSqlParameterSource {
 
-  private String @Nullable []propertyNames;
+  private String @Nullable [] propertyNames;
 
   private final BeanWrapper beanWrapper;
 
@@ -90,7 +90,7 @@ public class BeanPropertySqlParameterSource extends AbstractSqlParameterSource {
   }
 
   @Override
-  public String[] getParameterNames() {
+  public String @Nullable [] getParameterNames() {
     return getReadablePropertyNames();
   }
 

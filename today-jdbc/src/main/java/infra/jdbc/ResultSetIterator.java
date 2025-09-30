@@ -479,6 +479,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
    * @param entities the collection to which the entities will be added;
    * must not be null
    */
+  @SuppressWarnings("NullAway")
   public void collect(Collection<T> entities) {
     final ResultSet resultSet = this.resultSet;
     try {
@@ -494,6 +495,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
     }
   }
 
+  @Nullable
   private ResultSetValue<T> safeReadNext() {
     final ResultSet resultSet = this.resultSet;
     try {
@@ -523,9 +525,11 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
   protected abstract T readNext(ResultSet resultSet) throws SQLException;
 
   static final class ResultSetValue<T> {
+
+    @Nullable
     public final T value;
 
-    private ResultSetValue(T value) {
+    private ResultSetValue(@Nullable T value) {
       this.value = value;
     }
   }

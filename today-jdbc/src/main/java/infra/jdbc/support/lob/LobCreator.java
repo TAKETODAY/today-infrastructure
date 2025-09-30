@@ -75,7 +75,7 @@ public interface LobCreator extends Closeable {
    * @throws SQLException if thrown by JDBC methods
    * @see PreparedStatement#setBytes
    */
-  void setBlobAsBytes(PreparedStatement ps, int paramIndex, @Nullable byte[] content)
+  void setBlobAsBytes(PreparedStatement ps, int paramIndex, byte @Nullable [] content)
           throws SQLException;
 
   /**

@@ -287,7 +287,8 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
    * @return the execution result (potentially a corresponding {@link Future} handle)
    */
   @Nullable
-  protected Object doSubmit(Callable<Object> task, AsyncTaskExecutor executor, Class<?> returnType) {
+  @SuppressWarnings("NullAway")
+  protected Object doSubmit(Callable<@Nullable Object> task, AsyncTaskExecutor executor, Class<?> returnType) {
     if (CompletableFuture.class.isAssignableFrom(returnType)) {
       return CompletableFuture.supplyAsync(() -> {
         try {
@@ -320,7 +321,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
    * @param method the method that was invoked
    * @param params the parameters used to invoke the method
    */
-  public void handleError(Throwable ex, Method method, Object... params) throws Exception {
+  public void handleError(Throwable ex, Method method, @Nullable Object... params) throws Exception {
     if (Future.class.isAssignableFrom(method.getReturnType())) {
       ReflectionUtils.rethrowException(ex);
     }

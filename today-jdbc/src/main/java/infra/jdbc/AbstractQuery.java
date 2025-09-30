@@ -121,8 +121,8 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
 
   private final JdbcConnection connection;
 
-  @Nullable
-  private final String[] columnNames;
+  private final String @Nullable [] columnNames;
+
   private final boolean returnGeneratedKeys;
 
   @Nullable
@@ -158,11 +158,11 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
     this(connection, querySQL, generatedKeys, null);
   }
 
-  public AbstractQuery(JdbcConnection connection, String querySQL, @Nullable String[] columnNames) {
+  public AbstractQuery(JdbcConnection connection, String querySQL, String @Nullable [] columnNames) {
     this(connection, querySQL, false, columnNames);
   }
 
-  protected AbstractQuery(JdbcConnection connection, String querySQL, boolean generatedKeys, @Nullable String[] columnNames) {
+  protected AbstractQuery(JdbcConnection connection, String querySQL, boolean generatedKeys, String @Nullable [] columnNames) {
     this.connection = connection;
     this.columnNames = columnNames;
     this.returnGeneratedKeys = generatedKeys;
@@ -1230,6 +1230,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * The current number of batched commands is accessible via the
    * <code>getCurrentBatchRecords()</code> method.
    */
+  @SuppressWarnings("NullAway")
   public <A> List<A> addToBatchGetKeys(Class<A> klass) {
     addToBatch();
     BatchResult batchResult = this.batchResult;

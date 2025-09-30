@@ -174,11 +174,11 @@ public class ParameterValidationResult {
     if (!super.equals(other)) {
       return false;
     }
-    ParameterValidationResult otherResult = (ParameterValidationResult) other;
-    return (getMethodParameter().equals(otherResult.getMethodParameter()) &&
-            ObjectUtils.nullSafeEquals(getArgument(), otherResult.getArgument()) &&
-            ObjectUtils.nullSafeEquals(getContainerIndex(), otherResult.getContainerIndex()) &&
-            ObjectUtils.nullSafeEquals(getContainerKey(), otherResult.getContainerKey()));
+    return other instanceof ParameterValidationResult otherResult
+            && getMethodParameter().equals(otherResult.getMethodParameter())
+            && ObjectUtils.nullSafeEquals(getArgument(), otherResult.getArgument())
+            && ObjectUtils.nullSafeEquals(getContainerIndex(), otherResult.getContainerIndex())
+            && ObjectUtils.nullSafeEquals(getContainerKey(), otherResult.getContainerKey());
   }
 
   @Override

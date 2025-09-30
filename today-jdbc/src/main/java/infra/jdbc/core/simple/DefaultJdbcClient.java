@@ -102,7 +102,7 @@ final class DefaultJdbcClient implements JdbcClient {
     @Nullable
     private JdbcTemplate customTemplate;
 
-    private final List<Object> indexedParams = new ArrayList<>();
+    private final List<@Nullable Object> indexedParams = new ArrayList<>();
 
     private final MapSqlParameterSource namedParams = new MapSqlParameterSource();
 
@@ -312,7 +312,7 @@ final class DefaultJdbcClient implements JdbcClient {
       return new PreparedStatementCreatorFactory(this.sql).newPreparedStatementCreator(this.indexedParams);
     }
 
-    private PreparedStatementCreator statementCreatorForIndexedParamsWithKeys(@Nullable String[] keyColumnNames) {
+    private PreparedStatementCreator statementCreatorForIndexedParamsWithKeys(String @Nullable [] keyColumnNames) {
       PreparedStatementCreatorFactory pscf = new PreparedStatementCreatorFactory(this.sql);
       if (keyColumnNames != null) {
         pscf.setGeneratedKeysColumnNames(keyColumnNames);

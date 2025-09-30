@@ -121,6 +121,7 @@ public class DefaultMethodInvocation extends AttributeAccessorSupport implements
    * @return the result of the call to {@link MethodInvocation#proceed()}, might be
    * intercepted by the interceptor.
    */
+  @Nullable
   protected Object invokeJoinPoint() throws Throwable {
     return AopUtils.invokeJoinpointUsingReflection(target, method, args);
   }

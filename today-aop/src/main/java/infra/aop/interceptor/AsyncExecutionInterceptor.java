@@ -112,7 +112,7 @@ public class AsyncExecutionInterceptor extends AsyncExecutionAspectSupport imple
               "No executor specified and no default executor set on AsyncExecutionInterceptor either");
     }
 
-    Callable<Object> task = () -> {
+    Callable<@Nullable Object> task = () -> {
       try {
         Object result = invocation.proceed();
         if (result instanceof Future<?> future) {

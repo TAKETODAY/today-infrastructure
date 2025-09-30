@@ -17,6 +17,8 @@
 
 package infra.jdbc.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -52,6 +54,7 @@ public class EnumOrdinalTypeHandler<E extends Enum<E>> extends BasicTypeHandler<
     ps.setInt(i, arg.ordinal());
   }
 
+  @Nullable
   @Override
   public E getResult(ResultSet rs, String columnName) throws SQLException {
     int ordinal = rs.getInt(columnName);
@@ -61,6 +64,7 @@ public class EnumOrdinalTypeHandler<E extends Enum<E>> extends BasicTypeHandler<
     return toOrdinalEnum(ordinal);
   }
 
+  @Nullable
   @Override
   public E getResult(ResultSet rs, int columnIndex) throws SQLException {
     int ordinal = rs.getInt(columnIndex);
@@ -70,6 +74,7 @@ public class EnumOrdinalTypeHandler<E extends Enum<E>> extends BasicTypeHandler<
     return toOrdinalEnum(ordinal);
   }
 
+  @Nullable
   @Override
   public E getResult(CallableStatement cs, int columnIndex) throws SQLException {
     int ordinal = cs.getInt(columnIndex);

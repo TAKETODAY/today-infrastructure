@@ -224,7 +224,7 @@ public class DefaultLobHandler extends AbstractLobHandler {
   protected class DefaultLobCreator implements LobCreator {
 
     @Override
-    public void setBlobAsBytes(PreparedStatement ps, int paramIndex, @Nullable byte[] content)
+    public void setBlobAsBytes(PreparedStatement ps, int paramIndex, byte @Nullable [] content)
             throws SQLException {
 
       if (streamAsLob) {
@@ -248,7 +248,7 @@ public class DefaultLobHandler extends AbstractLobHandler {
       }
       if (logger.isDebugEnabled()) {
         logger.debug(content != null ? "Set bytes for BLOB with length " + content.length :
-                     "Set BLOB to null");
+                "Set BLOB to null");
       }
     }
 
@@ -286,7 +286,7 @@ public class DefaultLobHandler extends AbstractLobHandler {
       }
       if (logger.isDebugEnabled()) {
         logger.debug(binaryStream != null ? "Set binary stream for BLOB with length " + contentLength :
-                     "Set BLOB to null");
+                "Set BLOB to null");
       }
     }
 
@@ -315,7 +315,7 @@ public class DefaultLobHandler extends AbstractLobHandler {
       }
       if (logger.isDebugEnabled()) {
         logger.debug(content != null ? "Set string for CLOB with length " + content.length() :
-                     "Set CLOB to null");
+                "Set CLOB to null");
       }
     }
 
@@ -354,7 +354,7 @@ public class DefaultLobHandler extends AbstractLobHandler {
       }
       if (logger.isDebugEnabled()) {
         logger.debug(asciiStream != null ? "Set ASCII stream for CLOB with length " + contentLength :
-                     "Set CLOB to null");
+                "Set CLOB to null");
       }
     }
 
@@ -392,7 +392,7 @@ public class DefaultLobHandler extends AbstractLobHandler {
       }
       if (logger.isDebugEnabled()) {
         logger.debug(characterStream != null ? "Set character stream for CLOB with length " + contentLength :
-                     "Set CLOB to null");
+                "Set CLOB to null");
       }
     }
 

@@ -550,7 +550,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection beginTransaction(@Nullable TransactionDefinition definition) {
-    return beginTransaction(getDataSource(), definition);
+    return beginTransaction(obtainDataSource(), definition);
   }
 
   /**

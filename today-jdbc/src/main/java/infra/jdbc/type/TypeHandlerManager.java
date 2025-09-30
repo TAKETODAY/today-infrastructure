@@ -254,7 +254,7 @@ public class TypeHandlerManager implements TypeHandlerResolver {
     return unknownTypeHandler;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "NullAway" })
   public <T> void register(TypeHandler<T> typeHandler) {
     if (typeHandler instanceof SmartTypeHandler<T> smartTypeHandler) {
       smartTypeHandlers.add(smartTypeHandler);

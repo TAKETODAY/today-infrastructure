@@ -198,6 +198,7 @@ final class PropertyPath {
    * @see #getProperty(Object)
    * @see BeanProperty#setValue(Object, Object)
    */
+  @SuppressWarnings("NullAway")
   public void set(Object obj, @Nullable Object result) {
     PropertyPath current = this;
     while (current.next != null) {
@@ -209,6 +210,7 @@ final class PropertyPath {
     current.beanProperty.setValue(obj, result);
   }
 
+  @SuppressWarnings("NullAway")
   private Object getProperty(Object obj) {
     Object property = beanProperty.getValue(obj);
     if (property == null) {

@@ -168,7 +168,7 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
 
     Object target = getTarget(invocation);
     Method method = invocation.getMethod();
-    Object[] arguments = invocation.getArguments();
+    @Nullable Object[] arguments = invocation.getArguments();
     Class<?>[] groups = determineValidationGroups(invocation);
 
     if (ReactiveStreams.reactorPresent) {
@@ -257,8 +257,9 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
     private static final ReactiveAdapterRegistry reactiveAdapterRegistry =
             ReactiveAdapterRegistry.getSharedInstance();
 
+    @Nullable
     static Object[] insertAsyncValidation(InfraValidatorAdapter validatorAdapter,
-            boolean adaptViolations, Object target, Method method, Object[] arguments) {
+            boolean adaptViolations, Object target, Method method, @Nullable Object[] arguments) {
 
       for (int i = 0; i < method.getParameterCount(); i++) {
         if (arguments[i] == null) {
@@ -283,8 +284,7 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
       return arguments;
     }
 
-    @Nullable
-    private static Class<?>[] determineValidationGroups(Parameter parameter) {
+    private static Class<?> @Nullable [] determineValidationGroups(Parameter parameter) {
       Validated validated = AnnotationUtils.findAnnotation(parameter, Validated.class);
       if (validated != null) {
         return validated.value();

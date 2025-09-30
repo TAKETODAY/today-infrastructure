@@ -354,28 +354,33 @@ public class ApplicationConversionService extends FormattingConversionService {
       addBean(registry, converterBean, beanType, GenericConverter.class, registry::addConverter, (Runnable) null);
     }
     else if (bean instanceof Converter<?, ?> converterBean) {
+      Assert.state(beanType != null, "beanType is missing");
       addBean(registry, converterBean, beanType, Converter.class, registry::addConverter,
               ConverterBeanAdapter::new);
     }
     else if (bean instanceof ConverterFactory<?, ?> converterBean) {
+      Assert.state(beanType != null, "beanType is missing");
       addBean(registry, converterBean, beanType, ConverterFactory.class, registry::addConverterFactory,
               ConverterFactoryBeanAdapter::new);
     }
     else if (bean instanceof Formatter<?> formatterBean) {
+      Assert.state(beanType != null, "beanType is missing");
       addBean(registry, formatterBean, beanType, Formatter.class, registry::addFormatter, () -> {
         registry.addConverter(new PrinterBeanAdapter(formatterBean, beanType));
         registry.addConverter(new ParserBeanAdapter(formatterBean, beanType));
       });
     }
     else if (bean instanceof Printer<?> printerBean) {
+      Assert.state(beanType != null, "beanType is missing");
       addBean(registry, printerBean, beanType, Printer.class, registry::addPrinter, PrinterBeanAdapter::new);
     }
     else if (bean instanceof Parser<?> parserBean) {
+      Assert.state(beanType != null, "beanType is missing");
       addBean(registry, parserBean, beanType, Parser.class, registry::addParser, ParserBeanAdapter::new);
     }
   }
 
-  private static <B, T> void addBean(FormatterRegistry registry, B bean, @Nullable ResolvableType beanType, Class<T> type,
+  private static <B, T> void addBean(FormatterRegistry registry, B bean, ResolvableType beanType, Class<T> type,
           Consumer<B> standardRegistrar, BiFunction<B, ResolvableType, BeanAdapter<?>> beanAdapterFactory) {
     addBean(registry, bean, beanType, type, standardRegistrar,
             () -> registry.addConverter(beanAdapterFactory.apply(bean, beanType)));
@@ -534,6 +539,7 @@ public class ApplicationConversionService extends FormattingConversionService {
               && conditionalConverterCandidateMatches(bean(), sourceType, targetType);
     }
 
+    @Nullable
     @Override
     public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
       return convert(source, targetType, bean());
@@ -557,6 +563,7 @@ public class ApplicationConversionService extends FormattingConversionService {
               && conditionalConverterCandidateMatches(getConverter(targetType::getType), sourceType, targetType);
     }
 
+    @Nullable
     @Override
     public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
       return convert(source, targetType, getConverter(targetType::getObjectType));

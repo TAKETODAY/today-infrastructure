@@ -58,7 +58,7 @@ public interface MethodValidator {
    * @return the result of validation
    */
   MethodValidationResult validateArguments(Object target, Method method,
-          @Nullable MethodParameter[] parameters, Object[] arguments, Class<?>[] groups);
+          MethodParameter @Nullable [] parameters, @Nullable Object[] arguments, Class<?>[] groups);
 
   /**
    * Delegate to {@link #validateArguments} and handle the validation result,
@@ -69,7 +69,7 @@ public interface MethodValidator {
    * @throws MethodValidationException in case of unhandled errors.
    */
   default void applyArgumentValidation(Object target, Method method,
-          @Nullable MethodParameter[] parameters, Object[] arguments, Class<?>[] groups) {
+          MethodParameter @Nullable [] parameters, @Nullable Object[] arguments, Class<?>[] groups) {
 
     MethodValidationResult result = validateArguments(target, method, parameters, arguments, groups);
     if (result.hasErrors()) {

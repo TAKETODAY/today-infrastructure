@@ -1424,6 +1424,7 @@ public class DefaultEntityManager implements EntityManager {
       }
     }
 
+    @Nullable
     @Override
     protected T readNext(ResultSet resultSet) throws SQLException {
       return handler.extractData(resultSet);

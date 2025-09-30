@@ -185,8 +185,7 @@ public abstract class ScriptUtils {
    * @see DataSourceUtils#getConnection
    * @see DataSourceUtils#releaseConnection
    */
-  public static void executeSqlScript(
-          Connection connection, EncodedResource resource, boolean continueOnError,
+  public static void executeSqlScript(Connection connection, EncodedResource resource, boolean continueOnError,
           boolean ignoreFailedDrops, String commentPrefix, @Nullable String separator,
           String blockCommentStartDelimiter, String blockCommentEndDelimiter) throws ScriptException {
 
@@ -349,8 +348,7 @@ public abstract class ScriptUtils {
    * @return a {@code String} containing the script lines
    * @throws IOException in case of I/O errors
    */
-  static String readScript(
-          EncodedResource resource, @Nullable String separator,
+  static String readScript(EncodedResource resource, @Nullable String separator,
           String[] commentPrefixes, String blockCommentEndDelimiter) throws IOException {
 
     try (LineNumberReader lnr = new LineNumberReader(resource.getReader())) {
@@ -375,8 +373,7 @@ public abstract class ScriptUtils {
    * @return a {@code String} containing the script lines
    * @throws IOException in case of I/O errors
    */
-  public static String readScript(
-          LineNumberReader lineNumberReader, @Nullable String commentPrefix,
+  public static String readScript(LineNumberReader lineNumberReader, @Nullable String commentPrefix,
           @Nullable String separator, @Nullable String blockCommentEndDelimiter) throws IOException {
 
     String[] commentPrefixes = (commentPrefix != null) ? new String[] { commentPrefix } : null;
@@ -400,16 +397,15 @@ public abstract class ScriptUtils {
    * @return a {@code String} containing the script lines
    * @throws IOException in case of I/O errors
    */
-  public static String readScript(
-          LineNumberReader lineNumberReader, @Nullable String[] commentPrefixes,
+  public static String readScript(LineNumberReader lineNumberReader, String @Nullable [] commentPrefixes,
           @Nullable String separator, @Nullable String blockCommentEndDelimiter) throws IOException {
 
     String currentStatement = lineNumberReader.readLine();
     StringBuilder scriptBuilder = new StringBuilder();
     while (currentStatement != null) {
-      if ((blockCommentEndDelimiter != null && currentStatement.contains(blockCommentEndDelimiter)) ||
-              (commentPrefixes != null && !startsWithAny(currentStatement, commentPrefixes, 0))) {
-        if (scriptBuilder.length() > 0) {
+      if ((blockCommentEndDelimiter != null && currentStatement.contains(blockCommentEndDelimiter))
+              || (commentPrefixes != null && !startsWithAny(currentStatement, commentPrefixes, 0))) {
+        if (!scriptBuilder.isEmpty()) {
           scriptBuilder.append('\n');
         }
         scriptBuilder.append(currentStatement);
@@ -475,10 +471,8 @@ public abstract class ScriptUtils {
    * @param blockCommentEndDelimiter the <em>end</em> block comment delimiter
    * (typically <code>"*&#47;"</code>)
    */
-  private static boolean containsStatementSeparator(
-          @Nullable EncodedResource resource, String script,
-          String separator, String[] commentPrefixes, String blockCommentStartDelimiter,
-          String blockCommentEndDelimiter) throws ScriptException {
+  private static boolean containsStatementSeparator(@Nullable EncodedResource resource, String script,
+          String separator, String[] commentPrefixes, String blockCommentStartDelimiter, String blockCommentEndDelimiter) throws ScriptException {
 
     boolean inSingleQuote = false;
     boolean inDoubleQuote = false;
@@ -608,8 +602,7 @@ public abstract class ScriptUtils {
    * @param statements the list that will contain the individual statements
    * @throws ScriptException if an error occurred while splitting the SQL script
    */
-  public static void splitSqlScript(
-          @Nullable EncodedResource resource, String script,
+  public static void splitSqlScript(@Nullable EncodedResource resource, String script,
           String separator, String commentPrefix, String blockCommentStartDelimiter,
           String blockCommentEndDelimiter, List<String> statements) throws ScriptException {
 
@@ -643,8 +636,7 @@ public abstract class ScriptUtils {
    * @param statements the list that will contain the individual statements
    * @throws ScriptException if an error occurred while splitting the SQL script
    */
-  public static void splitSqlScript(
-          @Nullable EncodedResource resource, String script,
+  public static void splitSqlScript(@Nullable EncodedResource resource, String script,
           String separator, String[] commentPrefixes, String blockCommentStartDelimiter,
           String blockCommentEndDelimiter, List<String> statements) throws ScriptException {
 

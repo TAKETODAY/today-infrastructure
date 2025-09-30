@@ -39,8 +39,7 @@ import infra.util.CollectionUtils;
  */
 public class BatchResult extends ExecutionResult {
 
-  @Nullable
-  private int[] batchResult;
+  private int @Nullable [] batchResult;
 
   @Nullable
   private ArrayList<Object> generatedKeys;
@@ -161,7 +160,7 @@ public class BatchResult extends ExecutionResult {
     }
   }
 
-  public Object[] getKeys() {
+  public Object @Nullable [] getKeys() {
     assertCanGetKeys();
     if (generatedKeys != null) {
       return generatedKeys.toArray();

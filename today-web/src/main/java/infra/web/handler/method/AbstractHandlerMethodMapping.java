@@ -390,6 +390,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    */
   @Nullable
   @Override
+  @SuppressWarnings("NullAway")
   protected HandlerMethod getHandlerInternal(RequestContext request) {
     HandlerMethod handlerMethod = lookupHandlerMethod(request.getRequestPath().value(), request);
     if (handlerMethod != null) {
@@ -522,9 +523,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     return corsConfig;
   }
 
-  @Nullable
   @Override
-  protected HandlerInterceptor[] getHandlerInterceptors(Object handler) {
+  protected HandlerInterceptor @Nullable [] getHandlerInterceptors(Object handler) {
     HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
     if (handlerMethod != null) {
       return mappingRegistry.getHandlerInterceptors(handlerMethod);

@@ -188,7 +188,7 @@ public class SqlParameter {
    * Convert a list of JDBC types, as defined in {@code java.sql.Types},
    * to a List of SqlParameter objects as used in this package.
    */
-  public static List<SqlParameter> sqlTypesToAnonymousParameterList(@Nullable int... types) {
+  public static List<SqlParameter> sqlTypesToAnonymousParameterList(int @Nullable ... types) {
     if (types == null) {
       return new ArrayList<>();
     }

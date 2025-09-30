@@ -189,6 +189,7 @@ public abstract class JdbcAccessor {
    * @see #handleWarnings(Statement)
    * @see SQLException#setNextException
    */
+  @SuppressWarnings("NullAway")
   protected void handleWarnings(Statement stmt, SQLException ex) {
     try {
       handleWarnings(stmt);
