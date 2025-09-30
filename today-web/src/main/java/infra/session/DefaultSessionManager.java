@@ -81,6 +81,7 @@ public class DefaultSessionManager implements SessionManager {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public WebSession getSession(RequestContext context) {
     return getSession(context, true);
   }

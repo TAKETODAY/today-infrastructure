@@ -125,7 +125,7 @@ public class SessionEventDispatcher {
    * @param array array to add
    * @throws NullPointerException input list is null
    */
-  public void addSessionListeners(@Nullable WebSessionListener... array) {
+  public void addSessionListeners(WebSessionListener @Nullable ... array) {
     sessionListeners.addAll(array);
   }
 

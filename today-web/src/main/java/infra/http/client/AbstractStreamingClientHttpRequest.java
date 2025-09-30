@@ -76,8 +76,9 @@ abstract class AbstractStreamingClientHttpRequest extends AbstractClientHttpRequ
 
   @Override
   protected final Future<ClientHttpResponse> asyncInternal(HttpHeaders headers, @Nullable Executor executor) {
-    if (this.body == null && this.bodyStream != null) {
-      this.body = outputStream -> this.bodyStream.writeTo(outputStream);
+    FastByteArrayOutputStream bodyStream = this.bodyStream;
+    if (this.body == null && bodyStream != null) {
+      this.body = bodyStream::writeTo;
     }
     return asyncInternal(headers, body, executor);
   }
