@@ -64,7 +64,7 @@ public class WebClientResponseException extends WebClientException {
    * Constructor with response data only, and a default message.
    */
   public WebClientResponseException(HttpStatusCode statusCode, String reasonPhrase,
-          @Nullable HttpHeaders headers, @Nullable byte[] body, @Nullable Charset charset, @Nullable HttpRequest request) {
+          @Nullable HttpHeaders headers, byte @Nullable [] body, @Nullable Charset charset, @Nullable HttpRequest request) {
 
     this(initMessage(statusCode, reasonPhrase, request),
             statusCode, reasonPhrase, headers, body, charset, request);
@@ -79,7 +79,7 @@ public class WebClientResponseException extends WebClientException {
    * Constructor with a prepared message.
    */
   public WebClientResponseException(String message, HttpStatusCode statusCode, String statusText,
-          @Nullable HttpHeaders headers, @Nullable byte[] responseBody, @Nullable Charset charset, @Nullable HttpRequest request) {
+          @Nullable HttpHeaders headers, byte @Nullable [] responseBody, @Nullable Charset charset, @Nullable HttpRequest request) {
     super(message);
 
     this.statusCode = statusCode;

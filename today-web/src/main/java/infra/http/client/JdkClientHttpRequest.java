@@ -105,6 +105,7 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   protected ClientHttpResponse executeInternal(HttpHeaders headers, @Nullable Body body) throws IOException {
     CompletableFuture<HttpResponse<InputStream>> responseFuture = null;
     TimeoutHandler timeoutHandler = null;

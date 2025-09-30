@@ -132,8 +132,8 @@ public class ServerSentEventHttpMessageReader implements HttpMessageReader<Objec
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private Object buildEvent(List<String> lines, ResolvableType valueType, boolean shouldWrap, Map<String, Object> hints) {
-
     ServerSentEvent.Builder<Object> sseBuilder = shouldWrap ? ServerSentEvent.builder() : null;
     StringBuilder data = null;
     StringBuilder comment = null;

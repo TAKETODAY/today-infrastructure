@@ -125,6 +125,7 @@ public abstract class AbstractWebSession implements WebSession {
     return attributes.get(name);
   }
 
+  @Nullable
   @Override
   public Object removeAttribute(String name) {
     var attributes = this.attributes;

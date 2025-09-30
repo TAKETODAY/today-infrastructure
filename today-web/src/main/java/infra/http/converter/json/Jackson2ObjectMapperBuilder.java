@@ -270,6 +270,7 @@ public class Jackson2ObjectMapperBuilder {
    * introspector (possibly {@code null}); the result of the function becomes
    * the new introspector.
    */
+  @SuppressWarnings("NullAway")
   public Jackson2ObjectMapperBuilder annotationIntrospector(
           Function<AnnotationIntrospector, AnnotationIntrospector> pairingFunction) {
     this.annotationIntrospector = pairingFunction.apply(this.annotationIntrospector);

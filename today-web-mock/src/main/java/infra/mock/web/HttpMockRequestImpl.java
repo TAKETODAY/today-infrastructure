@@ -416,7 +416,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
    * @see #getContentAsByteArray()
    * @see #getContentAsString()
    */
-  public void setContent(@Nullable byte[] content) {
+  public void setContent(byte @Nullable [] content) {
     this.content = content;
     this.inputStream = null;
     this.reader = null;

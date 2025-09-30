@@ -73,6 +73,7 @@ public class RequestPartArgumentResolver extends AbstractNamedValueArgumentResol
     }
   }
 
+  @Nullable
   @Override
   protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
     RequestPart annot = parameter.getParameterAnnotation(RequestPart.class);

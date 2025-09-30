@@ -160,6 +160,7 @@ final class ReactorClientHttpRequest extends AbstractStreamingClientHttpRequest 
             .next()
             .subscribe(new CoreSubscriber<>() {
 
+              @SuppressWarnings("NullAway")
               volatile Subscription s;
 
               @Override

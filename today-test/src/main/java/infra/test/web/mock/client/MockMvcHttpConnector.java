@@ -148,7 +148,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
   }
 
   private MockHttpRequestBuilder initRequestBuilder(
-          HttpMethod httpMethod, URI uri, MockClientHttpRequest httpRequest, @Nullable byte[] bytes) {
+          HttpMethod httpMethod, URI uri, MockClientHttpRequest httpRequest, byte @Nullable [] bytes) {
 
     String contentType = httpRequest.getHeaders().getFirst(HttpHeaders.CONTENT_TYPE);
     if (!StringUtils.startsWithIgnoreCase(contentType, "multipart/")) {

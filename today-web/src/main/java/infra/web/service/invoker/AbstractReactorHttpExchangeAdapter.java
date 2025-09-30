@@ -84,6 +84,7 @@ public abstract class AbstractReactorHttpExchangeAdapter implements ReactorHttpE
   @Override
   public abstract Future<ClientResponse> exchangeAsync(HttpRequestValues requestValues);
 
+  @Nullable
   @Override
   public <T> T exchangeForBody(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
     return blockingGet(exchangeForBodyMono(requestValues, bodyType));

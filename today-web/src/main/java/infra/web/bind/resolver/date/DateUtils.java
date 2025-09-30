@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.web.bind.resolver.date;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -32,7 +34,8 @@ import java.time.temporal.TemporalField;
  */
 abstract class DateUtils {
 
-  public static LocalDateTime ofDateTime(TemporalAccessor temporalAccessor) {
+  @Nullable
+  public static LocalDateTime ofDateTime(@Nullable TemporalAccessor temporalAccessor) {
     if (null == temporalAccessor) {
       return null;
     }
@@ -53,7 +56,8 @@ abstract class DateUtils {
     );
   }
 
-  public static LocalTime ofTime(TemporalAccessor temporalAccessor) {
+  @Nullable
+  public static LocalTime ofTime(@Nullable TemporalAccessor temporalAccessor) {
     if (null == temporalAccessor) {
       return null;
     }
@@ -74,7 +78,8 @@ abstract class DateUtils {
    * @param temporalAccessor {@link TemporalAccessor}
    * @return {@link LocalDate}
    */
-  public static LocalDate ofDate(TemporalAccessor temporalAccessor) {
+  @Nullable
+  public static LocalDate ofDate(@Nullable TemporalAccessor temporalAccessor) {
     if (null == temporalAccessor) {
       return null;
     }

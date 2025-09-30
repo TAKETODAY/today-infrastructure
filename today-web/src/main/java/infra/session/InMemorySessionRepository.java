@@ -225,6 +225,7 @@ public class InMemorySessionRepository implements SessionRepository {
   }
 
   @Override
+  @Nullable
   public WebSession retrieveSession(String id) {
     Instant now = clock.instant();
     expiredSessionChecker.checkIfNecessary(now);
@@ -514,7 +515,7 @@ public class InMemorySessionRepository implements SessionRepository {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
       if (this == o)
         return true;
       if (o == null || getClass() != o.getClass())

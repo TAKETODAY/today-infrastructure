@@ -81,7 +81,7 @@ public class ModelMethodProcessor implements ReturnValueHandler, ParameterResolv
   }
 
   @Override
-  public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof Model model) {
       BindingContext bindingContext = context.binding();
       if (returnValue instanceof RedirectModel redirectModel) {

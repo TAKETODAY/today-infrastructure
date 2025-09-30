@@ -207,7 +207,7 @@ class DefaultServerHttpRequestBuilder implements ServerHttpRequest.Builder {
 
     public MutatedServerHttpRequest(URI uri, @Nullable String contextPath,
             String method, @Nullable SslInfo sslInfo, @Nullable InetSocketAddress remoteAddress,
-            InetSocketAddress localAddress, HttpHeaders headers, Flux<DataBuffer> body, ServerHttpRequest originalRequest) {
+            @Nullable InetSocketAddress localAddress, HttpHeaders headers, Flux<DataBuffer> body, ServerHttpRequest originalRequest) {
 
       super(uri, contextPath, headers);
       this.localAddress = localAddress;

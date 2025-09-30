@@ -189,6 +189,7 @@ public class ResourceUrlProvider extends ApplicationObjectSupport
    * @return the resolved public URL path, or {@code null} if unresolved
    */
   @Nullable
+  @SuppressWarnings("NullAway")
   public final String getForLookupPath(String lookupPath) {
     // Clean duplicate slashes or pathWithinPattern won't match lookupPath
     String previous;

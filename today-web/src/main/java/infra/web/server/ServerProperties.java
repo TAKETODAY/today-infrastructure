@@ -405,6 +405,7 @@ public class ServerProperties {
      * Maximum number of requests that can be made per connection. By default, a
      * connection serves unlimited number of requests.
      */
+    @Nullable
     public Integer maxKeepAliveRequests;
 
     /**
@@ -416,6 +417,7 @@ public class ServerProperties {
      * Idle timeout of the Netty channel. When not specified, an infinite timeout is
      * used.
      */
+    @Nullable
     public Duration idleTimeout;
 
   }

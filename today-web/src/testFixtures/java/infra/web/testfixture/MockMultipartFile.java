@@ -57,7 +57,7 @@ public class MockMultipartFile implements MultipartFile {
    * @param name the name of the file
    * @param content the content of the file
    */
-  public MockMultipartFile(String name, @Nullable byte[] content) {
+  public MockMultipartFile(String name, byte @Nullable [] content) {
     this(name, "", null, content);
   }
 
@@ -81,7 +81,7 @@ public class MockMultipartFile implements MultipartFile {
    * @param content the content of the file
    */
   public MockMultipartFile(
-          String name, @Nullable String originalFilename, @Nullable String contentType, @Nullable byte[] content) {
+          String name, @Nullable String originalFilename, @Nullable String contentType, byte @Nullable [] content) {
 
     Assert.hasLength(name, "Name must not be empty");
     this.name = name;

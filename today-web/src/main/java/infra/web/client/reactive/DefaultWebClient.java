@@ -102,7 +102,7 @@ class DefaultWebClient implements WebClient {
           @Nullable HttpHeaders defaultHeaders, @Nullable MultiValueMap<String, String> defaultCookies,
           @Nullable Consumer<RequestHeadersSpec<?>> defaultRequest,
           @Nullable Map<Predicate<HttpStatusCode>, Function<ClientResponse, Mono<? extends Throwable>>> statusHandlerMap,
-          DefaultWebClientBuilder builder, @Nullable ApiVersionInserter apiVersionInserter, Object defaultApiVersion) {
+          DefaultWebClientBuilder builder, @Nullable ApiVersionInserter apiVersionInserter, @Nullable Object defaultApiVersion) {
 
     this.builder = builder;
     this.exchangeFunction = exchangeFunction;

@@ -109,6 +109,7 @@ public final class WebClientAdapter extends AbstractReactorHttpExchangeAdapter {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public infra.web.client.ClientResponse exchange(HttpRequestValues requestValues) {
     return blockingGet(newRequest(requestValues).exchange().map(ReactorClientResponse::new));
   }

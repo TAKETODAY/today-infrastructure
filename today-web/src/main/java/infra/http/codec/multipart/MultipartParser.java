@@ -112,11 +112,13 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   protected void hookOnNext(DataBuffer value) {
     requestOutstanding.set(false);
     state.get().onNext(value);
   }
 
+  @SuppressWarnings("NullAway")
   @Override
   protected void hookOnComplete() {
     state.get().onComplete();

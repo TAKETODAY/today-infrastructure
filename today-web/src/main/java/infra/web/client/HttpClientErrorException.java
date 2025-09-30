@@ -53,7 +53,7 @@ public class HttpClientErrorException extends HttpStatusCodeException {
    * Constructor with a status code and status text, and content.
    */
   public HttpClientErrorException(HttpStatusCode statusCode, String statusText,
-          @Nullable byte[] body, @Nullable Charset responseCharset) {
+          byte @Nullable [] body, @Nullable Charset responseCharset) {
 
     super(statusCode, statusText, body, responseCharset);
   }
@@ -62,7 +62,7 @@ public class HttpClientErrorException extends HttpStatusCodeException {
    * Constructor with a status code and status text, headers, and content.
    */
   public HttpClientErrorException(HttpStatusCode statusCode, String statusText,
-          @Nullable HttpHeaders headers, @Nullable byte[] body, @Nullable Charset responseCharset) {
+          @Nullable HttpHeaders headers, byte @Nullable [] body, @Nullable Charset responseCharset) {
 
     super(statusCode, statusText, headers, body, responseCharset);
   }
@@ -72,7 +72,7 @@ public class HttpClientErrorException extends HttpStatusCodeException {
    * and an prepared message.
    */
   public HttpClientErrorException(@Nullable String message, HttpStatusCode statusCode, String statusText,
-          @Nullable HttpHeaders headers, @Nullable byte[] body, @Nullable Charset responseCharset) {
+          @Nullable HttpHeaders headers, byte @Nullable [] body, @Nullable Charset responseCharset) {
 
     super(message, statusCode, statusText, headers, body, responseCharset);
   }

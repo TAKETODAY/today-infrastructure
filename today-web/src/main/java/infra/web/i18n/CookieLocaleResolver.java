@@ -178,6 +178,7 @@ public class CookieLocaleResolver extends CookieGenerator implements LocaleConte
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public Locale resolveLocale(RequestContext request) {
     parseLocaleCookieIfNecessary(request);
     return (Locale) request.getAttribute(LOCALE_REQUEST_ATTRIBUTE_NAME);

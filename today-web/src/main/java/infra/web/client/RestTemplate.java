@@ -615,8 +615,9 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
   private URI resolveUrl(RequestEntity<?> entity) {
     if (entity instanceof RequestEntity.UriTemplateRequestEntity<?> ext) {
-      if (ext.getVars() != null) {
-        return this.uriTemplateHandler.expand(ext.getUriTemplate(), ext.getVars());
+      Object[] vars = ext.getVars();
+      if (vars != null) {
+        return this.uriTemplateHandler.expand(ext.getUriTemplate(), vars);
       }
       else if (ext.getVarsMap() != null) {
         return this.uriTemplateHandler.expand(ext.getUriTemplate(), ext.getVarsMap());

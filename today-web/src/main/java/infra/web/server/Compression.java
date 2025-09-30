@@ -19,6 +19,7 @@ package infra.web.server;
 
 import org.jspecify.annotations.Nullable;
 
+import infra.lang.Contract;
 import infra.util.DataSize;
 
 /**
@@ -97,6 +98,7 @@ public class Compression {
    * @param compression the {@link Http2} instance or {@code null}
    * @return {@code true} is Http2 is enabled
    */
+  @Contract("null -> false")
   public static boolean isEnabled(@Nullable Compression compression) {
     return compression != null && compression.enabled;
   }

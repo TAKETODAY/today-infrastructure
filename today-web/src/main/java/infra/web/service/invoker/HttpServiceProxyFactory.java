@@ -132,6 +132,7 @@ public final class HttpServiceProxyFactory {
   /**
    * Builder to create an {@link HttpServiceProxyFactory}.
    */
+  @SuppressWarnings("NullAway")
   public static final class Builder {
 
     @Nullable

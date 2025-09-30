@@ -74,7 +74,7 @@ public abstract class HttpStatusCodeException extends RestClientResponseExceptio
    * @param responseCharset the response body charset, may be {@code null}
    */
   protected HttpStatusCodeException(HttpStatusCode statusCode, String statusText,
-          @Nullable byte[] responseBody, @Nullable Charset responseCharset) {
+          byte @Nullable [] responseBody, @Nullable Charset responseCharset) {
 
     this(statusCode, statusText, null, responseBody, responseCharset);
   }
@@ -90,7 +90,7 @@ public abstract class HttpStatusCodeException extends RestClientResponseExceptio
    * @param responseCharset the response body charset, may be {@code null}
    */
   protected HttpStatusCodeException(HttpStatusCode statusCode, String statusText,
-          @Nullable HttpHeaders responseHeaders, @Nullable byte[] responseBody, @Nullable Charset responseCharset) {
+          @Nullable HttpHeaders responseHeaders, byte @Nullable [] responseBody, @Nullable Charset responseCharset) {
 
     this(getMessage(statusCode, statusText),
             statusCode, statusText, responseHeaders, responseBody, responseCharset);
@@ -108,7 +108,7 @@ public abstract class HttpStatusCodeException extends RestClientResponseExceptio
    * @param responseCharset the response body charset, may be {@code null}
    */
   protected HttpStatusCodeException(@Nullable String message, HttpStatusCode statusCode, String statusText,
-          @Nullable HttpHeaders responseHeaders, @Nullable byte[] responseBody, @Nullable Charset responseCharset) {
+          @Nullable HttpHeaders responseHeaders, byte @Nullable [] responseBody, @Nullable Charset responseCharset) {
     super(message == null ? getMessage(statusCode, statusText) : message, statusCode, statusText, responseHeaders, responseBody, responseCharset);
   }
 

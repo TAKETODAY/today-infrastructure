@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.web.bind.resolver.date;
+
+import org.jspecify.annotations.Nullable;
 
 import infra.format.annotation.DateTimeFormat;
 import infra.lang.NullValue;
@@ -34,6 +36,7 @@ public abstract class AbstractDateParameterResolver implements ParameterResolvin
   @Override
   public abstract boolean supportsParameter(ResolvableMethodParameter parameter);
 
+  @Nullable
   @Override
   public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
     final String parameterValue = getParameterValue(context, resolvable);
@@ -43,14 +46,17 @@ public abstract class AbstractDateParameterResolver implements ParameterResolvin
     return resolveInternal(parameterValue, resolvable);
   }
 
+  @Nullable
   protected Object resolveInternal(String parameterValue, ResolvableMethodParameter parameter) {
     return null;
   }
 
+  @Nullable
   protected String getParameterValue(RequestContext context, ResolvableMethodParameter parameter) {
     return context.getParameter(parameter.getName());
   }
 
+  @Nullable
   protected DateTimeFormat getAnnotation(ResolvableMethodParameter parameter) {
     final Object attribute = parameter.getAttribute(FORMAT_ANNOTATION_KEY);
     if (attribute == null) {

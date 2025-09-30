@@ -67,9 +67,8 @@ public class Jackson2SmileEncoder extends AbstractJackson2Encoder {
    * mime type is one of the configured {@link #setStreamingMediaTypes(List)
    * streaming} mime types.
    */
-  @Nullable
   @Override
-  protected byte[] getStreamingMediaTypeSeparator(@Nullable MimeType mimeType) {
+  protected byte @Nullable [] getStreamingMediaTypeSeparator(@Nullable MimeType mimeType) {
     for (MediaType streamingMediaType : getStreamingMediaTypes()) {
       if (streamingMediaType.isCompatibleWith(mimeType)) {
         return STREAM_SEPARATOR;

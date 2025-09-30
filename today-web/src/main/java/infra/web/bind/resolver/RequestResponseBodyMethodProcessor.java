@@ -124,6 +124,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
     return arg;
   }
 
+  @Nullable
   @Override
   protected Object readWithMessageConverters(RequestContext request, MethodParameter parameter, Type paramType)
           throws IOException, HttpMediaTypeNotSupportedException, HttpMessageNotReadableException //

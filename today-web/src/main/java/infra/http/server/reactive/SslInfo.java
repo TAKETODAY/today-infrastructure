@@ -39,7 +39,6 @@ public interface SslInfo {
   /**
    * Return SSL certificates associated with the request, if any.
    */
-  @Nullable
-  X509Certificate[] getPeerCertificates();
+  X509Certificate @Nullable [] getPeerCertificates();
 
 }

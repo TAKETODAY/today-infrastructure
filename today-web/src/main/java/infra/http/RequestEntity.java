@@ -206,6 +206,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;
@@ -601,8 +602,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
     @Nullable
     private final String uriTemplate;
 
-    @Nullable
-    private final Object[] uriVarsArray;
+    private final Object @Nullable [] uriVarsArray;
 
     @Nullable
     private final Map<String, ?> uriVarsMap;
@@ -618,7 +618,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
       this.uriVarsMap = null;
     }
 
-    DefaultBodyBuilder(HttpMethod method, @Nullable String uriTemplate, @Nullable Object... uriVars) {
+    DefaultBodyBuilder(HttpMethod method, @Nullable String uriTemplate, Object @Nullable ... uriVars) {
       this.method = method;
       this.uri = null;
       this.uriTemplate = uriTemplate;
@@ -761,15 +761,14 @@ public class RequestEntity<T> extends HttpEntity<T> {
 
     private final String uriTemplate;
 
-    @Nullable
-    private final Object[] uriVarsArray;
+    private final Object @Nullable [] uriVarsArray;
 
     @Nullable
     private final Map<String, ?> uriVarsMap;
 
     UriTemplateRequestEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers,
             @Nullable HttpMethod method, @Nullable Type type, String uriTemplate,
-            @Nullable Object[] uriVarsArray, @Nullable Map<String, ?> uriVarsMap) {
+            Object @Nullable [] uriVarsArray, @Nullable Map<String, ?> uriVarsMap) {
 
       super(body, headers, method, null, type);
       this.uriTemplate = uriTemplate;
@@ -781,8 +780,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
       return this.uriTemplate;
     }
 
-    @Nullable
-    public Object[] getVars() {
+    public Object @Nullable [] getVars() {
       return this.uriVarsArray;
     }
 
@@ -792,6 +790,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public boolean equals(@Nullable Object other) {
       if (this == other) {
         return true;

@@ -63,8 +63,7 @@ public class ConfigurableWebBindingInitializer implements WebBindingInitializer 
   @Nullable
   private ConversionService conversionService;
 
-  @Nullable
-  private PropertyEditorRegistrar[] propertyEditorRegistrars;
+  private PropertyEditorRegistrar @Nullable [] propertyEditorRegistrars;
 
   /**
    * Set whether a binder should attempt to "auto-grow" a nested path that contains a null value.
@@ -202,15 +201,14 @@ public class ConfigurableWebBindingInitializer implements WebBindingInitializer 
   /**
    * Specify multiple PropertyEditorRegistrars to be applied to every DataBinder.
    */
-  public final void setPropertyEditorRegistrars(@Nullable PropertyEditorRegistrar[] propertyEditorRegistrars) {
+  public final void setPropertyEditorRegistrars(PropertyEditorRegistrar @Nullable [] propertyEditorRegistrars) {
     this.propertyEditorRegistrars = propertyEditorRegistrars;
   }
 
   /**
    * Return the PropertyEditorRegistrars to be applied to every DataBinder.
    */
-  @Nullable
-  public final PropertyEditorRegistrar[] getPropertyEditorRegistrars() {
+  public final PropertyEditorRegistrar @Nullable [] getPropertyEditorRegistrars() {
     return this.propertyEditorRegistrars;
   }
 

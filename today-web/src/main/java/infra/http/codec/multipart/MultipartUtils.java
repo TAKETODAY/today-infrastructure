@@ -39,8 +39,7 @@ import infra.http.MediaType;
  */
 abstract class MultipartUtils {
 
-  @Nullable
-  public static byte[] boundary(HttpMessage message, Charset headersCharset) {
+  public static byte @Nullable [] boundary(HttpMessage message, Charset headersCharset) {
     MediaType contentType = message.getHeaders().getContentType();
     if (contentType != null) {
       String boundary = contentType.getParameter("boundary");

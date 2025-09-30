@@ -323,6 +323,7 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
    * @param cause the Jackson-thrown exception to evaluate
    * (typically a {@link JsonMappingException})
    */
+  @SuppressWarnings("NullAway")
   protected void logWarningIfNecessary(Type type, @Nullable Throwable cause) {
     if (cause == null) {
       return;
@@ -567,6 +568,7 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
     return super.getDefaultContentType(object);
   }
 
+  @Nullable
   @Override
   protected Long getContentLength(Object object, @Nullable MediaType contentType) throws IOException {
     if (object instanceof MappingJacksonValue mappingJacksonValue) {

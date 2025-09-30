@@ -703,7 +703,7 @@ public class RestTemplateBuilder {
     return Collections.unmodifiableSet(result);
   }
 
-  private static <K, V> Map<K, List<V>> append(@Nullable Map<K, List<V>> map, K key, @Nullable V[] values) {
+  private static <K, V> Map<K, List<V>> append(@Nullable Map<K, List<V>> map, K key, V @Nullable [] values) {
     LinkedHashMap<K, List<V>> result = new LinkedHashMap<>(map != null ? map : Collections.emptyMap());
     if (values != null) {
       result.put(key, copiedListOf(values));

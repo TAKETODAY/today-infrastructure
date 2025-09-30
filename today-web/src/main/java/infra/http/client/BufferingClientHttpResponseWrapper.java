@@ -35,8 +35,7 @@ import infra.util.StreamUtils;
  */
 final class BufferingClientHttpResponseWrapper extends ClientHttpResponseDecorator {
 
-  @Nullable
-  private byte[] body;
+  private byte @Nullable [] body;
 
   BufferingClientHttpResponseWrapper(ClientHttpResponse response) {
     super(response);

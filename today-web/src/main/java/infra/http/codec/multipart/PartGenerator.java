@@ -116,6 +116,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   protected void hookOnNext(MultipartParser.Token token) {
     this.requestOutstanding.set(false);
     State state = this.state.get();

@@ -204,6 +204,7 @@ final class HttpRequestValuesInitializer {
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private static String initURL(@Nullable MergedAnnotation<?> typeAnnot,
           MergedAnnotation<?> annot, @Nullable StringValueResolver embeddedValueResolver) {
 

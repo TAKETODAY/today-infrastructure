@@ -57,7 +57,7 @@ public class MockPart implements Part {
    *
    * @see #getHeaders()
    */
-  public MockPart(String name, @Nullable byte[] content) {
+  public MockPart(String name, byte @Nullable [] content) {
     this(name, null, content);
   }
 
@@ -66,7 +66,7 @@ public class MockPart implements Part {
    *
    * @see #getHeaders()
    */
-  public MockPart(String name, @Nullable String filename, @Nullable byte[] content) {
+  public MockPart(String name, @Nullable String filename, byte @Nullable [] content) {
     Assert.hasLength(name, "'name' must not be empty");
     this.name = name;
     this.filename = filename;

@@ -367,8 +367,7 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
    * mime type is one of the configured {@link #setStreamingMediaTypes(List)
    * streaming} mime types.
    */
-  @Nullable
-  protected byte[] getStreamingMediaTypeSeparator(@Nullable MimeType mimeType) {
+  protected byte @Nullable [] getStreamingMediaTypeSeparator(@Nullable MimeType mimeType) {
     for (MediaType streamingMediaType : this.streamingMediaTypes) {
       if (streamingMediaType.isCompatibleWith(mimeType)) {
         return NEWLINE_SEPARATOR;
@@ -420,6 +419,7 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
 
   // Jackson2CodecSupport
 
+  @Nullable
   @Override
   protected <A extends Annotation> A getAnnotation(MethodParameter parameter, Class<A> annotType) {
     return parameter.getMethodAnnotation(annotType);

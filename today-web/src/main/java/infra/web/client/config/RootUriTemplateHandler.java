@@ -100,6 +100,7 @@ public class RootUriTemplateHandler implements UriTemplateHandler {
    * @param wrapper the wrapper to apply to the delegate URI template handler
    * @return the new handler
    */
+  @SuppressWarnings("NullAway")
   public RootUriTemplateHandler withHandlerWrapper(Function<UriTemplateHandler, UriTemplateHandler> wrapper) {
     return new RootUriTemplateHandler(getRootUri(), wrapper.apply(this.handler));
   }

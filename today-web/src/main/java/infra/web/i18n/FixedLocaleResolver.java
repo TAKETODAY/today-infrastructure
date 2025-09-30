@@ -91,6 +91,7 @@ public class FixedLocaleResolver extends AbstractLocaleContextResolver {
         return getDefaultLocale();
       }
 
+      @Nullable
       @Override
       public TimeZone getTimeZone() {
         return getDefaultTimeZone();

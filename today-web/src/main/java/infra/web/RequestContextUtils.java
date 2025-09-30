@@ -32,6 +32,7 @@ import infra.context.ApplicationContext;
 import infra.core.i18n.LocaleContext;
 import infra.core.i18n.LocaleContextHolder;
 import infra.core.i18n.TimeZoneAwareLocaleContext;
+import infra.lang.Contract;
 import infra.session.SessionManager;
 import infra.session.WebSession;
 import infra.util.CollectionUtils;
@@ -847,6 +848,7 @@ public final class RequestContextUtils {
       }
     }
 
+    @Contract("_, null -> fail")
     protected final void validateRequiredParameter(String name, @Nullable Object parameter)
             throws RequestBindingException {
 

@@ -168,7 +168,8 @@ public class ResponseEntity<T> extends HttpEntity<T> {
   }
 
   @Override
-  public boolean equals(Object other) {
+  @SuppressWarnings("NullAway")
+  public boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;
     }

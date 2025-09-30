@@ -878,12 +878,14 @@ final class DefaultRestClient implements RestClient {
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public <T> Future<T> body(Class<T> bodyType) {
       return clientResponse.map(response ->
               ignoreStatus(false).readBody(response, bodyType, bodyType));
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public <T> Future<T> body(ParameterizedTypeReference<T> bodyType) {
       return clientResponse.map(response -> {
         Type type = bodyType.getType();

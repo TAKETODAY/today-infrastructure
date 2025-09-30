@@ -60,6 +60,7 @@ public class ExpressionValueMethodArgumentResolver extends AbstractNamedValueRes
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   protected NamedValueInfo getNamedValueInfo(ResolvableMethodParameter resolvable) {
     if (resolvable.hasNamedValueInfo()) {
       return resolvable.getNamedValueInfo();

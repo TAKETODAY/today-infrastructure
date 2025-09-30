@@ -143,6 +143,7 @@ final class HttpServiceMethod {
   /**
    * Create the {@code ResponseFunction} that matches the method return type.
    */
+  @SuppressWarnings("NullAway")
   private static ResponseFunction createResponseFunction(HttpExchangeAdapter client, Method method) {
     MethodParameter param = returnType(method);
 
@@ -334,7 +335,7 @@ final class HttpServiceMethod {
       return new ReactorExchangeResponseFunction(responseFunction, reactiveAdapter);
     }
 
-    @SuppressWarnings("ConstantConditions")
+    @SuppressWarnings("NullAway")
     private static Function<HttpRequestValues, Publisher<?>> initResponseEntityFunction(
             ReactorHttpExchangeAdapter client, MethodParameter methodParam, @Nullable ReactiveAdapter reactiveAdapter) {
 

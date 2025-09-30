@@ -209,7 +209,7 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
    * </pre>
    */
   private String getErrorMessage(int rawStatusCode, String statusText,
-          @Nullable byte[] responseBody, @Nullable Charset charset, HttpRequest request) {
+          byte @Nullable [] responseBody, @Nullable Charset charset, HttpRequest request) {
 
     StringBuilder msg = new StringBuilder(rawStatusCode + " " + statusText);
 
