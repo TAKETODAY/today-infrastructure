@@ -72,7 +72,7 @@ public class ConfigurableMimeFileTypeMap extends FileTypeMap implements Initiali
   /**
    * Used to configure additional mappings.
    */
-  private String @Nullable []mappings;
+  private String @Nullable [] mappings;
 
   /**
    * The delegate FileTypeMap, compiled from the mappings in the mapping file
@@ -144,7 +144,7 @@ public class ConfigurableMimeFileTypeMap extends FileTypeMap implements Initiali
    * @see MimetypesFileTypeMap#MimetypesFileTypeMap(InputStream)
    * @see MimetypesFileTypeMap#addMimeTypes(String)
    */
-  protected FileTypeMap createFileTypeMap(@Nullable Resource mappingLocation, @Nullable String[] mappings) throws IOException {
+  protected FileTypeMap createFileTypeMap(@Nullable Resource mappingLocation, String @Nullable [] mappings) throws IOException {
     MimetypesFileTypeMap fileTypeMap = null;
     if (mappingLocation != null) {
       try (InputStream is = mappingLocation.getInputStream()) {

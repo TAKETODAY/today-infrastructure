@@ -40,6 +40,7 @@ import infra.util.StringUtils;
  *
  * @author Dmitriy Kopylenko
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see MailSender
  * @see JavaMailSender
  * @see MimeMessagePreparator
@@ -56,11 +57,11 @@ public class SimpleMailMessage implements MailMessage, Serializable {
   @Nullable
   private String replyTo;
 
-  private String @Nullable []to;
+  private String @Nullable [] to;
 
-  private String @Nullable []cc;
+  private String @Nullable [] cc;
 
-  private String @Nullable []bcc;
+  private String @Nullable [] bcc;
 
   @Nullable
   private Date sentDate;
@@ -256,8 +257,7 @@ public class SimpleMailMessage implements MailMessage, Serializable {
     return sb.toString();
   }
 
-  @Nullable
-  private static String[] copyOrNull(@Nullable String[] state) {
+  private static String @Nullable [] copyOrNull(String @Nullable [] state) {
     if (state == null) {
       return null;
     }

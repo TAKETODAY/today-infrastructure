@@ -39,8 +39,7 @@ public class MailSendException extends MailException {
 
   private final transient Map<Object, Exception> failedMessages;
 
-  @Nullable
-  private final Exception[] messageExceptions;
+  private final Exception @Nullable [] messageExceptions;
 
   /**
    * Constructor for MailSendException.
