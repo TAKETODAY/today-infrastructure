@@ -24,6 +24,7 @@ import org.assertj.core.api.AbstractThrowableAssert;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.MapAssert;
 import org.assertj.core.error.BasicErrorMessageFactory;
+import org.jspecify.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -52,9 +53,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @see AssertableApplicationContext
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public class ApplicationContextAssert<C extends ApplicationContext>
         extends AbstractAssert<ApplicationContextAssert<C>, C> {
 
+  @Nullable
   private final Throwable startupFailure;
 
   /**
@@ -63,7 +66,7 @@ public class ApplicationContextAssert<C extends ApplicationContext>
    * @param applicationContext the source application context
    * @param startupFailure the startup failure or {@code null}
    */
-  ApplicationContextAssert(C applicationContext, Throwable startupFailure) {
+  ApplicationContextAssert(C applicationContext, @Nullable Throwable startupFailure) {
     super(applicationContext, ApplicationContextAssert.class);
     Assert.notNull(applicationContext, "ApplicationContext is required");
     this.startupFailure = startupFailure;
@@ -290,6 +293,7 @@ public class ApplicationContextAssert<C extends ApplicationContext>
     return Assertions.assertThat(bean).as("Bean of type <%s> from <%s>", type, getApplicationContext());
   }
 
+  @Nullable
   private String getPrimary(String[] names, Scope scope) {
     if (names.length == 1) {
       return names[0];
@@ -376,6 +380,7 @@ public class ApplicationContextAssert<C extends ApplicationContext>
             getApplicationContext());
   }
 
+  @Nullable
   private Object findBean(String name) {
     try {
       return getApplicationContext().getBean(name);
@@ -482,6 +487,7 @@ public class ApplicationContextAssert<C extends ApplicationContext>
     return this.actual;
   }
 
+  @Nullable
   protected final Throwable getStartupFailure() {
     return this.startupFailure;
   }

@@ -362,7 +362,7 @@ public class JacksonAutoConfiguration {
   static class Hints implements RuntimeHintsRegistrar {
 
     @Override
-    public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+    public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
       if (ClassUtils.isPresent("com.fasterxml.jackson.databind.PropertyNamingStrategy", classLoader)) {
         registerPropertyNamingStrategyHints(hints.reflection());
       }

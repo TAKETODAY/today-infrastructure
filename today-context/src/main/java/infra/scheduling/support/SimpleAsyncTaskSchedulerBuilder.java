@@ -119,7 +119,7 @@ public class SimpleAsyncTaskSchedulerBuilder {
    * @param taskTerminationTimeout the task termination timeout
    * @return a new builder instance
    */
-  public SimpleAsyncTaskSchedulerBuilder taskTerminationTimeout(Duration taskTerminationTimeout) {
+  public SimpleAsyncTaskSchedulerBuilder taskTerminationTimeout(@Nullable Duration taskTerminationTimeout) {
     return new SimpleAsyncTaskSchedulerBuilder(threadNamePrefix, concurrencyLimit, virtualThreads,
             customizers, taskTerminationTimeout, taskDecorator);
   }

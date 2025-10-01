@@ -120,7 +120,7 @@ public class ValidatorAdapter implements SmartValidator, ApplicationContextAware
    * @param validator an existing validator to use or {@code null}
    * @return the validator to use
    */
-  public static Validator get(ApplicationContext applicationContext, Validator validator) {
+  public static Validator get(ApplicationContext applicationContext, @Nullable Validator validator) {
     if (validator != null) {
       return wrap(validator, false);
     }
@@ -132,6 +132,7 @@ public class ValidatorAdapter implements SmartValidator, ApplicationContextAware
     return create(applicationContext);
   }
 
+  @Nullable
   private static Validator getExisting(ApplicationContext context) {
     try {
       var validatorBean = context.getBean(jakarta.validation.Validator.class);

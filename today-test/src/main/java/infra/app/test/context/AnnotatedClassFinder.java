@@ -96,6 +96,7 @@ public final class AnnotatedClassFinder {
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private Class<?> scanPackage(String source) {
     while (!source.isEmpty()) {
       Set<AnnotatedBeanDefinition> components = this.scanner.findCandidateComponents(source);
