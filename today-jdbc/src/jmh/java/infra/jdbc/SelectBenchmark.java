@@ -237,8 +237,8 @@ public class SelectBenchmark {
   //          performance tests
   // ---------------------------------------
 
-  final static String SELECT_TYPICAL = "SELECT * FROM post";
-  final static String SELECT_OPTIMAL = "SELECT id, text, creation_date as creationDate, last_change_date as lastChangeDate, counter1, counter2, counter3, counter4, counter5, counter6, counter7, counter8, counter9 FROM post";
+  static final String SELECT_TYPICAL = "SELECT * FROM post";
+  static final String SELECT_OPTIMAL = "SELECT id, text, creation_date as creationDate, last_change_date as lastChangeDate, counter1, counter2, counter3, counter4, counter5, counter6, counter7, counter8, counter9 FROM post";
 
   /**
    * Considered "optimized" because it uses {@link #SELECT_OPTIMAL} rather than
