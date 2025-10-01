@@ -87,13 +87,13 @@ import infra.stereotype.Singleton;
 @State(Scope.Benchmark)
 public class SelectBenchmark {
 
-  private final static String DRIVER_CLASS = "org.h2.Driver";
-  private final static String DB_URL = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;MODE=MySQL";
-  private final static String DB_USER = "sa";
-  private final static String DB_PASSWORD = "";
-  private final static SQLDialect JOOQ_DIALECT = SQLDialect.H2;
+  private static final String DRIVER_CLASS = "org.h2.Driver";
+  private static final String DB_URL = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;MODE=MySQL";
+  private static final String DB_USER = "sa";
+  private static final String DB_PASSWORD = "";
+  private static final SQLDialect JOOQ_DIALECT = SQLDialect.H2;
 
-  private final static int ITERATIONS = 1000;
+  private static final int ITERATIONS = 1000;
 
   private RepositoryManager operations;
 
