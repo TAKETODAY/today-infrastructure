@@ -127,7 +127,7 @@ public class MapCache<Key, Value, Param> {
    */
   @Nullable
   @SuppressWarnings({ "unchecked", "NullAway" })
-  public final Value get(Key key, @Nullable Function<Key, Value> mappingFunction) {
+  public final Value get(Key key, @Nullable Function<Key, @Nullable Value> mappingFunction) {
     Value value = mapping.get(key);
     if (value == null) {
       synchronized(mapping) {
