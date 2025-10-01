@@ -41,7 +41,7 @@
     <module name="com.puppycrawl.tools.checkstyle.checks.annotation.MissingOverrideCheck" />
     <module name="com.puppycrawl.tools.checkstyle.checks.annotation.PackageAnnotationCheck" />
     <module name="com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationLocationCheck">
-      <property name="allowSamelineSingleParameterlessAnnotation" value="false" />
+      <property name="allowSamelineSingleParameterlessAnnotation" value="true" />
     </module>
 
     <!-- Block Checks -->

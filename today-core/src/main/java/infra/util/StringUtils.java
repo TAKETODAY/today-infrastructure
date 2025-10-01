@@ -31,7 +31,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Properties;
-import java.util.Random;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.StringTokenizer;
@@ -84,8 +83,6 @@ public abstract class StringUtils {
   private static final int DEFAULT_TRUNCATION_THRESHOLD = 100;
 
   private static final String TRUNCATION_SUFFIX = " (truncated)...";
-
-  private static final Random random = new Random();
 
   //---------------------------------------------------------------------
   // General convenience methods for working with Strings
@@ -1182,39 +1179,6 @@ public abstract class StringUtils {
       return relativePath;
     }
   }
-
-  @Deprecated(forRemoval = true)
-  public static String generateRandomString(int length) {
-    final char[] ret = new char[length];
-    final Random random = StringUtils.random;
-    for (int i = 0; i < length; i++) {
-      ret[i] = generateRandomCharacter(random.nextInt(3));
-    }
-    return String.valueOf(ret);
-  }
-
-  @Deprecated(forRemoval = true)
-  private static char generateRandomCharacter(int type) {
-    int rand;
-    switch (type) {
-      case 0 -> {//随机小写字母
-        rand = random.nextInt(26);
-        rand += 97;
-        return (char) rand;
-      }
-      case 1 -> {//随机大写字母
-        rand = random.nextInt(26);
-        rand += 65;
-        return (char) rand;
-      }//随机数字
-      default -> {
-        rand = random.nextInt(10);
-        rand += 48;
-        return (char) rand;
-      }
-    }
-  }
-  // 3.0
 
   /**
    * Check whether the given {@code CharSequence} contains any whitespace characters.
