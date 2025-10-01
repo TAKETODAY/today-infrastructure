@@ -2,7 +2,6 @@
 
 import java.time.OffsetDateTime
 
-apply plugin: "signing"
 apply plugin: 'java-library'
 apply plugin: 'me.champeau.jmh'
 apply plugin: "infra.nullability"
@@ -93,13 +92,7 @@ publishing {
   }
 }
 
-if (isReleaseVersion) {
-  signing {
-    for (Publication publication in publishing.publications) {
-      sign(publication)
-    }
-  }
-}
+apply from: "$rootDir/gradle/signing.gradle"
 
 // Disable publication of test fixture artifacts.
 if (configurations.findByName("testFixturesApiElements") != null) {
