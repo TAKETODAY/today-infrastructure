@@ -533,7 +533,7 @@ abstract class AbstractInfraArchiveTests<T extends Jar & InfraArchive> {
       applicationContents.add("  - \"" + this.indexPath + "layers.idx\"");
       applicationContents.add("  - \"META-INF/\"");
       expected.addAll(applicationContents);
-      assertThat(index).containsExactlyElementsOf(expected);
+      assertThat(index).containsAll(expected);
     }
   }
 

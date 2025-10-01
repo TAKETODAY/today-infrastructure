@@ -34,10 +34,14 @@ jobs:
 
   sync-to-maven-central:
     name: Sync to Maven Central
+    if: false
     needs:
       - build-and-stage-release
     runs-on: 'ubuntu-latest'
     steps:
+      - name: Checkout project sources
+        uses: actions/checkout@v4
+
       - name: Await Sync to Maven Central
         uses: ./.github/actions/await-http-resource
         with:
@@ -45,6 +49,7 @@ jobs:
 
   publish-gradle-plugin:
     name: Publish Gradle Plugin
+    if: false
     needs:
       - build-and-stage-release
       - sync-to-maven-central
