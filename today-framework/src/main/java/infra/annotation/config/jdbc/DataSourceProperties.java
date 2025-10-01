@@ -47,6 +47,7 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/23 17:13
  */
+@SuppressWarnings("NullAway")
 @ConfigurationProperties(prefix = "datasource")
 public class DataSourceProperties implements BeanClassLoaderAware, InitializingBean {
 

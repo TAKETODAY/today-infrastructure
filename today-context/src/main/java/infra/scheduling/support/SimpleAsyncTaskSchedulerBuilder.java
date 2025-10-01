@@ -97,7 +97,7 @@ public class SimpleAsyncTaskSchedulerBuilder {
    * @param concurrencyLimit the concurrency limit
    * @return a new builder instance
    */
-  public SimpleAsyncTaskSchedulerBuilder concurrencyLimit(Integer concurrencyLimit) {
+  public SimpleAsyncTaskSchedulerBuilder concurrencyLimit(@Nullable Integer concurrencyLimit) {
     return new SimpleAsyncTaskSchedulerBuilder(threadNamePrefix, concurrencyLimit, virtualThreads,
             customizers, taskTerminationTimeout, taskDecorator);
   }

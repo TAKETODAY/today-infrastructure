@@ -53,8 +53,9 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
     return Ordered.HIGHEST_PRECEDENCE + 20;
   }
 
+  @SuppressWarnings("NullAway")
   @Override
-  protected ConditionOutcome[] getOutcomes(String[] configClasses, AutoConfigurationMetadata configMetadata) {
+  protected @Nullable ConditionOutcome[] getOutcomes(String[] configClasses, AutoConfigurationMetadata configMetadata) {
     ConditionOutcome[] outcomes = new ConditionOutcome[configClasses.length];
     for (int i = 0; i < outcomes.length; i++) {
       String autoConfigurationClass = configClasses[i];

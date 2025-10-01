@@ -52,6 +52,7 @@ import infra.web.server.context.WebServerApplicationContext;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public class InfraApplicationMXBeanRegistrar implements ApplicationContextAware,
         GenericApplicationListener, EnvironmentAware, InitializingBean, DisposableBean {
 

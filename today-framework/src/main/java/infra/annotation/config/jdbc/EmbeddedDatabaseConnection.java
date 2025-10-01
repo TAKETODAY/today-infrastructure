@@ -47,6 +47,7 @@ import infra.util.ClassUtils;
  * @see #get(ClassLoader)
  * @since 4.0 2022/2/23 17:14
  */
+@SuppressWarnings("NullAway")
 public enum EmbeddedDatabaseConnection {
 
   /**

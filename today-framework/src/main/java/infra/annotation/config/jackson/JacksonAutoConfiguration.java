@@ -28,6 +28,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.cfg.ConstructorDetector;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -99,6 +101,7 @@ public class JacksonAutoConfiguration {
     return new JsonComponentModule();
   }
 
+  @SuppressWarnings("NullAway")
   @Configuration(proxyBeanMethods = false)
   public static class JacksonMixinConfiguration {
 
@@ -316,6 +319,7 @@ public class JacksonAutoConfiguration {
         }
       }
 
+      @Nullable
       private Field findPropertyNamingStrategyField(String fieldName) {
         return ReflectionUtils.findField(PropertyNamingStrategies.class, fieldName, PropertyNamingStrategy.class);
       }

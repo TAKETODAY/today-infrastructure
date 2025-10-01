@@ -65,7 +65,7 @@ public abstract class AbstractViewResolverProperties {
   /**
    * View names that can be resolved.
    */
-  private String @Nullable []viewNames;
+  private String @Nullable [] viewNames;
 
   /**
    * Whether to check that the templates location exists.
@@ -92,7 +92,7 @@ public abstract class AbstractViewResolverProperties {
     return this.viewNames;
   }
 
-  public void setViewNames(@Nullable String[] viewNames) {
+  public void setViewNames(String @Nullable [] viewNames) {
     this.viewNames = viewNames;
   }
 

@@ -277,8 +277,8 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     return null;
   }
 
-  @Nullable
   @Override
+  @SuppressWarnings("NullAway")
   public Validator mvcValidator() {
     if (ClassUtils.isPresent("jakarta.validation.Validator", getClass().getClassLoader())) {
       var validatorAdapter = ClassUtils.load(
@@ -409,6 +409,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
       }
     }
 
+    @SuppressWarnings("NullAway")
     private ResourceResolver getVersionResourceResolver(Strategy properties) {
       VersionResourceResolver resolver = new VersionResourceResolver();
       if (properties.fixed.enabled) {

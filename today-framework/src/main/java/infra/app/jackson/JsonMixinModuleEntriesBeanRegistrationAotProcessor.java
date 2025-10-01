@@ -45,6 +45,7 @@ import infra.javapoet.CodeBlock;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 class JsonMixinModuleEntriesBeanRegistrationAotProcessor implements BeanRegistrationAotProcessor {
 
   @Nullable
