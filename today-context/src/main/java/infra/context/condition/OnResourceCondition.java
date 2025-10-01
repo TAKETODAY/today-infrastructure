@@ -33,6 +33,7 @@ import infra.util.MultiValueMap;
 final class OnResourceCondition extends InfraCondition {
 
   @Override
+  @SuppressWarnings("NullAway")
   public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
     MultiValueMap<String, Object> attributes = metadata.getAllAnnotationAttributes(ConditionalOnResource.class, true);
     ResourceLoader loader = context.getResourceLoader();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.aop.aspectj.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serializable;
 
 import infra.aop.aspectj.AspectInstanceFactory;
@@ -26,7 +28,6 @@ import infra.core.Ordered;
 import infra.core.annotation.Order;
 import infra.core.annotation.OrderUtils;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**
@@ -76,6 +77,7 @@ public class BeanFactoryAspectInstanceFactory implements MetadataAwareAspectInst
    * @param type the type that should be introspected by AspectJ
    * ({@code null} indicates resolution through {@link BeanFactory#getType} via the bean name)
    */
+  @SuppressWarnings("NullAway")
   public BeanFactoryAspectInstanceFactory(BeanFactory beanFactory, String name, @Nullable Class<?> type) {
     Assert.notNull(beanFactory, "BeanFactory is required");
     Assert.notNull(name, "Bean name is required");
@@ -90,6 +92,7 @@ public class BeanFactoryAspectInstanceFactory implements MetadataAwareAspectInst
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public Object getAspectInstance() {
     return this.beanFactory.getBean(this.name);
   }
@@ -132,6 +135,7 @@ public class BeanFactoryAspectInstanceFactory implements MetadataAwareAspectInst
    * @see Order
    */
   @Override
+  @SuppressWarnings("NullAway")
   public int getOrder() {
     Class<?> type = this.beanFactory.getType(this.name);
     if (type != null) {

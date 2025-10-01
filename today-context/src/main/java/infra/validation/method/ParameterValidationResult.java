@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.validation.method;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -24,7 +26,6 @@ import java.util.function.BiFunction;
 import infra.context.MessageSourceResolvable;
 import infra.core.MethodParameter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.validation.Errors;
 import infra.validation.FieldError;
@@ -173,11 +174,11 @@ public class ParameterValidationResult {
     if (!super.equals(other)) {
       return false;
     }
-    ParameterValidationResult otherResult = (ParameterValidationResult) other;
-    return (getMethodParameter().equals(otherResult.getMethodParameter()) &&
-            ObjectUtils.nullSafeEquals(getArgument(), otherResult.getArgument()) &&
-            ObjectUtils.nullSafeEquals(getContainerIndex(), otherResult.getContainerIndex()) &&
-            ObjectUtils.nullSafeEquals(getContainerKey(), otherResult.getContainerKey()));
+    return other instanceof ParameterValidationResult otherResult
+            && getMethodParameter().equals(otherResult.getMethodParameter())
+            && ObjectUtils.nullSafeEquals(getArgument(), otherResult.getArgument())
+            && ObjectUtils.nullSafeEquals(getContainerIndex(), otherResult.getContainerIndex())
+            && ObjectUtils.nullSafeEquals(getContainerKey(), otherResult.getContainerKey());
   }
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.app.loader.tools;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -28,7 +30,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import infra.core.ApplicationTemp;
-import infra.lang.Nullable;
+import infra.lang.Assert;
 import infra.util.StreamUtils;
 
 /**
@@ -79,7 +81,7 @@ final class SizeCalculatingEntryWriter implements EntryWriter {
     return this.size;
   }
 
-  static EntryWriter get(@Nullable EntryWriter entryWriter) throws IOException {
+  static @Nullable EntryWriter get(@Nullable EntryWriter entryWriter) throws IOException {
     if (entryWriter == null || entryWriter.size() != -1) {
       return entryWriter;
     }
@@ -139,8 +141,10 @@ final class SizeCalculatingEntryWriter implements EntryWriter {
     }
 
     Object getContent() {
-      return (this.outputStream instanceof ByteArrayOutputStream byteArrayOutputStream)
-             ? byteArrayOutputStream.toByteArray() : this.tempFile;
+      Object result = (this.outputStream instanceof ByteArrayOutputStream byteArrayOutputStream)
+              ? byteArrayOutputStream.toByteArray() : this.tempFile;
+      Assert.state(result != null, "'result' is required");
+      return result;
     }
 
     int getSize() {

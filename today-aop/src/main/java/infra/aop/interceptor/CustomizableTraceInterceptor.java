@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,13 +18,13 @@
 package infra.aop.interceptor;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.util.ClassUtils;
 import infra.util.StopWatch;
@@ -251,6 +251,7 @@ public class CustomizableTraceInterceptor extends AbstractTraceInterceptor {
    * @see #setExceptionMessage
    */
   @Override
+  @Nullable
   protected Object invokeUnderTrace(MethodInvocation invocation, Logger logger) throws Throwable {
     String name = ClassUtils.getQualifiedMethodName(invocation.getMethod());
     StopWatch stopWatch = new StopWatch(name);
@@ -300,6 +301,7 @@ public class CustomizableTraceInterceptor extends AbstractTraceInterceptor {
    * {@code $[invocationTime]} placeholder
    * @return the formatted output to write to the log
    */
+  @SuppressWarnings("NullAway")
   protected String replacePlaceholders(String message, MethodInvocation methodInvocation,
           @Nullable Object returnValue, @Nullable Throwable throwable, long invocationTime) {
 
@@ -397,7 +399,7 @@ public class CustomizableTraceInterceptor extends AbstractTraceInterceptor {
     while (matcher.find()) {
       String match = matcher.group();
       if (!ALLOWED_PLACEHOLDERS.contains(match)) {
-        throw new IllegalArgumentException("Placeholder [" + match + "] is not valid");
+        throw new IllegalArgumentException("Placeholder [%s] is not valid".formatted(match));
       }
     }
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 package infra.http.server;
 
+import org.jspecify.annotations.Nullable;
+
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import infra.lang.Nullable;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
@@ -109,8 +110,8 @@ final class DefaultPathContainer extends PathContainer {
       String segment = (end != -1 ? path.substring(begin, end) : path.substring(begin));
       if (!segment.isEmpty()) {
         elements.add(options.shouldDecodeAndParseSegments()
-                     ? decodeAndParsePathSegment(segment)
-                     : DefaultPathSegment.from(segment, separatorElement));
+                ? decodeAndParsePathSegment(segment)
+                : DefaultPathSegment.from(segment, separatorElement));
       }
       if (end == -1) {
         break;
@@ -249,8 +250,8 @@ final class DefaultPathContainer extends PathContainer {
      */
     static DefaultPathSegment from(String value, DefaultSeparator separator) {
       String valueToMatch = value.contains(separator.encodedSequence())
-                            ? value.replaceAll(separator.encodedSequence(), separator.value())
-                            : value;
+              ? value.replaceAll(separator.encodedSequence(), separator.value())
+              : value;
       return from(value, valueToMatch);
     }
 

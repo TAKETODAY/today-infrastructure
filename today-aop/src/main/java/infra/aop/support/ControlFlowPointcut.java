@@ -18,6 +18,7 @@
 package infra.aop.support;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -30,7 +31,6 @@ import infra.aop.ClassFilter;
 import infra.aop.MethodMatcher;
 import infra.aop.Pointcut;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.PatternMatchUtils;
 
 /**

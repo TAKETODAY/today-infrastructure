@@ -17,6 +17,7 @@
 
 package infra.persistence;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.TestInstance;
 
 import java.io.Serializable;
@@ -41,7 +42,6 @@ import infra.jdbc.NamedQuery;
 import infra.jdbc.RepositoryManager;
 import infra.jdbc.type.BasicTypeHandler;
 import infra.jdbc.type.SmartTypeHandler;
-import infra.lang.Nullable;
 import infra.persistence.model.Gender;
 import infra.persistence.model.NoIdModel;
 import infra.persistence.model.UserModel;

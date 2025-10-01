@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.beans.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyEditor;
 import java.lang.reflect.Method;
 
@@ -26,7 +28,6 @@ import infra.beans.SimpleTypeConverter;
 import infra.beans.TypeConverter;
 import infra.beans.TypeMismatchException;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 import infra.util.ReflectiveMethodInvoker;
 
@@ -115,6 +116,7 @@ public class ArgumentConvertingMethodInvoker extends ReflectiveMethodInvoker {
    * @see #doFindMatchingMethod
    */
   @Override
+  @Nullable
   protected Method findMatchingMethod() {
     Method matchingMethod = super.findMatchingMethod();
     // Second pass: look for method where arguments can be converted to parameter types.
@@ -137,7 +139,8 @@ public class ArgumentConvertingMethodInvoker extends ReflectiveMethodInvoker {
    * @return a matching method, or {@code null} if none
    */
   @Nullable
-  protected Method doFindMatchingMethod(Object[] arguments) {
+  @SuppressWarnings("NullAway")
+  protected Method doFindMatchingMethod(@Nullable Object[] arguments) {
     TypeConverter converter = getTypeConverter();
     if (converter != null) {
       String targetMethod = getTargetMethod();
@@ -147,14 +150,14 @@ public class ArgumentConvertingMethodInvoker extends ReflectiveMethodInvoker {
       Assert.state(targetClass != null, "No target class set");
       Method[] candidates = ReflectionUtils.getAllDeclaredMethods(targetClass);
       int minTypeDiffWeight = Integer.MAX_VALUE;
-      Object[] argumentsToUse = null;
+      @Nullable Object[] argumentsToUse = null;
       for (Method candidate : candidates) {
         if (candidate.getName().equals(targetMethod)) {
           // Check if the inspected method has the correct number of parameters.
           int parameterCount = candidate.getParameterCount();
           if (parameterCount == argCount) {
             Class<?>[] paramTypes = candidate.getParameterTypes();
-            Object[] convertedArguments = new Object[argCount];
+            @Nullable Object[] convertedArguments = new Object[argCount];
             boolean match = true;
             for (int j = 0; j < argCount && match; j++) {
               // Verify that the supplied argument is assignable to the method parameter.

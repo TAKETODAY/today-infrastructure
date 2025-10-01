@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.app.loader;
+
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,7 +44,6 @@ import java.util.regex.Pattern;
 
 import infra.app.loader.log.DebugLogger;
 import infra.app.loader.net.protocol.jar.JarUrl;
-import infra.lang.Nullable;
 
 /**
  * {@link Launcher} for archives with user-configured classpath and main class through a
@@ -401,6 +402,7 @@ public class PropertiesLauncher extends Launcher {
     return getProperty(name, manifestKey, null);
   }
 
+  @Nullable
   private String getPropertyWithDefault(String name, String defaultValue) throws Exception {
     return getProperty(name, null, defaultValue);
   }

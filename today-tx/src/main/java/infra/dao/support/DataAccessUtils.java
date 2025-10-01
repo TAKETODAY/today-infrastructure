@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.dao.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -28,7 +30,6 @@ import infra.dao.EmptyResultDataAccessException;
 import infra.dao.IncorrectResultSizeDataAccessException;
 import infra.dao.TypeMismatchDataAccessException;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.NumberUtils;
 
@@ -237,6 +238,7 @@ public abstract class DataAccessUtils {
    * has been found in the given Collection
    * @see CollectionUtils#hasUniqueObject
    */
+  @SuppressWarnings("NullAway")
   public static <T> T requiredUniqueResult(@Nullable Collection<T> results) throws IncorrectResultSizeDataAccessException {
     if (CollectionUtils.isEmpty(results)) {
       throw new EmptyResultDataAccessException(1);
@@ -286,8 +288,8 @@ public abstract class DataAccessUtils {
       }
       else {
         throw new TypeMismatchDataAccessException(
-                "Result object is of type [" + result.getClass().getName() +
-                        "] and could not be converted to required type [" + requiredType.getName() + "]");
+                "Result object is of type [%s] and could not be converted to required type [%s]"
+                        .formatted(result.getClass().getName(), requiredType.getName()));
       }
     }
     return (T) result;

@@ -18,9 +18,7 @@
 /**
  * Bytecode transform supports
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.bytecode.transform;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

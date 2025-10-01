@@ -17,6 +17,8 @@
 
 package infra.web.handler.function;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -43,8 +45,6 @@ import infra.http.converter.HttpMessageConverter;
 import infra.http.server.PathContainer;
 import infra.http.server.RequestPath;
 import infra.lang.Assert;
-import infra.lang.NonNull;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.MimeTypeUtils;
@@ -754,7 +754,6 @@ public abstract class RequestPredicates {
       this.mediaTypes = mediaTypes;
     }
 
-    @NonNull
     private static List<MediaType> acceptedMediaTypes(ServerRequest.Headers headers) {
       List<MediaType> acceptedMediaTypes = headers.accept();
       if (acceptedMediaTypes.isEmpty()) {

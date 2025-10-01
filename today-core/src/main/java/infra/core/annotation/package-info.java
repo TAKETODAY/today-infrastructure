@@ -21,9 +21,7 @@
  *
  * @author TODAY 2021/8/15 22:41
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.core.annotation;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

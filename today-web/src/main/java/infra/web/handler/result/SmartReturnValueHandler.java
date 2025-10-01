@@ -17,7 +17,8 @@
 
 package infra.web.handler.result;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import infra.web.ReturnValueHandler;
 
 /**

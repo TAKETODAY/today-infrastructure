@@ -17,12 +17,13 @@
 
 package infra.transaction.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.aot.hint.MemberCategory;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.aot.hint.TypeHint;
 import infra.aot.hint.TypeReference;
-import infra.lang.Nullable;
 
 /**
  * {@link RuntimeHintsRegistrar} implementation that registers runtime hints for

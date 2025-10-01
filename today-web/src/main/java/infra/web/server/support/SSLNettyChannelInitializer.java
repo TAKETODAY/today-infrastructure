@@ -17,6 +17,8 @@
 
 package infra.web.server.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
@@ -26,7 +28,6 @@ import java.util.Map;
 
 import infra.core.ssl.SslBundle;
 import infra.core.ssl.SslOptions;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ExceptionUtils;

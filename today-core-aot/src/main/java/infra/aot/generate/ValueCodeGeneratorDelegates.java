@@ -17,6 +17,8 @@
 
 package infra.aot.generate;
 
+import org.jspecify.annotations.Nullable;
+
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,7 +36,6 @@ import java.util.stream.Stream;
 import infra.aot.generate.ValueCodeGenerator.Delegate;
 import infra.core.ResolvableType;
 import infra.javapoet.CodeBlock;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 
@@ -94,6 +95,7 @@ public abstract class ValueCodeGeneratorDelegates {
       this.emptyResult = emptyResult;
     }
 
+    @Nullable
     @Override
     @SuppressWarnings("unchecked")
     public CodeBlock generateCode(ValueCodeGenerator valueCodeGenerator, Object value) {
@@ -135,6 +137,7 @@ public abstract class ValueCodeGeneratorDelegates {
 
     private static final CodeBlock EMPTY_RESULT = CodeBlock.of("$T.emptyMap()", Collections.class);
 
+    @Nullable
     @Override
     public CodeBlock generateCode(ValueCodeGenerator valueCodeGenerator, Object value) {
       if (value instanceof Map<?, ?> map) {

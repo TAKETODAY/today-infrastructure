@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.ui.freemarker;
+
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +38,6 @@ import infra.core.io.DefaultResourceLoader;
 import infra.core.io.PropertiesUtils;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;
@@ -98,8 +99,7 @@ public class FreeMarkerConfigurationFactory {
   @Nullable
   private List<TemplateLoader> postTemplateLoaders;
 
-  @Nullable
-  private String[] templateLoaderPaths;
+  private String @Nullable []templateLoaderPaths;
 
   private ResourceLoader resourceLoader = new DefaultResourceLoader();
 
@@ -222,7 +222,7 @@ public class FreeMarkerConfigurationFactory {
    * @see freemarker.template.Configuration#setDirectoryForTemplateLoading
    * @see InfraTemplateLoader
    */
-  public void setTemplateLoaderPaths(@Nullable String... templateLoaderPaths) {
+  public void setTemplateLoaderPaths(String @Nullable ... templateLoaderPaths) {
     this.templateLoaderPaths = templateLoaderPaths;
   }
 

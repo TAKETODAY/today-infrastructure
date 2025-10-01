@@ -20,9 +20,7 @@
  * This package contains {@code MockClientHttpRequest} and
  * {@code MockClientHttpResponse}.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.mock.http.client;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

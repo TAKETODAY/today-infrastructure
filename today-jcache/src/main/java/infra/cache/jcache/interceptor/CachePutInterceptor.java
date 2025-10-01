@@ -17,6 +17,8 @@
 
 package infra.cache.jcache.interceptor;
 
+import org.jspecify.annotations.Nullable;
+
 import javax.cache.annotation.CacheKeyInvocationContext;
 import javax.cache.annotation.CachePut;
 
@@ -38,10 +40,9 @@ class CachePutInterceptor extends AbstractKeyCacheInterceptor<CachePutOperation,
     super(errorHandler);
   }
 
+  @Nullable
   @Override
-  protected Object invoke(
-          CacheOperationInvocationContext<CachePutOperation> context, CacheOperationInvoker invoker) {
-
+  protected Object invoke(CacheOperationInvocationContext<CachePutOperation> context, CacheOperationInvoker invoker) {
     CachePutOperation operation = context.getOperation();
     CacheKeyInvocationContext<CachePut> invocationContext = createCacheKeyInvocationContext(context);
 

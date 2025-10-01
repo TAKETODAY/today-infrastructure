@@ -17,6 +17,8 @@
 
 package infra.app;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
@@ -37,7 +39,6 @@ import infra.core.env.PropertySources;
 import infra.core.env.PropertySourcesPropertyResolver;
 import infra.core.io.Resource;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.Version;
 import infra.logging.LoggerFactory;
 import infra.util.StreamUtils;

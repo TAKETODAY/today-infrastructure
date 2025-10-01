@@ -18,9 +18,7 @@
 /**
  * {@link infra.core.env.Environment} support.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.app.env;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

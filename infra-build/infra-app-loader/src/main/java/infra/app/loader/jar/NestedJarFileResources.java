@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.app.loader.jar;
+
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,10 +49,12 @@ class NestedJarFileResources implements Runnable {
 
   private ZipContent zipContent;
 
+  @Nullable
   private ZipContent zipContentForManifest;
 
   private final Set<InputStream> inputStreams = Collections.newSetFromMap(new WeakHashMap<>());
 
+  @Nullable
   private Deque<Inflater> inflaterCache = new ArrayDeque<>();
 
   /**
@@ -60,7 +64,7 @@ class NestedJarFileResources implements Runnable {
    * @param nestedEntryName the nested entry or {@code null}
    * @throws IOException on I/O error
    */
-  NestedJarFileResources(File file, String nestedEntryName) throws IOException {
+  NestedJarFileResources(File file, @Nullable String nestedEntryName) throws IOException {
     this.zipContent = ZipContent.open(file.toPath(), nestedEntryName);
     this.zipContentForManifest = (this.zipContent.getKind() != Kind.NESTED_DIRECTORY) ? null
             : ZipContent.open(file.toPath());
@@ -176,7 +180,8 @@ class NestedJarFileResources implements Runnable {
     }
   }
 
-  private IOException releaseInflators(IOException exceptionChain) {
+  @Nullable
+  private IOException releaseInflators(@Nullable IOException exceptionChain) {
     Deque<Inflater> inflaterCache = this.inflaterCache;
     if (inflaterCache != null) {
       try {
@@ -191,7 +196,8 @@ class NestedJarFileResources implements Runnable {
     return exceptionChain;
   }
 
-  private IOException releaseInputStreams(IOException exceptionChain) {
+  @Nullable
+  private IOException releaseInputStreams(@Nullable IOException exceptionChain) {
     synchronized(this.inputStreams) {
       for (InputStream inputStream : List.copyOf(this.inputStreams)) {
         try {
@@ -206,7 +212,8 @@ class NestedJarFileResources implements Runnable {
     return exceptionChain;
   }
 
-  private IOException releaseZipContent(IOException exceptionChain) {
+  @Nullable
+  private IOException releaseZipContent(@Nullable IOException exceptionChain) {
     ZipContent zipContent = this.zipContent;
     if (zipContent != null) {
       try {
@@ -222,7 +229,8 @@ class NestedJarFileResources implements Runnable {
     return exceptionChain;
   }
 
-  private IOException releaseZipContentForManifest(IOException exceptionChain) {
+  @Nullable
+  private IOException releaseZipContentForManifest(@Nullable IOException exceptionChain) {
     ZipContent zipContentForManifest = this.zipContentForManifest;
     if (zipContentForManifest != null) {
       try {
@@ -238,7 +246,7 @@ class NestedJarFileResources implements Runnable {
     return exceptionChain;
   }
 
-  private IOException addToExceptionChain(IOException exceptionChain, IOException ex) {
+  private IOException addToExceptionChain(@Nullable IOException exceptionChain, IOException ex) {
     if (exceptionChain != null) {
       exceptionChain.addSuppressed(ex);
       return exceptionChain;

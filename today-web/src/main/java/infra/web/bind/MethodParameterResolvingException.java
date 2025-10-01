@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +15,8 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package infra.web.bind;
+
+import org.jspecify.annotations.Nullable;
 
 import infra.core.MethodParameter;
 
@@ -32,15 +34,15 @@ public class MethodParameterResolvingException extends RequestBindingException {
     this(parameter, null, null);
   }
 
-  public MethodParameterResolvingException(MethodParameter parameter, String message) {
+  public MethodParameterResolvingException(MethodParameter parameter, @Nullable String message) {
     this(parameter, message, null);
   }
 
-  public MethodParameterResolvingException(MethodParameter parameter, Throwable cause) {
+  public MethodParameterResolvingException(MethodParameter parameter, @Nullable Throwable cause) {
     this(parameter, null, cause);
   }
 
-  public MethodParameterResolvingException(MethodParameter parameter, String message, Throwable cause) {
+  public MethodParameterResolvingException(MethodParameter parameter, @Nullable String message, @Nullable Throwable cause) {
     super(message, cause);
     this.parameter = parameter;
   }
@@ -49,6 +51,7 @@ public class MethodParameterResolvingException extends RequestBindingException {
     return parameter;
   }
 
+  @Nullable
   public String getParameterName() {
     return parameter.getParameterName();
   }

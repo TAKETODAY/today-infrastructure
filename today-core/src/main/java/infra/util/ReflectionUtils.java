@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
@@ -39,7 +41,6 @@ import infra.core.ConstructorNotFoundException;
 import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.lang.Contract;
-import infra.lang.Nullable;
 
 /**
  * Simple utility class for working with the reflection API and handling
@@ -177,7 +178,7 @@ public abstract class ReflectionUtils {
    * @param ex the exception to rethrow
    * @throws RuntimeException the rethrown exception
    */
-  public static void rethrowRuntimeException(Throwable ex) {
+  public static void rethrowRuntimeException(@Nullable Throwable ex) {
     if (ex instanceof RuntimeException) {
       throw (RuntimeException) ex;
     }
@@ -243,7 +244,7 @@ public abstract class ReflectionUtils {
    * @see Class#getMethod
    * @since 4.0
    */
-  public static Method getMethod(Class<?> clazz, String methodName, @Nullable Class<?>... paramTypes) {
+  public static Method getMethod(Class<?> clazz, String methodName, Class<?> @Nullable ... paramTypes) {
     Assert.notNull(clazz, "Class is required");
     Assert.notNull(methodName, "Method name is required");
     if (paramTypes != null) {
@@ -284,7 +285,7 @@ public abstract class ReflectionUtils {
    * @since 4.0
    */
   @Nullable
-  public static Method getMethodIfAvailable(Class<?> clazz, String methodName, @Nullable Class<?>... paramTypes) {
+  public static Method getMethodIfAvailable(Class<?> clazz, String methodName, Class<?> @Nullable ... paramTypes) {
     Assert.notNull(clazz, "Class is required");
     Assert.notNull(methodName, "Method name is required");
     if (paramTypes != null) {
@@ -611,7 +612,7 @@ public abstract class ReflectionUtils {
    * @return the Method object, or {@code null} if none found
    */
   @Nullable
-  public static Method findMethod(Class<?> clazz, String name, @Nullable Class<?>... paramTypes) {
+  public static Method findMethod(Class<?> clazz, String name, Class<?> @Nullable ... paramTypes) {
     Assert.notNull(clazz, "Class is required");
     Assert.notNull(name, "Method name is required");
     Class<?> searchType = clazz;
@@ -640,6 +641,7 @@ public abstract class ReflectionUtils {
    * @see FunctionalInterface
    * @since 4.0
    */
+  @SuppressWarnings("NullAway")
   public static Method findFunctionalInterfaceMethod(Class clazz) {
     if (clazz.isInterface()) {
       Method found = null;
@@ -688,7 +690,7 @@ public abstract class ReflectionUtils {
    * @return the invocation result, if any
    */
   @Nullable
-  public static Object invokeMethod(Method method, @Nullable Object target, Object... args) {
+  public static Object invokeMethod(Method method, @Nullable Object target, @Nullable Object @Nullable ... args) {
     try {
       return method.invoke(target, args);
     }
@@ -1309,6 +1311,7 @@ public abstract class ReflectionUtils {
    * @see Class#getDeclaredConstructor
    * @since 4.0
    */
+  @SuppressWarnings("NullAway")
   public static <T> Constructor<T> accessibleConstructor(Class<T> targetClass, Class<?>... parameterTypes) {
     return makeAccessible(getConstructor(targetClass, parameterTypes));
   }
@@ -1378,7 +1381,7 @@ public abstract class ReflectionUtils {
     }
   }
 
-  public static <T> T invokeConstructor(Constructor<T> constructor, @Nullable Object[] args) {
+  public static <T> T invokeConstructor(Constructor<T> constructor, @Nullable Object @Nullable [] args) {
     try {
       return constructor.newInstance(args);
     }
@@ -1706,7 +1709,8 @@ public abstract class ReflectionUtils {
   /**
    * @since 4.0
    */
-  public static <T> T newInstance(Class<T> type, Class[] parameterTypes, @Nullable Object[] args) {
+  @SuppressWarnings("NullAway")
+  public static <T> T newInstance(Class<T> type, Class[] parameterTypes, @Nullable Object @Nullable [] args) {
     return invokeConstructor(getConstructor(type, parameterTypes), args);
   }
 

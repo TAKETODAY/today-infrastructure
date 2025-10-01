@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.web.client.reactive;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.NestedRuntimeException;
 
 /**
@@ -33,7 +35,7 @@ public abstract class WebClientException extends NestedRuntimeException {
    *
    * @param msg the message
    */
-  public WebClientException(String msg) {
+  public WebClientException(@Nullable String msg) {
     super(msg);
   }
 
@@ -44,7 +46,7 @@ public abstract class WebClientException extends NestedRuntimeException {
    * @param msg the message
    * @param ex the exception
    */
-  public WebClientException(String msg, Throwable ex) {
+  public WebClientException(@Nullable String msg, @Nullable Throwable ex) {
     super(msg, ex);
   }
 

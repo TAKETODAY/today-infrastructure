@@ -17,6 +17,8 @@
 
 package infra.context.properties.bind;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -43,7 +45,6 @@ import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.conversion.ConversionException;
 import infra.lang.NullValue;
-import infra.lang.Nullable;
 import infra.logging.LogMessage;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
@@ -69,6 +70,7 @@ class ValueObjectBinder implements DataObjectBinder {
     this.constructorProvider = constructorProvider;
   }
 
+  @SuppressWarnings("NullAway")
   @Nullable
   @Override
   public <T> T bind(ConfigurationPropertyName name, Bindable<T> target,
@@ -340,9 +342,8 @@ class ValueObjectBinder implements DataObjectBinder {
       this.noParameterNamesHandler = noParameterNamesHandler;
     }
 
-    @Nullable
     @Override
-    public String[] getParameterNames(@Nullable Executable executable) {
+    public String @Nullable [] getParameterNames(@Nullable Executable executable) {
       if (executable instanceof Method) {
         throw new UnsupportedOperationException();
       }

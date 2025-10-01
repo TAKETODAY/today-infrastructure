@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -27,7 +29,6 @@ import java.util.stream.Stream;
 
 import infra.core.ResolvableType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
@@ -56,7 +57,7 @@ public abstract class LambdaSafe {
    * @return a {@link Callback} instance that can be invoked.
    */
   public static <C, A> Callback<C, A> callback(Class<C> callbackType,
-          C callbackInstance, A argument, Object... additionalArguments) {
+          C callbackInstance, A argument, @Nullable Object @Nullable ... additionalArguments) {
     Assert.notNull(callbackType, "CallbackType is required");
     Assert.notNull(callbackInstance, "CallbackInstance is required");
     return new Callback<>(callbackType, callbackInstance, argument, additionalArguments);
@@ -76,7 +77,7 @@ public abstract class LambdaSafe {
    * @return a {@link Callbacks} instance that can be invoked.
    */
   public static <C, A> Callbacks<C, A> callbacks(Class<C> callbackType,
-          Collection<? extends C> callbackInstances, A argument, Object... additionalArguments) {
+          Collection<? extends C> callbackInstances, A argument, @Nullable Object @Nullable ... additionalArguments) {
     Assert.notNull(callbackType, "CallbackType is required");
     Assert.notNull(callbackInstances, "CallbackInstances is required");
     return new Callbacks<>(callbackType, callbackInstances, argument, additionalArguments);
@@ -90,17 +91,18 @@ public abstract class LambdaSafe {
    * @param <SELF> the self class reference
    */
   protected abstract static class LambdaSafeCallback<C, A, SELF extends LambdaSafeCallback<C, A, SELF>> {
+
     private Logger log;
 
     private final A argument;
 
     private final Class<C> callbackType;
 
-    private final Object[] additionalArguments;
+    private final @Nullable Object @Nullable [] additionalArguments;
 
     private Filter<C, A> filter = new GenericTypeFilter<>();
 
-    LambdaSafeCallback(Class<C> callbackType, A argument, Object[] additionalArguments) {
+    LambdaSafeCallback(Class<C> callbackType, A argument, @Nullable Object @Nullable [] additionalArguments) {
       this.argument = argument;
       this.callbackType = callbackType;
       this.additionalArguments = additionalArguments;
@@ -143,7 +145,7 @@ public abstract class LambdaSafe {
       return self();
     }
 
-    protected final <R> InvocationResult<R> invoke(C callbackInstance, Supplier<R> supplier) {
+    protected final <R> InvocationResult<R> invoke(C callbackInstance, Supplier<@Nullable R> supplier) {
       if (filter.match(callbackType, callbackInstance, argument, additionalArguments)) {
         try {
           return InvocationResult.of(supplier.get());
@@ -163,12 +165,18 @@ public abstract class LambdaSafe {
     }
 
     private boolean startsWithArgumentClassName(String message) {
-      Predicate<Object> startsWith = argument -> startsWithArgumentClassName(message, argument);
-      return startsWith.test(argument)
-              || Stream.of(additionalArguments).anyMatch(startsWith);
+      Predicate<@Nullable Object> startsWith = (argument) -> startsWithArgumentClassName(message, argument);
+      return startsWith.test(this.argument) || additionalArgumentsStartsWith(startsWith);
     }
 
-    private boolean startsWithArgumentClassName(String message, Object argument) {
+    private boolean additionalArgumentsStartsWith(Predicate<@Nullable Object> startsWith) {
+      if (this.additionalArguments == null) {
+        return false;
+      }
+      return Stream.of(this.additionalArguments).anyMatch(startsWith);
+    }
+
+    private boolean startsWithArgumentClassName(String message, @Nullable Object argument) {
       if (argument == null) {
         return false;
       }
@@ -219,7 +227,7 @@ public abstract class LambdaSafe {
 
     private final C callbackInstance;
 
-    private Callback(Class<C> callbackType, C callbackInstance, A argument, Object[] additionalArguments) {
+    private Callback(Class<C> callbackType, C callbackInstance, A argument, @Nullable Object @Nullable [] additionalArguments) {
       super(callbackType, argument, additionalArguments);
       this.callbackInstance = callbackInstance;
     }
@@ -230,10 +238,11 @@ public abstract class LambdaSafe {
      * @param invoker the invoker used to invoke the callback
      */
     public void invoke(Consumer<C> invoker) {
-      invoke(this.callbackInstance, () -> {
+      Supplier<@Nullable Void> supplier = () -> {
         invoker.accept(this.callbackInstance);
         return null;
-      });
+      };
+      invoke(this.callbackInstance, supplier);
     }
 
     /**
@@ -244,10 +253,10 @@ public abstract class LambdaSafe {
      * @return the result of the invocation (may be {@link InvocationResult#noResult}
      * if the callback was not invoked)
      */
-    public <R> InvocationResult<R> invokeAnd(Function<C, R> invoker) {
-      return invoke(this.callbackInstance, () -> invoker.apply(this.callbackInstance));
+    public <R> InvocationResult<R> invokeAnd(Function<C, @Nullable R> invoker) {
+      Supplier<@Nullable R> supplier = () -> invoker.apply(this.callbackInstance);
+      return invoke(this.callbackInstance, supplier);
     }
-
   }
 
   /**
@@ -261,7 +270,7 @@ public abstract class LambdaSafe {
     private final Collection<? extends C> callbackInstances;
 
     private Callbacks(Class<C> callbackType, Collection<? extends C> callbackInstances,
-            A argument, Object[] additionalArguments) {
+            A argument, @Nullable Object @Nullable [] additionalArguments) {
       super(callbackType, argument, additionalArguments);
       this.callbackInstances = callbackInstances;
     }
@@ -272,12 +281,13 @@ public abstract class LambdaSafe {
      * @param invoker the invoker used to invoke the callback
      */
     public void invoke(Consumer<C> invoker) {
-      for (C callbackInstance : callbackInstances) {
-        invoke(callbackInstance, () -> {
+      this.callbackInstances.forEach((callbackInstance) -> {
+        Supplier<@Nullable Void> supplier = () -> {
           invoker.accept(callbackInstance);
           return null;
-        });
-      }
+        };
+        invoke(callbackInstance, supplier);
+      });
     }
 
     /**
@@ -288,10 +298,12 @@ public abstract class LambdaSafe {
      * @return the results of the invocation (may be an empty stream if no callbacks
      * could be called)
      */
-    public <R> Stream<R> invokeAnd(Function<C, R> invoker) {
-      Function<C, InvocationResult<R>> mapper =
-              callbackInstance -> invoke(callbackInstance, () -> invoker.apply(callbackInstance));
-      return callbackInstances.stream()
+    public <R> Stream<R> invokeAnd(Function<C, @Nullable R> invoker) {
+      Function<C, InvocationResult<R>> mapper = (callbackInstance) -> {
+        Supplier<@Nullable R> supplier = () -> invoker.apply(callbackInstance);
+        return invoke(callbackInstance, supplier);
+      };
+      return this.callbackInstances.stream()
               .map(mapper)
               .filter(InvocationResult::hasResult)
               .map(InvocationResult::get);
@@ -317,7 +329,7 @@ public abstract class LambdaSafe {
      * @param additionalArguments any additional arguments
      * @return if the callback matches and should be invoked
      */
-    boolean match(Class<C> callbackType, C callbackInstance, A argument, Object[] additionalArguments);
+    boolean match(Class<C> callbackType, C callbackInstance, A argument, @Nullable Object @Nullable [] additionalArguments);
 
     /**
      * Return a {@link Filter} that allows all callbacks to be invoked.
@@ -339,7 +351,7 @@ public abstract class LambdaSafe {
   private static final class GenericTypeFilter<C, A> implements Filter<C, A> {
 
     @Override
-    public boolean match(Class<C> callbackType, C callbackInstance, A argument, Object[] additionalArguments) {
+    public boolean match(Class<C> callbackType, C callbackInstance, A argument, @Nullable Object @Nullable [] additionalArguments) {
       ResolvableType type = ResolvableType.forClass(callbackType, callbackInstance.getClass());
       if (type.getGenerics().length == 1) {
         Class<?> resolveGeneric = type.resolveGeneric();

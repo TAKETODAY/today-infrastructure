@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
 
 package infra.app.diagnostics.analyzer;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.app.diagnostics.AbstractFailureAnalyzer;
 import infra.app.diagnostics.FailureAnalysis;
 import infra.app.diagnostics.FailureAnalyzer;
-import infra.lang.Nullable;
 import jakarta.validation.ValidationException;
 
 /**
@@ -42,8 +43,12 @@ class ValidationExceptionFailureAnalyzer extends AbstractFailureAnalyzer<Validat
   @Override
   @Nullable
   protected FailureAnalysis analyze(Throwable rootFailure, ValidationException cause) {
-    if (cause.getMessage().startsWith(JAVAX_MISSING_IMPLEMENTATION_MESSAGE)
-            || cause.getMessage().startsWith(JAKARTA_MISSING_IMPLEMENTATION_MESSAGE)) {
+    String message = cause.getMessage();
+    if (message == null) {
+      return null;
+    }
+    if (message.startsWith(JAVAX_MISSING_IMPLEMENTATION_MESSAGE)
+            || message.startsWith(JAKARTA_MISSING_IMPLEMENTATION_MESSAGE)) {
       return new FailureAnalysis(
               "The Bean Validation API is on the classpath but no implementation could be found",
               "Add an implementation, such as Hibernate Validator, to the classpath", cause);

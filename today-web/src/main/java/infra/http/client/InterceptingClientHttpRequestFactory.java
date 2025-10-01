@@ -17,6 +17,8 @@
 
 package infra.http.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +26,6 @@ import java.util.function.Predicate;
 
 import infra.http.HttpMethod;
 import infra.http.HttpRequest;
-import infra.lang.Nullable;
 
 /**
  * {@link ClientHttpRequestFactory} wrapper with support for

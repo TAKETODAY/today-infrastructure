@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.expression.spel.standard;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -78,7 +80,6 @@ import infra.expression.spel.ast.StringLiteral;
 import infra.expression.spel.ast.Ternary;
 import infra.expression.spel.ast.TypeReference;
 import infra.expression.spel.ast.VariableReference;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**
@@ -90,6 +91,7 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 final class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
 
   private static final Pattern VALID_QUALIFIED_ID_PATTERN = Pattern.compile("[\\p{L}\\p{N}_$]+");
@@ -165,6 +167,7 @@ final class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
   //	    | (QMARK^ expression COLON! expression)
   //      | (ELVIS^ expression))?;
   @Nullable
+  @SuppressWarnings("NullAway") // Not null assertion performed in SpelNodeImpl constructor
   private SpelNodeImpl eatExpression() {
     SpelNodeImpl expr = eatLogicalOrExpression();
     Token t = peekToken();
@@ -275,6 +278,7 @@ final class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
 
   //sumExpression: productExpression ( (PLUS^ | MINUS^) productExpression)*;
   @Nullable
+  @SuppressWarnings("NullAway") // Not null assertion performed in SpelNodeImpl constructor
   private SpelNodeImpl eatSumExpression() {
     SpelNodeImpl expr = eatProductExpression();
     while (peekToken(TokenKind.PLUS, TokenKind.MINUS, TokenKind.INC)) {
@@ -314,6 +318,7 @@ final class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
 
   // powerExpr  : unaryExpression (POWER^ unaryExpression)? (INC || DEC) ;
   @Nullable
+  @SuppressWarnings("NullAway") // Not null assertion performed in SpelNodeImpl constructor
   private SpelNodeImpl eatPowerIncDecExpression() {
     SpelNodeImpl expr = eatUnaryExpression();
     if (peekToken(TokenKind.POWER)) {
@@ -334,6 +339,7 @@ final class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
 
   // unaryExpression: (PLUS^ | MINUS^ | BANG^ | INC^ | DEC^) unaryExpression | primaryExpression ;
   @Nullable
+  @SuppressWarnings("NullAway") // Not null assertion performed in SpelNodeImpl constructor
   private SpelNodeImpl eatUnaryExpression() {
     if (peekToken(TokenKind.NOT, TokenKind.PLUS, TokenKind.MINUS)) {
       Token t = takeToken();

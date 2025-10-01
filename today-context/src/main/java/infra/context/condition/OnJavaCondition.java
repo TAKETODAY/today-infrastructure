@@ -41,6 +41,7 @@ class OnJavaCondition extends InfraCondition {
   private static final JavaVersion JVM_VERSION = JavaVersion.getJavaVersion();
 
   @Override
+  @SuppressWarnings("NullAway")
   public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
     Map<String, Object> attributes = metadata.getAnnotationAttributes(ConditionalOnJava.class);
     ConditionalOnJava.Range range = (ConditionalOnJava.Range) attributes.get("range");

@@ -17,13 +17,14 @@
 
 package infra.core.io.buffer;
 
+import org.jspecify.annotations.Nullable;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.NoSuchElementException;
 import java.util.function.IntPredicate;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.VisibleForTesting;
 import infra.util.ObjectUtils;
 

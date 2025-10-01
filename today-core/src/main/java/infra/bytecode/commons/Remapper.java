@@ -154,9 +154,9 @@ public abstract class Remapper {
               handle.getTag(),
               mapType(handle.getOwner()),
               isFieldHandle ? mapFieldName(handle.getOwner(), handle.getName(), handle.getDesc())
-                            : mapMethodName(handle.getOwner(), handle.getName(), handle.getDesc()),
+                      : mapMethodName(handle.getOwner(), handle.getName(), handle.getDesc()),
               isFieldHandle ? mapDesc(handle.getDesc())
-                            : mapMethodDesc(handle.getDesc()),
+                      : mapMethodDesc(handle.getDesc()),
               handle.isInterface());
     }
     if (value instanceof ConstantDynamic constantDynamic) {

@@ -17,6 +17,8 @@
 
 package infra.app.test.mock.mockito;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Collections;
@@ -60,7 +62,6 @@ import infra.core.Ordered;
 import infra.core.PriorityOrdered;
 import infra.core.ResolvableType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.test.context.junit4.InfraRunner;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;

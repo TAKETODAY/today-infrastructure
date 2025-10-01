@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.validation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyEditor;
 import java.io.Serial;
 import java.io.Serializable;
@@ -30,7 +32,6 @@ import java.util.Map;
 
 import infra.beans.PropertyEditorRegistry;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 
@@ -97,13 +98,13 @@ public abstract class AbstractBindingResult extends AbstractErrors implements Bi
   }
 
   @Override
-  public void reject(String errorCode, @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
+  public void reject(String errorCode, Object @Nullable [] errorArgs, @Nullable String defaultMessage) {
     addError(new ObjectError(getObjectName(), resolveMessageCodes(errorCode), errorArgs, defaultMessage));
   }
 
   @Override
   public void rejectValue(@Nullable String field, String errorCode,
-          @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
+          Object @Nullable [] errorArgs, @Nullable String defaultMessage) {
 
     if (StringUtils.isEmpty(getNestedPath()) && StringUtils.isEmpty(field)) {
       // We're at the top of the nested object hierarchy,
@@ -269,6 +270,7 @@ public abstract class AbstractBindingResult extends AbstractErrors implements Bi
    * @see #MODEL_KEY_PREFIX
    */
   @Override
+  @SuppressWarnings("NullAway")
   public Map<String, Object> getModel() {
     LinkedHashMap<String, Object> model = new LinkedHashMap<>(2);
     // Mapping from name to target object.
@@ -330,6 +332,7 @@ public abstract class AbstractBindingResult extends AbstractErrors implements Bi
     this.errors.add(error);
   }
 
+  @SuppressWarnings("NullAway")
   @Override
   public void recordFieldValue(String field, Class<?> type, @Nullable Object value) {
     this.fieldTypes.put(field, type);

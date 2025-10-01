@@ -17,11 +17,12 @@
 
 package infra.context.properties.bind;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.PropertySource;
 import infra.core.env.PropertySources;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.PlaceholderResolver;
 import infra.util.PropertyPlaceholderHandler;
 

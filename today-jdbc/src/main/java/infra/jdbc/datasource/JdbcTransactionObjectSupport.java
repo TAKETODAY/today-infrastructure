@@ -17,12 +17,13 @@
 
 package infra.jdbc.datasource;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Savepoint;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.transaction.CannotCreateTransactionException;
 import infra.transaction.NestedTransactionNotSupportedException;
 import infra.transaction.SavepointManager;

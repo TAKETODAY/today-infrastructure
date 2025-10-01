@@ -38,7 +38,7 @@ import infra.http.MediaType;
 import infra.http.server.reactive.AbstractServerHttpRequest;
 import infra.http.server.reactive.SslInfo;
 import infra.lang.Assert;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MimeType;
 import infra.util.MultiValueMap;

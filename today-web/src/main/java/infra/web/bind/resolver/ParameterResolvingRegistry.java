@@ -17,6 +17,8 @@
 
 package infra.web.bind.resolver;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +34,6 @@ import infra.http.converter.AllEncompassingFormHttpMessageConverter;
 import infra.http.converter.ByteArrayHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.web.RedirectModelManager;
 import infra.web.RequestContext;
@@ -68,6 +69,7 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
   private RedirectModelManager redirectModelManager;
 
   // @since 4.0
+  @SuppressWarnings("NullAway.Init")
   private List<HttpMessageConverter<?>> messageConverters;
 
   // @since 4.0
@@ -83,6 +85,7 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
     this.messageConverters.add(new AllEncompassingFormHttpMessageConverter());
   }
 
+  @SuppressWarnings("NullAway")
   public ParameterResolvingRegistry(List<HttpMessageConverter<?>> messageConverters) {
     setMessageConverters(messageConverters);
   }
@@ -269,11 +272,11 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
 
   //
 
-  public void addCustomizedStrategies(@Nullable ParameterResolvingStrategy... strategies) {
+  public void addCustomizedStrategies(ParameterResolvingStrategy @Nullable ... strategies) {
     customizedStrategies.add(strategies);
   }
 
-  public void addDefaultStrategies(@Nullable ParameterResolvingStrategy... strategies) {
+  public void addDefaultStrategies(ParameterResolvingStrategy @Nullable ... strategies) {
     defaultStrategies.add(strategies);
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ import java.util.Map;
 
 import infra.context.ApplicationContextInitializer;
 import infra.context.ConfigurableApplicationContext;
+import infra.core.annotation.AliasFor;
 import infra.test.context.ContextConfiguration;
 import infra.test.context.ContextConfigurationAttributes;
 import infra.test.context.ContextHierarchy;
@@ -329,6 +330,7 @@ class ContextLoaderUtilsContextHierarchyTests extends AbstractContextConfigurati
   }
 
   /**
+   *
    */
   @Test
   void buildContextHierarchyMapForTestClassHierarchyWithMultiLevelContextHierarchiesAndOverriddenInitializers() {
@@ -512,6 +514,7 @@ class ContextLoaderUtilsContextHierarchyTests extends AbstractContextConfigurati
   }
 
   /**
+   *
    */
   @ContextHierarchy({//
           //
@@ -571,6 +574,7 @@ class ContextLoaderUtilsContextHierarchyTests extends AbstractContextConfigurati
   @Retention(RetentionPolicy.RUNTIME)
   private static @interface ContextConfigWithOverrides {
 
+    @AliasFor(annotation = ContextConfiguration.class)
     String[] locations() default "A.xml";
   }
 

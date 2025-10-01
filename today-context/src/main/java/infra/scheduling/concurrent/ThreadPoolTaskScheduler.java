@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.scheduling.concurrent;
+
+import org.jspecify.annotations.Nullable;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -39,7 +41,6 @@ import infra.core.task.AsyncTaskExecutor;
 import infra.core.task.TaskDecorator;
 import infra.core.task.TaskRejectedException;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.scheduling.SchedulingTaskExecutor;
 import infra.scheduling.TaskScheduler;
 import infra.scheduling.Trigger;

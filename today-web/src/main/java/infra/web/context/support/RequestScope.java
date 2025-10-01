@@ -17,9 +17,10 @@
 
 package infra.web.context.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Supplier;
 
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
 import infra.web.RequestContextUtils;
@@ -40,6 +41,7 @@ public class RequestScope extends AbstractRequestContextScope<RequestContext> {
     return doGetBean(context, beanName, objectFactory);
   }
 
+  @Nullable
   @Override
   public Object remove(String name) {
     RequestContext context = RequestContextHolder.getRequired();
@@ -51,6 +53,7 @@ public class RequestScope extends AbstractRequestContextScope<RequestContext> {
     context.setAttribute(beanName, scopedObject);
   }
 
+  @Nullable
   @Override
   protected Object getAttribute(RequestContext context, String beanName) {
     return context.getAttribute(beanName);

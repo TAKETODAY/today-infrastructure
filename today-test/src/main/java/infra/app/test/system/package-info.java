@@ -18,9 +18,7 @@
 /**
  * Classes for {@link java.lang.System System}-related testing.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.app.test.system;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

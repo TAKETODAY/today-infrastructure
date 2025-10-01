@@ -47,6 +47,8 @@ import com.fasterxml.jackson.dataformat.xml.XmlFactory;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -68,7 +70,6 @@ import infra.beans.BeanUtils;
 import infra.context.ApplicationContext;
 import infra.http.ProblemDetail;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
@@ -140,8 +141,7 @@ public class Jackson2ObjectMapperBuilder {
   @Nullable
   private TypeResolverBuilder<?> defaultTyping;
 
-  @Nullable
-  private JsonInclude.Value serializationInclusion;
+  private JsonInclude.@Nullable Value serializationInclusion;
 
   @Nullable
   private FilterProvider filters;
@@ -149,8 +149,7 @@ public class Jackson2ObjectMapperBuilder {
   @Nullable
   private List<Module> modules;
 
-  @Nullable
-  private Class<? extends Module>[] moduleClasses;
+  private Class<? extends Module> @Nullable [] moduleClasses;
 
   private boolean findModulesViaServiceLoader = false;
 
@@ -271,6 +270,7 @@ public class Jackson2ObjectMapperBuilder {
    * introspector (possibly {@code null}); the result of the function becomes
    * the new introspector.
    */
+  @SuppressWarnings("NullAway")
   public Jackson2ObjectMapperBuilder annotationIntrospector(
           Function<AnnotationIntrospector, AnnotationIntrospector> pairingFunction) {
     this.annotationIntrospector = pairingFunction.apply(this.annotationIntrospector);

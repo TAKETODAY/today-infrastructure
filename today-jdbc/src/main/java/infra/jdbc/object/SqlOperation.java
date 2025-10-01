@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 package infra.jdbc.object;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.jdbc.core.PreparedStatementCreator;
 import infra.jdbc.core.PreparedStatementCreatorFactory;
 import infra.jdbc.core.PreparedStatementSetter;
 import infra.jdbc.core.namedparam.NamedParameterUtils;
 import infra.jdbc.core.namedparam.ParsedSql;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Operation object representing an SQL-based operation such as a query or update,
@@ -37,6 +38,7 @@ import infra.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public abstract class SqlOperation extends RdbmsOperation {
 
   /**
@@ -109,7 +111,7 @@ public abstract class SqlOperation extends RdbmsOperation {
    *
    * @param params the parameter array (may be {@code null})
    */
-  protected final PreparedStatementCreator newPreparedStatementCreator(@Nullable Object[] params) {
+  protected final PreparedStatementCreator newPreparedStatementCreator(@Nullable Object @Nullable [] params) {
     Assert.state(this.preparedStatementFactory != null, "No PreparedStatementFactory available");
     return this.preparedStatementFactory.newPreparedStatementCreator(params);
   }

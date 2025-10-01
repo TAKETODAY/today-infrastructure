@@ -17,6 +17,8 @@
 
 package infra.context.annotation.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -41,7 +43,6 @@ import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
 import infra.core.type.AnnotationMetadata;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
@@ -62,6 +63,7 @@ import infra.util.StringUtils;
  * @see EnableAutoConfiguration
  * @since 4.0 2022/2/1 02:37
  */
+@SuppressWarnings("NullAway")
 public class AutoConfigurationImportSelector implements DeferredImportSelector,
         BeanClassLoaderAware, BootstrapContextAware, Ordered, Predicate<String> {
 
@@ -77,8 +79,10 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
 
   protected BootstrapContext bootstrapContext;
 
+  @Nullable
   private volatile ConfigurationClassFilter configurationClassFilter;
 
+  @Nullable
   private volatile AutoConfigurationReplacements autoConfigurationReplacements;
 
   public AutoConfigurationImportSelector() {
@@ -266,6 +270,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
    *
    * @return excluded auto-configurations
    */
+  @SuppressWarnings("NullAway")
   protected List<String> getExcludeAutoConfigurationsProperty() {
     Environment environment = getEnvironment();
     if (environment == null) {

@@ -17,6 +17,8 @@
 
 package infra.context.properties.bind;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,7 +45,6 @@ import infra.core.env.ConfigurableEnvironment;
 import infra.format.support.ApplicationConversionService;
 import infra.format.support.DefaultFormattingConversionService;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ConcurrentReferenceHashMap;
 
 /**
@@ -55,6 +56,7 @@ import infra.util.ConcurrentReferenceHashMap;
  * @author Madhura Bhave
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public class Binder {
 
   private static final Set<Class<?>> NON_BEAN_CLASSES = Set.of(Object.class, Class.class);
@@ -356,6 +358,7 @@ public class Binder {
     return bind(name, target, handler, context, false, create);
   }
 
+  @SuppressWarnings("NullAway")
   private <T> T bind(ConfigurationPropertyName name, Bindable<T> target,
           BindHandler handler, Context context, boolean allowRecursiveBinding, boolean create) {
     try (var ignored = this.configurationPropertyCaching.override()) {
@@ -374,6 +377,8 @@ public class Binder {
     }
   }
 
+  @Nullable
+  @SuppressWarnings("NullAway")
   private <T> T handleBindResult(ConfigurationPropertyName name, Bindable<T> target,
           BindHandler handler, Context context, @Nullable Object result, boolean create) throws Exception {
     if (result != null) {
@@ -396,6 +401,7 @@ public class Binder {
     return context.getConverter().convert(result, target);
   }
 
+  @Nullable
   private <T> T handleBindError(ConfigurationPropertyName name, Bindable<T> target,
           BindHandler handler, Context context, Exception error) {
     try {
@@ -453,6 +459,7 @@ public class Binder {
     return null;
   }
 
+  @Nullable
   private <T> Object bindAggregate(ConfigurationPropertyName name, Bindable<T> target,
           BindHandler handler, Context context, AggregateBinder<?> aggregateBinder) {
 
@@ -504,7 +511,7 @@ public class Binder {
   }
 
   @Nullable
-  private Object fromDataObjectBinders(@Nullable BindMethod bindMethod, Function<DataObjectBinder, Object> operation) {
+  private Object fromDataObjectBinders(@Nullable BindMethod bindMethod, Function<DataObjectBinder, @Nullable Object> operation) {
     for (DataObjectBinder objectBinder : dataObjectBinders.get(bindMethod)) {
       Object object = operation.apply(objectBinder);
       if (object != null) {
@@ -605,7 +612,8 @@ public class Binder {
       }
     }
 
-    private <T> T withDataObject(Class<?> type, Supplier<T> supplier) {
+    @Nullable
+    private <T> T withDataObject(Class<?> type, Supplier<@Nullable T> supplier) {
       this.dataObjectBindings.push(type);
       try {
         return withIncreasedDepth(supplier);
@@ -619,7 +627,8 @@ public class Binder {
       return this.dataObjectBindings.contains(type);
     }
 
-    private <T> T withIncreasedDepth(Supplier<T> supplier) {
+    @Nullable
+    private <T> T withIncreasedDepth(Supplier<@Nullable T> supplier) {
       increaseDepth();
       try {
         return supplier.get();

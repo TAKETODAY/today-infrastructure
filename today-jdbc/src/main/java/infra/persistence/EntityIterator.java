@@ -89,7 +89,7 @@ public abstract class EntityIterator<T> extends ResultSetIterator<T> {
    * values are the corresponding entities. If the property value is null for any
    * entity, the behavior is undefined.
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "NullAway" })
   public <K> Map<K, T> toMap(String mapKey) {
     try {
       LinkedHashMap<K, T> entities = new LinkedHashMap<>();

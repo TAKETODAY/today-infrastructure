@@ -18,9 +18,7 @@
 /**
  * Support for embedded web servers.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.server;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

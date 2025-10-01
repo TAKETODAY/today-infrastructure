@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,9 @@
 
 package infra.beans.factory;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.BeansException;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**
@@ -45,7 +46,7 @@ public class UnsatisfiedDependencyException extends BeanCreationException {
    * @param msg the detail message
    */
   public UnsatisfiedDependencyException(@Nullable String resourceDescription,
-          @Nullable String beanName, String propertyName, String msg) {
+          @Nullable String beanName, String propertyName, @Nullable String msg) {
 
     super(resourceDescription, beanName,
             "Unsatisfied dependency expressed through bean property '%s'%s".formatted(propertyName, StringUtils.isNotEmpty(msg) ? ": " + msg : ""));
@@ -76,7 +77,7 @@ public class UnsatisfiedDependencyException extends BeanCreationException {
    * @param msg the detail message
    */
   public UnsatisfiedDependencyException(@Nullable String resourceDescription,
-          @Nullable String beanName, @Nullable InjectionPoint injectionPoint, String msg) {
+          @Nullable String beanName, @Nullable InjectionPoint injectionPoint, @Nullable String msg) {
     super(resourceDescription, beanName, "Unsatisfied dependency expressed through %s%s"
             .formatted(injectionPoint, StringUtils.isNotEmpty(msg) ? ": " + msg : ""));
     this.injectionPoint = injectionPoint;

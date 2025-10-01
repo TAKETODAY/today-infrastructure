@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,14 @@
 
 package infra.app.diagnostics.analyzer;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.app.diagnostics.AbstractFailureAnalyzer;
 import infra.app.diagnostics.FailureAnalysis;
 import infra.context.properties.bind.BindException;
 import infra.context.properties.bind.UnboundConfigurationPropertiesException;
 import infra.context.properties.source.ConfigurationProperty;
+import infra.lang.Assert;
 
 /**
  * An {@link AbstractFailureAnalyzer} that performs analysis of failures caused by any
@@ -37,11 +40,12 @@ class UnboundConfigurationPropertyFailureAnalyzer
   @Override
   protected FailureAnalysis analyze(Throwable rootFailure, UnboundConfigurationPropertiesException cause) {
     BindException exception = findCause(rootFailure, BindException.class);
+    Assert.state(exception != null, "BindException not found");
     return analyzeUnboundConfigurationPropertiesException(exception, cause);
   }
 
-  private FailureAnalysis analyzeUnboundConfigurationPropertiesException(BindException cause,
-                                                                         UnboundConfigurationPropertiesException exception) {
+  private FailureAnalysis analyzeUnboundConfigurationPropertiesException(
+          BindException cause, UnboundConfigurationPropertiesException exception) {
     StringBuilder description = new StringBuilder(
             String.format("Binding to target %s failed:%n", cause.getTarget()));
     for (ConfigurationProperty property : exception.getUnboundProperties()) {
@@ -51,7 +55,7 @@ class UnboundConfigurationPropertyFailureAnalyzer
     return getFailureAnalysis(description, cause);
   }
 
-  private void buildDescription(StringBuilder description, ConfigurationProperty property) {
+  private void buildDescription(StringBuilder description, @Nullable ConfigurationProperty property) {
     if (property != null) {
       description.append(String.format("%n    Property: %s", property.getName()));
       description.append(String.format("%n    Value: %s", property.getValue()));

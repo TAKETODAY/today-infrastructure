@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jdbc.support.rowset;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -30,10 +32,9 @@ import java.util.Collections;
 import java.util.Map;
 
 import infra.jdbc.InvalidResultSetAccessException;
-import infra.lang.Nullable;
+import infra.jdbc.core.JdbcTemplate;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
-import infra.jdbc.core.JdbcTemplate;
 
 /**
  * The default implementation of Framework's {@link SqlRowSet} interface, wrapping a

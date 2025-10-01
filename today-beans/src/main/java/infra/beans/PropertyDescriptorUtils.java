@@ -17,12 +17,13 @@
 
 package infra.beans;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.Enumeration;
 
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 /**

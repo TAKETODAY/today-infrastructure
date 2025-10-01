@@ -17,6 +17,8 @@
 
 package infra.web.mock;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -25,7 +27,6 @@ import infra.context.ApplicationContextInitializer;
 import infra.context.ConfigurableApplicationContext;
 import infra.core.env.ConfigurableEnvironment;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.mock.api.DispatcherType;
 import infra.mock.api.MockApi;
 import infra.mock.api.MockConfig;

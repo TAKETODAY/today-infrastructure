@@ -17,6 +17,8 @@
 
 package infra.jdbc.datasource;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -28,7 +30,6 @@ import infra.beans.factory.InitializingBean;
 import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.support.JdbcTransactionManager;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.transaction.CannotCreateTransactionException;
 import infra.transaction.TransactionDefinition;
 import infra.transaction.TransactionSystemException;

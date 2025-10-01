@@ -17,6 +17,8 @@
 
 package infra.jdbc.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -48,18 +50,21 @@ public class EnumTypeHandler<E extends Enum<E>> extends BasicTypeHandler<E> {
     ps.setString(i, arg.name());
   }
 
+  @Nullable
   @Override
   public E getResult(ResultSet rs, String columnName) throws SQLException {
     String s = rs.getString(columnName);
     return s == null ? null : Enum.valueOf(type, s);
   }
 
+  @Nullable
   @Override
   public E getResult(ResultSet rs, int columnIndex) throws SQLException {
     String s = rs.getString(columnIndex);
     return s == null ? null : Enum.valueOf(type, s);
   }
 
+  @Nullable
   @Override
   public E getResult(CallableStatement cs, int columnIndex) throws SQLException {
     String s = cs.getString(columnIndex);

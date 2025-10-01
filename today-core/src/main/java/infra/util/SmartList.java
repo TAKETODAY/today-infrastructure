@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Array;
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -32,7 +34,6 @@ import java.util.function.Consumer;
 import java.util.function.IntFunction;
 
 import infra.core.ArraySizeTrimmer;
-import infra.lang.Nullable;
 
 /**
  * A List which is optimised for the sizes of 0 and 1,
@@ -46,17 +47,18 @@ import infra.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/9/4 19:53
  */
+@SuppressWarnings("NullAway")
 public class SmartList<E> extends AbstractList<E> implements RandomAccess, ArraySizeTrimmer {
 
   private int size;
 
+  @Nullable
   private Object element; // null if size==0, (E)element if size==1, Object[] if size>=2
 
   public SmartList() {
-
   }
 
-  public SmartList(E element) {
+  public SmartList(@Nullable E element) {
     this.element = element;
     size = 1;
   }

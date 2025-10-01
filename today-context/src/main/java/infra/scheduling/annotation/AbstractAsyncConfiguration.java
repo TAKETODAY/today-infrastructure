@@ -17,6 +17,8 @@
 
 package infra.scheduling.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -30,7 +32,6 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.ImportAware;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.type.AnnotationMetadata;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.function.SingletonSupplier;
 
@@ -45,6 +46,7 @@ import infra.util.function.SingletonSupplier;
  * @see EnableAsync
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 @DisableDependencyInjection
 @Configuration(proxyBeanMethods = false)
 public abstract class AbstractAsyncConfiguration implements ImportAware, BeanFactoryAware {
@@ -53,10 +55,10 @@ public abstract class AbstractAsyncConfiguration implements ImportAware, BeanFac
   protected MergedAnnotation<EnableAsync> enableAsync;
 
   @Nullable
-  protected Supplier<Executor> executor;
+  protected Supplier<@Nullable Executor> executor;
 
   @Nullable
-  protected Supplier<AsyncUncaughtExceptionHandler> exceptionHandler;
+  protected Supplier<@Nullable AsyncUncaughtExceptionHandler> exceptionHandler;
 
   @Override
   public void setImportMetadata(AnnotationMetadata importMetadata) {
@@ -72,7 +74,7 @@ public abstract class AbstractAsyncConfiguration implements ImportAware, BeanFac
    */
   @Override
   public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-    var asyncConfigurer = SingletonSupplier.from(() -> {
+    var asyncConfigurer = SingletonSupplier.ofNullable(() -> {
       var configurers = beanFactory.getBeanNamesForType(AsyncConfigurer.class);
       if (ObjectUtils.isEmpty(configurers)) {
         return null;
@@ -87,7 +89,7 @@ public abstract class AbstractAsyncConfiguration implements ImportAware, BeanFac
     this.exceptionHandler = adapt(asyncConfigurer, AsyncConfigurer::getAsyncUncaughtExceptionHandler);
   }
 
-  private <T> Supplier<T> adapt(Supplier<AsyncConfigurer> supplier, Function<AsyncConfigurer, T> provider) {
+  private <T> Supplier<@Nullable T> adapt(SingletonSupplier<AsyncConfigurer> supplier, Function<AsyncConfigurer, @Nullable T> provider) {
     return () -> {
       AsyncConfigurer asyncConfigurer = supplier.get();
       return asyncConfigurer != null ? provider.apply(asyncConfigurer) : null;

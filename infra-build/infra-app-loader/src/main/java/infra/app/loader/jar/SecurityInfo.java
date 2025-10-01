@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.app.loader.jar;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.security.CodeSigner;
@@ -25,7 +27,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
 import infra.app.loader.zip.ZipContent;
-import infra.lang.Nullable;
 
 /**
  * Security information ({@link Certificate} and {@link CodeSigner} details) for entries
@@ -39,29 +40,24 @@ final class SecurityInfo {
 
   static final SecurityInfo NONE = new SecurityInfo(null, null);
 
-  @Nullable
-  private final Certificate[][] certificateLookups;
+  private final Certificate @Nullable [][] certificateLookups;
 
-  @Nullable
-  private final CodeSigner[][] codeSignerLookups;
+  private final CodeSigner @Nullable [][] codeSignerLookups;
 
-  private SecurityInfo(@Nullable Certificate[][] entryCertificates, @Nullable CodeSigner[][] entryCodeSigners) {
+  private SecurityInfo(Certificate @Nullable [][] entryCertificates, CodeSigner @Nullable [][] entryCodeSigners) {
     this.certificateLookups = entryCertificates;
     this.codeSignerLookups = entryCodeSigners;
   }
 
-  @Nullable
-  Certificate[] getCertificates(ZipContent.Entry contentEntry) {
+  Certificate @Nullable [] getCertificates(ZipContent.Entry contentEntry) {
     return (this.certificateLookups != null) ? clone(this.certificateLookups[contentEntry.getLookupIndex()]) : null;
   }
 
-  @Nullable
-  CodeSigner[] getCodeSigners(ZipContent.Entry contentEntry) {
+  CodeSigner @Nullable [] getCodeSigners(ZipContent.Entry contentEntry) {
     return (this.codeSignerLookups != null) ? clone(this.codeSignerLookups[contentEntry.getLookupIndex()]) : null;
   }
 
-  @Nullable
-  private <T> T[] clone(@Nullable T[] array) {
+  private <T> T @Nullable [] clone(T @Nullable [] array) {
     return (array != null) ? array.clone() : null;
   }
 

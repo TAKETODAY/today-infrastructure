@@ -22,9 +22,7 @@
  * Support for creating a client proxy for an HTTP service annotated with
  * {@link infra.web.service.annotation.HttpExchange} methods.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.service.invoker;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

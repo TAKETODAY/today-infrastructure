@@ -28,6 +28,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.cfg.EnumFeature;
 import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.EnumMap;
 import java.util.Locale;
 import java.util.Map;
@@ -52,12 +54,14 @@ public class JacksonProperties {
    * Date format string or a fully-qualified date format class name. For instance,
    * 'yyyy-MM-dd HH:mm:ss'.
    */
+  @Nullable
   private String dateFormat;
 
   /**
    * One of the constants on Jackson's PropertyNamingStrategies. Can also be a
    * fully-qualified class name of a PropertyNamingStrategy implementation.
    */
+  @Nullable
   private String propertyNamingStrategy;
 
   /**
@@ -95,32 +99,37 @@ public class JacksonProperties {
    * Controls the inclusion of properties during serialization. Configured with one of
    * the values in Jackson's JsonInclude.Include enumeration.
    */
-  private JsonInclude.Include defaultPropertyInclusion;
+  private JsonInclude.@Nullable Include defaultPropertyInclusion;
 
   /**
    * Global default setting (if any) for leniency.
    */
+  @Nullable
   private Boolean defaultLeniency;
 
   /**
    * Strategy to use to auto-detect constructor, and in particular behavior with
    * single-argument constructors.
    */
+  @Nullable
   private ConstructorDetectorStrategy constructorDetector;
 
   /**
    * Time zone used when formatting dates. For instance, "America/Los_Angeles" or
    * "GMT+10".
    */
+  @Nullable
   private TimeZone timeZone = null;
 
   /**
    * Locale used for formatting.
    */
+  @Nullable
   private Locale locale;
 
   private final Datatype datatype = new Datatype();
 
+  @Nullable
   public String getDateFormat() {
     return this.dateFormat;
   }
@@ -129,6 +138,7 @@ public class JacksonProperties {
     this.dateFormat = dateFormat;
   }
 
+  @Nullable
   public String getPropertyNamingStrategy() {
     return this.propertyNamingStrategy;
   }
@@ -161,7 +171,7 @@ public class JacksonProperties {
     return this.generator;
   }
 
-  public JsonInclude.Include getDefaultPropertyInclusion() {
+  public JsonInclude.@Nullable Include getDefaultPropertyInclusion() {
     return this.defaultPropertyInclusion;
   }
 
@@ -169,6 +179,7 @@ public class JacksonProperties {
     this.defaultPropertyInclusion = defaultPropertyInclusion;
   }
 
+  @Nullable
   public Boolean getDefaultLeniency() {
     return this.defaultLeniency;
   }
@@ -177,6 +188,7 @@ public class JacksonProperties {
     this.defaultLeniency = defaultLeniency;
   }
 
+  @Nullable
   public ConstructorDetectorStrategy getConstructorDetector() {
     return this.constructorDetector;
   }
@@ -185,6 +197,7 @@ public class JacksonProperties {
     this.constructorDetector = constructorDetector;
   }
 
+  @Nullable
   public TimeZone getTimeZone() {
     return this.timeZone;
   }
@@ -193,6 +206,7 @@ public class JacksonProperties {
     this.timeZone = timeZone;
   }
 
+  @Nullable
   public Locale getLocale() {
     return this.locale;
   }

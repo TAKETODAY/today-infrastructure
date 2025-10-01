@@ -41,6 +41,7 @@ import infra.core.ssl.SslBundleRegistry;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 class SslPropertiesBundleRegistrar implements SslBundleRegistrar, DisposableBean {
 
   private final SslProperties.Bundles properties;

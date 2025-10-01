@@ -16,6 +16,8 @@
  */
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Array;
 import java.nio.charset.Charset;
 import java.time.ZoneId;
@@ -32,7 +34,6 @@ import infra.core.conversion.support.DefaultConversionService;
 import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.lang.Contract;
-import infra.lang.Nullable;
 
 /**
  * Miscellaneous object utility methods.
@@ -89,7 +90,7 @@ public abstract class ObjectUtils {
    * @return whether the given exception is compatible
    * @since 4.0
    */
-  public static boolean isCompatibleWithThrowsClause(Throwable ex, @Nullable Class<?>... declaredExceptions) {
+  public static boolean isCompatibleWithThrowsClause(Throwable ex, Class<?> @Nullable ... declaredExceptions) {
     if (!isCheckedException(ex)) {
       return true;
     }
@@ -110,6 +111,7 @@ public abstract class ObjectUtils {
    * @param obj the object to check
    * @since 3.0
    */
+  @Contract("null -> false")
   public static boolean isArray(@Nullable Object obj) {
     return obj != null && obj.getClass().isArray();
   }
@@ -121,7 +123,8 @@ public abstract class ObjectUtils {
    * @param array the array to check
    * @see #isEmpty(Object)
    */
-  public static boolean isEmpty(@Nullable Object[] array) {
+  @Contract("null -> true")
+  public static boolean isEmpty(@Nullable Object @Nullable [] array) {
     return array == null || array.length == 0;
   }
 
@@ -132,7 +135,8 @@ public abstract class ObjectUtils {
    * @param array the array to check
    * @see #isEmpty(Object[])
    */
-  public static boolean isNotEmpty(@Nullable Object[] array) {
+  @Contract("null -> false")
+  public static boolean isNotEmpty(@Nullable Object @Nullable [] array) {
     return array != null && array.length != 0;
   }
 
@@ -315,7 +319,7 @@ public abstract class ObjectUtils {
    * @return whether the element has been found in the given array
    * @since 3.0
    */
-  public static boolean containsElement(@Nullable Object[] array, Object element) {
+  public static boolean containsElement(@Nullable Object @Nullable [] array, @Nullable Object element) {
     if (array != null) {
       for (Object candidate : array) {
         if (ObjectUtils.nullSafeEquals(candidate, element)) {
@@ -387,7 +391,7 @@ public abstract class ObjectUtils {
    * @return the new array (of the same component type; never {@code null})
    * @since 3.0
    */
-  public static <A, O extends A> A[] addObjectToArray(@Nullable A[] array, @Nullable O obj) {
+  public static <A, O extends A> A[] addObjectToArray(A @Nullable [] array, O obj) {
     return addObjectToArray(array, obj, (array != null ? array.length : 0));
   }
 
@@ -401,7 +405,7 @@ public abstract class ObjectUtils {
    * @return the new array (of the same component type; never {@code null})
    * @since 4.0
    */
-  public static <A, O extends A> A[] addObjectToArray(@Nullable A[] array, @Nullable O obj, int position) {
+  public static <A, O extends A> A[] addObjectToArray(A @Nullable [] array, O obj, int position) {
     Class<?> componentType = Object.class;
     if (array != null) {
       componentType = array.getClass().getComponentType();
@@ -535,7 +539,7 @@ public abstract class ObjectUtils {
    * @return a hash value of the elements
    * @since 4.0
    */
-  public static int nullSafeHash(@Nullable Object... elements) {
+  public static int nullSafeHash(@Nullable Object @Nullable ... elements) {
     if (elements == null) {
       return 0;
     }
@@ -712,7 +716,7 @@ public abstract class ObjectUtils {
    * @param array the array to build a String representation for
    * @return a String representation of {@code array}
    */
-  public static String nullSafeToString(@Nullable Object[] array) {
+  public static String nullSafeToString(@Nullable Object @Nullable [] array) {
     if (array == null) {
       return NULL_STRING;
     }
@@ -737,7 +741,7 @@ public abstract class ObjectUtils {
    * @param array the array to build a String representation for
    * @return a String representation of {@code array}
    */
-  public static String nullSafeToString(@Nullable boolean[] array) {
+  public static String nullSafeToString(boolean @Nullable [] array) {
     if (array == null) {
       return NULL_STRING;
     }
@@ -762,7 +766,7 @@ public abstract class ObjectUtils {
    * @param array the array to build a String representation for
    * @return a String representation of {@code array}
    */
-  public static String nullSafeToString(@Nullable byte[] array) {
+  public static String nullSafeToString(byte @Nullable [] array) {
     if (array == null) {
       return NULL_STRING;
     }
@@ -787,7 +791,7 @@ public abstract class ObjectUtils {
    * @param array the array to build a String representation for
    * @return a String representation of {@code array}
    */
-  public static String nullSafeToString(@Nullable char[] array) {
+  public static String nullSafeToString(char @Nullable [] array) {
     if (array == null) {
       return NULL_STRING;
     }
@@ -812,7 +816,7 @@ public abstract class ObjectUtils {
    * @param array the array to build a String representation for
    * @return a String representation of {@code array}
    */
-  public static String nullSafeToString(@Nullable double[] array) {
+  public static String nullSafeToString(double @Nullable [] array) {
     if (array == null) {
       return NULL_STRING;
     }
@@ -837,7 +841,7 @@ public abstract class ObjectUtils {
    * @param array the array to build a String representation for
    * @return a String representation of {@code array}
    */
-  public static String nullSafeToString(@Nullable float[] array) {
+  public static String nullSafeToString(float @Nullable [] array) {
     if (array == null) {
       return NULL_STRING;
     }
@@ -862,7 +866,7 @@ public abstract class ObjectUtils {
    * @param array the array to build a String representation for
    * @return a String representation of {@code array}
    */
-  public static String nullSafeToString(@Nullable int[] array) {
+  public static String nullSafeToString(int @Nullable [] array) {
     if (array == null) {
       return NULL_STRING;
     }
@@ -887,7 +891,7 @@ public abstract class ObjectUtils {
    * @param array the array to build a String representation for
    * @return a String representation of {@code array}
    */
-  public static String nullSafeToString(@Nullable long[] array) {
+  public static String nullSafeToString(long @Nullable [] array) {
     if (array == null) {
       return NULL_STRING;
     }
@@ -912,7 +916,7 @@ public abstract class ObjectUtils {
    * @param array the array to build a String representation for
    * @return a String representation of {@code array}
    */
-  public static String nullSafeToString(@Nullable short[] array) {
+  public static String nullSafeToString(short @Nullable [] array) {
     if (array == null) {
       return NULL_STRING;
     }
@@ -935,14 +939,13 @@ public abstract class ObjectUtils {
    * <p>Returns:
    * <ul>
    * <li>{@code "null"} if {@code obj} is {@code null}</li>
-   * <li>{@code"Optional.empty"} if {@code obj} is an empty {@link Optional}</li>
-   * <li>{@code"Optional[<concise-string>]"} if {@code obj} is a non-empty {@code Optional},
-   * where {@code <concise-string>} is the result of invoking {@link #nullSafeConciseToString}
-   * on the object contained in the {@code Optional}</li>
-   * <li>{@code "{}"} if {@code obj} is an empty array or {@link Map}</li>
-   * <li>{@code "{...}"} if {@code obj} is a non-empty array or {@link Map}</li>
-   * <li>{@code "[]"} if {@code obj} is an empty {@link Collection}</li>
-   * <li>{@code "[...]"} if {@code obj} is a non-empty {@link Collection}</li>
+   * <li>{@code "Optional.empty"} if {@code obj} is an empty {@link Optional}</li>
+   * <li>{@code "Optional[<concise-string>]"} if {@code obj} is a non-empty {@code Optional},
+   * where {@code <concise-string>} is the result of invoking this method on the object
+   * contained in the {@code Optional}</li>
+   * <li>{@code "{}"} if {@code obj} is an empty array</li>
+   * <li>{@code "{...}"} if {@code obj} is a {@link Map} or a non-empty array</li>
+   * <li>{@code "[...]"} if {@code obj} is a {@link Collection}</li>
    * <li>{@linkplain Class#getName() Class name} if {@code obj} is a {@link Class}</li>
    * <li>{@linkplain Charset#name() Charset name} if {@code obj} is a {@link Charset}</li>
    * <li>{@linkplain TimeZone#getID() TimeZone ID} if {@code obj} is a {@link TimeZone}</li>

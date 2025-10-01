@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.expression.spel.ast;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
@@ -36,7 +38,6 @@ import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
 import infra.expression.spel.support.ReflectionHelper;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
 
@@ -111,8 +112,9 @@ public class FunctionReference extends SpelNodeImpl {
    * @return the return value of the invoked Java method
    * @throws EvaluationException if there is any problem invoking the method
    */
+  @SuppressWarnings("NullAway")
   private TypedValue executeFunctionViaMethod(ExpressionState state, Method method) throws EvaluationException {
-    Object[] functionArgs = getArguments(state);
+    @Nullable Object[] functionArgs = getArguments(state);
 
     if (!method.isVarArgs()) {
       int declaredParamCount = method.getParameterCount();
@@ -170,8 +172,9 @@ public class FunctionReference extends SpelNodeImpl {
    * @return the return value of the invoked Java method
    * @throws EvaluationException if there is any problem invoking the method
    */
+  @SuppressWarnings("NullAway")
   private TypedValue executeFunctionViaMethodHandle(ExpressionState state, MethodHandle methodHandle) throws EvaluationException {
-    Object[] functionArgs = getArguments(state);
+    @Nullable Object[] functionArgs = getArguments(state);
     MethodType declaredParams = methodHandle.type();
     int spelParamCount = functionArgs.length;
     int declaredParamCount = declaredParams.parameterCount();
@@ -277,9 +280,9 @@ public class FunctionReference extends SpelNodeImpl {
    *
    * @return an array of argument values for the function call
    */
-  private Object[] getArguments(ExpressionState state) throws EvaluationException {
+  private @Nullable Object[] getArguments(ExpressionState state) throws EvaluationException {
     // Compute arguments to the function
-    Object[] arguments = new Object[getChildCount()];
+    @Nullable Object[] arguments = new Object[getChildCount()];
     for (int i = 0; i < arguments.length; i++) {
       arguments[i] = this.children[i].getValueInternal(state).getValue();
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.core.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -27,7 +29,7 @@ import java.util.Set;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-import infra.lang.Nullable;
+import infra.lang.Contract;
 import infra.util.ConcurrentReferenceHashMap;
 
 /**
@@ -85,7 +87,7 @@ final class AnnotationTypeMappings implements Iterable<AnnotationTypeMapping> {
   }
 
   private void addMetaAnnotationsToQueue(Deque<AnnotationTypeMapping> queue, AnnotationTypeMapping source) {
-    Annotation[] metaAnnotations = AnnotationsScanner.getDeclaredAnnotations(source.annotationType, false);
+    @Nullable Annotation[] metaAnnotations = AnnotationsScanner.getDeclaredAnnotations(source.annotationType, false);
     for (Annotation metaAnnotation : metaAnnotations) {
       if (isNotMappable(source, metaAnnotation)) {
         continue;
@@ -124,6 +126,7 @@ final class AnnotationTypeMappings implements Iterable<AnnotationTypeMapping> {
     }
   }
 
+  @Contract("_, null -> true")
   private boolean isNotMappable(AnnotationTypeMapping source, @Nullable Annotation metaAnnotation) {
     return metaAnnotation == null
             || filter.matches(metaAnnotation)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.aop.support;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -24,7 +25,6 @@ import java.lang.reflect.Method;
 import infra.aop.ClassFilter;
 import infra.aop.Pointcut;
 import infra.beans.testfixture.beans.TestBean;
-import infra.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

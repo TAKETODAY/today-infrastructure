@@ -17,6 +17,8 @@
 
 package infra.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -30,7 +32,6 @@ import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ArrayHolder;
 import infra.util.ExceptionUtils;
 import infra.util.StringUtils;
@@ -83,6 +84,7 @@ public class DispatcherHandler extends InfraHandler {
   @Nullable
   protected WebAsyncManagerFactory webAsyncManagerFactory;
 
+  @SuppressWarnings("NullAway")
   public DispatcherHandler() {
   }
 
@@ -99,6 +101,7 @@ public class DispatcherHandler extends InfraHandler {
    * @see #initApplicationContext
    * @see #configureAndRefreshApplicationContext
    */
+  @SuppressWarnings("NullAway")
   public DispatcherHandler(ApplicationContext context) {
     super(context);
   }
@@ -203,7 +206,7 @@ public class DispatcherHandler extends InfraHandler {
    * @param array RequestHandledListener array
    * @since 4.0
    */
-  public void addRequestCompletedActions(@Nullable RequestCompletedListener... array) {
+  public void addRequestCompletedActions(RequestCompletedListener @Nullable ... array) {
     requestCompletedActions.addAll(array);
   }
 
@@ -315,6 +318,7 @@ public class DispatcherHandler extends InfraHandler {
    *
    * @see SimpleNotFoundHandler
    */
+  @SuppressWarnings("NullAway")
   private void initNotFoundHandler(ApplicationContext context) {
     if (notFoundHandler == null) {
       notFoundHandler = BeanFactoryUtils.find(context, NotFoundHandler.class);
@@ -330,6 +334,7 @@ public class DispatcherHandler extends InfraHandler {
    *
    * @see WebAsyncManagerFactory
    */
+  @SuppressWarnings("NullAway")
   private void initWebAsyncManagerFactory(ApplicationContext context) {
     if (webAsyncManagerFactory == null) {
       setWebAsyncManagerFactory(WebAsyncManagerFactory.find(context));

@@ -17,6 +17,8 @@
 
 package infra.web.client.reactive;
 
+import org.jspecify.annotations.Nullable;
+
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
@@ -45,7 +47,6 @@ import infra.http.codec.HttpMessageReader;
 import infra.http.server.reactive.ServerHttpResponse;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.MimeType;
 import infra.util.MultiValueMap;
 import infra.web.reactive.function.BodyExtractor;
@@ -200,6 +201,7 @@ final class DefaultClientResponse implements ClientResponse {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public Mono<WebClientResponseException> createException() {
     return bodyToMono(byte[].class)
             .defaultIfEmpty(EMPTY)
@@ -233,7 +235,8 @@ final class DefaultClientResponse implements ClientResponse {
             });
   }
 
-  private Function<ResolvableType, ?> initDecodeFunction(@Nullable byte[] body, @Nullable MediaType contentType) {
+  @SuppressWarnings("NullAway")
+  private Function<ResolvableType, ? extends @Nullable Object> initDecodeFunction(byte @Nullable [] body, @Nullable MediaType contentType) {
     return targetType -> {
       if (body == null || body.length == 0) {
         return null;

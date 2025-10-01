@@ -66,6 +66,7 @@ public abstract class AbstractPrototypeTargetSource extends AbstractBeanFactoryT
   /**
    * Subclasses should call this method to create a new prototype instance.
    */
+  @SuppressWarnings("NullAway")
   protected Object newPrototypeInstance() {
     if (logger.isDebugEnabled()) {
       logger.debug("Creating new instance of bean '{}'", targetBeanName);

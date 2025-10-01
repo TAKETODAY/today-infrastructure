@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,9 @@
 
 package infra.session;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 import infra.web.RequestContext;
 
@@ -36,6 +37,7 @@ public class DefaultSessionManager implements SessionManager {
 
   private SessionRepository sessionRepository;
 
+  @SuppressWarnings("NullAway")
   public DefaultSessionManager(SessionRepository sessionRepository, @Nullable SessionIdResolver sessionIdResolver) {
     if (sessionIdResolver == null) {
       sessionIdResolver = new CookieSessionIdResolver();
@@ -79,6 +81,7 @@ public class DefaultSessionManager implements SessionManager {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public WebSession getSession(RequestContext context) {
     return getSession(context, true);
   }

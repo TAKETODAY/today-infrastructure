@@ -18,9 +18,7 @@
 /**
  * Support for asynchronous request processing.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.async;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

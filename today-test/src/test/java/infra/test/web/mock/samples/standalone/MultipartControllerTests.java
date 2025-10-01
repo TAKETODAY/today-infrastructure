@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.test.web.mock.samples.standalone;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -27,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 import infra.http.HttpMethod;
-import infra.lang.Nullable;
 import infra.mock.web.MockMultipartFile;
 import infra.mock.web.MockPart;
 import infra.stereotype.Controller;
@@ -219,7 +219,6 @@ class MultipartControllerTests {
   }
 
   @Test
-    
   void multipartRequestWrapped() throws Exception {
     byte[] json = "{\"name\":\"yeeeah\"}".getBytes(StandardCharsets.UTF_8);
     MockMultipartFile jsonPart = new MockMultipartFile("json", "json", "application/json", json);
@@ -278,7 +277,7 @@ class MultipartControllerTests {
 
     @PostMapping("/optionalfilearray")
     public String processOptionalFileArray(
-            @RequestParam @Nullable MultipartFile[] file, @RequestPart Map<String, String> json)
+            @RequestParam MultipartFile @Nullable [] file, @RequestPart Map<String, String> json)
             throws IOException {
 
       if (file != null) {

@@ -17,6 +17,7 @@
 
 package infra.validation;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.beans.ConstructorProperties;
@@ -28,7 +29,6 @@ import java.util.Set;
 import infra.core.ResolvableType;
 import infra.format.support.DefaultFormattingConversionService;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import jakarta.validation.constraints.NotNull;
 
 import static org.assertj.core.api.Assertions.assertThat;

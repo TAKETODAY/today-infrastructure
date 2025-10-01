@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.persistence.sql;
+
+import org.jspecify.annotations.Nullable;
 
 import infra.persistence.platform.Platform;
 import infra.util.StringUtils;
@@ -45,7 +47,7 @@ public class QueryJoinFragment extends JoinFragment {
     addJoin(tableName, alias, alias, fkColumns, pkColumns, joinType, null);
   }
 
-  public void addJoin(String tableName, String alias, String[] fkColumns, String[] pkColumns, JoinType joinType, String on) {
+  public void addJoin(String tableName, String alias, String[] fkColumns, String[] pkColumns, JoinType joinType, @Nullable String on) {
     addJoin(tableName, alias, alias, fkColumns, pkColumns, joinType, on);
   }
 
@@ -53,11 +55,12 @@ public class QueryJoinFragment extends JoinFragment {
     addJoin(tableName, alias, alias, fkColumns, pkColumns, joinType, null);
   }
 
-  public void addJoin(String tableName, String alias, String[][] fkColumns, String[] pkColumns, JoinType joinType, String on) {
+  @Override
+  public void addJoin(String tableName, String alias, String[][] fkColumns, String[] pkColumns, JoinType joinType, @Nullable String on) {
     addJoin(tableName, alias, alias, fkColumns, pkColumns, joinType, on);
   }
 
-  private void addJoin(String tableName, String alias, String concreteAlias, String[] fkColumns, String[] pkColumns, JoinType joinType, String on) {
+  private void addJoin(String tableName, String alias, String concreteAlias, String[] fkColumns, String[] pkColumns, JoinType joinType, @Nullable String on) {
     if (!useThetaStyleInnerJoins || joinType != JoinType.INNER_JOIN) {
       JoinFragment jf = platform.createOuterJoinFragment();
       jf.addJoin(tableName, alias, fkColumns, pkColumns, joinType, on);
@@ -70,7 +73,7 @@ public class QueryJoinFragment extends JoinFragment {
     }
   }
 
-  private void addJoin(String tableName, String alias, String concreteAlias, String[][] fkColumns, String[] pkColumns, JoinType joinType, String on) {
+  private void addJoin(String tableName, String alias, String concreteAlias, String[][] fkColumns, String[] pkColumns, JoinType joinType, @Nullable String on) {
     if (!useThetaStyleInnerJoins || joinType != JoinType.INNER_JOIN) {
       JoinFragment jf = platform.createOuterJoinFragment();
       jf.addJoin(tableName, alias, fkColumns, pkColumns, joinType, on);
@@ -168,7 +171,7 @@ public class QueryJoinFragment extends JoinFragment {
    * @return true if the condition was added, false if it was already in the fragment.
    */
   @Override
-  public boolean addCondition(String condition) {
+  public boolean addCondition(@Nullable String condition) {
     // if the condition is not already there...
     if (!StringUtils.isEmpty(condition)
             && !afterFrom.toString().contains(condition.trim())

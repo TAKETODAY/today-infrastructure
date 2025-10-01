@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.bytecode.tree;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +32,6 @@ import infra.bytecode.Opcodes;
 import infra.bytecode.RecordComponentVisitor;
 import infra.bytecode.Type;
 import infra.bytecode.TypePath;
-import infra.lang.Nullable;
 
 /**
  * A node that represents a class.
@@ -72,8 +73,7 @@ public class ClassNode extends ClassVisitor {
    * Type#getInternalName}).
    * Map be {@literal null}. there is no interfaces.
    */
-  @Nullable
-  public String[] interfaces;
+  public String @Nullable [] interfaces;
 
   /** The name of the source file from which this class was compiled. May be {@literal null}. */
   @Nullable

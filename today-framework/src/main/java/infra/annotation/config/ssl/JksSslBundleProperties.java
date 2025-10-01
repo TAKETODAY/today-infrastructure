@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.annotation.config.ssl;
+
+import org.jspecify.annotations.Nullable;
 
 import infra.core.ssl.jks.JksSslStoreBundle;
 
@@ -55,23 +57,28 @@ public class JksSslBundleProperties extends SslBundleProperties {
     /**
      * Type of the store to create, e.g. JKS.
      */
+    @Nullable
     private String type;
 
     /**
      * Provider for the store.
      */
+    @Nullable
     private String provider;
 
     /**
      * Location of the resource containing the store content.
      */
+    @Nullable
     private String location;
 
     /**
      * Password used to access the store.
      */
+    @Nullable
     private String password;
 
+    @Nullable
     public String getType() {
       return this.type;
     }
@@ -80,6 +87,7 @@ public class JksSslBundleProperties extends SslBundleProperties {
       this.type = type;
     }
 
+    @Nullable
     public String getProvider() {
       return this.provider;
     }
@@ -88,6 +96,7 @@ public class JksSslBundleProperties extends SslBundleProperties {
       this.provider = provider;
     }
 
+    @Nullable
     public String getLocation() {
       return this.location;
     }
@@ -96,6 +105,7 @@ public class JksSslBundleProperties extends SslBundleProperties {
       this.location = location;
     }
 
+    @Nullable
     public String getPassword() {
       return this.password;
     }

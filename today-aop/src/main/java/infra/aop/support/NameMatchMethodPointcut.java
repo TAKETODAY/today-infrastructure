@@ -17,12 +17,13 @@
 
 package infra.aop.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import infra.core.ArraySizeTrimmer;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.PatternMatchUtils;
 
@@ -50,7 +51,7 @@ public class NameMatchMethodPointcut
    *
    * @see #setMappedNames
    */
-  public void setMappedName(@Nullable String mappedName) {
+  public void setMappedName(String mappedName) {
     setMappedNames(mappedName);
   }
 
@@ -61,7 +62,7 @@ public class NameMatchMethodPointcut
    *
    * @see ArrayList#clear()
    */
-  public void setMappedNames(@Nullable String... mappedNames) {
+  public void setMappedNames(String @Nullable ... mappedNames) {
     this.mappedNames.clear();
     CollectionUtils.addAll(this.mappedNames, mappedNames);
     trimToSize();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.dao;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Root for exceptions thrown when we use a data access resource incorrectly.
  * Thrown for example on specifying bad SQL when using a RDBMS.
@@ -33,7 +35,7 @@ public class InvalidDataAccessResourceUsageException extends NonTransientDataAcc
    *
    * @param msg the detail message
    */
-  public InvalidDataAccessResourceUsageException(String msg) {
+  public InvalidDataAccessResourceUsageException(@Nullable String msg) {
     super(msg);
   }
 
@@ -43,7 +45,7 @@ public class InvalidDataAccessResourceUsageException extends NonTransientDataAcc
    * @param msg the detail message
    * @param cause the root cause from the data access API in use
    */
-  public InvalidDataAccessResourceUsageException(String msg, Throwable cause) {
+  public InvalidDataAccessResourceUsageException(@Nullable String msg, @Nullable Throwable cause) {
     super(msg, cause);
   }
 

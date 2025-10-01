@@ -17,11 +17,11 @@
 
 package infra.web.service.invoker;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 
-import infra.lang.Nullable;
 import infra.web.service.annotation.GetExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;

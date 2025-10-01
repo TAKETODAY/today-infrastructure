@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,6 @@ import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.xml.BeanDefinitionDecorator;
 import infra.beans.factory.xml.ParserContext;
 import infra.lang.Assert;
-import infra.lang.NonNull;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
 
@@ -63,7 +62,7 @@ import infra.util.StringUtils;
 public abstract class AbstractInterceptorDrivenBeanDefinitionDecorator implements BeanDefinitionDecorator {
 
   @Override
-  public final BeanDefinitionHolder decorate(@NonNull Node node, BeanDefinitionHolder definitionHolder, ParserContext parserContext) {
+  public final BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definitionHolder, ParserContext parserContext) {
     BeanDefinitionRegistry registry = parserContext.getRegistry();
 
     // get the root bean name - will be the name of the generated proxy factory bean
@@ -121,7 +120,7 @@ public abstract class AbstractInterceptorDrivenBeanDefinitionDecorator implement
   protected String getInterceptorNameSuffix(BeanDefinition interceptorDefinition) {
     String beanClassName = interceptorDefinition.getBeanClassName();
     return StringUtils.isNotEmpty(beanClassName) ?
-           StringUtils.uncapitalize(ClassUtils.getShortName(beanClassName)) : "";
+            StringUtils.uncapitalize(ClassUtils.getShortName(beanClassName)) : "";
   }
 
   /**

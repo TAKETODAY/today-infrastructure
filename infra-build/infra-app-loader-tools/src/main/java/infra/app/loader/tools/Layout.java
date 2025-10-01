@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 
 package infra.app.loader.tools;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Strategy interface used to determine the layout for a particular type of archive.
@@ -50,7 +50,7 @@ public interface Layout {
    * with '/') or {@code null} if the library should not be included.
    */
   @Nullable
-  String getLibraryLocation(String libraryName, LibraryScope scope);
+  String getLibraryLocation(String libraryName, @Nullable LibraryScope scope);
 
   /**
    * Returns the location of classes within the archive.

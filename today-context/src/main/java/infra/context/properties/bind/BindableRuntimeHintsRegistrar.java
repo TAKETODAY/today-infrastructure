@@ -17,6 +17,8 @@
 
 package infra.context.properties.bind;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -37,7 +39,6 @@ import infra.context.properties.bind.JavaBeanBinder.BeanProperty;
 import infra.core.ResolvableType;
 import infra.core.annotation.MergedAnnotations;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ReflectionUtils;
@@ -153,8 +154,7 @@ public class BindableRuntimeHintsRegistrar implements RuntimeHintsRegistrar {
     @Nullable
     private final Constructor<?> bindConstructor;
 
-    @Nullable
-    private final JavaBeanBinder.BeanProperties bean;
+    private final JavaBeanBinder.@Nullable BeanProperties bean;
 
     private final Set<Class<?>> seen;
 
@@ -162,6 +162,7 @@ public class BindableRuntimeHintsRegistrar implements RuntimeHintsRegistrar {
       this(bindable, false, new HashSet<>());
     }
 
+    @SuppressWarnings("NullAway")
     private Processor(Bindable<?> bindable, boolean nestedType, Set<Class<?>> seen) {
       this.type = bindable.getType().getRawClass();
       this.bindConstructor = (bindable.getBindMethod() != BindMethod.JAVA_BEAN)

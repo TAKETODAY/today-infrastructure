@@ -17,6 +17,8 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
@@ -34,7 +36,6 @@ import infra.beans.factory.config.BeanDefinitionHolder;
 import infra.beans.factory.config.ConstructorArgumentValues;
 import infra.core.ResolvableType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**
@@ -117,11 +118,11 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 
   /** Package-visible field for caching fully resolved constructor arguments. */
   @Nullable
-  Object[] resolvedConstructorArguments;
+  Object @Nullable [] resolvedConstructorArguments;
 
   /** Package-visible field for caching partly prepared constructor arguments. */
   @Nullable
-  Object[] preparedConstructorArguments;
+  Object @Nullable [] preparedConstructorArguments;
 
   /** Common lock for the two post-processing fields below. */
   final Object postProcessingLock = new Object();
@@ -129,8 +130,7 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
   /** Package-visible field that indicates MergedBeanDefinitionPostProcessor having been applied. */
   boolean postProcessed = false;
 
-  @Nullable
-  Method[] initMethodArray;
+  Method @Nullable [] initMethodArray;
 
   /** Package-visible field that indicates a before-instantiation post-processor having kicked in. */
   @Nullable
@@ -396,8 +396,7 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
    * @return one or more preferred constructors, or {@code null} if none
    * (in which case the regular no-arg default constructor will be called)
    */
-  @Nullable
-  public Constructor<?>[] getPreferredConstructors() {
+  public Constructor<?> @Nullable [] getPreferredConstructors() {
     Object attribute = getAttribute(PREFERRED_CONSTRUCTORS_ATTRIBUTE);
     if (attribute == null) {
       return null;

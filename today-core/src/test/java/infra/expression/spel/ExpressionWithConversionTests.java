@@ -17,6 +17,7 @@
 
 package infra.expression.spel;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +32,6 @@ import infra.core.conversion.support.GenericConversionService;
 import infra.expression.Expression;
 import infra.expression.TypeConverter;
 import infra.expression.spel.support.StandardEvaluationContext;
-import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

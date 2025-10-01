@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +15,8 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package infra.bytecode;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * An {@link AnnotationVisitor} that generates a corresponding 'annotation' or 'type_annotation'
@@ -70,6 +72,7 @@ final class AnnotationWriter extends AnnotationVisitor {
    * Runtime[In]Visible[Type]Annotations attribute. It is unused for nested or array annotations
    * (annotation values of annotation type), or for AnnotationDefault attributes.
    */
+  @Nullable
   private final AnnotationWriter previousAnnotation;
 
   /**
@@ -96,11 +99,9 @@ final class AnnotationWriter extends AnnotationVisitor {
    * Runtime[In]Visible[Type]Annotations attribute to which this annotation belongs, or
    * {@literal null} in other cases (e.g. nested or array annotations).
    */
-  AnnotationWriter(
-          final SymbolTable symbolTable,
-          final boolean useNamedValues,
-          final ByteVector annotation,
-          final AnnotationWriter previousAnnotation) {
+  @SuppressWarnings("NullAway")
+  AnnotationWriter(final SymbolTable symbolTable, final boolean useNamedValues,
+          final ByteVector annotation, @Nullable final AnnotationWriter previousAnnotation) {
     this.symbolTable = symbolTable;
     this.useNamedValues = useNamedValues;
     this.annotation = annotation;
@@ -330,7 +331,7 @@ final class AnnotationWriter extends AnnotationVisitor {
    * annotation and all its predecessors. This includes the size of the attribute_name_index and
    * attribute_length fields.
    */
-  int computeAnnotationsSize(final String attributeName) {
+  int computeAnnotationsSize(final @Nullable String attributeName) {
     if (attributeName != null) {
       symbolTable.addConstantUtf8(attributeName);
     }
@@ -366,10 +367,10 @@ final class AnnotationWriter extends AnnotationVisitor {
    * attribute_name_index and attribute_length fields.
    */
   static int computeAnnotationsSize(
-          final AnnotationWriter lastRuntimeVisibleAnnotation,
-          final AnnotationWriter lastRuntimeInvisibleAnnotation,
-          final AnnotationWriter lastRuntimeVisibleTypeAnnotation,
-          final AnnotationWriter lastRuntimeInvisibleTypeAnnotation) {
+          @Nullable final AnnotationWriter lastRuntimeVisibleAnnotation,
+          @Nullable final AnnotationWriter lastRuntimeInvisibleAnnotation,
+          @Nullable final AnnotationWriter lastRuntimeVisibleTypeAnnotation,
+          @Nullable final AnnotationWriter lastRuntimeInvisibleTypeAnnotation) {
     int size = 0;
     if (lastRuntimeVisibleAnnotation != null) {
       size += lastRuntimeVisibleAnnotation.computeAnnotationsSize(
@@ -444,10 +445,10 @@ final class AnnotationWriter extends AnnotationVisitor {
    */
   static void putAnnotations(
           final SymbolTable symbolTable,
-          final AnnotationWriter lastRuntimeVisibleAnnotation,
-          final AnnotationWriter lastRuntimeInvisibleAnnotation,
-          final AnnotationWriter lastRuntimeVisibleTypeAnnotation,
-          final AnnotationWriter lastRuntimeInvisibleTypeAnnotation,
+          @Nullable final AnnotationWriter lastRuntimeVisibleAnnotation,
+          @Nullable final AnnotationWriter lastRuntimeInvisibleAnnotation,
+          @Nullable final AnnotationWriter lastRuntimeVisibleTypeAnnotation,
+          @Nullable final AnnotationWriter lastRuntimeInvisibleTypeAnnotation,
           final ByteVector output) {
     if (lastRuntimeVisibleAnnotation != null) {
       lastRuntimeVisibleAnnotation.putAnnotations(
@@ -511,10 +512,8 @@ final class AnnotationWriter extends AnnotationVisitor {
    * [0..annotableParameterCount[ are put).
    * @param output where the attribute must be put.
    */
-  static void putParameterAnnotations(
-          final int attributeNameIndex,
-          final AnnotationWriter[] annotationWriters,
-          final int annotableParameterCount,
+  static void putParameterAnnotations(final int attributeNameIndex,
+          @Nullable final AnnotationWriter[] annotationWriters, final int annotableParameterCount,
           final ByteVector output) {
     // The num_parameters field uses 1 byte, and each element of the parameter_annotations array
     // uses 2 bytes for its num_annotations field.

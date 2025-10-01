@@ -17,6 +17,7 @@
 
 package infra.web.service.invoker;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.lang.reflect.Method;
@@ -38,7 +39,6 @@ import infra.http.HttpHeaders;
 import infra.http.ResponseEntity;
 import infra.http.client.ClientHttpResponse;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.concurrent.Future;
 import infra.web.client.ClientResponse;
@@ -143,6 +143,7 @@ final class HttpServiceMethod {
   /**
    * Create the {@code ResponseFunction} that matches the method return type.
    */
+  @SuppressWarnings("NullAway")
   private static ResponseFunction createResponseFunction(HttpExchangeAdapter client, Method method) {
     MethodParameter param = returnType(method);
 
@@ -334,7 +335,7 @@ final class HttpServiceMethod {
       return new ReactorExchangeResponseFunction(responseFunction, reactiveAdapter);
     }
 
-    @SuppressWarnings("ConstantConditions")
+    @SuppressWarnings("NullAway")
     private static Function<HttpRequestValues, Publisher<?>> initResponseEntityFunction(
             ReactorHttpExchangeAdapter client, MethodParameter methodParam, @Nullable ReactiveAdapter reactiveAdapter) {
 

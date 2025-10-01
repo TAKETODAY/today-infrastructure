@@ -17,6 +17,8 @@
 
 package infra.lang;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
@@ -1114,7 +1116,7 @@ public class TodayStrategies {
                 "Class [%s] has no suitable constructor".formatted(implementation.getName()));
       }
       Class<?>[] types = constructor.getParameterTypes();
-      Object[] args = new Object[types.length];
+      @Nullable Object[] args = new Object[types.length];
       if (argumentResolver != null) {
         int i = 0;
         for (Class<?> type : types) {
@@ -1258,11 +1260,12 @@ public class TodayStrategies {
      * @param function the resolver function
      * @return a new {@link ArgumentResolver} instance backed by the function
      */
-    static ArgumentResolver from(Function<Class<?>, Object> function) {
+    static ArgumentResolver from(Function<Class<?>, @Nullable Object> function) {
       return new ArgumentResolver() {
 
         @SuppressWarnings("unchecked")
         @Override
+        @Nullable
         public <T> T resolve(Class<T> type) {
           return (T) function.apply(type);
         }

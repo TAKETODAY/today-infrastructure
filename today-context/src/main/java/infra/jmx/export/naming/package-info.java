@@ -19,9 +19,7 @@
  * Provides a strategy for ObjectName creation. Used by MBeanExporter
  * to determine the JMX names to use for exported Framework-managed beans.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jmx.export.naming;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -17,6 +17,8 @@
 
 package infra.bytecode.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.ref.WeakReference;
 import java.security.ProtectionDomain;
 import java.util.HashSet;
@@ -29,7 +31,6 @@ import infra.bytecode.proxy.Enhancer;
 import infra.core.NativeDetector;
 import infra.core.NativeDetector.Context;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.util.ClassUtils;
 
@@ -203,6 +204,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
    * Used internally by CGLIB. Returns the <code>AbstractClassGenerator</code>
    * that is being used to generate a class in the current thread.
    */
+  @Nullable
   public static AbstractClassGenerator getCurrent() {
     return CURRENT.get();
   }

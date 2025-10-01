@@ -17,6 +17,8 @@
 
 package infra.web.bind.resolver;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyEditor;
 import java.util.Collection;
 import java.util.List;
@@ -31,7 +33,6 @@ import infra.core.conversion.ConversionService;
 import infra.core.conversion.Converter;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.RequestContext;

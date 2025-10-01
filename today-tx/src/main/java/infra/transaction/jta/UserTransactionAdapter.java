@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,10 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.transaction.jta;
+
+import org.jspecify.annotations.Nullable;
 
 import infra.lang.Assert;
 import jakarta.transaction.HeuristicMixedException;
@@ -41,6 +43,7 @@ import jakarta.transaction.UserTransaction;
  * scenarios. Not intended for direct use in application code.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class UserTransactionAdapter implements UserTransaction {
@@ -52,7 +55,7 @@ public class UserTransactionAdapter implements UserTransaction {
    *
    * @param transactionManager the JTA TransactionManager to wrap
    */
-  public UserTransactionAdapter(TransactionManager transactionManager) {
+  public UserTransactionAdapter(@Nullable TransactionManager transactionManager) {
     Assert.notNull(transactionManager, "TransactionManager is required");
     this.transactionManager = transactionManager;
   }

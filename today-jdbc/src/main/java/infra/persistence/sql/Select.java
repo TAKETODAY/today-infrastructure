@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,8 @@
 
 package infra.persistence.sql;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import infra.persistence.StatementSequence;
 import infra.persistence.platform.Platform;
 
@@ -27,6 +28,7 @@ import infra.persistence.platform.Platform;
  * @author Gavin King
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
+@SuppressWarnings("NullAway")
 public class Select implements StatementSequence {
 
   protected CharSequence selectClause;

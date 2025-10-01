@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.app.jdbc.metadata;
+
+import org.jspecify.annotations.Nullable;
 
 import java.sql.SQLException;
 
@@ -37,6 +39,7 @@ public class OracleUcpDataSourcePoolMetadata extends AbstractDataSourcePoolMetad
     super(dataSource);
   }
 
+  @Nullable
   @Override
   public Integer getActive() {
     try {
@@ -47,6 +50,7 @@ public class OracleUcpDataSourcePoolMetadata extends AbstractDataSourcePoolMetad
     }
   }
 
+  @Nullable
   @Override
   public Integer getIdle() {
     try {
@@ -72,6 +76,7 @@ public class OracleUcpDataSourcePoolMetadata extends AbstractDataSourcePoolMetad
     return getDataSource().getSQLForValidateConnection();
   }
 
+  @Nullable
   @Override
   public Boolean getDefaultAutoCommit() {
     String autoCommit = getDataSource().getConnectionProperty("autoCommit");

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jdbc.core.namedparam;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -28,7 +30,6 @@ import infra.dao.InvalidDataAccessApiUsageException;
 import infra.jdbc.core.SqlParameter;
 import infra.jdbc.core.SqlParameterValue;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Helper methods for named parameter parsing.
@@ -353,9 +354,8 @@ public abstract class NamedParameterUtils {
    * be built into the value array in the form of SqlParameterValue objects.
    * @return the array of values
    */
-  public static Object[] buildValueArray(
-          ParsedSql parsedSql, SqlParameterSource paramSource, @Nullable List<SqlParameter> declaredParams) {
-
+  @SuppressWarnings("NullAway")
+  public static Object[] buildValueArray(ParsedSql parsedSql, SqlParameterSource paramSource, @Nullable List<SqlParameter> declaredParams) {
     Object[] paramArray = new Object[parsedSql.getTotalParameterCount()];
     if (parsedSql.getNamedParameterCount() > 0 && parsedSql.getUnnamedParameterCount() > 0) {
       throw new InvalidDataAccessApiUsageException(
@@ -512,6 +512,7 @@ public abstract class NamedParameterUtils {
     return buildValueArray(parsedSql, new MapSqlParameterSource(paramMap), null);
   }
 
-  private record ParameterHolder(String parameterName, int startIndex, int endIndex) { }
+  private record ParameterHolder(String parameterName, int startIndex, int endIndex) {
+  }
 
 }

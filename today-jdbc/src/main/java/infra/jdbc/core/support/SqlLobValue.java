@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jdbc.core.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.InputStream;
 import java.io.Reader;
 import java.sql.PreparedStatement;
@@ -30,7 +32,6 @@ import infra.jdbc.object.StoredProcedure;
 import infra.jdbc.support.lob.DefaultLobHandler;
 import infra.jdbc.support.lob.LobCreator;
 import infra.jdbc.support.lob.LobHandler;
-import infra.lang.Nullable;
 
 /**
  * Object to represent an SQL BLOB/CLOB value parameter. BLOBs can either be an
@@ -88,7 +89,7 @@ public class SqlLobValue implements DisposableSqlTypeValue {
    * @param bytes the byte array containing the BLOB value
    * @see DefaultLobHandler
    */
-  public SqlLobValue(@Nullable byte[] bytes) {
+  public SqlLobValue(byte @Nullable [] bytes) {
     this(bytes, new DefaultLobHandler());
   }
 
@@ -98,7 +99,7 @@ public class SqlLobValue implements DisposableSqlTypeValue {
    * @param bytes the byte array containing the BLOB value
    * @param lobHandler the LobHandler to be used
    */
-  public SqlLobValue(@Nullable byte[] bytes, LobHandler lobHandler) {
+  public SqlLobValue(byte @Nullable [] bytes, LobHandler lobHandler) {
     this.content = bytes;
     this.length = (bytes != null ? bytes.length : 0);
     this.lobCreator = lobHandler.getLobCreator();

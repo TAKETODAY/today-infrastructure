@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 import infra.lang.Assert;
 import infra.lang.NullValue;
-import infra.lang.Nullable;
 
 /**
  * Map cache
@@ -40,7 +41,7 @@ public class MapCache<Key, Value, Param> {
 
   /** default mapping function */
   @Nullable
-  private final Function<Key, Value> mappingFunction;
+  private final Function<Key, @Nullable Value> mappingFunction;
 
   public MapCache() {
     this(new HashMap<>());
@@ -58,14 +59,14 @@ public class MapCache<Key, Value, Param> {
     this.mappingFunction = null;
   }
 
-  public MapCache(Function<Key, Value> mappingFunction) {
+  public MapCache(Function<Key, @Nullable Value> mappingFunction) {
     this(new HashMap<>(), mappingFunction);
   }
 
   /**
    * @param mapping allows to define your own map implementation
    */
-  public MapCache(Map<Key, Value> mapping, @Nullable Function<Key, Value> mappingFunction) {
+  public MapCache(Map<Key, Value> mapping, @Nullable Function<Key, @Nullable Value> mappingFunction) {
     this.mapping = mapping;
     this.mappingFunction = mappingFunction;
   }
@@ -125,8 +126,8 @@ public class MapCache<Key, Value, Param> {
    * the specified key, or null if the computed value is null
    */
   @Nullable
-  @SuppressWarnings("unchecked")
-  public final Value get(Key key, @Nullable Function<Key, Value> mappingFunction) {
+  @SuppressWarnings({ "unchecked", "NullAway" })
+  public final Value get(Key key, @Nullable Function<Key, @Nullable Value> mappingFunction) {
     Value value = mapping.get(key);
     if (value == null) {
       synchronized(mapping) {

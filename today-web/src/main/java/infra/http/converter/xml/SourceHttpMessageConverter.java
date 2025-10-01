@@ -17,6 +17,7 @@
 
 package infra.http.converter.xml;
 
+import org.jspecify.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -56,7 +57,6 @@ import infra.http.converter.AbstractHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.converter.HttpMessageNotWritableException;
-import infra.lang.Nullable;
 import infra.util.StreamUtils;
 
 /**

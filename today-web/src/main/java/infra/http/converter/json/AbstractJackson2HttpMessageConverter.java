@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -62,7 +64,6 @@ import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.converter.HttpMessageNotWritableException;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.StreamUtils;
 import infra.util.TypeUtils;
@@ -210,8 +211,8 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
       }
     }
     return ProblemDetail.class.isAssignableFrom(clazz)
-           ? getMediaTypesForProblemDetail()
-           : getSupportedMediaTypes();
+            ? getMediaTypesForProblemDetail()
+            : getSupportedMediaTypes();
   }
 
   /**
@@ -322,6 +323,7 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
    * @param cause the Jackson-thrown exception to evaluate
    * (typically a {@link JsonMappingException})
    */
+  @SuppressWarnings("NullAway")
   protected void logWarningIfNecessary(Type type, @Nullable Throwable cause) {
     if (cause == null) {
       return;
@@ -444,7 +446,7 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
     ObjectMapper objectMapper = this.defaultObjectMapper;
     if (objectMapperRegistrations != null) {
       Class<?> clazz = object instanceof MappingJacksonValue mappingJacksonValue
-                       ? mappingJacksonValue.getValue().getClass() : object.getClass();
+              ? mappingJacksonValue.getValue().getClass() : object.getClass();
       objectMapper = selectObjectMapper(clazz, contentType);
       if (objectMapper == null) {
         throw new IllegalStateException("No ObjectMapper for " + clazz.getName());
@@ -470,7 +472,7 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
       }
 
       ObjectWriter objectWriter = serializationView != null
-                                  ? objectMapper.writerWithView(serializationView) : objectMapper.writer();
+              ? objectMapper.writerWithView(serializationView) : objectMapper.writer();
       if (filters != null) {
         objectWriter = objectWriter.with(filters);
       }
@@ -566,6 +568,7 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
     return super.getDefaultContentType(object);
   }
 
+  @Nullable
   @Override
   protected Long getContentLength(Object object, @Nullable MediaType contentType) throws IOException {
     if (object instanceof MappingJacksonValue mappingJacksonValue) {

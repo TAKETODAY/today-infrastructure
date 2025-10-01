@@ -22,9 +22,7 @@
  * Support classes for components that contribute generated code equivalent to a
  * runtime behavior.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.aot.generate;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

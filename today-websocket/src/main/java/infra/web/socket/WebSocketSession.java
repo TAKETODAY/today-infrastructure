@@ -17,6 +17,8 @@
 
 package infra.web.socket;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
@@ -25,7 +27,6 @@ import infra.core.AttributeAccessor;
 import infra.core.AttributeAccessorSupport;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
-import infra.lang.Nullable;
 import infra.util.AlternativeJdkIdGenerator;
 import infra.util.concurrent.Future;
 

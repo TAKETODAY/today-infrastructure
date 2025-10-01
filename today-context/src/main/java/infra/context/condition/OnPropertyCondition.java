@@ -118,6 +118,7 @@ class OnPropertyCondition extends InfraCondition implements Ordered {
     return ConditionOutcome.match(ConditionMessage.forCondition(annotationType, spec).because("matched"));
   }
 
+  @SuppressWarnings("NullAway")
   private static class Spec {
 
     private final Class<? extends Annotation> annotationType;

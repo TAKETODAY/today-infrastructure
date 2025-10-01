@@ -17,6 +17,8 @@
 
 package infra.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
@@ -36,7 +38,7 @@ import infra.core.annotation.AnnotatedElementAdapter;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.conversion.ConversionService;
 import infra.lang.Assert;
-import infra.lang.Nullable;
+import infra.lang.Contract;
 import infra.reflect.Property;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
@@ -105,7 +107,7 @@ public class TypeDescriptor implements Serializable {
    * @param type the backing type (or {@code null} if it should get resolved)
    * @param annotations the type annotations
    */
-  public TypeDescriptor(ResolvableType resolvableType, @Nullable Class<?> type, @Nullable Annotation[] annotations) {
+  public TypeDescriptor(ResolvableType resolvableType, @Nullable Class<?> type, Annotation @Nullable [] annotations) {
     this.resolvableType = resolvableType;
     this.type = type != null ? type : resolvableType.toClass();
     this.annotatedElement = AnnotatedElementAdapter.forAnnotations(annotations);
@@ -594,7 +596,7 @@ public class TypeDescriptor implements Serializable {
    * @see #narrow(Object)
    */
   @Nullable
-  public TypeDescriptor getMapValueDescriptor(Object mapValue) {
+  public TypeDescriptor getMapValueDescriptor(@Nullable Object mapValue) {
     return narrow(mapValue, getMapValueDescriptor());
   }
 
@@ -688,6 +690,7 @@ public class TypeDescriptor implements Serializable {
    * @return the type descriptor
    */
   @Nullable
+  @Contract("null -> null")
   public static TypeDescriptor forObject(@Nullable Object source) {
     return source != null ? valueOf(source.getClass()) : null;
   }

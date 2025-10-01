@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,12 @@
 
 package infra.web.server;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.BindException;
 import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
-
-import infra.lang.Nullable;
 
 /**
  * A {@code PortInUseException} is thrown when a web server fails to start due to a port
@@ -86,6 +86,7 @@ public class PortInUseException extends WebServerException {
    * @param ex the source exception
    * @param action the action to perform
    */
+  @SuppressWarnings("NullAway")
   public static void ifPortBindingException(Exception ex, Consumer<BindException> action) {
     ifCausedBy(ex, BindException.class, (bindException) -> {
       // bind exception can be also thrown because an address can't be assigned

@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,8 +29,6 @@ import java.util.Iterator;
 
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.NonNull;
-import infra.lang.Nullable;
 
 /**
  * A speedy alternative to {@link java.io.ByteArrayOutputStream}. Note that
@@ -111,7 +111,7 @@ public class FastByteArrayOutputStream extends OutputStream {
   }
 
   @Override
-  public void write(@NonNull byte[] data, int offset, int length) throws IOException {
+  public void write(byte[] data, int offset, int length) throws IOException {
     if (offset < 0 || offset + length > data.length || length < 0) {
       throw new IndexOutOfBoundsException();
     }
@@ -356,8 +356,7 @@ public class FastByteArrayOutputStream extends OutputStream {
 
     private final Iterator<byte[]> buffersIterator;
 
-    @Nullable
-    private byte[] currentBuffer;
+    private byte @Nullable [] currentBuffer;
 
     private int currentBufferLength = 0;
 
@@ -412,12 +411,12 @@ public class FastByteArrayOutputStream extends OutputStream {
     }
 
     @Override
-    public int read(@NonNull byte[] b) {
+    public int read(byte[] b) {
       return read(b, 0, b.length);
     }
 
     @Override
-    public int read(@NonNull byte[] b, int off, int len) {
+    public int read(byte[] b, int off, int len) {
       if (off < 0 || len < 0 || len > b.length - off) {
         throw new IndexOutOfBoundsException();
       }

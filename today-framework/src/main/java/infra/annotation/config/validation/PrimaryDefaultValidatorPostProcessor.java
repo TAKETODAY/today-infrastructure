@@ -17,12 +17,13 @@
 
 package infra.annotation.config.validation;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.config.BeanDefinition;
 import infra.context.BootstrapContext;
 import infra.context.annotation.ImportBeanDefinitionRegistrar;
 import infra.core.type.AnnotationMetadata;
-import infra.lang.Nullable;
 import infra.validation.Validator;
 import infra.validation.beanvalidation.LocalValidatorFactoryBean;
 

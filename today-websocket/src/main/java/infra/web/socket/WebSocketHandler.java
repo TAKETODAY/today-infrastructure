@@ -17,7 +17,8 @@
 
 package infra.web.socket;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import infra.util.concurrent.Future;
 
 /**

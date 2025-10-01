@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jdbc.object;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.ResultSet;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -31,11 +33,10 @@ import infra.beans.factory.InitializingBean;
 import infra.dao.InvalidDataAccessApiUsageException;
 import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.core.SqlParameter;
+import infra.jdbc.support.SQLExceptionTranslator;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.jdbc.support.SQLExceptionTranslator;
 
 /**
  * An "RDBMS operation" is a multi-threaded, reusable object representing a query,
@@ -75,8 +76,7 @@ public abstract class RdbmsOperation implements InitializingBean {
 
   private boolean returnGeneratedKeys = false;
 
-  @Nullable
-  private String[] generatedKeysColumnNames;
+  private String @Nullable [] generatedKeysColumnNames;
 
   @Nullable
   private String sql;
@@ -220,7 +220,7 @@ public abstract class RdbmsOperation implements InitializingBean {
    *
    * @see java.sql.Connection#prepareStatement(String, String[])
    */
-  public void setGeneratedKeysColumnNames(@Nullable String... names) {
+  public void setGeneratedKeysColumnNames(String @Nullable ... names) {
     if (isCompiled()) {
       throw new InvalidDataAccessApiUsageException(
               "The column names for the generated keys must be set before the operation is compiled");
@@ -231,8 +231,7 @@ public abstract class RdbmsOperation implements InitializingBean {
   /**
    * Return the column names of the auto generated keys.
    */
-  @Nullable
-  public String[] getGeneratedKeysColumnNames() {
+  public String @Nullable [] getGeneratedKeysColumnNames() {
     return this.generatedKeysColumnNames;
   }
 
@@ -273,7 +272,7 @@ public abstract class RdbmsOperation implements InitializingBean {
    * {@code java.sql.Types} class
    * @throws InvalidDataAccessApiUsageException if the operation is already compiled
    */
-  public void setTypes(@Nullable int[] types) throws InvalidDataAccessApiUsageException {
+  public void setTypes(int @Nullable [] types) throws InvalidDataAccessApiUsageException {
     if (isCompiled()) {
       throw new InvalidDataAccessApiUsageException("Cannot add parameters once query is compiled");
     }
@@ -312,13 +311,14 @@ public abstract class RdbmsOperation implements InitializingBean {
    * @param parameters an array containing the declared {@link SqlParameter} objects
    * @see #declaredParameters
    */
-  public void setParameters(SqlParameter... parameters) {
+  public void setParameters(@Nullable SqlParameter... parameters) {
     if (isCompiled()) {
       throw new InvalidDataAccessApiUsageException("Cannot add parameters once the query is compiled");
     }
     for (int i = 0; i < parameters.length; i++) {
-      if (parameters[i] != null) {
-        this.declaredParameters.add(parameters[i]);
+      SqlParameter parameter = parameters[i];
+      if (parameter != null) {
+        this.declaredParameters.add(parameter);
       }
       else {
         throw new InvalidDataAccessApiUsageException("Cannot add parameter at index %s from %s since it is 'null'"
@@ -404,7 +404,7 @@ public abstract class RdbmsOperation implements InitializingBean {
    * @param parameters the parameters supplied (may be {@code null})
    * @throws InvalidDataAccessApiUsageException if the parameters are invalid
    */
-  protected void validateParameters(@Nullable Object[] parameters) throws InvalidDataAccessApiUsageException {
+  protected void validateParameters(@Nullable Object @Nullable [] parameters) throws InvalidDataAccessApiUsageException {
     checkCompiled();
     int declaredInParameters = 0;
     for (SqlParameter param : this.declaredParameters) {

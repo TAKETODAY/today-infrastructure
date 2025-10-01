@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,13 @@
 
 package infra.jdbc.object;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
 import javax.sql.DataSource;
-
-import infra.lang.Nullable;
 
 /**
  * Reusable query in which concrete subclasses must implement the abstract
@@ -66,7 +66,7 @@ public abstract class MappingSqlQuery<T> extends MappingSqlQueryWithParameters<T
    */
   @Override
   @Nullable
-  protected final T mapRow(ResultSet rs, int rowNum, @Nullable Object[] parameters, @Nullable Map<?, ?> context)
+  protected final T mapRow(ResultSet rs, int rowNum, @Nullable Object @Nullable [] parameters, @Nullable Map<?, ?> context)
           throws SQLException {
 
     return mapRow(rs, rowNum);

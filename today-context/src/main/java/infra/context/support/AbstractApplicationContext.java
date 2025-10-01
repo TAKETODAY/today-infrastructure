@@ -17,6 +17,8 @@
 
 package infra.context.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.time.Duration;
@@ -96,7 +98,6 @@ import infra.core.io.ResourceConsumer;
 import infra.core.io.ResourceLoader;
 import infra.core.io.SmartResourceConsumer;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
@@ -462,12 +463,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 
   @Nullable
   @Override
-  public String getMessage(String code, @Nullable Object[] args, @Nullable String defaultMessage, @Nullable Locale locale) {
+  public String getMessage(String code, Object @Nullable [] args, @Nullable String defaultMessage, @Nullable Locale locale) {
     return getMessageSource().getMessage(code, args, defaultMessage, locale);
   }
 
   @Override
-  public String getMessage(String code, @Nullable Object[] args, @Nullable Locale locale) throws NoSuchMessageException {
+  public String getMessage(String code, Object @Nullable [] args, @Nullable Locale locale) throws NoSuchMessageException {
     return getMessageSource().getMessage(code, args, locale);
   }
 
@@ -1101,7 +1102,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   }
 
   @Override
-  public void setEnvironment(@Nullable ConfigurableEnvironment environment) {
+  public void setEnvironment(ConfigurableEnvironment environment) {
     this.environment = environment;
   }
 
@@ -1142,7 +1143,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 
   @Nullable
   @Override
-  public Object getBean(String name, Object... args) throws BeansException {
+  @SuppressWarnings("NullAway")
+  public Object getBean(String name, @Nullable Object @Nullable ... args) throws BeansException {
     assertBeanFactoryActive();
     return getBeanFactory().getBean(name, args);
   }
@@ -1154,7 +1156,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   }
 
   @Override
-  public <T> T getBean(Class<T> requiredType, Object... args) throws BeansException {
+  @SuppressWarnings("NullAway")
+  public <T> T getBean(Class<T> requiredType, @Nullable Object @Nullable ... args) throws BeansException {
     assertBeanFactoryActive();
     return getBeanFactory().getBean(requiredType, args);
   }

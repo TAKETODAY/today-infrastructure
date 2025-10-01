@@ -33,7 +33,7 @@ import infra.beans.PropertyValues;
 import infra.beans.testfixture.beans.ITestBean;
 import infra.beans.testfixture.beans.TestBean;
 import infra.core.ResolvableType;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockMultipartHttpMockRequest;
 import infra.validation.BindingResult;

@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -24,7 +26,6 @@ import java.lang.reflect.Modifier;
 
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 
 /**
  * Helper class that allows for specifying a reflective method to invoke in a declarative
@@ -57,7 +58,7 @@ public class ReflectiveMethodInvoker {
   private String staticMethod;
 
   @Nullable
-  private Object[] arguments;
+  private Object @Nullable [] arguments;
 
   /** The method we will call. */
   @Nullable
@@ -142,13 +143,14 @@ public class ReflectiveMethodInvoker {
    * Set arguments for the method invocation. If this property is not set,
    * or the Object array is of length 0, a method with no arguments is assumed.
    */
-  public void setArguments(Object... arguments) {
+  public void setArguments(@Nullable Object @Nullable ... arguments) {
     this.arguments = arguments;
   }
 
   /**
    * Return the arguments for the method invocation.
    */
+  @Nullable
   public Object[] getArguments() {
     return (this.arguments != null ? this.arguments : EMPTY_ARGUMENTS);
   }
@@ -181,7 +183,7 @@ public class ReflectiveMethodInvoker {
     Assert.notNull(targetClass, "Either 'targetClass' or 'targetObject' is required");
     Assert.notNull(targetMethod, "Property 'targetMethod' is required");
 
-    Object[] arguments = getArguments();
+    @Nullable Object[] arguments = getArguments();
     Class<?>[] argTypes = new Class<?>[arguments.length];
     for (int i = 0; i < arguments.length; ++i) {
       Object argument = arguments[i];
@@ -225,7 +227,7 @@ public class ReflectiveMethodInvoker {
   @Nullable
   protected Method findMatchingMethod() {
     String targetMethod = getTargetMethod();
-    Object[] arguments = getArguments();
+    @Nullable Object[] arguments = getArguments();
     int argCount = arguments.length;
 
     Class<?> targetClass = getTargetClass();
@@ -328,7 +330,7 @@ public class ReflectiveMethodInvoker {
    * @param args the arguments to match
    * @return the accumulated weight for all arguments
    */
-  public static int getTypeDifferenceWeight(Class<?>[] paramTypes, Object[] args) {
+  public static int getTypeDifferenceWeight(Class<?>[] paramTypes, @Nullable Object[] args) {
     int result = 0;
     for (int i = 0; i < paramTypes.length; i++) {
       Class<?> paramType = paramTypes[i];

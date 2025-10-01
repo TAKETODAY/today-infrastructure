@@ -17,6 +17,8 @@
 
 package infra.web.handler;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -38,7 +40,6 @@ import infra.http.converter.ByteArrayHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.web.ErrorResponse;
 import infra.web.RedirectModelManager;
@@ -119,6 +120,7 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
     this.messageConverters.add(new AllEncompassingFormHttpMessageConverter());
   }
 
+  @SuppressWarnings("NullAway")
   public ReturnValueHandlerManager(List<HttpMessageConverter<?>> messageConverters) {
     setMessageConverters(messageConverters);
   }

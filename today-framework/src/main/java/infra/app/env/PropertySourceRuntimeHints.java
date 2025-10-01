@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.app.env;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.aot.hint.TypeReference;
@@ -31,7 +33,7 @@ import infra.aot.hint.TypeReference;
 class PropertySourceRuntimeHints implements RuntimeHintsRegistrar {
 
   @Override
-  public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+  public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
     hints.reflection()
             .registerTypeIfPresent(classLoader, "org.yaml.snakeyaml.Yaml",
                     (typeHint) -> typeHint.onReachableType(TypeReference.of(YamlPropertySourceLoader.class)));

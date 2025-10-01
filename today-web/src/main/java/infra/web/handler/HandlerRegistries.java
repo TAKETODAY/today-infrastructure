@@ -17,6 +17,8 @@
 
 package infra.web.handler;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 import infra.lang.Assert;
@@ -41,6 +43,7 @@ public class HandlerRegistries implements HandlerMapping {
     this(registries.toArray(new HandlerMapping[registries.size()]));
   }
 
+  @Nullable
   @Override
   public Object getHandler(final RequestContext request) throws Exception {
     for (final HandlerMapping registry : handlerRegistries) {

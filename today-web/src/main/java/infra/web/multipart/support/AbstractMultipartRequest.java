@@ -17,11 +17,12 @@
 
 package infra.web.multipart.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 import infra.web.multipart.Multipart;
 import infra.web.multipart.MultipartFile;
@@ -54,6 +55,7 @@ public abstract class AbstractMultipartRequest implements MultipartRequest {
     return getMultipartFiles().getFirst(name);
   }
 
+  @Nullable
   @Override
   public List<MultipartFile> getFiles(String name) {
     return getMultipartFiles().get(name);

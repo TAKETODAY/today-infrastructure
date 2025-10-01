@@ -17,6 +17,8 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -39,7 +41,6 @@ import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.config.TypedStringValue;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
 
@@ -160,7 +161,7 @@ abstract class AutowireUtils {
    * @return the resolved target return type or the standard method return type
    */
   public static Class<?> resolveReturnTypeForFactoryMethod(
-          Method method, Object[] args, @Nullable ClassLoader classLoader) {
+          Method method, @Nullable Object[] args, @Nullable ClassLoader classLoader) {
     Assert.notNull(method, "Method is required");
     Assert.notNull(args, "Argument array is required");
 
@@ -170,8 +171,8 @@ abstract class AutowireUtils {
     Type genericReturnType = method.getGenericReturnType();
     TypeVariable<Method>[] declaredTypeVariables = method.getTypeParameters();
 
-    // Ensure that the type variable (e.g., T) is declared directly on the method
-    // itself (e.g., via <T>), not on the enclosing class or interface.
+    // Ensure that the type variable (for example, T) is declared directly on the method
+    // itself (for example, via <T>), not on the enclosing class or interface.
     boolean locallyDeclaredTypeVariableMatchesReturnType = false;
     for (TypeVariable<Method> currentTypeVariable : declaredTypeVariables) {
       if (currentTypeVariable.equals(genericReturnType)) {
@@ -196,8 +197,8 @@ abstract class AutowireUtils {
               }
             }
             catch (ClassNotFoundException ex) {
-              throw new IllegalStateException("Failed to resolve value type [" +
-                      typedValue.getTargetTypeName() + "] for factory method argument", ex);
+              throw new IllegalStateException("Failed to resolve value type [%s] for factory method argument"
+                      .formatted(typedValue.getTargetTypeName()), ex);
             }
           }
           else if (arg != null && !(arg instanceof BeanMetadataElement)) {
@@ -316,6 +317,7 @@ abstract class AutowireUtils {
   private record ObjectFactoryDelegatingInvocationHandler(Supplier<?> objectFactory)
           implements InvocationHandler, Serializable {
 
+    @Nullable
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) {
       return switch (method.getName()) {

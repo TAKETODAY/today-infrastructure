@@ -17,6 +17,8 @@
 
 package infra.jdbc.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,18 +36,21 @@ public class ByteTypeHandler extends BasicTypeHandler<Byte> {
     ps.setByte(i, arg);
   }
 
+  @Nullable
   @Override
   public Byte getResult(ResultSet rs, String columnName) throws SQLException {
     byte result = rs.getByte(columnName);
     return result == 0 && rs.wasNull() ? null : result;
   }
 
+  @Nullable
   @Override
   public Byte getResult(ResultSet rs, int columnIndex) throws SQLException {
     byte result = rs.getByte(columnIndex);
     return result == 0 && rs.wasNull() ? null : result;
   }
 
+  @Nullable
   @Override
   public Byte getResult(CallableStatement cs, int columnIndex) throws SQLException {
     byte result = cs.getByte(columnIndex);

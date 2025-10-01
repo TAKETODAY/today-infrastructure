@@ -17,6 +17,8 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.function.Supplier;
 
@@ -35,7 +37,6 @@ import infra.core.env.EnvironmentCapable;
 import infra.core.env.StandardEnvironment;
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 
@@ -269,7 +270,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
    * @throws BeanDefinitionStoreException if registration failed
    */
   private <T> void doRegisterBean(Class<T> beanClass, @Nullable String name, @Nullable Supplier<T> supplier,
-          @Nullable Class<? extends Annotation>[] qualifiers, @Nullable BeanDefinitionCustomizer[] customizers) {
+          Class<? extends Annotation> @Nullable [] qualifiers, BeanDefinitionCustomizer @Nullable [] customizers) {
 
     var definition = new AnnotatedGenericBeanDefinition(beanClass);
 
@@ -324,7 +325,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
     return new StandardEnvironment();
   }
 
-  private void applyDynamicCustomizers(BeanDefinition definition, @Nullable BeanDefinitionCustomizer[] dynamicCustomizers) {
+  private void applyDynamicCustomizers(BeanDefinition definition, BeanDefinitionCustomizer @Nullable [] dynamicCustomizers) {
     // dynamic customize
     if (ObjectUtils.isNotEmpty(dynamicCustomizers)) {
       for (BeanDefinitionCustomizer dynamicCustomizer : dynamicCustomizers) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.beans.support;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 
@@ -34,7 +36,7 @@ final class ReflectiveInstantiator extends ConstructorAccessor {
   }
 
   @Override
-  public Object doInstantiate(final Object[] args) {
+  public Object doInstantiate(final @Nullable Object @Nullable [] args) {
     return BeanUtils.newInstance(constructor, args);
   }
 

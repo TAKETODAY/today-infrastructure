@@ -17,6 +17,8 @@
 
 package infra.http;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.nio.charset.Charset;
@@ -31,7 +33,6 @@ import java.util.Optional;
 
 import infra.core.io.Resource;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.InvalidMimeTypeException;
 import infra.util.MimeType;
@@ -371,7 +372,7 @@ public class MediaType extends MimeType implements Serializable {
    * @return {@code true} if this media type includes the given media type;
    * {@code false} otherwise
    */
-  public boolean includes(MediaType other) {
+  public boolean includes(@Nullable MediaType other) {
     return super.includes(other);
   }
 

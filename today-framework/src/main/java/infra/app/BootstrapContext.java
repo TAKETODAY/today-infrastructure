@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.app;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Supplier;
 
@@ -37,40 +39,40 @@ public interface BootstrapContext {
 
   /**
    * Return an instance from the context if the type has been registered. The instance
-   * will be created it if it hasn't been accessed previously.
+   * will be created if it hasn't been accessed previously.
    *
    * @param <T> the instance type
    * @param type the instance type
    * @return the instance managed by the context
    * @throws IllegalStateException if the type has not been registered
    */
-  <T> T get(Class<T> type) throws IllegalStateException;
+  <T> @Nullable T get(Class<T> type) throws IllegalStateException;
 
   /**
    * Return an instance from the context if the type has been registered. The instance
-   * will be created it if it hasn't been accessed previously.
+   * will be created if it hasn't been accessed previously.
    *
    * @param <T> the instance type
    * @param type the instance type
    * @param other the instance to use if the type has not been registered
    * @return the instance
    */
-  <T> T getOrElse(Class<T> type, T other);
+  <T> @Nullable T getOrElse(Class<T> type, @Nullable T other);
 
   /**
    * Return an instance from the context if the type has been registered. The instance
-   * will be created it if it hasn't been accessed previously.
+   * will be created if it hasn't been accessed previously.
    *
    * @param <T> the instance type
    * @param type the instance type
    * @param other a supplier for the instance to use if the type has not been registered
    * @return the instance
    */
-  <T> T getOrElseSupply(Class<T> type, Supplier<T> other);
+  <T> @Nullable T getOrElseSupply(Class<T> type, Supplier<@Nullable T> other);
 
   /**
    * Return an instance from the context if the type has been registered. The instance
-   * will be created it if it hasn't been accessed previously.
+   * will be created if it hasn't been accessed previously.
    *
    * @param <T> the instance type
    * @param <X> the exception to throw if the type is not registered
@@ -80,7 +82,8 @@ public interface BootstrapContext {
    * @throws X if the type has not been registered
    * @throws IllegalStateException if the type has not been registered
    */
-  <T, X extends Throwable> T getOrElseThrow(Class<T> type, Supplier<? extends X> exceptionSupplier) throws X;
+  <T, X extends Throwable> @Nullable T getOrElseThrow(Class<T> type, Supplier<? extends X> exceptionSupplier)
+          throws X;
 
   /**
    * Return if a registration exists for the given type.

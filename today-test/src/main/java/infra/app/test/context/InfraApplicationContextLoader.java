@@ -17,6 +17,8 @@
 
 package infra.app.test.context;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,7 +43,6 @@ import infra.core.env.ConfigurableEnvironment;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.Version;
 import infra.test.context.ContextConfigurationAttributes;
 import infra.test.context.ContextCustomizer;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.annotation.config.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -30,7 +32,6 @@ import infra.context.properties.ConfigurationProperties;
 import infra.jdbc.config.DataSourceBuilder;
 import infra.jdbc.config.DatabaseDriver;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
 
@@ -46,6 +47,7 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/23 17:13
  */
+@SuppressWarnings("NullAway")
 @ConfigurationProperties(prefix = "datasource")
 public class DataSourceProperties implements BeanClassLoaderAware, InitializingBean {
 

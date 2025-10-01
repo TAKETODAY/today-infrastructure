@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
 import org.w3c.dom.Element;
 
 import infra.beans.factory.config.BeanDefinition;
@@ -24,7 +25,6 @@ import infra.beans.factory.parsing.BeanComponentDefinition;
 import infra.beans.factory.parsing.CompositeComponentDefinition;
 import infra.beans.factory.xml.BeanDefinitionParser;
 import infra.beans.factory.xml.ParserContext;
-import infra.lang.Nullable;
 
 /**
  * Parser for the &lt;context:annotation-config/&gt; element.
@@ -36,6 +36,7 @@ import infra.lang.Nullable;
  * @see AnnotationConfigUtils
  * @since 4.0 2022/3/7 18:04
  */
+@SuppressWarnings("NullAway")
 public class AnnotationConfigBeanDefinitionParser implements BeanDefinitionParser {
 
   @Override

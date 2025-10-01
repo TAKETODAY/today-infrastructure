@@ -18,9 +18,7 @@
 /**
  * Support classes for web-specific formatting.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.config.format;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

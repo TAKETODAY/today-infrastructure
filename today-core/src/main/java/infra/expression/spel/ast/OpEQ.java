@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,6 +64,7 @@ public class OpEQ extends Operator {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public void generateCode(MethodVisitor mv, CodeFlow cf) {
     cf.loadEvaluationContext(mv);
     String leftDesc = getLeftOperand().exitTypeDescriptor;

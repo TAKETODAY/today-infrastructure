@@ -26,8 +26,6 @@ import infra.context.ConfigurableApplicationContext;
 import infra.test.context.CacheAwareContextLoaderDelegate;
 import infra.test.context.ContextLoader;
 import infra.test.context.MergedContextConfiguration;
-import infra.test.context.cache.AotMergedContextConfiguration;
-import infra.test.context.cache.DefaultCacheAwareContextLoaderDelegate;
 import infra.test.context.support.DelegatingSmartContextLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;

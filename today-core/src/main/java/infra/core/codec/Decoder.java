@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.core.codec;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.util.Collections;
@@ -28,7 +29,6 @@ import java.util.concurrent.ExecutionException;
 import infra.core.ResolvableType;
 import infra.core.io.buffer.DataBuffer;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.MimeType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -102,18 +102,17 @@ public interface Decoder<T> {
     CompletableFuture<T> future = decodeToMono(Mono.just(buffer), targetType, mimeType, hints).toFuture();
     Assert.state(future.isDone(), "DataBuffer decoding should have completed.");
 
-    Throwable failure;
     try {
       return future.get();
     }
     catch (ExecutionException ex) {
-      failure = ex.getCause();
+      Throwable cause = ex.getCause();
+      throw (cause instanceof CodecException codecException ? codecException :
+              new DecodingException("Failed to decode: " + (cause != null ? cause.getMessage() : ex), cause));
     }
     catch (InterruptedException ex) {
-      failure = ex;
+      throw new DecodingException("Interrupted during decode", ex);
     }
-    throw failure instanceof CodecException ? (CodecException) failure :
-          new DecodingException("Failed to decode: " + failure.getMessage(), failure);
   }
 
   /**

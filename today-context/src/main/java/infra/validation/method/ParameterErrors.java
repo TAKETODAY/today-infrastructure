@@ -17,10 +17,11 @@
 
 package infra.validation.method;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 import infra.core.MethodParameter;
-import infra.lang.Nullable;
 import infra.validation.Errors;
 import infra.validation.FieldError;
 import infra.validation.ObjectError;
@@ -97,7 +98,7 @@ public class ParameterErrors extends ParameterValidationResult implements Errors
   }
 
   @Override
-  public void reject(String errorCode, @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
+  public void reject(String errorCode, Object @Nullable [] errorArgs, @Nullable String defaultMessage) {
     this.errors.reject(errorCode, errorArgs, defaultMessage);
   }
 
@@ -113,7 +114,7 @@ public class ParameterErrors extends ParameterValidationResult implements Errors
 
   @Override
   public void rejectValue(@Nullable String field, String errorCode,
-          @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
+          Object @Nullable [] errorArgs, @Nullable String defaultMessage) {
 
     this.errors.rejectValue(field, errorCode, errorArgs, defaultMessage);
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,13 @@
 
 package infra.context.support;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.BeanNameAware;
 import infra.beans.factory.InitializingBean;
 import infra.context.ApplicationContext;
 import infra.core.env.Environment;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**
@@ -39,8 +40,7 @@ import infra.util.StringUtils;
 public abstract class AbstractRefreshableConfigApplicationContext extends AbstractRefreshableApplicationContext
         implements BeanNameAware, InitializingBean {
 
-  @Nullable
-  private String[] configLocations;
+  private String @Nullable [] configLocations;
 
   private boolean setIdCalled = false;
 
@@ -71,7 +71,7 @@ public abstract class AbstractRefreshableConfigApplicationContext extends Abstra
    * Set the config locations for this application context.
    * <p>If not set, the implementation may use a default as appropriate.
    */
-  public void setConfigLocations(@Nullable String... locations) {
+  public void setConfigLocations(String @Nullable ... locations) {
     if (locations != null) {
       Assert.noNullElements(locations, "Config locations is required");
       this.configLocations = new String[locations.length];
@@ -94,8 +94,7 @@ public abstract class AbstractRefreshableConfigApplicationContext extends Abstra
    * @return an array of resource locations, or {@code null} if none
    * @see #getResources
    */
-  @Nullable
-  protected String[] getConfigLocations() {
+  protected String @Nullable [] getConfigLocations() {
     return (this.configLocations != null ? this.configLocations : getDefaultConfigLocations());
   }
 
@@ -108,8 +107,7 @@ public abstract class AbstractRefreshableConfigApplicationContext extends Abstra
    * @return an array of default config locations, if any
    * @see #setConfigLocations
    */
-  @Nullable
-  protected String[] getDefaultConfigLocations() {
+  protected String @Nullable [] getDefaultConfigLocations() {
     return null;
   }
 

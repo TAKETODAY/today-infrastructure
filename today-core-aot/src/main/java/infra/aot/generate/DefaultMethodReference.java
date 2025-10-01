@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.aot.generate;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +29,6 @@ import infra.javapoet.CodeBlock;
 import infra.javapoet.MethodSpec;
 import infra.javapoet.TypeName;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Default {@link MethodReference} implementation based on a {@link MethodSpec}.
@@ -61,6 +62,7 @@ public class DefaultMethodReference implements MethodReference {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public CodeBlock toInvokeCodeBlock(ArgumentCodeGenerator argumentCodeGenerator,
           @Nullable ClassName targetClassName) {
     String methodName = this.method.name;
@@ -117,7 +119,7 @@ public class DefaultMethodReference implements MethodReference {
     return this.method.modifiers.contains(Modifier.STATIC);
   }
 
-  private boolean isSameDeclaringClass(ClassName declaringClass) {
+  private boolean isSameDeclaringClass(@Nullable ClassName declaringClass) {
     return this.declaringClass == null || this.declaringClass.equals(declaringClass);
   }
 

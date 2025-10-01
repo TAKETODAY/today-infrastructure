@@ -17,6 +17,8 @@
 
 package infra.validation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyEditor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
@@ -58,7 +60,6 @@ import infra.core.conversion.ConversionService;
 import infra.format.Formatter;
 import infra.format.support.FormatterPropertyEditorAdapter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;
@@ -170,14 +171,11 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 
   private int autoGrowCollectionLimit = DEFAULT_AUTO_GROW_COLLECTION_LIMIT;
 
-  @Nullable
-  private String[] allowedFields;
+  private String @Nullable [] allowedFields;
 
-  @Nullable
-  private String[] disallowedFields;
+  private String @Nullable [] disallowedFields;
 
-  @Nullable
-  private String[] requiredFields;
+  private String @Nullable [] requiredFields;
 
   @Nullable
   private NameResolver nameResolver;
@@ -376,7 +374,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
       bindingResult = directFieldAccess ? createDirectFieldBindingResult() : createBeanPropertyBindingResult();
       this.bindingResult = bindingResult;
     }
-    return this.bindingResult;
+    return bindingResult;
   }
 
   /**
@@ -532,7 +530,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * @see #setDisallowedFields
    * @see #isAllowed(String)
    */
-  public void setAllowedFields(@Nullable String... allowedFields) {
+  public void setAllowedFields(String @Nullable ... allowedFields) {
     this.allowedFields = PropertyAccessorUtils.canonicalPropertyNames(allowedFields);
   }
 
@@ -542,8 +540,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * @return array of allowed field patterns
    * @see #setAllowedFields(String...)
    */
-  @Nullable
-  public String[] getAllowedFields() {
+  public String @Nullable [] getAllowedFields() {
     return this.allowedFields;
   }
 
@@ -571,7 +568,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * @see #setAllowedFields
    * @see #isAllowed(String)
    */
-  public void setDisallowedFields(@Nullable String... disallowedFields) {
+  public void setDisallowedFields(String @Nullable ... disallowedFields) {
     if (disallowedFields == null) {
       this.disallowedFields = null;
     }
@@ -590,8 +587,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * @return array of disallowed field patterns
    * @see #setDisallowedFields(String...)
    */
-  @Nullable
-  public String[] getDisallowedFields() {
+  public String @Nullable [] getDisallowedFields() {
     return this.disallowedFields;
   }
 
@@ -609,7 +605,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * @see #setBindingErrorProcessor
    * @see DefaultBindingErrorProcessor#MISSING_FIELD_ERROR_CODE
    */
-  public void setRequiredFields(@Nullable String... requiredFields) {
+  public void setRequiredFields(String @Nullable ... requiredFields) {
     this.requiredFields = PropertyAccessorUtils.canonicalPropertyNames(requiredFields);
     if (logger.isDebugEnabled()) {
       logger.debug("DataBinder requires binding of required fields [{}]",
@@ -622,8 +618,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    *
    * @return array of field names
    */
-  @Nullable
-  public String[] getRequiredFields() {
+  public String @Nullable [] getRequiredFields() {
     return this.requiredFields;
   }
 
@@ -697,7 +692,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
     }
   }
 
-  private void assertValidators(Validator... validators) {
+  private void assertValidators(@Nullable Validator... validators) {
     Object target = getTarget();
     for (Validator validator : validators) {
       if (validator != null && (target != null && !validator.supports(target.getClass()))) {
@@ -926,6 +921,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private Object createObject(ResolvableType objectType, String nestedPath, ValueResolver valueResolver) {
     Class<?> clazz = objectType.resolve();
     boolean isOptional = (clazz == Optional.class);
@@ -946,7 +942,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
       // A single data class constructor -> resolve constructor arguments from request parameters.
       String[] paramNames = BeanUtils.getParameterNames(ctor);
       Class<?>[] paramTypes = ctor.getParameterTypes();
-      Object[] args = new Object[paramTypes.length];
+      @Nullable Object[] args = new Object[paramTypes.length];
       HashSet<String> failedParamNames = new HashSet<>(4);
 
       for (int i = 0; i < paramNames.length; i++) {
@@ -1097,7 +1093,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 
   @Nullable
   @SuppressWarnings("unchecked")
-  private <V> V[] createArray(String paramPath, Class<?> paramType, ResolvableType type, ValueResolver valueResolver) {
+  private <V> V @Nullable [] createArray(String paramPath, Class<?> paramType, ResolvableType type, ValueResolver valueResolver) {
     ResolvableType elementType = type.getNested(2);
     SortedSet<Integer> indexes = getIndexes(paramPath, valueResolver);
     if (indexes == null) {
@@ -1106,7 +1102,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 
     int lastIndex = Math.max(indexes.last(), 0);
     int size = (lastIndex < this.autoGrowCollectionLimit ? lastIndex + 1 : 0);
-    V[] array = (V[]) Array.newInstance(elementType.resolve(), size);
+    @Nullable V[] array = (V[]) Array.newInstance(elementType.resolve(), size);
 
     for (int index : indexes) {
       String indexedPath = paramPath + "[" + (index != NO_INDEX ? index : "") + "]";
@@ -1323,6 +1319,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * @see #getBindingErrorProcessor
    * @see BindingErrorProcessor#processMissingFieldError
    */
+  @SuppressWarnings("NullAway")
   protected void checkRequiredFields(PropertyValues mpvs) {
     String[] requiredFields = getRequiredFields();
     if (ObjectUtils.isNotEmpty(requiredFields)) {

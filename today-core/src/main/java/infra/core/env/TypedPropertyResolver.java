@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 
 package infra.core.env;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * @author TODAY 2021/10/3 15:33
@@ -43,6 +43,7 @@ public abstract class TypedPropertyResolver extends AbstractPropertyResolver {
     return getProperty(key, String.class, false);
   }
 
+  @Nullable
   public abstract <T> T getProperty(
           String key, Class<T> targetValueType, boolean resolveNestedPlaceholders);
 

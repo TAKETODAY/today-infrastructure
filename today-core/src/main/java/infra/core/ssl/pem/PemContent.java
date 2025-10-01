@@ -17,6 +17,8 @@
 
 package infra.core.ssl.pem;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -33,7 +35,7 @@ import java.util.stream.Collectors;
 
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
-import infra.lang.Nullable;
+import infra.lang.Contract;
 import infra.util.StreamUtils;
 import infra.util.StringUtils;
 
@@ -130,7 +132,7 @@ public final class PemContent {
     if (isPresentInText(content)) {
       return new PemContent(content);
     }
-    try (InputStream in = resourceLoader.getResource(content).getInputStream();) {
+    try (InputStream in = resourceLoader.getResource(content).getInputStream()) {
       return load(in);
     }
     catch (IOException | UncheckedIOException ex) {
@@ -170,6 +172,7 @@ public final class PemContent {
    * @return a new {@link PemContent} instance
    */
   @Nullable
+  @Contract("!null -> !null")
   public static PemContent of(@Nullable String text) {
     return (text != null) ? new PemContent(text) : null;
   }
@@ -180,6 +183,7 @@ public final class PemContent {
    * @param text the text to check
    * @return if the text includes PEM encoded content.
    */
+  @Contract("null -> false")
   public static boolean isPresentInText(@Nullable String text) {
     return text != null && PEM_HEADER.matcher(text).find() && PEM_FOOTER.matcher(text).find();
   }

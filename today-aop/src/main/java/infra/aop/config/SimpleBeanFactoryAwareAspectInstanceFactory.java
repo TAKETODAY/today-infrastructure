@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 package infra.aop.config;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.aop.aspectj.AspectInstanceFactory;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.Ordered;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**
@@ -62,6 +63,7 @@ public class SimpleBeanFactoryAwareAspectInstanceFactory implements AspectInstan
    * @see #setAspectBeanName
    */
   @Override
+  @SuppressWarnings("NullAway")
   public Object getAspectInstance() {
     Assert.state(this.beanFactory != null, "No BeanFactory set");
     Assert.state(this.aspectBeanName != null, "No 'aspectBeanName' set");
@@ -80,6 +82,7 @@ public class SimpleBeanFactoryAwareAspectInstanceFactory implements AspectInstan
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public int getOrder() {
     if (this.beanFactory != null && this.aspectBeanName != null &&
             this.beanFactory.isSingleton(this.aspectBeanName) &&

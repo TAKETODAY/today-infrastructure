@@ -17,6 +17,8 @@
 
 package infra.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -31,7 +33,6 @@ import java.util.stream.StreamSupport;
 
 import infra.dao.IncorrectResultSizeDataAccessException;
 import infra.jdbc.support.JdbcUtils;
-import infra.lang.Nullable;
 
 /**
  * Iterator for a {@link ResultSet}. Tricky part here is getting
@@ -83,6 +84,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public T next() {
     ResultSetValue<T> result = next;
     if (result == null) {
@@ -478,6 +480,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
    * @param entities the collection to which the entities will be added;
    * must not be null
    */
+  @SuppressWarnings("NullAway")
   public void collect(Collection<T> entities) {
     final ResultSet resultSet = this.resultSet;
     try {
@@ -493,6 +496,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
     }
   }
 
+  @Nullable
   private ResultSetValue<T> safeReadNext() {
     final ResultSet resultSet = this.resultSet;
     try {
@@ -522,9 +526,11 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
   protected abstract T readNext(ResultSet resultSet) throws SQLException;
 
   static final class ResultSetValue<T> {
+
+    @Nullable
     public final T value;
 
-    private ResultSetValue(T value) {
+    private ResultSetValue(@Nullable T value) {
       this.value = value;
     }
   }

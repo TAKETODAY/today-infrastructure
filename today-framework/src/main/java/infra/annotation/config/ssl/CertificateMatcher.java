@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.annotation.config.ssl;
 
+import org.jspecify.annotations.Nullable;
+
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -28,7 +30,6 @@ import java.util.List;
 import java.util.Objects;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Helper used to match certificates against a {@link PrivateKey}.
@@ -37,6 +38,7 @@ import infra.lang.Nullable;
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
+@SuppressWarnings("NullAway")
 class CertificateMatcher {
 
   private static final byte[] DATA = new byte[256];
@@ -51,8 +53,7 @@ class CertificateMatcher {
 
   private final Signature signature;
 
-  @Nullable
-  private final byte[] generatedSignature;
+  private final byte @Nullable [] generatedSignature;
 
   CertificateMatcher(PrivateKey privateKey) {
     Assert.notNull(privateKey, "Private key is required");

@@ -21,9 +21,7 @@
  * and {@link infra.cache.Cache Cache} implementation for
  * use in a Framework context, using a JDK based thread pool at runtime.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.cache.concurrent;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

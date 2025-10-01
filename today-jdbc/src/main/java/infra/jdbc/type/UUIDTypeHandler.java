@@ -17,13 +17,14 @@
 
 package infra.jdbc.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**
@@ -37,16 +38,19 @@ public class UUIDTypeHandler extends BasicTypeHandler<UUID> {
     ps.setString(parameterIndex, arg.toString());
   }
 
+  @Nullable
   @Override
   public UUID getResult(ResultSet rs, String columnName) throws SQLException {
     return fromString(rs.getString(columnName));
   }
 
+  @Nullable
   @Override
   public UUID getResult(ResultSet rs, int columnIndex) throws SQLException {
     return fromString(rs.getString(columnIndex));
   }
 
+  @Nullable
   @Override
   public UUID getResult(CallableStatement cs, int columnIndex) throws SQLException {
     return fromString(cs.getString(columnIndex));

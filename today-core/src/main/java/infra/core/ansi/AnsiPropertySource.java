@@ -17,6 +17,8 @@
 
 package infra.core.ansi;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -24,7 +26,6 @@ import java.util.function.IntFunction;
 
 import infra.core.env.PropertyResolver;
 import infra.core.env.PropertySource;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**
@@ -69,6 +70,7 @@ public class AnsiPropertySource extends PropertySource<AnsiElement> {
     this.encode = encode;
   }
 
+  @Nullable
   @Override
   public Object getProperty(String name) {
     if (StringUtils.isNotEmpty(name)) {
@@ -118,6 +120,7 @@ public class AnsiPropertySource extends PropertySource<AnsiElement> {
       this.enums = EnumSet.allOf(enumType);
     }
 
+    @Nullable
     @Override
     AnsiElement getElement(String postfix) {
       for (Enum<?> candidate : this.enums) {
@@ -142,6 +145,7 @@ public class AnsiPropertySource extends PropertySource<AnsiElement> {
       this.factory = factory;
     }
 
+    @Nullable
     @Override
     AnsiElement getElement(String postfix) {
       if (containsOnlyDigits(postfix)) {

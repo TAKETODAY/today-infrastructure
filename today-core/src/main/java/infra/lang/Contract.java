@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +19,6 @@ package infra.lang;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
@@ -54,7 +52,8 @@ import java.lang.annotation.Target;
  * <p>The additional return values denote the following:
  * <ul>
  * <li>{@code fail} - the method throws an exception, if the arguments satisfy argument constraints
- * <li>{@code new} - the method returns a non-null new object which is distinct from any other object existing in the heap prior to method execution. If method is also pure, then we can be sure that the new object is not stored to any field/array and will be lost if method return value is not used.
+ * <li>{@code new} - the method returns a non-null new object which is distinct from any other object existing in the heap prior to method execution.
+ * If the method has no visible side effects, then we can be sure that the new object is not stored to any field/array and will be lost if the method's return value is not used.
  * <li>{@code this} - the method returns its qualifier value (not applicable for static methods)
  * <li>{@code param1, param2, ...} - the method returns its first (second, ...) parameter value
  * </ul>
@@ -72,13 +71,13 @@ import java.lang.annotation.Target;
  * </ul>
  *
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see <a href="https://github.com/JetBrains/java-annotations/blob/master/src/jvmMain/java/org/jetbrains/annotations/Contract.java">org.jetbrains.annotations.Contract</a>
  * @see <a href="https://github.com/uber/NullAway/wiki/Configuration#custom-contract-annotations">
  * NullAway custom contract annotations</a>
  * @since 4.0
  */
 @Documented
-@Retention(RetentionPolicy.CLASS)
 @Target(ElementType.METHOD)
 public @interface Contract {
 
@@ -86,6 +85,6 @@ public @interface Contract {
    * Contains the contract clauses describing causal relations between call
    * arguments and the returned value.
    */
-  String value() default "";
+  String value();
 
 }

@@ -17,6 +17,7 @@
 
 package infra.logging;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.spi.LocationAwareLogger;
@@ -184,6 +185,7 @@ public class SLF4JBridgeHandler extends Handler {
   /**
    * Get the record's message, possibly via a resource bundle.
    */
+  @Nullable
   private String getMessageI18N(LogRecord record) {
     String message = record.getMessage();
 
@@ -228,7 +230,7 @@ public class SLF4JBridgeHandler extends Handler {
    * and is not published.
    */
   @Override
-  public void publish(LogRecord record) {
+  public void publish(@Nullable LogRecord record) {
     // Silently ignore null records.
     if (record == null) {
       return;

@@ -17,6 +17,8 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.ConstructorProperties;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -67,7 +69,6 @@ import infra.core.ParameterNameDiscoverer;
 import infra.core.ResolvableType;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
@@ -134,21 +135,22 @@ final class ConstructorResolver {
    * or {@code null} if none (-> use constructor argument values from bean definition)
    * @return a BeanWrapper for the new instance
    */
+  @SuppressWarnings("NullAway")
   public BeanWrapper autowireConstructor(String beanName, RootBeanDefinition merged,
-          @Nullable Constructor<?>[] chosenCtors, @Nullable Object[] explicitArgs) {
+          Constructor<?> @Nullable [] chosenCtors, @Nullable Object @Nullable [] explicitArgs) {
 
     BeanWrapperImpl wrapper = new BeanWrapperImpl();
     this.beanFactory.initBeanWrapper(wrapper);
 
     Constructor<?> constructorToUse = null;
     ArgumentsHolder argsHolderToUse = null;
-    Object[] argsToUse = null;
+    @Nullable Object[] argsToUse = null;
 
     if (explicitArgs != null) {
       argsToUse = explicitArgs;
     }
     else {
-      Object[] argsToResolve = null;
+      @Nullable Object[] argsToResolve = null;
       synchronized(merged.constructorArgumentLock) {
         constructorToUse = (Constructor<?>) merged.resolvedConstructorOrFactoryMethod;
         if (constructorToUse != null && merged.constructorArgumentsResolved) {
@@ -315,7 +317,7 @@ final class ConstructorResolver {
   }
 
   private Object instantiate(String beanName, RootBeanDefinition merged,
-          Constructor<?> constructorToUse, Object[] argsToUse) {
+          Constructor<?> constructorToUse, @Nullable Object[] argsToUse) {
     try {
       return beanFactory.getInstantiationStrategy().instantiate(
               merged, beanName, beanFactory, constructorToUse, argsToUse);
@@ -398,8 +400,8 @@ final class ConstructorResolver {
    * method, or {@code null} if none (-> use constructor argument values from bean definition)
    * @return a BeanWrapper for the new instance
    */
-  public BeanWrapper instantiateUsingFactoryMethod(
-          String beanName, RootBeanDefinition merged, @Nullable Object[] explicitArgs) {
+  @SuppressWarnings("NullAway")
+  public BeanWrapper instantiateUsingFactoryMethod(String beanName, RootBeanDefinition merged, @Nullable Object @Nullable [] explicitArgs) {
     BeanWrapperImpl wrapper = new BeanWrapperImpl();
     beanFactory.initBeanWrapper(wrapper);
 
@@ -434,13 +436,13 @@ final class ConstructorResolver {
 
     Method factoryMethodToUse = null;
     ArgumentsHolder argsHolderToUse = null;
-    Object[] argsToUse = null;
+    @Nullable Object[] argsToUse = null;
 
     if (explicitArgs != null) {
       argsToUse = explicitArgs;
     }
     else {
-      Object[] argsToResolve = null;
+      @Nullable Object[] argsToResolve = null;
       synchronized(merged.constructorArgumentLock) {
         factoryMethodToUse = (Method) merged.resolvedConstructorOrFactoryMethod;
         if (factoryMethodToUse != null && merged.constructorArgumentsResolved) {
@@ -654,7 +656,7 @@ final class ConstructorResolver {
   }
 
   private Object instantiate(String beanName, RootBeanDefinition merged,
-          @Nullable Object factoryBean, Method factoryMethod, Object[] args) {
+          @Nullable Object factoryBean, Method factoryMethod, @Nullable Object[] args) {
 
     try {
       return beanFactory.getInstantiationStrategy().instantiate(
@@ -725,7 +727,7 @@ final class ConstructorResolver {
    */
   private ArgumentsHolder createArgumentArray(String beanName, RootBeanDefinition merged,
           @Nullable ConstructorArgumentValues resolvedValues, Class<?>[] paramTypes,
-          @Nullable String[] paramNames, Executable executable, BeanWrapper wrapper,
+          String @Nullable [] paramNames, Executable executable, BeanWrapper wrapper,
           boolean autowiring, boolean fallback) throws UnsatisfiedDependencyException {
 
     TypeConverter customConverter = this.beanFactory.getCustomTypeConverter();
@@ -820,8 +822,9 @@ final class ConstructorResolver {
   /**
    * Resolve the prepared arguments stored in the given bean definition.
    */
-  private Object[] resolvePreparedArguments(String beanName, BeanDefinition merged,
-          Executable executable, Object[] argsToResolve, BeanWrapper bw) {
+  @SuppressWarnings("NullAway")
+  private @Nullable Object[] resolvePreparedArguments(String beanName, BeanDefinition merged,
+          Executable executable, @Nullable Object[] argsToResolve, BeanWrapper bw) {
 
     TypeConverter customConverter = this.beanFactory.getCustomTypeConverter();
     TypeConverter converter = customConverter != null ? customConverter : bw;
@@ -830,7 +833,7 @@ final class ConstructorResolver {
             new BeanDefinitionValueResolver(beanFactory, beanName, merged, converter);
     Class<?>[] paramTypes = executable.getParameterTypes();
 
-    Object[] resolvedArgs = new Object[argsToResolve.length];
+    @Nullable Object[] resolvedArgs = new Object[argsToResolve.length];
     for (int argIndex = 0; argIndex < argsToResolve.length; argIndex++) {
       Object argValue = argsToResolve[argIndex];
       Class<?> paramType = paramTypes[argIndex];
@@ -1044,6 +1047,7 @@ final class ConstructorResolver {
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private Executable resolveConstructor(String beanName, RootBeanDefinition mbd,
           Supplier<ResolvableType> beanType, List<ResolvableType> valueTypes) {
 
@@ -1292,9 +1296,11 @@ final class ConstructorResolver {
    */
   private static class ArgumentsHolder {
 
-    public final Object[] arguments;
-    public final Object[] rawArguments;
-    public final Object[] preparedArguments;
+    public final @Nullable Object[] arguments;
+
+    public final @Nullable Object[] rawArguments;
+
+    public final @Nullable Object[] preparedArguments;
 
     public boolean resolveNecessary = false;
 
@@ -1310,6 +1316,7 @@ final class ConstructorResolver {
       this.preparedArguments = args;
     }
 
+    @SuppressWarnings("NullAway")
     public int getTypeDifferenceWeight(Class<?>[] paramTypes) {
       // If valid arguments found, determine type difference weight.
       // Try type difference weight on both the converted arguments and
@@ -1334,6 +1341,7 @@ final class ConstructorResolver {
       return Integer.MAX_VALUE - 1024;
     }
 
+    @SuppressWarnings("NullAway")
     public void storeCache(RootBeanDefinition merged, Executable constructorOrFactoryMethod) {
       synchronized(merged.constructorArgumentLock) {
         merged.resolvedConstructorOrFactoryMethod = constructorOrFactoryMethod;
@@ -1353,8 +1361,7 @@ final class ConstructorResolver {
    */
   private static final class ConstructorPropertiesChecker {
 
-    @Nullable
-    public static String[] evaluate(Constructor<?> candidate, int paramCount) {
+    public static String @Nullable [] evaluate(Constructor<?> candidate, int paramCount) {
       ConstructorProperties cp = candidate.getAnnotation(ConstructorProperties.class);
       if (cp != null) {
         String[] names = cp.value();
@@ -1394,6 +1401,7 @@ final class ConstructorResolver {
     }
 
     @Override
+    @Nullable
     public Object resolveShortcut(BeanFactory beanFactory) {
       String shortcut = this.shortcut;
       return (shortcut != null ? beanFactory.getBean(shortcut, getDependencyType()) : null);

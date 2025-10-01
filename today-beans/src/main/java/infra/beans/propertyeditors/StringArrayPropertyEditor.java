@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,10 @@
 
 package infra.beans.propertyeditors;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyEditorSupport;
 
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 
@@ -32,10 +33,12 @@ import infra.util.StringUtils;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see StringUtils#delimitedListToStringArray
  * @see StringUtils#arrayToCommaDelimitedString(Object[])
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public class StringArrayPropertyEditor extends PropertyEditorSupport {
 
   /**
@@ -121,9 +124,7 @@ public class StringArrayPropertyEditor extends PropertyEditorSupport {
    * @param trimValues {@code true} if the values in the parsed arrays
    * are to be trimmed of whitespace (default is true)
    */
-  public StringArrayPropertyEditor(
-          String separator, @Nullable String charsToDelete, boolean emptyArrayAsNull, boolean trimValues) {
-
+  public StringArrayPropertyEditor(String separator, @Nullable String charsToDelete, boolean emptyArrayAsNull, boolean trimValues) {
     this.separator = separator;
     this.charsToDelete = charsToDelete;
     this.emptyArrayAsNull = emptyArrayAsNull;
@@ -132,7 +133,7 @@ public class StringArrayPropertyEditor extends PropertyEditorSupport {
 
   @Override
   public void setAsText(String text) throws IllegalArgumentException {
-    String[] array = StringUtils.delimitedListToStringArray(text, this.separator, this.charsToDelete);
+    @Nullable String[] array = StringUtils.delimitedListToStringArray(text, this.separator, this.charsToDelete);
     if (this.emptyArrayAsNull && array.length == 0) {
       setValue(null);
     }

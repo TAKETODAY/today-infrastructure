@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,14 +17,14 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-
-import infra.lang.Nullable;
 
 /**
  * Static utilities for serialization and deserialization using
@@ -50,8 +50,7 @@ public abstract class SerializationUtils {
    * @param object the object to serialize
    * @return an array of bytes representing the object in a portable fashion
    */
-  @Nullable
-  public static byte[] serialize(@Nullable Object object) {
+  public static byte @Nullable [] serialize(@Nullable Object object) {
     if (object == null) {
       return null;
     }
@@ -79,7 +78,7 @@ public abstract class SerializationUtils {
    */
   @Deprecated
   @Nullable
-  public static Object deserialize(@Nullable byte[] bytes) {
+  public static Object deserialize(byte @Nullable [] bytes) {
     if (bytes == null) {
       return null;
     }

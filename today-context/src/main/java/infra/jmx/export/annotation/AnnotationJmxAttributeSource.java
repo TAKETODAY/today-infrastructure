@@ -17,6 +17,8 @@
 
 package infra.jmx.export.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
@@ -42,7 +44,6 @@ import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.jmx.export.metadata.InvalidMetadataException;
 import infra.jmx.export.metadata.JmxAttributeSource;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**
@@ -59,6 +60,7 @@ import infra.util.StringUtils;
  * @see ManagedOperation
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public class AnnotationJmxAttributeSource implements JmxAttributeSource, BeanFactoryAware {
 
   @Nullable
@@ -72,8 +74,7 @@ public class AnnotationJmxAttributeSource implements JmxAttributeSource, BeanFac
   }
 
   @Override
-  @Nullable
-  public infra.jmx.export.metadata.ManagedResource getManagedResource(Class<?> beanClass) throws InvalidMetadataException {
+  public infra.jmx.export.metadata.@Nullable ManagedResource getManagedResource(Class<?> beanClass) throws InvalidMetadataException {
     MergedAnnotation<ManagedResource> ann = MergedAnnotations.from(beanClass, SearchStrategy.TYPE_HIERARCHY)
             .get(ManagedResource.class).withNonMergedAttributes();
     if (!ann.isPresent()) {
@@ -102,8 +103,7 @@ public class AnnotationJmxAttributeSource implements JmxAttributeSource, BeanFac
   }
 
   @Override
-  @Nullable
-  public infra.jmx.export.metadata.ManagedAttribute getManagedAttribute(Method method) throws InvalidMetadataException {
+  public infra.jmx.export.metadata.@Nullable ManagedAttribute getManagedAttribute(Method method) throws InvalidMetadataException {
     MergedAnnotation<ManagedAttribute> ann = MergedAnnotations.from(method, SearchStrategy.TYPE_HIERARCHY)
             .get(ManagedAttribute.class).withNonMergedAttributes();
     if (!ann.isPresent()) {
@@ -123,8 +123,7 @@ public class AnnotationJmxAttributeSource implements JmxAttributeSource, BeanFac
   }
 
   @Override
-  @Nullable
-  public infra.jmx.export.metadata.ManagedMetric getManagedMetric(Method method) throws InvalidMetadataException {
+  public infra.jmx.export.metadata.@Nullable ManagedMetric getManagedMetric(Method method) throws InvalidMetadataException {
     MergedAnnotation<ManagedMetric> ann = MergedAnnotations.from(method, SearchStrategy.TYPE_HIERARCHY)
             .get(ManagedMetric.class).withNonMergedAttributes();
 
@@ -132,8 +131,7 @@ public class AnnotationJmxAttributeSource implements JmxAttributeSource, BeanFac
   }
 
   @Override
-  @Nullable
-  public infra.jmx.export.metadata.ManagedOperation getManagedOperation(Method method) throws InvalidMetadataException {
+  public infra.jmx.export.metadata.@Nullable ManagedOperation getManagedOperation(Method method) throws InvalidMetadataException {
     MergedAnnotation<ManagedOperation> ann = MergedAnnotations.from(method, SearchStrategy.TYPE_HIERARCHY)
             .get(ManagedOperation.class).withNonMergedAttributes();
 
@@ -141,7 +139,7 @@ public class AnnotationJmxAttributeSource implements JmxAttributeSource, BeanFac
   }
 
   @Override
-  public infra.jmx.export.metadata.ManagedOperationParameter[] getManagedOperationParameters(Method method)
+  public infra.jmx.export.metadata.@Nullable ManagedOperationParameter[] getManagedOperationParameters(Method method)
           throws InvalidMetadataException {
 
     List<MergedAnnotation<? extends Annotation>> anns = getRepeatableAnnotations(method, ManagedOperationParameter.class);
@@ -149,7 +147,7 @@ public class AnnotationJmxAttributeSource implements JmxAttributeSource, BeanFac
   }
 
   @Override
-  public infra.jmx.export.metadata.ManagedNotification[] getManagedNotifications(Class<?> clazz)
+  public infra.jmx.export.metadata.@Nullable ManagedNotification[] getManagedNotifications(Class<?> clazz)
           throws InvalidMetadataException {
 
     List<MergedAnnotation<? extends Annotation>> anns = getRepeatableAnnotations(clazz, ManagedNotification.class);
@@ -167,10 +165,10 @@ public class AnnotationJmxAttributeSource implements JmxAttributeSource, BeanFac
   }
 
   @SuppressWarnings("unchecked")
-  private static <T> T[] copyPropertiesToBeanArray(
+  private static <T> @Nullable T[] copyPropertiesToBeanArray(
           List<MergedAnnotation<? extends Annotation>> anns, Class<T> beanClass) {
 
-    T[] beans = (T[]) Array.newInstance(beanClass, anns.size());
+    @Nullable T[] beans = (T[]) Array.newInstance(beanClass, anns.size());
     int i = 0;
     for (MergedAnnotation<? extends Annotation> ann : anns) {
       beans[i++] = copyPropertiesToBean(ann, beanClass);

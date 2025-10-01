@@ -17,11 +17,12 @@
 
 package infra.jmx.export.metadata;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 
 import infra.jmx.export.MBeanExporter;
 import infra.jmx.export.assembler.MetadataMBeanInfoAssembler;
-import infra.lang.Nullable;
 
 /**
  * Interface used by the {@code MetadataMBeanInfoAssembler} to
@@ -89,8 +90,7 @@ public interface JmxAttributeSource {
    * @return the parameter information, or an empty array if no metadata is found
    * @throws InvalidMetadataException in case of invalid metadata
    */
-  @Nullable
-  ManagedOperationParameter[] getManagedOperationParameters(Method method) throws InvalidMetadataException;
+  @Nullable ManagedOperationParameter[] getManagedOperationParameters(Method method) throws InvalidMetadataException;
 
   /**
    * Implementations should return an array of {@link ManagedNotification ManagedNotifications}

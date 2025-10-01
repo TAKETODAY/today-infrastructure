@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.transaction.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 
 import infra.beans.factory.annotation.Autowired;
@@ -25,7 +27,6 @@ import infra.context.annotation.ImportAware;
 import infra.context.annotation.Role;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.type.AnnotationMetadata;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.transaction.TransactionManager;
 import infra.transaction.config.TransactionManagementConfigUtils;

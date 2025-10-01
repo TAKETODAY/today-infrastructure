@@ -18,6 +18,7 @@
 package infra.context.weaving;
 
 import org.aspectj.weaver.loadtime.ClassPreProcessorAgentAdapter;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -31,7 +32,6 @@ import infra.context.annotation.LoadTimeWeavingConfiguration;
 import infra.core.Ordered;
 import infra.instrument.classloading.InstrumentationLoadTimeWeaver;
 import infra.instrument.classloading.LoadTimeWeaver;
-import infra.lang.Nullable;
 
 /**
  * Post-processor that registers AspectJ's

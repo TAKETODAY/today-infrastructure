@@ -17,6 +17,7 @@
 
 package infra.web.service.invoker;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -33,7 +34,6 @@ import java.util.stream.Stream;
 
 import infra.core.testfixture.DisabledIfInContinuousIntegration;
 import infra.http.HttpHeaders;
-import infra.lang.Nullable;
 import infra.util.concurrent.Future;
 import infra.web.annotation.PathVariable;
 import infra.web.client.ClientResponse;

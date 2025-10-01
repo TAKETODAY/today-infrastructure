@@ -19,6 +19,7 @@ package infra.validation.beanvalidation;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -37,7 +38,6 @@ import infra.core.ReactiveAdapterRegistry;
 import infra.core.ReactiveStreams;
 import infra.core.annotation.AnnotationUtils;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.VisibleForTesting;
 import infra.util.ReflectionUtils;
 import infra.validation.BeanPropertyBindingResult;
@@ -160,6 +160,7 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
 
   @Override
   @Nullable
+  @SuppressWarnings("NullAway")
   public Object invoke(MethodInvocation invocation) throws Throwable {
     // Avoid Validator invocation on FactoryBean.getObjectType/isSingleton
     if (isFactoryBeanMetadataMethod(invocation.getMethod())) {
@@ -168,7 +169,7 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
 
     Object target = getTarget(invocation);
     Method method = invocation.getMethod();
-    Object[] arguments = invocation.getArguments();
+    @Nullable Object[] arguments = invocation.getArguments();
     Class<?>[] groups = determineValidationGroups(invocation);
 
     if (ReactiveStreams.reactorPresent) {
@@ -257,8 +258,9 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
     private static final ReactiveAdapterRegistry reactiveAdapterRegistry =
             ReactiveAdapterRegistry.getSharedInstance();
 
+    @Nullable
     static Object[] insertAsyncValidation(InfraValidatorAdapter validatorAdapter,
-            boolean adaptViolations, Object target, Method method, Object[] arguments) {
+            boolean adaptViolations, Object target, Method method, @Nullable Object[] arguments) {
 
       for (int i = 0; i < method.getParameterCount(); i++) {
         if (arguments[i] == null) {
@@ -283,8 +285,7 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
       return arguments;
     }
 
-    @Nullable
-    private static Class<?>[] determineValidationGroups(Parameter parameter) {
+    private static Class<?> @Nullable [] determineValidationGroups(Parameter parameter) {
       Validated validated = AnnotationUtils.findAnnotation(parameter, Validated.class);
       if (validated != null) {
         return validated.value();

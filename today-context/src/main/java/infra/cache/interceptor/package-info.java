@@ -20,9 +20,7 @@
  * Builds on the AOP infrastructure in infra.aop.framework.
  * Any POJO can be cache-advised with Framework.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.cache.interceptor;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -17,6 +17,8 @@
 
 package infra.bytecode;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Member;
@@ -25,8 +27,6 @@ import java.util.Map;
 
 import infra.bytecode.commons.MethodSignature;
 import infra.lang.Constant;
-import infra.lang.NonNull;
-import infra.lang.Nullable;
 
 /**
  * A Java field or method type. This class can be used to make it easier to manipulate type and
@@ -320,7 +320,7 @@ public final class Type {
   /**
    * @since 4.0
    */
-  public static Type[] forInternalNames(@Nullable String[] names) {
+  public static Type @Nullable [] forInternalNames(String @Nullable [] names) {
     if (names == null) {
       return null;
     }
@@ -337,7 +337,7 @@ public final class Type {
    * @param internalNames internal name. if null returns null
    * @return the {@link Type}s corresponding to the given internal name.
    */
-  public static Type[] forObjectTypes(@Nullable String[] internalNames) {
+  public static Type @Nullable [] forObjectTypes(String @Nullable [] internalNames) {
     if (internalNames == null) {
       return null;
     }
@@ -679,9 +679,7 @@ public final class Type {
    *  Object, Object ,Class -> Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Class;
    * </pre>
    */
-  @NonNull
-  public static String getDescriptor(
-          String parameterTypes, int startIdx, int endIdx, boolean defaultPackage) {
+  public static String getDescriptor(String parameterTypes, int startIdx, int endIdx, boolean defaultPackage) {
     StringBuilder argDescriptor = new StringBuilder(parameterTypes.length() + 16);
     int splitIndex = parameterTypes.indexOf(',');// ,'s index
     while (splitIndex != -1) {
@@ -831,8 +829,7 @@ public final class Type {
   /**
    * @since 4.0
    */
-  @Nullable
-  public static String[] toInternalNames(@Nullable Type... types) {
+  public static String @Nullable [] toInternalNames(Type @Nullable ... types) {
     if (types == null) {
       return null;
     }
@@ -1108,7 +1105,8 @@ public final class Type {
   /**
    * @since 4.0
    */
-  public static Type[] getTypes(@Nullable final Class<?>... items) {
+
+  public static Type @Nullable [] getTypes(final Class<?> @Nullable ... items) {
     if (items == null) {
       return null;
     }
@@ -1123,7 +1121,7 @@ public final class Type {
   /**
    * @since 4.0
    */
-  public static Type[] getTypes(String... items) {
+  public static Type @Nullable [] getTypes(String @Nullable ... items) {
     if (items == null) {
       return null;
     }

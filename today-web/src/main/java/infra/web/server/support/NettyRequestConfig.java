@@ -17,6 +17,8 @@
 
 package infra.web.server.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.nio.charset.Charset;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -187,6 +189,7 @@ public final class NettyRequestConfig {
     return new Builder(secure);
   }
 
+  @SuppressWarnings("NullAway.Init")
   public static class Builder {
 
     @Nullable

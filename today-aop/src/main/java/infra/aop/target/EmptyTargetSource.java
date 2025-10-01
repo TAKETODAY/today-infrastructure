@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.aop.target;
+
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -40,6 +42,7 @@ public final class EmptyTargetSource implements TargetSource, Serializable {
   // Instance implementation
   //---------------------------------------------------------------------
 
+  @Nullable
   private final Class<?> targetClass;
 
   private final boolean isStatic;
@@ -52,7 +55,7 @@ public final class EmptyTargetSource implements TargetSource, Serializable {
    * @param targetClass the target class to expose (may be {@code null})
    * @param isStatic whether the TargetSource is marked as static
    */
-  private EmptyTargetSource(Class<?> targetClass, boolean isStatic) {
+  private EmptyTargetSource(@Nullable Class<?> targetClass, boolean isStatic) {
     this.targetClass = targetClass;
     this.isStatic = isStatic;
   }
@@ -60,6 +63,7 @@ public final class EmptyTargetSource implements TargetSource, Serializable {
   /**
    * Always returns the specified target Class, or {@code null} if none.
    */
+  @Nullable
   @Override
   public Class<?> getTargetClass() {
     return this.targetClass;
@@ -76,6 +80,7 @@ public final class EmptyTargetSource implements TargetSource, Serializable {
   /**
    * Always returns {@code null}.
    */
+  @Nullable
   @Override
   public Object getTarget() {
     return null;
@@ -129,7 +134,7 @@ public final class EmptyTargetSource implements TargetSource, Serializable {
    * @param targetClass the target Class (may be {@code null})
    * @see #getTargetClass()
    */
-  public static EmptyTargetSource forClass(Class<?> targetClass) {
+  public static EmptyTargetSource forClass(@Nullable Class<?> targetClass) {
     return forClass(targetClass, true);
   }
 
@@ -140,7 +145,7 @@ public final class EmptyTargetSource implements TargetSource, Serializable {
    * @param isStatic whether the TargetSource should be marked as static
    * @see #getTargetClass()
    */
-  public static EmptyTargetSource forClass(Class<?> targetClass, boolean isStatic) {
+  public static EmptyTargetSource forClass(@Nullable Class<?> targetClass, boolean isStatic) {
     return (targetClass == null && isStatic ? INSTANCE : new EmptyTargetSource(targetClass, isStatic));
   }
 

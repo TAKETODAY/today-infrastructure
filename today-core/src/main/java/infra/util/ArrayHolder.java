@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +38,6 @@ import java.util.stream.Stream;
 
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * It is used for the scenario of changing less and reading more frequently.
@@ -47,8 +48,7 @@ import infra.lang.Nullable;
  */
 public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomAccess {
 
-  @Nullable
-  public E[] array;
+  public E @Nullable [] array;
 
   @Nullable
   private Class<E> elementClass;
@@ -66,7 +66,7 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
   }
 
   @SafeVarargs
-  public final void set(@Nullable E... array) {
+  public final void set(E @Nullable ... array) {
     this.array = array;
   }
 
@@ -101,7 +101,8 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
   }
 
   @SafeVarargs
-  public final void addAll(@Nullable E... array) {
+  @SuppressWarnings("NullAway")
+  public final void addAll(@Nullable E @Nullable ... array) {
     if (ObjectUtils.isNotEmpty(array)) {
       ArrayList<E> objects = new ArrayList<>(array.length + size());
       CollectionUtils.addAll(objects, this.array);
@@ -162,12 +163,12 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
   }
 
   @Override
-  @Nullable
-  public E[] get() {
+  public E @Nullable [] get() {
     return array;
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public Iterator<E> iterator() {
     if (isPresent()) {
       return new ArrayIterator<>(array);
@@ -234,6 +235,7 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
    * @throws NullPointerException if the mapping function is {@code null}
    */
   @Nullable
+  @SuppressWarnings("NullAway")
   public <U> U map(Function<? super E[], ? extends U> mapper, @Nullable Supplier<U> emptySupplier) {
     if (isEmpty()) {
       if (emptySupplier != null) {
@@ -278,6 +280,7 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
    * @return the value, if present, otherwise {@code other}
    * @see #isPresent()
    */
+  @SuppressWarnings("NullAway")
   public E[] orElse(E[] other) {
     return isPresent() ? array : other;
   }
@@ -293,6 +296,7 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
    * function is {@code null}
    * @see #isPresent()
    */
+  @SuppressWarnings("NullAway")
   public E[] orElseGet(Supplier<E[]> supplier) {
     return isPresent() ? array : supplier.get();
   }
@@ -305,6 +309,7 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
    * @throws NoSuchElementException if no value is present
    * @see #isPresent()
    */
+  @SuppressWarnings("NullAway")
   public E[] orElseThrow() {
     if (isEmpty()) {
       throw new NoSuchElementException("No value present");
@@ -350,6 +355,7 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
    * supplying function is {@code null}
    * @see #isPresent()
    */
+  @SuppressWarnings("NullAway")
   public <X extends Throwable> E[] orElseThrow(Supplier<? extends X> exceptionSupplier) throws X {
     if (isPresent()) {
       return array;

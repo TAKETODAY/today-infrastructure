@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jdbc.support.lob;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -28,7 +30,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import infra.dao.DataAccessResourceFailureException;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.FileCopyUtils;
@@ -56,7 +57,7 @@ public class TemporaryLobCreator implements LobCreator {
   private final Set<Clob> temporaryClobs = new LinkedHashSet<>(1);
 
   @Override
-  public void setBlobAsBytes(PreparedStatement ps, int paramIndex, @Nullable byte[] content)
+  public void setBlobAsBytes(PreparedStatement ps, int paramIndex, byte @Nullable [] content)
           throws SQLException {
 
     if (content != null) {
@@ -71,7 +72,7 @@ public class TemporaryLobCreator implements LobCreator {
 
     if (logger.isDebugEnabled()) {
       logger.debug(content != null ? "Copied bytes into temporary BLOB with length " + content.length :
-                   "Set BLOB to null");
+              "Set BLOB to null");
     }
   }
 
@@ -97,8 +98,8 @@ public class TemporaryLobCreator implements LobCreator {
 
     if (logger.isDebugEnabled()) {
       logger.debug(binaryStream != null ?
-                   "Copied binary stream into temporary BLOB with length " + contentLength :
-                   "Set BLOB to null");
+              "Copied binary stream into temporary BLOB with length " + contentLength :
+              "Set BLOB to null");
     }
   }
 
@@ -118,7 +119,7 @@ public class TemporaryLobCreator implements LobCreator {
 
     if (logger.isDebugEnabled()) {
       logger.debug(content != null ? "Copied string into temporary CLOB with length " + content.length() :
-                   "Set CLOB to null");
+              "Set CLOB to null");
     }
   }
 
@@ -144,8 +145,8 @@ public class TemporaryLobCreator implements LobCreator {
 
     if (logger.isDebugEnabled()) {
       logger.debug(asciiStream != null ?
-                   "Copied ASCII stream into temporary CLOB with length " + contentLength :
-                   "Set CLOB to null");
+              "Copied ASCII stream into temporary CLOB with length " + contentLength :
+              "Set CLOB to null");
     }
   }
 
@@ -171,8 +172,8 @@ public class TemporaryLobCreator implements LobCreator {
 
     if (logger.isDebugEnabled()) {
       logger.debug(characterStream != null ?
-                   "Copied character stream into temporary CLOB with length " + contentLength :
-                   "Set CLOB to null");
+              "Copied character stream into temporary CLOB with length " + contentLength :
+              "Set CLOB to null");
     }
   }
 

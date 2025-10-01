@@ -21,9 +21,7 @@
 /**
  * Provides a foundation for both the reactive client and server subpackages.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.reactive.function;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

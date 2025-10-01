@@ -17,6 +17,8 @@
 
 package infra.jdbc.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.CallableStatement;
@@ -36,18 +38,21 @@ public class BigIntegerTypeHandler extends BasicTypeHandler<BigInteger> {
     ps.setBigDecimal(i, new BigDecimal(arg));
   }
 
+  @Nullable
   @Override
   public BigInteger getResult(ResultSet rs, String columnName) throws SQLException {
     BigDecimal bigDecimal = rs.getBigDecimal(columnName);
     return bigDecimal == null ? null : bigDecimal.toBigInteger();
   }
 
+  @Nullable
   @Override
   public BigInteger getResult(ResultSet rs, int columnIndex) throws SQLException {
     BigDecimal bigDecimal = rs.getBigDecimal(columnIndex);
     return bigDecimal == null ? null : bigDecimal.toBigInteger();
   }
 
+  @Nullable
   @Override
   public BigInteger getResult(CallableStatement cs, int columnIndex) throws SQLException {
     BigDecimal bigDecimal = cs.getBigDecimal(columnIndex);

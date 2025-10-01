@@ -17,13 +17,14 @@
 
 package infra.web.handler.result;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.OutputStream;
 import java.util.concurrent.Callable;
 
 import infra.core.MethodParameter;
 import infra.core.ResolvableType;
 import infra.http.ResponseEntity;
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 import infra.web.handler.StreamingResponseBody;
 import infra.web.handler.method.HandlerMethod;

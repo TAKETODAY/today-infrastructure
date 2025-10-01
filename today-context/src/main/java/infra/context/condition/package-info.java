@@ -18,9 +18,7 @@
 /**
  * {@code @Condition} annotations and supporting classes.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.context.condition;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

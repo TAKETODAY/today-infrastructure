@@ -17,6 +17,8 @@
 
 package infra.core.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Member;
@@ -31,7 +33,6 @@ import java.util.function.Predicate;
 
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
@@ -115,7 +116,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
 
   private TypeMappedAnnotation(AnnotationTypeMapping mapping, @Nullable ClassLoader classLoader,
           @Nullable Object source, @Nullable Object rootAttributes, ValueExtractor valueExtractor,
-          int aggregateIndex, @Nullable int[] resolvedRootMirrors) {
+          int aggregateIndex, int @Nullable [] resolvedRootMirrors) {
 
     this.mapping = mapping;
     this.classLoader = classLoader;
@@ -125,12 +126,10 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
     this.aggregateIndex = aggregateIndex;
     this.useMergedValues = true;
     this.attributeFilter = null;
-    this.resolvedRootMirrors =
-            resolvedRootMirrors != null
-                    ? resolvedRootMirrors : mapping.root.mirrorSets.resolve(source, rootAttributes, valueExtractor);
-    this.resolvedMirrors =
-            getDistance() == 0
-                    ? resolvedRootMirrors : mapping.mirrorSets.resolve(source, this, this::getValueForMirrorResolution);
+    this.resolvedRootMirrors = resolvedRootMirrors != null ? resolvedRootMirrors :
+            mapping.root.mirrorSets.resolve(source, rootAttributes, this.valueExtractor);
+    this.resolvedMirrors = getDistance() == 0 ? this.resolvedRootMirrors :
+            mapping.mirrorSets.resolve(source, this, this::getValueForMirrorResolution);
   }
 
   private TypeMappedAnnotation(AnnotationTypeMapping mapping, @Nullable ClassLoader classLoader,
@@ -226,8 +225,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T extends Annotation> MergedAnnotation<T>[] getAnnotationArray(
-          String attributeName, Class<T> type) throws NoSuchElementException {
+  public <T extends Annotation> MergedAnnotation<T>[] getAnnotationArray(String attributeName, Class<T> type) throws NoSuchElementException {
     Assert.notNull(type, "Type is required");
     int attributeIndex = getAttributeIndex(attributeName, true);
     Method attribute = mapping.methods.get(attributeIndex);
@@ -241,6 +239,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
     return (MergedAnnotation<T>[]) getRequiredValue(attributeIndex, attributeName);
   }
 
+  @Nullable
   @Override
   public <T> T getDefaultValue(String attributeName, Class<T> type) {
     int attributeIndex = getAttributeIndex(attributeName, false);
@@ -328,33 +327,28 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
   }
 
   @Override
-  public boolean isSynthesizable() {
-    // Is this a mapped annotation for a composed annotation, and are there
-    // annotation attributes (mirrors) that need to be merged?
-    if (getDistance() > 0 && this.resolvedMirrors.length > 0) {
-      return true;
-    }
-    // Is the mapped annotation itself synthesizable?
-    return this.mapping.synthesizable;
-  }
-
-  @Override
   @SuppressWarnings("unchecked")
   protected A createSynthesizedAnnotation() {
-    Class<A> type = getType();
     // Check root annotation
-    Object rootAttributes = this.rootAttributes;
-    if (type.isInstance(rootAttributes) && isNotSynthesizable((Annotation) rootAttributes)) {
-      return (A) rootAttributes;
+    if (this.rootAttributes instanceof Annotation ann && isTargetAnnotation(ann) && isNotSynthesizable(ann)) {
+      return (A) ann;
     }
     // Check meta-annotation
-    else {
-      Annotation annotation = mapping.annotation;
-      if (type.isInstance(annotation) && isNotSynthesizable(annotation)) {
-        return (A) annotation;
-      }
+    Annotation meta = this.mapping.annotation;
+    if (meta != null && isTargetAnnotation(meta) && isNotSynthesizable(meta)) {
+      return (A) meta;
     }
-    return SynthesizedMergedAnnotationInvocationHandler.createProxy(this, type);
+    return SynthesizedMergedAnnotationInvocationHandler.createProxy(this, getType());
+  }
+
+  /**
+   * Determine if the supplied object is an annotation of the required
+   * {@linkplain #getType() type}.
+   *
+   * @param obj the object to check
+   */
+  private boolean isTargetAnnotation(Object obj) {
+    return getType().isInstance(obj);
   }
 
   /**
@@ -370,7 +364,13 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
     if (AnnotationUtils.isSynthesizedAnnotation(annotation)) {
       return true;
     }
-    return !isSynthesizable();
+    // Is this a mapped annotation for a composed annotation, and are there
+    // annotation attributes (mirrors) that need to be merged?
+    if (getDistance() > 0 && this.resolvedMirrors.length > 0) {
+      return false;
+    }
+    // Is the mapped annotation itself synthesizable?
+    return !this.mapping.synthesizable;
   }
 
   @Override
@@ -440,7 +440,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
   }
 
   @Nullable
-  private Object getValueForMirrorResolution(Method attribute, Object annotation) {
+  private Object getValueForMirrorResolution(Method attribute, @Nullable Object annotation) {
     int attributeIndex = mapping.methods.indexOf(attribute);
     boolean valueAttribute = VALUE.equals(attribute.getName());
     return getValue(attributeIndex, !valueAttribute, true);

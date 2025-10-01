@@ -17,6 +17,8 @@
 
 package infra.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +45,6 @@ import infra.core.env.Environment;
 import infra.core.env.EnvironmentCapable;
 import infra.core.env.StandardEnvironment;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;
@@ -439,6 +440,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   /**
    * Return this handler's ApplicationContext.
    */
+  @SuppressWarnings("NullAway")
   public final ApplicationContext getApplicationContext() {
     return this.applicationContext;
   }
@@ -503,7 +505,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    * @see #configureAndRefreshApplicationContext
    * @see #applyInitializers
    */
-  public void addContextInitializers(@Nullable ApplicationContextInitializer... initializers) {
+  public void addContextInitializers(ApplicationContextInitializer @Nullable ... initializers) {
     CollectionUtils.addAll(contextInitializers, initializers);
   }
 

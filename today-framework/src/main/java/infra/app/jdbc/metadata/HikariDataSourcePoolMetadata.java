@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@ package infra.app.jdbc.metadata;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.pool.HikariPool;
 
+import org.jspecify.annotations.Nullable;
+
 import javax.sql.DataSource;
 
 import infra.beans.DirectFieldAccessor;
@@ -37,6 +39,7 @@ public class HikariDataSourcePoolMetadata extends AbstractDataSourcePoolMetadata
     super(dataSource);
   }
 
+  @Nullable
   @Override
   public Integer getActive() {
     try {
@@ -47,6 +50,7 @@ public class HikariDataSourcePoolMetadata extends AbstractDataSourcePoolMetadata
     }
   }
 
+  @Nullable
   @Override
   public Integer getIdle() {
     try {
@@ -57,6 +61,7 @@ public class HikariDataSourcePoolMetadata extends AbstractDataSourcePoolMetadata
     }
   }
 
+  @SuppressWarnings("NullAway")
   private HikariPool getHikariPool() {
     return (HikariPool) new DirectFieldAccessor(getDataSource()).getPropertyValue("pool");
   }

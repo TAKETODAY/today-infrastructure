@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +26,6 @@ import infra.beans.factory.BeanFactoryUtils;
 import infra.context.ApplicationContext;
 import infra.core.Ordered;
 import infra.core.annotation.AnnotationAwareOrderComparator;
-import infra.lang.Nullable;
 import infra.web.handler.HandlerAdapters;
 import infra.web.handler.SimpleNotFoundHandler;
 import infra.web.handler.function.support.HandlerFunctionAdapter;

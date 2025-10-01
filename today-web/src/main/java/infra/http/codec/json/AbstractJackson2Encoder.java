@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.io.IOException;
@@ -52,7 +53,6 @@ import infra.http.converter.json.MappingJacksonValue;
 import infra.http.server.reactive.ServerHttpRequest;
 import infra.http.server.reactive.ServerHttpResponse;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.LogFormatUtils;
 import infra.util.MimeType;
@@ -367,8 +367,7 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
    * mime type is one of the configured {@link #setStreamingMediaTypes(List)
    * streaming} mime types.
    */
-  @Nullable
-  protected byte[] getStreamingMediaTypeSeparator(@Nullable MimeType mimeType) {
+  protected byte @Nullable [] getStreamingMediaTypeSeparator(@Nullable MimeType mimeType) {
     for (MediaType streamingMediaType : this.streamingMediaTypes) {
       if (streamingMediaType.isCompatibleWith(mimeType)) {
         return NEWLINE_SEPARATOR;
@@ -420,6 +419,7 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
 
   // Jackson2CodecSupport
 
+  @Nullable
   @Override
   protected <A extends Annotation> A getAnnotation(MethodParameter parameter, Class<A> annotType) {
     return parameter.getMethodAnnotation(annotType);

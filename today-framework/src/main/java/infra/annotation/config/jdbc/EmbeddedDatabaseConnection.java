@@ -17,6 +17,8 @@
 
 package infra.annotation.config.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
@@ -32,7 +34,6 @@ import infra.jdbc.core.ConnectionCallback;
 import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**
@@ -46,6 +47,7 @@ import infra.util.ClassUtils;
  * @see #get(ClassLoader)
  * @since 4.0 2022/2/23 17:14
  */
+@SuppressWarnings("NullAway")
 public enum EmbeddedDatabaseConnection {
 
   /**

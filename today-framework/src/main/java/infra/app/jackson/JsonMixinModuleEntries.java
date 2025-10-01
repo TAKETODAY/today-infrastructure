@@ -40,6 +40,7 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/29 21:30
  */
+@SuppressWarnings("NullAway")
 public final class JsonMixinModuleEntries {
 
   private final Map<Object, Object> entries;

@@ -18,9 +18,7 @@
 /**
  * Non-blocking IO {@link java.nio.file.FileSystem} implementation for nested suppoprt.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.app.loader.file;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

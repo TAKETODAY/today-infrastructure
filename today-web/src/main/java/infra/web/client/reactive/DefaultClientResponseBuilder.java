@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.web.client.reactive;
+
+import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -35,7 +37,6 @@ import infra.http.ResponseCookie;
 import infra.http.client.reactive.ClientHttpResponse;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import reactor.core.publisher.Flux;
@@ -182,7 +183,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
     return this;
   }
 
-  @SuppressWarnings("ConstantConditions")
+  @SuppressWarnings("NullAway")
   private HttpHeaders getHeaders() {
     if (this.headers == null) {
       this.headers = originalResponse.headers().asHttpHeaders().asWritable();
@@ -204,7 +205,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
     return this;
   }
 
-  @SuppressWarnings("ConstantConditions")
+  @SuppressWarnings("NullAway")
   private MultiValueMap<String, ResponseCookie> getCookies() {
     if (this.cookies == null) {
       this.cookies = new LinkedMultiValueMap<>(this.originalResponse.cookies());
@@ -294,13 +295,13 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
     }
 
     @Override
-    @SuppressWarnings("ConstantConditions")
+    @SuppressWarnings("NullAway")
     public HttpHeaders getHeaders() {
       return (this.headers != null ? this.headers : this.originalResponse.headers().asHttpHeaders());
     }
 
     @Override
-    @SuppressWarnings("ConstantConditions")
+    @SuppressWarnings("NullAway")
     public MultiValueMap<String, ResponseCookie> getCookies() {
       return (this.cookies != null ? this.cookies : this.originalResponse.cookies());
     }

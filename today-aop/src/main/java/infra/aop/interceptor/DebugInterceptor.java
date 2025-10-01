@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 package infra.aop.interceptor;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 /**
  * AOP Alliance {@code MethodInterceptor} that can be introduced in a chain
@@ -42,7 +43,8 @@ public class DebugInterceptor extends SimpleTraceInterceptor {
   /**
    * Create a new DebugInterceptor with a static logger.
    */
-  public DebugInterceptor() { }
+  public DebugInterceptor() {
+  }
 
   /**
    * Create a new DebugInterceptor with dynamic or static logger,
@@ -56,6 +58,7 @@ public class DebugInterceptor extends SimpleTraceInterceptor {
   }
 
   @Override
+  @Nullable
   public Object invoke(MethodInvocation invocation) throws Throwable {
     synchronized(this) {
       this.count++;

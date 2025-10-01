@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.beans.factory;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
@@ -24,10 +26,8 @@ import java.lang.reflect.Member;
 import java.util.Objects;
 
 import infra.beans.factory.config.DependencyDescriptor;
-import infra.beans.factory.config.PropertyValueRetriever;
 import infra.core.MethodParameter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 /**
@@ -44,13 +44,7 @@ import infra.util.ObjectUtils;
  */
 public class InjectionPoint {
 
-  /**
-   * It shows that the value is not set
-   */
-  public static final Object DO_NOT_SET = PropertyValueRetriever.DO_NOT_SET;
-
-  @Nullable
-  private volatile Annotation[] fieldAnnotations;
+  private volatile Annotation @Nullable [] fieldAnnotations;
 
   @Nullable
   protected MethodParameter methodParameter;
@@ -92,7 +86,8 @@ public class InjectionPoint {
   /**
    * Just available for serialization purposes in subclasses.
    */
-  protected InjectionPoint() { }
+  protected InjectionPoint() {
+  }
 
   /**
    * Return the wrapped MethodParameter, if any.
@@ -184,7 +179,7 @@ public class InjectionPoint {
   @Nullable
   public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
     return this.field != null ? this.field.getAnnotation(annotationType) :
-           obtainMethodParameter().getParameterAnnotation(annotationType);
+            obtainMethodParameter().getParameterAnnotation(annotationType);
   }
 
   @Override

@@ -17,6 +17,8 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Objects;
@@ -27,7 +29,6 @@ import infra.core.ResolvableType;
 import infra.core.TypeDescriptor;
 import infra.core.annotation.MergedAnnotations;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 import infra.web.RequestContext;
@@ -279,6 +280,7 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
    *
    * @return the Method
    */
+  @SuppressWarnings("NullAway")
   public Method getMethod() {
     return parameter.getMethod();
   }
@@ -304,18 +306,6 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
 
   public MethodParameter getParameter() {
     return parameter;
-  }
-
-  /**
-   * Return whether this method indicates a parameter which can be {@code null}:
-   * either in the form of any variant of a parameter-level {@code Nullable}
-   * annotation (such as from JSR-305 or the FindBugs set of annotations),
-   * or a language-level nullable type declaration
-   *
-   * @since 4.0
-   */
-  public boolean isNullable() {
-    return parameter.isNullable();
   }
 
   //

@@ -17,13 +17,14 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Map;
 
 import infra.beans.factory.parsing.Location;
 import infra.beans.factory.parsing.Problem;
 import infra.beans.factory.parsing.ProblemReporter;
 import infra.core.type.MethodMetadata;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 
 /**
@@ -54,6 +55,7 @@ final class ComponentMethod {
     return new Location(this.configurationClass.resource, this.metadata);
   }
 
+  @SuppressWarnings("NullAway")
   public void validate(ProblemReporter problemReporter) {
     if ("void".equals(metadata.getReturnTypeName())) {
       // declared as void: potential misuse of @Bean, maybe meant as init method instead?

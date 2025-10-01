@@ -17,6 +17,8 @@
 
 package infra.bytecode.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayDeque;
@@ -29,7 +31,7 @@ import infra.bytecode.MethodVisitor;
 import infra.bytecode.Opcodes;
 import infra.expression.spel.SpelNode;
 import infra.lang.Assert;
-import infra.lang.Nullable;
+import infra.lang.Contract;
 import infra.util.CollectionUtils;
 
 /**
@@ -592,6 +594,7 @@ public class CodeFlow implements Opcodes {
    * @param descriptor type descriptor
    * @return {@code true} if a primitive type or {@code void}
    */
+  @Contract("null -> false")
   public static boolean isPrimitive(@Nullable String descriptor) {
     return (descriptor != null && descriptor.length() == 1);
   }
@@ -602,6 +605,7 @@ public class CodeFlow implements Opcodes {
    * @param descriptor the descriptor for a possible primitive array
    * @return {@code true} if the descriptor a primitive array
    */
+  @Contract("null -> false")
   public static boolean isPrimitiveArray(@Nullable String descriptor) {
     if (descriptor == null) {
       return false;

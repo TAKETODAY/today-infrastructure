@@ -17,6 +17,8 @@
 
 package infra.annotation.config.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.List;
@@ -46,7 +48,6 @@ import infra.format.support.ApplicationConversionService;
 import infra.format.support.FormattingConversionService;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
@@ -277,6 +278,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public Validator mvcValidator() {
     if (ClassUtils.isPresent("jakarta.validation.Validator", getClass().getClassLoader())) {
       var validatorAdapter = ClassUtils.load(
@@ -407,6 +409,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
       }
     }
 
+    @SuppressWarnings("NullAway")
     private ResourceResolver getVersionResourceResolver(Strategy properties) {
       VersionResourceResolver resolver = new VersionResourceResolver();
       if (properties.fixed.enabled) {

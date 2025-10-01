@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.app.test.context.assertj;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -38,8 +40,10 @@ class AssertProviderApplicationContextInvocationHandler implements InvocationHan
 
   private final Class<?> applicationContextType;
 
+  @Nullable
   private final ApplicationContext applicationContext;
 
+  @Nullable
   private final RuntimeException startupFailure;
 
   AssertProviderApplicationContextInvocationHandler(Class<?> applicationContextType, Supplier<?> contextSupplier) {
@@ -64,6 +68,7 @@ class AssertProviderApplicationContextInvocationHandler implements InvocationHan
     }
   }
 
+  @Nullable
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     if (isToString(method)) {
@@ -118,6 +123,7 @@ class AssertProviderApplicationContextInvocationHandler implements InvocationHan
     return ("getStartupFailure".equals(method.getName()) && method.getParameterCount() == 0);
   }
 
+  @Nullable
   private Object getStartupFailure() {
     return this.startupFailure;
   }

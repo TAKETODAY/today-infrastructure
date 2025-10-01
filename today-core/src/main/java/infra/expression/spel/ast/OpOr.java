@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.expression.spel.ast;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.bytecode.Label;
 import infra.bytecode.MethodVisitor;
 import infra.bytecode.core.CodeFlow;
@@ -25,7 +27,7 @@ import infra.expression.spel.ExpressionState;
 import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
 import infra.expression.spel.support.BooleanTypedValue;
-import infra.lang.Nullable;
+import infra.lang.Contract;
 
 /**
  * Represents the boolean OR operation.
@@ -37,7 +39,7 @@ import infra.lang.Nullable;
  */
 public class OpOr extends Operator {
 
-  public OpOr(int startPos, int endPos, SpelNodeImpl... operands) {
+  public OpOr(int startPos, int endPos, SpelNodeImpl @Nullable ... operands) {
     super("or", startPos, endPos, operands);
     this.exitTypeDescriptor = "Z";
   }
@@ -63,6 +65,7 @@ public class OpOr extends Operator {
     }
   }
 
+  @Contract("null -> fail")
   private void assertValueNotNull(@Nullable Boolean value) {
     if (value == null) {
       throw new SpelEvaluationException(SpelMessage.TYPE_CONVERSION_ERROR, "null", "boolean");

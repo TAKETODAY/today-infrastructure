@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.app.loader.tools;
+
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.util.Collections;
@@ -42,7 +44,7 @@ public abstract class Layouts {
    * @param file the source file
    * @return a {@link Layout}
    */
-  public static Layout forFile(File file) {
+  public static Layout forFile(@Nullable File file) {
     if (file == null) {
       throw new IllegalArgumentException("File is required");
     }
@@ -64,13 +66,14 @@ public abstract class Layouts {
    */
   public static class Jar implements RepackagingLayout {
 
+    @Nullable
     @Override
     public String getLauncherClassName() {
       return "infra.app.loader.JarLauncher";
     }
 
     @Override
-    public String getLibraryLocation(String libraryName, LibraryScope scope) {
+    public String getLibraryLocation(String libraryName, @Nullable LibraryScope scope) {
       return "APP-INF/lib/";
     }
 
@@ -118,6 +121,7 @@ public abstract class Layouts {
    */
   public static class None extends Jar {
 
+    @Nullable
     @Override
     public String getLauncherClassName() {
       return null;
@@ -151,8 +155,9 @@ public abstract class Layouts {
       return "infra.app.loader.WarLauncher";
     }
 
+    @Nullable
     @Override
-    public String getLibraryLocation(String libraryName, LibraryScope scope) {
+    public String getLibraryLocation(String libraryName, @Nullable LibraryScope scope) {
       return SCOPE_LOCATION.get(scope);
     }
 

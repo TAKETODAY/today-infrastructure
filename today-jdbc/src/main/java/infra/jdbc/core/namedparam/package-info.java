@@ -27,9 +27,7 @@
  * the {@code getJdbcOperations()} method of NamedParameterJdbcTemplate and
  * work with the returned classic template, or use a JdbcTemplate instance directly.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jdbc.core.namedparam;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

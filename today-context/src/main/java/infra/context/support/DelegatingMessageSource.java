@@ -17,13 +17,14 @@
 
 package infra.context.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Locale;
 
 import infra.context.HierarchicalMessageSource;
 import infra.context.MessageSource;
 import infra.context.MessageSourceResolvable;
 import infra.context.NoSuchMessageException;
-import infra.lang.Nullable;
 
 /**
  * Empty {@link MessageSource} that delegates all calls to the parent MessageSource.
@@ -55,7 +56,7 @@ public class DelegatingMessageSource extends MessageSourceSupport implements Hie
 
   @Override
   @Nullable
-  public String getMessage(String code, @Nullable Object[] args, @Nullable String defaultMessage, @Nullable Locale locale) {
+  public String getMessage(String code, Object @Nullable [] args, @Nullable String defaultMessage, @Nullable Locale locale) {
     if (this.parentMessageSource != null) {
       return this.parentMessageSource.getMessage(code, args, defaultMessage, locale);
     }
@@ -68,7 +69,7 @@ public class DelegatingMessageSource extends MessageSourceSupport implements Hie
   }
 
   @Override
-  public String getMessage(String code, @Nullable Object[] args, @Nullable Locale locale) throws NoSuchMessageException {
+  public String getMessage(String code, Object @Nullable [] args, @Nullable Locale locale) throws NoSuchMessageException {
     if (this.parentMessageSource != null) {
       return this.parentMessageSource.getMessage(code, args, locale);
     }

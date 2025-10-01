@@ -17,6 +17,7 @@
 
 package infra.web.client.reactive.support;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.io.IOException;
@@ -32,7 +33,6 @@ import infra.http.HttpStatusCode;
 import infra.http.ResponseEntity;
 import infra.http.client.ClientHttpResponse;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.StreamUtils;
 import infra.util.concurrent.Future;
 import infra.web.client.reactive.ClientResponse;
@@ -109,6 +109,7 @@ public final class WebClientAdapter extends AbstractReactorHttpExchangeAdapter {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public infra.web.client.ClientResponse exchange(HttpRequestValues requestValues) {
     return blockingGet(newRequest(requestValues).exchange().map(ReactorClientResponse::new));
   }

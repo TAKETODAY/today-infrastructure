@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,12 @@
 
 package infra.core.env;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import infra.lang.NonNull;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 import joptsimple.OptionSet;
@@ -92,7 +92,6 @@ public class JOptCommandLinePropertySource extends CommandLinePropertySource<Opt
     return this.source.has(name);
   }
 
-  @NonNull
   @Override
   public String[] getPropertyNames() {
     ArrayList<String> names = new ArrayList<>();

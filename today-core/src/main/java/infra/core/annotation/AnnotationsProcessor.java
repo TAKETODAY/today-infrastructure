@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
 
 package infra.core.annotation;
 
-import java.lang.annotation.Annotation;
+import org.jspecify.annotations.Nullable;
 
-import infra.lang.Nullable;
+import java.lang.annotation.Annotation;
 
 /**
  * Callback interface used to process annotations.
@@ -59,7 +59,7 @@ interface AnnotationsProcessor<C, R> {
    * @return a {@code non-null} result if no further processing is required
    */
   @Nullable
-  R doWithAnnotations(C context, int aggregateIndex, @Nullable Object source, Annotation[] annotations);
+  R doWithAnnotations(C context, int aggregateIndex, @Nullable Object source, @Nullable Annotation[] annotations);
 
   /**
    * Get the final result to be returned. By default this method returns

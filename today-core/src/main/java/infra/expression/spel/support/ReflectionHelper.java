@@ -17,6 +17,8 @@
 
 package infra.expression.spel.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
@@ -34,7 +36,6 @@ import infra.expression.EvaluationException;
 import infra.expression.TypeConverter;
 import infra.expression.spel.SpelEvaluationException;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ReflectiveMethodInvoker;
@@ -256,7 +257,7 @@ public abstract class ReflectionHelper {
    * @return {@code true} if some kind of conversion occurred on an argument
    * @throws SpelEvaluationException if a problem occurs during conversion
    */
-  public static boolean convertAllArguments(TypeConverter converter, Object[] arguments, Method method)
+  public static boolean convertAllArguments(TypeConverter converter, @Nullable Object[] arguments, Method method)
           throws SpelEvaluationException {
 
     Integer varargsPosition = (method.isVarArgs() ? method.getParameterCount() - 1 : null);
@@ -276,7 +277,8 @@ public abstract class ReflectionHelper {
    * @return {@code true} if some kind of conversion occurred on an argument
    * @throws EvaluationException if a problem occurs during conversion
    */
-  static boolean convertArguments(TypeConverter converter, Object[] arguments, Executable executable,
+  @SuppressWarnings("NullAway")
+  static boolean convertArguments(TypeConverter converter, @Nullable Object[] arguments, Executable executable,
           @Nullable Integer varargsPosition) throws EvaluationException {
 
     boolean conversionOccurred = false;
@@ -367,7 +369,8 @@ public abstract class ReflectionHelper {
    * @throws EvaluationException if a problem occurs during conversion
    * @since 5.0
    */
-  public static boolean convertAllMethodHandleArguments(TypeConverter converter, Object[] arguments,
+  @SuppressWarnings("NullAway")
+  public static boolean convertAllMethodHandleArguments(TypeConverter converter, @Nullable Object[] arguments,
           MethodHandle methodHandle, @Nullable Integer varargsPosition) throws EvaluationException {
 
     boolean conversionOccurred = false;
@@ -462,7 +465,7 @@ public abstract class ReflectionHelper {
    * @param possibleArray an array object that may have the supplied value as the first element
    * @return true if the supplied value is the first entry in the array
    */
-  private static boolean isFirstEntryInArray(Object value, @Nullable Object possibleArray) {
+  private static boolean isFirstEntryInArray(@Nullable Object value, @Nullable Object possibleArray) {
     if (possibleArray == null) {
       return false;
     }
@@ -487,7 +490,7 @@ public abstract class ReflectionHelper {
    * @param args the arguments to be set up for the invocation
    * @return a repackaged array of arguments where any varargs setup has been performed
    */
-  public static Object[] setupArgumentsForVarargsInvocation(Class<?>[] requiredParameterTypes, Object... args) {
+  public static @Nullable Object[] setupArgumentsForVarargsInvocation(Class<?>[] requiredParameterTypes, @Nullable Object... args) {
     Assert.notEmpty(requiredParameterTypes, "Required parameter types array must not be empty");
 
     int parameterCount = requiredParameterTypes.length;

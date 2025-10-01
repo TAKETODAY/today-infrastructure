@@ -17,6 +17,8 @@
 
 package infra.scheduling.concurrent;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -31,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 
 import infra.core.task.TaskRejectedException;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.scheduling.SchedulingTaskExecutor;
 import infra.scheduling.TaskScheduler;
 import infra.scheduling.Trigger;
@@ -338,16 +339,19 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
           this.le = le;
         }
 
+        @Nullable
         @Override
         public Instant lastScheduledExecution() {
           return this.le != null ? toInstant(this.le.getScheduledStart()) : null;
         }
 
+        @Nullable
         @Override
         public Instant lastActualExecution() {
           return (this.le != null ? toInstant(this.le.getRunStart()) : null);
         }
 
+        @Nullable
         @Override
         public Instant lastCompletion() {
           return (this.le != null ? toInstant(this.le.getRunEnd()) : null);

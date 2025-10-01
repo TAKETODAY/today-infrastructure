@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 package infra.test.context;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.annotation.Autowired;
 import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.context.ApplicationContext;
 import infra.context.annotation.AnnotationConfigUtils;
 import infra.core.env.Environment;
 import infra.core.env.PropertySource;
-import infra.lang.Nullable;
 import infra.test.context.support.AnnotationConfigContextLoader;
 import infra.test.context.support.DelegatingSmartContextLoader;
 import infra.test.context.support.GenericXmlContextLoader;
@@ -170,7 +171,7 @@ public interface SmartContextLoader extends ContextLoader {
    * @throws UnsupportedOperationException in this implementation
    */
   @Override
-  default String[] processLocations(Class<?> clazz, @Nullable String... locations) {
+  default String[] processLocations(Class<?> clazz, String @Nullable ... locations) {
     throw new UnsupportedOperationException("""
             SmartContextLoader does not support the ContextLoader SPI. \
             Call processContextConfiguration(ContextConfigurationAttributes) instead.""");

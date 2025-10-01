@@ -19,9 +19,9 @@ package infra.test.context.junit4;
 
 import org.junit.BeforeClass;
 
+import infra.test.annotation.IfProfileValue;
 import infra.test.annotation.ProfileValueSource;
 import infra.test.annotation.ProfileValueSourceConfiguration;
-import infra.test.annotation.IfProfileValue;
 import infra.test.context.aot.DisabledInAotMode;
 
 /**

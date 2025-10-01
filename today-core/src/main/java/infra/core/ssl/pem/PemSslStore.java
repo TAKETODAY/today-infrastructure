@@ -17,6 +17,8 @@
 
 package infra.core.ssl.pem;
 
+import org.jspecify.annotations.Nullable;
+
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
@@ -25,7 +27,6 @@ import java.util.List;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * An individual trust or key store that has been loaded from PEM content.
@@ -72,6 +73,7 @@ public interface PemSslStore {
    *
    * @return the X509 certificates
    */
+  @Nullable
   List<X509Certificate> certificates();
 
   /**
@@ -89,7 +91,9 @@ public interface PemSslStore {
    * @return a new {@link PemSslStore} instance
    */
   default PemSslStore withAlias(@Nullable String alias) {
-    return of(type(), alias, password(), certificates(), privateKey());
+    List<X509Certificate> certificates = certificates();
+    Assert.notNull(certificates, "'certificates' is required");
+    return of(type(), alias, password(), certificates, privateKey());
   }
 
   /**
@@ -99,7 +103,9 @@ public interface PemSslStore {
    * @return a new {@link PemSslStore} instance
    */
   default PemSslStore withPassword(@Nullable String password) {
-    return of(type(), alias(), password, certificates(), privateKey());
+    List<X509Certificate> certificates = certificates();
+    Assert.notNull(certificates, "'certificates' is required");
+    return of(type(), alias(), password, certificates, privateKey());
   }
 
   /**

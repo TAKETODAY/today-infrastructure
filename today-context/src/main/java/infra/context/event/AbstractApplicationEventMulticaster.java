@@ -17,6 +17,8 @@
 
 package infra.context.event;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -36,7 +38,6 @@ import infra.context.ApplicationListener;
 import infra.core.ResolvableType;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**
@@ -225,6 +226,7 @@ public abstract class AbstractApplicationEventMulticaster implements Application
    * @param retriever the ListenerRetriever, if supposed to populate one (for caching purposes)
    * @return the pre-filtered list of application listeners for the given event and source type
    */
+  @SuppressWarnings("NullAway") // Dataflow analysis limitation
   private Collection<ApplicationListener<?>> retrieveApplicationListeners(
           ResolvableType eventType, @Nullable Class<?> sourceType, @Nullable CachedListenerRetriever retriever) {
 

@@ -17,6 +17,8 @@
 
 package infra.jdbc.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
@@ -27,7 +29,6 @@ import infra.core.BridgeMethodResolver;
 import infra.core.ResolvableType;
 import infra.lang.Assert;
 import infra.lang.Enumerable;
-import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 
 /**

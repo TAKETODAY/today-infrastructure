@@ -17,6 +17,8 @@
 
 package infra.validation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -25,7 +27,6 @@ import java.util.List;
 
 import infra.beans.BeanUtils;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
@@ -90,13 +91,13 @@ public class SimpleErrors implements Errors, Serializable {
   }
 
   @Override
-  public void reject(String errorCode, @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
+  public void reject(String errorCode, Object @Nullable [] errorArgs, @Nullable String defaultMessage) {
     this.globalErrors.add(new ObjectError(getObjectName(), new String[] { errorCode }, errorArgs, defaultMessage));
   }
 
   @Override
   public void rejectValue(@Nullable String field, String errorCode,
-          @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
+          Object @Nullable [] errorArgs, @Nullable String defaultMessage) {
 
     if (StringUtils.isEmpty(field)) {
       reject(errorCode, errorArgs, defaultMessage);

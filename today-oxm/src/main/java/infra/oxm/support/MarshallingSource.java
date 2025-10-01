@@ -17,6 +17,7 @@
 
 package infra.oxm.support;
 
+import org.jspecify.annotations.Nullable;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.DTDHandler;
 import org.xml.sax.EntityResolver;
@@ -35,7 +36,6 @@ import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXSource;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.oxm.Marshaller;
 
 /**

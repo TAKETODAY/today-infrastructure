@@ -17,6 +17,8 @@
 
 package infra.expression.spel.ast;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -43,7 +45,6 @@ import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
 import infra.expression.spel.support.ReflectiveMethodExecutor;
 import infra.expression.spel.support.ReflectiveMethodResolver;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 /**
@@ -103,7 +104,7 @@ public class MethodReference extends SpelNodeImpl {
 
   @Override
   protected ValueRef getValueRef(ExpressionState state) throws EvaluationException {
-    Object[] arguments = getArguments(state);
+    @Nullable Object[] arguments = getArguments(state);
     if (state.getActiveContextObject().getValue() == null) {
       if (!isNullSafe()) {
         throw nullTargetException(getArgumentTypes(arguments));
@@ -119,14 +120,15 @@ public class MethodReference extends SpelNodeImpl {
     TypedValue contextObject = state.getActiveContextObject();
     Object target = contextObject.getValue();
     TypeDescriptor targetType = contextObject.getTypeDescriptor();
-    Object[] arguments = getArguments(state);
+    @Nullable Object[] arguments = getArguments(state);
     TypedValue result = getValueInternal(evaluationContext, target, targetType, arguments);
     updateExitTypeDescriptor();
     return result;
   }
 
+  @SuppressWarnings("NullAway")
   private TypedValue getValueInternal(EvaluationContext evaluationContext, @Nullable Object target,
-          @Nullable TypeDescriptor targetType, Object[] arguments) {
+          @Nullable TypeDescriptor targetType, @Nullable Object[] arguments) {
 
     List<TypeDescriptor> argumentTypes = getArgumentTypes(arguments);
     Optional<?> fallbackOptionalTarget = null;
@@ -233,8 +235,8 @@ public class MethodReference extends SpelNodeImpl {
             FormatHelper.formatMethodForMessage(this.name, argumentTypes));
   }
 
-  private Object[] getArguments(ExpressionState state) {
-    Object[] arguments = new Object[getChildCount()];
+  private @Nullable Object[] getArguments(ExpressionState state) {
+    @Nullable Object[] arguments = new Object[getChildCount()];
     for (int i = 0; i < arguments.length; i++) {
       // Make the root object the active context again for evaluating the parameter expressions
       try {
@@ -248,8 +250,8 @@ public class MethodReference extends SpelNodeImpl {
     return arguments;
   }
 
-  private List<TypeDescriptor> getArgumentTypes(Object... arguments) {
-    List<TypeDescriptor> descriptors = new ArrayList<>(arguments.length);
+  private List<TypeDescriptor> getArgumentTypes(@Nullable Object... arguments) {
+    List<@Nullable TypeDescriptor> descriptors = new ArrayList<>(arguments.length);
     for (Object argument : arguments) {
       descriptors.add(TypeDescriptor.forObject(argument));
     }
@@ -440,9 +442,9 @@ public class MethodReference extends SpelNodeImpl {
     @Nullable
     private final TypeDescriptor targetType;
 
-    private final Object[] arguments;
+    private final @Nullable Object[] arguments;
 
-    public MethodValueRef(ExpressionState state, Object[] arguments) {
+    public MethodValueRef(ExpressionState state, @Nullable Object[] arguments) {
       this.evaluationContext = state.getEvaluationContext();
       this.target = state.getActiveContextObject().getValue();
       this.targetType = state.getActiveContextObject().getTypeDescriptor();

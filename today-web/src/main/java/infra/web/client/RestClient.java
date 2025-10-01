@@ -17,6 +17,8 @@
 
 package infra.web.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
@@ -44,7 +46,6 @@ import infra.http.client.ClientHttpRequestInterceptor;
 import infra.http.client.ClientHttpResponse;
 import infra.http.converter.HttpMessageConverter;
 import infra.lang.CheckReturnValue;
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 import infra.util.concurrent.Future;
 import infra.web.util.DefaultUriBuilderFactory;
@@ -380,7 +381,7 @@ public interface RestClient {
      * @param values the cookie values
      * @since 5.0
      */
-    Builder defaultCookie(String cookie, @Nullable String... values);
+    Builder defaultCookie(String cookie, String @Nullable ... values);
 
     /**
      * Provides access to every {@link #defaultCookie(String, String...)}

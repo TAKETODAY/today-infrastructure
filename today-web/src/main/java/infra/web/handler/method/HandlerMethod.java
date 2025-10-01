@@ -17,6 +17,8 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -39,7 +41,6 @@ import infra.core.i18n.LocaleContextHolder;
 import infra.http.HttpStatusCode;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
@@ -183,6 +184,7 @@ public class HandlerMethod implements AsyncHandler {
   /**
    * Create an instance from a bean name, a method, and a {@code BeanFactory}.
    */
+  @SuppressWarnings("NullAway")
   public HandlerMethod(String beanName, BeanFactory beanFactory, @Nullable MessageSource messageSource, Method method) {
     Assert.notNull(method, "Method is required");
     Assert.hasText(beanName, "Bean name is required");
@@ -672,8 +674,7 @@ public class HandlerMethod implements AsyncHandler {
    */
   protected class HandlerMethodParameter extends SynthesizingMethodParameter {
 
-    @Nullable
-    private volatile Annotation[] combinedAnnotations;
+    private volatile Annotation @Nullable [] combinedAnnotations;
 
     public HandlerMethodParameter(int index) {
       super(method, index);

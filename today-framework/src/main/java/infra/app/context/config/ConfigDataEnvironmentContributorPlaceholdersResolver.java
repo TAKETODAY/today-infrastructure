@@ -17,11 +17,12 @@
 
 package infra.app.context.config;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.app.context.config.ConfigDataEnvironmentContributor.Kind;
 import infra.context.properties.bind.PlaceholdersResolver;
 import infra.core.conversion.ConversionService;
 import infra.core.env.PropertySource;
-import infra.lang.Nullable;
 import infra.origin.Origin;
 import infra.origin.OriginLookup;
 import infra.util.PropertyPlaceholderHandler;
@@ -72,6 +73,7 @@ class ConfigDataEnvironmentContributorPlaceholdersResolver implements Placeholde
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private String resolvePlaceholder(String placeholder) {
     Object result = null;
     for (ConfigDataEnvironmentContributor contributor : this.contributors) {

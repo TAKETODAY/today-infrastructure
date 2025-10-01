@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.beans.support;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.lang.Assert;
 import infra.util.CollectionUtils;
 
@@ -27,6 +29,7 @@ import infra.util.CollectionUtils;
  */
 public class MapInstantiator extends BeanInstantiator {
 
+  @Nullable
   private final Class<?> keyType;
 
   private final Class<?> mapType;
@@ -35,14 +38,14 @@ public class MapInstantiator extends BeanInstantiator {
     this(mapType, null);
   }
 
-  public MapInstantiator(Class<?> mapType, Class<?> keyType) {
+  public MapInstantiator(Class<?> mapType, @Nullable Class<?> keyType) {
     Assert.notNull(mapType, "map type is required");
     this.keyType = keyType;
     this.mapType = mapType;
   }
 
   @Override
-  public Object doInstantiate(final Object[] args) {
+  public Object doInstantiate(final @Nullable Object @Nullable [] args) {
     return CollectionUtils.createMap(mapType, keyType, 0);
   }
 

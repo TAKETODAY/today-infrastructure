@@ -17,9 +17,9 @@
 
 package infra.logging;
 
-import java.io.Serial;
+import org.jspecify.annotations.Nullable;
 
-import infra.lang.Nullable;
+import java.io.Serial;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -66,7 +66,8 @@ class Slf4jLogger extends Logger {
   }
 
   @Override
-  protected void logInternal(Level level, String format, @Nullable Throwable t, @Nullable Object[] args) {
+  @SuppressWarnings("NullAway")
+  protected void logInternal(Level level,@Nullable String format, @Nullable Throwable t, @Nullable Object @Nullable [] args) {
     final String msg = MessageFormatter.format(format, args);
     switch (level) {
       case DEBUG -> target.debug(msg, t);

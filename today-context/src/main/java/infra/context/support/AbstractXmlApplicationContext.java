@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.context.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 
 import infra.beans.BeansException;
@@ -25,7 +27,6 @@ import infra.beans.factory.xml.ResourceEntityResolver;
 import infra.beans.factory.xml.XmlBeanDefinitionReader;
 import infra.context.ApplicationContext;
 import infra.core.io.Resource;
-import infra.lang.Nullable;
 
 /**
  * Convenient base class for {@link infra.context.ApplicationContext}
@@ -143,8 +144,7 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
    * @return an array of Resource objects, or {@code null} if none
    * @see #getConfigLocations()
    */
-  @Nullable
-  protected Resource[] getConfigResources() {
+  protected Resource @Nullable [] getConfigResources() {
     return null;
   }
 

@@ -17,6 +17,8 @@
 
 package infra.context.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,7 +54,6 @@ import infra.core.io.Resource;
 import infra.core.io.ResourceConsumer;
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 
 /**
@@ -334,6 +335,7 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
     beanFactory.removeBeanDefinition(beanName);
   }
 
+  @Nullable
   @Override
   public BeanDefinition getBeanDefinition(Class<?> beanClass) {
     return beanFactory.getBeanDefinition(beanClass);

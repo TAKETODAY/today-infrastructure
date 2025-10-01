@@ -19,10 +19,10 @@ package infra.context.annotation.configuration;
 
 import org.junit.jupiter.api.Test;
 
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Scope;
-import infra.context.annotation.AnnotationConfigApplicationContext;
 import jakarta.annotation.Resource;
 
 import static infra.beans.factory.config.BeanDefinition.SCOPE_PROTOTYPE;

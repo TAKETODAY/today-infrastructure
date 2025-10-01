@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.expression.spel.ast;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -41,7 +43,6 @@ import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
 import infra.expression.spel.support.ReflectiveConstructorExecutor;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Represents the invocation of a constructor. Either a constructor on a regular type or
@@ -73,8 +74,7 @@ public class ConstructorReference extends SpelNodeImpl {
 
   private final boolean isArrayConstructor;
 
-  @Nullable
-  private final SpelNodeImpl[] dimensions;
+  private final SpelNodeImpl @Nullable [] dimensions;
 
   // TODO is this caching safe - passing the expression around will mean this executor is also being passed around
   /** The cached executor that may be reused on subsequent evaluations. */
@@ -121,8 +121,9 @@ public class ConstructorReference extends SpelNodeImpl {
    * @return the new object
    * @throws EvaluationException if there is a problem creating the object
    */
+  @SuppressWarnings("NullAway")
   private TypedValue createNewInstance(ExpressionState state) throws EvaluationException {
-    Object[] arguments = new Object[getChildCount() - 1];
+    @Nullable Object[] arguments = new Object[getChildCount() - 1];
     List<TypeDescriptor> argumentTypes = new ArrayList<>(getChildCount() - 1);
     for (int i = 0; i < arguments.length; i++) {
       TypedValue childValue = this.children[i + 1].getValueInternal(state);
@@ -230,7 +231,7 @@ public class ConstructorReference extends SpelNodeImpl {
         InlineList initializer = (InlineList) getChild(1);
         sb.append("[] ").append(initializer.toStringAST());
       }
-      else {
+      else if (this.dimensions != null) {
         // new int[3], new java.lang.String[3][4], etc.
         for (SpelNodeImpl dimension : this.dimensions) {
           sb.append('[').append(dimension.toStringAST()).append(']');
@@ -359,7 +360,7 @@ public class ConstructorReference extends SpelNodeImpl {
 
   private Object createReferenceTypeArray(ExpressionState state,
           TypeConverter typeConverter, SpelNodeImpl[] children, Class<?> componentType) {
-    Object[] newArray = (Object[]) Array.newInstance(componentType, children.length);
+    @Nullable Object[] newArray = (Object[]) Array.newInstance(componentType, children.length);
     TypeDescriptor toTypeDescriptor = TypeDescriptor.valueOf(componentType);
     for (int i = 0; i < newArray.length; i++) {
       Object arrayEntry = children[i].getValue(state);

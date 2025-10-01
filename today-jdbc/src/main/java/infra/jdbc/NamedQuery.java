@@ -17,6 +17,8 @@
 
 package infra.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.sql.PreparedStatement;
@@ -33,7 +35,6 @@ import infra.beans.BeanProperty;
 import infra.jdbc.parsing.QueryParameter;
 import infra.jdbc.type.TypeHandler;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
@@ -131,11 +132,11 @@ public final class NamedQuery extends AbstractQuery {
     this(connection, queryText, generatedKeys, null);
   }
 
-  public NamedQuery(JdbcConnection connection, String queryText, @Nullable String[] columnNames) {
+  public NamedQuery(JdbcConnection connection, String queryText, String @Nullable [] columnNames) {
     this(connection, queryText, false, columnNames);
   }
 
-  private NamedQuery(JdbcConnection connection, String queryText, boolean generatedKeys, @Nullable String[] columnNames) {
+  private NamedQuery(JdbcConnection connection, String queryText, boolean generatedKeys, String @Nullable [] columnNames) {
     super(connection, queryText, generatedKeys, columnNames);
     RepositoryManager manager = connection.getManager();
     setColumnMappings(manager.getDefaultColumnMappings());
@@ -638,7 +639,7 @@ public final class NamedQuery extends AbstractQuery {
    * @see BeanMetadata#forInstance(Object)
    * @see QueryParameter
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "NullAway" })
   public NamedQuery bind(Object pojo) {
     HashMap<String, QueryParameter> queryParameters = this.queryParameters;
     for (BeanProperty property : BeanMetadata.forInstance(pojo)) {

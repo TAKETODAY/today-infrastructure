@@ -23,6 +23,7 @@ import org.aspectj.lang.Signature;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.aspectj.lang.reflect.SourceLocation;
 import org.aspectj.runtime.internal.AroundClosure;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -30,7 +31,6 @@ import java.lang.reflect.Modifier;
 import infra.aop.ProxyMethodInvocation;
 import infra.core.ParameterNameDiscoverer;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * An implementation of the AspectJ {@link ProceedingJoinPoint} interface
@@ -57,7 +57,7 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint,
   private final ProxyMethodInvocation methodInvocation;
 
   @Nullable
-  private Object[] args;
+  private Object @Nullable [] args;
 
   /** Lazily initialized signature object. */
   @Nullable
@@ -94,9 +94,8 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint,
   public Object proceed(Object[] arguments) throws Throwable {
     Assert.notNull(arguments, "Argument array passed to proceed cannot be null");
     if (arguments.length != this.methodInvocation.getArguments().length) {
-      throw new IllegalArgumentException("Expecting " +
-              this.methodInvocation.getArguments().length + " arguments to proceed, " +
-              "but was passed " + arguments.length + " arguments");
+      throw new IllegalArgumentException("Expecting %d arguments to proceed, but was passed %d arguments"
+              .formatted(this.methodInvocation.getArguments().length, arguments.length));
     }
     this.methodInvocation.setArguments(arguments);
     return this.methodInvocation.invocableClone(arguments).proceed();
@@ -120,7 +119,8 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint,
   }
 
   @Override
-  public Object[] getArgs() {
+  @SuppressWarnings("NullAway") // Overridden method does not define nullness
+  public @Nullable Object[] getArgs() {
     if (this.args == null) {
       this.args = this.methodInvocation.getArguments().clone();
     }
@@ -179,8 +179,7 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint,
    */
   private final class MethodSignatureImpl implements MethodSignature {
 
-    @Nullable
-    private volatile String[] parameterNames;
+    private volatile String @Nullable [] parameterNames;
 
     @Override
     public String getName() {
@@ -218,8 +217,7 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint,
     }
 
     @Override
-    @Nullable
-    public String[] getParameterNames() {
+    public String @Nullable [] getParameterNames() {
       String[] parameterNames = this.parameterNames;
       if (parameterNames == null) {
         parameterNames = parameterNameDiscoverer.getParameterNames(getMethod());

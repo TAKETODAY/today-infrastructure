@@ -17,6 +17,8 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +48,6 @@ import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.RepeatableContainers;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 
@@ -152,7 +153,8 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
   }
 
   @Override
-  public Object getBean(String name, Object... args) throws BeansException {
+  @SuppressWarnings("NullAway")
+  public Object getBean(String name, @Nullable Object @Nullable ... args) throws BeansException {
     if (ObjectUtils.isNotEmpty(args)) {
       throw new UnsupportedOperationException(
               "StaticListableBeanFactory does not support explicit bean creation arguments");
@@ -184,7 +186,8 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
   }
 
   @Override
-  public <T> T getBean(Class<T> requiredType, Object... args) throws BeansException {
+  @SuppressWarnings("NullAway")
+  public <T> T getBean(Class<T> requiredType, @Nullable Object @Nullable ... args) throws BeansException {
     if (ObjectUtils.isNotEmpty(args)) {
       throw new UnsupportedOperationException(
               "StaticListableBeanFactory does not support explicit bean creation arguments");
@@ -239,6 +242,7 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public boolean isTypeMatch(String name, @Nullable Class<?> typeToMatch) throws NoSuchBeanDefinitionException {
     String beanName = BeanFactoryUtils.transformedBeanName(name);
     Object bean = obtainBean(beanName);
@@ -261,11 +265,13 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
     throw new NoSuchBeanDefinitionException(beanName);
   }
 
+  @Nullable
   @Override
   public Class<?> getType(String name) throws NoSuchBeanDefinitionException {
     return getType(name, true);
   }
 
+  @Nullable
   @Override
   public Class<?> getType(String name, boolean allowFactoryBeanInit) throws NoSuchBeanDefinitionException {
     String beanName = BeanFactoryUtils.transformedBeanName(name);
@@ -336,7 +342,7 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
       }
 
       @Override
-      public T get(Object... args) throws BeansException {
+      public T get(@Nullable Object... args) throws BeansException {
         var beanNames = getBeanNamesForType(requiredType);
         if (beanNames.length == 1) {
           return (T) getBean(beanNames[0], args);
@@ -474,7 +480,7 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
   public String[] getBeanNamesForAnnotation(Class<? extends Annotation> annotationType) {
     List<String> results = new ArrayList<>();
     for (String beanName : this.beans.keySet()) {
-      if (findAnnotationOnBean(beanName, annotationType) != null) {
+      if (findAnnotationOnBean(beanName, annotationType).isPresent()) {
         results.add(beanName);
       }
     }
@@ -492,7 +498,7 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
 
     Map<String, Object> results = new LinkedHashMap<>();
     for (String beanName : this.beans.keySet()) {
-      if (findAnnotationOnBean(beanName, annotationType) != null) {
+      if (findAnnotationOnBean(beanName, annotationType).isPresent()) {
         results.put(beanName, getBean(beanName));
       }
     }

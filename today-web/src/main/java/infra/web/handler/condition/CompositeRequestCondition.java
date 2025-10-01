@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,13 @@
 
 package infra.web.handler.condition;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.web.RequestContext;
 
@@ -144,13 +145,14 @@ public class CompositeRequestCondition extends AbstractRequestCondition<Composit
    */
   @Override
   @Nullable
+  @SuppressWarnings("NullAway")
   public CompositeRequestCondition getMatchingCondition(RequestContext request) {
     if (isEmpty()) {
       return this;
     }
     int length = getLength();
     RequestConditionHolder[] requestConditions = this.requestConditions;
-    RequestConditionHolder[] matchingConditions = new RequestConditionHolder[length];
+    @Nullable RequestConditionHolder[] matchingConditions = new RequestConditionHolder[length];
     for (int i = 0; i < length; i++) {
       matchingConditions[i] = requestConditions[i].getMatchingCondition(request);
       if (matchingConditions[i] == null) {

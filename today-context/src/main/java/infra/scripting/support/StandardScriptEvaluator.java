@@ -17,6 +17,8 @@
 
 package infra.scripting.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.util.Map;
 
@@ -27,7 +29,6 @@ import javax.script.ScriptException;
 
 import infra.beans.factory.BeanClassLoaderAware;
 import infra.core.io.Resource;
-import infra.lang.Nullable;
 import infra.scripting.ScriptCompilationException;
 import infra.scripting.ScriptEvaluator;
 import infra.scripting.ScriptSource;

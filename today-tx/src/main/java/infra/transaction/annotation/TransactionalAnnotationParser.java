@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.transaction.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serializable;
 import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
@@ -29,7 +31,6 @@ import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.core.annotation.RepeatableContainers;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.transaction.interceptor.NoRollbackRuleAttribute;
 import infra.transaction.interceptor.RollbackRuleAttribute;
 import infra.transaction.interceptor.RuleBasedTransactionAttribute;

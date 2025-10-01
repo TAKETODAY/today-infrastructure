@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ import infra.context.properties.processor.metadata.ItemDeprecation;
  */
 class MetadataGenerationEnvironment {
 
-  private static final String NULLABLE_ANNOTATION = "infra.lang.Nullable";
+  private static final String NULLABLE_ANNOTATION = "org.jspecify.annotations.Nullable";
 
   private static final Set<String> TYPE_EXCLUDES = Set.of(
           "com.zaxxer.hikari.IConnectionCustomizer",

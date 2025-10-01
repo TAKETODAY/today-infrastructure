@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.cache.jcache.interceptor;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.function.Supplier;
@@ -34,7 +36,6 @@ import infra.cache.interceptor.KeyGenerator;
 import infra.cache.interceptor.SimpleCacheResolver;
 import infra.cache.interceptor.SimpleKeyGenerator;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.function.SingletonSupplier;
 import infra.util.function.SupplierUtils;
 
@@ -45,8 +46,10 @@ import infra.util.function.SupplierUtils;
  *
  * @author Stephane Nicoll
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public class DefaultJCacheOperationSource extends AnnotationJCacheOperationSource
         implements BeanFactoryAware, SmartInitializingSingleton {
 
@@ -81,8 +84,7 @@ public class DefaultJCacheOperationSource extends AnnotationJCacheOperationSourc
    * cache resolver and key generator suppliers, applying the corresponding default
    * if a supplier is not resolvable.
    */
-  public DefaultJCacheOperationSource(
-          @Nullable Supplier<CacheManager> cacheManager, @Nullable Supplier<CacheResolver> cacheResolver,
+  public DefaultJCacheOperationSource(@Nullable Supplier<CacheManager> cacheManager, @Nullable Supplier<CacheResolver> cacheResolver,
           @Nullable Supplier<CacheResolver> exceptionCacheResolver, @Nullable Supplier<KeyGenerator> keyGenerator) {
 
     this.cacheManager = SingletonSupplier.ofNullable(cacheManager);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.protocol.HttpContext;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Closeable;
 import java.net.URI;
@@ -44,7 +45,6 @@ import java.util.function.BiFunction;
 import infra.beans.factory.DisposableBean;
 import infra.http.HttpMethod;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * {@link infra.http.client.ClientHttpRequestFactory} implementation that

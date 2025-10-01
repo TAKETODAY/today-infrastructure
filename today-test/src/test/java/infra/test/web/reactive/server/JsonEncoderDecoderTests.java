@@ -31,7 +31,6 @@ import infra.http.codec.ResourceHttpMessageReader;
 import infra.http.codec.ResourceHttpMessageWriter;
 import infra.http.codec.json.Jackson2JsonDecoder;
 import infra.http.codec.json.Jackson2JsonEncoder;
-import infra.test.web.reactive.server.JsonEncoderDecoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

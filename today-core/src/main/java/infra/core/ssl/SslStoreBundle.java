@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
 
 package infra.core.ssl;
 
-import java.security.KeyStore;
+import org.jspecify.annotations.Nullable;
 
-import infra.lang.Nullable;
+import java.security.KeyStore;
 
 /**
  * A bundle of key and trust stores that can be used to establish an SSL connection.
@@ -67,20 +67,22 @@ public interface SslStoreBundle {
    * @param trustStore the trust store or {@code null}
    * @return a new {@link SslStoreBundle} instance
    */
-  static SslStoreBundle of(@Nullable KeyStore keyStore,
-          @Nullable String keyStorePassword, @Nullable KeyStore trustStore) {
-    return new SslStoreBundle() {
+  static SslStoreBundle of(@Nullable KeyStore keyStore, @Nullable String keyStorePassword, @Nullable KeyStore trustStore) {
 
+    return new SslStoreBundle() {
+      @Nullable
       @Override
       public KeyStore getKeyStore() {
         return keyStore;
       }
 
+      @Nullable
       @Override
       public KeyStore getTrustStore() {
         return trustStore;
       }
 
+      @Nullable
       @Override
       public String getKeyStorePassword() {
         return keyStorePassword;

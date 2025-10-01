@@ -2,9 +2,7 @@
  * Support classes for DAO implementations,
  * providing miscellaneous utility methods.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.dao.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

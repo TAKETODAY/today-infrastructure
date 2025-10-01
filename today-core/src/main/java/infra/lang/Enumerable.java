@@ -17,6 +17,8 @@
 
 package infra.lang;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;

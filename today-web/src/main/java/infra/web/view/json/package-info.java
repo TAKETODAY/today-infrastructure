@@ -1,9 +1,7 @@
 /**
  * Support classes for providing a View implementation based on JSON serialization.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.view.json;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

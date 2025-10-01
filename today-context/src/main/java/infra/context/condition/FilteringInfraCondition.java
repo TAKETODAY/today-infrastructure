@@ -17,6 +17,8 @@
 
 package infra.context.condition;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,7 +30,6 @@ import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.context.annotation.config.AutoConfigurationImportFilter;
 import infra.context.annotation.config.AutoConfigurationMetadata;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 
@@ -43,8 +44,10 @@ import infra.util.CollectionUtils;
 public abstract class FilteringInfraCondition extends InfraCondition
         implements AutoConfigurationImportFilter, BeanFactoryAware, BeanClassLoaderAware {
 
+  @SuppressWarnings("NullAway.Init")
   private BeanFactory beanFactory;
 
+  @SuppressWarnings("NullAway.Init")
   private ClassLoader beanClassLoader;
 
   @Override
@@ -66,23 +69,25 @@ public abstract class FilteringInfraCondition extends InfraCondition
   }
 
   @Override
-  public boolean[] match(String[] configClasses, AutoConfigurationMetadata configMetadata) {
+  public boolean[] match(String[] autoConfigurationClasses, AutoConfigurationMetadata configMetadata) {
     ConditionEvaluationReport report = ConditionEvaluationReport.find(this.beanFactory);
-    ConditionOutcome[] outcomes = getOutcomes(configClasses, configMetadata);
+    @Nullable ConditionOutcome[] outcomes = getOutcomes(autoConfigurationClasses, configMetadata);
     boolean[] match = new boolean[outcomes.length];
     for (int i = 0; i < outcomes.length; i++) {
-      match[i] = (outcomes[i] == null || outcomes[i].isMatch());
-      if (!match[i] && outcomes[i] != null) {
-        logOutcome(configClasses[i], outcomes[i]);
+      ConditionOutcome outcome = outcomes[i];
+      match[i] = (outcome == null || outcome.isMatch());
+      if (!match[i] && outcome != null) {
+        String autoConfigurationClass = autoConfigurationClasses[i];
+        logOutcome(autoConfigurationClass, outcome);
         if (report != null) {
-          report.recordConditionEvaluation(configClasses[i], this, outcomes[i]);
+          report.recordConditionEvaluation(autoConfigurationClass, this, outcome);
         }
       }
     }
     return match;
   }
 
-  protected abstract ConditionOutcome[] getOutcomes(String[] configClasses, AutoConfigurationMetadata configMetadata);
+  protected abstract @Nullable ConditionOutcome[] getOutcomes(String[] configClasses, AutoConfigurationMetadata configMetadata);
 
   protected final List<String> filter(@Nullable Collection<String> classNames, ClassNameFilter classNameFilter, @Nullable ClassLoader classLoader) {
     if (CollectionUtils.isEmpty(classNames)) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.beans.factory.config;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -48,11 +50,12 @@ import infra.util.ClassUtils;
  * @see ConfigurableBeanFactory#registerScope
  * @since 2.1.7 2020-04-02 20:58
  */
-public class CustomScopeConfigurer
-        extends OrderedSupport implements BeanFactoryPostProcessor, BeanClassLoaderAware, Ordered {
+public class CustomScopeConfigurer extends OrderedSupport implements BeanFactoryPostProcessor, BeanClassLoaderAware, Ordered {
 
+  @Nullable
   private Map<String, Object> scopes;
 
+  @Nullable
   private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
   /**

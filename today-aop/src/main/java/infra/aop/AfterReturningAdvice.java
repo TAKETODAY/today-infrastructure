@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.aop;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 /**
  * After returning advice is invoked only on normal method return, not if an
@@ -41,6 +42,6 @@ public interface AfterReturningAdvice extends AfterAdvice {
    * allowed by the method signature. Otherwise the exception
    * will be wrapped as a runtime exception.
    */
-  void afterReturning(Object returnValue, MethodInvocation invocation) throws Throwable;
+  void afterReturning(@Nullable Object returnValue, MethodInvocation invocation) throws Throwable;
 
 }

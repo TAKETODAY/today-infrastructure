@@ -17,6 +17,8 @@
 
 package infra.jdbc.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,18 +36,21 @@ public class DoubleTypeHandler extends BasicTypeHandler<Double> {
     ps.setDouble(i, arg);
   }
 
+  @Nullable
   @Override
   public Double getResult(ResultSet rs, String columnName) throws SQLException {
     double result = rs.getDouble(columnName);
     return result == 0 && rs.wasNull() ? null : result;
   }
 
+  @Nullable
   @Override
   public Double getResult(ResultSet rs, int columnIndex) throws SQLException {
     double result = rs.getDouble(columnIndex);
     return result == 0 && rs.wasNull() ? null : result;
   }
 
+  @Nullable
   @Override
   public Double getResult(CallableStatement cs, int columnIndex) throws SQLException {
     double result = cs.getDouble(columnIndex);

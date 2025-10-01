@@ -17,6 +17,8 @@
 
 package infra.context.properties.bind;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyEditor;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -42,7 +44,6 @@ import infra.core.conversion.ConverterNotFoundException;
 import infra.core.conversion.support.GenericConversionService;
 import infra.core.io.Resource;
 import infra.format.support.ApplicationConversionService;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 
 /**
@@ -78,7 +79,7 @@ final class BindConverter {
     this.delegates = delegates;
   }
 
-  public boolean canConvert(@Nullable Object source, ResolvableType type, @Nullable Annotation... targetAnnotations) {
+  public boolean canConvert(@Nullable Object source, ResolvableType type, Annotation @Nullable ... targetAnnotations) {
     TypeDescriptor sourceType = TypeDescriptor.forObject(source);
     TypeDescriptor targetType = new TypeDescriptor(type, null, targetAnnotations);
     for (ConversionService service : this.delegates) {
@@ -143,7 +144,7 @@ final class BindConverter {
    */
   private static class TypeConverterConversionService extends GenericConversionService {
 
-    TypeConverterConversionService(Consumer<PropertyEditorRegistry> initializer) {
+    TypeConverterConversionService(@Nullable Consumer<PropertyEditorRegistry> initializer) {
       ApplicationConversionService.addDelimitedStringConverters(this);
       addConverter(new TypeConverterConverter(initializer));
     }
@@ -215,6 +216,7 @@ final class BindConverter {
     }
 
     @Override
+    @Nullable
     public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
       return createTypeConverter().convertIfNecessary(source, targetType.getType(), targetType);
     }

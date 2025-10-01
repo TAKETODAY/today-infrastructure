@@ -17,13 +17,14 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 
 import infra.core.GenericTypeResolver;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.type.AnnotationMetadata;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Convenient base class for {@link ImportSelector} implementations that select imports
@@ -94,7 +95,6 @@ public abstract class AdviceModeImportSelector<A extends Annotation> implements 
    * @return array containing classes to import (empty array if none;
    * {@code null} if the given {@code AdviceMode} is unknown)
    */
-  @Nullable
-  protected abstract String[] selectImports(AdviceMode adviceMode);
+  protected abstract String @Nullable [] selectImports(AdviceMode adviceMode);
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,37 +15,28 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.jdbc.performance;
-
-import com.google.common.base.Function;
-import com.google.common.base.Stopwatch;
+package infra.jdbc;
 
 import java.sql.SQLException;
 
 /**
  * Basically a {@link Runnable} with an Integer input.
  */
-public abstract class PerformanceTestBase implements Function<Integer, Void>, AutoCloseable {
-  private Stopwatch watch = Stopwatch.createUnstarted();
-
-  public Void apply(Integer input) {
-    try {
-      run(input);
-    }
-    catch (SQLException e) {
-      e.printStackTrace();
-    }
-    return null;
-  }
+public abstract class PerformanceTestBase implements AutoCloseable {
 
   public void initialize() {
-    watch.reset();
     init();
   }
 
   public abstract void init();
 
-  public abstract void run(int input) throws SQLException;
+  int input = 1;
+
+  public Object run() throws SQLException {
+    return run(input++);
+  }
+
+  public abstract Object run(int input) throws SQLException;
 
   public abstract void close();
 
@@ -53,7 +44,4 @@ public abstract class PerformanceTestBase implements Function<Integer, Void>, Au
     return getClass().getSimpleName();
   }
 
-  Stopwatch getWatch() {
-    return watch;
-  }
 }

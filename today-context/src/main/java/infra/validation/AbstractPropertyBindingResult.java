@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.validation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyEditor;
 
 import infra.beans.BeanUtils;
@@ -28,7 +30,6 @@ import infra.core.TypeDescriptor;
 import infra.core.conversion.ConversionService;
 import infra.core.conversion.support.ConvertingPropertyEditorAdapter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Abstract base class for {@link BindingResult} implementations that work with
@@ -72,6 +73,7 @@ public abstract class AbstractPropertyBindingResult extends AbstractBindingResul
    * @see #getPropertyAccessor()
    */
   @Override
+  @Nullable
   public PropertyEditorRegistry getPropertyEditorRegistry() {
     return (getTarget() != null ? getPropertyAccessor() : null);
   }
@@ -95,8 +97,8 @@ public abstract class AbstractPropertyBindingResult extends AbstractBindingResul
   @Nullable
   public Class<?> getFieldType(@Nullable String field) {
     return getTarget() != null
-           ? getPropertyAccessor().getPropertyType(fixedField(field))
-           : super.getFieldType(field);
+            ? getPropertyAccessor().getPropertyType(fixedField(field))
+            : super.getFieldType(field);
   }
 
   /**
@@ -116,6 +118,7 @@ public abstract class AbstractPropertyBindingResult extends AbstractBindingResul
    * @see #getCustomEditor
    */
   @Override
+  @Nullable
   protected Object formatFieldValue(String field, @Nullable Object value) {
     String fixedField = fixedField(field);
     // Try custom editor...

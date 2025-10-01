@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,12 @@
 
 package infra.test.context.aot;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.aot.generate.ClassNameGenerator;
 import infra.aot.generate.DefaultGenerationContext;
 import infra.aot.generate.GeneratedFiles;
 import infra.aot.hint.RuntimeHints;
-import infra.lang.Nullable;
 
 /**
  * Extension of {@link DefaultGenerationContext} with a custom implementation of

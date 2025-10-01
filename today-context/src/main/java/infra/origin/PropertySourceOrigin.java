@@ -17,9 +17,10 @@
 
 package infra.origin;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.env.PropertySource;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * {@link Origin} from a {@link PropertySource}.

@@ -17,11 +17,12 @@
 
 package infra.http;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 import java.util.List;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;

@@ -17,6 +17,7 @@
 
 package infra.context.event;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
@@ -50,8 +51,7 @@ import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.core.annotation.Order;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.NonNull;
-import infra.lang.Nullable;
+import infra.lang.Contract;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
@@ -112,6 +112,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
   @Nullable
   private volatile String listenerId;
 
+  @Nullable
   private ApplicationContext context;
 
   @Nullable
@@ -247,6 +248,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
    *
    * @param event the event to process through the listener method
    */
+  @SuppressWarnings("NullAway")
   public void processEvent(ApplicationEvent event) {
     Object[] args = resolveArguments(event);
     if (shouldInvoke(event, args)) {
@@ -260,7 +262,8 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
     }
   }
 
-  private boolean shouldInvoke(Object event, @Nullable Object[] args) {
+  @Contract("_, null -> false")
+  private boolean shouldInvoke(Object event, Object @Nullable [] args) {
     if (args == null) {
       return false;
     }
@@ -278,8 +281,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
    * Can return {@code null} to indicate that no suitable arguments could be resolved
    * and therefore the method should not be invoked at all for the specified event.
    */
-  @Nullable
-  protected Object[] resolveArguments(ApplicationEvent event) {
+  protected Object @Nullable [] resolveArguments(ApplicationEvent event) {
     ResolvableType declaredEventType = getResolvableType(event);
     if (declaredEventType == null) {
       return null;
@@ -324,6 +326,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
    * Invoke the event listener method with the given argument values.
    */
   @Nullable
+  @SuppressWarnings("NullAway")
   protected Object doInvoke(Object[] args) {
     Object bean = getTargetBean();
     // Detect package-protected NullBean instance through equals(null) check
@@ -355,7 +358,6 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
   }
 
   @Override
-  @NonNull
   public String getListenerId() {
     String id = this.listenerId;
     if (id == null) {
@@ -436,6 +438,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 
   private void publishEvent(@Nullable Object event) {
     if (event != null) {
+      Assert.state(context != null, "No ApplicationContext set");
       context.publishEvent(event);
     }
   }
@@ -473,17 +476,18 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
     }
   }
 
-  private String getInvocationErrorMessage(Object bean, String message, Object[] resolvedArgs) {
+  private String getInvocationErrorMessage(Object bean, String message, @Nullable Object[] resolvedArgs) {
     StringBuilder sb = new StringBuilder(getDetailedErrorMessage(bean, message));
     sb.append("Resolved arguments: \n");
     for (int i = 0; i < resolvedArgs.length; i++) {
       sb.append('[').append(i).append("] ");
-      if (resolvedArgs[i] == null) {
+      Object resolvedArg = resolvedArgs[i];
+      if (resolvedArg == null) {
         sb.append("[null] \n");
       }
       else {
-        sb.append("[type=").append(resolvedArgs[i].getClass().getName()).append("] ");
-        sb.append("[value=").append(resolvedArgs[i]).append("]\n");
+        sb.append("[type=").append(resolvedArg.getClass().getName()).append("] ");
+        sb.append("[value=").append(resolvedArg).append("]\n");
       }
     }
     return sb.toString();

@@ -17,11 +17,12 @@
 
 package infra.cache;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 import infra.cache.annotation.Cacheable;
-import infra.lang.Nullable;
 import infra.util.function.ThrowingFunction;
 
 /**
@@ -309,7 +310,7 @@ public interface Cache {
     @Nullable
     private final Object key;
 
-    public ValueRetrievalException(@Nullable Object key, Object loader, Throwable ex) {
+    public ValueRetrievalException(@Nullable Object key, Object loader, @Nullable Throwable ex) {
       super(String.format("Value for key '%s' could not be loaded using '%s'", key, loader), ex);
       this.key = key;
     }

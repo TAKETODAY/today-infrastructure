@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 package infra.aop.scope;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.aop.framework.autoproxy.AutoProxyUtils;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.BeanDefinitionHolder;
 import infra.beans.factory.support.AbstractBeanDefinition;
 import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.beans.factory.support.RootBeanDefinition;
-import infra.lang.Nullable;
 
 /**
  * Utility class for creating a scoped proxy.
@@ -119,6 +120,7 @@ public abstract class ScopedProxyUtils {
    * @see #getTargetBeanName(String)
    * @see #isScopedTarget(String)
    */
+  @SuppressWarnings("NullAway")
   public static String getOriginalBeanName(@Nullable String targetBeanName) {
     if (isScopedTarget(targetBeanName)) {
       return targetBeanName.substring(TARGET_NAME_PREFIX_LENGTH);

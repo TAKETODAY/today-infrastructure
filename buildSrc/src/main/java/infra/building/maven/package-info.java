@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,18 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.beans.support;
+@NullMarked
+package infra.building.maven;
 
-/**
- * @author TODAY 2021/1/29 15:56
- * @since 3.0
- */
-public final class NullInstantiator extends BeanInstantiator {
-  public static final NullInstantiator INSTANCE = new NullInstantiator();
-
-  @Override
-  public Object doInstantiate(final Object[] args) {
-    return null;
-  }
-
-}
+import org.jspecify.annotations.NullMarked;

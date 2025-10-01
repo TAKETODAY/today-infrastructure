@@ -17,11 +17,11 @@
 
 package infra.context.properties.source;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-
-import infra.lang.Nullable;
 
 /**
  * A filtered {@link IterableConfigurationPropertySource}.
@@ -35,14 +35,14 @@ class FilteredIterableConfigurationPropertiesSource extends FilteredConfiguratio
         implements IterableConfigurationPropertySource {
 
   @Nullable
-  private ConfigurationPropertyName[] filteredNames;
+  private ConfigurationPropertyName @Nullable [] filteredNames;
 
   private int numerOfFilteredNames;
 
-  FilteredIterableConfigurationPropertiesSource(IterableConfigurationPropertySource source,
-          Predicate<ConfigurationPropertyName> filter) {
+  @SuppressWarnings("NullAway")
+  FilteredIterableConfigurationPropertiesSource(IterableConfigurationPropertySource source, Predicate<ConfigurationPropertyName> filter) {
     super(source, filter);
-    ConfigurationPropertyName[] filterableNames = getFilterableNames(source);
+    @Nullable ConfigurationPropertyName[] filterableNames = getFilterableNames(source);
     if (filterableNames != null) {
       this.filteredNames = new ConfigurationPropertyName[filterableNames.length];
       this.numerOfFilteredNames = 0;
@@ -58,7 +58,7 @@ class FilteredIterableConfigurationPropertiesSource extends FilteredConfiguratio
   }
 
   @Nullable
-  private ConfigurationPropertyName[] getFilterableNames(IterableConfigurationPropertySource source) {
+  private ConfigurationPropertyName @Nullable [] getFilterableNames(IterableConfigurationPropertySource source) {
     if (source instanceof DefaultIterableConfigurationPropertySource dicps && dicps.isImmutablePropertySource()) {
       return dicps.getConfigurationPropertyNames();
     }
@@ -69,6 +69,7 @@ class FilteredIterableConfigurationPropertiesSource extends FilteredConfiguratio
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public Stream<ConfigurationPropertyName> stream() {
     if (this.filteredNames != null) {
       return Arrays.stream(this.filteredNames, 0, this.numerOfFilteredNames);
@@ -82,6 +83,7 @@ class FilteredIterableConfigurationPropertiesSource extends FilteredConfiguratio
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public ConfigurationPropertyState containsDescendantOf(ConfigurationPropertyName name) {
     if (this.filteredNames != null) {
       return ConfigurationPropertyState.search(this.filteredNames,

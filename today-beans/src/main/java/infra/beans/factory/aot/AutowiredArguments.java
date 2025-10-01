@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,9 @@
 
 package infra.beans.factory.aot;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**
@@ -26,6 +27,7 @@ import infra.util.ClassUtils;
  *
  * @author Phillip Webb
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see BeanInstanceSupplier
  * @see AutowiredMethodArgumentsResolver
  * @since 4.0
@@ -81,6 +83,7 @@ public interface AutowiredArguments {
    *
    * @return the arguments as an object array
    */
+  @Nullable
   Object[] toArray();
 
   /**
@@ -90,7 +93,7 @@ public interface AutowiredArguments {
    * @param arguments the arguments
    * @return a new {@link AutowiredArguments} instance
    */
-  static AutowiredArguments of(Object[] arguments) {
+  static AutowiredArguments of(@Nullable Object[] arguments) {
     Assert.notNull(arguments, "'arguments' is required");
     return () -> arguments;
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.http;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -27,7 +29,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.DataSize;
 import infra.util.MultiValueMap;
@@ -205,6 +206,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;
@@ -600,8 +602,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
     @Nullable
     private final String uriTemplate;
 
-    @Nullable
-    private final Object[] uriVarsArray;
+    private final Object @Nullable [] uriVarsArray;
 
     @Nullable
     private final Map<String, ?> uriVarsMap;
@@ -617,7 +618,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
       this.uriVarsMap = null;
     }
 
-    DefaultBodyBuilder(HttpMethod method, @Nullable String uriTemplate, @Nullable Object... uriVars) {
+    DefaultBodyBuilder(HttpMethod method, @Nullable String uriTemplate, Object @Nullable ... uriVars) {
       this.method = method;
       this.uri = null;
       this.uriTemplate = uriTemplate;
@@ -760,15 +761,14 @@ public class RequestEntity<T> extends HttpEntity<T> {
 
     private final String uriTemplate;
 
-    @Nullable
-    private final Object[] uriVarsArray;
+    private final Object @Nullable [] uriVarsArray;
 
     @Nullable
     private final Map<String, ?> uriVarsMap;
 
     UriTemplateRequestEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers,
             @Nullable HttpMethod method, @Nullable Type type, String uriTemplate,
-            @Nullable Object[] uriVarsArray, @Nullable Map<String, ?> uriVarsMap) {
+            Object @Nullable [] uriVarsArray, @Nullable Map<String, ?> uriVarsMap) {
 
       super(body, headers, method, null, type);
       this.uriTemplate = uriTemplate;
@@ -780,8 +780,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
       return this.uriTemplate;
     }
 
-    @Nullable
-    public Object[] getVars() {
+    public Object @Nullable [] getVars() {
       return this.uriVarsArray;
     }
 
@@ -791,6 +790,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public boolean equals(@Nullable Object other) {
       if (this == other) {
         return true;

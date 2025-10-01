@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.jmx.export.assembler;
+
+import org.jspecify.annotations.Nullable;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
@@ -36,7 +38,6 @@ import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.ParameterNameDiscoverer;
 import infra.jmx.export.metadata.AbstractJmxAttribute;
 import infra.jmx.support.JmxUtils;
-import infra.lang.Nullable;
 
 /**
  * Builds on the {@link AbstractMBeanInfoAssembler} superclass to
@@ -523,7 +524,7 @@ public abstract class AbstractReflectiveMBeanInfoAssembler extends AbstractMBean
    */
   protected MBeanParameterInfo[] getOperationParameters(Method method, String beanKey) {
     ParameterNameDiscoverer paramNameDiscoverer = getParameterNameDiscoverer();
-    String[] paramNames = (paramNameDiscoverer != null ? paramNameDiscoverer.getParameterNames(method) : null);
+    @Nullable String[] paramNames = (paramNameDiscoverer != null ? paramNameDiscoverer.getParameterNames(method) : null);
     if (paramNames == null) {
       return new MBeanParameterInfo[0];
     }

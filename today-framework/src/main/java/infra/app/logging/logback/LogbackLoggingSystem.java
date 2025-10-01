@@ -17,6 +17,7 @@
 
 package infra.app.logging.logback;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +63,6 @@ import infra.core.annotation.Order;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
 import infra.core.io.Resource;
-import infra.lang.Nullable;
 import infra.lang.VisibleForTesting;
 import infra.logging.SLF4JBridgeHandler;
 import infra.util.ClassUtils;
@@ -78,6 +78,7 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanFactoryInitializationAotProcessor {
 
   private static final String CONFIGURATION_FILE_PROPERTY = "logback.configurationFile";
@@ -346,7 +347,7 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
   }
 
   @Nullable
-  private LoggerConfiguration getLoggerConfiguration(@Nullable ch.qos.logback.classic.Logger logger) {
+  private LoggerConfiguration getLoggerConfiguration(ch.qos.logback.classic.@Nullable Logger logger) {
     if (logger == null) {
       return null;
     }

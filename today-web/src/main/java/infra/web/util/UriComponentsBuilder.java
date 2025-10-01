@@ -17,6 +17,8 @@
 
 package infra.web.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -33,7 +35,6 @@ import java.util.regex.Pattern;
 
 import infra.http.HttpRequest;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
@@ -232,6 +233,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
     return ForwardedHeaderUtils.adaptFromForwardedHeaders(request.getURI(), request.getHeaders());
   }
 
+  @SuppressWarnings("NullAway")
   public static UriComponentsBuilder forCurrentRequest() {
     return forHttpRequest(RequestContextHolder.get());
   }
@@ -601,7 +603,8 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
   }
 
   @Override
-  public UriComponentsBuilder queryParam(String name, @Nullable Object... values) {
+  @SuppressWarnings("NullAway")
+  public UriComponentsBuilder queryParam(String name, @Nullable Object @Nullable ... values) {
     Assert.notNull(name, "Name is required");
     if (ObjectUtils.isNotEmpty(values)) {
       for (Object value : values) {

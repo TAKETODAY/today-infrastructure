@@ -17,6 +17,8 @@
 
 package infra.persistence;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -25,7 +27,6 @@ import java.util.stream.Stream;
 
 import infra.core.Pair;
 import infra.dao.DataAccessException;
-import infra.lang.Nullable;
 import infra.util.StreamIterable;
 
 /**

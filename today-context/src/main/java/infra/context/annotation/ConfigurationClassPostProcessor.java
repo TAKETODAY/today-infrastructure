@@ -17,6 +17,8 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.reflect.Constructor;
@@ -104,7 +106,6 @@ import infra.javapoet.MethodSpec;
 import infra.javapoet.NameAllocator;
 import infra.javapoet.ParameterizedTypeName;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.stereotype.Component;
@@ -278,6 +279,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
 
   @Override
   @Nullable
+  @SuppressWarnings("NullAway")
   public BeanFactoryInitializationAotContribution processAheadOfTime(ConfigurableBeanFactory beanFactory) {
     boolean hasPropertySourceDescriptors = CollectionUtils.isNotEmpty(this.propertySourceDescriptors);
     boolean hasImportRegistry = beanFactory.containsBean(IMPORT_REGISTRY_BEAN_NAME);
@@ -511,6 +513,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
     }
 
     @Override
+    @Nullable
     public PropertyValues processDependencies(@Nullable PropertyValues propertyValues, Object bean, String beanName) {
       // postProcessDependencies method attempts to autowire other configuration beans.
       if (bean instanceof EnhancedConfiguration enhancedConfiguration) {
@@ -609,10 +612,10 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
 
     private final List<PropertySourceDescriptor> descriptors;
 
-    private final Function<String, Resource> resourceResolver;
+    private final Function<String, @Nullable Resource> resourceResolver;
 
     PropertySourcesAotContribution(List<PropertySourceDescriptor> descriptors,
-            Function<String, Resource> resourceResolver) {
+            Function<String, @Nullable Resource> resourceResolver) {
       this.descriptors = descriptors;
       this.resourceResolver = resourceResolver;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.beans.factory.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyEditor;
 import java.util.Map;
 
@@ -24,7 +26,6 @@ import infra.beans.BeansException;
 import infra.beans.PropertyEditorRegistrar;
 import infra.beans.PropertyEditorRegistry;
 import infra.core.Ordered;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
@@ -101,8 +102,7 @@ public class CustomEditorConfigurer implements BeanFactoryPostProcessor, Ordered
 
   private int order = Ordered.LOWEST_PRECEDENCE;  // default: same as non-Ordered
 
-  @Nullable
-  private PropertyEditorRegistrar[] propertyEditorRegistrars;
+  private PropertyEditorRegistrar @Nullable [] propertyEditorRegistrars;
 
   @Nullable
   private Map<Class<?>, Class<? extends PropertyEditor>> customEditors;

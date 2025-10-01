@@ -17,6 +17,8 @@
 
 package infra.http;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -31,7 +33,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.StreamUtils;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;

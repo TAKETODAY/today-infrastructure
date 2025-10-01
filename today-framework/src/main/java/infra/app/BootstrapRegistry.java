@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 package infra.app;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Supplier;
 
 import infra.context.ApplicationContext;
 import infra.context.ApplicationListener;
 import infra.core.env.Environment;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * A simple object registry that is available during startup and {@link Environment}
@@ -85,6 +86,7 @@ public interface BootstrapRegistry {
    * @param type the instance type
    * @return the registered {@link InstanceSupplier} or {@code null}
    */
+  @Nullable
   <T> InstanceSupplier<T> getRegisteredInstanceSupplier(Class<T> type);
 
   /**
@@ -112,6 +114,7 @@ public interface BootstrapRegistry {
      * bootstrap instances.
      * @return the instance
      */
+    @Nullable
     T get(BootstrapContext context);
 
     /**
@@ -134,6 +137,7 @@ public interface BootstrapRegistry {
       InstanceSupplier<T> parent = this;
       return new InstanceSupplier<>() {
 
+        @Nullable
         @Override
         public T get(BootstrapContext context) {
           return parent.get(context);

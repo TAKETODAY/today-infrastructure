@@ -17,6 +17,7 @@
 
 package infra.core;
 
+import org.jspecify.annotations.Nullable;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -40,7 +41,6 @@ import java.util.stream.Collectors;
 import infra.core.io.Resource;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;
@@ -250,7 +250,7 @@ public class YamlProcessor {
       }
       else {
         // It has to be a map key in this case
-        result.put("[" + key.toString() + "]", value);
+        result.put("[" + key + "]", value);
       }
     }
     return result;

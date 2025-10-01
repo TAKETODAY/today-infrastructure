@@ -18,9 +18,7 @@
 /**
  * Generic abstraction for working with byte buffer implementations.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.core.io.buffer;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

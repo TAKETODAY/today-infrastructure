@@ -17,6 +17,8 @@
 
 package infra.http.client.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -32,7 +34,6 @@ import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.ClientHttpRequestInitializer;
 import infra.http.client.JdkClientHttpRequestFactory;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

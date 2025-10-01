@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ package infra.aop.framework.autoproxy;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
@@ -46,7 +47,6 @@ import infra.context.ApplicationContextAware;
 import infra.context.MessageSource;
 import infra.context.support.StaticApplicationContext;
 import infra.context.support.StaticMessageSource;
-import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -395,8 +395,7 @@ public class AutoProxyCreatorTests {
     }
 
     @Override
-    @Nullable
-    protected Object[] getAdvicesAndAdvisorsForBean(Class<?> beanClass, String name, @Nullable TargetSource customTargetSource) {
+    protected Object @Nullable [] getAdvicesAndAdvisorsForBean(Class<?> beanClass, String name, @Nullable TargetSource customTargetSource) {
       if (StaticMessageSource.class.equals(beanClass)) {
         return AbstractAutoProxyCreator.DO_NOT_PROXY;
       }

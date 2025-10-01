@@ -20,9 +20,7 @@
  *
  * @see infra.app.logging.LoggingSystem
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.app.logging;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

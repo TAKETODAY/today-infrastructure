@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,8 +50,7 @@ import java.util.function.Predicate;
 
 import infra.core.ArraySizeTrimmer;
 import infra.lang.Assert;
-import infra.lang.NonNull;
-import infra.lang.Nullable;
+import infra.lang.Contract;
 
 /**
  * @author TODAY 2019-12-29 23:39
@@ -101,6 +102,7 @@ public abstract class CollectionUtils {
    * @param collection the Collection to check
    * @return whether the given Collection is empty
    */
+  @Contract("null -> true")
   public static boolean isEmpty(@Nullable Collection<?> collection) {
     return collection == null || collection.isEmpty();
   }
@@ -108,6 +110,7 @@ public abstract class CollectionUtils {
   /**
    * @since 4.0
    */
+  @Contract("null -> false")
   public static boolean isNotEmpty(@Nullable Collection<?> collection) {
     return collection != null && !collection.isEmpty();
   }
@@ -120,6 +123,7 @@ public abstract class CollectionUtils {
    * @return whether the given ArrayHolder is not empty
    * @since 4.0
    */
+  @Contract("null -> false")
   public static boolean isNotEmpty(@Nullable ArrayHolder<?> holder) {
     return holder != null && !holder.isEmpty();
   }
@@ -132,6 +136,7 @@ public abstract class CollectionUtils {
    * @return whether the given ArrayHolder is empty
    * @since 4.0
    */
+  @Contract("null -> true")
   public static boolean isEmpty(@Nullable ArrayHolder<?> holder) {
     return holder == null || holder.isEmpty();
   }
@@ -143,6 +148,7 @@ public abstract class CollectionUtils {
    * @param map the Map to check
    * @return whether the given Map is empty
    */
+  @Contract("null -> true")
   public static boolean isEmpty(@Nullable Map<?, ?> map) {
     return map == null || map.isEmpty();
   }
@@ -150,6 +156,7 @@ public abstract class CollectionUtils {
   /**
    * @since 4.0
    */
+  @Contract("null -> false")
   public static boolean isNotEmpty(@Nullable Map<?, ?> map) {
     return map != null && !map.isEmpty();
   }
@@ -164,7 +171,8 @@ public abstract class CollectionUtils {
    * @param elements Elements instance
    */
   @SafeVarargs
-  public static <E> HashSet<E> newHashSet(@Nullable E... elements) {
+  @SuppressWarnings("NullAway")
+  public static <E> HashSet<E> newHashSet(@Nullable E @Nullable ... elements) {
     if (ObjectUtils.isNotEmpty(elements)) {
       HashSet<E> ret = new HashSet<>(Math.max((int) (elements.length / DEFAULT_LOAD_FACTOR) + 1, 16));
       addAll(ret, elements);
@@ -186,7 +194,8 @@ public abstract class CollectionUtils {
    * @since 4.0
    */
   @SafeVarargs
-  public static <E> LinkedHashSet<E> newLinkedHashSet(@Nullable E... elements) {
+  @SuppressWarnings("NullAway")
+  public static <E> LinkedHashSet<E> newLinkedHashSet(@Nullable E @Nullable ... elements) {
     if (ObjectUtils.isNotEmpty(elements)) {
       LinkedHashSet<E> ret = new LinkedHashSet<>(Math.max((int) (elements.length / DEFAULT_LOAD_FACTOR) + 1, 16));
       addAll(ret, elements);
@@ -203,9 +212,9 @@ public abstract class CollectionUtils {
    * @return ArrayLost of input elements
    * @since 4.0
    */
-  @NonNull
   @SafeVarargs
-  public static <E> ArrayList<E> newArrayList(@Nullable E... elements) {
+  @SuppressWarnings("NullAway")
+  public static <E> ArrayList<E> newArrayList(@Nullable E @Nullable ... elements) {
     if (ObjectUtils.isNotEmpty(elements)) {
       final ArrayList<E> ret = new ArrayList<>(elements.length);
       addAll(ret, elements);
@@ -463,7 +472,7 @@ public abstract class CollectionUtils {
    * {@link EnumMap}
    * @since 3.0
    */
-  public static <K, V> Map<K, V> createMap(@NonNull Class<?> mapType) {
+  public static <K, V> Map<K, V> createMap(Class<?> mapType) {
     return createMap(mapType, null, 0);
   }
 
@@ -675,6 +684,7 @@ public abstract class CollectionUtils {
    * @since 4.0
    */
   @Nullable
+  @Contract("null -> null")
   public static <T> T getElement(@Nullable final List<T> list, final int index) {
     if (list != null && index >= 0 && index < list.size()) {
       return list.get(index);
@@ -692,7 +702,8 @@ public abstract class CollectionUtils {
    * @since 4.0
    */
   @Nullable
-  public static <T> T getElement(@Nullable final T[] array, final int index) {
+  @Contract("null -> null")
+  public static <T> T getElement(@Nullable final T @Nullable [] array, final int index) {
     if (array != null && index >= 0 && index < array.length) {
       return array[index];
     }
@@ -726,7 +737,7 @@ public abstract class CollectionUtils {
    * @since 4.0
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public static void addAll(Collection c, @Nullable Object[] elements) {
+  public static void addAll(Collection c, @Nullable Object @Nullable [] elements) {
     if (elements != null) {
       for (Object element : elements) {
         c.add(element);
@@ -795,8 +806,8 @@ public abstract class CollectionUtils {
   /**
    * @since 4.0
    */
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  public static void addAll(ArrayHolder c, @Nullable Object[] elements) {
+  @SuppressWarnings({ "rawtypes", "unchecked", "NullAway" })
+  public static void addAll(ArrayHolder c, @Nullable Object @Nullable [] elements) {
     if (elements != null) {
       c.addAll(elements);
     }
@@ -897,7 +908,7 @@ public abstract class CollectionUtils {
    * @see Collection#removeIf(Predicate)
    * @since 4.0
    */
-  public static <T> void filter(Collection<T> collection, Predicate<? super T> predicate) {
+  public static <T> void filter(Collection<T> collection, Predicate<? super @Nullable T> predicate) {
     collection.removeIf(predicate.negate());
   }
 
@@ -959,6 +970,7 @@ public abstract class CollectionUtils {
    * @since 4.0
    */
   @Nullable
+  @Contract("null -> null")
   public static <T> T firstElement(@Nullable Iterable<T> iterable) {
     if (iterable == null
             || iterable instanceof Collection && ((Collection<T>) iterable).isEmpty()) {
@@ -984,6 +996,7 @@ public abstract class CollectionUtils {
    * @since 4.0
    */
   @Nullable
+  @Contract("null -> null")
   public static <T> T firstElement(@Nullable List<T> list) {
     return getElement(list, 0);
   }
@@ -996,7 +1009,8 @@ public abstract class CollectionUtils {
    * @since 4.0
    */
   @Nullable
-  public static <T> T firstElement(@Nullable final T[] array) {
+  @Contract("null -> null")
+  public static <T> T firstElement(@Nullable final T @Nullable [] array) {
     return getElement(array, 0);
   }
 
@@ -1008,6 +1022,7 @@ public abstract class CollectionUtils {
    * @since 4.0
    */
   @Nullable
+  @Contract("null -> null")
   public static <T> T lastElement(@Nullable List<T> list) {
     if (isEmpty(list)) {
       return null;
@@ -1023,7 +1038,8 @@ public abstract class CollectionUtils {
    * @since 4.0
    */
   @Nullable
-  public static <T> T lastElement(@Nullable final T[] array) {
+  @Contract("null -> null")
+  public static <T extends @Nullable Object> T lastElement(@Nullable final T @Nullable [] array) {
     if (array == null || array.length == 0) {
       return null;
     }
@@ -1042,6 +1058,7 @@ public abstract class CollectionUtils {
    * @since 4.0
    */
   @Nullable
+  @Contract("null -> null")
   public static <T> T lastElement(@Nullable Set<T> set) {
     if (isEmpty(set)) {
       return null;

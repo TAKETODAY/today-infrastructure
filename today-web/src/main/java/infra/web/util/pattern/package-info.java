@@ -6,9 +6,7 @@
  * {@link infra.web.util.pattern.PathPattern infra.web.util.pattern.PathPatterns} that can then be
  * used for matching purposes at request time.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.util.pattern;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

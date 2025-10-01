@@ -17,6 +17,8 @@
 
 package infra.web.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -56,7 +58,6 @@ import infra.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
 import infra.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import infra.http.converter.yaml.MappingJackson2YamlHttpMessageConverter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.MimeTypeUtils;
 import infra.web.util.AbstractUriTemplateHandler;
@@ -614,8 +615,9 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
   private URI resolveUrl(RequestEntity<?> entity) {
     if (entity instanceof RequestEntity.UriTemplateRequestEntity<?> ext) {
-      if (ext.getVars() != null) {
-        return this.uriTemplateHandler.expand(ext.getUriTemplate(), ext.getVars());
+      Object[] vars = ext.getVars();
+      if (vars != null) {
+        return this.uriTemplateHandler.expand(ext.getUriTemplate(), vars);
       }
       else if (ext.getVarsMap() != null) {
         return this.uriTemplateHandler.expand(ext.getUriTemplate(), ext.getVarsMap());

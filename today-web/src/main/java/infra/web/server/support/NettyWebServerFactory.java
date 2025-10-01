@@ -17,11 +17,12 @@
 
 package infra.web.server.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.InetSocketAddress;
 import java.util.List;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.web.server.AbstractConfigurableWebServerFactory;
 import infra.web.server.GenericWebServerFactory;
 import infra.web.server.ServerProperties.Netty;

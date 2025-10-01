@@ -17,6 +17,8 @@
 
 package infra.web.server;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -27,7 +29,6 @@ import infra.context.properties.ConfigurationProperties;
 import infra.context.properties.NestedConfigurationProperty;
 import infra.core.ApplicationTemp;
 import infra.core.ssl.SslBundles;
-import infra.lang.Nullable;
 import infra.util.DataSize;
 import infra.web.server.error.ErrorProperties;
 import io.netty.channel.EventLoopGroup;
@@ -359,6 +360,7 @@ public class ServerProperties {
     /**
      * Connection timeout of the Netty channel.
      */
+    @Nullable
     public Duration connectionTimeout;
 
     /**
@@ -390,6 +392,7 @@ public class ServerProperties {
      * Maximum number of requests that can be made per connection. By default, a
      * connection serves unlimited number of requests.
      */
+    @Nullable
     public Integer maxKeepAliveRequests;
 
     /**
@@ -401,6 +404,7 @@ public class ServerProperties {
      * Idle timeout of the Netty channel. When not specified, an infinite timeout is
      * used.
      */
+    @Nullable
     public Duration idleTimeout;
 
   }

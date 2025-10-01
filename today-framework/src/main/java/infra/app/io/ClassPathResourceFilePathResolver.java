@@ -17,10 +17,11 @@
 
 package infra.app.io;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
-import infra.lang.Nullable;
 
 /**
  * {@link FilePathResolver} for {@link ClassPathResource}.

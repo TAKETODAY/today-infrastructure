@@ -17,6 +17,8 @@
 
 package infra.context;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
@@ -62,7 +64,6 @@ import infra.core.type.classreading.MetadataReader;
 import infra.core.type.classreading.MetadataReaderFactory;
 import infra.lang.Assert;
 import infra.lang.ClassInstantiator;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.util.CollectionUtils;
 
@@ -311,6 +312,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
    * @see ConstructorNotFoundException If there is no suitable constructor
    */
   @Override
+  @SuppressWarnings("NullAway")
   public <T> T instantiate(Class<T> clazz) {
     Assert.notNull(clazz, "Class is required");
     if (clazz.isInterface()) {
@@ -321,7 +323,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
     try {
       int i = 0;
       Parameter[] parameters = constructor.getParameters();
-      Object[] args = new Object[parameters.length];
+      @Nullable Object[] args = new Object[parameters.length];
       for (Parameter parameter : parameters) {
         Object arg = findProvided(parameter);
         args[i++] = arg;
@@ -386,6 +388,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
     throw new IllegalStateException("Illegal method parameter type: " + parameterType.getName());
   }
 
+  @SuppressWarnings("NullAway")
   private void invokeAwareMethods(Object bean) {
     if (bean instanceof Aware) {
       if (bean instanceof BeanClassLoaderAware aware) {
@@ -462,6 +465,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
   /**
    * Return the MetadataReaderFactory used by this component provider.
    */
+  @SuppressWarnings("NullAway")
   public final MetadataReaderFactory getMetadataReaderFactory() {
     if (this.metadataReaderFactory == null) {
       // try to bind ResourceLoader to MetadataReaderFactory

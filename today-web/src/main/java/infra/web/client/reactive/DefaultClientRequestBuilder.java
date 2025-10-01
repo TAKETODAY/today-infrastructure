@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.web.client.reactive;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.net.URI;
@@ -36,7 +37,6 @@ import infra.http.client.reactive.ClientHttpRequest;
 import infra.http.codec.HttpMessageWriter;
 import infra.http.server.reactive.ServerHttpRequest;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
@@ -256,6 +256,7 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
     }
 
     @Override
+    @Nullable
     public Consumer<ClientHttpRequest> httpRequest() {
       return this.httpRequestConsumer;
     }

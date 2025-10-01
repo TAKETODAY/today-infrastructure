@@ -17,6 +17,8 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -33,7 +35,6 @@ import infra.core.ParameterizedTypeReference;
 import infra.core.ResolvableType;
 import infra.core.env.Environment;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 
 /**
@@ -146,9 +147,8 @@ public class BeanRegistryAdapter implements BeanRegistry {
       super(original);
     }
 
-    @Nullable
     @Override
-    public Constructor<?>[] getPreferredConstructors() {
+    public Constructor<?> @Nullable [] getPreferredConstructors() {
       if (this.getInstanceSupplier() != null) {
         return null;
       }

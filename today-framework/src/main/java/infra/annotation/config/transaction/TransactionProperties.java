@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.annotation.config.transaction;
+
+import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -40,14 +42,17 @@ public class TransactionProperties implements PlatformTransactionManagerCustomiz
    * Default transaction timeout. If a duration suffix is not specified, seconds will be
    * used.
    */
+  @Nullable
   @DurationUnit(ChronoUnit.SECONDS)
   private Duration defaultTimeout;
 
   /**
    * Whether to roll back on commit failures.
    */
+  @Nullable
   private Boolean rollbackOnCommitFailure;
 
+  @Nullable
   public Duration getDefaultTimeout() {
     return this.defaultTimeout;
   }
@@ -56,6 +61,7 @@ public class TransactionProperties implements PlatformTransactionManagerCustomiz
     this.defaultTimeout = defaultTimeout;
   }
 
+  @Nullable
   public Boolean getRollbackOnCommitFailure() {
     return this.rollbackOnCommitFailure;
   }

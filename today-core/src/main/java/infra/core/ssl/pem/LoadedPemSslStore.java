@@ -17,16 +17,16 @@
 
 package infra.core.ssl.pem;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.List;
-import java.util.function.Supplier;
 
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.function.SingletonSupplier;
 import infra.util.function.ThrowingSupplier;
@@ -45,10 +45,11 @@ final class LoadedPemSslStore implements PemSslStore {
 
   private final ResourceLoader resourceLoader;
 
-  private final Supplier<List<X509Certificate>> certificatesSupplier;
+  private final SingletonSupplier<List<X509Certificate>> certificatesSupplier;
 
-  private final Supplier<PrivateKey> privateKeySupplier;
+  private final SingletonSupplier<PrivateKey> privateKeySupplier;
 
+  @SuppressWarnings("NullAway")
   LoadedPemSslStore(PemSslStoreDetails details, ResourceLoader resourceLoader) {
     Assert.notNull(details, "Details is required");
     Assert.notNull(resourceLoader, "ResourceLoader is required");
@@ -58,7 +59,7 @@ final class LoadedPemSslStore implements PemSslStore {
     this.privateKeySupplier = supplier(() -> loadPrivateKey(details, resourceLoader));
   }
 
-  private static <T> Supplier<T> supplier(ThrowingSupplier<T> supplier) {
+  private static <T> SingletonSupplier<T> supplier(ThrowingSupplier<T> supplier) {
     return SingletonSupplier.from(supplier.throwing(LoadedPemSslStore::asUncheckedIOException));
   }
 
@@ -101,11 +102,13 @@ final class LoadedPemSslStore implements PemSslStore {
     return this.details.password();
   }
 
+  @Nullable
   @Override
   public List<X509Certificate> certificates() {
     return this.certificatesSupplier.get();
   }
 
+  @Nullable
   @Override
   public PrivateKey privateKey() {
     return this.privateKeySupplier.get();

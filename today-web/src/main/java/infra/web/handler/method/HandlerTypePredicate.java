@@ -17,6 +17,8 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,7 +28,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import infra.core.annotation.AnnotatedElementUtils;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
@@ -198,7 +199,7 @@ public final class HandlerTypePredicate implements Predicate<Class<?>> {
      *
      * @param types one or more handler super types
      */
-    public Builder assignableType(@Nullable Class<?>... types) {
+    public Builder assignableType(Class<?> @Nullable ... types) {
       CollectionUtils.addAll(this.assignableTypes, types);
       return this;
     }
@@ -209,7 +210,7 @@ public final class HandlerTypePredicate implements Predicate<Class<?>> {
      * @param annotations one or more annotations to check for
      */
     @SuppressWarnings("unchecked")
-    public final Builder annotation(@Nullable Class<? extends Annotation>... annotations) {
+    public final Builder annotation(Class<? extends Annotation> @Nullable ... annotations) {
       CollectionUtils.addAll(this.annotations, annotations);
       return this;
     }

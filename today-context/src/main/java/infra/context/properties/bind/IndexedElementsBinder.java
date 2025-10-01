@@ -17,6 +17,8 @@
 
 package infra.context.properties.bind;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,7 +33,6 @@ import infra.context.properties.source.ConfigurationPropertyName.Form;
 import infra.context.properties.source.ConfigurationPropertySource;
 import infra.context.properties.source.IterableConfigurationPropertySource;
 import infra.core.ResolvableType;
-import infra.lang.Nullable;
 
 /**
  * Base class for {@link AggregateBinder AggregateBinders} that read a sequential run of

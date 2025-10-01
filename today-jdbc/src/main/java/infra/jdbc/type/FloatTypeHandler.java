@@ -17,6 +17,8 @@
 
 package infra.jdbc.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -32,18 +34,21 @@ public class FloatTypeHandler extends BasicTypeHandler<Float> {
     ps.setFloat(i, arg);
   }
 
+  @Nullable
   @Override
   public Float getResult(ResultSet rs, String columnName) throws SQLException {
     float result = rs.getFloat(columnName);
     return result == 0 && rs.wasNull() ? null : result;
   }
 
+  @Nullable
   @Override
   public Float getResult(ResultSet rs, int columnIndex) throws SQLException {
     float result = rs.getFloat(columnIndex);
     return result == 0 && rs.wasNull() ? null : result;
   }
 
+  @Nullable
   @Override
   public Float getResult(CallableStatement cs, int columnIndex) throws SQLException {
     float result = cs.getFloat(columnIndex);

@@ -17,6 +17,8 @@
 
 package infra.annotation.config.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import javax.sql.DataSource;
 
 import infra.annotation.config.transaction.TransactionAutoConfiguration;
@@ -33,7 +35,6 @@ import infra.core.env.Environment;
 import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.datasource.DataSourceTransactionManager;
 import infra.jdbc.support.JdbcTransactionManager;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.transaction.TransactionManager;
 

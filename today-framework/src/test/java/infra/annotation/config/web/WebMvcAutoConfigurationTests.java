@@ -17,6 +17,7 @@
 
 package infra.annotation.config.web;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -61,7 +62,6 @@ import infra.http.CacheControl;
 import infra.http.HttpHeaders;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters;
-import infra.lang.Nullable;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.test.util.ReflectionTestUtils;
 import infra.util.StringUtils;

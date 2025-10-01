@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,9 @@
 
 package infra.web.bind;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.http.ProblemDetail;
-import infra.lang.Nullable;
 
 /**
  * Base class for {@link RequestBindingException} exceptions that could
@@ -57,7 +58,7 @@ public class MissingRequestValueException extends RequestBindingException {
    * @since 5.0
    */
   protected MissingRequestValueException(String msg, boolean missingAfterConversion,
-          @Nullable String messageDetailCode, @Nullable Object[] messageDetailArguments) {
+          @Nullable String messageDetailCode, Object @Nullable [] messageDetailArguments) {
 
     super(msg, messageDetailCode, messageDetailArguments);
     this.missingAfterConversion = missingAfterConversion;

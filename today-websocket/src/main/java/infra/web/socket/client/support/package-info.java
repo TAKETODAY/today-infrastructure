@@ -21,9 +21,7 @@
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0 2024/5/3 09:29
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.socket.client.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

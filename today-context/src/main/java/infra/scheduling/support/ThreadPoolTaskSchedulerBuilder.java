@@ -17,6 +17,8 @@
 
 package infra.scheduling.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,7 +27,6 @@ import java.util.Set;
 
 import infra.core.task.TaskDecorator;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.scheduling.concurrent.ThreadPoolTaskScheduler;
 import infra.util.CollectionUtils;
 

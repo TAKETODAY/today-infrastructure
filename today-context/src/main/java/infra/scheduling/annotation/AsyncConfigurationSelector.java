@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,10 @@
 
 package infra.scheduling.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.context.annotation.AdviceMode;
 import infra.context.annotation.AdviceModeImportSelector;
-import infra.lang.Nullable;
 
 /**
  * Selects which implementation of {@link AbstractAsyncConfiguration} should
@@ -43,8 +44,7 @@ public class AsyncConfigurationSelector extends AdviceModeImportSelector<EnableA
    * respectively.
    */
   @Override
-  @Nullable
-  public String[] selectImports(AdviceMode adviceMode) {
+  public String @Nullable [] selectImports(AdviceMode adviceMode) {
     return switch (adviceMode) {
       case PROXY -> new String[] { ProxyAsyncConfiguration.class.getName() };
       case ASPECTJ -> new String[] { ASYNC_EXECUTION_ASPECT_CONFIGURATION_CLASS_NAME };

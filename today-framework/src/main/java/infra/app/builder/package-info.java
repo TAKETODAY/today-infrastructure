@@ -21,9 +21,7 @@
  *
  * @see infra.app.builder.ApplicationBuilder
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.app.builder;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

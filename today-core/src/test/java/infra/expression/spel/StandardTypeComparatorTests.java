@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@ import java.math.BigDecimal;
 import infra.expression.EvaluationException;
 import infra.expression.TypeComparator;
 import infra.expression.spel.support.StandardTypeComparator;
-import infra.lang.NonNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -144,7 +143,7 @@ public class StandardTypeComparatorTests {
     }
 
     @Override
-    public int compareTo(@NonNull ComparableType other) {
+    public int compareTo(ComparableType other) {
       return this.id - other.id;
     }
 

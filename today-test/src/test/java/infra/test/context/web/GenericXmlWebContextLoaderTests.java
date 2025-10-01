@@ -19,9 +19,6 @@ package infra.test.context.web;
 
 import org.junit.jupiter.api.Test;
 
-import infra.test.context.web.GenericXmlWebContextLoader;
-import infra.test.context.web.WebMergedContextConfiguration;
-
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**

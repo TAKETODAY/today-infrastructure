@@ -17,6 +17,8 @@
 
 package infra.jdbc.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -45,7 +47,6 @@ import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.lang.Assert;
 import infra.lang.Enumerable;
-import infra.lang.Nullable;
 
 /**
  * A manager for handling and resolving {@link TypeHandler} instances. This class provides
@@ -253,7 +254,7 @@ public class TypeHandlerManager implements TypeHandlerResolver {
     return unknownTypeHandler;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "NullAway" })
   public <T> void register(TypeHandler<T> typeHandler) {
     if (typeHandler instanceof SmartTypeHandler<T> smartTypeHandler) {
       smartTypeHandlers.add(smartTypeHandler);

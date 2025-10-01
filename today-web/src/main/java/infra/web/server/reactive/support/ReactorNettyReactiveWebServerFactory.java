@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.web.server.reactive.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.InetSocketAddress;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -29,7 +31,6 @@ import infra.http.client.ReactorResourceFactory;
 import infra.http.server.reactive.HttpHandler;
 import infra.http.server.reactive.ReactorHttpHandlerAdapter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.web.server.Compression;
 import infra.web.server.Shutdown;
@@ -154,11 +155,13 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
 
   private HttpServer createHttpServer() {
     HttpServer server = HttpServer.create().bindAddress(this::getListenAddress);
-    if (Ssl.isEnabled(getSsl())) {
-      server = customizeSslConfiguration(getSsl(), server);
+    Ssl ssl = getSsl();
+    if (Ssl.isEnabled(ssl)) {
+      server = customizeSslConfiguration(ssl, server);
     }
-    if (Compression.isEnabled(getCompression())) {
-      server = new CompressionCustomizer(getCompression()).apply(server);
+    Compression compression = getCompression();
+    if (Compression.isEnabled(compression)) {
+      server = new CompressionCustomizer(compression).apply(server);
     }
     server = server.protocol(listProtocols()).forwarded(this.useForwardHeaders);
     return applyCustomizers(server);

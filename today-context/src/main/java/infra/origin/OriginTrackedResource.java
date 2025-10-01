@@ -17,6 +17,8 @@
 
 package infra.origin;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
@@ -26,7 +28,6 @@ import java.util.Objects;
 import infra.core.io.Resource;
 import infra.core.io.ResourceDecorator;
 import infra.core.io.WritableResource;
-import infra.lang.Nullable;
 
 /**
  * Decorator that can be used to add {@link Origin} information to a {@link Resource} or

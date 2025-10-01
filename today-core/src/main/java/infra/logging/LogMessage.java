@@ -17,10 +17,11 @@
 
 package infra.logging;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Supplier;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * A simple log message type for use with Commons Logging, allowing
@@ -40,6 +41,7 @@ import infra.lang.Nullable;
  * @see Logger#trace(Object)
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public abstract class LogMessage {
 
   @Nullable

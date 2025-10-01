@@ -42,18 +42,19 @@ public class FixedDelayTask extends IntervalTask {
     super(runnable, interval, initialDelay);
   }
 
-	/**
-	 * Create a new {@code FixedDelayTask}.
-	 * @param runnable the underlying task to execute
-	 * @param interval how often the task should be executed
-	 * @param initialDelay the initial delay before first execution of the task
-	 */
-	public FixedDelayTask(Runnable runnable, Duration interval, Duration initialDelay) {
-		super(runnable, interval, initialDelay);
-	}
+  /**
+   * Create a new {@code FixedDelayTask}.
+   *
+   * @param runnable the underlying task to execute
+   * @param interval how often the task should be executed
+   * @param initialDelay the initial delay before first execution of the task
+   */
+  public FixedDelayTask(Runnable runnable, Duration interval, Duration initialDelay) {
+    super(runnable, interval, initialDelay);
+  }
 
-	FixedDelayTask(IntervalTask task) {
-		super(task);
-	}
+  FixedDelayTask(IntervalTask task) {
+    super(task);
+  }
 
 }

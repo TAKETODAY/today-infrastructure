@@ -17,13 +17,14 @@
 
 package infra.jdbc.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**
@@ -53,12 +54,14 @@ public class UnknownTypeHandler extends BasicTypeHandler<Object> {
     handler.setParameter(ps, i, arg);
   }
 
+  @Nullable
   @Override
   public Object getResult(ResultSet rs, String columnName) throws SQLException {
     TypeHandler<?> handler = resolveTypeHandler(rs, columnName);
     return handler.getResult(rs, columnName);
   }
 
+  @Nullable
   @Override
   public Object getResult(ResultSet rs, int columnIndex) throws SQLException {
     TypeHandler<?> handler = resolveTypeHandler(rs.getMetaData(), columnIndex);
@@ -68,11 +71,13 @@ public class UnknownTypeHandler extends BasicTypeHandler<Object> {
     return handler.getResult(rs, columnIndex);
   }
 
+  @Nullable
   @Override
   public Object getResult(CallableStatement cs, int columnIndex) throws SQLException {
     return cs.getObject(columnIndex);
   }
 
+  @SuppressWarnings("NullAway")
   protected TypeHandler<?> resolveTypeHandler(@Nullable Object parameter) {
     if (parameter == null) {
       return ObjectTypeHandler.sharedInstance;

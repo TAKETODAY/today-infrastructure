@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.jdbc.core.simple;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -116,7 +118,7 @@ public class SimpleJdbcCall extends AbstractJdbcCall implements SimpleJdbcCallOp
   }
 
   @Override
-  public SimpleJdbcCall declareParameters(SqlParameter... sqlParameters) {
+  public SimpleJdbcCall declareParameters(@Nullable SqlParameter... sqlParameters) {
     for (SqlParameter sqlParameter : sqlParameters) {
       if (sqlParameter != null) {
         addDeclaredParameter(sqlParameter);
@@ -150,37 +152,37 @@ public class SimpleJdbcCall extends AbstractJdbcCall implements SimpleJdbcCallOp
   }
 
   @Override
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "NullAway" })
   public <T> T executeFunction(Class<T> returnType, Object... args) {
     return (T) doExecute(args).get(getScalarOutParameterName());
   }
 
   @Override
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "NullAway" })
   public <T> T executeFunction(Class<T> returnType, Map<String, ?> args) {
     return (T) doExecute(args).get(getScalarOutParameterName());
   }
 
   @Override
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "NullAway" })
   public <T> T executeFunction(Class<T> returnType, SqlParameterSource args) {
     return (T) doExecute(args).get(getScalarOutParameterName());
   }
 
   @Override
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "NullAway" })
   public <T> T executeObject(Class<T> returnType, Object... args) {
     return (T) doExecute(args).get(getScalarOutParameterName());
   }
 
   @Override
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "NullAway" })
   public <T> T executeObject(Class<T> returnType, Map<String, ?> args) {
     return (T) doExecute(args).get(getScalarOutParameterName());
   }
 
   @Override
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "NullAway" })
   public <T> T executeObject(Class<T> returnType, SqlParameterSource args) {
     return (T) doExecute(args).get(getScalarOutParameterName());
   }

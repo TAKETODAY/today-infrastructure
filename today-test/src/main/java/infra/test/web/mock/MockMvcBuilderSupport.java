@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,12 @@
 
 package infra.test.web.mock;
 
+import org.jspecify.annotations.Nullable;
+
 import java.nio.charset.Charset;
 import java.util.List;
 
 import infra.context.ApplicationContext;
-import infra.lang.Nullable;
 import infra.mock.api.Filter;
 import infra.mock.web.MockMockConfig;
 import infra.test.web.mock.setup.DefaultMockMvcBuilder;

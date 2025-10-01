@@ -17,11 +17,12 @@
 
 package infra.context;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Locale;
 
 import infra.context.support.ReloadableResourceBundleMessageSource;
 import infra.context.support.ResourceBundleMessageSource;
-import infra.lang.Nullable;
 
 /**
  * Strategy interface for resolving messages, with support for the parameterization
@@ -60,7 +61,7 @@ public interface MessageSource {
    * @see java.text.MessageFormat
    */
   @Nullable
-  String getMessage(String code, @Nullable Object[] args, @Nullable String defaultMessage, @Nullable Locale locale);
+  String getMessage(String code, Object @Nullable [] args, @Nullable String defaultMessage, @Nullable Locale locale);
 
   /**
    * Try to resolve the message. Treat as an error if the message can't be found.
@@ -77,7 +78,7 @@ public interface MessageSource {
    * @see #getMessage(MessageSourceResolvable, Locale)
    * @see java.text.MessageFormat
    */
-  String getMessage(String code, @Nullable Object[] args, @Nullable Locale locale)
+  String getMessage(String code, Object @Nullable [] args, @Nullable Locale locale)
           throws NoSuchMessageException;
 
   /**

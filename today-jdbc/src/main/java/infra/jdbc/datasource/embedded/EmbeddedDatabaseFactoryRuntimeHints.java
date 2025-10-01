@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.jdbc.datasource.embedded;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
 
@@ -35,7 +37,7 @@ import infra.aot.hint.RuntimeHintsRegistrar;
 class EmbeddedDatabaseFactoryRuntimeHints implements RuntimeHintsRegistrar {
 
   @Override
-  public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+  public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
     hints.reflection().registerTypeIfPresent(classLoader,
             "infra.jdbc.datasource.embedded.EmbeddedDatabaseFactory$EmbeddedDataSourceProxy",
             builder -> builder

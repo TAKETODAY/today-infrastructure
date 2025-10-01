@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 package infra.beans.factory.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Properties;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import infra.beans.factory.BeanDefinitionStoreException;
 import infra.beans.factory.InitializingBean;
-import infra.lang.Nullable;
 
 /**
  * Subclass of PropertyPlaceholderConfigurer that supports JDK 1.4's

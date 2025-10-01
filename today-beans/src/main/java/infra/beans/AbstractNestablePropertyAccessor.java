@@ -17,6 +17,8 @@
 
 package infra.beans;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyChangeEvent;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -37,7 +39,6 @@ import infra.core.TypeDescriptor;
 import infra.core.conversion.ConversionException;
 import infra.core.conversion.ConverterNotFoundException;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;
@@ -88,16 +89,6 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
   /** Map with cached nested Accessors: nested path -> Accessor instance. */
   @Nullable
   private HashMap<String, AbstractNestablePropertyAccessor> nestedPropertyAccessors;
-
-  /**
-   * Create a new empty accessor. Wrapped instance needs to be set afterwards.
-   * Registers default editors.
-   *
-   * @see #setWrappedInstance
-   */
-  protected AbstractNestablePropertyAccessor() {
-    this(true);
-  }
 
   /**
    * Create a new empty accessor. Wrapped instance needs to be set afterwards.
@@ -285,7 +276,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     }
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings({ "unchecked", "rawtypes", "NullAway" })
   private void processKeyedProperty(PropertyTokenHolder tokens, PropertyValue pv) {
     Object propValue = getPropertyHoldingValue(tokens);
     PropertyHandler ph = getLocalPropertyHandler(tokens.actualName);
@@ -1074,8 +1065,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 
     public String canonicalName;
 
-    @Nullable
-    public String[] keys;
+    public String @Nullable [] keys;
   }
 
 }

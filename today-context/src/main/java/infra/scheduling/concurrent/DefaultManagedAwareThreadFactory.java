@@ -17,6 +17,8 @@
 
 package infra.scheduling.concurrent;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Properties;
 import java.util.concurrent.ThreadFactory;
 
@@ -27,7 +29,6 @@ import infra.jndi.JndiAccessor;
 import infra.jndi.JndiLocatorDelegate;
 import infra.jndi.JndiLocatorSupport;
 import infra.jndi.JndiTemplate;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

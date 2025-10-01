@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.app.test.context;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.lang.annotation.Annotation;
 import java.util.Collections;
@@ -28,7 +30,6 @@ import infra.beans.factory.annotation.AnnotatedBeanDefinition;
 import infra.context.annotation.ClassPathScanningCandidateComponentProvider;
 import infra.core.type.filter.AnnotationTypeFilter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**
@@ -95,6 +96,7 @@ public final class AnnotatedClassFinder {
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private Class<?> scanPackage(String source) {
     while (!source.isEmpty()) {
       Set<AnnotatedBeanDefinition> components = this.scanner.findCandidateComponents(source);

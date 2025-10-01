@@ -17,6 +17,7 @@
 
 package infra.app.env;
 
+import org.jspecify.annotations.Nullable;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -41,7 +42,6 @@ import java.util.regex.Pattern;
 
 import infra.core.YamlProcessor;
 import infra.core.io.Resource;
-import infra.lang.Nullable;
 import infra.origin.Origin;
 import infra.origin.OriginTrackedValue;
 import infra.origin.TextResourceOrigin;
@@ -108,6 +108,7 @@ class OriginTrackedYamlLoader extends YamlProcessor {
       return data;
     }
 
+    @Nullable
     @Override
     protected Object constructObject(Node node) {
       if (node instanceof SequenceNode sequenceNode && sequenceNode.getValue().isEmpty()) {
@@ -132,6 +133,7 @@ class OriginTrackedYamlLoader extends YamlProcessor {
       node.setValue(newValue);
     }
 
+    @Nullable
     private Object constructTrackedObject(Node node, Object value) {
       Origin origin = getOrigin(node);
       return OriginTrackedValue.of(getValue(value), origin);

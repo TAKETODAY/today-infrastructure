@@ -18,9 +18,7 @@
 /**
  * Generic support classes for handler method processing.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.handler.method.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

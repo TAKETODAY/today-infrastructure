@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.annotation.config.jdbc;
+
+import org.jspecify.annotations.Nullable;
 
 import infra.app.diagnostics.AbstractFailureAnalyzer;
 import infra.app.diagnostics.FailureAnalysis;
@@ -35,6 +37,7 @@ class HikariDriverConfigurationFailureAnalyzer
   private static final String EXPECTED_MESSAGE = "cannot use driverClassName and dataSourceClassName together.";
 
   @Override
+  @Nullable
   protected FailureAnalysis analyze(Throwable rootFailure, CannotGetJdbcConnectionException cause) {
     Throwable subCause = cause.getCause();
     if (subCause == null || !EXPECTED_MESSAGE.equals(subCause.getMessage())) {

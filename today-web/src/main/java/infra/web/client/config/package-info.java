@@ -21,9 +21,7 @@
 /**
  * Web client config.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.client.config;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

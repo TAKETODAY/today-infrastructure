@@ -17,6 +17,8 @@
 
 package infra.core.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
 import java.lang.reflect.AnnotatedElement;
@@ -28,7 +30,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import infra.lang.Constant;
-import infra.lang.Nullable;
 
 /**
  * A single merged annotation returned from a {@link MergedAnnotations}
@@ -634,15 +635,6 @@ public interface MergedAnnotation<A extends Annotation> {
    * @return a map containing the attributes and values
    */
   <T extends Map<String, Object>> T asMap(Function<MergedAnnotation<?>, T> factory, Adapt... adaptations);
-
-  /**
-   * Determine if this merged annotation is <em>synthesizable</em>.
-   * <p>Consult the documentation for {@link #synthesize()} for an explanation
-   * of what is considered synthesizable.
-   *
-   * @return {@code true} if the mapped annotation is synthesizable
-   */
-  boolean isSynthesizable();
 
   /**
    * Create a type-safe synthesized version of this merged annotation that can

@@ -17,7 +17,8 @@
 
 package infra.web.socket.handler;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import infra.util.concurrent.Future;
 import infra.web.socket.CloseStatus;
 import infra.web.socket.WebSocketHandler;

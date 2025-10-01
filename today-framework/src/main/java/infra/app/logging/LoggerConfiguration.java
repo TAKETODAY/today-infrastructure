@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
 
 package infra.app.logging;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Objects;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 /**
@@ -108,9 +109,10 @@ public final class LoggerConfiguration {
    *
    * @return the level configuration
    */
-  @Nullable
   public LevelConfiguration getLevelConfiguration() {
-    return getLevelConfiguration(ConfigurationScope.INHERITED);
+    LevelConfiguration result = getLevelConfiguration(ConfigurationScope.INHERITED);
+    Assert.state(result != null, "Inherited level configuration is required");
+    return result;
   }
 
   /**
@@ -147,8 +149,8 @@ public final class LoggerConfiguration {
 
   @Override
   public String toString() {
-    return "LoggerConfiguration [name=" + this.name + ", levelConfiguration=" + this.levelConfiguration
-            + ", inheritedLevelConfiguration=" + this.inheritedLevelConfiguration + "]";
+    return "LoggerConfiguration [name=%s, levelConfiguration=%s, inheritedLevelConfiguration=%s]"
+            .formatted(this.name, this.levelConfiguration, this.inheritedLevelConfiguration);
   }
 
   /**

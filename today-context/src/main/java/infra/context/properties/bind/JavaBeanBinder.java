@@ -17,6 +17,8 @@
 
 package infra.context.properties.bind;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.Introspector;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -41,7 +43,6 @@ import infra.core.BridgeMethodResolver;
 import infra.core.MethodParameter;
 import infra.core.ResolvableType;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 
 /**
@@ -52,6 +53,7 @@ import infra.util.ReflectionUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 class JavaBeanBinder implements DataObjectBinder {
 
   private static final String HAS_KNOWN_BINDABLE_PROPERTIES_CACHE = JavaBeanBinder.class.getName()
@@ -279,7 +281,7 @@ class JavaBeanBinder implements DataObjectBinder {
       super(type, resolvedType);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "NullAway" })
     BeanSupplier<T> getSupplier(Bindable<T> target) {
       return new BeanSupplier<>(() -> {
         T instance = null;
@@ -420,8 +422,7 @@ class JavaBeanBinder implements DataObjectBinder {
       }
     }
 
-    @Nullable
-    Annotation[] getAnnotations() {
+    Annotation @Nullable [] getAnnotations() {
       try {
         return (this.field != null) ? this.field.getDeclaredAnnotations() : null;
       }

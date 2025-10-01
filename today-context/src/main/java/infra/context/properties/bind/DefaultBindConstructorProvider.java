@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.context.properties.bind;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -24,7 +26,6 @@ import java.util.ArrayList;
 import infra.beans.factory.annotation.Autowired;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**
@@ -37,6 +38,8 @@ import infra.util.ClassUtils;
  */
 class DefaultBindConstructorProvider implements BindConstructorProvider {
 
+  @SuppressWarnings("NullAway")
+  @Nullable
   @Override
   public Constructor<?> getBindConstructor(Bindable<?> bindable, boolean isNestedConstructorBinding) {
     Constructors constructors = Constructors.getConstructors(
@@ -51,6 +54,7 @@ class DefaultBindConstructorProvider implements BindConstructorProvider {
     return constructors.bind;
   }
 
+  @Nullable
   @Override
   public Constructor<?> getBindConstructor(Class<?> type, boolean isNestedConstructorBinding) {
     Constructors constructors = Constructors.getConstructors(type, isNestedConstructorBinding);

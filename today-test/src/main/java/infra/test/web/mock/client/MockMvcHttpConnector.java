@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.test.web.mock.client;
+
+import org.jspecify.annotations.Nullable;
 
 import java.io.StringWriter;
 import java.net.URI;
@@ -42,7 +44,6 @@ import infra.http.codec.multipart.DefaultPartHttpMessageReader;
 import infra.http.codec.multipart.FilePart;
 import infra.http.codec.multipart.Part;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.mock.api.http.Cookie;
 import infra.mock.http.client.reactive.MockClientHttpRequest;
 import infra.mock.http.client.reactive.MockClientHttpResponse;
@@ -147,7 +148,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
   }
 
   private MockHttpRequestBuilder initRequestBuilder(
-          HttpMethod httpMethod, URI uri, MockClientHttpRequest httpRequest, @Nullable byte[] bytes) {
+          HttpMethod httpMethod, URI uri, MockClientHttpRequest httpRequest, byte @Nullable [] bytes) {
 
     String contentType = httpRequest.getHeaders().getFirst(HttpHeaders.CONTENT_TYPE);
     if (!StringUtils.startsWithIgnoreCase(contentType, "multipart/")) {

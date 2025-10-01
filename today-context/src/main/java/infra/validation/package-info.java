@@ -19,9 +19,7 @@
  * Provides data binding and validation functionality,
  * for usage in business and/or UI layers.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.validation;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

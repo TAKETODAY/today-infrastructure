@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jdbc.datasource.embedded;
 
+import org.jspecify.annotations.Nullable;
+
 import javax.sql.DataSource;
 
 import infra.beans.factory.DisposableBean;
@@ -24,7 +26,6 @@ import infra.beans.factory.FactoryBean;
 import infra.beans.factory.InitializingBean;
 import infra.jdbc.datasource.init.DataSourceInitializer;
 import infra.jdbc.datasource.init.DatabasePopulator;
-import infra.lang.Nullable;
 
 /**
  * A subclass of {@link EmbeddedDatabaseFactory} that implements {@link FactoryBean}

@@ -18,6 +18,7 @@
 package infra.aop.support;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.InvocationTargetException;
@@ -41,7 +42,6 @@ import infra.aop.framework.StandardProxy;
 import infra.core.BridgeMethodResolver;
 import infra.core.MethodIntrospector;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
 
@@ -127,6 +127,7 @@ public abstract class AopUtils {
    * never {@code null})
    * @see TargetClassAware#getTargetClass()
    */
+  @SuppressWarnings("NullAway")
   public static Class<?> getTargetClass(MethodInvocation invocation) {
     Assert.notNull(invocation, "MethodInvocation is required");
     Class<?> result = null;
@@ -303,7 +304,8 @@ public abstract class AopUtils {
    * @throws Throwable if thrown by the target method
    * @throws AopInvocationException in case of a reflection error
    */
-  public static Object invokeJoinpointUsingReflection(@Nullable Object target, Method method, Object[] args)
+  @Nullable
+  public static Object invokeJoinpointUsingReflection(@Nullable Object target, Method method, @Nullable Object[] args)
           throws Throwable {
 
     // Use reflection to invoke the method.

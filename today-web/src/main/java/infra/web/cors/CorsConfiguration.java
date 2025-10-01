@@ -17,6 +17,8 @@
 
 package infra.web.cors;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +31,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import infra.http.HttpMethod;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 
@@ -174,6 +175,7 @@ public class CorsConfiguration {
   /**
    * Variant of {@link #setAllowedOrigins} for adding one origin at a time.
    */
+  @SuppressWarnings("NullAway")
   public void addAllowedOrigin(@Nullable String origin) {
     if (origin == null) {
       return;
@@ -248,6 +250,7 @@ public class CorsConfiguration {
    *
    * @since 3.0
    */
+  @SuppressWarnings("NullAway")
   public void addAllowedOriginPattern(@Nullable String originPattern) {
     if (originPattern == null) {
       return;

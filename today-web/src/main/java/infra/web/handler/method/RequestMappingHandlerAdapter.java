@@ -17,6 +17,8 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.InitializingBean;
@@ -25,7 +27,6 @@ import infra.context.ApplicationContext;
 import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.ParameterNameDiscoverer;
 import infra.http.HttpHeaders;
-import infra.lang.Nullable;
 import infra.session.SessionManager;
 import infra.session.WebSession;
 import infra.web.RedirectModelManager;
@@ -52,6 +53,7 @@ import infra.web.view.ModelAndView;
  * @see RequestMappingHandlerMapping
  * @since 4.0 2022/4/8 22:46
  */
+@SuppressWarnings("NullAway.Init")
 public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
         implements BeanFactoryAware, InitializingBean {
 

@@ -17,6 +17,8 @@
 
 package infra.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,7 +48,6 @@ import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 import infra.web.async.AsyncWebRequest;
 import infra.web.async.WebAsyncManager;
@@ -65,6 +66,7 @@ import infra.web.multipart.MultipartRequest;
  */
 public abstract class DecoratingRequestContext extends RequestContext {
 
+  @SuppressWarnings("NullAway")
   protected DecoratingRequestContext() {
     super(null, null);
   }
@@ -212,8 +214,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  @Nullable
-  public String[] getParameters(String name) {
+  public String @Nullable [] getParameters(String name) {
     return getDelegate().getParameters(name);
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,12 @@
 
 package infra.aop.config;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.BeanReference;
 import infra.beans.factory.parsing.ComponentDefinition;
 import infra.beans.factory.parsing.CompositeComponentDefinition;
-import infra.lang.Nullable;
 
 /**
  * {@link ComponentDefinition}
@@ -39,8 +40,8 @@ public class AspectComponentDefinition extends CompositeComponentDefinition {
 
   private final BeanReference[] beanReferences;
 
-  public AspectComponentDefinition(String aspectName, @Nullable BeanDefinition[] beanDefinitions,
-          @Nullable BeanReference[] beanReferences, @Nullable Object source) {
+  public AspectComponentDefinition(String aspectName, BeanDefinition @Nullable [] beanDefinitions,
+          BeanReference @Nullable [] beanReferences, @Nullable Object source) {
 
     super(aspectName, source);
     this.beanDefinitions = (beanDefinitions != null ? beanDefinitions : new BeanDefinition[0]);

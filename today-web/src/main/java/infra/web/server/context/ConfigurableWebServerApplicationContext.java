@@ -17,8 +17,9 @@
 
 package infra.web.server.context;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.context.ConfigurableApplicationContext;
-import infra.lang.Nullable;
 
 /**
  * SPI interface to be implemented by most if not all {@link WebServerApplicationContext

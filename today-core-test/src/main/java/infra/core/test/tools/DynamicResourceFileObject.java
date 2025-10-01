@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.core.test.tools;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,8 +29,6 @@ import java.net.URI;
 import javax.tools.JavaFileObject;
 import javax.tools.SimpleJavaFileObject;
 
-import infra.lang.Nullable;
-
 /**
  * In-memory {@link JavaFileObject} used to hold generated resource file contents.
  *
@@ -38,8 +38,7 @@ import infra.lang.Nullable;
  */
 class DynamicResourceFileObject extends SimpleJavaFileObject {
 
-  @Nullable
-  private volatile byte[] bytes;
+  private volatile byte @Nullable [] bytes;
 
   DynamicResourceFileObject(String fileName) {
     super(createUri(fileName), Kind.OTHER);
@@ -72,8 +71,7 @@ class DynamicResourceFileObject extends SimpleJavaFileObject {
     this.bytes = bytes;
   }
 
-  @Nullable
-  byte[] getBytes() {
+  byte @Nullable [] getBytes() {
     return this.bytes;
   }
 

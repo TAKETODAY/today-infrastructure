@@ -17,6 +17,8 @@
 
 package infra.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -43,7 +45,6 @@ import infra.core.SerializableTypeWrapper.MethodParameterTypeProvider;
 import infra.core.SerializableTypeWrapper.ParameterTypeProvider;
 import infra.core.SerializableTypeWrapper.TypeProvider;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ConcurrentReferenceHashMap;
@@ -139,11 +140,9 @@ public class ResolvableType implements Serializable {
   @Nullable
   private ResolvableType superType;
 
-  @Nullable
-  private ResolvableType[] interfaces;
+  private ResolvableType @Nullable [] interfaces;
 
-  @Nullable
-  private ResolvableType[] generics;
+  private ResolvableType @Nullable [] generics;
 
   @Nullable
   private volatile Boolean unresolvableGenerics;
@@ -789,7 +788,7 @@ public class ResolvableType implements Serializable {
    * @see #resolveGeneric(int...)
    * @see #resolveGenerics()
    */
-  public ResolvableType getGeneric(@Nullable int... indexes) {
+  public ResolvableType getGeneric(int @Nullable ... indexes) {
     ResolvableType[] generics = getGenerics();
     if (indexes == null || indexes.length == 0) {
       return (generics.length == 0 ? NONE : generics[0]);
@@ -856,9 +855,9 @@ public class ResolvableType implements Serializable {
    * @see #getGenerics()
    * @see #resolve()
    */
-  public Class<?>[] resolveGenerics() {
+  public @Nullable Class<?>[] resolveGenerics() {
     ResolvableType[] generics = getGenerics();
-    Class<?>[] resolvedGenerics = new Class<?>[generics.length];
+    @Nullable Class<?>[] resolvedGenerics = new Class<?>[generics.length];
     for (int i = 0; i < generics.length; i++) {
       resolvedGenerics[i] = generics[i].resolve();
     }
@@ -1507,7 +1506,7 @@ public class ResolvableType implements Serializable {
    * @return a {@link ResolvableType} for the specific class and generics
    * @see #forClassWithGenerics(Class, Class...)
    */
-  public static ResolvableType forClassWithGenerics(Class<?> clazz, @Nullable ResolvableType... generics) {
+  public static ResolvableType forClassWithGenerics(Class<?> clazz, @Nullable ResolvableType @Nullable ... generics) {
     Assert.notNull(clazz, "Class is required");
     TypeVariable<?>[] variables = clazz.getTypeParameters();
     if (generics != null && variables.length != generics.length) {
@@ -1803,16 +1802,24 @@ public class ResolvableType implements Serializable {
     }
   }
 
-  record TypeVariablesVariableResolver(TypeVariable<?>[] variables, ResolvableType[] generics)
-          implements VariableResolver {
+  @SuppressWarnings("serial")
+  private static class TypeVariablesVariableResolver implements VariableResolver {
+
+    private final TypeVariable<?>[] variables;
+
+    private final @Nullable ResolvableType[] generics;
+
+    public TypeVariablesVariableResolver(TypeVariable<?>[] variables, @Nullable ResolvableType[] generics) {
+      this.variables = variables;
+      this.generics = generics;
+    }
 
     @Override
-    public ResolvableType resolveVariable(TypeVariable<?> variable) {
+    public @Nullable ResolvableType resolveVariable(TypeVariable<?> variable) {
       TypeVariable<?> variableToCompare = SerializableTypeWrapper.unwrap(variable);
-      TypeVariable<?>[] variables = this.variables;
-      for (int i = 0; i < variables.length; i++) {
-        TypeVariable<?> resolvedVariable = SerializableTypeWrapper.unwrap(variables[i]);
-        if (Objects.equals(resolvedVariable, variableToCompare)) {
+      for (int i = 0; i < this.variables.length; i++) {
+        TypeVariable<?> resolvedVariable = SerializableTypeWrapper.unwrap(this.variables[i]);
+        if (ObjectUtils.nullSafeEquals(resolvedVariable, variableToCompare)) {
           return this.generics[i];
         }
       }
@@ -1825,8 +1832,16 @@ public class ResolvableType implements Serializable {
     }
   }
 
-  record SyntheticParameterizedType(Type rawType, Type[] typeArguments)
-          implements ParameterizedType, Serializable {
+  private static final class SyntheticParameterizedType implements ParameterizedType, Serializable {
+
+    private final Type rawType;
+
+    private final Type[] typeArguments;
+
+    public SyntheticParameterizedType(Type rawType, Type[] typeArguments) {
+      this.rawType = rawType;
+      this.typeArguments = typeArguments;
+    }
 
     @Override
     public String getTypeName() {
@@ -1858,16 +1873,10 @@ public class ResolvableType implements Serializable {
     }
 
     @Override
-    public boolean equals(Object other) {
-      if (this == other) {
-        return true;
-      }
-      if (!(other instanceof ParameterizedType otherType)) {
-        return false;
-      }
-      return otherType.getOwnerType() == null
-              && this.rawType.equals(otherType.getRawType())
-              && Arrays.equals(this.typeArguments, otherType.getActualTypeArguments());
+    public boolean equals(@Nullable Object other) {
+      return (this == other || (other instanceof ParameterizedType that &&
+              that.getOwnerType() == null && this.rawType.equals(that.getRawType()) &&
+              Arrays.equals(this.typeArguments, that.getActualTypeArguments())));
     }
 
     @Override

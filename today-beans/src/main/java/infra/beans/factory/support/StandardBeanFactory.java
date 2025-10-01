@@ -17,6 +17,8 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
@@ -87,7 +89,6 @@ import infra.core.annotation.Order;
 import infra.lang.Assert;
 import infra.lang.Modifiable;
 import infra.lang.NullValue;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
@@ -204,8 +205,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   private volatile String mainThreadPrefix;
 
   /** Cached array of bean definition names in case of frozen configuration. */
-  @Nullable
-  private volatile String[] frozenBeanDefinitionNames;
+  private volatile String @Nullable [] frozenBeanDefinitionNames;
 
   /** List of bean definition names, in registration order. */
   private volatile ArrayList<String> beanDefinitionNames = new ArrayList<>(256);
@@ -515,7 +515,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   @Override
-  protected void checkMergedBeanDefinition(RootBeanDefinition mbd, String beanName, @Nullable Object[] args) {
+  protected void checkMergedBeanDefinition(RootBeanDefinition mbd, String beanName, @Nullable Object @Nullable [] args) {
     super.checkMergedBeanDefinition(mbd, beanName, args);
 
     if (mbd.isBackgroundInit()) {
@@ -967,7 +967,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T getBean(Class<T> requiredType, @Nullable Object... args) throws BeansException {
+  public <T> T getBean(Class<T> requiredType, @Nullable Object @Nullable ... args) throws BeansException {
     Assert.notNull(requiredType, "Required type is required");
     Object resolved = resolveBean(ResolvableType.forRawClass(requiredType), args, false);
     if (resolved == null) {
@@ -977,7 +977,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   @Nullable
-  private <T> T resolveBean(ResolvableType requiredType, @Nullable Object[] args, boolean nonUniqueAsNull) {
+  @SuppressWarnings("NullAway")
+  private <T> T resolveBean(ResolvableType requiredType, @Nullable Object @Nullable [] args, boolean nonUniqueAsNull) {
     NamedBeanHolder<T> namedBean = resolveNamedBean(requiredType, args, nonUniqueAsNull);
     if (namedBean != null) {
       return namedBean.getBeanInstance();
@@ -1001,7 +1002,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
   @Nullable
   @SuppressWarnings("unchecked")
-  private <T> NamedBeanHolder<T> resolveNamedBean(ResolvableType requiredType, @Nullable Object[] args, boolean nonUniqueAsNull) throws BeansException {
+  private <T> NamedBeanHolder<T> resolveNamedBean(ResolvableType requiredType, @Nullable Object @Nullable [] args, boolean nonUniqueAsNull) throws BeansException {
     Assert.notNull(requiredType, "Required type is required");
     var candidateNames = getBeanNamesForType(requiredType);
 
@@ -1059,7 +1060,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   @Nullable
-  private <T> NamedBeanHolder<T> resolveNamedBean(String beanName, ResolvableType requiredType, @Nullable Object[] args) throws BeansException {
+  @SuppressWarnings("NullAway")
+  private <T> NamedBeanHolder<T> resolveNamedBean(String beanName, ResolvableType requiredType, @Nullable Object @Nullable [] args) throws BeansException {
     Object bean = args != null ? getBean(beanName, args) : resolveBean(beanName, requiredType);
     if (bean == null) {
       return null;
@@ -1115,7 +1117,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       }
 
       @Override
-      public T get(Object... args) throws BeansException {
+      public T get(@Nullable Object... args) throws BeansException {
         T resolved = resolveBean(requiredType, args, false);
         if (resolved == null) {
           throw new NoSuchBeanDefinitionException(requiredType);
@@ -1734,6 +1736,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   public Object doResolveDependency(DependencyDescriptor descriptor, @Nullable String beanName,
           @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter) throws BeansException {
     InjectionPoint previousInjectionPoint = ConstructorResolver.setCurrentInjectionPoint(descriptor);
@@ -2083,7 +2086,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         // but in the case of a dependency collection, not the very same bean itself.
         for (String candidate : candidateNames) {
           if (isSelfReference(beanName, candidate)
-                  && (!(descriptor instanceof MultiElementDescriptor) || !beanName.equals(candidate))
+                  && (!(descriptor instanceof MultiElementDescriptor) || !Objects.equals(beanName, candidate))
                   && isAutowireCandidate(candidate, fallbackDescriptor)) {
             addCandidateEntry(result, candidate, descriptor, requiredType);
           }
@@ -2431,7 +2434,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   /**
    * Create an {@link Optional} wrapper for the specified dependency.
    */
-  private Optional<?> createOptionalDependency(DependencyDescriptor descriptor, @Nullable String beanName, final Object... args) {
+  private Optional<?> createOptionalDependency(DependencyDescriptor descriptor, @Nullable String beanName, final @Nullable Object @Nullable ... args) {
     DependencyDescriptor descriptorToUse = new NestedDependencyDescriptor(descriptor) {
 
       @Override
@@ -2441,6 +2444,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
       @Nullable
       @Override
+      @SuppressWarnings("NullAway")
       public Object resolveCandidate(String beanName, Class<?> requiredType, BeanFactory beanFactory) {
         return ObjectUtils.isNotEmpty(args)
                 ? beanFactory.getBean(beanName, args)
@@ -2448,6 +2452,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       }
 
       @Override
+      @SuppressWarnings("NullAway")
       public boolean usesStandardBeanLookup() {
         return ObjectUtils.isEmpty(args);
       }
@@ -2706,7 +2711,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     }
 
     @Override
-    public Object get(final Object... args) throws BeansException {
+    public Object get(@Nullable Object... args) throws BeansException {
       if (this.optional) {
         return createOptionalDependency(this.descriptor, this.beanName, args);
       }
@@ -2715,6 +2720,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
           @Override
           @Nullable
+          @SuppressWarnings("NullAway")
           public Object resolveCandidate(String beanName, Class<?> requiredType, BeanFactory beanFactory) {
             return beanFactory.getBean(beanName, args);
           }
@@ -2885,6 +2891,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
       @Override
       @Nullable
+      @SuppressWarnings("NullAway")
       public Object get() throws BeansException {
         return getValue();
       }

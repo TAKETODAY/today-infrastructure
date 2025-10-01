@@ -17,6 +17,8 @@
 
 package infra.web.server.reactive.context;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -68,7 +70,7 @@ public class AnnotationConfigReactiveWebServerApplicationContext
 
   private final Set<Class<?>> annotatedClasses = new LinkedHashSet<>();
 
-  private String[] basePackages;
+  private String @Nullable [] basePackages;
 
   /**
    * Create a new {@link AnnotationConfigReactiveWebServerApplicationContext} that needs
@@ -212,8 +214,9 @@ public class AnnotationConfigReactiveWebServerApplicationContext
   @Override
   protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
     super.postProcessBeanFactory(beanFactory);
-    if (ObjectUtils.isNotEmpty(this.basePackages)) {
-      this.scanner.scan(this.basePackages);
+    String[] basePackages = this.basePackages;
+    if (ObjectUtils.isNotEmpty(basePackages)) {
+      this.scanner.scan(basePackages);
     }
     if (!this.annotatedClasses.isEmpty()) {
       this.reader.register(ClassUtils.toClassArray(this.annotatedClasses));

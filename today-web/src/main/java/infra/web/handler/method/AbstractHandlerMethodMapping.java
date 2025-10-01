@@ -17,6 +17,8 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,7 +46,6 @@ import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.MapCache;
 import infra.util.ObjectUtils;
@@ -389,6 +390,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    */
   @Nullable
   @Override
+  @SuppressWarnings("NullAway")
   protected HandlerMethod getHandlerInternal(RequestContext request) {
     HandlerMethod handlerMethod = lookupHandlerMethod(request.getRequestPath().value(), request);
     if (handlerMethod != null) {
@@ -459,6 +461,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     }
   }
 
+  @SuppressWarnings("NullAway")
   private void addMatchingMappings(Collection<T> mappings, ArrayList<Match<T>> matches, RequestContext request) {
     var registrations = mappingRegistry.registrations;
     for (T mapping : mappings) {
@@ -521,9 +524,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     return corsConfig;
   }
 
-  @Nullable
   @Override
-  protected HandlerInterceptor[] getHandlerInterceptors(Object handler) {
+  protected HandlerInterceptor @Nullable [] getHandlerInterceptors(Object handler) {
     HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
     if (handlerMethod != null) {
       return mappingRegistry.getHandlerInterceptors(handlerMethod);
@@ -705,6 +707,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     /**
      * Return handler methods by mapping name. Thread-safe for concurrent use.
      */
+    @Nullable
     public List<HandlerMethod> getHandlerMethodsByMappingName(String mappingName) {
       return this.nameLookup.get(mappingName);
     }

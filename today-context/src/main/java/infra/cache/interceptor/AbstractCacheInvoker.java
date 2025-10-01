@@ -17,11 +17,12 @@
 
 package infra.cache.interceptor;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 import infra.cache.Cache;
-import infra.lang.Nullable;
 import infra.util.function.SingletonSupplier;
 import infra.util.function.ThrowingFunction;
 
@@ -71,8 +72,7 @@ public abstract class AbstractCacheInvoker {
    *
    * @see Cache#get(Object)
    */
-  @Nullable
-  protected Cache.ValueWrapper doGet(Cache cache, Object key) {
+  protected Cache.@Nullable ValueWrapper doGet(Cache cache, Object key) {
     try {
       return cache.get(key);
     }

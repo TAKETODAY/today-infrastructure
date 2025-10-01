@@ -20,9 +20,7 @@
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

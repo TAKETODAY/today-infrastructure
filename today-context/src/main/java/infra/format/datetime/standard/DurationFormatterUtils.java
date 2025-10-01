@@ -17,20 +17,22 @@
 
 package infra.format.datetime.standard;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import infra.format.annotation.DurationFormat;
+import infra.format.annotation.DurationFormat.Style;
+import infra.format.annotation.DurationFormat.Unit;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**
  * Support {@code Duration} parsing and printing in several styles, as listed in
- * {@link DurationFormat.Style}.
+ * {@link Style}.
  * <p>Some styles may not enforce any unit to be present, defaulting to {@code DurationFormat.Unit#MILLIS}
- * in that case. Methods in this class offer overloads that take a {@link DurationFormat.Unit} to
+ * in that case. Methods in this class offer overloads that take a {@link Unit} to
  * be used as a fall-back instead of the ultimate MILLIS default.
  *
  * @author Phillip Webb
@@ -52,7 +54,7 @@ public abstract class DurationFormatterUtils {
    * @param style the style in which to parse
    * @return a duration
    */
-  public static Duration parse(String value, DurationFormat.Style style) {
+  public static Duration parse(String value, Style style) {
     return parse(value, style, null);
   }
 
@@ -65,7 +67,7 @@ public abstract class DurationFormatterUtils {
    * will default to ms)
    * @return a duration
    */
-  public static Duration parse(String value, DurationFormat.Style style, @Nullable DurationFormat.Unit unit) {
+  public static Duration parse(String value, Style style, @Nullable Unit unit) {
     Assert.hasText(value, "Value must not be empty");
     return switch (style) {
       case ISO8601 -> parseIso8601(value);
@@ -81,7 +83,7 @@ public abstract class DurationFormatterUtils {
    * @param style the style to print in
    * @return the printed result
    */
-  public static String print(Duration value, DurationFormat.Style style) {
+  public static String print(Duration value, Style style) {
     return print(value, style, null);
   }
 
@@ -94,7 +96,7 @@ public abstract class DurationFormatterUtils {
    * to ms)
    * @return the printed result
    */
-  public static String print(Duration value, DurationFormat.Style style, @Nullable DurationFormat.Unit unit) {
+  public static String print(Duration value, Style style, @Nullable Unit unit) {
     return switch (style) {
       case ISO8601 -> value.toString();
       case SIMPLE -> printSimple(value, unit);
@@ -124,7 +126,7 @@ public abstract class DurationFormatterUtils {
    * @throws IllegalArgumentException if the value is not a known style or cannot be
    * parsed
    */
-  public static Duration detectAndParse(String value, @Nullable DurationFormat.Unit unit) {
+  public static Duration detectAndParse(String value, @Nullable Unit unit) {
     return parse(value, detect(value), unit);
   }
 
@@ -135,17 +137,17 @@ public abstract class DurationFormatterUtils {
    * @return the duration style
    * @throws IllegalArgumentException if the value is not a known style
    */
-  public static DurationFormat.Style detect(String value) {
+  public static Style detect(String value) {
     Assert.notNull(value, "Value is required");
     // warning: the order of parsing starts to matter if multiple patterns accept a plain integer (no unit suffix)
     if (ISO_8601_PATTERN.matcher(value).matches()) {
-      return DurationFormat.Style.ISO8601;
+      return Style.ISO8601;
     }
     if (SIMPLE_PATTERN.matcher(value).matches()) {
-      return DurationFormat.Style.SIMPLE;
+      return Style.SIMPLE;
     }
     if (COMPOSITE_PATTERN.matcher(value).matches()) {
-      return DurationFormat.Style.COMPOSITE;
+      return Style.COMPOSITE;
     }
     throw new IllegalArgumentException("'" + value + "' is not a valid duration, cannot detect any known style");
   }
@@ -164,14 +166,14 @@ public abstract class DurationFormatterUtils {
     }
   }
 
-  private static Duration parseSimple(String text, @Nullable DurationFormat.Unit fallbackUnit) {
+  private static Duration parseSimple(String text, @Nullable Unit fallbackUnit) {
     try {
       Matcher matcher = SIMPLE_PATTERN.matcher(text);
       Assert.state(matcher.matches(), "Does not match simple duration pattern");
       String suffix = matcher.group(2);
-      DurationFormat.Unit parsingUnit = (fallbackUnit == null ? DurationFormat.Unit.MILLIS : fallbackUnit);
+      Unit parsingUnit = (fallbackUnit == null ? Unit.MILLIS : fallbackUnit);
       if (StringUtils.isNotEmpty(suffix)) {
-        parsingUnit = DurationFormat.Unit.fromSuffix(suffix);
+        parsingUnit = Unit.fromSuffix(suffix);
       }
       return parsingUnit.parse(matcher.group(1));
     }
@@ -180,8 +182,8 @@ public abstract class DurationFormatterUtils {
     }
   }
 
-  private static String printSimple(Duration duration, @Nullable DurationFormat.Unit unit) {
-    unit = (unit == null ? DurationFormat.Unit.MILLIS : unit);
+  private static String printSimple(Duration duration, @Nullable Unit unit) {
+    unit = (unit == null ? Unit.MILLIS : unit);
     return unit.print(duration);
   }
 
@@ -193,11 +195,11 @@ public abstract class DurationFormatterUtils {
       boolean negative = sign != null && sign.equals("-");
 
       Duration result = Duration.ZERO;
-      DurationFormat.Unit[] units = DurationFormat.Unit.values();
+      Unit[] units = Unit.values();
       for (int i = 2; i < matcher.groupCount() + 1; i++) {
         String segment = matcher.group(i);
         if (StringUtils.hasText(segment)) {
-          DurationFormat.Unit unit = units[units.length - i + 1];
+          Unit unit = units[units.length - i + 1];
           result = result.plus(unit.parse(segment.replace(unit.asSuffix(), "")));
         }
       }
@@ -210,7 +212,7 @@ public abstract class DurationFormatterUtils {
 
   private static String printComposite(Duration duration) {
     if (duration.isZero()) {
-      return DurationFormat.Unit.SECONDS.print(duration);
+      return Unit.SECONDS.print(duration);
     }
     StringBuilder result = new StringBuilder();
     if (duration.isNegative()) {
@@ -219,23 +221,23 @@ public abstract class DurationFormatterUtils {
     }
     long days = duration.toDaysPart();
     if (days != 0) {
-      result.append(days).append(DurationFormat.Unit.DAYS.asSuffix());
+      result.append(days).append(Unit.DAYS.asSuffix());
     }
     int hours = duration.toHoursPart();
     if (hours != 0) {
-      result.append(hours).append(DurationFormat.Unit.HOURS.asSuffix());
+      result.append(hours).append(Unit.HOURS.asSuffix());
     }
     int minutes = duration.toMinutesPart();
     if (minutes != 0) {
-      result.append(minutes).append(DurationFormat.Unit.MINUTES.asSuffix());
+      result.append(minutes).append(Unit.MINUTES.asSuffix());
     }
     int seconds = duration.toSecondsPart();
     if (seconds != 0) {
-      result.append(seconds).append(DurationFormat.Unit.SECONDS.asSuffix());
+      result.append(seconds).append(Unit.SECONDS.asSuffix());
     }
     int millis = duration.toMillisPart();
     if (millis != 0) {
-      result.append(millis).append(DurationFormat.Unit.MILLIS.asSuffix());
+      result.append(millis).append(Unit.MILLIS.asSuffix());
     }
     //special handling of nanos: remove the millis part and then divide into microseconds and nanoseconds
     long nanos = duration.toNanosPart() - Duration.ofMillis(millis).toNanos();
@@ -243,10 +245,10 @@ public abstract class DurationFormatterUtils {
       long micros = nanos / 1000;
       long remainder = nanos - (micros * 1000);
       if (micros > 0) {
-        result.append(micros).append(DurationFormat.Unit.MICROS.asSuffix());
+        result.append(micros).append(Unit.MICROS.asSuffix());
       }
       if (remainder > 0) {
-        result.append(remainder).append(DurationFormat.Unit.NANOS.asSuffix());
+        result.append(remainder).append(Unit.NANOS.asSuffix());
       }
     }
     return result.toString();

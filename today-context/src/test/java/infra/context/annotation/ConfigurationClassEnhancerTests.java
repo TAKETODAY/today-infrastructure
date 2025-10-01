@@ -17,6 +17,7 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -28,7 +29,6 @@ import java.security.SecureClassLoader;
 
 import infra.core.OverridingClassLoader;
 import infra.core.SmartClassLoader;
-import infra.lang.Nullable;
 import infra.util.StreamUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

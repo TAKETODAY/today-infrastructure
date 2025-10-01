@@ -87,6 +87,7 @@ public class JmxAutoConfiguration {
     return namingStrategy;
   }
 
+  @SuppressWarnings("NullAway")
   @Component
   @ConditionalOnMissingBean
   public static MBeanServer mbeanServer() {

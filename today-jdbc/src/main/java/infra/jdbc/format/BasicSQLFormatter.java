@@ -108,6 +108,7 @@ public class BasicSQLFormatter implements SQLFormatter {
     return new BasicInternalFormatter().format(source);
   }
 
+  @SuppressWarnings("NullAway")
   private static final class BasicInternalFormatter {
     boolean beginLine = true;
     boolean afterBeginBeforeEnd;

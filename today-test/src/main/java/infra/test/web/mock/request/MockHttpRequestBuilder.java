@@ -17,6 +17,8 @@
 
 package infra.test.web.mock.request;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,7 +40,6 @@ import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.http.converter.FormHttpMessageConverter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.mock.api.MockContext;
 import infra.mock.api.MockRequest;
 import infra.mock.api.http.Cookie;

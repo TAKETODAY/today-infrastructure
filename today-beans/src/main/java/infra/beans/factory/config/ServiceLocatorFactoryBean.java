@@ -16,6 +16,8 @@
  */
 package infra.beans.factory.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -31,7 +33,6 @@ import infra.beans.factory.InitializingBean;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
 
@@ -311,7 +312,7 @@ public class ServiceLocatorFactoryBean implements FactoryBean<Object>, BeanFacto
    */
   protected Exception createServiceLocatorException(Constructor<Exception> exceptionConstructor, BeansException cause) {
     Class<?>[] paramTypes = exceptionConstructor.getParameterTypes();
-    Object[] args = new Object[paramTypes.length];
+    @Nullable Object[] args = new Object[paramTypes.length];
     for (int i = 0; i < paramTypes.length; i++) {
       if (String.class == paramTypes[i]) {
         args[i] = cause.getMessage();
@@ -329,6 +330,7 @@ public class ServiceLocatorFactoryBean implements FactoryBean<Object>, BeanFacto
     return this.proxy;
   }
 
+  @Nullable
   @Override
   public Class<?> getObjectType() {
     return this.serviceLocatorInterface;
@@ -387,7 +389,7 @@ public class ServiceLocatorFactoryBean implements FactoryBean<Object>, BeanFacto
     /**
      * Check whether a service id was passed in.
      */
-    private String tryGetBeanName(@Nullable Object[] args) {
+    private String tryGetBeanName(@Nullable Object @Nullable [] args) {
       String beanName = Constant.BLANK;
       if (args != null && args.length == 1 && args[0] != null) {
         beanName = args[0].toString();

@@ -21,9 +21,7 @@
  * infra.cache.annotation.EnableCaching EnableCaching}
  * for details on code-based configuration without XML.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.cache.config;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -17,6 +17,7 @@
 
 package infra.transaction.config;
 
+import org.jspecify.annotations.Nullable;
 import org.w3c.dom.Element;
 
 import infra.aop.config.AopNamespaceUtils;
@@ -27,7 +28,6 @@ import infra.beans.factory.parsing.CompositeComponentDefinition;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.xml.BeanDefinitionParser;
 import infra.beans.factory.xml.ParserContext;
-import infra.lang.Nullable;
 import infra.transaction.event.TransactionalEventListenerFactory;
 import infra.transaction.interceptor.BeanFactoryTransactionAttributeSourceAdvisor;
 import infra.transaction.interceptor.TransactionInterceptor;

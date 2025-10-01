@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.jdbc.core.simple;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 
@@ -86,7 +88,7 @@ public interface SimpleJdbcCallOperations {
    * @param sqlParameters the parameters to use
    * @return the instance of this SimpleJdbcCall
    */
-  SimpleJdbcCallOperations declareParameters(SqlParameter... sqlParameters);
+  SimpleJdbcCallOperations declareParameters(@Nullable SqlParameter... sqlParameters);
 
   /** Not used yet. */
   SimpleJdbcCallOperations useInParameterNames(String... inParameterNames);
