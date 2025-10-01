@@ -17,6 +17,8 @@
 
 package infra.util.concurrent;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
 
@@ -46,7 +48,7 @@ public class SimpleSingleThreadAwaiter implements Awaiter {
 
   protected static final Object READY = new Object();
 
-  protected final AtomicReference<Object> parkedThread = new AtomicReference<>();
+  protected final AtomicReference<@Nullable Object> parkedThread = new AtomicReference<>();
 
   /**
    * 唤醒等待的线程

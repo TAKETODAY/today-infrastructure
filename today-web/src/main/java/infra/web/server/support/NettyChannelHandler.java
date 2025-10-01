@@ -58,6 +58,7 @@ public class NettyChannelHandler extends ChannelInboundHandlerAdapter {
 
   private HttpContext httpContext;
 
+  @SuppressWarnings("NullAway")
   protected NettyChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context,
           DispatcherHandler dispatcherHandler, ServiceExecutor executor) {
     this.context = context;
