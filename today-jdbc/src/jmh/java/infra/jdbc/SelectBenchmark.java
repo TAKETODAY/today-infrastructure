@@ -33,8 +33,6 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.ResultQuery;
@@ -77,7 +75,6 @@ import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
-import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Primary;
 import infra.stereotype.Singleton;
@@ -94,10 +91,9 @@ public class SelectBenchmark {
   private final static String DB_URL = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;MODE=MySQL";
   private final static String DB_USER = "sa";
   private final static String DB_PASSWORD = "";
-  private final static String HIBERNATE_DIALECT = "org.hibernate.dialect.H2Dialect";
   private final static SQLDialect JOOQ_DIALECT = SQLDialect.H2;
-  //  private final int ITERATIONS = 50000;
-  private final int ITERATIONS = 1000;
+
+  private static final int ITERATIONS = 1000;
 
   private RepositoryManager operations;
 
@@ -525,35 +521,6 @@ public class SelectBenchmark {
       hikariDataSource.setDriverClassName(DRIVER_CLASS);
       hikariDataSource.setJdbcUrl(DB_URL);
       return hikariDataSource;
-    }
-  }
-
-  static class HibernateTypicalSelect extends PerformanceTestBase {
-    private Session session;
-    private AnnotationConfigApplicationContext context;
-
-    @Override
-    public void init() {
-      Logger.getLogger("org.hibernate").setLevel(Level.OFF);
-      context = new AnnotationConfigApplicationContext();
-
-      context.scan("infra.jdbc.performance");
-
-      SessionFactory sessionFactory = context.getBean(SessionFactory.class);
-      session = sessionFactory.openSession();
-    }
-
-    @Override
-    public Object run(int input) {
-      return session.get(Post.class, input);
-    }
-
-    @Override
-    public void close() {
-      session.close();
-      if (context != null) {
-        context.close();
-      }
     }
   }
 
