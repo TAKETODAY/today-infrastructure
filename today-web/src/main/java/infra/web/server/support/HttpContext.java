@@ -17,10 +17,11 @@
 
 package infra.web.server.support;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.context.ApplicationContext;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 import infra.util.concurrent.Awaiter;
 import infra.web.DispatcherHandler;

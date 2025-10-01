@@ -17,6 +17,8 @@
 
 package infra.web.server.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.InputStream;
 import java.util.ConcurrentModificationException;
 import java.util.Objects;
@@ -27,7 +29,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
-import infra.lang.Nullable;
 import infra.util.ExceptionUtils;
 import infra.util.concurrent.Awaiter;
 import io.netty.buffer.ByteBuf;

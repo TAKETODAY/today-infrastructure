@@ -22,7 +22,7 @@ import infra.app.InfraApplication;
 import infra.http.HttpHeaders;
 import infra.http.ProblemDetail;
 import infra.http.ResponseEntity;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import infra.web.annotation.GET;
 import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestMapping;

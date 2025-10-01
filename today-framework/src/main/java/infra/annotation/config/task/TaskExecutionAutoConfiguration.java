@@ -40,7 +40,7 @@ import infra.core.env.Environment;
 import infra.core.task.SimpleAsyncTaskExecutor;
 import infra.core.task.TaskDecorator;
 import infra.core.task.TaskExecutor;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import infra.scheduling.annotation.AsyncConfigurer;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 import infra.scheduling.support.SimpleAsyncTaskExecutorBuilder;

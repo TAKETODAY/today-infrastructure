@@ -41,7 +41,7 @@ import infra.context.properties.EnableConfigurationProperties;
 import infra.core.ApplicationTemp;
 import infra.core.Ordered;
 import infra.core.ssl.SslBundles;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
