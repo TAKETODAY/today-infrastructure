@@ -87,30 +87,30 @@ import infra.stereotype.Singleton;
 @State(Scope.Benchmark)
 public class SelectBenchmark {
 
-  private final static String DRIVER_CLASS = "org.h2.Driver";
-  private final static String DB_URL = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;MODE=MySQL";
-  private final static String DB_USER = "sa";
-  private final static String DB_PASSWORD = "";
-  private final static SQLDialect JOOQ_DIALECT = SQLDialect.H2;
+  private static final String DRIVER_CLASS = "org.h2.Driver";
+  private static final String DB_URL = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;MODE=MySQL";
+  private static final String DB_USER = "sa";
+  private static final String DB_PASSWORD = "";
+  private static final SQLDialect JOOQ_DIALECT = SQLDialect.H2;
 
   private static final int ITERATIONS = 1000;
 
   private RepositoryManager operations;
 
-  BeeSelect beeSelect = new BeeSelect();
+  private final BeeSelect beeSelect = new BeeSelect();
 
-  TODAYTypicalSelect todayTypicalSelect = new TODAYTypicalSelect();
+  private TODAYTypicalSelect todayTypicalSelect = new TODAYTypicalSelect();
 
-  TODAYOptimizedSelect todayOptimizedSelect = new TODAYOptimizedSelect();
+  private final TODAYOptimizedSelect todayOptimizedSelect = new TODAYOptimizedSelect();
 
-  HandCodedSelect handCodedSelect = new HandCodedSelect();
-  Sql2oTypicalSelect sql2oTypicalSelect = new Sql2oTypicalSelect();
-  Sql2oOptimizedSelect sql2oOptimizedSelect = new Sql2oOptimizedSelect();
+  private final HandCodedSelect handCodedSelect = new HandCodedSelect();
+  private final Sql2oTypicalSelect sql2oTypicalSelect = new Sql2oTypicalSelect();
+  private final Sql2oOptimizedSelect sql2oOptimizedSelect = new Sql2oOptimizedSelect();
 
-  JDBISelect jdbiSelect = new JDBISelect();
-  JOOQSelect jooqSelect = new JOOQSelect();
-  ApacheDbUtilsTypicalSelect apacheDbUtilsTypicalSelect = new ApacheDbUtilsTypicalSelect();
-  MyBatisSelect myBatisSelect = new MyBatisSelect();
+  private final JDBISelect jdbiSelect = new JDBISelect();
+  private final JOOQSelect jooqSelect = new JOOQSelect();
+  private final ApacheDbUtilsTypicalSelect apacheDbUtilsTypicalSelect = new ApacheDbUtilsTypicalSelect();
+  private final MyBatisSelect myBatisSelect = new MyBatisSelect();
 
   @Setup
   public void setup() throws Exception {
@@ -237,8 +237,8 @@ public class SelectBenchmark {
   //          performance tests
   // ---------------------------------------
 
-  final static String SELECT_TYPICAL = "SELECT * FROM post";
-  final static String SELECT_OPTIMAL = "SELECT id, text, creation_date as creationDate, last_change_date as lastChangeDate, counter1, counter2, counter3, counter4, counter5, counter6, counter7, counter8, counter9 FROM post";
+  static final String SELECT_TYPICAL = "SELECT * FROM post";
+  static final String SELECT_OPTIMAL = "SELECT id, text, creation_date as creationDate, last_change_date as lastChangeDate, counter1, counter2, counter3, counter4, counter5, counter6, counter7, counter8, counter9 FROM post";
 
   /**
    * Considered "optimized" because it uses {@link #SELECT_OPTIMAL} rather than
