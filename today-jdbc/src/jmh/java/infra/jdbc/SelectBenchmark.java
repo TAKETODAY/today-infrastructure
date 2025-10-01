@@ -93,24 +93,24 @@ public class SelectBenchmark {
   private final static String DB_PASSWORD = "";
   private final static SQLDialect JOOQ_DIALECT = SQLDialect.H2;
 
-  private static final int ITERATIONS = 1000;
+  private final static int ITERATIONS = 1000;
 
   private RepositoryManager operations;
 
-  BeeSelect beeSelect = new BeeSelect();
+  private final BeeSelect beeSelect = new BeeSelect();
 
-  TODAYTypicalSelect todayTypicalSelect = new TODAYTypicalSelect();
+  private TODAYTypicalSelect todayTypicalSelect = new TODAYTypicalSelect();
 
-  TODAYOptimizedSelect todayOptimizedSelect = new TODAYOptimizedSelect();
+  private final TODAYOptimizedSelect todayOptimizedSelect = new TODAYOptimizedSelect();
 
-  HandCodedSelect handCodedSelect = new HandCodedSelect();
-  Sql2oTypicalSelect sql2oTypicalSelect = new Sql2oTypicalSelect();
-  Sql2oOptimizedSelect sql2oOptimizedSelect = new Sql2oOptimizedSelect();
+  private final HandCodedSelect handCodedSelect = new HandCodedSelect();
+  private final Sql2oTypicalSelect sql2oTypicalSelect = new Sql2oTypicalSelect();
+  private final Sql2oOptimizedSelect sql2oOptimizedSelect = new Sql2oOptimizedSelect();
 
-  JDBISelect jdbiSelect = new JDBISelect();
-  JOOQSelect jooqSelect = new JOOQSelect();
-  ApacheDbUtilsTypicalSelect apacheDbUtilsTypicalSelect = new ApacheDbUtilsTypicalSelect();
-  MyBatisSelect myBatisSelect = new MyBatisSelect();
+  private final JDBISelect jdbiSelect = new JDBISelect();
+  private final JOOQSelect jooqSelect = new JOOQSelect();
+  private final ApacheDbUtilsTypicalSelect apacheDbUtilsTypicalSelect = new ApacheDbUtilsTypicalSelect();
+  private final MyBatisSelect myBatisSelect = new MyBatisSelect();
 
   @Setup
   public void setup() throws Exception {
