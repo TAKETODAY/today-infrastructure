@@ -23,6 +23,7 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.weaver.tools.JoinPointMatch;
 import org.aspectj.weaver.tools.PointcutParameter;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -44,7 +45,6 @@ import infra.aop.support.StaticMethodMatcher;
 import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.ParameterNameDiscoverer;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ReflectionUtils;
@@ -119,8 +119,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
    * This will be non-null if the creator of this advice object knows the argument names
    * and sets them explicitly.
    */
-  @Nullable
-  private String[] argumentNames;
+  private String @Nullable [] argumentNames;
 
   /** Non-null if after throwing advice binds the thrown value. */
   @Nullable
@@ -559,13 +558,14 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
    * @param ex the exception thrown by the method execution (may be null)
    * @return the empty array if there are no arguments
    */
-  protected Object[] argBinding(JoinPoint jp, @Nullable JoinPointMatch jpMatch,
+  @SuppressWarnings("NullAway")
+  protected @Nullable Object[] argBinding(JoinPoint jp, @Nullable JoinPointMatch jpMatch,
           @Nullable Object returnValue, @Nullable Throwable ex) {
 
     calculateArgumentBindings();
 
     // AMC start
-    Object[] adviceInvocationArgs = new Object[parameterTypes.length];
+    @Nullable Object[] adviceInvocationArgs = new Object[parameterTypes.length];
     int numBound = 0;
 
     if (joinPointArgumentIndex != -1) {
@@ -602,9 +602,8 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
     }
 
     if (numBound != parameterTypes.length) {
-      throw new IllegalStateException("Required to bind " + parameterTypes.length +
-              " arguments, but only bound " + numBound + " (JoinPointMatch " +
-              (jpMatch == null ? "was NOT" : "WAS") + " bound in invocation)");
+      throw new IllegalStateException("Required to bind %d arguments, but only bound %d (JoinPointMatch %s bound in invocation)"
+              .formatted(parameterTypes.length, numBound, jpMatch == null ? "was NOT" : "WAS"));
     }
 
     return adviceInvocationArgs;
@@ -619,10 +618,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
    * @return the invocation result
    * @throws Throwable in case of invocation failure
    */
-  protected Object invokeAdviceMethod(
-          @Nullable JoinPointMatch jpMatch, @Nullable Object returnValue, @Nullable Throwable ex)
-          throws Throwable {
-
+  protected Object invokeAdviceMethod(@Nullable JoinPointMatch jpMatch, @Nullable Object returnValue, @Nullable Throwable ex) throws Throwable {
     return invokeAdviceMethodWithGivenArgs(argBinding(getJoinPoint(), jpMatch, returnValue, ex));
   }
 
@@ -633,8 +629,8 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
     return invokeAdviceMethodWithGivenArgs(argBinding(jp, jpMatch, returnValue, t));
   }
 
-  protected Object invokeAdviceMethodWithGivenArgs(Object[] args) throws Throwable {
-    Object[] actualArgs = args;
+  protected Object invokeAdviceMethodWithGivenArgs(@Nullable Object[] args) throws Throwable {
+    @Nullable Object[] actualArgs = args;
     if (aspectJAdviceMethod.getParameterCount() == 0) {
       actualArgs = null;
     }
@@ -643,9 +639,8 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
       return aspectJAdviceMethod.invoke(aspectInstanceFactory.getAspectInstance(), actualArgs);
     }
     catch (IllegalArgumentException ex) {
-      throw new AopInvocationException("Mismatch on arguments to advice method [" +
-              aspectJAdviceMethod + "]; pointcut expression [" +
-              pointcut.getPointcutExpression() + "]", ex);
+      throw new AopInvocationException("Mismatch on arguments to advice method [%s]; pointcut expression [%s]"
+              .formatted(aspectJAdviceMethod, pointcut.getPointcutExpression()), ex);
     }
     catch (InvocationTargetException ex) {
       throw ex.getTargetException();

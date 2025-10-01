@@ -17,8 +17,9 @@
 
 package infra.web.accept;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.http.HttpStatus;
-import infra.lang.Nullable;
 import infra.web.ResponseStatusException;
 
 /**

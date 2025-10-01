@@ -17,6 +17,8 @@
 
 package infra.app.diagnostics.analyzer;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,7 +30,6 @@ import infra.app.diagnostics.FailureAnalyzer;
 import infra.context.properties.source.InvalidConfigurationPropertyValueException;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.PropertySource;
-import infra.lang.Nullable;
 import infra.origin.Origin;
 import infra.origin.OriginLookup;
 import infra.origin.PropertySourceOrigin;
@@ -66,7 +67,7 @@ class InvalidConfigurationPropertyValueFailureAnalyzer
   }
 
   private List<Descriptor> getDescriptors(String propertyName) {
-    Set<Origin> seen = new HashSet<>();
+    Set<@Nullable Origin> seen = new HashSet<>();
     return getPropertySources().filter((source) -> source.containsProperty(propertyName))
             .map((source) -> Descriptor.get(source, propertyName))
             .filter((descriptor) -> seen.add(getOrigin(descriptor)))
@@ -131,15 +132,13 @@ class InvalidConfigurationPropertyValueFailureAnalyzer
 
   private static final class Descriptor {
 
-    @Nullable
-    private final String propertySource;
+    public final @Nullable String propertySource;
 
-    private final Object value;
+    public final @Nullable Object value;
 
-    @Nullable
-    private final Origin origin;
+    public final @Nullable Origin origin;
 
-    private Descriptor(@Nullable String propertySource, Object value, @Nullable Origin origin) {
+    private Descriptor(@Nullable String propertySource, @Nullable Object value, @Nullable Origin origin) {
       this.propertySource = propertySource;
       this.value = value;
       this.origin = origin;

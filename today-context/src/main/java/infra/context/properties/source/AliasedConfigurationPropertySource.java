@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.context.properties.source;
+
+import org.jspecify.annotations.Nullable;
 
 import infra.lang.Assert;
 
@@ -42,12 +44,13 @@ class AliasedConfigurationPropertySource implements ConfigurationPropertySource 
   }
 
   @Override
+  @Nullable
   public ConfigurationProperty getConfigurationProperty(ConfigurationPropertyName name) {
     Assert.notNull(name, "Name is required");
     ConfigurationProperty result = source.getConfigurationProperty(name);
     if (result == null) {
       ConfigurationPropertyName aliasedName = aliases.getNameForAlias(name);
-      result = source.getConfigurationProperty(aliasedName);
+      result = aliasedName != null ? source.getConfigurationProperty(aliasedName) : null;
     }
     return result;
   }
@@ -77,6 +80,7 @@ class AliasedConfigurationPropertySource implements ConfigurationPropertySource 
     return ConfigurationPropertyState.ABSENT;
   }
 
+  @Nullable
   @Override
   public Object getUnderlyingSource() {
     return this.source.getUnderlyingSource();

@@ -17,11 +17,13 @@
 
 package infra.logging;
 
+import org.jspecify.annotations.Nullable;
+
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-import infra.lang.Nullable;
+import infra.lang.Contract;
 
 //contributors: lizongbo: proposed special treatment of array parameter values
 //Joern Huxhorn: pointed out double[] omission, suggested deep array copy
@@ -123,12 +125,14 @@ public final class MessageFormatter {
    * @return The formatted message
    */
   @Nullable
-  public static String format(String messagePattern, Object arg) {
+  @Contract("null, _ -> null")
+  public static String format(@Nullable String messagePattern, @Nullable Object arg) {
     return format(messagePattern, new Object[] { arg });
   }
 
   @Nullable
-  public static String format(@Nullable String messagePattern, @Nullable final Object[] argArray) {
+  @Contract("null, _ -> null")
+  public static String format(@Nullable String messagePattern, @Nullable final Object @Nullable [] argArray) {
     if (messagePattern == null || argArray == null) {
       return messagePattern;
     }
@@ -192,7 +196,7 @@ public final class MessageFormatter {
   }
 
   // special treatment of array values was suggested by 'lizongbo'
-  private static void deeplyAppendParameter(StringBuilder sbuf, @Nullable Object o, Map<Object[], Object> seenMap) {
+  private static void deeplyAppendParameter(StringBuilder sbuf, @Nullable Object o, Map<Object[], @Nullable Object> seenMap) {
     if (o == null) {
       sbuf.append((String) null);
       return;
@@ -247,7 +251,7 @@ public final class MessageFormatter {
 
   }
 
-  private static void objectArrayAppend(StringBuilder sbuf, Object[] a, Map<Object[], Object> seenMap) {
+  private static void objectArrayAppend(StringBuilder sbuf, Object[] a, Map<Object[], @Nullable Object> seenMap) {
     sbuf.append('[');
     if (!seenMap.containsKey(a)) {
       seenMap.put(a, null);

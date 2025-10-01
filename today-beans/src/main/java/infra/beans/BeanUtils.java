@@ -17,6 +17,8 @@
 
 package infra.beans;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.ConstructorProperties;
 import java.beans.PropertyDescriptor;
 import java.beans.PropertyEditor;
@@ -38,7 +40,6 @@ import infra.core.MethodParameter;
 import infra.core.ParameterNameDiscoverer;
 import infra.core.ResolvableType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.ObjectUtils;
@@ -117,6 +118,7 @@ public abstract class BeanUtils {
    * @see #obtainConstructor(Class)
    * @since 4.0
    */
+  @SuppressWarnings({ "NullAway" })
   public static <T> T newInstance(Class<T> beanClass, DependencyInjector injector, @Nullable Object... providedArgs) {
     Assert.notNull(injector, "ArgumentsResolver is required");
     Constructor<T> constructor = obtainConstructor(beanClass);
@@ -127,8 +129,8 @@ public abstract class BeanUtils {
    * @throws BeanInstantiationException cannot instantiate a bean
    * @since 4.0
    */
-  @SuppressWarnings("unchecked")
-  public static <T> T newInstance(BeanInstantiator constructor, @Nullable Object[] parameter) {
+  @SuppressWarnings({ "unchecked", "NullAway" })
+  public static <T> T newInstance(BeanInstantiator constructor, @Nullable Object @Nullable [] parameter) {
     return (T) constructor.instantiate(parameter);
   }
 
@@ -145,7 +147,8 @@ public abstract class BeanUtils {
    * @throws BeanInstantiationException if the bean cannot be instantiated
    * @see Constructor#newInstance
    */
-  public static <T> T newInstance(Constructor<T> constructor, @Nullable Object... args) {
+  @SuppressWarnings("NullAway")
+  public static <T> T newInstance(Constructor<T> constructor, @Nullable Object @Nullable ... args) {
     if (ObjectUtils.isNotEmpty(args)) {
       if (args.length > constructor.getParameterCount()) {
         throw new BeanInstantiationException(
@@ -289,6 +292,7 @@ public abstract class BeanUtils {
    * @param pd the PropertyDescriptor for the property
    * @return a corresponding MethodParameter object
    */
+  @SuppressWarnings("NullAway")
   public static MethodParameter getWriteMethodParameter(PropertyDescriptor pd) {
     if (pd instanceof GenericTypeAwarePropertyDescriptor) {
       return new MethodParameter(((GenericTypeAwarePropertyDescriptor) pd).getWriteMethodParameter());
@@ -372,7 +376,7 @@ public abstract class BeanUtils {
    * @return the property type, or {@code Object.class} as fallback
    * @since 4.0
    */
-  public static Class<?> findPropertyType(String propertyName, @Nullable Class<?>... beanClasses) {
+  public static Class<?> findPropertyType(String propertyName, Class<?> @Nullable ... beanClasses) {
     if (beanClasses != null) {
       for (Class<?> beanClass : beanClasses) {
         PropertyDescriptor pd = getPropertyDescriptor(beanClass, propertyName);
@@ -703,14 +707,14 @@ public abstract class BeanUtils {
    * @since 4.0
    */
   private static void copyProperties(Object source, Object target,
-          @Nullable Class<?> editable, @Nullable String[] ignoreProperties) throws BeansException {
+          @Nullable Class<?> editable, String @Nullable [] ignoreProperties) throws BeansException {
     Assert.notNull(source, "Source is required");
     Assert.notNull(target, "Target is required");
     Class<?> actualEditable;
     if (editable != null) {
       if (!editable.isInstance(target)) {
-        throw new IllegalArgumentException("Target class [" + target.getClass().getName()
-                + "] not assignable to Editable class [" + editable.getName() + "]");
+        throw new IllegalArgumentException("Target class [%s] not assignable to Editable class [%s]"
+                .formatted(target.getClass().getName(), editable.getName()));
       }
       actualEditable = editable;
     }
@@ -734,7 +738,7 @@ public abstract class BeanUtils {
             }
             catch (Throwable ex) {
               throw new FatalBeanException(
-                      "Could not copy property '" + targetPd.getName() + "' from source to target", ex);
+                      "Could not copy property '%s' from source to target".formatted(targetPd.getName()), ex);
             }
           }
         }
@@ -757,7 +761,7 @@ public abstract class BeanUtils {
               }
               catch (Throwable ex) {
                 throw new FatalBeanException(
-                        "Could not copy property '" + targetPd.getName() + "' from source to target", ex);
+                        "Could not copy property '%s' from source to target".formatted(targetPd.getName()), ex);
               }
             }
           }

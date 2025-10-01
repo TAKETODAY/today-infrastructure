@@ -17,6 +17,8 @@
 
 package infra.scripting.bsh;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -27,7 +29,6 @@ import bsh.Primitive;
 import bsh.XThis;
 import infra.core.NestedRuntimeException;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
@@ -71,7 +72,7 @@ public abstract class BshScriptUtils {
    * @throws EvalError in case of BeanShell parsing failure
    * @see #createBshObject(String, Class[], ClassLoader)
    */
-  public static Object createBshObject(String scriptSource, @Nullable Class<?>... scriptInterfaces) throws EvalError {
+  public static Object createBshObject(String scriptSource, Class<?> @Nullable ... scriptInterfaces) throws EvalError {
     return createBshObject(scriptSource, scriptInterfaces, ClassUtils.getDefaultClassLoader());
   }
 
@@ -90,7 +91,7 @@ public abstract class BshScriptUtils {
    * @return the scripted Java object
    * @throws EvalError in case of BeanShell parsing failure
    */
-  public static Object createBshObject(String scriptSource, @Nullable Class<?>[] scriptInterfaces, @Nullable ClassLoader classLoader)
+  public static Object createBshObject(String scriptSource, Class<?> @Nullable [] scriptInterfaces, @Nullable ClassLoader classLoader)
           throws EvalError {
 
     Object result = evaluateBshScript(scriptSource, scriptInterfaces, classLoader);
@@ -154,7 +155,7 @@ public abstract class BshScriptUtils {
    * @return the scripted Java class or Java object
    * @throws EvalError in case of BeanShell parsing failure
    */
-  static Object evaluateBshScript(String scriptSource, @Nullable Class<?>[] scriptInterfaces, @Nullable ClassLoader classLoader) throws EvalError {
+  static Object evaluateBshScript(String scriptSource, Class<?> @Nullable [] scriptInterfaces, @Nullable ClassLoader classLoader) throws EvalError {
     Assert.hasText(scriptSource, "Script source must not be empty");
     Interpreter interpreter = new Interpreter();
     interpreter.setClassLoader(classLoader);

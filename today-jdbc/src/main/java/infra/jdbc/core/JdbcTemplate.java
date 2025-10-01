@@ -17,6 +17,8 @@
 
 package infra.jdbc.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.BatchUpdateException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -53,7 +55,6 @@ import infra.jdbc.support.KeyHolder;
 import infra.jdbc.support.SQLExceptionTranslator;
 import infra.jdbc.support.rowset.SqlRowSet;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.LogMessage;
 import infra.util.CollectionUtils;
 import infra.util.LinkedCaseInsensitiveMap;
@@ -795,19 +796,19 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
 
   @Override
   @Nullable
-  public <T> T query(String sql, Object[] args, int[] argTypes, ResultSetExtractor<T> rse) throws DataAccessException {
+  public <T> T query(String sql, @Nullable Object @Nullable [] args, int[] argTypes, ResultSetExtractor<T> rse) throws DataAccessException {
     return query(sql, newArgTypePreparedStatementSetter(args, argTypes), rse);
   }
 
   @Override
   @Nullable
-  public <T> T query(String sql, @Nullable Object[] args, ResultSetExtractor<T> rse) throws DataAccessException {
+  public <T> T query(String sql, @Nullable Object @Nullable [] args, ResultSetExtractor<T> rse) throws DataAccessException {
     return query(sql, newArgPreparedStatementSetter(args), rse);
   }
 
   @Override
   @Nullable
-  public <T> T query(String sql, ResultSetExtractor<T> rse, @Nullable Object... args) throws DataAccessException {
+  public <T> T query(String sql, ResultSetExtractor<T> rse, @Nullable Object @Nullable ... args) throws DataAccessException {
     return query(sql, newArgPreparedStatementSetter(args), rse);
   }
 
@@ -822,17 +823,17 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
   }
 
   @Override
-  public void query(String sql, Object[] args, int[] argTypes, RowCallbackHandler rch) throws DataAccessException {
+  public void query(String sql, @Nullable Object @Nullable [] args, int[] argTypes, RowCallbackHandler rch) throws DataAccessException {
     query(sql, newArgTypePreparedStatementSetter(args, argTypes), rch);
   }
 
   @Override
-  public void query(String sql, @Nullable Object[] args, RowCallbackHandler rch) throws DataAccessException {
+  public void query(String sql, @Nullable Object @Nullable [] args, RowCallbackHandler rch) throws DataAccessException {
     query(sql, newArgPreparedStatementSetter(args), rch);
   }
 
   @Override
-  public void query(String sql, RowCallbackHandler rch, @Nullable Object... args) throws DataAccessException {
+  public void query(String sql, RowCallbackHandler rch, @Nullable Object @Nullable ... args) throws DataAccessException {
     query(sql, newArgPreparedStatementSetter(args), rch);
   }
 
@@ -847,17 +848,17 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
   }
 
   @Override
-  public <T> List<T> query(String sql, Object[] args, int[] argTypes, RowMapper<T> rowMapper) throws DataAccessException {
+  public <T> List<T> query(String sql, @Nullable Object @Nullable [] args, int[] argTypes, RowMapper<T> rowMapper) throws DataAccessException {
     return result(query(sql, args, argTypes, ResultSetExtractor.forRowMapper(rowMapper)));
   }
 
   @Override
-  public <T> List<T> query(String sql, @Nullable Object[] args, RowMapper<T> rowMapper) throws DataAccessException {
+  public <T> List<T> query(String sql, @Nullable Object @Nullable [] args, RowMapper<T> rowMapper) throws DataAccessException {
     return result(query(sql, args, ResultSetExtractor.forRowMapper(rowMapper)));
   }
 
   @Override
-  public <T> List<T> query(String sql, RowMapper<T> rowMapper, @Nullable Object... args) throws DataAccessException {
+  public <T> List<T> query(String sql, RowMapper<T> rowMapper, @Nullable Object @Nullable ... args) throws DataAccessException {
     return result(query(sql, args, ResultSetExtractor.forRowMapper(rowMapper)));
   }
 
@@ -904,13 +905,13 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
   }
 
   @Override
-  public <T> Stream<T> queryForStream(String sql, RowMapper<T> rowMapper, @Nullable Object... args) throws DataAccessException {
+  public <T> Stream<T> queryForStream(String sql, RowMapper<T> rowMapper, @Nullable Object @Nullable ... args) throws DataAccessException {
     return queryForStream(new SimplePreparedStatementCreator(sql), newArgPreparedStatementSetter(args), rowMapper);
   }
 
   @Override
   @Nullable
-  public <T> T queryForObject(String sql, Object[] args, int[] argTypes, RowMapper<T> rowMapper)
+  public <T> T queryForObject(String sql, @Nullable Object @Nullable [] args, int[] argTypes, RowMapper<T> rowMapper)
           throws DataAccessException {
 
     List<T> results = query(sql, args, argTypes, ResultSetExtractor.forRowMapper(rowMapper, 1));
@@ -919,76 +920,78 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
 
   @Override
   @Nullable
-  public <T> T queryForObject(String sql, @Nullable Object[] args, RowMapper<T> rowMapper) throws DataAccessException {
+  public <T> T queryForObject(String sql, @Nullable Object @Nullable [] args, RowMapper<T> rowMapper) throws DataAccessException {
     List<T> results = query(sql, args, ResultSetExtractor.forRowMapper(rowMapper, 1));
     return DataAccessUtils.nullableSingleResult(results);
   }
 
   @Override
   @Nullable
-  public <T> T queryForObject(String sql, RowMapper<T> rowMapper, @Nullable Object... args) throws DataAccessException {
+  public <T> T queryForObject(String sql, RowMapper<T> rowMapper, @Nullable Object @Nullable ... args) throws DataAccessException {
     List<T> results = query(sql, args, ResultSetExtractor.forRowMapper(rowMapper, 1));
     return DataAccessUtils.nullableSingleResult(results);
   }
 
   @Override
   @Nullable
-  public <T> T queryForObject(String sql, Object[] args, int[] argTypes, Class<T> requiredType) throws DataAccessException {
+  public <T> T queryForObject(String sql, @Nullable Object @Nullable [] args, int[] argTypes, Class<T> requiredType) throws DataAccessException {
     return queryForObject(sql, args, argTypes, getSingleColumnRowMapper(requiredType));
   }
 
+  @Nullable
   @Override
-  public <T> T queryForObject(String sql, @Nullable Object[] args, Class<T> requiredType) throws DataAccessException {
+  public <T> T queryForObject(String sql, @Nullable Object @Nullable [] args, Class<T> requiredType) throws DataAccessException {
+    return queryForObject(sql, args, getSingleColumnRowMapper(requiredType));
+  }
+
+  @Nullable
+  @Override
+  public <T> T queryForObject(String sql, Class<T> requiredType, @Nullable Object @Nullable ... args) throws DataAccessException {
     return queryForObject(sql, args, getSingleColumnRowMapper(requiredType));
   }
 
   @Override
-  public <T> T queryForObject(String sql, Class<T> requiredType, @Nullable Object... args) throws DataAccessException {
-    return queryForObject(sql, args, getSingleColumnRowMapper(requiredType));
-  }
-
-  @Override
-  public Map<String, Object> queryForMap(String sql, Object[] args, int[] argTypes) throws DataAccessException {
+  public Map<String, Object> queryForMap(String sql, @Nullable Object @Nullable [] args, int[] argTypes) throws DataAccessException {
     return result(queryForObject(sql, args, argTypes, getColumnMapRowMapper()));
   }
 
   @Override
-  public Map<String, Object> queryForMap(String sql, @Nullable Object... args) throws DataAccessException {
+  public Map<String, Object> queryForMap(String sql, @Nullable Object @Nullable ... args) throws DataAccessException {
     return result(queryForObject(sql, args, getColumnMapRowMapper()));
   }
 
   @Override
-  public <T> List<T> queryForList(String sql, Object[] args, int[] argTypes, Class<T> elementType) throws DataAccessException {
+  public <T> List<T> queryForList(String sql, @Nullable Object @Nullable [] args, int[] argTypes, Class<T> elementType) throws DataAccessException {
     return query(sql, args, argTypes, getSingleColumnRowMapper(elementType));
   }
 
   @Override
-  public <T> List<T> queryForList(String sql, @Nullable Object[] args, Class<T> elementType) throws DataAccessException {
+  public <T> List<T> queryForList(String sql, @Nullable Object @Nullable [] args, Class<T> elementType) throws DataAccessException {
     return query(sql, args, getSingleColumnRowMapper(elementType));
   }
 
   @Override
-  public <T> List<T> queryForList(String sql, Class<T> elementType, @Nullable Object... args) throws DataAccessException {
+  public <T> List<T> queryForList(String sql, Class<T> elementType, @Nullable Object @Nullable ... args) throws DataAccessException {
     return query(sql, args, getSingleColumnRowMapper(elementType));
   }
 
   @Override
-  public List<Map<String, Object>> queryForList(String sql, Object[] args, int[] argTypes) throws DataAccessException {
+  public List<Map<String, Object>> queryForList(String sql, @Nullable Object @Nullable [] args, int[] argTypes) throws DataAccessException {
     return query(sql, args, argTypes, getColumnMapRowMapper());
   }
 
   @Override
-  public List<Map<String, Object>> queryForList(String sql, @Nullable Object... args) throws DataAccessException {
+  public List<Map<String, Object>> queryForList(String sql, @Nullable Object @Nullable ... args) throws DataAccessException {
     return query(sql, args, getColumnMapRowMapper());
   }
 
   @Override
-  public SqlRowSet queryForRowSet(String sql, Object[] args, int[] argTypes) throws DataAccessException {
+  public SqlRowSet queryForRowSet(String sql, @Nullable Object @Nullable [] args, int[] argTypes) throws DataAccessException {
     return result(query(sql, args, argTypes, ResultSetExtractor.forSqlRowSet()));
   }
 
   @Override
-  public SqlRowSet queryForRowSet(String sql, @Nullable Object... args) throws DataAccessException {
+  public SqlRowSet queryForRowSet(String sql, @Nullable Object @Nullable ... args) throws DataAccessException {
     return result(query(sql, args, ResultSetExtractor.forSqlRowSet()));
   }
 
@@ -1053,12 +1056,12 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
   }
 
   @Override
-  public int update(String sql, Object[] args, int[] argTypes) throws DataAccessException {
+  public int update(String sql, @Nullable Object @Nullable [] args, int[] argTypes) throws DataAccessException {
     return update(sql, newArgTypePreparedStatementSetter(args, argTypes));
   }
 
   @Override
-  public int update(String sql, @Nullable Object... args) throws DataAccessException {
+  public int update(String sql, @Nullable Object @Nullable ... args) throws DataAccessException {
     return update(sql, newArgPreparedStatementSetter(args));
   }
 
@@ -1100,7 +1103,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
     return batchUpdate(sql, new BatchPreparedStatementSetter() {
       @Override
       public void setValues(PreparedStatement ps, int i) throws SQLException {
-        Object[] values = batchArgs.get(i);
+        @Nullable Object[] values = batchArgs.get(i);
         int colIndex = 0;
         for (Object value : values) {
           colIndex++;
@@ -1390,6 +1393,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
    * @param param the corresponding stored procedure parameter
    * @return a Map that contains returned results
    */
+  @SuppressWarnings("NullAway")
   protected Map<String, Object> processResultSet(@Nullable ResultSet rs, ResultSetSupportingSqlParameter param) throws SQLException {
     if (rs != null) {
       try {
@@ -1491,7 +1495,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
    * @param args object array with arguments
    * @return the new PreparedStatementSetter to use
    */
-  protected PreparedStatementSetter newArgPreparedStatementSetter(@Nullable Object[] args) {
+  @SuppressWarnings("NullAway")
+  protected PreparedStatementSetter newArgPreparedStatementSetter(@Nullable Object @Nullable [] args) {
     return new ArgumentPreparedStatementSetter(args);
   }
 
@@ -1504,7 +1509,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
    * @param argTypes int array of SQLTypes for the associated arguments
    * @return the new PreparedStatementSetter to use
    */
-  protected PreparedStatementSetter newArgTypePreparedStatementSetter(Object[] args, int[] argTypes) {
+  @SuppressWarnings("NullAway")
+  protected PreparedStatementSetter newArgTypePreparedStatementSetter(@Nullable Object @Nullable [] args, int[] argTypes) {
     return new ArgumentTypePreparedStatementSetter(args, argTypes);
   }
 

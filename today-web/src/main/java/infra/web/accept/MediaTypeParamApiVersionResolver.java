@@ -17,9 +17,10 @@
 
 package infra.web.accept;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 
 /**

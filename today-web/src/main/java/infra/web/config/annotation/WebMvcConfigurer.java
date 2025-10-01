@@ -17,6 +17,8 @@
 
 package infra.web.config.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 import infra.core.conversion.Converter;
@@ -25,7 +27,6 @@ import infra.format.Formatter;
 import infra.format.FormatterRegistry;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters;
-import infra.lang.Nullable;
 import infra.validation.Validator;
 import infra.validation.beanvalidation.OptionalValidatorFactoryBean;
 import infra.web.ErrorResponse;

@@ -18,9 +18,7 @@
 /**
  * Provides the types that make up Infra functional web framework.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.handler.function;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

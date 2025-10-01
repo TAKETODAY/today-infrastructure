@@ -17,6 +17,8 @@
 
 package infra.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,7 +65,6 @@ import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
 import infra.lang.Assert;
 import infra.lang.NullValue;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
@@ -123,6 +124,7 @@ import static infra.lang.Constant.DEFAULT_CHARSET;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2.3.7 2019-06-22 15:48
  */
+@SuppressWarnings("NullAway")
 public abstract class RequestContext extends AttributeAccessorSupport
         implements InputStreamSource, OutputStreamSource, HttpInputMessage, HttpRequest, AttributeAccessor {
 
@@ -155,8 +157,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   public static final HttpCookie[] EMPTY_COOKIES = {};
 
-  @Nullable
-  protected HttpCookie[] cookies;
+  protected HttpCookie @Nullable [] cookies;
 
   @Nullable
   protected PrintWriter writer;
@@ -697,8 +698,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * values
    * @see #getParameters()
    */
-  @Nullable
-  public String[] getParameters(String name) {
+  public String @Nullable [] getParameters(String name) {
     var parameters = getParameters();
     if (CollectionUtils.isEmpty(parameters)) {
       return null;

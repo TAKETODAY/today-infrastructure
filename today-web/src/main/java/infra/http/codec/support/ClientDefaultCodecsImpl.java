@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 package infra.http.codec.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 import infra.core.codec.Decoder;
 import infra.http.codec.ClientCodecConfigurer;
 import infra.http.codec.HttpMessageReader;
 import infra.http.codec.ServerSentEventHttpMessageReader;
-import infra.lang.Nullable;
 
 /**
  * Default implementation of {@link ClientCodecConfigurer.ClientDefaultCodecs}.
@@ -53,10 +54,10 @@ class ClientDefaultCodecsImpl extends BaseDefaultCodecs implements ClientCodecCo
   protected void extendObjectReaders(List<HttpMessageReader<?>> objectReaders) {
 
     Decoder<?> decoder = this.sseDecoder != null
-                         ? this.sseDecoder
-                         : jackson2Present
-                           ? getJackson2JsonDecoder()
-                           : null;
+            ? this.sseDecoder
+            : jackson2Present
+                    ? getJackson2JsonDecoder()
+                    : null;
 
     addCodec(objectReaders, new ServerSentEventHttpMessageReader(decoder));
   }

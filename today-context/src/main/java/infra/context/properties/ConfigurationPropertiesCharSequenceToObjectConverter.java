@@ -17,6 +17,8 @@
 
 package infra.context.properties;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.Set;
 
@@ -24,7 +26,6 @@ import infra.core.TypeDescriptor;
 import infra.core.conversion.ConditionalGenericConverter;
 import infra.core.conversion.ConversionService;
 import infra.format.support.ApplicationConversionService;
-import infra.lang.Nullable;
 
 /**
  * @author Phillip Webb
@@ -99,6 +100,9 @@ final class ConfigurationPropertiesCharSequenceToObjectConverter implements Cond
   @Nullable
   @Override
   public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+    if (source == null) {
+      return null;
+    }
     return this.conversionService.convert(source.toString(), STRING, targetType);
   }
 

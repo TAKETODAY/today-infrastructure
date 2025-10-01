@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ public @interface CookieValue {
   /**
    * Alias for {@link #name}.
    */
-  @AliasFor("name")
+  @AliasFor(annotation = RequestParam.class, attribute = "value")
   String value() default "";
 
   /**
@@ -58,7 +58,7 @@ public @interface CookieValue {
    *
    * @since 4.0
    */
-  @AliasFor("value")
+  @AliasFor(annotation = RequestParam.class, attribute = "name")
   String name() default "";
 
   /**
@@ -70,6 +70,7 @@ public @interface CookieValue {
    * <p>Alternatively, provide a {@link #defaultValue}, which implicitly
    * sets this flag to {@code false}.
    */
+  @AliasFor(annotation = RequestParam.class, attribute = "required")
   boolean required() default true;
 
   /**
@@ -77,6 +78,7 @@ public @interface CookieValue {
    * <p>Supplying a default value implicitly sets {@link #required} to
    * {@code false}.
    */
+  @AliasFor(annotation = RequestParam.class, attribute = "defaultValue")
   String defaultValue() default Constant.DEFAULT_NONE;
 
 }

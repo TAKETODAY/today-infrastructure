@@ -17,6 +17,8 @@
 
 package infra.jdbc.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -33,18 +35,21 @@ public class LongTypeHandler extends BasicTypeHandler<Long> {
     ps.setLong(i, arg);
   }
 
+  @Nullable
   @Override
   public Long getResult(ResultSet rs, String columnName) throws SQLException {
     long result = rs.getLong(columnName);
     return result == 0L && rs.wasNull() ? null : result;
   }
 
+  @Nullable
   @Override
   public Long getResult(ResultSet rs, int columnIndex) throws SQLException {
     long result = rs.getLong(columnIndex);
     return result == 0L && rs.wasNull() ? null : result;
   }
 
+  @Nullable
   @Override
   public Long getResult(CallableStatement cs, int columnIndex) throws SQLException {
     long result = cs.getLong(columnIndex);

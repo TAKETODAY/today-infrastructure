@@ -17,6 +17,7 @@
 
 package infra.web.handler.result;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -37,7 +38,6 @@ import infra.core.task.TaskExecutor;
 import infra.http.MediaType;
 import infra.http.codec.ServerSentEvent;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.Unmodifiable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
@@ -190,6 +190,7 @@ final class ReactiveTypeHandler {
     return null; // not a concrete streaming type
   }
 
+  @SuppressWarnings("NullAway")
   @Unmodifiable
   private Collection<MediaType> getMediaTypes(RequestContext request) throws HttpMediaTypeNotAcceptableException {
     HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();

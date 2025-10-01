@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -27,7 +29,6 @@ import infra.http.HttpMethod;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.ProblemDetail;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 
@@ -43,8 +44,7 @@ public class HttpRequestMethodNotSupportedException extends NestedRuntimeExcepti
 
   private final String method;
 
-  @Nullable
-  private final String[] supportedMethods;
+  private final String @Nullable [] supportedMethods;
 
   private final ProblemDetail body;
 
@@ -73,7 +73,7 @@ public class HttpRequestMethodNotSupportedException extends NestedRuntimeExcepti
    * @param method the unsupported HTTP request method
    * @param supportedMethods the actually supported HTTP methods (possibly {@code null})
    */
-  private HttpRequestMethodNotSupportedException(String method, @Nullable String[] supportedMethods) {
+  private HttpRequestMethodNotSupportedException(String method, String @Nullable [] supportedMethods) {
     super("Request method '%s' is not supported".formatted(method));
     this.method = method;
     this.supportedMethods = supportedMethods;
@@ -92,8 +92,7 @@ public class HttpRequestMethodNotSupportedException extends NestedRuntimeExcepti
   /**
    * Return the actually supported HTTP methods, or {@code null} if not known.
    */
-  @Nullable
-  public String[] getSupportedMethods() {
+  public String @Nullable [] getSupportedMethods() {
     return this.supportedMethods;
   }
 

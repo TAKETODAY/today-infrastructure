@@ -17,6 +17,8 @@
 
 package infra.aop.framework;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Closeable;
 import java.io.Serial;
 
@@ -28,7 +30,6 @@ import infra.beans.factory.BeanFactory;
 import infra.beans.factory.DisposableBean;
 import infra.beans.factory.InitializingBean;
 import infra.core.Ordered;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 

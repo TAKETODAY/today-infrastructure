@@ -17,12 +17,13 @@
 
 package infra.web.server.reactive.context;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.BeansException;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.ApplicationContextException;
 import infra.http.server.reactive.HttpHandler;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 import infra.web.server.WebServer;
 import infra.web.server.context.ConfigurableWebServerApplicationContext;
@@ -44,6 +45,7 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
   @Nullable
   private volatile WebServerManager serverManager;
 
+  @Nullable
   private String serverNamespace;
 
   /**
@@ -161,7 +163,7 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
   }
 
   @Override
-  public void setServerNamespace(String serverNamespace) {
+  public void setServerNamespace(@Nullable String serverNamespace) {
     this.serverNamespace = serverNamespace;
   }
 

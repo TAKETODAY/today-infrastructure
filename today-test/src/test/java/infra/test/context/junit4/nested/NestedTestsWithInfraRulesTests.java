@@ -20,13 +20,13 @@ package infra.test.context.junit4.nested;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import de.bechte.junit.runners.context.HierarchicalContextRunner;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.test.context.ContextConfiguration;
 import infra.test.context.junit4.rules.InfraClassRule;
 import infra.test.context.junit4.rules.InfraMethodRule;
-import de.bechte.junit.runners.context.HierarchicalContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

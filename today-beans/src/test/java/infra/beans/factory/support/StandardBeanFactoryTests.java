@@ -17,6 +17,7 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
@@ -96,7 +97,6 @@ import infra.core.conversion.support.GenericConversionService;
 import infra.core.io.Resource;
 import infra.core.io.UrlResource;
 import infra.core.testfixture.io.SerializationTestUtils;
-import infra.lang.Nullable;
 import jakarta.annotation.Priority;
 
 import static org.assertj.core.api.Assertions.assertThat;

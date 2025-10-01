@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.beans;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
@@ -26,7 +28,6 @@ import java.util.Set;
 import infra.core.BridgeMethodResolver;
 import infra.core.GenericTypeResolver;
 import infra.core.MethodParameter;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 
@@ -99,7 +100,7 @@ final class GenericTypeAwarePropertyDescriptor extends PropertyDescriptor {
           this.ambiguousWriteMethods = ambiguousCandidates;
         }
       }
-      this.writeMethodParameter = new MethodParameter(this.writeMethod, 0).withContainingClass(this.beanClass);
+      this.writeMethodParameter = new MethodParameter(writeMethod, 0).withContainingClass(this.beanClass);
     }
 
     if (readMethod != null) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
@@ -30,7 +32,6 @@ import infra.beans.factory.config.AutowireCapableBeanFactory;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.config.DependencyDescriptor;
 import infra.core.MethodParameter;
-import infra.lang.Nullable;
 import infra.util.ExceptionUtils;
 import infra.util.ObjectUtils;
 
@@ -59,12 +60,12 @@ public class DependencyInjector {
   //---------------------------------------------------------------------
 
   public <T> T inject(Constructor<T> constructor, @Nullable Object... providedArgs) {
-    Object[] parameter = resolveArguments(constructor, providedArgs);
+    @Nullable Object[] parameter = resolveArguments(constructor, providedArgs);
     return BeanUtils.newInstance(constructor, parameter);
   }
 
   public Object inject(Method method, Object bean, @Nullable Object... providedArgs) {
-    Object[] args = resolveArguments(method, providedArgs);
+    @Nullable Object[] args = resolveArguments(method, providedArgs);
     try {
       return method.invoke(bean, args);
     }
@@ -81,10 +82,10 @@ public class DependencyInjector {
   //---------------------------------------------------------------------
 
   @Nullable
-  public Object[] resolveArguments(Executable executable, @Nullable Object... providedArgs) {
+  public Object @Nullable [] resolveArguments(Executable executable, @Nullable Object... providedArgs) {
     int parameterLength = executable.getParameterCount();
     if (parameterLength != 0) {
-      Object[] arguments = new Object[parameterLength];
+      @Nullable Object[] arguments = new Object[parameterLength];
       Parameter[] parameters = executable.getParameters();
       for (int i = 0; i < arguments.length; i++) {
         Object provided = findProvided(parameters[i], providedArgs);
@@ -151,7 +152,8 @@ public class DependencyInjector {
   }
 
   @Nullable
-  public static Object findProvided(Parameter parameter, @Nullable Object[] providedArgs) {
+  @SuppressWarnings("NullAway")
+  public static Object findProvided(Parameter parameter, @Nullable Object @Nullable [] providedArgs) {
     if (ObjectUtils.isNotEmpty(providedArgs)) {
       Class<?> dependencyType = parameter.getType();
       for (final Object providedArg : providedArgs) {

@@ -17,6 +17,8 @@
 
 package infra.jmx.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.HashMap;
@@ -38,7 +40,6 @@ import infra.beans.factory.InitializingBean;
 import infra.jmx.access.MBeanClientInterceptor;
 import infra.jmx.access.NotificationListenerRegistrar;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 

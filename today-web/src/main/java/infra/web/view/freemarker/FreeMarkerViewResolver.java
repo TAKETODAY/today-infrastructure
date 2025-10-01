@@ -17,10 +17,11 @@
 
 package infra.web.view.freemarker;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Locale;
 
 import freemarker.template.Configuration;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 import infra.web.view.AbstractTemplateViewResolver;
 import infra.web.view.AbstractUrlBasedView;

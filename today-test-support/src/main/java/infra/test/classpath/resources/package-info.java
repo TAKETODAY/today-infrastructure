@@ -18,9 +18,7 @@
 /**
  * Custom JUnit extension for testing with resources.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.test.classpath.resources;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

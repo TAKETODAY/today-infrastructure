@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.dao;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * Exception thrown on incorrect usage of the API, such as failing to
@@ -35,7 +37,7 @@ public class InvalidDataAccessApiUsageException extends NonTransientDataAccessEx
    *
    * @param msg the detail message
    */
-  public InvalidDataAccessApiUsageException(String msg) {
+  public InvalidDataAccessApiUsageException(@Nullable String msg) {
     super(msg);
   }
 
@@ -45,7 +47,7 @@ public class InvalidDataAccessApiUsageException extends NonTransientDataAccessEx
    * @param msg the detail message
    * @param cause the root cause from the data access API in use
    */
-  public InvalidDataAccessApiUsageException(String msg, Throwable cause) {
+  public InvalidDataAccessApiUsageException(@Nullable String msg, @Nullable Throwable cause) {
     super(msg, cause);
   }
 

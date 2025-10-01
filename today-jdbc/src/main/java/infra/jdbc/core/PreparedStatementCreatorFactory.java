@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jdbc.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -30,7 +32,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import infra.dao.InvalidDataAccessApiUsageException;
-import infra.lang.Nullable;
 
 /**
  * Helper class that efficiently creates multiple {@link PreparedStatementCreator}
@@ -58,8 +59,7 @@ public class PreparedStatementCreatorFactory {
 
   private boolean returnGeneratedKeys = false;
 
-  @Nullable
-  private String[] generatedKeysColumnNames;
+  private String @Nullable [] generatedKeysColumnNames;
 
   /**
    * Create a new factory. Will need to add parameters via the
@@ -160,7 +160,7 @@ public class PreparedStatementCreatorFactory {
    *
    * @param params the parameter array (may be {@code null})
    */
-  public PreparedStatementSetter newPreparedStatementSetter(@Nullable Object[] params) {
+  public PreparedStatementSetter newPreparedStatementSetter(@Nullable Object @Nullable [] params) {
     return new PreparedStatementCreatorImpl(params != null ? Arrays.asList(params) : Collections.emptyList());
   }
 
@@ -178,7 +178,7 @@ public class PreparedStatementCreatorFactory {
    *
    * @param params the parameter array (may be {@code null})
    */
-  public PreparedStatementCreator newPreparedStatementCreator(@Nullable Object[] params) {
+  public PreparedStatementCreator newPreparedStatementCreator(@Nullable Object @Nullable [] params) {
     return new PreparedStatementCreatorImpl(params != null ? Arrays.asList(params) : Collections.emptyList());
   }
 
@@ -189,7 +189,7 @@ public class PreparedStatementCreatorFactory {
    * the factory's, for example because of named parameter expanding)
    * @param params the parameter array (may be {@code null})
    */
-  public PreparedStatementCreator newPreparedStatementCreator(String sqlToUse, @Nullable Object[] params) {
+  public PreparedStatementCreator newPreparedStatementCreator(String sqlToUse, @Nullable Object @Nullable [] params) {
     return new PreparedStatementCreatorImpl(
             sqlToUse, (params != null ? Arrays.asList(params) : Collections.emptyList()));
   }
@@ -208,6 +208,7 @@ public class PreparedStatementCreatorFactory {
       this(sql, parameters);
     }
 
+    @SuppressWarnings("NullAway")
     public PreparedStatementCreatorImpl(String actualSql, List<?> parameters) {
       this.actualSql = actualSql;
       this.parameters = parameters;
@@ -235,6 +236,7 @@ public class PreparedStatementCreatorFactory {
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
       PreparedStatement ps;
       if (generatedKeysColumnNames != null || returnGeneratedKeys) {
@@ -312,7 +314,7 @@ public class PreparedStatementCreatorFactory {
 
     @Override
     public String toString() {
-      return "PreparedStatementCreator: sql=[" + sql + "]; parameters=" + parameters;
+      return "PreparedStatementCreator: sql=[%s]; parameters=%s".formatted(sql, parameters);
     }
   }
 

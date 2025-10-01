@@ -17,6 +17,8 @@
 
 package infra.expression.spel.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -38,7 +40,6 @@ import infra.expression.TypeConverter;
 import infra.expression.TypeLocator;
 import infra.expression.TypedValue;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * A powerful and highly configurable {@link EvaluationContext} implementation.
@@ -80,6 +81,7 @@ import infra.lang.Nullable;
  */
 public class StandardEvaluationContext implements EvaluationContext {
 
+  @SuppressWarnings("NullAway.Init")
   private TypedValue rootObject;
 
   @Nullable
@@ -132,6 +134,7 @@ public class StandardEvaluationContext implements EvaluationContext {
   /**
    * Create a {@code StandardEvaluationContext} with the given root object.
    */
+  @SuppressWarnings("NullAway")
   protected StandardEvaluationContext(StandardEvaluationContext shared) {
     this.typeLocator = shared.getTypeLocator();
     this.typeConverter = shared.getTypeConverter();

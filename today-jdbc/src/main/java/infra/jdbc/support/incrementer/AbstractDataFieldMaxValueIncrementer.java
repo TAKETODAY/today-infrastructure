@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ import infra.lang.Assert;
  * @author Juergen Hoeller
  * @author Jean-Pierre Pawlak
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
 public abstract class AbstractDataFieldMaxValueIncrementer implements DataFieldMaxValueIncrementer, InitializingBean {
 
@@ -49,6 +50,7 @@ public abstract class AbstractDataFieldMaxValueIncrementer implements DataFieldM
    * @see #setDataSource
    * @see #setIncrementerName
    */
+  @SuppressWarnings("NullAway")
   public AbstractDataFieldMaxValueIncrementer() {
   }
 

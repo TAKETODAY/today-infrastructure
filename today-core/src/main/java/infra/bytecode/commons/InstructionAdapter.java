@@ -47,8 +47,8 @@ public class InstructionAdapter extends MethodVisitor {
       case Opcodes.NOP -> nop();
       case Opcodes.ACONST_NULL -> aconst(null);
       case Opcodes.ICONST_M1, Opcodes.ICONST_0, Opcodes.ICONST_1,
-              Opcodes.ICONST_2, Opcodes.ICONST_3, Opcodes.ICONST_4,
-              Opcodes.ICONST_5 -> iconst(opcode - Opcodes.ICONST_0);
+           Opcodes.ICONST_2, Opcodes.ICONST_3, Opcodes.ICONST_4,
+           Opcodes.ICONST_5 -> iconst(opcode - Opcodes.ICONST_0);
       case Opcodes.LCONST_0, Opcodes.LCONST_1 -> lconst(opcode - Opcodes.LCONST_0);
       case Opcodes.FCONST_0, Opcodes.FCONST_1, Opcodes.FCONST_2 -> fconst((float) (opcode - Opcodes.FCONST_0));
       case Opcodes.DCONST_0, Opcodes.DCONST_1 -> dconst(opcode - Opcodes.DCONST_0);

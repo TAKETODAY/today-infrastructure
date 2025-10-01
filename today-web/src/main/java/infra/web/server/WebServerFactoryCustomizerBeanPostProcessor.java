@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.web.server;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,7 +30,6 @@ import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.InitializationBeanPostProcessor;
 import infra.beans.factory.config.BeanPostProcessor;
 import infra.core.annotation.AnnotationAwareOrderComparator;
-import infra.lang.Nullable;
 import infra.util.LambdaSafe;
 
 /**
@@ -44,6 +45,7 @@ import infra.util.LambdaSafe;
 public class WebServerFactoryCustomizerBeanPostProcessor
         implements InitializationBeanPostProcessor, BeanFactoryAware {
 
+  @SuppressWarnings("NullAway")
   private BeanFactory beanFactory;
 
   @Nullable

@@ -23,7 +23,6 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import infra.util.PathMatcher;
 import infra.core.io.PathMatchingPatternResourceLoader;
 import infra.core.io.Resource;
 import infra.core.io.ResourceConsumer;
@@ -34,6 +33,7 @@ import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.mock.api.MockContext;
 import infra.util.CollectionUtils;
+import infra.util.PathMatcher;
 import infra.util.ResourceUtils;
 import infra.util.StringUtils;
 

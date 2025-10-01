@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.aot.agent;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -24,7 +26,6 @@ import java.util.stream.Stream;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.TypeReference;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Record of an invocation of a method relevant to {@link infra.aot.hint.RuntimeHints}.
@@ -42,7 +43,7 @@ public final class RecordedInvocation {
 
   private final InstrumentedMethod instrumentedMethod;
 
-  private final Object[] arguments;
+  private final @Nullable Object[] arguments;
 
   @Nullable
   private final Object returnValue;
@@ -50,7 +51,7 @@ public final class RecordedInvocation {
   private final List<StackWalker.StackFrame> stackFrames;
 
   private RecordedInvocation(InstrumentedMethod instrumentedMethod, @Nullable Object instance,
-          Object[] arguments, @Nullable Object returnValue, List<StackWalker.StackFrame> stackFrames) {
+          @Nullable Object[] arguments, @Nullable Object returnValue, List<StackWalker.StackFrame> stackFrames) {
     this.instance = instance;
     this.instrumentedMethod = instrumentedMethod;
     this.arguments = arguments;
@@ -144,6 +145,7 @@ public final class RecordedInvocation {
    * @return the argument at the given index
    */
   @SuppressWarnings("unchecked")
+  @Nullable
   public <T> T getArgument(int index) {
     return (T) this.arguments[index];
   }
@@ -211,7 +213,7 @@ public final class RecordedInvocation {
 
     private final InstrumentedMethod instrumentedMethod;
 
-    private Object[] arguments = new Object[0];
+    private @Nullable Object[] arguments = new Object[0];
 
     @Nullable
     private Object returnValue;
@@ -250,7 +252,7 @@ public final class RecordedInvocation {
      * @param arguments the invocation arguments
      * @return {@code this}, to facilitate method chaining
      */
-    public Builder withArguments(@Nullable Object... arguments) {
+    public Builder withArguments(@Nullable Object @Nullable ... arguments) {
       if (arguments != null) {
         this.arguments = arguments;
       }

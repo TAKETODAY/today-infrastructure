@@ -17,6 +17,7 @@
 
 package infra.web.client.reactive;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.net.URI;
@@ -44,7 +45,6 @@ import infra.http.ResponseEntity;
 import infra.http.client.reactive.ClientHttpRequest;
 import infra.http.client.reactive.ClientHttpResponse;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
@@ -102,7 +102,7 @@ class DefaultWebClient implements WebClient {
           @Nullable HttpHeaders defaultHeaders, @Nullable MultiValueMap<String, String> defaultCookies,
           @Nullable Consumer<RequestHeadersSpec<?>> defaultRequest,
           @Nullable Map<Predicate<HttpStatusCode>, Function<ClientResponse, Mono<? extends Throwable>>> statusHandlerMap,
-          DefaultWebClientBuilder builder, @Nullable ApiVersionInserter apiVersionInserter, Object defaultApiVersion) {
+          DefaultWebClientBuilder builder, @Nullable ApiVersionInserter apiVersionInserter, @Nullable Object defaultApiVersion) {
 
     this.builder = builder;
     this.exchangeFunction = exchangeFunction;

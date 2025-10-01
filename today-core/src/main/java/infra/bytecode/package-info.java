@@ -17,9 +17,7 @@
 /**
  * CGLIB or ASM other byte code library
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.bytecode;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

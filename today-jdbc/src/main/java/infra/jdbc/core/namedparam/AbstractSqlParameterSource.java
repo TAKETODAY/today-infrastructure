@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 package infra.jdbc.core.namedparam;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.StringJoiner;
 
 import infra.jdbc.core.SqlParameterValue;
 import infra.jdbc.support.JdbcUtils;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Abstract base class for {@link SqlParameterSource} implementations.
@@ -100,6 +101,7 @@ public abstract class AbstractSqlParameterSource implements SqlParameterSource {
    * @see #getParameterNames()
    */
   @Override
+  @SuppressWarnings({ "NullAway" })
   public String toString() {
     String[] parameterNames = getParameterNames();
     if (parameterNames != null) {

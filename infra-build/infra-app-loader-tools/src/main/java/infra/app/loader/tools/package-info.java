@@ -18,9 +18,7 @@
 /**
  * Tools for generating executable JAR/WAR files.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.app.loader.tools;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

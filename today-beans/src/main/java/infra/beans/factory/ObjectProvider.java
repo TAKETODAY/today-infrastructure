@@ -17,6 +17,8 @@
 
 package infra.beans.factory;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -31,7 +33,6 @@ import infra.beans.factory.annotation.Autowired;
 import infra.core.OrderComparator;
 import infra.core.Ordered;
 import infra.core.annotation.Order;
-import infra.lang.Nullable;
 
 /**
  * A variant of {@link Supplier} designed specifically for injection points,
@@ -123,7 +124,7 @@ public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
    * @see #get()
    * @since 4.0
    */
-  default T get(Object... args) throws BeansException {
+  default T get(@Nullable Object... args) throws BeansException {
     throw new UnsupportedOperationException("Retrieval with arguments not supported -" +
             "for custom ObjectProvider classes, implement getObject(Object...) for your purposes");
   }

@@ -17,6 +17,8 @@
 
 package infra.http;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
@@ -47,7 +49,6 @@ import java.util.stream.Collectors;
 
 import infra.lang.Assert;
 import infra.lang.Modifiable;
-import infra.lang.Nullable;
 import infra.lang.Unmodifiable;
 import infra.util.CollectionUtils;
 import infra.util.LinkedCaseInsensitiveMap;
@@ -593,6 +594,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    *
    * @throws IllegalArgumentException if the value cannot be converted to a language range
    */
+  @SuppressWarnings("NullAway")
   public List<Locale.LanguageRange> getAcceptLanguage() {
     String value = getFirst(ACCEPT_LANGUAGE);
     if (StringUtils.hasText(value)) {
@@ -600,7 +602,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
         return Locale.LanguageRange.parse(value);
       }
       catch (IllegalArgumentException ignored) {
-        String[] tokens = StringUtils.tokenizeToStringArray(value, ",");
+        @Nullable String[] tokens = StringUtils.tokenizeToStringArray(value, ",");
         for (int i = 0; i < tokens.length; i++) {
           tokens[i] = StringUtils.trimTrailingCharacter(tokens[i], ';');
         }
@@ -1581,7 +1583,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    *
    * @param vary the request header names
    */
-  public void setVary(@Nullable String... vary) {
+  public void setVary(String @Nullable ... vary) {
     setOrRemove(VARY, vary == null ? null : toCommaDelimitedString(Arrays.asList(vary)));
   }
 
@@ -1883,7 +1885,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
 
   @Nullable
   @Override
-  public List<String> setOrRemove(String name, @Nullable String[] value) {
+  public List<String> setOrRemove(String name, String @Nullable [] value) {
     return setOrRemove(name, value == null ? null : toCommaDelimitedString(Arrays.asList(value)));
   }
 

@@ -17,6 +17,8 @@
 
 package infra.annotation.config.ssl;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.app.io.ApplicationResourceLoader;
 import infra.core.io.ResourceLoader;
 import infra.core.ssl.SslBundle;
@@ -31,7 +33,6 @@ import infra.core.ssl.pem.PemSslStoreBundle;
 import infra.core.ssl.pem.PemSslStoreDetails;
 import infra.core.style.ToStringBuilder;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * {@link SslBundle} backed by {@link JksSslBundleProperties} or
@@ -42,6 +43,7 @@ import infra.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public final class PropertiesSslBundle implements SslBundle {
 
   private final SslStoreBundle stores;
@@ -62,11 +64,11 @@ public final class PropertiesSslBundle implements SslBundle {
     this.managers = SslManagerBundle.from(this.stores, this.key);
   }
 
-  private static SslBundleKey asSslKeyReference(@Nullable SslBundleProperties.Key key) {
+  private static SslBundleKey asSslKeyReference(SslBundleProperties.@Nullable Key key) {
     return (key != null) ? SslBundleKey.of(key.getPassword(), key.getAlias()) : SslBundleKey.NONE;
   }
 
-  private static SslOptions asSslOptions(@Nullable SslBundleProperties.Options options) {
+  private static SslOptions asSslOptions(SslBundleProperties.@Nullable Options options) {
     return (options != null) ? SslOptions.of(options.getCiphers(), options.getEnabledProtocols()) : SslOptions.NONE;
   }
 

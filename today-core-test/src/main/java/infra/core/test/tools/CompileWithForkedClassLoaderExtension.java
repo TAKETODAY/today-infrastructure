@@ -17,8 +17,6 @@
 
 package infra.core.test.tools;
 
-import java.lang.reflect.Method;
-
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.InvocationInterceptor;
 import org.junit.jupiter.api.extension.ReflectiveInvocationContext;
@@ -28,6 +26,8 @@ import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 import org.junit.platform.launcher.listeners.TestExecutionSummary;
+
+import java.lang.reflect.Method;
 
 import static org.junit.platform.commons.util.ReflectionUtils.getFullyQualifiedMethodName;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +15,8 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package infra.aop.interceptor;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 
@@ -33,7 +35,7 @@ public class SimpleAsyncUncaughtExceptionHandler implements AsyncUncaughtExcepti
   private static final Logger log = LoggerFactory.getLogger(SimpleAsyncUncaughtExceptionHandler.class);
 
   @Override
-  public void handleUncaughtException(Throwable ex, Method method, Object... params) {
+  public void handleUncaughtException(Throwable ex, Method method, @Nullable Object... params) {
     if (log.isErrorEnabled()) {
       log.error("Unexpected exception occurred invoking async method: {}", method, ex);
     }

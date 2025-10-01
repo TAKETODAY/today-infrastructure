@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.cache.jcache.interceptor;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
@@ -28,7 +30,6 @@ import infra.cache.interceptor.CacheAspectSupport;
 import infra.cache.interceptor.CacheOperationInvocationContext;
 import infra.cache.interceptor.CacheOperationInvoker;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
@@ -179,6 +180,7 @@ public class JCacheAspectSupport extends AbstractCacheInvoker implements Initial
       this.delegate = delegate;
     }
 
+    @Nullable
     @Override
     public Object invoke() throws ThrowableWrapper {
       return invokeOperation(this.delegate);

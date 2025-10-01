@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.annotation.config.validation;
+
+import org.jspecify.annotations.Nullable;
 
 import infra.beans.BeansException;
 import infra.beans.factory.DisposableBean;
@@ -93,9 +95,10 @@ public class ValidatorAdapter implements SmartValidator, ApplicationContextAware
     }
   }
 
+  @Nullable
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T unwrap(Class<T> type) {
+  public <T> T unwrap(@Nullable Class<T> type) {
     if (type != null) {
       if (type.isInstance(this.target)) {
         return (T) this.target;
@@ -117,7 +120,7 @@ public class ValidatorAdapter implements SmartValidator, ApplicationContextAware
    * @param validator an existing validator to use or {@code null}
    * @return the validator to use
    */
-  public static Validator get(ApplicationContext applicationContext, Validator validator) {
+  public static Validator get(ApplicationContext applicationContext, @Nullable Validator validator) {
     if (validator != null) {
       return wrap(validator, false);
     }
@@ -129,6 +132,7 @@ public class ValidatorAdapter implements SmartValidator, ApplicationContextAware
     return create(applicationContext);
   }
 
+  @Nullable
   private static Validator getExisting(ApplicationContext context) {
     try {
       var validatorBean = context.getBean(jakarta.validation.Validator.class);

@@ -18,9 +18,7 @@
 /**
  * AspectJ-based scheduling support.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.scheduling.aspectj;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

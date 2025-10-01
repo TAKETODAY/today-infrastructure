@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 package infra.web.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.nio.charset.Charset;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
-import infra.lang.Nullable;
 
 /**
  * Exception thrown when an HTTP 5xx is received.
@@ -53,7 +54,7 @@ public class HttpServerErrorException extends HttpStatusCodeException {
    * Constructor with a status code and status text, and content.
    */
   public HttpServerErrorException(HttpStatusCode statusCode,
-          String statusText, @Nullable byte[] body, @Nullable Charset charset) {
+          String statusText, byte @Nullable [] body, @Nullable Charset charset) {
     super(statusCode, statusText, body, charset);
   }
 
@@ -61,7 +62,7 @@ public class HttpServerErrorException extends HttpStatusCodeException {
    * Constructor with a status code and status text, headers, and content.
    */
   public HttpServerErrorException(HttpStatusCode statusCode, String statusText,
-          @Nullable HttpHeaders headers, @Nullable byte[] body, @Nullable Charset charset) {
+          @Nullable HttpHeaders headers, byte @Nullable [] body, @Nullable Charset charset) {
     super(statusCode, statusText, headers, body, charset);
   }
 
@@ -70,7 +71,7 @@ public class HttpServerErrorException extends HttpStatusCodeException {
    * prepared message.
    */
   public HttpServerErrorException(@Nullable String message, HttpStatusCode statusCode, String statusText,
-          @Nullable HttpHeaders headers, @Nullable byte[] body, @Nullable Charset charset) {
+          @Nullable HttpHeaders headers, byte @Nullable [] body, @Nullable Charset charset) {
     super(message, statusCode, statusText, headers, body, charset);
   }
 

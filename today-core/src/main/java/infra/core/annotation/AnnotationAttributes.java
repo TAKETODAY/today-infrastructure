@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.core.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.util.Iterator;
@@ -26,7 +28,6 @@ import java.util.Map;
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.core.type.AnnotationMetadata;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**
@@ -49,6 +50,7 @@ import infra.util.StringUtils;
  */
 @SuppressWarnings("serial")
 public class AnnotationAttributes extends LinkedHashMap<String, Object> {
+
   public static final AnnotationAttributes[] EMPTY_ARRAY = {};
 
   private static final String UNKNOWN = "unknown";
@@ -131,7 +133,10 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
    * or {@code null} to just store the annotation type name
    */
   public AnnotationAttributes(String annotationType, @Nullable ClassLoader classLoader) {
-    this(getAnnotationType(annotationType, classLoader), false);
+    Assert.notNull(annotationType, "'annotationType' is required");
+    this.annotationType = getAnnotationType(annotationType, classLoader);
+    this.displayName = annotationType;
+    this.validated = false;
   }
 
   /**
@@ -366,41 +371,29 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
   public <T> T getRequiredAttribute(String attributeName, Class<T> expectedType) {
     Assert.hasText(attributeName, "'attributeName' must not be null or empty");
     Object value = get(attributeName);
-    assertAttributePresence(attributeName, value);
-    assertNotException(attributeName, value);
+    if (value == null) {
+      throw new IllegalArgumentException(String.format(
+              "Attribute '%s' not found in attributes for annotation [%s]",
+              attributeName, this.displayName));
+    }
+    if (value instanceof Throwable throwable) {
+      throw new IllegalArgumentException(String.format(
+              "Attribute '%s' for annotation [%s] was not resolvable due to exception [%s]",
+              attributeName, this.displayName, value), throwable);
+    }
     if (!expectedType.isInstance(value) && expectedType.isArray() &&
-            expectedType.getComponentType().isInstance(value)) {
-      Object array = Array.newInstance(expectedType.getComponentType(), 1);
+            expectedType.componentType().isInstance(value)) {
+      Object array = Array.newInstance(expectedType.componentType(), 1);
       Array.set(array, 0, value);
       value = array;
     }
-    assertAttributeType(attributeName, value, expectedType);
-    return (T) value;
-  }
-
-  private void assertAttributePresence(String attributeName, Object attributeValue) {
-    if (attributeValue == null) {
-      throw new IllegalArgumentException(
-              String.format("Attribute '%s' not found in attributes for annotation [%s]",
-                      attributeName, this.displayName));
-    }
-  }
-
-  private void assertNotException(String attributeName, Object attributeValue) {
-    if (attributeValue instanceof Throwable) {
-      throw new IllegalArgumentException(String.format(
-              "Attribute '%s' for annotation [%s] was not resolvable due to exception [%s]",
-              attributeName, this.displayName, attributeValue), (Throwable) attributeValue);
-    }
-  }
-
-  private void assertAttributeType(String attributeName, Object attributeValue, Class<?> expectedType) {
-    if (!expectedType.isInstance(attributeValue)) {
+    if (!expectedType.isInstance(value)) {
       throw new IllegalArgumentException(String.format(
               "Attribute '%s' is of type %s, but %s was expected in attributes for annotation [%s]",
-              attributeName, attributeValue.getClass().getSimpleName(), expectedType.getSimpleName(),
+              attributeName, value.getClass().getSimpleName(), expectedType.getSimpleName(),
               this.displayName));
     }
+    return (T) value;
   }
 
   @Override

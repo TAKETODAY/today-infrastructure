@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.web.handler.condition;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,7 +26,6 @@ import java.util.List;
 
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
-import infra.lang.Nullable;
 import infra.lang.Unmodifiable;
 import infra.util.MimeType;
 import infra.util.MimeTypeUtils;
@@ -85,7 +86,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
    * @param produces expressions with syntax defined by {@link RequestMapping#produces()}
    * @param headers expressions with syntax defined by {@link RequestMapping#headers()}
    */
-  public ProducesRequestCondition(String[] produces, @Nullable String[] headers) {
+  public ProducesRequestCondition(String[] produces, String @Nullable [] headers) {
     this(produces, headers, null);
   }
 
@@ -97,7 +98,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
    * @param headers expressions with syntax defined by {@link RequestMapping#headers()}
    * @param manager used to determine requested media types
    */
-  public ProducesRequestCondition(String[] produces, @Nullable String[] headers, @Nullable ContentNegotiationManager manager) {
+  public ProducesRequestCondition(String[] produces, String @Nullable [] headers, @Nullable ContentNegotiationManager manager) {
     var expressions = MediaTypeExpression.parse(HttpHeaders.ACCEPT, produces, headers);
     if (expressions != null) {
       Collections.sort(expressions);

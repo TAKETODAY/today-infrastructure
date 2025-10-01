@@ -17,6 +17,8 @@
 
 package infra.context.annotation.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -36,8 +38,10 @@ import infra.lang.TodayStrategies;
  */
 public class AutoConfigurationExcludeFilter implements TypeFilter, BeanClassLoaderAware {
 
+  @Nullable
   private ClassLoader beanClassLoader;
 
+  @Nullable
   private volatile List<String> autoConfigurations;
 
   @Override
@@ -59,11 +63,12 @@ public class AutoConfigurationExcludeFilter implements TypeFilter, BeanClassLoad
   }
 
   protected List<String> getAutoConfigurations() {
+    List<String> autoConfigurations = this.autoConfigurations;
     if (autoConfigurations == null) {
-      autoConfigurations = ImportCandidates.load(AutoConfiguration.class, beanClassLoader).getCandidates();
+      this.autoConfigurations = autoConfigurations = ImportCandidates.load(AutoConfiguration.class, beanClassLoader).getCandidates();
       autoConfigurations.addAll(TodayStrategies.findNames(EnableAutoConfiguration.class, beanClassLoader));
     }
-    return this.autoConfigurations;
+    return autoConfigurations;
   }
 
 }

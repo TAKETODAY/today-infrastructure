@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,8 @@
 
 package infra.app.context.config;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import infra.origin.Origin;
 import infra.origin.OriginProvider;
 import infra.util.StringUtils;
@@ -187,6 +188,7 @@ public final class ConfigDataLocation implements OriginProvider {
    * provided
    */
   @Nullable
+  @SuppressWarnings("NullAway")
   public static ConfigDataLocation valueOf(@Nullable String location) {
     boolean optional = location != null && location.startsWith(OPTIONAL_PREFIX);
     if (optional) {

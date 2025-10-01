@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,8 @@
 
 package infra.jdbc.support;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
 
@@ -36,8 +37,7 @@ import infra.util.StringUtils;
  */
 public class SQLErrorCodes {
 
-  @Nullable
-  private String[] databaseProductNames;
+  private String @Nullable [] databaseProductNames;
 
   private boolean useSqlStateForTranslation = false;
 
@@ -61,8 +61,7 @@ public class SQLErrorCodes {
 
   private String[] cannotSerializeTransactionCodes = new String[0];
 
-  @Nullable
-  private CustomSQLErrorCodesTranslation[] customTranslations;
+  private CustomSQLErrorCodesTranslation @Nullable [] customTranslations;
 
   @Nullable
   private SQLExceptionTranslator customSqlExceptionTranslator;
@@ -71,7 +70,7 @@ public class SQLErrorCodes {
    * Set this property if the database name contains spaces,
    * in which case we can not use the bean name for lookup.
    */
-  public void setDatabaseProductName(@Nullable String databaseProductName) {
+  public void setDatabaseProductName(String databaseProductName) {
     this.databaseProductNames = new String[] { databaseProductName };
   }
 
@@ -85,12 +84,11 @@ public class SQLErrorCodes {
    * Set this property to specify multiple database names that contains spaces,
    * in which case we can not use bean names for lookup.
    */
-  public void setDatabaseProductNames(@Nullable String... databaseProductNames) {
+  public void setDatabaseProductNames(String @Nullable ... databaseProductNames) {
     this.databaseProductNames = databaseProductNames;
   }
 
-  @Nullable
-  public String[] getDatabaseProductNames() {
+  public String @Nullable [] getDatabaseProductNames() {
     return this.databaseProductNames;
   }
 
@@ -190,8 +188,7 @@ public class SQLErrorCodes {
     this.customTranslations = customTranslations;
   }
 
-  @Nullable
-  public CustomSQLErrorCodesTranslation[] getCustomTranslations() {
+  public CustomSQLErrorCodesTranslation @Nullable [] getCustomTranslations() {
     return this.customTranslations;
   }
 

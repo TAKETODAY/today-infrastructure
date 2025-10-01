@@ -17,6 +17,8 @@
 
 package infra.aop.aspectj;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.InvocationTargetException;
 
@@ -24,7 +26,6 @@ import infra.aop.framework.AopConfigException;
 import infra.core.ConstructorNotFoundException;
 import infra.core.Ordered;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 
 /**

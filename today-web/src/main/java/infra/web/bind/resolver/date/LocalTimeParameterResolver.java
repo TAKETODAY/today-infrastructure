@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.web.bind.resolver.date;
+
+import org.jspecify.annotations.Nullable;
 
 import java.time.LocalTime;
 import java.time.temporal.TemporalAccessor;
@@ -37,6 +39,7 @@ public class LocalTimeParameterResolver
     return parameter.is(LocalTime.class);
   }
 
+  @Nullable
   @Override
   protected Object fromTemporalAccessor(TemporalAccessor temporalAccessor) {
     return DateUtils.ofTime(temporalAccessor);

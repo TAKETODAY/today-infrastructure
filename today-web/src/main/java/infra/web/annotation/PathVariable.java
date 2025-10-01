@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,7 +67,7 @@ public @interface PathVariable {
   /**
    * Alias for {@link #name}.
    */
-  @AliasFor("name")
+  @AliasFor(annotation = RequestParam.class, attribute = "value")
   String value() default Constant.BLANK;
 
   /**
@@ -75,7 +75,7 @@ public @interface PathVariable {
    *
    * @since 4.0
    */
-  @AliasFor("value")
+  @AliasFor(annotation = RequestParam.class, attribute = "name")
   String name() default Constant.BLANK;
 
   /**
@@ -87,6 +87,7 @@ public @interface PathVariable {
    *
    * @since 4.0
    */
+  @AliasFor(annotation = RequestParam.class, attribute = "required")
   boolean required() default true;
 
 }

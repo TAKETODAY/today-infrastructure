@@ -17,11 +17,12 @@
 
 package infra.beans.propertyeditors;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyEditorSupport;
 import java.util.HexFormat;
 
 import infra.beans.BeanWrapperImpl;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**

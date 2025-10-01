@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,20 +17,24 @@
 
 package infra.expression.spel;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Wraps a real parse exception. This exception flows to the top parse method and then
  * the wrapped exception is thrown as the real problem.
  *
  * @author Andy Clement
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
 public class InternalParseException extends RuntimeException {
 
-  public InternalParseException(SpelParseException cause) {
+  public InternalParseException(@Nullable SpelParseException cause) {
     super(cause);
   }
 
+  @Nullable
   @Override
   public SpelParseException getCause() {
     return (SpelParseException) super.getCause();

@@ -17,6 +17,8 @@
 
 package infra.http.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
@@ -25,7 +27,6 @@ import java.util.function.Function;
 import infra.context.SmartLifecycle;
 import infra.http.HttpMethod;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import io.netty.channel.ChannelOption;

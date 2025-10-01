@@ -18,6 +18,7 @@
 package infra.app;
 
 import org.crac.management.CRaCMXBean;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.StackWalker.StackFrame;
 import java.lang.management.ManagementFactory;
@@ -83,7 +84,6 @@ import infra.core.io.ResourceLoader;
 import infra.format.support.ApplicationConversionService;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.lang.VisibleForTesting;
 import infra.logging.Logger;
@@ -156,6 +156,7 @@ import infra.util.function.ThrowingSupplier;
  * @see #Application(Class...)
  * @since 4.0 2021/10/5 23:49
  */
+@SuppressWarnings("NullAway")
 public class Application {
 
   public static final String PROPERTIES_BINDER_PREFIX = "app.main";
@@ -211,8 +212,7 @@ public class Application {
   @Nullable
   private Banner banner;
 
-  @Nullable
-  private Banner.Mode bannerMode;
+  private Banner.@Nullable Mode bannerMode;
 
   private boolean headless = true;
   private boolean logStartupInfo = true;
@@ -1199,7 +1199,7 @@ public class Application {
    *
    * @param bannerMode the mode used to display the banner
    */
-  public void setBannerMode(@Nullable Banner.Mode bannerMode) {
+  public void setBannerMode(Banner.@Nullable Mode bannerMode) {
     this.bannerMode = bannerMode;
   }
 

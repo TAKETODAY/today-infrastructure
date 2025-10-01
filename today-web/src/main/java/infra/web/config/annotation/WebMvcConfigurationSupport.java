@@ -17,6 +17,8 @@
 
 package infra.web.config.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,7 +61,6 @@ import infra.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
 import infra.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import infra.http.converter.yaml.MappingJackson2YamlHttpMessageConverter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.session.SessionManager;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
@@ -579,7 +580,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public ParameterResolvingRegistry parameterResolvingRegistry(
-          @Nullable ParameterResolvingStrategy[] strategies, @Nullable RedirectModelManager redirectModelManager,
+          ParameterResolvingStrategy @Nullable [] strategies, @Nullable RedirectModelManager redirectModelManager,
           @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager) {
 
     var registry = new ParameterResolvingRegistry(getMessageConverters());

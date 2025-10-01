@@ -17,6 +17,7 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
@@ -38,7 +39,6 @@ import infra.core.ReactiveAdapter;
 import infra.core.ReactiveAdapterRegistry;
 import infra.core.ReactiveStreams;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;
@@ -83,11 +83,9 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
 
   private boolean invokeAutoCloseable;
 
-  @Nullable
-  private String[] destroyMethodNames;
+  private String @Nullable [] destroyMethodNames;
 
-  @Nullable
-  private transient Method[] destroyMethods;
+  private transient Method @Nullable [] destroyMethods;
 
   @Nullable
   private final List<DestructionAwareBeanPostProcessor> beanPostProcessors;
@@ -174,7 +172,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
    */
   private DisposableBeanAdapter(Object bean, String beanName,
           boolean nonPublicAccessAllowed, boolean invokeDisposableBean, boolean invokeAutoCloseable,
-          @Nullable String[] destroyMethodNames, @Nullable List<DestructionAwareBeanPostProcessor> postProcessors) {
+          String @Nullable [] destroyMethodNames, @Nullable List<DestructionAwareBeanPostProcessor> postProcessors) {
 
     this.bean = bean;
     this.beanName = beanName;
@@ -337,7 +335,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
     }
   }
 
-  void logDestroyMethodException(Method destroyMethod, Throwable ex) {
+  void logDestroyMethodException(Method destroyMethod, @Nullable Throwable ex) {
     if (log.isWarnEnabled()) {
       String msg = "Custom destroy method '%s' on bean with name '%s' propagated an exception"
               .formatted(destroyMethod.getName(), beanName);
@@ -401,8 +399,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
    * <p>Also processes the {@link java.io.Closeable} and {@link java.lang.AutoCloseable}
    * interfaces, reflectively calling the "close" method on implementing beans as well.
    */
-  @Nullable
-  static String[] inferDestroyMethodsIfNecessary(Class<?> target, RootBeanDefinition beanDefinition) {
+  static String @Nullable [] inferDestroyMethodsIfNecessary(Class<?> target, RootBeanDefinition beanDefinition) {
     String[] destroyMethodNames = beanDefinition.getDestroyMethodNames();
     if (destroyMethodNames != null && destroyMethodNames.length > 1) {
       return destroyMethodNames;

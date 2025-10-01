@@ -71,6 +71,7 @@ final class InterceptingClientHttpRequest extends AbstractBufferingClientHttpReq
     return getExecution().execute(this, bufferedOutput);
   }
 
+  @SuppressWarnings("NullAway")
   private ClientHttpRequestExecution getExecution() {
     ClientHttpRequestExecution execution = new EndOfChainRequestExecution(this.requestFactory);
     if (interceptors.isEmpty()) {

@@ -17,12 +17,13 @@
 
 package infra.cache.transaction;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 import infra.cache.Cache;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.transaction.support.TransactionSynchronization;
 import infra.transaction.support.TransactionSynchronizationManager;
 import infra.util.function.ThrowingFunction;

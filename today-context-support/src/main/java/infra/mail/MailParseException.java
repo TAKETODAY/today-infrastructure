@@ -17,7 +17,7 @@
 
 package infra.mail;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Exception thrown if illegal message properties are encountered.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.app.context.config;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,7 +39,7 @@ import infra.core.env.Environment;
 import infra.core.env.PropertySource;
 import infra.core.env.PropertySources;
 import infra.core.io.ResourceLoader;
-import infra.lang.Nullable;
+import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.StringUtils;
@@ -362,7 +364,9 @@ class ConfigDataEnvironment {
           if (traceEnabled)
             logger.trace("Adding imported property source '{}'", propertySource.getName());
           propertySources.addLast(propertySource);
-          environmentUpdateListener.onPropertySourceAdded(propertySource, contributor.location, contributor.resource);
+          ConfigDataLocation location = contributor.location;
+          Assert.state(location != null, "location is required");
+          environmentUpdateListener.onPropertySourceAdded(propertySource, location, contributor.resource);
         }
       }
     }

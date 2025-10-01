@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,12 @@
 
 package infra.jdbc.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Object to represent an SQL parameter definition.
@@ -187,7 +188,7 @@ public class SqlParameter {
    * Convert a list of JDBC types, as defined in {@code java.sql.Types},
    * to a List of SqlParameter objects as used in this package.
    */
-  public static List<SqlParameter> sqlTypesToAnonymousParameterList(@Nullable int... types) {
+  public static List<SqlParameter> sqlTypesToAnonymousParameterList(int @Nullable ... types) {
     if (types == null) {
       return new ArrayList<>();
     }

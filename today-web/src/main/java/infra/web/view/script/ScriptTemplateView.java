@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.web.view.script;
+
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -42,7 +44,6 @@ import infra.core.NamedThreadLocal;
 import infra.core.io.Resource;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.scripting.support.StandardScriptEvalException;
 import infra.scripting.support.StandardScriptUtils;
 import infra.util.FileCopyUtils;
@@ -96,8 +97,7 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
   @Nullable
   private Boolean sharedEngine;
 
-  @Nullable
-  private String[] scripts;
+  private String @Nullable [] scripts;
 
   @Nullable
   private String renderObject;
@@ -108,8 +108,7 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
   @Nullable
   private Charset charset;
 
-  @Nullable
-  private String[] resourceLoaderPaths;
+  private String @Nullable [] resourceLoaderPaths;
 
   @Nullable
   private volatile ScriptEngineManager scriptEngineManager;
@@ -433,8 +432,8 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
       throw new IllegalStateException("Template resource [" + path + "] not found");
     }
     var reader = charset != null
-                 ? new InputStreamReader(resource.getInputStream(), charset)
-                 : new InputStreamReader(resource.getInputStream());
+            ? new InputStreamReader(resource.getInputStream(), charset)
+            : new InputStreamReader(resource.getInputStream());
     return FileCopyUtils.copyToString(reader);
   }
 

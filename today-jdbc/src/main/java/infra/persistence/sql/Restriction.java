@@ -17,9 +17,10 @@
 
 package infra.persistence.sql;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 
 /**

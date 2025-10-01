@@ -17,7 +17,7 @@
 
 package infra.web.client;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Default implementation of {@link ApiVersionInserter.Builder}.

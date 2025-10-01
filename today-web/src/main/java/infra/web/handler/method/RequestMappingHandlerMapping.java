@@ -17,6 +17,8 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -32,7 +34,6 @@ import infra.context.ApplicationContext;
 import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.MethodParameter;
 import infra.core.ParameterNameDiscoverer;
-import infra.util.PathMatcher;
 import infra.core.StringValueResolver;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.annotation.MergedAnnotation;
@@ -43,9 +44,9 @@ import infra.core.annotation.RepeatableContainers;
 import infra.http.HttpMethod;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.stereotype.Controller;
 import infra.util.CollectionUtils;
+import infra.util.PathMatcher;
 import infra.util.StringUtils;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.DefaultApiVersionStrategy;
@@ -84,6 +85,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   @Nullable
   private ParameterResolvingRegistry resolvingRegistry;
 
+  @SuppressWarnings("NullAway.Init")
   private ResolvableParameterFactory parameterFactory;
 
   private ParameterNameDiscoverer parameterNameDiscoverer = ParameterNameDiscoverer.getSharedInstance();
@@ -384,6 +386,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
    *
    * @return a new array with updated patterns
    */
+  @SuppressWarnings("NullAway")
   protected String[] resolveEmbeddedValuesInPatterns(String[] patterns) {
     StringValueResolver embeddedValueResolver = this.embeddedValueResolver;
     if (embeddedValueResolver == null) {

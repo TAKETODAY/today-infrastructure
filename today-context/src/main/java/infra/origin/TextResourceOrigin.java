@@ -17,12 +17,13 @@
 
 package infra.origin;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.util.Objects;
 
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 /**
@@ -70,6 +71,7 @@ public class TextResourceOrigin implements Origin {
     return this.location;
   }
 
+  @Nullable
   @Override
   public Origin getParent() {
     return Origin.from(this.resource);

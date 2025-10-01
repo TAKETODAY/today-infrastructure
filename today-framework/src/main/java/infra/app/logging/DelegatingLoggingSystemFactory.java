@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.app.logging;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 import java.util.function.Function;
 
@@ -24,21 +26,23 @@ import java.util.function.Function;
  * {@link LoggingSystemFactory} that delegates to other factories.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 class DelegatingLoggingSystemFactory implements LoggingSystemFactory {
 
-  private final Function<ClassLoader, List<LoggingSystemFactory>> delegates;
+  private final @Nullable Function<ClassLoader, @Nullable List<LoggingSystemFactory>> delegates;
 
   /**
    * Create a new {@link DelegatingLoggingSystemFactory} instance.
    *
    * @param delegates a function that provides the delegates
    */
-  DelegatingLoggingSystemFactory(Function<ClassLoader, List<LoggingSystemFactory>> delegates) {
+  DelegatingLoggingSystemFactory(@Nullable Function<ClassLoader, @Nullable List<LoggingSystemFactory>> delegates) {
     this.delegates = delegates;
   }
 
+  @Nullable
   @Override
   public LoggingSystem getLoggingSystem(ClassLoader classLoader) {
     var delegates = this.delegates != null ? this.delegates.apply(classLoader) : null;

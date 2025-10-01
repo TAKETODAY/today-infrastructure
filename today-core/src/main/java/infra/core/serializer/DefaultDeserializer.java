@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,13 @@
 
 package infra.core.serializer;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 
 import infra.core.ConfigurableObjectInputStream;
-import infra.lang.Nullable;
 
 /**
  * A default {@link Deserializer} implementation that reads an input stream

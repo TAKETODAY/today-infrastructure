@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,13 @@
 
 package infra.app.diagnostics.analyzer;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.app.diagnostics.FailureAnalysis;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.NoUniqueBeanDefinitionException;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.ConfigurableBeanFactory;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**
@@ -43,8 +44,7 @@ class NoUniqueBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnal
 
   @Override
   @Nullable
-  protected FailureAnalysis analyze(
-          Throwable rootFailure, NoUniqueBeanDefinitionException cause, @Nullable String description) {
+  protected FailureAnalysis analyze(Throwable rootFailure, NoUniqueBeanDefinitionException cause, @Nullable String description) {
     if (description == null) {
       return null;
     }
@@ -88,11 +88,11 @@ class NoUniqueBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnal
     return (resourceDescription != null) ? resourceDescription : "unknown location";
   }
 
-  @Nullable
-  private String[] extractBeanNames(NoUniqueBeanDefinitionException cause) {
-    if (cause.getMessage().contains("but found")) {
+  private String @Nullable [] extractBeanNames(NoUniqueBeanDefinitionException cause) {
+    String message = cause.getMessage();
+    if (message != null && message.contains("but found")) {
       return StringUtils.commaDelimitedListToStringArray(
-              cause.getMessage().substring(cause.getMessage().lastIndexOf(':') + 1).trim());
+              message.substring(message.lastIndexOf(':') + 1).trim());
     }
     return null;
   }

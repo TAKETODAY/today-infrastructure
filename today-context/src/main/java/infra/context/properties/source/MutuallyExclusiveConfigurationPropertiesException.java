@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.context.properties.source;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -26,7 +28,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
+import infra.lang.Contract;
 
 /**
  * Exception thrown when more than one mutually exclusive configuration property has been
@@ -83,11 +85,12 @@ public class MutuallyExclusiveConfigurationPropertiesException extends RuntimeEx
   }
 
   @Nullable
+  @Contract("null -> null; !null -> !null")
   private static Set<String> asSet(@Nullable Collection<String> collection) {
     return collection != null ? new LinkedHashSet<>(collection) : null;
   }
 
-  private static String buildMessage(Set<String> mutuallyExclusiveNames, Set<String> configuredNames) {
+  private static String buildMessage(@Nullable Set<String> mutuallyExclusiveNames, @Nullable Set<String> configuredNames) {
     Assert.isTrue(configuredNames != null && configuredNames.size() > 1,
             "ConfiguredNames must contain 2 or more names");
     Assert.isTrue(mutuallyExclusiveNames != null && mutuallyExclusiveNames.size() > 1,
@@ -103,6 +106,7 @@ public class MutuallyExclusiveConfigurationPropertiesException extends RuntimeEx
    *
    * @param entries a consumer used to populate the entries to check
    */
+  @SuppressWarnings("NullAway")
   public static void throwIfMultipleNonNullValuesIn(Consumer<Map<String, Object>> entries) {
     LinkedHashMap<String, Object> map = new LinkedHashMap<>();
     entries.accept(map);

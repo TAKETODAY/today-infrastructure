@@ -17,6 +17,7 @@
 
 package infra.core.io.buffer;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -48,7 +49,6 @@ import infra.core.io.Resource;
 import infra.core.io.buffer.DataBuffer.ByteBufferIterator;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
@@ -956,7 +956,7 @@ public abstract class DataBufferUtils {
       attachment.iterator().close();
       DataBuffer dataBuffer = attachment.dataBuffer();
 
-      if (this.state.get().equals(State.DISPOSED)) {
+      if (this.state.get() == State.DISPOSED) {
         dataBuffer.release();
         closeChannel(this.channel);
         return;

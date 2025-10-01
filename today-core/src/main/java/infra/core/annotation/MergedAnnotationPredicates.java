@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.core.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.HashSet;
@@ -24,7 +26,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 /**
@@ -125,7 +126,7 @@ public abstract class MergedAnnotationPredicates {
 
     private boolean hasLastValue;
 
-    @Nullable
+    @SuppressWarnings("NullAway.Init")
     private Object lastValue;
 
     FirstRunOfPredicate(Function<? super MergedAnnotation<A>, ?> valueExtractor) {
@@ -134,6 +135,7 @@ public abstract class MergedAnnotationPredicates {
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public boolean test(@Nullable MergedAnnotation<A> annotation) {
       if (!this.hasLastValue) {
         this.hasLastValue = true;
@@ -160,6 +162,7 @@ public abstract class MergedAnnotationPredicates {
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public boolean test(@Nullable MergedAnnotation<A> annotation) {
       K key = this.keyExtractor.apply(annotation);
       return this.seen.add(key);

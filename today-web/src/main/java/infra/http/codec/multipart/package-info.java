@@ -1,9 +1,7 @@
 /**
  * Multipart support.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.http.codec.multipart;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

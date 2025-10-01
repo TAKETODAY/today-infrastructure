@@ -17,6 +17,8 @@
 
 package infra.cache.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -32,7 +34,6 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.ImportAware;
 import infra.core.annotation.AnnotationAttributes;
 import infra.core.type.AnnotationMetadata;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.function.SingletonSupplier;
 
@@ -78,7 +79,7 @@ public abstract class AbstractCachingConfiguration implements ImportAware, BeanF
 
   @Override
   public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-    useCachingConfigurer(new CachingConfigurerSupplier(() -> {
+    useCachingConfigurer(new CachingConfigurerSupplier((Supplier<@Nullable CachingConfigurer>) () -> {
       var candidates = beanFactory.getBeanNamesForType(CachingConfigurer.class);
       if (ObjectUtils.isEmpty(candidates)) {
         return null;
@@ -96,6 +97,7 @@ public abstract class AbstractCachingConfiguration implements ImportAware, BeanF
   /**
    * Extract the configuration from the nominated {@link CachingConfigurer}.
    */
+  @SuppressWarnings("NullAway") // https://github.com/uber/NullAway/issues/1128
   protected void useCachingConfigurer(CachingConfigurerSupplier supplier) {
     this.cacheManager = supplier.adapt(CachingConfigurer::cacheManager);
     this.cacheResolver = supplier.adapt(CachingConfigurer::cacheResolver);
@@ -105,10 +107,11 @@ public abstract class AbstractCachingConfiguration implements ImportAware, BeanF
 
   protected static class CachingConfigurerSupplier {
 
-    private final Supplier<CachingConfigurer> supplier;
+    private final SingletonSupplier<CachingConfigurer> supplier;
 
-    public CachingConfigurerSupplier(Supplier<CachingConfigurer> supplier) {
-      this.supplier = SingletonSupplier.from(supplier);
+    @SuppressWarnings("NullAway")
+    public CachingConfigurerSupplier(Supplier<@Nullable CachingConfigurer> supplier) {
+      this.supplier = SingletonSupplier.ofNullable(supplier);
     }
 
     /**
@@ -121,8 +124,7 @@ public abstract class AbstractCachingConfiguration implements ImportAware, BeanF
      * @param <T> the type of the supplier
      * @return another supplier mapped by the specified function
      */
-    @Nullable
-    public <T> Supplier<T> adapt(Function<CachingConfigurer, T> provider) {
+    public <T> Supplier<@Nullable T> adapt(Function<CachingConfigurer, @Nullable T> provider) {
       return () -> {
         CachingConfigurer cachingConfigurer = this.supplier.get();
         return (cachingConfigurer != null ? provider.apply(cachingConfigurer) : null);

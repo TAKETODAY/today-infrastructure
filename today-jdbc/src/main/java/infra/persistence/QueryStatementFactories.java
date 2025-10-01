@@ -17,9 +17,10 @@
 
 package infra.persistence;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 
 /**

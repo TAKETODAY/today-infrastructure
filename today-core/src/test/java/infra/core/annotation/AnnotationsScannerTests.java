@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.core.annotation;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
@@ -34,7 +35,6 @@ import java.util.stream.Stream;
 
 import infra.core.annotation.MergedAnnotations.Search;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
 
@@ -198,7 +198,7 @@ class AnnotationsScannerTests {
   }
 
   @Test
-  void typeHierarchyStrategyOnClassWhenHasInterfaceDoesNotIncludeInterfaces() {
+  void typeHierarchyStrategyOnClassWhenHasSingleInterfaceScansInterfaces() {
     Class<?> source = WithSingleInterface.class;
     assertThat(scan(source, SearchStrategy.TYPE_HIERARCHY)).containsExactly(
             "0:TestAnnotation1", "1:TestAnnotation2", "1:TestInheritedAnnotation2");
@@ -471,15 +471,13 @@ class AnnotationsScannerTests {
             new AnnotationsProcessor<Object, String>() {
 
               @Override
-              @Nullable
               public String doWithAggregate(Object context, int aggregateIndex) {
                 return "";
               }
 
               @Override
-              @Nullable
               public String doWithAnnotations(Object context, int aggregateIndex,
-                      Object source, Annotation[] annotations) {
+                      @Nullable Object source, @Nullable Annotation[] annotations) {
                 throw new IllegalStateException("Should not call");
               }
 
@@ -505,15 +503,13 @@ class AnnotationsScannerTests {
             new AnnotationsProcessor<Object, String>() {
 
               @Override
-              @Nullable
               public String doWithAnnotations(Object context, int aggregateIndex,
-                      Object source, Annotation[] annotations) {
+                      @Nullable Object source, @Nullable Annotation[] annotations) {
                 return "K";
               }
 
               @Override
-              @Nullable
-              public String finish(String result) {
+              public String finish(@Nullable String result) {
                 return "O" + result;
               }
 
@@ -700,6 +696,29 @@ class AnnotationsScannerTests {
     }
   }
 
+  interface Hello1 {
+
+    @TestAnnotation1
+    void method();
+  }
+
+  interface Hello2 extends Hello1 {
+  }
+
+  static class Hello1Impl implements Hello1 {
+
+    @Override
+    public void method() {
+    }
+  }
+
+  static class Hello2Impl implements Hello2 {
+
+    @Override
+    public void method() {
+    }
+  }
+
   @TestAnnotation2
   @TestInheritedAnnotation2
   static class HierarchySuperclass extends HierarchySuperSuperclass {
@@ -726,29 +745,6 @@ class AnnotationsScannerTests {
 
     @TestAnnotation4
     void method();
-  }
-
-  interface Hello1 {
-
-    @TestAnnotation1
-    void method();
-  }
-
-  interface Hello2 extends Hello1 {
-  }
-
-  static class Hello1Impl implements Hello1 {
-
-    @Override
-    public void method() {
-    }
-  }
-
-  static class Hello2Impl implements Hello2 {
-
-    @Override
-    public void method() {
-    }
   }
 
   @TestAnnotation5
@@ -792,17 +788,15 @@ class AnnotationsScannerTests {
 
   interface IgnorableOverrideInterface1 {
 
-    @Nullable
     void method();
   }
 
   interface IgnorableOverrideInterface2 {
 
-    @Nullable
     void method();
   }
 
-  static abstract class MultipleMethods implements MultipleMethodsInterface {
+  abstract static class MultipleMethods implements MultipleMethodsInterface {
 
     @TestAnnotation1
     public void method() {
@@ -832,7 +826,7 @@ class AnnotationsScannerTests {
     void method(T argument);
   }
 
-  static abstract class GenericNonOverride implements GenericNonOverrideInterface<String> {
+  abstract static class GenericNonOverride implements GenericNonOverrideInterface<String> {
 
     @TestAnnotation1
     public void method(StringBuilder argument) {

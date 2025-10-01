@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 
 package infra.beans;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Exception thrown on an attempt to set the value of a property that
@@ -31,8 +31,7 @@ import infra.lang.Nullable;
  */
 public class NotWritablePropertyException extends InvalidPropertyException {
 
-  @Nullable
-  private final String[] possibleMatches;
+  private final String @Nullable [] possibleMatches;
 
   /**
    * Create a new NotWritablePropertyException.
@@ -81,7 +80,7 @@ public class NotWritablePropertyException extends InvalidPropertyException {
    * @param possibleMatches suggestions for actual bean property names
    * that closely match the invalid property name
    */
-  public NotWritablePropertyException(Class<?> beanClass, String propertyName, String msg, @Nullable String[] possibleMatches) {
+  public NotWritablePropertyException(Class<?> beanClass, String propertyName, String msg, String @Nullable [] possibleMatches) {
     super(beanClass, propertyName, msg);
     this.possibleMatches = possibleMatches;
   }
@@ -90,8 +89,7 @@ public class NotWritablePropertyException extends InvalidPropertyException {
    * Return suggestions for actual bean property names that closely match
    * the invalid property name, if any.
    */
-  @Nullable
-  public String[] getPossibleMatches() {
+  public String @Nullable [] getPossibleMatches() {
     return this.possibleMatches;
   }
 

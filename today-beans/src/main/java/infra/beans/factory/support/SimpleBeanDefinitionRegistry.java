@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.beans.factory.support;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -73,6 +75,7 @@ public class SimpleBeanDefinitionRegistry extends DefaultAliasRegistry implement
     return bd;
   }
 
+  @Nullable
   @Override
   public BeanDefinition getBeanDefinition(Class<?> beanClass) {
     for (final BeanDefinition definition : getBeanDefinitions().values()) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,8 +23,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import infra.lang.Constant;
 
 /**
  * {@code @AliasFor} is an annotation that is used to declare aliases for
@@ -76,7 +74,8 @@ import infra.lang.Constant;
  * <ol>
  * <li>The attribute that is an alias for an attribute in a meta-annotation
  * must be annotated with {@code @AliasFor}, and {@link #attribute} must
- * reference the attribute in the meta-annotation.</li>
+ * reference the attribute in the meta-annotation (unless both attributes have
+ * the same name).</li>
  * <li>Aliased attributes must declare the same return type.</li>
  * <li>{@link #annotation} must reference the meta-annotation.</li>
  * <li>The referenced meta-annotation must be <em>meta-present</em> on the
@@ -104,16 +103,17 @@ import infra.lang.Constant;
  * <p>In {@code @ContextConfiguration}, {@code value} and {@code locations}
  * are explicit aliases for each other.
  *
- * <pre class="code"> public &#064;interface ContextConfiguration {
+ * <pre>{@code
+ * public @interface ContextConfiguration {
  *
- *    &#064;AliasFor("locations")
+ *    @AliasFor("locations")
  *    String[] value() default {};
  *
- *    &#064;AliasFor("value")
+ *    @AliasFor("value")
  *    String[] locations() default {};
  *
  *    // ...
- * }</pre>
+ * }}</pre>
  *
  * <h3>Example: Explicit Alias for Attribute in Meta-annotation</h3>
  * <p>In {@code @XmlTestConfig}, {@code xmlFiles} is an explicit alias for
@@ -121,12 +121,12 @@ import infra.lang.Constant;
  * {@code xmlFiles} overrides the {@code locations} attribute in
  * {@code @ContextConfiguration}.
  *
- * <pre class="code"> &#064;ContextConfiguration
- * public &#064;interface XmlTestConfig {
+ * <pre>{@code @ContextConfiguration
+ * public @interface XmlTestConfig {
  *
- *    &#064;AliasFor(annotation = ContextConfiguration.class, attribute = "locations")
+ *    @AliasFor(annotation = ContextConfiguration.class, attribute = "locations")
  *    String[] xmlFiles();
- * }</pre>
+ * }}</pre>
  *
  * <h3>Example: Implicit Aliases within an Annotation</h3>
  * <p>In {@code @MyTestConfig}, {@code value}, {@code groovyScripts}, and
@@ -134,18 +134,18 @@ import infra.lang.Constant;
  * the {@code locations} attribute in {@code @ContextConfiguration}. These
  * three attributes are therefore also implicit aliases for each other.
  *
- * <pre class="code"> &#064;ContextConfiguration
- * public &#064;interface MyTestConfig {
+ * <pre>{@code @ContextConfiguration
+ * public @interface MyTestConfig {
  *
- *    &#064;AliasFor(annotation = ContextConfiguration.class, attribute = "locations")
+ *    @AliasFor(annotation = ContextConfiguration.class, attribute = "locations")
  *    String[] value() default {};
  *
- *    &#064;AliasFor(annotation = ContextConfiguration.class, attribute = "locations")
+ *    @AliasFor(annotation = ContextConfiguration.class, attribute = "locations")
  *    String[] groovyScripts() default {};
  *
- *    &#064;AliasFor(annotation = ContextConfiguration.class, attribute = "locations")
+ *    @AliasFor(annotation = ContextConfiguration.class, attribute = "locations")
  *    String[] xmlFiles() default {};
- * }</pre>
+ * }}</pre>
  *
  * <h3>Example: Transitive Implicit Aliases within an Annotation</h3>
  * <p>In {@code @GroovyOrXmlTestConfig}, {@code groovy} is an explicit
@@ -156,20 +156,21 @@ import infra.lang.Constant;
  * both effectively override the {@code locations} attribute in
  * {@code @ContextConfiguration}.
  *
- * <pre class="code"> &#064;MyTestConfig
- * public &#064;interface GroovyOrXmlTestConfig {
+ * <pre>{@code @MyTestConfig
+ * public @interface GroovyOrXmlTestConfig {
  *
- *    &#064;AliasFor(annotation = MyTestConfig.class, attribute = "groovyScripts")
+ *    @AliasFor(annotation = MyTestConfig.class, attribute = "groovyScripts")
  *    String[] groovy() default {};
  *
- *    &#064;AliasFor(annotation = ContextConfiguration.class, attribute = "locations")
+ *    @AliasFor(annotation = ContextConfiguration.class, attribute = "locations")
  *    String[] xml() default {};
- * }</pre>
+ * }}</pre>
  *
- * <h3>Annotations Supporting Attribute Aliases</h3>
- * <p>several annotations within core have been updated to use {@code @AliasFor}
- * to configure their internal attribute aliases. Consult the Javadoc for
- * individual annotations as well as the reference manual for details.
+ * <h3>Infra Annotations Supporting Attribute Aliases</h3>
+ * <p>Many annotations within the Framework and across the Infra
+ * ecosystem rely on {@code @AliasFor} to configure attribute aliases. Consult
+ * the Javadoc for individual annotations as well as reference documentation for
+ * details.
  *
  * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -189,15 +190,17 @@ public @interface AliasFor {
    * {@code @AliasFor(attribute = "value")}.
    */
   @AliasFor("attribute")
-  String value() default Constant.BLANK;
+  String value() default "";
 
   /**
    * The name of the attribute that <em>this</em> attribute is an alias for.
+   * <p>May be omitted if this attribute is an alias for an attribute in a
+   * meta-annotation and both attributes have the same name.
    *
    * @see #value
    */
   @AliasFor("value")
-  String attribute() default Constant.BLANK;
+  String attribute() default "";
 
   /**
    * The type of annotation in which the aliased {@link #attribute} is declared.

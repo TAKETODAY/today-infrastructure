@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.app.context.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
@@ -26,7 +28,6 @@ import infra.context.properties.bind.Bindable;
 import infra.context.properties.bind.Binder;
 import infra.context.properties.bind.Name;
 import infra.context.properties.source.ConfigurationPropertyName;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 /**
@@ -99,8 +100,7 @@ class ConfigDataProperties {
     @Nullable
     private final CloudPlatform onCloudPlatform;
 
-    @Nullable
-    private final String[] onProfile;
+    private final String @Nullable [] onProfile;
 
     /**
      * Create a new {@link Activate} instance.
@@ -108,7 +108,7 @@ class ConfigDataProperties {
      * @param onCloudPlatform the cloud platform required for activation
      * @param onProfile the profile expression required for activation
      */
-    Activate(@Nullable CloudPlatform onCloudPlatform, @Nullable String[] onProfile) {
+    Activate(@Nullable CloudPlatform onCloudPlatform, String @Nullable [] onProfile) {
       this.onProfile = onProfile;
       this.onCloudPlatform = onCloudPlatform;
     }
@@ -138,6 +138,7 @@ class ConfigDataProperties {
               || (profiles != null && matchesActiveProfiles(profiles::isAccepted));
     }
 
+    @SuppressWarnings("NullAway")
     private boolean matchesActiveProfiles(Predicate<String> activeProfiles) {
       return infra.core.env.Profiles.parse(this.onProfile).matches(activeProfiles);
     }

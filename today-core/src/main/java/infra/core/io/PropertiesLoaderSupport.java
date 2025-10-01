@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 package infra.core.io;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Properties;
 
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;
@@ -44,13 +45,11 @@ public abstract class PropertiesLoaderSupport {
   /** Logger available to subclasses. */
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-  @Nullable
-  protected Properties[] localProperties;
+  protected Properties @Nullable [] localProperties;
 
   protected boolean localOverride = false;
 
-  @Nullable
-  private Resource[] locations;
+  private Resource @Nullable [] locations;
 
   private boolean ignoreResourceNotFound = false;
 

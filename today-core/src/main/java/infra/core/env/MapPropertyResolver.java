@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.core.env;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -24,7 +26,6 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Consumer;
 
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
@@ -60,8 +61,8 @@ public class MapPropertyResolver extends TypedPropertyResolver implements Iterab
     return false;
   }
 
-  @Nullable
-  public <T> T getProperty(String key, Class<T> targetValueType, boolean resolveNestedPlaceholders) {
+  @Override
+  public <T> @Nullable T getProperty(String key, Class<T> targetValueType, boolean resolveNestedPlaceholders) {
     if (this.keyValues != null) {
       if (log.isTraceEnabled()) {
         log.trace("Searching for key '{}' in map '{}'", key, keyValues);

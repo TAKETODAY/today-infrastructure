@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.jmx.support;
+
+import org.jspecify.annotations.Nullable;
 
 import java.beans.PropertyDescriptor;
 import java.lang.management.ManagementFactory;
@@ -35,7 +37,6 @@ import infra.beans.BeanProperty;
 import infra.jmx.MBeanServerNotFoundException;
 import infra.jmx.export.MBeanExporter;
 import infra.jmx.export.naming.ObjectNamingStrategy;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
@@ -49,6 +50,7 @@ import infra.util.StringUtils;
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see #locateMBeanServer
  * @since 4.0
  */
@@ -139,8 +141,7 @@ public abstract class JmxUtils {
    * @return the parameter types as classes
    * @throws ClassNotFoundException if a parameter type could not be resolved
    */
-  @Nullable
-  public static Class<?>[] parameterInfoToTypes(@Nullable MBeanParameterInfo[] paramInfo)
+  public static Class<?> @Nullable [] parameterInfoToTypes(MBeanParameterInfo @Nullable [] paramInfo)
           throws ClassNotFoundException {
 
     return parameterInfoToTypes(paramInfo, ClassUtils.getDefaultClassLoader());
@@ -155,9 +156,8 @@ public abstract class JmxUtils {
    * @return the parameter types as classes
    * @throws ClassNotFoundException if a parameter type could not be resolved
    */
-  @Nullable
-  public static Class<?>[] parameterInfoToTypes(
-          @Nullable MBeanParameterInfo[] paramInfo, @Nullable ClassLoader classLoader)
+  public static Class<?> @Nullable [] parameterInfoToTypes(
+          MBeanParameterInfo @Nullable [] paramInfo, @Nullable ClassLoader classLoader)
           throws ClassNotFoundException {
 
     Class<?>[] types = null;

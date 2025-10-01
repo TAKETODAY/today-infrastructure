@@ -17,6 +17,8 @@
 
 package infra.cache.jcache.interceptor;
 
+import org.jspecify.annotations.Nullable;
+
 import javax.cache.annotation.CacheRemove;
 
 import infra.cache.Cache;
@@ -37,10 +39,9 @@ class CacheRemoveEntryInterceptor extends AbstractKeyCacheInterceptor<CacheRemov
     super(errorHandler);
   }
 
+  @Nullable
   @Override
-  protected Object invoke(
-          CacheOperationInvocationContext<CacheRemoveOperation> context, CacheOperationInvoker invoker) {
-
+  protected Object invoke(CacheOperationInvocationContext<CacheRemoveOperation> context, CacheOperationInvoker invoker) {
     CacheRemoveOperation operation = context.getOperation();
     boolean earlyRemove = operation.isEarlyRemove();
     if (earlyRemove) {

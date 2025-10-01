@@ -17,6 +17,8 @@
 
 package infra.core.io;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,9 +40,6 @@ import infra.lang.Assert;
 public class ResourceDecorator implements Resource {
 
   protected Resource delegate;
-
-  protected ResourceDecorator() {
-  }
 
   public ResourceDecorator(Resource delegate) {
     Assert.notNull(delegate, "Resource delegate is required");
@@ -72,6 +71,7 @@ public class ResourceDecorator implements Resource {
   // Resource
 
   @Override
+  @Nullable
   public String getName() {
     return getDelegate().getName();
   }
@@ -141,6 +141,7 @@ public class ResourceDecorator implements Resource {
   }
 
   public void setDelegate(Resource delegate) {
+    Assert.notNull(delegate, "Resource delegate is required");
     this.delegate = delegate;
   }
 

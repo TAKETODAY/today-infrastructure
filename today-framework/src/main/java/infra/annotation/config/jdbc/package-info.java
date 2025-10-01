@@ -18,9 +18,7 @@
 /**
  * Auto-configuration for JDBC.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.annotation.config.jdbc;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

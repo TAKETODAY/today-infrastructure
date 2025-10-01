@@ -21,9 +21,7 @@
 /**
  * GraalVM native image substitutions, not part of Infra public API.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.aot.nativex.substitution;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

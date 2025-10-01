@@ -17,6 +17,8 @@
 
 package infra.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -28,7 +30,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Helper class for resolving generic types against type variables.
@@ -118,8 +119,7 @@ public abstract class GenericTypeResolver {
    * @return the resolved type of each argument, with the array size matching the
    * number of actual type arguments, or {@code null} if not resolvable
    */
-  @Nullable
-  public static Class<?>[] resolveTypeArguments(Class<?> clazz, Class<?> genericIfc) {
+  public static Class<?> @Nullable [] resolveTypeArguments(Class<?> clazz, Class<?> genericIfc) {
     ResolvableType type = ResolvableType.forClass(clazz).as(genericIfc);
     if (!type.hasGenerics() || !type.hasResolvableGenerics()) {
       return null;
@@ -278,6 +278,7 @@ public abstract class GenericTypeResolver {
           implements ResolvableType.VariableResolver {
 
     @Override
+    @Nullable
     public ResolvableType resolveVariable(TypeVariable<?> variable) {
       Type type = this.typeVariableMap.get(variable);
       return (type != null ? ResolvableType.forType(type) : null);

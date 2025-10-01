@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,9 @@
 
 package infra.web.server;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
+import infra.lang.Contract;
 import infra.util.DataSize;
 
 /**
@@ -38,8 +40,7 @@ public class Compression {
           "application/javascript", "application/json", "application/xml"
   };
 
-  @Nullable
-  private String[] excludedUserAgents = null;
+  private String @Nullable [] excludedUserAgents = null;
 
   private DataSize minResponseSize = DataSize.ofKilobytes(2);
 
@@ -69,12 +70,11 @@ public class Compression {
     this.mimeTypes = mimeTypes;
   }
 
-  @Nullable
-  public String[] getExcludedUserAgents() {
+  public String @Nullable [] getExcludedUserAgents() {
     return this.excludedUserAgents;
   }
 
-  public void setExcludedUserAgents(@Nullable String[] excludedUserAgents) {
+  public void setExcludedUserAgents(String @Nullable [] excludedUserAgents) {
     this.excludedUserAgents = excludedUserAgents;
   }
 
@@ -98,6 +98,7 @@ public class Compression {
    * @param compression the {@link Http2} instance or {@code null}
    * @return {@code true} is Http2 is enabled
    */
+  @Contract("null -> false")
   public static boolean isEnabled(@Nullable Compression compression) {
     return compression != null && compression.enabled;
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ public class TimedInfraRuleTests extends TimedInfraRunnerTests {
 
   @Ignore("TestCase classes are run manually by the enclosing test class")
   @TestExecutionListeners({})
-  public static final class TimedSpringRuleTestCase extends TimedSpringRunnerTestCase {
+  public static final class TimedSpringRuleTestCase extends TimedInfraRunnerTestCase {
 
     @ClassRule
     public static final InfraClassRule applicationClassRule = new InfraClassRule();
@@ -66,7 +66,7 @@ public class TimedInfraRuleTests extends TimedInfraRunnerTests {
      * of timeouts.
      */
     @Override
-    public void springAndJUnitTimeouts() {
+    public void infraAndJUnitTimeouts() {
       fail("intentional failure to make tests in superclass pass");
     }
 

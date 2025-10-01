@@ -17,6 +17,8 @@
 
 package infra.session;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
@@ -38,7 +40,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.StringUtils;
@@ -224,6 +225,7 @@ public class InMemorySessionRepository implements SessionRepository {
   }
 
   @Override
+  @Nullable
   public WebSession retrieveSession(String id) {
     Instant now = clock.instant();
     expiredSessionChecker.checkIfNecessary(now);
@@ -269,6 +271,7 @@ public class InMemorySessionRepository implements SessionRepository {
     expiredSessionChecker.removeExpiredSessions(clock.instant());
   }
 
+  @SuppressWarnings("NullAway")
   final class InMemoryWebSession extends AbstractWebSession implements WebSession, Serializable, SerializableSession {
 
     @Serial
@@ -293,6 +296,7 @@ public class InMemorySessionRepository implements SessionRepository {
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public String getId() {
       return id.get();
     }
@@ -513,7 +517,7 @@ public class InMemorySessionRepository implements SessionRepository {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
       if (this == o)
         return true;
       if (o == null || getClass() != o.getClass())

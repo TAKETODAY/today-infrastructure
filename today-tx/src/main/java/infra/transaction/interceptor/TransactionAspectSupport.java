@@ -17,6 +17,8 @@
 
 package infra.transaction.interceptor;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.lang.reflect.Method;
 import java.util.Properties;
@@ -33,7 +35,6 @@ import infra.core.ReactiveAdapter;
 import infra.core.ReactiveAdapterRegistry;
 import infra.core.ReactiveStreams;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.transaction.NoTransactionException;
@@ -87,6 +88,7 @@ import reactor.core.publisher.Mono;
  * @see #setTransactionAttributeSource
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public abstract class TransactionAspectSupport implements BeanFactoryAware, InitializingBean {
 
   // NOTE: This class must not implement Serializable because it serves as base

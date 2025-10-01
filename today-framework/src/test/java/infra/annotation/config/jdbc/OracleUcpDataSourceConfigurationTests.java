@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,8 +23,8 @@ import java.sql.Connection;
 
 import javax.sql.DataSource;
 
-import infra.context.annotation.config.AutoConfigurations;
 import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.context.annotation.config.AutoConfigurations;
 import oracle.ucp.jdbc.PoolDataSource;
 import oracle.ucp.jdbc.PoolDataSourceImpl;
 

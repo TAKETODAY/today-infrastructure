@@ -17,6 +17,8 @@
 
 package infra.expression;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * A {@code MethodExecutor} is built by a {@link MethodResolver} and can be cached
  * by the infrastructure to repeat an operation quickly without going back to the
@@ -52,6 +54,6 @@ public interface MethodExecutor {
    * @throws AccessException if there is a problem executing the method or
    * if this {@code MethodExecutor} has become stale
    */
-  TypedValue execute(EvaluationContext context, Object target, Object... arguments) throws AccessException;
+  TypedValue execute(EvaluationContext context, Object target, @Nullable Object... arguments) throws AccessException;
 
 }

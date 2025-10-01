@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ package infra.bytecode;
  * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.6">JVMS
  * 4.6</a>
  */
+@SuppressWarnings("NullAway")
 final class MethodWriter extends MethodVisitor {
 
   /** Indicates that nothing must be computed. */
@@ -1875,8 +1876,8 @@ final class MethodWriter extends MethodVisitor {
     }
     final int offsetDelta =
             stackMapTableNumberOfEntries == 0
-            ? currentFrame[0]
-            : currentFrame[0] - previousFrame[0] - 1;
+                    ? currentFrame[0]
+                    : currentFrame[0] - previousFrame[0] - 1;
     final int previousNumlocal = previousFrame[1];
     final int numLocalDelta = numLocal - previousNumlocal;
     int type = Frame.FULL_FRAME;
@@ -1892,8 +1893,8 @@ final class MethodWriter extends MethodVisitor {
     else if (numLocalDelta == 0 && numStack == 1) {
       type =
               offsetDelta < 63
-              ? Frame.SAME_LOCALS_1_STACK_ITEM_FRAME
-              : Frame.SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED;
+                      ? Frame.SAME_LOCALS_1_STACK_ITEM_FRAME
+                      : Frame.SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED;
     }
     if (type != Frame.FULL_FRAME) {
       // Verify if locals are the same as in the previous frame.
@@ -2127,8 +2128,8 @@ final class MethodWriter extends MethodVisitor {
                       Constants.RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS,
                       lastRuntimeVisibleParameterAnnotations,
                       visibleAnnotableParameterCount == 0
-                      ? lastRuntimeVisibleParameterAnnotations.length
-                      : visibleAnnotableParameterCount);
+                              ? lastRuntimeVisibleParameterAnnotations.length
+                              : visibleAnnotableParameterCount);
     }
     if (lastRuntimeInvisibleParameterAnnotations != null) {
       size +=
@@ -2136,8 +2137,8 @@ final class MethodWriter extends MethodVisitor {
                       Constants.RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS,
                       lastRuntimeInvisibleParameterAnnotations,
                       invisibleAnnotableParameterCount == 0
-                      ? lastRuntimeInvisibleParameterAnnotations.length
-                      : invisibleAnnotableParameterCount);
+                              ? lastRuntimeInvisibleParameterAnnotations.length
+                              : invisibleAnnotableParameterCount);
     }
     if (defaultValue != null) {
       symbolTable.addConstantUtf8(Constants.ANNOTATION_DEFAULT);
@@ -2317,8 +2318,8 @@ final class MethodWriter extends MethodVisitor {
               symbolTable.addConstantUtf8(Constants.RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS),
               lastRuntimeVisibleParameterAnnotations,
               visibleAnnotableParameterCount == 0
-              ? lastRuntimeVisibleParameterAnnotations.length
-              : visibleAnnotableParameterCount,
+                      ? lastRuntimeVisibleParameterAnnotations.length
+                      : visibleAnnotableParameterCount,
               output);
     }
     if (lastRuntimeInvisibleParameterAnnotations != null) {
@@ -2326,8 +2327,8 @@ final class MethodWriter extends MethodVisitor {
               symbolTable.addConstantUtf8(Constants.RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS),
               lastRuntimeInvisibleParameterAnnotations,
               invisibleAnnotableParameterCount == 0
-              ? lastRuntimeInvisibleParameterAnnotations.length
-              : invisibleAnnotableParameterCount,
+                      ? lastRuntimeInvisibleParameterAnnotations.length
+                      : invisibleAnnotableParameterCount,
               output);
     }
     if (defaultValue != null) {

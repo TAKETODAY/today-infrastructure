@@ -17,6 +17,8 @@
 
 package infra.annotation.config.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +43,6 @@ import infra.context.condition.InfraCondition;
 import infra.context.condition.SearchStrategy;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.type.AnnotatedTypeMetadata;
-import infra.lang.Nullable;
 import infra.logging.LoggerFactory;
 import infra.stereotype.Component;
 import infra.ui.template.TemplateAvailabilityProviders;
@@ -137,6 +138,7 @@ public class ErrorMvcAutoConfiguration {
   /**
    * {@link InfraCondition} that matches when no error template view is detected.
    */
+  @SuppressWarnings("NullAway")
   private static final class ErrorTemplateMissingCondition extends InfraCondition {
 
     @Override
@@ -156,6 +158,7 @@ public class ErrorMvcAutoConfiguration {
   /**
    * Simple {@link View} implementation that writes a default HTML error page.
    */
+  @SuppressWarnings("NullAway")
   private static final class StaticView implements View {
 
     @Override

@@ -17,6 +17,8 @@
 
 package infra.web.config.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -27,7 +29,6 @@ import infra.core.io.Resource;
 import infra.core.io.UrlResource;
 import infra.http.CacheControl;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.web.NotFoundHandler;
 import infra.web.resource.PathResourceResolver;
@@ -98,7 +99,7 @@ public class ResourceHandlerRegistration {
    * @return the same {@link ResourceHandlerRegistration} instance, for
    * chained method invocation
    */
-  public ResourceHandlerRegistration addResourceLocations(@Nullable String... locations) {
+  public ResourceHandlerRegistration addResourceLocations(String @Nullable ... locations) {
     CollectionUtils.addAll(locationValues, locations);
     return this;
   }
@@ -111,7 +112,7 @@ public class ResourceHandlerRegistration {
    * @return the same {@link ResourceHandlerRegistration} instance, for
    * chained method invocation
    */
-  public ResourceHandlerRegistration addResourceLocations(@Nullable Resource... locations) {
+  public ResourceHandlerRegistration addResourceLocations(Resource @Nullable ... locations) {
     CollectionUtils.addAll(locationsResources, locations);
     return this;
   }

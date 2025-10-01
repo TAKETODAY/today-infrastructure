@@ -17,6 +17,8 @@
 
 package infra.web.config.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,7 +28,6 @@ import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.BeanInitializationException;
 import infra.context.ApplicationContext;
 import infra.core.Ordered;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 import infra.web.accept.ContentNegotiationManager;

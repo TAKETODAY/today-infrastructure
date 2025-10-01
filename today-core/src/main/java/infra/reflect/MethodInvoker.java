@@ -17,6 +17,8 @@
 
 package infra.reflect;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -32,7 +34,6 @@ import infra.bytecode.core.CodeEmitter;
 import infra.bytecode.core.EmitUtils;
 import infra.bytecode.core.MethodInfo;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.LoggerFactory;
 import infra.util.ReflectionUtils;
 
@@ -85,8 +86,9 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
    * @throws NullPointerException if the specified object is null and the method is an instance method.
    * @throws ExceptionInInitializerError if the initialization provoked by this method fails.
    */
+  @Nullable
   @Override
-  public abstract Object invoke(Object obj, @Nullable Object[] args);
+  public abstract Object invoke(@Nullable Object obj, @Nullable Object @Nullable [] args);
 
   @Override
   public Method getMethod() {

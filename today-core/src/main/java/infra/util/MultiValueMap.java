@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,7 +30,6 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.Unmodifiable;
 
 /**
@@ -41,7 +42,7 @@ import infra.lang.Unmodifiable;
  * @since 2.1.7 2020-01-27 13:06
  */
 @SuppressWarnings({ "rawtypes" })
-public interface MultiValueMap<K, V> extends Map<K, List<V>> {
+public interface MultiValueMap<K, V extends @Nullable Object> extends Map<K, List<V>> {
 
   Function defaultMappingFunction = k -> new ArrayList<>(1);
 
@@ -80,7 +81,7 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @see ObjectUtils#isNotEmpty(Object[])
    * @since 4.0
    */
-  default void addAll(K key, @Nullable V[] values) {
+  default void addAll(K key, V @Nullable [] values) {
     if (ObjectUtils.isNotEmpty(values)) {
       for (V element : values) {
         add(key, element);
@@ -191,7 +192,7 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @since 5.0
    */
   @Nullable
-  List<V> setOrRemove(K key, @Nullable V[] value);
+  List<V> setOrRemove(K key, V @Nullable [] value);
 
   /**
    * Associates the specified value with the specified key in this map.

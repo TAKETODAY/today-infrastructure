@@ -17,6 +17,8 @@
 
 package infra.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
@@ -38,7 +40,6 @@ import java.util.Optional;
 import infra.core.annotation.SynthesizingMethodParameter;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
 
@@ -88,8 +89,7 @@ public class MethodParameter implements AnnotatedElement {
   @Nullable
   private volatile Type genericParameterType;
 
-  @Nullable
-  private volatile Annotation[] parameterAnnotations;
+  private volatile Annotation @Nullable [] parameterAnnotations;
 
   @Nullable
   private volatile ParameterNameDiscoverer parameterNameDiscoverer;
@@ -388,12 +388,7 @@ public class MethodParameter implements AnnotatedElement {
    * or a language-level nullable type declaration
    */
   public boolean isNullable() {
-    for (Annotation ann : getParameterAnnotations()) {
-      if ("Nullable".equals(ann.annotationType().getSimpleName())) {
-        return true;
-      }
-    }
-    return false;
+    return Nullness.forMethodParameter(this) == Nullness.NULLABLE;
   }
 
   /**
@@ -834,8 +829,7 @@ public class MethodParameter implements AnnotatedElement {
    */
   private static class FieldAwareConstructorParameter extends MethodParameter {
 
-    @Nullable
-    private volatile Annotation[] combinedAnnotations;
+    private volatile Annotation @Nullable [] combinedAnnotations;
 
     public FieldAwareConstructorParameter(Constructor<?> constructor, int parameterIndex, String fieldName) {
       super(constructor, parameterIndex);

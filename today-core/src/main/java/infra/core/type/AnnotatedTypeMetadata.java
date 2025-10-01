@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.core.type;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.util.Collections;
@@ -35,7 +37,6 @@ import infra.core.annotation.MergedAnnotationCollectors;
 import infra.core.annotation.MergedAnnotationPredicates;
 import infra.core.annotation.MergedAnnotationSelectors;
 import infra.core.annotation.MergedAnnotations;
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 
 /**
@@ -303,7 +304,7 @@ public interface AnnotatedTypeMetadata {
    * @see #getAllAnnotationAttributes(String, boolean)
    */
   @Nullable
-  default MultiValueMap<String, Object> getAllAnnotationAttributes(Class<? extends Annotation> annotationType) {
+  default MultiValueMap<String, @Nullable Object> getAllAnnotationAttributes(Class<? extends Annotation> annotationType) {
     return getAllAnnotationAttributes(annotationType.getName());
   }
 
@@ -320,7 +321,7 @@ public interface AnnotatedTypeMetadata {
    * @see #getAllAnnotationAttributes(String, boolean)
    */
   @Nullable
-  default MultiValueMap<String, Object> getAllAnnotationAttributes(String annotationName) {
+  default MultiValueMap<String, @Nullable Object> getAllAnnotationAttributes(String annotationName) {
     return getAllAnnotationAttributes(annotationName, false);
   }
 
@@ -337,7 +338,7 @@ public interface AnnotatedTypeMetadata {
    * @see #getAllAnnotationAttributes(String)
    */
   @Nullable
-  default MultiValueMap<String, Object> getAllAnnotationAttributes(Class<? extends Annotation> annotationType, boolean classValuesAsString) {
+  default MultiValueMap<String, @Nullable Object> getAllAnnotationAttributes(Class<? extends Annotation> annotationType, boolean classValuesAsString) {
     return getAllAnnotationAttributes(annotationType.getName(), classValuesAsString);
   }
 
@@ -355,12 +356,13 @@ public interface AnnotatedTypeMetadata {
    * @see #getAllAnnotationAttributes(String)
    */
   @Nullable
-  default MultiValueMap<String, Object> getAllAnnotationAttributes(String annotationName, boolean classValuesAsString) {
+  default MultiValueMap<String, @Nullable Object> getAllAnnotationAttributes(String annotationName, boolean classValuesAsString) {
     Adapt[] adaptations = Adapt.values(classValuesAsString, true);
     return getAnnotations().stream(annotationName)
             .filter(MergedAnnotationPredicates.unique(MergedAnnotation::getMetaTypes))
             .map(MergedAnnotation::withNonMergedAttributes)
-            .collect(MergedAnnotationCollectors.toMultiValueMap(map -> map.isEmpty() ? null : map, adaptations));
+            .collect(MergedAnnotationCollectors.toMultiValueMap(
+                    (MultiValueMap<String, @Nullable Object> map) -> (map.isEmpty() ? null : map), adaptations));
   }
 
   /**

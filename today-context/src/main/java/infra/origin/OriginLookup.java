@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,9 @@
 
 package infra.origin;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
+import infra.lang.Contract;
 
 /**
  * An interface that may be implemented by an object that can lookup {@link Origin}
@@ -77,7 +79,8 @@ public interface OriginLookup<K> {
    */
   @SuppressWarnings("unchecked")
   @Nullable
-  static <K> Origin getOrigin(Object source, K key) {
+  @Contract("null, _ -> null")
+  static <K> Origin getOrigin(@Nullable Object source, K key) {
     if (!(source instanceof OriginLookup)) {
       return null;
     }

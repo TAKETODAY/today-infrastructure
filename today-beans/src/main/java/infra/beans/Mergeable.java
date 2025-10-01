@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,12 @@
 
 package infra.beans;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.support.ManagedList;
 import infra.beans.factory.support.ManagedMap;
 import infra.beans.factory.support.ManagedProperties;
 import infra.beans.factory.support.ManagedSet;
-import infra.lang.Nullable;
 
 /**
  * Interface representing an object whose value set can be merged with

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.context.properties.bind.validation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -26,7 +28,6 @@ import java.util.Set;
 import infra.context.properties.source.ConfigurationProperty;
 import infra.context.properties.source.ConfigurationPropertyName;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.origin.Origin;
 import infra.origin.OriginProvider;
 import infra.validation.FieldError;
@@ -41,6 +42,7 @@ import infra.validation.ObjectError;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public class ValidationErrors implements Iterable<ObjectError> {
 
   private final ConfigurationPropertyName name;

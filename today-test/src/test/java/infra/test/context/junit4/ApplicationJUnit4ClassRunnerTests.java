@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,9 +23,9 @@ import org.junit.runners.model.FrameworkMethod;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import infra.core.annotation.AliasFor;
 import infra.test.annotation.Timed;
 import infra.test.context.TestContextManager;
-import infra.test.context.junit4.JUnit4ClassRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -60,30 +60,30 @@ public class ApplicationJUnit4ClassRunnerTests {
   }
 
   @Test
-  public void getSpringTimeoutViaMetaAnnotation() throws Exception {
+  public void infraTimeoutViaMetaAnnotation() throws Exception {
     JUnit4ClassRunner runner = new JUnit4ClassRunner(getClass());
     long timeout = runner.getInfraTimeout(new FrameworkMethod(getClass().getDeclaredMethod(
-            "springTimeoutWithMetaAnnotation")));
+            "infraTimeoutWithMetaAnnotation")));
     assertThat(timeout).isEqualTo(10);
   }
 
   @Test
-  public void getSpringTimeoutViaMetaAnnotationWithOverride() throws Exception {
+  public void infraTimeoutViaMetaAnnotationWithOverride() throws Exception {
     JUnit4ClassRunner runner = new JUnit4ClassRunner(getClass());
     long timeout = runner.getInfraTimeout(new FrameworkMethod(getClass().getDeclaredMethod(
-            "springTimeoutWithMetaAnnotationAndOverride")));
+            "infraTimeoutWithMetaAnnotationAndOverride")));
     assertThat(timeout).isEqualTo(42);
   }
 
   // -------------------------------------------------------------------------
 
   @MetaTimed
-  void springTimeoutWithMetaAnnotation() {
+  void infraTimeoutWithMetaAnnotation() {
     /* no-op */
   }
 
   @MetaTimedWithOverride(millis = 42)
-  void springTimeoutWithMetaAnnotationAndOverride() {
+  void infraTimeoutWithMetaAnnotationAndOverride() {
     /* no-op */
   }
 
@@ -96,6 +96,7 @@ public class ApplicationJUnit4ClassRunnerTests {
   @Retention(RetentionPolicy.RUNTIME)
   private static @interface MetaTimedWithOverride {
 
+    @AliasFor(annotation = Timed.class)
     long millis() default 1000;
   }
 

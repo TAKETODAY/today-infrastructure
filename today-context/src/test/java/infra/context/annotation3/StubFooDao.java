@@ -19,9 +19,9 @@
  */
 package infra.context.annotation3;
 
+import example.scannable.FooDao;
 import infra.beans.factory.annotation.Qualifier;
 import infra.stereotype.Repository;
-import example.scannable.FooDao;
 
 /**
  * @author Mark Fisher

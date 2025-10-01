@@ -17,6 +17,8 @@
 
 package infra.app.context.logging;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.FileNotFoundException;
 import java.util.Collections;
 import java.util.List;
@@ -51,7 +53,6 @@ import infra.core.Ordered;
 import infra.core.ResolvableType;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.LinkedMultiValueMap;
@@ -95,6 +96,7 @@ import static infra.context.properties.source.ConfigurationPropertyName.of;
  * @see LoggingSystem#get(ClassLoader)
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public class LoggingApplicationListener implements GenericApplicationListener {
 
   private static final ConfigurationPropertyName LOGGING_LEVEL = of("logging.level");

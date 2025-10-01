@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.web;
 
 import org.aopalliance.intercept.MethodInterceptor;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -49,7 +50,6 @@ import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.annotation.AnnotationUtils;
 import infra.core.annotation.SynthesizingMethodParameter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ObjectUtils;
@@ -291,7 +291,7 @@ public class ResolvableMethod {
     public Builder<T> argTypes(Class<?>... argTypes) {
       addFilter("argTypes=" + Arrays.toString(argTypes), method ->
               ObjectUtils.isEmpty(argTypes) ? method.getParameterCount() == 0 :
-              Arrays.equals(method.getParameterTypes(), argTypes));
+                      Arrays.equals(method.getParameterTypes(), argTypes));
       return this;
     }
 
@@ -546,8 +546,18 @@ public class ResolvableMethod {
      * Filter on method arguments with annotations.
      */
     @SafeVarargs
-    public final ArgResolver annot(Predicate<MethodParameter>... filters) {
+    public final ArgResolver filter(Predicate<MethodParameter>... filters) {
       this.filters.addAll(Arrays.asList(filters));
+      return this;
+    }
+
+    public final ArgResolver isNullable() {
+      this.filters.add(MethodParameter::isNullable);
+      return this;
+    }
+
+    public final ArgResolver isNotNullable() {
+      this.filters.add(parameter -> !parameter.isNullable());
       return this;
     }
 
@@ -555,7 +565,7 @@ public class ResolvableMethod {
      * Filter on method arguments that have the given annotations.
      *
      * @param annotationTypes the annotation types
-     * @see #annot(Predicate[])
+     * @see #filter(Predicate[])
      */
     @SafeVarargs
     public final ArgResolver annotPresent(Class<? extends Annotation>... annotationTypes) {
@@ -572,8 +582,8 @@ public class ResolvableMethod {
     public final ArgResolver annotNotPresent(Class<? extends Annotation>... annotationTypes) {
       this.filters.add(param ->
               (annotationTypes.length > 0 ?
-               Arrays.stream(annotationTypes).noneMatch(param::hasParameterAnnotation) :
-               param.getParameterAnnotations().length == 0));
+                      Arrays.stream(annotationTypes).noneMatch(param::hasParameterAnnotation) :
+                      param.getParameterAnnotations().length == 0));
       return this;
     }
 

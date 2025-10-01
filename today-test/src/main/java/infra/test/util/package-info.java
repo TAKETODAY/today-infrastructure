@@ -18,9 +18,7 @@
 /**
  * General utility classes for use in unit and integration tests.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.test.util;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

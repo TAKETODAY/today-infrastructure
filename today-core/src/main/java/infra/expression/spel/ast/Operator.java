@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.expression.spel.ast;
 
+import org.jspecify.annotations.Nullable;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -24,7 +26,6 @@ import infra.bytecode.Label;
 import infra.bytecode.MethodVisitor;
 import infra.bytecode.core.CodeFlow;
 import infra.expression.EvaluationContext;
-import infra.lang.Nullable;
 import infra.util.NumberUtils;
 import infra.util.ObjectUtils;
 
@@ -54,7 +55,7 @@ public abstract class Operator extends SpelNodeImpl {
   @Nullable
   protected String rightActualDescriptor;
 
-  public Operator(String payload, int startPos, int endPos, SpelNodeImpl... operands) {
+  public Operator(String payload, int startPos, int endPos, SpelNodeImpl @Nullable ... operands) {
     super(startPos, endPos, operands);
     this.operatorName = payload;
   }

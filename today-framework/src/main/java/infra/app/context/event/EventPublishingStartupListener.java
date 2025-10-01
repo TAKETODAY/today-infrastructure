@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.app.context.event;
+
+import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 
@@ -35,7 +37,6 @@ import infra.context.event.SimpleApplicationEventMulticaster;
 import infra.context.support.AbstractApplicationContext;
 import infra.core.Ordered;
 import infra.core.env.ConfigurableEnvironment;
-import infra.lang.Nullable;
 import infra.logging.LoggerFactory;
 import infra.util.ErrorHandler;
 
@@ -74,7 +75,7 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
   }
 
   @Override
-  public void starting(ConfigurableBootstrapContext bootstrapContext, Class<?> mainApplicationClass, ApplicationArguments arguments) {
+  public void starting(ConfigurableBootstrapContext bootstrapContext, @Nullable Class<?> mainApplicationClass, ApplicationArguments arguments) {
     multicastInitialEvent(new ApplicationStartingEvent(bootstrapContext, application, args));
   }
 
@@ -113,6 +114,7 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public void failed(@Nullable ConfigurableApplicationContext context, Throwable exception) {
     ApplicationFailedEvent event = new ApplicationFailedEvent(application, args, context, exception);
     if (context != null && context.isActive()) {

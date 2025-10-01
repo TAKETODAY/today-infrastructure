@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -29,7 +31,6 @@ import java.util.function.Function;
 
 import infra.core.ArraySizeTrimmer;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Simple implementation of {@link MultiValueMap} that wraps a {@link Map},
@@ -141,7 +142,7 @@ public class MappingMultiValueMap<K, V> extends MultiValueMapAdapter<K, V>
 
   @Nullable
   @Override
-  public List<V> setOrRemove(K key, @Nullable V[] value) {
+  public List<V> setOrRemove(K key, V @Nullable [] value) {
     if (value != null) {
       List<V> values = mappingFunction.apply(key);
       CollectionUtils.addAll(values, value);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
 
 package infra.beans.factory.parsing;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.BeanMetadataElement;
 import infra.core.io.Resource;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Representation of an import that has been processed during the parsing process.
@@ -33,8 +34,7 @@ public class ImportDefinition implements BeanMetadataElement {
 
   private final String importedResource;
 
-  @Nullable
-  private final Resource[] actualResources;
+  private final Resource @Nullable [] actualResources;
 
   @Nullable
   private final Object source;
@@ -64,7 +64,7 @@ public class ImportDefinition implements BeanMetadataElement {
    * @param importedResource the location of the imported resource
    * @param source the source object (may be {@code null})
    */
-  public ImportDefinition(String importedResource, @Nullable Resource[] actualResources, @Nullable Object source) {
+  public ImportDefinition(String importedResource, Resource @Nullable [] actualResources, @Nullable Object source) {
     Assert.notNull(importedResource, "Imported resource is required");
     this.importedResource = importedResource;
     this.actualResources = actualResources;
@@ -78,8 +78,7 @@ public class ImportDefinition implements BeanMetadataElement {
     return this.importedResource;
   }
 
-  @Nullable
-  public final Resource[] getActualResources() {
+  public final Resource @Nullable [] getActualResources() {
     return this.actualResources;
   }
 

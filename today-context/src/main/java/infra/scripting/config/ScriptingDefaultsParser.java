@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.scripting.config;
 
+import org.jspecify.annotations.Nullable;
 import org.w3c.dom.Element;
 
 import infra.beans.factory.config.BeanDefinition;
@@ -39,9 +40,8 @@ class ScriptingDefaultsParser implements BeanDefinitionParser {
   private static final String PROXY_TARGET_CLASS_ATTRIBUTE = "proxy-target-class";
 
   @Override
-  public BeanDefinition parse(Element element, ParserContext parserContext) {
-    BeanDefinition bd =
-            LangNamespaceUtils.registerScriptFactoryPostProcessorIfNecessary(parserContext.getRegistry());
+  public @Nullable BeanDefinition parse(Element element, ParserContext parserContext) {
+    BeanDefinition bd = LangNamespaceUtils.registerScriptFactoryPostProcessorIfNecessary(parserContext.getRegistry());
     String refreshCheckDelay = element.getAttribute(REFRESH_CHECK_DELAY_ATTRIBUTE);
     if (StringUtils.hasText(refreshCheckDelay)) {
       bd.getPropertyValues().add("defaultRefreshCheckDelay", Long.valueOf(refreshCheckDelay));

@@ -18,9 +18,7 @@
 /**
  * Management of trust material that can be used to establish an SSL connection.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.core.ssl;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -17,10 +17,11 @@
 
 package infra.beans.factory.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 
@@ -38,7 +39,7 @@ public class BeanDefinitionCustomizers {
    *
    * @param customizers new customizers
    */
-  public void setCustomizers(@Nullable BeanDefinitionCustomizer... customizers) {
+  public void setCustomizers(BeanDefinitionCustomizer @Nullable ... customizers) {
     if (ObjectUtils.isNotEmpty(customizers)) {
       CollectionUtils.addAll(customizers(), customizers);
     }

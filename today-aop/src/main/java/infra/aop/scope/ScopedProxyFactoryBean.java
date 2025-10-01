@@ -17,6 +17,8 @@
 
 package infra.aop.scope;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Modifier;
 
 import infra.aop.AopInfrastructureBean;
@@ -30,7 +32,6 @@ import infra.beans.factory.FactoryBean;
 import infra.beans.factory.FactoryBeanNotInitializedException;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**
@@ -123,6 +124,7 @@ public class ScopedProxyFactoryBean extends ProxyConfig implements FactoryBean<O
   }
 
   @Override
+  @Nullable
   public Class<?> getObjectType() {
     if (this.proxy != null) {
       return this.proxy.getClass();

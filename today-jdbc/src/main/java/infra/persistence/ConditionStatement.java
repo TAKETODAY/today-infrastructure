@@ -17,6 +17,8 @@
 
 package infra.persistence;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
@@ -24,7 +26,6 @@ import java.util.List;
 import infra.core.annotation.MergedAnnotation;
 import infra.lang.Constant;
 import infra.lang.Descriptive;
-import infra.lang.Nullable;
 import infra.persistence.sql.OrderByClause;
 import infra.persistence.sql.Restriction;
 

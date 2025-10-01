@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -150,8 +150,8 @@ public class MySQLMaxValueIncrementer extends AbstractColumnMaxValueIncrementer 
                   " = last_insert_id(" + columnName + " + " + getCacheSize() + ") limit 1");
         }
         catch (SQLException ex) {
-          throw new DataAccessResourceFailureException("Could not increment " + columnName + " for " +
-                  getIncrementerName() + " sequence table", ex);
+          throw new DataAccessResourceFailureException("Could not increment %s for %s sequence table"
+                  .formatted(columnName, getIncrementerName()), ex);
         }
         // Retrieve the new max of the sequence column...
         ResultSet rs = stmt.executeQuery(VALUE_SQL);

@@ -17,11 +17,12 @@
 
 package infra.core.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.AnnotatedElement;
 
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.lang.NullValue;
-import infra.lang.Nullable;
 import infra.util.ConcurrentReferenceHashMap;
 
 /**

@@ -17,6 +17,7 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -24,7 +25,6 @@ import java.lang.reflect.Method;
 import infra.beans.factory.annotation.Autowired;
 import infra.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import infra.beans.factory.config.DependencyDescriptor;
-import infra.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

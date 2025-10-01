@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -26,7 +28,6 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.function.SingletonSupplier;
 
 /**
@@ -55,6 +56,7 @@ import infra.util.function.SingletonSupplier;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/16 17:01
  */
+@SuppressWarnings("NullAway")
 public final class PropertyMapper {
 
   private static final Predicate<?> ALWAYS = (t) -> true;
@@ -368,6 +370,7 @@ public final class PropertyMapper {
    */
   private record NullPointerExceptionSafeSupplier<T>(Supplier<T> supplier) implements Supplier<T> {
 
+    @Nullable
     @Override
     public T get() {
       try {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jmx.access;
 
+import org.jspecify.annotations.Nullable;
+
 import javax.management.JMRuntimeException;
 
 /**
@@ -25,6 +27,7 @@ import javax.management.JMRuntimeException;
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see MBeanClientInterceptor
  * @since 4.0
  */
@@ -37,7 +40,7 @@ public class InvalidInvocationException extends JMRuntimeException {
    *
    * @param msg the detail message
    */
-  public InvalidInvocationException(String msg) {
+  public InvalidInvocationException(@Nullable String msg) {
     super(msg);
   }
 

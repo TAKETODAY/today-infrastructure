@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 import infra.lang.Assert;
 import infra.lang.NullValue;
-import infra.lang.Nullable;
 
 /**
  * Map cache
@@ -125,7 +126,7 @@ public class MapCache<Key, Value, Param> {
    * the specified key, or null if the computed value is null
    */
   @Nullable
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "NullAway" })
   public final Value get(Key key, @Nullable Function<Key, Value> mappingFunction) {
     Value value = mapping.get(key);
     if (value == null) {

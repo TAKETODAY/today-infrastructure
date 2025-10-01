@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.format.datetime;
 
+import org.jspecify.annotations.Nullable;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -32,7 +34,6 @@ import java.util.TimeZone;
 import infra.format.Formatter;
 import infra.format.annotation.DateTimeFormat;
 import infra.format.annotation.DateTimeFormat.ISO;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 
@@ -78,8 +79,7 @@ public class DateFormatter implements Formatter<Date> {
   @Nullable
   private String pattern;
 
-  @Nullable
-  private String[] fallbackPatterns;
+  private String @Nullable []fallbackPatterns;
 
   private int style = DateFormat.DEFAULT;
 

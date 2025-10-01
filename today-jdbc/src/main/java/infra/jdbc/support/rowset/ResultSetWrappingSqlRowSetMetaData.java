@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,12 @@
 
 package infra.jdbc.support.rowset;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 import infra.jdbc.InvalidResultSetAccessException;
-import infra.lang.Nullable;
 
 /**
  * The default implementation of Framework's {@link SqlRowSetMetaData} interface, wrapping a
@@ -39,8 +40,7 @@ public class ResultSetWrappingSqlRowSetMetaData implements SqlRowSetMetaData {
 
   private final ResultSetMetaData resultSetMetaData;
 
-  @Nullable
-  private String[] columnNames;
+  private String @Nullable []columnNames;
 
   /**
    * Create a new ResultSetWrappingSqlRowSetMetaData object

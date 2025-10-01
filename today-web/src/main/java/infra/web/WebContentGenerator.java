@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,7 +31,6 @@ import infra.context.support.ApplicationObjectSupport;
 import infra.http.CacheControl;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
-import infra.lang.Nullable;
 import infra.session.WebSessionRequiredException;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
@@ -76,8 +77,7 @@ public abstract class WebContentGenerator extends ApplicationObjectSupport {
 
   private int cacheSeconds = -1;
 
-  @Nullable
-  private String[] varyByRequestHeaders;
+  private String @Nullable [] varyByRequestHeaders;
 
   /**
    * Create a new WebContentGenerator which supports
@@ -118,7 +118,7 @@ public abstract class WebContentGenerator extends ApplicationObjectSupport {
    * <p>Default is GET, HEAD and POST for simple form controller types;
    * unrestricted for general controllers and interceptors.
    */
-  public final void setSupportedMethods(@Nullable String... methods) {
+  public final void setSupportedMethods(String @Nullable ... methods) {
     if (ObjectUtils.isNotEmpty(methods)) {
       this.supportedMethods = new LinkedHashSet<>(Arrays.asList(methods));
     }
@@ -131,8 +131,7 @@ public abstract class WebContentGenerator extends ApplicationObjectSupport {
   /**
    * Return the HTTP methods that this content generator supports.
    */
-  @Nullable
-  public final String[] getSupportedMethods() {
+  public final String @Nullable [] getSupportedMethods() {
     return supportedMethods != null ? StringUtils.toStringArray(supportedMethods) : null;
   }
 
@@ -234,15 +233,14 @@ public abstract class WebContentGenerator extends ApplicationObjectSupport {
    *
    * @param varyByRequestHeaders one or more request header names
    */
-  public final void setVaryByRequestHeaders(@Nullable String... varyByRequestHeaders) {
+  public final void setVaryByRequestHeaders(String @Nullable ... varyByRequestHeaders) {
     this.varyByRequestHeaders = varyByRequestHeaders;
   }
 
   /**
    * Return the configured request header names for the "Vary" response header.
    */
-  @Nullable
-  public final String[] getVaryByRequestHeaders() {
+  public final String @Nullable [] getVaryByRequestHeaders() {
     return this.varyByRequestHeaders;
   }
 

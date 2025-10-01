@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 
 package infra.dao;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Root of the hierarchy of data access exceptions that are considered non-transient -
@@ -36,7 +36,7 @@ public abstract class NonTransientDataAccessException extends DataAccessExceptio
    *
    * @param msg the detail message
    */
-  public NonTransientDataAccessException(String msg) {
+  public NonTransientDataAccessException(@Nullable String msg) {
     super(msg);
   }
 

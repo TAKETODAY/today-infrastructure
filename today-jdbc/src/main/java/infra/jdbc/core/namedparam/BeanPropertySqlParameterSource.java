@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,14 +17,14 @@
 
 package infra.jdbc.core.namedparam;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 
 import infra.beans.BeanProperty;
 import infra.beans.BeanWrapper;
 import infra.beans.NotReadablePropertyException;
 import infra.jdbc.core.StatementCreatorUtils;
-import infra.lang.NonNull;
-import infra.lang.Nullable;
 import infra.reflect.PropertyAccessor;
 import infra.util.StringUtils;
 
@@ -45,8 +45,7 @@ import infra.util.StringUtils;
  */
 public class BeanPropertySqlParameterSource extends AbstractSqlParameterSource {
 
-  @Nullable
-  private String[] propertyNames;
+  private String @Nullable [] propertyNames;
 
   private final BeanWrapper beanWrapper;
 
@@ -91,8 +90,7 @@ public class BeanPropertySqlParameterSource extends AbstractSqlParameterSource {
   }
 
   @Override
-  @NonNull
-  public String[] getParameterNames() {
+  public String @Nullable [] getParameterNames() {
     return getReadablePropertyNames();
   }
 

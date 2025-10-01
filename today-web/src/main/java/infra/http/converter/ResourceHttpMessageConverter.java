@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.http.converter;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +31,6 @@ import infra.http.HttpInputMessage;
 import infra.http.HttpOutputMessage;
 import infra.http.MediaType;
 import infra.http.MediaTypeFactory;
-import infra.lang.Nullable;
 import infra.util.StreamUtils;
 
 /**
@@ -82,6 +83,8 @@ public class ResourceHttpMessageConverter extends AbstractHttpMessageConverter<R
 
     if (this.supportsReadStreaming && InputStreamResource.class == clazz) {
       return new InputStreamResource(inputMessage.getBody()) {
+
+        @Nullable
         @Override
         public String getName() {
           return inputMessage.getHeaders().getContentDisposition().getFilename();
@@ -114,6 +117,7 @@ public class ResourceHttpMessageConverter extends AbstractHttpMessageConverter<R
     return MediaTypeFactory.getMediaType(resource).orElse(MediaType.APPLICATION_OCTET_STREAM);
   }
 
+  @Nullable
   @Override
   protected Long getContentLength(Resource resource, @Nullable MediaType contentType) throws IOException {
     // Don't try to determine contentLength on InputStreamResource - cannot be read afterwards...

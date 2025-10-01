@@ -4,9 +4,7 @@
  * {@link infra.http.client.reactive.ClientHttpResponse} as well as a
  * {@link infra.http.client.reactive.ClientHttpConnector}.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.http.client.reactive;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

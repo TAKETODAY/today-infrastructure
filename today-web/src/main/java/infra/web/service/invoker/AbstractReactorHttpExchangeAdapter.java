@@ -17,13 +17,14 @@
 
 package infra.web.service.invoker;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 
 import infra.core.ParameterizedTypeReference;
 import infra.core.ReactiveAdapterRegistry;
 import infra.http.ResponseEntity;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.concurrent.Future;
 import infra.web.client.ClientResponse;
 import reactor.core.publisher.Mono;
@@ -83,6 +84,7 @@ public abstract class AbstractReactorHttpExchangeAdapter implements ReactorHttpE
   @Override
   public abstract Future<ClientResponse> exchangeAsync(HttpRequestValues requestValues);
 
+  @Nullable
   @Override
   public <T> T exchangeForBody(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
     return blockingGet(exchangeForBodyMono(requestValues, bodyType));

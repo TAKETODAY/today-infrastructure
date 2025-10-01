@@ -24,12 +24,12 @@ import org.junit.jupiter.api.Test;
 import infra.aop.framework.Advised;
 import infra.aop.framework.ProxyFactory;
 import infra.aop.support.DefaultPointcutAdvisor;
-import infra.beans.testfixture.beans.Person;
-import infra.beans.testfixture.beans.SerializablePerson;
-import infra.beans.testfixture.beans.SideEffectBean;
 import infra.aop.testfixture.interceptor.SerializableNopInterceptor;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.beans.factory.xml.XmlBeanDefinitionReader;
+import infra.beans.testfixture.beans.Person;
+import infra.beans.testfixture.beans.SerializablePerson;
+import infra.beans.testfixture.beans.SideEffectBean;
 import infra.core.testfixture.io.SerializationTestUtils;
 
 import static infra.core.testfixture.io.ResourceTestUtils.qualifiedResource;

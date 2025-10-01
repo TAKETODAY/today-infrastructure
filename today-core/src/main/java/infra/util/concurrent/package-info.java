@@ -18,9 +18,7 @@
 /**
  * Useful generic {@code java.util.concurrent.Future} extensions.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.util.concurrent;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

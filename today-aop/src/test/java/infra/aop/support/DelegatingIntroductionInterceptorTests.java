@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,13 +25,13 @@ import java.io.Serializable;
 import infra.aop.IntroductionAdvisor;
 import infra.aop.IntroductionInterceptor;
 import infra.aop.framework.ProxyFactory;
+import infra.aop.testfixture.interceptor.SerializableNopInterceptor;
 import infra.beans.testfixture.beans.INestedTestBean;
 import infra.beans.testfixture.beans.ITestBean;
 import infra.beans.testfixture.beans.NestedTestBean;
 import infra.beans.testfixture.beans.Person;
 import infra.beans.testfixture.beans.SerializablePerson;
 import infra.beans.testfixture.beans.TestBean;
-import infra.aop.testfixture.interceptor.SerializableNopInterceptor;
 import infra.core.testfixture.TimeStamped;
 import infra.core.testfixture.io.SerializationTestUtils;
 

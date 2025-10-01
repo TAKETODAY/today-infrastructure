@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.persistence.sql;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * An ANSI-style join.
@@ -53,7 +55,7 @@ public class ANSIJoinFragment extends JoinFragment {
    * @param joinType The type of join to produce (INNER, etc).
    * @param on Any extra join restrictions
    */
-  public void addJoin(String rhsTableName, String rhsAlias, String[] lhsColumns, String[] rhsColumns, JoinType joinType, String on) {
+  public void addJoin(String rhsTableName, String rhsAlias, String[] lhsColumns, String[] rhsColumns, JoinType joinType, @Nullable String on) {
     String joinString = switch (joinType) {
       case INNER_JOIN -> " inner join ";
       case LEFT_OUTER_JOIN -> " left outer join ";
@@ -84,7 +86,7 @@ public class ANSIJoinFragment extends JoinFragment {
   }
 
   public void addJoin(String rhsTableName, String rhsAlias,
-          String[][] lhsColumns, String[] rhsColumns, JoinType joinType, String on) {
+          String[][] lhsColumns, String[] rhsColumns, JoinType joinType, @Nullable String on) {
     final String joinString = switch (joinType) {
       case INNER_JOIN -> " inner join ";
       case LEFT_OUTER_JOIN -> " left outer join ";
@@ -180,7 +182,7 @@ public class ANSIJoinFragment extends JoinFragment {
   }
 
   @Override
-  public boolean addCondition(String condition) {
+  public boolean addCondition(@Nullable String condition) {
     return addCondition(conditions, condition);
   }
 

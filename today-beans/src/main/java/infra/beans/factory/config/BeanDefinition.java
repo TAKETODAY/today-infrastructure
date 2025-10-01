@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.beans.factory.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 
 import infra.beans.BeanMetadataElement;
@@ -24,7 +26,6 @@ import infra.beans.PropertyValues;
 import infra.core.AttributeAccessor;
 import infra.core.ResolvableType;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 
 /**
  * A BeanDefinition describes a bean instance, which has property values,
@@ -155,13 +156,12 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
    * constructor arguments. This property should just be necessary for other kinds
    * of dependencies like statics (*ugh*) or database preparation on startup.
    */
-  void setDependsOn(@Nullable String... dependsOn);
+  void setDependsOn(String @Nullable ... dependsOn);
 
   /**
    * Return the bean names that this bean depends on.
    */
-  @Nullable
-  String[] getDependsOn();
+  String @Nullable [] getDependsOn();
 
   /**
    * Set whether this bean is a candidate for getting autowired into some other bean.

@@ -66,9 +66,9 @@ import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Primary;
-import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.jdbc.JdbcConnection;
 import infra.jdbc.NamedQuery;
 import infra.jdbc.RepositoryManager;

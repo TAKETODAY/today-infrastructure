@@ -19,9 +19,7 @@
  * This package contains Framework's JMX support, which includes registration of
  * Framework-managed beans as JMX MBeans as well as access to remote JMX MBeans.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jmx;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

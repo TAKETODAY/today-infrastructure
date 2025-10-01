@@ -17,6 +17,8 @@
 
 package infra.util.concurrent;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
@@ -43,7 +45,6 @@ import java.util.stream.Stream;
 import infra.core.Pair;
 import infra.core.Triple;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.LoggerFactory;
 import infra.util.ExceptionUtils;
 import infra.util.function.ThrowingBiFunction;
@@ -446,6 +447,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see #isCancelled()
    * @since 5.0
    */
+  @SuppressWarnings("NullAway")
   public final Future<V> onCancelled(FailureCallback callback) {
     Assert.notNull(callback, "cancelledCallback is required");
     return onCompleted(future -> {
@@ -819,6 +821,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * result of this future.
    * @since 5.0
    */
+  @SuppressWarnings("NullAway")
   public final Future<Void> mapNull() {
     return map(v -> null);
   }
@@ -835,6 +838,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * result of this future.
    * @since 5.0
    */
+  @SuppressWarnings("NullAway")
   public final Future<Void> mapNull(ThrowingConsumer<V> consumer) {
     return map(v -> {
       consumer.acceptWithException(v);
@@ -1343,6 +1347,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see #onErrorComplete(Predicate)
    * @since 5.0
    */
+  @SuppressWarnings("NullAway")
   public final Future<V> onErrorReturn(@Nullable Predicate<Throwable> predicate, @Nullable V fallbackValue) {
     return errorHandling(param -> {
       if (predicate == null || predicate.test(param)) {
@@ -1598,7 +1603,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @throws InterruptedException if the thread is interrupted while waiting for
    * the future to complete.
    */
-  @Nullable
+  @SuppressWarnings("NullAway")
   public final <T> T join(ThrowingBiFunction<V, Throwable, T> resultHandler) throws Throwable {
     Assert.notNull(resultHandler, "resultHandler is required");
     await();

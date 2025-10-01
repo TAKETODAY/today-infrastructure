@@ -17,6 +17,7 @@
 
 package infra.beans;
 
+import org.jspecify.annotations.Nullable;
 import org.xml.sax.InputSource;
 
 import java.beans.PropertyEditor;
@@ -74,7 +75,6 @@ import infra.beans.propertyeditors.ZoneIdEditor;
 import infra.core.conversion.ConversionService;
 import infra.core.io.Resource;
 import infra.core.io.ResourceArrayPropertyEditor;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**
@@ -217,7 +217,7 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
         defaultEditors = createDefaultEditors();
         this.defaultEditors = defaultEditors;
       }
-      return this.defaultEditors.get(requiredType);
+      return defaultEditors.get(requiredType);
     }
     return null;
   }
@@ -485,6 +485,7 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
    * @return the property type, or {@code null} if not determinable
    */
   @Nullable
+  @SuppressWarnings("NullAway")
   protected Class<?> guessPropertyTypeFromEditors(String propertyName) {
     var editors = this.customEditorsForPath;
     if (editors != null) {

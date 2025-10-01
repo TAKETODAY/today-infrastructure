@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ package infra.app.loader.tools;
 
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.UnixStat;
+import org.jspecify.annotations.Nullable;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
@@ -43,7 +44,6 @@ import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Abstract base class for JAR writers.
@@ -69,6 +69,7 @@ public abstract class AbstractJarWriter implements LoaderClassesWriter {
   @Nullable
   private Layers layers;
 
+  @Nullable
   private LayersIndex layersIndex;
 
   /**
@@ -77,7 +78,7 @@ public abstract class AbstractJarWriter implements LoaderClassesWriter {
    * @param layers the layers to use
    * @param layersIndex the layers index to update
    */
-  void useLayers(Layers layers, LayersIndex layersIndex) {
+  void useLayers(@Nullable Layers layers, @Nullable LayersIndex layersIndex) {
     this.layers = layers;
     this.layersIndex = layersIndex;
   }
@@ -94,7 +95,7 @@ public abstract class AbstractJarWriter implements LoaderClassesWriter {
   }
 
   final void writeEntries(JarFile jarFile, EntryTransformer entryTransformer,
-          UnpackHandler unpackHandler, Function<JarEntry, Library> libraryLookup) throws IOException {
+          UnpackHandler unpackHandler, Function<JarEntry, @Nullable Library> libraryLookup) throws IOException {
     Enumeration<JarEntry> entries = jarFile.entries();
     while (entries.hasMoreElements()) {
       JarEntry entry = entries.nextElement();
@@ -272,6 +273,7 @@ public abstract class AbstractJarWriter implements LoaderClassesWriter {
       entry.getGeneralPurposeBit().useUTF8ForNames(true);
       if (!entry.isDirectory() && entry.getSize() == -1) {
         entryWriter = SizeCalculatingEntryWriter.get(entryWriter);
+        Assert.state(entryWriter != null, "'entryWriter' is required");
         entry.setSize(entryWriter.size());
       }
       entryWriter = addUnpackCommentIfNecessary(entry, entryWriter, unpackHandler);
@@ -281,9 +283,9 @@ public abstract class AbstractJarWriter implements LoaderClassesWriter {
   }
 
   private void updateLayerIndex(JarArchiveEntry entry, @Nullable Library library) {
-    if (this.layers != null && !entry.getName().endsWith("/")) {
+    if (this.layers != null && layersIndex != null && !entry.getName().endsWith("/")) {
       Layer layer = (library != null) ? this.layers.getLayer(library) : this.layers.getLayer(entry.getName());
-      this.layersIndex.add(layer, entry.getName());
+      layersIndex.add(layer, entry.getName());
     }
   }
 

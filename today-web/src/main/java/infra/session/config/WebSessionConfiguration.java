@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.session.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 
 import infra.beans.factory.SmartInitializingSingleton;
@@ -32,7 +34,6 @@ import infra.context.annotation.Role;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.ApplicationTemp;
-import infra.lang.Nullable;
 import infra.session.CookieSessionIdResolver;
 import infra.session.DefaultSessionManager;
 import infra.session.FileSessionPersister;

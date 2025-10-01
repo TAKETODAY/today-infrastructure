@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jdbc.datasource;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.locks.Lock;
@@ -24,7 +26,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import infra.beans.factory.DisposableBean;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 /**
@@ -80,7 +81,8 @@ public class SingleConnectionDataSource extends DriverManagerDataSource
   /**
    * Constructor for bean-style configuration.
    */
-  public SingleConnectionDataSource() { }
+  public SingleConnectionDataSource() {
+  }
 
   /**
    * Create a new SingleConnectionDataSource with the given standard
@@ -179,6 +181,7 @@ public class SingleConnectionDataSource extends DriverManagerDataSource
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public Connection getConnection() throws SQLException {
     this.connectionLock.lock();
     try {

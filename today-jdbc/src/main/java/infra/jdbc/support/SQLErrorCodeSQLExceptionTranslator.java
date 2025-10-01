@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.jdbc.support;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.sql.BatchUpdateException;
@@ -36,7 +38,6 @@ import infra.dao.PermissionDeniedDataAccessException;
 import infra.dao.TransientDataAccessResourceException;
 import infra.jdbc.BadSqlGrammarException;
 import infra.jdbc.InvalidResultSetAccessException;
-import infra.lang.Nullable;
 import infra.util.function.SingletonSupplier;
 
 /**
@@ -188,6 +189,7 @@ public class SQLErrorCodeSQLExceptionTranslator extends AbstractFallbackSQLExcep
 
   @Override
   @Nullable
+  @SuppressWarnings("NullAway")
   protected DataAccessException doTranslate(String task, @Nullable String sql, SQLException ex) {
     SQLException sqlEx = ex;
     if (sqlEx instanceof BatchUpdateException && sqlEx.getNextException() != null) {

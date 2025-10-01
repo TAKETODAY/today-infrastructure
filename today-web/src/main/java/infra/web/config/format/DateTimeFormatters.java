@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,10 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.config.format;
+
+import org.jspecify.annotations.Nullable;
 
 import java.time.format.DateTimeFormatter;
 import java.time.format.ResolverStyle;
@@ -33,6 +32,7 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/15 12:59
  */
+@SuppressWarnings("NullAway")
 public class DateTimeFormatters {
 
   private DateTimeFormatter dateFormatter;
@@ -69,7 +69,7 @@ public class DateTimeFormatters {
    */
   public DateTimeFormatters timeFormat(String pattern) {
     this.timeFormatter = isIso(pattern) ? DateTimeFormatter.ISO_LOCAL_TIME :
-                         (isIsoOffset(pattern) ? DateTimeFormatter.ISO_OFFSET_TIME : formatter(pattern));
+            (isIsoOffset(pattern) ? DateTimeFormatter.ISO_OFFSET_TIME : formatter(pattern));
     return this;
   }
 
@@ -81,8 +81,8 @@ public class DateTimeFormatters {
    */
   public DateTimeFormatters dateTimeFormat(String pattern) {
     this.dateTimeFormatter = isIso(pattern)
-                             ? DateTimeFormatter.ISO_LOCAL_DATE_TIME
-                             : (isIsoOffset(pattern) ? DateTimeFormatter.ISO_OFFSET_DATE_TIME : formatter(pattern));
+            ? DateTimeFormatter.ISO_LOCAL_DATE_TIME
+            : (isIsoOffset(pattern) ? DateTimeFormatter.ISO_OFFSET_DATE_TIME : formatter(pattern));
     return this;
   }
 
@@ -106,9 +106,10 @@ public class DateTimeFormatters {
     return this.dateFormatter != null || this.timeFormatter != null || this.dateTimeFormatter != null;
   }
 
+  @Nullable
   private static DateTimeFormatter formatter(String pattern) {
     return StringUtils.hasText(pattern)
-           ? DateTimeFormatter.ofPattern(pattern).withResolverStyle(ResolverStyle.SMART) : null;
+            ? DateTimeFormatter.ofPattern(pattern).withResolverStyle(ResolverStyle.SMART) : null;
   }
 
   private static boolean isIso(String pattern) {

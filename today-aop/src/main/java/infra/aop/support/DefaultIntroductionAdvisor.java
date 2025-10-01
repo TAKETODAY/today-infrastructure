@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.aop.support;
 
 import org.aopalliance.aop.Advice;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.LinkedHashSet;
@@ -43,8 +44,7 @@ import infra.util.ObjectUtils;
  * @since 3.0
  */
 @SuppressWarnings("serial")
-public class DefaultIntroductionAdvisor
-        extends OrderedSupport implements IntroductionAdvisor, ClassFilter, Ordered, Serializable {
+public class DefaultIntroductionAdvisor extends OrderedSupport implements IntroductionAdvisor, ClassFilter, Ordered, Serializable {
 
   private final Advice advice;
 
@@ -68,7 +68,7 @@ public class DefaultIntroductionAdvisor
    * @param introductionInfo the IntroductionInfo that describes
    * the interface to introduce (may be {@code null})
    */
-  public DefaultIntroductionAdvisor(Advice advice, IntroductionInfo introductionInfo) {
+  public DefaultIntroductionAdvisor(Advice advice, @Nullable IntroductionInfo introductionInfo) {
     Assert.notNull(advice, "Advice is required");
     this.advice = advice;
     if (introductionInfo != null) {
@@ -117,9 +117,8 @@ public class DefaultIntroductionAdvisor
     for (Class<?> ifc : this.interfaces) {
       if (this.advice instanceof DynamicIntroductionAdvice &&
               !((DynamicIntroductionAdvice) this.advice).implementsInterface(ifc)) {
-        throw new IllegalArgumentException(
-                "DynamicIntroductionAdvice [" + this.advice + "] " +
-                        "does not implement interface [" + ifc.getName() + "] specified for introduction");
+        throw new IllegalArgumentException("DynamicIntroductionAdvice [%s] does not implement interface [%s] specified for introduction"
+                .formatted(this.advice, ifc.getName()));
       }
     }
   }

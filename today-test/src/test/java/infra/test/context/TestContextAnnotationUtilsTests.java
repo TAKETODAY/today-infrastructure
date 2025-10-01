@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,11 +29,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import infra.core.annotation.AliasFor;
 import infra.core.annotation.AnnotationUtils;
 import infra.core.annotation.Order;
+import infra.lang.TodayStrategies;
 import infra.stereotype.Component;
 import infra.stereotype.Service;
-import infra.lang.TodayStrategies;
 import infra.test.context.TestContextAnnotationUtils.AnnotationDescriptor;
 import infra.test.context.TestContextAnnotationUtils.UntypedAnnotationDescriptor;
 import infra.transaction.annotation.Transactional;
@@ -562,6 +563,7 @@ class TestContextAnnotationUtilsTests {
     class ProductionConfig {
     }
 
+    @AliasFor(annotation = ContextConfiguration.class)
     Class<?>[] classes() default { DevConfig.class, ProductionConfig.class };
   }
 

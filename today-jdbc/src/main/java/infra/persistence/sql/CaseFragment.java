@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
 
 package infra.persistence.sql;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.LinkedHashMap;
 
 /**
@@ -27,6 +29,7 @@ import java.util.LinkedHashMap;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public abstract class CaseFragment {
 
   public abstract String toFragmentString();
@@ -49,7 +52,7 @@ public abstract class CaseFragment {
     return this;
   }
 
-  public static String qualify(String prefix, String name) {
+  public static String qualify(@Nullable String prefix, @Nullable String name) {
     if (name == null || prefix == null) {
       throw new NullPointerException("prefix or name were null attempting to build qualified name");
     }

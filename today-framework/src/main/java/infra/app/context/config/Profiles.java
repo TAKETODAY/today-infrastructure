@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.app.context.config;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -35,7 +37,6 @@ import infra.context.properties.source.ConfigurationPropertyName;
 import infra.core.ResolvableType;
 import infra.core.env.Environment;
 import infra.core.style.ToStringBuilder;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
@@ -94,12 +95,13 @@ public class Profiles implements Iterable<String> {
     return asUniqueItemList(getProfiles(environment, binder, Type.DEFAULT));
   }
 
+  @SuppressWarnings("NullAway")
   private Collection<String> getProfiles(Environment environment, Binder binder, Type type) {
     String environmentPropertyValue = environment.getProperty(type.name);
     Set<String> environmentPropertyProfiles
             = StringUtils.isEmpty(environmentPropertyValue)
-              ? Collections.emptySet()
-              : StringUtils.commaDelimitedListToSet(StringUtils.trimAllWhitespace(environmentPropertyValue));
+            ? Collections.emptySet()
+            : StringUtils.commaDelimitedListToSet(StringUtils.trimAllWhitespace(environmentPropertyValue));
 
     LinkedHashSet<String> environmentProfiles = new LinkedHashSet<>(Arrays.asList(type.get(environment)));
     BindResult<Set<String>> boundProfiles = binder.bind(type.name, STRING_SET);
@@ -145,7 +147,7 @@ public class Profiles implements Iterable<String> {
     return asUniqueItemList(expandedProfiles);
   }
 
-  private List<String> asReversedList(List<String> list) {
+  private List<String> asReversedList(@Nullable List<String> list) {
     if (CollectionUtils.isEmpty(list)) {
       return Collections.emptyList();
     }

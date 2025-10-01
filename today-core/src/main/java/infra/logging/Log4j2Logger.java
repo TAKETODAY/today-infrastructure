@@ -21,10 +21,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.spi.ExtendedLogger;
 import org.apache.logging.log4j.spi.LoggerContext;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serial;
-
-import infra.lang.Nullable;
 
 /**
  * @author TODAY
@@ -81,7 +80,7 @@ final class Log4j2Logger extends Logger {
   }
 
   @Override
-  protected void logInternal(Level level, Object message, @Nullable Throwable t) {
+  protected void logInternal(Level level, @Nullable Object message, @Nullable Throwable t) {
     if (message instanceof String) {
       // Explicitly pass a String argument, avoiding Log4j's argument expansion
       // for message objects in case of "{}" sequences
@@ -98,7 +97,7 @@ final class Log4j2Logger extends Logger {
   }
 
   @Override
-  protected void logInternal(Level level, String format, @Nullable Throwable t, @Nullable Object[] args) {
+  protected void logInternal(Level level, @Nullable String format, @Nullable Throwable t, @Nullable Object @Nullable [] args) {
     final Message message = new Message() {
 
       @Serial
@@ -113,14 +112,16 @@ final class Log4j2Logger extends Logger {
         return t;
       }
 
+      @SuppressWarnings("NullAway")
       @Nullable
       @Override
-      public Object[] getParameters() {
+      public Object @Nullable [] getParameters() {
         return args;
       }
 
       @Nullable
       @Override
+      @SuppressWarnings("NullAway")
       public String getFormattedMessage() {
         if (msg == null) {
           msg = MessageFormatter.format(format, args);

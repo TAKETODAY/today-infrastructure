@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.web.resource;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -29,7 +31,6 @@ import java.util.StringTokenizer;
 
 import infra.core.io.Resource;
 import infra.core.io.UrlResource;
-import infra.lang.Nullable;
 import infra.util.LogFormatUtils;
 import infra.util.StringUtils;
 import infra.web.RequestContext;
@@ -50,8 +51,7 @@ import infra.web.util.UriUtils;
  */
 public class PathResourceResolver extends AbstractResourceResolver {
 
-  @Nullable
-  private Resource[] allowedLocations;
+  private Resource @Nullable [] allowedLocations;
 
   private boolean urlDecode = false;
 
@@ -74,12 +74,11 @@ public class PathResourceResolver extends AbstractResourceResolver {
    * @param locations the list of allowed locations
    * @see ResourceHttpRequestHandler#initAllowedLocations()
    */
-  public void setAllowedLocations(@Nullable Resource... locations) {
+  public void setAllowedLocations(Resource @Nullable ... locations) {
     this.allowedLocations = locations;
   }
 
-  @Nullable
-  public Resource[] getAllowedLocations() {
+  public Resource @Nullable [] getAllowedLocations() {
     return this.allowedLocations;
   }
 
@@ -116,6 +115,7 @@ public class PathResourceResolver extends AbstractResourceResolver {
     return Collections.unmodifiableMap(this.locationCharsets);
   }
 
+  @Nullable
   @Override
   protected Resource resolveResourceInternal(@Nullable RequestContext request,
           String requestPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
@@ -123,6 +123,7 @@ public class PathResourceResolver extends AbstractResourceResolver {
     return getResource(requestPath, request, locations);
   }
 
+  @Nullable
   @Override
   protected String resolveUrlPathInternal(String resourcePath,
           List<? extends Resource> locations, ResourceResolvingChain chain) {

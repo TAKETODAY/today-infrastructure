@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.format.number.money;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Locale;
 
 import javax.money.MonetaryAmount;
@@ -24,7 +26,6 @@ import javax.money.format.MonetaryAmountFormat;
 import javax.money.format.MonetaryFormats;
 
 import infra.format.Formatter;
-import infra.lang.Nullable;
 
 /**
  * Formatter for JSR-354 {@link javax.money.MonetaryAmount} values,

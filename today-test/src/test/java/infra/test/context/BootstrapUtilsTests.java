@@ -30,7 +30,6 @@ import infra.test.context.support.DefaultTestContextBootstrapper;
 import infra.test.context.web.WebAppConfiguration;
 import infra.test.context.web.WebTestContextBootstrapper;
 
-import static infra.test.context.BootstrapUtils.resolveTestContextBootstrapper;
 import static infra.test.context.NestedTestConfiguration.EnclosingConfiguration.INHERIT;
 import static infra.test.context.NestedTestConfiguration.EnclosingConfiguration.OVERRIDE;
 import static org.assertj.core.api.Assertions.assertThat;

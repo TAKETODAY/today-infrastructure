@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ import java.lang.annotation.Target;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Profile;
+import infra.core.annotation.AliasFor;
 import infra.test.context.ActiveProfiles;
 import infra.test.context.ActiveProfilesResolver;
 import infra.test.context.ContextConfiguration;
@@ -78,12 +79,14 @@ public @interface ConfigClassesAndProfileResolverWithCustomDefaultsMetaConfig {
     @Override
     public String[] resolve(Class<?> testClass) {
       return testClass.getSimpleName().equals("ConfigClassesAndProfileResolverWithCustomDefaultsMetaConfigTests") ? new String[] { "resolver" }
-                                                                                                                  : new String[] {};
+              : new String[] {};
     }
   }
 
+  @AliasFor(annotation = ContextConfiguration.class)
   Class<?>[] classes() default { DevConfig.class, ProductionConfig.class, ResolverConfig.class };
 
+  @AliasFor(annotation = ActiveProfiles.class)
   Class<? extends ActiveProfilesResolver> resolver() default CustomResolver.class;
 
 }

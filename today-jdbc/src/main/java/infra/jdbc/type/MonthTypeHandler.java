@@ -17,6 +17,8 @@
 
 package infra.jdbc.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,18 +37,21 @@ public class MonthTypeHandler extends BasicTypeHandler<Month> {
     ps.setInt(i, arg.getValue());
   }
 
+  @Nullable
   @Override
   public Month getResult(ResultSet rs, String columnName) throws SQLException {
     int month = rs.getInt(columnName);
     return month == 0 && rs.wasNull() ? null : Month.of(month);
   }
 
+  @Nullable
   @Override
   public Month getResult(ResultSet rs, int columnIndex) throws SQLException {
     int month = rs.getInt(columnIndex);
     return month == 0 && rs.wasNull() ? null : Month.of(month);
   }
 
+  @Nullable
   @Override
   public Month getResult(CallableStatement cs, int columnIndex) throws SQLException {
     int month = cs.getInt(columnIndex);

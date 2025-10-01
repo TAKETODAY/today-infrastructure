@@ -17,10 +17,10 @@
 
 package infra.logging;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.util.List;
-
-import infra.lang.Nullable;
 
 /**
  * Implementation of {@link Logger} that wraps a list of loggers and delegates
@@ -107,7 +107,7 @@ final class CompositeLogger extends Logger {
   }
 
   @Override
-  protected void logInternal(Level level, String msg, @Nullable Throwable t, @Nullable Object[] args) {
+  protected void logInternal(Level level, @Nullable String msg, @Nullable Throwable t, @Nullable Object @Nullable [] args) {
     logger(level).logInternal(level, msg, t, args);
   }
 

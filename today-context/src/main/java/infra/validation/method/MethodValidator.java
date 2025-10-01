@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
 
 package infra.validation.method;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 
 import infra.core.MethodParameter;
-import infra.lang.Nullable;
 import infra.validation.Errors;
 import infra.validation.annotation.Validated;
 
@@ -57,7 +58,7 @@ public interface MethodValidator {
    * @return the result of validation
    */
   MethodValidationResult validateArguments(Object target, Method method,
-          @Nullable MethodParameter[] parameters, Object[] arguments, Class<?>[] groups);
+          MethodParameter @Nullable [] parameters, @Nullable Object[] arguments, Class<?>[] groups);
 
   /**
    * Delegate to {@link #validateArguments} and handle the validation result,
@@ -68,7 +69,7 @@ public interface MethodValidator {
    * @throws MethodValidationException in case of unhandled errors.
    */
   default void applyArgumentValidation(Object target, Method method,
-          @Nullable MethodParameter[] parameters, Object[] arguments, Class<?>[] groups) {
+          MethodParameter @Nullable [] parameters, @Nullable Object[] arguments, Class<?>[] groups) {
 
     MethodValidationResult result = validateArguments(target, method, parameters, arguments, groups);
     if (result.hasErrors()) {

@@ -17,12 +17,13 @@
 
 package infra.core.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.NoSuchElementException;
 import java.util.function.Predicate;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Abstract base class for {@link MergedAnnotation} implementations.
@@ -169,16 +170,19 @@ abstract class AbstractMergedAnnotation<A extends Annotation> implements MergedA
   }
 
   @Override
+  @Nullable
   public Object getValue(String attributeName) {
     return getValue(attributeName, Object.class);
   }
 
   @Override
+  @Nullable
   public <T> T getValue(String attributeName, Class<T> type) {
     return getAttributeValue(attributeName, type);
   }
 
   @Override
+  @Nullable
   public Object getDefaultValue(String attributeName) {
     return getDefaultValue(attributeName, Object.class);
   }
@@ -193,6 +197,7 @@ abstract class AbstractMergedAnnotation<A extends Annotation> implements MergedA
     return asMap(mergedAnnotation -> new AnnotationAttributes(mergedAnnotation.getType()), adaptations);
   }
 
+  @Nullable
   @Override
   public A synthesize(Predicate<? super MergedAnnotation<A>> condition) throws NoSuchElementException {
     return condition.test(this) ? synthesize() : null;

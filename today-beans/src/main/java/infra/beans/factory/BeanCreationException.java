@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.beans.factory;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -24,7 +26,6 @@ import java.util.List;
 
 import infra.beans.FatalBeanException;
 import infra.core.NestedRuntimeException;
-import infra.lang.Nullable;
 
 /**
  * Exception thrown when a BeanFactory encounters an error when
@@ -99,7 +100,7 @@ public class BeanCreationException extends FatalBeanException {
    * @param beanName the name of the bean requested
    * @param msg the detail message
    */
-  public BeanCreationException(@Nullable String resourceDescription, @Nullable String beanName, String msg) {
+  public BeanCreationException(@Nullable String resourceDescription, @Nullable String beanName, @Nullable String msg) {
     super("Error creating bean with name '" + beanName + "'" +
             (resourceDescription != null ? " defined in " + resourceDescription : "") + ": " + msg);
     this.resourceDescription = resourceDescription;
@@ -116,8 +117,7 @@ public class BeanCreationException extends FatalBeanException {
    * @param msg the detail message
    * @param cause the root cause
    */
-  public BeanCreationException(
-          @Nullable String resourceDescription, String beanName, String msg, Throwable cause) {
+  public BeanCreationException(@Nullable String resourceDescription, String beanName, @Nullable String msg, Throwable cause) {
     this(resourceDescription, beanName, msg);
     initCause(cause);
   }
@@ -158,8 +158,7 @@ public class BeanCreationException extends FatalBeanException {
    *
    * @return the array of related causes, or {@code null} if none
    */
-  @Nullable
-  public Throwable[] getRelatedCauses() {
+  public Throwable @Nullable [] getRelatedCauses() {
     if (this.relatedCauses == null) {
       return null;
     }

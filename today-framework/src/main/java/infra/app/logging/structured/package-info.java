@@ -18,9 +18,7 @@
 /**
  * Support for structured logging.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.app.logging.structured;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

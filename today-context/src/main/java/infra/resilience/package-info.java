@@ -18,9 +18,7 @@
 /**
  * Infra Resilience
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.resilience;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

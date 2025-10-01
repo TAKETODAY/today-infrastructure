@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.util;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -35,7 +37,6 @@ import java.util.stream.Stream;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.lang.Assert;
 import infra.lang.Modifiable;
-import infra.lang.Nullable;
 
 /**
  * Simple factory used to instantiate objects by injecting available parameters.
@@ -224,8 +225,7 @@ public class Instantiator<T> {
     throw new IllegalAccessException("Class [%s] has no suitable constructor".formatted(type.getName()));
   }
 
-  @Nullable
-  private Object[] getArgs(Class<?>[] parameterTypes) {
+  private Object @Nullable [] getArgs(Class<?>[] parameterTypes) {
     Object[] args = new Object[parameterTypes.length];
     for (int i = 0; i < parameterTypes.length; i++) {
       Function<Class<?>, Object> parameter = getAvailableParameter(parameterTypes[i]);

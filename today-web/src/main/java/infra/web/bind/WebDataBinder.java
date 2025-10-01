@@ -17,6 +17,8 @@
 
 package infra.web.bind;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.List;
@@ -31,7 +33,6 @@ import infra.beans.PropertyValue;
 import infra.beans.PropertyValues;
 import infra.core.MethodParameter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 import infra.validation.BindException;

@@ -19,9 +19,7 @@
  * Classes supporting the {@code infra.web.client.reactive} package.
  * Contains a {@code ClientResponse} wrapper to adapt a request.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.client.reactive.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

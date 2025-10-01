@@ -17,6 +17,8 @@
 
 package infra.web.view;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -29,7 +31,6 @@ import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
 import infra.core.Ordered;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.PatternMatchUtils;
 import infra.web.RequestContext;
@@ -132,11 +133,9 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
   @Nullable
   private Boolean exposeContextBeansAsAttributes;
 
-  @Nullable
-  private String[] exposedContextBeanNames;
+  private String @Nullable [] exposedContextBeanNames;
 
-  @Nullable
-  private String[] viewNames;
+  private String @Nullable [] viewNames;
 
   private int order = Ordered.LOWEST_PRECEDENCE;
 
@@ -375,12 +374,11 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
    *
    * @see AbstractView#setExposedContextBeanNames
    */
-  public void setExposedContextBeanNames(@Nullable String... exposedContextBeanNames) {
+  public void setExposedContextBeanNames(String @Nullable ... exposedContextBeanNames) {
     this.exposedContextBeanNames = exposedContextBeanNames;
   }
 
-  @Nullable
-  protected String[] getExposedContextBeanNames() {
+  protected String @Nullable [] getExposedContextBeanNames() {
     return this.exposedContextBeanNames;
   }
 
@@ -392,7 +390,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
    *
    * @see #canHandle
    */
-  public void setViewNames(@Nullable String... viewNames) {
+  public void setViewNames(String @Nullable ... viewNames) {
     this.viewNames = viewNames;
   }
 
@@ -400,8 +398,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
    * Return the view names (or name patterns) that can be handled by this
    * {@link ViewResolver}.
    */
-  @Nullable
-  protected String[] getViewNames() {
+  protected String @Nullable [] getViewNames() {
     return this.viewNames;
   }
 

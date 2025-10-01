@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.expression;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represent an exception that occurs during expression evaluation.
@@ -42,7 +44,7 @@ public class EvaluationException extends ExpressionException {
    * @param message description of the problem that occurred
    * @param cause the underlying cause of this exception
    */
-  public EvaluationException(String message, Throwable cause) {
+  public EvaluationException(String message, @Nullable Throwable cause) {
     super(message, cause);
   }
 
@@ -73,7 +75,7 @@ public class EvaluationException extends ExpressionException {
    * @param message description of the problem that occurred
    * @param cause the underlying cause of this exception
    */
-  public EvaluationException(int position, String message, Throwable cause) {
+  public EvaluationException(int position, String message, @Nullable Throwable cause) {
     super(position, message, cause);
   }
 

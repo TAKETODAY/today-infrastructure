@@ -17,6 +17,8 @@
 
 package infra.web.client.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.nio.charset.Charset;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -38,7 +40,6 @@ import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.ClientHttpRequestInterceptor;
 import infra.http.converter.HttpMessageConverter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.web.client.ResponseErrorHandler;
 import infra.web.client.RestTemplate;
@@ -702,7 +703,7 @@ public class RestTemplateBuilder {
     return Collections.unmodifiableSet(result);
   }
 
-  private static <K, V> Map<K, List<V>> append(@Nullable Map<K, List<V>> map, K key, @Nullable V[] values) {
+  private static <K, V> Map<K, List<V>> append(@Nullable Map<K, List<V>> map, K key, V @Nullable [] values) {
     LinkedHashMap<K, List<V>> result = new LinkedHashMap<>(map != null ? map : Collections.emptyMap());
     if (values != null) {
       result.put(key, copiedListOf(values));

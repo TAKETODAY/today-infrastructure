@@ -20,9 +20,7 @@
  *
  * @see infra.origin.Origin
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.origin;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.cache.jcache.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Supplier;
 
 import infra.beans.factory.config.BeanDefinition;
@@ -26,7 +28,6 @@ import infra.cache.jcache.interceptor.DefaultJCacheOperationSource;
 import infra.cache.jcache.interceptor.JCacheOperationSource;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Role;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 
 /**
@@ -45,6 +46,7 @@ public abstract class AbstractJCacheConfiguration extends AbstractCachingConfigu
   @Nullable
   protected Supplier<CacheResolver> exceptionCacheResolver;
 
+  @SuppressWarnings("NullAway")
   @Override
   protected void useCachingConfigurer(CachingConfigurerSupplier supplier) {
     super.useCachingConfigurer(supplier);

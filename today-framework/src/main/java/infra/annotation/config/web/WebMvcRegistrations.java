@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.annotation.config.web;
+
+import org.jspecify.annotations.Nullable;
 
 import infra.web.config.annotation.WebMvcConfigurationSupport;
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
@@ -41,6 +43,7 @@ public interface WebMvcRegistrations {
    *
    * @return the custom {@link RequestMappingHandlerMapping} instance
    */
+  @Nullable
   default RequestMappingHandlerMapping createRequestMappingHandlerMapping() {
     return null;
   }
@@ -51,6 +54,7 @@ public interface WebMvcRegistrations {
    *
    * @return the custom {@link RequestMappingHandlerAdapter} instance
    */
+  @Nullable
   default RequestMappingHandlerAdapter createRequestMappingHandlerAdapter() {
     return null;
   }
@@ -61,6 +65,7 @@ public interface WebMvcRegistrations {
    *
    * @return the custom {@link ExceptionHandlerAnnotationExceptionHandler} instance
    */
+  @Nullable
   default ExceptionHandlerAnnotationExceptionHandler createAnnotationExceptionHandler() {
     return null;
   }

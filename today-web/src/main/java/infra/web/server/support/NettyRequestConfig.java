@@ -17,13 +17,14 @@
 
 package infra.web.server.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.nio.charset.Charset;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
@@ -169,6 +170,7 @@ public final class NettyRequestConfig {
     return new Builder(secure);
   }
 
+  @SuppressWarnings("NullAway.Init")
   public static class Builder {
 
     @Nullable

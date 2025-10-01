@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.nio.charset.Charset;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -29,7 +31,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Properties;
-import java.util.Random;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.StringTokenizer;
@@ -39,7 +40,6 @@ import java.util.stream.Collectors;
 
 import infra.lang.Constant;
 import infra.lang.Contract;
-import infra.lang.Nullable;
 
 /**
  * Miscellaneous {@link String} utility methods.
@@ -84,8 +84,6 @@ public abstract class StringUtils {
 
   private static final String TRUNCATION_SUFFIX = " (truncated)...";
 
-  private static final Random random = new Random();
-
   //---------------------------------------------------------------------
   // General convenience methods for working with Strings
   //---------------------------------------------------------------------
@@ -126,8 +124,8 @@ public abstract class StringUtils {
    * index 1 being after the delimiter (neither element includes the delimiter);
    * or {@code null} if the delimiter wasn't found in the given input {@code String}
    */
-  @Nullable
-  public static String[] split(@Nullable String toSplit, @Nullable String delimiter) {
+  @Contract("null, _ -> null; _, null -> null")
+  public static String @Nullable [] split(@Nullable String toSplit, @Nullable String delimiter) {
     if (isEmpty(toSplit) || isEmpty(delimiter)) {
       return null;
     }
@@ -362,7 +360,8 @@ public abstract class StringUtils {
    * @return the new array (never {@code null})
    * @since 4.0
    */
-  public static String[] addStringToArray(@Nullable String[] array, String str) {
+  @SuppressWarnings("NullAway")
+  public static String[] addStringToArray(@Nullable String @Nullable [] array, String str) {
     if (ObjectUtils.isEmpty(array)) {
       return new String[] { str };
     }
@@ -397,12 +396,12 @@ public abstract class StringUtils {
    * @return the resulting array (of the same size) with trimmed elements
    * @since 4.0
    */
-  public static String[] trimArrayElements(String[] array) {
+  public static @Nullable String[] trimArrayElements(@Nullable String[] array) {
     if (ObjectUtils.isEmpty(array)) {
       return array;
     }
 
-    String[] result = new String[array.length];
+    @Nullable String[] result = new String[array.length];
     for (int i = 0; i < array.length; i++) {
       String element = array[i];
       result[i] = (element != null ? element.trim() : null);
@@ -435,7 +434,7 @@ public abstract class StringUtils {
    * @param delim the delimiter to use (typically a ",")
    * @return the delimited {@code String}
    */
-  public static String arrayToDelimitedString(@Nullable Object[] arr, String delim) {
+  public static String arrayToDelimitedString(@Nullable Object @Nullable [] arr, String delim) {
     if (ObjectUtils.isEmpty(arr)) {
       return "";
     }
@@ -458,7 +457,7 @@ public abstract class StringUtils {
    * @param arr the array to display (potentially {@code null} or empty)
    * @return the delimited {@code String}
    */
-  public static String arrayToCommaDelimitedString(@Nullable Object[] arr) {
+  public static String arrayToCommaDelimitedString(@Nullable Object @Nullable [] arr) {
     return arrayToDelimitedString(arr, ",");
   }
 
@@ -557,7 +556,8 @@ public abstract class StringUtils {
    * @param path the original path
    * @return the normalized path
    */
-  public static String cleanPath(String path) {
+  @SuppressWarnings("NullAway")
+  public static String cleanPath(@Nullable String path) {
     if (isEmpty(path)) {
       return path;
     }
@@ -1002,6 +1002,7 @@ public abstract class StringUtils {
    * length is greater than 0, and it does not contain whitespace only
    * @see Character#isWhitespace
    */
+  @Contract("null -> false")
   public static boolean hasText(@Nullable CharSequence str) {
     if (str == null) {
       return false;
@@ -1033,6 +1034,7 @@ public abstract class StringUtils {
    * @see #isNotEmpty(CharSequence)
    * @see Character#isWhitespace
    */
+  @Contract("null -> false")
   public static boolean hasText(@Nullable String str) {
     return str != null && !str.isBlank();
   }
@@ -1059,6 +1061,7 @@ public abstract class StringUtils {
    * @see Character#isWhitespace
    * @since 4.0
    */
+  @Contract("null -> true")
   public static boolean isBlank(@Nullable String str) {
     return str == null || str.isBlank();
   }
@@ -1084,6 +1087,7 @@ public abstract class StringUtils {
    * @see Character#isWhitespace
    * @since 4.0
    */
+  @Contract("null -> true")
   public static boolean isBlank(@Nullable CharSequence str) {
     return !hasText(str);
   }
@@ -1096,6 +1100,7 @@ public abstract class StringUtils {
    * @return the extracted filename, or {@code null} if none
    */
   @Nullable
+  @Contract("null -> null")
   public static String getFilename(@Nullable String path) {
     if (path == null) {
       return null;
@@ -1112,6 +1117,7 @@ public abstract class StringUtils {
    * @return the extracted filename extension, or {@code null} if none
    */
   @Nullable
+  @Contract("null -> null")
   public static String getFilenameExtension(@Nullable String path) {
     if (path == null) {
       return null;
@@ -1174,37 +1180,6 @@ public abstract class StringUtils {
     }
   }
 
-  public static String generateRandomString(int length) {
-    final char[] ret = new char[length];
-    final Random random = StringUtils.random;
-    for (int i = 0; i < length; i++) {
-      ret[i] = generateRandomCharacter(random.nextInt(3));
-    }
-    return String.valueOf(ret);
-  }
-
-  private static char generateRandomCharacter(int type) {
-    int rand;
-    switch (type) {
-      case 0 -> {//随机小写字母
-        rand = random.nextInt(26);
-        rand += 97;
-        return (char) rand;
-      }
-      case 1 -> {//随机大写字母
-        rand = random.nextInt(26);
-        rand += 65;
-        return (char) rand;
-      }//随机数字
-      default -> {
-        rand = random.nextInt(10);
-        rand += 48;
-        return (char) rand;
-      }
-    }
-  }
-  // 3.0
-
   /**
    * Check whether the given {@code CharSequence} contains any whitespace characters.
    *
@@ -1214,7 +1189,8 @@ public abstract class StringUtils {
    * @see Character#isWhitespace
    * @since 3.0
    */
-  public static boolean containsWhitespace(CharSequence str) {
+  @Contract("null -> false")
+  public static boolean containsWhitespace(@Nullable CharSequence str) {
     if (isEmpty(str)) {
       return false;
     }
@@ -1237,7 +1213,8 @@ public abstract class StringUtils {
    * @see #containsWhitespace(CharSequence)
    * @since 3.0
    */
-  public static boolean containsWhitespace(String str) {
+  @Contract("null -> false")
+  public static boolean containsWhitespace(@Nullable String str) {
     return containsWhitespace((CharSequence) str);
   }
 
@@ -1250,6 +1227,7 @@ public abstract class StringUtils {
    * @since 3.0
    */
   @Nullable
+  @Contract("null -> null")
   public static String trimWhitespace(@Nullable String str) {
     if (str == null || str.isEmpty()) {
       return str;
@@ -1267,10 +1245,9 @@ public abstract class StringUtils {
    * @see java.lang.Character#isWhitespace
    * @since 3.0
    */
-  @Nullable
-  public static String trimAllWhitespace(@Nullable String str) {
-    if (str == null) {
-      return null;
+  public static String trimAllWhitespace(String str) {
+    if (isEmpty(str)) {
+      return str;
     }
     return trimAllWhitespace((CharSequence) str).toString();
   }
@@ -1310,6 +1287,7 @@ public abstract class StringUtils {
    * @since 3.0
    */
   @Nullable
+  @Contract("null -> null")
   public static String trimLeadingWhitespace(@Nullable String str) {
     if (str == null || str.isEmpty()) {
       return str;
@@ -1326,6 +1304,7 @@ public abstract class StringUtils {
    * @since 3.0
    */
   @Nullable
+  @Contract("null -> null")
   public static String trimTrailingWhitespace(@Nullable String str) {
     if (str == null || str.isEmpty()) {
       return str;
@@ -1342,6 +1321,7 @@ public abstract class StringUtils {
    * @since 3.0
    */
   @Nullable
+  @Contract("null, _ -> null")
   public static String trimLeadingCharacter(@Nullable String str, char leadingCharacter) {
     if (str == null || str.isEmpty()) {
       return str;
@@ -1364,6 +1344,7 @@ public abstract class StringUtils {
    * @since 3.0
    */
   @Nullable
+  @Contract("null,_ -> null")
   public static String trimTrailingCharacter(@Nullable String str, char trailingCharacter) {
     if (str == null || str.isEmpty()) {
       return str;
@@ -1385,6 +1366,7 @@ public abstract class StringUtils {
    * @see java.lang.String#startsWith
    * @since 4.0
    */
+  @Contract("null,_ -> false; _, null -> false")
   public static boolean startsWithIgnoreCase(@Nullable String str, @Nullable String prefix) {
     return str != null
             && prefix != null
@@ -1401,6 +1383,7 @@ public abstract class StringUtils {
    * @see java.lang.String#endsWith
    * @since 4.0
    */
+  @Contract("null,_ -> false; _, null -> false")
   public static boolean endsWithIgnoreCase(@Nullable String str, @Nullable String suffix) {
     return str != null
             && suffix != null
@@ -1436,6 +1419,7 @@ public abstract class StringUtils {
    * @param singleCharacter the character to compare to
    * @since 3.0
    */
+  @Contract("null, _ -> false")
   public static boolean matchesCharacter(@Nullable String str, char singleCharacter) {
     return (str != null && str.length() == 1 && str.charAt(0) == singleCharacter);
   }
@@ -1448,6 +1432,7 @@ public abstract class StringUtils {
    * @param charToMatch char To Match
    * @since 4.0
    */
+  @Contract("null, _, _ -> false")
   public static boolean matchesCharacter(@Nullable String str, int idx, char charToMatch) {
     if (str == null || (idx < 0) || (idx >= str.length())) {
       return false;
@@ -1465,6 +1450,7 @@ public abstract class StringUtils {
    * @param charToMatch char To Match
    * @since 4.0
    */
+  @Contract("null, _ -> false")
   public static boolean matchesFirst(@Nullable String str, char charToMatch) {
     return str != null && !str.isEmpty() && str.charAt(0) == charToMatch;
   }
@@ -1476,6 +1462,7 @@ public abstract class StringUtils {
    * @param charToMatch char To Match
    * @since 4.0
    */
+  @Contract("null, _ -> false")
   public static boolean matchesLast(@Nullable String str, char charToMatch) {
     return isNotEmpty(str) && str.charAt(str.length() - 1) == charToMatch;
   }

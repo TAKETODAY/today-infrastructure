@@ -17,6 +17,8 @@
 
 package infra.jdbc.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,18 +37,21 @@ public class YearTypeHandler extends BasicTypeHandler<Year> {
     ps.setInt(i, arg.getValue());
   }
 
+  @Nullable
   @Override
   public Year getResult(ResultSet rs, String columnName) throws SQLException {
     int year = rs.getInt(columnName);
     return year == 0 && rs.wasNull() ? null : Year.of(year);
   }
 
+  @Nullable
   @Override
   public Year getResult(ResultSet rs, int columnIndex) throws SQLException {
     int year = rs.getInt(columnIndex);
     return year == 0 && rs.wasNull() ? null : Year.of(year);
   }
 
+  @Nullable
   @Override
   public Year getResult(CallableStatement cs, int columnIndex) throws SQLException {
     int year = cs.getInt(columnIndex);

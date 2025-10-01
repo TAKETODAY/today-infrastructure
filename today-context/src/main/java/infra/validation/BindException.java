@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 package infra.validation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyEditor;
 import java.util.List;
 import java.util.Map;
 
 import infra.beans.PropertyEditorRegistry;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Thrown when binding errors are considered fatal. Implements the
@@ -113,7 +114,7 @@ public class BindException extends Exception implements BindingResult {
   }
 
   @Override
-  public void reject(String errorCode, @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
+  public void reject(String errorCode, Object @Nullable [] errorArgs, @Nullable String defaultMessage) {
     this.bindingResult.reject(errorCode, errorArgs, defaultMessage);
   }
 
@@ -128,7 +129,7 @@ public class BindException extends Exception implements BindingResult {
   }
 
   @Override
-  public void rejectValue(@Nullable String field, String errorCode, @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
+  public void rejectValue(@Nullable String field, String errorCode, Object @Nullable [] errorArgs, @Nullable String defaultMessage) {
     this.bindingResult.rejectValue(field, errorCode, errorArgs, defaultMessage);
   }
 

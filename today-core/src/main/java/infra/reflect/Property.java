@@ -17,6 +17,8 @@
 
 package infra.reflect;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
@@ -30,12 +32,12 @@ import java.util.Map;
 import java.util.Objects;
 
 import infra.core.MethodParameter;
+import infra.core.Nullness;
 import infra.core.ResolvableType;
 import infra.core.TypeDescriptor;
 import infra.core.annotation.MergedAnnotations;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
@@ -91,8 +93,7 @@ public class Property implements Member, AnnotatedElement, Serializable {
   /** @since 4.0 */
   private boolean fieldIsNull;
 
-  @Nullable
-  private transient Annotation[] annotations;
+  private transient Annotation @Nullable [] annotations;
 
   @Nullable
   private transient MergedAnnotations mergedAnnotations;
@@ -344,12 +345,14 @@ public class Property implements Member, AnnotatedElement, Serializable {
    * @since 4.0
    */
   public boolean isNullable() {
-    for (Annotation ann : getAnnotations(false)) {
-      if ("Nullable".equals(ann.annotationType().getSimpleName())) {
-        return true;
-      }
+    Field field = getField();
+    if (field != null) {
+      return Nullness.forField(field) == Nullness.NULLABLE;
     }
-    return false;
+    if (readMethod != null) {
+      return Nullness.forMethodReturnType(readMethod) == Nullness.NULLABLE;
+    }
+    return isMethodBased() && Nullness.forMethodParameter(getMethodParameter()) == Nullness.NULLABLE;
   }
 
   /**
@@ -359,6 +362,7 @@ public class Property implements Member, AnnotatedElement, Serializable {
    * @since 4.0
    */
   @Override
+  @SuppressWarnings("NullAway")
   public Class<?> getDeclaringClass() {
     if (declaringClass == null) {
       if (readMethod != null) {

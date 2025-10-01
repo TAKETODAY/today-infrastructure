@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.app;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.context.properties.source.ConfigurationPropertySources;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.ConfigurablePropertyResolver;
@@ -30,12 +32,13 @@ import infra.web.server.support.StandardNettyWebEnvironment;
  * @since 4.0 2023/2/4 23:38
  */
 class ApplicationNettyWebEnvironment extends StandardNettyWebEnvironment {
-
+  @Nullable
   @Override
   protected String doGetActiveProfilesProperty() {
     return null;
   }
 
+  @Nullable
   @Override
   protected String doGetDefaultProfilesProperty() {
     return null;

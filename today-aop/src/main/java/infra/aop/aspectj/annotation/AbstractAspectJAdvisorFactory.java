@@ -27,6 +27,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.AjType;
 import org.aspectj.lang.reflect.AjTypeSystem;
 import org.aspectj.lang.reflect.PerClauseKind;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Executable;
@@ -39,7 +40,6 @@ import infra.aop.framework.AopConfigException;
 import infra.core.ParameterNameDiscoverer;
 import infra.core.annotation.AnnotationUtils;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
@@ -239,8 +239,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
   private static final class AspectJAnnotationParameterNameDiscoverer extends ParameterNameDiscoverer {
 
     @Override
-    @Nullable
-    public String[] getParameterNames(Executable executable) {
+    public String @Nullable [] getParameterNames(Executable executable) {
       if (executable instanceof Method method) {
         if (method.getParameterCount() == 0) {
           return Constant.EMPTY_STRING_ARRAY;

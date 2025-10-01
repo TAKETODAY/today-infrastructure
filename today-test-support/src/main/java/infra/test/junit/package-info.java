@@ -18,9 +18,7 @@
 /**
  * DisabledOnOs
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.test.junit;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

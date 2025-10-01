@@ -4,9 +4,7 @@
  * Groovy Templates</a> as Framework web view technology.
  * Contains a View implementation for Groovy templates.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.view.groovy;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

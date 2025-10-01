@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.beans.factory.xml;
 
+import org.jspecify.annotations.Nullable;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -28,7 +29,6 @@ import infra.beans.factory.config.BeanDefinitionHolder;
 import infra.beans.factory.config.ConstructorArgumentValues;
 import infra.beans.factory.config.RuntimeBeanReference;
 import infra.core.Conventions;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**

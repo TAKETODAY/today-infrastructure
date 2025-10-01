@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.jdbc.config;
 
+import org.jspecify.annotations.Nullable;
 import org.w3c.dom.Element;
 
 import java.util.List;
@@ -28,7 +29,6 @@ import infra.beans.factory.support.BeanDefinitionBuilder;
 import infra.beans.factory.support.ManagedList;
 import infra.jdbc.datasource.init.CompositeDatabasePopulator;
 import infra.jdbc.datasource.init.ResourceDatabasePopulator;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 import infra.util.xml.DomUtils;
 

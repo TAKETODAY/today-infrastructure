@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.http.client;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.FlowAdapters;
 
 import java.io.IOException;
@@ -26,7 +27,6 @@ import java.util.function.Function;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
 import infra.http.support.Netty4HttpHeaders;
-import infra.lang.Nullable;
 import infra.util.StreamUtils;
 import io.netty.buffer.ByteBuf;
 import reactor.netty.Connection;

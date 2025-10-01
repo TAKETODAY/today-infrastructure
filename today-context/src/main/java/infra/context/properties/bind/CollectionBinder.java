@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.context.properties.bind;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
@@ -24,7 +26,6 @@ import java.util.function.Supplier;
 import infra.context.properties.bind.Binder.Context;
 import infra.context.properties.source.ConfigurationPropertyName;
 import infra.core.ResolvableType;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 
 /**
@@ -41,6 +42,7 @@ class CollectionBinder extends IndexedElementsBinder<Collection<Object>> {
     super(context);
   }
 
+  @Nullable
   @Override
   protected Object bindAggregate(ConfigurationPropertyName name,
           Bindable<?> target, AggregateElementBinder elementBinder) {

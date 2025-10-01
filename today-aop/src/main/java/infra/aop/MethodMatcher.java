@@ -379,6 +379,7 @@ public interface MethodMatcher {
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public boolean matches(MethodInvocation invocation) {
       final Method method = invocation.getMethod();
       final Class<?> targetClass = invocation.getThis().getClass();

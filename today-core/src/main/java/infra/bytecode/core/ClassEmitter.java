@@ -17,6 +17,8 @@
 
 package infra.bytecode.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -30,7 +32,6 @@ import infra.bytecode.Type;
 import infra.bytecode.commons.MethodSignature;
 import infra.bytecode.transform.ClassTransformer;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 
 /**
  * @author Juozas Baliuka, Chris Nokleberg

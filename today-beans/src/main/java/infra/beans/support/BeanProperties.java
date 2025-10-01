@@ -17,6 +17,8 @@
 
 package infra.beans.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Map;
 import java.util.Set;
 
@@ -28,7 +30,6 @@ import infra.beans.NoSuchPropertyException;
 import infra.beans.SimpleTypeConverter;
 import infra.beans.TypeConverter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 /**
@@ -79,7 +80,7 @@ public abstract class BeanProperties {
    * @param source the source bean
    * @param ignoreProperties array of property names to ignore
    */
-  public static void copy(Object source, Object destination, @Nullable String... ignoreProperties) {
+  public static void copy(Object source, Object destination, String @Nullable ... ignoreProperties) {
     copy(source, destination, null, ignoreProperties);
   }
 
@@ -94,7 +95,7 @@ public abstract class BeanProperties {
    * @param ignoreProperties array of property names to ignore
    */
   public static void copy(Object source, Object destination,
-          @Nullable TypeConverter converter, @Nullable String... ignoreProperties) {
+          @Nullable TypeConverter converter, String @Nullable ... ignoreProperties) {
     Assert.notNull(source, "source object is required");
     Assert.notNull(destination, "destination object is required");
 
@@ -144,7 +145,7 @@ public abstract class BeanProperties {
    * from each other, as long as the properties match. Any bean properties that the
    * source bean exposes but the target bean does not will silently be ignored.
    */
-  public static <T> T copy(Object source, Class<T> destination, @Nullable String... ignoreProperties) {
+  public static <T> T copy(Object source, Class<T> destination, String @Nullable ... ignoreProperties) {
     return copy(source, destination, null, ignoreProperties);
   }
 
@@ -158,7 +159,7 @@ public abstract class BeanProperties {
    */
   @SuppressWarnings("unchecked")
   public static <T> T copy(Object source, Class<T> destination,
-          @Nullable TypeConverter converter, @Nullable String... ignoreProperties) {
+          @Nullable TypeConverter converter, String @Nullable ... ignoreProperties) {
     Assert.notNull(source, "source object is required");
     Assert.notNull(destination, "destination class is required");
 
@@ -173,7 +174,7 @@ public abstract class BeanProperties {
    */
   @SuppressWarnings("unchecked")
   private static void copy(Object source, BeanMetadata destination,
-          Object destinationInstance, @Nullable TypeConverter converter, @Nullable String[] ignoreProperties) {
+          Object destinationInstance, @Nullable TypeConverter converter, String @Nullable [] ignoreProperties) {
     if (converter == null) {
       converter = new SimpleTypeConverter();
     }

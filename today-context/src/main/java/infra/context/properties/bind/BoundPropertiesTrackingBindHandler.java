@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.context.properties.bind;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Consumer;
 
@@ -39,6 +41,7 @@ public class BoundPropertiesTrackingBindHandler extends AbstractBindHandler {
     this.consumer = consumer;
   }
 
+  @Nullable
   @Override
   public Object onSuccess(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Object result) {
     if (context.getConfigurationProperty() != null && name.equals(context.getConfigurationProperty().getName())) {

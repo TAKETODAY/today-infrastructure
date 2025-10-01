@@ -17,6 +17,8 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -38,7 +40,6 @@ import infra.core.io.PathMatchingPatternResourceLoader;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.stereotype.Controller;
 import infra.stereotype.Repository;
@@ -78,8 +79,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 
   private BeanDefinitionDefaults beanDefinitionDefaults = new BeanDefinitionDefaults();
 
-  @Nullable
-  private String[] autowireCandidatePatterns;
+  private String @Nullable [] autowireCandidatePatterns;
 
   private BeanNameGenerator beanNameGenerator = AnnotationBeanNameGenerator.INSTANCE;
 
@@ -211,7 +211,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
    *
    * @param autowireCandidatePatterns the patterns to match against
    */
-  public void setAutowireCandidatePatterns(@Nullable String... autowireCandidatePatterns) {
+  public void setAutowireCandidatePatterns(String @Nullable ... autowireCandidatePatterns) {
     this.autowireCandidatePatterns = autowireCandidatePatterns;
   }
 

@@ -17,9 +17,10 @@
 
 package infra.session;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 
-import infra.lang.Nullable;
 import infra.util.ArrayHolder;
 
 /**
@@ -104,7 +105,7 @@ public class SessionEventDispatcher {
    * @param array list to add
    * @throws NullPointerException input list is null
    */
-  public void addAttributeListeners(@Nullable WebSessionAttributeListener... array) {
+  public void addAttributeListeners(WebSessionAttributeListener @Nullable ... array) {
     attributeListeners.addAll(array);
   }
 
@@ -124,7 +125,7 @@ public class SessionEventDispatcher {
    * @param array array to add
    * @throws NullPointerException input list is null
    */
-  public void addSessionListeners(@Nullable WebSessionListener... array) {
+  public void addSessionListeners(WebSessionListener @Nullable ... array) {
     sessionListeners.addAll(array);
   }
 

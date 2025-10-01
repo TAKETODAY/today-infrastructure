@@ -20,9 +20,7 @@
  * that builds on top of the
  * {@code infra.http.client.reactive} reactive HTTP adapter layer.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.client.reactive;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

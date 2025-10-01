@@ -17,12 +17,12 @@
 
 package infra.web.resource;
 
+import org.jspecify.annotations.Nullable;
 import org.webjars.WebJarVersionLocator;
 
 import java.util.List;
 
 import infra.core.io.Resource;
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 import infra.web.config.annotation.ResourceChainRegistration;
 

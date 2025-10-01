@@ -17,7 +17,7 @@
 
 package infra.reflect;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * @author TODAY 2019-10-18 22:35
@@ -59,6 +59,7 @@ public interface Invoker {
    * @throws NullPointerException if the specified object is null and the method is an instance method.
    * @throws ExceptionInInitializerError if the initialization provoked by this method fails.
    */
-  Object invoke(Object obj, @Nullable Object[] args);
+  @Nullable
+  Object invoke(@Nullable Object obj, @Nullable Object[] args);
 
 }

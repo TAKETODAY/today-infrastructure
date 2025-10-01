@@ -17,6 +17,8 @@
 
 package infra.web.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.ParameterizedType;
@@ -55,7 +57,6 @@ import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;
@@ -877,12 +878,14 @@ final class DefaultRestClient implements RestClient {
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public <T> Future<T> body(Class<T> bodyType) {
       return clientResponse.map(response ->
               ignoreStatus(false).readBody(response, bodyType, bodyType));
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public <T> Future<T> body(ParameterizedTypeReference<T> bodyType) {
       return clientResponse.map(response -> {
         Type type = bodyType.getType();

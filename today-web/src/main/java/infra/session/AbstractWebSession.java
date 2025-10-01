@@ -17,6 +17,8 @@
 
 package infra.session;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +27,6 @@ import java.util.Objects;
 import infra.core.AttributeAccessor;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
@@ -124,6 +125,7 @@ public abstract class AbstractWebSession implements WebSession {
     return attributes.get(name);
   }
 
+  @Nullable
   @Override
   public Object removeAttribute(String name) {
     var attributes = this.attributes;

@@ -18,9 +18,7 @@
 /**
  * Core support package for type filtering (e.g. for classpath scanning).
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.core.type.filter;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

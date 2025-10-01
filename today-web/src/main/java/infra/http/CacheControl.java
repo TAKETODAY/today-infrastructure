@@ -17,10 +17,11 @@
 
 package infra.http;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**

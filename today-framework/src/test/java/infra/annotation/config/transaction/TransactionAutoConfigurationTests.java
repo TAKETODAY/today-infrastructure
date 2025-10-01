@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,11 +25,11 @@ import javax.sql.DataSource;
 
 import infra.annotation.config.jdbc.DataSourceAutoConfiguration;
 import infra.annotation.config.jdbc.DataSourceTransactionManagerAutoConfiguration;
+import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.annotation.config.AutoConfigurations;
-import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.jdbc.config.DataSourceBuilder;
 import infra.jdbc.datasource.DataSourceTransactionManager;
 import infra.transaction.PlatformTransactionManager;

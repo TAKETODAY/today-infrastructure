@@ -17,6 +17,8 @@
 
 package infra.aop.framework;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -48,7 +50,6 @@ import infra.bytecode.proxy.NoOp;
 import infra.bytecode.transform.UndeclaredThrowableStrategy;
 import infra.core.SmartClassLoader;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
@@ -112,11 +113,9 @@ class CglibAopProxy implements AopProxy, Serializable {
   /** The configuration used to configure this proxy. */
   final AdvisedSupport config;
 
-  @Nullable
-  protected Object[] constructorArgs;
+  protected Object @Nullable [] constructorArgs;
 
-  @Nullable
-  protected Class<?>[] constructorArgTypes;
+  protected Class<?> @Nullable [] constructorArgTypes;
 
   /**
    * Create a new CglibAopProxy for the given AOP configuration.
@@ -137,7 +136,7 @@ class CglibAopProxy implements AopProxy, Serializable {
    * @param constructorArgs the constructor argument values
    * @param constructorArgTypes the constructor argument types
    */
-  public void setConstructorArguments(@Nullable Object[] constructorArgs, @Nullable Class<?>[] constructorArgTypes) {
+  public void setConstructorArguments(Object @Nullable [] constructorArgs, Class<?> @Nullable [] constructorArgTypes) {
     if (constructorArgs == null || constructorArgTypes == null) {
       throw new IllegalArgumentException("Both 'constructorArgs' and 'constructorArgTypes' need to be specified");
     }
@@ -409,7 +408,7 @@ class CglibAopProxy implements AopProxy, Serializable {
    * Invoke the given method with a CGLIB MethodProxy if possible, falling back
    * to a plain reflection invocation in case of a fast-class generation failure.
    */
-  @Nullable
+  @SuppressWarnings("NullAway")
   private static Object invokeMethod(@Nullable Object target,
           Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
     try {
@@ -483,6 +482,7 @@ class CglibAopProxy implements AopProxy, Serializable {
     private static final long serialVersionUID = 1L;
 
     @Override
+    @Nullable
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
       Object retVal = invokeMethod(target, method, args, methodProxy);
       return processReturnValue(proxy, target, method, retVal);
@@ -522,6 +522,7 @@ class CglibAopProxy implements AopProxy, Serializable {
     private static final long serialVersionUID = 1L;
 
     @Override
+    @Nullable
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
       Object target = targetSource.getTarget();
       try {
@@ -544,6 +545,7 @@ class CglibAopProxy implements AopProxy, Serializable {
     private static final long serialVersionUID = 1L;
 
     @Override
+    @Nullable
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
       Object oldProxy = null;
       Object target = targetSource.getTarget();
@@ -742,6 +744,7 @@ class CglibAopProxy implements AopProxy, Serializable {
      * Gives a marginal performance improvement versus using reflection to
      * invoke the target when invoking public methods.
      */
+    @Nullable
     @Override
     protected Object invokeJoinPoint() throws Throwable {
       try {

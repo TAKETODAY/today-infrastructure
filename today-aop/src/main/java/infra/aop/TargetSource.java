@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 
 package infra.aop;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A {@code TargetSource} is used to obtain the current "target" of
@@ -80,6 +80,7 @@ public interface TargetSource extends TargetClassAware {
    * @param target object obtained from a call to {@link #getTarget()}
    * @throws Exception if the object can't be released
    */
-  default void releaseTarget(Object target) throws Exception { }
+  default void releaseTarget(Object target) throws Exception {
+  }
 
 }

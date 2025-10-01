@@ -17,6 +17,8 @@
 
 package infra.context.annotation.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
@@ -25,7 +27,6 @@ import java.util.Set;
 
 import infra.core.io.PropertiesUtils;
 import infra.core.io.UrlResource;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**

@@ -17,6 +17,8 @@
 
 package infra.mail.javamail;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,7 +28,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.mail.MailAuthenticationException;
 import infra.mail.MailException;
 import infra.mail.MailParseException;
@@ -371,7 +372,7 @@ public class JavaMailSenderImpl implements JavaMailSender {
    * @throws MailAuthenticationException in case of authentication failure
    * @throws MailSendException in case of failure when sending a message
    */
-  protected void doSend(MimeMessage[] mimeMessages, @Nullable Object[] originalMessages) throws MailException {
+  protected void doSend(MimeMessage[] mimeMessages, Object @Nullable [] originalMessages) throws MailException {
     Map<Object, Exception> failedMessages = new LinkedHashMap<>();
     Transport transport = null;
 

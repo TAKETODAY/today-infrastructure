@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,12 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 import java.util.function.Supplier;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.function.ThrowingBiFunction;
 import infra.util.function.ThrowingSupplier;
 
@@ -86,6 +87,7 @@ public interface InstanceSupplier<T> extends ThrowingSupplier<T> {
         return after.applyWithException(registeredBean, InstanceSupplier.this.get(registeredBean));
       }
 
+      @Nullable
       @Override
       public Method getFactoryMethod() {
         return InstanceSupplier.this.getFactoryMethod();
@@ -132,6 +134,7 @@ public interface InstanceSupplier<T> extends ThrowingSupplier<T> {
         return supplier.getWithException();
       }
 
+      @Nullable
       @Override
       public Method getFactoryMethod() {
         return factoryMethod;

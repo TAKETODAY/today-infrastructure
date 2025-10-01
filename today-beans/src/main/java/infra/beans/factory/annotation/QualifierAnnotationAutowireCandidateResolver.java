@@ -17,6 +17,8 @@
 
 package infra.beans.factory.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -37,7 +39,6 @@ import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.annotation.AnnotationAttributes;
 import infra.core.annotation.AnnotationUtils;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 

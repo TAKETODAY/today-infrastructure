@@ -22,6 +22,8 @@ import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
 import com.zaxxer.hikari.pool.HikariPool;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
@@ -37,7 +39,6 @@ import infra.context.ConfigurableApplicationContext;
 import infra.context.Lifecycle;
 import infra.jdbc.config.DataSourceUnwrapper;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ReflectionUtils;

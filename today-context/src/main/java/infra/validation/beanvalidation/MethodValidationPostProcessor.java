@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.validation.beanvalidation;
 
 import org.aopalliance.aop.Advice;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.util.function.Supplier;
@@ -29,7 +30,6 @@ import infra.aop.support.annotation.AnnotationMatchingPointcut;
 import infra.beans.factory.InitializingBean;
 import infra.beans.factory.config.BeanPostProcessor;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.validation.annotation.Validated;
 import infra.validation.method.MethodValidationException;
 import infra.validation.method.MethodValidationResult;

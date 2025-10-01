@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,10 @@
 
 package infra.app.diagnostics;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.ResolvableType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Abstract base class for most {@code FailureAnalyzer} implementations.
@@ -32,6 +33,7 @@ import infra.lang.Nullable;
  */
 public abstract class AbstractFailureAnalyzer<T extends Throwable> implements FailureAnalyzer {
 
+  @Nullable
   @Override
   public FailureAnalysis analyze(Throwable failure) {
     T cause = findCause(failure, getCauseType());

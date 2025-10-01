@@ -17,6 +17,8 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -76,7 +78,6 @@ import infra.core.PriorityOrdered;
 import infra.core.ResolvableType;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.lang.NullValue;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
@@ -187,7 +188,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
   }
 
   @Override
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "NullAway" })
   public <T> T createBean(Class<T> beanClass, int autowireMode, boolean dependencyCheck) throws BeansException {
     // Use non-singleton bean merged, to avoid registering bean as dependent bean.
     RootBeanDefinition bd = new RootBeanDefinition(beanClass, autowireMode, dependencyCheck);
@@ -222,7 +223,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
    * @see NullValue#INSTANCE
    */
   @Override
-  protected Object createBean(String beanName, RootBeanDefinition merged, @Nullable Object[] args)
+  protected Object createBean(String beanName, RootBeanDefinition merged, @Nullable Object @Nullable [] args)
           throws BeanCreationException {
 
     if (log.isDebugEnabled()) {
@@ -289,7 +290,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
    * @throws BeanCreationException if the bean could not be created
    * @see NullValue#INSTANCE
    */
-  protected Object doCreateBean(String beanName, RootBeanDefinition merged, @Nullable Object[] args) throws BeanCreationException {
+  protected Object doCreateBean(String beanName, RootBeanDefinition merged, @Nullable Object @Nullable [] args) throws BeanCreationException {
     // Instantiate the bean.
     BeanWrapper instanceWrapper = null;
     if (merged.isSingleton()) {
@@ -536,6 +537,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
   }
 
+  @SuppressWarnings("NullAway")
   private Method[] initMethodArray(String beanName, boolean isInitializingBean, Object bean, RootBeanDefinition def) {
     Method[] initMethodArray = def.initMethodArray;
     if (def.initMethodArray == null) {
@@ -692,7 +694,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
    * @see #autowireConstructor
    * @see #instantiateBean
    */
-  protected BeanWrapper createBeanInstance(String beanName, RootBeanDefinition merged, @Nullable Object[] args) {
+  @SuppressWarnings("NullAway")
+  protected BeanWrapper createBeanInstance(String beanName, RootBeanDefinition merged, @Nullable Object @Nullable [] args) {
     // Make sure bean class is actually resolved at this point.
     Class<?> beanClass = resolveBeanClass(beanName, merged);
 
@@ -853,7 +856,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
    * @see #getBean(String, Object[])
    * @since 4.0
    */
-  protected BeanWrapper instantiateUsingFactoryMethod(String beanName, RootBeanDefinition mbd, @Nullable Object[] explicitArgs) {
+  protected BeanWrapper instantiateUsingFactoryMethod(String beanName, RootBeanDefinition mbd, @Nullable Object @Nullable [] explicitArgs) {
     return new ConstructorResolver(this).instantiateUsingFactoryMethod(beanName, mbd, explicitArgs);
   }
 
@@ -874,7 +877,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
    * @since 4.0
    */
   protected BeanWrapper autowireConstructor(String beanName, RootBeanDefinition mbd,
-          @Nullable Constructor<?>[] ctors, @Nullable Object[] explicitArgs) {
+          Constructor<?> @Nullable [] ctors, @Nullable Object @Nullable [] explicitArgs) {
     return new ConstructorResolver(this).autowireConstructor(beanName, mbd, ctors, explicitArgs);
   }
 
@@ -888,8 +891,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
    * @throws BeansException in case of errors
    * @see SmartInstantiationAwareBeanPostProcessor#determineCandidateConstructors
    */
-  @Nullable
-  protected Constructor<?>[] determineConstructorsFromPostProcessors(
+  protected Constructor<?> @Nullable [] determineConstructorsFromPostProcessors(
           @Nullable Class<?> beanClass, String beanName) throws BeansException {
 
     if (beanClass != null) {
@@ -1091,6 +1093,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
    * @param beanWrapper the BeanWrapper wrapping the target object
    * @param pvs the new property values
    */
+  @SuppressWarnings("NullAway")
   protected void applyPropertyValues(String beanName,
           BeanDefinition definition, BeanWrapper beanWrapper, @Nullable PropertyValues pvs) {
     if (pvs == null || pvs.isEmpty()) {
@@ -1249,6 +1252,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
    * @param wrapper the BeanWrapper from which we can obtain information about the bean
    * @param pvs the PropertyValues to register wired objects with
    */
+  @SuppressWarnings("NullAway")
   protected void autowireByType(String beanName, BeanDefinition definition, BeanWrapper wrapper, PropertyValues pvs) {
     BeanMetadata metadata = wrapper.getMetadata();
 
@@ -1503,6 +1507,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
    * @see #createBean
    */
   @Nullable
+  @SuppressWarnings({ "NullAway" })
   protected Class<?> getTypeForFactoryMethod(String beanName, RootBeanDefinition merged, Class<?>... typesToMatch) {
     ResolvableType cachedReturnType = merged.factoryMethodReturnType;
     if (cachedReturnType != null) {
@@ -1564,7 +1569,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
               }
 
               var usedValueHolders = new HashSet<ConstructorArgumentValues.ValueHolder>(paramTypes.length);
-              Object[] args = new Object[paramTypes.length];
+              @Nullable Object[] args = new Object[paramTypes.length];
               for (int i = 0; i < args.length; i++) {
                 String requiredName = paramNames != null ? paramNames[i] : null;
 

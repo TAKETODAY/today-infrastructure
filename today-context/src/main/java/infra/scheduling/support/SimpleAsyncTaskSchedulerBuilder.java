@@ -17,6 +17,8 @@
 
 package infra.scheduling.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,7 +27,6 @@ import java.util.Set;
 
 import infra.core.task.TaskDecorator;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.scheduling.concurrent.SimpleAsyncTaskScheduler;
 import infra.util.CollectionUtils;
 
@@ -96,7 +97,7 @@ public class SimpleAsyncTaskSchedulerBuilder {
    * @param concurrencyLimit the concurrency limit
    * @return a new builder instance
    */
-  public SimpleAsyncTaskSchedulerBuilder concurrencyLimit(Integer concurrencyLimit) {
+  public SimpleAsyncTaskSchedulerBuilder concurrencyLimit(@Nullable Integer concurrencyLimit) {
     return new SimpleAsyncTaskSchedulerBuilder(threadNamePrefix, concurrencyLimit, virtualThreads,
             customizers, taskTerminationTimeout, taskDecorator);
   }
@@ -118,7 +119,7 @@ public class SimpleAsyncTaskSchedulerBuilder {
    * @param taskTerminationTimeout the task termination timeout
    * @return a new builder instance
    */
-  public SimpleAsyncTaskSchedulerBuilder taskTerminationTimeout(Duration taskTerminationTimeout) {
+  public SimpleAsyncTaskSchedulerBuilder taskTerminationTimeout(@Nullable Duration taskTerminationTimeout) {
     return new SimpleAsyncTaskSchedulerBuilder(threadNamePrefix, concurrencyLimit, virtualThreads,
             customizers, taskTerminationTimeout, taskDecorator);
   }

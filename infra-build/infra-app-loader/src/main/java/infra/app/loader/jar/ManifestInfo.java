@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.app.loader.jar;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
@@ -36,8 +38,10 @@ class ManifestInfo {
 
   static final ManifestInfo NONE = new ManifestInfo(null, false);
 
+  @Nullable
   private final Manifest manifest;
 
+  @Nullable
   private volatile Boolean multiRelease;
 
   /**
@@ -45,11 +49,11 @@ class ManifestInfo {
    *
    * @param manifest the jar manifest
    */
-  ManifestInfo(Manifest manifest) {
+  ManifestInfo(@Nullable Manifest manifest) {
     this(manifest, null);
   }
 
-  private ManifestInfo(Manifest manifest, Boolean multiRelease) {
+  private ManifestInfo(@Nullable Manifest manifest, @Nullable Boolean multiRelease) {
     this.manifest = manifest;
     this.multiRelease = multiRelease;
   }
@@ -59,6 +63,7 @@ class ManifestInfo {
    *
    * @return the manifest or {@code null}
    */
+  @Nullable
   Manifest getManifest() {
     return this.manifest;
   }

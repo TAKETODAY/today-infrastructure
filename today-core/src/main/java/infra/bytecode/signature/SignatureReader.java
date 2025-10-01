@@ -227,10 +227,10 @@ public class SignatureReader {
                   signatureVisitor.visitTypeArgument();
                 }
                 case '+', '-' ->
-                        // Extends or Super TypeArgument. Use offset + 1 to skip the '+' or '-'.
+                  // Extends or Super TypeArgument. Use offset + 1 to skip the '+' or '-'.
                         offset = parseType(signature, offset + 1, signatureVisitor.visitTypeArgument(currentChar));
                 default ->
-                        // Instanceof TypeArgument. The '=' is implicit.
+                  // Instanceof TypeArgument. The '=' is implicit.
                         offset = parseType(signature, offset, signatureVisitor.visitTypeArgument('='));
               }
             }

@@ -17,7 +17,7 @@
 
 package infra.validation;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Extended variant of the {@link Validator} interface, adding support for

@@ -17,12 +17,13 @@
 
 package infra.web.multipart.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
-import infra.lang.Nullable;
 import infra.util.ExceptionUtils;
 import infra.web.multipart.MultipartFile;
 
@@ -60,8 +61,7 @@ import infra.web.multipart.MultipartFile;
  */
 public abstract class AbstractMultipartFile extends AbstractMultipart implements MultipartFile {
 
-  @Nullable
-  protected byte[] cachedBytes;
+  protected byte @Nullable [] cachedBytes;
 
   @Override
   public void transferTo(File dest) throws IOException {

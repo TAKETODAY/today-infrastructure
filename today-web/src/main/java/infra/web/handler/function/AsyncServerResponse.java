@@ -17,6 +17,7 @@
 
 package infra.web.handler.function;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.time.Duration;
@@ -27,7 +28,6 @@ import infra.core.ReactiveAdapter;
 import infra.core.ReactiveAdapterRegistry;
 import infra.core.ReactiveStreams;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.concurrent.Future;
 
 /**

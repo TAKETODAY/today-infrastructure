@@ -36,6 +36,7 @@ import infra.core.type.AnnotatedTypeMetadata;
  * @see ConditionalOnCloudPlatform
  * @since 4.0 2022/4/4 12:21
  */
+@SuppressWarnings("NullAway")
 class OnCloudPlatformCondition extends InfraCondition {
 
   @Override

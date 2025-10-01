@@ -16,6 +16,8 @@
  */
 package infra.jdbc.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -33,18 +35,21 @@ public class IntegerTypeHandler extends BasicTypeHandler<Integer> {
     ps.setInt(i, arg);
   }
 
+  @Nullable
   @Override
   public Integer getResult(ResultSet rs, String columnName) throws SQLException {
     int result = rs.getInt(columnName);
     return result == 0 && rs.wasNull() ? null : result;
   }
 
+  @Nullable
   @Override
   public Integer getResult(ResultSet rs, int columnIndex) throws SQLException {
     int result = rs.getInt(columnIndex);
     return result == 0 && rs.wasNull() ? null : result;
   }
 
+  @Nullable
   @Override
   public Integer getResult(CallableStatement cs, int columnIndex) throws SQLException {
     int result = cs.getInt(columnIndex);

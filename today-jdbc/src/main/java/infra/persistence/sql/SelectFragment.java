@@ -17,6 +17,8 @@
 
 package infra.persistence.sql;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -44,7 +46,9 @@ public class SelectFragment {
 
   private String[] usedAliases;
 
-  public SelectFragment() { }
+  @SuppressWarnings("NullAway")
+  public SelectFragment() {
+  }
 
   public List<String> getColumns() {
     return columns;
@@ -86,11 +90,11 @@ public class SelectFragment {
     return this;
   }
 
-  public SelectFragment addColumn(String tableAlias, String columnName) {
+  public SelectFragment addColumn(@Nullable String tableAlias, String columnName) {
     return addColumn(tableAlias, columnName, columnName);
   }
 
-  public SelectFragment addColumn(String tableAlias, String columnName, String columnAlias) {
+  public SelectFragment addColumn(@Nullable String tableAlias, String columnName, String columnAlias) {
     columns.add(qualify(tableAlias, columnName));
     //columns.add(columnName);
     //aliases.add(tableAlias);

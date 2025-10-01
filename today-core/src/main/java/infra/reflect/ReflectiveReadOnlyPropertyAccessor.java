@@ -17,11 +17,12 @@
 
 package infra.reflect;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 
 /**
@@ -42,7 +43,9 @@ final class ReflectiveReadOnlyPropertyAccessor extends ReadOnlyPropertyAccessor 
     this.readMethod = ReflectionUtils.makeAccessible(readMethod);
   }
 
+  @Nullable
   @Override
+  @SuppressWarnings("NullAway")
   public Object get(final Object obj) {
     if (readMethod != null) {
       return ReflectionUtils.invokeMethod(readMethod, obj);

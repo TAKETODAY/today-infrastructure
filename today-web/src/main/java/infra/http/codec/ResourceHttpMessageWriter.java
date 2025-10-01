@@ -17,6 +17,7 @@
 
 package infra.http.codec;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.io.IOException;
@@ -45,7 +46,6 @@ import infra.http.ReactiveHttpOutputMessage;
 import infra.http.ZeroCopyHttpOutputMessage;
 import infra.http.server.reactive.ServerHttpRequest;
 import infra.http.server.reactive.ServerHttpResponse;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.util.MimeTypeUtils;
 import reactor.core.publisher.Flux;

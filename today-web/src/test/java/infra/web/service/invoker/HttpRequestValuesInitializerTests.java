@@ -17,6 +17,7 @@
 
 package infra.web.service.invoker;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -26,7 +27,6 @@ import infra.core.StringValueResolver;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.http.HttpMethod;
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 import infra.web.annotation.GET;
 import infra.web.annotation.POST;

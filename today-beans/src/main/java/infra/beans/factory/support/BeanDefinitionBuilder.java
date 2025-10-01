@@ -17,6 +17,8 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Supplier;
 
 import infra.beans.PropertyValues;
@@ -26,7 +28,6 @@ import infra.beans.factory.config.BeanDefinitionCustomizer;
 import infra.beans.factory.config.RuntimeBeanReference;
 import infra.beans.factory.xml.NamespaceHandler;
 import infra.core.ResolvableType;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;

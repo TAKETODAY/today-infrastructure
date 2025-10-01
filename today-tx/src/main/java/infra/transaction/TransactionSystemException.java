@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,8 +16,9 @@
  */
 package infra.transaction;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Exception thrown when a general transaction system error is encountered, like
@@ -31,11 +32,11 @@ public class TransactionSystemException extends TransactionException {
   @Nullable
   private Throwable applicationException;
 
-  public TransactionSystemException(String msg) {
+  public TransactionSystemException(@Nullable String msg) {
     super(msg);
   }
 
-  public TransactionSystemException(String msg, Throwable cause) {
+  public TransactionSystemException(@Nullable String msg, @Nullable Throwable cause) {
     super(msg, cause);
   }
 
@@ -74,6 +75,7 @@ public class TransactionSystemException extends TransactionException {
    *
    * @return the original exception, or {@code null} if there was none
    */
+  @Nullable
   public Throwable getOriginalException() {
     return (this.applicationException != null ? this.applicationException : getCause());
   }

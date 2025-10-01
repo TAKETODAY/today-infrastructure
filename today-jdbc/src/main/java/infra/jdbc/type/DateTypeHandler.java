@@ -17,6 +17,8 @@
 
 package infra.jdbc.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -36,6 +38,7 @@ public class DateTypeHandler extends BasicTypeHandler<Date> {
     ps.setTimestamp(i, new Timestamp(arg.getTime()));
   }
 
+  @Nullable
   @Override
   public Date getResult(ResultSet rs, String columnName) throws SQLException {
     Timestamp sqlTimestamp = rs.getTimestamp(columnName);
@@ -45,6 +48,7 @@ public class DateTypeHandler extends BasicTypeHandler<Date> {
     return null;
   }
 
+  @Nullable
   @Override
   public Date getResult(ResultSet rs, int columnIndex) throws SQLException {
     Timestamp sqlTimestamp = rs.getTimestamp(columnIndex);
@@ -54,6 +58,7 @@ public class DateTypeHandler extends BasicTypeHandler<Date> {
     return null;
   }
 
+  @Nullable
   @Override
   public Date getResult(CallableStatement cs, int columnIndex) throws SQLException {
     Timestamp sqlTimestamp = cs.getTimestamp(columnIndex);

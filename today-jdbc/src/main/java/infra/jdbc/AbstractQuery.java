@@ -17,6 +17,8 @@
 
 package infra.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -42,7 +44,6 @@ import infra.jdbc.support.JdbcUtils;
 import infra.jdbc.type.ObjectTypeHandler;
 import infra.jdbc.type.TypeHandler;
 import infra.jdbc.type.TypeHandlerManager;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;
@@ -120,8 +121,8 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
 
   private final JdbcConnection connection;
 
-  @Nullable
-  private final String[] columnNames;
+  private final String @Nullable [] columnNames;
+
   private final boolean returnGeneratedKeys;
 
   @Nullable
@@ -157,11 +158,11 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
     this(connection, querySQL, generatedKeys, null);
   }
 
-  public AbstractQuery(JdbcConnection connection, String querySQL, @Nullable String[] columnNames) {
+  public AbstractQuery(JdbcConnection connection, String querySQL, String @Nullable [] columnNames) {
     this(connection, querySQL, false, columnNames);
   }
 
-  protected AbstractQuery(JdbcConnection connection, String querySQL, boolean generatedKeys, @Nullable String[] columnNames) {
+  protected AbstractQuery(JdbcConnection connection, String querySQL, boolean generatedKeys, String @Nullable [] columnNames) {
     this.connection = connection;
     this.columnNames = columnNames;
     this.returnGeneratedKeys = generatedKeys;
@@ -1229,6 +1230,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * The current number of batched commands is accessible via the
    * <code>getCurrentBatchRecords()</code> method.
    */
+  @SuppressWarnings("NullAway")
   public <A> List<A> addToBatchGetKeys(Class<A> klass) {
     addToBatch();
     BatchResult batchResult = this.batchResult;
@@ -1553,6 +1555,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
       }
     }
 
+    @Nullable
     @Override
     protected T readNext(ResultSet resultSet) throws SQLException {
       return handler.extractData(resultSet);

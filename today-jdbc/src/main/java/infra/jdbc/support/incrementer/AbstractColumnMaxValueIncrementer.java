@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ import infra.lang.Assert;
 public abstract class AbstractColumnMaxValueIncrementer extends AbstractDataFieldMaxValueIncrementer {
 
   /** The name of the column for this sequence. */
+  @SuppressWarnings("NullAway.Init")
   private String columnName;
 
   /** The number of keys buffered in a cache. */
@@ -44,7 +45,8 @@ public abstract class AbstractColumnMaxValueIncrementer extends AbstractDataFiel
    * @see #setIncrementerName
    * @see #setColumnName
    */
-  public AbstractColumnMaxValueIncrementer() { }
+  public AbstractColumnMaxValueIncrementer() {
+  }
 
   /**
    * Convenience constructor.

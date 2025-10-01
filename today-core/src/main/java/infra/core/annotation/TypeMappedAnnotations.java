@@ -17,6 +17,8 @@
 
 package infra.core.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
@@ -31,7 +33,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import infra.lang.Constant;
-import infra.lang.Nullable;
 
 /**
  * {@link MergedAnnotations} implementation that searches for and adapts
@@ -60,8 +61,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
 
   private final Predicate<Class<?>> searchEnclosingClass;
 
-  @Nullable
-  private final Annotation[] annotations;
+  private final Annotation @Nullable [] annotations;
 
   private final RepeatableContainers repeatableContainers;
 
@@ -83,7 +83,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
     this.annotationFilter = annotationFilter;
   }
 
-  private TypeMappedAnnotations(@Nullable Object source, @Nullable Annotation[] annotations,
+  private TypeMappedAnnotations(@Nullable Object source, Annotation[] annotations,
           RepeatableContainers repeatableContainers, AnnotationFilter annotationFilter) {
 
     this.source = source;
@@ -313,9 +313,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
 
     @Override
     @Nullable
-    public Boolean doWithAnnotations(Object requiredType,
-            int aggregateIndex, @Nullable Object source, Annotation[] annotations) {
-
+    public Boolean doWithAnnotations(Object requiredType, int aggregateIndex, @Nullable Object source, @Nullable Annotation[] annotations) {
       for (Annotation annotation : annotations) {
         if (annotation != null) {
           var type = annotation.annotationType();
@@ -389,9 +387,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
 
     @Override
     @Nullable
-    public MergedAnnotation<A> doWithAnnotations(Object type,
-            int aggregateIndex, @Nullable Object source, Annotation[] annotations) {
-
+    public MergedAnnotation<A> doWithAnnotations(Object type, int aggregateIndex, @Nullable Object source, @Nullable Annotation[] annotations) {
       for (Annotation annotation : annotations) {
         if (annotation != null && !annotationFilter.matches(annotation)) {
           MergedAnnotation<A> result = process(type, aggregateIndex, source, annotation);
@@ -451,23 +447,23 @@ final class TypeMappedAnnotations implements MergedAnnotations {
 
     @Override
     @Nullable
-    public List<Aggregate> doWithAnnotations(Object criteria, int aggregateIndex, @Nullable Object source, Annotation[] annotations) {
+    public List<Aggregate> doWithAnnotations(Object criteria, int aggregateIndex, @Nullable Object source, @Nullable Annotation[] annotations) {
       aggregates.add(createAggregate(aggregateIndex, source, annotations));
       return null;
     }
 
-    private Aggregate createAggregate(int aggregateIndex, @Nullable Object source, Annotation[] annotations) {
+    private Aggregate createAggregate(int aggregateIndex, @Nullable Object source, @Nullable Annotation[] annotations) {
       ArrayList<Annotation> aggregateAnnotations = getAggregateAnnotations(annotations);
       return new Aggregate(aggregateIndex, source, aggregateAnnotations);
     }
 
-    private ArrayList<Annotation> getAggregateAnnotations(Annotation[] annotations) {
+    private ArrayList<Annotation> getAggregateAnnotations(@Nullable Annotation[] annotations) {
       ArrayList<Annotation> result = new ArrayList<>(annotations.length);
       addAggregateAnnotations(result, annotations);
       return result;
     }
 
-    private void addAggregateAnnotations(List<Annotation> aggregateAnnotations, Annotation[] annotations) {
+    private void addAggregateAnnotations(List<Annotation> aggregateAnnotations, @Nullable Annotation[] annotations) {
       for (Annotation annotation : annotations) {
         if (annotation != null && !annotationFilter.matches(annotation)) {
           Annotation[] repeatedAnnotations = repeatableContainers.findRepeatedAnnotations(annotation);
@@ -546,8 +542,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
 
     private int aggregateCursor;
 
-    @Nullable
-    private int[] mappingCursors;
+    private int @Nullable [] mappingCursors;
 
     AggregatesSpliterator(@Nullable Object requiredType, List<Aggregate> aggregates) {
       this.requiredType = requiredType;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.test.context;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -30,7 +32,6 @@ import infra.context.ApplicationContextInitializer;
 import infra.core.io.PropertySourceDescriptor;
 import infra.core.style.ToStringBuilder;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.test.context.cache.ContextCache;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
@@ -121,7 +122,7 @@ public class MergedContextConfiguration implements Serializable {
    * @param activeProfiles the merged active bean definition profiles
    * @param contextLoader the resolved {@code ContextLoader}
    */
-  public MergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, @Nullable Class<?>[] classes,
+  public MergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, Class<?> @Nullable [] classes,
       @Nullable String[] activeProfiles, ContextLoader contextLoader) {
 
     this(testClass, locations, classes, null, activeProfiles, contextLoader);
@@ -138,7 +139,7 @@ public class MergedContextConfiguration implements Serializable {
    * @param activeProfiles the merged active bean definition profiles
    * @param contextLoader the resolved {@code ContextLoader}
    */
-  public MergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, @Nullable Class<?>[] classes,
+  public MergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, Class<?> @Nullable [] classes,
       @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
       @Nullable String[] activeProfiles, ContextLoader contextLoader) {
 
@@ -159,7 +160,7 @@ public class MergedContextConfiguration implements Serializable {
    * delegate with which to retrieve the parent {@code ApplicationContext}
    * @param parent the parent configuration or {@code null} if there is no parent
    */
-  public MergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, @Nullable Class<?>[] classes,
+  public MergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, Class<?> @Nullable [] classes,
       @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
       @Nullable String[] activeProfiles, ContextLoader contextLoader,
       @Nullable CacheAwareContextLoaderDelegate cacheAwareContextLoaderDelegate,
@@ -204,7 +205,7 @@ public class MergedContextConfiguration implements Serializable {
    * delegate with which to retrieve the parent {@code ApplicationContext}
    * @param parent the parent configuration or {@code null} if there is no parent
    */
-  public MergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, @Nullable Class<?>[] classes,
+  public MergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, Class<?> @Nullable [] classes,
       @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
       @Nullable String[] activeProfiles, @Nullable String[] propertySourceLocations,
       @Nullable String[] propertySourceProperties, ContextLoader contextLoader,
@@ -241,7 +242,7 @@ public class MergedContextConfiguration implements Serializable {
    * delegate with which to retrieve the parent {@code ApplicationContext}
    * @param parent the parent configuration or {@code null} if there is no parent
    */
-  public MergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, @Nullable Class<?>[] classes,
+  public MergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, Class<?> @Nullable [] classes,
       @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
       @Nullable String[] activeProfiles, @Nullable String[] propertySourceLocations,
       @Nullable String[] propertySourceProperties, @Nullable Set<ContextCustomizer> contextCustomizers,
@@ -277,7 +278,7 @@ public class MergedContextConfiguration implements Serializable {
    * delegate with which to retrieve the parent {@code ApplicationContext}
    * @param parent the parent configuration or {@code null} if there is no parent
    */
-  public MergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, @Nullable Class<?>[] classes,
+  public MergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, Class<?> @Nullable [] classes,
       @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
       @Nullable String[] activeProfiles, List<PropertySourceDescriptor> propertySourceDescriptors,
       @Nullable String[] propertySourceProperties, @Nullable Set<ContextCustomizer> contextCustomizers,
@@ -572,7 +573,7 @@ public class MergedContextConfiguration implements Serializable {
     return (array != null ? array : EMPTY_STRING_ARRAY);
   }
 
-  private static Class<?>[] processClasses(@Nullable Class<?>[] classes) {
+  private static Class<?>[] processClasses(Class<?> @Nullable [] classes) {
     return (classes != null ? classes : EMPTY_CLASS_ARRAY);
   }
 

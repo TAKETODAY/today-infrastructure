@@ -22,8 +22,8 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Map;
 
-import infra.persistence.platform.Platform;
 import infra.persistence.model.UserModel;
+import infra.persistence.platform.Platform;
 import infra.persistence.sql.Restriction;
 
 import static org.assertj.core.api.Assertions.assertThat;

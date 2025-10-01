@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,13 @@
 
 package infra.core.env;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;
@@ -68,6 +69,7 @@ public class PropertySourcesPropertyResolver extends TypedPropertyResolver imple
   }
 
   @Nullable
+  @Override
   public <T> T getProperty(String key, Class<T> targetValueType, boolean resolveNestedPlaceholders) {
     boolean traceEnabled = log.isTraceEnabled();
     if (this.propertySources != null) {

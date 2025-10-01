@@ -34,6 +34,7 @@ import infra.core.type.AnnotatedTypeMetadata;
  */
 class OnThreadingCondition extends InfraCondition {
 
+  @SuppressWarnings("NullAway")
   @Override
   public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
     Map<String, Object> attributes = metadata.getAnnotationAttributes(ConditionalOnThreading.class);

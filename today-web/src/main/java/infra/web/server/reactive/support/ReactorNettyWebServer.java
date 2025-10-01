@@ -17,6 +17,8 @@
 
 package infra.web.server.reactive.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
@@ -26,7 +28,6 @@ import java.util.function.Supplier;
 import infra.http.client.ReactorResourceFactory;
 import infra.http.server.reactive.ReactorHttpHandlerAdapter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.LoggerFactory;
 import infra.web.server.GracefulShutdownCallback;
 import infra.web.server.GracefulShutdownResult;
@@ -139,6 +140,7 @@ public class ReactorNettyWebServer implements WebServer {
     return (!message.isEmpty()) ? "Netty started on " + message : "Netty started";
   }
 
+  @SuppressWarnings("NullAway")
   protected String getStartedLogMessage() {
     return getStartedOnMessage(this.disposableServer);
   }
@@ -172,7 +174,7 @@ public class ReactorNettyWebServer implements WebServer {
     return server.bindNow();
   }
 
-  private boolean isPermissionDenied(Throwable bindExceptionCause) {
+  private boolean isPermissionDenied(@Nullable Throwable bindExceptionCause) {
     try {
       if (bindExceptionCause instanceof NativeIoException e) {
         return e.expectedErr() == ERROR_NO_EACCES;

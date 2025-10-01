@@ -17,6 +17,8 @@
 
 package infra.aop.aspectj.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Field;
 
 import infra.aot.generate.GenerationContext;
@@ -25,7 +27,6 @@ import infra.beans.factory.aot.BeanRegistrationAotContribution;
 import infra.beans.factory.aot.BeanRegistrationAotProcessor;
 import infra.beans.factory.aot.BeanRegistrationCode;
 import infra.beans.factory.support.RegisteredBean;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**

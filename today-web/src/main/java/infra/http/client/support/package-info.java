@@ -2,9 +2,7 @@
  * This package provides generic HTTP support classes,
  * to be used by higher-level classes like RestTemplate.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.http.client.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

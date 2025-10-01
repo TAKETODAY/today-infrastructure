@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,6 @@ import java.util.List;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.core.io.UrlResource;
-import infra.lang.NonNull;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.web.mock.MockRequestContext;
 
@@ -161,7 +160,6 @@ public class PathResourceResolverTests {
     assertThat(location.getSavedRelativePath()).isEqualTo("%C3%84%20%3B%C3%A4.txt");
   }
 
-  @NonNull
   private MockRequestContext getContext() {
     return new MockRequestContext(null, new HttpMockRequestImpl(), null);
   }

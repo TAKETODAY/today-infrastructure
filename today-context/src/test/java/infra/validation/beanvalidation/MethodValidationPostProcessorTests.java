@@ -18,6 +18,7 @@
 package infra.validation.beanvalidation;
 
 import org.aopalliance.aop.Advice;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.ElementType;
@@ -27,7 +28,6 @@ import java.lang.annotation.Target;
 import java.util.function.Supplier;
 
 import infra.aop.Advisor;
-import infra.lang.Nullable;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;

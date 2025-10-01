@@ -17,12 +17,13 @@
 
 package infra.session;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 
 import infra.core.AttributeAccessor;
-import infra.lang.Nullable;
 
 /**
  * Main contract for using a server-side session that provides access to session

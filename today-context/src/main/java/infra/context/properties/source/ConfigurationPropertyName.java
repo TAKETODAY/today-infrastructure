@@ -17,6 +17,8 @@
 
 package infra.context.properties.source;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,7 +29,6 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**
@@ -55,6 +56,7 @@ import infra.util.StringUtils;
  * @see ConfigurationPropertySource
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public final class ConfigurationPropertyName implements Comparable<ConfigurationPropertyName> {
 
   private static final String EMPTY_STRING = "";
@@ -70,7 +72,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
 
   private int hashCode;
 
-  private final String[] string = new String[ToStringFormat.values().length];
+  private final @Nullable String[] string = new String[ToStringFormat.values().length];
 
   @Nullable
   private Boolean hasDashedElement;
@@ -154,6 +156,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    * @param form the form to return
    * @return the last element
    */
+  @SuppressWarnings("NullAway")
   public String getElement(int elementIndex, Form form) {
     CharSequence element = this.elements.get(elementIndex);
     ElementType type = this.elements.getType(elementIndex);
@@ -644,6 +647,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    * @return a {@link ConfigurationPropertyName} instance
    * @throws InvalidConfigurationPropertyNameException if the name is not valid
    */
+  @SuppressWarnings("NullAway")
   public static ConfigurationPropertyName of(CharSequence name) {
     return of(name, false);
   }
@@ -675,6 +679,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
     return (elements != null) ? new ConfigurationPropertyName(elements) : null;
   }
 
+  @SuppressWarnings("NullAway")
   private static Elements probablySingleElementOf(CharSequence name) {
     return elementsOf(name, false, 1);
   }
@@ -837,11 +842,10 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
      * {@link #canShortcutWithSource} will always return false which may hurt
      * performance.
      */
-    @Nullable
-    private final CharSequence[] resolved;
+    private final @Nullable CharSequence @Nullable [] resolved;
 
     Elements(CharSequence source, int size, int[] start, int[] end,
-            ElementType[] type, @Nullable int[] hashCode, @Nullable CharSequence[] resolved) {
+            ElementType[] type, int @Nullable [] hashCode, @Nullable CharSequence @Nullable [] resolved) {
       this.source = source;
       this.size = size;
       this.start = start;
@@ -894,8 +898,11 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
     }
 
     CharSequence get(int index) {
-      if (this.resolved != null && this.resolved[index] != null) {
-        return this.resolved[index];
+      if (this.resolved != null) {
+        CharSequence sequence = resolved[index];
+        if (sequence != null) {
+          return sequence;
+        }
       }
       int start = this.start[index];
       int end = this.end[index];
@@ -903,8 +910,11 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
     }
 
     int getLength(int index) {
-      if (this.resolved != null && this.resolved[index] != null) {
-        return this.resolved[index].length();
+      if (this.resolved != null) {
+        CharSequence sequence = this.resolved[index];
+        if (sequence != null) {
+          return sequence.length();
+        }
       }
       int start = this.start[index];
       int end = this.end[index];
@@ -912,8 +922,11 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
     }
 
     char charAt(int index, int charIndex) {
-      if (this.resolved != null && this.resolved[index] != null) {
-        return this.resolved[index].charAt(charIndex);
+      if (this.resolved != null) {
+        CharSequence sequence = this.resolved[index];
+        if (sequence != null) {
+          return sequence.charAt(charIndex);
+        }
       }
       int start = this.start[index];
       return this.source.charAt(start + charIndex);
@@ -1002,8 +1015,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
 
     private ElementType[] type;
 
-    @Nullable
-    private CharSequence[] resolved;
+    private CharSequence @Nullable [] resolved;
 
     ElementsParser(CharSequence source, char separator) {
       this(source, separator, DEFAULT_CAPACITY);

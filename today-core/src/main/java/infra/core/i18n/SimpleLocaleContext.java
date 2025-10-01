@@ -17,9 +17,9 @@
 
 package infra.core.i18n;
 
-import java.util.Locale;
+import org.jspecify.annotations.Nullable;
 
-import infra.lang.Nullable;
+import java.util.Locale;
 
 /**
  * Simple implementation of the {@link LocaleContext} interface,

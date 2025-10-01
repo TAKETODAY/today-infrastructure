@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ package infra.http.converter.protobuf;
 import com.google.protobuf.ExtensionRegistry;
 import com.google.protobuf.util.JsonFormat;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Subclass of {@link ProtobufHttpMessageConverter} which enforces the use of Protobuf 3 and
@@ -59,7 +59,7 @@ public class ProtobufJsonFormatHttpMessageConverter extends ProtobufHttpMessageC
    * {@link com.google.protobuf.util.JsonFormat.Printer JsonFormat.Printer},
    * and a default instance of {@link ExtensionRegistry}.
    */
-  public ProtobufJsonFormatHttpMessageConverter(@Nullable JsonFormat.Parser parser, @Nullable JsonFormat.Printer printer) {
+  public ProtobufJsonFormatHttpMessageConverter(JsonFormat.@Nullable Parser parser, JsonFormat.@Nullable Printer printer) {
     this(parser, printer, null);
   }
 
@@ -69,8 +69,8 @@ public class ProtobufJsonFormatHttpMessageConverter extends ProtobufHttpMessageC
    * {@link com.google.protobuf.util.JsonFormat.Printer JsonFormat.Printer},
    * and {@link ExtensionRegistry}.
    */
-  public ProtobufJsonFormatHttpMessageConverter(@Nullable JsonFormat.Parser parser,
-          @Nullable JsonFormat.Printer printer, @Nullable ExtensionRegistry extensionRegistry) {
+  public ProtobufJsonFormatHttpMessageConverter(JsonFormat.@Nullable Parser parser,
+          JsonFormat.@Nullable Printer printer, @Nullable ExtensionRegistry extensionRegistry) {
 
     super(new ProtobufJavaUtilSupport(parser, printer), extensionRegistry);
   }

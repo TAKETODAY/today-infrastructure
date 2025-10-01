@@ -17,6 +17,7 @@
 
 package infra.core.io.buffer;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -31,7 +32,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Bridges between {@link OutputStream} and {@link Publisher Publisher&lt;DataBuffer&gt;}.

@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -27,7 +29,6 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Adapts a given {@link Map} to the {@link MultiValueMap} contract.
@@ -74,7 +75,8 @@ public class MultiValueMapAdapter<K, V> implements MultiValueMap<K, V>, Serializ
   }
 
   @Override
-  public void addAll(K key, @Nullable Collection<? extends V> values) {
+  @SuppressWarnings("NullAway")
+  public void addAll(K key, Collection<? extends V> values) {
     if (CollectionUtils.isNotEmpty(values)) {
       targetMap.computeIfAbsent(key, k -> new ArrayList<>(values.size()))
               .addAll(values);
@@ -96,7 +98,7 @@ public class MultiValueMapAdapter<K, V> implements MultiValueMap<K, V>, Serializ
 
   @Nullable
   @Override
-  public List<V> setOrRemove(K key, @Nullable V[] value) {
+  public List<V> setOrRemove(K key, V @Nullable [] value) {
     if (value != null) {
       return targetMap.put(key, CollectionUtils.newArrayList(value));
     }

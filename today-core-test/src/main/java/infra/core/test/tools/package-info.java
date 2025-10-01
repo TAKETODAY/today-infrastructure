@@ -18,9 +18,7 @@
 /**
  * Support classes for compiling and testing generated code.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.core.test.tools;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

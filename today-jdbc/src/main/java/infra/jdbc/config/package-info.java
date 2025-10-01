@@ -21,9 +21,7 @@
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/23 17:17
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jdbc.config;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

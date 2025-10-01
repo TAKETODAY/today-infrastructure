@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +15,8 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package infra.reflect;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Field;
 
@@ -32,7 +34,7 @@ final class ReflectiveSetterMethod implements SetterMethod {
   }
 
   @Override
-  public void set(Object obj, Object value) {
+  public void set(Object obj, @Nullable Object value) {
     ReflectionUtils.setField(field, obj, value);
   }
 }

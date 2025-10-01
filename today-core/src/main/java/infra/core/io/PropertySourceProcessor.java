@@ -17,6 +17,8 @@
 
 package infra.core.io;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.SocketException;
@@ -30,7 +32,6 @@ import infra.core.env.Environment;
 import infra.core.env.PropertySource;
 import infra.core.env.PropertySources;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.PlaceholderResolutionException;

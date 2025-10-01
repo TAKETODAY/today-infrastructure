@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jmx.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Set;
 
 import javax.management.MalformedObjectNameException;
@@ -26,7 +28,6 @@ import javax.management.ObjectName;
 
 import infra.jmx.access.NotificationListenerRegistrar;
 import infra.jmx.export.NotificationListenerBean;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 
@@ -124,7 +125,7 @@ public class NotificationListenerHolder {
    */
   public void setMappedObjectName(@Nullable Object mappedObjectName) {
     this.mappedObjectNames = mappedObjectName != null ?
-                             CollectionUtils.newLinkedHashSet(mappedObjectName) : null;
+            CollectionUtils.newLinkedHashSet(mappedObjectName) : null;
   }
 
   /**
@@ -146,8 +147,7 @@ public class NotificationListenerHolder {
    *
    * @throws MalformedObjectNameException if an {@code ObjectName} is malformed
    */
-  @Nullable
-  public ObjectName[] getResolvedObjectNames() throws MalformedObjectNameException {
+  public ObjectName @Nullable [] getResolvedObjectNames() throws MalformedObjectNameException {
     if (this.mappedObjectNames == null) {
       return null;
     }

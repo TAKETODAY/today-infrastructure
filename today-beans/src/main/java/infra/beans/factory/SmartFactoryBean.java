@@ -17,8 +17,9 @@
 
 package infra.beans.factory;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.config.ConfigurableBeanFactory;
-import infra.lang.Nullable;
 
 /**
  * Extension of the {@link FactoryBean} interface. Implementations may

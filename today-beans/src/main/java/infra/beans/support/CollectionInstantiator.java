@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.beans.support;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.lang.Assert;
 import infra.util.CollectionUtils;
 
@@ -27,6 +29,7 @@ import infra.util.CollectionUtils;
  */
 public class CollectionInstantiator extends BeanInstantiator {
 
+  @Nullable
   private final Class<?> elementType;
 
   private final Class<?> collectionType;
@@ -35,14 +38,14 @@ public class CollectionInstantiator extends BeanInstantiator {
     this(collectionType, null);
   }
 
-  public CollectionInstantiator(Class<?> collectionType, Class<?> elementType) {
+  public CollectionInstantiator(Class<?> collectionType, @Nullable Class<?> elementType) {
     Assert.notNull(collectionType, "collection type is required");
     this.elementType = elementType;
     this.collectionType = collectionType;
   }
 
   @Override
-  public Object doInstantiate(final Object[] args) {
+  public Object doInstantiate(final @Nullable Object @Nullable [] args) {
     return CollectionUtils.createCollection(collectionType, elementType, 0);
   }
 

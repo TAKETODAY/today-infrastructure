@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.web.server.error;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Instant;
@@ -25,7 +27,6 @@ import java.util.Map;
 
 import infra.core.Ordered;
 import infra.http.HttpStatus;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 import infra.validation.BindingResult;
 import infra.validation.ObjectError;
@@ -110,6 +111,7 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
     }
   }
 
+  @SuppressWarnings("NullAway")
   private void addErrorDetails(Map<String, Object> attributes, RequestContext request, ErrorAttributeOptions options) {
     Throwable error = getError(request);
     if (error != null) {
@@ -164,7 +166,7 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
    * @param error current error, if any
    * @return message to include in the error attributes
    */
-  protected String getMessage(RequestContext request, Throwable error) {
+  protected String getMessage(RequestContext request, @Nullable Throwable error) {
     Object attribute = request.getAttribute(WebUtils.ERROR_MESSAGE_ATTRIBUTE);
     if (attribute instanceof String message && StringUtils.hasText(message)) {
       return message;

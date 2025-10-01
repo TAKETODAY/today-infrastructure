@@ -17,6 +17,8 @@
 
 package infra.core.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
@@ -31,7 +33,6 @@ import infra.core.ResolvableType;
 import infra.core.annotation.MergedAnnotations.Search;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
@@ -106,12 +107,13 @@ abstract class AnnotationsScanner {
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private static <C, R> R processClassInheritedAnnotations(C context, Class<?> source, AnnotationsProcessor<C, R> processor) {
     try {
       if (isWithoutHierarchy(source, Search.never)) {
         return processElement(context, source, processor);
       }
-      Annotation[] relevant = null;
+      @Nullable Annotation[] relevant = null;
       int remaining = Integer.MAX_VALUE;
       int aggregateIndex = 0;
       Class<?> root = source;
@@ -120,29 +122,32 @@ abstract class AnnotationsScanner {
         if (result != null) {
           return result;
         }
-        Annotation[] declaredAnnotations = getDeclaredAnnotations(source, true);
-        if (relevant == null && declaredAnnotations.length > 0) {
-          relevant = root.getAnnotations();
-          remaining = relevant.length;
-        }
-        for (int i = 0; i < declaredAnnotations.length; i++) {
-          if (declaredAnnotations[i] != null) {
-            boolean isRelevant = false;
-            for (int relevantIndex = 0; relevantIndex < relevant.length; relevantIndex++) {
-              if (relevant[relevantIndex] != null
-                      && declaredAnnotations[i].annotationType() == relevant[relevantIndex].annotationType()) {
-                isRelevant = true;
-                relevant[relevantIndex] = null;
-                remaining--;
-                break;
+        @Nullable Annotation[] declaredAnns = getDeclaredAnnotations(source, true);
+        if (declaredAnns.length > 0) {
+          if (relevant == null) {
+            relevant = root.getAnnotations();
+            remaining = relevant.length;
+          }
+          for (int i = 0; i < declaredAnns.length; i++) {
+            if (declaredAnns[i] != null) {
+              boolean isRelevant = false;
+              for (int relevantIndex = 0; relevantIndex < relevant.length; relevantIndex++) {
+                //noinspection DataFlowIssue
+                if (relevant[relevantIndex] != null &&
+                        declaredAnns[i].annotationType() == relevant[relevantIndex].annotationType()) {
+                  isRelevant = true;
+                  relevant[relevantIndex] = null;
+                  remaining--;
+                  break;
+                }
               }
-            }
-            if (!isRelevant) {
-              declaredAnnotations[i] = null;
+              if (!isRelevant) {
+                declaredAnns[i] = null;
+              }
             }
           }
         }
-        result = processor.doWithAnnotations(context, aggregateIndex, source, declaredAnnotations);
+        result = processor.doWithAnnotations(context, aggregateIndex, source, declaredAnns);
         if (result != null) {
           return result;
         }
@@ -164,6 +169,7 @@ abstract class AnnotationsScanner {
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private static <C, R> R processClassHierarchy(C context, int[] aggregateIndex, Class<?> source,
           AnnotationsProcessor<C, R> processor, boolean includeInterfaces, Predicate<Class<?>> searchEnclosingClass) {
 
@@ -175,7 +181,7 @@ abstract class AnnotationsScanner {
       if (hasPlainJavaAnnotationsOnly(source)) {
         return null;
       }
-      Annotation[] annotations = getDeclaredAnnotations(source, false);
+      @Nullable Annotation[] annotations = getDeclaredAnnotations(source, false);
       result = processor.doWithAnnotations(context, aggregateIndex[0], source, annotations);
       if (result != null) {
         return result;
@@ -313,16 +319,19 @@ abstract class AnnotationsScanner {
     return null;
   }
 
+  @Nullable
+  @SuppressWarnings("NullAway")
   private static Method[] getBaseTypeMethods(Class<?> baseType) {
     if (baseType == Object.class || hasPlainJavaAnnotationsOnly(baseType)) {
       return Constant.EMPTY_METHODS;
     }
 
-    Method[] methods = baseTypeMethodsCache.get(baseType);
+    @Nullable Method[] methods = baseTypeMethodsCache.get(baseType);
     if (methods == null) {
       methods = ReflectionUtils.getDeclaredMethods(baseType);
       int cleared = 0;
       for (int i = 0; i < methods.length; i++) {
+        //noinspection DataFlowIssue
         if (Modifier.isPrivate(methods[i].getModifiers())
                 || hasPlainJavaAnnotationsOnly(methods[i])
                 || getDeclaredAnnotations(methods[i], false).length == 0) {
@@ -370,16 +379,17 @@ abstract class AnnotationsScanner {
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private static <C, R> R processMethodAnnotations(C context, int aggregateIndex, Method source, AnnotationsProcessor<C, R> processor) {
 
-    Annotation[] annotations = getDeclaredAnnotations(source, false);
+    @Nullable Annotation[] annotations = getDeclaredAnnotations(source, false);
     R result = processor.doWithAnnotations(context, aggregateIndex, source, annotations);
     if (result != null) {
       return result;
     }
     Method bridgedMethod = BridgeMethodResolver.findBridgedMethod(source);
     if (bridgedMethod != source) {
-      Annotation[] bridgedAnnotations = getDeclaredAnnotations(bridgedMethod, true);
+      @Nullable Annotation[] bridgedAnnotations = getDeclaredAnnotations(bridgedMethod, true);
       for (int i = 0; i < bridgedAnnotations.length; i++) {
         if (ObjectUtils.containsElement(annotations, bridgedAnnotations[i])) {
           bridgedAnnotations[i] = null;
@@ -391,6 +401,7 @@ abstract class AnnotationsScanner {
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private static <C, R> R processElement(C context, AnnotatedElement source, AnnotationsProcessor<C, R> processor) {
 
     try {
@@ -407,7 +418,7 @@ abstract class AnnotationsScanner {
   @SuppressWarnings("unchecked")
   @Nullable
   static <A extends Annotation> A getDeclaredAnnotation(AnnotatedElement source, Class<A> annotationType) {
-    Annotation[] annotations = getDeclaredAnnotations(source, false);
+    @Nullable Annotation[] annotations = getDeclaredAnnotations(source, false);
     for (Annotation annotation : annotations) {
       if (annotation != null && annotationType == annotation.annotationType()) {
         return (A) annotation;
@@ -416,9 +427,10 @@ abstract class AnnotationsScanner {
     return null;
   }
 
-  static Annotation[] getDeclaredAnnotations(AnnotatedElement source, boolean defensive) {
+  @SuppressWarnings("NullAway") // Dataflow analysis limitation
+  static @Nullable Annotation[] getDeclaredAnnotations(AnnotatedElement source, boolean defensive) {
     boolean cached = false;
-    Annotation[] annotations = declaredAnnotationCache.get(source);
+    @Nullable Annotation[] annotations = declaredAnnotationCache.get(source);
     if (annotations != null) {
       cached = true;
     }
@@ -428,6 +440,7 @@ abstract class AnnotationsScanner {
         boolean allIgnored = true;
         for (int i = 0; i < annotations.length; i++) {
           Annotation annotation = annotations[i];
+          //noinspection DataFlowIssue
           if (isIgnorable(annotation.annotationType()) ||
                   !AttributeMethods.forAnnotationType(annotation.annotationType()).isValid(annotation)) {
             annotations[i] = null;
@@ -438,6 +451,7 @@ abstract class AnnotationsScanner {
         }
         annotations = allIgnored ? Constant.EMPTY_ANNOTATIONS : annotations;
         if (source instanceof Class || source instanceof Member) {
+          //noinspection NullableProblems
           declaredAnnotationCache.put(source, annotations);
           cached = true;
         }

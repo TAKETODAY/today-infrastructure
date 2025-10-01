@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.scheduling.concurrent;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -27,7 +29,6 @@ import infra.core.task.AsyncTaskExecutor;
 import infra.core.task.TaskDecorator;
 import infra.core.task.TaskExecutor;
 import infra.core.task.support.TaskExecutorAdapter;
-import infra.lang.Nullable;
 import infra.scheduling.SchedulingAwareRunnable;
 import infra.scheduling.SchedulingTaskExecutor;
 import infra.util.ClassUtils;
@@ -158,8 +159,8 @@ public class ConcurrentTaskExecutor implements AsyncTaskExecutor, SchedulingTask
 
   private TaskExecutorAdapter getAdaptedExecutor(Executor originalExecutor) {
     var adapter = managedExecutorServiceClass != null && managedExecutorServiceClass.isInstance(originalExecutor)
-                  ? new ManagedTaskExecutorAdapter(originalExecutor)
-                  : new TaskExecutorAdapter(originalExecutor);
+            ? new ManagedTaskExecutorAdapter(originalExecutor)
+            : new TaskExecutorAdapter(originalExecutor);
     if (this.taskDecorator != null) {
       adapter.setTaskDecorator(this.taskDecorator);
     }

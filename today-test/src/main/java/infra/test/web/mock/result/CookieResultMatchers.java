@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,13 +18,13 @@
 package infra.test.web.mock.result;
 
 import org.hamcrest.Matcher;
+import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.ArrayList;
 
 import infra.http.HttpCookie;
 import infra.http.ResponseCookie;
-import infra.lang.Nullable;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.ResultMatcher;
 import infra.web.RequestContext;

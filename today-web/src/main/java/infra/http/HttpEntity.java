@@ -17,9 +17,10 @@
 
 package infra.http;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Objects;
 
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 
@@ -181,7 +182,7 @@ public class HttpEntity<T> {
   }
 
   @Override
-  public boolean equals(Object other) {
+  public boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;
     }

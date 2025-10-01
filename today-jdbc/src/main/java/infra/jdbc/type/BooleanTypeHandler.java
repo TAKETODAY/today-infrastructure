@@ -17,6 +17,8 @@
 
 package infra.jdbc.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,18 +36,21 @@ public class BooleanTypeHandler extends BasicTypeHandler<Boolean> {
     ps.setBoolean(i, arg);
   }
 
+  @Nullable
   @Override
   public Boolean getResult(ResultSet rs, String columnName) throws SQLException {
     boolean result = rs.getBoolean(columnName);
     return !result && rs.wasNull() ? null : result;
   }
 
+  @Nullable
   @Override
   public Boolean getResult(ResultSet rs, int columnIndex) throws SQLException {
     boolean result = rs.getBoolean(columnIndex);
     return !result && rs.wasNull() ? null : result;
   }
 
+  @Nullable
   @Override
   public Boolean getResult(CallableStatement cs, int columnIndex) throws SQLException {
     boolean result = cs.getBoolean(columnIndex);

@@ -17,13 +17,14 @@
 
 package infra.web.socket.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 import infra.beans.factory.annotation.DisableAllDependencyInjection;
 import infra.context.annotation.Configuration;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.util.DataSize;
 import infra.web.config.annotation.WebMvcConfigurationSupport;

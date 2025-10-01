@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,20 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.lang;
+@NullMarked
+package infra.building.antora;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-/**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 3.0 2021/4/28 14:08
- */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.FIELD,
-        ElementType.TYPE, ElementType.PARAMETER, ElementType.CONSTRUCTOR, ElementType.METHOD })
-public @interface Required {
-
-}
+import org.jspecify.annotations.NullMarked;

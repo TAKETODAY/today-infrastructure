@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Closeable;
 import java.io.Externalizable;
 import java.io.File;
@@ -63,7 +65,6 @@ import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 
 /**
  * @author Juergen Hoeller
@@ -646,8 +647,7 @@ public abstract class ClassUtils {
    * @return Target generics {@link Class}s
    * @since 3.0
    */
-  @Nullable
-  public static Class<?>[] getGenerics(Class<?> type, Class<?> superClass) {
+  public static Class<?> @Nullable [] getGenerics(Class<?> type, Class<?> superClass) {
     return GenericTypeResolver.resolveTypeArguments(type, superClass);
   }
 
@@ -1025,7 +1025,7 @@ public abstract class ClassUtils {
    * @param arguments the given arguments
    * @return a cloned argument array, or the original if no adaptation is needed
    */
-  public static Object[] adaptArgumentsIfNecessary(Method method, @Nullable Object[] arguments) {
+  public static Object[] adaptArgumentsIfNecessary(Method method, Object @Nullable [] arguments) {
     if (ObjectUtils.isEmpty(arguments)) {
       return Constant.EMPTY_OBJECTS;
     }
@@ -1322,6 +1322,7 @@ public abstract class ClassUtils {
    * @return the original class, or a primitive wrapper for the original primitive type
    * @since 4.0
    */
+  @SuppressWarnings("NullAway")
   public static Class<?> resolvePrimitiveIfNecessary(Class<?> clazz) {
     Assert.notNull(clazz, "Class is required");
     return clazz.isPrimitive() && clazz != void.class

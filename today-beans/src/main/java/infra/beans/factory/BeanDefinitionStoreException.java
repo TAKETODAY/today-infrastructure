@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,9 @@
 
 package infra.beans.factory;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.FatalBeanException;
-import infra.lang.Nullable;
 
 /**
  * @author TODAY 2018-07-08 19:54:46
@@ -106,7 +107,7 @@ public class BeanDefinitionStoreException extends FatalBeanException {
    * @param cause the root cause (may be {@code null})
    * @since 4.0
    */
-  public BeanDefinitionStoreException(@Nullable String resourceDescription, @Nullable String beanName, String msg, @Nullable Throwable cause) {
+  public BeanDefinitionStoreException(@Nullable String resourceDescription, @Nullable String beanName, @Nullable String msg, @Nullable Throwable cause) {
     super("Invalid bean definition with name '%s' defined in %s: %s".formatted(beanName, resourceDescription, msg),
             cause);
     this.resourceDescription = resourceDescription;
