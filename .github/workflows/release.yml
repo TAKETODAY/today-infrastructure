@@ -34,6 +34,7 @@ jobs:
 
   sync-to-maven-central:
     name: Sync to Maven Central
+    if: false
     needs:
       - build-and-stage-release
     runs-on: 'ubuntu-latest'
@@ -48,6 +49,7 @@ jobs:
 
   publish-gradle-plugin:
     name: Publish Gradle Plugin
+    if: false
     needs:
       - build-and-stage-release
       - sync-to-maven-central
