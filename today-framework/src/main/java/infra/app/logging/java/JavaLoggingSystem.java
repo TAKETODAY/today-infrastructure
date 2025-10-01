@@ -186,6 +186,7 @@ public class JavaLoggingSystem extends AbstractLoggingSystem {
     private static final boolean PRESENT = ClassUtils.isPresent(
             "java.util.logging.LogManager", Factory.class.getClassLoader());
 
+    @Nullable
     @Override
     public LoggingSystem getLoggingSystem(ClassLoader classLoader) {
       if (PRESENT) {

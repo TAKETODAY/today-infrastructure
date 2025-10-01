@@ -17,6 +17,8 @@
 
 package infra.app.io;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.io.ByteArrayResource;
 import infra.core.io.ProtocolResolver;
 import infra.core.io.Resource;
@@ -34,6 +36,7 @@ class Base64ProtocolResolver implements ProtocolResolver {
 
   private static final String BASE64_PREFIX = "base64:";
 
+  @Nullable
   @Override
   public Resource resolve(String location, ResourceLoader resourceLoader) {
     if (location.startsWith(BASE64_PREFIX)) {

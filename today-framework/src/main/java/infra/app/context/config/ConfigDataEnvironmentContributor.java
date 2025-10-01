@@ -36,6 +36,7 @@ import infra.context.properties.source.ConfigurationPropertySource;
 import infra.core.conversion.ConversionService;
 import infra.core.env.Environment;
 import infra.core.env.PropertySource;
+import infra.lang.Contract;
 import infra.origin.OriginLookup;
 import infra.util.CollectionUtils;
 
@@ -294,6 +295,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
     return contributor;
   }
 
+  @Contract("null -> false")
   private boolean hasAnyProfileSpecificChildren(@Nullable List<ConfigDataEnvironmentContributor> contributors) {
     if (CollectionUtils.isNotEmpty(contributors)) {
       for (ConfigDataEnvironmentContributor contributor : contributors) {

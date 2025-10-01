@@ -37,6 +37,7 @@ import infra.core.env.Environment;
  * @see MDCConverter
  * @since 4.0 2023/7/2 16:20
  */
+@SuppressWarnings("NullAway")
 public class CorrelationIdConverter extends DynamicConverter<ILoggingEvent> {
 
   @Nullable

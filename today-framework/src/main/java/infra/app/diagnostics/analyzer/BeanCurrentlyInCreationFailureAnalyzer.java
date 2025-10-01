@@ -49,6 +49,7 @@ class BeanCurrentlyInCreationFailureAnalyzer
     this.beanFactory = beanFactory;
   }
 
+  @Nullable
   @Override
   protected FailureAnalysis analyze(Throwable rootFailure, BeanCurrentlyInCreationException cause) {
     DependencyCycle dependencyCycle = findCycle(rootFailure);
@@ -124,6 +125,7 @@ class BeanCurrentlyInCreationFailureAnalyzer
 
     private final String description;
 
+    @SuppressWarnings("NullAway")
     private BeanInCycle(BeanCreationException ex) {
       this.name = ex.getBeanName();
       this.description = determineDescription(ex);

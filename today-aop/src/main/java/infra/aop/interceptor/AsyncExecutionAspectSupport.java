@@ -321,6 +321,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
    * @param method the method that was invoked
    * @param params the parameters used to invoke the method
    */
+  @SuppressWarnings("NullAway")
   public void handleError(Throwable ex, Method method, @Nullable Object... params) throws Exception {
     if (Future.class.isAssignableFrom(method.getReturnType())) {
       ReflectionUtils.rethrowException(ex);

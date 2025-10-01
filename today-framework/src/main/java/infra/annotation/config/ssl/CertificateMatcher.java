@@ -38,6 +38,7 @@ import infra.lang.Assert;
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
+@SuppressWarnings("NullAway")
 class CertificateMatcher {
 
   private static final byte[] DATA = new byte[256];
@@ -52,8 +53,7 @@ class CertificateMatcher {
 
   private final Signature signature;
 
-  @Nullable
-  private final byte[] generatedSignature;
+  private final byte @Nullable [] generatedSignature;
 
   CertificateMatcher(PrivateKey privateKey) {
     Assert.notNull(privateKey, "Private key is required");

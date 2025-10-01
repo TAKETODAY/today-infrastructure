@@ -238,6 +238,7 @@ final class FileWatcher {
       }
     }
 
+    @SuppressWarnings("NullAway")
     private void accumulate(WatchKey key, Set<Runnable> actions) {
       List<Registration> registrations = this.registrations.get(key);
       Path directory = (Path) key.watchable();

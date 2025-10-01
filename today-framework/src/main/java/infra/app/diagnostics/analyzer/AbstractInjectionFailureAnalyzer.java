@@ -40,6 +40,7 @@ import infra.util.ClassUtils;
  */
 public abstract class AbstractInjectionFailureAnalyzer<T extends Throwable> extends AbstractFailureAnalyzer<T> {
 
+  @Nullable
   @Override
   protected final FailureAnalysis analyze(Throwable rootFailure, T cause) {
     return analyze(rootFailure, cause, getDescription(rootFailure));
@@ -82,6 +83,7 @@ public abstract class AbstractInjectionFailureAnalyzer<T extends Throwable> exte
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   String getDescription(@Nullable InjectionPoint injectionPoint) {
     if (injectionPoint != null) {
       if (injectionPoint.getField() != null) {
@@ -104,6 +106,7 @@ public abstract class AbstractInjectionFailureAnalyzer<T extends Throwable> exte
     return null;
   }
 
+  @SuppressWarnings("NullAway")
   private String getDescription(BeanInstantiationException ex) {
     if (ex.getConstructingMethod() != null) {
       return String.format("Method %s in %s", ex.getConstructingMethod().getName(),

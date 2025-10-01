@@ -19,6 +19,8 @@ package infra.origin;
 
 import org.jspecify.annotations.Nullable;
 
+import infra.lang.Contract;
+
 /**
  * An interface that may be implemented by an object that can lookup {@link Origin}
  * information from a given key. Can be used to add origin support to existing classes.
@@ -77,7 +79,8 @@ public interface OriginLookup<K> {
    */
   @SuppressWarnings("unchecked")
   @Nullable
-  static <K> Origin getOrigin(Object source, K key) {
+  @Contract("null, _ -> null")
+  static <K> Origin getOrigin(@Nullable Object source, K key) {
     if (!(source instanceof OriginLookup)) {
       return null;
     }

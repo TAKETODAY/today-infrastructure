@@ -42,6 +42,7 @@ import infra.util.SystemPropertyUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public abstract class AbstractLoggingSystem extends LoggingSystem {
 
   protected static final Comparator<LoggerConfiguration> CONFIGURATION_COMPARATOR
@@ -65,7 +66,7 @@ public abstract class AbstractLoggingSystem extends LoggingSystem {
     initializeWithConventions(startupContext, logFile);
   }
 
-  private void initializeWithSpecificConfig(LoggingStartupContext context, String configLocation, LogFile logFile) {
+  private void initializeWithSpecificConfig(LoggingStartupContext context, String configLocation, @Nullable LogFile logFile) {
     configLocation = SystemPropertyUtils.resolvePlaceholders(configLocation);
     loadConfiguration(context, configLocation, logFile);
   }
@@ -140,7 +141,8 @@ public abstract class AbstractLoggingSystem extends LoggingSystem {
     String[] locations = getStandardConfigLocations();
     for (int i = 0; i < locations.length; i++) {
       String extension = StringUtils.getFilenameExtension(locations[i]);
-      locations[i] = locations[i].substring(0, locations[i].length() - extension.length() - 1) + "-infra." + extension;
+      int extensionLength = (extension != null) ? (extension.length() + 1) : 0;
+      locations[i] = locations[i].substring(0, locations[i].length() - extensionLength) + "-infra." + extension;
     }
     return locations;
   }
@@ -194,7 +196,7 @@ public abstract class AbstractLoggingSystem extends LoggingSystem {
    * @param environment the environment
    * @return the default value resolver
    */
-  protected Function<String, String> getDefaultValueResolver(Environment environment) {
+  protected Function<String, @Nullable String> getDefaultValueResolver(Environment environment) {
     return name -> {
       String defaultLogCorrelationPattern = getDefaultLogCorrelationPattern();
       if (StringUtils.isNotEmpty(defaultLogCorrelationPattern)

@@ -73,6 +73,7 @@ class ConfigDataEnvironmentContributorPlaceholdersResolver implements Placeholde
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private String resolvePlaceholder(String placeholder) {
     Object result = null;
     for (ConfigDataEnvironmentContributor contributor : this.contributors) {

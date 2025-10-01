@@ -48,6 +48,7 @@ class MissingParameterNamesFailureAnalyzer implements FailureAnalyzer {
           Ensure that your compiler is configured to use the '-parameters' flag.
           You may need to update both your build tool settings as well as your IDE.""";
 
+  @Nullable
   @Override
   public FailureAnalysis analyze(Throwable failure) {
     return analyzeForMissingParameters(failure);

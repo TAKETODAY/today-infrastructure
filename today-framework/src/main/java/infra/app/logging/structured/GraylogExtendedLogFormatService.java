@@ -34,6 +34,7 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
+@SuppressWarnings("NullAway")
 public record GraylogExtendedLogFormatService(@Nullable String name, @Nullable String version) {
 
   static final GraylogExtendedLogFormatService NONE = new GraylogExtendedLogFormatService(null, null);

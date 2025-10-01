@@ -34,6 +34,7 @@ import infra.context.properties.bind.ConstructorBinding;
 import infra.core.Ordered;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
+import infra.lang.Contract;
 
 /**
  * An {@link AbstractInjectionFailureAnalyzer} for
@@ -70,6 +71,7 @@ class NotConstructorBoundInjectionFailureAnalyzer
     return null;
   }
 
+  @Contract("null -> false")
   private boolean isConstructorBindingConfigurationProperties(@Nullable InjectionPoint injectionPoint) {
     return injectionPoint != null && injectionPoint.getMember() instanceof Constructor<?> constructor
             && isConstructorBindingConfigurationProperties(constructor);

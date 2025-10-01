@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.app.env;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -108,7 +110,7 @@ public class ApplicationJsonEnvironmentPostProcessor implements EnvironmentPostP
     return result;
   }
 
-  private void flatten(String prefix, Map<String, Object> result, Map<String, Object> map) {
+  private void flatten(@Nullable String prefix, Map<String, Object> result, Map<String, Object> map) {
     String namePrefix = (prefix != null) ? prefix + "." : "";
     map.forEach((key, value) -> extract(namePrefix + key, result, value));
   }
@@ -179,6 +181,7 @@ public class ApplicationJsonEnvironmentPostProcessor implements EnvironmentPostP
       return PropertySourceOrigin.get(this.propertySource, this.propertyName);
     }
 
+    @Nullable
     static JsonPropertyValue get(PropertySource<?> propertySource) {
       String[] candidates = {
               APPLICATION_JSON_PROPERTY,

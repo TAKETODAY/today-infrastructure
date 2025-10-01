@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.annotation.config.ssl;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
 
@@ -81,13 +83,16 @@ public abstract class SslBundleProperties {
     /**
      * Supported SSL ciphers.
      */
+    @Nullable
     private Set<String> ciphers;
 
     /**
      * Enabled SSL protocols.
      */
+    @Nullable
     private Set<String> enabledProtocols;
 
+    @Nullable
     public Set<String> getCiphers() {
       return this.ciphers;
     }
@@ -96,6 +101,7 @@ public abstract class SslBundleProperties {
       this.ciphers = ciphers;
     }
 
+    @Nullable
     public Set<String> getEnabledProtocols() {
       return this.enabledProtocols;
     }
@@ -111,13 +117,16 @@ public abstract class SslBundleProperties {
     /**
      * The password used to access the key in the key store.
      */
+    @Nullable
     private String password;
 
     /**
      * The alias that identifies the key in the key store.
      */
+    @Nullable
     private String alias;
 
+    @Nullable
     public String getPassword() {
       return this.password;
     }
@@ -126,6 +135,7 @@ public abstract class SslBundleProperties {
       this.password = password;
     }
 
+    @Nullable
     public String getAlias() {
       return this.alias;
     }

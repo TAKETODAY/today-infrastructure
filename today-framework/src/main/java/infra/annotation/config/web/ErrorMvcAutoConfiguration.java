@@ -138,6 +138,7 @@ public class ErrorMvcAutoConfiguration {
   /**
    * {@link InfraCondition} that matches when no error template view is detected.
    */
+  @SuppressWarnings("NullAway")
   private static final class ErrorTemplateMissingCondition extends InfraCondition {
 
     @Override
@@ -157,6 +158,7 @@ public class ErrorMvcAutoConfiguration {
   /**
    * Simple {@link View} implementation that writes a default HTML error page.
    */
+  @SuppressWarnings("NullAway")
   private static final class StaticView implements View {
 
     @Override

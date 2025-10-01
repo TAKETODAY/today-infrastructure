@@ -26,8 +26,10 @@ import java.sql.SQLException;
  * Simple adapter for {@link PreparedStatementSetter} that applies a given array of arguments.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public class ArgumentPreparedStatementSetter implements PreparedStatementSetter, ParameterDisposer {
 
   private final @Nullable Object @Nullable [] args;

@@ -57,6 +57,7 @@ class MutuallyExclusiveConfigurationPropertiesFailureAnalyzer
     this.environment = environment;
   }
 
+  @Nullable
   @Override
   protected FailureAnalysis analyze(Throwable rootFailure, MutuallyExclusiveConfigurationPropertiesException cause) {
     List<Descriptor> descriptors = new ArrayList<>();
@@ -89,8 +90,7 @@ class MutuallyExclusiveConfigurationPropertiesFailureAnalyzer
             .filter(source -> !ConfigurationPropertySources.isAttachedConfigurationPropertySource(source));
   }
 
-  private void appendDetails(
-          StringBuilder message, MutuallyExclusiveConfigurationPropertiesException cause, List<Descriptor> descriptors) {
+  private void appendDetails(StringBuilder message, MutuallyExclusiveConfigurationPropertiesException cause, List<Descriptor> descriptors) {
     descriptors.sort(Comparator.comparing(d -> d.propertyName));
     message.append(String.format("The following configuration properties are mutually exclusive:%n%n"));
     for (String name : sortedStrings(cause.getMutuallyExclusiveNames())) {

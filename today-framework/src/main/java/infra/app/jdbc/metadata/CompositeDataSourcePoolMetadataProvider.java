@@ -44,6 +44,7 @@ public class CompositeDataSourcePoolMetadataProvider implements DataSourcePoolMe
     this.providers = providers;
   }
 
+  @Nullable
   @Override
   public DataSourcePoolMetadata getDataSourcePoolMetadata(DataSource dataSource) {
     if (providers != null) {

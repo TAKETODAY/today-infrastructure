@@ -81,21 +81,24 @@ class StartupExceptionHandler implements Thread.UncaughtExceptionHandler {
    * @param ex the source exception
    * @return {@code true} if the exception contains a log configuration message
    */
-  private boolean isLogConfigurationMessage(Throwable ex) {
+  private boolean isLogConfigurationMessage(@Nullable Throwable ex) {
     if (ex instanceof InvocationTargetException) {
       return isLogConfigurationMessage(ex.getCause());
     }
-    String message = ex.getMessage();
-    if (message != null) {
-      for (String candidate : LOG_CONFIGURATION_MESSAGES) {
-        if (message.contains(candidate)) {
-          return true;
+    if (ex != null) {
+      String message = ex.getMessage();
+      if (message != null) {
+        for (String candidate : LOG_CONFIGURATION_MESSAGES) {
+          if (message.contains(candidate)) {
+            return true;
+          }
         }
       }
     }
     return false;
   }
 
+  @SuppressWarnings("NullAway")
   private boolean isRegistered(Throwable ex) {
     if (this.loggedExceptions.contains(ex)) {
       return true;

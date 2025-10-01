@@ -161,7 +161,7 @@ public class MessageSourceAutoConfiguration {
   static class Hints implements RuntimeHintsRegistrar {
 
     @Override
-    public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+    public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
       hints.resources().registerPattern("messages.properties").registerPattern("messages_*.properties");
     }
 

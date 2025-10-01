@@ -41,6 +41,7 @@ import infra.util.DataSize;
  * @see RollingPolicySystemProperty
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public class LogbackLoggingSystemProperties extends LoggingSystemProperties {
 
   private static final boolean JBOSS_LOGGING_PRESENT = ClassUtils.isPresent(

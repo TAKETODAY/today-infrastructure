@@ -44,9 +44,10 @@ import infra.lang.Assert;
  * @see LoggingSystemProperty
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public class LoggingSystemProperties {
 
-  private static final BiConsumer<String, String> systemPropertySetter = (name, value) -> {
+  private static final BiConsumer<String, @Nullable String> systemPropertySetter = (name, value) -> {
     if (System.getProperty(name) == null && value != null) {
       System.setProperty(name, value);
     }
@@ -54,9 +55,9 @@ public class LoggingSystemProperties {
 
   private final Environment environment;
 
-  private final Function<String, String> defaultValueResolver;
+  private final Function<@Nullable String, @Nullable String> defaultValueResolver;
 
-  private final BiConsumer<String, String> setter;
+  private final BiConsumer<String, @Nullable String> setter;
 
   /**
    * Create a new {@link LoggingSystemProperties} instance.
@@ -74,7 +75,7 @@ public class LoggingSystemProperties {
    * @param setter setter used to apply the property or {@code null} for system
    * properties
    */
-  public LoggingSystemProperties(Environment environment, @Nullable BiConsumer<String, String> setter) {
+  public LoggingSystemProperties(Environment environment, @Nullable BiConsumer<String, @Nullable String> setter) {
     this(environment, null, setter);
   }
 
@@ -86,8 +87,8 @@ public class LoggingSystemProperties {
    * @param setter setter used to apply the property or {@code null} for system
    * properties
    */
-  public LoggingSystemProperties(Environment environment, @Nullable Function<String, String> defaultValueResolver,
-          @Nullable BiConsumer<String, String> setter) {
+  public LoggingSystemProperties(Environment environment, @Nullable Function<@Nullable String, @Nullable String> defaultValueResolver,
+          @Nullable BiConsumer<String, @Nullable String> setter) {
     Assert.notNull(environment, "Environment is required");
     this.environment = environment;
     this.defaultValueResolver = (defaultValueResolver != null) ? defaultValueResolver : (name) -> null;
@@ -108,10 +109,9 @@ public class LoggingSystemProperties {
   }
 
   private PropertyResolver getPropertyResolver() {
-    if (this.environment instanceof ConfigurableEnvironment configurableEnvironment) {
-      PropertySourcesPropertyResolver resolver = new PropertySourcesPropertyResolver(
-              configurableEnvironment.getPropertySources());
-      resolver.setConversionService(((ConfigurableEnvironment) this.environment).getConversionService());
+    if (this.environment instanceof ConfigurableEnvironment ce) {
+      PropertySourcesPropertyResolver resolver = new PropertySourcesPropertyResolver(ce.getPropertySources());
+      resolver.setConversionService(ce.getConversionService());
       resolver.setIgnoreUnresolvableNestedPlaceholders(true);
       return resolver;
     }
@@ -144,7 +144,7 @@ public class LoggingSystemProperties {
     setSystemProperty(property, resolver, Function.identity());
   }
 
-  private void setSystemProperty(LoggingSystemProperty property, PropertyResolver resolver, Function<String, String> mapper) {
+  private void setSystemProperty(LoggingSystemProperty property, PropertyResolver resolver, Function<@Nullable String, @Nullable String> mapper) {
     setSystemProperty(property, resolver, null, mapper);
   }
 
@@ -152,8 +152,8 @@ public class LoggingSystemProperties {
     setSystemProperty(property, resolver, defaultValue, Function.identity());
   }
 
-  private void setSystemProperty(LoggingSystemProperty property, PropertyResolver resolver, @Nullable String defaultValue,
-          Function<String, String> mapper) {
+  private void setSystemProperty(LoggingSystemProperty property, PropertyResolver resolver,
+          @Nullable String defaultValue, Function<@Nullable String, @Nullable String> mapper) {
     if (property.includePropertyName != null) {
       if (!resolver.getProperty(property.includePropertyName, Boolean.class, Boolean.TRUE)) {
         return;
@@ -171,7 +171,8 @@ public class LoggingSystemProperties {
     setSystemProperty(property.getEnvironmentVariableName(), value);
   }
 
-  private String thresholdMapper(String input) {
+  @Nullable
+  private String thresholdMapper(@Nullable String input) {
     // YAML converts an unquoted OFF to false
     if ("false".equals(input)) {
       return "OFF";

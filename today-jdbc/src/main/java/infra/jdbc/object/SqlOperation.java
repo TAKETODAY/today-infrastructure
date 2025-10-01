@@ -38,6 +38,7 @@ import infra.lang.Assert;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public abstract class SqlOperation extends RdbmsOperation {
 
   /**

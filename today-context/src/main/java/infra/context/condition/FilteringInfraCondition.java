@@ -69,17 +69,18 @@ public abstract class FilteringInfraCondition extends InfraCondition
   }
 
   @Override
-  public boolean[] match(String[] configClasses, AutoConfigurationMetadata configMetadata) {
+  public boolean[] match(String[] autoConfigurationClasses, AutoConfigurationMetadata configMetadata) {
     ConditionEvaluationReport report = ConditionEvaluationReport.find(this.beanFactory);
-    @Nullable ConditionOutcome[] outcomes = getOutcomes(configClasses, configMetadata);
+    @Nullable ConditionOutcome[] outcomes = getOutcomes(autoConfigurationClasses, configMetadata);
     boolean[] match = new boolean[outcomes.length];
     for (int i = 0; i < outcomes.length; i++) {
       ConditionOutcome outcome = outcomes[i];
       match[i] = (outcome == null || outcome.isMatch());
       if (!match[i] && outcome != null) {
-        logOutcome(configClasses[i], outcome);
+        String autoConfigurationClass = autoConfigurationClasses[i];
+        logOutcome(autoConfigurationClass, outcome);
         if (report != null) {
-          report.recordConditionEvaluation(configClasses[i], this, outcome);
+          report.recordConditionEvaluation(autoConfigurationClass, this, outcome);
         }
       }
     }

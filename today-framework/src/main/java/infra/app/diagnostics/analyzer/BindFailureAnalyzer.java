@@ -47,6 +47,7 @@ import infra.util.StringUtils;
  */
 class BindFailureAnalyzer extends AbstractFailureAnalyzer<BindException> {
 
+  @Nullable
   @Override
   protected FailureAnalysis analyze(Throwable rootFailure, BindException cause) {
     Throwable rootCause = cause.getCause();
@@ -95,7 +96,7 @@ class BindFailureAnalyzer extends AbstractFailureAnalyzer<BindException> {
   }
 
   @Nullable
-  private Throwable getRootCause(Throwable cause) {
+  private Throwable getRootCause(@Nullable Throwable cause) {
     Throwable rootCause = cause;
     while (rootCause != null && rootCause.getCause() != null) {
       rootCause = rootCause.getCause();

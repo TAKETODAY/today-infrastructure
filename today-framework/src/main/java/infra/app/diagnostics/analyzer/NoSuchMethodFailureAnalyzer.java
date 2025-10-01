@@ -42,13 +42,15 @@ import infra.util.ClassUtils;
  */
 class NoSuchMethodFailureAnalyzer extends AbstractFailureAnalyzer<NoSuchMethodError> {
 
+  @Nullable
   @Override
   protected FailureAnalysis analyze(Throwable rootFailure, NoSuchMethodError cause) {
     NoSuchMethodDescriptor callerDescriptor = getCallerMethodDescriptor(cause);
     if (callerDescriptor == null) {
       return null;
     }
-    NoSuchMethodDescriptor calledDescriptor = getNoSuchMethodDescriptor(cause.getMessage());
+    String message = cause.getMessage();
+    NoSuchMethodDescriptor calledDescriptor = getNoSuchMethodDescriptor((message != null) ? message : "");
     if (calledDescriptor == null) {
       return null;
     }
@@ -225,8 +227,7 @@ class NoSuchMethodFailureAnalyzer extends AbstractFailureAnalyzer<NoSuchMethodEr
     public final List<URL> candidateLocations;
     public final List<ClassDescriptor> typeHierarchy;
 
-    public NoSuchMethodDescriptor(
-            String errorMessage, String className,
+    public NoSuchMethodDescriptor(String errorMessage, String className,
             List<URL> candidateLocations, List<ClassDescriptor> typeHierarchy) {
       this.errorMessage = errorMessage;
       this.className = className;

@@ -32,13 +32,14 @@ import infra.origin.Origin;
  * found.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class ConfigDataResourceNotFoundException extends ConfigDataNotFoundException {
 
   private final ConfigDataResource resource;
 
-  private final ConfigDataLocation location;
+  private final @Nullable ConfigDataLocation location;
 
   /**
    * Create a new {@link ConfigDataResourceNotFoundException} instance.
@@ -81,6 +82,7 @@ public class ConfigDataResourceNotFoundException extends ConfigDataNotFoundExcep
    *
    * @return the location or {@code null} if no location is available
    */
+  @Nullable
   public ConfigDataLocation getLocation() {
     return this.location;
   }

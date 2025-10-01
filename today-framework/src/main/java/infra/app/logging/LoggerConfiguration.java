@@ -109,9 +109,10 @@ public final class LoggerConfiguration {
    *
    * @return the level configuration
    */
-  @Nullable
   public LevelConfiguration getLevelConfiguration() {
-    return getLevelConfiguration(ConfigurationScope.INHERITED);
+    LevelConfiguration result = getLevelConfiguration(ConfigurationScope.INHERITED);
+    Assert.state(result != null, "Inherited level configuration is required");
+    return result;
   }
 
   /**
@@ -148,8 +149,8 @@ public final class LoggerConfiguration {
 
   @Override
   public String toString() {
-    return "LoggerConfiguration [name=" + this.name + ", levelConfiguration=" + this.levelConfiguration
-            + ", inheritedLevelConfiguration=" + this.inheritedLevelConfiguration + "]";
+    return "LoggerConfiguration [name=%s, levelConfiguration=%s, inheritedLevelConfiguration=%s]"
+            .formatted(this.name, this.levelConfiguration, this.inheritedLevelConfiguration);
   }
 
   /**

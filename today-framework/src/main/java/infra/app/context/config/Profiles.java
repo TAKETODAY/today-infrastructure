@@ -147,7 +147,7 @@ public class Profiles implements Iterable<String> {
     return asUniqueItemList(expandedProfiles);
   }
 
-  private List<String> asReversedList(List<String> list) {
+  private List<String> asReversedList(@Nullable List<String> list) {
     if (CollectionUtils.isEmpty(list)) {
       return Collections.emptyList();
     }

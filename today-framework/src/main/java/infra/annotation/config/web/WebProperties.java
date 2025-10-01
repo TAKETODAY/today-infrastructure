@@ -111,6 +111,7 @@ public class WebProperties {
        * Whether to enable the Infra Resource Handling chain. By default, disabled
        * unless at least one strategy has been enabled.
        */
+      @Nullable
       private Boolean enabled;
 
       /**
@@ -134,6 +135,7 @@ public class WebProperties {
        * @return whether the resource chain is enabled or {@code null} if no
        * specified settings are present.
        */
+      @Nullable
       public Boolean getEnabled() {
         return getEnabled(strategy.fixed.enabled, strategy.content.enabled, enabled);
       }
@@ -142,7 +144,8 @@ public class WebProperties {
         this.enabled = enabled;
       }
 
-      static Boolean getEnabled(boolean fixedEnabled, boolean contentEnabled, Boolean chainEnabled) {
+      @Nullable
+      static Boolean getEnabled(boolean fixedEnabled, boolean contentEnabled, @Nullable Boolean chainEnabled) {
         return (fixedEnabled || contentEnabled) ? Boolean.TRUE : chainEnabled;
       }
 
@@ -192,6 +195,7 @@ public class WebProperties {
           /**
            * Version string to use for the fixed Version Strategy.
            */
+          @Nullable
           public String version;
 
         }

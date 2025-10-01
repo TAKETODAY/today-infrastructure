@@ -82,6 +82,7 @@ import infra.util.function.ThrowingConsumer;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 class InfraJoranConfigurator extends JoranConfigurator {
 
   private final LoggingStartupContext startupContext;
@@ -300,7 +301,7 @@ class InfraJoranConfigurator extends JoranConfigurator {
     }
 
     @Nullable
-    private Object instantiate(Class<?> type) {
+    private Object instantiate(@Nullable Class<?> type) {
       try {
         return type.getConstructor().newInstance();
       }

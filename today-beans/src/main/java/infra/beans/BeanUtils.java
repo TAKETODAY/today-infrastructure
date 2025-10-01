@@ -118,6 +118,7 @@ public abstract class BeanUtils {
    * @see #obtainConstructor(Class)
    * @since 4.0
    */
+  @SuppressWarnings({ "NullAway" })
   public static <T> T newInstance(Class<T> beanClass, DependencyInjector injector, @Nullable Object... providedArgs) {
     Assert.notNull(injector, "ArgumentsResolver is required");
     Constructor<T> constructor = obtainConstructor(beanClass);
@@ -128,7 +129,7 @@ public abstract class BeanUtils {
    * @throws BeanInstantiationException cannot instantiate a bean
    * @since 4.0
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "NullAway" })
   public static <T> T newInstance(BeanInstantiator constructor, @Nullable Object @Nullable [] parameter) {
     return (T) constructor.instantiate(parameter);
   }

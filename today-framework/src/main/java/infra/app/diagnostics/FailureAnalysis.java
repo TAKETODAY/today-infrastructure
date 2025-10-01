@@ -43,8 +43,8 @@ public class FailureAnalysis {
    * @param action the action
    * @param cause the cause
    */
-  public FailureAnalysis(String description, String action, Throwable cause) {
-    this.description = description;
+  public FailureAnalysis(@Nullable String description, String action, Throwable cause) {
+    this.description = (description != null) ? description : "";
     this.action = action;
     this.cause = cause;
   }

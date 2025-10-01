@@ -95,19 +95,18 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   protected final @Nullable ConditionOutcome[] getOutcomes(String[] configClasses, AutoConfigurationMetadata configMetadata) {
     @Nullable ConditionOutcome[] outcomes = new ConditionOutcome[configClasses.length];
     for (int i = 0; i < outcomes.length; i++) {
       String autoConfigurationClass = configClasses[i];
-      if (autoConfigurationClass != null) {
-        Set<String> onBeanTypes = configMetadata.getSet(autoConfigurationClass, "ConditionalOnBean");
-        ConditionOutcome outcome = getOutcome(onBeanTypes, ConditionalOnBean.class);
-        if (outcome == null) {
-          Set<String> onSingleCandidateTypes = configMetadata.getSet(autoConfigurationClass, "ConditionalOnSingleCandidate");
-          outcome = getOutcome(onSingleCandidateTypes, ConditionalOnSingleCandidate.class);
-        }
-        outcomes[i] = outcome;
+      Set<String> onBeanTypes = configMetadata.getSet(autoConfigurationClass, "ConditionalOnBean");
+      ConditionOutcome outcome = getOutcome(onBeanTypes, ConditionalOnBean.class);
+      if (outcome == null) {
+        Set<String> onSingleCandidateTypes = configMetadata.getSet(autoConfigurationClass, "ConditionalOnSingleCandidate");
+        outcome = getOutcome(onSingleCandidateTypes, ConditionalOnSingleCandidate.class);
       }
+      outcomes[i] = outcome;
     }
     return outcomes;
   }

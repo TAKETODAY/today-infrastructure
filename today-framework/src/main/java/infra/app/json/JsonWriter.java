@@ -77,6 +77,7 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
+@SuppressWarnings("NullAway")
 @FunctionalInterface
 public interface JsonWriter<T> {
 
@@ -765,7 +766,8 @@ public interface JsonWriter<T> {
       }
 
       @SuppressWarnings("unchecked")
-      private <R> R apply(T extracted, Function<T, R> function) {
+      @Nullable
+      private <R> R apply(@Nullable T extracted, Function<T, R> function) {
         if (skip(extracted)) {
           return (R) SKIP;
         }
@@ -792,7 +794,7 @@ public interface JsonWriter<T> {
        * @param extracted the value to test
        * @return if the value is to be skipped
        */
-      static <T> boolean skip(T extracted) {
+      static <T> boolean skip(@Nullable T extracted) {
         return extracted == SKIP;
       }
 

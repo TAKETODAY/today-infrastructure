@@ -45,6 +45,7 @@ import infra.util.Instantiator.AvailableParameters;
  * @see StructuredLogFormatter
  * @since 5.0
  */
+@SuppressWarnings("NullAway")
 public class StructuredLogEncoder extends EncoderBase<ILoggingEvent> {
 
   private final ThrowableProxyConverter throwableProxyConverter = new ThrowableProxyConverter();

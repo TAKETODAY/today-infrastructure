@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.app.env;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.HexFormat;
 import java.util.OptionalInt;
@@ -79,6 +81,7 @@ public class RandomValuePropertySource extends PropertySource<Random> {
     super(name, new Random());
   }
 
+  @Nullable
   @Override
   public Object getProperty(String name) {
     if (!name.startsWith(PREFIX)) {
@@ -109,6 +112,7 @@ public class RandomValuePropertySource extends PropertySource<Random> {
     return getRandomBytes();
   }
 
+  @Nullable
   private String getRange(String type, String prefix) {
     if (type.startsWith(prefix)) {
       int startIndex = prefix.length() + 1;

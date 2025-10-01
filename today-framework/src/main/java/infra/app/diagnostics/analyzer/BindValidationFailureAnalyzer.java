@@ -25,6 +25,7 @@ import infra.app.diagnostics.AbstractFailureAnalyzer;
 import infra.app.diagnostics.FailureAnalysis;
 import infra.context.properties.bind.BindException;
 import infra.context.properties.bind.validation.BindValidationException;
+import infra.lang.Assert;
 import infra.origin.Origin;
 import infra.validation.FieldError;
 import infra.validation.ObjectError;
@@ -40,6 +41,7 @@ import infra.validation.ObjectError;
  */
 class BindValidationFailureAnalyzer extends AbstractFailureAnalyzer<Throwable> {
 
+  @Nullable
   @Override
   protected FailureAnalysis analyze(Throwable rootFailure, Throwable cause) {
     ExceptionDetails details = getBindValidationExceptionDetails(rootFailure);
@@ -54,6 +56,7 @@ class BindValidationFailureAnalyzer extends AbstractFailureAnalyzer<Throwable> {
     BindValidationException validationException = findCause(rootFailure, BindValidationException.class);
     if (validationException != null) {
       BindException bindException = findCause(rootFailure, BindException.class);
+      Assert.state(bindException != null, "BindException not found");
       List<ObjectError> errors = validationException.getValidationErrors().getAllErrors();
       return new ExceptionDetails(errors, bindException.getTarget().getType(), validationException);
     }
@@ -95,11 +98,11 @@ class BindValidationFailureAnalyzer extends AbstractFailureAnalyzer<Throwable> {
 
     public final List<ObjectError> errors;
 
-    public final Object target;
+    private final @Nullable Object target;
 
     public final Throwable cause;
 
-    ExceptionDetails(List<ObjectError> errors, Object target, Throwable cause) {
+    ExceptionDetails(List<ObjectError> errors, @Nullable Object target, Throwable cause) {
       this.errors = errors;
       this.target = target;
       this.cause = cause;

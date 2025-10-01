@@ -1495,6 +1495,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
    * @param args object array with arguments
    * @return the new PreparedStatementSetter to use
    */
+  @SuppressWarnings("NullAway")
   protected PreparedStatementSetter newArgPreparedStatementSetter(@Nullable Object @Nullable [] args) {
     return new ArgumentPreparedStatementSetter(args);
   }
@@ -1508,6 +1509,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
    * @param argTypes int array of SQLTypes for the associated arguments
    * @return the new PreparedStatementSetter to use
    */
+  @SuppressWarnings("NullAway")
   protected PreparedStatementSetter newArgTypePreparedStatementSetter(@Nullable Object @Nullable [] args, int[] argTypes) {
     return new ArgumentTypePreparedStatementSetter(args, argTypes);
   }

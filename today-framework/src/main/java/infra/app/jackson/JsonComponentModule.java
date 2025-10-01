@@ -62,6 +62,7 @@ import infra.util.ObjectUtils;
  * @see JsonComponent
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public class JsonComponentModule extends SimpleModule implements BeanFactoryAware, InitializingBean {
 
   private BeanFactory beanFactory;

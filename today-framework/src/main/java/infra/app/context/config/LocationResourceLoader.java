@@ -99,6 +99,7 @@ class LocationResourceLoader {
    * @return the resources
    * @see #isPattern(String)
    */
+  @SuppressWarnings("NullAway")
   List<Resource> getResources(@Nullable String location, ResourceType type) {
     validatePattern(location, type);
     String directoryPath = location.substring(0, location.indexOf("*/"));
@@ -135,8 +136,8 @@ class LocationResourceLoader {
     return resources;
   }
 
-  @SuppressWarnings("NullAway")
-  private void validatePattern(@Nullable String location, ResourceType type) {
+  @SuppressWarnings("null, _ -> fail")
+  private void validatePattern(String location, ResourceType type) {
     Assert.state(isPattern(location), () -> String.format("Location '%s' must be a pattern", location));
     Assert.state(!location.startsWith(PatternResourceLoader.CLASSPATH_ALL_URL_PREFIX),
             () -> String.format("Location '%s' cannot use classpath wildcards", location));

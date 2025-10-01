@@ -44,8 +44,7 @@ class NoUniqueBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnal
 
   @Override
   @Nullable
-  protected FailureAnalysis analyze(
-          Throwable rootFailure, NoUniqueBeanDefinitionException cause, @Nullable String description) {
+  protected FailureAnalysis analyze(Throwable rootFailure, NoUniqueBeanDefinitionException cause, @Nullable String description) {
     if (description == null) {
       return null;
     }
@@ -89,10 +88,11 @@ class NoUniqueBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnal
     return (resourceDescription != null) ? resourceDescription : "unknown location";
   }
 
-  private String @Nullable []extractBeanNames(NoUniqueBeanDefinitionException cause) {
-    if (cause.getMessage().contains("but found")) {
+  private String @Nullable [] extractBeanNames(NoUniqueBeanDefinitionException cause) {
+    String message = cause.getMessage();
+    if (message != null && message.contains("but found")) {
       return StringUtils.commaDelimitedListToStringArray(
-              cause.getMessage().substring(cause.getMessage().lastIndexOf(':') + 1).trim());
+              message.substring(message.lastIndexOf(':') + 1).trim());
     }
     return null;
   }

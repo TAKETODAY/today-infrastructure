@@ -56,6 +56,7 @@ import infra.util.function.SingletonSupplier;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/16 17:01
  */
+@SuppressWarnings("NullAway")
 public final class PropertyMapper {
 
   private static final Predicate<?> ALWAYS = (t) -> true;

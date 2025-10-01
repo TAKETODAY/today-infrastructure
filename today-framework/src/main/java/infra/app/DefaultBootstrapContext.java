@@ -96,13 +96,14 @@ public class DefaultBootstrapContext implements ConfigurableBootstrapContext {
 
   @Nullable
   @Override
-  public <T> T getOrElse(Class<T> type, T other) {
+  @SuppressWarnings("NullAway")
+  public <T> T getOrElse(Class<T> type, @Nullable T other) {
     return getOrElseSupply(type, () -> other);
   }
 
   @Override
   @Nullable
-  public <T> T getOrElseSupply(Class<T> type, Supplier<T> other) {
+  public <T> T getOrElseSupply(Class<T> type, Supplier<@Nullable T> other) {
     synchronized(this.instanceSuppliers) {
       InstanceSupplier<?> instanceSupplier = this.instanceSuppliers.get(type);
       return (instanceSupplier != null) ? getInstance(type, instanceSupplier) : other.get();

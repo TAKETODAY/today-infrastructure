@@ -399,7 +399,7 @@ public abstract class StringUtils {
    * @return the resulting array (of the same size) with trimmed elements
    * @since 4.0
    */
-  public static @Nullable String @Nullable [] trimArrayElements(@Nullable String @Nullable [] array) {
+  public static @Nullable String[] trimArrayElements(@Nullable String[] array) {
     if (ObjectUtils.isEmpty(array)) {
       return array;
     }

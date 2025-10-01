@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.app.json;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -80,11 +82,16 @@ public class BasicJsonParser extends AbstractJsonParser {
     Map<String, Object> map = new LinkedHashMap<>();
     json = trimEdges(json, '{', '}').trim();
     for (String pair : tokenize(json)) {
-      String[] values = StringUtils.trimArrayElements(StringUtils.split(pair, ":"));
-      Assert.state(values[0].startsWith("\"") && values[0].endsWith("\""),
-              "Expecting double-quotes around field names");
-      String key = trimEdges(values[0], '"', '"');
-      Object value = parseInternal(nesting, values[1]);
+      String[] split = StringUtils.split(pair, ":");
+      @Nullable String[] values = (split != null) ? StringUtils.trimArrayElements(split) : null;
+      Assert.state(values != null, () -> "Unable to parse '%s'".formatted(pair));
+      String rawKey = values[0];
+      String rawValue = values[1];
+      Assert.state(rawKey != null, () -> "rawKew is null in '%s'".formatted(pair));
+      Assert.state(rawKey.startsWith("\"") && rawKey.endsWith("\""), "Expecting double-quotes around field names");
+      String key = trimEdges(rawKey, '"', '"');
+      Assert.state(rawValue != null, () -> "rawValue is null in '%s'".formatted(pair));
+      Object value = parseInternal(nesting, rawValue);
       map.put(key, value);
     }
     return map;

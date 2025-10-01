@@ -1507,6 +1507,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
    * @see #createBean
    */
   @Nullable
+  @SuppressWarnings({ "NullAway" })
   protected Class<?> getTypeForFactoryMethod(String beanName, RootBeanDefinition merged, Class<?>... typesToMatch) {
     ResolvableType cachedReturnType = merged.factoryMethodReturnType;
     if (cachedReturnType != null) {

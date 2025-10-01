@@ -19,6 +19,7 @@ package infra.origin;
 
 import org.jspecify.annotations.Nullable;
 
+import infra.lang.Contract;
 import infra.util.ObjectUtils;
 
 /**
@@ -78,6 +79,7 @@ public class OriginTrackedValue implements OriginProvider {
   }
 
   @Nullable
+  @Contract("!null -> !null")
   public static OriginTrackedValue of(Object value) {
     return of(value, null);
   }
@@ -93,6 +95,7 @@ public class OriginTrackedValue implements OriginProvider {
    * {@code null}.
    */
   @Nullable
+  @Contract("null, _ -> null; !null, _ -> !null")
   public static OriginTrackedValue of(@Nullable Object value, @Nullable Origin origin) {
     if (value == null) {
       return null;

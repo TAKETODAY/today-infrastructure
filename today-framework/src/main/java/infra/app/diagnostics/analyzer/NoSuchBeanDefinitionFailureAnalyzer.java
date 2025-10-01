@@ -73,6 +73,7 @@ class NoSuchBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyz
     this.metadataReaderFactory = new CachingMetadataReaderFactory(beanFactory.getBeanClassLoader());
   }
 
+  @Nullable
   @Override
   protected FailureAnalysis analyze(Throwable rootFailure, NoSuchBeanDefinitionException cause, @Nullable String description) {
     if (cause.getNumberOfBeansFound() != 0) {
@@ -117,6 +118,7 @@ class NoSuchBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyz
     return "a bean named '" + cause.getBeanName() + "'";
   }
 
+  @SuppressWarnings("NullAway")
   private Class<?> extractBeanType(ResolvableType resolvableType) {
     return resolvableType.getRawClass();
   }

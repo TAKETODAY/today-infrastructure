@@ -108,6 +108,7 @@ class OriginTrackedYamlLoader extends YamlProcessor {
       return data;
     }
 
+    @Nullable
     @Override
     protected Object constructObject(Node node) {
       if (node instanceof SequenceNode sequenceNode && sequenceNode.getValue().isEmpty()) {
@@ -132,6 +133,7 @@ class OriginTrackedYamlLoader extends YamlProcessor {
       node.setValue(newValue);
     }
 
+    @Nullable
     private Object constructTrackedObject(Node node, Object value) {
       Origin origin = getOrigin(node);
       return OriginTrackedValue.of(getValue(value), origin);

@@ -39,7 +39,7 @@ import infra.lang.Contract;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0 2021/3/25 11:38
  */
-public class SingletonSupplier<T extends @Nullable Object> implements Supplier<T> {
+public class SingletonSupplier<T> implements Supplier<@Nullable T> {
 
   @Nullable
   private final Supplier<? extends @Nullable T> defaultSupplier;
