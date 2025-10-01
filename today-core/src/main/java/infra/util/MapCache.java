@@ -41,7 +41,7 @@ public class MapCache<Key, Value, Param> {
 
   /** default mapping function */
   @Nullable
-  private final Function<Key, Value> mappingFunction;
+  private final Function<Key, @Nullable Value> mappingFunction;
 
   public MapCache() {
     this(new HashMap<>());
@@ -59,14 +59,14 @@ public class MapCache<Key, Value, Param> {
     this.mappingFunction = null;
   }
 
-  public MapCache(Function<Key, Value> mappingFunction) {
+  public MapCache(Function<Key, @Nullable Value> mappingFunction) {
     this(new HashMap<>(), mappingFunction);
   }
 
   /**
    * @param mapping allows to define your own map implementation
    */
-  public MapCache(Map<Key, Value> mapping, @Nullable Function<Key, Value> mappingFunction) {
+  public MapCache(Map<Key, Value> mapping, @Nullable Function<Key, @Nullable Value> mappingFunction) {
     this.mapping = mapping;
     this.mappingFunction = mappingFunction;
   }
