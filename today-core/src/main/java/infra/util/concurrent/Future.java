@@ -196,7 +196,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
-public abstract class Future<V> implements java.util.concurrent.Future<V> {
+public abstract class Future<V> implements java.util.concurrent.Future<@Nullable V> {
 
   /**
    * The default executor is {@link ForkJoinPool#commonPool()}.
