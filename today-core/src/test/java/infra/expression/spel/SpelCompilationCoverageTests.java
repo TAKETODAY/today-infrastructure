@@ -569,7 +569,7 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
       // gh-32356
     void indexIntoMapOfPrimitiveIntArrayWithCompilableMapAccessor() {
       StandardEvaluationContext context = new StandardEvaluationContext();
-      context.addPropertyAccessor(new CompilableMapAccessor());
+      context.addPropertyAccessor(new MapAccessor());
 
       Map<String, int[]> map = Map.of("foo", new int[] { 1, 2, 3 });
 

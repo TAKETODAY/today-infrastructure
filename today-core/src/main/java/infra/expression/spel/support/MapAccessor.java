@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.expression.spel;
+package infra.expression.spel.support;
 
 import org.jspecify.annotations.Nullable;
 
@@ -26,24 +26,28 @@ import infra.bytecode.core.CodeFlow;
 import infra.expression.AccessException;
 import infra.expression.EvaluationContext;
 import infra.expression.TypedValue;
+import infra.expression.spel.CompilablePropertyAccessor;
 import infra.lang.Assert;
 
 /**
- * This is a local COPY of {@link infra.context.expression.MapAccessor}.
+ * EL property accessor that knows how to traverse the keys
+ * of a standard {@link Map}.
  *
  * @author Juergen Hoeller
  * @author Andy Clement
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
-public class CompilableMapAccessor implements CompilablePropertyAccessor {
+public class MapAccessor implements CompilablePropertyAccessor {
 
   private final boolean allowWrite;
 
   /**
    * Create a new map accessor for reading as well as writing.
    *
-   * @see #CompilableMapAccessor(boolean)
+   * @see #MapAccessor(boolean)
    */
-  public CompilableMapAccessor() {
+  public MapAccessor() {
     this(true);
   }
 
@@ -52,8 +56,9 @@ public class CompilableMapAccessor implements CompilablePropertyAccessor {
    *
    * @param allowWrite whether to allow write operations on a target instance
    * @see #canWrite
+   * @since 5.0
    */
-  public CompilableMapAccessor(boolean allowWrite) {
+  public MapAccessor(boolean allowWrite) {
     this.allowWrite = allowWrite;
   }
 

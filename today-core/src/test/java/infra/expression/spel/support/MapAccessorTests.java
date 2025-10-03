@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.context.expression;
+package infra.expression.spel.support;
 
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +26,6 @@ import java.util.Map;
 import infra.expression.AccessException;
 import infra.expression.spel.standard.SpelCompiler;
 import infra.expression.spel.standard.SpelExpressionParser;
-import infra.expression.spel.support.StandardEvaluationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
