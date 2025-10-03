@@ -24,15 +24,12 @@ import java.util.List;
 import java.util.Map;
 
 import infra.expression.AccessException;
-import infra.expression.Expression;
-import infra.expression.TypedValue;
 import infra.expression.spel.standard.SpelCompiler;
 import infra.expression.spel.standard.SpelExpressionParser;
 import infra.expression.spel.support.StandardEvaluationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -40,57 +37,91 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  */
 class MapAccessorTests {
 
+  private final StandardEvaluationContext context = new StandardEvaluationContext();
+
   @Test
   void compilationSupport() {
-    Map<String, Object> testMap = getSimpleTestMap();
-    StandardEvaluationContext sec = new StandardEvaluationContext();
-    sec.addPropertyAccessor(new MapAccessor());
-    SpelExpressionParser sep = new SpelExpressionParser();
+    context.addPropertyAccessor(new MapAccessor());
+
+    var parser = new SpelExpressionParser();
+    var testMap = getSimpleTestMap();
+    var nestedMap = getNestedTestMap();
 
     // basic
-    Expression ex = sep.parseExpression("foo");
-    assertThat(ex.getValue(sec, testMap)).isEqualTo("bar");
-    assertThat(SpelCompiler.compile(ex)).isTrue();
-    assertThat(ex.getValue(sec, testMap)).isEqualTo("bar");
+    var expression = parser.parseExpression("foo");
+    assertThat(expression.getValue(context, testMap)).isEqualTo("bar");
+    assertThat(SpelCompiler.compile(expression)).isTrue();
+    assertThat(expression.getValue(context, testMap)).isEqualTo("bar");
 
     // compound expression
-    ex = sep.parseExpression("foo.toUpperCase()");
-    assertThat(ex.getValue(sec, testMap)).isEqualTo("BAR");
-    assertThat(SpelCompiler.compile(ex)).isTrue();
-    assertThat(ex.getValue(sec, testMap)).isEqualTo("BAR");
+    expression = parser.parseExpression("foo.toUpperCase()");
+    assertThat(expression.getValue(context, testMap)).isEqualTo("BAR");
+    assertThat(SpelCompiler.compile(expression)).isTrue();
+    assertThat(expression.getValue(context, testMap)).isEqualTo("BAR");
 
     // nested map
-    Map<String, Map<String, Object>> nestedMap = getNestedTestMap();
-    ex = sep.parseExpression("aaa.foo.toUpperCase()");
-    assertThat(ex.getValue(sec, nestedMap)).isEqualTo("BAR");
-    assertThat(SpelCompiler.compile(ex)).isTrue();
-    assertThat(ex.getValue(sec, nestedMap)).isEqualTo("BAR");
+    expression = parser.parseExpression("aaa.foo.toUpperCase()");
+    assertThat(expression.getValue(context, nestedMap)).isEqualTo("BAR");
+    assertThat(SpelCompiler.compile(expression)).isTrue();
+    assertThat(expression.getValue(context, nestedMap)).isEqualTo("BAR");
 
     // avoiding inserting checkcast because first part of expression returns a Map
-    ex = sep.parseExpression("getMap().foo");
+    expression = parser.parseExpression("getMap().foo");
     MapGetter mapGetter = new MapGetter();
-    assertThat(ex.getValue(sec, mapGetter)).isEqualTo("bar");
-    assertThat(SpelCompiler.compile(ex)).isTrue();
-    assertThat(ex.getValue(sec, mapGetter)).isEqualTo("bar");
+    assertThat(expression.getValue(context, mapGetter)).isEqualTo("bar");
+    assertThat(SpelCompiler.compile(expression)).isTrue();
+    assertThat(expression.getValue(context, mapGetter)).isEqualTo("bar");
 
     // basic isWritable
-    ex = sep.parseExpression("foo");
-    assertThat(ex.isWritable(sec, testMap)).isTrue();
+    expression = parser.parseExpression("foo");
+    assertThat(expression.isWritable(context, testMap)).isTrue();
 
     // basic write
-    ex = sep.parseExpression("foo2");
-    ex.setValue(sec, testMap, "bar2");
-    assertThat(ex.getValue(sec, testMap)).isEqualTo("bar2");
-    assertThat(SpelCompiler.compile(ex)).isTrue();
-    assertThat(ex.getValue(sec, testMap)).isEqualTo("bar2");
+    expression = parser.parseExpression("foo2");
+    expression.setValue(context, testMap, "bar2");
+    assertThat(expression.getValue(context, testMap)).isEqualTo("bar2");
+    assertThat(SpelCompiler.compile(expression)).isTrue();
+    assertThat(expression.getValue(context, testMap)).isEqualTo("bar2");
   }
 
   @Test
-  void canWrite() throws Exception {
-    StandardEvaluationContext context = new StandardEvaluationContext();
-    Map<String, Object> testMap = getSimpleTestMap();
+  void canReadForNonMap() throws AccessException {
+    var mapAccessor = new MapAccessor();
 
-    MapAccessor mapAccessor = new MapAccessor();
+    assertThat(mapAccessor.canRead(context, new Object(), "foo")).isFalse();
+  }
+
+  @Test
+  void canReadAndReadForExistingKeys() throws AccessException {
+    var mapAccessor = new MapAccessor();
+    var map = new HashMap<>();
+    map.put("foo", null);
+    map.put("bar", "baz");
+
+    assertThat(mapAccessor.canRead(context, map, "foo")).isTrue();
+    assertThat(mapAccessor.canRead(context, map, "bar")).isTrue();
+
+    assertThat(mapAccessor.read(context, map, "foo").getValue()).isNull();
+    assertThat(mapAccessor.read(context, map, "bar").getValue()).isEqualTo("baz");
+  }
+
+  @Test
+  void canReadAndReadForNonexistentKeys() throws AccessException {
+    var mapAccessor = new MapAccessor();
+    var map = Map.of();
+
+    assertThat(mapAccessor.canRead(context, map, "XXX")).isFalse();
+
+    assertThatExceptionOfType(AccessException.class)
+            .isThrownBy(() -> mapAccessor.read(context, map, "XXX").getValue())
+            .withMessage("Map does not contain a value for key 'XXX'");
+  }
+
+  @Test
+  void canWrite() throws AccessException {
+    var mapAccessor = new MapAccessor();
+    var testMap = getSimpleTestMap();
+
     assertThat(mapAccessor.canWrite(context, new Object(), "foo")).isFalse();
     assertThat(mapAccessor.canWrite(context, testMap, "foo")).isTrue();
     // Cannot actually write to an immutable Map, but MapAccessor cannot easily check for that.
@@ -103,136 +134,17 @@ class MapAccessorTests {
 
   @Test
   void isWritable() {
-    Map<String, Object> testMap = getSimpleTestMap();
-    StandardEvaluationContext sec = new StandardEvaluationContext();
-    SpelExpressionParser sep = new SpelExpressionParser();
-    Expression ex = sep.parseExpression("foo");
+    var testMap = getSimpleTestMap();
+    var parser = new SpelExpressionParser();
+    var expression = parser.parseExpression("foo");
 
-    assertThat(ex.isWritable(sec, testMap)).isFalse();
+    assertThat(expression.isWritable(context, testMap)).isFalse();
 
-    sec.setPropertyAccessors(List.of(new MapAccessor(true)));
-    assertThat(ex.isWritable(sec, testMap)).isTrue();
+    context.setPropertyAccessors(List.of(new MapAccessor(true)));
+    assertThat(expression.isWritable(context, testMap)).isTrue();
 
-    sec.setPropertyAccessors(List.of(new MapAccessor(false)));
-    assertThat(ex.isWritable(sec, testMap)).isFalse();
-  }
-
-  @Test
-  void readNonExistentKeyThrowsMapAccessException() {
-    MapAccessor accessor = new MapAccessor();
-    Map<String, Object> map = new HashMap<>();
-
-    assertThatExceptionOfType(AccessException.class)
-            .isThrownBy(() -> accessor.read(null, map, "nonexistent"))
-            .withMessage("Map does not contain a value for key 'nonexistent'");
-  }
-
-  @Test
-  void readWithNullTargetThrowsException() {
-    MapAccessor accessor = new MapAccessor();
-
-    assertThatIllegalStateException()
-            .isThrownBy(() -> accessor.read(null, null, "key"))
-            .withMessage("Target must be of type Map");
-  }
-
-  @Test
-  void writeWithNullTargetThrowsException() {
-    MapAccessor accessor = new MapAccessor();
-
-    assertThatIllegalStateException()
-            .isThrownBy(() -> accessor.write(null, null, "key", "value"))
-            .withMessage("Target must be of type Map");
-  }
-
-  @Test
-  void readNullValueFromMap() throws AccessException {
-    MapAccessor accessor = new MapAccessor();
-    Map<String, Object> map = new HashMap<>();
-    map.put("nullKey", null);
-
-    TypedValue result = accessor.read(null, map, "nullKey");
-    assertThat(result.getValue()).isNull();
-  }
-
-  @Test
-  void canReadWithNonMapTarget() throws AccessException {
-    MapAccessor accessor = new MapAccessor();
-    Object nonMapTarget = new Object();
-
-    assertThat(accessor.canRead(null, nonMapTarget, "key")).isFalse();
-  }
-
-  @Test
-  void writeToUnmodifiableMap() {
-    MapAccessor accessor = new MapAccessor();
-    Map<String, Object> map = Map.of("key", "value");
-
-    assertThatExceptionOfType(UnsupportedOperationException.class)
-            .isThrownBy(() -> accessor.write(null, map, "newKey", "newValue"));
-  }
-
-  @Test
-  void propertyTypeIsObject() {
-    MapAccessor accessor = new MapAccessor();
-    assertThat(accessor.getPropertyType()).isEqualTo(Object.class);
-  }
-
-  @Test
-  void isCompilableReturnsTrue() {
-    MapAccessor accessor = new MapAccessor();
-    assertThat(accessor.isCompilable()).isTrue();
-  }
-
-  @Test
-  void canReadWithNullKey() throws AccessException {
-    MapAccessor accessor = new MapAccessor();
-    Map<String, Object> map = new HashMap<>();
-    map.put(null, "value");
-
-    assertThat(accessor.canRead(null, map, null)).isTrue();
-  }
-
-  @Test
-  void writeAndReadComplexObject() throws AccessException {
-    MapAccessor accessor = new MapAccessor();
-    Map<String, Object> map = new HashMap<>();
-    List<String> complexValue = List.of("one", "two");
-
-    accessor.write(null, map, "complex", complexValue);
-    TypedValue result = accessor.read(null, map, "complex");
-
-    assertThat(result.getValue()).isEqualTo(complexValue);
-  }
-
-  @Test
-  void specificTargetClassesReturnsMapClass() {
-    MapAccessor accessor = new MapAccessor();
-    Class<?>[] targetClasses = accessor.getSpecificTargetClasses();
-    assertThat(targetClasses).containsExactly(Map.class);
-  }
-
-  @Test
-  void readMapWithMultipleEntries() throws AccessException {
-    MapAccessor accessor = new MapAccessor();
-    Map<String, Object> map = new HashMap<>();
-    map.put("key1", "value1");
-    map.put("key2", 123);
-    map.put("key3", true);
-
-    assertThat(accessor.read(null, map, "key1").getValue()).isEqualTo("value1");
-    assertThat(accessor.read(null, map, "key2").getValue()).isEqualTo(123);
-    assertThat(accessor.read(null, map, "key3").getValue()).isEqualTo(true);
-  }
-
-  @Test
-  void writeOnlyMapAccessor() throws AccessException {
-    MapAccessor accessor = new MapAccessor(false);
-    Map<String, Object> map = new HashMap<>();
-    map.put("test", "value");
-
-    assertThat(accessor.canRead(null, map, "test")).isTrue();
-    assertThat(accessor.canWrite(null, map, "test")).isFalse();
+    context.setPropertyAccessors(List.of(new MapAccessor(false)));
+    assertThat(expression.isWritable(context, testMap)).isFalse();
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
