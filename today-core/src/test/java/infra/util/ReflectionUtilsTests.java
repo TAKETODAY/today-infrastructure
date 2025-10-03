@@ -26,6 +26,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.URLConnection;
 import java.rmi.ConnectException;
 import java.rmi.RemoteException;
 import java.time.ZoneId;
@@ -771,9 +772,20 @@ class ReflectionUtilsTests {
       Method originalMethod = originalType.getDeclaredMethod("size");
 
       Method publiclyAccessibleMethod = ReflectionUtils.getPubliclyAccessibleMethodIfPossible(originalMethod, null);
-      // Should find the interface method in List.
-      assertThat(publiclyAccessibleMethod.getDeclaringClass()).isEqualTo(List.class);
-      assertThat(publiclyAccessibleMethod.getName()).isEqualTo("size");
+      // Should not find the interface method in List.
+      assertThat(publiclyAccessibleMethod.getDeclaringClass()).isEqualTo(originalType);
+      assertThat(publiclyAccessibleMethod).isSameAs(originalMethod);
+      assertPubliclyAccessible(publiclyAccessibleMethod);
+    }
+
+    @Test
+    void publicMethodInNonExportedClass() throws Exception {
+      Class<?> originalType = getClass().getClassLoader().loadClass("sun.net.www.protocol.http.HttpURLConnection");
+      Method originalMethod = originalType.getDeclaredMethod("getOutputStream");
+
+      Method publiclyAccessibleMethod = ReflectionUtils.getPubliclyAccessibleMethodIfPossible(originalMethod, null);
+      assertThat(publiclyAccessibleMethod.getDeclaringClass()).isEqualTo(URLConnection.class);
+      assertThat(publiclyAccessibleMethod.getName()).isSameAs(originalMethod.getName());
       assertPubliclyAccessible(publiclyAccessibleMethod);
     }
 
