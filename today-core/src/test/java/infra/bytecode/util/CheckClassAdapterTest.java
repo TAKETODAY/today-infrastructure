@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -273,7 +273,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
   }
 
   @ParameterizedTest
-  @CsvSource({
+  @CsvSource(quoteCharacter = '"', value = {
           "L;,identifier expected at index 1",
           "LC+,';' expected at index 3",
           "LC;I,error at index 3"
@@ -303,7 +303,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
   }
 
   @ParameterizedTest
-  @CsvSource({
+  @CsvSource(quoteCharacter = '"', value ={
           "L;,identifier expected at index 1",
           "LC+,';' expected at index 3",
           "LC;I,error at index 3"
