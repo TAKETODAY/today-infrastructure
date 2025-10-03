@@ -756,13 +756,13 @@ class ReflectionUtilsTests {
     }
 
     @Test
-    void publicMethodInObjectClass() throws Exception {
+    void publicMethodInPublicClass() throws Exception {
       Class<?> originalType = String.class;
-      Method originalMethod = originalType.getDeclaredMethod("hashCode");
+      Method originalMethod = originalType.getDeclaredMethod("toString");
 
       Method publiclyAccessibleMethod = ReflectionUtils.getPubliclyAccessibleMethodIfPossible(originalMethod, null);
-      assertThat(publiclyAccessibleMethod.getDeclaringClass()).isEqualTo(Object.class);
-      assertThat(publiclyAccessibleMethod.getName()).isEqualTo("hashCode");
+      assertThat(publiclyAccessibleMethod.getDeclaringClass()).isEqualTo(originalType);
+      assertThat(publiclyAccessibleMethod).isSameAs(originalMethod);
       assertPubliclyAccessible(publiclyAccessibleMethod);
     }
 
