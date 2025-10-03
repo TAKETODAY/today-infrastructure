@@ -1621,7 +1621,17 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         boolean smart = factory instanceof SmartFactoryBean;
         Object object = !smart ? objectFromFactoryBeanCache.get(beanName) : null;
         if (object == null) {
-          object = doGetObjectFromFactoryBean(factory, requiredType, beanName);
+          if (locked) {
+            // The common case: within general singleton lock.
+            object = doGetObjectFromFactoryBean(factory, requiredType, beanName);
+          }
+          else {
+            // Fall back to local synchronization on the given FactoryBean instance,
+            // as a defensive measure for non-thread-safe FactoryBean implementations.
+            synchronized(factory) {
+              object = doGetObjectFromFactoryBean(factory, requiredType, beanName);
+            }
+          }
           // Only post-process and store if not put there already during getObject() call above
           // (for example, because of circular reference processing triggered by custom getBean calls)
           Object alreadyThere = !smart ? objectFromFactoryBeanCache.get(beanName) : null;
