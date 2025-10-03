@@ -59,6 +59,7 @@ import infra.expression.spel.ast.Ternary;
 import infra.expression.spel.standard.SpelCompiler;
 import infra.expression.spel.standard.SpelExpression;
 import infra.expression.spel.standard.SpelExpressionParser;
+import infra.expression.spel.support.MapAccessor;
 import infra.expression.spel.support.ReflectiveIndexAccessor;
 import infra.expression.spel.support.StandardEvaluationContext;
 import infra.expression.spel.testdata.PersonInOtherPackage;
@@ -566,7 +567,6 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
     }
 
     @Test
-      // gh-32356
     void indexIntoMapOfPrimitiveIntArrayWithCompilableMapAccessor() {
       StandardEvaluationContext context = new StandardEvaluationContext();
       context.addPropertyAccessor(new MapAccessor());

@@ -551,23 +551,23 @@ public abstract class ReflectionUtils {
     return result != null ? result : method;
   }
 
-  @Nullable
-  private static Method findPubliclyAccessibleMethodIfPossible(
+  private static @Nullable Method findPubliclyAccessibleMethodIfPossible(
           String methodName, Class<?>[] parameterTypes, Class<?> declaringClass) {
 
-    Method result = null;
     Class<?> current = declaringClass.getSuperclass();
     while (current != null) {
       Method method = getMethodOrNull(current, methodName, parameterTypes);
       if (method == null) {
         break;
       }
-      if (Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
-        result = method;
+      if (Modifier.isPublic(method.getDeclaringClass().getModifiers())
+              && method.getDeclaringClass().getModule().isExported(
+              method.getDeclaringClass().getPackageName(), ClassUtils.class.getModule())) {
+        return method;
       }
       current = method.getDeclaringClass().getSuperclass();
     }
-    return result;
+    return null;
   }
 
   /**
