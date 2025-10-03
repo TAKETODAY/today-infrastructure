@@ -365,6 +365,7 @@ public final class HttpServiceProxyFactory {
           implements HttpRequestValues.Processor {
 
     @Override
+    @SuppressWarnings("NullAway")
     public void process(Method method, MethodParameter[] parameters, @Nullable Object[] arguments,
             HttpRequestValues.Builder builder) {
 

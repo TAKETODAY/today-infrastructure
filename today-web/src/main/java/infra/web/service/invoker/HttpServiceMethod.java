@@ -114,14 +114,16 @@ final class HttpServiceMethod {
   }
 
   @Nullable
-  public Object invoke(Object[] arguments) {
+  @SuppressWarnings("NullAway")
+  public Object invoke(@Nullable Object[] arguments) {
     var requestValues = requestValuesInitializer.initializeRequestValuesBuilder();
     applyArguments(requestValues, arguments);
     requestValuesProcessor.process(method, parameters, arguments, requestValues);
     return responseFunction.execute(requestValues.build());
   }
 
-  private void applyArguments(HttpRequestValues.Builder requestValues, Object[] arguments) {
+  @SuppressWarnings("NullAway")
+  private void applyArguments(HttpRequestValues.Builder requestValues, @Nullable Object[] arguments) {
     MethodParameter[] parameters = this.parameters;
     Assert.isTrue(arguments.length == parameters.length, "Method argument mismatch");
     for (int i = 0; i < arguments.length; i++) {
