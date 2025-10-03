@@ -20,6 +20,7 @@ package infra.jdbc.support;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
+import java.sql.BatchUpdateException;
 import java.sql.SQLException;
 
 import infra.dao.CannotAcquireLockException;
@@ -126,6 +127,16 @@ class SQLStateSQLExceptionTranslatorTests {
   }
 
   @Test
+  void translateWithinQualifiedBatch() {
+    assertTranslation(buildBatchUpdateException("JZ", new SQLException("", "23505", 0)), DuplicateKeyException.class);
+  }
+
+  @Test
+  void translateWithinUnqualifiedBatch() {
+    assertTranslation(buildBatchUpdateException(null, new SQLException("", "23505", 0)), DuplicateKeyException.class);
+  }
+
+  @Test
   void translateUncategorized() {
     assertTranslation("00000000", null);
   }
@@ -142,27 +153,40 @@ class SQLStateSQLExceptionTranslatorTests {
    */
   @Test
   void malformedSqlStateCodes() {
-    assertTranslation(null, null);
+    assertTranslation((String) null, null);
     assertTranslation("", null);
     assertTranslation("I", null);
   }
 
   private void assertTranslation(@Nullable String sqlState, @Nullable Class<?> dataAccessExceptionType) {
-    assertTranslation(sqlState, 0, dataAccessExceptionType);
+    assertTranslation(new SQLException("reason", sqlState, 0), dataAccessExceptionType);
   }
 
   private void assertTranslation(@Nullable String sqlState, int errorCode, @Nullable Class<?> dataAccessExceptionType) {
-    SQLException ex = new SQLException("reason", sqlState, errorCode);
-    DataAccessException dax = translator.translate("task", "SQL", ex);
+    assertTranslation(new SQLException("reason", sqlState, errorCode), dataAccessExceptionType);
+  }
+
+  private void assertTranslation(SQLException ex, @Nullable Class<?> dataAccessExceptionType) {
+    DataAccessException dae = translator.translate("task", "SQL", ex);
 
     if (dataAccessExceptionType == null) {
-      assertThat(dax).as("Expected translation to null").isNull();
+      assertThat(dae).as("Expected translation to null").isNull();
       return;
     }
+    assertTranslation(dae, ex, dataAccessExceptionType);
+  }
 
-    assertThat(dax).as("Specific translation must not result in null").isNotNull();
-    assertThat(dax).as("Wrong DataAccessException type returned").isExactlyInstanceOf(dataAccessExceptionType);
-    assertThat(dax.getCause()).as("The exact same original SQLException must be preserved").isSameAs(ex);
+  static void assertTranslation(DataAccessException dae, SQLException ex, Class<?> dataAccessExceptionType) {
+    assertThat(dae).as("Specific translation must not result in null").isNotNull();
+    assertThat(dae).as("Wrong DataAccessException type returned").isExactlyInstanceOf(dataAccessExceptionType);
+    assertThat(dae.getCause()).as("The exact same original SQLException must be preserved").isSameAs(
+            ex instanceof BatchUpdateException bue ? bue.getNextException() : ex);
+  }
+
+  static BatchUpdateException buildBatchUpdateException(@Nullable String sqlState, SQLException next) {
+    BatchUpdateException ex = new BatchUpdateException("", sqlState, null);
+    ex.setNextException(next);
+    return ex;
   }
 
 }

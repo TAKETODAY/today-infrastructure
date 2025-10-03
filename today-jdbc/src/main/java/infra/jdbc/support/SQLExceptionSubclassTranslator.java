@@ -19,6 +19,7 @@ package infra.jdbc.support;
 
 import org.jspecify.annotations.Nullable;
 
+import java.sql.BatchUpdateException;
 import java.sql.SQLDataException;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
@@ -55,6 +56,7 @@ import infra.jdbc.BadSqlGrammarException;
  *
  * @author Thomas Risberg
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see SQLTransientException
  * @see SQLTransientException
  * @see SQLRecoverableException
@@ -67,47 +69,51 @@ public class SQLExceptionSubclassTranslator extends AbstractFallbackSQLException
   }
 
   @Override
-  @Nullable
-  protected DataAccessException doTranslate(String task, @Nullable String sql, SQLException ex) {
-    if (ex instanceof SQLTransientException) {
-      if (ex instanceof SQLTransientConnectionException) {
-        return new TransientDataAccessResourceException(buildMessage(task, sql, ex), ex);
+  protected @Nullable DataAccessException doTranslate(String task, @Nullable String sql, SQLException ex) {
+    SQLException sqlEx = ex;
+    if (sqlEx instanceof BatchUpdateException && sqlEx.getNextException() != null) {
+      sqlEx = sqlEx.getNextException();
+    }
+
+    if (sqlEx instanceof SQLTransientException) {
+      if (sqlEx instanceof SQLTransientConnectionException) {
+        return new TransientDataAccessResourceException(buildMessage(task, sql, sqlEx), sqlEx);
       }
-      if (ex instanceof SQLTransactionRollbackException) {
-        if ("40001".equals(ex.getSQLState())) {
-          return new CannotAcquireLockException(buildMessage(task, sql, ex), ex);
+      if (sqlEx instanceof SQLTransactionRollbackException) {
+        if (SQLStateSQLExceptionTranslator.indicatesCannotAcquireLock(sqlEx.getSQLState())) {
+          return new CannotAcquireLockException(buildMessage(task, sql, sqlEx), sqlEx);
         }
-        return new PessimisticLockingFailureException(buildMessage(task, sql, ex), ex);
+        return new PessimisticLockingFailureException(buildMessage(task, sql, sqlEx), sqlEx);
       }
-      if (ex instanceof SQLTimeoutException) {
-        return new QueryTimeoutException(buildMessage(task, sql, ex), ex);
+      if (sqlEx instanceof SQLTimeoutException) {
+        return new QueryTimeoutException(buildMessage(task, sql, sqlEx), sqlEx);
       }
     }
-    else if (ex instanceof SQLNonTransientException) {
-      if (ex instanceof SQLNonTransientConnectionException) {
-        return new DataAccessResourceFailureException(buildMessage(task, sql, ex), ex);
+    else if (sqlEx instanceof SQLNonTransientException) {
+      if (sqlEx instanceof SQLNonTransientConnectionException) {
+        return new DataAccessResourceFailureException(buildMessage(task, sql, sqlEx), sqlEx);
       }
-      if (ex instanceof SQLDataException) {
-        return new DataIntegrityViolationException(buildMessage(task, sql, ex), ex);
+      if (sqlEx instanceof SQLDataException) {
+        return new DataIntegrityViolationException(buildMessage(task, sql, sqlEx), sqlEx);
       }
-      if (ex instanceof SQLIntegrityConstraintViolationException) {
-        if (SQLStateSQLExceptionTranslator.indicatesDuplicateKey(ex.getSQLState(), ex.getErrorCode())) {
-          return new DuplicateKeyException(buildMessage(task, sql, ex), ex);
+      if (sqlEx instanceof SQLIntegrityConstraintViolationException) {
+        if (SQLStateSQLExceptionTranslator.indicatesDuplicateKey(sqlEx.getSQLState(), sqlEx.getErrorCode())) {
+          return new DuplicateKeyException(buildMessage(task, sql, sqlEx), sqlEx);
         }
-        return new DataIntegrityViolationException(buildMessage(task, sql, ex), ex);
+        return new DataIntegrityViolationException(buildMessage(task, sql, sqlEx), sqlEx);
       }
-      if (ex instanceof SQLInvalidAuthorizationSpecException) {
-        return new PermissionDeniedDataAccessException(buildMessage(task, sql, ex), ex);
+      if (sqlEx instanceof SQLInvalidAuthorizationSpecException) {
+        return new PermissionDeniedDataAccessException(buildMessage(task, sql, sqlEx), sqlEx);
       }
-      if (ex instanceof SQLSyntaxErrorException) {
-        return new BadSqlGrammarException(task, (sql != null ? sql : ""), ex);
+      if (sqlEx instanceof SQLSyntaxErrorException) {
+        return new BadSqlGrammarException(task, (sql != null ? sql : ""), sqlEx);
       }
-      if (ex instanceof SQLFeatureNotSupportedException) {
-        return new InvalidDataAccessApiUsageException(buildMessage(task, sql, ex), ex);
+      if (sqlEx instanceof SQLFeatureNotSupportedException) {
+        return new InvalidDataAccessApiUsageException(buildMessage(task, sql, sqlEx), sqlEx);
       }
     }
-    else if (ex instanceof SQLRecoverableException) {
-      return new RecoverableDataAccessException(buildMessage(task, sql, ex), ex);
+    else if (sqlEx instanceof SQLRecoverableException) {
+      return new RecoverableDataAccessException(buildMessage(task, sql, sqlEx), sqlEx);
     }
 
     // Fallback to Infra own SQL state translation...
