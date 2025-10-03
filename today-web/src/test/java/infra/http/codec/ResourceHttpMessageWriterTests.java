@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -132,6 +132,14 @@ public class ResourceHttpMessageWriterTests {
   public void invalidRange() throws Exception {
 
     testWrite(get("/").header(HttpHeaders.RANGE, "invalid").build());
+
+    assertThat(this.response.getHeaders().getFirst(HttpHeaders.ACCEPT_RANGES)).isEqualTo("bytes");
+    assertThat(this.response.getStatusCode()).isEqualTo(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
+  }
+
+  @Test
+  void invalidRangePosition() {
+    testWrite(get("/").header(HttpHeaders.RANGE, "bytes=2000-5000").build());
 
     assertThat(this.response.getHeaders().getFirst(HttpHeaders.ACCEPT_RANGES)).isEqualTo("bytes");
     assertThat(this.response.getStatusCode()).isEqualTo(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
