@@ -284,7 +284,7 @@ abstract class AbstractInfraArchiveTests<T extends Jar & InfraArchive> {
     this.task.requiresUnpack("**/one.jar");
     executeTask();
     try (JarFile jarFile = new JarFile(this.task.getArchiveFile().get().getAsFile())) {
-      assertThat(jarFile.getEntry(this.libPath + "one.jar").getComment()).startsWith("UNPACK:");
+      assertThat(jarFile.getEntry(this.libPath + "one.jar").getComment()).startsWith("UNPACK");
       assertThat(jarFile.getEntry(this.libPath + "two.jar").getComment()).isNull();
     }
   }
@@ -296,7 +296,7 @@ abstract class AbstractInfraArchiveTests<T extends Jar & InfraArchive> {
     this.task.requiresUnpack((element) -> element.getName().endsWith("two.jar"));
     executeTask();
     try (JarFile jarFile = new JarFile(this.task.getArchiveFile().get().getAsFile())) {
-      assertThat(jarFile.getEntry(this.libPath + "two.jar").getComment()).startsWith("UNPACK:");
+      assertThat(jarFile.getEntry(this.libPath + "two.jar").getComment()).startsWith("UNPACK");
       assertThat(jarFile.getEntry(this.libPath + "one.jar").getComment()).isNull();
     }
   }
