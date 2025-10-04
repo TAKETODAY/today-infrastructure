@@ -19,6 +19,7 @@ package infra.app.context.config;
 
 import org.jspecify.annotations.Nullable;
 
+import infra.lang.Assert;
 import infra.origin.Origin;
 import infra.origin.OriginProvider;
 import infra.util.StringUtils;
@@ -43,6 +44,8 @@ public final class ConfigDataLocation implements OriginProvider {
    * Prefix used to indicate that a {@link ConfigDataResource} is optional.
    */
   public static final String OPTIONAL_PREFIX = "optional:";
+
+  private static final ConfigDataLocation EMPTY = new ConfigDataLocation(false, "", null);
 
   private final boolean optional;
 
@@ -125,6 +128,7 @@ public final class ConfigDataLocation implements OriginProvider {
    * @return the split locations
    */
   public ConfigDataLocation[] split(String delimiter) {
+    Assert.state(!this.value.isEmpty(), "Unable to split empty locations");
     String[] values = StringUtils.delimitedListToStringArray(toString(), delimiter);
     ConfigDataLocation[] result = new ConfigDataLocation[values.length];
 
@@ -132,21 +136,25 @@ public final class ConfigDataLocation implements OriginProvider {
     Origin origin = getOrigin();
     if (origin != null) {
       for (String value : values) {
-        ConfigDataLocation dataLocation = valueOf(value);
-        if (dataLocation != null) {
-          result[i++] = dataLocation.withOrigin(origin);
-        }
+        result[i++] = valueOf(value).withOrigin(origin);
       }
     }
     else {
       for (String value : values) {
-        ConfigDataLocation dataLocation = valueOf(value);
-        if (dataLocation != null) {
-          result[i++] = dataLocation;
-        }
+        result[i++] = valueOf(value);
       }
     }
     return result;
+  }
+
+  /**
+   * Create a new {@link ConfigDataLocation} with a specific {@link Origin}.
+   *
+   * @param origin the origin to set
+   * @return a new {@link ConfigDataLocation} instance.
+   */
+  ConfigDataLocation withOrigin(@Nullable Origin origin) {
+    return new ConfigDataLocation(this.optional, this.value, origin);
   }
 
   @Override
@@ -167,17 +175,7 @@ public final class ConfigDataLocation implements OriginProvider {
 
   @Override
   public String toString() {
-    return (!this.optional) ? this.value : OPTIONAL_PREFIX + this.value;
-  }
-
-  /**
-   * Create a new {@link ConfigDataLocation} with a specific {@link Origin}.
-   *
-   * @param origin the origin to set
-   * @return a new {@link ConfigDataLocation} instance.
-   */
-  ConfigDataLocation withOrigin(@Nullable Origin origin) {
-    return new ConfigDataLocation(this.optional, this.value, origin);
+    return optional ? OPTIONAL_PREFIX + this.value : this.value;
   }
 
   /**
@@ -187,7 +185,6 @@ public final class ConfigDataLocation implements OriginProvider {
    * @return a {@link ConfigDataLocation} instance or {@code null} if no location was
    * provided
    */
-  @Nullable
   @SuppressWarnings("NullAway")
   public static ConfigDataLocation valueOf(@Nullable String location) {
     boolean optional = location != null && location.startsWith(OPTIONAL_PREFIX);
@@ -195,9 +192,13 @@ public final class ConfigDataLocation implements OriginProvider {
       location = location.substring(OPTIONAL_PREFIX.length());
     }
     if (StringUtils.isBlank(location)) {
-      return null;
+      return EMPTY;
     }
     return new ConfigDataLocation(optional, location, null);
+  }
+
+  static boolean isNotEmpty(@Nullable ConfigDataLocation location) {
+    return location != null && !location.getValue().isEmpty();
   }
 
 }

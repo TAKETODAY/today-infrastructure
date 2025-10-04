@@ -28,6 +28,7 @@ import infra.context.properties.bind.Bindable;
 import infra.context.properties.bind.Binder;
 import infra.context.properties.bind.Name;
 import infra.context.properties.source.ConfigurationPropertyName;
+import infra.lang.Assert;
 import infra.util.ObjectUtils;
 
 /**
@@ -55,7 +56,8 @@ class ConfigDataProperties {
    * @param activate the activate properties
    */
   ConfigDataProperties(@Name("import") @Nullable List<ConfigDataLocation> imports, @Nullable Activate activate) {
-    this.imports = (imports != null) ? imports : Collections.emptyList();
+    this.imports = imports != null ? imports.stream().filter(ConfigDataLocation::isNotEmpty).toList()
+            : Collections.emptyList();
     this.activate = activate;
   }
 
@@ -138,8 +140,8 @@ class ConfigDataProperties {
               || (profiles != null && matchesActiveProfiles(profiles::isAccepted));
     }
 
-    @SuppressWarnings("NullAway")
     private boolean matchesActiveProfiles(Predicate<String> activeProfiles) {
+      Assert.state(this.onProfile != null, "'this.onProfile' is required");
       return infra.core.env.Profiles.parse(this.onProfile).matches(activeProfiles);
     }
 
