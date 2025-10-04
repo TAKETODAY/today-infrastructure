@@ -15,122 +15,80 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.core.io.buffer;
+package infra.web.server.support;
 
 import org.jspecify.annotations.Nullable;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ConcurrentModificationException;
 import java.util.Objects;
 import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Flow;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
-import infra.lang.Assert;
-import infra.util.concurrent.SimpleSingleThreadAwaiter;
-import reactor.core.Exceptions;
+import infra.util.ExceptionUtils;
+import infra.util.concurrent.Awaiter;
+import io.netty.buffer.ByteBuf;
 
 /**
  * An {@link InputStream} backed by {@link Flow.Subscriber Flow.Subscriber}
- * receiving byte buffers from a {@link Flow.Publisher} source.
+ * receiving byte buffers from a source.
  *
- * <p>Byte buffers are stored in a queue. The {@code demand} constructor value
- * determines the number of buffers requested initially. When storage falls
- * below a {@code (demand - (demand >> 2))} limit, a request is made to refill
- * the queue.
- *
- * <p>The {@code InputStream} terminates after an onError or onComplete signal,
- * and stored buffers are read. If the {@code InputStream} is closed,
- * the {@link Flow.Subscription} is cancelled, and stored buffers released.
- *
- * <p>Note that this class has a near duplicate in
- * {@link infra.http.client.SubscriberInputStream}.
- *
- * @author Oleh Dokuka
- * @author Rossen Stoyanchev
- * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
  */
-final class SubscriberInputStream extends InputStream implements Subscriber<DataBuffer> {
-
-  private static final DataBuffer DONE = DefaultDataBufferFactory.sharedInstance.allocateBuffer(0);
-
-  private static final DataBuffer CLOSED = DefaultDataBufferFactory.sharedInstance.allocateBuffer(0);
-
-  private final int prefetch;
-
-  private final int limit;
+class BodyInputStream extends InputStream {
 
   private final ReentrantLock lock;
 
-  private final Queue<DataBuffer> queue;
+  private final int capacity;
 
-  private final SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter();
+  private final Awaiter awaiter;
 
   private final AtomicInteger workAmount = new AtomicInteger();
 
+  private final AtomicBoolean cancelled = new AtomicBoolean();
+
+  private final Queue<ByteBuf> queue;
+
   private volatile boolean closed;
 
-  private int consumed;
-
   @Nullable
-  private DataBuffer available;
-
-  @Nullable
-  private Subscription subscription;
+  private ByteBuf available;
 
   private boolean done;
 
   @Nullable
   private Throwable error;
 
-  /**
-   * Create an instance.
-   *
-   * @param demand the number of buffers to request initially, and buffer
-   * internally on an ongoing basis.
-   */
-  SubscriberInputStream(int demand) {
-    this.prefetch = demand;
-    this.limit = (demand == Integer.MAX_VALUE ? Integer.MAX_VALUE : demand - (demand >> 2));
-    this.queue = new ArrayBlockingQueue<>(demand);
+  BodyInputStream(Awaiter awaiter) {
+    this.awaiter = awaiter;
+    this.capacity = 128;
+    this.queue = new ConcurrentLinkedQueue<>();
     this.lock = new ReentrantLock(false);
   }
 
-  @Override
-  public void onSubscribe(Subscription subscription) {
-    if (this.subscription != null) {
-      subscription.cancel();
-      return;
-    }
-
-    this.subscription = subscription;
-    subscription.request(this.prefetch == Integer.MAX_VALUE ? Long.MAX_VALUE : this.prefetch);
-  }
-
-  @Override
-  public void onNext(DataBuffer buffer) {
-    Assert.notNull(buffer, "DataBuffer is required");
-
-    if (this.done) {
+  public void onDataReceived(ByteBuf buffer) {
+    if (this.done || this.cancelled.get()) {
       discard(buffer);
       return;
     }
 
-    if (!this.queue.offer(buffer)) {
+    if (queue.size() >= capacity) {
       discard(buffer);
       this.error = new RuntimeException("Buffer overflow");
       this.done = true;
+      return;
     }
+
+    queue.offer(buffer);
 
     int previousWorkState = addWork();
     if (previousWorkState == Integer.MIN_VALUE) {
-      DataBuffer value = this.queue.poll();
+      ByteBuf value = queue.poll();
       if (value != null) {
         discard(value);
       }
@@ -142,7 +100,6 @@ final class SubscriberInputStream extends InputStream implements Subscriber<Data
     }
   }
 
-  @Override
   public void onError(Throwable throwable) {
     if (this.done) {
       return;
@@ -155,7 +112,6 @@ final class SubscriberInputStream extends InputStream implements Subscriber<Data
     }
   }
 
-  @Override
   public void onComplete() {
     if (this.done) {
       return;
@@ -191,7 +147,7 @@ final class SubscriberInputStream extends InputStream implements Subscriber<Data
   /* InputStream implementation */
 
   @Override
-  public int read() throws IOException {
+  public int read() {
     if (!this.lock.tryLock()) {
       if (this.closed) {
         return -1;
@@ -200,30 +156,35 @@ final class SubscriberInputStream extends InputStream implements Subscriber<Data
     }
 
     try {
-      DataBuffer next = getNextOrAwait();
+      ByteBuf next = getNextOrAwait();
 
-      if (next == DONE) {
-        this.closed = true;
-        cleanAndFinalize();
-        if (this.error == null) {
+      if (next == null) {
+        if (done) {
+          this.closed = true;
+          cleanAndFinalize();
+          if (this.error == null) {
+            return -1;
+          }
+          else {
+            throw ExceptionUtils.sneakyThrow(this.error);
+          }
+        }
+        else if (closed) {
+          cleanAndFinalize();
           return -1;
         }
         else {
-          throw Exceptions.propagate(this.error);
+          return -1;
         }
       }
-      else if (next == CLOSED) {
-        cleanAndFinalize();
-        return -1;
-      }
 
-      return next.read() & 0xFF;
+      return next.readByte() & 0xFF;
     }
     catch (Throwable ex) {
       this.closed = true;
-      requiredSubscriber().cancel();
+      cancel();
       cleanAndFinalize();
-      throw Exceptions.propagate(ex);
+      throw ExceptionUtils.sneakyThrow(ex);
     }
     finally {
       this.lock.unlock();
@@ -231,7 +192,7 @@ final class SubscriberInputStream extends InputStream implements Subscriber<Data
   }
 
   @Override
-  public int read(byte[] b, int off, int len) throws IOException {
+  public int read(byte[] b, int off, int len) {
     Objects.checkFromIndexSize(off, len, b.length);
     if (len == 0) {
       return 0;
@@ -246,76 +207,77 @@ final class SubscriberInputStream extends InputStream implements Subscriber<Data
 
     try {
       for (int j = 0; j < len; ) {
-        DataBuffer next = getNextOrAwait();
+        ByteBuf next = getNextOrAwait();
 
-        if (next == DONE) {
-          cleanAndFinalize();
-          if (this.error == null) {
-            this.closed = true;
-            return j == 0 ? -1 : j;
+        if (next == null) {
+          if (done) {
+            cleanAndFinalize();
+            if (this.error == null) {
+              this.closed = true;
+              return j == 0 ? -1 : j;
+            }
+            else {
+              if (j == 0) {
+                this.closed = true;
+                throw ExceptionUtils.sneakyThrow(this.error);
+              }
+              return j;
+            }
+          }
+          else if (closed) {
+            cancel();
+            cleanAndFinalize();
+            return -1;
           }
           else {
-            if (j == 0) {
-              this.closed = true;
-              throw Exceptions.propagate(this.error);
-            }
-
             return j;
           }
         }
-        else if (next == CLOSED) {
-          requiredSubscriber().cancel();
-          cleanAndFinalize();
-          return -1;
-        }
-        int initialReadPosition = next.readPosition();
-        next.read(b, off + j, Math.min(len - j, next.readableBytes()));
-        j += next.readPosition() - initialReadPosition;
+        int initialReadPosition = next.readerIndex();
+        next.readBytes(b, off + j, Math.min(len - j, next.readableBytes()));
+        j += next.readerIndex() - initialReadPosition;
       }
 
       return len;
     }
     catch (Throwable ex) {
       this.closed = true;
-      requiredSubscriber().cancel();
+      cancel();
       cleanAndFinalize();
-      throw Exceptions.propagate(ex);
+      throw ExceptionUtils.sneakyThrow(ex);
     }
     finally {
       this.lock.unlock();
     }
   }
 
-  private DataBuffer getNextOrAwait() {
+  @Nullable
+  private ByteBuf getNextOrAwait() {
     if (this.available == null || this.available.readableBytes() == 0) {
       discard(this.available);
       this.available = null;
 
       int actualWorkAmount = this.workAmount.getAcquire();
       for (; ; ) {
-        if (this.closed) {
-          return CLOSED;
+        if (this.closed || this.cancelled.get()) {
+          return null;
         }
 
         boolean done = this.done;
-        DataBuffer buffer = this.queue.poll();
+        ByteBuf buffer = queue.poll();
         if (buffer != null) {
-          int consumed = ++this.consumed;
           this.available = buffer;
-          if (consumed == this.limit) {
-            this.consumed = 0;
-            requiredSubscriber().request(this.limit);
-          }
           break;
         }
 
         if (done) {
-          return DONE;
+          return null;
         }
 
         actualWorkAmount = this.workAmount.addAndGet(-actualWorkAmount);
         if (actualWorkAmount == 0) {
-          await();
+          requestNext();
+          awaiter.await();
         }
       }
     }
@@ -329,8 +291,8 @@ final class SubscriberInputStream extends InputStream implements Subscriber<Data
 
     for (; ; ) {
       int workAmount = this.workAmount.getPlain();
-      DataBuffer value;
-      while ((value = this.queue.poll()) != null) {
+      ByteBuf value;
+      while ((value = queue.poll()) != null) {
         discard(value);
       }
 
@@ -341,7 +303,7 @@ final class SubscriberInputStream extends InputStream implements Subscriber<Data
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     if (this.closed) {
       return;
     }
@@ -356,7 +318,7 @@ final class SubscriberInputStream extends InputStream implements Subscriber<Data
     }
 
     try {
-      requiredSubscriber().cancel();
+      cancel();
       cleanAndFinalize();
     }
     finally {
@@ -364,19 +326,18 @@ final class SubscriberInputStream extends InputStream implements Subscriber<Data
     }
   }
 
-  private Subscription requiredSubscriber() {
-    Assert.state(this.subscription != null, "Subscriber must be subscribed to use InputStream");
-    return this.subscription;
+  private void cancel() {
+    cancelled.set(true);
   }
 
-  private void discard(@Nullable DataBuffer buffer) {
+  private void requestNext() {
+//    channel.read();
+  }
+
+  private void discard(@Nullable ByteBuf buffer) {
     if (buffer != null) {
       buffer.release();
     }
-  }
-
-  private void await() {
-    awaiter.await();
   }
 
 }

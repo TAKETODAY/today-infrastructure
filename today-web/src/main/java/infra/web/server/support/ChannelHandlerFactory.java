@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,24 +15,17 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.socket;
+package infra.web.server.support;
 
-import infra.context.annotation.AnnotationConfigApplicationContext;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
 
 /**
- * Contract for a test server to use for WebSocket integration tests.
- *
- * @author Rossen Stoyanchev
- * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0 2025/9/7 21:31
  */
-public interface WebSocketTestServer {
+public interface ChannelHandlerFactory {
 
-  void setup(AnnotationConfigApplicationContext wac);
-
-  void start() throws Exception;
-
-  void stop() throws Exception;
-
-  int getPort();
+  ChannelHandler createChannelHandler(Channel channel);
 
 }
