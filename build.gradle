@@ -121,7 +121,8 @@ configure([rootProject] + javaProjects) {
       "https://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind/2.15.2/",
       "https://www.javadoc.io/doc/com.fasterxml.jackson.dataformat/jackson-dataformat-xml/2.15.2/",
       "https://hc.apache.org/httpcomponents-client-5.5.x/current/httpclient5/apidocs/",
-      "https://jspecify.dev/docs/api/"
+      "https://jspecify.dev/docs/api/",
+      "https://docs.junit.org/6.0.0/api/",
   ] as String[]
 }
 

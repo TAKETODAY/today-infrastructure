@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,6 +66,7 @@ import static org.mockito.BDDMockito.given;
  * @author Phillip Webb
  * @author Andy Wilkinson
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
 abstract class AbstractPackagerTests<P extends Packager> {
 
@@ -211,8 +212,7 @@ abstract class AbstractPackagerTests<P extends Packager> {
     ZipEntry entry = getPackagedEntry("APP-INF/lib/" + libJarFile.getName());
     assertThat(entry.getTime()).isEqualTo(JAN_1_1985);
     entry = getPackagedEntry("APP-INF/lib/" + libJarFileToUnpack.getName());
-    assertThat(entry.getComment()).startsWith("UNPACK:");
-    assertThat(entry.getComment()).hasSize(47);
+    assertThat(entry.getComment()).isEqualTo("UNPACK");
   }
 
   @Test
@@ -426,7 +426,7 @@ abstract class AbstractPackagerTests<P extends Packager> {
     this.testJarFile.addClass("A.class", ClassWithMainMethod.class);
     P packager = createPackager();
     execute(packager, (callback) -> callback.library(newLibrary(nestedFile, LibraryScope.COMPILE, true)));
-    assertThat(getPackagedEntry(name).getComment()).startsWith("UNPACK:");
+    assertThat(getPackagedEntry(name).getComment()).startsWith("UNPACK");
   }
 
   @Test
@@ -541,7 +541,7 @@ abstract class AbstractPackagerTests<P extends Packager> {
     assertThat(getPackagedEntryNames()).containsSubsequence("infra/app/loader/",
             "WEB-INF/classes/com/example/Application.class", "WEB-INF/lib/" + library.getName());
     ZipEntry unpackLibrary = getPackagedEntry("WEB-INF/lib/" + library.getName());
-    assertThat(unpackLibrary.getComment()).startsWith("UNPACK:");
+    assertThat(unpackLibrary.getComment()).startsWith("UNPACK");
   }
 
   @Test

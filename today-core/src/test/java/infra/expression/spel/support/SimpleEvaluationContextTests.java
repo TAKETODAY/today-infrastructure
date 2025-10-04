@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,6 @@ import java.util.Map;
 
 import infra.expression.Expression;
 import infra.expression.IndexAccessor;
-import infra.expression.spel.CompilableMapAccessor;
 import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
 import infra.expression.spel.standard.SpelExpressionParser;
@@ -107,7 +106,7 @@ class SimpleEvaluationContextTests {
   @Test
   void forPropertyAccessorsInReadWriteMode() {
     SimpleEvaluationContext context = SimpleEvaluationContext
-            .forPropertyAccessors(new CompilableMapAccessor(), DataBindingPropertyAccessor.forReadWriteAccess())
+            .forPropertyAccessors(new MapAccessor(), DataBindingPropertyAccessor.forReadWriteAccess())
             .withIndexAccessors(colorsIndexAccessor)
             .build();
 
@@ -133,7 +132,7 @@ class SimpleEvaluationContextTests {
   @Test
   void forPropertyAccessorsInMixedReadOnlyMode() {
     SimpleEvaluationContext context = SimpleEvaluationContext
-            .forPropertyAccessors(new CompilableMapAccessor(true), DataBindingPropertyAccessor.forReadOnlyAccess())
+            .forPropertyAccessors(new MapAccessor(true), DataBindingPropertyAccessor.forReadOnlyAccess())
             .withIndexAccessors(colorsIndexAccessor)
             .build();
 
@@ -209,7 +208,7 @@ class SimpleEvaluationContextTests {
   @Test
   void forPropertyAccessorsWithAssignmentDisabled() {
     SimpleEvaluationContext context = SimpleEvaluationContext
-            .forPropertyAccessors(new CompilableMapAccessor(false), DataBindingPropertyAccessor.forReadOnlyAccess())
+            .forPropertyAccessors(new MapAccessor(false), DataBindingPropertyAccessor.forReadOnlyAccess())
             .withIndexAccessors(colorsIndexAccessor)
             .withAssignmentDisabled()
             .build();

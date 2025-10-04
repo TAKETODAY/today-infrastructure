@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -98,7 +98,7 @@ class ConfigDataLocationTests {
     ConfigDataLocation l2 = ConfigDataLocation.valueOf("a");
     ConfigDataLocation l3 = ConfigDataLocation.valueOf("optional:a");
     ConfigDataLocation l4 = ConfigDataLocation.valueOf("b");
-    assertThat(l1.hashCode()).isEqualTo(l2.hashCode()).isEqualTo(l3.hashCode());
+    assertThat(l1).hasSameHashCodeAs(l2).hasSameHashCodeAs(l3);
     assertThat(l1).isEqualTo(l2).isEqualTo(l3).isNotEqualTo(l4);
   }
 
@@ -116,18 +116,21 @@ class ConfigDataLocationTests {
   }
 
   @Test
-  void ofWhenNullValueReturnsNull() {
-    assertThat(ConfigDataLocation.valueOf(null)).isNull();
+  void ofWhenNullValueReturnsEmptyLocation() {
+    ConfigDataLocation location = ConfigDataLocation.valueOf(null);
+    assertThat(location.getValue().isEmpty()).isTrue();
   }
 
   @Test
-  void ofWhenEmptyValueReturnsNull() {
-    assertThat(ConfigDataLocation.valueOf("")).isNull();
+  void ofWhenEmptyValueReturnsEmptyLocation() {
+    ConfigDataLocation location = ConfigDataLocation.valueOf("");
+    assertThat(location.getValue().isEmpty()).isTrue();
   }
 
   @Test
-  void ofWhenEmptyOptionalValueReturnsNull() {
-    assertThat(ConfigDataLocation.valueOf("optional:")).isNull();
+  void ofWhenEmptyOptionalValueReturnsEmptyLocation() {
+    ConfigDataLocation location = ConfigDataLocation.valueOf("optional:");
+    assertThat(location.getValue().isEmpty()).isTrue();
   }
 
   @Test

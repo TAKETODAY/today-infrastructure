@@ -17,6 +17,8 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -183,21 +185,15 @@ class ConfigurationClassBeanDefinitionReader {
 
     // Consider name and any aliases.
     String[] explicitNames = component.getStringArray("name");
-    String beanName;
-    String localBeanName;
-    if (explicitNames.length > 0 && StringUtils.hasText(explicitNames[0])) {
-      beanName = explicitNames[0];
-      localBeanName = beanName;
+    String beanName = (explicitNames.length > 0 && StringUtils.hasText(explicitNames[0])) ? explicitNames[0] : null;
+    String localBeanName = defaultBeanName(beanName, methodName);
+    beanName = this.importBeanNameGenerator instanceof ConfigurationBeanNameGenerator cbng ?
+            cbng.deriveBeanName(metadata, beanName) : defaultBeanName(beanName, methodName);
+    if (explicitNames.length > 0) {
       // Register aliases even when overridden below.
       for (int i = 1; i < explicitNames.length; i++) {
         bootstrapContext.registerAlias(beanName, explicitNames[i]);
       }
-    }
-    else {
-      // Default bean name derived from method name.
-      beanName = this.importBeanNameGenerator instanceof ConfigurationBeanNameGenerator cbng
-              ? cbng.deriveBeanName(metadata) : methodName;
-      localBeanName = methodName;
     }
 
     var beanDef = new ConfigurationClassBeanDefinition(configClass, metadata, localBeanName);
@@ -295,6 +291,10 @@ class ConfigurationClassBeanDefinitionReader {
     }
 
     bootstrapContext.registerBeanDefinition(beanName, beanDefToRegister);
+  }
+
+  private static String defaultBeanName(@Nullable String beanName, String methodName) {
+    return beanName != null ? beanName : methodName;
   }
 
   /**

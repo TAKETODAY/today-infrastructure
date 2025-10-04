@@ -31,6 +31,7 @@ import infra.expression.ExpressionParser;
 import infra.expression.ParserContext;
 import infra.expression.spel.SpelParserConfiguration;
 import infra.expression.spel.standard.SpelExpressionParser;
+import infra.expression.spel.support.MapAccessor;
 import infra.expression.spel.support.StandardEvaluationContext;
 import infra.expression.spel.support.StandardTypeConverter;
 import infra.expression.spel.support.StandardTypeLocator;

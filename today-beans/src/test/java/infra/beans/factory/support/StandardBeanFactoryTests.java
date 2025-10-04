@@ -1778,9 +1778,10 @@ class StandardBeanFactoryTests {
     bd2.setPrimary(true);
     lbf.registerBeanDefinition("bd1", bd1);
     lbf.registerBeanDefinition("bd2", bd2);
-    assertThatExceptionOfType(NoUniqueBeanDefinitionException.class).isThrownBy(() ->
-                    lbf.getBean(TestBean.class))
-            .withMessageContaining("more than one 'primary'");
+
+    assertThatExceptionOfType(NoUniqueBeanDefinitionException.class)
+            .isThrownBy(() -> lbf.getBean(TestBean.class))
+            .withMessageEndingWith("more than one 'primary' bean found among candidates: [bd1, bd2]");
   }
 
   @Test
@@ -2095,9 +2096,9 @@ class StandardBeanFactoryTests {
     lbf.registerBeanDefinition("bd1", bd1);
     lbf.registerBeanDefinition("bd2", bd2);
 
-    assertThatExceptionOfType(NoUniqueBeanDefinitionException.class).isThrownBy(() ->
-                    lbf.getBean(ConstructorDependency.class, 42))
-            .withMessageContaining("more than one 'primary'");
+    assertThatExceptionOfType(NoUniqueBeanDefinitionException.class)
+            .isThrownBy(() -> lbf.getBean(ConstructorDependency.class, 42))
+            .withMessageEndingWith("more than one 'primary' bean found among candidates: [bd1, bd2]");
   }
 
   @Test

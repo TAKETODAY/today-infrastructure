@@ -17,6 +17,8 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.type.MethodMetadata;
 
 /**
@@ -55,8 +57,8 @@ public class FullyQualifiedConfigurationBeanNameGenerator extends FullyQualified
           new FullyQualifiedConfigurationBeanNameGenerator();
 
   @Override
-  public String deriveBeanName(MethodMetadata componentMethod) {
-    return componentMethod.getDeclaringClassName() + "." + componentMethod.getMethodName();
+  public String deriveBeanName(MethodMetadata beanMethod, @Nullable String beanName) {
+    return beanName != null ? beanName : beanMethod.getDeclaringClassName() + "." + beanMethod.getMethodName();
   }
 
 }
