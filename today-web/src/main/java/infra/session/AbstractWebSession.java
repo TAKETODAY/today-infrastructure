@@ -152,7 +152,8 @@ public abstract class AbstractWebSession implements WebSession {
     doInvalidate();
   }
 
-  protected void doInvalidate() { }
+  protected void doInvalidate() {
+  }
 
   @Override
   public boolean hasAttribute(String name) {
