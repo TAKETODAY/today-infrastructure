@@ -17,6 +17,7 @@
 
 package infra.web.handler.function;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
 
@@ -33,14 +34,13 @@ import java.util.concurrent.CompletionStage;
 
 import infra.core.ParameterizedTypeReference;
 import infra.http.CacheControl;
-import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
+import infra.http.ResponseCookie;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.jspecify.annotations.Nullable;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.util.LinkedMultiValueMap;
@@ -66,7 +66,7 @@ class DefaultServerResponseBuilderTests {
 
   @Test
   void from() {
-    HttpCookie cookie = new HttpCookie("foo", "bar");
+    ResponseCookie cookie = ResponseCookie.from("foo", "bar").build();
     ServerResponse other = ServerResponse.ok()
             .header("foo", "bar")
             .cookie(cookie)
@@ -215,8 +215,8 @@ class DefaultServerResponseBuilderTests {
 
   @Test
   void cookies() {
-    MultiValueMap<String, HttpCookie> newCookies = new LinkedMultiValueMap<>();
-    newCookies.add("name", new HttpCookie("name", "value"));
+    MultiValueMap<String, ResponseCookie> newCookies = new LinkedMultiValueMap<>();
+    newCookies.add("name", ResponseCookie.forSimple("name", "value"));
     ServerResponse response = ServerResponse.ok()
             .cookies(cookies -> cookies.addAll(newCookies))
             .build();
@@ -235,7 +235,7 @@ class DefaultServerResponseBuilderTests {
 
   @Test
   void build() throws Throwable {
-    HttpCookie cookie = new HttpCookie("name", "value");
+    var cookie = ResponseCookie.forSimple("name", "value");
     ServerResponse response = ServerResponse.status(HttpStatus.CREATED)
             .header("MyKey", "MyValue")
             .cookie(cookie)
