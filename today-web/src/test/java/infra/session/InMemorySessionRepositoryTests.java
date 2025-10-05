@@ -202,7 +202,8 @@ class InMemorySessionRepositoryTests {
     session2.start();
 
     assertThatExceptionOfType(TooManyActiveSessionsException.class)
-            .isThrownBy(session2::save);
+            .isThrownBy(session2::save)
+            .satisfies(e -> assertThat(e.getMaxActiveSessions()).isEqualTo(1));
   }
 
   @Test

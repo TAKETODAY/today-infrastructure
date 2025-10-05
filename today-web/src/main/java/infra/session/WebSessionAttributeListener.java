@@ -40,7 +40,6 @@ public interface WebSessionAttributeListener extends EventListener {
    * @param value attribute value
    */
   default void attributeAdded(WebSession session, String attributeName, Object value) {
-
   }
 
   /**
@@ -53,7 +52,6 @@ public interface WebSessionAttributeListener extends EventListener {
    * @param value attribute value
    */
   default void attributeRemoved(WebSession session, String attributeName, @Nullable Object value) {
-
   }
 
   /**
@@ -67,7 +65,6 @@ public interface WebSessionAttributeListener extends EventListener {
    * @param newValue new attribute value
    */
   default void attributeReplaced(WebSession session, String attributeName, Object oldValue, Object newValue) {
-
   }
 
 }
