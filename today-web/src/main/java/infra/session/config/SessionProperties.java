@@ -46,7 +46,7 @@ public class SessionProperties {
           "server.session.temp-dir", "server-sessions");
 
   /**
-   * session timout
+   * session timeout
    */
   @Nullable
   @DurationUnit(ChronoUnit.SECONDS)
