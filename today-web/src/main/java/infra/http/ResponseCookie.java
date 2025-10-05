@@ -207,6 +207,17 @@ public final class ResponseCookie extends HttpCookie {
   }
 
   /**
+   * Creates a simple response cookie with the specified name and value.
+   *
+   * @param name the cookie name
+   * @param value the cookie value
+   * @return a ResponseCookie instance built with the provided name and value
+   */
+  public static ResponseCookie forSimple(String name, @Nullable String value) {
+    return ResponseCookie.from(name, value).build();
+  }
+
+  /**
    * Factory method to obtain a builder for a server-defined cookie, given its
    * name only, and where the value as well as other attributes can be set
    * later via builder methods.
