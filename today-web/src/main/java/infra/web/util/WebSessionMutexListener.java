@@ -21,7 +21,6 @@ import java.io.Serial;
 import java.io.Serializable;
 
 import infra.session.WebSession;
-import infra.session.WebSessionEvent;
 import infra.session.WebSessionListener;
 
 /**
@@ -49,13 +48,13 @@ import infra.session.WebSessionListener;
 public class WebSessionMutexListener implements WebSessionListener {
 
   @Override
-  public void sessionCreated(WebSessionEvent event) {
-    event.getSession().setAttribute(WebUtils.SESSION_MUTEX_ATTRIBUTE, new Mutex());
+  public void sessionCreated(WebSession session) {
+    session.setAttribute(WebUtils.SESSION_MUTEX_ATTRIBUTE, new Mutex());
   }
 
   @Override
-  public void sessionDestroyed(WebSessionEvent event) {
-    event.getSession().removeAttribute(WebUtils.SESSION_MUTEX_ATTRIBUTE);
+  public void sessionDestroyed(WebSession session) {
+    session.removeAttribute(WebUtils.SESSION_MUTEX_ATTRIBUTE);
   }
 
   /**

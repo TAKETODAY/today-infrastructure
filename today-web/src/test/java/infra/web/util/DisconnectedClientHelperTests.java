@@ -17,7 +17,6 @@
 
 package infra.web.util;
 
-import org.apache.catalina.connector.ClientAbortException;
 import org.eclipse.jetty.io.EofException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -65,14 +64,14 @@ class DisconnectedClientHelperTests {
 
   static List<Exception> disconnectedExceptions() {
     return List.of(
-            new AbortedException(""), new ClientAbortException(""),
+            new AbortedException(""),
             new EOFException(), new EofException());
   }
 
   @Test
   void nestedDisconnectedException() {
     Exception ex = new HttpMessageNotReadableException(
-            "I/O error while reading input message", new ClientAbortException(),
+            "I/O error while reading input message", new EofException(),
             new MockHttpInputMessage(new byte[0]));
 
     assertThat(DisconnectedClientHelper.isClientDisconnectedException(ex)).isTrue();

@@ -36,6 +36,7 @@ import infra.util.StringUtils;
  * @since 4.0 2023/2/27 21:35
  */
 public class PersistenceSessionRepository implements SessionRepository, DisposableBean {
+
   private static final Logger log = LoggerFactory.getLogger(PersistenceSessionRepository.class);
 
   private final SessionRepository delegate;
@@ -177,9 +178,8 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
     }
 
     @Override
-    public void sessionDestroyed(WebSessionEvent se) {
-      String sessionId = se.getSessionId();
-      removePersister(sessionId, sessionPersister);
+    public void sessionDestroyed(WebSession session) {
+      removePersister(session.getId(), sessionPersister);
     }
 
   }

@@ -37,7 +37,8 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
   private final ArrayHolder<DependencyResolvingStrategy> strategies
           = ArrayHolder.forClass(DependencyResolvingStrategy.class);
 
-  public DependencyResolvingStrategies() { }
+  public DependencyResolvingStrategies() {
+  }
 
   public DependencyResolvingStrategies(List<DependencyResolvingStrategy> strategyList) {
     getStrategies().addAll(strategyList);

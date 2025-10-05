@@ -48,12 +48,21 @@ import static infra.util.LogFormatUtils.formatValue;
 import static infra.util.LogFormatUtils.traceDebug;
 
 /**
- * Memory based {@link SessionRepository}
+ * A memory-based implementation of {@link SessionRepository} that stores sessions
+ * in a {@link ConcurrentHashMap}. This implementation includes the following features:
+ * <ul>
+ *   <li>Session expiration with configurable max idle time</li>
+ *   <li>Session size limit control</li>
+ *   <li>Automatic cleanup of expired sessions</li>
+ *   <li>Support for session serialization</li>
+ *   <li>Session event notification</li>
+ * </ul>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-09-28 10:31
  */
 public class InMemorySessionRepository implements SessionRepository {
+
   private static final Logger log = LoggerFactory.getLogger(InMemorySessionRepository.class);
 
   private int maxSessions = 10000;
@@ -242,6 +251,11 @@ public class InMemorySessionRepository implements SessionRepository {
       session.lastAccessTime = now;
       return session;
     }
+  }
+
+  @Override
+  public void removeSession(WebSession session) {
+    removeSession(session.getId());
   }
 
   @Override

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.session;
@@ -36,7 +33,7 @@ import java.util.EventListener;
  * method in reverse order.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see WebSessionEvent
+ * @see WebSession
  * @since 4.0 2022/4/9 09:56
  */
 public interface WebSessionListener extends EventListener {
@@ -47,9 +44,9 @@ public interface WebSessionListener extends EventListener {
    * <p>
    * The default implementation takes no action.
    *
-   * @param se the WebSessionEvent containing the session
+   * @param session the session
    */
-  default void sessionCreated(WebSessionEvent se) {
+  default void sessionCreated(WebSession session) {
     // default do nothing
   }
 
@@ -58,9 +55,9 @@ public interface WebSessionListener extends EventListener {
    * <p>
    * The default implementation takes no action.
    *
-   * @param se the WebSessionEvent containing the session
+   * @param session the session
    */
-  default void sessionDestroyed(WebSessionEvent se) {
+  default void sessionDestroyed(WebSession session) {
     // default do nothing
   }
 

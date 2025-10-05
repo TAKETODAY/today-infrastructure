@@ -20,9 +20,16 @@ package infra.session;
 import org.jspecify.annotations.Nullable;
 
 /**
- * {@link WebSession} Storage
+ * Allowing for different storage strategies such as in-memory, database-backed,
+ * or distributed cache-based implementations.
+ * <p>
+ * Implementations of this interface are responsible for the entire lifecycle of a
+ * session, including its creation, retrieval, update, and deletion. They must
+ * also handle session expiration to ensure that stale sessions are properly
+ * cleaned up.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see WebSession
  * @since 2019-09-28 10:26
  */
 public interface SessionRepository {
@@ -68,9 +75,7 @@ public interface SessionRepository {
    *
    * @param session the instance of the session to remove
    */
-  default void removeSession(WebSession session) {
-    removeSession(session.getId());
-  }
+  void removeSession(WebSession session);
 
   /**
    * Remove the WebSession for the specified id.

@@ -39,9 +39,8 @@ public class SessionEventDispatcher {
    * Receives notification that a session has been created.
    */
   public void onSessionCreated(WebSession session) {
-    var event = new WebSessionEvent(this, session);
     for (WebSessionListener listener : sessionListeners) {
-      listener.sessionCreated(event);
+      listener.sessionCreated(session);
     }
   }
 
@@ -49,9 +48,8 @@ public class SessionEventDispatcher {
    * Receives notification that a session is about to be invalidated.
    */
   public void onSessionDestroyed(WebSession session) {
-    var event = new WebSessionEvent(this, session);
     for (WebSessionListener listener : sessionListeners) {
-      listener.sessionDestroyed(event);
+      listener.sessionDestroyed(session);
     }
   }
 
@@ -123,7 +121,6 @@ public class SessionEventDispatcher {
    * add list of WebSessionListener
    *
    * @param array array to add
-   * @throws NullPointerException input list is null
    */
   public void addSessionListeners(WebSessionListener @Nullable ... array) {
     sessionListeners.addAll(array);
@@ -133,7 +130,6 @@ public class SessionEventDispatcher {
    * add list of WebSessionListener
    *
    * @param list list to add
-   * @throws NullPointerException input list is null
    */
   public void addSessionListeners(@Nullable Collection<WebSessionListener> list) {
     sessionListeners.addAll(list);
