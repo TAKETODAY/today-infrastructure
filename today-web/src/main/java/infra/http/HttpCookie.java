@@ -34,6 +34,7 @@ import infra.lang.Assert;
 public class HttpCookie {
 
   private final String name;
+
   private final String value;
 
   public HttpCookie(String name, @Nullable String value) {

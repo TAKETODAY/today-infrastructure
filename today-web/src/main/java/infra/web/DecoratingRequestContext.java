@@ -46,6 +46,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
+import infra.http.ResponseCookie;
 import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
 import infra.util.MultiValueMap;
@@ -173,7 +174,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public void addCookie(HttpCookie cookie) {
+  public void addCookie(ResponseCookie cookie) {
     getDelegate().addCookie(cookie);
   }
 
@@ -184,7 +185,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
 
   @Nullable
   @Override
-  public List<HttpCookie> removeCookie(String name) {
+  public List<ResponseCookie> removeCookie(String name) {
     return getDelegate().removeCookie(name);
   }
 
@@ -194,7 +195,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public ArrayList<HttpCookie> responseCookies() {
+  public ArrayList<ResponseCookie> responseCookies() {
     return getDelegate().responseCookies();
   }
 

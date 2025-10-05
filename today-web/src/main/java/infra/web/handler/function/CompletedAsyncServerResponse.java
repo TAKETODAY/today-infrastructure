@@ -22,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
+import infra.http.ResponseCookie;
 import infra.lang.Assert;
 import infra.util.MultiValueMap;
 import infra.web.RequestContext;
@@ -64,7 +65,7 @@ final class CompletedAsyncServerResponse implements AsyncServerResponse {
   }
 
   @Override
-  public MultiValueMap<String, HttpCookie> cookies() {
+  public MultiValueMap<String, ResponseCookie> cookies() {
     return this.serverResponse.cookies();
   }
 

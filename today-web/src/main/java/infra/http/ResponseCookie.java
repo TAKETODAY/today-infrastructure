@@ -226,7 +226,7 @@ public final class ResponseCookie extends HttpCookie {
    * @param value the cookie value
    * @return a builder to create the cookie with
    */
-  public static ResponseCookieBuilder from(final String name, final String value) {
+  public static ResponseCookieBuilder from(final String name, final @Nullable String value) {
     return new DefaultResponseCookieBuilder(name, value, false);
   }
 
@@ -240,7 +240,7 @@ public final class ResponseCookie extends HttpCookie {
    * @param value the cookie value
    * @return a builder to create the cookie with
    */
-  public static ResponseCookieBuilder fromClientResponse(final String name, final String value) {
+  public static ResponseCookieBuilder fromClientResponse(final String name, final @Nullable String value) {
     return new DefaultResponseCookieBuilder(name, value, true);
   }
 

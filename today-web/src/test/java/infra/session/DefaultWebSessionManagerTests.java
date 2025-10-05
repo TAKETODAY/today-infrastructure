@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ import java.util.List;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.http.HttpCookie;
+import infra.http.ResponseCookie;
 import infra.session.config.EnableWebSession;
 import infra.web.mock.MockRequestContext;
 
@@ -57,7 +58,7 @@ class DefaultWebSessionManagerTests {
 
     // CookieTokenResolver
     CookieSessionIdResolver cookieTokenResolver = applicationContext.getBean(CookieSessionIdResolver.class);
-    List<HttpCookie> responseCookies = context.responseCookies();
+    List<ResponseCookie> responseCookies = context.responseCookies();
     String sessionId = createdSession.getId();
     HttpCookie sessionCookie = cookieTokenResolver.createCookie(sessionId);
 

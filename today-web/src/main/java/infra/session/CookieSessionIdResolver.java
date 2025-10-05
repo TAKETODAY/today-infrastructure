@@ -20,6 +20,7 @@ package infra.session;
 import org.jspecify.annotations.Nullable;
 
 import infra.http.HttpCookie;
+import infra.http.ResponseCookie;
 import infra.lang.Assert;
 import infra.session.config.CookieProperties;
 import infra.web.RequestContext;
@@ -90,7 +91,7 @@ public class CookieSessionIdResolver implements SessionIdResolver {
     if (cookie == null) {
       // fallback to response cookies
       if (exchange.hasResponseCookie()) {
-        for (HttpCookie httpCookie : exchange.responseCookies()) {
+        for (ResponseCookie httpCookie : exchange.responseCookies()) {
           if (cookieName.equals(httpCookie.getName())) {
             return httpCookie.getValue();
           }
@@ -104,7 +105,7 @@ public class CookieSessionIdResolver implements SessionIdResolver {
   @Override
   public void setSessionId(RequestContext exchange, String sessionId) {
     if (!sessionId.equals(exchange.getAttribute(WRITTEN_SESSION_ID_ATTR))) {
-      HttpCookie cookie = createCookie(sessionId);
+      ResponseCookie cookie = createCookie(sessionId);
       exchange.addCookie(cookie);
       exchange.setAttribute(WRITTEN_SESSION_ID_ATTR, sessionId);
     }
@@ -120,7 +121,7 @@ public class CookieSessionIdResolver implements SessionIdResolver {
     return cookieName;
   }
 
-  public HttpCookie createCookie(String id) {
+  public ResponseCookie createCookie(String id) {
     return config.createCookie(id);
   }
 

@@ -25,10 +25,10 @@ import java.time.Duration;
 import java.util.List;
 import java.util.function.Consumer;
 
-import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
+import infra.http.ResponseCookie;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.server.DelegatingServerHttpResponse;
 import infra.http.server.ServerHttpResponse;
@@ -51,14 +51,14 @@ final class StreamingServerResponse extends AbstractServerResponse {
   @Nullable
   private final Duration timeout;
 
-  private StreamingServerResponse(HttpStatusCode statusCode, HttpHeaders headers, MultiValueMap<String, HttpCookie> cookies,
+  private StreamingServerResponse(HttpStatusCode statusCode, HttpHeaders headers, MultiValueMap<String, ResponseCookie> cookies,
           Consumer<StreamBuilder> streamConsumer, @Nullable Duration timeout) {
     super(statusCode, headers, cookies);
     this.streamConsumer = streamConsumer;
     this.timeout = timeout;
   }
 
-  static ServerResponse create(HttpStatusCode statusCode, HttpHeaders headers, MultiValueMap<String, HttpCookie> cookies,
+  static ServerResponse create(HttpStatusCode statusCode, HttpHeaders headers, MultiValueMap<String, ResponseCookie> cookies,
           Consumer<StreamBuilder> streamConsumer, @Nullable Duration timeout) {
     Assert.notNull(statusCode, "statusCode is required");
     Assert.notNull(headers, "headers is required");
