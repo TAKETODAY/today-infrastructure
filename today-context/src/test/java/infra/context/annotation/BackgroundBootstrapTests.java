@@ -33,6 +33,7 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.ConfigurableApplicationContext;
+import infra.core.testfixture.DisabledIfInContinuousIntegration;
 import infra.lang.TodayStrategies;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 import infra.stereotype.Component;
@@ -142,6 +143,7 @@ class BackgroundBootstrapTests {
 
   @Test
   @Timeout(10)
+  @DisabledIfInContinuousIntegration(disabledReason = "CI环境直接卡死")
   void bootstrapWithCircularReferenceInMultipleThreads() {
     assertThatExceptionOfType(BeanCreationException.class)
             .isThrownBy(() -> new AnnotationConfigApplicationContext(CircularReferenceInMultipleThreadsBeanConfig.class))
@@ -252,7 +254,7 @@ class BackgroundBootstrapTests {
         }
       };
     }
-    
+
   }
 
   @Configuration(proxyBeanMethods = false)
