@@ -366,4 +366,67 @@ class ExceptionTests {
     }
   }
 
+  @Nested
+  class MailAuthenticationExceptionTests {
+
+    @Test
+    void constructorWithMessageAndCause() {
+      var cause = new RuntimeException("root cause");
+      var exception = new MailAuthenticationException("auth failed", cause);
+
+      assertThat(exception.getMessage()).isEqualTo("auth failed");
+      assertThat(exception.getCause()).isSameAs(cause);
+    }
+
+    @Test
+    void constructorWithNullMessageAndCause() {
+      var cause = new RuntimeException();
+      var exception = new MailAuthenticationException(null, cause);
+
+      assertThat(exception.getMessage()).isNull();
+      assertThat(exception.getCause()).isSameAs(cause);
+    }
+
+    @Test
+    void constructorWithMessageAndNullCause() {
+      var exception = new MailAuthenticationException("auth failed", null);
+
+      assertThat(exception.getMessage()).isEqualTo("auth failed");
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void constructorWithCauseOnly() {
+      var cause = new RuntimeException("root");
+      var exception = new MailAuthenticationException(cause);
+
+      assertThat(exception.getMessage()).isEqualTo("Authentication failed");
+      assertThat(exception.getCause()).isSameAs(cause);
+    }
+
+    @Test
+    void constructorWithNullCauseOnly() {
+      var exception = new MailAuthenticationException(null);
+
+      assertThat(exception.getMessage()).isEqualTo("Authentication failed");
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void printStackTraceIncludesFullDetails() {
+      var cause = new RuntimeException("root cause");
+      var exception = new MailAuthenticationException("auth failed", cause);
+      var writer = new StringWriter();
+      var printWriter = new PrintWriter(writer);
+
+      exception.printStackTrace(printWriter);
+
+      assertThat(writer.toString())
+              .contains(MailAuthenticationException.class.getName())
+              .contains("auth failed")
+              .contains("root cause");
+    }
+
+  }
+
 }
