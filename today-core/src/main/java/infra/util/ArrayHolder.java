@@ -46,6 +46,7 @@ import infra.lang.Assert;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/12 15:28
  */
+@Deprecated
 public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomAccess {
 
   public E @Nullable [] array;
