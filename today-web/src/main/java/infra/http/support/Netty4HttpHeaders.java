@@ -77,7 +77,9 @@ public final class Netty4HttpHeaders extends infra.http.HttpHeaders {
   public Map<String, String> toSingleValueMap() {
     Map<String, String> singleValueMap = CollectionUtils.newLinkedHashMap(headers.size());
     for (final Entry<String, String> entry : headers) {
-      singleValueMap.put(entry.getKey(), entry.getValue());
+      if (!singleValueMap.containsKey(entry.getKey())) {
+        singleValueMap.put(entry.getKey(), entry.getValue());
+      }
     }
     return singleValueMap;
   }
