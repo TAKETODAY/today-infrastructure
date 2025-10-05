@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +21,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.StringWriter;
 
-import infra.http.HttpCookie;
 import infra.http.MediaType;
+import infra.http.ResponseCookie;
 import infra.test.web.mock.result.PrintingResultHandler;
 import infra.web.RequestContext;
 import infra.web.annotation.GetMapping;
@@ -105,7 +105,7 @@ class PrintingResultHandlerIntegrationTests {
 
     @GetMapping("/")
     String hello(RequestContext response) {
-      response.addCookie(new HttpCookie("enigma", "42"));
+      response.addCookie(ResponseCookie.forSimple("enigma", "42"));
       return "Hello Response";
     }
 
