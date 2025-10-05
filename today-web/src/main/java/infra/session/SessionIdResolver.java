@@ -137,51 +137,14 @@ public interface SessionIdResolver {
    * for Composite SessionIdResolver
    */
   static SessionIdResolver forComposite(SessionIdResolver... resolvers) {
-    return new Composite(List.of(resolvers));
+    return new CompositeSessionIdResolver(List.of(resolvers));
   }
 
   /**
    * for Composite SessionIdResolver
    */
   static SessionIdResolver forComposite(List<SessionIdResolver> resolvers) {
-    return new Composite(resolvers);
-  }
-
-  final class Composite implements SessionIdResolver {
-    final List<SessionIdResolver> resolvers;
-
-    public Composite(List<SessionIdResolver> resolvers) {
-      this.resolvers = resolvers;
-    }
-
-    @Nullable
-    @Override
-    public String getSessionId(RequestContext exchange) {
-      for (SessionIdResolver resolver : resolvers) {
-        String token = resolver.getSessionId(exchange);
-        if (token != null) {
-          return token;
-        }
-      }
-      return null;
-    }
-
-    @Override
-    public void setSessionId(RequestContext exchange, String session) {
-      for (SessionIdResolver resolver : resolvers) {
-        resolver.setSessionId(exchange, session);
-      }
-    }
-
-    @Override
-    public void expireSession(RequestContext context) {
-      for (SessionIdResolver resolver : resolvers) {
-        String token = resolver.getSessionId(context);
-        if (token != null) {
-          resolver.expireSession(context);
-        }
-      }
-    }
+    return new CompositeSessionIdResolver(resolvers);
   }
 
 }
