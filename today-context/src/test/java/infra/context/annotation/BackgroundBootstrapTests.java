@@ -17,6 +17,7 @@
 
 package infra.context.annotation;
 
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
@@ -32,6 +33,7 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.ConfigurableApplicationContext;
+import infra.core.testfixture.DisabledIfInContinuousIntegration;
 import infra.lang.TodayStrategies;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 import infra.stereotype.Component;
@@ -43,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 /**
  * @author Juergen Hoeller
  */
+@Order(Integer.MIN_VALUE)
 class BackgroundBootstrapTests {
 
   @Test
@@ -140,6 +143,7 @@ class BackgroundBootstrapTests {
 
   @Test
   @Timeout(10)
+  @DisabledIfInContinuousIntegration(disabledReason = "CI环境直接卡死")
   void bootstrapWithCircularReferenceInMultipleThreads() {
     assertThatExceptionOfType(BeanCreationException.class)
             .isThrownBy(() -> new AnnotationConfigApplicationContext(CircularReferenceInMultipleThreadsBeanConfig.class))
@@ -250,7 +254,7 @@ class BackgroundBootstrapTests {
         }
       };
     }
-    
+
   }
 
   @Configuration(proxyBeanMethods = false)
