@@ -19,7 +19,6 @@ package infra.web.handler.function;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
 import infra.http.ResponseCookie;
