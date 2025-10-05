@@ -23,7 +23,12 @@ import infra.lang.Assert;
 import infra.web.RequestContext;
 
 /**
- * SessionManager
+ * Central abstraction for session operations.
+ *
+ * <p>This class provides a convenient base for session management operations,
+ * delegating to a configured {@link SessionManager} instance. It offers
+ * methods for session retrieval, attribute management, and other common
+ * session operations.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2021/4/30 23:01
