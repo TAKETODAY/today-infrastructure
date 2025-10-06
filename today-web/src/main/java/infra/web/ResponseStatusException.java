@@ -37,8 +37,7 @@ import infra.http.ProblemDetail;
  */
 public class ResponseStatusException extends ErrorResponseException {
 
-  @Nullable
-  private final String reason;
+  private final @Nullable String reason;
 
   /**
    * Constructor with a response status.
@@ -104,15 +103,12 @@ public class ResponseStatusException extends ErrorResponseException {
   /**
    * The reason explaining the exception (potentially {@code null} or empty).
    */
-  @Nullable
-  public String getReason() {
+  public @Nullable String getReason() {
     return this.reason;
   }
 
   /**
-   * Return headers to add to the error response, e.g. "Allow", "Accept", etc.
-   * <p>By default, delegates to {@link HttpHeaders#empty()} for backwards
-   * compatibility.
+   * Return headers to add to the error response, for example, "Allow", "Accept", etc.
    */
   @Override
   public HttpHeaders getHeaders() {
@@ -138,7 +134,10 @@ public class ResponseStatusException extends ErrorResponseException {
 
   @Override
   public String getMessage() {
-    return getStatusCode() + (this.reason != null ? " \"" + this.reason + "\"" : "");
+    if (reason != null) {
+      return getStatusCode() + " \"" + this.reason + "\"";
+    }
+    return getStatusCode().toString();
   }
 
 }
