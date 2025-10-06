@@ -49,18 +49,16 @@ import infra.web.RequestContext;
 public class ModelAndView {
 
   /** View instance or view name String. */
-  @Nullable
-  private Object view;
+
+  private @Nullable Object view;
 
   /** Model Map. */
-  @Nullable
-  private ModelMap model;
+  private @Nullable ModelMap model;
 
   /** Optional HTTP status for the response. */
-  @Nullable
-  private HttpStatusCode status;
+  private @Nullable HttpStatusCode status;
 
-  /** Indicates whether or not this instance has been cleared with a call to {@link #clear()}. */
+  /** Indicates whether this instance has been cleared with a call to {@link #clear()}. */
   private boolean cleared = false;
 
   /**
@@ -70,7 +68,8 @@ public class ModelAndView {
    * @see #setView(View)
    * @see #setViewName(String)
    */
-  public ModelAndView() { }
+  public ModelAndView() {
+  }
 
   /**
    * Convenient constructor when there is no model data to expose.
@@ -137,7 +136,7 @@ public class ModelAndView {
    * @param status an HTTP status code to use for the response
    * (to be set just prior to View rendering)
    */
-  public ModelAndView(String viewName, HttpStatusCode status) {
+  public ModelAndView(String viewName, @Nullable HttpStatusCode status) {
     this.view = viewName;
     this.status = status;
   }
@@ -199,8 +198,7 @@ public class ModelAndView {
    * Return the view name to be resolved by the DispatcherHandler
    * via a ViewResolver, or {@code null} if we are using a View object.
    */
-  @Nullable
-  public String getViewName() {
+  public @Nullable String getViewName() {
     return (this.view instanceof String ? (String) this.view : null);
   }
 
@@ -216,8 +214,7 @@ public class ModelAndView {
    * Return the View object, or {@code null} if we are using a view name
    * to be resolved by the DispatcherHandler via a ViewResolver.
    */
-  @Nullable
-  public View getView() {
+  public @Nullable View getView() {
     return view instanceof View ? (View) this.view : null;
   }
 
@@ -267,8 +264,7 @@ public class ModelAndView {
   /**
    * Return the configured HTTP status for the response, if any.
    */
-  @Nullable
-  public HttpStatusCode getStatus() {
+  public @Nullable HttpStatusCode getStatus() {
     return this.status;
   }
 
@@ -349,7 +345,7 @@ public class ModelAndView {
    */
   @Override
   public String toString() {
-    return "ModelAndView [view=" + formatView() + "; model=" + this.model + "]";
+    return "ModelAndView [view=%s; model=%s]".formatted(formatView(), this.model);
   }
 
   private String formatView() {

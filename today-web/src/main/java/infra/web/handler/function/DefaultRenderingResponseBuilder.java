@@ -19,7 +19,6 @@ package infra.web.handler.function;
 
 import org.jspecify.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -137,13 +136,17 @@ final class DefaultRenderingResponseBuilder implements RenderingResponse.Builder
 
   @Override
   public RenderingResponse.Builder modelAttributes(Object... attributes) {
-    modelAttributes(Arrays.asList(attributes));
+    for (Object attribute : attributes) {
+      modelAttribute(attribute);
+    }
     return this;
   }
 
   @Override
   public RenderingResponse.Builder modelAttributes(Collection<?> attributes) {
-    attributes.forEach(this::modelAttribute);
+    for (Object attribute : attributes) {
+      modelAttribute(attribute);
+    }
     return this;
   }
 
@@ -179,6 +182,7 @@ final class DefaultRenderingResponseBuilder implements RenderingResponse.Builder
   private static final class DefaultRenderingResponse extends AbstractServerResponse implements RenderingResponse {
 
     private final String name;
+
     private final Map<String, Object> model;
 
     public DefaultRenderingResponse(HttpStatusCode statusCode, HttpHeaders headers,
