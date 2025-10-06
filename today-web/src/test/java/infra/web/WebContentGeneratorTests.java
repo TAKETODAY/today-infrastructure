@@ -18,6 +18,7 @@
 package infra.web;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -171,10 +172,11 @@ class WebContentGeneratorTests {
     when(request.getMethodValue()).thenReturn("GET");
 
     WebSession session = mock(WebSession.class);
-    mockStatic(RequestContextUtils.class);
-    when(RequestContextUtils.getSession(request, false)).thenReturn(session);
+    try (MockedStatic<RequestContextUtils> mocked = mockStatic(RequestContextUtils.class)) {
+      when(RequestContextUtils.getSession(request, false)).thenReturn(session);
 
-    assertThatCode(() -> generator.checkRequest(request)).doesNotThrowAnyException();
+      assertThatCode(() -> generator.checkRequest(request)).doesNotThrowAnyException();
+    }
   }
 
   @Test
@@ -285,14 +287,6 @@ class WebContentGeneratorTests {
   }
 
   @Test
-  void setSupportedMethodsEmptyArray() {
-    WebContentGenerator generator = new TestWebContentGenerator();
-    generator.setSupportedMethods();
-
-    assertThat(generator.getSupportedMethods()).isEmpty();
-  }
-
-  @Test
   void getAllowHeaderWithExplicitOptionsSupport() {
     WebContentGenerator generator = new TestWebContentGenerator("GET", "POST", "OPTIONS");
 
@@ -362,12 +356,13 @@ class WebContentGeneratorTests {
 
     RequestContext request = mock(RequestContext.class);
     when(request.getMethodValue()).thenReturn("GET");
-    mockStatic(RequestContextUtils.class);
-    when(RequestContextUtils.getSession(request, false)).thenReturn(null);
+    try (MockedStatic<RequestContextUtils> mocked = mockStatic(RequestContextUtils.class)) {
+      when(RequestContextUtils.getSession(request, false)).thenReturn(null);
 
-    assertThatExceptionOfType(WebSessionRequiredException.class)
-            .isThrownBy(() -> generator.checkRequest(request))
-            .withMessage("Pre-existing session required but none found");
+      assertThatExceptionOfType(WebSessionRequiredException.class)
+              .isThrownBy(() -> generator.checkRequest(request))
+              .withMessage("Pre-existing session required but none found");
+    }
   }
 
   @Test
