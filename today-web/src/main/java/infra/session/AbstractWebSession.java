@@ -22,13 +22,11 @@ import org.jspecify.annotations.Nullable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import infra.core.AttributeAccessor;
 import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.util.CollectionUtils;
-import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 
 /**
@@ -203,20 +201,6 @@ public abstract class AbstractWebSession implements WebSession {
   public boolean hasAttributes() {
     var attributes = this.attributes;
     return attributes != null && !attributes.isEmpty();
-  }
-
-  @Override
-  public int hashCode() {
-    return ObjectUtils.nullSafeHashCode(attributes);
-  }
-
-  @Override
-  public boolean equals(Object param) {
-    if (this == param)
-      return true;
-    if (!(param instanceof AbstractWebSession that))
-      return false;
-    return Objects.equals(attributes, that.attributes);
   }
 
   @Override

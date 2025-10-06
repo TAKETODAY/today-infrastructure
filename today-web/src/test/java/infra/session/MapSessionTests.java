@@ -25,11 +25,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -521,4 +526,243 @@ class MapSessionTests {
     assertThat(session1.getOriginalId()).isEqualTo(customId);
     assertThat(session1.getId()).isNotEqualTo(customId);
   }
+
+  @Test
+  void setAttributeAddsNewAttribute() {
+    MapSession session = new MapSession();
+    WebSessionAttributeListener listener = mock(WebSessionAttributeListener.class);
+    session.eventDispatcher.addAttributeListeners(listener);
+
+    session.setAttribute("key", "value");
+
+    assertThat(session.getAttribute("key")).isEqualTo("value");
+    verify(listener).attributeAdded(session, "key", "value");
+  }
+
+  @Test
+  void setAttributeReplacesExistingAttribute() {
+    MapSession session = new MapSession();
+    WebSessionAttributeListener listener = mock(WebSessionAttributeListener.class);
+    session.eventDispatcher.addAttributeListeners(listener);
+
+    session.setAttribute("key", "oldValue");
+    session.setAttribute("key", "newValue");
+
+    assertThat(session.getAttribute("key")).isEqualTo("newValue");
+    verify(listener).attributeAdded(session, "key", "oldValue");
+    verify(listener).attributeReplaced(session, "key", "oldValue", "newValue");
+  }
+
+  @Test
+  void setAttributeWithSameValueDoesNotTriggerReplaceEvent() {
+    MapSession session = new MapSession();
+    WebSessionAttributeListener listener = mock(WebSessionAttributeListener.class);
+    session.eventDispatcher.addAttributeListeners(listener);
+
+    session.setAttribute("key", "value");
+    session.setAttribute("key", "value");
+
+    assertThat(session.getAttribute("key")).isEqualTo("value");
+    verify(listener, times(1)).attributeAdded(session, "key", "value");
+    verify(listener, never()).attributeReplaced(any(), anyString(), any(), any());
+  }
+
+  @Test
+  void setAttributeWithNullValueRemovesAttribute() {
+    MapSession session = new MapSession();
+    WebSessionAttributeListener listener = mock(WebSessionAttributeListener.class);
+    session.eventDispatcher.addAttributeListeners(listener);
+
+    session.setAttribute("key", "value");
+    session.setAttribute("key", null);
+
+    assertThat(session.getAttribute("key")).isNull();
+    verify(listener).attributeAdded(session, "key", "value");
+    verify(listener).attributeRemoved(session, "key", "value");
+  }
+
+  @Test
+  void setAttributesWithMap() {
+    MapSession session = new MapSession();
+    WebSessionAttributeListener listener = mock(WebSessionAttributeListener.class);
+    session.eventDispatcher.addAttributeListeners(listener);
+
+    Map<String, Object> attrs = Map.of("key1", "value1", "key2", "value2");
+    session.setAttributes(attrs);
+
+    assertThat(session.getAttribute("key1")).isEqualTo("value1");
+    assertThat(session.getAttribute("key2")).isEqualTo("value2");
+    verify(listener).attributeAdded(session, "key1", "value1");
+    verify(listener).attributeAdded(session, "key2", "value2");
+  }
+
+  @Test
+  void removeAttribute() {
+    MapSession session = new MapSession();
+    WebSessionAttributeListener listener = mock(WebSessionAttributeListener.class);
+    session.eventDispatcher.addAttributeListeners(listener);
+
+    session.setAttribute("key", "value");
+    Object removed = session.removeAttribute("key");
+
+    assertThat(removed).isEqualTo("value");
+    assertThat(session.getAttribute("key")).isNull();
+    verify(listener).attributeAdded(session, "key", "value");
+    verify(listener).attributeRemoved(session, "key", "value");
+  }
+
+  @Test
+  void removeNonExistentAttribute() {
+    MapSession session = new MapSession();
+    WebSessionAttributeListener listener = mock(WebSessionAttributeListener.class);
+    session.eventDispatcher.addAttributeListeners(listener);
+
+    Object removed = session.removeAttribute("nonExistent");
+
+    assertThat(removed).isNull();
+    verify(listener, never()).attributeRemoved(any(), anyString(), any());
+  }
+
+  @Test
+  void hasAttribute() {
+    MapSession session = new MapSession();
+
+    session.setAttribute("key", "value");
+
+    assertThat(session.hasAttribute("key")).isTrue();
+    assertThat(session.hasAttribute("nonExistent")).isFalse();
+  }
+
+  @Test
+  void getAttributeNames() {
+    MapSession session = new MapSession();
+
+    session.setAttribute("key1", "value1");
+    session.setAttribute("key2", "value2");
+
+    String[] names = session.getAttributeNames();
+    assertThat(names).containsExactlyInAnyOrder("key1", "key2");
+  }
+
+  @Test
+  void attributeNames() {
+    MapSession session = new MapSession();
+
+    session.setAttribute("key1", "value1");
+    session.setAttribute("key2", "value2");
+
+    Iterable<String> names = session.attributeNames();
+    assertThat(names).containsExactlyInAnyOrder("key1", "key2");
+  }
+
+  @Test
+  void hasAttributes() {
+    MapSession session = new MapSession();
+
+    assertThat(session.hasAttributes()).isFalse();
+
+    session.setAttribute("key", "value");
+    assertThat(session.hasAttributes()).isTrue();
+  }
+
+  @Test
+  void clearAttributes() {
+    MapSession session = new MapSession();
+
+    session.setAttribute("key1", "value1");
+    session.setAttribute("key2", "value2");
+    session.clearAttributes();
+
+    assertThat(session.hasAttributes()).isFalse();
+    assertThat(session.getAttribute("key1")).isNull();
+    assertThat(session.getAttribute("key2")).isNull();
+  }
+
+  @Test
+  void getAttributesCreatesMapIfNeeded() {
+    MapSession session = new MapSession();
+
+    Map<String, Object> attrs = session.getAttributes();
+    assertThat(attrs).isNotNull();
+    assertThat(attrs.isEmpty()).isTrue();
+  }
+
+  @Test
+  void copyFromCopiesAttributes() {
+    MapSession session = new MapSession();
+    MapSession source = new MapSession();
+
+    source.setAttribute("key1", "value1");
+    source.setAttribute("key2", "value2");
+
+    session.copyFrom(source);
+
+    assertThat(session.getAttribute("key1")).isEqualTo("value1");
+    assertThat(session.getAttribute("key2")).isEqualTo("value2");
+  }
+
+  @Test
+  void attributeBindingListenerBound() {
+    MapSession session = new MapSession();
+    AttributeBindingListener listener = mock(AttributeBindingListener.class);
+
+    session.setAttribute("key", listener);
+
+    verify(listener).valueBound(session, "key");
+  }
+
+  @Test
+  void attributeBindingListenerUnbound() {
+    MapSession session = new MapSession();
+    AttributeBindingListener listener = mock(AttributeBindingListener.class);
+
+    session.setAttribute("key", listener);
+    session.setAttribute("key", "newValue");
+
+    verify(listener).valueUnbound(session, "key");
+  }
+
+  @Test
+  void invalidateTriggersEvents() {
+    MapSession session = new MapSession();
+    WebSessionAttributeListener listener = mock(WebSessionAttributeListener.class);
+    session.eventDispatcher.addAttributeListeners(listener);
+
+    session.setAttribute("key1", "value1");
+    session.setAttribute("key2", "value2");
+    session.invalidate();
+
+    verify(listener).attributeRemoved(session, "key1", "value1");
+    verify(listener).attributeRemoved(session, "key2", "value2");
+    assertThat(session.hasAttributes()).isFalse();
+  }
+
+  @Test
+  void equalsAndHashCode() {
+    String sessionId = "test-session";
+    MapSession session1 = new MapSession(sessionId);
+    MapSession session2 = new MapSession(sessionId);
+
+    session1.setAttribute("key", "value");
+    session2.setAttribute("key", "value");
+
+    assertThat(session1).isEqualTo(session2);
+    assertThat(session1.hashCode()).isEqualTo(session2.hashCode());
+  }
+
+  @Test
+  void copyAttributesFromCopiesAllAttributes() {
+    MapSession source = new MapSession();
+    MapSession target = new MapSession();
+
+    source.setAttribute("attr1", "value1");
+    source.setAttribute("attr2", "value2");
+
+    target.copyAttributesFrom(source);
+
+    assertThat(target.getAttribute("attr1")).isEqualTo("value1");
+    assertThat(target.getAttribute("attr2")).isEqualTo("value2");
+    assertThat(target.getAttributeNames()).containsExactlyInAnyOrder("attr1", "attr2");
+  }
+
 }
