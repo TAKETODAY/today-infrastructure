@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,60 @@ class HandlerWrapperTests {
     assertThat(HandlerWrapper.unwrap(null)).isEqualTo(null);
     Object handler = new Object();
     assertThat(HandlerWrapper.unwrap(handler)).isSameAs(handler);
+  }
+
+  @Test
+  void unwrapWithNullHandlerReturnsNull() {
+    assertThat(HandlerWrapper.unwrap(null)).isNull();
+  }
+
+  @Test
+  void unwrapWithNonHandlerWrapperReturnsSameObject() {
+    Object handler = new Object();
+
+    Object result = HandlerWrapper.unwrap(handler);
+
+    assertThat(result).isSameAs(handler);
+  }
+
+  @Test
+  void unwrapWithHandlerWrapperReturnsRawHandler() {
+    Object rawHandler = new Object();
+    HandlerWrapper wrapper = () -> rawHandler;
+
+    Object result = HandlerWrapper.unwrap(wrapper);
+
+    assertThat(result).isSameAs(rawHandler);
+  }
+
+  @Test
+  void unwrapWithNestedHandlerWrappersReturnsInnerMostHandler() {
+    Object rawHandler = new Object();
+    HandlerWrapper innerWrapper = () -> rawHandler;
+    HandlerWrapper outerWrapper = () -> innerWrapper;
+
+    Object result = HandlerWrapper.unwrap(outerWrapper);
+
+    assertThat(result).isSameAs(innerWrapper);
+  }
+
+  @Test
+  void getRawHandlerReturnsCorrectHandler() {
+    Object rawHandler = new Object();
+    HandlerWrapper wrapper = () -> rawHandler;
+
+    Object result = wrapper.getRawHandler();
+
+    assertThat(result).isSameAs(rawHandler);
+  }
+
+  @Test
+  void unwrapWithHandlerWrapperReturningNull() {
+    HandlerWrapper wrapper = () -> null;
+
+    Object result = HandlerWrapper.unwrap(wrapper);
+
+    assertThat(result).isNull();
   }
 
 }
