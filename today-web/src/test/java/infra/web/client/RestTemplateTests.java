@@ -52,6 +52,8 @@ import infra.http.client.ClientHttpResponse;
 import infra.http.client.JdkClientHttpRequestFactory;
 import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
+import infra.http.converter.StringHttpMessageConverter;
+import infra.util.FileCopyUtils;
 import infra.web.util.DefaultUriBuilderFactory;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -65,6 +67,7 @@ import static infra.http.HttpMethod.PATCH;
 import static infra.http.HttpMethod.POST;
 import static infra.http.HttpMethod.PUT;
 import static infra.http.MediaType.parseMediaType;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -715,7 +718,6 @@ class RestTemplateTests {
   }
 
   @Test
-    //
   void requestInterceptorCanAddExistingHeaderValueWithBody() throws Exception {
     ClientHttpRequestInterceptor interceptor = (request, body, execution) -> {
       request.getHeaders().add("MyHeader", "MyInterceptorValue");
@@ -737,6 +739,46 @@ class RestTemplateTests {
     assertThat(requestHeaders.get("MyHeader")).contains("MyEntityValue", "MyInterceptorValue");
 
     verify(response).close();
+  }
+
+  @Test
+  void requestInterceptorWithBuffering() throws Exception {
+    try (MockWebServer server = new MockWebServer()) {
+      server.enqueue(new MockResponse().setResponseCode(200).setBody("Hello!"));
+      server.start();
+      template.setRequestFactory(new JdkClientHttpRequestFactory());
+      template.setInterceptors(List.of((request, body, execution) -> {
+        ClientHttpResponse response = execution.execute(request, body);
+        byte[] result = FileCopyUtils.copyToByteArray(response.getBody());
+        assertThat(result).isEqualTo("Hello!".getBytes(UTF_8));
+        return response;
+      }));
+      template.setBufferingPredicate((request) -> true);
+      template.setMessageConverters(List.of(new StringHttpMessageConverter()));
+      String result = template.getForObject(server.url("/").uri(), String.class);
+      assertThat(server.getRequestCount()).isEqualTo(1);
+      assertThat(result).isEqualTo("Hello!");
+    }
+  }
+
+  @Test
+  void buffering() throws Exception {
+    try (MockWebServer server = new MockWebServer()) {
+      server.enqueue(new MockResponse().setResponseCode(200).setBody("Hello!"));
+      server.start();
+      template.setRequestFactory(new JdkClientHttpRequestFactory());
+      template.setBufferingPredicate((r) -> true);
+      template.setMessageConverters(List.of(new StringHttpMessageConverter()));
+      String result = template.execute(server.url("/").uri(), HttpMethod.GET, req -> { }, response -> {
+        byte[] bytes = FileCopyUtils.copyToByteArray(response.getBody());
+        assertThat(bytes).isEqualTo("Hello!".getBytes(UTF_8));
+        bytes = FileCopyUtils.copyToByteArray(response.getBody());
+        assertThat(bytes).isEqualTo("Hello!".getBytes(UTF_8));
+        return new String(bytes, UTF_8);
+      });
+      assertThat(server.getRequestCount()).isEqualTo(1);
+      assertThat(result).isEqualTo("Hello!");
+    }
   }
 
   @Test
