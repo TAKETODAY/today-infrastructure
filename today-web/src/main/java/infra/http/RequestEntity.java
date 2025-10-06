@@ -225,7 +225,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
 
   @Override
   public String toString() {
-    return format(getMethod(), getURI().toString(), getBody(), headers());
+    return format(getMethod(), getURI().toString(), getBody(), getHeaders());
   }
 
   static <T> String format(@Nullable HttpMethod httpMethod,
@@ -588,7 +588,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
     <T> RequestEntity<T> body(@Nullable T body, Type type);
   }
 
-  private static class DefaultBodyBuilder implements BodyBuilder {
+  static class DefaultBodyBuilder implements BodyBuilder {
 
     private final HttpMethod method;
 
@@ -806,7 +806,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
 
     @Override
     public String toString() {
-      return format(getMethod(), getUriTemplate(), getBody(), headers());
+      return format(getMethod(), getUriTemplate(), getBody(), getHeaders());
     }
   }
 

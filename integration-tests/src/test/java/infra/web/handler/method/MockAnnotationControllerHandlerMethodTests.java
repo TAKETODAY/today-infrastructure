@@ -3643,7 +3643,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     @PostMapping("/foo")
     public ResponseEntity<String> foo(HttpEntity<byte[]> requestEntity) {
       assertThat(requestEntity).isNotNull();
-      assertThat(requestEntity.getHeaders().getFirst("MyRequestHeader")).isEqualTo("MyValue");
+      assertThat(requestEntity.headers().getFirst("MyRequestHeader")).isEqualTo("MyValue");
 
       String body = new String(requestEntity.getBody(), StandardCharsets.UTF_8);
       assertThat(body).isEqualTo("Hello World");

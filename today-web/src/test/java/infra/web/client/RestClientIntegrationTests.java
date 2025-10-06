@@ -219,8 +219,8 @@ class RestClientIntegrationTests {
             .toEntity(String.class);
 
     assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-    assertThat(result.getHeaders().getContentLength()).isEqualTo(31);
+    assertThat(result.headers().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+    assertThat(result.headers().getContentLength()).isEqualTo(31);
     assertThat(result.getBody()).isEqualTo(content);
 
     expectRequestCount(1);
@@ -243,8 +243,8 @@ class RestClientIntegrationTests {
             .toBodilessEntity();
 
     assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-    assertThat(result.getHeaders().getContentLength()).isEqualTo(31);
+    assertThat(result.headers().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+    assertThat(result.headers().getContentLength()).isEqualTo(31);
     assertThat(result.getBody()).isNull();
 
     expectRequestCount(1);
@@ -295,8 +295,8 @@ class RestClientIntegrationTests {
             .toEntity(new ParameterizedTypeReference<>() { });
 
     assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-    assertThat(result.getHeaders().getContentLength()).isEqualTo(58);
+    assertThat(result.headers().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+    assertThat(result.headers().getContentLength()).isEqualTo(58);
     assertThat(result.getBody()).hasSize(2);
     assertThat(result.getBody().get(0).getFoo()).isEqualTo("foo1");
     assertThat(result.getBody().get(0).getBar()).isEqualTo("bar1");
@@ -1160,8 +1160,8 @@ class RestClientIntegrationTests {
     ResponseEntity<String> result = future.getNow();
     assertThat(result).isNotNull();
     assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-    assertThat(result.getHeaders().getContentLength()).isEqualTo(31);
+    assertThat(result.headers().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+    assertThat(result.headers().getContentLength()).isEqualTo(31);
     assertThat(result.getBody()).isEqualTo(content);
 
     expectRequestCount(1);
@@ -1188,8 +1188,8 @@ class RestClientIntegrationTests {
     ResponseEntity<Void> result = future.getNow();
     assertThat(result).isNotNull();
     assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-    assertThat(result.getHeaders().getContentLength()).isEqualTo(31);
+    assertThat(result.headers().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+    assertThat(result.headers().getContentLength()).isEqualTo(31);
     assertThat(result.getBody()).isNull();
 
     expectRequestCount(1);
@@ -1279,8 +1279,8 @@ class RestClientIntegrationTests {
     ResponseEntity<String> result = future.getNow();
     assertThat(result).isNotNull();
     assertThat(result.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-    assertThat(result.getHeaders().getContentLength()).isEqualTo(31);
+    assertThat(result.headers().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+    assertThat(result.headers().getContentLength()).isEqualTo(31);
     assertThat(result.getBody()).isEqualTo(content);
 
     expectRequestCount(1);

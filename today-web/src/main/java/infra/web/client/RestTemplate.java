@@ -894,7 +894,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
       Object requestBody = requestEntity.getBody();
       if (requestBody == null) {
         HttpHeaders httpHeaders = httpRequest.getHeaders();
-        httpHeaders.setAll(requestEntity.headers());
+        httpHeaders.setAll(requestEntity.getHeaders());
         if (httpHeaders.getContentLength() < 0) {
           httpHeaders.setContentLength(0L);
         }
@@ -906,7 +906,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
         for (HttpMessageConverter converter : getMessageConverters()) {
           if (converter instanceof GenericHttpMessageConverter gc) {
             if (gc.canWrite(requestBodyType, requestBodyClass, requestContentType)) {
-              httpRequest.getHeaders().setAll(requestEntity.headers());
+              httpRequest.getHeaders().setAll(requestEntity.getHeaders());
               if (logger.isDebugEnabled()) {
                 logBody(requestBody, requestContentType, gc);
               }
@@ -915,7 +915,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
             }
           }
           else if (converter.canWrite(requestBodyClass, requestContentType)) {
-            httpRequest.getHeaders().setAll(requestEntity.headers());
+            httpRequest.getHeaders().setAll(requestEntity.getHeaders());
             if (logger.isDebugEnabled()) {
               logBody(requestBody, requestContentType, converter);
             }

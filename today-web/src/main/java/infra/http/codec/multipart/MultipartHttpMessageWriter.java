@@ -243,7 +243,7 @@ public class MultipartHttpMessageWriter extends MultipartWriterSupport implement
     Object body;
     ResolvableType resolvableType = null;
     if (value instanceof HttpEntity<?> httpEntity) {
-      headers.setAll(httpEntity.headers());
+      headers.setAll(httpEntity.getHeaders());
       body = httpEntity.getBody();
       Assert.state(body != null, "MultipartHttpMessageWriter only supports HttpEntity with body");
       if (httpEntity instanceof ResolvableTypeProvider provider) {

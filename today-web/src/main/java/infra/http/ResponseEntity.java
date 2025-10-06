@@ -199,7 +199,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
       builder.append(body);
       builder.append(',');
     }
-    builder.append(toString(headers()));
+    builder.append(toString(getHeaders()));
     builder.append('>');
     return builder.toString();
   }
@@ -379,7 +379,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
     B headers(Consumer<HttpHeaders> headersConsumer);
 
     /**
-     * Set the set of allowed {@link jodd.net.HttpMethod HTTP methods}, as specified
+     * Set the set of allowed {@link HttpMethod HTTP methods}, as specified
      * by the {@code Allow} header.
      *
      * @param allowedMethods the allowed methods

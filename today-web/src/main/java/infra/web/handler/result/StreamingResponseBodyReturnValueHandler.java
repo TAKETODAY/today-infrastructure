@@ -71,7 +71,7 @@ public class StreamingResponseBodyReturnValueHandler implements HandlerMethodRet
 
     if (returnValue instanceof ResponseEntity<?> entity) {
       context.setStatus(entity.getStatusCode());
-      context.addHeaders(entity.headers());
+      context.addHeaders(entity.getHeaders());
       returnValue = entity.getBody();
       if (returnValue == null) {
         return;

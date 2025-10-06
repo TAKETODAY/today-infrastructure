@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ public class HttpEntityTests {
     String body = "foo";
     HttpEntity<String> entity = new HttpEntity<>(body);
     assertThat(entity.getBody()).isSameAs(body);
-    assertThat(entity.getHeaders().isEmpty()).isTrue();
+    assertThat(entity.headers().isEmpty()).isTrue();
   }
 
   @Test
@@ -45,8 +45,8 @@ public class HttpEntityTests {
     String body = "foo";
     HttpEntity<String> entity = new HttpEntity<>(body, headers);
     assertThat(entity.getBody()).isEqualTo(body);
-    assertThat(entity.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
-    assertThat(entity.getHeaders().getFirst("Content-Type")).isEqualTo("text/plain");
+    assertThat(entity.headers().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(entity.headers().getFirst("Content-Type")).isEqualTo("text/plain");
   }
 
   @Test
@@ -56,8 +56,8 @@ public class HttpEntityTests {
     String body = "foo";
     HttpEntity<String> entity = new HttpEntity<>(body, map);
     assertThat(entity.getBody()).isEqualTo(body);
-    assertThat(entity.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
-    assertThat(entity.getHeaders().getFirst("Content-Type")).isEqualTo("text/plain");
+    assertThat(entity.headers().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(entity.headers().getFirst("Content-Type")).isEqualTo("text/plain");
   }
 
   @Test
@@ -93,9 +93,9 @@ public class HttpEntityTests {
     ResponseEntity<String> responseEntity2 = new ResponseEntity<>(body, headers, HttpStatus.OK);
 
     assertThat(responseEntity.getBody()).isEqualTo(body);
-    assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
-    assertThat(responseEntity.getHeaders().getFirst("Content-Type")).isEqualTo("text/plain");
-    assertThat(responseEntity.getHeaders().getFirst("Content-Type")).isEqualTo("text/plain");
+    assertThat(responseEntity.headers().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(responseEntity.headers().getFirst("Content-Type")).isEqualTo("text/plain");
+    assertThat(responseEntity.headers().getFirst("Content-Type")).isEqualTo("text/plain");
 
     assertThat(httpEntity.equals(responseEntity)).isFalse();
     assertThat(responseEntity.equals(httpEntity)).isFalse();

@@ -222,8 +222,8 @@ class WebClientIntegrationTests {
     StepVerifier.create(result)
             .consumeNextWith(entity -> {
               assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
-              assertThat(entity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-              assertThat(entity.getHeaders().getContentLength()).isEqualTo(31);
+              assertThat(entity.headers().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+              assertThat(entity.headers().getContentLength()).isEqualTo(31);
               assertThat(entity.getBody()).isEqualTo(content);
             })
             .expectComplete().verify(Duration.ofSeconds(3));
@@ -250,8 +250,8 @@ class WebClientIntegrationTests {
     StepVerifier.create(result)
             .consumeNextWith(entity -> {
               assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
-              assertThat(entity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-              assertThat(entity.getHeaders().getContentLength()).isEqualTo(31);
+              assertThat(entity.headers().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+              assertThat(entity.headers().getContentLength()).isEqualTo(31);
               assertThat(entity.getBody()).isNull();
             })
             .expectComplete().verify(Duration.ofSeconds(3));
@@ -306,8 +306,8 @@ class WebClientIntegrationTests {
     StepVerifier.create(result)
             .consumeNextWith(entity -> {
               assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
-              assertThat(entity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-              assertThat(entity.getHeaders().getContentLength()).isEqualTo(58);
+              assertThat(entity.headers().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+              assertThat(entity.headers().getContentLength()).isEqualTo(58);
               Pojo pojo1 = new Pojo("foo1", "bar1");
               Pojo pojo2 = new Pojo("foo2", "bar2");
               assertThat(entity.getBody()).isEqualTo(Arrays.asList(pojo1, pojo2));
@@ -337,8 +337,8 @@ class WebClientIntegrationTests {
 
     assertThat(entity).isNotNull();
     assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(entity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-    assertThat(entity.getHeaders().getContentLength()).isEqualTo(58);
+    assertThat(entity.headers().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+    assertThat(entity.headers().getContentLength()).isEqualTo(58);
 
     assertThat(entity.getBody()).isNotNull();
     StepVerifier.create(entity.getBody())
@@ -370,8 +370,8 @@ class WebClientIntegrationTests {
 
     assertThat(entity).isNotNull();
     assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(entity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-    assertThat(entity.getHeaders().getContentLength()).isEqualTo(58);
+    assertThat(entity.headers().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+    assertThat(entity.headers().getContentLength()).isEqualTo(58);
 
     assertThat(entity.getBody()).isNotNull();
     StepVerifier.create(entity.getBody())
@@ -424,8 +424,8 @@ class WebClientIntegrationTests {
       StepVerifier.create(result)
               .consumeNextWith(entity -> {
                 assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
-                assertThat(entity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-                assertThat(entity.getHeaders().getContentLength()).isEqualTo(2627);
+                assertThat(entity.headers().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+                assertThat(entity.headers().getContentLength()).isEqualTo(2627);
                 assertThat(entity.getBody()).isNull();
               })
               .expectComplete()
@@ -984,8 +984,8 @@ class WebClientIntegrationTests {
     StepVerifier.create(result)
             .consumeNextWith(entity -> {
               assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
-              assertThat(entity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-              assertThat(entity.getHeaders().getContentLength()).isEqualTo(31);
+              assertThat(entity.headers().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+              assertThat(entity.headers().getContentLength()).isEqualTo(31);
               assertThat(entity.getBody()).isEqualTo(new Pojo("foofoo", "barbar"));
             })
             .expectComplete().verify(Duration.ofSeconds(3));
@@ -1011,8 +1011,8 @@ class WebClientIntegrationTests {
     StepVerifier.create(result)
             .consumeNextWith(entity -> {
               assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
-              assertThat(entity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-              assertThat(entity.getHeaders().getContentLength()).isEqualTo(31);
+              assertThat(entity.headers().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+              assertThat(entity.headers().getContentLength()).isEqualTo(31);
               assertThat(entity.getBody()).isNull();
             })
             .expectComplete().verify(Duration.ofSeconds(3));
@@ -1039,8 +1039,8 @@ class WebClientIntegrationTests {
     StepVerifier.create(result)
             .consumeNextWith(entity -> {
               assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
-              assertThat(entity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-              assertThat(entity.getHeaders().getContentLength()).isEqualTo(58);
+              assertThat(entity.headers().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+              assertThat(entity.headers().getContentLength()).isEqualTo(58);
               Pojo pojo1 = new Pojo("foo1", "bar1");
               Pojo pojo2 = new Pojo("foo2", "bar2");
               assertThat(entity.getBody()).isEqualTo(Arrays.asList(pojo1, pojo2));

@@ -1842,7 +1842,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @return a combined result with comma delimitation
    */
   @Nullable
-  protected String toCommaDelimitedString(@Nullable Collection<?> value) {
+  protected String toCommaDelimitedString(@Nullable Collection<? extends @Nullable Object> value) {
     if (value == null) {
       return null;
     }
