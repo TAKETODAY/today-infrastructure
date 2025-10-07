@@ -65,8 +65,8 @@ class SecureRandomSessionIdGeneratorTests {
     generator.setSessionIdLength(32);
     String id2 = generator.generateId();
 
-    assertThat(id1).hasSize(12); // 8 bytes = 12 base64 chars
-    assertThat(id2).hasSize(44); // 32 bytes = 44 base64 chars (rounded up)
+    assertThat(id1).hasSize(8);
+    assertThat(id2).hasSize(32);
   }
 
   @Test
