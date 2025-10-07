@@ -29,12 +29,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ExceptionTests {
 
   @Nested
-  class WebSessionRequiredExceptionTests {
+  class SessionRequiredExceptionTests {
 
     @Test
     void constructor_withMessage_shouldSetMessage() {
       String message = "Session required";
-      WebSessionRequiredException exception = new WebSessionRequiredException(message);
+      SessionRequiredException exception = new SessionRequiredException(message);
 
       assertThat(exception.getMessage()).isEqualTo(message);
       assertThat(exception.getExpectedAttribute()).isNull();
@@ -44,7 +44,7 @@ class ExceptionTests {
     void constructor_withMessageAndExpectedAttribute_shouldSetBoth() {
       String message = "Session required";
       String expectedAttribute = "user";
-      WebSessionRequiredException exception = new WebSessionRequiredException(message, expectedAttribute);
+      SessionRequiredException exception = new SessionRequiredException(message, expectedAttribute);
 
       assertThat(exception.getMessage()).isEqualTo(message);
       assertThat(exception.getExpectedAttribute()).isEqualTo(expectedAttribute);
@@ -52,39 +52,39 @@ class ExceptionTests {
 
     @Test
     void getExpectedAttribute_whenNotSet_shouldReturnNull() {
-      WebSessionRequiredException exception = new WebSessionRequiredException("test");
+      SessionRequiredException exception = new SessionRequiredException("test");
       assertThat(exception.getExpectedAttribute()).isNull();
     }
 
     @Test
     void getExpectedAttribute_whenSet_shouldReturnAttributeValue() {
       String expectedAttribute = "testAttribute";
-      WebSessionRequiredException exception = new WebSessionRequiredException("test", expectedAttribute);
+      SessionRequiredException exception = new SessionRequiredException("test", expectedAttribute);
       assertThat(exception.getExpectedAttribute()).isEqualTo(expectedAttribute);
     }
 
     @Test
     void exception_shouldBeRuntimeException() {
-      WebSessionRequiredException exception = new WebSessionRequiredException("test");
+      SessionRequiredException exception = new SessionRequiredException("test");
       assertThat(exception).isInstanceOf(RuntimeException.class);
     }
 
     @Test
     void exception_shouldBeNestedRuntimeException() {
-      WebSessionRequiredException exception = new WebSessionRequiredException("test");
+      SessionRequiredException exception = new SessionRequiredException("test");
       assertThat(exception).isInstanceOf(infra.core.NestedRuntimeException.class);
     }
 
     @Test
     void constructor_withNullMessage_shouldAccept() {
-      WebSessionRequiredException exception = new WebSessionRequiredException(null);
+      SessionRequiredException exception = new SessionRequiredException(null);
       assertThat(exception.getMessage()).isNull();
       assertThat(exception.getExpectedAttribute()).isNull();
     }
 
     @Test
     void constructor_withNullExpectedAttribute_shouldAccept() {
-      WebSessionRequiredException exception = new WebSessionRequiredException("test", null);
+      SessionRequiredException exception = new SessionRequiredException("test", null);
       assertThat(exception.getMessage()).isEqualTo("test");
       assertThat(exception.getExpectedAttribute()).isNull();
     }

@@ -63,7 +63,7 @@ class InMemorySessionRepositoryTests {
   @Test
   void createSessionShouldReturnNewSession() {
     given(idGenerator.generateId()).willReturn("test-id");
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
 
     assertThat(session).isNotNull();
     assertThat(session.getId()).isEqualTo("test-id");
@@ -73,18 +73,18 @@ class InMemorySessionRepositoryTests {
 
   @Test
   void retrieveSessionShouldReturnNullForNonExistentSession() {
-    WebSession session = repository.retrieveSession("non-existent-id");
+    Session session = repository.retrieveSession("non-existent-id");
     assertThat(session).isNull();
   }
 
   @Test
   void retrieveSessionShouldReturnExistingAndNotExpiredSession() {
     given(idGenerator.generateId()).willReturn("test-id");
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
     session.start();
     session.save();
 
-    WebSession retrievedSession = repository.retrieveSession("test-id");
+    Session retrievedSession = repository.retrieveSession("test-id");
     assertThat(retrievedSession).isNotNull();
     assertThat(retrievedSession.getId()).isEqualTo("test-id");
   }
@@ -92,7 +92,7 @@ class InMemorySessionRepositoryTests {
   @Test
   void retrieveSessionShouldUpdateLastAccessTime() {
     given(idGenerator.generateId()).willReturn("test-id");
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
     session.start();
     session.save();
     Instant initialAccessTime = session.getLastAccessTime();
@@ -100,7 +100,7 @@ class InMemorySessionRepositoryTests {
     // Advance clock and retrieve session
     clock = Clock.offset(clock, Duration.ofSeconds(10));
     repository.setClock(clock);
-    WebSession retrievedSession = repository.retrieveSession(session.getId());
+    Session retrievedSession = repository.retrieveSession(session.getId());
 
     assertThat(retrievedSession).isNotNull();
     assertThat(retrievedSession.getLastAccessTime()).isAfter(initialAccessTime);
@@ -111,7 +111,7 @@ class InMemorySessionRepositoryTests {
   void retrieveSessionShouldReturnNullForExpiredSession() {
     given(idGenerator.generateId()).willReturn("test-id");
     repository.setSessionMaxIdleTime(Duration.ofMinutes(30));
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
     session.start();
     session.save();
 
@@ -119,7 +119,7 @@ class InMemorySessionRepositoryTests {
     clock = Clock.offset(clock, Duration.ofMinutes(31));
     repository.setClock(clock);
 
-    WebSession retrievedSession = repository.retrieveSession(session.getId());
+    Session retrievedSession = repository.retrieveSession(session.getId());
     assertThat(retrievedSession).isNull();
     assertThat(repository.getSessionCount()).isZero();
   }
@@ -127,20 +127,20 @@ class InMemorySessionRepositoryTests {
   @Test
   void saveShouldStoreSessionAndStartItWhenAttributeIsAdded() {
     given(idGenerator.generateId()).willReturn("test-id");
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
     session.setAttribute("foo", "bar");
     session.save();
 
     assertThat(repository.getSessionCount()).isEqualTo(1);
     assertThat(session.isStarted()).isTrue();
-    WebSession retrieved = repository.retrieveSession(session.getId());
+    Session retrieved = repository.retrieveSession(session.getId());
     assertThat(retrieved).isNotNull();
     assertThat(retrieved.getAttribute("foo")).isEqualTo("bar");
   }
 
   @Test
   void saveShouldNotStoreSessionIfNotStartedAndNoAttributes() {
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
     session.save();
 
     assertThat(repository.getSessionCount()).isZero();
@@ -150,7 +150,7 @@ class InMemorySessionRepositoryTests {
   @Test
   void saveShouldTriggerSessionCreatedEventWhenStarted() {
     given(idGenerator.generateId()).willReturn("test-id");
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
     session.start();
     session.save();
 
@@ -160,7 +160,7 @@ class InMemorySessionRepositoryTests {
   @Test
   void invalidateShouldRemoveSessionAndTriggerDestroyedEvent() {
     given(idGenerator.generateId()).willReturn("test-id");
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
     session.start();
     session.save();
 
@@ -174,7 +174,7 @@ class InMemorySessionRepositoryTests {
   @Test
   void changeSessionIdShouldUpdateSessionIdInRepository() {
     given(idGenerator.generateId()).willReturn("new-id");
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
     String oldId = session.getId();
     session.start();
     session.save();
@@ -193,12 +193,12 @@ class InMemorySessionRepositoryTests {
   void saveShouldThrowExceptionWhenMaxSessionsIsReached() {
     repository.setMaxSessions(1);
     given(idGenerator.generateId()).willReturn("id1");
-    WebSession session1 = repository.createSession();
+    Session session1 = repository.createSession();
     session1.start();
     session1.save();
 
     given(idGenerator.generateId()).willReturn("id2");
-    WebSession session2 = repository.createSession();
+    Session session2 = repository.createSession();
     session2.start();
 
     assertThatExceptionOfType(TooManyActiveSessionsException.class)
@@ -210,7 +210,7 @@ class InMemorySessionRepositoryTests {
   void removeExpiredSessionsShouldCleanUpExpiredSessions() {
     given(idGenerator.generateId()).willReturn("test-id");
     repository.setSessionMaxIdleTime(Duration.ofMinutes(10));
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
     session.start();
     session.save();
 
@@ -228,7 +228,7 @@ class InMemorySessionRepositoryTests {
   void removeExpiredSessionsShouldNotRemoveActiveSessions() {
     given(idGenerator.generateId()).willReturn("test-id");
     repository.setSessionMaxIdleTime(Duration.ofMinutes(10));
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
     session.start();
     session.save();
 
@@ -241,11 +241,11 @@ class InMemorySessionRepositoryTests {
   @Test
   void getIdentifiersShouldReturnAllSessionIds() {
     given(idGenerator.generateId()).willReturn("id1", "id2");
-    WebSession session1 = repository.createSession();
+    Session session1 = repository.createSession();
     session1.start();
     session1.save();
 
-    WebSession session2 = repository.createSession();
+    Session session2 = repository.createSession();
     session2.start();
     session2.save();
 
@@ -255,20 +255,20 @@ class InMemorySessionRepositoryTests {
   @Test
   void getSessionsShouldReturnUnmodifiableMap() {
     given(idGenerator.generateId()).willReturn("id1");
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
     session.start();
     session.save();
 
-    Map<String, WebSession> sessions = repository.getSessions();
+    Map<String, Session> sessions = repository.getSessions();
     assertThat(sessions).hasSize(1);
     assertThatExceptionOfType(UnsupportedOperationException.class)
-            .isThrownBy(() -> sessions.put("id2", mock(WebSession.class)));
+            .isThrownBy(() -> sessions.put("id2", mock(Session.class)));
   }
 
   @Test
   void removeSessionByIdShouldRemoveTheSession() {
     given(idGenerator.generateId()).willReturn("id1");
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
     session.start();
     session.save();
     assertThat(repository.getSessionCount()).isEqualTo(1);
@@ -281,7 +281,7 @@ class InMemorySessionRepositoryTests {
   @Test
   void removeSessionByInstanceShouldRemoveTheSession() {
     given(idGenerator.generateId()).willReturn("id1");
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
     session.start();
     session.save();
     assertThat(repository.getSessionCount()).isEqualTo(1);
@@ -294,7 +294,7 @@ class InMemorySessionRepositoryTests {
   @Test
   void updateLastAccessTimeShouldChangeLastAccessTime() {
     given(idGenerator.generateId()).willReturn("test-id");
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
     session.start();
     session.save();
     Instant initialAccessTime = session.getLastAccessTime();
@@ -310,14 +310,14 @@ class InMemorySessionRepositoryTests {
   @Test
   void setSessionMaxIdleTimeToNullShouldUseDefault() {
     repository.setSessionMaxIdleTime(null);
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
     assertThat(session.getMaxIdleTime()).isEqualTo(Duration.ofMinutes(30));
   }
 
   @Test
   void saveShouldNotTriggerCreatedEventTwice() {
     given(idGenerator.generateId()).willReturn("test-id");
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
     session.start(); // First trigger
     session.save();
     session.save(); // Should not trigger again

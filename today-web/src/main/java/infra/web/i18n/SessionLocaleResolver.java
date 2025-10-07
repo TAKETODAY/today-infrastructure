@@ -25,8 +25,8 @@ import java.util.TimeZone;
 import infra.core.i18n.LocaleContext;
 import infra.core.i18n.TimeZoneAwareLocaleContext;
 import infra.lang.Assert;
+import infra.session.Session;
 import infra.session.SessionManager;
-import infra.session.WebSession;
 import infra.web.RequestContext;
 import infra.web.RequestContextUtils;
 
@@ -42,7 +42,7 @@ import infra.web.RequestContextUtils;
  * attribute as well; alternatively, you may specify a default time zone.
  *
  * <p>In contrast to {@link CookieLocaleResolver}, this strategy stores locally
- * chosen locale settings in the {@code WebSession}. As a
+ * chosen locale settings in the {@code Session}. As a
  * consequence, those settings are just temporary for each session and therefore
  * lost when each session terminates.
  *
@@ -168,7 +168,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
   private <T> T getSessionAttribute(RequestContext request, String attributeName) {
     SessionManager sessionManager = getSessionManager(request);
     if (sessionManager != null) {
-      WebSession session = sessionManager.getSession(request, false);
+      Session session = sessionManager.getSession(request, false);
       if (session != null) {
         return (T) session.getAttribute(attributeName);
       }
@@ -180,7 +180,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
           RequestContext request, String attributeName, @Nullable Object attribute) {
     SessionManager sessionManager = getSessionManager(request);
     if (sessionManager != null) {
-      WebSession session = sessionManager.getSession(request);
+      Session session = sessionManager.getSession(request);
       session.setAttribute(attributeName, attribute);
     }
   }

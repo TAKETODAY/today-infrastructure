@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ import infra.context.annotation.ScopedProxyMode;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.mock.web.MockHttpSession;
-import infra.session.config.EnableWebSession;
+import infra.session.config.EnableSession;
 import infra.stereotype.Component;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
@@ -304,7 +304,7 @@ class ClassPathBeanDefinitionScannerScopeIntegrationTests {
     return context;
   }
 
-  @EnableWebSession
+  @EnableSession
   public static class AppConfig1 {
 
   }

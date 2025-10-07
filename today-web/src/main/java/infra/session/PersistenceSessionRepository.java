@@ -51,19 +51,19 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
   }
 
   @Override
-  public WebSession createSession() {
+  public Session createSession() {
     return delegate.createSession();
   }
 
   @Override
-  public WebSession createSession(String id) {
+  public Session createSession(String id) {
     return delegate.createSession(id);
   }
 
   @Nullable
   @Override
-  public WebSession retrieveSession(String sessionId) {
-    WebSession session = delegate.retrieveSession(sessionId);
+  public Session retrieveSession(String sessionId) {
+    Session session = delegate.retrieveSession(sessionId);
     if (session == null) {
       synchronized(sessionId.intern()) {
         session = delegate.retrieveSession(sessionId);
@@ -81,21 +81,21 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
   }
 
   @Override
-  public void removeSession(WebSession session) {
+  public void removeSession(Session session) {
     removeSession(session.getId());
   }
 
   @Nullable
   @Override
-  public WebSession removeSession(String sessionId) {
-    WebSession ret = delegate.removeSession(sessionId);
+  public Session removeSession(String sessionId) {
+    Session ret = delegate.removeSession(sessionId);
     removePersister(sessionId, sessionPersister);
     return ret;
   }
 
   @Override
-  public void updateLastAccessTime(WebSession webSession) {
-    delegate.updateLastAccessTime(webSession);
+  public void updateLastAccessTime(Session session) {
+    delegate.updateLastAccessTime(session);
   }
 
   @Override
@@ -123,7 +123,7 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
    */
   public void persistSessions() {
     for (String identifier : delegate.getIdentifiers()) {
-      WebSession session = delegate.retrieveSession(identifier);
+      Session session = delegate.retrieveSession(identifier);
       if (session != null) {
         try {
           sessionPersister.persist(session);
@@ -156,21 +156,21 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
   }
 
   /**
-   * for WebSession destroy event
+   * for Session destroy event
    */
-  public WebSessionListener createDestructionCallback() {
+  public SessionListener createDestructionCallback() {
     return createDestructionCallback(sessionPersister);
   }
 
   /**
-   * for WebSession destroy event
+   * for Session destroy event
    */
-  public static WebSessionListener createDestructionCallback(SessionPersister sessionPersister) {
+  public static SessionListener createDestructionCallback(SessionPersister sessionPersister) {
     Assert.notNull(sessionPersister, "No SessionPersister");
     return new PersisterDestructionCallback(sessionPersister);
   }
 
-  static class PersisterDestructionCallback implements WebSessionListener {
+  static class PersisterDestructionCallback implements SessionListener {
     final SessionPersister sessionPersister;
 
     public PersisterDestructionCallback(SessionPersister sessionPersister) {
@@ -178,7 +178,7 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
     }
 
     @Override
-    public void sessionDestroyed(WebSession session) {
+    public void sessionDestroyed(Session session) {
       removePersister(session.getId(), sessionPersister);
     }
 

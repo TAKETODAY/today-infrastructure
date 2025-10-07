@@ -31,7 +31,7 @@ import infra.context.support.ApplicationObjectSupport;
 import infra.http.CacheControl;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
-import infra.session.WebSessionRequiredException;
+import infra.session.SessionRequiredException;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 
@@ -257,7 +257,7 @@ public abstract class WebContentGenerator extends ApplicationObjectSupport {
 
     // Check whether a session is required.
     if (this.requireSession && RequestContextUtils.getSession(request, false) == null) {
-      throw new WebSessionRequiredException("Pre-existing session required but none found");
+      throw new SessionRequiredException("Pre-existing session required but none found");
     }
   }
 

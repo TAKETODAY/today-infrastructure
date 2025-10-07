@@ -20,7 +20,7 @@ package infra.session;
 import java.util.EventListener;
 
 /**
- * Interface for receiving notification events about WebSession lifecycle changes.
+ * Interface for receiving notification events about Session lifecycle changes.
  *
  * <p>
  * In order to receive these notification events, the implementation
@@ -33,10 +33,10 @@ import java.util.EventListener;
  * method in reverse order.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see WebSession
+ * @see Session
  * @since 4.0 2022/4/9 09:56
  */
-public interface WebSessionListener extends EventListener {
+public interface SessionListener extends EventListener {
 
   /**
    * Receives notification that a session has been created.
@@ -46,7 +46,7 @@ public interface WebSessionListener extends EventListener {
    *
    * @param session the session
    */
-  default void sessionCreated(WebSession session) {
+  default void sessionCreated(Session session) {
     // default do nothing
   }
 
@@ -57,7 +57,7 @@ public interface WebSessionListener extends EventListener {
    *
    * @param session the session
    */
-  default void sessionDestroyed(WebSession session) {
+  default void sessionDestroyed(Session session) {
     // default do nothing
   }
 

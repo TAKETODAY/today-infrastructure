@@ -28,7 +28,7 @@ import java.util.EventListener;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/30 14:37
  */
-public interface WebSessionAttributeListener extends EventListener {
+public interface SessionAttributeListener extends EventListener {
 
   /**
    * Notification that an attribute has been added to a session. Called after
@@ -39,7 +39,7 @@ public interface WebSessionAttributeListener extends EventListener {
    * @param attributeName name of attribute
    * @param value attribute value
    */
-  default void attributeAdded(WebSession session, String attributeName, Object value) {
+  default void attributeAdded(Session session, String attributeName, Object value) {
   }
 
   /**
@@ -51,7 +51,7 @@ public interface WebSessionAttributeListener extends EventListener {
    * @param attributeName name of attribute
    * @param value attribute value
    */
-  default void attributeRemoved(WebSession session, String attributeName, @Nullable Object value) {
+  default void attributeRemoved(Session session, String attributeName, @Nullable Object value) {
   }
 
   /**
@@ -64,7 +64,7 @@ public interface WebSessionAttributeListener extends EventListener {
    * @param oldValue old attribute value
    * @param newValue new attribute value
    */
-  default void attributeReplaced(WebSession session, String attributeName, Object oldValue, Object newValue) {
+  default void attributeReplaced(Session session, String attributeName, Object oldValue, Object newValue) {
   }
 
 }

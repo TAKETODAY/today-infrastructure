@@ -25,8 +25,8 @@ import java.util.concurrent.TimeUnit;
 
 import infra.http.CacheControl;
 import infra.http.HttpHeaders;
-import infra.session.WebSession;
-import infra.session.WebSessionRequiredException;
+import infra.session.Session;
+import infra.session.SessionRequiredException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -159,7 +159,7 @@ class WebContentGeneratorTests {
     RequestContext request = mock(RequestContext.class);
     when(request.getMethodValue()).thenReturn("GET");
 
-    assertThatExceptionOfType(WebSessionRequiredException.class)
+    assertThatExceptionOfType(SessionRequiredException.class)
             .isThrownBy(() -> generator.checkRequest(request));
   }
 
@@ -171,7 +171,7 @@ class WebContentGeneratorTests {
     RequestContext request = mock(RequestContext.class);
     when(request.getMethodValue()).thenReturn("GET");
 
-    WebSession session = mock(WebSession.class);
+    Session session = mock(Session.class);
     try (MockedStatic<RequestContextUtils> mocked = mockStatic(RequestContextUtils.class)) {
       when(RequestContextUtils.getSession(request, false)).thenReturn(session);
 
@@ -359,7 +359,7 @@ class WebContentGeneratorTests {
     try (MockedStatic<RequestContextUtils> mocked = mockStatic(RequestContextUtils.class)) {
       when(RequestContextUtils.getSession(request, false)).thenReturn(null);
 
-      assertThatExceptionOfType(WebSessionRequiredException.class)
+      assertThatExceptionOfType(SessionRequiredException.class)
               .isThrownBy(() -> generator.checkRequest(request))
               .withMessage("Pre-existing session required but none found");
     }

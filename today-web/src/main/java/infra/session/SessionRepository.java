@@ -29,37 +29,37 @@ import org.jspecify.annotations.Nullable;
  * cleaned up.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see WebSession
+ * @see Session
  * @since 2019-09-28 10:26
  */
 public interface SessionRepository {
 
   /**
-   * Create a new WebSession.
+   * Create a new Session.
    * <p>Note that this does nothing more than create a new instance.
-   * The session can later be started explicitly via {@link WebSession#start()}
+   * The session can later be started explicitly via {@link Session#start()}
    * or implicitly by adding attributes -- and then persisted via
-   * {@link WebSession#save()}.
+   * {@link Session#save()}.
    *
    * @return the created session instance
    * @since 4.0
    */
-  WebSession createSession();
+  Session createSession();
 
   /**
-   * Create a new WebSession with given session id.
+   * Create a new Session with given session id.
    * <p>Note that this does nothing more than create a new instance.
-   * The session can later be started explicitly via {@link WebSession#start()}
+   * The session can later be started explicitly via {@link Session#start()}
    * or implicitly by adding attributes -- and then persisted via
-   * {@link WebSession#save()}.
+   * {@link Session#save()}.
    *
    * @return the created session instance
    * @since 4.0
    */
-  WebSession createSession(String id);
+  Session createSession(String id);
 
   /**
-   * Return the WebSession for the given id.
+   * Return the Session for the given id.
    * <p><strong>Note:</strong> This method should perform an expiration check,
    * and if it has expired remove the session and return empty. This method
    * should also update the lastAccessTime of retrieved sessions.
@@ -68,31 +68,31 @@ public interface SessionRepository {
    * @return the session
    */
   @Nullable
-  WebSession retrieveSession(String sessionId);
+  Session retrieveSession(String sessionId);
 
   /**
-   * Remove the WebSession for the specified instance.
+   * Remove the Session for the specified instance.
    *
    * @param session the instance of the session to remove
    */
-  void removeSession(WebSession session);
+  void removeSession(Session session);
 
   /**
-   * Remove the WebSession for the specified id.
+   * Remove the Session for the specified id.
    *
    * @param sessionId the id of the session to remove
    * @return an old session
    */
   @Nullable
-  WebSession removeSession(String sessionId);
+  Session removeSession(String sessionId);
 
   /**
    * Update the last accessed timestamp to "now".
    *
-   * @param webSession the session to update
+   * @param session the session to update
    * @since 4.0
    */
-  void updateLastAccessTime(WebSession webSession);
+  void updateLastAccessTime(Session session);
 
   boolean contains(String id);
 

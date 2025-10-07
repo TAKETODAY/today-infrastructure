@@ -37,7 +37,7 @@ class AttributeBindingListenerTests {
     InMemorySessionRepository repository = new InMemorySessionRepository(
             new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
 
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
 
     SerializableAttribute attribute = new SerializableAttribute();
     session.setAttribute("valueBound", attribute);
@@ -56,7 +56,7 @@ class AttributeBindingListenerTests {
     sessionPersister.setDirectory(tempDir);
     var persistenceRepository = new PersistenceSessionRepository(sessionPersister, repository);
 
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
     session.start();
     session.save();
 
@@ -70,7 +70,7 @@ class AttributeBindingListenerTests {
 
     persistenceRepository.persistSessions();
 
-    WebSession webSession = sessionPersister.findById(session.getId());
+    Session webSession = sessionPersister.findById(session.getId());
     assertThat(webSession).isNotNull();
     assertThat(webSession.hasAttribute("serializable")).isTrue();
     assertThat(webSession.hasAttribute("unserializable")).isFalse();
@@ -85,7 +85,7 @@ class AttributeBindingListenerTests {
   void valueBoundIsCalledWhenAttributeIsSet() {
     InMemorySessionRepository repository = new InMemorySessionRepository(
             new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
 
     SerializableAttribute attribute = new SerializableAttribute();
     session.setAttribute("testAttribute", attribute);
@@ -97,7 +97,7 @@ class AttributeBindingListenerTests {
   void valueUnboundIsCalledWhenAttributeIsRemoved() {
     InMemorySessionRepository repository = new InMemorySessionRepository(
             new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
 
     SerializableAttribute attribute = new SerializableAttribute();
     session.setAttribute("testAttribute", attribute);
@@ -110,7 +110,7 @@ class AttributeBindingListenerTests {
   void valueUnboundIsCalledWhenSessionIsInvalidated() {
     InMemorySessionRepository repository = new InMemorySessionRepository(
             new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
 
     SerializableAttribute attribute = new SerializableAttribute();
     session.setAttribute("testAttribute", attribute);
@@ -123,7 +123,7 @@ class AttributeBindingListenerTests {
   void multipleAttributesWithBindingListeners() {
     InMemorySessionRepository repository = new InMemorySessionRepository(
             new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
 
     SerializableAttribute attribute1 = new SerializableAttribute();
     SerializableAttribute attribute2 = new SerializableAttribute();
@@ -144,7 +144,7 @@ class AttributeBindingListenerTests {
   void sameAttributeAddedMultipleTimes() {
     InMemorySessionRepository repository = new InMemorySessionRepository(
             new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
 
     SerializableAttribute attribute = new SerializableAttribute();
 
@@ -159,7 +159,7 @@ class AttributeBindingListenerTests {
   void attributeBindingListenerMethodsReceiveCorrectParameters() {
     InMemorySessionRepository repository = new InMemorySessionRepository(
             new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
 
     TrackingAttributeBindingListener attribute = new TrackingAttributeBindingListener();
     session.setAttribute("trackedAttribute", attribute);
@@ -178,7 +178,7 @@ class AttributeBindingListenerTests {
   void valueUnboundCalledOnSessionInvalidate() {
     InMemorySessionRepository repository = new InMemorySessionRepository(
             new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
 
     SerializableAttribute attribute = new SerializableAttribute();
     session.setAttribute("testAttribute", attribute);
@@ -193,7 +193,7 @@ class AttributeBindingListenerTests {
   void nonSerializableAttributeBindingListener() {
     InMemorySessionRepository repository = new InMemorySessionRepository(
             new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
 
     UnSerializableAttribute attribute = new UnSerializableAttribute();
     session.setAttribute("nonSerializable", attribute);
@@ -206,19 +206,19 @@ class AttributeBindingListenerTests {
   }
 
   static class TrackingAttributeBindingListener implements AttributeBindingListener {
-    WebSession boundSession;
+    Session boundSession;
     String boundAttributeName;
-    WebSession unboundSession;
+    Session unboundSession;
     String unboundAttributeName;
 
     @Override
-    public void valueBound(WebSession session, String attributeName) {
+    public void valueBound(Session session, String attributeName) {
       this.boundSession = session;
       this.boundAttributeName = attributeName;
     }
 
     @Override
-    public void valueUnbound(WebSession session, String attributeName) {
+    public void valueUnbound(Session session, String attributeName) {
       this.unboundSession = session;
       this.unboundAttributeName = attributeName;
     }
@@ -228,12 +228,12 @@ class AttributeBindingListenerTests {
     int bindCount = 0;
 
     @Override
-    public void valueBound(WebSession session, String attributeName) {
+    public void valueBound(Session session, String attributeName) {
       bindCount++;
     }
 
     @Override
-    public void valueUnbound(WebSession session, String attributeName) {
+    public void valueUnbound(Session session, String attributeName) {
       bindCount--;
     }
   }
@@ -243,12 +243,12 @@ class AttributeBindingListenerTests {
     int bindCount = 0;
 
     @Override
-    public void valueBound(WebSession session, String attributeName) {
+    public void valueBound(Session session, String attributeName) {
       bindCount++;
     }
 
     @Override
-    public void valueUnbound(WebSession session, String attributeName) {
+    public void valueUnbound(Session session, String attributeName) {
       bindCount--;
     }
   }

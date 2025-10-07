@@ -25,18 +25,18 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/10/7 09:48
  */
-class WebSessionAttributeListenerTests {
+class SessionAttributeListenerTests {
 
   @Test
   void attributeAddedIsCalledWhenAttributeIsSet() {
     SessionEventDispatcher eventDispatcher = new SessionEventDispatcher();
     InMemorySessionRepository repository = new InMemorySessionRepository(
             eventDispatcher, new SecureRandomSessionIdGenerator());
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
 
-    TestWebSessionAttributeListener listener = new TestWebSessionAttributeListener();
+    TestSessionAttributeListener listener = new TestSessionAttributeListener();
     eventDispatcher.addAttributeListeners(listener);
-    eventDispatcher.addAttributeListeners(new WebSessionAttributeListener() {
+    eventDispatcher.addAttributeListeners(new SessionAttributeListener() {
 
     });
 
@@ -54,11 +54,11 @@ class WebSessionAttributeListenerTests {
   void attributeRemovedIsCalledWhenAttributeIsRemoved() {
     SessionEventDispatcher eventDispatcher = new SessionEventDispatcher();
     InMemorySessionRepository repository = new InMemorySessionRepository(eventDispatcher, new SecureRandomSessionIdGenerator());
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
 
-    TestWebSessionAttributeListener listener = new TestWebSessionAttributeListener();
+    TestSessionAttributeListener listener = new TestSessionAttributeListener();
     eventDispatcher.addAttributeListeners(listener);
-    eventDispatcher.addAttributeListeners(new WebSessionAttributeListener() {
+    eventDispatcher.addAttributeListeners(new SessionAttributeListener() {
 
     });
 
@@ -77,11 +77,11 @@ class WebSessionAttributeListenerTests {
   void attributeReplacedIsCalledWhenAttributeIsReplaced() {
     SessionEventDispatcher eventDispatcher = new SessionEventDispatcher();
     InMemorySessionRepository repository = new InMemorySessionRepository(eventDispatcher, new SecureRandomSessionIdGenerator());
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
 
-    TestWebSessionAttributeListener listener = new TestWebSessionAttributeListener();
+    TestSessionAttributeListener listener = new TestSessionAttributeListener();
     eventDispatcher.addAttributeListeners(listener);
-    eventDispatcher.addAttributeListeners(new WebSessionAttributeListener() {
+    eventDispatcher.addAttributeListeners(new SessionAttributeListener() {
 
     });
 
@@ -101,10 +101,10 @@ class WebSessionAttributeListenerTests {
   void multipleListenersAreNotified() {
     SessionEventDispatcher eventDispatcher = new SessionEventDispatcher();
     InMemorySessionRepository repository = new InMemorySessionRepository(eventDispatcher, new SecureRandomSessionIdGenerator());
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
 
-    TestWebSessionAttributeListener listener1 = new TestWebSessionAttributeListener();
-    TestWebSessionAttributeListener listener2 = new TestWebSessionAttributeListener();
+    TestSessionAttributeListener listener1 = new TestSessionAttributeListener();
+    TestSessionAttributeListener listener2 = new TestSessionAttributeListener();
     eventDispatcher.addAttributeListeners(listener1);
     eventDispatcher.addAttributeListeners(listener2);
 
@@ -118,11 +118,11 @@ class WebSessionAttributeListenerTests {
   void sessionInvalidateTriggersAttributeRemovedEvents() {
     SessionEventDispatcher eventDispatcher = new SessionEventDispatcher();
     InMemorySessionRepository repository = new InMemorySessionRepository(eventDispatcher, new SecureRandomSessionIdGenerator());
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
 
-    TestWebSessionAttributeListener listener = new TestWebSessionAttributeListener();
+    TestSessionAttributeListener listener = new TestSessionAttributeListener();
     eventDispatcher.addAttributeListeners(listener);
-    eventDispatcher.addAttributeListeners(new WebSessionAttributeListener() {
+    eventDispatcher.addAttributeListeners(new SessionAttributeListener() {
 
     });
 
@@ -141,11 +141,11 @@ class WebSessionAttributeListenerTests {
   void replaceWithSameValueStillTriggersReplaceEvent() {
     SessionEventDispatcher eventDispatcher = new SessionEventDispatcher();
     InMemorySessionRepository repository = new InMemorySessionRepository(eventDispatcher, new SecureRandomSessionIdGenerator());
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
 
-    TestWebSessionAttributeListener listener = new TestWebSessionAttributeListener();
+    TestSessionAttributeListener listener = new TestSessionAttributeListener();
     eventDispatcher.addAttributeListeners(listener);
-    eventDispatcher.addAttributeListeners(new WebSessionAttributeListener() {
+    eventDispatcher.addAttributeListeners(new SessionAttributeListener() {
 
     });
 
@@ -160,21 +160,21 @@ class WebSessionAttributeListenerTests {
     assertThat(event.value).isSameAs(sameValue);
   }
 
-  static class TestWebSessionAttributeListener implements WebSessionAttributeListener {
+  static class TestSessionAttributeListener implements SessionAttributeListener {
     final java.util.List<SessionAttributeEvent> events = new java.util.ArrayList<>();
 
     @Override
-    public void attributeAdded(WebSession session, String attributeName, Object value) {
+    public void attributeAdded(Session session, String attributeName, Object value) {
       events.add(new SessionAttributeEvent(SessionAttributeEvent.Type.ADDED, session, attributeName, value, null));
     }
 
     @Override
-    public void attributeRemoved(WebSession session, String attributeName, Object value) {
+    public void attributeRemoved(Session session, String attributeName, Object value) {
       events.add(new SessionAttributeEvent(SessionAttributeEvent.Type.REMOVED, session, attributeName, value, null));
     }
 
     @Override
-    public void attributeReplaced(WebSession session, String attributeName, Object oldValue, Object newValue) {
+    public void attributeReplaced(Session session, String attributeName, Object oldValue, Object newValue) {
       events.add(new SessionAttributeEvent(SessionAttributeEvent.Type.REPLACED, session, attributeName, newValue, oldValue));
     }
   }
@@ -183,12 +183,12 @@ class WebSessionAttributeListenerTests {
     enum Type {ADDED, REMOVED, REPLACED}
 
     final Type type;
-    final WebSession session;
+    final Session session;
     final String attributeName;
     final Object value;
     final Object oldValue;
 
-    SessionAttributeEvent(Type type, WebSession session, String attributeName, Object value, Object oldValue) {
+    SessionAttributeEvent(Type type, Session session, String attributeName, Object value, Object oldValue) {
       this.type = type;
       this.session = session;
       this.attributeName = attributeName;

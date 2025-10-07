@@ -32,19 +32,19 @@ import static org.mockito.Mockito.when;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/10/6 15:12
  */
-class WebSessionAttributeParameterResolverTests {
+class SessionAttributeParameterResolverTests {
 
   @Test
   void constructorWithNullSessionManagerThrowsException() {
     assertThatIllegalArgumentException()
-            .isThrownBy(() -> new WebSessionAttributeParameterResolver(null, null))
+            .isThrownBy(() -> new SessionAttributeParameterResolver(null, null))
             .withMessageContaining("sessionManager is required");
   }
 
   @Test
   void supportsParameterWithSessionAttributeAnnotationReturnsTrue() {
     SessionManager sessionManager = mock(SessionManager.class);
-    WebSessionAttributeParameterResolver resolver = new WebSessionAttributeParameterResolver(sessionManager, null);
+    SessionAttributeParameterResolver resolver = new SessionAttributeParameterResolver(sessionManager, null);
 
     ResolvableMethodParameter parameter = mock(ResolvableMethodParameter.class);
     when(parameter.hasParameterAnnotation(SessionAttribute.class)).thenReturn(true);
@@ -57,7 +57,7 @@ class WebSessionAttributeParameterResolverTests {
   @Test
   void supportsParameterWithoutSessionAttributeAnnotationReturnsFalse() {
     SessionManager sessionManager = mock(SessionManager.class);
-    WebSessionAttributeParameterResolver resolver = new WebSessionAttributeParameterResolver(sessionManager, null);
+    SessionAttributeParameterResolver resolver = new SessionAttributeParameterResolver(sessionManager, null);
 
     ResolvableMethodParameter parameter = mock(ResolvableMethodParameter.class);
     when(parameter.hasParameterAnnotation(SessionAttribute.class)).thenReturn(false);
@@ -70,10 +70,10 @@ class WebSessionAttributeParameterResolverTests {
   @Test
   void resolveNameReturnsAttributeValueWhenSessionExists() throws Exception {
     SessionManager sessionManager = mock(SessionManager.class);
-    WebSessionAttributeParameterResolver resolver = new WebSessionAttributeParameterResolver(sessionManager, null);
+    SessionAttributeParameterResolver resolver = new SessionAttributeParameterResolver(sessionManager, null);
 
     RequestContext context = mock(RequestContext.class);
-    WebSession session = mock(WebSession.class);
+    Session session = mock(Session.class);
 
     when(sessionManager.getSession(context, false)).thenReturn(session);
     when(session.getAttribute("testAttribute")).thenReturn("testValue");
@@ -86,7 +86,7 @@ class WebSessionAttributeParameterResolverTests {
   @Test
   void resolveNameReturnsNullWhenSessionDoesNotExist() throws Exception {
     SessionManager sessionManager = mock(SessionManager.class);
-    WebSessionAttributeParameterResolver resolver = new WebSessionAttributeParameterResolver(sessionManager, null);
+    SessionAttributeParameterResolver resolver = new SessionAttributeParameterResolver(sessionManager, null);
 
     RequestContext context = mock(RequestContext.class);
 
@@ -100,10 +100,10 @@ class WebSessionAttributeParameterResolverTests {
   @Test
   void resolveNameReturnsNullWhenAttributeDoesNotExist() throws Exception {
     SessionManager sessionManager = mock(SessionManager.class);
-    WebSessionAttributeParameterResolver resolver = new WebSessionAttributeParameterResolver(sessionManager, null);
+    SessionAttributeParameterResolver resolver = new SessionAttributeParameterResolver(sessionManager, null);
 
     RequestContext context = mock(RequestContext.class);
-    WebSession session = mock(WebSession.class);
+    Session session = mock(Session.class);
 
     when(sessionManager.getSession(context, false)).thenReturn(session);
     when(session.getAttribute("testAttribute")).thenReturn(null);

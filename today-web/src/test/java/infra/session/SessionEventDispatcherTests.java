@@ -37,16 +37,16 @@ import static org.mockito.Mockito.verify;
 class SessionEventDispatcherTests {
 
   @Mock
-  WebSession session;
+  Session session;
 
   @Mock
-  WebSessionListener listener;
+  SessionListener listener;
 
   SessionEventDispatcher dispatcher = new SessionEventDispatcher();
 
   @Test
   void shouldNotifyListenersOnSessionCreated() {
-    dispatcher.addSessionListeners(new WebSessionListener() { });
+    dispatcher.addSessionListeners(new SessionListener() { });
     dispatcher.addSessionListeners(listener);
     dispatcher.onSessionCreated(session);
 
@@ -55,7 +55,7 @@ class SessionEventDispatcherTests {
 
   @Test
   void shouldNotifyListenersOnSessionDestroyed() {
-    dispatcher.addSessionListeners(new WebSessionListener() { });
+    dispatcher.addSessionListeners(new SessionListener() { });
     dispatcher.addSessionListeners(listener);
     dispatcher.onSessionDestroyed(session);
 
@@ -63,7 +63,7 @@ class SessionEventDispatcherTests {
   }
 
   @Mock
-  WebSessionAttributeListener attributeListener;
+  SessionAttributeListener attributeListener;
 
   @Test
   void shouldNotifyAttributeListenersOnAttributeAdded() {
@@ -101,7 +101,7 @@ class SessionEventDispatcherTests {
 
   @Test
   void shouldHandleMultipleSessionListeners() {
-    WebSessionListener listener2 = mock(WebSessionListener.class);
+    SessionListener listener2 = mock(SessionListener.class);
     dispatcher.addSessionListeners(listener, listener2);
 
     dispatcher.onSessionCreated(session);
@@ -112,7 +112,7 @@ class SessionEventDispatcherTests {
 
   @Test
   void shouldHandleMultipleAttributeListeners() {
-    WebSessionAttributeListener attributeListener2 = mock(WebSessionAttributeListener.class);
+    SessionAttributeListener attributeListener2 = mock(SessionAttributeListener.class);
     dispatcher.addAttributeListeners(attributeListener, attributeListener2);
     String name = "name";
     Object value = "value";

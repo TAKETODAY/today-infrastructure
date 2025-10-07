@@ -398,7 +398,7 @@ class MapSessionTests {
   // 属性监听器测试
   @Test
   void attributeBindingListener_shouldBeCalled() {
-    WebSessionAttributeListener listener = mock(WebSessionAttributeListener.class);
+    SessionAttributeListener listener = mock(SessionAttributeListener.class);
     session.eventDispatcher.addAttributeListeners(listener);
 
     String key = "test-key";
@@ -410,7 +410,7 @@ class MapSessionTests {
 
   @Test
   void attributeReplaceListener_shouldBeCalled() {
-    WebSessionAttributeListener listener = mock(WebSessionAttributeListener.class);
+    SessionAttributeListener listener = mock(SessionAttributeListener.class);
     session.eventDispatcher.addAttributeListeners(listener);
 
     String key = "test-key";
@@ -426,7 +426,7 @@ class MapSessionTests {
 
   @Test
   void attributeRemoveListener_shouldBeCalled() {
-    WebSessionAttributeListener listener = mock(WebSessionAttributeListener.class);
+    SessionAttributeListener listener = mock(SessionAttributeListener.class);
     session.eventDispatcher.addAttributeListeners(listener);
 
     String key = "test-key";
@@ -441,7 +441,7 @@ class MapSessionTests {
   // 复制构造函数边界测试
   @Test
   void copyConstructor_withNullSession_shouldThrowException() {
-    assertThatThrownBy(() -> new MapSession((WebSession) null))
+    assertThatThrownBy(() -> new MapSession((Session) null))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("session is required");
   }
@@ -530,7 +530,7 @@ class MapSessionTests {
   @Test
   void setAttributeAddsNewAttribute() {
     MapSession session = new MapSession();
-    WebSessionAttributeListener listener = mock(WebSessionAttributeListener.class);
+    SessionAttributeListener listener = mock(SessionAttributeListener.class);
     session.eventDispatcher.addAttributeListeners(listener);
 
     session.setAttribute("key", "value");
@@ -542,7 +542,7 @@ class MapSessionTests {
   @Test
   void setAttributeReplacesExistingAttribute() {
     MapSession session = new MapSession();
-    WebSessionAttributeListener listener = mock(WebSessionAttributeListener.class);
+    SessionAttributeListener listener = mock(SessionAttributeListener.class);
     session.eventDispatcher.addAttributeListeners(listener);
 
     session.setAttribute("key", "oldValue");
@@ -556,7 +556,7 @@ class MapSessionTests {
   @Test
   void setAttributeWithSameValueDoesNotTriggerReplaceEvent() {
     MapSession session = new MapSession();
-    WebSessionAttributeListener listener = mock(WebSessionAttributeListener.class);
+    SessionAttributeListener listener = mock(SessionAttributeListener.class);
     session.eventDispatcher.addAttributeListeners(listener);
 
     session.setAttribute("key", "value");
@@ -570,7 +570,7 @@ class MapSessionTests {
   @Test
   void setAttributeWithNullValueRemovesAttribute() {
     MapSession session = new MapSession();
-    WebSessionAttributeListener listener = mock(WebSessionAttributeListener.class);
+    SessionAttributeListener listener = mock(SessionAttributeListener.class);
     session.eventDispatcher.addAttributeListeners(listener);
 
     session.setAttribute("key", "value");
@@ -584,7 +584,7 @@ class MapSessionTests {
   @Test
   void setAttributesWithMap() {
     MapSession session = new MapSession();
-    WebSessionAttributeListener listener = mock(WebSessionAttributeListener.class);
+    SessionAttributeListener listener = mock(SessionAttributeListener.class);
     session.eventDispatcher.addAttributeListeners(listener);
 
     Map<String, Object> attrs = Map.of("key1", "value1", "key2", "value2");
@@ -599,7 +599,7 @@ class MapSessionTests {
   @Test
   void removeAttribute() {
     MapSession session = new MapSession();
-    WebSessionAttributeListener listener = mock(WebSessionAttributeListener.class);
+    SessionAttributeListener listener = mock(SessionAttributeListener.class);
     session.eventDispatcher.addAttributeListeners(listener);
 
     session.setAttribute("key", "value");
@@ -614,7 +614,7 @@ class MapSessionTests {
   @Test
   void removeNonExistentAttribute() {
     MapSession session = new MapSession();
-    WebSessionAttributeListener listener = mock(WebSessionAttributeListener.class);
+    SessionAttributeListener listener = mock(SessionAttributeListener.class);
     session.eventDispatcher.addAttributeListeners(listener);
 
     Object removed = session.removeAttribute("nonExistent");
@@ -725,7 +725,7 @@ class MapSessionTests {
   @Test
   void invalidateTriggersEvents() {
     MapSession session = new MapSession();
-    WebSessionAttributeListener listener = mock(WebSessionAttributeListener.class);
+    SessionAttributeListener listener = mock(SessionAttributeListener.class);
     session.eventDispatcher.addAttributeListeners(listener);
 
     session.setAttribute("key1", "value1");

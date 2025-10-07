@@ -30,7 +30,7 @@ import infra.core.Conventions;
 import infra.http.HttpHeaders;
 import infra.lang.Assert;
 import infra.logging.LoggerFactory;
-import infra.session.WebSession;
+import infra.session.Session;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
@@ -73,16 +73,16 @@ public abstract class WebUtils {
    * the entire lifetime of the session, available under the key defined
    * by the {@code SESSION_MUTEX_ATTRIBUTE} constant. It serves as a
    * safe reference to synchronize on for locking on the current session.
-   * <p>In many cases, the WebSession reference itself is a safe mutex
+   * <p>In many cases, the Session reference itself is a safe mutex
    * as well, since it will always be the same object reference for the
    * same active logical session. However, this is not guaranteed across
    * different containers; the only 100% safe way is a session mutex.
    *
-   * @param session the WebSession to find a mutex for
+   * @param session the Session to find a mutex for
    * @return the mutex object (never {@code null})
    * @see #SESSION_MUTEX_ATTRIBUTE
    */
-  public static Object getSessionMutex(WebSession session) {
+  public static Object getSessionMutex(Session session) {
     Assert.notNull(session, "Session is required");
     Object mutex = session.getAttribute(SESSION_MUTEX_ATTRIBUTE);
     if (mutex == null) {

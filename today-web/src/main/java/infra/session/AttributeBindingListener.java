@@ -21,13 +21,13 @@ import java.util.EventListener;
 
 /**
  * Causes an object to be notified when it is bound to or unbound from a session.
- * The object is notified by an {@link WebSession} object.
+ * The object is notified by an {@link Session} object.
  * This may be as a result of a programmer explicitly unbinding an
  * attribute from a session, due to a session being invalidated, or due to a session timing out.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see WebSession
- * @see WebSession#setAttribute(String, Object)
+ * @see Session
+ * @see Session#setAttribute(String, Object)
  * @since 4.0 2022/10/30 14:17
  */
 public interface AttributeBindingListener extends EventListener {
@@ -41,9 +41,9 @@ public interface AttributeBindingListener extends EventListener {
    * @param session web session
    * @param attributeName attribute name
    * @see #valueUnbound
-   * @see WebSession#setAttribute(String, Object)
+   * @see Session#setAttribute(String, Object)
    */
-  default void valueBound(WebSession session, String attributeName) {
+  default void valueBound(Session session, String attributeName) {
   }
 
   /**
@@ -55,9 +55,9 @@ public interface AttributeBindingListener extends EventListener {
    * @param session session
    * @param attributeName attribute name
    * @see #valueBound
-   * @see WebSession#setAttribute(String, Object)
+   * @see Session#setAttribute(String, Object)
    */
-  default void valueUnbound(WebSession session, String attributeName) {
+  default void valueUnbound(Session session, String attributeName) {
   }
 
 }

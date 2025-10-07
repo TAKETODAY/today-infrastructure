@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,8 +22,8 @@ import org.junit.jupiter.api.Test;
 import infra.beans.factory.annotation.Autowired;
 import infra.beans.testfixture.beans.TestBean;
 import infra.mock.web.HttpMockRequestImpl;
-import infra.session.WebSession;
-import infra.session.config.EnableWebSession;
+import infra.session.Session;
+import infra.session.config.EnableSession;
 import infra.test.context.junit.jupiter.web.JUnitWebConfig;
 import infra.web.mock.WebApplicationContext;
 
@@ -46,9 +46,9 @@ class RequestAndSessionScopedBeansWacTests {
   HttpMockRequestImpl request;
 
   @Autowired
-  WebSession session;
+  Session session;
 
-  @EnableWebSession
+  @EnableSession
   static class Config {
 
   }

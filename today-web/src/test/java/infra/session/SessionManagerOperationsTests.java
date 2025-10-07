@@ -41,7 +41,7 @@ class SessionManagerOperationsTests {
 
   private MockRequestContext requestContext;
 
-  private WebSession session;
+  private Session session;
 
   @BeforeEach
   void setUp() {
@@ -66,7 +66,7 @@ class SessionManagerOperationsTests {
   void getSession_withoutCreateFlag_shouldDelegateToSessionManager() {
     when(sessionManager.getSession(requestContext)).thenReturn(session);
 
-    WebSession result = sessionManagerOperations.getSession(requestContext);
+    Session result = sessionManagerOperations.getSession(requestContext);
 
     assertThat(result).isEqualTo(session);
     verify(sessionManager).getSession(requestContext);
@@ -76,7 +76,7 @@ class SessionManagerOperationsTests {
   void getSession_withCreateTrue_shouldDelegateToSessionManager() {
     when(sessionManager.getSession(requestContext, true)).thenReturn(session);
 
-    WebSession result = sessionManagerOperations.getSession(requestContext, true);
+    Session result = sessionManagerOperations.getSession(requestContext, true);
 
     assertThat(result).isEqualTo(session);
     verify(sessionManager).getSession(requestContext, true);
@@ -86,7 +86,7 @@ class SessionManagerOperationsTests {
   void getSession_withCreateFalse_shouldDelegateToSessionManager() {
     when(sessionManager.getSession(requestContext, false)).thenReturn(null);
 
-    WebSession result = sessionManagerOperations.getSession(requestContext, false);
+    Session result = sessionManagerOperations.getSession(requestContext, false);
 
     assertThat(result).isNull();
     verify(sessionManager).getSession(requestContext, false);

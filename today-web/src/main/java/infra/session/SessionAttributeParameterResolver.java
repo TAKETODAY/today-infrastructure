@@ -27,19 +27,18 @@ import infra.web.bind.resolver.AbstractNamedValueResolvingStrategy;
 import infra.web.handler.method.ResolvableMethodParameter;
 
 /**
- * resolve attribute from {@link WebSession}
+ * resolve attribute from {@link Session}
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see SessionAttribute
- * @see WebSession#getAttribute(String)
+ * @see Session#getAttribute(String)
  * @since 2019-09-27 22:42
  */
-public class WebSessionAttributeParameterResolver extends AbstractNamedValueResolvingStrategy {
+public class SessionAttributeParameterResolver extends AbstractNamedValueResolvingStrategy {
 
   private final SessionManager sessionManager;
 
-  public WebSessionAttributeParameterResolver(
-          SessionManager sessionManager, @Nullable ConfigurableBeanFactory beanFactory) {
+  public SessionAttributeParameterResolver(SessionManager sessionManager, @Nullable ConfigurableBeanFactory beanFactory) {
     super(beanFactory);
     Assert.notNull(sessionManager, "sessionManager is required");
     this.sessionManager = sessionManager;
@@ -53,7 +52,7 @@ public class WebSessionAttributeParameterResolver extends AbstractNamedValueReso
   @Nullable
   @Override
   protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
-    WebSession session = sessionManager.getSession(context, false);
+    Session session = sessionManager.getSession(context, false);
     if (session == null) {
       return null;
     }

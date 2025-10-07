@@ -73,9 +73,9 @@ public class InMemorySessionRepository implements SessionRepository {
    * When an attribute that is already present in the session is added again
    * under the same name and the attribute implements {@link
    * AttributeBindingListener}, should
-   * {@link AttributeBindingListener#valueUnbound(WebSession, String)} )}
+   * {@link AttributeBindingListener#valueUnbound(Session, String)} )}
    * be called followed by
-   * {@link AttributeBindingListener#valueBound(WebSession, String)}
+   * {@link AttributeBindingListener#valueBound(Session, String)}
    * <p>
    * The default value is {@code false}.
    * <p>
@@ -97,7 +97,7 @@ public class InMemorySessionRepository implements SessionRepository {
 
   private final ExpiredSessionChecker expiredSessionChecker = new ExpiredSessionChecker();
 
-  private final ConcurrentHashMap<String, InMemoryWebSession> sessions = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<String, InMemorySession> sessions = new ConcurrentHashMap<>();
 
   public InMemorySessionRepository(SessionEventDispatcher eventDispatcher, SessionIdGenerator idGenerator) {
     Assert.notNull(idGenerator, "SessionIdGenerator is required");
@@ -142,9 +142,9 @@ public class InMemorySessionRepository implements SessionRepository {
    * When an attribute that is already present in the session is added again
    * under the same name and the attribute implements {@link
    * AttributeBindingListener}, should
-   * {@link AttributeBindingListener#valueUnbound(WebSession, String)}
+   * {@link AttributeBindingListener#valueUnbound(Session, String)}
    * be called followed by
-   * {@link AttributeBindingListener#valueBound(WebSession, String)}
+   * {@link AttributeBindingListener#valueBound(Session, String)}
    * <p>
    * The default value is {@code false}.
    * <p>
@@ -160,9 +160,9 @@ public class InMemorySessionRepository implements SessionRepository {
   /**
    * When an attribute that is already present in the session is added again
    * under the same name and a {@link
-   * WebSessionAttributeListener} is configured for the
+   * SessionAttributeListener} is configured for the
    * session should
-   * {@link WebSessionAttributeListener#attributeReplaced(WebSession, String, Object, Object)}
+   * {@link SessionAttributeListener#attributeReplaced(Session, String, Object, Object)}
    * be called?
    * <p>
    * The default value is {@code true}.
@@ -216,30 +216,30 @@ public class InMemorySessionRepository implements SessionRepository {
    * unmodifiable} wrapper. This could be used for management purposes, to
    * list active sessions, invalidate expired ones, etc.
    */
-  public Map<String, WebSession> getSessions() {
+  public Map<String, Session> getSessions() {
     return Collections.unmodifiableMap(this.sessions);
   }
 
   @Override
-  public WebSession createSession() {
+  public Session createSession() {
     return createSession(idGenerator.generateId());
   }
 
   @Override
-  public WebSession createSession(String id) {
+  public Session createSession(String id) {
     // Opportunity to clean expired sessions
     Instant now = clock.instant();
     expiredSessionChecker.checkIfNecessary(now);
-    return new InMemoryWebSession(id, now, maxIdleTime);
+    return new InMemorySession(id, now, maxIdleTime);
   }
 
   @Override
   @Nullable
-  public WebSession retrieveSession(String id) {
+  public Session retrieveSession(String id) {
     Instant now = clock.instant();
     expiredSessionChecker.checkIfNecessary(now);
 
-    InMemoryWebSession session = sessions.get(id);
+    InMemorySession session = sessions.get(id);
     if (session == null) {
       return null;
     }
@@ -254,17 +254,17 @@ public class InMemorySessionRepository implements SessionRepository {
   }
 
   @Override
-  public void removeSession(WebSession session) {
+  public void removeSession(Session session) {
     removeSession(session.getId());
   }
 
   @Override
-  public WebSession removeSession(String id) {
+  public Session removeSession(String id) {
     return sessions.remove(id);
   }
 
   @Override
-  public void updateLastAccessTime(WebSession session) {
+  public void updateLastAccessTime(Session session) {
     session.setLastAccessTime(clock.instant());
   }
 
@@ -286,7 +286,7 @@ public class InMemorySessionRepository implements SessionRepository {
   }
 
   @SuppressWarnings("NullAway")
-  final class InMemoryWebSession extends AbstractWebSession implements WebSession, Serializable, SerializableSession {
+  final class InMemorySession extends AbstractSession implements Session, Serializable, SerializableSession {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -301,7 +301,7 @@ public class InMemorySessionRepository implements SessionRepository {
 
     private final AtomicReference<State> state = new AtomicReference<>(State.NEW);
 
-    InMemoryWebSession(String id, Instant creationTime, Duration maxIdleTime) {
+    InMemorySession(String id, Instant creationTime, Duration maxIdleTime) {
       super(InMemorySessionRepository.this.eventDispatcher);
       this.id = new AtomicReference<>(id);
       this.maxIdleTime = maxIdleTime;
@@ -536,7 +536,7 @@ public class InMemorySessionRepository implements SessionRepository {
         return true;
       if (o == null || getClass() != o.getClass())
         return false;
-      InMemoryWebSession that = (InMemoryWebSession) o;
+      InMemorySession that = (InMemorySession) o;
       return Objects.equals(id.get(), that.id.get())
               && Objects.equals(state.get(), that.state.get())
               && Objects.equals(creationTime, that.creationTime)
@@ -570,9 +570,9 @@ public class InMemorySessionRepository implements SessionRepository {
       if (!sessions.isEmpty()) {
         if (lock.tryLock()) {
           try {
-            Iterator<InMemoryWebSession> iterator = sessions.values().iterator();
+            Iterator<InMemorySession> iterator = sessions.values().iterator();
             while (iterator.hasNext()) {
-              InMemoryWebSession session = iterator.next();
+              InMemorySession session = iterator.next();
               if (session.isExpired(now)) {
                 iterator.remove();
                 session.invalidate();

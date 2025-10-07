@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 import infra.web.RequestContext;
 
 /**
- * Main class for access to the {@link WebSession} for an HTTP request.
+ * Main class for access to the {@link Session} for an HTTP request.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see SessionIdResolver
@@ -34,17 +34,17 @@ public interface SessionManager {
   /**
    * default bean name
    */
-  String BEAN_NAME = "webSessionManager";
+  String BEAN_NAME = "sessionManager";
 
   /**
    * create a new session
    */
-  WebSession createSession();
+  Session createSession();
 
   /**
    * create a new session associated with {@link RequestContext}
    */
-  WebSession createSession(RequestContext context);
+  Session createSession(RequestContext context);
 
   /**
    * Get a session with given session id
@@ -53,26 +53,26 @@ public interface SessionManager {
    * </p>
    */
   @Nullable
-  WebSession getSession(@Nullable String sessionId);
+  Session getSession(@Nullable String sessionId);
 
   /**
    * Returns the current session associated with this request, or if the request
    * does not have a session, creates one.
    *
    * @param context Current request
-   * @return the <code>WebSession</code> associated with this request
+   * @return the <code>Session</code> associated with this request
    * @see #getSession(RequestContext, boolean)
    */
-  WebSession getSession(RequestContext context);
+  Session getSession(RequestContext context);
 
   /**
-   * Returns the current <code>WebSession</code> associated with this request or,
+   * Returns the current <code>Session</code> associated with this request or,
    * if there is no current session and <code>create</code> is true, returns a new
    * session.
    *
    * <p>
    * If <code>create</code> is <code>false</code> and the request has no valid
-   * <code>WebSession</code>, this method returns <code>null</code>.
+   * <code>Session</code>, this method returns <code>null</code>.
    *
    * <p>
    * To make sure the session is properly maintained, you must call this method
@@ -84,12 +84,12 @@ public interface SessionManager {
    * @param create <code>true</code> to create a new session for this request if
    * necessary; <code>false</code> to return <code>null</code> if
    * there's no current session
-   * @return the <code>WebSession</code> associated with this request or
+   * @return the <code>Session</code> associated with this request or
    * <code>null</code> if <code>create</code> is <code>false</code> and
    * the request has no valid session
    * @see #getSession(RequestContext)
    */
   @Nullable
-  WebSession getSession(RequestContext context, boolean create);
+  Session getSession(RequestContext context, boolean create);
 
 }

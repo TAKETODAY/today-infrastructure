@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,8 +51,8 @@ import infra.mock.web.MockHttpResponseImpl;
 import infra.session.CookieSessionIdResolver;
 import infra.session.MapSession;
 import infra.session.SessionRepository;
-import infra.session.WebSession;
-import infra.session.config.EnableWebSession;
+import infra.session.Session;
+import infra.session.config.EnableSession;
 import infra.web.RequestContextHolder;
 import infra.web.RequestContextUtils;
 import infra.web.context.support.SessionScope;
@@ -95,7 +95,7 @@ public class SessionScopeTests {
   public void getFromScope() throws Exception {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     MockRequestContext requestAttributes = getContext(request);
-    WebSession session = RequestContextUtils.getRequiredSession(requestAttributes);
+    Session session = RequestContextUtils.getRequiredSession(requestAttributes);
 
     String name = "sessionScopedObject";
     assertThat(session.getAttribute(name)).isNull();
@@ -117,7 +117,7 @@ public class SessionScopeTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
 
     MockRequestContext requestAttributes = getContext(request);
-    WebSession session = RequestContextUtils.getSession(requestAttributes);
+    Session session = RequestContextUtils.getSession(requestAttributes);
     String name = "sessionScopedDisposableObject";
     assertThat(session.getAttribute(name)).isNull();
     DerivedTestBean bean = (DerivedTestBean) this.beanFactory.getBean(name);
@@ -158,7 +158,7 @@ public class SessionScopeTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
 
     MockRequestContext requestAttributes = getContext(request);
-    WebSession session = RequestContextUtils.getRequiredSession(requestAttributes);
+    Session session = RequestContextUtils.getRequiredSession(requestAttributes);
     String name = "sessionScopedDisposableObject";
     assertThat(session.getAttribute(name)).isNull();
     DerivedTestBean bean = (DerivedTestBean) this.beanFactory.getBean(name);
@@ -174,13 +174,13 @@ public class SessionScopeTests {
     SessionRepository repository = beanFactory.getBean(SessionRepository.class);
 
     DirectFieldAccessor beanWrapper = BeanWrapper.forDirectFieldAccess(repository);
-    ConcurrentHashMap<String, WebSession> sessions = (ConcurrentHashMap<String, WebSession>)
+    ConcurrentHashMap<String, Session> sessions = (ConcurrentHashMap<String, Session>)
             beanWrapper.getPropertyValue("sessions");
 
     session = new MapSession();
     deserializeState(session, serializedState);
 
-    WebSession finalSession = session;
+    Session finalSession = session;
     sessions.replaceAll((s, webSession) -> finalSession);
     request = new HttpMockRequestImpl();
 
@@ -207,12 +207,12 @@ public class SessionScopeTests {
     }
   }
 
-  private void deserializeState(WebSession session, Serializable state) {
+  private void deserializeState(Session session, Serializable state) {
     Assert.isTrue(state instanceof Map, "Serialized state needs to be of type [java.util.Map]");
     session.getAttributes().putAll((Map<String, Object>) state);
   }
 
-  private Serializable serializeState(WebSession session) {
+  private Serializable serializeState(Session session) {
     HashMap<String, Serializable> state = new HashMap<>();
     for (Iterator<Map.Entry<String, Object>> it = session.getAttributes().entrySet().iterator(); it.hasNext(); ) {
       Map.Entry<String, Object> entry = it.next();
@@ -270,7 +270,7 @@ public class SessionScopeTests {
     }
   }
 
-  @EnableWebSession
+  @EnableSession
   static class SessionConfig {
 
   }

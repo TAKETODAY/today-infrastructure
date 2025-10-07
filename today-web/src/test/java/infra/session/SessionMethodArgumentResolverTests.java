@@ -38,7 +38,7 @@ class SessionMethodArgumentResolverTests {
     SessionMethodArgumentResolver resolver = new SessionMethodArgumentResolver(sessionManager);
 
     ResolvableMethodParameter parameter = mock(ResolvableMethodParameter.class);
-    when(parameter.isAssignableTo(WebSession.class)).thenReturn(true);
+    when(parameter.isAssignableTo(Session.class)).thenReturn(true);
 
     boolean result = resolver.supportsParameter(parameter);
 
@@ -51,7 +51,7 @@ class SessionMethodArgumentResolverTests {
     SessionMethodArgumentResolver resolver = new SessionMethodArgumentResolver(sessionManager);
 
     ResolvableMethodParameter parameter = mock(ResolvableMethodParameter.class);
-    when(parameter.isAssignableTo(WebSession.class)).thenReturn(false);
+    when(parameter.isAssignableTo(Session.class)).thenReturn(false);
 
     boolean result = resolver.supportsParameter(parameter);
 
@@ -61,7 +61,7 @@ class SessionMethodArgumentResolverTests {
   @Test
   void resolveArgumentWithRequiredParameterReturnsSession() {
     SessionManager sessionManager = mock(SessionManager.class);
-    WebSession session = mock(WebSession.class);
+    Session session = mock(Session.class);
     SessionMethodArgumentResolver resolver = new SessionMethodArgumentResolver(sessionManager);
 
     RequestContext context = mock(RequestContext.class);
@@ -78,7 +78,7 @@ class SessionMethodArgumentResolverTests {
   @Test
   void resolveArgumentWithOptionalParameterReturnsSessionIfExists() {
     SessionManager sessionManager = mock(SessionManager.class);
-    WebSession session = mock(WebSession.class);
+    Session session = mock(Session.class);
     SessionMethodArgumentResolver resolver = new SessionMethodArgumentResolver(sessionManager);
 
     RequestContext context = mock(RequestContext.class);

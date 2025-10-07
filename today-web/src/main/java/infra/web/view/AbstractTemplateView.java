@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@ package infra.web.view;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import infra.session.Session;
 import infra.session.SessionManager;
-import infra.session.WebSession;
 import infra.web.RequestContext;
 import infra.web.RequestContextUtils;
 
@@ -127,7 +127,7 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
   private void exposeSessionAttributes(Map<String, Object> model, RequestContext context) {
     SessionManager sessionManager = RequestContextUtils.getSessionManager(context);
     if (sessionManager != null) {
-      WebSession session = sessionManager.getSession(context, false);
+      Session session = sessionManager.getSession(context, false);
       if (session != null) {
         Map<String, Object> exposed = null;
         String[] attributeNames = session.getAttributeNames();

@@ -36,7 +36,7 @@ import infra.context.annotation.Import;
  * <p>Example usage:</p>
  * <pre>{@code
  * @Configuration
- * @EnableWebSession
+ * @EnableSession
  * public class MyWebConfiguration {
  *     // Configuration code here
  * }
@@ -49,6 +49,6 @@ import infra.context.annotation.Import;
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Import(WebSessionConfiguration.class)
-public @interface EnableWebSession {
+public @interface EnableSession {
 
 }

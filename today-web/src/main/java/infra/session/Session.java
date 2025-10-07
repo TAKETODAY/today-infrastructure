@@ -29,7 +29,7 @@ import infra.core.AttributeAccessor;
  * Main contract for using a server-side session that provides access to session
  * attributes across HTTP requests.
  *
- * <p>The creation of a {@code WebSession} instance does not automatically start
+ * <p>The creation of a {@code Session} instance does not automatically start
  * a session thus causing the session id to be sent to the client (typically via
  * a cookie). A session starts implicitly when session attributes are added.
  * A session may also be created explicitly via {@link #start()}.
@@ -38,7 +38,7 @@ import infra.core.AttributeAccessor;
  * @see AttributeBindingListener
  * @since 2019-09-27 20:16
  */
-public interface WebSession extends AttributeAccessor {
+public interface Session extends AttributeAccessor {
 
   /**
    * returns this session's id
@@ -72,7 +72,7 @@ public interface WebSession extends AttributeAccessor {
    * <li>If the session is new (i.e. created but never persisted), it must have
    * been started explicitly via {@link #start()} or implicitly by adding
    * attributes, or otherwise this method should have no effect.
-   * <li>If the session was retrieved through the {@code WebSessionStore},
+   * <li>If the session was retrieved through the {@code SessionStore},
    * the implementation for this method must check whether the session was
    * {@link #invalidate() invalidated} and if so return an error.
    * </ul>
@@ -91,7 +91,7 @@ public interface WebSession extends AttributeAccessor {
    * Return {@code true} if the session expired after {@link #getMaxIdleTime()
    * maxIdleTime} elapsed.
    * <p>Typically expiration checks should be automatically made when a session
-   * is accessed, a new {@code WebSession} instance created if necessary, at
+   * is accessed, a new {@code Session} instance created if necessary, at
    * the start of request processing so that applications don't have to worry
    * about expired session by default.
    */
@@ -180,7 +180,7 @@ public interface WebSession extends AttributeAccessor {
    * After this method executes, and if the object implements <code>
    * AttributeBindingListener</code>, the container calls <code>
    * AttributeBindingListener.valueUnbound </code>. The container
-   * then notifies any <code>WebSessionAttributeListener</code>s
+   * then notifies any <code>SessionAttributeListener</code>s
    * in the web application.
    *
    * @param name the name of the object to remove from this session

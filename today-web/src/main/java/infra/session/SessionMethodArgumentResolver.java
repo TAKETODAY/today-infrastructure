@@ -24,21 +24,21 @@ import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.handler.method.ResolvableMethodParameter;
 
 /**
- * for {@link WebSession} Type-based parameter resolving
+ * for {@link Session} Type-based parameter resolving
  * <p>
  * Like following example
  * <pre>
  * {@code
- *  // if request not contains a WebSession create new one
+ *  // if request not contains a Session create new one
  *  @GET("/captcha")
- *  public BufferedImage captcha(WebSession session) {
+ *  public BufferedImage captcha(Session session) {
  *     ...
  *     session.setAttribute(RAND_CODE, randCode);
  *     return image;
  *  }
- *  // WebSession may be null
+ *  // Session may be null
  *  @GET("/test")
- *  public void nullable(@Nullable WebSession session) {
+ *  public void nullable(@Nullable Session session) {
  *     ...
  *     if (session == null) {
  *
@@ -52,7 +52,7 @@ import infra.web.handler.method.ResolvableMethodParameter;
  * </pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see WebSession
+ * @see Session
  * @since 2019-09-27 22:36
  */
 public class SessionMethodArgumentResolver extends SessionManagerOperations implements ParameterResolvingStrategy {
@@ -63,7 +63,7 @@ public class SessionMethodArgumentResolver extends SessionManagerOperations impl
 
   @Override
   public boolean supportsParameter(ResolvableMethodParameter parameter) {
-    return parameter.isAssignableTo(WebSession.class);
+    return parameter.isAssignableTo(Session.class);
   }
 
   @Nullable
