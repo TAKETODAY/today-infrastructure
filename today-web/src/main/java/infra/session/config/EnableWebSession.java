@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.session.config;
@@ -28,9 +25,26 @@ import java.lang.annotation.Target;
 import infra.context.annotation.Import;
 
 /**
- * Enable web-session supports, like servlet's http-session
+ * Annotation to enable web session support.
  *
- * @author TODAY 2019-10-03 00:30
+ * <p>
+ * This annotation enables web session functionality, such as HTTP session management
+ * in servlet-based applications. When present on a configuration class, it imports
+ * the {@link WebSessionConfiguration} which provides the necessary infrastructure
+ * for handling web sessions.
+ *
+ * <p>Example usage:</p>
+ * <pre>{@code
+ * @Configuration
+ * @EnableWebSession
+ * public class MyWebConfiguration {
+ *     // Configuration code here
+ * }
+ * }</pre>
+ *
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @see WebSessionConfiguration
+ * @since 2019-10-03 00:30
  */
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
