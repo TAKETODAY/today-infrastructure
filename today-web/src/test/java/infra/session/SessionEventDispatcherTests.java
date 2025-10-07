@@ -46,6 +46,7 @@ class SessionEventDispatcherTests {
 
   @Test
   void shouldNotifyListenersOnSessionCreated() {
+    dispatcher.addSessionListeners(new WebSessionListener() { });
     dispatcher.addSessionListeners(listener);
     dispatcher.onSessionCreated(session);
 
@@ -54,6 +55,7 @@ class SessionEventDispatcherTests {
 
   @Test
   void shouldNotifyListenersOnSessionDestroyed() {
+    dispatcher.addSessionListeners(new WebSessionListener() { });
     dispatcher.addSessionListeners(listener);
     dispatcher.onSessionDestroyed(session);
 
