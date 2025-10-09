@@ -37,6 +37,7 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/22 23:23
  */
+@SuppressWarnings("cast")
 class RequestContextUtilsTests {
 
   private final HttpMockRequestImpl request = new HttpMockRequestImpl();
