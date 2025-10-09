@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import infra.core.MethodParameter;
@@ -33,11 +34,21 @@ import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.http.ProblemDetail;
+import infra.util.MultiValueMap;
 import infra.validation.BindException;
 import infra.validation.BindingResult;
 import infra.validation.ObjectError;
 import infra.web.accept.InvalidApiVersionException;
 import infra.web.bind.MethodArgumentNotValidException;
+import infra.web.bind.MethodParameterResolvingException;
+import infra.web.bind.MissingMatrixVariableException;
+import infra.web.bind.MissingPathVariableException;
+import infra.web.bind.MissingRequestParameterException;
+import infra.web.bind.MissingRequestValueException;
+import infra.web.bind.MultipartException;
+import infra.web.bind.NotMultipartRequestException;
+import infra.web.bind.RequestBindingException;
+import infra.web.bind.UnsatisfiedRequestParameterException;
 import jakarta.validation.Valid;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -643,6 +654,625 @@ public class ExceptionTests {
     static class TestController {
       public void handle(@Valid String param) {
       }
+    }
+
+  }
+
+  @Nested
+  class MethodParameterResolvingExceptionTests {
+    @Test
+    void constructorWithParameterOnly() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+
+      MethodParameterResolvingException exception = new MethodParameterResolvingException(parameter);
+
+      assertThat(exception.getParameter()).isSameAs(parameter);
+      assertThat(exception.getMessage()).isNull();
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void constructorWithParameterAndMessage() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String message = "Failed to resolve parameter";
+
+      MethodParameterResolvingException exception = new MethodParameterResolvingException(parameter, message);
+
+      assertThat(exception.getParameter()).isSameAs(parameter);
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void constructorWithParameterAndCause() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      Throwable cause = new RuntimeException("test cause");
+
+      MethodParameterResolvingException exception = new MethodParameterResolvingException(parameter, cause);
+
+      assertThat(exception.getParameter()).isSameAs(parameter);
+      assertThat(exception.getMessage()).isNull();
+      assertThat(exception.getCause()).isSameAs(cause);
+    }
+
+    @Test
+    void constructorWithAllParameters() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String message = "Failed to resolve parameter";
+      Throwable cause = new RuntimeException("test cause");
+
+      MethodParameterResolvingException exception = new MethodParameterResolvingException(parameter, message, cause);
+
+      assertThat(exception.getParameter()).isSameAs(parameter);
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isSameAs(cause);
+    }
+
+    @Test
+    void getParameterNameShouldReturnParameterName() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+
+      MethodParameterResolvingException exception = new MethodParameterResolvingException(parameter);
+
+      assertThat(exception.getParameterName()).isNull(); // Parameter names are not available by default
+    }
+
+    @Test
+    void getParameterTypeShouldReturnCorrectType() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+
+      MethodParameterResolvingException exception = new MethodParameterResolvingException(parameter);
+
+      assertThat(exception.getParameterType()).isEqualTo(String.class);
+    }
+
+    @Test
+    void exceptionShouldExtendRequestBindingException() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+
+      MethodParameterResolvingException exception = new MethodParameterResolvingException(parameter);
+
+      assertThat(exception).isInstanceOf(RequestBindingException.class);
+    }
+
+    static class TestController {
+      public void testMethod(String param) {
+      }
+    }
+
+  }
+
+  @Nested
+  class MissingMatrixVariableExceptionTests {
+
+    @Test
+    void constructorWithVariableNameAndParameter() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String variableName = "testVariable";
+
+      MissingMatrixVariableException exception = new MissingMatrixVariableException(variableName, parameter);
+
+      assertThat(exception.getVariableName()).isEqualTo(variableName);
+      assertThat(exception.getParameter()).isSameAs(parameter);
+      assertThat(exception.isMissingAfterConversion()).isFalse();
+      assertThat(exception.getBody().getDetail()).isEqualTo("Required path parameter 'testVariable' is not present.");
+    }
+
+    @Test
+    void constructorWithMissingAfterConversion() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String variableName = "testVariable";
+
+      MissingMatrixVariableException exception = new MissingMatrixVariableException(variableName, parameter, true);
+
+      assertThat(exception.getVariableName()).isEqualTo(variableName);
+      assertThat(exception.getParameter()).isSameAs(parameter);
+      assertThat(exception.isMissingAfterConversion()).isTrue();
+    }
+
+    @Test
+    void getMessageWhenNotPresent() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String variableName = "testVariable";
+
+      MissingMatrixVariableException exception = new MissingMatrixVariableException(variableName, parameter);
+
+      String message = exception.getMessage();
+      assertThat(message).contains("Required matrix variable 'testVariable' for method parameter type String is not present");
+    }
+
+    @Test
+    void getMessageWhenConvertedToNull() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String variableName = "testVariable";
+
+      MissingMatrixVariableException exception = new MissingMatrixVariableException(variableName, parameter, true);
+
+      String message = exception.getMessage();
+      assertThat(message).contains("Required matrix variable 'testVariable' for method parameter type String is present but converted to null");
+    }
+
+    @Test
+    void exceptionExtendsMissingRequestValueException() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String variableName = "testVariable";
+
+      MissingMatrixVariableException exception = new MissingMatrixVariableException(variableName, parameter);
+
+      assertThat(exception).isInstanceOf(MissingRequestValueException.class);
+    }
+
+    static class TestController {
+      public void testMethod(String param) {
+      }
+    }
+
+  }
+
+  @Nested
+  class MissingPathVariableExceptionTests {
+    @Test
+    void constructorWithVariableNameAndParameter() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String variableName = "testVariable";
+
+      MissingPathVariableException exception = new MissingPathVariableException(variableName, parameter);
+
+      assertThat(exception.getVariableName()).isEqualTo(variableName);
+      assertThat(exception.getParameter()).isSameAs(parameter);
+      assertThat(exception.isMissingAfterConversion()).isFalse();
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+      assertThat(exception.getBody().getDetail()).isEqualTo("Required path variable 'testVariable' is not present.");
+    }
+
+    @Test
+    void constructorWithMissingAfterConversion() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String variableName = "testVariable";
+
+      MissingPathVariableException exception = new MissingPathVariableException(variableName, parameter, true);
+
+      assertThat(exception.getVariableName()).isEqualTo(variableName);
+      assertThat(exception.getParameter()).isSameAs(parameter);
+      assertThat(exception.isMissingAfterConversion()).isTrue();
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void getMessageWhenNotPresent() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String variableName = "testVariable";
+
+      MissingPathVariableException exception = new MissingPathVariableException(variableName, parameter);
+
+      String message = exception.getMessage();
+      assertThat(message).contains("Required URI template variable 'testVariable' for method parameter type String is not present");
+    }
+
+    @Test
+    void getMessageWhenConvertedToNull() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String variableName = "testVariable";
+
+      MissingPathVariableException exception = new MissingPathVariableException(variableName, parameter, true);
+
+      String message = exception.getMessage();
+      assertThat(message).contains("Required URI template variable 'testVariable' for method parameter type String is present but converted to null");
+    }
+
+    @Test
+    void exceptionExtendsMissingRequestValueException() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String variableName = "testVariable";
+
+      MissingPathVariableException exception = new MissingPathVariableException(variableName, parameter);
+
+      assertThat(exception).isInstanceOf(MissingRequestValueException.class);
+    }
+
+    static class TestController {
+      public void testMethod(String param) {
+      }
+    }
+
+  }
+
+  @Nested
+  class MissingRequestParameterExceptionTests {
+    @Test
+    void constructorWithParameterNameAndType() {
+      String parameterName = "testParam";
+      String parameterType = "String";
+
+      MissingRequestParameterException exception = new MissingRequestParameterException(parameterName, parameterType);
+
+      assertThat(exception.getParameterName()).isEqualTo(parameterName);
+      assertThat(exception.getParameterType()).isEqualTo(parameterType);
+      assertThat(exception.getMethodParameter()).isNull();
+      assertThat(exception.isMissingAfterConversion()).isFalse();
+      assertThat(exception.getBody().getDetail()).isEqualTo("Required parameter 'testParam' is not present.");
+    }
+
+    @Test
+    void constructorWithMethodParameterAndMissingAfterConversion() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String parameterName = "testParam";
+
+      MissingRequestParameterException exception = new MissingRequestParameterException(parameterName, parameter, true);
+
+      assertThat(exception.getParameterName()).isEqualTo(parameterName);
+      assertThat(exception.getParameterType()).isEqualTo("String");
+      assertThat(exception.getMethodParameter()).isSameAs(parameter);
+      assertThat(exception.isMissingAfterConversion()).isTrue();
+      assertThat(exception.getBody().getDetail()).isEqualTo("Required parameter 'testParam' is not present.");
+    }
+
+    @Test
+    void getMessageWhenNotPresent() {
+      String parameterName = "testParam";
+      String parameterType = "String";
+
+      MissingRequestParameterException exception = new MissingRequestParameterException(parameterName, parameterType);
+
+      String message = exception.getMessage();
+      assertThat(message).contains("Required request parameter 'testParam' for method parameter type String is not present");
+    }
+
+    @Test
+    void getMessageWhenConvertedToNull() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String parameterName = "testParam";
+
+      MissingRequestParameterException exception = new MissingRequestParameterException(parameterName, parameter, true);
+
+      String message = exception.getMessage();
+      assertThat(message).contains("Required request parameter 'testParam' for method parameter type String is present but converted to null");
+    }
+
+    @Test
+    void exceptionExtendsMissingRequestValueException() {
+      String parameterName = "testParam";
+      String parameterType = "String";
+
+      MissingRequestParameterException exception = new MissingRequestParameterException(parameterName, parameterType);
+
+      assertThat(exception).isInstanceOf(MissingRequestValueException.class);
+    }
+
+    static class TestController {
+      public void testMethod(String param) {
+      }
+    }
+
+  }
+
+  @Nested
+  class MissingRequestValueExceptionTests {
+    @Test
+    void constructorWithMessageOnly() {
+      String message = "Missing request value";
+
+      MissingRequestValueException exception = new MissingRequestValueException(message);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.isMissingAfterConversion()).isFalse();
+    }
+
+    @Test
+    void constructorWithMessageAndMissingAfterConversion() {
+      String message = "Missing request value";
+
+      MissingRequestValueException exception = new MissingRequestValueException(message, true);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.isMissingAfterConversion()).isTrue();
+    }
+
+    @Test
+    void constructorWithNullMessage() {
+      MissingRequestValueException exception = new MissingRequestValueException(null);
+
+      assertThat(exception.getMessage()).isNull();
+      assertThat(exception.isMissingAfterConversion()).isFalse();
+    }
+
+    @Test
+    void exceptionExtendsRequestBindingException() {
+      MissingRequestValueException exception = new MissingRequestValueException("test");
+
+      assertThat(exception).isInstanceOf(RequestBindingException.class);
+    }
+
+  }
+
+  @Nested
+  class MultipartExceptionTests {
+
+    @Test
+    void constructorWithMessageOnly() {
+      String message = "Multipart parsing failed";
+
+      MultipartException exception = new MultipartException(message);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void constructorWithMessageAndCause() {
+      String message = "Multipart parsing failed";
+      Throwable cause = new RuntimeException("IO error");
+
+      MultipartException exception = new MultipartException(message, cause);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isSameAs(cause);
+    }
+
+    @Test
+    void constructorWithNullMessage() {
+      MultipartException exception = new MultipartException(null);
+
+      assertThat(exception.getMessage()).isNull();
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void constructorWithNullMessageAndCause() {
+      Throwable cause = new RuntimeException("IO error");
+
+      MultipartException exception = new MultipartException(null, cause);
+
+      assertThat(exception.getMessage()).isNull();
+      assertThat(exception.getCause()).isSameAs(cause);
+    }
+
+    @Test
+    void exceptionExtendsHttpMessageNotReadableException() {
+      MultipartException exception = new MultipartException("test");
+
+      assertThat(exception).isInstanceOf(infra.http.converter.HttpMessageNotReadableException.class);
+    }
+
+  }
+
+  @Nested
+  class NotMultipartRequestExceptionTests {
+    @Test
+    void constructorWithMessageAndCause() {
+      String message = "Not a multipart request";
+      Throwable cause = new RuntimeException("Request parsing error");
+
+      NotMultipartRequestException exception = new NotMultipartRequestException(message, cause);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isSameAs(cause);
+    }
+
+    @Test
+    void constructorWithNullMessageAndNullCause() {
+      NotMultipartRequestException exception = new NotMultipartRequestException(null, null);
+
+      assertThat(exception.getMessage()).isNull();
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void constructorWithMessageOnly() {
+      String message = "Not a multipart request";
+
+      NotMultipartRequestException exception = new NotMultipartRequestException(message, null);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void constructorWithCauseOnly() {
+      Throwable cause = new RuntimeException("Request parsing error");
+
+      NotMultipartRequestException exception = new NotMultipartRequestException(null, cause);
+
+      assertThat(exception.getMessage()).isNull();
+      assertThat(exception.getCause()).isSameAs(cause);
+    }
+
+    @Test
+    void exceptionExtendsMultipartException() {
+      NotMultipartRequestException exception = new NotMultipartRequestException("test", null);
+
+      assertThat(exception).isInstanceOf(MultipartException.class);
+    }
+
+  }
+
+  @Nested
+  class RequestBindingExceptionTests {
+    @Test
+    void constructorWithMessageOnly() {
+      String message = "Request binding failed";
+
+      RequestBindingException exception = new RequestBindingException(message);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isNull();
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+      assertThat(exception.getBody()).isNotNull();
+      assertThat(exception.getBody().getStatus()).isEqualTo(400);
+    }
+
+    @Test
+    void constructorWithMessageAndCause() {
+      String message = "Request binding failed";
+      Throwable cause = new RuntimeException("Binding error");
+
+      RequestBindingException exception = new RequestBindingException(message, cause);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isSameAs(cause);
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+      assertThat(exception.getBody()).isNotNull();
+      assertThat(exception.getBody().getStatus()).isEqualTo(400);
+    }
+
+    @Test
+    void constructorWithMessageDetailCodeAndArguments() {
+      String message = "Request binding failed";
+      String detailCode = "error.binding";
+      Object[] detailArgs = { "param1", "param2" };
+
+      RequestBindingException exception = new RequestBindingException(message, detailCode, detailArgs) { };
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isNull();
+      assertThat(exception.getDetailMessageCode()).isEqualTo(detailCode);
+      assertThat(exception.getDetailMessageArguments()).containsExactly(detailArgs);
+    }
+
+    @Test
+    void constructorWithAllParameters() {
+      String message = "Request binding failed";
+      Throwable cause = new RuntimeException("Binding error");
+      String detailCode = "error.binding";
+      Object[] detailArgs = { "param1", "param2" };
+
+      RequestBindingException exception = new RequestBindingException(message, cause, detailCode, detailArgs) { };
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isSameAs(cause);
+      assertThat(exception.getDetailMessageCode()).isEqualTo(detailCode);
+      assertThat(exception.getDetailMessageArguments()).containsExactly(detailArgs);
+    }
+
+    @Test
+    void constructorWithNullMessageAndCause() {
+      RequestBindingException exception = new RequestBindingException(null, null);
+
+      assertThat(exception.getMessage()).isNull();
+      assertThat(exception.getCause()).isNull();
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void getBodyReturnsProblemDetailWithBadRequestStatus() {
+      String message = "Request binding failed";
+      RequestBindingException exception = new RequestBindingException(message);
+
+      ProblemDetail body = exception.getBody();
+
+      assertThat(body).isNotNull();
+      assertThat(body.getStatus()).isEqualTo(400);
+      assertThat(body).isSameAs(exception.getBody()); // Should return same instance
+    }
+
+    @Test
+    void getDefaultDetailMessageCodeWhenNotProvided() {
+      String message = "Request binding failed";
+      RequestBindingException exception = new RequestBindingException(message);
+
+      // When detail code is not provided, it should generate a default one
+      assertThat(exception.getDetailMessageCode()).isNotNull();
+    }
+
+    @Test
+    void exceptionImplementsErrorResponse() {
+      RequestBindingException exception = new RequestBindingException("test");
+
+      assertThat(exception).isInstanceOf(ErrorResponse.class);
+    }
+
+    @Test
+    void exceptionExtendsNestedRuntimeException() {
+      RequestBindingException exception = new RequestBindingException("test");
+
+      assertThat(exception).isInstanceOf(infra.core.NestedRuntimeException.class);
+    }
+
+  }
+
+  @Nested
+  class UnsatisfiedRequestParameterExceptionTests {
+    @Test
+    void constructorWithSingleParamCondition() {
+      String[] paramConditions = { "param1=value1", "param2" };
+      MultiValueMap<String, String> actualParams = MultiValueMap.forAdaption(Map.of("param1", List.of("value2")));
+
+      UnsatisfiedRequestParameterException exception = new UnsatisfiedRequestParameterException(paramConditions, actualParams);
+
+      assertThat(exception.getParamConditions()).containsExactly(paramConditions);
+      assertThat(exception.getParamConditionGroups()).containsExactly(paramConditions);
+      assertThat(exception.getActualParams()).isSameAs(actualParams);
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+      assertThat(exception.getBody().getDetail()).isEqualTo("Invalid request parameters.");
+    }
+
+    @Test
+    void constructorWithMultipleParamConditionGroups() {
+      List<String[]> paramConditions = List.of(
+              new String[] { "param1=value1", "param2" },
+              new String[] { "param3=value3" }
+      );
+      MultiValueMap<String, String> actualParams = MultiValueMap.forAdaption(Map.of("param1", List.of("value2")));
+
+      UnsatisfiedRequestParameterException exception = new UnsatisfiedRequestParameterException(paramConditions, actualParams);
+
+      assertThat(exception.getParamConditions()).containsExactly(paramConditions.get(0));
+      assertThat(exception.getParamConditionGroups()).isEqualTo(paramConditions);
+      assertThat(exception.getActualParams()).isSameAs(actualParams);
+    }
+
+    @Test
+    void getMessageContainsConditionsAndActualParams() {
+      String[] paramConditions = { "param1=value1", "param2" };
+      MultiValueMap<String, String> actualParams = MultiValueMap.forAdaption(Map.of("param1", List.of("value2")));
+      UnsatisfiedRequestParameterException exception = new UnsatisfiedRequestParameterException(paramConditions, actualParams);
+
+      String message = exception.getMessage();
+      assertThat(message).contains("param1=value1, param2");
+      assertThat(message).contains("param1=[value2]");
+    }
+
+    @Test
+    void getMessageWithMultipleConditionGroups() {
+      List<String[]> paramConditions = List.of(
+              new String[] { "param1=value1" },
+              new String[] { "param2=value2" }
+      );
+      MultiValueMap<String, String> actualParams = MultiValueMap.forAdaption(Map.of("param1", List.of("valueX")));
+      UnsatisfiedRequestParameterException exception = new UnsatisfiedRequestParameterException(paramConditions, actualParams);
+
+      String message = exception.getMessage();
+      assertThat(message).contains("\"param1=value1\" OR \"param2=value2\"");
+      assertThat(message).contains("param1=[valueX]");
+    }
+
+    @Test
+    void exceptionExtendsRequestBindingException() {
+      String[] paramConditions = { "param1=value1" };
+      MultiValueMap<String, String> actualParams = infra.util.MultiValueMap.empty();
+
+      UnsatisfiedRequestParameterException exception = new UnsatisfiedRequestParameterException(paramConditions, actualParams);
+
+      assertThat(exception).isInstanceOf(RequestBindingException.class);
     }
 
   }
