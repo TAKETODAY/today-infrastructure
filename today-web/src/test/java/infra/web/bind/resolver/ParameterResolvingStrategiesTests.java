@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.bind.resolver;
@@ -112,4 +109,174 @@ class ParameterResolvingStrategiesTests {
     assertThatThrownBy(() -> strategies.set(1, new CookieParameterResolver()))
             .isInstanceOf(IndexOutOfBoundsException.class);
   }
+
+  @Test
+  void constructorWithInitialCapacity() {
+    ParameterResolvingStrategies strategies = new ParameterResolvingStrategies(5);
+
+    assertThat(strategies).isNotNull();
+    assertThat(strategies.isEmpty()).isTrue();
+    assertThat(strategies.size()).isEqualTo(0);
+  }
+
+  @Test
+  void addSingleStrategy() {
+    ParameterResolvingStrategies strategies = new ParameterResolvingStrategies();
+    MapMethodProcessor processor = new MapMethodProcessor();
+
+    strategies.add(processor);
+
+    assertThat(strategies.size()).isEqualTo(1);
+    assertThat(strategies.contains(MapMethodProcessor.class)).isTrue();
+  }
+
+  @Test
+  void addMultipleStrategiesAsArray() {
+    ParameterResolvingStrategies strategies = new ParameterResolvingStrategies();
+    MapMethodProcessor processor1 = new MapMethodProcessor();
+    CookieParameterResolver resolver = new CookieParameterResolver();
+
+    strategies.add(processor1, resolver);
+
+    assertThat(strategies.size()).isEqualTo(2);
+    assertThat(strategies.contains(MapMethodProcessor.class)).isTrue();
+    assertThat(strategies.contains(CookieParameterResolver.class)).isTrue();
+  }
+
+  @Test
+  void addMultipleStrategiesAsList() {
+    ParameterResolvingStrategies strategies = new ParameterResolvingStrategies();
+    MapMethodProcessor processor1 = new MapMethodProcessor();
+    CookieParameterResolver resolver = new CookieParameterResolver();
+    java.util.List<ParameterResolvingStrategy> list = java.util.Arrays.asList(processor1, resolver);
+
+    strategies.add(list);
+
+    assertThat(strategies.size()).isEqualTo(2);
+    assertThat(strategies.contains(MapMethodProcessor.class)).isTrue();
+    assertThat(strategies.contains(CookieParameterResolver.class)).isTrue();
+  }
+
+  @Test
+  void addNullStrategy() {
+    ParameterResolvingStrategies strategies = new ParameterResolvingStrategies();
+
+    strategies.add((ParameterResolvingStrategy) null);
+
+    assertThat(strategies.size()).isEqualTo(0);
+  }
+
+  @Test
+  void addNullStrategyArray() {
+    ParameterResolvingStrategies strategies = new ParameterResolvingStrategies();
+
+    strategies.add((ParameterResolvingStrategy[]) null);
+
+    assertThat(strategies.size()).isEqualTo(0);
+  }
+
+  @Test
+  void setStrategies() {
+    ParameterResolvingStrategies strategies = new ParameterResolvingStrategies();
+    strategies.add(new MapMethodProcessor());
+
+    java.util.List<ParameterResolvingStrategy> newList = java.util.Arrays.asList(new CookieParameterResolver(), new ErrorsMethodArgumentResolver());
+    strategies.set(newList);
+
+    assertThat(strategies.size()).isEqualTo(2);
+    assertThat(strategies.contains(MapMethodProcessor.class)).isFalse();
+    assertThat(strategies.contains(CookieParameterResolver.class)).isTrue();
+    assertThat(strategies.contains(ErrorsMethodArgumentResolver.class)).isTrue();
+  }
+
+  @Test
+  void setNullStrategies() {
+    ParameterResolvingStrategies strategies = new ParameterResolvingStrategies();
+    strategies.add(new MapMethodProcessor());
+
+    strategies.set(null);
+
+    assertThat(strategies.size()).isEqualTo(0);
+    assertThat(strategies.isEmpty()).isTrue();
+  }
+
+  @Test
+  void iterator() {
+    ParameterResolvingStrategies strategies = new ParameterResolvingStrategies();
+    MapMethodProcessor processor = new MapMethodProcessor();
+    CookieParameterResolver resolver = new CookieParameterResolver();
+    strategies.add(processor);
+    strategies.add(resolver);
+
+    java.util.List<ParameterResolvingStrategy> collected = new java.util.ArrayList<>();
+    for (ParameterResolvingStrategy strategy : strategies) {
+      collected.add(strategy);
+    }
+
+    assertThat(collected).containsExactly(processor, resolver);
+  }
+
+  @Test
+  void forEach() {
+    ParameterResolvingStrategies strategies = new ParameterResolvingStrategies();
+    MapMethodProcessor processor = new MapMethodProcessor();
+    CookieParameterResolver resolver = new CookieParameterResolver();
+    strategies.add(processor);
+    strategies.add(resolver);
+
+    java.util.List<ParameterResolvingStrategy> collected = new java.util.ArrayList<>();
+    strategies.forEach(collected::add);
+
+    assertThat(collected).containsExactly(processor, resolver);
+  }
+
+  @Test
+  void spliterator() {
+    ParameterResolvingStrategies strategies = new ParameterResolvingStrategies();
+    MapMethodProcessor processor = new MapMethodProcessor();
+    CookieParameterResolver resolver = new CookieParameterResolver();
+    strategies.add(processor);
+    strategies.add(resolver);
+
+    java.util.Spliterator<ParameterResolvingStrategy> spliterator = strategies.spliterator();
+    java.util.List<ParameterResolvingStrategy> collected = new java.util.ArrayList<>();
+    spliterator.forEachRemaining(collected::add);
+
+    assertThat(collected).containsExactly(processor, resolver);
+  }
+
+  @Test
+  void toStringMethod() {
+    ParameterResolvingStrategies strategies = new ParameterResolvingStrategies();
+    strategies.add(new MapMethodProcessor());
+    strategies.add(new CookieParameterResolver());
+
+    String toString = strategies.toString();
+
+    assertThat(toString).contains("strategies = 2");
+  }
+
+  @Test
+  void trimToSize() {
+    ParameterResolvingStrategies strategies = new ParameterResolvingStrategies();
+    strategies.add(new MapMethodProcessor());
+
+    // This test mainly ensures the method can be called without exception
+    strategies.trimToSize();
+
+    assertThat(strategies.size()).isEqualTo(1);
+  }
+
+  @Test
+  void getStrategiesReturnsInternalList() {
+    ParameterResolvingStrategies strategies = new ParameterResolvingStrategies();
+    MapMethodProcessor processor = new MapMethodProcessor();
+    strategies.add(processor);
+
+    java.util.ArrayList<ParameterResolvingStrategy> internalList = strategies.getStrategies();
+
+    assertThat(internalList).hasSize(1);
+    assertThat(internalList.get(0)).isSameAs(processor);
+  }
+
 }
