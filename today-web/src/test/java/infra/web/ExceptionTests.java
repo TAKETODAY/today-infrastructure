@@ -20,10 +20,12 @@ package infra.web;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
 
+import infra.core.MethodParameter;
 import infra.core.ResolvableType;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
@@ -31,10 +33,17 @@ import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.http.ProblemDetail;
+import infra.validation.BindException;
+import infra.validation.BindingResult;
+import infra.validation.ObjectError;
 import infra.web.accept.InvalidApiVersionException;
+import infra.web.bind.MethodArgumentNotValidException;
+import jakarta.validation.Valid;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -544,6 +553,96 @@ public class ExceptionTests {
       InvalidApiVersionException exception = new InvalidApiVersionException("v1.0");
 
       assertThat(exception).isInstanceOf(ResponseStatusException.class);
+    }
+
+  }
+
+  @Nested
+  class MethodArgumentNotValidExceptionTests {
+    @Test
+    void constructor_ShouldCreateExceptionWithParameterAndBindingResult() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("handle", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      BindingResult bindingResult = mock(BindingResult.class);
+
+      MethodArgumentNotValidException exception = new MethodArgumentNotValidException(parameter, bindingResult);
+
+      assertThat(exception.getParameter()).isSameAs(parameter);
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+      assertThat(exception.getBody()).isNotNull();
+      assertThat(exception.getBody().getStatus()).isEqualTo(400);
+    }
+
+    @Test
+    void getBody_ShouldReturnProblemDetailWithBadRequestStatus() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("handle", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      BindingResult bindingResult = mock(BindingResult.class);
+
+      MethodArgumentNotValidException exception = new MethodArgumentNotValidException(parameter, bindingResult);
+      ProblemDetail body = exception.getBody();
+
+      assertThat(body).isNotNull();
+      assertThat(body.getStatus()).isEqualTo(400);
+      assertThat(body.getDetail()).isEqualTo("Invalid request content.");
+    }
+
+    @Test
+    void getMessage_ShouldContainParameterInfo() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("handle", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      BindingResult bindingResult = mock(BindingResult.class);
+      when(bindingResult.getErrorCount()).thenReturn(0);
+      when(bindingResult.getAllErrors()).thenReturn(List.of());
+
+      MethodArgumentNotValidException exception = new MethodArgumentNotValidException(parameter, bindingResult);
+
+      String message = exception.getMessage();
+      assertThat(message).contains("Validation failed for argument");
+      assertThat(message).contains("[0]");
+      assertThat(message).contains(method.toGenericString());
+    }
+
+    @Test
+    void getMessage_ShouldContainErrorInfo() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("handle", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      BindingResult bindingResult = mock(BindingResult.class);
+      ObjectError error = new ObjectError("test", "test error");
+      when(bindingResult.getErrorCount()).thenReturn(1);
+      when(bindingResult.getAllErrors()).thenReturn(List.of(error));
+
+      MethodArgumentNotValidException exception = new MethodArgumentNotValidException(parameter, bindingResult);
+
+      String message = exception.getMessage();
+      assertThat(message).contains("test error");
+    }
+
+    @Test
+    void exception_ShouldExtendBindException() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("handle", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      BindingResult bindingResult = mock(BindingResult.class);
+
+      MethodArgumentNotValidException exception = new MethodArgumentNotValidException(parameter, bindingResult);
+
+      assertThat(exception).isInstanceOf(BindException.class);
+    }
+
+    @Test
+    void exception_ShouldImplementErrorResponse() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("handle", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      BindingResult bindingResult = mock(BindingResult.class);
+
+      MethodArgumentNotValidException exception = new MethodArgumentNotValidException(parameter, bindingResult);
+
+      assertThat(exception).isInstanceOf(ErrorResponse.class);
+    }
+
+    static class TestController {
+      public void handle(@Valid String param) {
+      }
     }
 
   }
