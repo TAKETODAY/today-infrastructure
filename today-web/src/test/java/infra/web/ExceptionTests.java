@@ -31,6 +31,7 @@ import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.http.ProblemDetail;
+import infra.web.accept.InvalidApiVersionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -497,6 +498,50 @@ public class ExceptionTests {
     @Test
     void exceptionExtendsResponseStatusException() {
       UnsupportedMediaTypeStatusException exception = new UnsupportedMediaTypeStatusException("test");
+
+      assertThat(exception).isInstanceOf(ResponseStatusException.class);
+    }
+
+  }
+
+  @Nested
+  class InvalidApiVersionExceptionTests {
+
+    @Test
+    void constructorWithVersionOnly() {
+      String version = "v1.0";
+      InvalidApiVersionException exception = new InvalidApiVersionException(version);
+
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+      assertThat(exception.getVersion()).isEqualTo(version);
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void constructorWithVersionMessageAndCause() {
+      String version = "v2.0";
+      String message = "API version not supported";
+      Exception cause = new IllegalArgumentException("Invalid format");
+      InvalidApiVersionException exception = new InvalidApiVersionException(version, message, cause);
+
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+      assertThat(exception.getVersion()).isEqualTo(version);
+      assertThat(exception.getCause()).isSameAs(cause);
+    }
+
+    @Test
+    void constructorWithNullMessageShouldUseDefault() {
+      String version = "v3.0";
+      Exception cause = new RuntimeException("test");
+      InvalidApiVersionException exception = new InvalidApiVersionException(version, null, cause);
+
+      assertThat(exception.getVersion()).isEqualTo(version);
+      assertThat(exception.getCause()).isSameAs(cause);
+    }
+
+    @Test
+    void exceptionExtendsResponseStatusException() {
+      InvalidApiVersionException exception = new InvalidApiVersionException("v1.0");
 
       assertThat(exception).isInstanceOf(ResponseStatusException.class);
     }
