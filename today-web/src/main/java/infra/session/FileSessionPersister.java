@@ -26,6 +26,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 
 import infra.core.ApplicationTemp;
@@ -47,6 +48,7 @@ import infra.util.StringUtils;
  * @since 4.0 2023/2/27 21:43
  */
 public class FileSessionPersister implements SessionPersister {
+
   private static final Logger log = LoggerFactory.getLogger(FileSessionPersister.class);
 
   /**
@@ -57,11 +59,9 @@ public class FileSessionPersister implements SessionPersister {
   /**
    * The directory in which Sessions are stored.
    */
-  @Nullable
-  private File directory;
+  private @Nullable File directory;
 
-  @Nullable
-  private ApplicationTemp applicationTemp;
+  private @Nullable ApplicationTemp applicationTemp;
 
   private final SessionRepository repository;
 
@@ -108,9 +108,7 @@ public class FileSessionPersister implements SessionPersister {
       log.debug("Removing Session [{}] at file [{}]", id, file.getAbsolutePath());
     }
 
-    if (file.exists() && !file.delete()) {
-      throw new IOException("Unable to delete file [%s] which is no longer required".formatted(file));
-    }
+    Files.deleteIfExists(file.toPath());
   }
 
   @Override
@@ -165,9 +163,8 @@ public class FileSessionPersister implements SessionPersister {
    * @throws ClassNotFoundException if a deserialization error occurs
    * @throws IOException if an input/output error occurs
    */
-  @Nullable
   @Override
-  public Session findById(String id) throws ClassNotFoundException, IOException {
+  public @Nullable Session findById(String id) throws ClassNotFoundException, IOException {
     // Open an input stream to the specified pathname, if any
     File file = sessionFile(id);
     if (!file.exists()) {
