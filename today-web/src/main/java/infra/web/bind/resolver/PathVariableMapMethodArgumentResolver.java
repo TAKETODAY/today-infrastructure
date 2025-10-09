@@ -19,7 +19,6 @@ package infra.web.bind.resolver;
 
 import org.jspecify.annotations.Nullable;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import infra.util.CollectionUtils;
@@ -54,13 +53,14 @@ public class PathVariableMapMethodArgumentResolver implements ParameterResolving
   @Override
   public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
     HandlerMatchingMetadata metadata = context.getMatchingMetadata();
+    Map<Object, Object> map = CollectionUtils.createMap(resolvable.getParameterType());
     if (metadata != null) {
       Map<String, String> uriVariables = metadata.getUriVariables();
       if (CollectionUtils.isNotEmpty(uriVariables)) {
-        return new LinkedHashMap<>(uriVariables);
+        map.putAll(uriVariables);
       }
     }
-    return CollectionUtils.createMap(resolvable.getParameterType());
+    return map;
   }
 
 }

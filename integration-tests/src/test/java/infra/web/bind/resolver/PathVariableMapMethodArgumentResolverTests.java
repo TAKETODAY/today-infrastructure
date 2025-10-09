@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import infra.core.MethodParameter;
@@ -99,6 +100,104 @@ class PathVariableMapMethodArgumentResolverTests {
     Map<String, String> map = (Map<String, String>) resolver.resolveArgument(webRequest, paramMap);
 
     assertThat(map).isEqualTo(Collections.emptyMap());
+  }
+
+  @Test
+  void resolveArgumentWithCustomMapImplementation() throws Throwable {
+    Method method = TestController.class.getMethod("handleCustomMap", CustomMap.class);
+    ResolvableMethodParameter paramCustomMap = new ResolvableMethodParameter(new MethodParameter(method, 0));
+
+    applyTemplateVars();
+
+    PathVariableMapMethodArgumentResolver resolver = new PathVariableMapMethodArgumentResolver();
+    Object result = resolver.resolveArgument(webRequest, paramCustomMap);
+
+    assertThat(result).isInstanceOf(CustomMap.class);
+    assertThat(((Map) result)).containsEntry("name", "value");
+  }
+
+  @Test
+  void resolveArgumentWithLinkedHashMap() throws Throwable {
+    Method method = TestController.class.getMethod("handleLinkedHashMap", LinkedHashMap.class);
+    ResolvableMethodParameter paramLinkedHashMap = new ResolvableMethodParameter(new MethodParameter(method, 0));
+
+    applyTemplateVars();
+
+    PathVariableMapMethodArgumentResolver resolver = new PathVariableMapMethodArgumentResolver();
+    Object result = resolver.resolveArgument(webRequest, paramLinkedHashMap);
+
+    assertThat(result).isInstanceOf(LinkedHashMap.class);
+    assertThat(((Map) result)).containsEntry("name", "value");
+  }
+
+  @Test
+  void resolveArgumentWithEmptyUriVariables() throws Throwable {
+    RequestPath requestPath = RequestPath.parse("/mock", null);
+    PathPattern pathPattern = PathPatternParser.defaultInstance.parse("/mock");
+
+    HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(
+            new Object(), "/mock", requestPath, pathPattern, PathPatternParser.defaultInstance);
+    webRequest.setMatchingMetadata(matchingMetadata);
+
+    PathVariableMapMethodArgumentResolver resolver = new PathVariableMapMethodArgumentResolver();
+    Object result = resolver.resolveArgument(webRequest, paramMap);
+
+    assertThat(result).isInstanceOf(Map.class);
+    assertThat(((Map<?, ?>) result)).isEmpty();
+  }
+
+  @Test
+  void resolveArgumentWithoutMatchingMetadata() throws Throwable {
+    MockRequestContext context = new MockRequestContext(null, new HttpMockRequestImpl(), new MockHttpResponseImpl());
+    // No matching metadata
+
+    PathVariableMapMethodArgumentResolver resolver = new PathVariableMapMethodArgumentResolver();
+    Object result = resolver.resolveArgument(context, paramMap);
+
+    assertThat(result).isInstanceOf(Map.class);
+    assertThat(((Map<?, ?>) result)).isEmpty();
+  }
+
+  @Test
+  void supportsParameterWithNonMapType() throws Exception {
+    Method method = TestController.class.getMethod("handleString", String.class);
+    ResolvableMethodParameter paramString = new ResolvableMethodParameter(new MethodParameter(method, 0));
+
+    PathVariableMapMethodArgumentResolver resolver = new PathVariableMapMethodArgumentResolver();
+    assertThat(resolver.supportsParameter(paramString)).isFalse();
+  }
+
+  @Test
+  void supportsParameterWithoutPathVariableAnnotation() throws Exception {
+    Method method = TestController.class.getMethod("handleMapWithoutAnnotation", Map.class);
+    ResolvableMethodParameter paramMapNoAnnot = new ResolvableMethodParameter(new MethodParameter(method, 0));
+
+    PathVariableMapMethodArgumentResolver resolver = new PathVariableMapMethodArgumentResolver();
+    assertThat(resolver.supportsParameter(paramMapNoAnnot)).isFalse();
+  }
+
+  @Test
+  void supportsParameterWithNamedPathVariable() throws Exception {
+    Method method = TestController.class.getMethod("handleNamedMap", Map.class);
+    ResolvableMethodParameter paramNamedMap = new ResolvableMethodParameter(new MethodParameter(method, 0));
+
+    PathVariableMapMethodArgumentResolver resolver = new PathVariableMapMethodArgumentResolver();
+    assertThat(resolver.supportsParameter(paramNamedMap)).isFalse();
+  }
+
+  static class TestController {
+    public void handleCustomMap(@PathVariable CustomMap customMap) { }
+
+    public void handleLinkedHashMap(@PathVariable LinkedHashMap map) { }
+
+    public void handleString(@PathVariable String string) { }
+
+    public void handleMapWithoutAnnotation(Map<String, String> map) { }
+
+    public void handleNamedMap(@PathVariable("name") Map<String, String> namedMap) { }
+  }
+
+  static class CustomMap extends LinkedHashMap<String, String> {
   }
 
   private void applyTemplateVars() {
