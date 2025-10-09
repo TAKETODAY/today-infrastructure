@@ -56,7 +56,6 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueResolv
   private static final TypeDescriptor STRING_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(String.class);
 
   public PathVariableMethodArgumentResolver() {
-
   }
 
   public PathVariableMethodArgumentResolver(@Nullable ConfigurableBeanFactory factory) {
@@ -91,14 +90,12 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueResolv
   }
 
   @Override
-  protected void handleMissingValueAfterConversion(
-          String name, MethodParameter parameter, RequestContext request) {
+  protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, RequestContext request) {
     throw new MissingPathVariableException(name, parameter, true);
   }
 
   @Override
-  protected void handleResolvedValue(@Nullable Object arg,
-          String name, ResolvableMethodParameter resolvable, RequestContext request) {
+  protected void handleResolvedValue(@Nullable Object arg, String name, ResolvableMethodParameter resolvable, RequestContext request) {
     request.matchingMetadata().getPathVariables().put(name, arg);
   }
 
@@ -108,7 +105,7 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueResolv
   }
 
   @Override
-  public void contributeMethodArgument(MethodParameter parameter, Object value,
+  public void contributeMethodArgument(MethodParameter parameter, @Nullable Object value,
           UriComponentsBuilder builder, Map<String, Object> uriVariables, ConversionService conversionService) {
 
     if (Map.class.isAssignableFrom(parameter.getParameterType())) {
@@ -122,7 +119,7 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueResolv
   }
 
   @Nullable
-  protected String formatUriValue(@Nullable ConversionService cs, @Nullable TypeDescriptor sourceType, Object value) {
+  protected String formatUriValue(@Nullable ConversionService cs, @Nullable TypeDescriptor sourceType, @Nullable Object value) {
     if (value instanceof String) {
       return (String) value;
     }
@@ -130,7 +127,7 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueResolv
       return (String) cs.convert(value, sourceType, STRING_TYPE_DESCRIPTOR);
     }
     else {
-      return value.toString();
+      return String.valueOf(value);
     }
   }
 
