@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import infra.core.MethodParameter;
+import infra.core.ParameterNameDiscoverer;
 import infra.core.ResolvableType;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
@@ -49,6 +50,13 @@ import infra.web.bind.MultipartException;
 import infra.web.bind.NotMultipartRequestException;
 import infra.web.bind.RequestBindingException;
 import infra.web.bind.UnsatisfiedRequestParameterException;
+import infra.web.bind.resolver.MissingRequestCookieException;
+import infra.web.bind.resolver.MissingRequestHeaderException;
+import infra.web.bind.resolver.MissingRequestPartException;
+import infra.web.bind.resolver.ParameterConversionException;
+import infra.web.bind.resolver.ParameterResolverNotFoundException;
+import infra.web.bind.resolver.date.DateParameterParsingException;
+import infra.web.handler.method.ResolvableMethodParameter;
 import jakarta.validation.Valid;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -1275,6 +1283,344 @@ public class ExceptionTests {
       assertThat(exception).isInstanceOf(RequestBindingException.class);
     }
 
+  }
+
+  @Nested
+  class ParameterResolverNotFoundExceptionTests {
+
+    @Test
+    void constructorWithParameterAndMessage() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String message = "Parameter resolver not found";
+
+      ParameterResolverNotFoundException exception = new ParameterResolverNotFoundException(
+              new ResolvableMethodParameter(parameter), message);
+      parameter.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
+
+      assertThat(exception.getParameter()).isNotNull();
+      assertThat(exception.getParameter().getParameter()).isSameAs(parameter);
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isNull();
+      assertThat(exception.getParameterName()).isEqualTo("param");
+    }
+
+    @Test
+    void constructorWithParameterMessageAndCause() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String message = "Parameter resolver not found";
+      Throwable cause = new RuntimeException("Root cause");
+
+      parameter.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
+
+      ParameterResolverNotFoundException exception = new ParameterResolverNotFoundException(
+              new ResolvableMethodParameter(parameter), message, cause);
+
+      assertThat(exception.getParameter()).isNotNull();
+      assertThat(exception.getParameter().getParameter()).isSameAs(parameter);
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isSameAs(cause);
+      assertThat(exception.getParameterName()).isEqualTo("param");
+    }
+
+    @Test
+    void constructorWithNullMessage() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      parameter.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
+
+      ParameterResolverNotFoundException exception = new ParameterResolverNotFoundException(
+              new ResolvableMethodParameter(parameter), null);
+
+      assertThat(exception.getParameter()).isNotNull();
+      assertThat(exception.getParameter().getParameter()).isSameAs(parameter);
+      assertThat(exception.getMessage()).isNull();
+      assertThat(exception.getCause()).isNull();
+      assertThat(exception.getParameterName()).isEqualTo("param");
+    }
+
+    @Test
+    void exceptionExtendsInfraConfigurationException() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+
+      ParameterResolverNotFoundException exception = new ParameterResolverNotFoundException(
+              new ResolvableMethodParameter(parameter), "test");
+
+      assertThat(exception).isInstanceOf(InfraConfigurationException.class);
+    }
+
+    static class TestController {
+      public void testMethod(String param) {
+      }
+    }
+
+  }
+
+  @Nested
+  class MissingRequestCookieExceptionTests {
+    @Test
+    void constructorWithCookieNameAndParameter() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("handleCookie", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String cookieName = "testCookie";
+
+      MissingRequestCookieException exception = new MissingRequestCookieException(cookieName, parameter);
+
+      assertThat(exception.getCookieName()).isEqualTo(cookieName);
+      assertThat(exception.getParameter()).isSameAs(parameter);
+      assertThat(exception.isMissingAfterConversion()).isFalse();
+      assertThat(exception.getBody().getDetail()).isEqualTo("Required cookie 'testCookie' is not present.");
+    }
+
+    @Test
+    void constructorWithMissingAfterConversion() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("handleCookie", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String cookieName = "testCookie";
+
+      MissingRequestCookieException exception = new MissingRequestCookieException(cookieName, parameter, true);
+
+      assertThat(exception.getCookieName()).isEqualTo(cookieName);
+      assertThat(exception.getParameter()).isSameAs(parameter);
+      assertThat(exception.isMissingAfterConversion()).isTrue();
+    }
+
+    @Test
+    void getMessageWhenNotPresent() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("handleCookie", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String cookieName = "testCookie";
+
+      MissingRequestCookieException exception = new MissingRequestCookieException(cookieName, parameter);
+
+      String message = exception.getMessage();
+      assertThat(message).contains("Required cookie 'testCookie' for method parameter type String is not present");
+    }
+
+    @Test
+    void getMessageWhenConvertedToNull() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("handleCookie", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String cookieName = "testCookie";
+
+      MissingRequestCookieException exception = new MissingRequestCookieException(cookieName, parameter, true);
+
+      String message = exception.getMessage();
+      assertThat(message).contains("Required cookie 'testCookie' for method parameter type String is present but converted to null");
+    }
+
+    @Test
+    void exceptionExtendsMissingRequestValueException() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("handleCookie", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String cookieName = "testCookie";
+
+      MissingRequestCookieException exception = new MissingRequestCookieException(cookieName, parameter);
+
+      assertThat(exception).isInstanceOf(MissingRequestValueException.class);
+    }
+
+    static class TestController {
+      public void handleCookie(String cookieValue) {
+      }
+    }
+
+  }
+
+  @Nested
+  class MissingRequestHeaderExceptionTests {
+    @Test
+    void constructorWithHeaderNameAndParameter() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("handleHeader", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String headerName = "X-Test-Header";
+
+      MissingRequestHeaderException exception = new MissingRequestHeaderException(headerName, parameter);
+
+      assertThat(exception.getHeaderName()).isEqualTo(headerName);
+      assertThat(exception.getParameter()).isSameAs(parameter);
+      assertThat(exception.isMissingAfterConversion()).isFalse();
+      assertThat(exception.getBody().getDetail()).isEqualTo("Required header 'X-Test-Header' is not present.");
+    }
+
+    @Test
+    void constructorWithMissingAfterConversion() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("handleHeader", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String headerName = "X-Test-Header";
+
+      MissingRequestHeaderException exception = new MissingRequestHeaderException(headerName, parameter, true);
+
+      assertThat(exception.getHeaderName()).isEqualTo(headerName);
+      assertThat(exception.getParameter()).isSameAs(parameter);
+      assertThat(exception.isMissingAfterConversion()).isTrue();
+    }
+
+    @Test
+    void getMessageWhenNotPresent() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("handleHeader", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String headerName = "X-Test-Header";
+
+      MissingRequestHeaderException exception = new MissingRequestHeaderException(headerName, parameter);
+
+      String message = exception.getMessage();
+      assertThat(message).contains("Required request header 'X-Test-Header' for method parameter type String is not present");
+    }
+
+    @Test
+    void getMessageWhenConvertedToNull() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("handleHeader", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String headerName = "X-Test-Header";
+
+      MissingRequestHeaderException exception = new MissingRequestHeaderException(headerName, parameter, true);
+
+      String message = exception.getMessage();
+      assertThat(message).contains("Required request header 'X-Test-Header' for method parameter type String is present but converted to null");
+    }
+
+    @Test
+    void exceptionExtendsMissingRequestValueException() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("handleHeader", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String headerName = "X-Test-Header";
+
+      MissingRequestHeaderException exception = new MissingRequestHeaderException(headerName, parameter);
+
+      assertThat(exception).isInstanceOf(MissingRequestValueException.class);
+    }
+
+    static class TestController {
+      public void handleHeader(String headerValue) {
+      }
+    }
+
+  }
+
+  @Nested
+  class MissingRequestPartExceptionTests {
+    @Test
+    void constructorWithRequestPartName() {
+      String partName = "filePart";
+
+      MissingRequestPartException exception = new MissingRequestPartException(partName);
+
+      assertThat(exception.getRequestPartName()).isEqualTo(partName);
+      assertThat(exception.getMessage()).isEqualTo("Required part 'filePart' is not present.");
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+      assertThat(exception.getBody().getDetail()).isEqualTo("Required part 'filePart' is not present.");
+      assertThat(exception.isMissingAfterConversion()).isFalse();
+    }
+
+    @Test
+    void exceptionImplementsErrorResponse() {
+      MissingRequestPartException exception = new MissingRequestPartException("testPart");
+
+      assertThat(exception).isInstanceOf(ErrorResponse.class);
+    }
+
+    @Test
+    void exceptionExtendsMissingRequestValueException() {
+      MissingRequestPartException exception = new MissingRequestPartException("testPart");
+
+      assertThat(exception).isInstanceOf(MissingRequestValueException.class);
+    }
+
+  }
+
+  @Nested
+  class ParameterConversionExceptionTests {
+    @Test
+    void constructorWithParameterAndValueAndCause() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      Object value = "invalidValue";
+      Throwable cause = new NumberFormatException("For input string: \"invalidValue\"");
+
+      ParameterConversionException exception = new ParameterConversionException(parameter, value, cause);
+
+      assertThat(exception.getParameter()).isSameAs(parameter);
+      assertThat(exception.getValue()).isEqualTo(value);
+      assertThat(exception.getCause()).isSameAs(cause);
+      assertThat(exception.getMessage()).isEqualTo("Cannot convert 'invalidValue' to class java.lang.String");
+    }
+
+    @Test
+    void constructorWithNullValue() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      Object value = null;
+      Throwable cause = new IllegalArgumentException("null value");
+
+      ParameterConversionException exception = new ParameterConversionException(parameter, value, cause);
+
+      assertThat(exception.getParameter()).isSameAs(parameter);
+      assertThat(exception.getValue()).isNull();
+      assertThat(exception.getCause()).isSameAs(cause);
+      assertThat(exception.getMessage()).isEqualTo("Cannot convert 'null' to class java.lang.String");
+    }
+
+    @Test
+    void exceptionExtendsMethodParameterResolvingException() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      ParameterConversionException exception = new ParameterConversionException(parameter, "test", null);
+
+      assertThat(exception).isInstanceOf(MethodParameterResolvingException.class);
+    }
+
+    @Test
+    void getValueReturnsOriginalValue() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      Object value = List.of("item1", "item2");
+
+      ParameterConversionException exception = new ParameterConversionException(parameter, value, null);
+
+      assertThat(exception.getValue()).isSameAs(value);
+    }
+
+    static class TestController {
+      public void testMethod(String param) {
+      }
+    }
+
+  }
+
+  @Nested
+  class DateParameterParsingExceptionTests {
+
+    @Test
+    void constructorWithParameterAndValueAndCause() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      String value = "2021-01-01";
+      Throwable cause = new IllegalArgumentException("Invalid date format");
+
+      DateParameterParsingException exception = new DateParameterParsingException(parameter, value, cause);
+
+      assertThat(exception.getParameter()).isSameAs(parameter);
+      assertThat(exception.getValue()).isEqualTo(value);
+      assertThat(exception.getCause()).isSameAs(cause);
+      assertThat(exception.getMessage()).isEqualTo("Cannot convert '2021-01-01' to class java.lang.String");
+    }
+
+    @Test
+    void exceptionExtendsParameterConversionException() throws Exception {
+      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
+      MethodParameter parameter = new MethodParameter(method, 0);
+      DateParameterParsingException exception = new DateParameterParsingException(parameter, "2021-01-01", null);
+
+      assertThat(exception).isInstanceOf(ParameterConversionException.class);
+    }
+
+    static class TestController {
+      public void testMethod(String param) {
+      }
+    }
   }
 
 }
