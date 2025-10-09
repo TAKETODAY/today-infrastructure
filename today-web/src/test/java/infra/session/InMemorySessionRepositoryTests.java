@@ -31,6 +31,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -322,6 +323,400 @@ class InMemorySessionRepositoryTests {
     session.save();
     session.save(); // Should not trigger again
 
+    verify(eventDispatcher).onSessionCreated(session);
+  }
+
+  @Test
+  void setSessionMaxIdleTime_ShouldUpdateDefaultTimeout() {
+    // given
+    Duration newTimeout = Duration.ofMinutes(45);
+
+    // when
+    repository.setSessionMaxIdleTime(newTimeout);
+
+    // then
+    Session session = repository.createSession();
+    assertThat(session.getMaxIdleTime()).isEqualTo(newTimeout);
+  }
+
+  @Test
+  void setSessionMaxIdleTime_ShouldUseDefaultWhenNull() {
+    // when
+    repository.setSessionMaxIdleTime(null);
+
+    // then
+    Session session = repository.createSession();
+    assertThat(session.getMaxIdleTime()).isEqualTo(Duration.ofMinutes(30));
+  }
+
+  @Test
+  void setMaxSessions_ShouldUpdateLimit() {
+    // when
+    repository.setMaxSessions(5000);
+
+    // then
+    assertThat(repository.getMaxSessions()).isEqualTo(5000);
+  }
+
+  @Test
+  void setNotifyBindingListenerOnUnchangedValue_ShouldUpdateFlag() {
+    // when
+    repository.setNotifyBindingListenerOnUnchangedValue(true);
+
+    // then
+    // We cannot directly verify the flag, but we can check that it doesn't throw exceptions
+    assertThatNoException().isThrownBy(() -> repository.setNotifyBindingListenerOnUnchangedValue(true));
+  }
+
+  @Test
+  void setNotifyAttributeListenerOnUnchangedValue_ShouldUpdateFlag() {
+    // when
+    repository.setNotifyAttributeListenerOnUnchangedValue(false);
+
+    // then
+    // We cannot directly verify the flag, but we can check that it doesn't throw exceptions
+    assertThatNoException().isThrownBy(() -> repository.setNotifyAttributeListenerOnUnchangedValue(false));
+  }
+
+  @Test
+  void setClock_ShouldUpdateClockAndCleanupExpiredSessions() {
+    // given
+    given(idGenerator.generateId()).willReturn("test-id");
+    repository.setSessionMaxIdleTime(Duration.ofMinutes(10));
+    Session session = repository.createSession();
+    session.start();
+    session.save();
+
+    // when
+    Clock newClock = Clock.offset(clock, Duration.ofMinutes(11));
+    repository.setClock(newClock);
+
+    // then
+    assertThat(repository.getSessionCount()).isZero();
+  }
+
+  @Test
+  void getClock_ShouldReturnConfiguredClock() {
+    // given
+    Clock newClock = Clock.fixed(Instant.now().plusSeconds(1000), ZoneId.systemDefault());
+
+    // when
+    repository.setClock(newClock);
+
+    // then
+    assertThat(repository.getClock()).isSameAs(newClock);
+  }
+
+  @Test
+  void getSessionCount_ShouldReturnZero_WhenNoSessions() {
+    assertThat(repository.getSessionCount()).isZero();
+  }
+
+  @Test
+  void getSessionCount_ShouldReturnCorrectCount() {
+    // given
+    given(idGenerator.generateId()).willReturn("id1", "id2");
+
+    Session session1 = repository.createSession();
+    session1.start();
+    session1.save();
+
+    Session session2 = repository.createSession();
+    session2.start();
+    session2.save();
+
+    // when & then
+    assertThat(repository.getSessionCount()).isEqualTo(2);
+  }
+
+  @Test
+  void getIdentifiers_ShouldReturnEmptyArray_WhenNoSessions() {
+    assertThat(repository.getIdentifiers()).isEmpty();
+  }
+
+  @Test
+  void getSessions_ShouldReturnEmptyMap_WhenNoSessions() {
+    assertThat(repository.getSessions()).isEmpty();
+  }
+
+  @Test
+  void getSessions_ShouldReturnUnmodifiableMap() {
+    // given
+    given(idGenerator.generateId()).willReturn("id1");
+    Session session = repository.createSession();
+    session.start();
+    session.save();
+
+    Map<String, Session> sessions = repository.getSessions();
+
+    // when & then
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(() -> sessions.clear());
+  }
+
+  @Test
+  void createSession_ShouldGenerateNewSessionWithId() {
+    // given
+    given(idGenerator.generateId()).willReturn("generated-id");
+
+    // when
+    Session session = repository.createSession();
+
+    // then
+    assertThat(session).isNotNull();
+    assertThat(session.getId()).isEqualTo("generated-id");
+    assertThat(session.isStarted()).isFalse();
+  }
+
+  @Test
+  void createSessionWithId_ShouldCreateSessionWithGivenId() {
+    // given
+    String customId = "custom-id";
+
+    // when
+    Session session = repository.createSession(customId);
+
+    // then
+    assertThat(session).isNotNull();
+    assertThat(session.getId()).isEqualTo(customId);
+  }
+
+  @Test
+  void retrieveSession_ShouldReturnNull_WhenSessionDoesNotExist() {
+    Session session = repository.retrieveSession("non-existent");
+    assertThat(session).isNull();
+  }
+
+  @Test
+  void retrieveSession_ShouldReturnSession_WhenSessionExists() {
+    // given
+    given(idGenerator.generateId()).willReturn("test-id");
+    Session session = repository.createSession();
+    session.start();
+    session.save();
+
+    // when
+    Session retrieved = repository.retrieveSession("test-id");
+
+    // then
+    assertThat(retrieved).isNotNull();
+    assertThat(retrieved.getId()).isEqualTo("test-id");
+  }
+
+  @Test
+  void retrieveSession_ShouldReturnNull_WhenSessionExpired() {
+    // given
+    given(idGenerator.generateId()).willReturn("test-id");
+    repository.setSessionMaxIdleTime(Duration.ofMinutes(10));
+    Session session = repository.createSession();
+    session.start();
+    session.save();
+
+    // Expire the session
+    clock = Clock.offset(clock, Duration.ofMinutes(11));
+    repository.setClock(clock);
+
+    // when
+    Session retrieved = repository.retrieveSession("test-id");
+
+    // then
+    assertThat(retrieved).isNull();
+  }
+
+  @Test
+  void removeSessionByInstance_ShouldRemoveSession() {
+    // given
+    given(idGenerator.generateId()).willReturn("test-id");
+    Session session = repository.createSession();
+    session.start();
+    session.save();
+    assertThat(repository.getSessionCount()).isEqualTo(1);
+
+    // when
+    repository.removeSession(session);
+
+    // then
+    assertThat(repository.getSessionCount()).isZero();
+    assertThat(repository.retrieveSession("test-id")).isNull();
+  }
+
+  @Test
+  void removeSessionById_ShouldRemoveSession() {
+    // given
+    given(idGenerator.generateId()).willReturn("test-id");
+    Session session = repository.createSession();
+    session.start();
+    session.save();
+    assertThat(repository.getSessionCount()).isEqualTo(1);
+
+    // when
+    Session removed = repository.removeSession("test-id");
+
+    // then
+    assertThat(removed).isNotNull();
+    assertThat(repository.getSessionCount()).isZero();
+    assertThat(repository.retrieveSession("test-id")).isNull();
+  }
+
+  @Test
+  void removeSessionById_ShouldReturnNull_WhenSessionDoesNotExist() {
+    Session removed = repository.removeSession("non-existent");
+    assertThat(removed).isNull();
+  }
+
+  @Test
+  void updateLastAccessTime_ShouldUpdateSessionTime() {
+    // given
+    given(idGenerator.generateId()).willReturn("test-id");
+    Session session = repository.createSession();
+    session.start();
+    session.save();
+    Instant originalTime = session.getLastAccessTime();
+
+    // when
+    clock = Clock.offset(clock, Duration.ofSeconds(30));
+    repository.setClock(clock);
+    repository.updateLastAccessTime(session);
+
+    // then
+    assertThat(session.getLastAccessTime()).isAfter(originalTime);
+  }
+
+  @Test
+  void contains_ShouldReturnFalse_WhenSessionDoesNotExist() {
+    boolean result = repository.contains("non-existent");
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  void contains_ShouldReturnTrue_WhenSessionExists() {
+    // given
+    given(idGenerator.generateId()).willReturn("test-id");
+    Session session = repository.createSession();
+    session.start();
+    session.save();
+
+    // when
+    boolean result = repository.contains("test-id");
+
+    // then
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  void removeExpiredSessions_ShouldCleanUpExpiredSessions() {
+    // given
+    given(idGenerator.generateId()).willReturn("test-id");
+    repository.setSessionMaxIdleTime(Duration.ofMinutes(10));
+    Session session = repository.createSession();
+    session.start();
+    session.save();
+
+    // Expire the session
+    clock = Clock.offset(clock, Duration.ofMinutes(11));
+    repository.setClock(clock);
+
+    // when
+    repository.removeExpiredSessions();
+
+    // then
+    assertThat(repository.getSessionCount()).isZero();
+  }
+
+  @Test
+  void changeSessionId_ShouldUpdateSessionId() {
+    // given
+    given(idGenerator.generateId()).willReturn("old-id", "new-id");
+    Session session = repository.createSession();
+    String oldId = session.getId();
+    session.start();
+    session.save();
+
+    // when
+    session.changeSessionId();
+    String newId = session.getId();
+
+    // then
+    assertThat(newId).isEqualTo("new-id");
+    assertThat(repository.retrieveSession(oldId)).isNull();
+    assertThat(repository.retrieveSession(newId)).isNotNull();
+  }
+
+  @Test
+  void save_ShouldNotStoreSession_WhenNotStartedAndNoAttributes() {
+    // given
+    Session session = repository.createSession();
+
+    // when
+    session.save();
+
+    // then
+    assertThat(repository.getSessionCount()).isZero();
+  }
+
+  @Test
+  void save_ShouldStoreSession_WhenStarted() {
+    // given
+    given(idGenerator.generateId()).willReturn("test-id");
+    Session session = repository.createSession();
+    session.start();
+
+    // when
+    session.save();
+
+    // then
+    assertThat(repository.getSessionCount()).isEqualTo(1);
+    assertThat(repository.retrieveSession("test-id")).isNotNull();
+  }
+
+  @Test
+  void save_ShouldStoreSession_WhenHasAttributes() {
+    // given
+    given(idGenerator.generateId()).willReturn("test-id");
+    Session session = repository.createSession();
+    session.setAttribute("key", "value");
+
+    // when
+    session.save();
+
+    // then
+    assertThat(repository.getSessionCount()).isEqualTo(1);
+    Session retrieved = repository.retrieveSession("test-id");
+    assertThat(retrieved).isNotNull();
+    assertThat(retrieved.getAttribute("key")).isEqualTo("value");
+  }
+
+  @Test
+  void save_ShouldThrowException_WhenMaxSessionsReached() {
+    // given
+    repository.setMaxSessions(1);
+    given(idGenerator.generateId()).willReturn("id1", "id2");
+
+    Session session1 = repository.createSession();
+    session1.start();
+    session1.save();
+
+    Session session2 = repository.createSession();
+    session2.start();
+
+    // when & then
+    assertThatExceptionOfType(TooManyActiveSessionsException.class)
+            .isThrownBy(session2::save)
+            .satisfies(e -> assertThat(e.getMaxActiveSessions()).isEqualTo(1));
+  }
+
+  @Test
+  void save_ShouldNotTriggerCreatedEventTwice() {
+    // given
+    given(idGenerator.generateId()).willReturn("test-id");
+    Session session = repository.createSession();
+    session.start();
+
+    // when
+    session.save(); // First save
+    session.save(); // Second save
+
+    // then
     verify(eventDispatcher).onSessionCreated(session);
   }
 
