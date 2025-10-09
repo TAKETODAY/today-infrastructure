@@ -24,9 +24,9 @@ import java.util.function.Supplier;
 
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.config.Scope;
+import infra.session.Session;
+import infra.session.SessionAttributeListener;
 import infra.session.SessionManager;
-import infra.session.WebSession;
-import infra.session.WebSessionAttributeListener;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
 import infra.web.util.WebUtils;
@@ -43,11 +43,11 @@ import infra.web.util.WebUtils;
  * @see SessionManager
  * @since 4.0 2022/2/21 11:40
  */
-public class SessionScope extends AbstractRequestContextScope<WebSession> {
+public class SessionScope extends AbstractRequestContextScope<Session> {
 
   /**
    * Constant identifying the {@link String} prefixed to the name of a
-   * destruction callback when it is stored in a {@link WebSession}.
+   * destruction callback when it is stored in a {@link Session}.
    */
   public static final String DESTRUCTION_CALLBACK_NAME_PREFIX =
           SessionScope.class.getName() + ".DESTRUCTION_CALLBACK.";
@@ -62,7 +62,7 @@ public class SessionScope extends AbstractRequestContextScope<WebSession> {
   @Override
   public String getConversationId() {
     RequestContext context = RequestContextHolder.getRequired();
-    WebSession session = getSession(context, false);
+    Session session = getSession(context, false);
     if (session != null) {
       return session.getId();
     }
@@ -72,7 +72,7 @@ public class SessionScope extends AbstractRequestContextScope<WebSession> {
   @Override
   public Object get(String name, Supplier<?> objectFactory) {
     RequestContext context = RequestContextHolder.getRequired();
-    WebSession session = getSession(context);
+    Session session = getSession(context);
     Object sessionMutex = WebUtils.getSessionMutex(session);
     synchronized(sessionMutex) {
       return doGetBean(session, name, objectFactory);
@@ -83,7 +83,7 @@ public class SessionScope extends AbstractRequestContextScope<WebSession> {
   @Nullable
   public Object remove(String name) {
     RequestContext context = RequestContextHolder.getRequired();
-    WebSession session = getSession(context);
+    Session session = getSession(context);
     if (session != null) {
       Object sessionMutex = WebUtils.getSessionMutex(session);
       synchronized(sessionMutex) {
@@ -98,22 +98,22 @@ public class SessionScope extends AbstractRequestContextScope<WebSession> {
    * does not have a session, creates one.
    *
    * @param context Current request
-   * @return the <code>WebSession</code> associated with this request
+   * @return the <code>Session</code> associated with this request
    * @see #getSession(RequestContext, boolean)
    */
   @SuppressWarnings("NullAway")
-  private WebSession getSession(RequestContext context) {
+  private Session getSession(RequestContext context) {
     return getSession(context, true);
   }
 
   /**
-   * Returns the current <code>WebSession</code> associated with this request or,
+   * Returns the current <code>Session</code> associated with this request or,
    * if there is no current session and <code>create</code> is true, returns a new
    * session.
    *
    * <p>
    * If <code>create</code> is <code>false</code> and the request has no valid
-   * <code>WebSession</code>, this method returns <code>null</code>.
+   * <code>Session</code>, this method returns <code>null</code>.
    *
    * <p>
    * To make sure the session is properly maintained, you must call this method
@@ -125,30 +125,30 @@ public class SessionScope extends AbstractRequestContextScope<WebSession> {
    * @param create <code>true</code> to create a new session for this request if
    * necessary; <code>false</code> to return <code>null</code> if
    * there's no current session
-   * @return the <code>WebSession</code> associated with this request or
+   * @return the <code>Session</code> associated with this request or
    * <code>null</code> if <code>create</code> is <code>false</code> and
    * the request has no valid session
    * @see #getSession(RequestContext)
    */
   @Nullable
-  private WebSession getSession(RequestContext request, boolean create) {
+  private Session getSession(RequestContext request, boolean create) {
     return sessionManagerDiscover.obtain(request)
             .getSession(request, create);
   }
 
   @Override
-  protected void setAttribute(WebSession context, String beanName, Object scopedObject) {
+  protected void setAttribute(Session context, String beanName, Object scopedObject) {
     context.setAttribute(beanName, scopedObject);
   }
 
   @Nullable
   @Override
-  protected Object getAttribute(WebSession context, String beanName) {
+  protected Object getAttribute(Session context, String beanName) {
     return context.getAttribute(beanName);
   }
 
   @Override
-  protected void removeAttribute(WebSession context, String name) {
+  protected void removeAttribute(Session context, String name) {
     context.removeAttribute(name);
   }
 
@@ -170,7 +170,7 @@ public class SessionScope extends AbstractRequestContextScope<WebSession> {
   @Override
   public void registerDestructionCallback(String name, Runnable callback) {
     RequestContext context = RequestContextHolder.getRequired();
-    WebSession session = getSession(context);
+    Session session = getSession(context);
     session.setAttribute(getDestructionCallbackName(name),
             new DestructionCallbackBindingListener(callback));
   }
@@ -179,14 +179,14 @@ public class SessionScope extends AbstractRequestContextScope<WebSession> {
     return DESTRUCTION_CALLBACK_NAME_PREFIX + name;
   }
 
-  public static WebSessionAttributeListener createDestructionCallback() {
+  public static SessionAttributeListener createDestructionCallback() {
     return new DestructionCallback();
   }
 
-  static final class DestructionCallback implements WebSessionAttributeListener {
+  static final class DestructionCallback implements SessionAttributeListener {
 
     @Override
-    public void attributeRemoved(WebSession session, String attributeName, @Nullable Object value) {
+    public void attributeRemoved(Session session, String attributeName, @Nullable Object value) {
       // notify DestructionCallbackBindingListener
       String destructionName = getDestructionCallbackName(attributeName);
       if (!Objects.equals(destructionName, attributeName)) {

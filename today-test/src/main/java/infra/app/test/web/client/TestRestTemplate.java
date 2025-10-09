@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -991,7 +991,7 @@ public class TestRestTemplate {
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   private RequestEntity<?> createRequestEntityWithRootAppliedUri(RequestEntity<?> requestEntity) {
-    return new RequestEntity(requestEntity.getBody(), requestEntity.headers(), requestEntity.getMethod(),
+    return new RequestEntity(requestEntity.getBody(), requestEntity.getHeaders(), requestEntity.getMethod(),
             applyRootUriIfNecessary(resolveUri(requestEntity)), requestEntity.getType());
   }
 

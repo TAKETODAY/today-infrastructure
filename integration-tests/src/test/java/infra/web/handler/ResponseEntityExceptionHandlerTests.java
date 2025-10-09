@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -111,7 +111,7 @@ class ResponseEntityExceptionHandlerTests {
     ResponseEntity<Object> entity =
             testException(new HttpRequestMethodNotSupportedException("GET", List.of("POST", "DELETE")));
 
-    assertThat(entity.getHeaders().getFirst(HttpHeaders.ALLOW)).isEqualTo("POST,DELETE");
+    assertThat(entity.headers().getFirst(HttpHeaders.ALLOW)).isEqualTo("POST,DELETE");
   }
 
   @Test
@@ -119,8 +119,8 @@ class ResponseEntityExceptionHandlerTests {
     ResponseEntity<Object> entity = testException(new HttpMediaTypeNotSupportedException(
             MediaType.APPLICATION_JSON, List.of(MediaType.APPLICATION_ATOM_XML, MediaType.APPLICATION_XML)));
 
-    assertThat(entity.getHeaders().getFirst(HttpHeaders.ACCEPT)).isEqualTo("application/atom+xml, application/xml");
-    assertThat(entity.getHeaders().getAcceptPatch()).isEmpty();
+    assertThat(entity.headers().getFirst(HttpHeaders.ACCEPT)).isEqualTo("application/atom+xml, application/xml");
+    assertThat(entity.headers().getAcceptPatch()).isEmpty();
   }
 
   @Test
@@ -134,7 +134,7 @@ class ResponseEntityExceptionHandlerTests {
                     List.of(MediaType.APPLICATION_ATOM_XML, MediaType.APPLICATION_XML),
                     HttpMethod.PATCH));
 
-    HttpHeaders headers = entity.getHeaders();
+    HttpHeaders headers = entity.headers();
     assertThat(headers.getFirst(HttpHeaders.ACCEPT)).isEqualTo("application/atom+xml, application/xml");
     assertThat(headers.getFirst(HttpHeaders.ACCEPT)).isEqualTo("application/atom+xml, application/xml");
     assertThat(headers.getFirst(HttpHeaders.ACCEPT_PATCH)).isEqualTo("application/atom+xml, application/xml");
@@ -282,7 +282,7 @@ class ResponseEntityExceptionHandlerTests {
     ResponseEntity<Object> responseEntity =
             testException(new HandlerNotFoundException("GET", "/resource", requestHeaders));
 
-    assertThat(responseEntity.getHeaders()).isEmpty();
+    assertThat(responseEntity.headers()).isEmpty();
   }
 
 //  @Test

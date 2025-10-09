@@ -314,20 +314,18 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   // HTTP headers
 
   @Override
-  public void addCookie(HttpCookie cookie) {
+  public void addCookie(ResponseCookie cookie) {
     super.addCookie(cookie);
 
     Cookie servletCookie = new Cookie(cookie.getName(), cookie.getValue());
-    if (cookie instanceof ResponseCookie responseCookie) {
-      servletCookie.setPath(responseCookie.getPath());
-      if (responseCookie.getDomain() != null) {
-        servletCookie.setDomain(responseCookie.getDomain());
-      }
-      servletCookie.setSecure(responseCookie.isSecure());
-      servletCookie.setHttpOnly(responseCookie.isHttpOnly());
-      servletCookie.setMaxAge((int) responseCookie.getMaxAge().toSeconds());
-      servletCookie.setAttribute("SameSite", responseCookie.getSameSite());
+    servletCookie.setPath(cookie.getPath());
+    if (cookie.getDomain() != null) {
+      servletCookie.setDomain(cookie.getDomain());
     }
+    servletCookie.setSecure(cookie.isSecure());
+    servletCookie.setHttpOnly(cookie.isHttpOnly());
+    servletCookie.setMaxAge((int) cookie.getMaxAge().toSeconds());
+    servletCookie.setAttribute("SameSite", cookie.getSameSite());
 
     response.addCookie(servletCookie);
   }
@@ -601,7 +599,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
     this.queryString = queryString;
   }
 
-  public void setResponseCookies(ArrayList<HttpCookie> responseCookies) {
+  public void setResponseCookies(ArrayList<ResponseCookie> responseCookies) {
     this.responseCookies = responseCookies;
   }
 

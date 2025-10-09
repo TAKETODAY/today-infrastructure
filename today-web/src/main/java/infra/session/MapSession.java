@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.session;
@@ -30,7 +27,7 @@ import infra.lang.Assert;
 
 /**
  * <p>
- * A {@link WebSession} implementation that is backed by a {@link java.util.Map}. The
+ * A {@link Session} implementation that is backed by a {@link java.util.Map}. The
  * defaults for the properties are:
  * </p>
  * <ul>
@@ -48,7 +45,7 @@ import infra.lang.Assert;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/5/10 15:52
  */
-public class MapSession extends AbstractWebSession implements WebSession, Serializable {
+public class MapSession extends AbstractSession implements Session, Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -96,12 +93,12 @@ public class MapSession extends AbstractWebSession implements WebSession, Serial
   }
 
   /**
-   * Creates a new instance from the provided {@link WebSession}.
+   * Creates a new instance from the provided {@link Session}.
    *
-   * @param session the {@link WebSession} to initialize this {@link WebSession} with. Cannot
+   * @param session the {@link Session} to initialize this {@link Session} with. Cannot
    * be null.
    */
-  public MapSession(WebSession session) {
+  public MapSession(Session session) {
     super(getEventDispatcher(session));
     this.id = session.getId();
     this.originalId = this.id;
@@ -111,9 +108,9 @@ public class MapSession extends AbstractWebSession implements WebSession, Serial
     copyAttributesFrom(session);
   }
 
-  static SessionEventDispatcher getEventDispatcher(WebSession session) {
+  static SessionEventDispatcher getEventDispatcher(Session session) {
     Assert.notNull(session, "session is required");
-    if (session instanceof AbstractWebSession mapSession) {
+    if (session instanceof AbstractSession mapSession) {
       return mapSession.eventDispatcher;
     }
     else {
@@ -201,17 +198,17 @@ public class MapSession extends AbstractWebSession implements WebSession, Serial
   }
 
   /**
-   * Sets the time that this {@link WebSession} was created. The default is when the
-   * {@link WebSession} was instantiated.
+   * Sets the time that this {@link Session} was created. The default is when the
+   * {@link Session} was instantiated.
    *
-   * @param creationTime the time that this {@link WebSession} was created.
+   * @param creationTime the time that this {@link Session} was created.
    */
   public void setCreationTime(Instant creationTime) {
     this.creationTime = creationTime;
   }
 
   /**
-   * Sets the identifier for this {@link WebSession}. The id should be a secure random
+   * Sets the identifier for this {@link Session}. The id should be a secure random
    * generated value to prevent malicious users from guessing this value. The default is
    * a secure random generated identifier.
    *
@@ -223,7 +220,7 @@ public class MapSession extends AbstractWebSession implements WebSession, Serial
 
   @Override
   public boolean equals(Object obj) {
-    return obj == this || (obj instanceof WebSession session && id.equals(session.getId()));
+    return obj == this || (obj instanceof Session session && id.equals(session.getId()));
   }
 
   @Override

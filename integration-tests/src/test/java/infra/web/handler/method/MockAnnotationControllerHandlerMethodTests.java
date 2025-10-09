@@ -103,8 +103,8 @@ import infra.mock.web.MockMultipartHttpMockRequest;
 import infra.oxm.jaxb.Jaxb2Marshaller;
 import infra.session.SessionManager;
 import infra.session.SessionManagerOperations;
-import infra.session.WebSession;
-import infra.session.config.EnableWebSession;
+import infra.session.Session;
+import infra.session.config.EnableSession;
 import infra.stereotype.Controller;
 import infra.ui.Model;
 import infra.ui.ModelMap;
@@ -362,7 +362,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockApi().service(request, response);
     assertThat(request.getAttribute("viewName")).isEqualTo("page1");
-    WebSession session = (WebSession) request.getAttribute("session");
+    Session session = (Session) request.getAttribute("session");
 
     assertThat(session).isNotNull();
 
@@ -390,7 +390,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     getMockApi().service(request, response);
     assertThat(request.getAttribute("viewName")).isEqualTo("page1");
 
-    WebSession session = (WebSession) request.getAttribute("session");
+    Session session = (Session) request.getAttribute("session");
 
     assertThat(session).isNotNull();
 
@@ -414,7 +414,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     getMockApi().service(request, response);
     assertThat(request.getAttribute("viewName")).isEqualTo("page1");
 
-    WebSession session = (WebSession) request.getAttribute("session");
+    Session session = (Session) request.getAttribute("session");
 
     assertThat(session).isNotNull();
     assertThat(((Map) session.getAttribute("model"))).containsKey("testBeanList");
@@ -441,7 +441,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     getMockApi().service(request, response);
     assertThat(request.getAttribute("viewName")).isEqualTo("page1");
 
-    WebSession session = (WebSession) request.getAttribute("session");
+    Session session = (Session) request.getAttribute("session");
 
     assertThat(session).isNotNull();
     assertThat(((Map) session.getAttribute("model"))).containsKey("testBeanList");
@@ -1542,7 +1542,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockApi().service(request, response);
 
-    WebSession session = (WebSession) request.getAttribute("session");
+    Session session = (Session) request.getAttribute("session");
 
     MockRequestContext context = new MockRequestContext(wac, request, response);
     // POST -> bind error
@@ -1586,7 +1586,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     getMockApi().service(request, response);
 
-    WebSession session = (WebSession) request.getAttribute("session");
+    Session session = (Session) request.getAttribute("session");
     MockRequestContext context = new MockRequestContext(wac, request, response);
 
     assertThat(response.getStatus()).isEqualTo(302);
@@ -2388,7 +2388,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   }
 
   @Controller
-  @EnableWebSession
+  @EnableSession
   @RequestMapping("/myPage")
   static class MySessionAttributesController extends AbstractSessionManagerAutowired {
 
@@ -2442,7 +2442,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
   }
 
-  @EnableWebSession
+  @EnableSession
   static class MySessionAttributesControllerImpl extends AbstractSessionManagerAutowired
           implements MySessionAttributesControllerIfc {
 
@@ -2484,7 +2484,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
   @Controller
   @Configuration(proxyBeanMethods = false)
-  @EnableWebSession
+  @EnableSession
   static class MyParameterizedControllerImpl extends AbstractSessionManagerAutowired
           implements MyEditableParameterizedControllerIfc<TestBean> {
 
@@ -2517,7 +2517,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   }
 
   @Controller
-  @EnableWebSession
+  @EnableSession
   static class MyParameterizedControllerImplWithOverriddenMappings
           extends AbstractSessionManagerAutowired
           implements MyEditableParameterizedControllerIfc<TestBean> {
@@ -3643,7 +3643,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     @PostMapping("/foo")
     public ResponseEntity<String> foo(HttpEntity<byte[]> requestEntity) {
       assertThat(requestEntity).isNotNull();
-      assertThat(requestEntity.getHeaders().getFirst("MyRequestHeader")).isEqualTo("MyValue");
+      assertThat(requestEntity.headers().getFirst("MyRequestHeader")).isEqualTo("MyValue");
 
       String body = new String(requestEntity.getBody(), StandardCharsets.UTF_8);
       assertThat(body).isEqualTo("Hello World");
@@ -3800,7 +3800,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
   @Controller
   @Configuration(proxyBeanMethods = false)
-  @EnableWebSession
+  @EnableSession
   static class RedirectAttributesController extends AbstractSessionManagerAutowired {
 
     public RedirectAttributesController(SessionManager sessionManager) {

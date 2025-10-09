@@ -48,7 +48,7 @@ import infra.http.converter.HttpMessageConverter;
 import infra.lang.Assert;
 import infra.mock.api.MockContext;
 import infra.mock.web.MockContextImpl;
-import infra.session.config.EnableWebSession;
+import infra.session.config.EnableSession;
 import infra.stereotype.Component;
 import infra.test.web.mock.MvcResult;
 import infra.util.CollectionUtils;
@@ -441,7 +441,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   /**
    * Using the MVC Java configuration as the starting point for the "standalone" setup.
    */
-  @EnableWebSession
+  @EnableSession
   @Configuration(proxyBeanMethods = false)
   private class StandaloneConfiguration extends DelegatingWebMvcConfiguration {
 

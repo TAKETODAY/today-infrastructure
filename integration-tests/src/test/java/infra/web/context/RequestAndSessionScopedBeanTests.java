@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,8 +25,8 @@ import infra.beans.testfixture.beans.TestBean;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
-import infra.session.WebSession;
-import infra.session.config.EnableWebSession;
+import infra.session.Session;
+import infra.session.config.EnableSession;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
 import infra.web.RequestContextUtils;
@@ -97,7 +97,7 @@ public class RequestAndSessionScopedBeanTests {
     wac.refresh();
     wac.registerBeanDefinition(targetBeanName, bd);
 
-    WebSession session = RequestContextUtils.getSession(context);
+    Session session = RequestContextUtils.getSession(context);
 
     TestBean target = (TestBean) wac.getBean(targetBeanName);
     assertThat(target.getName()).isEqualTo("abc");
@@ -108,7 +108,7 @@ public class RequestAndSessionScopedBeanTests {
             wac.getBean(targetBeanName));
   }
 
-  @EnableWebSession
+  @EnableSession
   static class Config {
 
   }

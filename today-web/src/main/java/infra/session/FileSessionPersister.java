@@ -157,9 +157,9 @@ public class FileSessionPersister implements SessionPersister {
   }
 
   /**
-   * Load and return the WebSession associated with the specified session
+   * Load and return the Session associated with the specified session
    * identifier from this Store, without removing it.  If there is no
-   * such stored WebSession, return <code>null</code>.
+   * such stored Session, return <code>null</code>.
    *
    * @param id Session identifier of the session to load
    * @throws ClassNotFoundException if a deserialization error occurs
@@ -167,7 +167,7 @@ public class FileSessionPersister implements SessionPersister {
    */
   @Nullable
   @Override
-  public WebSession findById(String id) throws ClassNotFoundException, IOException {
+  public Session findById(String id) throws ClassNotFoundException, IOException {
     // Open an input stream to the specified pathname, if any
     File file = sessionFile(id);
     if (!file.exists()) {
@@ -179,11 +179,11 @@ public class FileSessionPersister implements SessionPersister {
     }
 
     try (var ois = new ObjectInputStream(new FileInputStream(file))) {
-      WebSession session = repository.createSession(id);
+      Session session = repository.createSession(id);
       if (session instanceof SerializableSession serialized) {
         serialized.readObjectData(ois);
       }
-      else if (ois.readObject() instanceof WebSession ret) {
+      else if (ois.readObject() instanceof Session ret) {
         return new MapSession(ret);
       }
       return session;
@@ -202,7 +202,7 @@ public class FileSessionPersister implements SessionPersister {
    * @throws IOException if an input/output error occurs
    */
   @Override
-  public void persist(WebSession session) throws IOException {
+  public void persist(Session session) throws IOException {
     // Open an output stream to the specified pathname, if any
     File file = sessionFile(session.getId());
 

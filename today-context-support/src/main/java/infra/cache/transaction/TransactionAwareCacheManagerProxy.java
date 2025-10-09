@@ -42,8 +42,7 @@ import infra.lang.Assert;
  */
 public class TransactionAwareCacheManagerProxy implements CacheManager, InitializingBean {
 
-  @Nullable
-  private CacheManager targetCacheManager;
+  private @Nullable CacheManager targetCacheManager;
 
   /**
    * Create a new TransactionAwareCacheManagerProxy, setting the target CacheManager
@@ -58,14 +57,14 @@ public class TransactionAwareCacheManagerProxy implements CacheManager, Initiali
    * @param targetCacheManager the target CacheManager to proxy
    */
   public TransactionAwareCacheManagerProxy(CacheManager targetCacheManager) {
-    Assert.notNull(targetCacheManager, "Target CacheManager is required");
-    this.targetCacheManager = targetCacheManager;
+    setTargetCacheManager(targetCacheManager);
   }
 
   /**
    * Set the target CacheManager to proxy.
    */
   public void setTargetCacheManager(CacheManager targetCacheManager) {
+    Assert.notNull(targetCacheManager, "Target CacheManager is required");
     this.targetCacheManager = targetCacheManager;
   }
 

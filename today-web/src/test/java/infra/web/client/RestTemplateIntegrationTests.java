@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -147,8 +147,8 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
 
     ResponseEntity<String> entity = template.getForEntity(baseUrl + "/{method}", String.class, "get");
     assertThat(entity.getBody()).as("Invalid content").isEqualTo(helloWorld);
-    assertThat(entity.getHeaders().isEmpty()).as("No headers").isFalse();
-    assertThat(entity.getHeaders().getContentType()).as("Invalid content-type").isEqualTo(textContentType);
+    assertThat(entity.headers().isEmpty()).as("No headers").isFalse();
+    assertThat(entity.headers().getContentType()).as("Invalid content-type").isEqualTo(textContentType);
     assertThat(entity.getStatusCode()).as("Invalid status code").isEqualTo(HttpStatus.OK);
   }
 
@@ -377,7 +377,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
     requestHeaders.setContentType(textContentType);
     HttpEntity<String> entity = new HttpEntity<>(helloWorld, requestHeaders);
     HttpEntity<Void> result = template.exchange(baseUrl + "/{method}", POST, entity, Void.class, "post");
-    assertThat(result.getHeaders().getLocation()).as("Invalid location").isEqualTo(URI.create(baseUrl + "/post/1"));
+    assertThat(result.headers().getLocation()).as("Invalid location").isEqualTo(URI.create(baseUrl + "/post/1"));
     assertThat(result.hasBody()).isFalse();
   }
 

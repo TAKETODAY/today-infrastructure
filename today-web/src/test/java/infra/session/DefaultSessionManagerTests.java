@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,8 @@ import java.util.List;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.http.HttpCookie;
-import infra.session.config.EnableWebSession;
+import infra.http.ResponseCookie;
+import infra.session.config.EnableSession;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,9 +33,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author TODAY 2021/4/30 22:24
  * @since 3.0
  */
-class DefaultWebSessionManagerTests {
+class DefaultSessionManagerTests {
 
-  @EnableWebSession
+  @EnableSession
   static class AppConfig {
 
   }
@@ -48,16 +49,16 @@ class DefaultWebSessionManagerTests {
     SessionManager sessionManager = applicationContext.getBean(SessionManager.class);
     MockRequestContext context = new MockRequestContext();
 
-    WebSession noneExistingSession = sessionManager.getSession(context, false);
+    Session noneExistingSession = sessionManager.getSession(context, false);
 
     assertThat(noneExistingSession).isNull();
 
-    WebSession createdSession = sessionManager.getSession(context);
+    Session createdSession = sessionManager.getSession(context);
     assertThat(createdSession).isNotNull();
 
     // CookieTokenResolver
     CookieSessionIdResolver cookieTokenResolver = applicationContext.getBean(CookieSessionIdResolver.class);
-    List<HttpCookie> responseCookies = context.responseCookies();
+    List<ResponseCookie> responseCookies = context.responseCookies();
     String sessionId = createdSession.getId();
     HttpCookie sessionCookie = cookieTokenResolver.createCookie(sessionId);
 
@@ -66,9 +67,9 @@ class DefaultWebSessionManagerTests {
 
     // WebSessionStorage
     SessionRepository sessionStorage = applicationContext.getBean(SessionRepository.class);
-    WebSession webSession = sessionStorage.retrieveSession(sessionId);
+    Session session = sessionStorage.retrieveSession(sessionId);
 
-    assertThat(webSession).isEqualTo(createdSession);
+    assertThat(session).isEqualTo(createdSession);
     assertThat(sessionStorage.contains(sessionId)).isTrue();
     sessionStorage.removeSession(sessionId);
     assertThat(sessionStorage.contains(sessionId)).isFalse();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ import infra.core.annotation.AliasFor;
 import infra.http.HttpEntity;
 import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageConverter;
+import infra.session.Session;
 import infra.ui.Model;
 import infra.web.LocaleResolver;
 import infra.web.RequestToViewNameTranslator;
@@ -50,7 +51,7 @@ import infra.web.view.View;
  * exposed, whereas previously only an immediate cause was considered.
  * <li>Request and/or response objects You may choose any specific request
  * type, e.g. {@link infra.web.RequestContext}.
- * <li>Session object: typically {@link infra.session.WebSession}.
+ * <li>Session object: typically {@link Session}.
  * An argument of this type will enforce the presence of a corresponding session.
  * As a consequence, such an argument will never be {@code null}.
  * <i>Note that session access may not be thread-safe, in particular in a

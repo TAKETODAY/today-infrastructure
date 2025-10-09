@@ -161,8 +161,8 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
       // for ResponseEntity unwrap body
       if (returnValue instanceof ResponseEntity<?> entity) {
         request.setStatus(entity.getStatusCode());
-        request.addHeaders(entity.headers());
-        contentType = entity.getHeaders().getContentType();
+        request.addHeaders(entity.getHeaders());
+        contentType = entity.headers().getContentType();
         returnValue = entity.getBody();
         returnType = returnType.nested();
         if (returnValue == null) {

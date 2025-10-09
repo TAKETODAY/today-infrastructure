@@ -89,10 +89,10 @@ class PersistenceSessionRepositoryTests {
     assertThat(repository.getSessionCount()).isZero();
     assertThat(repository.getIdentifiers()).isEmpty();
 
-    WebSession retrieveSession = repository.retrieveSession(id);
+    Session retrieveSession = repository.retrieveSession(id);
     assertThat(retrieveSession).isNull();
 
-    WebSession session = repository.createSession(id);
+    Session session = repository.createSession(id);
     User loginUser = new User();
     loginUser.age = 20;
     loginUser.name = "TODAY";

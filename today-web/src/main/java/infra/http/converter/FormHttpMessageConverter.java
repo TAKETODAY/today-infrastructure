@@ -514,7 +514,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
       HttpHeaders headers = null;
       Object body = part;
       if (part instanceof HttpEntity<?> entity) {
-        headers = entity.getHeaders();
+        headers = entity.headers();
         body = entity.getBody();
         Assert.state(body != null, "Empty body for part '" + e.getKey() + "': " + part);
       }
@@ -564,7 +564,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     if (partBody == null) {
       throw new IllegalStateException("Empty body for part '%s': %s".formatted(name, partEntity));
     }
-    HttpHeaders partHeaders = partEntity.getHeaders();
+    HttpHeaders partHeaders = partEntity.headers();
     MediaType partContentType = partHeaders.getContentType();
     HttpMessageConverter converter = findConverterFor(name, partHeaders, partBody);
     if (converter != null) {

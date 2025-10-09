@@ -29,29 +29,27 @@ import infra.util.ArrayHolder;
  */
 public class SessionEventDispatcher {
 
-  private final ArrayHolder<WebSessionListener> sessionListeners =
-          ArrayHolder.forGenerator(WebSessionListener[]::new);
+  private final ArrayHolder<SessionListener> sessionListeners =
+          ArrayHolder.forGenerator(SessionListener[]::new);
 
-  private final ArrayHolder<WebSessionAttributeListener> attributeListeners =
-          ArrayHolder.forGenerator(WebSessionAttributeListener[]::new);
+  private final ArrayHolder<SessionAttributeListener> attributeListeners =
+          ArrayHolder.forGenerator(SessionAttributeListener[]::new);
 
   /**
    * Receives notification that a session has been created.
    */
-  public void onSessionCreated(WebSession session) {
-    var event = new WebSessionEvent(this, session);
-    for (WebSessionListener listener : sessionListeners) {
-      listener.sessionCreated(event);
+  public void onSessionCreated(Session session) {
+    for (SessionListener listener : sessionListeners) {
+      listener.sessionCreated(session);
     }
   }
 
   /**
    * Receives notification that a session is about to be invalidated.
    */
-  public void onSessionDestroyed(WebSession session) {
-    var event = new WebSessionEvent(this, session);
-    for (WebSessionListener listener : sessionListeners) {
-      listener.sessionDestroyed(event);
+  public void onSessionDestroyed(Session session) {
+    for (SessionListener listener : sessionListeners) {
+      listener.sessionDestroyed(session);
     }
   }
 
@@ -63,8 +61,8 @@ public class SessionEventDispatcher {
    * @param attributeName name of attribute
    * @param value attribute value
    */
-  public void attributeAdded(WebSession session, String attributeName, Object value) {
-    for (WebSessionAttributeListener listener : attributeListeners) {
+  public void attributeAdded(Session session, String attributeName, Object value) {
+    for (SessionAttributeListener listener : attributeListeners) {
       listener.attributeAdded(session, attributeName, value);
     }
   }
@@ -77,8 +75,8 @@ public class SessionEventDispatcher {
    * @param attributeName name of attribute
    * @param value attribute value
    */
-  public void attributeRemoved(WebSession session, String attributeName, @Nullable Object value) {
-    for (WebSessionAttributeListener listener : attributeListeners) {
+  public void attributeRemoved(Session session, String attributeName, @Nullable Object value) {
+    for (SessionAttributeListener listener : attributeListeners) {
       listener.attributeRemoved(session, attributeName, value);
     }
   }
@@ -92,58 +90,56 @@ public class SessionEventDispatcher {
    * @param attributeName name of attribute
    * @param oldValue attribute value
    */
-  public void attributeReplaced(WebSession session,
+  public void attributeReplaced(Session session,
           String attributeName, Object oldValue, Object newValue) {
-    for (WebSessionAttributeListener listener : attributeListeners) {
+    for (SessionAttributeListener listener : attributeListeners) {
       listener.attributeReplaced(session, attributeName, oldValue, newValue);
     }
   }
 
   /**
-   * add list of WebSessionAttributeListener
+   * add list of SessionAttributeListener
    *
    * @param array list to add
    * @throws NullPointerException input list is null
    */
-  public void addAttributeListeners(WebSessionAttributeListener @Nullable ... array) {
+  public void addAttributeListeners(SessionAttributeListener @Nullable ... array) {
     attributeListeners.addAll(array);
   }
 
   /**
-   * add list of WebSessionAttributeListener
+   * add list of SessionAttributeListener
    *
    * @param list list to add
    * @throws NullPointerException input list is null
    */
-  public void addAttributeListeners(@Nullable Collection<WebSessionAttributeListener> list) {
+  public void addAttributeListeners(@Nullable Collection<SessionAttributeListener> list) {
     attributeListeners.addAll(list);
   }
 
   /**
-   * add list of WebSessionListener
+   * add list of SessionListener
    *
    * @param array array to add
-   * @throws NullPointerException input list is null
    */
-  public void addSessionListeners(WebSessionListener @Nullable ... array) {
+  public void addSessionListeners(SessionListener @Nullable ... array) {
     sessionListeners.addAll(array);
   }
 
   /**
-   * add list of WebSessionListener
+   * add list of SessionListener
    *
    * @param list list to add
-   * @throws NullPointerException input list is null
    */
-  public void addSessionListeners(@Nullable Collection<WebSessionListener> list) {
+  public void addSessionListeners(@Nullable Collection<SessionListener> list) {
     sessionListeners.addAll(list);
   }
 
-  public ArrayHolder<WebSessionAttributeListener> getAttributeListeners() {
+  public ArrayHolder<SessionAttributeListener> getAttributeListeners() {
     return attributeListeners;
   }
 
-  public ArrayHolder<WebSessionListener> getSessionListeners() {
+  public ArrayHolder<SessionListener> getSessionListeners() {
     return sessionListeners;
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ import infra.mock.api.MockException;
 import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
 import infra.mock.web.HttpMockRequestImpl;
-import infra.session.config.EnableWebSession;
+import infra.session.config.EnableSession;
 import infra.test.annotation.DirtiesContext;
 import infra.test.context.ContextConfiguration;
 import infra.test.context.junit.jupiter.InfraExtension;
@@ -137,7 +137,7 @@ public class RequestContextHolderTests {
 
   @Configuration
   @EnableWebMvc
-  @EnableWebSession
+  @EnableSession
   static class WebConfig implements WebMvcConfigurer {
 
     @Bean

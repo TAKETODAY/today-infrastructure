@@ -23,7 +23,6 @@ import org.jspecify.annotations.Nullable;
 import java.time.Duration;
 import java.util.ArrayList;
 
-import infra.http.HttpCookie;
 import infra.http.ResponseCookie;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.ResultMatcher;
@@ -209,16 +208,10 @@ public class CookieResultMatchers {
 
   @Nullable
   private static ResponseCookie getCookie(RequestContext context, String cookieName) {
-    ArrayList<HttpCookie> httpCookies = context.responseCookies();
-    for (HttpCookie httpCookie : httpCookies) {
+    ArrayList<ResponseCookie> httpCookies = context.responseCookies();
+    for (ResponseCookie httpCookie : httpCookies) {
       if (cookieName.equals(httpCookie.getName())) {
-        if (httpCookie instanceof ResponseCookie responseCookie) {
-          return responseCookie;
-        }
-        else {
-          return ResponseCookie.from(cookieName, httpCookie.getValue())
-                  .build();
-        }
+        return httpCookie;
       }
     }
     return null;

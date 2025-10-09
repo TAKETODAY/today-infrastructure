@@ -146,7 +146,7 @@ public final class MultipartBodyBuilder {
     HttpHeaders partHeaders = null;
     if (part instanceof HttpEntity<?> httpEntity) {
       partBody = httpEntity.getBody();
-      partHeaders = HttpHeaders.copyOf(httpEntity.headers());
+      partHeaders = HttpHeaders.copyOf(httpEntity.getHeaders());
     }
     else {
       partBody = part;
@@ -327,7 +327,7 @@ public final class MultipartBodyBuilder {
     }
 
     public PublisherPartBuilder(String name, PublisherEntity<S, P> other) {
-      super(name, other.headers(), other.getBody());
+      super(name, other.getHeaders(), other.getBody());
       this.resolvableType = other.getResolvableType();
     }
 

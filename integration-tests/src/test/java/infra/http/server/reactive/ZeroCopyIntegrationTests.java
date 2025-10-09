@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,9 +60,9 @@ class ZeroCopyIntegrationTests extends AbstractHttpHandlerIntegrationTests {
     ResponseEntity<byte[]> response = new RestTemplate().exchange(request, byte[].class);
 
     assertThat(response.hasBody()).isTrue();
-    assertThat(response.getHeaders().getContentLength()).isEqualTo(springLogoResource.contentLength());
+    assertThat(response.headers().getContentLength()).isEqualTo(springLogoResource.contentLength());
     assertThat(response.getBody().length).isEqualTo(springLogoResource.contentLength());
-    assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.IMAGE_PNG);
+    assertThat(response.headers().getContentType()).isEqualTo(MediaType.IMAGE_PNG);
   }
 
   private static class ZeroCopyHandler implements HttpHandler {

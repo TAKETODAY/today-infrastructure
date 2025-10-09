@@ -28,28 +28,28 @@ import infra.core.NestedRuntimeException;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/8 23:42
  */
-public class WebSessionRequiredException extends NestedRuntimeException {
+public class SessionRequiredException extends NestedRuntimeException {
 
   @Nullable
   private final String expectedAttribute;
 
   /**
-   * Create a new WebSessionRequiredException.
+   * Create a new SessionRequiredException.
    *
    * @param msg the detail message
    */
-  public WebSessionRequiredException(String msg) {
+  public SessionRequiredException(String msg) {
     super(msg);
     this.expectedAttribute = null;
   }
 
   /**
-   * Create a new WebSessionRequiredException.
+   * Create a new SessionRequiredException.
    *
    * @param msg the detail message
    * @param expectedAttribute the name of the expected session attribute
    */
-  public WebSessionRequiredException(String msg, String expectedAttribute) {
+  public SessionRequiredException(String msg, String expectedAttribute) {
     super(msg);
     this.expectedAttribute = expectedAttribute;
   }

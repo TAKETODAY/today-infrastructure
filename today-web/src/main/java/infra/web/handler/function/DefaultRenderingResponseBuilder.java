@@ -19,7 +19,6 @@ package infra.web.handler.function;
 
 import org.jspecify.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -27,10 +26,10 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import infra.core.Conventions;
-import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
+import infra.http.ResponseCookie;
 import infra.lang.Assert;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
@@ -48,10 +47,14 @@ import infra.web.view.ModelAndView;
 final class DefaultRenderingResponseBuilder implements RenderingResponse.Builder {
 
   private final String name;
+
   private HttpStatusCode status = HttpStatus.OK;
+
   private final HttpHeaders headers = HttpHeaders.forWritable();
+
   private final LinkedHashMap<String, Object> model = new LinkedHashMap<>();
-  private final LinkedMultiValueMap<String, HttpCookie> cookies = new LinkedMultiValueMap<>();
+
+  private final LinkedMultiValueMap<String, ResponseCookie> cookies = new LinkedMultiValueMap<>();
 
   public DefaultRenderingResponseBuilder(RenderingResponse other) {
     Assert.notNull(other, "RenderingResponse is required");
@@ -79,7 +82,7 @@ final class DefaultRenderingResponseBuilder implements RenderingResponse.Builder
   }
 
   @Override
-  public RenderingResponse.Builder cookie(HttpCookie cookie) {
+  public RenderingResponse.Builder cookie(ResponseCookie cookie) {
     Assert.notNull(cookie, "Cookie is required");
     this.cookies.add(cookie.getName(), cookie);
     return this;
@@ -88,21 +91,21 @@ final class DefaultRenderingResponseBuilder implements RenderingResponse.Builder
   @Override
   public RenderingResponse.Builder cookie(String name, String... values) {
     for (String value : values) {
-      this.cookies.add(name, new HttpCookie(name, value));
+      this.cookies.add(name, ResponseCookie.from(name, value).build());
     }
     return this;
   }
 
   @Override
-  public RenderingResponse.Builder cookies(Consumer<MultiValueMap<String, HttpCookie>> cookiesConsumer) {
+  public RenderingResponse.Builder cookies(Consumer<MultiValueMap<String, ResponseCookie>> cookiesConsumer) {
     cookiesConsumer.accept(this.cookies);
     return this;
   }
 
   @Override
-  public RenderingResponse.Builder cookies(@Nullable Collection<HttpCookie> cookies) {
+  public RenderingResponse.Builder cookies(@Nullable Collection<ResponseCookie> cookies) {
     if (CollectionUtils.isNotEmpty(cookies)) {
-      for (HttpCookie cookie : cookies) {
+      for (ResponseCookie cookie : cookies) {
         this.cookies.add(cookie.getName(), cookie);
       }
     }
@@ -110,7 +113,7 @@ final class DefaultRenderingResponseBuilder implements RenderingResponse.Builder
   }
 
   @Override
-  public RenderingResponse.Builder cookies(@Nullable MultiValueMap<String, HttpCookie> cookies) {
+  public RenderingResponse.Builder cookies(@Nullable MultiValueMap<String, ResponseCookie> cookies) {
     this.cookies.setAll(cookies);
     return this;
   }
@@ -133,13 +136,17 @@ final class DefaultRenderingResponseBuilder implements RenderingResponse.Builder
 
   @Override
   public RenderingResponse.Builder modelAttributes(Object... attributes) {
-    modelAttributes(Arrays.asList(attributes));
+    for (Object attribute : attributes) {
+      modelAttribute(attribute);
+    }
     return this;
   }
 
   @Override
   public RenderingResponse.Builder modelAttributes(Collection<?> attributes) {
-    attributes.forEach(this::modelAttribute);
+    for (Object attribute : attributes) {
+      modelAttribute(attribute);
+    }
     return this;
   }
 
@@ -175,10 +182,11 @@ final class DefaultRenderingResponseBuilder implements RenderingResponse.Builder
   private static final class DefaultRenderingResponse extends AbstractServerResponse implements RenderingResponse {
 
     private final String name;
+
     private final Map<String, Object> model;
 
     public DefaultRenderingResponse(HttpStatusCode statusCode, HttpHeaders headers,
-            MultiValueMap<String, HttpCookie> cookies, String name, Map<String, Object> model) {
+            MultiValueMap<String, ResponseCookie> cookies, String name, Map<String, Object> model) {
 
       super(statusCode, headers, cookies);
       this.name = name;

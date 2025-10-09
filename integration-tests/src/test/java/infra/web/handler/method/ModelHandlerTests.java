@@ -27,7 +27,7 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import org.jspecify.annotations.Nullable;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
-import infra.session.config.EnableWebSession;
+import infra.session.config.EnableSession;
 import infra.ui.Model;
 import infra.validation.BindingResult;
 import infra.web.BindingContext;
@@ -61,7 +61,7 @@ class ModelHandlerTests {
 
   ReturnValueHandlerManager returnValueHandlerManager;
 
-  @EnableWebSession
+  @EnableSession
   static class SessionConfig {
 
   }

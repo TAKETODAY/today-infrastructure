@@ -9,13 +9,13 @@
 
 [source,java]
 ----
-public interface WebSessionListener extends EventListener {
+public interface SessionListener extends EventListener {
 
-  default void sessionCreated(WebSessionEvent se) {
+  default void sessionCreated(Session se) {
     // default do nothing
   }
 
-  default void sessionDestroyed(WebSessionEvent se) {
+  default void sessionDestroyed(Session se) {
     // default do nothing
   }
 
@@ -23,27 +23,27 @@ public interface WebSessionListener extends EventListener {
 
 public interface AttributeBindingListener extends EventListener {
 
-  default void valueBound(WebSession session, String attributeName) {
+  default void valueBound(Session session, String attributeName) {
 
   }
 
-  default void valueUnbound(WebSession session, String attributeName) {
+  default void valueUnbound(Session session, String attributeName) {
 
   }
 
 }
 
-public interface WebSessionAttributeListener extends EventListener {
+public interface SessionAttributeListener extends EventListener {
 
-  default void attributeAdded(WebSession session, String attributeName, Object value) {
-
-  }
-
-  default void attributeRemoved(WebSession session, String attributeName, @Nullable Object value) {
+  default void attributeAdded(Session session, String attributeName, Object value) {
 
   }
 
-  default void attributeReplaced(WebSession session, String attributeName, Object oldValue, Object newValue) {
+  default void attributeRemoved(Session session, String attributeName, @Nullable Object value) {
+
+  }
+
+  default void attributeReplaced(Session session, String attributeName, Object oldValue, Object newValue) {
 
   }
 

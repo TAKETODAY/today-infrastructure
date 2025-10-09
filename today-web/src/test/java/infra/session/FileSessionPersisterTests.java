@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ import java.util.Map;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.core.env.MapPropertySource;
-import infra.session.config.EnableWebSession;
+import infra.session.config.EnableSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -88,13 +88,13 @@ class FileSessionPersisterTests {
 
     String id = idGenerator.generateId();
 
-    WebSession session = repository.createSession(id);
+    Session session = repository.createSession(id);
     session.setAttribute("name", "value");
     persister.persist(session);
 
     assertThat(persister.keys()).hasSize(1).containsExactly(id);
 
-    WebSession sessionFromPersister = persister.findById(id);
+    Session sessionFromPersister = persister.findById(id);
     assertThat(sessionFromPersister).isNotNull();
     assertThat(sessionFromPersister.getAttributes()).isNotNull().containsEntry("name", "value");
 
@@ -107,7 +107,7 @@ class FileSessionPersisterTests {
   }
 
   @Configuration
-  @EnableWebSession
+  @EnableSession
   static class Config {
 
   }

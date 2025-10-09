@@ -29,6 +29,8 @@ import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import org.jspecify.annotations.Nullable;
+
+import infra.http.ResponseCookie;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.util.LinkedMultiValueMap;
@@ -147,8 +149,8 @@ public class DefaultRenderingResponseTests {
 
   @Test
   public void cookies() throws Throwable {
-    MultiValueMap<String, HttpCookie> newCookies = new LinkedMultiValueMap<>();
-    newCookies.add("name", new HttpCookie("name", "value"));
+    MultiValueMap<String, ResponseCookie> newCookies = new LinkedMultiValueMap<>();
+    newCookies.add("name", ResponseCookie.forSimple("name", "value"));
     RenderingResponse result = RenderingResponse.create("foo").cookies(cookies -> cookies.addAll(newCookies)).build();
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     MockHttpResponseImpl response = new MockHttpResponseImpl();

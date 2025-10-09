@@ -72,7 +72,7 @@ public interface SessionPersister {
    * @throws IOException if an input/output error occurs
    */
   @Nullable
-  WebSession findById(String id) throws ClassNotFoundException, IOException;
+  Session findById(String id) throws ClassNotFoundException, IOException;
 
   /**
    * Save the specified Session into this Store.  Any previously saved
@@ -81,6 +81,6 @@ public interface SessionPersister {
    * @param session Session to be saved
    * @throws IOException if an input/output error occurs
    */
-  void persist(WebSession session) throws IOException;
+  void persist(Session session) throws IOException;
 
 }

@@ -75,14 +75,11 @@ import infra.web.util.UriTemplateHandler;
  */
 public class RequestEntity<T> extends HttpEntity<T> {
 
-  @Nullable
-  private final HttpMethod method;
+  private final @Nullable HttpMethod method;
 
-  @Nullable
-  private final URI uri;
+  private final @Nullable URI uri;
 
-  @Nullable
-  private final Type type;
+  private final @Nullable Type type;
 
   /**
    * Constructor with method and URL but without body nor headers.
@@ -194,8 +191,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
    *
    * @return the request's body type, or {@code null} if not known
    */
-  @Nullable
-  public Type getType() {
+  public @Nullable Type getType() {
     if (this.type == null) {
       T body = getBody();
       if (body != null) {
@@ -229,7 +225,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
 
   @Override
   public String toString() {
-    return format(getMethod(), getURI().toString(), getBody(), headers());
+    return format(getMethod(), getURI().toString(), getBody(), getHeaders());
   }
 
   static <T> String format(@Nullable HttpMethod httpMethod,
@@ -592,7 +588,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
     <T> RequestEntity<T> body(@Nullable T body, Type type);
   }
 
-  private static class DefaultBodyBuilder implements BodyBuilder {
+  static class DefaultBodyBuilder implements BodyBuilder {
 
     private final HttpMethod method;
 
@@ -763,8 +759,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
 
     private final Object @Nullable [] uriVarsArray;
 
-    @Nullable
-    private final Map<String, ?> uriVarsMap;
+    private final @Nullable Map<String, ?> uriVarsMap;
 
     UriTemplateRequestEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers,
             @Nullable HttpMethod method, @Nullable Type type, String uriTemplate,
@@ -811,7 +806,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
 
     @Override
     public String toString() {
-      return format(getMethod(), getUriTemplate(), getBody(), headers());
+      return format(getMethod(), getUriTemplate(), getBody(), getHeaders());
     }
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,6 +52,8 @@ import infra.http.client.ClientHttpResponse;
 import infra.http.client.JdkClientHttpRequestFactory;
 import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
+import infra.http.converter.StringHttpMessageConverter;
+import infra.util.FileCopyUtils;
 import infra.web.util.DefaultUriBuilderFactory;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -65,6 +67,7 @@ import static infra.http.HttpMethod.PATCH;
 import static infra.http.HttpMethod.POST;
 import static infra.http.HttpMethod.PUT;
 import static infra.http.MediaType.parseMediaType;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -272,7 +275,7 @@ class RestTemplateTests {
     ResponseEntity<String> result = template.getForEntity("https://example.com", String.class);
     assertThat(result.getBody()).as("Invalid GET result").isEqualTo(expected);
     assertThat(requestHeaders.getFirst("Accept")).as("Invalid Accept header").isEqualTo(MediaType.TEXT_PLAIN_VALUE);
-    assertThat(result.getHeaders().getContentType()).as("Invalid Content-Type header").isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(result.headers().getContentType()).as("Invalid Content-Type header").isEqualTo(MediaType.TEXT_PLAIN);
     assertThat(result.getStatusCode()).as("Invalid status code").isEqualTo(HttpStatus.OK);
 
     verify(response).close();
@@ -424,7 +427,7 @@ class RestTemplateTests {
 
     ResponseEntity<String> result = template.postForEntity("https://example.com", "Hello World", String.class);
     assertThat(result.getBody()).as("Invalid POST result").isEqualTo(expected);
-    assertThat(result.getHeaders().getContentType()).as("Invalid Content-Type").isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(result.headers().getContentType()).as("Invalid Content-Type").isEqualTo(MediaType.TEXT_PLAIN);
     assertThat(requestHeaders.getFirst("Accept")).as("Invalid Accept header").isEqualTo(MediaType.TEXT_PLAIN_VALUE);
     assertThat(result.getStatusCode()).as("Invalid status code").isEqualTo(HttpStatus.OK);
 
@@ -466,7 +469,7 @@ class RestTemplateTests {
 
     ResponseEntity<String> result = template.postForEntity("https://example.com", null, String.class);
     assertThat(result.hasBody()).as("Invalid POST result").isFalse();
-    assertThat(result.getHeaders().getContentType()).as("Invalid Content-Type").isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(result.headers().getContentType()).as("Invalid Content-Type").isEqualTo(MediaType.TEXT_PLAIN);
     assertThat(requestHeaders.getContentLength()).as("Invalid content length").isEqualTo(0);
     assertThat(result.getStatusCode()).as("Invalid status code").isEqualTo(HttpStatus.OK);
 
@@ -649,7 +652,7 @@ class RestTemplateTests {
     HttpEntity<String> entity = new HttpEntity<>("Hello World", entityHeaders);
     ResponseEntity<String> result = template.exchange("https://example.com", POST, entity, String.class);
     assertThat(result.getBody()).as("Invalid POST result").isEqualTo(expected);
-    assertThat(result.getHeaders().getContentType()).as("Invalid Content-Type").isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(result.headers().getContentType()).as("Invalid Content-Type").isEqualTo(MediaType.TEXT_PLAIN);
     assertThat(requestHeaders.getFirst("Accept")).as("Invalid Accept header").isEqualTo(MediaType.TEXT_PLAIN_VALUE);
     assertThat(requestHeaders.getFirst("MyHeader")).as("Invalid custom header").isEqualTo("MyValue");
     assertThat(result.getStatusCode()).as("Invalid status code").isEqualTo(HttpStatus.OK);
@@ -684,7 +687,7 @@ class RestTemplateTests {
     HttpEntity<String> requestEntity = new HttpEntity<>("Hello World", entityHeaders);
     ResponseEntity<List<Integer>> result = template.exchange("https://example.com", POST, requestEntity, intList);
     assertThat(result.getBody()).as("Invalid POST result").isEqualTo(expected);
-    assertThat(result.getHeaders().getContentType()).as("Invalid Content-Type").isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(result.headers().getContentType()).as("Invalid Content-Type").isEqualTo(MediaType.TEXT_PLAIN);
     assertThat(requestHeaders.getFirst("Accept")).as("Invalid Accept header").isEqualTo(MediaType.TEXT_PLAIN_VALUE);
     assertThat(requestHeaders.getFirst("MyHeader")).as("Invalid custom header").isEqualTo("MyValue");
     assertThat(result.getStatusCode()).as("Invalid status code").isEqualTo(HttpStatus.OK);
@@ -715,7 +718,6 @@ class RestTemplateTests {
   }
 
   @Test
-    //
   void requestInterceptorCanAddExistingHeaderValueWithBody() throws Exception {
     ClientHttpRequestInterceptor interceptor = (request, body, execution) -> {
       request.getHeaders().add("MyHeader", "MyInterceptorValue");
@@ -737,6 +739,46 @@ class RestTemplateTests {
     assertThat(requestHeaders.get("MyHeader")).contains("MyEntityValue", "MyInterceptorValue");
 
     verify(response).close();
+  }
+
+  @Test
+  void requestInterceptorWithBuffering() throws Exception {
+    try (MockWebServer server = new MockWebServer()) {
+      server.enqueue(new MockResponse().setResponseCode(200).setBody("Hello!"));
+      server.start();
+      template.setRequestFactory(new JdkClientHttpRequestFactory());
+      template.setInterceptors(List.of((request, body, execution) -> {
+        ClientHttpResponse response = execution.execute(request, body);
+        byte[] result = FileCopyUtils.copyToByteArray(response.getBody());
+        assertThat(result).isEqualTo("Hello!".getBytes(UTF_8));
+        return response;
+      }));
+      template.setBufferingPredicate((request) -> true);
+      template.setMessageConverters(List.of(new StringHttpMessageConverter()));
+      String result = template.getForObject(server.url("/").uri(), String.class);
+      assertThat(server.getRequestCount()).isEqualTo(1);
+      assertThat(result).isEqualTo("Hello!");
+    }
+  }
+
+  @Test
+  void buffering() throws Exception {
+    try (MockWebServer server = new MockWebServer()) {
+      server.enqueue(new MockResponse().setResponseCode(200).setBody("Hello!"));
+      server.start();
+      template.setRequestFactory(new JdkClientHttpRequestFactory());
+      template.setBufferingPredicate((r) -> true);
+      template.setMessageConverters(List.of(new StringHttpMessageConverter()));
+      String result = template.execute(server.url("/").uri(), HttpMethod.GET, req -> { }, response -> {
+        byte[] bytes = FileCopyUtils.copyToByteArray(response.getBody());
+        assertThat(bytes).isEqualTo("Hello!".getBytes(UTF_8));
+        bytes = FileCopyUtils.copyToByteArray(response.getBody());
+        assertThat(bytes).isEqualTo("Hello!".getBytes(UTF_8));
+        return new String(bytes, UTF_8);
+      });
+      assertThat(server.getRequestCount()).isEqualTo(1);
+      assertThat(result).isEqualTo("Hello!");
+    }
   }
 
   @Test

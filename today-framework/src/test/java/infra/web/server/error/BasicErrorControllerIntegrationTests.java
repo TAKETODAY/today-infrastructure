@@ -329,7 +329,7 @@ class BasicErrorControllerIntegrationTests {
             .build();
     ResponseEntity<String> entity = new TestRestTemplate().exchange(request, String.class);
     assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    assertThat(entity.getHeaders().getContentType()).isNull();
+    assertThat(entity.headers().getContentType()).isNull();
     assertThat(entity.getBody()).isNull();
   }
 

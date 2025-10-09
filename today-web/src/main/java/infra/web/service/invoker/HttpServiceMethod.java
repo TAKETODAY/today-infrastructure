@@ -360,7 +360,7 @@ final class HttpServiceMethod {
       return request -> client.exchangeForEntityFlux(request, bodyType)
               .map(entity -> {
                 Object body = reactiveAdapter.fromPublisher(entity.getBody());
-                return new ResponseEntity<>(body, entity.headers(), entity.getStatusCode());
+                return new ResponseEntity<>(body, entity.getHeaders(), entity.getStatusCode());
               });
     }
 

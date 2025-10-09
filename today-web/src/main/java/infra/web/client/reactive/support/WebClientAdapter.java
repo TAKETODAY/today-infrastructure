@@ -80,7 +80,7 @@ public final class WebClientAdapter extends AbstractReactorHttpExchangeAdapter {
 
   @Override
   public Mono<HttpHeaders> exchangeForHeadersMono(HttpRequestValues requestValues) {
-    return newRequest(requestValues).retrieve().toBodilessEntity().map(ResponseEntity::getHeaders);
+    return newRequest(requestValues).retrieve().toBodilessEntity().map(ResponseEntity::headers);
   }
 
   @Override

@@ -33,6 +33,7 @@ import infra.web.RequestContextUtils;
  * @since 4.0 2023/1/30 17:41
  */
 public class SessionManagerDiscover {
+
   private final BeanFactory beanFactory;
 
   @Nullable

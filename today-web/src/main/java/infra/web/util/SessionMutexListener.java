@@ -20,21 +20,19 @@ package infra.web.util;
 import java.io.Serial;
 import java.io.Serializable;
 
-import infra.session.WebSession;
-import infra.session.WebSessionEvent;
-import infra.session.WebSessionListener;
+import infra.session.Session;
+import infra.session.SessionListener;
 
 /**
- * WebSessionListener that automatically exposes the session mutex
- * when an WebSession gets created. To be registered as a listener in
- * {@code web.xml}.
+ * SessionListener that automatically exposes the session mutex
+ * when a Session gets created.
  *
  * <p>The session mutex is guaranteed to be the same object during
  * the entire lifetime of the session, available under the key defined
  * by the {@code SESSION_MUTEX_ATTRIBUTE} constant. It serves as a
  * safe reference to synchronize on for locking on the current session.
  *
- * <p>In many cases, the WebSession reference itself is a safe mutex
+ * <p>In many cases, the Session reference itself is a safe mutex
  * as well, since it will always be the same object reference for the
  * same active logical session. However, this is not guaranteed across
  * different containers; the only 100% safe way is a session mutex.
@@ -42,26 +40,26 @@ import infra.session.WebSessionListener;
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see WebUtils#SESSION_MUTEX_ATTRIBUTE
- * @see WebUtils#getSessionMutex(WebSession)
+ * @see WebUtils#getSessionMutex(Session)
  * @see infra.web.handler.mvc.AbstractController#setSynchronizeOnSession
  * @since 4.0 2022/4/9 09:58
  */
-public class WebSessionMutexListener implements WebSessionListener {
+public class SessionMutexListener implements SessionListener {
 
   @Override
-  public void sessionCreated(WebSessionEvent event) {
-    event.getSession().setAttribute(WebUtils.SESSION_MUTEX_ATTRIBUTE, new Mutex());
+  public void sessionCreated(Session session) {
+    session.setAttribute(WebUtils.SESSION_MUTEX_ATTRIBUTE, new Mutex());
   }
 
   @Override
-  public void sessionDestroyed(WebSessionEvent event) {
-    event.getSession().removeAttribute(WebUtils.SESSION_MUTEX_ATTRIBUTE);
+  public void sessionDestroyed(Session session) {
+    session.removeAttribute(WebUtils.SESSION_MUTEX_ATTRIBUTE);
   }
 
   /**
    * The mutex to be registered.
    * Doesn't need to be anything but a plain Object to synchronize on.
-   * Should be serializable to allow for WebSession persistence.
+   * Should be serializable to allow for Session persistence.
    */
   private static final class Mutex implements Serializable {
 
