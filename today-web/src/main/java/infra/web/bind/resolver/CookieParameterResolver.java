@@ -57,7 +57,7 @@ public class CookieParameterResolver
             new CookieCollectionParameterResolver(beanFactory));
   }
 
-  private static class CookieValueAnnotationParameterResolver extends AbstractNamedValueResolvingStrategy {
+  static class CookieValueAnnotationParameterResolver extends AbstractNamedValueResolvingStrategy {
 
     public CookieValueAnnotationParameterResolver(@Nullable ConfigurableBeanFactory beanFactory) {
       super(beanFactory);
@@ -92,7 +92,7 @@ public class CookieParameterResolver
     }
   }
 
-  private static final class AllCookieParameterResolver implements ParameterResolvingStrategy {
+  static final class AllCookieParameterResolver implements ParameterResolvingStrategy {
 
     @Override
     public boolean supportsParameter(ResolvableMethodParameter resolvable) {
@@ -107,7 +107,7 @@ public class CookieParameterResolver
     }
   }
 
-  private static class CookieCollectionParameterResolver extends AbstractNamedValueResolvingStrategy {
+  static class CookieCollectionParameterResolver extends AbstractNamedValueResolvingStrategy {
 
     public CookieCollectionParameterResolver(ConfigurableBeanFactory beanFactory) {
       super(beanFactory);
