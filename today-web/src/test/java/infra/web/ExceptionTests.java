@@ -21,12 +21,15 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Set;
 
+import infra.core.ResolvableType;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
+import infra.http.MediaType;
 import infra.http.ProblemDetail;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -372,6 +375,132 @@ public class ExceptionTests {
 
   }
 
+  @Nested
+  class UnsupportedMediaTypeStatusExceptionTests {
 
+    @Test
+    void constructorWithReasonOnly() {
+      String reason = "Invalid media type";
+      UnsupportedMediaTypeStatusException exception = new UnsupportedMediaTypeStatusException(reason);
+
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+      assertThat(exception.getContentType()).isNull();
+      assertThat(exception.getSupportedMediaTypes()).isEmpty();
+      assertThat(exception.getBodyType()).isNull();
+      assertThat(exception.getMessage()).contains(reason);
+      assertThat(exception.getHeaders()).isEqualTo(HttpHeaders.empty());
+    }
+
+    @Test
+    void constructorWithReasonAndSupportedTypes() {
+      String reason = "Cannot parse Content-Type";
+      List<MediaType> supportedTypes = List.of(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN);
+      UnsupportedMediaTypeStatusException exception = new UnsupportedMediaTypeStatusException(reason, supportedTypes);
+
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+      assertThat(exception.getContentType()).isNull();
+      assertThat(exception.getSupportedMediaTypes()).containsExactlyElementsOf(supportedTypes);
+      assertThat(exception.getBodyType()).isNull();
+      assertThat(exception.getBody().getDetail()).isEqualTo("Could not parse Content-Type.");
+      assertThat(exception.getHeaders().getAccept()).containsExactlyElementsOf(supportedTypes);
+    }
+
+    @Test
+    void constructorWithContentTypeAndSupportedTypes() {
+      MediaType contentType = MediaType.APPLICATION_XML;
+      List<MediaType> supportedTypes = List.of(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN);
+      UnsupportedMediaTypeStatusException exception = new UnsupportedMediaTypeStatusException(contentType, supportedTypes);
+
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+      assertThat(exception.getContentType()).isEqualTo(contentType);
+      assertThat(exception.getSupportedMediaTypes()).containsExactlyElementsOf(supportedTypes);
+      assertThat(exception.getBodyType()).isNull();
+      assertThat(exception.getBody().getDetail()).isEqualTo("Content-Type '" + contentType + "' is not supported.");
+      assertThat(exception.getHeaders().getAccept()).containsExactlyElementsOf(supportedTypes);
+    }
+
+    @Test
+    void constructorWithContentTypeSupportedTypesAndBodyType() {
+      MediaType contentType = MediaType.APPLICATION_XML;
+      List<MediaType> supportedTypes = List.of(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN);
+      ResolvableType bodyType = ResolvableType.forClass(String.class);
+      UnsupportedMediaTypeStatusException exception = new UnsupportedMediaTypeStatusException(contentType, supportedTypes, bodyType);
+
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+      assertThat(exception.getContentType()).isEqualTo(contentType);
+      assertThat(exception.getSupportedMediaTypes()).containsExactlyElementsOf(supportedTypes);
+      assertThat(exception.getBodyType()).isEqualTo(bodyType);
+      assertThat(exception.getMessage()).contains(contentType.toString()).contains(bodyType.toString());
+      assertThat(exception.getHeaders().getAccept()).containsExactlyElementsOf(supportedTypes);
+    }
+
+    @Test
+    void constructorWithContentTypeSupportedTypesAndMethod() {
+      MediaType contentType = MediaType.APPLICATION_XML;
+      List<MediaType> supportedTypes = List.of(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN);
+      HttpMethod method = HttpMethod.PATCH;
+      UnsupportedMediaTypeStatusException exception = new UnsupportedMediaTypeStatusException(contentType, supportedTypes, method);
+
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+      assertThat(exception.getContentType()).isEqualTo(contentType);
+      assertThat(exception.getSupportedMediaTypes()).containsExactlyElementsOf(supportedTypes);
+      assertThat(exception.getBodyType()).isNull();
+      assertThat(exception.getHeaders().getAccept()).containsExactlyElementsOf(supportedTypes);
+      assertThat(exception.getHeaders().getAcceptPatch()).containsExactlyElementsOf(supportedTypes);
+    }
+
+    @Test
+    void constructorWithAllParameters() {
+      MediaType contentType = MediaType.APPLICATION_XML;
+      List<MediaType> supportedTypes = List.of(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN);
+      ResolvableType bodyType = ResolvableType.forClass(String.class);
+      HttpMethod method = HttpMethod.POST;
+      UnsupportedMediaTypeStatusException exception = new UnsupportedMediaTypeStatusException(contentType, supportedTypes, bodyType, method);
+
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+      assertThat(exception.getContentType()).isEqualTo(contentType);
+      assertThat(exception.getSupportedMediaTypes()).containsExactlyElementsOf(supportedTypes);
+      assertThat(exception.getBodyType()).isEqualTo(bodyType);
+      assertThat(exception.getHeaders().getAccept()).containsExactlyElementsOf(supportedTypes);
+    }
+
+    @Test
+    void getHeadersReturnsEmptyWhenNoSupportedTypes() {
+      String reason = "Parse error";
+      UnsupportedMediaTypeStatusException exception = new UnsupportedMediaTypeStatusException(reason);
+
+      HttpHeaders headers = exception.getHeaders();
+      assertThat(headers).isEqualTo(HttpHeaders.empty());
+    }
+
+    @Test
+    void getHeadersReturnsAcceptHeader() {
+      MediaType contentType = MediaType.APPLICATION_XML;
+      List<MediaType> supportedTypes = List.of(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN);
+      UnsupportedMediaTypeStatusException exception = new UnsupportedMediaTypeStatusException(contentType, supportedTypes);
+
+      HttpHeaders headers = exception.getHeaders();
+      assertThat(headers.getAccept()).containsExactlyElementsOf(supportedTypes);
+    }
+
+    @Test
+    void getHeadersReturnsAcceptPatchHeaderForPatchMethod() {
+      MediaType contentType = MediaType.APPLICATION_XML;
+      List<MediaType> supportedTypes = List.of(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN);
+      HttpMethod method = HttpMethod.PATCH;
+      UnsupportedMediaTypeStatusException exception = new UnsupportedMediaTypeStatusException(contentType, supportedTypes, method);
+
+      HttpHeaders headers = exception.getHeaders();
+      assertThat(headers.getAcceptPatch()).containsExactlyElementsOf(supportedTypes);
+    }
+
+    @Test
+    void exceptionExtendsResponseStatusException() {
+      UnsupportedMediaTypeStatusException exception = new UnsupportedMediaTypeStatusException("test");
+
+      assertThat(exception).isInstanceOf(ResponseStatusException.class);
+    }
+
+  }
 
 }
