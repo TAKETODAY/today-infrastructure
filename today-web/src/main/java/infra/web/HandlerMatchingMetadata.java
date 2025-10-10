@@ -201,4 +201,7 @@ public class HandlerMatchingMetadata {
     this.handler = handler;
   }
 
+  public PathPatternParser getPatternParser() {
+    return patternParser;
+  }
 }

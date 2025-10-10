@@ -41,7 +41,7 @@ class CallableInterceptorChain {
 
   private final ArrayList<CallableProcessingInterceptor> interceptors;
 
-  private int preProcessIndex = -1;
+  public int preProcessIndex = -1;
 
   @Nullable
   private volatile Future<?> taskFuture;
