@@ -727,4 +727,333 @@ class RestExceptionTests {
 
   }
 
+  @Nested
+  class HttpStatusCodeExceptionTests {
+    @Test
+    void constructorWithStatusCodeOnly() {
+      HttpStatusCode statusCode = HttpStatus.BAD_REQUEST;
+
+      TestHttpStatusCodeException exception = new TestHttpStatusCodeException(statusCode);
+
+      assertThat(exception.getStatusCode()).isEqualTo(statusCode);
+      assertThat(exception.getStatusText()).isEqualTo("BAD_REQUEST");
+      assertThat(exception.getResponseHeaders()).isNull();
+      assertThat(exception.getResponseBodyAsByteArray()).isEmpty();
+      assertThat(exception.getMessage()).isEqualTo("400 BAD_REQUEST");
+    }
+
+    @Test
+    void constructorWithStatusCodeAndStatusText() {
+      HttpStatusCode statusCode = HttpStatus.UNAUTHORIZED;
+      String statusText = "Unauthorized";
+
+      TestHttpStatusCodeException exception = new TestHttpStatusCodeException(statusCode, statusText);
+
+      assertThat(exception.getStatusCode()).isEqualTo(statusCode);
+      assertThat(exception.getStatusText()).isEqualTo(statusText);
+      assertThat(exception.getResponseHeaders()).isNull();
+      assertThat(exception.getResponseBodyAsByteArray()).isEmpty();
+      assertThat(exception.getMessage()).isEqualTo("401 Unauthorized");
+    }
+
+    @Test
+    void constructorWithStatusCodeStatusTextAndContent() {
+      HttpStatusCode statusCode = HttpStatus.FORBIDDEN;
+      String statusText = "Forbidden";
+      byte[] body = "Access denied".getBytes();
+      Charset charset = StandardCharsets.UTF_8;
+
+      TestHttpStatusCodeException exception = new TestHttpStatusCodeException(statusCode, statusText, body, charset);
+
+      assertThat(exception.getStatusCode()).isEqualTo(statusCode);
+      assertThat(exception.getStatusText()).isEqualTo(statusText);
+      assertThat(exception.getResponseBodyAsByteArray()).isEqualTo(body);
+      assertThat(exception.getResponseHeaders()).isNull();
+      assertThat(exception.getMessage()).isEqualTo("403 Forbidden");
+    }
+
+    @Test
+    void constructorWithStatusCodeStatusTextHeadersAndContent() {
+      HttpStatusCode statusCode = HttpStatus.NOT_FOUND;
+      String statusText = "Not Found";
+      HttpHeaders headers = HttpHeaders.forWritable();
+      headers.setContentType(MediaType.TEXT_PLAIN);
+      byte[] body = "Resource not found".getBytes();
+      Charset charset = StandardCharsets.UTF_8;
+
+      TestHttpStatusCodeException exception = new TestHttpStatusCodeException(statusCode, statusText, headers, body, charset);
+
+      assertThat(exception.getStatusCode()).isEqualTo(statusCode);
+      assertThat(exception.getStatusText()).isEqualTo(statusText);
+      assertThat(exception.getResponseHeaders()).isEqualTo(headers);
+      assertThat(exception.getResponseBodyAsByteArray()).isEqualTo(body);
+      assertThat(exception.getMessage()).isEqualTo("404 Not Found");
+    }
+
+    @Test
+    void constructorWithMessageStatusCodeStatusTextHeadersAndContent() {
+      String message = "Custom error message";
+      HttpStatusCode statusCode = HttpStatus.METHOD_NOT_ALLOWED;
+      String statusText = "Method Not Allowed";
+      HttpHeaders headers = HttpHeaders.forWritable();
+      headers.setContentType(MediaType.TEXT_PLAIN);
+      byte[] body = "Method not supported".getBytes();
+      Charset charset = StandardCharsets.UTF_8;
+
+      TestHttpStatusCodeException exception = new TestHttpStatusCodeException(message, statusCode, statusText, headers, body, charset);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getStatusCode()).isEqualTo(statusCode);
+      assertThat(exception.getStatusText()).isEqualTo(statusText);
+      assertThat(exception.getResponseHeaders()).isEqualTo(headers);
+      assertThat(exception.getResponseBodyAsByteArray()).isEqualTo(body);
+    }
+
+    @Test
+    void constructorWithHttpStatusUsesReasonPhrase() {
+      HttpStatusCode statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+
+      TestHttpStatusCodeException exception = new TestHttpStatusCodeException(statusCode, "");
+
+      assertThat(exception.getMessage()).isEqualTo("500 Internal Server Error");
+    }
+
+    @Test
+    void constructorWithCustomStatusCodeAndEmptyStatusText() {
+      HttpStatusCode statusCode = HttpStatusCode.valueOf(499);
+
+      TestHttpStatusCodeException exception = new TestHttpStatusCodeException(statusCode, "");
+
+      assertThat(exception.getMessage()).isEqualTo("499 ");
+    }
+
+    static class TestHttpStatusCodeException extends HttpStatusCodeException {
+
+      TestHttpStatusCodeException(HttpStatusCode statusCode) {
+        super(statusCode);
+      }
+
+      TestHttpStatusCodeException(HttpStatusCode statusCode, String statusText) {
+        super(statusCode, statusText);
+      }
+
+      TestHttpStatusCodeException(HttpStatusCode statusCode, String statusText,
+              byte[] responseBody, Charset responseCharset) {
+        super(statusCode, statusText, responseBody, responseCharset);
+      }
+
+      TestHttpStatusCodeException(HttpStatusCode statusCode, String statusText,
+              HttpHeaders responseHeaders, byte[] responseBody, Charset responseCharset) {
+        super(statusCode, statusText, responseHeaders, responseBody, responseCharset);
+      }
+
+      TestHttpStatusCodeException(String message, HttpStatusCode statusCode, String statusText,
+              HttpHeaders responseHeaders, byte[] responseBody, Charset responseCharset) {
+        super(message, statusCode, statusText, responseHeaders, responseBody, responseCharset);
+      }
+    }
+
+  }
+
+  @Nested
+  class HttpServerErrorExceptionTests {
+    @Test
+    void constructorWithStatusCodeOnly() {
+      HttpStatusCode statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+
+      HttpServerErrorException exception = new HttpServerErrorException(statusCode);
+
+      assertThat(exception.getStatusCode()).isEqualTo(statusCode);
+      assertThat(exception.getStatusText()).isEqualTo("INTERNAL_SERVER_ERROR");
+      assertThat(exception.getResponseHeaders()).isNull();
+      assertThat(exception.getResponseBodyAsByteArray()).isEmpty();
+    }
+
+    @Test
+    void constructorWithStatusCodeAndStatusText() {
+      HttpStatusCode statusCode = HttpStatus.NOT_IMPLEMENTED;
+      String statusText = "Not Implemented";
+
+      HttpServerErrorException exception = new HttpServerErrorException(statusCode, statusText);
+
+      assertThat(exception.getStatusCode()).isEqualTo(statusCode);
+      assertThat(exception.getStatusText()).isEqualTo(statusText);
+      assertThat(exception.getResponseHeaders()).isNull();
+      assertThat(exception.getResponseBodyAsByteArray()).isEmpty();
+    }
+
+    @Test
+    void constructorWithStatusCodeStatusTextAndContent() {
+      HttpStatusCode statusCode = HttpStatus.BAD_GATEWAY;
+      String statusText = "Bad Gateway";
+      byte[] body = "Bad gateway error".getBytes();
+      Charset charset = StandardCharsets.UTF_8;
+
+      HttpServerErrorException exception = new HttpServerErrorException(statusCode, statusText, body, charset);
+
+      assertThat(exception.getStatusCode()).isEqualTo(statusCode);
+      assertThat(exception.getStatusText()).isEqualTo(statusText);
+      assertThat(exception.getResponseBodyAsByteArray()).isEqualTo(body);
+      assertThat(exception.getResponseHeaders()).isNull();
+    }
+
+    @Test
+    void constructorWithStatusCodeStatusTextHeadersAndContent() {
+      HttpStatusCode statusCode = HttpStatus.SERVICE_UNAVAILABLE;
+      String statusText = "Service Unavailable";
+      HttpHeaders headers = HttpHeaders.forWritable();
+      headers.setContentType(MediaType.TEXT_PLAIN);
+      byte[] body = "Service unavailable".getBytes();
+      Charset charset = StandardCharsets.UTF_8;
+
+      HttpServerErrorException exception = new HttpServerErrorException(statusCode, statusText, headers, body, charset);
+
+      assertThat(exception.getStatusCode()).isEqualTo(statusCode);
+      assertThat(exception.getStatusText()).isEqualTo(statusText);
+      assertThat(exception.getResponseHeaders()).isEqualTo(headers);
+      assertThat(exception.getResponseBodyAsByteArray()).isEqualTo(body);
+    }
+
+    @Test
+    void constructorWithMessageStatusCodeStatusTextHeadersAndContent() {
+      String message = "Custom error message";
+      HttpStatusCode statusCode = HttpStatus.GATEWAY_TIMEOUT;
+      String statusText = "Gateway Timeout";
+      HttpHeaders headers = HttpHeaders.forWritable();
+      headers.setContentType(MediaType.TEXT_PLAIN);
+      byte[] body = "Gateway timeout".getBytes();
+      Charset charset = StandardCharsets.UTF_8;
+
+      HttpServerErrorException exception = new HttpServerErrorException(message, statusCode, statusText, headers, body, charset);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getStatusCode()).isEqualTo(statusCode);
+      assertThat(exception.getStatusText()).isEqualTo(statusText);
+      assertThat(exception.getResponseHeaders()).isEqualTo(headers);
+      assertThat(exception.getResponseBodyAsByteArray()).isEqualTo(body);
+    }
+
+    @Test
+    void createReturnsInternalServerErrorFor500() {
+      HttpStatus statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+      String statusText = "Internal Server Error";
+      HttpHeaders headers = HttpHeaders.forWritable();
+      byte[] body = "Internal server error".getBytes();
+      Charset charset = StandardCharsets.UTF_8;
+
+      HttpServerErrorException exception = HttpServerErrorException.create(statusCode, statusText, headers, body, charset);
+
+      assertThat(exception).isInstanceOf(HttpServerErrorException.InternalServerError.class);
+      assertThat(exception.getStatusCode()).isEqualTo(statusCode);
+    }
+
+    @Test
+    void createReturnsNotImplementedFor501() {
+      HttpStatus statusCode = HttpStatus.NOT_IMPLEMENTED;
+      String statusText = "Not Implemented";
+      HttpHeaders headers = HttpHeaders.forWritable();
+      byte[] body = "Not implemented".getBytes();
+      Charset charset = StandardCharsets.UTF_8;
+
+      HttpServerErrorException exception = HttpServerErrorException.create(statusCode, statusText, headers, body, charset);
+
+      assertThat(exception).isInstanceOf(HttpServerErrorException.NotImplemented.class);
+      assertThat(exception.getStatusCode()).isEqualTo(statusCode);
+    }
+
+    @Test
+    void createReturnsBadGatewayFor502() {
+      HttpStatus statusCode = HttpStatus.BAD_GATEWAY;
+      String statusText = "Bad Gateway";
+      HttpHeaders headers = HttpHeaders.forWritable();
+      byte[] body = "Bad gateway".getBytes();
+      Charset charset = StandardCharsets.UTF_8;
+
+      HttpServerErrorException exception = HttpServerErrorException.create(statusCode, statusText, headers, body, charset);
+
+      assertThat(exception).isInstanceOf(HttpServerErrorException.BadGateway.class);
+      assertThat(exception.getStatusCode()).isEqualTo(statusCode);
+    }
+
+    @Test
+    void createReturnsServiceUnavailableFor503() {
+      HttpStatus statusCode = HttpStatus.SERVICE_UNAVAILABLE;
+      String statusText = "Service Unavailable";
+      HttpHeaders headers = HttpHeaders.forWritable();
+      byte[] body = "Service unavailable".getBytes();
+      Charset charset = StandardCharsets.UTF_8;
+
+      HttpServerErrorException exception = HttpServerErrorException.create(statusCode, statusText, headers, body, charset);
+
+      assertThat(exception).isInstanceOf(HttpServerErrorException.ServiceUnavailable.class);
+      assertThat(exception.getStatusCode()).isEqualTo(statusCode);
+    }
+
+    @Test
+    void createReturnsGatewayTimeoutFor504() {
+      HttpStatus statusCode = HttpStatus.GATEWAY_TIMEOUT;
+      String statusText = "Gateway Timeout";
+      HttpHeaders headers = HttpHeaders.forWritable();
+      byte[] body = "Gateway timeout".getBytes();
+      Charset charset = StandardCharsets.UTF_8;
+
+      HttpServerErrorException exception = HttpServerErrorException.create(statusCode, statusText, headers, body, charset);
+
+      assertThat(exception).isInstanceOf(HttpServerErrorException.GatewayTimeout.class);
+      assertThat(exception.getStatusCode()).isEqualTo(statusCode);
+    }
+
+    @Test
+    void createReturnsGenericExceptionForOther5xx() {
+      HttpStatusCode statusCode = HttpStatusCode.valueOf(599);
+      String statusText = "Custom 5xx Error";
+      HttpHeaders headers = HttpHeaders.forWritable();
+      byte[] body = "Custom error".getBytes();
+      Charset charset = StandardCharsets.UTF_8;
+
+      HttpServerErrorException exception = HttpServerErrorException.create(statusCode, statusText, headers, body, charset);
+
+      assertThat(exception).isInstanceOf(HttpServerErrorException.class);
+      assertThat(exception).isNotInstanceOfAny(
+              HttpServerErrorException.InternalServerError.class,
+              HttpServerErrorException.NotImplemented.class,
+              HttpServerErrorException.BadGateway.class,
+              HttpServerErrorException.ServiceUnavailable.class,
+              HttpServerErrorException.GatewayTimeout.class
+      );
+      assertThat(exception.getStatusCode()).isEqualTo(statusCode);
+    }
+
+    @Test
+    void createWithMessageReturnsCustomMessage() {
+      String message = "Custom error message";
+      HttpStatus statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+      String statusText = "Internal Server Error";
+      HttpHeaders headers = HttpHeaders.forWritable();
+      byte[] body = "Internal server error".getBytes();
+      Charset charset = StandardCharsets.UTF_8;
+
+      HttpServerErrorException exception = HttpServerErrorException.create(message, statusCode, statusText, headers, body, charset);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getStatusCode()).isEqualTo(statusCode);
+    }
+
+    @Test
+    void createWithNullMessageReturnsDefaultMessage() {
+      HttpStatus statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+      String statusText = "Internal Server Error";
+      HttpHeaders headers = HttpHeaders.forWritable();
+      byte[] body = "Internal server error".getBytes();
+      Charset charset = StandardCharsets.UTF_8;
+
+      HttpServerErrorException exception = HttpServerErrorException.create(null, statusCode, statusText, headers, body, charset);
+
+      assertThat(exception.getMessage()).isNotNull();
+      assertThat(exception.getStatusCode()).isEqualTo(statusCode);
+    }
+
+  }
+
+
 }
