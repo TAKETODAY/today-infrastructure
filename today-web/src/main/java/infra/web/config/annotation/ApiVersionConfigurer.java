@@ -61,7 +61,7 @@ public class ApiVersionConfigurer {
 
   private final Set<String> supportedVersions = new LinkedHashSet<>();
 
-  private boolean detectSupportedVersions = true;
+  boolean detectSupportedVersions = true;
 
   @Nullable
   private ApiVersionDeprecationHandler deprecationHandler;
@@ -237,7 +237,7 @@ public class ApiVersionConfigurer {
     return strategy;
   }
 
-  private boolean isNotCustomized() {
+  boolean isNotCustomized() {
     return (this.versionParser == null && this.versionRequired == null &&
             this.defaultVersion == null && this.supportedVersions.isEmpty());
   }

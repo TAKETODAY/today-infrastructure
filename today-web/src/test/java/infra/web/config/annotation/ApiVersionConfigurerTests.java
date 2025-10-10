@@ -19,12 +19,16 @@ package infra.web.config.annotation;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.function.Predicate;
+
+import infra.web.accept.ApiVersionDeprecationHandler;
 import infra.web.accept.ApiVersionParser;
 import infra.web.accept.ApiVersionResolver;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.accept.DefaultApiVersionStrategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -119,6 +123,149 @@ class ApiVersionConfigurerTests {
             .setDefaultVersion(null);
     ApiVersionStrategy strategy = configurer.getApiVersionStrategy();
     assertThat(strategy.getDefaultVersion()).isNull();
+  }
+
+  @Test
+  void setVersionParserStoresParser() {
+    ApiVersionParser<?> parser = mock(ApiVersionParser.class);
+    ApiVersionConfigurer configurer = new ApiVersionConfigurer();
+
+    ApiVersionConfigurer result = configurer.setVersionParser(parser);
+
+    assertThat(result).isSameAs(configurer);
+  }
+
+  @Test
+  void setVersionRequiredStoresRequiredFlag() {
+    ApiVersionConfigurer configurer = new ApiVersionConfigurer();
+    ApiVersionConfigurer result = configurer.setVersionRequired(true);
+    assertThat(result).isSameAs(configurer);
+  }
+
+  @Test
+  void setDefaultVersionStoresVersion() {
+    ApiVersionConfigurer configurer = new ApiVersionConfigurer();
+
+    ApiVersionConfigurer result = configurer.setDefaultVersion("2.0");
+    assertThat(result).isSameAs(configurer);
+  }
+
+  @Test
+  void addSupportedVersionsAddsVersions() {
+    ApiVersionConfigurer configurer = new ApiVersionConfigurer();
+
+    ApiVersionConfigurer result = configurer.addSupportedVersions("1.0", "2.0", "3.0");
+
+    assertThat(result).isSameAs(configurer);
+  }
+
+  @Test
+  void detectSupportedVersionsSetsFlag() {
+    ApiVersionConfigurer configurer = new ApiVersionConfigurer();
+
+    ApiVersionConfigurer result = configurer.detectSupportedVersions(false);
+
+    assertThat(result).isSameAs(configurer);
+    assertThat(configurer.detectSupportedVersions).isFalse();
+  }
+
+  @Test
+  void setDeprecationHandlerStoresHandler() {
+    ApiVersionDeprecationHandler handler = mock(ApiVersionDeprecationHandler.class);
+    ApiVersionConfigurer configurer = new ApiVersionConfigurer();
+
+    ApiVersionConfigurer result = configurer.setDeprecationHandler(handler);
+
+    assertThat(result).isSameAs(configurer);
+  }
+
+  @Test
+  void setSupportedVersionPredicateStoresPredicate() {
+    Predicate<Comparable<?>> predicate = mock(Predicate.class);
+    ApiVersionConfigurer configurer = new ApiVersionConfigurer();
+
+    configurer.setSupportedVersionPredicate(predicate);
+
+    assertThat(configurer).extracting("supportedVersionPredicate").isSameAs(predicate);
+  }
+
+  @Test
+  void getApiVersionStrategyReturnsNullWhenNoResolvers() {
+    ApiVersionConfigurer configurer = new ApiVersionConfigurer();
+
+    ApiVersionStrategy strategy = configurer.getApiVersionStrategy();
+
+    assertThat(strategy).isNull();
+  }
+
+  @Test
+  void getApiVersionStrategyThrowsExceptionWhenCustomizedButNoResolvers() {
+    ApiVersionConfigurer configurer = new ApiVersionConfigurer();
+    configurer.setDefaultVersion("1.0"); // Customizes the configurer
+
+    assertThatThrownBy(configurer::getApiVersionStrategy)
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessage("API version config customized, but no ApiVersionResolver provided");
+  }
+
+  @Test
+  void getApiVersionStrategyReturnsStrategyWhenResolversPresent() {
+    ApiVersionConfigurer configurer = new ApiVersionConfigurer();
+    configurer.useRequestHeader("API-Version");
+
+    ApiVersionStrategy strategy = configurer.getApiVersionStrategy();
+
+    assertThat(strategy).isNotNull();
+    assertThat(strategy).isInstanceOf(DefaultApiVersionStrategy.class);
+  }
+
+  @Test
+  void isNotCustomizedReturnsTrueWhenNothingSet() {
+    ApiVersionConfigurer configurer = new ApiVersionConfigurer();
+
+    boolean result = configurer.isNotCustomized();
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  void isNotCustomizedReturnsFalseWhenParserSet() {
+    ApiVersionConfigurer configurer = new ApiVersionConfigurer();
+    configurer.setVersionParser(mock(ApiVersionParser.class));
+
+    boolean result = configurer.isNotCustomized();
+
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  void isNotCustomizedReturnsFalseWhenVersionRequiredSet() {
+    ApiVersionConfigurer configurer = new ApiVersionConfigurer();
+    configurer.setVersionRequired(true);
+
+    boolean result = configurer.isNotCustomized();
+
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  void isNotCustomizedReturnsFalseWhenDefaultVersionSet() {
+    ApiVersionConfigurer configurer = new ApiVersionConfigurer();
+    configurer.setDefaultVersion("1.0");
+
+    boolean result = configurer.isNotCustomized();
+
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  void isNotCustomizedReturnsFalseWhenSupportedVersionsAdded() {
+    ApiVersionConfigurer configurer = new ApiVersionConfigurer();
+    configurer.addSupportedVersions("1.0");
+
+    boolean result = configurer.isNotCustomized();
+
+    assertThat(result).isFalse();
   }
 
 }
