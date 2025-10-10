@@ -20,6 +20,7 @@ package infra.web.view;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
+import java.util.Objects;
 
 import infra.http.HttpStatusCode;
 import infra.ui.ModelMap;
@@ -346,6 +347,21 @@ public class ModelAndView {
   @Override
   public String toString() {
     return "ModelAndView [view=%s; model=%s]".formatted(formatView(), this.model);
+  }
+
+  @Override
+  public boolean equals(Object object) {
+    if (!(object instanceof ModelAndView that))
+      return false;
+    return cleared == that.cleared
+            && Objects.equals(view, that.view)
+            && Objects.equals(model, that.model)
+            && Objects.equals(status, that.status);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(view, model, status, cleared);
   }
 
   private String formatView() {
