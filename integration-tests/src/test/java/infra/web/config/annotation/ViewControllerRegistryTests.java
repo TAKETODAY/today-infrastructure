@@ -19,10 +19,12 @@ package infra.web.config.annotation;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.Element;
 
 import java.util.Collections;
 import java.util.Map;
 
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.support.StaticApplicationContext;
 import infra.core.io.ClassPathResource;
 import infra.http.HttpStatus;
@@ -36,6 +38,8 @@ import infra.web.view.RedirectView;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -152,6 +156,148 @@ class ViewControllerRegistryTests {
     assertThat(controller.getStatusCode()).isNull();
     assertThat(controller.isStatusOnly()).isFalse();
     assertThat(controller.getApplicationContext()).isNotNull();
+  }
+
+  @Test
+  void constructorInitializesApplicationContext() {
+    StaticApplicationContext applicationContext = new StaticApplicationContext();
+    ViewControllerRegistry registry = new ViewControllerRegistry(applicationContext);
+
+    assertThat(registry).extracting("applicationContext").isSameAs(applicationContext);
+  }
+
+  @Test
+  void addViewControllerWithResource() {
+    StaticApplicationContext applicationContext = new StaticApplicationContext();
+    ViewControllerRegistry registry = new ViewControllerRegistry(applicationContext);
+
+    ViewControllerRegistration registration = registry.addViewController("/test", "viewName");
+
+    assertThat(registration).isNotNull();
+    assertThat(registration.getViewController().getViewName()).isEqualTo("viewName");
+  }
+
+  @Test
+  void addStatusControllerWithIntegerStatus() {
+    StaticApplicationContext applicationContext = new StaticApplicationContext();
+    ViewControllerRegistry registry = new ViewControllerRegistry(applicationContext);
+
+    registry.addStatusController("/notfound", 404);
+
+    SimpleUrlHandlerMapping handlerMapping = registry.buildHandlerMapping();
+    Map<String, ?> urlMap = handlerMapping.getUrlMap();
+    ParameterizableViewController controller = (ParameterizableViewController) urlMap.get("/notfound");
+
+    assertThat(controller.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    assertThat(controller.isStatusOnly()).isTrue();
+  }
+
+  @Test
+  void setOrderChangesHandlerMappingOrder() {
+    StaticApplicationContext applicationContext = new StaticApplicationContext();
+    ViewControllerRegistry registry = new ViewControllerRegistry(applicationContext);
+    registry.addViewController("/test").setViewName("view");
+
+    registry.setOrder(5);
+    SimpleUrlHandlerMapping handlerMapping = registry.buildHandlerMapping();
+
+    assertThat(handlerMapping.getOrder()).isEqualTo(5);
+  }
+
+  @Test
+  void buildHandlerMappingReturnsNullWhenNoRegistrations() {
+    StaticApplicationContext applicationContext = new StaticApplicationContext();
+    ViewControllerRegistry registry = new ViewControllerRegistry(applicationContext);
+
+    SimpleUrlHandlerMapping handlerMapping = registry.buildHandlerMapping();
+
+    assertThat(handlerMapping).isNull();
+  }
+
+  @Test
+  void buildHandlerMappingReturnsHandlerMappingWithRegistrations() {
+    StaticApplicationContext applicationContext = new StaticApplicationContext();
+    ViewControllerRegistry registry = new ViewControllerRegistry(applicationContext);
+    registry.addViewController("/test").setViewName("view");
+
+    SimpleUrlHandlerMapping handlerMapping = registry.buildHandlerMapping();
+
+    assertThat(handlerMapping).isNotNull();
+    assertThat(handlerMapping.getUrlMap()).isNotEmpty();
+  }
+
+  @Test
+  void resolveEmbeddedVariablesResolvesPlaceholders() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.getBeanFactory().registerSingleton("testProperty", "testValue");
+    context.refresh();
+    ViewControllerRegistry registry = new ViewControllerRegistry(context);
+
+    String result = registry.resolveEmbeddedVariables("#{testProperty}");
+
+    assertThat(result).isEqualTo("testValue");
+  }
+
+  @Test
+  void processActionWithRedirectType() {
+    StaticApplicationContext applicationContext = new StaticApplicationContext();
+    ViewControllerRegistry registry = new ViewControllerRegistry(applicationContext);
+
+    Element actionElement = mock(Element.class);
+    when(actionElement.getAttribute("name")).thenReturn("redirectAction");
+    when(actionElement.getAttribute("resource")).thenReturn("/target");
+    when(actionElement.getAttribute("type")).thenReturn("redirect");
+    when(actionElement.getAttribute("status")).thenReturn("308");
+
+    registry.processAction("", "", actionElement);
+
+    SimpleUrlHandlerMapping handlerMapping = registry.buildHandlerMapping();
+    Map<String, ?> urlMap = handlerMapping.getUrlMap();
+    ParameterizableViewController controller = (ParameterizableViewController) urlMap.get("/redirectAction");
+
+    assertThat(controller.getView()).isInstanceOf(RedirectView.class);
+    RedirectView redirectView = (RedirectView) controller.getView();
+    assertThat(redirectView).extracting("statusCode").isEqualTo(HttpStatus.PERMANENT_REDIRECT);
+  }
+
+  @Test
+  void processActionWithForwardTypeAndContentType() {
+    StaticApplicationContext applicationContext = new StaticApplicationContext();
+    ViewControllerRegistry registry = new ViewControllerRegistry(applicationContext);
+
+    Element actionElement = mock(Element.class);
+    when(actionElement.getAttribute("name")).thenReturn("forwardAction");
+    when(actionElement.getAttribute("resource")).thenReturn("viewName");
+    when(actionElement.getAttribute("type")).thenReturn("forward");
+    when(actionElement.getAttribute("content-type")).thenReturn("text/html");
+
+    registry.processAction("", "", actionElement);
+
+    SimpleUrlHandlerMapping handlerMapping = registry.buildHandlerMapping();
+    Map<String, ?> urlMap = handlerMapping.getUrlMap();
+    ParameterizableViewController controller = (ParameterizableViewController) urlMap.get("/forwardAction");
+
+    assertThat(controller.getViewName()).isEqualTo("viewName");
+    assertThat(controller.getContentType()).isEqualTo("text/html");
+  }
+
+  @Test
+  void processActionWithResourceAndPrefixSuffix() {
+    StaticApplicationContext applicationContext = new StaticApplicationContext();
+    ViewControllerRegistry registry = new ViewControllerRegistry(applicationContext);
+
+    Element actionElement = mock(Element.class);
+    when(actionElement.getAttribute("name")).thenReturn("prefixedAction");
+    when(actionElement.getAttribute("resource")).thenReturn("view");
+    when(actionElement.getAttribute("type")).thenReturn("forward");
+
+    registry.processAction("/WEB-INF/views/", ".jsp", actionElement);
+
+    SimpleUrlHandlerMapping handlerMapping = registry.buildHandlerMapping();
+    Map<String, ?> urlMap = handlerMapping.getUrlMap();
+    ParameterizableViewController controller = (ParameterizableViewController) urlMap.get("/prefixedAction");
+
+    assertThat(controller.getViewName()).isEqualTo("/WEB-INF/views/view.jsp");
   }
 
   private ParameterizableViewController getController(String path) {
