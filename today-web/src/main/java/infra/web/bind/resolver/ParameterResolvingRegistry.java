@@ -40,10 +40,6 @@ import infra.web.RequestContext;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.annotation.RequestAttribute;
 import infra.web.bind.RequestBindingException;
-import infra.web.bind.resolver.date.DateParameterResolver;
-import infra.web.bind.resolver.date.LocalDateParameterResolver;
-import infra.web.bind.resolver.date.LocalDateTimeParameterResolver;
-import infra.web.bind.resolver.date.LocalTimeParameterResolver;
 import infra.web.handler.method.ModelAttributeMethodProcessor;
 import infra.web.handler.method.RequestBodyAdvice;
 import infra.web.handler.method.ResolvableMethodParameter;
@@ -240,12 +236,6 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
     strategies.add(new UriComponentsBuilderParameterStrategy());
     strategies.add(new HttpEntityMethodProcessor(
             getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice, modelManager));
-
-    // Date API support @since 3.0
-    strategies.add(new DateParameterResolver());
-    strategies.add(new LocalDateParameterResolver());
-    strategies.add(new LocalTimeParameterResolver());
-    strategies.add(new LocalDateTimeParameterResolver());
 
     // fallback
 

@@ -77,8 +77,6 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   private boolean bodyUsed = false;
   private boolean headersWritten = false;
 
-  protected String method;
-
   public MockRequestContext() {
     this((ApplicationContext) null);
   }
@@ -560,10 +558,6 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
 
   public void setResponseHeaders(HttpHeaders responseHeaders) {
     this.responseHeaders = responseHeaders;
-  }
-
-  public void setMethod(String method) {
-    this.method = method;
   }
 
   public void setRequestPath(String requestPath) {

@@ -31,6 +31,7 @@ import infra.web.handler.method.ResolvableMethodParameter;
  * @since 3.0
  */
 public class AutowiredParameterResolver implements ParameterResolvingStrategy {
+
   private final DependencyInjector injector;
 
   public AutowiredParameterResolver(DependencyInjectorProvider provider) {

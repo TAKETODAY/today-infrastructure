@@ -44,6 +44,7 @@ import infra.web.util.UriComponentsBuilder;
  * @since 4.0 2022/2/7 15:36
  */
 public abstract class AbstractRedirectModelManager implements RedirectModelManager {
+
   protected static final Object DEFAULT_FLASH_MAPS_MUTEX = new Object();
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
@@ -66,9 +67,8 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
     return this.redirectModelTimeout;
   }
 
-  @Nullable
   @Override
-  public RedirectModel retrieveAndUpdate(RequestContext context) {
+  public @Nullable RedirectModel retrieveAndUpdate(RequestContext context) {
     List<RedirectModel> allRedirectModels = retrieveRedirectModel(context);
     if (CollectionUtils.isEmpty(allRedirectModels)) {
       return null;
@@ -118,8 +118,7 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
    *
    * @return a matching RedirectModel or {@code null}
    */
-  @Nullable
-  private RedirectModel getMatchingRedirectModel(List<RedirectModel> allMaps, RequestContext request) {
+  private @Nullable RedirectModel getMatchingRedirectModel(List<RedirectModel> allMaps, RequestContext request) {
     ArrayList<RedirectModel> result = new ArrayList<>();
     for (RedirectModel model : allMaps) {
       if (isRedirectModelForRequest(model, request)) {
@@ -216,8 +215,7 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
    * @param request the current request
    * @return a List with RedirectModel instances, or {@code null} if none found
    */
-  @Nullable
-  protected abstract List<RedirectModel> retrieveRedirectModel(RequestContext request);
+  protected abstract @Nullable List<RedirectModel> retrieveRedirectModel(RequestContext request);
 
   /**
    * Update the RedirectModel instances in the underlying storage.
@@ -237,8 +235,7 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
    * @param request the current request
    * @return the mutex to use (may be {@code null} if none applicable)
    */
-  @Nullable
-  protected Object getRedirectModelMutex(RequestContext request) {
+  protected @Nullable Object getRedirectModelMutex(RequestContext request) {
     return DEFAULT_FLASH_MAPS_MUTEX;
   }
 

@@ -42,8 +42,7 @@ import infra.util.StringUtils;
 public abstract class AttributeAccessorSupport implements AttributeAccessor {
 
   /** Map with String keys and Object values. */
-  @Nullable
-  protected Map<String, Object> attributes;
+  protected @Nullable Map<String, Object> attributes;
 
   @Override
   public void setAttribute(String name, @Nullable Object value) {
@@ -73,7 +72,7 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T computeAttribute(String name, Function<String, T> computeFunction) {
+  public <T> T computeAttribute(String name, Function<String, @Nullable T> computeFunction) {
     Assert.notNull(name, "Name is required");
     Assert.notNull(computeFunction, "Compute function is required");
     if (attributes == null) {
