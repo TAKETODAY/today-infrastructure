@@ -17,6 +17,7 @@
 
 package infra.web.bind;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -27,15 +28,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
 
 import infra.beans.PropertyValue;
 import infra.beans.PropertyValues;
 import infra.beans.testfixture.beans.ITestBean;
 import infra.beans.testfixture.beans.TestBean;
 import infra.core.ResolvableType;
-import org.jspecify.annotations.Nullable;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockMultipartHttpMockRequest;
+import infra.validation.BindException;
 import infra.validation.BindingResult;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.RequestContext;
@@ -44,10 +47,12 @@ import infra.web.bind.support.BindParamNameResolver;
 import infra.web.mock.MockMultipartMockRequestContext;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.bind.MockRequestParameterPropertyValues;
+import infra.web.multipart.MultipartFile;
 import infra.web.multipart.support.StringMultipartFileEditor;
 import infra.web.testfixture.MockMultipartFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -520,7 +525,273 @@ class WebDataBinderTests {
     assertThat(target.getAge()).isEqualTo(25);
   }
 
+  @Test
+  void constructorWithTargetOnly() {
+    TestBean target = new TestBean();
+    WebDataBinder binder = new WebDataBinder(target);
 
+    assertThat(binder.getTarget()).isSameAs(target);
+    assertThat(binder.getObjectName()).isEqualTo("target");
+  }
+
+  @Test
+  void constructorWithTargetAndObjectName() {
+    TestBean target = new TestBean();
+    String objectName = "testBean";
+    WebDataBinder binder = new WebDataBinder(target, objectName);
+
+    assertThat(binder.getTarget()).isSameAs(target);
+    assertThat(binder.getObjectName()).isEqualTo(objectName);
+  }
+
+  @Test
+  void setFieldMarkerPrefix() {
+    WebDataBinder binder = new WebDataBinder(new TestBean());
+    String prefix = "__";
+
+    binder.setFieldMarkerPrefix(prefix);
+    assertThat(binder.getFieldMarkerPrefix()).isEqualTo(prefix);
+  }
+
+  @Test
+  void setFieldDefaultPrefix() {
+    WebDataBinder binder = new WebDataBinder(new TestBean());
+    String prefix = "!!";
+
+    binder.setFieldDefaultPrefix(prefix);
+    assertThat(binder.getFieldDefaultPrefix()).isEqualTo(prefix);
+  }
+
+  @Test
+  void setBindEmptyMultipartFiles() {
+    WebDataBinder binder = new WebDataBinder(new TestBean());
+
+    binder.setBindEmptyMultipartFiles(false);
+    assertThat(binder.isBindEmptyMultipartFiles()).isFalse();
+
+    binder.setBindEmptyMultipartFiles(true);
+    assertThat(binder.isBindEmptyMultipartFiles()).isTrue();
+  }
+
+  @Test
+  void setHeaderPredicate() {
+    WebDataBinder binder = new WebDataBinder(new TestBean());
+    Predicate<String> customPredicate = name -> name.startsWith("X-");
+
+    binder.setHeaderPredicate(customPredicate);
+    assertThat(binder).extracting("headerPredicate").isSameAs(customPredicate);
+  }
+
+  @Test
+  void resolvePrefixValueWithNoPrefixMatch() {
+    WebDataBinder binder = new WebDataBinder(new TestBean());
+    BiFunction<String, Class<?>, Object> resolver = (name, type) -> null;
+
+    Object result = binder.resolvePrefixValue("testField", String.class, resolver);
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void resolvePrefixValueWithDefaultPrefix() {
+    WebDataBinder binder = new WebDataBinder(new TestBean());
+    binder.setFieldDefaultPrefix("!");
+    BiFunction<String, Class<?>, Object> resolver = (name, type) -> {
+      if ("!testField".equals(name)) {
+        return "defaultValue";
+      }
+      return null;
+    };
+
+    Object result = binder.resolvePrefixValue("testField", String.class, resolver);
+    assertThat(result).isEqualTo("defaultValue");
+  }
+
+  @Test
+  void resolvePrefixValueWithMarkerPrefix() {
+    WebDataBinder binder = new WebDataBinder(new TestBean());
+    binder.setFieldMarkerPrefix("_");
+    BiFunction<String, Class<?>, Object> resolver = (name, type) -> {
+      if ("_testField".equals(name)) {
+        return "markerValue";
+      }
+      return null;
+    };
+
+    Object result = binder.resolvePrefixValue("testField", boolean.class, resolver);
+    assertThat(result).isEqualTo(Boolean.FALSE);
+  }
+
+  @Test
+  void checkFieldDefaultsProcessesCorrectly() {
+    WebDataBinder binder = new WebDataBinder(new TestBean());
+    binder.setFieldDefaultPrefix("!");
+
+    PropertyValues values = new PropertyValues();
+    values.add("!name", "defaultName");
+    values.add("age", "25");
+
+    binder.checkFieldDefaults(values);
+
+    assertThat(values.contains("name")).isTrue();
+    assertThat(values.getPropertyValue("name")).isEqualTo("defaultName");
+    assertThat(values.contains("!name")).isFalse();
+  }
+
+  @Test
+  void checkFieldMarkersProcessesCorrectly() {
+    WebDataBinder binder = new WebDataBinder(new TestBean());
+    binder.setFieldMarkerPrefix("_");
+
+    PropertyValues values = new PropertyValues();
+    values.add("_postProcessed", "visible");
+    values.add("name", "test");
+
+    binder.checkFieldMarkers(values);
+
+    assertThat(values.contains("postProcessed")).isTrue();
+    assertThat(values.getPropertyValue("postProcessed")).isEqualTo(Boolean.FALSE);
+    assertThat(values.contains("_postProcessed")).isFalse();
+  }
+
+  @Test
+  void adaptEmptyArrayIndicesProcessesCorrectly() {
+    WebDataBinder binder = new WebDataBinder(new TestBean());
+
+    PropertyValues values = new PropertyValues();
+    values.add("stringArray[]", new String[] { "value1", "value2" });
+    values.add("name", "test");
+
+    binder.adaptEmptyArrayIndices(values);
+
+    assertThat(values.contains("stringArray")).isTrue();
+    assertThat(values.getPropertyValue("stringArray")).isInstanceOf(String[].class);
+    assertThat(values.contains("stringArray[]")).isFalse();
+  }
+
+  @Test
+  void getEmptyValueForBooleanType() {
+    WebDataBinder binder = new WebDataBinder(new TestBean());
+
+    Object result = binder.getEmptyValue(boolean.class);
+    assertThat(result).isEqualTo(Boolean.FALSE);
+  }
+
+  @Test
+  void getEmptyValueForBooleanWrapperType() {
+    WebDataBinder binder = new WebDataBinder(new TestBean());
+
+    Object result = binder.getEmptyValue(Boolean.class);
+    assertThat(result).isEqualTo(Boolean.FALSE);
+  }
+
+  @Test
+  void getEmptyValueForArrayType() {
+    WebDataBinder binder = new WebDataBinder(new TestBean());
+
+    Object result = binder.getEmptyValue(String[].class);
+    assertThat(result).isInstanceOf(String[].class);
+    assertThat(((String[]) result).length).isEqualTo(0);
+  }
+
+  @Test
+  void getEmptyValueForCollectionType() {
+    WebDataBinder binder = new WebDataBinder(new TestBean());
+
+    Object result = binder.getEmptyValue(List.class);
+    assertThat(result).isInstanceOf(List.class);
+    assertThat(((List<?>) result).size()).isEqualTo(0);
+  }
+
+  @Test
+  void getEmptyValueForMapType() {
+    WebDataBinder binder = new WebDataBinder(new TestBean());
+
+    Object result = binder.getEmptyValue(Map.class);
+    assertThat(result).isInstanceOf(Map.class);
+    assertThat(((Map<?, ?>) result).size()).isEqualTo(0);
+  }
+
+  @Test
+  void getEmptyValueForUnsupportedType() {
+    WebDataBinder binder = new WebDataBinder(new TestBean());
+
+    Object result = binder.getEmptyValue(String.class);
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void bindMultipartBindsSingleFile() {
+    WebDataBinder binder = new WebDataBinder(new TestBean());
+
+    MockMultipartFile file = new MockMultipartFile("file", "test.txt", "text/plain", "content".getBytes());
+    Map<String, List<MultipartFile>> multipartFiles = Map.of("file", List.of(file));
+
+    PropertyValues values = new PropertyValues();
+    binder.bindMultipart(multipartFiles, values);
+
+    assertThat(values.contains("file")).isTrue();
+    assertThat(values.getPropertyValue("file")).isSameAs(file);
+  }
+
+  @Test
+  void bindMultipartBindsMultipleFiles() {
+    WebDataBinder binder = new WebDataBinder(new TestBean());
+
+    MockMultipartFile file1 = new MockMultipartFile("files", "test1.txt", "text/plain", "content1".getBytes());
+    MockMultipartFile file2 = new MockMultipartFile("files", "test2.txt", "text/plain", "content2".getBytes());
+    Map<String, List<MultipartFile>> multipartFiles = Map.of("files", List.of(file1, file2));
+
+    PropertyValues values = new PropertyValues();
+    binder.bindMultipart(multipartFiles, values);
+
+    assertThat(values.contains("files")).isTrue();
+    assertThat(values.getPropertyValue("files")).isInstanceOf(List.class);
+  }
+
+  @Test
+  void bindMultipartSkipsEmptyFilesWhenDisabled() {
+    WebDataBinder binder = new WebDataBinder(new TestBean());
+    binder.setBindEmptyMultipartFiles(false);
+
+    MockMultipartFile emptyFile = new MockMultipartFile("file", "empty.txt", "text/plain", new byte[0]);
+    Map<String, List<MultipartFile>> multipartFiles = Map.of("file", List.of(emptyFile));
+
+    PropertyValues values = new PropertyValues();
+    binder.bindMultipart(multipartFiles, values);
+
+    assertThat(values.contains("file")).isFalse();
+  }
+
+  @Test
+  void closeNoCatchThrowsBindExceptionWhenErrorsPresent() {
+    TestBean target = new TestBean();
+    WebDataBinder binder = new WebDataBinder(target);
+
+    // Force a binding error by trying to set an invalid value
+    PropertyValues values = new PropertyValues();
+    values.add("age", "invalid");
+    binder.bind(values);
+
+    assertThat(binder.getBindingResult().hasErrors()).isTrue();
+
+    assertThatThrownBy(binder::closeNoCatch)
+            .isInstanceOf(BindException.class);
+  }
+
+  @Test
+  void closeNoCatchDoesNotThrowWhenNoErrors() throws BindException {
+    TestBean target = new TestBean();
+    WebDataBinder binder = new WebDataBinder(target);
+
+    PropertyValues values = new PropertyValues();
+    values.add("age", "25");
+    binder.bind(values);
+
+    assertThat(binder.getBindingResult().hasErrors()).isFalse();
+
+    // Should not throw exception
+    binder.closeNoCatch();
+  }
 
   public static class EnumHolder {
 
