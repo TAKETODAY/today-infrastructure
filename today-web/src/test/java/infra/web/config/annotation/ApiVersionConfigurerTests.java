@@ -21,11 +21,14 @@ import org.junit.jupiter.api.Test;
 
 import java.util.function.Predicate;
 
+import infra.http.MediaType;
 import infra.web.accept.ApiVersionDeprecationHandler;
 import infra.web.accept.ApiVersionParser;
 import infra.web.accept.ApiVersionResolver;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.accept.DefaultApiVersionStrategy;
+import infra.web.accept.MediaTypeParamApiVersionResolver;
+import infra.web.accept.PathApiVersionResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -267,5 +270,86 @@ class ApiVersionConfigurerTests {
 
     assertThat(result).isFalse();
   }
+
+@Test
+void useRequestHeaderAddsResolver() {
+  ApiVersionConfigurer configurer = new ApiVersionConfigurer();
+
+  ApiVersionConfigurer result = configurer.useRequestHeader("X-API-Version");
+
+  assertThat(result).isSameAs(configurer);
+  assertThat(configurer.versionResolvers).hasSize(1);
+}
+
+@Test
+void useRequestParamAddsResolver() {
+  ApiVersionConfigurer configurer = new ApiVersionConfigurer();
+
+  ApiVersionConfigurer result = configurer.useRequestParam("api_version");
+
+  assertThat(result).isSameAs(configurer);
+  assertThat(configurer.versionResolvers).hasSize(1);
+}
+
+@Test
+void usePathSegmentAddsResolver() {
+  ApiVersionConfigurer configurer = new ApiVersionConfigurer();
+
+  ApiVersionConfigurer result = configurer.usePathSegment(0);
+
+  assertThat(result).isSameAs(configurer);
+  assertThat(configurer.versionResolvers).hasSize(1);
+  assertThat(configurer.versionResolvers.get(0)).isInstanceOf(PathApiVersionResolver.class);
+}
+
+@Test
+void useMediaTypeParameterAddsResolver() {
+  ApiVersionConfigurer configurer = new ApiVersionConfigurer();
+
+  ApiVersionConfigurer result = configurer.useMediaTypeParameter(MediaType.APPLICATION_JSON, "version");
+
+  assertThat(result).isSameAs(configurer);
+  assertThat(configurer.versionResolvers).hasSize(1);
+  assertThat(configurer.versionResolvers.get(0)).isInstanceOf(MediaTypeParamApiVersionResolver.class);
+}
+
+@Test
+void useVersionResolverAddsCustomResolvers() {
+  ApiVersionResolver resolver1 = mock(ApiVersionResolver.class);
+  ApiVersionResolver resolver2 = mock(ApiVersionResolver.class);
+  ApiVersionConfigurer configurer = new ApiVersionConfigurer();
+
+  ApiVersionConfigurer result = configurer.useVersionResolver(resolver1, resolver2);
+
+  assertThat(result).isSameAs(configurer);
+  assertThat(configurer.versionResolvers).containsExactly(resolver1, resolver2);
+}
+
+@Test
+void chainMethodsReturnSameInstance() {
+  ApiVersionConfigurer configurer = new ApiVersionConfigurer();
+  ApiVersionParser<?> parser = mock(ApiVersionParser.class);
+  ApiVersionDeprecationHandler handler = mock(ApiVersionDeprecationHandler.class);
+  Predicate<Comparable<?>> predicate = mock(Predicate.class);
+
+  ApiVersionConfigurer result1 = configurer.useRequestHeader("API-Version");
+  ApiVersionConfigurer result2 = result1.setVersionParser(parser);
+  ApiVersionConfigurer result3 = result2.setVersionRequired(true);
+  ApiVersionConfigurer result4 = result3.setDefaultVersion("1.0");
+  ApiVersionConfigurer result5 = result4.addSupportedVersions("1.0", "2.0");
+  ApiVersionConfigurer result6 = result5.detectSupportedVersions(false);
+  ApiVersionConfigurer result7 = result6.setDeprecationHandler(handler);
+
+  configurer.setSupportedVersionPredicate(predicate);
+
+  assertThat(result1).isSameAs(configurer);
+  assertThat(result2).isSameAs(configurer);
+  assertThat(result3).isSameAs(configurer);
+  assertThat(result4).isSameAs(configurer);
+  assertThat(result5).isSameAs(configurer);
+  assertThat(result6).isSameAs(configurer);
+  assertThat(result7).isSameAs(configurer);
+}
+
 
 }

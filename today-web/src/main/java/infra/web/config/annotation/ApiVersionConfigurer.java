@@ -48,26 +48,21 @@ import infra.web.accept.StandardApiVersionDeprecationHandler;
  */
 public class ApiVersionConfigurer {
 
-  private final ArrayList<ApiVersionResolver> versionResolvers = new ArrayList<>();
-
-  @Nullable
-  private ApiVersionParser<?> versionParser;
-
-  @Nullable
-  private Boolean versionRequired;
-
-  @Nullable
-  private String defaultVersion;
+  final ArrayList<ApiVersionResolver> versionResolvers = new ArrayList<>();
 
   private final Set<String> supportedVersions = new LinkedHashSet<>();
 
+  private @Nullable ApiVersionParser<?> versionParser;
+
+  private @Nullable Boolean versionRequired;
+
+  private @Nullable String defaultVersion;
+
+  private @Nullable ApiVersionDeprecationHandler deprecationHandler;
+
+  private @Nullable Predicate<Comparable<?>> supportedVersionPredicate;
+
   boolean detectSupportedVersions = true;
-
-  @Nullable
-  private ApiVersionDeprecationHandler deprecationHandler;
-
-  @Nullable
-  private Predicate<Comparable<?>> supportedVersionPredicate;
 
   /**
    * Add resolver to extract the version from a request header.
