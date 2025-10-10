@@ -32,16 +32,15 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/15 12:59
  */
-@SuppressWarnings("NullAway")
 public class DateTimeFormatters {
 
-  private DateTimeFormatter dateFormatter;
+  private @Nullable DateTimeFormatter dateFormatter;
 
-  private String datePattern;
+  private @Nullable String datePattern;
 
-  private DateTimeFormatter timeFormatter;
+  private @Nullable DateTimeFormatter timeFormatter;
 
-  private DateTimeFormatter dateTimeFormatter;
+  private @Nullable DateTimeFormatter dateTimeFormatter;
 
   /**
    * Configures the date format using the given {@code pattern}.
@@ -86,19 +85,19 @@ public class DateTimeFormatters {
     return this;
   }
 
-  DateTimeFormatter getDateFormatter() {
+  @Nullable DateTimeFormatter getDateFormatter() {
     return this.dateFormatter;
   }
 
-  String getDatePattern() {
+  @Nullable String getDatePattern() {
     return this.datePattern;
   }
 
-  DateTimeFormatter getTimeFormatter() {
+  @Nullable DateTimeFormatter getTimeFormatter() {
     return this.timeFormatter;
   }
 
-  DateTimeFormatter getDateTimeFormatter() {
+  @Nullable DateTimeFormatter getDateTimeFormatter() {
     return this.dateTimeFormatter;
   }
 
@@ -107,16 +106,16 @@ public class DateTimeFormatters {
   }
 
   @Nullable
-  private static DateTimeFormatter formatter(String pattern) {
+  static DateTimeFormatter formatter(String pattern) {
     return StringUtils.hasText(pattern)
             ? DateTimeFormatter.ofPattern(pattern).withResolverStyle(ResolverStyle.SMART) : null;
   }
 
-  private static boolean isIso(String pattern) {
+  static boolean isIso(String pattern) {
     return "iso".equalsIgnoreCase(pattern);
   }
 
-  private static boolean isIsoOffset(String pattern) {
+  static boolean isIsoOffset(String pattern) {
     return "isooffset".equalsIgnoreCase(pattern) || "iso-offset".equalsIgnoreCase(pattern);
   }
 
