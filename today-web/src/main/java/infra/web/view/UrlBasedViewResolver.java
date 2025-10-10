@@ -98,15 +98,6 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
    */
   public static final String REDIRECT_URL_PREFIX = "redirect:";
 
-  /**
-   * Prefix for special view names that specify a forward URL (usually
-   * to a controller after a form has been submitted and processed).
-   * Such view names will not be resolved in the configured default
-   * way but rather be treated as special shortcut.
-   */
-  @Deprecated
-  public static final String FORWARD_URL_PREFIX = "forward:";
-
   @Nullable
   private Class<?> viewClass;
 
