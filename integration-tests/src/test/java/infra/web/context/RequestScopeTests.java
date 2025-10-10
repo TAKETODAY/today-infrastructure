@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@ import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.RequestContextHolder;
 import infra.web.context.support.RequestScope;
+import infra.web.context.support.SessionScopeTests;
 import infra.web.mock.MockRequestContext;
 
 import static infra.beans.factory.config.AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR;
