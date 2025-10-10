@@ -22,15 +22,19 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
+import infra.http.HttpStatus;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -524,6 +528,265 @@ class DefaultCorsProcessorTests {
     assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isTrue();
     assertThat(this.mockResponse.containsHeader(DefaultCorsProcessor.ACCESS_CONTROL_ALLOW_PRIVATE_NETWORK)).isTrue();
     assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+  }
+
+  @Test
+  void processWithNullConfigAndCorsRequest() throws Exception {
+    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+    mockRequest.setRequestURI("/test.html");
+    mockRequest.setServerName("domain1.example");
+    mockRequest.setMethod(HttpMethod.GET.name());
+    mockRequest.addHeader(HttpHeaders.ORIGIN, "https://domain2.com");
+
+    MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
+    MockRequestContext request = new MockRequestContext(null, mockRequest, mockResponse);
+
+    DefaultCorsProcessor processor = new DefaultCorsProcessor();
+
+    boolean result = processor.process(null, request);
+
+    assertThat(result).isTrue();
+    assertThat(mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isFalse();
+    assertThat(mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+  }
+
+  @Test
+  void processWithExistingCorsHeaders() throws Exception {
+    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+    mockRequest.setRequestURI("/test.html");
+    mockRequest.setServerName("domain1.example");
+    mockRequest.setMethod(HttpMethod.GET.name());
+    mockRequest.addHeader(HttpHeaders.ORIGIN, "https://domain2.com");
+
+    MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
+    mockResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
+    MockRequestContext request = new MockRequestContext(null, mockRequest, mockResponse);
+
+    DefaultCorsProcessor processor = new DefaultCorsProcessor();
+    CorsConfiguration config = new CorsConfiguration();
+    config.addAllowedOrigin("*");
+
+    boolean result = processor.process(config, request);
+
+    assertThat(result).isTrue();
+    assertThat(mockResponse.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isEqualTo("*");
+  }
+
+  @Test
+  void rejectRequestSetsForbiddenStatusAndMessage() throws Exception {
+    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+    MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
+    MockRequestContext request = new MockRequestContext(null, mockRequest, mockResponse);
+
+    DefaultCorsProcessor processor = new DefaultCorsProcessor();
+
+    processor.rejectRequest(request);
+
+    assertThat(mockResponse.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+    assertThat(mockResponse.getContentAsString()).isEqualTo("Invalid CORS request");
+  }
+
+  @Test
+  void handleInternalWithInvalidOrigin() throws Exception {
+    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+    mockRequest.setRequestURI("/test.html");
+    mockRequest.setServerName("domain1.example");
+    mockRequest.setMethod(HttpMethod.GET.name());
+    mockRequest.addHeader(HttpHeaders.ORIGIN, "https://invalid.com");
+
+    MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
+    MockRequestContext request = new MockRequestContext(null, mockRequest, mockResponse);
+
+    DefaultCorsProcessor processor = new DefaultCorsProcessor();
+    CorsConfiguration config = new CorsConfiguration();
+    config.addAllowedOrigin("https://valid.com");
+
+    boolean result = processor.handleInternal(request, config, false);
+
+    assertThat(result).isFalse();
+    assertThat(mockResponse.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+  }
+
+  @Test
+  void handleInternalWithInvalidMethod() throws Exception {
+    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+    mockRequest.setRequestURI("/test.html");
+    mockRequest.setServerName("domain1.example");
+    mockRequest.setMethod(HttpMethod.POST.name());
+    mockRequest.addHeader(HttpHeaders.ORIGIN, "https://domain2.com");
+
+    MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
+    MockRequestContext request = new MockRequestContext(null, mockRequest, mockResponse);
+
+    DefaultCorsProcessor processor = new DefaultCorsProcessor();
+    CorsConfiguration config = new CorsConfiguration();
+    config.addAllowedOrigin("*");
+    config.addAllowedMethod(HttpMethod.GET);
+
+    boolean result = processor.handleInternal(request, config, false);
+
+    assertThat(result).isFalse();
+    assertThat(mockResponse.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+  }
+
+  @Test
+  void handleInternalWithInvalidHeadersInPreFlight() throws Exception {
+    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+    mockRequest.setRequestURI("/test.html");
+    mockRequest.setServerName("domain1.example");
+    mockRequest.setMethod(HttpMethod.OPTIONS.name());
+    mockRequest.addHeader(HttpHeaders.ORIGIN, "https://domain2.com");
+    mockRequest.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET");
+    mockRequest.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, "Invalid-Header");
+
+    MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
+    MockRequestContext request = new MockRequestContext(null, mockRequest, mockResponse);
+
+    DefaultCorsProcessor processor = new DefaultCorsProcessor();
+    CorsConfiguration config = new CorsConfiguration();
+    config.addAllowedOrigin("*");
+    config.addAllowedMethod(HttpMethod.GET);
+    config.addAllowedHeader("Valid-Header");
+
+    boolean result = processor.handleInternal(request, config, true);
+
+    assertThat(result).isFalse();
+    assertThat(mockResponse.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+  }
+
+  @Test
+  void checkOriginReturnsNullForInvalidOrigin() {
+    DefaultCorsProcessor processor = new DefaultCorsProcessor();
+    CorsConfiguration config = new CorsConfiguration();
+    config.addAllowedOrigin("https://valid.com");
+
+    String result = processor.checkOrigin(config, "https://invalid.com");
+
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void checkOriginReturnsValidOrigin() {
+    DefaultCorsProcessor processor = new DefaultCorsProcessor();
+    CorsConfiguration config = new CorsConfiguration();
+    config.addAllowedOrigin("https://valid.com");
+
+    String result = processor.checkOrigin(config, "https://valid.com");
+
+    assertThat(result).isEqualTo("https://valid.com");
+  }
+
+  @Test
+  void checkMethodsReturnsNullForInvalidMethod() {
+    DefaultCorsProcessor processor = new DefaultCorsProcessor();
+    CorsConfiguration config = new CorsConfiguration();
+    config.addAllowedMethod(HttpMethod.GET);
+
+    List<HttpMethod> result = processor.checkMethods(config, HttpMethod.POST);
+
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void checkMethodsReturnsValidMethods() {
+    DefaultCorsProcessor processor = new DefaultCorsProcessor();
+    CorsConfiguration config = new CorsConfiguration();
+    config.addAllowedMethod(HttpMethod.GET);
+    config.addAllowedMethod(HttpMethod.POST);
+
+    List<HttpMethod> result = processor.checkMethods(config, HttpMethod.GET);
+
+    assertThat(result).containsExactly(HttpMethod.GET, HttpMethod.POST);
+  }
+
+  @Test
+  void checkHeadersReturnsNullForInvalidHeaders() {
+    DefaultCorsProcessor processor = new DefaultCorsProcessor();
+    CorsConfiguration config = new CorsConfiguration();
+    config.addAllowedHeader("Valid-Header");
+
+    List<String> result = processor.checkHeaders(config, Arrays.asList("Invalid-Header"));
+
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void checkHeadersReturnsValidHeaders() {
+    DefaultCorsProcessor processor = new DefaultCorsProcessor();
+    CorsConfiguration config = new CorsConfiguration();
+    config.addAllowedHeader("Header1");
+    config.addAllowedHeader("Header2");
+
+    List<String> result = processor.checkHeaders(config, Arrays.asList("Header1", "Header2"));
+
+    assertThat(result).containsExactly("Header1", "Header2");
+  }
+
+  @Test
+  void getMethodToUseReturnsRequestMethodForNonPreFlight() {
+    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+    mockRequest.setMethod(HttpMethod.GET.name());
+
+    MockRequestContext request = mock(MockRequestContext.class);
+    given(request.getMethod()).willReturn(HttpMethod.GET);
+
+    DefaultCorsProcessor processor = new DefaultCorsProcessor();
+
+    HttpMethod result = processor.getMethodToUse(request, false);
+
+    assertThat(result).isEqualTo(HttpMethod.GET);
+  }
+
+  @Test
+  void getMethodToUseReturnsAccessControlRequestMethodForPreFlight() {
+    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+    mockRequest.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "POST");
+
+    MockRequestContext request = mock(MockRequestContext.class);
+    HttpHeaders headers = mock(HttpHeaders.class);
+    given(request.getHeaders()).willReturn(headers);
+    given(headers.getAccessControlRequestMethod()).willReturn(HttpMethod.POST);
+
+    DefaultCorsProcessor processor = new DefaultCorsProcessor();
+
+    HttpMethod result = processor.getMethodToUse(request, true);
+
+    assertThat(result).isEqualTo(HttpMethod.POST);
+  }
+
+  @Test
+  void getHeadersToUseReturnsAllHeadersForNonPreFlight() {
+    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+    mockRequest.addHeader("Header1", "value1");
+    mockRequest.addHeader("Header2", "value2");
+
+    MockRequestContext request = mock(MockRequestContext.class);
+    HttpHeaders headers = mock(HttpHeaders.class);
+    given(request.requestHeaders()).willReturn(headers);
+    given(headers.keySet()).willReturn(Set.of("Header1", "Header2"));
+
+    DefaultCorsProcessor processor = new DefaultCorsProcessor();
+
+    List<String> result = processor.getHeadersToUse(request, false);
+
+    assertThat(result).containsExactlyInAnyOrder("Header1", "Header2");
+  }
+
+  @Test
+  void getHeadersToUseReturnsAccessControlRequestHeadersForPreFlight() {
+    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+    mockRequest.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, "Header1, Header2");
+
+    MockRequestContext request = mock(MockRequestContext.class);
+    HttpHeaders headers = mock(HttpHeaders.class);
+    given(request.requestHeaders()).willReturn(headers);
+    given(headers.getAccessControlRequestHeaders()).willReturn(Arrays.asList("Header1", "Header2"));
+
+    DefaultCorsProcessor processor = new DefaultCorsProcessor();
+
+    List<String> result = processor.getHeadersToUse(request, true);
+
+    assertThat(result).containsExactlyInAnyOrder("Header1", "Header2");
   }
 
 }

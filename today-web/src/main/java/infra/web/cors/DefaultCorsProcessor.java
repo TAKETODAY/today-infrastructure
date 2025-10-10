@@ -201,8 +201,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
     return config.checkHttpMethod(method);
   }
 
-  @Nullable
-  private HttpMethod getMethodToUse(RequestContext request, boolean isPreFlight) {
+  @Nullable HttpMethod getMethodToUse(RequestContext request, boolean isPreFlight) {
     return isPreFlight ? request.getHeaders().getAccessControlRequestMethod() : request.getMethod();
   }
 
@@ -217,7 +216,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
     return config.checkHeaders(requestHeaders);
   }
 
-  private List<String> getHeadersToUse(RequestContext context, boolean isPreFlight) {
+  List<String> getHeadersToUse(RequestContext context, boolean isPreFlight) {
     if (isPreFlight) {
       return context.requestHeaders().getAccessControlRequestHeaders();
     }
