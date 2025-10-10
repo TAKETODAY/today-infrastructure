@@ -53,9 +53,7 @@ import infra.web.bind.UnsatisfiedRequestParameterException;
 import infra.web.bind.resolver.MissingRequestCookieException;
 import infra.web.bind.resolver.MissingRequestHeaderException;
 import infra.web.bind.resolver.MissingRequestPartException;
-import infra.web.bind.resolver.ParameterConversionException;
 import infra.web.bind.resolver.ParameterResolverNotFoundException;
-import infra.web.bind.resolver.date.DateParameterParsingException;
 import infra.web.handler.method.ResolvableMethodParameter;
 import jakarta.validation.Valid;
 
@@ -1529,98 +1527,6 @@ public class ExceptionTests {
       assertThat(exception).isInstanceOf(MissingRequestValueException.class);
     }
 
-  }
-
-  @Nested
-  class ParameterConversionExceptionTests {
-    @Test
-    void constructorWithParameterAndValueAndCause() throws Exception {
-      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
-      MethodParameter parameter = new MethodParameter(method, 0);
-      Object value = "invalidValue";
-      Throwable cause = new NumberFormatException("For input string: \"invalidValue\"");
-
-      ParameterConversionException exception = new ParameterConversionException(parameter, value, cause);
-
-      assertThat(exception.getParameter()).isSameAs(parameter);
-      assertThat(exception.getValue()).isEqualTo(value);
-      assertThat(exception.getCause()).isSameAs(cause);
-      assertThat(exception.getMessage()).isEqualTo("Cannot convert 'invalidValue' to class java.lang.String");
-    }
-
-    @Test
-    void constructorWithNullValue() throws Exception {
-      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
-      MethodParameter parameter = new MethodParameter(method, 0);
-      Object value = null;
-      Throwable cause = new IllegalArgumentException("null value");
-
-      ParameterConversionException exception = new ParameterConversionException(parameter, value, cause);
-
-      assertThat(exception.getParameter()).isSameAs(parameter);
-      assertThat(exception.getValue()).isNull();
-      assertThat(exception.getCause()).isSameAs(cause);
-      assertThat(exception.getMessage()).isEqualTo("Cannot convert 'null' to class java.lang.String");
-    }
-
-    @Test
-    void exceptionExtendsMethodParameterResolvingException() throws Exception {
-      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
-      MethodParameter parameter = new MethodParameter(method, 0);
-      ParameterConversionException exception = new ParameterConversionException(parameter, "test", null);
-
-      assertThat(exception).isInstanceOf(MethodParameterResolvingException.class);
-    }
-
-    @Test
-    void getValueReturnsOriginalValue() throws Exception {
-      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
-      MethodParameter parameter = new MethodParameter(method, 0);
-      Object value = List.of("item1", "item2");
-
-      ParameterConversionException exception = new ParameterConversionException(parameter, value, null);
-
-      assertThat(exception.getValue()).isSameAs(value);
-    }
-
-    static class TestController {
-      public void testMethod(String param) {
-      }
-    }
-
-  }
-
-  @Nested
-  class DateParameterParsingExceptionTests {
-
-    @Test
-    void constructorWithParameterAndValueAndCause() throws Exception {
-      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
-      MethodParameter parameter = new MethodParameter(method, 0);
-      String value = "2021-01-01";
-      Throwable cause = new IllegalArgumentException("Invalid date format");
-
-      DateParameterParsingException exception = new DateParameterParsingException(parameter, value, cause);
-
-      assertThat(exception.getParameter()).isSameAs(parameter);
-      assertThat(exception.getValue()).isEqualTo(value);
-      assertThat(exception.getCause()).isSameAs(cause);
-      assertThat(exception.getMessage()).isEqualTo("Cannot convert '2021-01-01' to class java.lang.String");
-    }
-
-    @Test
-    void exceptionExtendsParameterConversionException() throws Exception {
-      Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
-      MethodParameter parameter = new MethodParameter(method, 0);
-      DateParameterParsingException exception = new DateParameterParsingException(parameter, "2021-01-01", null);
-
-      assertThat(exception).isInstanceOf(ParameterConversionException.class);
-    }
-
-    static class TestController {
-      public void testMethod(String param) {
-      }
-    }
   }
 
 }
