@@ -1,0 +1,392 @@
+/*
+ * Copyright 2017 - 2025 the original author or authors.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
+ */
+
+package infra.web.client;
+
+import org.junit.jupiter.api.Test;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+
+import infra.http.HttpHeaders;
+import infra.http.HttpRequest;
+import infra.http.HttpStatusCode;
+import infra.http.client.ClientHttpRequestFactory;
+import infra.http.client.ClientHttpRequestInitializer;
+import infra.http.client.ClientHttpRequestInterceptor;
+import infra.http.converter.HttpMessageConverter;
+import infra.util.LinkedMultiValueMap;
+import infra.util.MultiValueMap;
+import infra.web.util.UriBuilderFactory;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
+/**
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0 2025/10/10 16:03
+ */
+class DefaultRestClientBuilderTests {
+
+  @Test
+  void copyConstructorCopiesAllProperties() {
+    DefaultRestClientBuilder original = new DefaultRestClientBuilder();
+    original.baseURI(URI.create("http://example.com"))
+            .defaultHeader("X-Test", "value")
+            .defaultCookie("testCookie", "cookieValue")
+            .defaultApiVersion("1.0")
+            .apiVersionInserter(ApiVersionInserter.forHeader("API-Version"))
+            .ignoreStatus(true)
+            .detectEmptyMessageBody(false);
+
+    DefaultRestClientBuilder copy = new DefaultRestClientBuilder(original);
+
+    // Build clients to compare configurations
+    RestClient originalClient = original.build();
+    RestClient copyClient = copy.build();
+
+    assertThat(copyClient).isNotNull();
+    assertThat(copy).isNotSameAs(original);
+  }
+
+  @Test
+  void baseURISetterWithString() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+    String baseURI = "http://example.com/api";
+
+    builder.baseURI(baseURI);
+
+    assertThat(builder).extracting("baseURI").isEqualTo(URI.create(baseURI));
+  }
+
+  @Test
+  void baseURISetterWithURI() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+    URI baseURI = URI.create("http://example.com/api");
+
+    builder.baseURI(baseURI);
+
+    assertThat(builder).extracting("baseURI").isSameAs(baseURI);
+  }
+
+  @Test
+  void defaultUriVariablesSetter() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+    Map<String, String> uriVariables = Map.of("id", "123", "version", "v1");
+
+    builder.defaultUriVariables(uriVariables);
+
+    assertThat(builder).extracting("defaultUriVariables").isEqualTo(uriVariables);
+  }
+
+  @Test
+  void uriBuilderFactorySetter() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+    UriBuilderFactory uriBuilderFactory = mock(UriBuilderFactory.class);
+
+    builder.uriBuilderFactory(uriBuilderFactory);
+
+    assertThat(builder).extracting("uriBuilderFactory").isSameAs(uriBuilderFactory);
+  }
+
+  @Test
+  void defaultHeaderAddsHeader() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+    String headerName = "X-Test";
+    String[] headerValues = { "value1", "value2" };
+
+    builder.defaultHeader(headerName, headerValues);
+
+    assertThat(builder).extracting("defaultHeaders").isNotNull();
+    assertThat(builder.defaultHeaders.get(headerName)).containsExactly(headerValues);
+  }
+
+  @Test
+  void defaultHeadersWithConsumer() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+    Consumer<HttpHeaders> headersConsumer = headers -> headers.set("X-Test", "value");
+
+    builder.defaultHeaders(headersConsumer);
+
+    assertThat(builder.defaultHeaders).isNotNull();
+    assertThat(builder.defaultHeaders.getFirst("X-Test")).isEqualTo("value");
+  }
+
+  @Test
+  void defaultHeadersWithHeadersObject() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+    HttpHeaders headers = HttpHeaders.forWritable();
+    headers.set("X-Test", "value");
+
+    builder.defaultHeaders(headers);
+
+    assertThat(builder.defaultHeaders).isNotNull();
+    assertThat(builder.defaultHeaders.getFirst("X-Test")).isEqualTo("value");
+  }
+
+  @Test
+  void defaultCookieAddsCookie() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+    String cookieName = "testCookie";
+    String[] cookieValues = { "value1", "value2" };
+
+    builder.defaultCookie(cookieName, cookieValues);
+
+    assertThat(builder.defaultCookies).isNotNull();
+    assertThat(builder.defaultCookies.get(cookieName)).containsExactly(cookieValues);
+  }
+
+  @Test
+  void defaultCookiesWithConsumer() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+    Consumer<MultiValueMap<String, String>> cookiesConsumer = cookies -> cookies.add("testCookie", "value");
+
+    builder.defaultCookies(cookiesConsumer);
+
+    assertThat(builder.defaultCookies).isNotNull();
+    assertThat(builder.defaultCookies.getFirst("testCookie")).isEqualTo("value");
+  }
+
+  @Test
+  void defaultCookiesWithCookiesObject() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+    MultiValueMap<String, String> cookies = new LinkedMultiValueMap<>();
+    cookies.add("testCookie", "value");
+
+    builder.defaultCookies(cookies);
+
+    assertThat(builder.defaultCookies).isNotNull();
+    assertThat(builder.defaultCookies.getFirst("testCookie")).isEqualTo("value");
+  }
+
+  @Test
+  void defaultApiVersionSetter() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+    String version = "1.0";
+
+    builder.defaultApiVersion(version);
+
+    assertThat(builder.defaultApiVersion).isEqualTo(version);
+  }
+
+  @Test
+  void apiVersionInserterSetter() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+    ApiVersionInserter inserter = ApiVersionInserter.forHeader("API-Version");
+
+    builder.apiVersionInserter(inserter);
+
+    assertThat(builder.apiVersionInserter).isSameAs(inserter);
+  }
+
+  @Test
+  void defaultRequestSetter() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+    Consumer<RestClient.RequestHeadersSpec<?>> defaultRequest = spec -> spec.header("X-Default", "value");
+
+    builder.defaultRequest(defaultRequest);
+
+    assertThat(builder.defaultRequest).isNotNull();
+  }
+
+  @Test
+  void defaultStatusHandlerWithPredicateAndErrorHandler() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+    Predicate<HttpStatusCode> statusPredicate = status -> status.is4xxClientError();
+    RestClient.ErrorHandler errorHandler = (request, response) -> { };
+
+    builder.defaultStatusHandler(statusPredicate, errorHandler);
+
+    assertThat(builder.statusHandlers).isNotNull();
+    assertThat(builder.statusHandlers).hasSize(1);
+  }
+
+  @Test
+  void defaultStatusHandlerWithResponseErrorHandler() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+    ResponseErrorHandler errorHandler = mock(ResponseErrorHandler.class);
+
+    builder.defaultStatusHandler(errorHandler);
+
+    assertThat(builder.statusHandlers).isNotNull();
+    assertThat(builder.statusHandlers).hasSize(1);
+  }
+
+  @Test
+  void ignoreStatusSetter() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+
+    builder.ignoreStatus(true);
+
+    assertThat(builder.ignoreStatus).isTrue();
+  }
+
+  @Test
+  void detectEmptyMessageBodySetter() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+
+    builder.detectEmptyMessageBody(false);
+
+    assertThat(builder.detectEmptyMessageBody).isFalse();
+  }
+
+  @Test
+  void requestInterceptorAddsInterceptor() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+    ClientHttpRequestInterceptor interceptor = mock(ClientHttpRequestInterceptor.class);
+
+    builder.requestInterceptor(interceptor);
+
+    assertThat(builder.interceptors).isNotNull();
+    assertThat(builder.interceptors).containsExactly(interceptor);
+  }
+
+  @Test
+  void requestInterceptorsWithConsumer() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+    ClientHttpRequestInterceptor interceptor1 = mock(ClientHttpRequestInterceptor.class);
+    ClientHttpRequestInterceptor interceptor2 = mock(ClientHttpRequestInterceptor.class);
+    Consumer<List<ClientHttpRequestInterceptor>> interceptorsConsumer = interceptors -> {
+      interceptors.add(interceptor1);
+      interceptors.add(interceptor2);
+    };
+
+    builder.requestInterceptors(interceptorsConsumer);
+
+    assertThat(builder.interceptors).isNotNull();
+    assertThat(builder.interceptors).containsExactly(interceptor1, interceptor2);
+  }
+
+  @Test
+  void bufferContentSetter() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+    Predicate<HttpRequest> predicate = request -> true;
+
+    builder.bufferContent(predicate);
+
+    assertThat(builder.bufferingPredicate).isSameAs(predicate);
+  }
+
+  @Test
+  void requestInitializerAddsInitializer() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+    ClientHttpRequestInitializer initializer = mock(ClientHttpRequestInitializer.class);
+
+    builder.requestInitializer(initializer);
+
+    assertThat(builder.initializers).isNotNull();
+    assertThat(builder.initializers).containsExactly(initializer);
+  }
+
+  @Test
+  void requestInitializersWithConsumer() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+    ClientHttpRequestInitializer initializer1 = mock(ClientHttpRequestInitializer.class);
+    ClientHttpRequestInitializer initializer2 = mock(ClientHttpRequestInitializer.class);
+    Consumer<List<ClientHttpRequestInitializer>> initializersConsumer = initializers -> {
+      initializers.add(initializer1);
+      initializers.add(initializer2);
+    };
+
+    builder.requestInitializers(initializersConsumer);
+
+    assertThat(builder.initializers).isNotNull();
+    assertThat(builder.initializers).containsExactly(initializer1, initializer2);
+  }
+
+  @Test
+  void requestFactorySetter() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+    ClientHttpRequestFactory requestFactory = mock(ClientHttpRequestFactory.class);
+
+    builder.requestFactory(requestFactory);
+
+    assertThat(builder.requestFactory).isSameAs(requestFactory);
+  }
+
+  @Test
+  void messageConvertersWithConsumer() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+    HttpMessageConverter<?> converter = mock(HttpMessageConverter.class);
+    Consumer<List<HttpMessageConverter<?>>> configurer = converters -> converters.add(converter);
+
+    builder.messageConverters(configurer);
+
+    assertThat(builder.messageConverters).isNotNull();
+    assertThat(builder.messageConverters).contains(converter);
+  }
+
+  @Test
+  void messageConvertersWithList() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+    HttpMessageConverter<?> converter = mock(HttpMessageConverter.class);
+    List<HttpMessageConverter<?>> converters = List.of(converter);
+
+    builder.messageConverters(converters);
+
+    assertThat(builder.messageConverters).isNotNull();
+    assertThat(builder.messageConverters).containsExactly(converter);
+  }
+
+  @Test
+  void applyMethodAppliesConsumer() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+    Consumer<RestClient.Builder> builderConsumer = b -> b.defaultHeader("X-Applied", "value");
+
+    builder.apply(builderConsumer);
+
+    assertThat(builder.defaultHeaders).isNotNull();
+    assertThat(builder.defaultHeaders.getFirst("X-Applied")).isEqualTo("value");
+  }
+
+  @Test
+  void cloneMethodCreatesCopy() {
+    DefaultRestClientBuilder original = new DefaultRestClientBuilder();
+    original.defaultHeader("X-Test", "value");
+
+    DefaultRestClientBuilder clone = (DefaultRestClientBuilder) original.clone();
+
+    assertThat(clone).isNotNull();
+    assertThat(clone).isNotSameAs(original);
+    assertThat(clone.defaultHeaders).isNotNull();
+    assertThat(clone.defaultHeaders.getFirst("X-Test")).isEqualTo("value");
+  }
+
+  @Test
+  void buildMethodCreatesRestClient() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+
+    RestClient client = builder.build();
+
+    assertThat(client).isNotNull();
+    assertThat(client).isInstanceOf(DefaultRestClient.class);
+  }
+
+  @Test
+  void initMessageConvertersInitializesConverters() {
+    DefaultRestClientBuilder builder = new DefaultRestClientBuilder();
+
+    List<HttpMessageConverter<?>> converters = builder.initMessageConverters();
+
+    assertThat(converters).isNotNull();
+    assertThat(converters).isNotEmpty();
+  }
+
+}
