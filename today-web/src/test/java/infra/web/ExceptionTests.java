@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1525,6 +1526,109 @@ public class ExceptionTests {
       MissingRequestPartException exception = new MissingRequestPartException("testPart");
 
       assertThat(exception).isInstanceOf(MissingRequestValueException.class);
+    }
+
+  }
+
+  @Nested
+  class HttpRequestMethodNotSupportedExceptionTests {
+    @Test
+    void constructorWithMethodOnly() {
+      String method = "PATCH";
+      HttpRequestMethodNotSupportedException exception = new HttpRequestMethodNotSupportedException(method);
+
+      assertThat(exception.getMethod()).isEqualTo(method);
+      assertThat(exception.getSupportedMethods()).isNull();
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
+      assertThat(exception.getMessage()).isEqualTo("Request method '%s' is not supported".formatted(method));
+    }
+
+    @Test
+    void constructorWithMethodAndSupportedMethodsCollection() {
+      String method = "PATCH";
+      Collection<String> supportedMethods = List.of("GET", "POST");
+      HttpRequestMethodNotSupportedException exception = new HttpRequestMethodNotSupportedException(method, supportedMethods);
+
+      assertThat(exception.getMethod()).isEqualTo(method);
+      assertThat(exception.getSupportedMethods()).containsExactly("GET", "POST");
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
+    @Test
+    void constructorWithMethodAndNullSupportedMethodsCollection() {
+      String method = "DELETE";
+      HttpRequestMethodNotSupportedException exception = new HttpRequestMethodNotSupportedException(method, (Collection<String>) null);
+
+      assertThat(exception.getMethod()).isEqualTo(method);
+      assertThat(exception.getSupportedMethods()).isNull();
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
+    @Test
+    void getSupportedHttpMethodsReturnsCorrectValues() {
+      String method = "CONNECT";
+      String[] supportedMethodsArray = { "GET", "POST", "PUT" };
+      HttpRequestMethodNotSupportedException exception = new HttpRequestMethodNotSupportedException(method, List.of(supportedMethodsArray));
+
+      Set<HttpMethod> supportedHttpMethods = exception.getSupportedHttpMethods();
+      assertThat(supportedHttpMethods).containsExactlyInAnyOrder(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT);
+    }
+
+    @Test
+    void getSupportedHttpMethodsReturnsNullWhenSupportedMethodsIsNull() {
+      String method = "TRACE";
+      HttpRequestMethodNotSupportedException exception = new HttpRequestMethodNotSupportedException(method);
+
+      Set<HttpMethod> supportedHttpMethods = exception.getSupportedHttpMethods();
+      assertThat(supportedHttpMethods).isNull();
+    }
+
+    @Test
+    void getHeadersReturnsAllowHeaderWithSupportedMethods() {
+      String method = "PATCH";
+      String[] supportedMethods = { "GET", "POST" };
+      HttpRequestMethodNotSupportedException exception = new HttpRequestMethodNotSupportedException(method, List.of(supportedMethods));
+
+      HttpHeaders headers = exception.getHeaders();
+      assertThat(headers.getAllow()).containsExactlyInAnyOrder(HttpMethod.GET, HttpMethod.POST);
+    }
+
+    @Test
+    void getHeadersReturnsEmptyHeadersWhenSupportedMethodsIsNull() {
+      String method = "CONNECT";
+      HttpRequestMethodNotSupportedException exception = new HttpRequestMethodNotSupportedException(method);
+
+      HttpHeaders headers = exception.getHeaders();
+      assertThat(headers).isEqualTo(HttpHeaders.empty());
+    }
+
+    @Test
+    void getHeadersReturnsEmptyHeadersWhenSupportedMethodsIsEmpty() {
+      String method = "CONNECT";
+      HttpRequestMethodNotSupportedException exception = new HttpRequestMethodNotSupportedException(method, List.of());
+
+      HttpHeaders headers = exception.getHeaders();
+      assertThat(headers).isEqualTo(HttpHeaders.empty());
+    }
+
+    @Test
+    void getBodyReturnsProblemDetailWithCorrectStatusAndDetail() {
+      String method = "PATCH";
+      HttpRequestMethodNotSupportedException exception = new HttpRequestMethodNotSupportedException(method);
+
+      ProblemDetail body = exception.getBody();
+      assertThat(body.getStatus()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED.value());
+      assertThat(body.getDetail()).isEqualTo("Method '%s' is not supported.".formatted(method));
+    }
+
+    @Test
+    void getDetailMessageArgumentsReturnsCorrectValues() {
+      String method = "DELETE";
+      String[] supportedMethods = { "GET", "POST" };
+      HttpRequestMethodNotSupportedException exception = new HttpRequestMethodNotSupportedException(method, List.of(supportedMethods));
+
+      Object[] arguments = exception.getDetailMessageArguments();
+      assertThat(arguments).containsExactly(method, exception.getSupportedHttpMethods());
     }
 
   }
