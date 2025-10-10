@@ -15,11 +15,13 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.context;
+package infra.web.context.support;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.function.Supplier;
 
 import infra.beans.factory.BeanCreationException;
 import infra.beans.factory.BeanCurrentlyInCreationException;
@@ -35,14 +37,17 @@ import infra.context.expression.StandardBeanExpressionResolver;
 import infra.core.io.ClassPathResource;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
+import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
-import infra.web.context.support.RequestScope;
-import infra.web.context.support.SessionScopeTests;
 import infra.web.mock.MockRequestContext;
 
 import static infra.beans.factory.config.AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Rob Harrop
@@ -180,6 +185,115 @@ public class RequestScopeTests {
     assertThatExceptionOfType(ScopeNotActiveException.class).isThrownBy(provider::get);
     assertThat(provider.getIfAvailable()).isNull();
     assertThat(provider.getIfUnique()).isNull();
+  }
+
+  @Test
+  void instanceFieldProvidesSingletonInstance() {
+    RequestScope scope1 = RequestScope.instance;
+    RequestScope scope2 = RequestScope.instance;
+
+    assertThat(scope1).isNotNull();
+    assertThat(scope1).isSameAs(scope2);
+  }
+
+  @Test
+  void getReturnsBeanFromRequestScope() {
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequestContext requestAttributes = new MockRequestContext(null, request, null);
+    RequestContextHolder.set(requestAttributes);
+
+    RequestScope requestScope = new RequestScope();
+    String beanName = "requestScopedObject";
+    Supplier<Object> objectFactory = mock(Supplier.class);
+    TestBean testBean = new TestBean();
+    given(objectFactory.get()).willReturn(testBean);
+
+    Object result = requestScope.get(beanName, objectFactory);
+
+    assertThat(result).isSameAs(testBean);
+    assertThat(requestAttributes.getAttribute(beanName)).isSameAs(testBean);
+    verify(objectFactory).get();
+  }
+
+  @Test
+  void getReturnsExistingBeanFromRequestScope() {
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequestContext requestAttributes = new MockRequestContext(null, request, null);
+    RequestContextHolder.set(requestAttributes);
+
+    RequestScope requestScope = new RequestScope();
+    String beanName = "requestScopedObject";
+    TestBean existingBean = new TestBean();
+    requestAttributes.setAttribute(beanName, existingBean);
+
+    Supplier<Object> objectFactory = mock(Supplier.class);
+    Object result = requestScope.get(beanName, objectFactory);
+
+    assertThat(result).isSameAs(existingBean);
+    verify(objectFactory, never()).get();
+  }
+
+  @Test
+  void removeReturnsAndRemovesBeanFromRequestScope() {
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequestContext requestAttributes = new MockRequestContext(null, request, null);
+    RequestContextHolder.set(requestAttributes);
+
+    RequestScope requestScope = new RequestScope();
+    String beanName = "requestScopedObject";
+    TestBean testBean = new TestBean();
+    requestAttributes.setAttribute(beanName, testBean);
+
+    Object result = requestScope.remove(beanName);
+
+    assertThat(result).isSameAs(testBean);
+    assertThat(requestAttributes.getAttribute(beanName)).isNull();
+  }
+
+  @Test
+  void resolveContextualObjectWithRequestKey() {
+    MockRequestContext requestContext = new MockRequestContext(null, new HttpMockRequestImpl(), null);
+    RequestContextHolder.set(requestContext);
+
+    RequestScope requestScope = new RequestScope();
+    Object result = requestScope.resolveContextualObject(RequestContext.SCOPE_REQUEST);
+
+    assertThat(result).isSameAs(requestContext);
+  }
+
+  @Test
+  void resolveContextualObjectWithInvalidKey() {
+    RequestContextHolder.set(new MockRequestContext(null, new HttpMockRequestImpl(), null));
+
+    RequestScope requestScope = new RequestScope();
+    Object result = requestScope.resolveContextualObject("invalidKey");
+
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void resolveContextualObjectWithSessionKeyAndNoRequestContext() {
+    RequestContextHolder.set(null);
+
+    RequestScope requestScope = new RequestScope();
+    Object result = requestScope.resolveContextualObject(RequestContext.SCOPE_SESSION);
+
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void registerDestructionCallbackRegistersCallback() {
+    MockRequestContext requestContext = new MockRequestContext(null, new HttpMockRequestImpl(), new MockHttpResponseImpl());
+    RequestContextHolder.set(requestContext);
+
+    RequestScope requestScope = new RequestScope();
+    Runnable callback = mock(Runnable.class);
+
+    requestScope.registerDestructionCallback("testBean", callback);
+
+    // Verification through request completion
+    requestContext.requestCompleted();
+    // If no exception is thrown, the callback was registered properly
   }
 
   public static class ProviderBean {

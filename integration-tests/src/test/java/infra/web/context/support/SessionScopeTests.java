@@ -59,7 +59,6 @@ import infra.session.config.EnableSession;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
 import infra.web.RequestContextUtils;
-import infra.web.context.RequestScopeTests;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
