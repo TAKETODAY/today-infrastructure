@@ -32,12 +32,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ExceptionHandlerReflectiveProcessorTests {
 
   @Test
-  void registerReturnTypeHintsRegistersProblemDetailSubclasses() {
+  void registerReturnTypeHintsRegistersProblemDetailSubclasses() throws NoSuchMethodException {
     ExceptionHandlerReflectiveProcessor processor = new ExceptionHandlerReflectiveProcessor();
     ReflectionHints hints = new ReflectionHints();
 
     MethodParameter methodParameter = MethodParameter.forExecutable(
-            TestController.class.getDeclaredMethods()[0], -1);
+            TestController.class.getDeclaredMethod("handleWithProblemDetail"), -1);
 
     processor.registerReturnTypeHints(hints, methodParameter);
 
@@ -45,15 +45,14 @@ class ExceptionHandlerReflectiveProcessorTests {
   }
 
   @Test
-  void registerReturnTypeHintsDelegatesToSuperClassForNonProblemDetailTypes() {
+  void registerReturnTypeHintsDelegatesToSuperClassForNonProblemDetailTypes() throws NoSuchMethodException {
     ExceptionHandlerReflectiveProcessor processor = new ExceptionHandlerReflectiveProcessor();
     ReflectionHints hints = new ReflectionHints();
 
     MethodParameter methodParameter = MethodParameter.forExecutable(
-            TestController.class.getDeclaredMethods()[1], -1);
+            TestController.class.getDeclaredMethod("handleWithString"), -1);
 
     processor.registerReturnTypeHints(hints, methodParameter);
-
   }
 
   static class TestController {
