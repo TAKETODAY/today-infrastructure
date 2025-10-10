@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ import infra.web.RequestContext;
  * @since 4.0 2024/4/21 17:24
  */
 public class CorsInterceptor implements HandlerInterceptor {
+
   private final CorsConfigurationSource configSource;
 
   private CorsProcessor processor = new DefaultCorsProcessor();
