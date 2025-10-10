@@ -21,8 +21,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.List;
 
 import infra.beans.DirectFieldAccessor;
+import infra.beans.factory.BeanInitializationException;
 import infra.core.Ordered;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.mock.support.StaticWebApplicationContext;
@@ -39,6 +41,7 @@ import infra.web.view.script.ScriptTemplateViewResolver;
 import infra.web.view.xml.MarshallingView;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -158,6 +161,164 @@ class ViewResolverRegistryTests {
     ContentNegotiatingViewResolver resolver2 = checkAndGetResolver(ContentNegotiatingViewResolver.class);
     assertThat(resolver2.getDefaultViews()).isEqualTo(Arrays.asList(view1, view2));
     assertThat(resolver2).isSameAs(resolver1);
+  }
+
+  @Test
+  void constructorWithNullArguments() {
+    ViewResolverRegistry registry = new ViewResolverRegistry(null, null);
+
+    assertThat(registry.hasRegistrations()).isFalse();
+    assertThat(registry.getOrder()).isEqualTo(Ordered.LOWEST_PRECEDENCE);
+    assertThat(registry.getViewResolvers()).isEmpty();
+  }
+
+  @Test
+  void enableContentNegotiationWithUseNotAcceptableStatus() {
+    ViewResolverRegistry registry = new ViewResolverRegistry(null, null);
+    MappingJackson2JsonView view = new MappingJackson2JsonView();
+
+    registry.enableContentNegotiation(true, view);
+
+    assertThat(registry.hasRegistrations()).isTrue();
+    assertThat(registry.getOrder()).isEqualTo(Ordered.HIGHEST_PRECEDENCE);
+    ContentNegotiatingViewResolver resolver = (ContentNegotiatingViewResolver) registry.getViewResolvers().get(0);
+    assertThat(resolver.isUseNotAcceptableStatusCode()).isTrue();
+  }
+
+  @Test
+  void enableContentNegotiationMultipleTimes() {
+    ViewResolverRegistry registry = new ViewResolverRegistry(null, null);
+    MappingJackson2JsonView view1 = new MappingJackson2JsonView();
+    MarshallingView view2 = new MarshallingView();
+
+    registry.enableContentNegotiation(view1);
+    registry.enableContentNegotiation(view2);
+
+    assertThat(registry.hasRegistrations()).isTrue();
+    ContentNegotiatingViewResolver resolver = (ContentNegotiatingViewResolver) registry.getViewResolvers().get(0);
+    assertThat(resolver.getDefaultViews()).containsExactly(view1, view2);
+  }
+
+  @Test
+  void beanNameAddsBeanNameViewResolver() {
+    ViewResolverRegistry registry = new ViewResolverRegistry(null, null);
+
+    registry.beanName();
+
+    assertThat(registry.hasRegistrations()).isTrue();
+    assertThat(registry.getViewResolvers()).hasSize(1);
+    assertThat(registry.getViewResolvers().get(0)).isInstanceOf(BeanNameViewResolver.class);
+  }
+
+  @Test
+  void viewResolverAddsCustomViewResolver() {
+    ViewResolverRegistry registry = new ViewResolverRegistry(null, null);
+    ViewResolver customResolver = new BeanNameViewResolver();
+
+    registry.viewResolver(customResolver);
+
+    assertThat(registry.hasRegistrations()).isTrue();
+    assertThat(registry.getViewResolvers()).containsExactly(customResolver);
+  }
+
+  @Test
+  void viewResolverThrowsExceptionForContentNegotiatingViewResolver() {
+    ViewResolverRegistry registry = new ViewResolverRegistry(null, null);
+    ContentNegotiatingViewResolver cnvr = new ContentNegotiatingViewResolver();
+
+    assertThatThrownBy(() -> registry.viewResolver(cnvr))
+            .isInstanceOf(BeanInitializationException.class)
+            .hasMessageContaining("addViewResolver cannot be used to configure a ContentNegotiatingViewResolver");
+  }
+
+  @Test
+  void orderMethodSetsCustomOrder() {
+    ViewResolverRegistry registry = new ViewResolverRegistry(null, null);
+    int customOrder = 100;
+
+    registry.order(customOrder);
+
+    assertThat(registry.getOrder()).isEqualTo(customOrder);
+  }
+
+  @Test
+  void orderReturnsLowestPrecedenceByDefault() {
+    ViewResolverRegistry registry = new ViewResolverRegistry(null, null);
+
+    assertThat(registry.getOrder()).isEqualTo(Ordered.LOWEST_PRECEDENCE);
+  }
+
+  @Test
+  void getViewResolversReturnsContentNegotiatingResolverWhenPresent() {
+    ViewResolverRegistry registry = new ViewResolverRegistry(null, null);
+    MappingJackson2JsonView view = new MappingJackson2JsonView();
+
+    registry.enableContentNegotiation(view);
+
+    List<ViewResolver> resolvers = registry.getViewResolvers();
+    assertThat(resolvers).hasSize(1);
+    assertThat(resolvers.get(0)).isInstanceOf(ContentNegotiatingViewResolver.class);
+  }
+
+  @Test
+  void getViewResolversReturnsRegularResolversWhenNoContentNegotiation() {
+    ViewResolverRegistry registry = new ViewResolverRegistry(null, null);
+    registry.beanName();
+
+    List<ViewResolver> resolvers = registry.getViewResolvers();
+    assertThat(resolvers).hasSize(1);
+    assertThat(resolvers.get(0)).isInstanceOf(BeanNameViewResolver.class);
+  }
+
+  @Test
+  void freeMarkerThrowsExceptionWhenConfigurerNotFound() {
+    StaticWebApplicationContext context = new StaticWebApplicationContext();
+    ViewResolverRegistry registry = new ViewResolverRegistry(new ContentNegotiationManager(), context);
+
+    assertThatThrownBy(registry::freeMarker)
+            .isInstanceOf(BeanInitializationException.class)
+            .hasMessageContaining("In addition to a FreeMarker view resolver");
+  }
+
+  @Test
+  void groovyThrowsExceptionWhenConfigurerNotFound() {
+    StaticWebApplicationContext context = new StaticWebApplicationContext();
+    ViewResolverRegistry registry = new ViewResolverRegistry(new ContentNegotiationManager(), context);
+
+    assertThatThrownBy(registry::groovy)
+            .isInstanceOf(BeanInitializationException.class)
+            .hasMessageContaining("In addition to a Groovy markup view resolver");
+  }
+
+  @Test
+  void scriptTemplateThrowsExceptionWhenConfigurerNotFound() {
+    StaticWebApplicationContext context = new StaticWebApplicationContext();
+    ViewResolverRegistry registry = new ViewResolverRegistry(new ContentNegotiationManager(), context);
+
+    assertThatThrownBy(registry::scriptTemplate)
+            .isInstanceOf(BeanInitializationException.class)
+            .hasMessageContaining("In addition to a script template view resolver");
+  }
+
+  @Test
+  void notFoundBeanOfTypeReturnsTrueWhenNoBeans() {
+    StaticWebApplicationContext context = new StaticWebApplicationContext();
+    ViewResolverRegistry registry = new ViewResolverRegistry(new ContentNegotiationManager(), context);
+
+    boolean result = registry.notFoundBeanOfType(FreeMarkerConfigurer.class);
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  void notFoundBeanOfTypeReturnsFalseWhenBeansExist() {
+    StaticWebApplicationContext context = new StaticWebApplicationContext();
+    context.registerSingleton("freeMarkerConfigurer", FreeMarkerConfigurer.class);
+    ViewResolverRegistry registry = new ViewResolverRegistry(new ContentNegotiationManager(), context);
+
+    boolean result = registry.notFoundBeanOfType(FreeMarkerConfigurer.class);
+
+    assertThat(result).isFalse();
   }
 
   @SuppressWarnings("unchecked")
