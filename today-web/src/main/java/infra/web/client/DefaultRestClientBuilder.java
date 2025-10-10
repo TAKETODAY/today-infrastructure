@@ -193,7 +193,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   }
 
   @Nullable
-  private static UriBuilderFactory getUriBuilderFactory(RestTemplate restTemplate) {
+  static UriBuilderFactory getUriBuilderFactory(RestTemplate restTemplate) {
     UriTemplateHandler uriTemplateHandler = restTemplate.getUriTemplateHandler();
     if (uriTemplateHandler instanceof DefaultUriBuilderFactory builderFactory) {
       // only reuse the DefaultUriBuilderFactory if it has been customized
@@ -216,7 +216,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
    * Indicate whether this {@code DefaultUriBuilderFactory} uses the default
    * {@link infra.web.client.RestTemplate RestTemplate} settings.
    */
-  private static boolean hasRestTemplateDefaults(DefaultUriBuilderFactory factory) {
+  static boolean hasRestTemplateDefaults(DefaultUriBuilderFactory factory) {
     // see RestTemplate::initUriTemplateHandler
     return (!factory.hasBaseUri() &&
             factory.getEncodingMode() == DefaultUriBuilderFactory.EncodingMode.URI_COMPONENT &&
@@ -224,7 +224,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
             factory.shouldParsePath());
   }
 
-  private static ClientHttpRequestFactory getRequestFactory(RestTemplate restTemplate) {
+  static ClientHttpRequestFactory getRequestFactory(RestTemplate restTemplate) {
     ClientHttpRequestFactory requestFactory = restTemplate.getRequestFactory();
     if (requestFactory instanceof InterceptingClientHttpRequestFactory factory) {
       return factory.getRequestFactory();
@@ -278,7 +278,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     return this;
   }
 
-  private HttpHeaders initHeaders() {
+  HttpHeaders initHeaders() {
     if (this.defaultHeaders == null) {
       this.defaultHeaders = HttpHeaders.forWritable();
     }
@@ -315,7 +315,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     return this;
   }
 
-  private MultiValueMap<String, String> initCookies() {
+  MultiValueMap<String, String> initCookies() {
     if (this.defaultCookies == null) {
       this.defaultCookies = new LinkedMultiValueMap<>(3);
     }
@@ -378,7 +378,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     return this;
   }
 
-  private List<ClientHttpRequestInterceptor> initInterceptors() {
+  List<ClientHttpRequestInterceptor> initInterceptors() {
     if (this.interceptors == null) {
       this.interceptors = new ArrayList<>();
     }
@@ -398,7 +398,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     return this;
   }
 
-  private List<ClientHttpRequestInitializer> initInitializers() {
+  List<ClientHttpRequestInitializer> initInitializers() {
     if (this.initializers == null) {
       this.initializers = new ArrayList<>();
     }
