@@ -116,32 +116,6 @@ public abstract class CollectionUtils {
   }
 
   /**
-   * Return {@code true} if the supplied Collection is not {@code null} and empty.
-   * Otherwise, return {@code false}.
-   *
-   * @param holder the ArrayHolder to check
-   * @return whether the given ArrayHolder is not empty
-   * @since 4.0
-   */
-  @Contract("null -> false")
-  public static boolean isNotEmpty(@Nullable ArrayHolder<?> holder) {
-    return holder != null && !holder.isEmpty();
-  }
-
-  /**
-   * Return {@code true} if the supplied Collection is {@code null} or empty.
-   * Otherwise, return {@code false}.
-   *
-   * @param holder the ArrayHolder to check
-   * @return whether the given ArrayHolder is empty
-   * @since 4.0
-   */
-  @Contract("null -> true")
-  public static boolean isEmpty(@Nullable ArrayHolder<?> holder) {
-    return holder == null || holder.isEmpty();
-  }
-
-  /**
    * Return {@code true} if the supplied Map is {@code null} or empty. Otherwise,
    * return {@code false}.
    *
@@ -798,26 +772,6 @@ public abstract class CollectionUtils {
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public static void addAll(Collection c, @Nullable Collection elements) {
-    if (elements != null) {
-      c.addAll(elements);
-    }
-  }
-
-  /**
-   * @since 4.0
-   */
-  @SuppressWarnings({ "rawtypes", "unchecked", "NullAway" })
-  public static void addAll(ArrayHolder c, @Nullable Object @Nullable [] elements) {
-    if (elements != null) {
-      c.addAll(elements);
-    }
-  }
-
-  /**
-   * @since 4.0
-   */
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  public static void addAll(ArrayHolder c, @Nullable Collection elements) {
     if (elements != null) {
       c.addAll(elements);
     }

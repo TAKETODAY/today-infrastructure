@@ -19,9 +19,11 @@ package infra.session;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
-import infra.util.ArrayHolder;
+import infra.util.CollectionUtils;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -29,11 +31,9 @@ import infra.util.ArrayHolder;
  */
 public class SessionEventDispatcher {
 
-  private final ArrayHolder<SessionListener> sessionListeners =
-          ArrayHolder.forGenerator(SessionListener[]::new);
+  private final ArrayList<SessionListener> sessionListeners = new ArrayList<>();
 
-  private final ArrayHolder<SessionAttributeListener> attributeListeners =
-          ArrayHolder.forGenerator(SessionAttributeListener[]::new);
+  private final ArrayList<SessionAttributeListener> attributeListeners = new ArrayList<>();
 
   /**
    * Receives notification that a session has been created.
@@ -90,8 +90,7 @@ public class SessionEventDispatcher {
    * @param attributeName name of attribute
    * @param oldValue attribute value
    */
-  public void attributeReplaced(Session session,
-          String attributeName, Object oldValue, Object newValue) {
+  public void attributeReplaced(Session session, String attributeName, Object oldValue, Object newValue) {
     for (SessionAttributeListener listener : attributeListeners) {
       listener.attributeReplaced(session, attributeName, oldValue, newValue);
     }
@@ -104,7 +103,8 @@ public class SessionEventDispatcher {
    * @throws NullPointerException input list is null
    */
   public void addAttributeListeners(SessionAttributeListener @Nullable ... array) {
-    attributeListeners.addAll(array);
+    CollectionUtils.addAll(attributeListeners, array);
+    attributeListeners.trimToSize();
   }
 
   /**
@@ -115,6 +115,7 @@ public class SessionEventDispatcher {
    */
   public void addAttributeListeners(@Nullable Collection<SessionAttributeListener> list) {
     attributeListeners.addAll(list);
+    attributeListeners.trimToSize();
   }
 
   /**
@@ -123,7 +124,8 @@ public class SessionEventDispatcher {
    * @param array array to add
    */
   public void addSessionListeners(SessionListener @Nullable ... array) {
-    sessionListeners.addAll(array);
+    CollectionUtils.addAll(sessionListeners, array);
+    sessionListeners.trimToSize();
   }
 
   /**
@@ -133,13 +135,14 @@ public class SessionEventDispatcher {
    */
   public void addSessionListeners(@Nullable Collection<SessionListener> list) {
     sessionListeners.addAll(list);
+    sessionListeners.trimToSize();
   }
 
-  public ArrayHolder<SessionAttributeListener> getAttributeListeners() {
+  public List<SessionAttributeListener> getAttributeListeners() {
     return attributeListeners;
   }
 
-  public ArrayHolder<SessionListener> getSessionListeners() {
+  public List<SessionListener> getSessionListeners() {
     return sessionListeners;
   }
 

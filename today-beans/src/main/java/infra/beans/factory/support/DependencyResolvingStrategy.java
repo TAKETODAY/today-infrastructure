@@ -49,14 +49,11 @@ public interface DependencyResolvingStrategy {
    */
   class Context {
 
-    @Nullable
-    public final Set<String> dependentBeans;
+    public final @Nullable Set<String> dependentBeans;
 
-    @Nullable
-    public final TypeConverter typeConverter;
+    public final @Nullable TypeConverter typeConverter;
 
-    @Nullable
-    public final String requestingBeanName;
+    public final @Nullable String requestingBeanName;
 
     public Context(@Nullable String requestingBeanName,
             @Nullable Set<String> dependentBeans, @Nullable TypeConverter typeConverter) {

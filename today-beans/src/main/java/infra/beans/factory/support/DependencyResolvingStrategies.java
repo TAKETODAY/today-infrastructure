@@ -19,12 +19,12 @@ package infra.beans.factory.support;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import infra.beans.factory.config.DependencyDescriptor;
 import infra.lang.TodayStrategies;
 import infra.logging.LoggerFactory;
-import infra.util.ArrayHolder;
 
 /**
  * Composite DependencyResolvingStrategy
@@ -34,19 +34,18 @@ import infra.util.ArrayHolder;
  */
 public class DependencyResolvingStrategies implements DependencyResolvingStrategy {
 
-  private final ArrayHolder<DependencyResolvingStrategy> strategies
-          = ArrayHolder.forClass(DependencyResolvingStrategy.class);
+  final ArrayList<DependencyResolvingStrategy> strategies = new ArrayList<>();
 
   public DependencyResolvingStrategies() {
   }
 
   public DependencyResolvingStrategies(List<DependencyResolvingStrategy> strategyList) {
-    getStrategies().addAll(strategyList);
+    strategies.addAll(strategyList);
+    strategies.trimToSize();
   }
 
-  @Nullable
   @Override
-  public Object resolveDependency(DependencyDescriptor descriptor, Context context) {
+  public @Nullable Object resolveDependency(DependencyDescriptor descriptor, Context context) {
     for (DependencyResolvingStrategy resolvingStrategy : strategies) {
       Object dependency = resolvingStrategy.resolveDependency(descriptor, context);
       if (dependency != null) {
@@ -60,10 +59,7 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
     LoggerFactory.getLogger(DependencyResolvingStrategies.class)
             .debug("Initialize dependency-resolving-strategies");
     this.strategies.addAll(TodayStrategies.find(DependencyResolvingStrategy.class, classLoader));
-  }
-
-  public ArrayHolder<DependencyResolvingStrategy> getStrategies() {
-    return strategies;
+    strategies.trimToSize();
   }
 
 }

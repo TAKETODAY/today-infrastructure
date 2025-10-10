@@ -32,7 +32,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.util.ArrayHolder;
+import infra.util.CollectionUtils;
 import infra.util.ExceptionUtils;
 import infra.util.StringUtils;
 import infra.web.async.WebAsyncManagerFactory;
@@ -54,7 +54,7 @@ import infra.web.util.WebUtils;
  */
 public class DispatcherHandler extends InfraHandler {
 
-  private final ArrayHolder<RequestCompletedListener> requestCompletedActions = ArrayHolder.forGenerator(RequestCompletedListener[]::new);
+  private final ArrayList<RequestCompletedListener> requestCompletedActions = new ArrayList<>();
 
   /** Action mapping registry */
   private HandlerMapping handlerMapping;
@@ -207,7 +207,8 @@ public class DispatcherHandler extends InfraHandler {
    * @since 4.0
    */
   public void addRequestCompletedActions(RequestCompletedListener @Nullable ... array) {
-    requestCompletedActions.addAll(array);
+    CollectionUtils.addAll(requestCompletedActions, array);
+    requestCompletedActions.trimToSize();
   }
 
   /**
@@ -218,6 +219,7 @@ public class DispatcherHandler extends InfraHandler {
    */
   public void addRequestCompletedActions(@Nullable Collection<RequestCompletedListener> list) {
     requestCompletedActions.addAll(list);
+    requestCompletedActions.trimToSize();
   }
 
   /**
@@ -227,7 +229,9 @@ public class DispatcherHandler extends InfraHandler {
    * @since 4.0
    */
   public void setRequestCompletedActions(@Nullable Collection<RequestCompletedListener> list) {
-    requestCompletedActions.set(list);
+    requestCompletedActions.clear();
+    CollectionUtils.addAll(requestCompletedActions, list);
+    requestCompletedActions.trimToSize();
   }
 
   @Override
@@ -590,9 +594,8 @@ public class DispatcherHandler extends InfraHandler {
   }
 
   protected void requestCompleted(RequestContext request, @Nullable Throwable notHandled) throws Throwable {
-    RequestCompletedListener[] actions = requestCompletedActions.array;
-    if (actions != null) {
-      for (RequestCompletedListener action : actions) {
+    if (!requestCompletedActions.isEmpty()) {
+      for (RequestCompletedListener action : requestCompletedActions) {
         action.requestCompleted(request, notHandled);
       }
     }
