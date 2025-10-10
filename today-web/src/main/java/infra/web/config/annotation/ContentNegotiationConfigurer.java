@@ -84,9 +84,10 @@ public class ContentNegotiationConfigurer {
 
   private final ContentNegotiationManagerFactoryBean factory = new ContentNegotiationManagerFactoryBean();
 
-  private final Map<String, MediaType> mediaTypes = new HashMap<>();
+  final Map<String, MediaType> mediaTypes = new HashMap<>();
 
-  public ContentNegotiationConfigurer() { }
+  public ContentNegotiationConfigurer() {
+  }
 
   /**
    * Set the exact list of strategies to use.

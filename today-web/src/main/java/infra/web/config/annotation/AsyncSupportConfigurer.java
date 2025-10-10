@@ -38,17 +38,13 @@ import infra.web.async.DeferredResultProcessingInterceptor;
  */
 public class AsyncSupportConfigurer {
 
-  @Nullable
-  protected AsyncTaskExecutor taskExecutor;
+  protected @Nullable AsyncTaskExecutor taskExecutor;
 
-  @Nullable
-  protected Long timeout;
+  protected @Nullable Long timeout;
 
-  @Nullable
-  protected List<CallableProcessingInterceptor> callableInterceptors;
+  protected @Nullable List<CallableProcessingInterceptor> callableInterceptors;
 
-  @Nullable
-  protected List<DeferredResultProcessingInterceptor> deferredResultInterceptors;
+  protected @Nullable List<DeferredResultProcessingInterceptor> deferredResultInterceptors;
 
   /**
    * The provided task executor is used for the following:

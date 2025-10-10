@@ -22,6 +22,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import infra.http.MediaType;
 import infra.mock.web.HttpMockRequestImpl;
@@ -32,6 +34,7 @@ import infra.web.accept.FixedContentNegotiationStrategy;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -136,6 +139,166 @@ class ContentNegotiationConfigurerTests {
     ContentNegotiationManager manager = this.configurer.buildContentNegotiationManager();
 
     assertThat(manager.resolveMediaTypes(this.webRequest).get(0)).isEqualTo(MediaType.APPLICATION_JSON);
+  }
+
+  @Test
+  void strategiesMethodSetsCustomStrategies() {
+    ContentNegotiationConfigurer configurer = new ContentNegotiationConfigurer();
+    ContentNegotiationStrategy strategy1 = mock(ContentNegotiationStrategy.class);
+    ContentNegotiationStrategy strategy2 = mock(ContentNegotiationStrategy.class);
+    List<ContentNegotiationStrategy> strategies = Arrays.asList(strategy1, strategy2);
+
+    configurer.strategies(strategies);
+
+    ContentNegotiationManager manager = configurer.buildContentNegotiationManager();
+
+    assertThat(manager).isNotNull();
+  }
+
+  @Test
+  void favorParameterEnablesParameterStrategy() {
+    ContentNegotiationConfigurer configurer = new ContentNegotiationConfigurer();
+
+    ContentNegotiationConfigurer result = configurer.favorParameter(true);
+
+    assertThat(result).isSameAs(configurer);
+  }
+
+  @Test
+  void parameterNameSetsCustomParameterName() {
+    ContentNegotiationConfigurer configurer = new ContentNegotiationConfigurer();
+    String parameterName = "customFormat";
+
+    ContentNegotiationConfigurer result = configurer.parameterName(parameterName);
+
+    assertThat(result).isSameAs(configurer);
+  }
+
+  @Test
+  void mediaTypeAddsSingleMediaTypeMapping() {
+    ContentNegotiationConfigurer configurer = new ContentNegotiationConfigurer();
+
+    ContentNegotiationConfigurer result = configurer.mediaType("json", MediaType.APPLICATION_JSON);
+
+    assertThat(result).isSameAs(configurer);
+    assertThat(configurer.mediaTypes).containsEntry("json", MediaType.APPLICATION_JSON);
+  }
+
+  @Test
+  void mediaTypesAddsMultipleMediaTypeMappings() {
+    ContentNegotiationConfigurer configurer = new ContentNegotiationConfigurer();
+    Map<String, MediaType> mediaTypes = Map.of("json", MediaType.APPLICATION_JSON, "xml", MediaType.APPLICATION_XML);
+
+    ContentNegotiationConfigurer result = configurer.mediaTypes(mediaTypes);
+
+    assertThat(result).isSameAs(configurer);
+    assertThat(configurer.mediaTypes).containsEntry("json", MediaType.APPLICATION_JSON)
+            .containsEntry("xml", MediaType.APPLICATION_XML);
+  }
+
+  @Test
+  void mediaTypesWithNullMap() {
+    ContentNegotiationConfigurer configurer = new ContentNegotiationConfigurer();
+
+    ContentNegotiationConfigurer result = configurer.mediaTypes(null);
+
+    assertThat(result).isSameAs(configurer);
+    assertThat(configurer.mediaTypes).isEmpty();
+  }
+
+  @Test
+  void replaceMediaTypesClearsAndAddsNewMappings() {
+    ContentNegotiationConfigurer configurer = new ContentNegotiationConfigurer();
+    configurer.mediaTypes(Map.of("old", MediaType.TEXT_PLAIN));
+    Map<String, MediaType> newMediaTypes = Map.of("json", MediaType.APPLICATION_JSON, "xml", MediaType.APPLICATION_XML);
+
+    ContentNegotiationConfigurer result = configurer.replaceMediaTypes(newMediaTypes);
+
+    assertThat(result).isSameAs(configurer);
+    assertThat(configurer.mediaTypes).doesNotContainKey("old")
+            .containsEntry("json", MediaType.APPLICATION_JSON)
+            .containsEntry("xml", MediaType.APPLICATION_XML);
+  }
+
+  @Test
+  void useRegisteredExtensionsOnlySetsFlag() {
+    ContentNegotiationConfigurer configurer = new ContentNegotiationConfigurer();
+
+    ContentNegotiationConfigurer result = configurer.useRegisteredExtensionsOnly(true);
+
+    assertThat(result).isSameAs(configurer);
+  }
+
+  @Test
+  void ignoreAcceptHeaderDisablesHeaderStrategy() {
+    ContentNegotiationConfigurer configurer = new ContentNegotiationConfigurer();
+
+    ContentNegotiationConfigurer result = configurer.ignoreAcceptHeader(true);
+
+    assertThat(result).isSameAs(configurer);
+  }
+
+  @Test
+  void defaultContentTypeSetsSingleMediaType() {
+    ContentNegotiationConfigurer configurer = new ContentNegotiationConfigurer();
+
+    ContentNegotiationConfigurer result = configurer.defaultContentType(MediaType.APPLICATION_JSON);
+
+    assertThat(result).isSameAs(configurer);
+  }
+
+  @Test
+  void defaultContentTypeSetsMultipleMediaTypes() {
+    ContentNegotiationConfigurer configurer = new ContentNegotiationConfigurer();
+
+    ContentNegotiationConfigurer result = configurer.defaultContentType(MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML);
+
+    assertThat(result).isSameAs(configurer);
+  }
+
+  @Test
+  void defaultContentTypeStrategySetsCustomStrategy() {
+    ContentNegotiationConfigurer configurer = new ContentNegotiationConfigurer();
+    ContentNegotiationStrategy strategy = mock(ContentNegotiationStrategy.class);
+
+    ContentNegotiationConfigurer result = configurer.defaultContentTypeStrategy(strategy);
+
+    assertThat(result).isSameAs(configurer);
+  }
+
+  @Test
+  void buildContentNegotiationManagerWithMediaTypes() {
+    ContentNegotiationConfigurer configurer = new ContentNegotiationConfigurer();
+    configurer.mediaTypes(Map.of("json", MediaType.APPLICATION_JSON));
+
+    ContentNegotiationManager manager = configurer.buildContentNegotiationManager();
+
+    assertThat(manager).isNotNull();
+  }
+
+  @Test
+  void chainMethodsReturnSameInstance() {
+    ContentNegotiationConfigurer configurer = new ContentNegotiationConfigurer();
+
+    ContentNegotiationConfigurer result1 = configurer.favorParameter(true);
+    ContentNegotiationConfigurer result2 = result1.parameterName("f");
+    ContentNegotiationConfigurer result3 = result2.mediaType("json", MediaType.APPLICATION_JSON);
+    ContentNegotiationConfigurer result4 = result3.ignoreAcceptHeader(true);
+    ContentNegotiationConfigurer result5 = result4.defaultContentType(MediaType.APPLICATION_JSON);
+
+    assertThat(result1).isSameAs(configurer);
+    assertThat(result2).isSameAs(configurer);
+    assertThat(result3).isSameAs(configurer);
+    assertThat(result4).isSameAs(configurer);
+    assertThat(result5).isSameAs(configurer);
+  }
+
+  @Test
+  void defaultConstructorInitializesMediaTypesMap() {
+    ContentNegotiationConfigurer configurer = new ContentNegotiationConfigurer();
+
+    assertThat(configurer.mediaTypes).isNotNull();
+    assertThat(configurer.mediaTypes).isEmpty();
   }
 
 }
