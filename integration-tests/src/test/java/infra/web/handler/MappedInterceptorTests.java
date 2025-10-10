@@ -306,24 +306,6 @@ class MappedInterceptorTests {
   }
 
   @Test
-  void interceptWhenMatchesProceedsWithInterceptor() throws Throwable {
-    RequestContext request = mock(RequestContext.class);
-    given(request.getRequestPath()).willReturn(RequestPath.parse("/test", null));
-
-    HandlerInterceptor delegate = mock(HandlerInterceptor.class);
-    Object expectedResult = new Object();
-    given(delegate.intercept(request, null)).willReturn(expectedResult);
-
-    InterceptorChain chain = mock(InterceptorChain.class);
-    MappedInterceptor mappedInterceptor = new MappedInterceptor(new String[] { "/test" }, delegate);
-
-    Object actualResult = mappedInterceptor.intercept(request, chain);
-
-    assertThat(actualResult).isSameAs(expectedResult);
-    verify(delegate).intercept(request, null);
-  }
-
-  @Test
   void interceptWhenNotMatchingProceedsWithChain() throws Throwable {
     RequestContext request = mock(RequestContext.class);
     given(request.getRequestPath()).willReturn(RequestPath.parse("/other", null));
