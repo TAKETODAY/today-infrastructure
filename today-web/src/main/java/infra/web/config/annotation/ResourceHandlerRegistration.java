@@ -51,24 +51,19 @@ public class ResourceHandlerRegistration {
 
   private final List<Resource> locationsResources = new ArrayList<>();
 
-  @Nullable
-  private Integer cachePeriod;
+  private @Nullable Integer cachePeriod;
 
-  @Nullable
-  private CacheControl cacheControl;
+  private @Nullable CacheControl cacheControl;
 
-  @Nullable
-  private ResourceChainRegistration resourceChainRegistration;
+  private @Nullable ResourceChainRegistration resourceChainRegistration;
 
   private boolean useLastModified = true;
 
   private boolean optimizeLocations = false;
 
-  @Nullable
-  private Function<Resource, String> etagGenerator;
+  private @Nullable Function<Resource, String> etagGenerator;
 
-  @Nullable
-  NotFoundHandler notFoundHandler;
+  @Nullable NotFoundHandler notFoundHandler;
 
   /**
    * Create a {@link ResourceHandlerRegistration} instance.
