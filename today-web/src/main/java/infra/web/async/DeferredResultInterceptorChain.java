@@ -35,7 +35,7 @@ final class DeferredResultInterceptorChain {
 
   private final ArrayList<DeferredResultProcessingInterceptor> interceptors;
 
-  private int preProcessingIndex = -1;
+  public int preProcessingIndex = -1;
 
   public DeferredResultInterceptorChain(ArrayList<DeferredResultProcessingInterceptor> interceptors) {
     this.interceptors = interceptors;
