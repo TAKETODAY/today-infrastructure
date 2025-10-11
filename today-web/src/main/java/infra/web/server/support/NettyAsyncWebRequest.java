@@ -41,8 +41,7 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
 
   private volatile boolean asyncStarted;
 
-  @Nullable
-  private ScheduledFuture<?> timeoutFuture;
+  private @Nullable ScheduledFuture<?> timeoutFuture;
 
   NettyAsyncWebRequest(NettyRequestContext request) {
     this.request = request;
@@ -58,7 +57,7 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
     this.asyncStarted = true;
   }
 
-  private void checkTimeout() {
+  void checkTimeout() {
     if (!isAsyncComplete()) {
       // timeout
       log.debug("Async timeout, dispatch timeout events");
