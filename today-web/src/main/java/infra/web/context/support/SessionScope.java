@@ -82,12 +82,14 @@ public class SessionScope extends AbstractRequestContextScope<Session> {
   @Override
   @Nullable
   public Object remove(String name) {
-    RequestContext context = RequestContextHolder.getRequired();
-    Session session = getSession(context);
-    if (session != null) {
-      Object sessionMutex = WebUtils.getSessionMutex(session);
-      synchronized(sessionMutex) {
-        return remove(session, name);
+    RequestContext context = RequestContextHolder.get();
+    if (context != null) {
+      Session session = getSession(context);
+      if (session != null) {
+        Object sessionMutex = WebUtils.getSessionMutex(session);
+        synchronized(sessionMutex) {
+          return remove(session, name);
+        }
       }
     }
     return null;
@@ -175,7 +177,7 @@ public class SessionScope extends AbstractRequestContextScope<Session> {
             new DestructionCallbackBindingListener(callback));
   }
 
-  private static String getDestructionCallbackName(String name) {
+  static String getDestructionCallbackName(String name) {
     return DESTRUCTION_CALLBACK_NAME_PREFIX + name;
   }
 

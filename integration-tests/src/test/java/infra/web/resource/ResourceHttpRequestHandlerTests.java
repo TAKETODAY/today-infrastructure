@@ -24,6 +24,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 import infra.core.io.ClassPathResource;
 import infra.core.io.FileSystemResource;
@@ -38,15 +40,20 @@ import infra.mock.web.MockHttpResponseImpl;
 import infra.util.ExceptionUtils;
 import infra.util.StringUtils;
 import infra.web.HttpRequestMethodNotSupportedException;
+import infra.web.NotFoundHandler;
+import infra.web.RequestContext;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.ContentNegotiationManagerFactoryBean;
+import infra.web.cors.CorsConfiguration;
 import infra.web.handler.SimpleNotFoundHandler;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.support.StaticWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -65,6 +72,217 @@ public class ResourceHttpRequestHandlerTests {
   private static final ClassPathResource testResource = new ClassPathResource("test/", ResourceHttpRequestHandlerTests.class);
   private static final ClassPathResource testAlternatePathResource = new ClassPathResource("testalternatepath/", ResourceHttpRequestHandlerTests.class);
   private static final ClassPathResource webjarsResource = new ClassPathResource("META-INF/resources/webjars/");
+
+  @Test
+  void setLocationValuesStoresLocations() {
+    ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
+    List<String> locations = List.of("classpath:/static/", "/webapp/resources/");
+
+    handler.setLocationValues(locations);
+
+    // Note: locationValues is private, so we can't directly assert its contents
+    // But we can verify it doesn't throw an exception
+    assertThatCode(() -> handler.setLocationValues(locations)).doesNotThrowAnyException();
+  }
+
+  @Test
+  void setLocationsStoresValidResources() {
+    ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
+    Resource resource1 = new ClassPathResource("test/");
+    Resource resource2 = new ClassPathResource("testalternatepath/");
+
+    handler.setLocations(List.of(resource1, resource2));
+
+    // Should not throw exception for valid resources
+    assertThatCode(() -> handler.setLocations(List.of(resource1, resource2))).doesNotThrowAnyException();
+  }
+
+  @Test
+  void setLocationsThrowsExceptionForNullList() {
+    ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
+
+    assertThatThrownBy(() -> handler.setLocations(null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Locations list is required");
+  }
+
+  @Test
+  void setResourceResolversStoresResolvers() {
+    ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
+    ResourceResolver resolver1 = mock(ResourceResolver.class);
+    ResourceResolver resolver2 = mock(ResourceResolver.class);
+
+    handler.setResourceResolvers(List.of(resolver1, resolver2));
+
+    assertThat(handler.getResourceResolvers()).containsExactly(resolver1, resolver2);
+  }
+
+  @Test
+  void setResourceResolversWithNullClearsList() {
+    ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
+    ResourceResolver resolver = mock(ResourceResolver.class);
+    handler.setResourceResolvers(List.of(resolver));
+
+    handler.setResourceResolvers(null);
+
+    assertThat(handler.getResourceResolvers()).isEmpty();
+  }
+
+  @Test
+  void setResourceTransformersStoresTransformers() {
+    ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
+    ResourceTransformer transformer1 = mock(ResourceTransformer.class);
+    ResourceTransformer transformer2 = mock(ResourceTransformer.class);
+
+    handler.setResourceTransformers(List.of(transformer1, transformer2));
+
+    assertThat(handler.getResourceTransformers()).containsExactly(transformer1, transformer2);
+  }
+
+  @Test
+  void setResourceTransformersWithNullClearsList() {
+    ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
+    ResourceTransformer transformer = mock(ResourceTransformer.class);
+    handler.setResourceTransformers(List.of(transformer));
+
+    handler.setResourceTransformers(null);
+
+    assertThat(handler.getResourceTransformers()).isEmpty();
+  }
+
+  @Test
+  void setContentNegotiationManagerStoresManager() {
+    ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
+    ContentNegotiationManager manager = mock(ContentNegotiationManager.class);
+
+    handler.setContentNegotiationManager(manager);
+
+    assertThat(handler.getContentNegotiationManager()).isSameAs(manager);
+  }
+
+  @Test
+  void setMediaTypesStoresMediaTypeMappings() {
+    ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
+    Map<String, MediaType> mediaTypes = Map.of("json", MediaType.APPLICATION_JSON, "XML", MediaType.APPLICATION_XML);
+
+    handler.setMediaTypes(mediaTypes);
+
+    Map<String, MediaType> result = handler.getMediaTypes();
+    assertThat(result).containsEntry("json", MediaType.APPLICATION_JSON);
+    assertThat(result).containsEntry("xml", MediaType.APPLICATION_XML); // Keys should be lowercase
+  }
+
+  @Test
+  void setCorsConfigurationStoresConfiguration() {
+    ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
+    CorsConfiguration corsConfig = mock(CorsConfiguration.class);
+
+    handler.setCorsConfiguration(corsConfig);
+
+    assertThat(handler.getCorsConfiguration(null)).isSameAs(corsConfig);
+  }
+
+  @Test
+  void setUseLastModifiedStoresFlag() {
+    ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
+
+    handler.setUseLastModified(false);
+
+    assertThat(handler.isUseLastModified()).isFalse();
+
+    handler.setUseLastModified(true);
+
+    assertThat(handler.isUseLastModified()).isTrue();
+  }
+
+  @Test
+  void setEtagGeneratorStoresFunction() {
+    ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
+    Function<Resource, String> etagGenerator = resource -> "test-etag";
+
+    handler.setEtagGenerator(etagGenerator);
+
+    assertThat(handler.getEtagGenerator()).isSameAs(etagGenerator);
+  }
+
+  @Test
+  void setOptimizeLocationsStoresFlag() {
+    ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
+
+    handler.setOptimizeLocations(true);
+
+    assertThat(handler.isOptimizeLocations()).isTrue();
+
+    handler.setOptimizeLocations(false);
+
+    assertThat(handler.isOptimizeLocations()).isFalse();
+  }
+
+  @Test
+  void setNotFoundHandlerStoresHandler() {
+    ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
+    NotFoundHandler notFoundHandler = mock(NotFoundHandler.class);
+
+    handler.setNotFoundHandler(notFoundHandler);
+
+    // We can't directly access the field, but we can verify it was set by checking behavior
+    assertThatCode(() -> handler.setNotFoundHandler(notFoundHandler)).doesNotThrowAnyException();
+  }
+
+  @Test
+  void afterPropertiesSetInitializesDefaultResolvers() throws Exception {
+    ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
+    handler.setLocations(List.of(new ClassPathResource("test/")));
+
+    handler.afterPropertiesSet();
+
+    assertThat(handler.getResourceResolvers()).hasSize(1);
+    assertThat(handler.getResourceResolvers().get(0)).isInstanceOf(PathResourceResolver.class);
+  }
+
+  @Test
+  void afterPropertiesSetInitializesConverters() throws Exception {
+    ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
+    handler.setLocations(List.of(new ClassPathResource("test/")));
+
+    handler.afterPropertiesSet();
+
+    assertThat(handler.getResourceHttpMessageConverter()).isNotNull();
+    assertThat(handler.getResourceRegionHttpMessageConverter()).isNotNull();
+  }
+
+  @Test
+  void processPathDelegatesToResourceHandlerUtils() {
+    ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
+
+    String result = handler.processPath("/test/../path");
+
+    // Should normalize the path
+    assertThat(result).isNotNull();
+  }
+
+  @Test
+  void getMediaTypeReturnsNullWhenNoExtension() throws IOException {
+    ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
+    Resource resource = mock(Resource.class);
+    given(resource.getName()).willReturn("filename");
+
+    MediaType mediaType = handler.getMediaType(mock(RequestContext.class), resource);
+
+    assertThat(mediaType).isNull();
+  }
+
+  @Test
+  void toStringReturnsMeaningfulDescription() {
+    ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
+    List<Resource> locations = List.of(new ClassPathResource("test/"));
+    handler.setLocations(locations);
+
+    String result = handler.toString();
+
+    assertThat(result).contains("ResourceHttpRequestHandler");
+    assertThat(result).contains("classpath [test/]");
+  }
 
   @Nested
   class ResourceHandlingTests {

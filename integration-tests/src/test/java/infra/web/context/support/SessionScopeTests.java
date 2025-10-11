@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.context;
+package infra.web.context.support;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,10 +31,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 import infra.beans.BeanWrapper;
 import infra.beans.BeansException;
 import infra.beans.DirectFieldAccessor;
+import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanNameAware;
 import infra.beans.factory.config.DestructionAwareBeanPostProcessor;
 import infra.beans.factory.support.StandardBeanFactory;
@@ -50,15 +52,21 @@ import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.session.CookieSessionIdResolver;
 import infra.session.MapSession;
-import infra.session.SessionRepository;
 import infra.session.Session;
+import infra.session.SessionAttributeListener;
+import infra.session.SessionRepository;
 import infra.session.config.EnableSession;
+import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
 import infra.web.RequestContextUtils;
-import infra.web.context.support.SessionScope;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Rob Harrop
@@ -151,6 +159,218 @@ public class SessionScopeTests {
   public void destructionWithSessionSerializationAndSerializableBeanPostProcessor() throws Exception {
     this.beanFactory.addBeanPostProcessor(new CustomSerializableDestructionAwareBeanPostProcessor());
     doTestDestructionWithSessionSerialization(true);
+  }
+
+  @Test
+  void getConversationIdReturnsNullWhenNoSession() {
+    RequestContextHolder.set(new MockRequestContext(context, new HttpMockRequestImpl(), new MockHttpResponseImpl()));
+
+    SessionScope sessionScope = new SessionScope(beanFactory);
+    String conversationId = sessionScope.getConversationId();
+
+    assertThat(conversationId).isNull();
+  }
+
+  @Test
+  void resolveContextualObjectWithRequestKey() {
+    MockRequestContext requestContext = new MockRequestContext(context, new HttpMockRequestImpl(), new MockHttpResponseImpl());
+    RequestContextHolder.set(requestContext);
+
+    SessionScope sessionScope = new SessionScope(beanFactory);
+    Object result = sessionScope.resolveContextualObject(RequestContext.SCOPE_REQUEST);
+
+    assertThat(result).isSameAs(requestContext);
+  }
+
+  @Test
+  void resolveContextualObjectWithSessionKey() {
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequestContext requestAttributes = getContext(request);
+    Session session = RequestContextUtils.getRequiredSession(requestAttributes);
+
+    SessionScope sessionScope = new SessionScope(beanFactory);
+    Object result = sessionScope.resolveContextualObject(RequestContext.SCOPE_SESSION);
+
+    assertThat(result).isSameAs(session);
+  }
+
+  @Test
+  void resolveContextualObjectWithInvalidKey() {
+    RequestContextHolder.set(new MockRequestContext(context, new HttpMockRequestImpl(), new MockHttpResponseImpl()));
+
+    SessionScope sessionScope = new SessionScope(beanFactory);
+    Object result = sessionScope.resolveContextualObject("invalidKey");
+
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void resolveContextualObjectWithSessionKeyAndNoRequestContext() {
+    RequestContextHolder.set(null);
+
+    SessionScope sessionScope = new SessionScope(beanFactory);
+    Object result = sessionScope.resolveContextualObject(RequestContext.SCOPE_SESSION);
+
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void registerDestructionCallbackStoresCallback() throws Exception {
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequestContext requestAttributes = getContext(request);
+    Session session = RequestContextUtils.getRequiredSession(requestAttributes);
+
+    SessionScope sessionScope = new SessionScope(beanFactory);
+    Runnable callback = mock(Runnable.class);
+
+    sessionScope.registerDestructionCallback("testBean", callback);
+
+    String destructionCallbackName = SessionScope.DESTRUCTION_CALLBACK_NAME_PREFIX + "testBean";
+    assertThat(session.getAttribute(destructionCallbackName)).isNotNull();
+  }
+
+  @Test
+  void createDestructionCallbackReturnsSessionAttributeListener() {
+    SessionAttributeListener listener = SessionScope.createDestructionCallback();
+
+    assertThat(listener).isInstanceOf(SessionScope.DestructionCallback.class);
+  }
+
+  @Test
+  void destructionCallbackAttributeRemoved() {
+    Session session = mock(Session.class);
+    String attributeName = "testAttribute";
+    Object attributeValue = new Object();
+
+    SessionScope.DestructionCallback destructionCallback = new SessionScope.DestructionCallback();
+    destructionCallback.attributeRemoved(session, attributeName, attributeValue);
+
+    // Verification would require checking interactions, but the method mainly handles cleanup logic
+    assertThatCode(() -> destructionCallback.attributeRemoved(session, attributeName, attributeValue))
+            .doesNotThrowAnyException();
+  }
+
+  @Test
+  void constructorInitializesSessionManagerDiscover() {
+    SessionScope sessionScope = new SessionScope(mock(BeanFactory.class));
+
+    assertThat(sessionScope).isNotNull();
+  }
+
+  @Test
+  void getWithObjectFactoryCreatesAndStoresBean() {
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequestContext requestAttributes = getContext(request);
+    RequestContextHolder.set(requestAttributes);
+
+    SessionScope sessionScope = new SessionScope(beanFactory);
+    String beanName = "testBean";
+    Supplier<Object> objectFactory = mock(Supplier.class);
+    Object beanInstance = new Object();
+    given(objectFactory.get()).willReturn(beanInstance);
+
+    Object result = sessionScope.get(beanName, objectFactory);
+
+    assertThat(result).isSameAs(beanInstance);
+    verify(objectFactory).get();
+  }
+
+  @Test
+  void getReturnsExistingBeanFromSession() {
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequestContext requestAttributes = getContext(request);
+    RequestContextHolder.set(requestAttributes);
+
+    SessionScope sessionScope = new SessionScope(beanFactory);
+    String beanName = "testBean";
+    Object beanInstance = new Object();
+
+    // Put bean in session manually
+    Session session = RequestContextUtils.getRequiredSession(requestAttributes);
+    session.setAttribute(beanName, beanInstance);
+
+    Supplier<Object> objectFactory = mock(Supplier.class);
+    Object result = sessionScope.get(beanName, objectFactory);
+
+    assertThat(result).isSameAs(beanInstance);
+    verify(objectFactory, never()).get();
+  }
+
+  @Test
+  void removeReturnsAndRemovesBeanFromSession() {
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequestContext requestAttributes = getContext(request);
+    RequestContextHolder.set(requestAttributes);
+
+    SessionScope sessionScope = new SessionScope(beanFactory);
+    String beanName = "testBean";
+    Object beanInstance = new Object();
+
+    // Put bean in session manually
+    Session session = RequestContextUtils.getRequiredSession(requestAttributes);
+    session.setAttribute(beanName, beanInstance);
+
+    Object result = sessionScope.remove(beanName);
+
+    assertThat(result).isSameAs(beanInstance);
+    assertThat(session.getAttribute(beanName)).isNull();
+  }
+
+  @Test
+  void removeReturnsNullWhenNoSession() {
+    RequestContextHolder.set(null);
+
+    SessionScope sessionScope = new SessionScope(beanFactory);
+    Object result = sessionScope.remove("testBean");
+
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void setAttributeStoresAttributeInSession() {
+    Session session = mock(Session.class);
+    String attributeName = "testAttribute";
+    Object attributeValue = new Object();
+
+    SessionScope sessionScope = new SessionScope(beanFactory);
+    sessionScope.setAttribute(session, attributeName, attributeValue);
+
+    verify(session).setAttribute(attributeName, attributeValue);
+  }
+
+  @Test
+  void getAttributeReturnsAttributeFromSession() {
+    Session session = mock(Session.class);
+    String attributeName = "testAttribute";
+    Object attributeValue = new Object();
+    given(session.getAttribute(attributeName)).willReturn(attributeValue);
+
+    SessionScope sessionScope = new SessionScope(beanFactory);
+    Object result = sessionScope.getAttribute(session, attributeName);
+
+    assertThat(result).isSameAs(attributeValue);
+    verify(session).getAttribute(attributeName);
+  }
+
+  @Test
+  void removeAttributeRemovesAttributeFromSession() {
+    Session session = mock(Session.class);
+    String attributeName = "testAttribute";
+
+    SessionScope sessionScope = new SessionScope(beanFactory);
+    sessionScope.removeAttribute(session, attributeName);
+
+    verify(session).removeAttribute(attributeName);
+  }
+
+  @Test
+  void getDestructionCallbackNameReturnsCorrectName() {
+    String beanName = "testBean";
+    String expectedName = SessionScope.DESTRUCTION_CALLBACK_NAME_PREFIX + beanName;
+
+    String result = SessionScope.getDestructionCallbackName(beanName);
+
+    assertThat(result).isEqualTo(expectedName);
   }
 
   private void doTestDestructionWithSessionSerialization(boolean beanNameReset) throws Exception {

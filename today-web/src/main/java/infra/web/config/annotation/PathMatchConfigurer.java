@@ -33,14 +33,11 @@ import java.util.function.Predicate;
  */
 public class PathMatchConfigurer {
 
-  @Nullable
-  private Boolean trailingSlashMatch;
+  private @Nullable Boolean trailingSlashMatch;
 
-  @Nullable
-  private Boolean caseSensitiveMatch;
+  private @Nullable Boolean caseSensitiveMatch;
 
-  @Nullable
-  private Map<String, Predicate<Class<?>>> pathPrefixes;
+  private @Nullable Map<String, Predicate<Class<?>>> pathPrefixes;
 
   /**
    * Whether to match to URLs irrespective of their case.

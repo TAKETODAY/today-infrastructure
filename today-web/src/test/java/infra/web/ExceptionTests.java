@@ -55,6 +55,8 @@ import infra.web.bind.resolver.MissingRequestCookieException;
 import infra.web.bind.resolver.MissingRequestHeaderException;
 import infra.web.bind.resolver.MissingRequestPartException;
 import infra.web.bind.resolver.ParameterResolverNotFoundException;
+import infra.web.handler.HandlerNotFoundException;
+import infra.web.handler.ReturnValueHandlerNotFoundException;
 import infra.web.handler.method.ResolvableMethodParameter;
 import jakarta.validation.Valid;
 
@@ -1629,6 +1631,138 @@ public class ExceptionTests {
 
       Object[] arguments = exception.getDetailMessageArguments();
       assertThat(arguments).containsExactly(method, exception.getSupportedHttpMethods());
+    }
+
+  }
+
+  @Nested
+  class ReturnValueHandlerNotFoundExceptionTests {
+
+    @Test
+    void constructorWithHandlerOnly() {
+      Object handler = new Object();
+      ReturnValueHandlerNotFoundException exception = new ReturnValueHandlerNotFoundException(handler);
+
+      assertThat(exception.getMessage()).isEqualTo("No ReturnValueHandler for handler: [%s]".formatted(handler));
+      assertThat(exception.getHandler()).isSameAs(handler);
+      assertThat(exception.getReturnValue()).isNull();
+    }
+
+    @Test
+    void constructorWithNullHandler() {
+      ReturnValueHandlerNotFoundException exception = new ReturnValueHandlerNotFoundException((Object) null);
+
+      assertThat(exception.getMessage()).isEqualTo("No ReturnValueHandler for handler: [null]");
+      assertThat(exception.getHandler()).isNull();
+      assertThat(exception.getReturnValue()).isNull();
+    }
+
+    @Test
+    void constructorWithReturnValueAndHandler() {
+      Object returnValue = "testReturnValue";
+      Object handler = new Object();
+      ReturnValueHandlerNotFoundException exception = new ReturnValueHandlerNotFoundException(returnValue, handler);
+
+      assertThat(exception.getMessage()).isEqualTo("No ReturnValueHandler for return-value: [%s]".formatted(returnValue));
+      assertThat(exception.getReturnValue()).isEqualTo(returnValue);
+      assertThat(exception.getHandler()).isSameAs(handler);
+    }
+
+    @Test
+    void constructorWithNullReturnValueAndHandler() {
+      Object handler = new Object();
+      ReturnValueHandlerNotFoundException exception = new ReturnValueHandlerNotFoundException(null, handler);
+
+      assertThat(exception.getMessage()).isEqualTo("No ReturnValueHandler for return-value: [null]");
+      assertThat(exception.getReturnValue()).isNull();
+      assertThat(exception.getHandler()).isSameAs(handler);
+    }
+
+    @Test
+    void constructorWithNullReturnValueAndNullHandler() {
+      ReturnValueHandlerNotFoundException exception = new ReturnValueHandlerNotFoundException(null, null);
+
+      assertThat(exception.getMessage()).isEqualTo("No ReturnValueHandler for return-value: [null]");
+      assertThat(exception.getReturnValue()).isNull();
+      assertThat(exception.getHandler()).isNull();
+    }
+
+    @Test
+    void exceptionExtendsInfraConfigurationException() {
+      Object handler = new Object();
+      ReturnValueHandlerNotFoundException exception = new ReturnValueHandlerNotFoundException(handler);
+
+      assertThat(exception).isInstanceOf(InfraConfigurationException.class);
+    }
+
+  }
+
+  @Nested
+  class HandlerNotFoundExceptionTests {
+    @Test
+    void constructorWithHttpMethodRequestUriAndHeaders() {
+      String httpMethod = "GET";
+      String requestURI = "/test";
+      HttpHeaders headers = HttpHeaders.forWritable();
+      headers.add("X-Test", "value");
+
+      HandlerNotFoundException exception = new HandlerNotFoundException(httpMethod, requestURI, headers);
+
+      assertThat(exception.getMessage()).isEqualTo("No endpoint GET /test.");
+      assertThat(exception.getHttpMethod()).isEqualTo(httpMethod);
+      assertThat(exception.getRequestURI()).isEqualTo(requestURI);
+      assertThat(exception.getRequestHeaders()).isSameAs(headers);
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void getStatusCodeReturnsNotFound() {
+      HandlerNotFoundException exception = new HandlerNotFoundException("POST", "/test", HttpHeaders.forWritable());
+
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void getHttpMethodReturnsCorrectValue() {
+      String httpMethod = "PUT";
+
+      HandlerNotFoundException exception = new HandlerNotFoundException(httpMethod, "/test", HttpHeaders.forWritable());
+
+      assertThat(exception.getHttpMethod()).isEqualTo(httpMethod);
+    }
+
+    @Test
+    void getRequestURIReturnsCorrectValue() {
+      String requestURI = "/api/users/123";
+
+      HandlerNotFoundException exception = new HandlerNotFoundException("DELETE", requestURI, HttpHeaders.forWritable());
+
+      assertThat(exception.getRequestURI()).isEqualTo(requestURI);
+    }
+
+    @Test
+    void getRequestHeadersReturnsCorrectValue() {
+      HttpHeaders headers = HttpHeaders.forWritable();
+      headers.add("Authorization", "Bearer token");
+      headers.add("Content-Type", "application/json");
+
+      HandlerNotFoundException exception = new HandlerNotFoundException("PATCH", "/resource", headers);
+
+      assertThat(exception.getRequestHeaders()).isSameAs(headers);
+    }
+
+    @Test
+    void exceptionImplementsErrorResponse() {
+      HandlerNotFoundException exception = new HandlerNotFoundException("GET", "/test", HttpHeaders.forWritable());
+
+      assertThat(exception).isInstanceOf(ErrorResponse.class);
+    }
+
+    @Test
+    void exceptionExtendsInfraConfigurationException() {
+      HandlerNotFoundException exception = new HandlerNotFoundException("GET", "/test", HttpHeaders.forWritable());
+
+      assertThat(exception).isInstanceOf(InfraConfigurationException.class);
     }
 
   }

@@ -66,7 +66,8 @@ public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
    *
    * @since 4.0
    */
-  public SimpleUrlHandlerMapping() { }
+  public SimpleUrlHandlerMapping() {
+  }
 
   /**
    * Create a {@code SimpleUrlHandlerMapping} using the supplied URL map.

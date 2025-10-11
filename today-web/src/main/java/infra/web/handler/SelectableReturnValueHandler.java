@@ -35,6 +35,7 @@ import infra.web.ReturnValueHandler;
  * @since 4.0
  */
 public class SelectableReturnValueHandler implements ReturnValueHandler, ArraySizeTrimmer {
+
   private final List<ReturnValueHandler> internalHandlers;
 
   public SelectableReturnValueHandler(List<ReturnValueHandler> internalHandlers) {

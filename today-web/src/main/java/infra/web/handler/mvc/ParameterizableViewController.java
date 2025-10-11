@@ -44,16 +44,13 @@ import infra.web.view.View;
  */
 public class ParameterizableViewController extends AbstractController {
 
-  @Nullable
-  private Object returnValue;
+  private @Nullable Object returnValue;
 
-  @Nullable
-  private HttpStatusCode statusCode;
+  private @Nullable HttpStatusCode statusCode;
+
+  private @Nullable String contentType;
 
   private boolean statusOnly;
-
-  @Nullable
-  private String contentType;
 
   public ParameterizableViewController() {
     super(false);

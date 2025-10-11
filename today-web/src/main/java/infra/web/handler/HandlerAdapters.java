@@ -61,8 +61,7 @@ public class HandlerAdapters implements HandlerAdapter {
     throw new HandlerAdapterNotFoundException(handler);
   }
 
-  @Nullable
-  public HandlerAdapter selectAdapter(Object handler) {
+  public @Nullable HandlerAdapter selectAdapter(Object handler) {
     for (HandlerAdapter handlerAdapter : handlerAdapters) {
       if (handlerAdapter.supports(handler)) {
         return handlerAdapter;
