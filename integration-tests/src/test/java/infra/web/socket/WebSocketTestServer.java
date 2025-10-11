@@ -15,18 +15,24 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.server;
+package infra.web.socket;
+
+import infra.context.annotation.AnnotationConfigApplicationContext;
 
 /**
- * Tagging interface for factories that create a {@link WebServer}.
+ * Contract for a test server to use for WebSocket integration tests.
  *
- * @author Phillip Webb
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see WebServer
- * @see GenericWebServerFactory
- * @see infra.web.server.reactive.ReactiveWebServerFactory
- * @since 4.0
+ * @author Rossen Stoyanchev
+ * @author Sam Brannen
  */
-public interface WebServerFactory {
+public interface WebSocketTestServer {
+
+  void setup(AnnotationConfigApplicationContext ctx);
+
+  void start(AnnotationConfigApplicationContext ctx) throws Exception;
+
+  void stop() throws Exception;
+
+  int getPort();
 
 }

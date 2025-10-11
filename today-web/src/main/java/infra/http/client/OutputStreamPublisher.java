@@ -26,10 +26,9 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.LockSupport;
 
 import infra.lang.Assert;
+import infra.util.concurrent.SimpleSingleThreadAwaiter;
 
 /**
  * Bridges between {@link OutputStream} and {@link Flow.Publisher Flow.Publisher&lt;T&gt;}.
@@ -119,8 +118,6 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
 
   private static final class OutputStreamSubscription<T> extends OutputStream implements Flow.Subscription {
 
-    private static final Object READY = new Object();
-
     private final Flow.Subscriber<? super T> actual;
 
     private final OutputStreamHandler outputStreamHandler;
@@ -131,7 +128,7 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
 
     private final AtomicLong requested = new AtomicLong();
 
-    private final AtomicReference<Object> parkedThread = new AtomicReference<>();
+    private final SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter();
 
     @Nullable
     private volatile Throwable error;
@@ -273,35 +270,11 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
     }
 
     private void await() {
-      Thread toUnpark = Thread.currentThread();
-
-      while (true) {
-        Object current = this.parkedThread.get();
-        if (current == READY) {
-          break;
-        }
-
-        if (current != null && current != toUnpark) {
-          throw new IllegalStateException("Only one (Virtual)Thread can await!");
-        }
-
-        if (this.parkedThread.compareAndSet(null, toUnpark)) {
-          LockSupport.park();
-          // we don't just break here because park() can wake up spuriously
-          // if we got a proper resume, get() == READY and the loop will quit above
-        }
-      }
-      // clear the resume indicator so that the next await call will park without a resume()
-      this.parkedThread.lazySet(null);
+      awaiter.await();
     }
 
     private void resume() {
-      if (this.parkedThread.get() != READY) {
-        Object old = this.parkedThread.getAndSet(READY);
-        if (old != READY) {
-          LockSupport.unpark((Thread) old);
-        }
-      }
+      awaiter.resume();
     }
 
     private long tryCancel() {
