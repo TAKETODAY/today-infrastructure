@@ -266,11 +266,6 @@ class DefaultErrorAttributesTests {
     Map<String, Object> attributes = new DefaultErrorAttributes() {
 
       @Override
-      public Map<String, Object> getErrorAttributes(RequestContext context, ErrorAttributeOptions options) {
-        return Collections.emptyMap();
-      }
-
-      @Override
       protected String getMessage(RequestContext request, @Nullable Throwable error) {
         return "custom message";
       }
