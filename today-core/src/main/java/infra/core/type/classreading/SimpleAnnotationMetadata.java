@@ -114,11 +114,6 @@ final class SimpleAnnotationMetadata implements AnnotationMetadata {
   }
 
   @Override
-  public int getModifiers() {
-    return access;
-  }
-
-  @Override
   public boolean isIndependent() {
     return this.enclosingClassName == null || this.independentInnerClass;
   }

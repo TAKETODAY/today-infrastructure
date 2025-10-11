@@ -92,11 +92,6 @@ public class StandardClassMetadata implements ClassMetadata {
   }
 
   @Override
-  public int getModifiers() {
-    return introspectedClass.getModifiers();
-  }
-
-  @Override
   @Nullable
   public String getEnclosingClassName() {
     Class<?> enclosingClass = this.introspectedClass.getEnclosingClass();
