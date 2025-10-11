@@ -99,7 +99,7 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
   }
 
   protected NettyRequestContext createContext(ChannelHandlerContext ctx, FullHttpRequest httpRequest) {
-    return new NettyRequestContext(getApplicationContext(), ctx, httpRequest, requestConfig, this);
+    return new NettyRequestContext(getApplicationContext(), ctx.channel(), httpRequest, requestConfig, this);
   }
 
   @Override

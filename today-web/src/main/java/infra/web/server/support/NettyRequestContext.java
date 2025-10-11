@@ -64,7 +64,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.DefaultHeaders;
@@ -187,12 +186,12 @@ public class NettyRequestContext extends RequestContext {
   @Nullable
   private ServerHttpResponse httpOutputMessage;
 
-  protected NettyRequestContext(ApplicationContext context, ChannelHandlerContext ctx,
+  protected NettyRequestContext(ApplicationContext context, Channel channel,
           FullHttpRequest request, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
     super(context, dispatcherHandler);
     this.config = config;
     this.request = request;
-    this.channel = ctx.channel();
+    this.channel = channel;
     this.nettyResponseHeaders = config.httpHeadersFactory.newHeaders();
   }
 
