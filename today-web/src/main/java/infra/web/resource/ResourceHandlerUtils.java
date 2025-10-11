@@ -210,7 +210,7 @@ public abstract class ResourceHandlerUtils {
    * @param path the path to validate
    * @return {@code true} if the path is invalid, {@code false} otherwise
    */
-  private static boolean isInvalidEncodedPath(String path) {
+  static boolean isInvalidEncodedPath(String path) {
     String decodedPath = decode(path);
     if (decodedPath.contains("%")) {
       decodedPath = decode(decodedPath);
@@ -265,7 +265,7 @@ public abstract class ResourceHandlerUtils {
     return resourcePath.startsWith(locationPath) && !isInvalidEncodedResourcePath(resourcePath);
   }
 
-  private static boolean isInvalidEncodedResourcePath(String resourcePath) {
+  static boolean isInvalidEncodedResourcePath(String resourcePath) {
     if (resourcePath.contains("%")) {
       // Use URLDecoder (vs UriUtils) to preserve potentially decoded UTF-8 chars...
       try {
