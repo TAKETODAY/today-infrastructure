@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,11 +19,16 @@ package infra.web.view;
 
 import org.junit.jupiter.api.Test;
 
+import infra.web.LocaleResolver;
+import infra.web.RequestContext;
 import infra.web.annotation.ResponseBody;
 import infra.web.handler.method.HandlerMethod;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -93,6 +98,173 @@ class ViewReturnValueHandlerTests {
     assertThat(returnValueHandler.supportsReturnValue(new ModelAndView())).isTrue();
     assertThat(returnValueHandler.supportsReturnValue(ViewRef.forViewName("viewname"))).isTrue();
 
+  }
+
+  @Test
+  void shouldCreateViewReturnValueHandlerWithViewResolver() {
+    // given
+    ViewResolver viewResolver = mock(ViewResolver.class);
+
+    // when
+    ViewReturnValueHandler handler = new ViewReturnValueHandler(viewResolver);
+
+    // then
+    assertThat(handler).isNotNull();
+    assertThat(handler.getViewResolver()).isEqualTo(viewResolver);
+    assertThat(handler.getLocaleResolver()).isNull();
+  }
+
+  @Test
+  void shouldCreateViewReturnValueHandlerWithViewResolverAndLocaleResolver() {
+    // given
+    ViewResolver viewResolver = mock(ViewResolver.class);
+    LocaleResolver localeResolver = mock(LocaleResolver.class);
+
+    // when
+    ViewReturnValueHandler handler = new ViewReturnValueHandler(viewResolver, localeResolver);
+
+    // then
+    assertThat(handler).isNotNull();
+    assertThat(handler.getViewResolver()).isEqualTo(viewResolver);
+    assertThat(handler.getLocaleResolver()).isEqualTo(localeResolver);
+  }
+
+  @Test
+  void shouldSetAndGetLocaleResolver() {
+    // given
+    ViewResolver viewResolver = mock(ViewResolver.class);
+    ViewReturnValueHandler handler = new ViewReturnValueHandler(viewResolver);
+    LocaleResolver localeResolver = mock(LocaleResolver.class);
+
+    // when
+    handler.setLocaleResolver(localeResolver);
+
+    // then
+    assertThat(handler.getLocaleResolver()).isEqualTo(localeResolver);
+  }
+
+  @Test
+  void shouldSupportCharSequenceReturnValue() {
+    // given
+    ViewResolver viewResolver = mock(ViewResolver.class);
+    ViewReturnValueHandler handler = new ViewReturnValueHandler(viewResolver);
+
+    // when & then
+    assertThat(handler.supportsReturnValue("viewName")).isTrue();
+    assertThat(handler.supportsReturnValue(new StringBuilder("viewName"))).isTrue();
+  }
+
+  @Test
+  void shouldSupportViewReturnValue() {
+    // given
+    ViewResolver viewResolver = mock(ViewResolver.class);
+    ViewReturnValueHandler handler = new ViewReturnValueHandler(viewResolver);
+    View view = mock(View.class);
+
+    // when & then
+    assertThat(handler.supportsReturnValue(view)).isTrue();
+  }
+
+  @Test
+  void shouldSupportViewRefReturnValue() {
+    // given
+    ViewResolver viewResolver = mock(ViewResolver.class);
+    ViewReturnValueHandler handler = new ViewReturnValueHandler(viewResolver);
+    ViewRef viewRef = ViewRef.forViewName("viewName");
+
+    // when & then
+    assertThat(handler.supportsReturnValue(viewRef)).isTrue();
+  }
+
+  @Test
+  void shouldSupportModelAndViewReturnValue() {
+    // given
+    ViewResolver viewResolver = mock(ViewResolver.class);
+    ViewReturnValueHandler handler = new ViewReturnValueHandler(viewResolver);
+    ModelAndView modelAndView = new ModelAndView();
+
+    // when & then
+    assertThat(handler.supportsReturnValue(modelAndView)).isTrue();
+  }
+
+  @Test
+  void shouldNotSupportNullReturnValue() {
+    // given
+    ViewResolver viewResolver = mock(ViewResolver.class);
+    ViewReturnValueHandler handler = new ViewReturnValueHandler(viewResolver);
+
+    // when & then
+    assertThat(handler.supportsReturnValue(null)).isFalse();
+  }
+
+  @Test
+  void shouldHandleCharSequenceReturnValue() throws Exception {
+    // given
+    ViewResolver viewResolver = mock(ViewResolver.class);
+    ViewReturnValueHandler handler = new ViewReturnValueHandler(viewResolver);
+    RequestContext context = mock(RequestContext.class);
+    View view = mock(View.class);
+
+    when(viewResolver.resolveViewName("viewName", context.getLocale())).thenReturn(view);
+
+    // when & then
+    assertThatNoException().isThrownBy(() -> handler.handleReturnValue(context, null, "viewName"));
+  }
+
+  @Test
+  void shouldHandleViewReturnValue() {
+    // given
+    ViewResolver viewResolver = mock(ViewResolver.class);
+    ViewReturnValueHandler handler = new ViewReturnValueHandler(viewResolver);
+    RequestContext context = mock(RequestContext.class);
+    View view = mock(View.class);
+
+    // when & then
+    assertThatNoException().isThrownBy(() -> handler.handleReturnValue(context, null, view));
+  }
+
+  @Test
+  void shouldHandleViewRefReturnValue() throws Exception {
+    // given
+    ViewResolver viewResolver = mock(ViewResolver.class);
+    ViewReturnValueHandler handler = new ViewReturnValueHandler(viewResolver);
+    RequestContext context = mock(RequestContext.class);
+    ViewRef viewRef = ViewRef.forViewName("viewName");
+    View view = mock(View.class);
+
+    when(viewResolver.resolveViewName("viewName", context.getLocale())).thenReturn(view);
+
+    // when & then
+    assertThatNoException().isThrownBy(() -> handler.handleReturnValue(context, null, viewRef));
+  }
+
+  @Test
+  void shouldHandleModelAndViewReturnValue() throws Exception {
+    // given
+    ViewResolver viewResolver = mock(ViewResolver.class);
+    ViewReturnValueHandler handler = new ViewReturnValueHandler(viewResolver);
+    RequestContext context = mock(RequestContext.class);
+    ModelAndView modelAndView = new ModelAndView("viewName");
+    View view = mock(View.class);
+
+    when(viewResolver.resolveViewName("viewName", context.getLocale())).thenReturn(view);
+
+    // when & then
+    assertThatNoException().isThrownBy(() -> handler.handleReturnValue(context, null, modelAndView));
+  }
+
+  @Test
+  void shouldThrowExceptionForUnsupportedReturnValue() {
+    // given
+    ViewResolver viewResolver = mock(ViewResolver.class);
+    ViewReturnValueHandler handler = new ViewReturnValueHandler(viewResolver);
+    RequestContext context = mock(RequestContext.class);
+    Object unsupportedReturnValue = new Object();
+
+    // when & then
+    assertThatThrownBy(() -> handler.handleReturnValue(context, null, unsupportedReturnValue))
+            .isInstanceOf(ViewRenderingException.class)
+            .hasMessageContaining("Unsupported render result");
   }
 
   static class TestController {

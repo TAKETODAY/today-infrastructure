@@ -442,7 +442,7 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
    * Only used if scripts have been specified; otherwise, the
    * {@code engineName String} will be used as cache key directly.
    */
-  private record EngineKey(String engineName, String[] scripts) {
+  record EngineKey(String engineName, String[] scripts) {
 
     @Override
     public boolean equals(@Nullable Object other) {
