@@ -35,13 +35,11 @@ import infra.http.MediaType;
  */
 public class UnsupportedMediaTypeException extends NestedRuntimeException {
 
-  @Nullable
-  private final MediaType contentType;
+  private final @Nullable MediaType contentType;
+
+  private final @Nullable ResolvableType bodyType;
 
   private final List<MediaType> supportedMediaTypes;
-
-  @Nullable
-  private final ResolvableType bodyType;
 
   /**
    * Constructor for when trying to encode from or decode to a specific Java type.
@@ -57,15 +55,14 @@ public class UnsupportedMediaTypeException extends NestedRuntimeException {
 
   private static String initReason(@Nullable MediaType contentType, @Nullable ResolvableType bodyType) {
     return "Content type '" + (contentType != null ? contentType : "") + "' not supported" +
-            (bodyType != null ? " for bodyType=" + bodyType.toString() : "");
+            (bodyType != null ? " for bodyType=" + bodyType : "");
   }
 
   /**
    * Return the request Content-Type header if it was parsed successfully,
    * or {@code null} otherwise.
    */
-  @Nullable
-  public MediaType getContentType() {
+  public @Nullable MediaType getContentType() {
     return this.contentType;
   }
 
@@ -84,8 +81,7 @@ public class UnsupportedMediaTypeException extends NestedRuntimeException {
    *
    * @return the body type, or {@code null} if not available
    */
-  @Nullable
-  public ResolvableType getBodyType() {
+  public @Nullable ResolvableType getBodyType() {
     return this.bodyType;
   }
 

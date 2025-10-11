@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import infra.core.MethodParameter;
+import infra.core.NestedRuntimeException;
 import infra.core.ParameterNameDiscoverer;
 import infra.core.ResolvableType;
 import infra.http.HttpHeaders;
@@ -59,9 +60,11 @@ import infra.web.handler.HandlerNotFoundException;
 import infra.web.handler.ReturnValueHandlerNotFoundException;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.multipart.MaxUploadSizeExceededException;
+import infra.web.reactive.function.UnsupportedMediaTypeException;
 import jakarta.validation.Valid;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -1214,7 +1217,7 @@ public class ExceptionTests {
     void exceptionExtendsNestedRuntimeException() {
       RequestBindingException exception = new RequestBindingException("test");
 
-      assertThat(exception).isInstanceOf(infra.core.NestedRuntimeException.class);
+      assertThat(exception).isInstanceOf(NestedRuntimeException.class);
     }
 
   }
@@ -1820,6 +1823,76 @@ public class ExceptionTests {
       MaxUploadSizeExceededException exception = new MaxUploadSizeExceededException(maxUploadSize);
 
       assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
+    }
+
+  }
+
+  @Nested
+  class UnsupportedMediaTypeExceptionTests {
+
+    @Test
+    void constructorWithContentTypeSupportedTypesAndBodyType() {
+      MediaType contentType = MediaType.APPLICATION_XML;
+      List<MediaType> supportedTypes = List.of(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN);
+      ResolvableType bodyType = ResolvableType.forClass(String.class);
+
+      UnsupportedMediaTypeException exception = new UnsupportedMediaTypeException(contentType, supportedTypes, bodyType);
+
+      assertThat(exception.getContentType()).isEqualTo(contentType);
+      assertThat(exception.getSupportedMediaTypes()).containsExactlyElementsOf(supportedTypes);
+      assertThat(exception.getBodyType()).isEqualTo(bodyType);
+      assertThat(exception.getMessage()).contains("Content type '" + contentType + "' not supported for bodyType=" + bodyType.toString());
+    }
+
+    @Test
+    void constructorWithNullContentType() {
+      List<MediaType> supportedTypes = List.of(MediaType.APPLICATION_JSON);
+      ResolvableType bodyType = ResolvableType.forClass(String.class);
+
+      UnsupportedMediaTypeException exception = new UnsupportedMediaTypeException(null, supportedTypes, bodyType);
+
+      assertThat(exception.getContentType()).isNull();
+      assertThat(exception.getSupportedMediaTypes()).containsExactlyElementsOf(supportedTypes);
+      assertThat(exception.getBodyType()).isEqualTo(bodyType);
+      assertThat(exception.getMessage()).contains("Content type '' not supported for bodyType=" + bodyType.toString());
+    }
+
+    @Test
+    void constructorWithNullBodyType() {
+      MediaType contentType = MediaType.APPLICATION_XML;
+      List<MediaType> supportedTypes = List.of(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN);
+
+      UnsupportedMediaTypeException exception = new UnsupportedMediaTypeException(contentType, supportedTypes, null);
+
+      assertThat(exception.getContentType()).isEqualTo(contentType);
+      assertThat(exception.getSupportedMediaTypes()).containsExactlyElementsOf(supportedTypes);
+      assertThat(exception.getBodyType()).isNull();
+      assertThat(exception.getMessage()).isEqualTo("Content type '" + contentType + "' not supported");
+    }
+
+    @Test
+    void getSupportedMediaTypesReturnsUnmodifiableList() {
+      MediaType contentType = MediaType.APPLICATION_XML;
+      List<MediaType> supportedTypes = List.of(MediaType.APPLICATION_JSON);
+      ResolvableType bodyType = ResolvableType.forClass(String.class);
+
+      UnsupportedMediaTypeException exception = new UnsupportedMediaTypeException(contentType, supportedTypes, bodyType);
+      List<MediaType> returnedTypes = exception.getSupportedMediaTypes();
+
+      assertThat(returnedTypes).containsExactlyElementsOf(supportedTypes);
+      assertThatExceptionOfType(UnsupportedOperationException.class)
+              .isThrownBy(() -> returnedTypes.add(MediaType.TEXT_HTML));
+    }
+
+    @Test
+    void exceptionExtendsNestedRuntimeException() {
+      MediaType contentType = MediaType.APPLICATION_XML;
+      List<MediaType> supportedTypes = List.of(MediaType.APPLICATION_JSON);
+      ResolvableType bodyType = ResolvableType.forClass(String.class);
+
+      UnsupportedMediaTypeException exception = new UnsupportedMediaTypeException(contentType, supportedTypes, bodyType);
+
+      assertThat(exception).isInstanceOf(NestedRuntimeException.class);
     }
 
   }
