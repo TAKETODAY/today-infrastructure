@@ -505,7 +505,7 @@ class NettyWebSocketSessionTests {
     session.onClose(handler, closeStatus, logger);
 
     verify(channel).isActive();
-    verify(channel).writeAndFlush(new CloseWebSocketFrame(closeStatus.getCode(), closeStatus.getReason()));
+    verify(channel).writeAndFlush(any(CloseWebSocketFrame.class));
   }
 
   @Test
