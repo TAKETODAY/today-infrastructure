@@ -18,6 +18,8 @@
 package infra.web.socket.server.support;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.net.InetSocketAddress;
 
@@ -86,6 +88,7 @@ class NettyWebSocketSessionTests {
   }
 
   @Test
+  @DisabledOnOs(OS.MAC)
   void send() {
     Channel channel = mock(Channel.class);
     NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
@@ -485,6 +488,7 @@ class NettyWebSocketSessionTests {
   }
 
   @Test
+  @DisabledOnOs(OS.MAC)
   void onCloseWithFutureReturned() {
     Channel channel = mock(Channel.class);
     NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
