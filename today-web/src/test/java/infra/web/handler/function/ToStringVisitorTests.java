@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.handler.function;
@@ -94,6 +91,201 @@ public class ToStringVisitorTests {
                     .or(contentType(MediaType.TEXT_PLAIN))
                     .and(accept(MediaType.APPLICATION_JSON).negate()),
             "(((GET && /foo) || Content-Type: text/plain) && !(Accept: application/json))");
+  }
+
+  @Test
+  public void singleRoute() {
+    HandlerFunction<ServerResponse> handler = new SimpleHandlerFunction();
+    RouterFunction<ServerResponse> routerFunction = route()
+            .GET("/foo", handler)
+            .build();
+
+    ToStringVisitor visitor = new ToStringVisitor();
+    routerFunction.accept(visitor);
+    String result = visitor.toString();
+
+    String expected = "(GET && /foo) -> ";
+    assertThat(result).isEqualTo(expected);
+  }
+
+  @Test
+  public void multipleRoutes() {
+    HandlerFunction<ServerResponse> handler = new SimpleHandlerFunction();
+    RouterFunction<ServerResponse> routerFunction = route()
+            .GET("/foo", handler)
+            .POST("/bar", handler)
+            .build();
+
+    ToStringVisitor visitor = new ToStringVisitor();
+    routerFunction.accept(visitor);
+    String result = visitor.toString();
+
+    String expected = """
+            (GET && /foo) ->\s
+            (POST && /bar) ->\s""";
+    assertThat(result).isEqualTo(expected);
+  }
+
+  @Test
+  public void nestedWithPath() {
+    HandlerFunction<ServerResponse> handler = new SimpleHandlerFunction();
+    RouterFunction<ServerResponse> routerFunction = route()
+            .path("/api", builder ->
+                    builder.GET("/users", handler)
+            )
+            .build();
+
+    ToStringVisitor visitor = new ToStringVisitor();
+    routerFunction.accept(visitor);
+    String result = visitor.toString();
+
+    String expected = """
+            /api => {
+             (GET && /users) ->\s
+            }""";
+    assertThat(result).isEqualTo(expected);
+  }
+
+  @Test
+  public void complexNested() {
+    HandlerFunction<ServerResponse> handler = new SimpleHandlerFunction();
+    RouterFunction<ServerResponse> routerFunction = route()
+            .path("/api", builder ->
+                    builder.path("/v1", b ->
+                            b.GET("/users", handler)
+                                    .POST("/users", handler)
+                    )
+            )
+            .build();
+
+    ToStringVisitor visitor = new ToStringVisitor();
+    routerFunction.accept(visitor);
+    String result = visitor.toString();
+
+    String expected = """
+            /api => {
+             /v1 => {
+              (GET && /users) ->\s
+              (POST && /users) ->\s
+             }
+            }""";
+    assertThat(result).isEqualTo(expected);
+  }
+
+  @Test
+  public void versionPredicate() {
+    ToStringVisitor visitor = new ToStringVisitor();
+    RequestPredicates.version("1.0").accept(visitor);
+    String result = visitor.toString();
+
+    assertThat(result).isEqualTo("version: 1.0");
+  }
+
+  @Test
+  public void paramPredicate() {
+    ToStringVisitor visitor = new ToStringVisitor();
+    RequestPredicates.param("page", "1").accept(visitor);
+    String result = visitor.toString();
+
+    assertThat(result).isEqualTo("?page == 1");
+  }
+
+  @Test
+  public void pathExtensionPredicate() {
+    ToStringVisitor visitor = new ToStringVisitor();
+    RequestPredicates.pathExtension("json").accept(visitor);
+    String result = visitor.toString();
+
+    assertThat(result).isEqualTo("*.json");
+  }
+
+  @Test
+  public void multipleMethodsPredicate() {
+    ToStringVisitor visitor = new ToStringVisitor();
+    RequestPredicates.methods(HttpMethod.GET, HttpMethod.POST).accept(visitor);
+    String result = visitor.toString();
+
+    assertThat(result).isEqualTo("[GET, POST]");
+  }
+
+  @Test
+  public void complexAndCombination() {
+    RequestPredicate predicate = RequestPredicates.method(HttpMethod.POST)
+            .and(RequestPredicates.path("/api/data"))
+            .and(RequestPredicates.contentType(MediaType.APPLICATION_JSON));
+
+    ToStringVisitor visitor = new ToStringVisitor();
+    predicate.accept(visitor);
+    String result = visitor.toString();
+
+    assertThat(result).isEqualTo("((POST && /api/data) && Content-Type: application/json)");
+  }
+
+  @Test
+  public void complexOrCombination() {
+    RequestPredicate predicate = RequestPredicates.method(HttpMethod.GET)
+            .or(RequestPredicates.method(HttpMethod.POST));
+
+    ToStringVisitor visitor = new ToStringVisitor();
+    predicate.accept(visitor);
+    String result = visitor.toString();
+
+    assertThat(result).isEqualTo("(GET || POST)");
+  }
+
+  @Test
+  public void nestedLogicalOperations() {
+    RequestPredicate predicate = RequestPredicates.method(HttpMethod.GET)
+            .and(RequestPredicates.path("/api"))
+            .or(RequestPredicates.method(HttpMethod.POST)
+                    .and(RequestPredicates.path("/admin")));
+
+    ToStringVisitor visitor = new ToStringVisitor();
+    predicate.accept(visitor);
+    String result = visitor.toString();
+
+    assertThat(result).isEqualTo("((GET && /api) || (POST && /admin))");
+  }
+
+  @Test
+  public void negateComplexPredicate() {
+    RequestPredicate predicate = RequestPredicates.method(HttpMethod.GET)
+            .and(RequestPredicates.path("/api"))
+            .negate();
+
+    ToStringVisitor visitor = new ToStringVisitor();
+    predicate.accept(visitor);
+    String result = visitor.toString();
+
+    assertThat(result).isEqualTo("!((GET && /api))");
+  }
+
+  @Test
+  public void mixedPredicatesWithNesting() {
+    HandlerFunction<ServerResponse> handler = new SimpleHandlerFunction();
+    RouterFunction<ServerResponse> routerFunction = route()
+            .path("/api", builder ->
+                    builder.GET("/users", handler)
+                            .POST("/users", handler)
+                            .path("/v2", b ->
+                                    b.GET("/profiles", handler)
+                            )
+            )
+            .build();
+
+    ToStringVisitor visitor = new ToStringVisitor();
+    routerFunction.accept(visitor);
+    String result = visitor.toString();
+
+    String expected = """
+            /api => {
+             (GET && /users) ->\s
+             (POST && /users) ->\s
+             /v2 => {
+              (GET && /profiles) ->\s
+             }
+            }""";
+    assertThat(result).isEqualTo(expected);
   }
 
   private void testPredicate(RequestPredicate predicate, String expected) {
