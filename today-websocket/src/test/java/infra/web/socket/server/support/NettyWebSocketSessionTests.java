@@ -18,8 +18,6 @@
 package infra.web.socket.server.support;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 
 import java.net.InetSocketAddress;
 
@@ -88,8 +86,7 @@ class NettyWebSocketSessionTests {
   }
 
   @Test
-  @DisabledOnOs(OS.MAC)
-  void send() {
+  void send() throws InterruptedException {
     Channel channel = mock(Channel.class);
     NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
             new NettyDataBufferFactory(ByteBufAllocator.DEFAULT), null);
@@ -118,6 +115,8 @@ class NettyWebSocketSessionTests {
     TextWebSocketFrame nativeMessage = new TextWebSocketFrame(Unpooled.copiedBuffer("nativeMessage".getBytes()));
     session.send(new WebSocketMessage(WebSocketMessage.Type.TEXT, DataBuffer.empty(),
             nativeMessage, true));
+
+    Thread.sleep(1000);
 
     verify(channel).writeAndFlush(new TextWebSocketFrame("text"));
     verify(channel).writeAndFlush(new TextWebSocketFrame(Unpooled.EMPTY_BUFFER));
