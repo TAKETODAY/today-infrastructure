@@ -29,8 +29,10 @@ import java.util.function.BiConsumer;
 import java.util.function.IntFunction;
 
 import infra.lang.Assert;
+import infra.util.CollectionUtils;
 import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.MultiValueMap;
+import infra.util.ObjectUtils;
 
 /**
  * Default HttpHeaders
@@ -110,14 +112,14 @@ public class DefaultHttpHeaders extends HttpHeaders {
 
   @Nullable
   @Override
-  public List<String> setOrRemove(String name, @Nullable Collection<String> value) {
-    return headers.setOrRemove(name, value);
+  public List<String> setOrRemove(String name, String @Nullable [] value) {
+    return headers.setOrRemove(name, ObjectUtils.isEmpty(value) ? null : value);
   }
 
   @Nullable
   @Override
-  public List<String> setOrRemove(String name, String @Nullable [] value) {
-    return headers.setOrRemove(name, value);
+  public List<String> setOrRemove(String name, @Nullable Collection<String> value) {
+    return headers.setOrRemove(name, CollectionUtils.isEmpty(value) ? null : value);
   }
 
   @Override
