@@ -42,6 +42,7 @@ import infra.util.PatternMatchUtils;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see #isMatch
  * @see NameMatchTransactionAttributeSource
  * @since 4.0
