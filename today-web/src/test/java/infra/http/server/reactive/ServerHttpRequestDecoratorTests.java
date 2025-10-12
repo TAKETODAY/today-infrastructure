@@ -34,6 +34,7 @@ import static org.mockito.Mockito.when;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/10/6 14:00
  */
+@SuppressWarnings("cast")
 class ServerHttpRequestDecoratorTests {
   @Test
   void delegateMethodsAreCalled() {
