@@ -40,6 +40,7 @@ import infra.util.PatternMatchUtils;
  * allows attributes to be matched by registered name.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see #isMatch
  * @see MethodMapTransactionAttributeSource
  * @since 4.0
@@ -47,6 +48,7 @@ import infra.util.PatternMatchUtils;
 @SuppressWarnings("serial")
 public class NameMatchTransactionAttributeSource
         implements TransactionAttributeSource, EmbeddedValueResolverAware, InitializingBean, Serializable {
+
   private static final Logger logger = LoggerFactory.getLogger(NameMatchTransactionAttributeSource.class);
 
   /** Keys are method names; values are TransactionAttributes. */
