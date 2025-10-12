@@ -501,6 +501,201 @@ public class DataAccessUtilsTests {
             .satisfies(sizeRequirements(1));
   }
 
+  @Test
+  void objectResultWithNumberConversionFromDouble() {
+    Collection<Double> col = new HashSet<>();
+    col.add(42.5);
+
+    Integer result = DataAccessUtils.objectResult(col, Integer.class);
+    assertThat(result).isEqualTo(42);
+  }
+
+  @Test
+  void objectResultWithInvalidTypeConversion() {
+    Collection<Date> col = new HashSet<>();
+    col.add(new Date());
+
+    assertThatExceptionOfType(TypeMismatchDataAccessException.class)
+            .isThrownBy(() -> DataAccessUtils.objectResult(col, Integer.class));
+  }
+
+  @Test
+  void intResultWithValidInteger() {
+    Collection<Integer> col = new HashSet<>();
+    col.add(42);
+
+    int result = DataAccessUtils.intResult(col);
+    assertThat(result).isEqualTo(42);
+  }
+
+  @Test
+  void intResultWithValidLong() {
+    Collection<Long> col = new HashSet<>();
+    col.add(42L);
+
+    int result = DataAccessUtils.intResult(col);
+    assertThat(result).isEqualTo(42);
+  }
+
+  @Test
+  void intResultWithEmptyCollection() {
+    Collection<Integer> col = new HashSet<>();
+
+    assertThatExceptionOfType(EmptyResultDataAccessException.class)
+            .isThrownBy(() -> DataAccessUtils.intResult(col))
+            .satisfies(sizeRequirements(1, 0));
+  }
+
+  @Test
+  void intResultWithMultipleValues() {
+    Collection<Integer> col = new HashSet<>();
+    col.add(42);
+    col.add(43);
+
+    assertThatExceptionOfType(IncorrectResultSizeDataAccessException.class)
+            .isThrownBy(() -> DataAccessUtils.intResult(col))
+            .satisfies(sizeRequirements(1, 2));
+  }
+
+  @Test
+  void longResultWithValidInteger() {
+    Collection<Integer> col = new HashSet<>();
+    col.add(42);
+
+    long result = DataAccessUtils.longResult(col);
+    assertThat(result).isEqualTo(42L);
+  }
+
+  @Test
+  void longResultWithValidLong() {
+    Collection<Long> col = new HashSet<>();
+    col.add(42L);
+
+    long result = DataAccessUtils.longResult(col);
+    assertThat(result).isEqualTo(42L);
+  }
+
+  @Test
+  void longResultWithEmptyCollection() {
+    Collection<Integer> col = new HashSet<>();
+
+    assertThatExceptionOfType(EmptyResultDataAccessException.class)
+            .isThrownBy(() -> DataAccessUtils.longResult(col))
+            .satisfies(sizeRequirements(1, 0));
+  }
+
+  @Test
+  void longResultWithMultipleValues() {
+    Collection<Long> col = new HashSet<>();
+    col.add(42L);
+    col.add(43L);
+
+    assertThatExceptionOfType(IncorrectResultSizeDataAccessException.class)
+            .isThrownBy(() -> DataAccessUtils.longResult(col))
+            .satisfies(sizeRequirements(1, 2));
+  }
+
+  @Test
+  void singleResultWithNullCollection() {
+    Collection<String> col = null;
+
+    String result = DataAccessUtils.singleResult(col);
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void singleResultWithNullStream() {
+    Stream<String> stream = null;
+
+    String result = DataAccessUtils.singleResult(stream);
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void singleResultWithNullIterator() {
+    Iterator<String> iterator = null;
+
+    String result = DataAccessUtils.singleResult(iterator);
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void optionalResultWithNullCollection() {
+    Collection<String> col = null;
+
+    Optional<String> result = DataAccessUtils.optionalResult(col);
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void optionalResultWithNullStream() {
+    Stream<String> stream = null;
+
+    Optional<String> result = DataAccessUtils.optionalResult(stream);
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void optionalResultWithNullIterator() {
+    Iterator<String> iterator = null;
+
+    Optional<String> result = DataAccessUtils.optionalResult(iterator);
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void requiredSingleResultWithNullCollection() {
+    Collection<String> col = null;
+
+    assertThatExceptionOfType(EmptyResultDataAccessException.class)
+            .isThrownBy(() -> DataAccessUtils.requiredSingleResult(col))
+            .satisfies(sizeRequirements(1, 0));
+  }
+
+  @Test
+  void nullableSingleResultWithNullCollection() {
+    Collection<String> col = null;
+
+    assertThatExceptionOfType(EmptyResultDataAccessException.class)
+            .isThrownBy(() -> DataAccessUtils.nullableSingleResult(col))
+            .satisfies(sizeRequirements(1, 0));
+  }
+
+  @Test
+  void uniqueResultWithNullCollection() {
+    Collection<String> col = null;
+
+    String result = DataAccessUtils.uniqueResult(col);
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void requiredUniqueResultWithNullCollection() {
+    Collection<String> col = null;
+
+    assertThatExceptionOfType(EmptyResultDataAccessException.class)
+            .isThrownBy(() -> DataAccessUtils.requiredUniqueResult(col))
+            .satisfies(sizeRequirements(1, 0));
+  }
+
+  @Test
+  void objectResultWithNullCollection() {
+    Collection<String> col = null;
+
+    assertThatExceptionOfType(EmptyResultDataAccessException.class)
+            .isThrownBy(() -> DataAccessUtils.objectResult(col, String.class))
+            .satisfies(sizeRequirements(1, 0));
+  }
+
+  @Test
+  void objectResultWithNullRequiredType() {
+    Collection<String> col = new HashSet<>();
+    col.add("test");
+
+    String result = DataAccessUtils.objectResult(col, null);
+    assertThat(result).isEqualTo("test");
+  }
+
   private <E extends IncorrectResultSizeDataAccessException> Consumer<E> sizeRequirements(
           int expectedSize, int actualSize) {
 
