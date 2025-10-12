@@ -35,6 +35,7 @@ import infra.util.ObjectUtils;
  *
  * @author Colin Sampaleanu
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see infra.transaction.interceptor.TransactionProxyFactoryBean
  * @see BeanNameAutoProxyCreator
  * @since 4.0
