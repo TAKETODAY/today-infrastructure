@@ -20,7 +20,20 @@ package infra.dao;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import infra.transaction.CannotCreateTransactionException;
+import infra.transaction.HeuristicCompletionException;
+import infra.transaction.IllegalTransactionStateException;
+import infra.transaction.InvalidTimeoutException;
+import infra.transaction.NestedTransactionNotSupportedException;
+import infra.transaction.NoTransactionException;
+import infra.transaction.TransactionException;
+import infra.transaction.TransactionSuspensionNotSupportedException;
+import infra.transaction.TransactionSystemException;
+import infra.transaction.TransactionTimedOutException;
+import infra.transaction.TransactionUsageException;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -646,6 +659,498 @@ class ExceptionTests {
     @Test
     void exceptionIsRuntimeException() {
       IncorrectResultSizeDataAccessException exception = new IncorrectResultSizeDataAccessException(1);
+
+      assertThat(exception).isInstanceOf(RuntimeException.class);
+    }
+
+  }
+
+  @Nested
+  class InvalidTimeoutExceptionTests {
+    @Test
+    void constructorWithMessageAndTimeout() {
+      String message = "Invalid timeout value: 1000";
+      int timeout = 1000;
+      InvalidTimeoutException exception = new InvalidTimeoutException(message, timeout);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getTimeout()).isEqualTo(timeout);
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void constructorWithNegativeTimeout() {
+      String message = "Negative timeout not allowed";
+      int timeout = -1;
+      InvalidTimeoutException exception = new InvalidTimeoutException(message, timeout);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getTimeout()).isEqualTo(timeout);
+    }
+
+    @Test
+    void constructorWithZeroTimeout() {
+      String message = "Zero timeout not supported";
+      int timeout = 0;
+      InvalidTimeoutException exception = new InvalidTimeoutException(message, timeout);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getTimeout()).isEqualTo(timeout);
+    }
+
+    @Test
+    void exceptionIsTransactionUsageException() {
+      InvalidTimeoutException exception = new InvalidTimeoutException("test", 100);
+
+      assertThat(exception).isInstanceOf(TransactionUsageException.class);
+    }
+
+    @Test
+    void exceptionIsTransactionException() {
+      InvalidTimeoutException exception = new InvalidTimeoutException("test", 100);
+
+      assertThat(exception).isInstanceOf(TransactionException.class);
+    }
+
+    @Test
+    void exceptionIsRuntimeException() {
+      InvalidTimeoutException exception = new InvalidTimeoutException("test", 100);
+
+      assertThat(exception).isInstanceOf(RuntimeException.class);
+    }
+
+  }
+
+  @Nested
+  class TransactionTimedOutExceptionTests {
+    @Test
+    void constructorWithMessage() {
+      String message = "Transaction timed out after 30 seconds";
+      TransactionTimedOutException exception = new TransactionTimedOutException(message);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void constructorWithMessageAndCause() {
+      String message = "Transaction timed out after 30 seconds";
+      Throwable cause = new RuntimeException("Timeout occurred");
+      TransactionTimedOutException exception = new TransactionTimedOutException(message, cause);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isEqualTo(cause);
+    }
+
+    @Test
+    void exceptionIsTransactionException() {
+      TransactionTimedOutException exception = new TransactionTimedOutException("test");
+
+      assertThat(exception).isInstanceOf(TransactionException.class);
+    }
+
+    @Test
+    void exceptionIsRuntimeException() {
+      TransactionTimedOutException exception = new TransactionTimedOutException("test");
+
+      assertThat(exception).isInstanceOf(RuntimeException.class);
+    }
+
+  }
+
+  @Nested
+  class NoTransactionExceptionTests {
+    @Test
+    void constructorWithMessage() {
+      String message = "No transaction in progress";
+      NoTransactionException exception = new NoTransactionException(message);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void constructorWithMessageAndCause() {
+      String message = "No transaction in progress";
+      Throwable cause = new RuntimeException("Transaction not started");
+      NoTransactionException exception = new NoTransactionException(message, cause);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isEqualTo(cause);
+    }
+
+    @Test
+    void exceptionIsTransactionUsageException() {
+      NoTransactionException exception = new NoTransactionException("test");
+
+      assertThat(exception).isInstanceOf(TransactionUsageException.class);
+    }
+
+    @Test
+    void exceptionIsTransactionException() {
+      NoTransactionException exception = new NoTransactionException("test");
+
+      assertThat(exception).isInstanceOf(TransactionException.class);
+    }
+
+    @Test
+    void exceptionIsRuntimeException() {
+      NoTransactionException exception = new NoTransactionException("test");
+      assertThat(exception).isInstanceOf(RuntimeException.class);
+    }
+
+  }
+
+  @Nested
+  class NestedTransactionNotSupportedExceptionTests {
+    @Test
+    void constructorWithMessage() {
+      String message = "Nested transaction not supported";
+      NestedTransactionNotSupportedException exception = new NestedTransactionNotSupportedException(message);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void constructorWithMessageAndCause() {
+      String message = "Nested transaction not supported";
+      Throwable cause = new RuntimeException("Underlying cause");
+      NestedTransactionNotSupportedException exception = new NestedTransactionNotSupportedException(message, cause);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isEqualTo(cause);
+    }
+
+    @Test
+    void exceptionIsCannotCreateTransactionException() {
+      NestedTransactionNotSupportedException exception = new NestedTransactionNotSupportedException("test");
+
+      assertThat(exception).isInstanceOf(CannotCreateTransactionException.class);
+    }
+
+    @Test
+    void exceptionIsTransactionException() {
+      NestedTransactionNotSupportedException exception = new NestedTransactionNotSupportedException("test");
+
+      assertThat(exception).isInstanceOf(TransactionException.class);
+    }
+
+    @Test
+    void exceptionIsRuntimeException() {
+      NestedTransactionNotSupportedException exception = new NestedTransactionNotSupportedException("test");
+
+      assertThat(exception).isInstanceOf(RuntimeException.class);
+    }
+
+  }
+
+  @Nested
+  class TransactionSuspensionNotSupportedExceptionTests {
+    @Test
+    void constructorWithMessage() {
+      String message = "Transaction suspension not supported";
+      TransactionSuspensionNotSupportedException exception = new TransactionSuspensionNotSupportedException(message);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void constructorWithMessageAndCause() {
+      String message = "Transaction suspension not supported";
+      Throwable cause = new RuntimeException("Underlying cause");
+      TransactionSuspensionNotSupportedException exception = new TransactionSuspensionNotSupportedException(message, cause);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isEqualTo(cause);
+    }
+
+    @Test
+    void exceptionIsCannotCreateTransactionException() {
+      TransactionSuspensionNotSupportedException exception = new TransactionSuspensionNotSupportedException("test");
+
+      assertThat(exception).isInstanceOf(CannotCreateTransactionException.class);
+    }
+
+    @Test
+    void exceptionIsTransactionException() {
+      TransactionSuspensionNotSupportedException exception = new TransactionSuspensionNotSupportedException("test");
+      assertThat(exception).isInstanceOf(TransactionException.class);
+    }
+
+    @Test
+    void exceptionIsRuntimeException() {
+      TransactionSuspensionNotSupportedException exception = new TransactionSuspensionNotSupportedException("test");
+
+      assertThat(exception).isInstanceOf(RuntimeException.class);
+    }
+
+  }
+
+  @Nested
+  class TransactionUsageExceptionTests {
+    @Test
+    void constructorWithMessage() {
+      String message = "Transaction usage error";
+      TransactionUsageException exception = new TransactionUsageException(message);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void constructorWithMessageAndCause() {
+      String message = "Transaction usage error";
+      Throwable cause = new RuntimeException("Underlying cause");
+      TransactionUsageException exception = new TransactionUsageException(message, cause);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isEqualTo(cause);
+    }
+
+    @Test
+    void exceptionIsTransactionException() {
+      TransactionUsageException exception = new TransactionUsageException("test");
+      assertThat(exception).isInstanceOf(TransactionException.class);
+    }
+
+    @Test
+    void exceptionIsRuntimeException() {
+      TransactionUsageException exception = new TransactionUsageException("test");
+      assertThat(exception).isInstanceOf(RuntimeException.class);
+    }
+
+  }
+
+  @Nested
+  class IllegalTransactionStateExceptionTests {
+    @Test
+    void constructorWithMessage() {
+      String message = "Illegal transaction state";
+      IllegalTransactionStateException exception = new IllegalTransactionStateException(message);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void constructorWithMessageAndCause() {
+      String message = "Illegal transaction state";
+      Throwable cause = new RuntimeException("Underlying cause");
+      IllegalTransactionStateException exception = new IllegalTransactionStateException(message, cause);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isEqualTo(cause);
+    }
+
+    @Test
+    void exceptionIsTransactionUsageException() {
+      IllegalTransactionStateException exception = new IllegalTransactionStateException("test");
+
+      assertThat(exception).isInstanceOf(TransactionUsageException.class);
+    }
+
+    @Test
+    void exceptionIsTransactionException() {
+      IllegalTransactionStateException exception = new IllegalTransactionStateException("test");
+
+      assertThat(exception).isInstanceOf(TransactionException.class);
+    }
+
+    @Test
+    void exceptionIsRuntimeException() {
+      IllegalTransactionStateException exception = new IllegalTransactionStateException("test");
+
+      assertThat(exception).isInstanceOf(RuntimeException.class);
+    }
+
+  }
+
+  @Nested
+  class TransactionSystemExceptionTests {
+    @Test
+    void constructorWithMessage() {
+      String message = "Transaction system error";
+      TransactionSystemException exception = new TransactionSystemException(message);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isNull();
+      assertThat(exception.getApplicationException()).isNull();
+      assertThat(exception.getOriginalException()).isNull();
+    }
+
+    @Test
+    void constructorWithMessageAndCause() {
+      String message = "Transaction system error";
+      Throwable cause = new RuntimeException("Underlying cause");
+      TransactionSystemException exception = new TransactionSystemException(message, cause);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getCause()).isEqualTo(cause);
+      assertThat(exception.getApplicationException()).isNull();
+      assertThat(exception.getOriginalException()).isEqualTo(cause);
+    }
+
+    @Test
+    void initApplicationException() {
+      TransactionSystemException exception = new TransactionSystemException("Transaction error");
+      RuntimeException appException = new RuntimeException("Application error");
+
+      exception.initApplicationException(appException);
+
+      assertThat(exception.getApplicationException()).isEqualTo(appException);
+      assertThat(exception.getOriginalException()).isEqualTo(appException);
+    }
+
+    @Test
+    void initApplicationExceptionWithNullThrowsException() {
+      TransactionSystemException exception = new TransactionSystemException("Transaction error");
+
+      assertThatThrownBy(() -> exception.initApplicationException(null))
+              .isInstanceOf(IllegalArgumentException.class)
+              .hasMessage("Application exception is required");
+    }
+
+    @Test
+    void initApplicationExceptionWhenAlreadySetThrowsException() {
+      TransactionSystemException exception = new TransactionSystemException("Transaction error");
+      RuntimeException appException1 = new RuntimeException("Application error 1");
+      RuntimeException appException2 = new RuntimeException("Application error 2");
+
+      exception.initApplicationException(appException1);
+
+      assertThatThrownBy(() -> exception.initApplicationException(appException2))
+              .isInstanceOf(IllegalStateException.class)
+              .hasMessageContaining("Already holding an application exception");
+    }
+
+    @Test
+    void getOriginalExceptionReturnsCauseWhenNoApplicationException() {
+      Throwable cause = new RuntimeException("Underlying cause");
+      TransactionSystemException exception = new TransactionSystemException("Transaction error", cause);
+
+      assertThat(exception.getOriginalException()).isEqualTo(cause);
+    }
+
+    @Test
+    void getOriginalExceptionReturnsApplicationExceptionWhenSet() {
+      TransactionSystemException exception = new TransactionSystemException("Transaction error");
+      RuntimeException appException = new RuntimeException("Application error");
+
+      exception.initApplicationException(appException);
+
+      assertThat(exception.getOriginalException()).isEqualTo(appException);
+    }
+
+    @Test
+    void exceptionIsTransactionException() {
+      TransactionSystemException exception = new TransactionSystemException("test");
+
+      assertThat(exception).isInstanceOf(TransactionException.class);
+    }
+
+    @Test
+    void exceptionIsRuntimeException() {
+      TransactionSystemException exception = new TransactionSystemException("test");
+
+      assertThat(exception).isInstanceOf(RuntimeException.class);
+    }
+
+  }
+
+  @Nested
+  class HeuristicCompletionExceptionTests {
+    @Test
+    void constructorWithCommittedState() {
+      Throwable cause = new RuntimeException("Transaction failed");
+      HeuristicCompletionException exception = new HeuristicCompletionException(HeuristicCompletionException.STATE_COMMITTED, cause);
+
+      assertThat(exception.getMessage()).isEqualTo("Heuristic completion: outcome state is committed");
+      assertThat(exception.getCause()).isEqualTo(cause);
+      assertThat(exception.getOutcomeState()).isEqualTo(HeuristicCompletionException.STATE_COMMITTED);
+    }
+
+    @Test
+    void constructorWithRolledBackState() {
+      Throwable cause = new RuntimeException("Transaction failed");
+      HeuristicCompletionException exception = new HeuristicCompletionException(HeuristicCompletionException.STATE_ROLLED_BACK, cause);
+
+      assertThat(exception.getMessage()).isEqualTo("Heuristic completion: outcome state is rolled back");
+      assertThat(exception.getCause()).isEqualTo(cause);
+      assertThat(exception.getOutcomeState()).isEqualTo(HeuristicCompletionException.STATE_ROLLED_BACK);
+    }
+
+    @Test
+    void constructorWithMixedState() {
+      Throwable cause = new RuntimeException("Transaction failed");
+      HeuristicCompletionException exception = new HeuristicCompletionException(HeuristicCompletionException.STATE_MIXED, cause);
+
+      assertThat(exception.getMessage()).isEqualTo("Heuristic completion: outcome state is mixed");
+      assertThat(exception.getCause()).isEqualTo(cause);
+      assertThat(exception.getOutcomeState()).isEqualTo(HeuristicCompletionException.STATE_MIXED);
+    }
+
+    @Test
+    void constructorWithUnknownState() {
+      Throwable cause = new RuntimeException("Transaction failed");
+      HeuristicCompletionException exception = new HeuristicCompletionException(HeuristicCompletionException.STATE_UNKNOWN, cause);
+
+      assertThat(exception.getMessage()).isEqualTo("Heuristic completion: outcome state is unknown");
+      assertThat(exception.getCause()).isEqualTo(cause);
+      assertThat(exception.getOutcomeState()).isEqualTo(HeuristicCompletionException.STATE_UNKNOWN);
+    }
+
+    @Test
+    void constructorWithInvalidState() {
+      Throwable cause = new RuntimeException("Transaction failed");
+      HeuristicCompletionException exception = new HeuristicCompletionException(999, cause);
+
+      assertThat(exception.getMessage()).isEqualTo("Heuristic completion: outcome state is unknown");
+      assertThat(exception.getCause()).isEqualTo(cause);
+      assertThat(exception.getOutcomeState()).isEqualTo(999);
+    }
+
+    @Test
+    void getStateStringForCommitted() {
+      String stateString = HeuristicCompletionException.getStateString(HeuristicCompletionException.STATE_COMMITTED);
+      assertThat(stateString).isEqualTo("committed");
+    }
+
+    @Test
+    void getStateStringForRolledBack() {
+      String stateString = HeuristicCompletionException.getStateString(HeuristicCompletionException.STATE_ROLLED_BACK);
+      assertThat(stateString).isEqualTo("rolled back");
+    }
+
+    @Test
+    void getStateStringForMixed() {
+      String stateString = HeuristicCompletionException.getStateString(HeuristicCompletionException.STATE_MIXED);
+      assertThat(stateString).isEqualTo("mixed");
+    }
+
+    @Test
+    void getStateStringForUnknown() {
+      String stateString = HeuristicCompletionException.getStateString(HeuristicCompletionException.STATE_UNKNOWN);
+      assertThat(stateString).isEqualTo("unknown");
+    }
+
+    @Test
+    void getStateStringForInvalidState() {
+      String stateString = HeuristicCompletionException.getStateString(999);
+      assertThat(stateString).isEqualTo("unknown");
+    }
+
+    @Test
+    void exceptionIsTransactionException() {
+      HeuristicCompletionException exception = new HeuristicCompletionException(HeuristicCompletionException.STATE_UNKNOWN, new RuntimeException());
+
+      assertThat(exception).isInstanceOf(TransactionException.class);
+    }
+
+    @Test
+    void exceptionIsRuntimeException() {
+      HeuristicCompletionException exception = new HeuristicCompletionException(HeuristicCompletionException.STATE_UNKNOWN, new RuntimeException());
 
       assertThat(exception).isInstanceOf(RuntimeException.class);
     }
