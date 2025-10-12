@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,9 +24,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
+import infra.dao.EmptyResultDataAccessException;
 import infra.dao.IncorrectResultSizeDataAccessException;
 import infra.dao.InvalidDataAccessApiUsageException;
 import infra.dao.TypeMismatchDataAccessException;
@@ -285,6 +289,216 @@ public class DataAccessUtilsTests {
     InvalidDataAccessApiUsageException out = new InvalidDataAccessApiUsageException("out");
     mpet.addTranslation(in, out);
     assertThat(DataAccessUtils.translateIfNecessary(in, mpet)).isSameAs(out);
+  }
+
+  @Test
+  void nullableSingleResultWithEmptyCollection() {
+    Collection<String> col = new HashSet<>();
+
+    assertThatExceptionOfType(EmptyResultDataAccessException.class)
+            .isThrownBy(() -> DataAccessUtils.nullableSingleResult(col))
+            .satisfies(sizeRequirements(1, 0));
+  }
+
+  @Test
+  void nullableSingleResultWithSingleNullValue() {
+    Collection<String> col = new HashSet<>();
+    col.add(null);
+
+    assertThat(DataAccessUtils.nullableSingleResult(col)).isNull();
+  }
+
+  @Test
+  void nullableSingleResultWithMultipleValues() {
+    Collection<String> col = new HashSet<>();
+    col.add("value1");
+    col.add("value2");
+
+    assertThatExceptionOfType(IncorrectResultSizeDataAccessException.class)
+            .isThrownBy(() -> DataAccessUtils.nullableSingleResult(col))
+            .satisfies(sizeRequirements(1, 2));
+  }
+
+  @Test
+  void uniqueResultWithSingleValue() {
+    Collection<String> col = new HashSet<>();
+    col.add("uniqueValue");
+
+    assertThat(DataAccessUtils.uniqueResult(col)).isEqualTo("uniqueValue");
+  }
+
+  @Test
+  void uniqueResultWithSameInstanceMultipleTimes() {
+    String value = "sameInstance";
+    Collection<String> col = new ArrayList<>();
+    col.add(value);
+    col.add(value);
+
+    assertThat(DataAccessUtils.uniqueResult(col)).isEqualTo("sameInstance");
+  }
+
+  @Test
+  void uniqueResultWithEquivalentButNotSameInstances() {
+    Collection<String> col = new ArrayList<>();
+    col.add(new String("value"));
+    col.add(new String("value")); // equals() == true, but !=
+
+    assertThatExceptionOfType(IncorrectResultSizeDataAccessException.class)
+            .isThrownBy(() -> DataAccessUtils.uniqueResult(col))
+            .satisfies(sizeRequirements(1, 2));
+  }
+
+  @Test
+  void requiredUniqueResultWithEmptyCollection() {
+    Collection<String> col = new HashSet<>();
+
+    assertThatExceptionOfType(EmptyResultDataAccessException.class)
+            .isThrownBy(() -> DataAccessUtils.requiredUniqueResult(col))
+            .satisfies(sizeRequirements(1, 0));
+  }
+
+  @Test
+  void requiredUniqueResultWithNullValue() {
+    Collection<String> col = new HashSet<>();
+    col.add(null);
+
+    assertThatExceptionOfType(TypeMismatchDataAccessException.class)
+            .isThrownBy(() -> DataAccessUtils.requiredUniqueResult(col));
+  }
+
+  @Test
+  void objectResultWithValidConversionToString() {
+    Collection<Integer> col = new HashSet<>();
+    col.add(42);
+
+    String result = DataAccessUtils.objectResult(col, String.class);
+    assertThat(result).isEqualTo("42");
+  }
+
+  @Test
+  void objectResultWithInvalidConversion() {
+    Collection<String> col = new HashSet<>();
+    col.add("notANumber");
+
+    assertThatExceptionOfType(TypeMismatchDataAccessException.class)
+            .isThrownBy(() -> DataAccessUtils.objectResult(col, Integer.class));
+  }
+
+  @Test
+  void objectResultWithNoConversionNeeded() {
+    Collection<String> col = new HashSet<>();
+    col.add("value");
+
+    String result = DataAccessUtils.objectResult(col, String.class);
+    assertThat(result).isEqualTo("value");
+  }
+
+  @Test
+  void translateIfNecessaryWithNullTranslator() {
+    RuntimeException ex = new RuntimeException("test");
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> DataAccessUtils.translateIfNecessary(ex, null));
+  }
+
+  @Test
+  void singleResultWithStreamReturnsNullForEmptyStream() {
+    Stream<String> stream = Stream.empty();
+
+    String result = DataAccessUtils.singleResult(stream);
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void singleResultWithStreamReturnsValueForSingleElement() {
+    Stream<String> stream = Stream.of("single");
+
+    String result = DataAccessUtils.singleResult(stream);
+    assertThat(result).isEqualTo("single");
+  }
+
+  @Test
+  void singleResultWithStreamThrowsExceptionForMultipleElements() {
+    Stream<String> stream = Stream.of("first", "second");
+
+    assertThatExceptionOfType(IncorrectResultSizeDataAccessException.class)
+            .isThrownBy(() -> DataAccessUtils.singleResult(stream))
+            .satisfies(sizeRequirements(1));
+  }
+
+  @Test
+  void singleResultWithIteratorReturnsNullForEmptyIterator() {
+    Iterator<String> iterator = new ArrayList<String>().iterator();
+
+    String result = DataAccessUtils.singleResult(iterator);
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void singleResultWithIteratorReturnsValueForSingleElement() {
+    Iterator<String> iterator = List.of("single").iterator();
+
+    String result = DataAccessUtils.singleResult(iterator);
+    assertThat(result).isEqualTo("single");
+  }
+
+  @Test
+  void singleResultWithIteratorThrowsExceptionForMultipleElements() {
+    Iterator<String> iterator = List.of("first", "second").iterator();
+
+    assertThatExceptionOfType(IncorrectResultSizeDataAccessException.class)
+            .isThrownBy(() -> DataAccessUtils.singleResult(iterator))
+            .satisfies(sizeRequirements(1));
+  }
+
+  @Test
+  void optionalResultWithStreamReturnsEmptyForEmptyStream() {
+    Stream<String> stream = Stream.empty();
+
+    Optional<String> result = DataAccessUtils.optionalResult(stream);
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void optionalResultWithStreamReturnsValueForSingleElement() {
+    Stream<String> stream = Stream.of("single");
+
+    Optional<String> result = DataAccessUtils.optionalResult(stream);
+    assertThat(result).isEqualTo(Optional.of("single"));
+  }
+
+  @Test
+  void optionalResultWithStreamThrowsExceptionForMultipleElements() {
+    Stream<String> stream = Stream.of("first", "second");
+
+    assertThatExceptionOfType(IncorrectResultSizeDataAccessException.class)
+            .isThrownBy(() -> DataAccessUtils.optionalResult(stream))
+            .satisfies(sizeRequirements(1));
+  }
+
+  @Test
+  void optionalResultWithIteratorReturnsEmptyForEmptyIterator() {
+    Iterator<String> iterator = new ArrayList<String>().iterator();
+
+    Optional<String> result = DataAccessUtils.optionalResult(iterator);
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void optionalResultWithIteratorReturnsValueForSingleElement() {
+    Iterator<String> iterator = List.of("single").iterator();
+
+    Optional<String> result = DataAccessUtils.optionalResult(iterator);
+    assertThat(result).isEqualTo(Optional.of("single"));
+  }
+
+  @Test
+  void optionalResultWithIteratorThrowsExceptionForMultipleElements() {
+    Iterator<String> iterator = List.of("first", "second").iterator();
+
+    assertThatExceptionOfType(IncorrectResultSizeDataAccessException.class)
+            .isThrownBy(() -> DataAccessUtils.optionalResult(iterator))
+            .satisfies(sizeRequirements(1));
   }
 
   private <E extends IncorrectResultSizeDataAccessException> Consumer<E> sizeRequirements(
