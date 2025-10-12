@@ -99,11 +99,9 @@ public interface ServerRequest extends ServerResponse.Context {
   }
 
   /**
-   * Get the request path as a {@code PathContainer}.
+   * Get the request path as a {@code RequestPath}.
    */
-  default RequestPath requestPath() {
-    return exchange().getRequestPath();
-  }
+  RequestPath requestPath();
 
   /**
    * Get the headers of this request.
