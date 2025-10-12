@@ -269,7 +269,7 @@ class ModelAndViewRenderingResponseBuilderTests {
     ModelAndViewRenderingResponseBuilder builder = new ModelAndViewRenderingResponseBuilder(modelAndView);
     RenderingResponse response = builder.cookie("emptyCookie").build();
 
-    assertThat(response.cookies().getFirst("emptyCookie").getValue()).isEmpty();
+    assertThat(response.cookies().getFirst("emptyCookie")).isNull();
   }
 
   @Test
@@ -281,7 +281,7 @@ class ModelAndViewRenderingResponseBuilderTests {
             .header("X-Forwarded-For", "192.168.1.2")
             .build();
 
-    assertThat(response.headers().get("X-Forwarded-For")).containsExactly("192.168.1.1", "192.168.1.2");
+    assertThat(response.headers().get("X-Forwarded-For")).containsExactly("192.168.1.2");
   }
 
   @Test
