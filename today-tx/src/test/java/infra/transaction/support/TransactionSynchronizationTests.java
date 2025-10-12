@@ -21,7 +21,8 @@ import org.junit.jupiter.api.Test;
 
 import infra.core.Ordered;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -30,11 +31,22 @@ import static org.assertj.core.api.Assertions.*;
 class TransactionSynchronizationTests {
 
   @Test
-  void defaultMethods(){
-    TransactionSynchronization synchronization = new TransactionSynchronization(){};
+  void defaultMethods() {
+    TransactionSynchronization synchronization = new TransactionSynchronization() { };
 
-    assertThat(synchronization.getOrder()).isEqualTo( Ordered.LOWEST_PRECEDENCE);
+    assertThat(synchronization.getOrder()).isEqualTo(Ordered.LOWEST_PRECEDENCE);
 
+    assertThatNoException().isThrownBy(() -> {
+      synchronization.suspend();
+      synchronization.resume();
+      synchronization.flush();
+      synchronization.beforeCommit(false);
+      synchronization.beforeCompletion();
+      synchronization.afterCommit();
+      synchronization.afterCompletion(1);
+      synchronization.savepoint(1);
+      synchronization.savepointRollback(1);
+    });
 
   }
 
