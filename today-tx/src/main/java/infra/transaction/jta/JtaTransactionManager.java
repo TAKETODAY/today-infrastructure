@@ -102,6 +102,7 @@ import jakarta.transaction.UserTransaction;
  * <p>This class is serializable. However, active synchronizations do not survive serialization.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see UserTransaction
  * @see TransactionManager
  * @see TransactionSynchronizationRegistry
