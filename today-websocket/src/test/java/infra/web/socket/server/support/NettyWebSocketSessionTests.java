@@ -488,7 +488,6 @@ class NettyWebSocketSessionTests {
   }
 
   @Test
-  @DisabledOnOs(OS.MAC)
   void onCloseWithFutureReturned() {
     Channel channel = mock(Channel.class);
     NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
@@ -497,10 +496,9 @@ class NettyWebSocketSessionTests {
     WebSocketHandler handler = mock(WebSocketHandler.class);
     CloseStatus closeStatus = CloseStatus.NORMAL;
     Logger logger = mock(Logger.class);
-    Future<Void> handlerFuture = Future.ok(null);
 
     given(channel.isActive()).willReturn(true);
-    given(handler.onClose(session, closeStatus)).willReturn(handlerFuture);
+    given(handler.onClose(session, closeStatus)).willReturn(null);
 
     DefaultChannelPromise promise = new DefaultChannelPromise(channel, GlobalEventExecutor.INSTANCE);
     given(channel.writeAndFlush(any())).willReturn(promise);
