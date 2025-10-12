@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,11 +32,13 @@ import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.core.annotation.AnnotationUtils;
 import infra.dao.DataAccessException;
 import infra.dao.support.ChainedPersistenceExceptionTranslator;
+import infra.dao.support.MapPersistenceExceptionTranslator;
 import infra.dao.support.PersistenceExceptionTranslationInterceptor;
 import infra.dao.support.PersistenceExceptionTranslator;
 import infra.stereotype.Repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -110,6 +112,102 @@ public class PersistenceExceptionTranslationInterceptorTests extends Persistence
     });
     bf.destroySingletons();
     assertThat(correctException).isTrue();
+  }
+
+  @Test
+  void constructorWithPersistenceExceptionTranslator() {
+    PersistenceExceptionTranslator pet = new MapPersistenceExceptionTranslator();
+    PersistenceExceptionTranslationInterceptor interceptor = new PersistenceExceptionTranslationInterceptor(pet);
+
+    assertThat(interceptor).isNotNull();
+  }
+
+  @Test
+  void constructorWithBeanFactory() {
+    StandardBeanFactory bf = new StandardBeanFactory();
+    PersistenceExceptionTranslationInterceptor interceptor = new PersistenceExceptionTranslationInterceptor(bf);
+
+    assertThat(interceptor).isNotNull();
+  }
+
+  @Test
+  void setPersistenceExceptionTranslator() {
+    PersistenceExceptionTranslator pet = new MapPersistenceExceptionTranslator();
+    PersistenceExceptionTranslationInterceptor interceptor = new PersistenceExceptionTranslationInterceptor();
+    interceptor.setPersistenceExceptionTranslator(pet);
+
+    assertThat(interceptor).isNotNull();
+  }
+
+  @Test
+  void setAlwaysTranslate() {
+    PersistenceExceptionTranslationInterceptor interceptor = new PersistenceExceptionTranslationInterceptor();
+    interceptor.setAlwaysTranslate(true);
+
+    assertThat(interceptor).isNotNull();
+  }
+
+  @Test
+  void afterPropertiesSetWithoutTranslatorOrBeanFactory() {
+    PersistenceExceptionTranslationInterceptor interceptor = new PersistenceExceptionTranslationInterceptor();
+
+    assertThatThrownBy(interceptor::afterPropertiesSet)
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Property 'persistenceExceptionTranslator' is required");
+  }
+
+  @Test
+  void afterPropertiesSetWithTranslator() {
+    PersistenceExceptionTranslator pet = new MapPersistenceExceptionTranslator();
+    PersistenceExceptionTranslationInterceptor interceptor = new PersistenceExceptionTranslationInterceptor(pet);
+
+    assertThatNoException().isThrownBy(interceptor::afterPropertiesSet);
+  }
+
+  @Test
+  void afterPropertiesSetWithBeanFactory() {
+    StandardBeanFactory bf = new StandardBeanFactory();
+    PersistenceExceptionTranslationInterceptor interceptor = new PersistenceExceptionTranslationInterceptor(bf);
+
+    assertThatNoException().isThrownBy(interceptor::afterPropertiesSet);
+  }
+
+  @Test
+  void invokeWithNoException() throws Throwable {
+    PersistenceExceptionTranslationInterceptor interceptor = new PersistenceExceptionTranslationInterceptor();
+    MethodInvocation invocation = mock(MethodInvocation.class);
+    given(invocation.proceed()).willReturn("result");
+
+    Object result = interceptor.invoke(invocation);
+
+    assertThat(result).isEqualTo("result");
+  }
+
+  @Test
+  void invokeWithUndeclaredExceptionAndTranslator() throws Throwable {
+    MapPersistenceExceptionTranslator pet = new MapPersistenceExceptionTranslator();
+    PersistenceExceptionTranslationInterceptor interceptor = new PersistenceExceptionTranslationInterceptor(pet);
+    interceptor.setAlwaysTranslate(true);
+
+    RuntimeException ex = new RuntimeException();
+    MethodInvocation invocation = mock(MethodInvocation.class);
+    given(invocation.proceed()).willThrow(ex);
+    given(invocation.getMethod()).willReturn(Object.class.getMethod("toString"));
+
+    assertThatThrownBy(() -> interceptor.invoke(invocation)).isSameAs(ex);
+  }
+
+  @Test
+  void invokeWithBeanFactoryAndNoTranslator() throws Throwable {
+    StandardBeanFactory bf = new StandardBeanFactory();
+    PersistenceExceptionTranslationInterceptor interceptor = new PersistenceExceptionTranslationInterceptor(bf);
+
+    RuntimeException ex = new RuntimeException();
+    MethodInvocation invocation = mock(MethodInvocation.class);
+    given(invocation.proceed()).willThrow(ex);
+    given(invocation.getMethod()).willReturn(Object.class.getMethod("toString"));
+
+    assertThatThrownBy(() -> interceptor.invoke(invocation)).isSameAs(ex);
   }
 
   private static class CallOrderAwareExceptionTranslator implements PersistenceExceptionTranslator, Ordered {
