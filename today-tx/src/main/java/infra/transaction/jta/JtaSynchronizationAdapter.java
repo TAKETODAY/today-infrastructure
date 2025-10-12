@@ -39,6 +39,7 @@ import jakarta.transaction.UserTransaction;
  * Framework transaction synchronization.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see jakarta.transaction.Transaction#registerSynchronization
  * @see infra.transaction.support.TransactionSynchronization
  * @since 4.0
