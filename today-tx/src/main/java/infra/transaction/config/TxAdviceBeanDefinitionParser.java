@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.transaction.config;
@@ -148,14 +145,14 @@ class TxAdviceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
     return attributeSourceDefinition;
   }
 
-  private void addRollbackRuleAttributesTo(List<RollbackRuleAttribute> rollbackRules, String rollbackForValue) {
+  void addRollbackRuleAttributesTo(List<RollbackRuleAttribute> rollbackRules, String rollbackForValue) {
     String[] exceptionTypeNames = StringUtils.commaDelimitedListToStringArray(rollbackForValue);
     for (String typeName : exceptionTypeNames) {
       rollbackRules.add(new RollbackRuleAttribute(typeName.strip()));
     }
   }
 
-  private void addNoRollbackRuleAttributesTo(List<RollbackRuleAttribute> rollbackRules, String noRollbackForValue) {
+  void addNoRollbackRuleAttributesTo(List<RollbackRuleAttribute> rollbackRules, String noRollbackForValue) {
     String[] exceptionTypeNames = StringUtils.commaDelimitedListToStringArray(noRollbackForValue);
     for (String typeName : exceptionTypeNames) {
       rollbackRules.add(new NoRollbackRuleAttribute(typeName.strip()));
