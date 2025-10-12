@@ -34,6 +34,7 @@ import infra.http.server.DelegatingServerHttpResponse;
 import infra.http.server.ServerHttpResponse;
 import infra.lang.Assert;
 import infra.util.MultiValueMap;
+import infra.util.function.ThrowingConsumer;
 import infra.web.RequestContext;
 import infra.web.async.DeferredResult;
 
@@ -46,20 +47,20 @@ import infra.web.async.DeferredResult;
  */
 final class StreamingServerResponse extends AbstractServerResponse {
 
-  private final Consumer<StreamBuilder> streamConsumer;
+  private final ThrowingConsumer<StreamBuilder> streamConsumer;
 
   @Nullable
   private final Duration timeout;
 
   private StreamingServerResponse(HttpStatusCode statusCode, HttpHeaders headers, MultiValueMap<String, ResponseCookie> cookies,
-          Consumer<StreamBuilder> streamConsumer, @Nullable Duration timeout) {
+          ThrowingConsumer<StreamBuilder> streamConsumer, @Nullable Duration timeout) {
     super(statusCode, headers, cookies);
     this.streamConsumer = streamConsumer;
     this.timeout = timeout;
   }
 
   static ServerResponse create(HttpStatusCode statusCode, HttpHeaders headers, MultiValueMap<String, ResponseCookie> cookies,
-          Consumer<StreamBuilder> streamConsumer, @Nullable Duration timeout) {
+          ThrowingConsumer<StreamBuilder> streamConsumer, @Nullable Duration timeout) {
     Assert.notNull(statusCode, "statusCode is required");
     Assert.notNull(headers, "headers is required");
     Assert.notNull(cookies, "cookies is required");

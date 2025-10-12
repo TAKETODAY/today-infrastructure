@@ -45,6 +45,7 @@ import infra.http.MediaType;
 import infra.http.ResponseCookie;
 import infra.http.converter.HttpMessageConverter;
 import infra.util.MultiValueMap;
+import infra.util.function.ThrowingConsumer;
 import infra.web.ErrorResponse;
 import infra.web.HttpRequestHandler;
 import infra.web.RequestContext;
@@ -664,7 +665,7 @@ public interface ServerResponse {
      * @return the server-side streaming response
      * @since 5.0
      */
-    ServerResponse stream(Consumer<StreamBuilder> streamConsumer);
+    ServerResponse stream(ThrowingConsumer<StreamBuilder> streamConsumer);
 
   }
 

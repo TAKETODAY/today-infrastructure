@@ -40,6 +40,7 @@ import infra.lang.Assert;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
+import infra.util.function.ThrowingConsumer;
 import infra.web.RequestContext;
 import infra.web.view.ModelAndView;
 
@@ -243,7 +244,7 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
   }
 
   @Override
-  public ServerResponse stream(Consumer<ServerResponse.StreamBuilder> streamConsumer) {
+  public ServerResponse stream(ThrowingConsumer<ServerResponse.StreamBuilder> streamConsumer) {
     return StreamingServerResponse.create(this.statusCode, this.headers, this.cookies, streamConsumer, null);
   }
 
