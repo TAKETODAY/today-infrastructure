@@ -19,11 +19,14 @@ package infra.web.handler.function;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.ResponseCookie;
 import infra.http.converter.HttpMessageConverter;
+import infra.http.converter.StringHttpMessageConverter;
 import infra.util.MultiValueMap;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
@@ -99,7 +102,7 @@ class CompletedAsyncServerResponseTests {
     Object result = asyncResponse.writeTo(requestContext, new ServerResponse.Context() {
       @Override
       public java.util.List<HttpMessageConverter<?>> messageConverters() {
-        return new java.util.ArrayList<>();
+        return List.of(new StringHttpMessageConverter());
       }
     });
 

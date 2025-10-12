@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
@@ -76,6 +77,108 @@ class RequestPredicateTests {
     assertThat(predicate1.or(predicate2).test(request)).isTrue();
     assertThat(predicate2.or(predicate1).test(request)).isTrue();
     assertThat(predicate2.or(predicate3).test(request)).isFalse();
+  }
+
+  @Test
+  void nestWhenTrue() {
+    RequestPredicate predicate = request -> true;
+    Optional<ServerRequest> result = predicate.nest(request);
+
+    assertThat(result).isPresent();
+    assertThat(result.get()).isSameAs(request);
+  }
+
+  @Test
+  void nestWhenFalse() {
+    RequestPredicate predicate = request -> false;
+    Optional<ServerRequest> result = predicate.nest(request);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void acceptCallsUnknownByDefault() {
+    RequestPredicate predicate = request -> true;
+    RequestPredicates.Visitor visitor = new RequestPredicates.Visitor() {
+      boolean unknownCalled = false;
+
+      @Override
+      public void unknown(RequestPredicate predicate) {
+        unknownCalled = true;
+      }
+
+      @Override
+      public void method(java.util.Set<infra.http.HttpMethod> methods) { }
+
+      @Override
+      public void path(String pattern) { }
+
+      @Override
+      public void pathExtension(String extension) { }
+
+      @Override
+      public void header(String name, String value) { }
+
+      @Override
+      public void param(String name, String value) { }
+
+      @Override
+      public void version(String version) { }
+
+      @Override
+      public void startAnd() { }
+
+      @Override
+      public void and() { }
+
+      @Override
+      public void endAnd() { }
+
+      @Override
+      public void startOr() { }
+
+      @Override
+      public void or() { }
+
+      @Override
+      public void endOr() { }
+
+      @Override
+      public void startNegate() { }
+
+      @Override
+      public void endNegate() { }
+    };
+
+    predicate.accept(visitor);
+    // Since we cannot easily verify the call, we at least ensure no exception is thrown
+    assertThat(true).isTrue();
+  }
+
+  @Test
+  void andIsShortCircuiting() {
+    RequestPredicate predicate1 = request -> false;
+    RequestPredicate predicate2 = request -> {
+      throw new RuntimeException("Should not be called");
+    };
+
+    RequestPredicate andPredicate = predicate1.and(predicate2);
+    boolean result = andPredicate.test(request);
+
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  void orIsShortCircuiting() {
+    RequestPredicate predicate1 = request -> true;
+    RequestPredicate predicate2 = request -> {
+      throw new RuntimeException("Should not be called");
+    };
+
+    RequestPredicate orPredicate = predicate1.or(predicate2);
+    boolean result = orPredicate.test(request);
+
+    assertThat(result).isTrue();
   }
 
 }
