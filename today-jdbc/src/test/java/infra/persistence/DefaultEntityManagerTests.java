@@ -512,9 +512,9 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     Page<UserModel> page = entityManager.page(UserModel.class, userForm, Pageable.of(1, 10));
     assertThat(page.getRows()).hasSize(1);
     assertThat(page.isFirstPage()).isTrue();
-    assertThat(page.isLastPage()).isFalse();
-    assertThat(page.isHasNextPage()).isFalse();
-    assertThat(page.isHasPrevPage()).isFalse();
+    assertThat(page.isLastPage()).isTrue();
+    assertThat(page.hasNextPage()).isFalse();
+    assertThat(page.hasPrevPage()).isFalse();
     assertThat(page.getPageNumber()).isEqualTo(1);
     assertThat(page.getLimit()).isEqualTo(10);
     assertThat(page.getNextPage()).isEqualTo(1);
@@ -527,8 +527,8 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     assertThat(page.getRows()).hasSize(10);
     assertThat(page.isFirstPage()).isTrue();
     assertThat(page.isLastPage()).isFalse();
-    assertThat(page.isHasNextPage()).isTrue();
-    assertThat(page.isHasPrevPage()).isFalse();
+    assertThat(page.hasNextPage()).isTrue();
+    assertThat(page.hasPrevPage()).isFalse();
     assertThat(page.getPageNumber()).isEqualTo(1);
     assertThat(page.getLimit()).isEqualTo(10);
     assertThat(page.getNextPage()).isEqualTo(2);
