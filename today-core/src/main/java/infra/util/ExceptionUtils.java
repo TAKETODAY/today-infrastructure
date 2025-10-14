@@ -246,6 +246,13 @@ public abstract class ExceptionUtils {
   }
 
   /**
+   * @since 5.0
+   */
+  public static Runnable sneaky(ThrowingRunnable action) {
+    return () -> sneakyThrow(action);
+  }
+
+  /**
    * Gets the stack trace from a Throwable as a String.
    *
    * @param cause the {@link Throwable} to be examined

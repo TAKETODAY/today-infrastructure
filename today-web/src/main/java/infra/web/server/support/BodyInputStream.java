@@ -56,13 +56,11 @@ class BodyInputStream extends InputStream {
 
   private volatile boolean closed;
 
-  @Nullable
-  private ByteBuf available;
-
   private boolean done;
 
-  @Nullable
-  private Throwable error;
+  private @Nullable ByteBuf available;
+
+  private @Nullable Throwable error;
 
   BodyInputStream(Awaiter awaiter) {
     this.awaiter = awaiter;
