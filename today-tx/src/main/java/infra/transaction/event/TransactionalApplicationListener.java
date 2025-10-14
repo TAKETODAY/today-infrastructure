@@ -162,7 +162,8 @@ public interface TransactionalApplicationListener<E extends ApplicationEvent>
      *
      * @param event the event that transaction synchronization is about to process
      */
-    default void preProcessEvent(ApplicationEvent event) { }
+    default void preProcessEvent(ApplicationEvent event) {
+    }
 
     /**
      * Called after a transactional event listener invocation.
@@ -170,7 +171,8 @@ public interface TransactionalApplicationListener<E extends ApplicationEvent>
      * @param event the event that transaction synchronization finished processing
      * @param ex an exception that occurred during listener invocation, if any
      */
-    default void postProcessEvent(ApplicationEvent event, @Nullable Throwable ex) { }
+    default void postProcessEvent(ApplicationEvent event, @Nullable Throwable ex) {
+    }
   }
 
 }

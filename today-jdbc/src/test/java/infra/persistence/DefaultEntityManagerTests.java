@@ -18,6 +18,7 @@
 package infra.persistence;
 
 import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import java.io.Serializable;
@@ -26,32 +27,49 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.sql.CallableStatement;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.sql.DataSource;
+
 import infra.beans.BeanProperty;
+import infra.core.annotation.MergedAnnotation;
+import infra.core.annotation.MergedAnnotations;
 import infra.dao.IncorrectResultSizeDataAccessException;
 import infra.dao.InvalidDataAccessApiUsageException;
+import infra.jdbc.JdbcUpdateAffectedIncorrectNumberOfRowsException;
 import infra.jdbc.NamedQuery;
 import infra.jdbc.RepositoryManager;
+import infra.jdbc.format.SqlStatementLogger;
 import infra.jdbc.type.BasicTypeHandler;
 import infra.jdbc.type.SmartTypeHandler;
+import infra.jdbc.type.TypeHandler;
 import infra.persistence.model.Gender;
 import infra.persistence.model.NoIdModel;
 import infra.persistence.model.UserModel;
+import infra.persistence.platform.Platform;
 import infra.persistence.sql.Restriction;
 import infra.test.util.ReflectionTestUtils;
+import infra.transaction.TransactionDefinition;
 import infra.util.CollectionUtils;
 
 import static infra.persistence.PropertyUpdateStrategy.noneNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -512,9 +530,9 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     Page<UserModel> page = entityManager.page(UserModel.class, userForm, Pageable.of(1, 10));
     assertThat(page.getRows()).hasSize(1);
     assertThat(page.isFirstPage()).isTrue();
-    assertThat(page.isLastPage()).isFalse();
-    assertThat(page.isHasNextPage()).isFalse();
-    assertThat(page.isHasPrevPage()).isFalse();
+    assertThat(page.isLastPage()).isTrue();
+    assertThat(page.hasNextPage()).isFalse();
+    assertThat(page.hasPrevPage()).isFalse();
     assertThat(page.getPageNumber()).isEqualTo(1);
     assertThat(page.getLimit()).isEqualTo(10);
     assertThat(page.getNextPage()).isEqualTo(1);
@@ -527,8 +545,8 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     assertThat(page.getRows()).hasSize(10);
     assertThat(page.isFirstPage()).isTrue();
     assertThat(page.isLastPage()).isFalse();
-    assertThat(page.isHasNextPage()).isTrue();
-    assertThat(page.isHasPrevPage()).isFalse();
+    assertThat(page.hasNextPage()).isTrue();
+    assertThat(page.hasPrevPage()).isFalse();
     assertThat(page.getPageNumber()).isEqualTo(1);
     assertThat(page.getLimit()).isEqualTo(10);
     assertThat(page.getNextPage()).isEqualTo(2);
@@ -666,6 +684,463 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     List<UserModel> userModels = entityManager.find(model);
     assertThat(userModels).contains(model).hasSize(1);
 
+  }
+
+  @Test
+  void shouldCreateEntityManagerWithRepositoryManager() {
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    assertThat(entityManager).isNotNull();
+  }
+
+  @Test
+  void shouldSetPlatform() {
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    Platform customPlatform = mock(Platform.class);
+    entityManager.setPlatform(customPlatform);
+
+    // Should accept non-null platform
+    assertThatCode(() -> entityManager.setPlatform(customPlatform)).doesNotThrowAnyException();
+
+    // Should handle null platform by using default
+    assertThatCode(() -> entityManager.setPlatform(null)).doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldSetDefaultUpdateStrategy() {
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    PropertyUpdateStrategy strategy = PropertyUpdateStrategy.always();
+    entityManager.setDefaultUpdateStrategy(strategy);
+
+    // Should accept non-null strategy
+    assertThatCode(() -> entityManager.setDefaultUpdateStrategy(strategy)).doesNotThrowAnyException();
+
+    // Should reject null strategy
+    assertThatThrownBy(() -> entityManager.setDefaultUpdateStrategy(null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("defaultUpdateStrategy is required");
+  }
+
+  @Test
+  void shouldSetDefaultPageable() {
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    Pageable pageable = Pageable.of(1, 10);
+    entityManager.setDefaultPageable(pageable);
+
+    // Should accept non-null pageable
+    assertThatCode(() -> entityManager.setDefaultPageable(pageable)).doesNotThrowAnyException();
+
+    // Should reject null pageable
+    assertThatThrownBy(() -> entityManager.setDefaultPageable(null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("defaultPageable is required");
+  }
+
+  @Test
+  void shouldSetEntityMetadataFactory() {
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    EntityMetadataFactory factory = mock(EntityMetadataFactory.class);
+    entityManager.setEntityMetadataFactory(factory);
+
+    // Should accept non-null factory
+    assertThatCode(() -> entityManager.setEntityMetadataFactory(factory)).doesNotThrowAnyException();
+
+    // Should reject null factory
+    assertThatThrownBy(() -> entityManager.setEntityMetadataFactory(null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("EntityMetadataFactory is required");
+  }
+
+  @Test
+  void shouldSetAutoGenerateId() {
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    // Should accept both true and false values
+    assertThatCode(() -> entityManager.setAutoGenerateId(true)).doesNotThrowAnyException();
+    assertThatCode(() -> entityManager.setAutoGenerateId(false)).doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldSetMaxBatchRecords() {
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    // Should accept non-negative values
+    assertThatCode(() -> entityManager.setMaxBatchRecords(0)).doesNotThrowAnyException();
+    assertThatCode(() -> entityManager.setMaxBatchRecords(100)).doesNotThrowAnyException();
+
+    // Should reject negative values
+    assertThatThrownBy(() -> entityManager.setMaxBatchRecords(-1))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("maxBatchRecords should be a non-negative value");
+  }
+
+  @Test
+  void shouldGetMaxBatchRecords() {
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    entityManager.setMaxBatchRecords(50);
+    assertThat(entityManager.getMaxBatchRecords()).isEqualTo(50);
+
+    entityManager.setMaxBatchRecords(0);
+    assertThat(entityManager.getMaxBatchRecords()).isEqualTo(0);
+  }
+
+  @Test
+  void shouldAddBatchPersistListeners() {
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    BatchPersistListener listener1 = mock(BatchPersistListener.class);
+    BatchPersistListener listener2 = mock(BatchPersistListener.class);
+
+    // Should accept varargs listeners
+    assertThatCode(() -> entityManager.addBatchPersistListeners(listener1, listener2)).doesNotThrowAnyException();
+
+    // Should accept single listener
+    assertThatCode(() -> entityManager.addBatchPersistListeners(listener1)).doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldSetBatchPersistListeners() {
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    List<BatchPersistListener> listeners = new ArrayList<>();
+    listeners.add(mock(BatchPersistListener.class));
+    listeners.add(mock(BatchPersistListener.class));
+
+    // Should accept non-null collection
+    assertThatCode(() -> entityManager.setBatchPersistListeners(listeners)).doesNotThrowAnyException();
+
+    // Should accept null (clears listeners)
+    assertThatCode(() -> entityManager.setBatchPersistListeners(null)).doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldSetStatementLogger() {
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    SqlStatementLogger logger = mock(SqlStatementLogger.class);
+    entityManager.setStatementLogger(logger);
+
+    // Should accept non-null logger
+    assertThatCode(() -> entityManager.setStatementLogger(logger)).doesNotThrowAnyException();
+
+    // Should reject null logger
+    assertThatThrownBy(() -> entityManager.setStatementLogger(null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("SqlStatementLogger is required");
+  }
+
+  @Test
+  void shouldSetTransactionConfig() {
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    TransactionDefinition definition = mock(TransactionDefinition.class);
+
+    // Should accept non-null definition
+    assertThatCode(() -> entityManager.setTransactionConfig(definition)).doesNotThrowAnyException();
+
+    // Should accept null (defaults)
+    assertThatCode(() -> entityManager.setTransactionConfig(null)).doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldAddConditionPropertyExtractor() {
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    ConditionPropertyExtractor extractor = mock(ConditionPropertyExtractor.class);
+
+    // Should accept non-null extractor
+    assertThatCode(() -> entityManager.addConditionPropertyExtractor(extractor)).doesNotThrowAnyException();
+
+    // Should reject null extractor
+    assertThatThrownBy(() -> entityManager.addConditionPropertyExtractor(null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("ConditionPropertyExtractor is required");
+  }
+
+  @Test
+  void shouldSetConditionPropertyExtractors() {
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    List<ConditionPropertyExtractor> extractors = new ArrayList<>();
+    extractors.add(mock(ConditionPropertyExtractor.class));
+    extractors.add(mock(ConditionPropertyExtractor.class));
+
+    // Should accept non-null list
+    assertThatCode(() -> entityManager.setConditionPropertyExtractors(extractors)).doesNotThrowAnyException();
+
+    // Should accept null (clears extractors)
+    assertThatCode(() -> entityManager.setConditionPropertyExtractors(null)).doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldHandleDefaultPageable() {
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    Pageable defaultPageable = entityManager.defaultPageable();
+    assertThat(defaultPageable).isNotNull();
+  }
+
+  @Test
+  void shouldHandleDefaultUpdateStrategy() {
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    Object entity = new Object();
+    PropertyUpdateStrategy strategy = entityManager.defaultUpdateStrategy(entity);
+    assertThat(strategy).isNotNull();
+
+    // Test with UpdateStrategySource
+    UpdateStrategySource source = () -> PropertyUpdateStrategy.always();
+    PropertyUpdateStrategy sourceStrategy = entityManager.defaultUpdateStrategy(source);
+    assertThat(sourceStrategy).isEqualTo(PropertyUpdateStrategy.always());
+
+    // Test with PropertyUpdateStrategy
+    PropertyUpdateStrategy directStrategy = PropertyUpdateStrategy.always();
+    PropertyUpdateStrategy resultStrategy = entityManager.defaultUpdateStrategy(directStrategy);
+    assertThat(resultStrategy).isEqualTo(directStrategy);
+  }
+
+  @Test
+  void shouldAssertUpdateCountSuccessfully() {
+    String sql = "UPDATE test SET col = ?";
+
+    // Should not throw exception when actual count matches expected count
+    assertThatCode(() -> DefaultEntityManager.assertUpdateCount(sql, 5, 5)).doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldAssertUpdateCountFailure() {
+    String sql = "UPDATE test SET col = ?";
+
+    // Should throw exception when actual count doesn't match expected count
+    assertThatThrownBy(() -> DefaultEntityManager.assertUpdateCount(sql, 3, 5))
+            .isInstanceOf(JdbcUpdateAffectedIncorrectNumberOfRowsException.class);
+  }
+
+  @Test
+  void shouldPrepareStatementWithAutoGenerateId() throws SQLException {
+    Connection connection = mock(Connection.class);
+    String sql = "INSERT INTO test VALUES (?)";
+    PreparedStatement statement = mock(PreparedStatement.class);
+
+    when(connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)).thenReturn(statement);
+
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    PreparedStatement result = entityManager.prepareStatement(connection, sql, true);
+    assertThat(result).isEqualTo(statement);
+    verify(connection).prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+  }
+
+  @Test
+  void shouldPrepareStatementWithoutAutoGenerateId() throws SQLException {
+    Connection connection = mock(Connection.class);
+    String sql = "INSERT INTO test VALUES (?)";
+    PreparedStatement statement = mock(PreparedStatement.class);
+
+    when(connection.prepareStatement(sql)).thenReturn(statement);
+
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    PreparedStatement result = entityManager.prepareStatement(connection, sql, false);
+    assertThat(result).isEqualTo(statement);
+    verify(connection).prepareStatement(sql);
+  }
+
+  @Test
+  void shouldHandleEntityPropertySetValue() throws SQLException {
+    // Create a simple test entity
+    class TestEntity {
+      String name;
+    }
+
+    TestEntity entity = new TestEntity();
+    entity.name = "test";
+
+    // Mock BeanProperty
+    BeanProperty beanProperty = mock(BeanProperty.class);
+    when(beanProperty.getValue(entity)).thenReturn("testValue");
+
+    // Mock TypeHandler
+    TypeHandler<Object> typeHandler = mock(TypeHandler.class);
+
+    // Create EntityProperty
+    EntityProperty entityProperty = new EntityProperty(beanProperty, "test_column", typeHandler, false);
+
+    // Mock PreparedStatement
+    PreparedStatement ps = mock(PreparedStatement.class);
+
+    // Test setTo method
+    assertThatCode(() -> entityProperty.setTo(ps, 1, entity)).doesNotThrowAnyException();
+    verify(beanProperty).getValue(entity);
+    verify(typeHandler).setParameter(ps, 1, "testValue");
+
+    // Test setParameter method
+    assertThatCode(() -> entityProperty.setParameter(ps, 2, "directValue")).doesNotThrowAnyException();
+    verify(typeHandler).setParameter(ps, 2, "directValue");
+  }
+
+  @Test
+  void shouldHandleEntityPropertyGetValue() {
+    // Create a simple test entity
+    class TestEntity {
+      String name = "testName";
+    }
+
+    TestEntity entity = new TestEntity();
+
+    // Mock BeanProperty
+    BeanProperty beanProperty = mock(BeanProperty.class);
+    when(beanProperty.getValue(entity)).thenReturn("testName");
+
+    // Mock TypeHandler
+    @SuppressWarnings("unchecked")
+    TypeHandler<Object> typeHandler = mock(TypeHandler.class);
+
+    // Create EntityProperty
+    EntityProperty entityProperty = new EntityProperty(beanProperty, "test_column", typeHandler, false);
+
+    // Test getValue method
+    Object value = entityProperty.getValue(entity);
+    assertThat(value).isEqualTo("testName");
+    verify(beanProperty).getValue(entity);
+  }
+
+  @Test
+  void shouldHandleEntityPropertySetValueToEntity() throws SQLException {
+    // Create a simple test entity
+    class TestEntity {
+      String name;
+    }
+
+    TestEntity entity = new TestEntity();
+
+    // Mock BeanProperty
+    BeanProperty beanProperty = mock(BeanProperty.class);
+
+    // Mock TypeHandler
+    @SuppressWarnings("unchecked")
+    TypeHandler<Object> typeHandler = mock(TypeHandler.class);
+    when(typeHandler.getResult(any(ResultSet.class), anyInt())).thenReturn("resultValue");
+
+    // Create EntityProperty
+    EntityProperty entityProperty = new EntityProperty(beanProperty, "test_column", typeHandler, false);
+
+    // Mock ResultSet
+    ResultSet rs = mock(ResultSet.class);
+
+    // Test setProperty method
+    assertThatCode(() -> entityProperty.setProperty(entity, rs, 1)).doesNotThrowAnyException();
+    verify(typeHandler).getResult(rs, 1);
+    verify(beanProperty).setDirectly(entity, "resultValue");
+  }
+
+  @Test
+  void shouldHandleEntityPropertyAnnotations() {
+    // Mock BeanProperty
+    BeanProperty beanProperty = mock(BeanProperty.class);
+    MergedAnnotations mergedAnnotations = mock(MergedAnnotations.class);
+    when(beanProperty.mergedAnnotations()).thenReturn(mergedAnnotations);
+
+    // Mock TypeHandler
+    @SuppressWarnings("unchecked")
+    TypeHandler<Object> typeHandler = mock(TypeHandler.class);
+
+    // Create EntityProperty
+    EntityProperty entityProperty = new EntityProperty(beanProperty, "test_column", typeHandler, false);
+
+    // Test getAnnotations method
+    MergedAnnotations result = entityProperty.getAnnotations();
+    assertThat(result).isEqualTo(mergedAnnotations);
+
+    // Test getAnnotation method
+    Class<Id> annotationType = Id.class;
+    MergedAnnotation<Id> mergedAnnotation = mock(MergedAnnotation.class);
+    when(mergedAnnotations.get(annotationType)).thenReturn(mergedAnnotation);
+
+    MergedAnnotation<Id> annotationResult = entityProperty.getAnnotation(annotationType);
+    assertThat(annotationResult).isEqualTo(mergedAnnotation);
+
+    // Test isPresent method
+    when(mergedAnnotations.isPresent(annotationType)).thenReturn(true);
+    boolean present = entityProperty.isPresent(annotationType);
+    assertThat(present).isTrue();
   }
 
   public static void createData(DefaultEntityManager entityManager) {

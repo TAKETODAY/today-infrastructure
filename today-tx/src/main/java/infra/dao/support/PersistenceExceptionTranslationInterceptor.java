@@ -40,19 +40,18 @@ import infra.util.ReflectionUtils;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see PersistenceExceptionTranslator
  * @since 2.0
  */
 public class PersistenceExceptionTranslationInterceptor
         implements MethodInterceptor, BeanFactoryAware, InitializingBean {
 
-  @Nullable
-  private volatile PersistenceExceptionTranslator persistenceExceptionTranslator;
-
   private boolean alwaysTranslate = false;
 
-  @Nullable
-  private BeanFactory beanFactory;
+  private @Nullable BeanFactory beanFactory;
+
+  private volatile @Nullable PersistenceExceptionTranslator persistenceExceptionTranslator;
 
   /**
    * Create a new PersistenceExceptionTranslationInterceptor.
@@ -61,7 +60,6 @@ public class PersistenceExceptionTranslationInterceptor
    * @see #setPersistenceExceptionTranslator
    */
   public PersistenceExceptionTranslationInterceptor() {
-
   }
 
   /**

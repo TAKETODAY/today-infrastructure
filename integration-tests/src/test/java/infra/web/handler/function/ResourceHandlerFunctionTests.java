@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,11 +20,13 @@ package infra.web.handler.function;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
@@ -37,6 +39,7 @@ import infra.http.converter.ResourceRegionHttpMessageConverter;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.util.StringUtils;
+import infra.web.handler.function.ResourceHandlerFunction.HeadMethodResource;
 import infra.web.mock.MockRequestContext;
 import infra.web.view.PathPatternsTestUtils;
 
@@ -45,7 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Arjen Poutsma
  */
-public class ResourceHandlerFunctionTests {
+class ResourceHandlerFunctionTests {
 
   private final Resource resource = new ClassPathResource("response.txt", getClass());
 
@@ -56,14 +59,14 @@ public class ResourceHandlerFunctionTests {
   private ResourceHttpMessageConverter messageConverter;
 
   @BeforeEach
-  public void createContext() {
+  void createContext() {
     this.messageConverter = new ResourceHttpMessageConverter();
     ResourceRegionHttpMessageConverter regionConverter = new ResourceRegionHttpMessageConverter();
     this.context = () -> Arrays.asList(messageConverter, regionConverter);
   }
 
   @Test
-  public void get() throws Throwable {
+  void get() throws Throwable {
     HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
 
     MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
@@ -90,7 +93,7 @@ public class ResourceHandlerFunctionTests {
   }
 
   @Test
-  public void getRange() throws Throwable {
+  void getRange() throws Throwable {
     HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
     servletRequest.addHeader("Range", "bytes=0-5");
     MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
@@ -123,7 +126,7 @@ public class ResourceHandlerFunctionTests {
   }
 
   @Test
-  public void getInvalidRange() throws Throwable {
+  void getInvalidRange() throws Throwable {
     HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
     servletRequest.addHeader("Range", "bytes=0-10, 0-10, 0-10, 0-10, 0-10, 0-10");
 
@@ -153,7 +156,7 @@ public class ResourceHandlerFunctionTests {
   }
 
   @Test
-  public void head() throws Throwable {
+  void head() throws Throwable {
     HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("HEAD", "/", true);
 
     MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
@@ -180,7 +183,7 @@ public class ResourceHandlerFunctionTests {
   }
 
   @Test
-  public void options() throws Throwable {
+  void options() throws Throwable {
     HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("OPTIONS", "/", true);
 
     MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
@@ -202,6 +205,119 @@ public class ResourceHandlerFunctionTests {
     assertThat(methods).containsExactlyInAnyOrder("GET", "HEAD", "OPTIONS");
     byte[] actualBytes = servletResponse.getContentAsByteArray();
     assertThat(actualBytes.length).isEqualTo(0);
+  }
+
+  @Test
+  void postMethodNotAllowed() throws Exception {
+    HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("POST", "/", true);
+
+    MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
+    var requestContext = new MockRequestContext(null, servletRequest, servletResponse);
+
+    ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(new ResourceHttpMessageConverter()));
+
+    ServerResponse response = this.handlerFunction.handle(request);
+    assertThat(response.statusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
+    assertThat(response.headers().getAllow()).containsExactlyInAnyOrder(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.OPTIONS);
+  }
+
+  @Test
+  void putMethodNotAllowed() throws Exception {
+    HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("PUT", "/", true);
+
+    MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
+    var requestContext = new MockRequestContext(null, servletRequest, servletResponse);
+
+    ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(new ResourceHttpMessageConverter()));
+
+    ServerResponse response = this.handlerFunction.handle(request);
+    assertThat(response.statusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
+    assertThat(response.headers().getAllow()).containsExactlyInAnyOrder(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.OPTIONS);
+  }
+
+  @Test
+  void deleteMethodNotAllowed() throws Exception {
+    HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("DELETE", "/", true);
+
+    MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
+    var requestContext = new MockRequestContext(null, servletRequest, servletResponse);
+
+    ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(new ResourceHttpMessageConverter()));
+
+    ServerResponse response = this.handlerFunction.handle(request);
+    assertThat(response.statusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
+    assertThat(response.headers().getAllow()).containsExactlyInAnyOrder(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.OPTIONS);
+  }
+
+  @Test
+  void patchMethodNotAllowed() throws Exception {
+    HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("PATCH", "/", true);
+
+    MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
+    var requestContext = new MockRequestContext(null, servletRequest, servletResponse);
+
+    ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(new ResourceHttpMessageConverter()));
+
+    ServerResponse response = this.handlerFunction.handle(request);
+    assertThat(response.statusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
+    assertThat(response.headers().getAllow()).containsExactlyInAnyOrder(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.OPTIONS);
+  }
+
+  @Test
+  void traceMethodNotAllowed() throws Exception {
+    HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("TRACE", "/", true);
+
+    MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
+    var requestContext = new MockRequestContext(null, servletRequest, servletResponse);
+
+    ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(new ResourceHttpMessageConverter()));
+
+    ServerResponse response = this.handlerFunction.handle(request);
+    assertThat(response.statusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
+    assertThat(response.headers().getAllow()).containsExactlyInAnyOrder(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.OPTIONS);
+  }
+
+  @Test
+  void headMethodResourceGetInputStreamReturnsEmptyStream() throws IOException {
+    Resource originalResource = new ClassPathResource("response.txt", getClass());
+    HeadMethodResource headResource = new HeadMethodResource(originalResource);
+
+    try (InputStream inputStream = headResource.getInputStream()) {
+      assertThat(inputStream).isNotNull();
+      assertThat(inputStream.read()).isEqualTo(-1); // EOF
+    }
+  }
+
+  @Test
+  void headMethodResourceDelegatesAllMethods() throws IOException {
+    Resource originalResource = new ClassPathResource("response.txt", getClass());
+    HeadMethodResource headResource = new HeadMethodResource(originalResource);
+
+    assertThat(headResource.exists()).isEqualTo(originalResource.exists());
+    assertThat(headResource.getURL()).isEqualTo(originalResource.getURL());
+    assertThat(headResource.getURI()).isEqualTo(originalResource.getURI());
+    assertThat(headResource.getFile()).isEqualTo(originalResource.getFile());
+    assertThat(headResource.contentLength()).isEqualTo(originalResource.contentLength());
+    assertThat(headResource.lastModified()).isEqualTo(originalResource.lastModified());
+    assertThat(headResource.getName()).isEqualTo(originalResource.getName());
+    assertThat(headResource.toString()).isEqualTo(originalResource.toString());
+  }
+
+  @Test
+  void resourceHandlerFunctionWithHeadersConsumer() throws Throwable {
+    HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
+    MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
+    var requestContext = new MockRequestContext(null, servletRequest, servletResponse);
+    ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(new ResourceHttpMessageConverter()));
+
+    BiConsumer<Resource, HttpHeaders> headersConsumer = (resource, headers) -> headers.set("X-Test-Header", "test-value");
+    ResourceHandlerFunction handlerFunctionWithHeaders = new ResourceHandlerFunction(this.resource, headersConsumer);
+
+    ServerResponse response = handlerFunctionWithHeaders.handle(request);
+    Object mav = response.writeTo(requestContext, this.context);
+
+    assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
+    assertThat(servletResponse.getHeader("X-Test-Header")).isEqualTo("test-value");
   }
 
 }

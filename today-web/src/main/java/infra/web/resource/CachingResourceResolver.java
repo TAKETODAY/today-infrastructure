@@ -136,8 +136,7 @@ public class CachingResourceResolver extends AbstractResourceResolver {
     return RESOLVED_RESOURCE_CACHE_KEY_PREFIX + requestPath;
   }
 
-  @Nullable
-  private String getContentCodingKey(RequestContext request) {
+  @Nullable String getContentCodingKey(RequestContext request) {
     String header = request.getHeaders().getFirst(HttpHeaders.ACCEPT_ENCODING);
     if (StringUtils.hasText(header)) {
       return Arrays.stream(StringUtils.tokenizeToStringArray(header, ","))

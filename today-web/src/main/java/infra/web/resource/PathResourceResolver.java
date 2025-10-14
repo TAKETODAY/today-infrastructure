@@ -208,7 +208,7 @@ public class PathResourceResolver extends AbstractResourceResolver {
     return false;
   }
 
-  private String encodeOrDecodeIfNecessary(String path, @Nullable RequestContext request, Resource location) {
+  String encodeOrDecodeIfNecessary(String path, @Nullable RequestContext request, Resource location) {
     if (request != null) {
       if (shouldDecodeRelativePath(location)) {
         try {
@@ -236,7 +236,7 @@ public class PathResourceResolver extends AbstractResourceResolver {
     return path;
   }
 
-  private boolean shouldDecodeRelativePath(Resource location) {
+  boolean shouldDecodeRelativePath(Resource location) {
     return !(location instanceof UrlResource);
   }
 
@@ -244,7 +244,7 @@ public class PathResourceResolver extends AbstractResourceResolver {
    * When the {@code HandlerMapping} is set to not decode the URL path, the
    * path needs to be decoded for non-{@code UrlResource} locations.
    */
-  private boolean shouldEncodeRelativePath(Resource location) {
+  boolean shouldEncodeRelativePath(Resource location) {
     return urlDecode && location instanceof UrlResource;
   }
 

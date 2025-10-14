@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,127 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @since 4.0 2022/3/7 15:31
  */
 class RollbackRuleAttributeTests {
+
+  @Test
+  void constructorWithExceptionType() {
+    RollbackRuleAttribute rule = new RollbackRuleAttribute(RuntimeException.class);
+    assertThat(rule).isNotNull();
+    assertThat(rule.getExceptionName()).isEqualTo(RuntimeException.class.getName());
+  }
+
+  @Test
+  void constructorWithExceptionPattern() {
+    String exceptionPattern = "java.lang.RuntimeException";
+    RollbackRuleAttribute rule = new RollbackRuleAttribute(exceptionPattern);
+    assertThat(rule).isNotNull();
+    assertThat(rule.getExceptionName()).isEqualTo(exceptionPattern);
+  }
+
+  @Test
+  void getExceptionNameReturnsPattern() {
+    String exceptionPattern = "TestException";
+    RollbackRuleAttribute rule = new RollbackRuleAttribute(exceptionPattern);
+    assertThat(rule.getExceptionName()).isEqualTo(exceptionPattern);
+  }
+
+  @Test
+  void equalsWithSameInstance() {
+    RollbackRuleAttribute rule = new RollbackRuleAttribute(RuntimeException.class);
+    assertThat(rule.equals(rule)).isTrue();
+  }
+
+  @Test
+  void equalsWithDifferentType() {
+    RollbackRuleAttribute rule = new RollbackRuleAttribute(RuntimeException.class);
+    assertThat(rule.equals("different")).isFalse();
+  }
+
+  @Test
+  void equalsWithNull() {
+    RollbackRuleAttribute rule = new RollbackRuleAttribute(RuntimeException.class);
+    assertThat(rule.equals(null)).isFalse();
+  }
+
+  @Test
+  void equalsWithSamePattern() {
+    RollbackRuleAttribute rule1 = new RollbackRuleAttribute("TestException");
+    RollbackRuleAttribute rule2 = new RollbackRuleAttribute("TestException");
+    assertThat(rule1.equals(rule2)).isTrue();
+  }
+
+  @Test
+  void equalsWithDifferentPattern() {
+    RollbackRuleAttribute rule1 = new RollbackRuleAttribute("TestException1");
+    RollbackRuleAttribute rule2 = new RollbackRuleAttribute("TestException2");
+    assertThat(rule1.equals(rule2)).isFalse();
+  }
+
+  @Test
+  void hashCodeReturnsPatternHashCode() {
+    String exceptionPattern = "TestException";
+    RollbackRuleAttribute rule = new RollbackRuleAttribute(exceptionPattern);
+    assertThat(rule.hashCode()).isEqualTo(exceptionPattern.hashCode());
+  }
+
+  @Test
+  void toStringReturnsFormattedString() {
+    RollbackRuleAttribute rule = new RollbackRuleAttribute(RuntimeException.class);
+    assertThat(rule.toString()).isEqualTo("RollbackRuleAttribute with pattern [" + RuntimeException.class.getName() + "]");
+  }
+
+  @Test
+  void getDepthWithExactMatchUsingExceptionType() {
+    RollbackRuleAttribute rule = new RollbackRuleAttribute(Exception.class);
+    Exception exception = new Exception();
+    assertThat(rule.getDepth(exception)).isEqualTo(0);
+  }
+
+  @Test
+  void getDepthWithSuperclassMatchUsingExceptionType() {
+    RollbackRuleAttribute rule = new RollbackRuleAttribute(Exception.class);
+    RuntimeException exception = new RuntimeException();
+    assertThat(rule.getDepth(exception)).isEqualTo(1);
+  }
+
+  @Test
+  void getDepthWithNoMatchUsingExceptionType() {
+    RollbackRuleAttribute rule = new RollbackRuleAttribute(RuntimeException.class);
+    Exception exception = new Exception();
+    assertThat(rule.getDepth(exception)).isEqualTo(-1);
+  }
+
+  @Test
+  void getDepthWithExactMatchUsingExceptionPattern() {
+    RollbackRuleAttribute rule = new RollbackRuleAttribute("java.lang.Exception");
+    Exception exception = new Exception();
+    assertThat(rule.getDepth(exception)).isEqualTo(0);
+  }
+
+  @Test
+  void getDepthWithPatternMatchUsingExceptionPattern() {
+    RollbackRuleAttribute rule = new RollbackRuleAttribute("Exception");
+    RuntimeException exception = new RuntimeException();
+    assertThat(rule.getDepth(exception)).isEqualTo(0);
+  }
+
+  @Test
+  void getDepthWithNoMatchUsingExceptionPattern() {
+    RollbackRuleAttribute rule = new RollbackRuleAttribute("java.lang.RuntimeException");
+    Exception exception = new Exception();
+    assertThat(rule.getDepth(exception)).isEqualTo(-1);
+  }
+
+  @Test
+  void rollbackOnAllExceptionsConstant() {
+    assertThat(RollbackRuleAttribute.ROLLBACK_ON_ALL_EXCEPTIONS).isNotNull();
+    assertThat(RollbackRuleAttribute.ROLLBACK_ON_ALL_EXCEPTIONS.getExceptionName()).isEqualTo(Exception.class.getName());
+  }
+
+  @Test
+  void rollbackOnRuntimeExceptionsConstant() {
+    assertThat(RollbackRuleAttribute.ROLLBACK_ON_RUNTIME_EXCEPTIONS).isNotNull();
+    assertThat(RollbackRuleAttribute.ROLLBACK_ON_RUNTIME_EXCEPTIONS.getExceptionName()).isEqualTo(RuntimeException.class.getName());
+  }
 
   @Nested
   class ExceptionPatternTests {

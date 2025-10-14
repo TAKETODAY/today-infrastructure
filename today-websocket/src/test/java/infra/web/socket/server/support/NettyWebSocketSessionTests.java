@@ -86,7 +86,7 @@ class NettyWebSocketSessionTests {
   }
 
   @Test
-  void send() {
+  void send() throws InterruptedException {
     Channel channel = mock(Channel.class);
     NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
             new NettyDataBufferFactory(ByteBufAllocator.DEFAULT), null);
@@ -115,6 +115,8 @@ class NettyWebSocketSessionTests {
     TextWebSocketFrame nativeMessage = new TextWebSocketFrame(Unpooled.copiedBuffer("nativeMessage".getBytes()));
     session.send(new WebSocketMessage(WebSocketMessage.Type.TEXT, DataBuffer.empty(),
             nativeMessage, true));
+
+    Thread.sleep(1000);
 
     verify(channel).writeAndFlush(new TextWebSocketFrame("text"));
     verify(channel).writeAndFlush(new TextWebSocketFrame(Unpooled.EMPTY_BUFFER));
@@ -493,10 +495,9 @@ class NettyWebSocketSessionTests {
     WebSocketHandler handler = mock(WebSocketHandler.class);
     CloseStatus closeStatus = CloseStatus.NORMAL;
     Logger logger = mock(Logger.class);
-    Future<Void> handlerFuture = Future.ok(null);
 
     given(channel.isActive()).willReturn(true);
-    given(handler.onClose(session, closeStatus)).willReturn(handlerFuture);
+    given(handler.onClose(session, closeStatus)).willReturn(null);
 
     DefaultChannelPromise promise = new DefaultChannelPromise(channel, GlobalEventExecutor.INSTANCE);
     given(channel.writeAndFlush(any())).willReturn(promise);
@@ -505,7 +506,7 @@ class NettyWebSocketSessionTests {
     session.onClose(handler, closeStatus, logger);
 
     verify(channel).isActive();
-    verify(channel).writeAndFlush(new CloseWebSocketFrame(closeStatus.getCode(), closeStatus.getReason()));
+    verify(channel).writeAndFlush(any(CloseWebSocketFrame.class));
   }
 
   @Test

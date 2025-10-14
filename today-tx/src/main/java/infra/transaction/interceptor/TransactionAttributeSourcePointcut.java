@@ -79,7 +79,7 @@ final class TransactionAttributeSourcePointcut extends StaticMethodMatcherPointc
    * {@link ClassFilter} that delegates to {@link TransactionAttributeSource#isCandidateClass}
    * for filtering classes whose methods are not worth searching to begin with.
    */
-  private final class TransactionAttributeSourceClassFilter implements ClassFilter {
+  final class TransactionAttributeSourceClassFilter implements ClassFilter {
 
     @Override
     public boolean matches(Class<?> clazz) {

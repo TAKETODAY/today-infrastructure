@@ -19,7 +19,6 @@ package infra.web.server.error;
 
 import org.jspecify.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.Map;
 
 import infra.web.RequestContext;
@@ -46,9 +45,7 @@ public interface ErrorAttributes {
    * @param options options for error attribute contents
    * @return a map of error attributes
    */
-  default Map<String, Object> getErrorAttributes(RequestContext context, ErrorAttributeOptions options) {
-    return Collections.emptyMap();
-  }
+  Map<String, Object> getErrorAttributes(RequestContext context, ErrorAttributeOptions options);
 
   /**
    * Return the underlying cause of the error or {@code null} if the error cannot be

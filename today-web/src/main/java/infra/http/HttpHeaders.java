@@ -53,6 +53,7 @@ import infra.lang.Unmodifiable;
 import infra.util.CollectionUtils;
 import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.MultiValueMap;
+import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
@@ -1886,13 +1887,13 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   @Nullable
   @Override
   public List<String> setOrRemove(String name, String @Nullable [] value) {
-    return setOrRemove(name, value == null ? null : toCommaDelimitedString(Arrays.asList(value)));
+    return setOrRemove(name, ObjectUtils.isEmpty(value) ? null : toCommaDelimitedString(Arrays.asList(value)));
   }
 
   @Nullable
   @Override
   public List<String> setOrRemove(String name, @Nullable Collection<String> value) {
-    return setOrRemove(name, toCommaDelimitedString(value));
+    return setOrRemove(name, CollectionUtils.isEmpty(value) ? null : toCommaDelimitedString(value));
   }
 
   /**

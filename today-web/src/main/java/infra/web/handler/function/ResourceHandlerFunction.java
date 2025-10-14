@@ -76,7 +76,7 @@ class ResourceHandlerFunction implements HandlerFunction<ServerResponse> {
             .allow(SUPPORTED_METHODS).build();
   }
 
-  private static class HeadMethodResource implements Resource {
+  static class HeadMethodResource implements Resource {
 
     private static final byte[] EMPTY = new byte[0];
 

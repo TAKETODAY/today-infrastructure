@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,12 +39,13 @@ import jakarta.persistence.PersistenceException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author Rod Johnson
  * @author Juergen Hoeller
  */
-public class PersistenceExceptionTranslationPostProcessorTests {
+class PersistenceExceptionTranslationPostProcessorTests {
 
   @Test
   @SuppressWarnings("resource")
@@ -80,6 +81,59 @@ public class PersistenceExceptionTranslationPostProcessorTests {
     assertThatExceptionOfType(DataAccessResourceFailureException.class).isThrownBy(() ->
                     rwi2.additionalMethod(true))
             .withMessage("my failure");
+  }
+
+  @Test
+  void constructorCreatesPostProcessorWithDefaultRepositoryAnnotation() {
+    PersistenceExceptionTranslationPostProcessor postProcessor = new PersistenceExceptionTranslationPostProcessor();
+
+    assertThat(postProcessor).isNotNull();
+  }
+
+  @Test
+  void setRepositoryAnnotationTypeWithValidType() {
+    PersistenceExceptionTranslationPostProcessor postProcessor = new PersistenceExceptionTranslationPostProcessor();
+    postProcessor.setRepositoryAnnotationType(Repository.class);
+
+    assertThat(postProcessor).isNotNull();
+  }
+
+  @Test
+  void setRepositoryAnnotationTypeWithNullTypeThrowsException() {
+    PersistenceExceptionTranslationPostProcessor postProcessor = new PersistenceExceptionTranslationPostProcessor();
+
+    assertThatThrownBy(() -> postProcessor.setRepositoryAnnotationType(null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("'repositoryAnnotationType' is required");
+  }
+
+  @Test
+  void setBeanFactoryInitializesAdvisor() {
+    PersistenceExceptionTranslationPostProcessor postProcessor = new PersistenceExceptionTranslationPostProcessor();
+    GenericApplicationContext beanFactory = new GenericApplicationContext();
+
+    postProcessor.setBeanFactory(beanFactory);
+
+    assertThat(postProcessor).extracting("advisor").isNotNull();
+    assertThat(postProcessor).extracting("advisor").isInstanceOf(PersistenceExceptionTranslationAdvisor.class);
+  }
+
+  @Test
+  void postProcessorWithCustomRepositoryAnnotation() {
+    GenericApplicationContext gac = new GenericApplicationContext();
+    PersistenceExceptionTranslationPostProcessor postProcessor = new PersistenceExceptionTranslationPostProcessor();
+    postProcessor.setRepositoryAnnotationType(Repository.class);
+
+    gac.registerBeanDefinition("translator",
+            new RootBeanDefinition(PersistenceExceptionTranslationPostProcessor.class));
+    gac.registerBeanDefinition("proxied",
+            new RootBeanDefinition(StereotypedRepositoryInterfaceImpl.class));
+    gac.registerBeanDefinition("myTranslator",
+            new RootBeanDefinition(MyPersistenceExceptionTranslator.class));
+    gac.refresh();
+
+    RepositoryInterface shouldBeProxied = (RepositoryInterface) gac.getBean("proxied");
+    assertThat(AopUtils.isAopProxy(shouldBeProxied)).isTrue();
   }
 
   protected void checkWillTranslateExceptions(Object o) {

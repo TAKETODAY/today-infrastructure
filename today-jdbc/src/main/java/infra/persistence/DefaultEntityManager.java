@@ -1400,7 +1400,7 @@ public class DefaultEntityManager implements EntityManager {
     return idx;
   }
 
-  private static void assertUpdateCount(String sql, int actualCount, int expectCount) {
+  static void assertUpdateCount(String sql, int actualCount, int expectCount) {
     if (actualCount != expectCount) {
       throw new JdbcUpdateAffectedIncorrectNumberOfRowsException(sql, expectCount, actualCount);
     }

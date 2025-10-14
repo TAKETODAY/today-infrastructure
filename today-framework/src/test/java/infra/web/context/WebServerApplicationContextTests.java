@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,6 +47,47 @@ class WebServerApplicationContextTests {
 
   @Test
   void hasServerNamespaceWhenContextIsWebServerApplicationContextAndNamespaceMatchesReturnsTrue() {
+    WebServerApplicationContext context = mock(WebServerApplicationContext.class);
+    given(context.getServerNamespace()).willReturn("test");
+    assertThat(WebServerApplicationContext.hasServerNamespace(context, "test")).isTrue();
+  }
+
+  @Test
+  void getServerNamespaceWhenContextIsNotWebServerApplicationContextReturnsNull() {
+    ApplicationContext context = mock(ApplicationContext.class);
+    assertThat(WebServerApplicationContext.getServerNamespace(context)).isNull();
+  }
+
+  @Test
+  void getServerNamespaceWhenContextIsWebServerApplicationContextAndNamespaceIsNullReturnsNull() {
+    WebServerApplicationContext context = mock(WebServerApplicationContext.class);
+    given(context.getServerNamespace()).willReturn(null);
+    assertThat(WebServerApplicationContext.getServerNamespace(context)).isNull();
+  }
+
+  @Test
+  void getServerNamespaceWhenContextIsWebServerApplicationContextAndNamespaceIsSetReturnsNamespace() {
+    WebServerApplicationContext context = mock(WebServerApplicationContext.class);
+    given(context.getServerNamespace()).willReturn("management");
+    assertThat(WebServerApplicationContext.getServerNamespace(context)).isEqualTo("management");
+  }
+
+  @Test
+  void hasServerNamespaceWhenServerNamespaceIsNullReturnsFalse() {
+    WebServerApplicationContext context = mock(WebServerApplicationContext.class);
+    given(context.getServerNamespace()).willReturn(null);
+    assertThat(WebServerApplicationContext.hasServerNamespace(context, "test")).isFalse();
+  }
+
+  @Test
+  void hasServerNamespaceWhenServerNamespaceDoesNotMatchReturnsFalse() {
+    WebServerApplicationContext context = mock(WebServerApplicationContext.class);
+    given(context.getServerNamespace()).willReturn("management");
+    assertThat(WebServerApplicationContext.hasServerNamespace(context, "test")).isFalse();
+  }
+
+  @Test
+  void hasServerNamespaceWhenServerNamespaceMatchesReturnsTrue() {
     WebServerApplicationContext context = mock(WebServerApplicationContext.class);
     given(context.getServerNamespace()).willReturn("test");
     assertThat(WebServerApplicationContext.hasServerNamespace(context, "test")).isTrue();

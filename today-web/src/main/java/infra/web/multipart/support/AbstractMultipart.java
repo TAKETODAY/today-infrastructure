@@ -51,8 +51,7 @@ import infra.web.multipart.Multipart;
  */
 public abstract class AbstractMultipart implements Multipart {
 
-  @Nullable
-  protected HttpHeaders headers;
+  protected @Nullable HttpHeaders headers;
 
   @Override
   public HttpHeaders getHeaders() {

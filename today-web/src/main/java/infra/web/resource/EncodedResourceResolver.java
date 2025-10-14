@@ -173,7 +173,7 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
     return header != null ? header.toLowerCase(Locale.ROOT) : null;
   }
 
-  private String getExtension(String coding) {
+  String getExtension(String coding) {
     String extension = this.extensions.get(coding);
     if (extension == null) {
       throw new IllegalStateException("No file extension associated with content coding " + coding);
@@ -194,7 +194,7 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
 
     private final String coding;
 
-    private final Resource encoded;
+    final Resource encoded;
 
     private final Resource original;
 
