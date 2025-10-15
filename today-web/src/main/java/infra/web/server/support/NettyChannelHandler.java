@@ -68,6 +68,11 @@ public class NettyChannelHandler extends ChannelInboundHandlerAdapter {
   }
 
   @Override
+  public boolean isSharable() {
+    return false;
+  }
+
+  @Override
   public final void channelRead(final ChannelHandlerContext ctx, final Object msg) throws IOException {
     if (msg instanceof HttpRequest request) {
       Channel channel = ctx.channel();
