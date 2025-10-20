@@ -153,10 +153,8 @@ public class LoggingApplicationListener implements GenericApplicationListener {
     MultiValueMap<String, String> loggers = new LinkedMultiValueMap<>();
     loggers.add("web", "infra.core.codec");
     loggers.add("web", "infra.http");
-    loggers.add("web", "infra.web");
     loggers.add("web", "infra.session");
     loggers.add("web", "infra.web");
-    loggers.add("web", "infra.actuate.endpoint.web");
     loggers.add("sql", "infra.jdbc.core");
     loggers.add("sql", "org.hibernate.SQL");
     loggers.add("sql", "today.SQL");
@@ -193,19 +191,17 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
-  private LoggingSystem loggingSystem;
+  private @Nullable LoggingSystem loggingSystem;
 
-  private LogFile logFile;
+  private @Nullable LogFile logFile;
 
-  @Nullable
-  private LoggerGroups loggerGroups;
+  private @Nullable LoggerGroups loggerGroups;
 
   private int order = DEFAULT_ORDER;
 
   private boolean parseArgs = true;
 
-  @Nullable
-  private LogLevel infraLogging = null;
+  private @Nullable LogLevel infraLogging = null;
 
   @Override
   public boolean supportsEventType(ResolvableType resolvableType) {
@@ -213,11 +209,11 @@ public class LoggingApplicationListener implements GenericApplicationListener {
   }
 
   @Override
-  public boolean supportsSourceType(Class<?> sourceType) {
+  public boolean supportsSourceType(@Nullable Class<?> sourceType) {
     return isAssignableFrom(sourceType, SOURCE_TYPES);
   }
 
-  private boolean isAssignableFrom(Class<?> type, Class<?>... supportedTypes) {
+  private boolean isAssignableFrom(@Nullable Class<?> type, Class<?>... supportedTypes) {
     if (type != null) {
       for (Class<?> supportedType : supportedTypes) {
         if (supportedType.isAssignableFrom(type)) {
