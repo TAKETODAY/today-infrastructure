@@ -144,7 +144,7 @@ public class FileSessionPersister implements SessionPersister {
     }
 
     // Build and return the list of session identifiers
-    ArrayList<String> list = new ArrayList<>();
+    ArrayList<String> list = new ArrayList<>(files.length);
     int n = FILE_EXT.length();
     for (String file : files) {
       if (file.endsWith(FILE_EXT)) {
