@@ -310,7 +310,6 @@ public class InMemorySessionRepository implements SessionRepository {
     }
 
     @Override
-    @SuppressWarnings("NullAway")
     public String getId() {
       return id.get();
     }
