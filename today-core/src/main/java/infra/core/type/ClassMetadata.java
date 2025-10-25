@@ -123,8 +123,6 @@ public interface ClassMetadata {
    */
   String[] getMemberClassNames();
 
-  int getModifiers();
-
   /**
    * Retrieve the method metadata for all user-declared methods on the
    * underlying class, preserving declaration order as far as possible.

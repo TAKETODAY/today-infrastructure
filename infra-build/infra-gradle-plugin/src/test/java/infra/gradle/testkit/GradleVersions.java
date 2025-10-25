@@ -19,7 +19,6 @@ package infra.gradle.testkit;
 
 import org.gradle.util.GradleVersion;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
