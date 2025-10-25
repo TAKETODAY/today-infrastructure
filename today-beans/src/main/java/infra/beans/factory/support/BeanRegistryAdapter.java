@@ -20,6 +20,7 @@ package infra.beans.factory.support;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -55,8 +56,7 @@ public class BeanRegistryAdapter implements BeanRegistry {
 
   private final Class<? extends BeanRegistrar> beanRegistrarClass;
 
-  @Nullable
-  private final MultiValueMap<String, BeanDefinitionCustomizer> customizers;
+  private final @Nullable MultiValueMap<String, BeanDefinitionCustomizer> customizers;
 
   public BeanRegistryAdapter(StandardBeanFactory beanFactory, Environment environment,
           Class<? extends BeanRegistrar> beanRegistrarClass) {
@@ -82,6 +82,11 @@ public class BeanRegistryAdapter implements BeanRegistry {
   }
 
   @Override
+  public void registerAlias(String name, String alias) {
+    this.beanRegistry.registerAlias(name, alias);
+  }
+
+  @Override
   public <T> String registerBean(Class<T> beanClass) {
     String beanName = BeanDefinitionReaderUtils.uniqueBeanName(beanClass.getName(), this.beanRegistry);
     registerBean(beanName, beanClass);
@@ -89,9 +94,26 @@ public class BeanRegistryAdapter implements BeanRegistry {
   }
 
   @Override
+  public <T> String registerBean(ParameterizedTypeReference<T> beanType) {
+    ResolvableType resolvableType = ResolvableType.forType(beanType);
+    String beanName = BeanDefinitionReaderUtils.uniqueBeanName(Objects.requireNonNull(resolvableType.resolve()).getName(), this.beanRegistry);
+    registerBean(beanName, beanType);
+    return beanName;
+  }
+
+  @Override
   public <T> String registerBean(Class<T> beanClass, Consumer<Spec<T>> customizer) {
     String beanName = BeanDefinitionReaderUtils.uniqueBeanName(beanClass.getName(), this.beanRegistry);
     registerBean(beanName, beanClass, customizer);
+    return beanName;
+  }
+
+  @Override
+  public <T> String registerBean(ParameterizedTypeReference<T> beanType, Consumer<Spec<T>> customizer) {
+    ResolvableType resolvableType = ResolvableType.forType(beanType);
+    Class<?> beanClass = Objects.requireNonNull(resolvableType.resolve());
+    String beanName = BeanDefinitionReaderUtils.uniqueBeanName(beanClass.getName(), this.beanRegistry);
+    registerBean(beanName, beanType, customizer);
     return beanName;
   }
 
@@ -107,9 +129,11 @@ public class BeanRegistryAdapter implements BeanRegistry {
   }
 
   @Override
-  public <T> void registerBean(String name, Class<T> beanClass, Consumer<Spec<T>> spec) {
+  public <T> void registerBean(String name, ParameterizedTypeReference<T> beanType) {
+    ResolvableType resolvableType = ResolvableType.forType(beanType);
+    Class<?> beanClass = Objects.requireNonNull(resolvableType.resolve());
     BeanRegistrarBeanDefinition beanDefinition = new BeanRegistrarBeanDefinition(beanClass, this.beanRegistrarClass);
-    spec.accept(new BeanSpecAdapter<>(beanDefinition, this.beanFactory));
+    beanDefinition.setTargetType(resolvableType);
     if (this.customizers != null && this.customizers.containsKey(name)) {
       for (BeanDefinitionCustomizer customizer : this.customizers.get(name)) {
         customizer.customize(beanDefinition);
@@ -119,14 +143,36 @@ public class BeanRegistryAdapter implements BeanRegistry {
   }
 
   @Override
-  public void register(BeanRegistrar registrar) {
-    Assert.notNull(registrar, "'registrar' is required");
-    registrar.register(this, this.environment);
+  public <T> void registerBean(String name, Class<T> beanClass, Consumer<Spec<T>> customizer) {
+    BeanRegistrarBeanDefinition beanDefinition = new BeanRegistrarBeanDefinition(beanClass, this.beanRegistrarClass);
+    customizer.accept(new BeanSpecAdapter<>(beanDefinition, this.beanFactory));
+    if (this.customizers != null && this.customizers.containsKey(name)) {
+      for (BeanDefinitionCustomizer registryCustomizer : this.customizers.get(name)) {
+        registryCustomizer.customize(beanDefinition);
+      }
+    }
+    this.beanRegistry.registerBeanDefinition(name, beanDefinition);
   }
 
   @Override
-  public void registerAlias(String name, String alias) {
-    this.beanRegistry.registerAlias(name, alias);
+  public <T> void registerBean(String name, ParameterizedTypeReference<T> beanType, Consumer<Spec<T>> customizer) {
+    ResolvableType resolvableType = ResolvableType.forType(beanType);
+    Class<?> beanClass = Objects.requireNonNull(resolvableType.resolve());
+    BeanRegistrarBeanDefinition beanDefinition = new BeanRegistrarBeanDefinition(beanClass, this.beanRegistrarClass);
+    beanDefinition.setTargetType(resolvableType);
+    customizer.accept(new BeanSpecAdapter<>(beanDefinition, this.beanFactory));
+    if (this.customizers != null && this.customizers.containsKey(name)) {
+      for (BeanDefinitionCustomizer registryCustomizer : this.customizers.get(name)) {
+        registryCustomizer.customize(beanDefinition);
+      }
+    }
+    this.beanRegistry.registerBeanDefinition(name, beanDefinition);
+  }
+
+  @Override
+  public void register(BeanRegistrar registrar) {
+    Assert.notNull(registrar, "'registrar' is required");
+    registrar.register(this, this.environment);
   }
 
   /**
@@ -166,7 +212,7 @@ public class BeanRegistryAdapter implements BeanRegistry {
     }
   }
 
-  static class BeanSpecAdapter<T> implements Spec<T> {
+  private static class BeanSpecAdapter<T> implements Spec<T> {
 
     private final RootBeanDefinition beanDefinition;
 
@@ -237,21 +283,9 @@ public class BeanRegistryAdapter implements BeanRegistry {
               supplier.apply(new SupplierContextAdapter(this.beanFactory)));
       return this;
     }
-
-    @Override
-    public Spec<T> targetType(ParameterizedTypeReference<? extends T> targetType) {
-      this.beanDefinition.setTargetType(ResolvableType.forType(targetType));
-      return this;
-    }
-
-    @Override
-    public Spec<T> targetType(ResolvableType targetType) {
-      this.beanDefinition.setTargetType(targetType);
-      return this;
-    }
   }
 
-  static class SupplierContextAdapter implements SupplierContext {
+  private static class SupplierContextAdapter implements SupplierContext {
 
     private final BeanFactory beanFactory;
 
@@ -260,23 +294,28 @@ public class BeanRegistryAdapter implements BeanRegistry {
     }
 
     @Override
-    public <T> T bean(Class<T> requiredType) throws BeansException {
-      return this.beanFactory.getBean(requiredType);
+    public <T> T bean(Class<T> beanClass) throws BeansException {
+      return this.beanFactory.getBean(beanClass);
     }
 
     @Override
-    public <T> T bean(String name, Class<T> requiredType) throws BeansException {
-      return this.beanFactory.getBean(name, requiredType);
+    public <T> T bean(ParameterizedTypeReference<T> beanType) throws BeansException {
+      return this.beanFactory.getBeanProvider(beanType).get();
     }
 
     @Override
-    public <T> ObjectProvider<T> beanProvider(Class<T> requiredType) {
-      return this.beanFactory.getBeanProvider(requiredType);
+    public <T> T bean(String name, Class<T> beanClass) throws BeansException {
+      return this.beanFactory.getBean(name, beanClass);
     }
 
     @Override
-    public <T> ObjectProvider<T> beanProvider(ResolvableType requiredType) {
-      return this.beanFactory.getBeanProvider(requiredType);
+    public <T> ObjectProvider<T> beanProvider(Class<T> beanClass) {
+      return this.beanFactory.getBeanProvider(beanClass);
+    }
+
+    @Override
+    public <T> ObjectProvider<T> beanProvider(ParameterizedTypeReference<T> beanType) {
+      return this.beanFactory.getBeanProvider(beanType);
     }
   }
 
