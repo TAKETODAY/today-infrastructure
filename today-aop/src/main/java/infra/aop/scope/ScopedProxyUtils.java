@@ -82,13 +82,19 @@ public abstract class ScopedProxyUtils {
     // Copy autowire settings from original bean definition.
     proxyDefinition.setAutowireCandidate(targetDefinition.isAutowireCandidate());
     proxyDefinition.setPrimary(targetDefinition.isPrimary());
-    if (targetDefinition instanceof AbstractBeanDefinition) {
-      proxyDefinition.copyQualifiersFrom((AbstractBeanDefinition) targetDefinition);
+    proxyDefinition.setFallback(targetDefinition.isFallback());
+    if (targetDefinition instanceof AbstractBeanDefinition abd) {
+      proxyDefinition.setDefaultCandidate(abd.isDefaultCandidate());
+      proxyDefinition.copyQualifiersFrom(abd);
     }
 
     // The target bean should be ignored in favor of the scoped proxy.
     targetDefinition.setAutowireCandidate(false);
     targetDefinition.setPrimary(false);
+    targetDefinition.setFallback(false);
+    if (targetDefinition instanceof AbstractBeanDefinition abd) {
+      abd.setDefaultCandidate(false);
+    }
 
     // Register the target bean as separate bean in the factory.
     registry.registerBeanDefinition(targetBeanName, targetDefinition);
@@ -120,13 +126,12 @@ public abstract class ScopedProxyUtils {
    * @see #getTargetBeanName(String)
    * @see #isScopedTarget(String)
    */
-  @SuppressWarnings("NullAway")
   public static String getOriginalBeanName(@Nullable String targetBeanName) {
     if (isScopedTarget(targetBeanName)) {
       return targetBeanName.substring(TARGET_NAME_PREFIX_LENGTH);
     }
     throw new IllegalArgumentException(
-            "bean name '" + targetBeanName + "' does not refer to the target of a scoped proxy");
+            "bean name '%s' does not refer to the target of a scoped proxy".formatted(targetBeanName));
   }
 
   /**
