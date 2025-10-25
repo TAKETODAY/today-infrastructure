@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,13 +32,13 @@ import infra.util.DataSize;
 import infra.web.server.ServerProperties;
 import infra.web.server.Ssl;
 import infra.web.server.context.AnnotationConfigWebServerApplicationContext;
-import infra.web.server.support.NettyChannelHandler;
+import infra.web.server.support.ChannelHandlerFactory;
+import infra.web.server.support.NettyChannelHandlerFactory;
 import infra.web.server.support.NettyWebServerFactory;
 import infra.web.server.support.StandardNettyWebEnvironment;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 
-import static infra.web.server.ChannelWebServerFactory.CHANNEL_HANDLER_BEAN_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -90,7 +90,6 @@ class NettyWebServerFactoryAutoConfigurationTests {
     assertThat(netty.maxConnection).isEqualTo(1024);
     assertThat(netty.loggingLevel).isEqualTo(LogLevel.DEBUG);
     assertThat(netty.maxContentLength).isEqualTo(DataSize.ofMegabytes(10));
-    assertThat(netty.closeOnExpectationFailed).isEqualTo(true);
     assertThat(netty.maxChunkSize).isEqualTo(DataSize.ofKilobytes(1));
     assertThat(netty.maxHeaderSize).isEqualTo(DataSize.ofBytes(120));
     assertThat(netty.maxInitialLineLength).isEqualTo(100);
@@ -155,8 +154,8 @@ class NettyWebServerFactoryAutoConfigurationTests {
   @ClassPathExclusions("today-websocket*")
   void wsNotPresent() {
     contextRunner.run(context -> {
-      assertThat(context.getBean(CHANNEL_HANDLER_BEAN_NAME).getClass()).isSameAs(NettyChannelHandler.class);
-      assertThat(context.getBean(NettyChannelHandler.class).getClass()).isSameAs(NettyChannelHandler.class);
+//      assertThat(context.getBean(DISPATCHER_HANDLER_BEAN_NAME).getClass()).isSameAs(NettyChannelHandler.class);
+      assertThat(context.getBean(ChannelHandlerFactory.class).getClass()).isSameAs(NettyChannelHandlerFactory.class);
     });
   }
 

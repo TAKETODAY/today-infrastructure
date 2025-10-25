@@ -62,7 +62,7 @@ public interface WebServerApplicationContext extends ApplicationContext {
    * @return {@code true} if the server namespace of the context matches
    */
   static boolean hasServerNamespace(ApplicationContext context, String serverNamespace) {
-    return (context instanceof WebServerApplicationContext serverCtx)
+    return context instanceof WebServerApplicationContext serverCtx
             && ObjectUtils.nullSafeEquals(serverCtx.getServerNamespace(), serverNamespace);
   }
 
@@ -76,9 +76,8 @@ public interface WebServerApplicationContext extends ApplicationContext {
    */
   @Nullable
   static String getServerNamespace(ApplicationContext context) {
-    return (context instanceof WebServerApplicationContext serverCtx)
+    return context instanceof WebServerApplicationContext serverCtx
             ? serverCtx.getServerNamespace() : null;
-
   }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,7 +75,7 @@ public abstract class AbstractWebSocketIntegrationTests {
 
   protected WebSocketClient webSocketClient;
 
-  protected AnnotationConfigApplicationContext wac;
+  protected AnnotationConfigApplicationContext ctx;
 
   protected void setup(WebSocketTestServer server, WebSocketClient webSocketClient, TestInfo testInfo) throws Exception {
     this.server = server;
@@ -84,23 +84,23 @@ public abstract class AbstractWebSocketIntegrationTests {
     logger.info("Setting up '%s', client=%s, server=%s".formatted(testInfo.getTestMethod().get().getName(),
             webSocketClient.getClass().getSimpleName(), server.getClass().getSimpleName()));
 
-    this.wac = new AnnotationConfigApplicationContext();
-    this.wac.register(getAnnotatedConfigClasses());
+    this.ctx = new AnnotationConfigApplicationContext();
+    this.ctx.register(getAnnotatedConfigClasses());
 
-    wac.register(ParameterResolvingRegistry.class);
-    wac.register(ReturnValueHandlerManager.class);
+    ctx.register(ParameterResolvingRegistry.class);
+    ctx.register(ReturnValueHandlerManager.class);
 
-    this.wac.register(upgradeStrategyConfigTypes.get(this.server.getClass()));
+    this.ctx.register(upgradeStrategyConfigTypes.get(this.server.getClass()));
 
     if (this.webSocketClient instanceof Lifecycle lifecycle) {
       lifecycle.start();
     }
 
-    this.server.setup(wac);
+    this.server.setup(ctx);
 
-    this.wac.refresh();
+    this.ctx.refresh();
 
-    this.server.start();
+    this.server.start(ctx);
     logger.info("Setup complete.");
   }
 
@@ -125,7 +125,7 @@ public abstract class AbstractWebSocketIntegrationTests {
       logger.error("Failed to stop server", t);
     }
     try {
-      this.wac.close();
+      this.ctx.close();
     }
     catch (Throwable t) {
       logger.error("Failed to close WebApplicationContext", t);

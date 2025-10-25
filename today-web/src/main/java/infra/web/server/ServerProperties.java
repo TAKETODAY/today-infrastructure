@@ -33,7 +33,6 @@ import infra.util.DataSize;
 import infra.web.server.error.ErrorProperties;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.ServerSocketChannel;
-import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.logging.LogLevel;
 
@@ -208,8 +207,6 @@ public class ServerProperties {
     /**
      * the maximum length of the aggregated content.
      * If the length of the aggregated content exceeds this value,
-     *
-     * @see HttpObjectAggregator#maxContentLength
      */
     public DataSize maxContentLength = DataSize.ofMegabytes(100);
 
@@ -252,16 +249,6 @@ public class ServerProperties {
      * in order to prevent request-/response-splitting attacks.
      */
     public boolean validateHeaders = true;
-
-    /**
-     * If a 100-continue response is detected but the content
-     * length is too large then true means close the connection.
-     * otherwise the connection will remain open and data will be
-     * consumed and discarded until the next request is received.
-     *
-     * @see HttpObjectAggregator#closeOnExpectationFailed
-     */
-    public boolean closeOnExpectationFailed = false;
 
     /**
      * Set whether {@code Transfer-Encoding: Chunked} should be supported.

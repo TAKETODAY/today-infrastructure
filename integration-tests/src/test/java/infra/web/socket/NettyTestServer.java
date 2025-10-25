@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,13 @@
 
 package infra.web.socket;
 
+import infra.annotation.config.web.ErrorMvcAutoConfiguration;
+import infra.annotation.config.web.WebMvcAutoConfiguration;
+import infra.annotation.config.web.netty.NettyWebServerFactoryAutoConfiguration;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.web.server.WebServer;
-import infra.web.server.support.NettyRequestConfig;
 import infra.web.server.support.NettyWebServerFactory;
-import infra.web.socket.server.support.WsNettyChannelHandler;
-import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
+import infra.web.server.support.StandardNettyWebEnvironment;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -32,32 +33,25 @@ public class NettyTestServer implements WebSocketTestServer {
 
   WebServer webServer;
 
-  WsNettyChannelHandler channelHandler;
-
   @Override
-  public void setup(AnnotationConfigApplicationContext wac) {
-    NettyRequestConfig requestConfig = NettyRequestConfig.forBuilder(false)
-            .httpDataFactory(new DefaultHttpDataFactory())
-            .sendErrorHandler((request, message) -> {
-
-            })
-            .build();
-
-    channelHandler = new WsNettyChannelHandler(requestConfig, wac);
+  public void setup(AnnotationConfigApplicationContext ctx) {
+    ctx.setEnvironment(new StandardNettyWebEnvironment());
+    ctx.register(NettyWebServerFactoryAutoConfiguration.class);
+    ctx.register(ErrorMvcAutoConfiguration.class);
+    ctx.register(WebMvcAutoConfiguration.class);
   }
 
   @Override
-  public void start() throws Exception {
-    NettyWebServerFactory factory = new NettyWebServerFactory();
+  public void start(AnnotationConfigApplicationContext ctx) {
+    NettyWebServerFactory factory = ctx.getBean(NettyWebServerFactory.class);
     factory.setPort(0);
 
-    channelHandler.init();
-    webServer = factory.getWebServer(channelHandler);
+    webServer = factory.getWebServer();
     webServer.start();
   }
 
   @Override
-  public void stop() throws Exception {
+  public void stop() {
     if (webServer != null) {
       webServer.stop();
     }
