@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -116,7 +116,7 @@ public class ExceptionHandlerMethodResolver {
     if (exceptions.isEmpty()) {
       throw new IllegalStateException("No exception types mapped to " + method);
     }
-    Set<MediaType> mediaTypes = new HashSet<>();
+    Set<MediaType> mediaTypes = new LinkedHashSet<>();
     for (String mediaType : exceptionHandler.produces()) {
       try {
         mediaTypes.add(MediaType.parseMediaType(mediaType));
