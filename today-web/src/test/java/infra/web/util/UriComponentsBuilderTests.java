@@ -467,6 +467,22 @@ class UriComponentsBuilderTests {
   }
 
   @ParameterizedTest
+  @EnumSource
+  void query(ParserType parserType) {
+    String url = "https://example.com/foo?foo=bar";
+    UriComponents uric = UriComponentsBuilder.forURIString(url, parserType).query("baz=qux").build();
+    assertThat(uric.getQueryParams()).isEqualTo(Map.of("foo", List.of("bar"), "baz", List.of("qux")));
+  }
+
+  @ParameterizedTest
+  @EnumSource
+  void queryWithNull(ParserType parserType) {
+    String url = "https://example.com/foo?foo=bar";
+    UriComponents uric = UriComponentsBuilder.forURIString(url, parserType).query(null).build();
+    assertThat(uric.getQueryParams()).isEqualTo(Map.of("foo", List.of("bar")));
+  }
+
+  @ParameterizedTest
   @EnumSource(value = ParserType.class)
   void replaceQuery(ParserType parserType) {
     UriComponentsBuilder builder = UriComponentsBuilder.forURIString("https://example.com/foo?foo=bar&baz=qux", parserType);
