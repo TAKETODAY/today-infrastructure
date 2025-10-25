@@ -112,10 +112,6 @@ public class PropertyPlaceholderHandler {
    */
   public String replacePlaceholders(String value, PlaceholderResolver placeholderResolver) {
     Assert.notNull(value, "'value' is required");
-    return parseStringValue(value, placeholderResolver);
-  }
-
-  protected String parseStringValue(String value, PlaceholderResolver placeholderResolver) {
     return this.parser.replacePlaceholders(value, placeholderResolver);
   }
 
