@@ -388,7 +388,13 @@ public class NettyDataBuffer extends DataBuffer {
 
   @Override
   public String toString() {
-    return this.byteBuf.toString();
+    try {
+      return this.byteBuf.toString();
+    }
+    catch (OutOfMemoryError ex) {
+      throw new DataBufferLimitException(
+              "Failed to convert data buffer to string: " + ex.getMessage(), ex);
+    }
   }
 
   private static final class ByteBufferIterator implements DataBuffer.ByteBufferIterator {
