@@ -309,6 +309,11 @@ public class NettyDataBuffer extends DataBuffer {
   }
 
   @Override
+  public int forEach(int index, int length, ByteProcessor processor) {
+    return this.byteBuf.forEachByte(index, length, processor::process);
+  }
+
+  @Override
   public ByteBufferIterator readableByteBuffers() {
     ByteBuffer[] readable = this.byteBuf.nioBuffers(this.byteBuf.readerIndex(), this.byteBuf.readableBytes());
     return new ByteBufferIterator(readable, true);
