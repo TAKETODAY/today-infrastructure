@@ -590,5 +590,5 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    */
   @Nullable
   Executor getBootstrapExecutor();
-  
+
 }
