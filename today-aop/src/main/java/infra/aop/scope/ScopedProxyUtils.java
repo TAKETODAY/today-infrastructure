@@ -25,6 +25,7 @@ import infra.beans.factory.config.BeanDefinitionHolder;
 import infra.beans.factory.support.AbstractBeanDefinition;
 import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.beans.factory.support.RootBeanDefinition;
+import infra.lang.Contract;
 
 /**
  * Utility class for creating a scoped proxy.
@@ -138,6 +139,7 @@ public abstract class ScopedProxyUtils {
    * Determine if the {@code beanName} is the name of a bean that references
    * the target bean within a scoped proxy.
    */
+  @Contract("null -> false")
   public static boolean isScopedTarget(@Nullable String beanName) {
     return beanName != null && beanName.startsWith(TARGET_NAME_PREFIX);
   }
