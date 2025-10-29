@@ -55,7 +55,7 @@ class CertificateMatcher {
 
   private final byte @Nullable [] generatedSignature;
 
-  CertificateMatcher(PrivateKey privateKey) {
+  CertificateMatcher(@Nullable PrivateKey privateKey) {
     Assert.notNull(privateKey, "Private key is required");
     this.privateKey = privateKey;
     this.signature = createSignature(privateKey);
@@ -111,8 +111,7 @@ class CertificateMatcher {
     }
   }
 
-  @Nullable
-  private static byte[] sign(Signature signature, PrivateKey privateKey) {
+  private static byte @Nullable [] sign(Signature signature, PrivateKey privateKey) {
     try {
       signature.initSign(privateKey);
       signature.update(DATA);
