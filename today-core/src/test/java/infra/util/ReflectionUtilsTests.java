@@ -936,6 +936,49 @@ class ReflectionUtilsTests {
       assertPubliclyAccessible(publiclyAccessibleMethod);
     }
 
+    @Test
+    void staticMethodInPublicClass() throws Exception {
+      Method originalMethod = PublicSuperclass.class.getMethod("getCacheKey");
+
+      // Prerequisite: method must be public static for this use case.
+      assertPublic(originalMethod);
+      assertStatic(originalMethod);
+
+      Method publiclyAccessibleMethod = ReflectionUtils.getPubliclyAccessibleMethodIfPossible(originalMethod, null);
+      assertThat(publiclyAccessibleMethod).isSameAs(originalMethod);
+      assertPubliclyAccessible(publiclyAccessibleMethod);
+    }
+
+    @Test
+    void publicSubclassHidesStaticMethodInPublicSuperclass() throws Exception {
+      Method originalMethod = PublicSubclass.class.getMethod("getCacheKey");
+
+      // Prerequisite: type must be public for this use case.
+      assertPublic(originalMethod.getDeclaringClass());
+      // Prerequisite: method must be public static for this use case.
+      assertPublic(originalMethod);
+      assertStatic(originalMethod);
+
+      Method publiclyAccessibleMethod = ReflectionUtils.getPubliclyAccessibleMethodIfPossible(originalMethod, null);
+      assertThat(publiclyAccessibleMethod).isSameAs(originalMethod);
+      assertPubliclyAccessible(publiclyAccessibleMethod);
+    }
+
+    @Test
+    void privateSubclassHidesStaticMethodInPublicSuperclass() throws Exception {
+      Method originalMethod = PrivateSubclass.class.getMethod("getCacheKey");
+
+      // Prerequisite: type must not be public for this use case.
+      assertNotPublic(originalMethod.getDeclaringClass());
+      // Prerequisite: method must be public static for this use case.
+      assertPublic(originalMethod);
+      assertStatic(originalMethod);
+
+      Method publiclyAccessibleMethod = ReflectionUtils.getPubliclyAccessibleMethodIfPossible(originalMethod, null);
+      assertThat(publiclyAccessibleMethod).isSameAs(originalMethod);
+      assertNotPubliclyAccessible(publiclyAccessibleMethod);
+    }
+
   }
 
   private static void assertInterfaceMethod(Method method) {
@@ -979,6 +1022,10 @@ class ReflectionUtilsTests {
 
   private static boolean isPublic(Member member) {
     return Modifier.isPublic(member.getModifiers());
+  }
+
+  private static void assertStatic(Member member) {
+    assertThat(Modifier.isStatic(member.getModifiers())).as("%s must be static", member).isTrue();
   }
 
   @SuppressWarnings("unused")
@@ -1031,7 +1078,26 @@ class ReflectionUtilsTests {
     String greet(String name);
   }
 
+  public static class PublicSubclass extends PublicSuperclass {
+
+    /**
+     * This method intentionally has the exact same signature as
+     * {@link PublicSuperclass#getCacheKey()}.
+     */
+    public static String getCacheKey() {
+      return "child";
+    }
+  }
+
   private static class PrivateSubclass extends PublicSuperclass implements PublicInterface, PrivateInterface {
+
+    /**
+     * This method intentionally has the exact same signature as
+     * {@link PublicSuperclass#getCacheKey()}.
+     */
+    public static String getCacheKey() {
+      return "child";
+    }
 
     @Override
     public int getNumber() {
