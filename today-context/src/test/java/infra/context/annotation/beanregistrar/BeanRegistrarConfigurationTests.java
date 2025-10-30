@@ -72,7 +72,7 @@ public class BeanRegistrarConfigurationTests {
   @Test
   void scannedFunctionalConfiguration() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-    context.scan("org.springframework.context.testfixture.context.annotation.registrar");
+    context.scan("infra.context.testfixture.context.annotation.registrar");
     context.refresh();
     assertThat(context.getBean(Bar.class).foo()).isEqualTo(context.getBean(Foo.class));
     assertThatThrownBy(() -> context.getBean(Baz.class).message()).isInstanceOf(NoSuchBeanDefinitionException.class);
