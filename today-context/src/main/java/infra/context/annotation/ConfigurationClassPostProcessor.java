@@ -823,11 +823,11 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
                 reflectionHints.registerConstructor(constructor, ExecutableMode.INVOKE);
               }
             }
-            if (!ObjectUtils.isEmpty(rootBeanDefinition.getInitMethodNames())) {
+            if (ObjectUtils.isNotEmpty(rootBeanDefinition.getInitMethodNames())) {
               method.addCode(generateInitDestroyMethods(name, rootBeanDefinition,
                       rootBeanDefinition.getInitMethodNames(), "setInitMethodNames", reflectionHints));
             }
-            if (!ObjectUtils.isEmpty(rootBeanDefinition.getDestroyMethodNames())) {
+            if (ObjectUtils.isNotEmpty(rootBeanDefinition.getDestroyMethodNames())) {
               method.addCode(generateInitDestroyMethods(name, rootBeanDefinition,
                       rootBeanDefinition.getDestroyMethodNames(), "setDestroyMethodNames", reflectionHints));
             }
@@ -839,7 +839,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
     }
 
     private void checkUnsupportedFeatures(AbstractBeanDefinition beanDefinition) {
-      if (!ObjectUtils.isEmpty(beanDefinition.getFactoryBeanName())) {
+      if (ObjectUtils.isNotEmpty(beanDefinition.getFactoryBeanName())) {
         throw new UnsupportedOperationException("AOT post processing of the factory bean name is not supported yet with BeanRegistrar");
       }
       if (beanDefinition.hasConstructorArgumentValues()) {
@@ -847,13 +847,6 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
       }
       if (!beanDefinition.getQualifiers().isEmpty()) {
         throw new UnsupportedOperationException("AOT post processing of qualifiers is not supported yet with BeanRegistrar");
-      }
-      for (String attributeName : beanDefinition.attributeNames()) {
-        if (!attributeName.equals(AbstractBeanDefinition.ORDER_ATTRIBUTE)
-                && !attributeName.equals("aotProcessingIgnoreRegistration")) {
-          throw new UnsupportedOperationException("AOT post processing of attribute " + attributeName +
-                  " is not supported yet with BeanRegistrar");
-        }
       }
     }
 
