@@ -24,6 +24,8 @@ import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.context.annotation.AnnotationConfigApplicationContext;
+import infra.context.testfixture.beans.factory.BarRegistrar;
+import infra.context.testfixture.beans.factory.FooRegistrar;
 import infra.context.testfixture.beans.factory.GenericBeanRegistrar;
 import infra.context.testfixture.beans.factory.ImportAwareBeanRegistrar;
 import infra.context.testfixture.beans.factory.SampleBeanRegistrar.Bar;
@@ -33,6 +35,7 @@ import infra.context.testfixture.beans.factory.SampleBeanRegistrar.Init;
 import infra.context.testfixture.context.annotation.registrar.BeanRegistrarConfiguration;
 import infra.context.testfixture.context.annotation.registrar.GenericBeanRegistrarConfiguration;
 import infra.context.testfixture.context.annotation.registrar.ImportAwareBeanRegistrarConfiguration;
+import infra.context.testfixture.context.annotation.registrar.MultipleBeanRegistrarsConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -69,7 +72,7 @@ public class BeanRegistrarConfigurationTests {
   @Test
   void scannedFunctionalConfiguration() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-    context.scan("infra.context.testfixture.context.annotation.registrar");
+    context.scan("org.springframework.context.testfixture.context.annotation.registrar");
     context.refresh();
     assertThat(context.getBean(Bar.class).foo()).isEqualTo(context.getBean(Foo.class));
     assertThatThrownBy(() -> context.getBean(Baz.class).message()).isInstanceOf(NoSuchBeanDefinitionException.class);
@@ -92,6 +95,15 @@ public class BeanRegistrarConfigurationTests {
     context.refresh();
     assertThat(context.getBean(ImportAwareBeanRegistrar.ClassNameHolder.class).className())
             .isEqualTo(ImportAwareBeanRegistrarConfiguration.class.getName());
+  }
+
+  @Test
+  void multipleBeanRegistrars() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.register(MultipleBeanRegistrarsConfiguration.class);
+    context.refresh();
+    assertThat(context.getBean(FooRegistrar.Foo.class)).isNotNull();
+    assertThat(context.getBean(BarRegistrar.Bar.class)).isNotNull();
   }
 
 }
