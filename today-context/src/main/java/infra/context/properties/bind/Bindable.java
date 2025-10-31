@@ -208,7 +208,7 @@ public final class Bindable<T> {
       throw new IllegalArgumentException("ExistingValue must be an instance of " + this.type);
     }
     Assert.state(this.bindMethod != BindMethod.VALUE_OBJECT, "An existing value cannot be provided when binding as a value object");
-    Supplier<T> value = existingValue != null ? SingletonSupplier.valueOf(existingValue) : null;
+    Supplier<T> value = existingValue != null ? SingletonSupplier.of(existingValue) : null;
     return new Bindable<>(this.type, this.boxedType, value,
             this.annotations, this.bindRestrictions, BindMethod.JAVA_BEAN);
   }

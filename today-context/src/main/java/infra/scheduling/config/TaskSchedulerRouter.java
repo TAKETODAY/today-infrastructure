@@ -79,7 +79,7 @@ public class TaskSchedulerRouter implements TaskScheduler, BeanNameAware, BeanFa
   @Nullable
   private StringValueResolver embeddedValueResolver;
 
-  private final Supplier<TaskScheduler> defaultScheduler = SingletonSupplier.from(this::determineDefaultScheduler);
+  private final Supplier<TaskScheduler> defaultScheduler = SingletonSupplier.of(this::determineDefaultScheduler);
 
   @Nullable
   private volatile ScheduledExecutorService localExecutor;

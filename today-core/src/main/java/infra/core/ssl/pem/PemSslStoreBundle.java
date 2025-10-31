@@ -70,8 +70,8 @@ public class PemSslStoreBundle implements SslStoreBundle {
    */
   @SuppressWarnings("NullAway")
   public PemSslStoreBundle(@Nullable PemSslStore pemKeyStore, @Nullable PemSslStore pemTrustStore) {
-    this.keyStore = SingletonSupplier.from(() -> createKeyStore("key", pemKeyStore));
-    this.trustStore = SingletonSupplier.from(() -> createKeyStore("trust", pemTrustStore));
+    this.keyStore = SingletonSupplier.of(() -> createKeyStore("key", pemKeyStore));
+    this.trustStore = SingletonSupplier.of(() -> createKeyStore("trust", pemTrustStore));
   }
 
   @Nullable
