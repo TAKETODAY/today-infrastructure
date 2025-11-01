@@ -41,11 +41,11 @@ public abstract class AbstractCacheInvoker {
   protected SingletonSupplier<CacheErrorHandler> errorHandler;
 
   protected AbstractCacheInvoker() {
-    this.errorHandler = SingletonSupplier.from(SimpleCacheErrorHandler::new);
+    this.errorHandler = SingletonSupplier.of(SimpleCacheErrorHandler::new);
   }
 
   protected AbstractCacheInvoker(CacheErrorHandler errorHandler) {
-    this.errorHandler = SingletonSupplier.valueOf(errorHandler);
+    this.errorHandler = SingletonSupplier.of(errorHandler);
   }
 
   /**
@@ -54,7 +54,7 @@ public abstract class AbstractCacheInvoker {
    * is used who throws any exception as is.
    */
   public void setErrorHandler(CacheErrorHandler errorHandler) {
-    this.errorHandler = SingletonSupplier.valueOf(errorHandler);
+    this.errorHandler = SingletonSupplier.of(errorHandler);
   }
 
   /**

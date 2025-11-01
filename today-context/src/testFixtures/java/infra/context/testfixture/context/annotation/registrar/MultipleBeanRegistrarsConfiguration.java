@@ -15,30 +15,12 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.util;
+package infra.context.testfixture.context.annotation.registrar;
 
-/**
- * This is intentionally a top-level public class.
- */
-public class PublicSuperclass {
-  public static String getCacheKey() {
-    return "parent";
-  }
+import infra.context.annotation.Import;
+import infra.context.testfixture.beans.factory.BarRegistrar;
+import infra.context.testfixture.beans.factory.FooRegistrar;
 
-  public String getMessage() {
-    return "goodbye";
-  }
-
-  public int getNumber() {
-    return 1;
-  }
-
-  public String greet(String name) {
-    return "Super, " + name;
-  }
-
-  public int process(int num) {
-    return num + 1;
-  }
-
+@Import({ FooRegistrar.class, BarRegistrar.class })
+public class MultipleBeanRegistrarsConfiguration {
 }

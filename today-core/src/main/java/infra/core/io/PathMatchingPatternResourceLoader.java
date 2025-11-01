@@ -887,16 +887,11 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
         rootEntryPath = rootEntryPath + "/";
       }
 
-      PathMatcher pathMatcher = getPathMatcher();
-      TreeSet<String> entriesCache = new TreeSet<>();
-      Iterator<String> entryIterator = jarFile.stream().map(JarEntry::getName).sorted().iterator();
-      while (entryIterator.hasNext()) {
-        String entryPath = entryIterator.next();
-        int entrySeparatorIndex = entryPath.indexOf(ResourceUtils.JAR_URL_SEPARATOR);
-        if (entrySeparatorIndex >= 0) {
-          entryPath = entryPath.substring(entrySeparatorIndex + ResourceUtils.JAR_URL_SEPARATOR.length());
-        }
-        entriesCache.add(entryPath);
+      NavigableSet<String> entriesCache = new TreeSet<>();
+      for (Enumeration<JarEntry> entries = jarFile.entries(); entries.hasMoreElements(); ) {
+        entriesCache.add(entries.nextElement().getName());
+      }
+      for (String entryPath : entriesCache) {
         if (entryPath.startsWith(rootEntryPath)) {
           String relativePath = entryPath.substring(rootEntryPath.length());
           if (pathMatcher.match(subPattern, relativePath)) {

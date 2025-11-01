@@ -93,7 +93,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
    */
   public AsyncExecutionAspectSupport(@Nullable Executor defaultExecutor) {
     this.defaultExecutor = new SingletonSupplier<>(defaultExecutor, () -> getDefaultExecutor(this.beanFactory));
-    this.exceptionHandler = SingletonSupplier.from(SimpleAsyncUncaughtExceptionHandler::new);
+    this.exceptionHandler = SingletonSupplier.of(SimpleAsyncUncaughtExceptionHandler::new);
   }
 
   /**
@@ -107,7 +107,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
    */
   public AsyncExecutionAspectSupport(@Nullable Executor defaultExecutor, AsyncUncaughtExceptionHandler exceptionHandler) {
     this.defaultExecutor = new SingletonSupplier<>(defaultExecutor, () -> getDefaultExecutor(this.beanFactory));
-    this.exceptionHandler = SingletonSupplier.valueOf(exceptionHandler);
+    this.exceptionHandler = SingletonSupplier.of(exceptionHandler);
   }
 
   /**
@@ -133,7 +133,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
    * @see #getDefaultExecutor(BeanFactory)
    */
   public void setExecutor(Executor defaultExecutor) {
-    this.defaultExecutor = SingletonSupplier.valueOf(defaultExecutor);
+    this.defaultExecutor = SingletonSupplier.of(defaultExecutor);
   }
 
   /**
@@ -141,7 +141,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
    * thrown by invoking asynchronous methods with a {@code void} return type.
    */
   public void setExceptionHandler(AsyncUncaughtExceptionHandler exceptionHandler) {
-    this.exceptionHandler = SingletonSupplier.valueOf(exceptionHandler);
+    this.exceptionHandler = SingletonSupplier.of(exceptionHandler);
   }
 
   /**

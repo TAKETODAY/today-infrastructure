@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.SocketException;
+import java.util.Set;
 
 import infra.http.MediaType;
 import infra.stereotype.Controller;
@@ -106,6 +107,13 @@ class ExceptionHandlerMethodResolverTests {
   void shouldThrowExceptionWhenNoExceptionMapping() {
     assertThatIllegalStateException().isThrownBy(() ->
             new ExceptionHandlerMethodResolver(NoExceptionController.class));
+  }
+
+  @Test
+  void shouldRetainOriginalOrderOfProducibleMediaTypes() {
+    ExceptionHandlerMethodResolver resolver = new ExceptionHandlerMethodResolver(MediaTypeController.class);
+    Set<MediaType> producibleTypes = resolver.resolveExceptionMapping(new IllegalArgumentException(), MediaType.TEXT_HTML).getProducibleTypes();
+    assertThat(MediaType.toString(producibleTypes)).isEqualTo("text/html, */*");
   }
 
   @Test

@@ -60,7 +60,7 @@ final class LoadedPemSslStore implements PemSslStore {
   }
 
   private static <T> SingletonSupplier<T> supplier(ThrowingSupplier<T> supplier) {
-    return SingletonSupplier.from(supplier.throwing(LoadedPemSslStore::asUncheckedIOException));
+    return SingletonSupplier.of(supplier.throwing(LoadedPemSslStore::asUncheckedIOException));
   }
 
   private static UncheckedIOException asUncheckedIOException(String message, Throwable cause) {

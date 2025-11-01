@@ -56,6 +56,7 @@ import infra.util.function.SingletonSupplier;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/16 17:01
  */
+@SuppressWarnings("NullAway")
 public final class PropertyMapper {
 
   private static final Predicate<?> ALWAYS = (t) -> true;
@@ -132,7 +133,7 @@ public final class PropertyMapper {
     if (this.parent != null) {
       return this.parent.from(supplier);
     }
-    return new Source<>(SingletonSupplier.from(supplier), (Predicate<T>) ALWAYS);
+    return new Source<>(SingletonSupplier.of(supplier), (Predicate<T>) ALWAYS);
   }
 
   /**

@@ -54,6 +54,7 @@ import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.stereotype.Component;
+import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
@@ -424,10 +425,12 @@ class ConfigurationClassBeanDefinitionReader {
     }
   }
 
-  private void loadBeanDefinitionsFromBeanRegistrars(Map<String, BeanRegistrar> registrars) {
-    for (BeanRegistrar registrar : registrars.values()) {
-      registrar.register(new BeanRegistryAdapter(bootstrapContext.getRegistry(),
-              bootstrapContext.getBeanFactory(), bootstrapContext.getEnvironment(), registrar.getClass()), bootstrapContext.getEnvironment());
+  private void loadBeanDefinitionsFromBeanRegistrars(MultiValueMap<String, BeanRegistrar> registrars) {
+    for (var registrarList : registrars.values()) {
+      for (BeanRegistrar registrar : registrarList) {
+        registrar.register(new BeanRegistryAdapter(bootstrapContext.getRegistry(),
+                bootstrapContext.getBeanFactory(), bootstrapContext.getEnvironment(), registrar.getClass()), bootstrapContext.getEnvironment());
+      }
     }
   }
 

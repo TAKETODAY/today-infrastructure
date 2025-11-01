@@ -73,7 +73,7 @@ class DefaultBeanRegistrationCodeFragments implements BeanRegistrationCodeFragme
     this.registeredBean = registeredBean;
     this.beanRegistrationsCode = beanRegistrationsCode;
     this.beanDefinitionMethodGeneratorFactory = beanDefinitionMethodGeneratorFactory;
-    this.instantiationDescriptor = SingletonSupplier.from(registeredBean::resolveInstantiationDescriptor);
+    this.instantiationDescriptor = SingletonSupplier.of(registeredBean::resolveInstantiationDescriptor);
   }
 
   @Override

@@ -37,7 +37,6 @@ public class DefaultSessionManager implements SessionManager {
 
   private SessionRepository sessionRepository;
 
-  @SuppressWarnings("NullAway")
   public DefaultSessionManager(SessionRepository sessionRepository, @Nullable SessionIdResolver sessionIdResolver) {
     if (sessionIdResolver == null) {
       sessionIdResolver = new CookieSessionIdResolver();

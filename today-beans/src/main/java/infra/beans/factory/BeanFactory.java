@@ -33,6 +33,7 @@ import infra.beans.factory.config.DestructionAwareBeanPostProcessor;
 import infra.beans.factory.support.ChildBeanDefinition;
 import infra.beans.factory.support.DependencyInjectorProvider;
 import infra.beans.factory.support.RootBeanDefinition;
+import infra.core.ParameterizedTypeReference;
 import infra.core.ResolvableType;
 import infra.core.annotation.MergedAnnotation;
 import infra.lang.Modifiable;
@@ -881,6 +882,25 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @since 4.0
    */
   <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType, boolean allowEagerInit);
+
+  /**
+   * Return a provider for the specified bean, allowing for lazy on-demand retrieval
+   * of instances, including availability and uniqueness options. This variant allows
+   * for specifying a generic type to match, similar to reflective injection points
+   * with generic type declarations in method/constructor parameters.
+   * <p>This is a variant of {@link #getBeanProvider(ResolvableType)} with a
+   * captured generic type for type-safe retrieval, typically used inline:
+   * {@code getBeanProvider(new ParameterizedTypeReference<>() {})} - and
+   * effectively equivalent to {@code getBeanProvider(ResolvableType.forType(...))}.
+   *
+   * @param requiredType a captured generic type that the bean must match
+   * @return a corresponding provider handle
+   * @see #getBeanProvider(ResolvableType)
+   * @since 5.0
+   */
+  default <T> ObjectProvider<T> getBeanProvider(ParameterizedTypeReference<T> requiredType) {
+    return getBeanProvider(ResolvableType.forType(requiredType), true);
+  }
 
   /**
    * Return a provider for the specified bean, allowing for lazy on-demand retrieval

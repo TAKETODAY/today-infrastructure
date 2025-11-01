@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  *
  * @author Rossen Stoyanchev
  */
-public class ReactorResourceFactoryTests {
+class ReactorResourceFactoryTests {
 
   private final ReactorResourceFactory resourceFactory = new ReactorResourceFactory();
 
@@ -156,7 +156,7 @@ public class ReactorResourceFactoryTests {
   }
 
   @Test
-  void restartWithGlobalResources() {
+  void stopAndStartWithGlobalResources() {
     this.resourceFactory.setUseGlobalResources(true);
     this.resourceFactory.start();
     this.resourceFactory.stop();
@@ -173,7 +173,7 @@ public class ReactorResourceFactoryTests {
   }
 
   @Test
-  void restartWithLocalResources() {
+  void stopAndStartWithLocalResources() {
     this.resourceFactory.setUseGlobalResources(false);
     this.resourceFactory.start();
     this.resourceFactory.stop();
@@ -196,7 +196,7 @@ public class ReactorResourceFactoryTests {
   }
 
   @Test
-  void restartWithExternalResources() {
+  void stopAndStartWithExternalResources() {
     this.resourceFactory.setUseGlobalResources(false);
     this.resourceFactory.setConnectionProvider(this.connectionProvider);
     this.resourceFactory.setLoopResources(this.loopResources);
@@ -219,7 +219,7 @@ public class ReactorResourceFactoryTests {
   }
 
   @Test
-  void restartWithinApplicationContext() {
+  void stopAndStartWithinApplicationContext() {
     GenericApplicationContext context = new GenericApplicationContext();
     context.registerBean(ReactorResourceFactory.class);
     context.refresh();
@@ -240,9 +240,43 @@ public class ReactorResourceFactoryTests {
     assertThat(resourceFactory.getConnectionProvider()).isSameAs(globalResources);
     assertThat(resourceFactory.getLoopResources()).isSameAs(globalResources);
     assertThat(globalResources.isDisposed()).isFalse();
+
+    context.close();
+    assertThat(resourceFactory.isRunning()).isFalse();
+    assertThat(globalResources.isDisposed()).isTrue();
+  }
+
+  @Test
+    // gh-35585
+  void pauseAndRestartWithinApplicationContext() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    context.registerBean(ReactorResourceFactory.class);
+    context.refresh();
+
+    ReactorResourceFactory resourceFactory = context.getBean(ReactorResourceFactory.class);
+    assertThat(resourceFactory.isRunning()).isTrue();
+
+    HttpResources globalResources = HttpResources.get();
+    assertThat(resourceFactory.getConnectionProvider()).isSameAs(globalResources);
+    assertThat(resourceFactory.getLoopResources()).isSameAs(globalResources);
+    assertThat(globalResources.isDisposed()).isFalse();
+
+    context.pause();
+    globalResources = HttpResources.get();
+    assertThat(resourceFactory.isRunning()).isTrue();
+    assertThat(resourceFactory.getConnectionProvider()).isSameAs(globalResources);
+    assertThat(resourceFactory.getLoopResources()).isSameAs(globalResources);
+    assertThat(globalResources.isDisposed()).isFalse();
+
+    context.restart();
+    globalResources = HttpResources.get();
+    assertThat(resourceFactory.isRunning()).isTrue();
+    assertThat(resourceFactory.getConnectionProvider()).isSameAs(globalResources);
+    assertThat(resourceFactory.getLoopResources()).isSameAs(globalResources);
     assertThat(globalResources.isDisposed()).isFalse();
 
     context.close();
+    assertThat(resourceFactory.isRunning()).isFalse();
     assertThat(globalResources.isDisposed()).isTrue();
   }
 

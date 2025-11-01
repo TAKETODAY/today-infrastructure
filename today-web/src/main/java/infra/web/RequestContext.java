@@ -261,7 +261,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   /**
-   * Return the WebApplicationContext that this request runs in.
+   * Return the ApplicationContext that this request runs in.
    *
    * @since 4.0
    */

@@ -15,30 +15,24 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.util;
+package infra.jdbc.core.metadata;
+
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 
 /**
- * This is intentionally a top-level public class.
+ * The MySQL/MariaDB specific implementation of {@link TableMetaDataProvider}.
+ * Sets {@link #setGeneratedKeysColumnNameArraySupported} to {@code false}.
+ *
+ * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0
  */
-public class PublicSuperclass {
-  public static String getCacheKey() {
-    return "parent";
-  }
+public class MySQLTableMetaDataProvider extends GenericTableMetaDataProvider {
 
-  public String getMessage() {
-    return "goodbye";
-  }
-
-  public int getNumber() {
-    return 1;
-  }
-
-  public String greet(String name) {
-    return "Super, " + name;
-  }
-
-  public int process(int num) {
-    return num + 1;
+  public MySQLTableMetaDataProvider(DatabaseMetaData databaseMetaData) throws SQLException {
+    super(databaseMetaData);
+    setGeneratedKeysColumnNameArraySupported(false);
   }
 
 }

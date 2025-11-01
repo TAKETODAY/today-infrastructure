@@ -25,6 +25,7 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 import infra.util.FileCopyUtils;
@@ -150,6 +151,19 @@ public interface Resource extends InputStreamSource {
    */
   default String getContentAsString(Charset charset) throws IOException {
     return FileCopyUtils.copyToString(new InputStreamReader(getInputStream(), charset));
+  }
+
+  /**
+   * Returns the contents of this resource as a string, using the UTF-8.
+   *
+   * @return the contents of this resource as a {@code String}
+   * @throws java.io.FileNotFoundException if the resource cannot be resolved as
+   * absolute file path, i.e. if the resource is not available in a file system
+   * @throws IOException in case of general resolution/reading failures
+   * @since 5.0
+   */
+  default String getContentAsString() throws IOException {
+    return getContentAsString(StandardCharsets.UTF_8);
   }
 
   /**

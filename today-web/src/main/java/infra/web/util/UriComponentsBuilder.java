@@ -459,7 +459,9 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
       if (record.path() != null) {
         path(record.path());
       }
-      query(record.query());
+      if (record.query() != null) {
+        query(record.query());
+      }
     }
     fragment(record.fragment());
     return this;
@@ -486,7 +488,9 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
         port(record.portString());
       }
       path(record.path().toString());
-      query(record.query());
+      if (record.query() != null) {
+        query(record.query());
+      }
     }
     if (StringUtils.hasText(record.fragment())) {
       fragment(record.fragment());
@@ -576,7 +580,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
 
   @Override
   public UriComponentsBuilder query(@Nullable String query) {
-    if (query != null) {
+    if (StringUtils.hasText(query)) {
       Matcher matcher = QUERY_PARAM_PATTERN.matcher(query);
       while (matcher.find()) {
         String name = matcher.group(1);
@@ -585,9 +589,6 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
         queryParam(name, (value != null ? value : (StringUtils.isNotEmpty(eq) ? "" : null)));
       }
       resetSchemeSpecificPart();
-    }
-    else {
-      this.queryParams.clear();
     }
     return this;
   }

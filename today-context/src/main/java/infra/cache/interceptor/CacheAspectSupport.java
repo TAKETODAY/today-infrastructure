@@ -135,7 +135,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   @Nullable
   private CacheOperationSource cacheOperationSource;
 
-  private SingletonSupplier<KeyGenerator> keyGenerator = SingletonSupplier.from(SimpleKeyGenerator::new);
+  private SingletonSupplier<KeyGenerator> keyGenerator = SingletonSupplier.of(SimpleKeyGenerator::new);
 
   @Nullable
   private SingletonSupplier<CacheResolver> cacheResolver;
@@ -195,7 +195,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
    * <p>The default is a {@link SimpleKeyGenerator}.
    */
   public void setKeyGenerator(KeyGenerator keyGenerator) {
-    this.keyGenerator = SingletonSupplier.valueOf(keyGenerator);
+    this.keyGenerator = SingletonSupplier.of(keyGenerator);
   }
 
   /**
@@ -234,7 +234,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
    * @see SimpleCacheResolver
    */
   public void setCacheManager(CacheManager cacheManager) {
-    this.cacheResolver = SingletonSupplier.valueOf(new SimpleCacheResolver(cacheManager));
+    this.cacheResolver = SingletonSupplier.of(new SimpleCacheResolver(cacheManager));
   }
 
   /**

@@ -35,20 +35,22 @@ import reactor.netty.resources.LoopResources;
 
 /**
  * Factory to manage Reactor Netty resources, i.e. {@link LoopResources} for
- * event loop threads, and {@link ConnectionProvider} for the connection pool,
+ * event loop threads and {@link ConnectionProvider} for the connection pool,
  * within the lifecycle of a Spring {@code ApplicationContext}.
  *
  * <p>This factory implements {@link SmartLifecycle} and is expected typically
- * to be declared as a Infra-managed bean.
+ * to be declared as a Spring-managed bean.
  *
- * <p>Notice that after a {@link SmartLifecycle} stop/restart, new instances of
+ * <p>Note that after a {@link SmartLifecycle} stop/restart, new instances of
  * the configured {@link LoopResources} and {@link ConnectionProvider} are
- * created, so any references to those should be updated.
+ * created, so any references to those should be updated. However, this factory
+ * does not participate in {@linkplain #isPauseable() pause} scenarios.
  *
  * @author Rossen Stoyanchev
  * @author Brian Clozel
  * @author Sebastien Deleuze
  * @author Juergen Hoeller
+ * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
@@ -339,6 +341,17 @@ public class ReactorResourceFactory implements ApplicationContextAware, Initiali
   @Override
   public boolean isRunning() {
     return this.running;
+  }
+
+  /**
+   * Returns {@code false} to indicate that a {@code ReactorResourceFactory}
+   * should be skipped in a pause scenario.
+   *
+   * @since 5.0
+   */
+  @Override
+  public boolean isPausable() {
+    return false;
   }
 
   @Override

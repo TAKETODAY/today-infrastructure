@@ -71,7 +71,8 @@ public interface SessionPersister {
    * @throws ClassNotFoundException if a deserialization error occurs
    * @throws IOException if an input/output error occurs
    */
-  @Nullable Session findById(String id) throws ClassNotFoundException, IOException;
+  @Nullable
+  Session findById(String id) throws ClassNotFoundException, IOException;
 
   /**
    * Save the specified Session into this Store.  Any previously saved

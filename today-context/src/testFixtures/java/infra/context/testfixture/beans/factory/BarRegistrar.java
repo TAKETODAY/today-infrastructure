@@ -17,33 +17,18 @@
 
 package infra.context.testfixture.beans.factory;
 
-import org.jspecify.annotations.Nullable;
-
 import infra.beans.factory.BeanRegistrar;
 import infra.beans.factory.BeanRegistry;
-import infra.context.annotation.ImportAware;
 import infra.core.env.Environment;
-import infra.core.type.AnnotationMetadata;
 
-public class ImportAwareBeanRegistrar implements BeanRegistrar, ImportAware {
-
-  @Nullable
-  private AnnotationMetadata importMetadata;
+public class BarRegistrar implements BeanRegistrar {
 
   @Override
   public void register(BeanRegistry registry, Environment env) {
-    registry.registerBean(ClassNameHolder.class, spec -> spec.supplier(context ->
-            new ClassNameHolder(this.importMetadata == null ? null : this.importMetadata.getClassName())));
+    registry.registerBean(Bar.class);
   }
 
-  @Override
-  public void setImportMetadata(AnnotationMetadata importMetadata) {
-    this.importMetadata = importMetadata;
+  public record Bar() {
   }
 
-  public @Nullable AnnotationMetadata getImportMetadata() {
-    return this.importMetadata;
-  }
-
-  public record ClassNameHolder(@Nullable String className) { }
 }

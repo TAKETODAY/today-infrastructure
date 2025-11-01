@@ -39,21 +39,20 @@ import infra.lang.Contract;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0 2021/3/25 11:38
  */
-public class SingletonSupplier<T> implements Supplier<@Nullable T> {
+public class SingletonSupplier<T extends @Nullable Object> implements Supplier<T> {
 
-  @Nullable
-  private final Supplier<? extends @Nullable T> defaultSupplier;
+  private final @Nullable Supplier<? extends @Nullable T> defaultSupplier;
 
-  @Nullable
-  private final Supplier<? extends @Nullable T> instanceSupplier;
+  private final @Nullable Supplier<? extends @Nullable T> instanceSupplier;
 
   /**
    * Guards access to write operations on the {@code singletonInstance} field.
    */
   private final ReentrantLock writeLock = new ReentrantLock();
 
-  @Nullable
-  private volatile T singletonInstance;
+  private volatile @Nullable T singletonInstance;
+
+  private volatile boolean initialized;
 
   /**
    * Build a {@code SingletonSupplier} with the given singleton instance
@@ -66,6 +65,7 @@ public class SingletonSupplier<T> implements Supplier<@Nullable T> {
     this.instanceSupplier = null;
     this.defaultSupplier = defaultSupplier;
     this.singletonInstance = instance;
+    this.initialized = (instance != null);
   }
 
   /**
@@ -89,6 +89,7 @@ public class SingletonSupplier<T> implements Supplier<@Nullable T> {
     this.instanceSupplier = null;
     this.defaultSupplier = null;
     this.singletonInstance = singletonInstance;
+    this.initialized = (singletonInstance != null);
   }
 
   /**
@@ -97,25 +98,25 @@ public class SingletonSupplier<T> implements Supplier<@Nullable T> {
    * @return the singleton instance (or {@code null} if none)
    */
   @Override
-  @Nullable
-  public T get() {
+  public @Nullable T get() {
     T instance = this.singletonInstance;
-    if (instance == null) {
-      writeLock.lock();
+    if (!this.initialized) {
+      this.writeLock.lock();
       try {
         instance = this.singletonInstance;
-        if (instance == null) {
-          if (instanceSupplier != null) {
-            instance = instanceSupplier.get();
+        if (!this.initialized) {
+          if (this.instanceSupplier != null) {
+            instance = this.instanceSupplier.get();
           }
-          if (instance == null && defaultSupplier != null) {
-            instance = defaultSupplier.get();
+          if (instance == null && this.defaultSupplier != null) {
+            instance = this.defaultSupplier.get();
           }
           this.singletonInstance = instance;
+          this.initialized = true;
         }
       }
       finally {
-        writeLock.unlock();
+        this.writeLock.unlock();
       }
     }
     return instance;
@@ -139,7 +140,7 @@ public class SingletonSupplier<T> implements Supplier<@Nullable T> {
    * @param instance the singleton instance (never {@code null})
    * @return the singleton supplier (never {@code null})
    */
-  public static <T> SingletonSupplier<T> valueOf(T instance) {
+  public static <T> SingletonSupplier<T> of(T instance) {
     return new SingletonSupplier<>(instance);
   }
 
@@ -149,9 +150,8 @@ public class SingletonSupplier<T> implements Supplier<@Nullable T> {
    * @param instance the singleton instance (potentially {@code null})
    * @return the singleton supplier, or {@code null} if the instance was {@code null}
    */
-  @Nullable
   @Contract("null -> null; !null -> !null")
-  public static <T> SingletonSupplier<T> ofNullable(@Nullable T instance) {
+  public static <T extends @Nullable Object> @Nullable SingletonSupplier<T> ofNullable(@Nullable T instance) {
     return (instance != null ? new SingletonSupplier<>(instance) : null);
   }
 
@@ -161,7 +161,7 @@ public class SingletonSupplier<T> implements Supplier<@Nullable T> {
    * @param supplier the instance supplier (never {@code null})
    * @return the singleton supplier (never {@code null})
    */
-  public static <T> SingletonSupplier<T> from(Supplier<T> supplier) {
+  public static <T extends @Nullable Object> SingletonSupplier<T> of(Supplier<T> supplier) {
     return new SingletonSupplier<>(supplier);
   }
 
@@ -172,7 +172,7 @@ public class SingletonSupplier<T> implements Supplier<@Nullable T> {
    * @return the singleton supplier, or {@code null} if the instance supplier was {@code null}
    */
   @Contract("null -> null; !null -> !null")
-  public static <T> @Nullable SingletonSupplier<T> ofNullable(@Nullable Supplier<@Nullable T> supplier) {
+  public static <T extends @Nullable Object> @Nullable SingletonSupplier<T> ofNullable(@Nullable Supplier<T> supplier) {
     return (supplier != null ? new SingletonSupplier<>(supplier) : null);
   }
 

@@ -97,6 +97,7 @@ import infra.core.conversion.support.GenericConversionService;
 import infra.core.io.Resource;
 import infra.core.io.UrlResource;
 import infra.core.testfixture.io.SerializationTestUtils;
+import infra.util.StringUtils;
 import jakarta.annotation.Priority;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -3132,8 +3133,8 @@ class StandardBeanFactoryTests {
     lbf.registerBeanDefinition("bd2", new RootBeanDefinition(NestedTestBean.class));
     lbf.freezeConfiguration();
 
-    var allBeanNames = lbf.getBeanNamesForType(Object.class);
-    var nestedBeanNames = lbf.getBeanNamesForType(NestedTestBean.class);
+    String[] allBeanNames = lbf.getBeanNamesForType(Object.class);
+    String[] nestedBeanNames = lbf.getBeanNamesForType(NestedTestBean.class);
     assertThat(lbf.getType("bd1")).isEqualTo(TestBean.class);
     assertThat(lbf.getBeanNamesForType(TestBean.class)).containsExactly("bd1");
     assertThat(lbf.getBeanNamesForType(DerivedTestBean.class)).isEmpty();
@@ -3143,6 +3144,10 @@ class StandardBeanFactoryTests {
     assertThat(lbf.getBeanNamesForType(DerivedTestBean.class)).containsExactly("bd1");
     assertThat(lbf.getBeanNamesForType(NestedTestBean.class)).isSameAs(nestedBeanNames);
     assertThat(lbf.getBeanNamesForType(Object.class)).isSameAs(allBeanNames);
+
+    lbf.registerSingleton("bd3", new Object());
+    assertThat(lbf.getBeanNamesForType(NestedTestBean.class)).isSameAs(nestedBeanNames);
+    assertThat(lbf.getBeanNamesForType(Object.class)).containsExactly(StringUtils.addStringToArray(allBeanNames, "bd3"));
   }
 
   private int registerBeanDefinitions(Properties p) {

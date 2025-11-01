@@ -153,7 +153,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
 
   private final Set<Integer> factoriesPostProcessed = new HashSet<>();
 
-  private final LinkedHashMap<String, BeanRegistrar> beanRegistrars = new LinkedHashMap<>();
+  private final MultiValueMap<String, BeanRegistrar> beanRegistrars = new LinkedMultiValueMap<>();
 
   @Nullable
   private ConfigurationClassBeanDefinitionReader reader;
@@ -779,11 +779,11 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
 
     private final ConfigurableBeanFactory beanFactory;
 
-    private final Map<String, BeanRegistrar> beanRegistrars;
+    private final MultiValueMap<String, BeanRegistrar> beanRegistrars;
 
     private final AotServices<BeanRegistrationAotProcessor> aotProcessors;
 
-    public BeanRegistrarAotContribution(Map<String, BeanRegistrar> beanRegistrars, ConfigurableBeanFactory beanFactory) {
+    public BeanRegistrarAotContribution(MultiValueMap<String, BeanRegistrar> beanRegistrars, ConfigurableBeanFactory beanFactory) {
       this.beanFactory = beanFactory;
       this.beanRegistrars = beanRegistrars;
       this.aotProcessors = AotServices.factoriesAndBeans(this.beanFactory).load(BeanRegistrationAotProcessor.class);
@@ -823,11 +823,11 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
                 reflectionHints.registerConstructor(constructor, ExecutableMode.INVOKE);
               }
             }
-            if (!ObjectUtils.isEmpty(rootBeanDefinition.getInitMethodNames())) {
+            if (ObjectUtils.isNotEmpty(rootBeanDefinition.getInitMethodNames())) {
               method.addCode(generateInitDestroyMethods(name, rootBeanDefinition,
                       rootBeanDefinition.getInitMethodNames(), "setInitMethodNames", reflectionHints));
             }
-            if (!ObjectUtils.isEmpty(rootBeanDefinition.getDestroyMethodNames())) {
+            if (ObjectUtils.isNotEmpty(rootBeanDefinition.getDestroyMethodNames())) {
               method.addCode(generateInitDestroyMethods(name, rootBeanDefinition,
                       rootBeanDefinition.getDestroyMethodNames(), "setDestroyMethodNames", reflectionHints));
             }
@@ -839,7 +839,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
     }
 
     private void checkUnsupportedFeatures(AbstractBeanDefinition beanDefinition) {
-      if (!ObjectUtils.isEmpty(beanDefinition.getFactoryBeanName())) {
+      if (ObjectUtils.isNotEmpty(beanDefinition.getFactoryBeanName())) {
         throw new UnsupportedOperationException("AOT post processing of the factory bean name is not supported yet with BeanRegistrar");
       }
       if (beanDefinition.hasConstructorArgumentValues()) {
@@ -847,13 +847,6 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
       }
       if (!beanDefinition.getQualifiers().isEmpty()) {
         throw new UnsupportedOperationException("AOT post processing of qualifiers is not supported yet with BeanRegistrar");
-      }
-      for (String attributeName : beanDefinition.attributeNames()) {
-        if (!attributeName.equals(AbstractBeanDefinition.ORDER_ATTRIBUTE)
-                && !attributeName.equals("aotProcessingIgnoreRegistration")) {
-          throw new UnsupportedOperationException("AOT post processing of attribute " + attributeName +
-                  " is not supported yet with BeanRegistrar");
-        }
       }
     }
 
@@ -868,25 +861,26 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
       var code = CodeBlock.builder();
       CodeBlock.Builder metadataReaderFactoryCode = null;
       NameAllocator nameAllocator = new NameAllocator();
-      for (Map.Entry<String, BeanRegistrar> beanRegistrarEntry : this.beanRegistrars.entrySet()) {
-        BeanRegistrar beanRegistrar = beanRegistrarEntry.getValue();
-        String beanRegistrarName = nameAllocator.newName(StringUtils.uncapitalize(beanRegistrar.getClass().getSimpleName()));
-        code.addStatement("$T $L = new $T()", beanRegistrar.getClass(), beanRegistrarName, beanRegistrar.getClass());
-        if (beanRegistrar instanceof ImportAware) {
-          if (metadataReaderFactoryCode == null) {
-            metadataReaderFactoryCode = CodeBlock.builder();
-            metadataReaderFactoryCode.addStatement("$T metadataReaderFactory = new $T()", MetadataReaderFactory.class, CachingMetadataReaderFactory.class);
+      for (Map.Entry<String, List<BeanRegistrar>> beanRegistrarEntry : beanRegistrars.entrySet()) {
+        for (BeanRegistrar beanRegistrar : beanRegistrarEntry.getValue()) {
+          String beanRegistrarName = nameAllocator.newName(StringUtils.uncapitalize(beanRegistrar.getClass().getSimpleName()));
+          code.addStatement("$T $L = new $T()", beanRegistrar.getClass(), beanRegistrarName, beanRegistrar.getClass());
+          if (beanRegistrar instanceof ImportAware) {
+            if (metadataReaderFactoryCode == null) {
+              metadataReaderFactoryCode = CodeBlock.builder();
+              metadataReaderFactoryCode.addStatement("$T metadataReaderFactory = new $T()", MetadataReaderFactory.class, CachingMetadataReaderFactory.class);
+            }
+            code.beginControlFlow("try")
+                    .addStatement("$L.setImportMetadata(metadataReaderFactory.getMetadataReader($S).getAnnotationMetadata())", beanRegistrarName, beanRegistrarEntry.getKey())
+                    .nextControlFlow("catch ($T ex)", IOException.class)
+                    .addStatement("throw new $T(\"Failed to read metadata for '$L'\", ex)", IllegalStateException.class, beanRegistrarEntry.getKey())
+                    .endControlFlow();
           }
-          code.beginControlFlow("try")
-                  .addStatement("$L.setImportMetadata(metadataReaderFactory.getMetadataReader($S).getAnnotationMetadata())", beanRegistrarName, beanRegistrarEntry.getKey())
-                  .nextControlFlow("catch ($T ex)", IOException.class)
-                  .addStatement("throw new $T(\"Failed to read metadata for '$L'\", ex)", IllegalStateException.class, beanRegistrarEntry.getKey())
-                  .endControlFlow();
+          code.addStatement("$L.register(new $T(($T)$L, $L, $L, $T.class, $L), $L)", beanRegistrarName,
+                  BeanRegistryAdapter.class, BeanDefinitionRegistry.class, BeanFactoryInitializationCode.BEAN_FACTORY_VARIABLE,
+                  BeanFactoryInitializationCode.BEAN_FACTORY_VARIABLE, ENVIRONMENT_VARIABLE, beanRegistrar.getClass(),
+                  CUSTOMIZER_MAP_VARIABLE, ENVIRONMENT_VARIABLE);
         }
-        code.addStatement("$L.register(new $T(($T)$L, $L, $L, $T.class, $L), $L)", beanRegistrarName,
-                BeanRegistryAdapter.class, BeanDefinitionRegistry.class, BeanFactoryInitializationCode.BEAN_FACTORY_VARIABLE,
-                BeanFactoryInitializationCode.BEAN_FACTORY_VARIABLE, ENVIRONMENT_VARIABLE, beanRegistrar.getClass(),
-                CUSTOMIZER_MAP_VARIABLE, ENVIRONMENT_VARIABLE);
       }
       return (metadataReaderFactoryCode == null ? code.build() : metadataReaderFactoryCode.add(code.build()).build());
     }

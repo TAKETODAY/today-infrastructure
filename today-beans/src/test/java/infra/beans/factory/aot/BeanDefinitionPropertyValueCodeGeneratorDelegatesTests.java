@@ -40,6 +40,7 @@ import javax.lang.model.element.Modifier;
 import infra.aot.generate.GeneratedClass;
 import infra.aot.generate.ValueCodeGenerator;
 import infra.aot.test.generate.TestGenerationContext;
+import infra.beans.factory.config.AutowiredPropertyMarker;
 import infra.beans.factory.config.BeanReference;
 import infra.beans.factory.config.RuntimeBeanNameReference;
 import infra.beans.factory.config.RuntimeBeanReference;
@@ -481,6 +482,18 @@ class BeanDefinitionPropertyValueCodeGeneratorDelegatesTests {
         RuntimeBeanReference actual = (RuntimeBeanReference) instance;
         assertThat(actual.getBeanType()).isEqualTo(String.class);
       });
+    }
+
+  }
+
+  @Nested
+  class AutowiredPropertyMarkerTests {
+
+    @Test
+    void generateWhenAutowiredPropertyMarker() {
+      compile(AutowiredPropertyMarker.INSTANCE, (instance, compiler) ->
+              assertThat(instance).isInstanceOf(AutowiredPropertyMarker.class)
+                      .isSameAs(AutowiredPropertyMarker.INSTANCE));
     }
 
   }

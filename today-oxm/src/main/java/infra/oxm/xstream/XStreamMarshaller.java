@@ -195,7 +195,7 @@ public class XStreamMarshaller extends AbstractMarshaller implements BeanClassLo
   @Nullable
   private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
-  private final SingletonSupplier<XStream> xstream = SingletonSupplier.from(this::buildXStream);
+  private final SingletonSupplier<XStream> xstream = SingletonSupplier.of(this::buildXStream);
 
   /**
    * Set a custom XStream {@link ReflectionProvider} to use.

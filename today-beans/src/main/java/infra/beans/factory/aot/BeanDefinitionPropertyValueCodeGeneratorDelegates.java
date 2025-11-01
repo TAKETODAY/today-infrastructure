@@ -33,6 +33,7 @@ import infra.aot.generate.ValueCodeGenerator.Delegate;
 import infra.aot.generate.ValueCodeGeneratorDelegates;
 import infra.aot.generate.ValueCodeGeneratorDelegates.CollectionDelegate;
 import infra.aot.generate.ValueCodeGeneratorDelegates.MapDelegate;
+import infra.beans.factory.config.AutowiredPropertyMarker;
 import infra.beans.factory.config.BeanReference;
 import infra.beans.factory.config.RuntimeBeanReference;
 import infra.beans.factory.config.TypedStringValue;
@@ -49,7 +50,7 @@ import infra.javapoet.CodeBlock;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-abstract class BeanDefinitionPropertyValueCodeGeneratorDelegates {
+public abstract class BeanDefinitionPropertyValueCodeGeneratorDelegates {
 
   /**
    * Return the {@link Delegate} implementations for common bean definition
@@ -72,7 +73,8 @@ abstract class BeanDefinitionPropertyValueCodeGeneratorDelegates {
           new ManagedMapDelegate(),
           new LinkedHashMapDelegate(),
           new BeanReferenceDelegate(),
-          new TypedStringValueDelegate()
+          new TypedStringValueDelegate(),
+          new AutowiredPropertyMarkerDelegate()
   );
 
   /**
@@ -231,6 +233,20 @@ abstract class BeanDefinitionPropertyValueCodeGeneratorDelegates {
                 valueCodeGenerator.generateCode(typedStringValue.getTargetType()));
       }
       return valueCodeGenerator.generateCode(value);
+    }
+  }
+
+  /**
+   * {@link Delegate} for {@link AutowiredPropertyMarker} types.
+   */
+  private static final class AutowiredPropertyMarkerDelegate implements Delegate {
+
+    @Override
+    public @Nullable CodeBlock generateCode(ValueCodeGenerator valueCodeGenerator, Object value) {
+      if (value instanceof AutowiredPropertyMarker) {
+        return CodeBlock.of("$T.INSTANCE", AutowiredPropertyMarker.class);
+      }
+      return null;
     }
   }
 }

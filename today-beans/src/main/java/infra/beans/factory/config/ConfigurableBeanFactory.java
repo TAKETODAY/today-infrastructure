@@ -93,6 +93,8 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    *
    * @throws BeansException if one of the singleton beans could not be created.
    * Note: This may have left the factory with some beans already initialized!
+   * @see #prepareSingletonBootstrap()
+   * @see #destroySingletons()
    * @since 2.1.2
    */
   void preInstantiateSingletons();
@@ -431,6 +433,19 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
   boolean isConfigurationFrozen();
 
   /**
+   * Mark current thread as main bootstrap thread for singleton instantiation,
+   * with lenient bootstrap locking applying for background threads.
+   * <p>Any such marker is to be removed at the end of the managed bootstrap in
+   * {@link #preInstantiateSingletons()}.
+   *
+   * @see #setBootstrapExecutor
+   * @see #preInstantiateSingletons()
+   * @since 5.0
+   */
+  default void prepareSingletonBootstrap() {
+  }
+
+  /**
    * Clear the merged bean definition cache, removing entries for beans
    * which are not considered eligible for full metadata caching yet.
    * <p>Typically triggered after changes to the original bean definitions,
@@ -575,4 +590,5 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    */
   @Nullable
   Executor getBootstrapExecutor();
+
 }

@@ -201,8 +201,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   private volatile boolean configurationFrozen;
 
   /** Name prefix of main thread: only set during pre-instantiation phase. */
-  @Nullable
-  private volatile String mainThreadPrefix;
+  private volatile @Nullable String mainThreadPrefix;
 
   /** Cached array of bean definition names in case of frozen configuration. */
   private volatile String @Nullable [] frozenBeanDefinitionNames;
@@ -397,6 +396,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   public void registerSingleton(String beanName, Object singletonObject) throws IllegalStateException {
     super.registerSingleton(beanName, singletonObject);
     updateManualSingletonNames(set -> set.add(beanName), set -> !beanDefinitionMap.containsKey(beanName));
+    this.allBeanNamesByType.remove(Object.class);
+    this.singletonBeanNamesByType.remove(Object.class);
   }
 
   @Override
@@ -576,6 +577,11 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   @Override
+  public void prepareSingletonBootstrap() {
+    this.mainThreadPrefix = getThreadNamePrefix();
+  }
+
+  @Override
   public void preInstantiateSingletons() {
     if (log.isTraceEnabled()) {
       log.trace("Pre-instantiating singletons in {}", this);
@@ -587,7 +593,9 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
     // Trigger initialization of all non-lazy singleton beans...
     this.preInstantiationThread.set(PreInstantiation.MAIN);
-    this.mainThreadPrefix = getThreadNamePrefix();
+    if (this.mainThreadPrefix == null) {
+      this.mainThreadPrefix = getThreadNamePrefix();
+    }
     try {
       var futures = new ArrayList<CompletableFuture<?>>();
       for (String beanName : beanNames) {

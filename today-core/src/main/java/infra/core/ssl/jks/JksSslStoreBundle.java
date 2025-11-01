@@ -76,8 +76,8 @@ public class JksSslStoreBundle implements SslStoreBundle {
     Assert.notNull(resourceLoader, "ResourceLoader is required");
     this.keyStoreDetails = keyStoreDetails;
     this.resourceLoader = resourceLoader;
-    this.keyStore = SingletonSupplier.from(() -> createKeyStore("key", keyStoreDetails));
-    this.trustStore = SingletonSupplier.from(() -> createKeyStore("trust", trustStoreDetails));
+    this.keyStore = SingletonSupplier.of(() -> createKeyStore("key", keyStoreDetails));
+    this.trustStore = SingletonSupplier.of(() -> createKeyStore("trust", trustStoreDetails));
   }
 
   @Nullable
