@@ -42,8 +42,6 @@ import infra.reflect.PropertyAccessor;
 import infra.reflect.ReflectionException;
 import infra.tests.sample.objects.TestObject;
 import infra.util.ReflectionUtils.MethodFilter;
-import lombok.Getter;
-import lombok.Setter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -122,13 +120,31 @@ class ReflectionUtilsTests {
 
   // -----------------------
 
-  @Getter
-  @Setter
   public static class PropertyBean {
     static int static_pro = 0;
     boolean bool = false;
     final long finalPro = 10L;
     static final short staticFinalPro = 100;
+
+    public void setBool(boolean bool) {
+      this.bool = bool;
+    }
+
+    public static void setStatic_pro(int static_pro) {
+      PropertyBean.static_pro = static_pro;
+    }
+
+    public static int getStatic_pro() {
+      return static_pro;
+    }
+
+    public long getFinalPro() {
+      return finalPro;
+    }
+
+    public static short getStaticFinalPro() {
+      return staticFinalPro;
+    }
   }
 
   @Test

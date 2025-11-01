@@ -26,7 +26,7 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import infra.core.Ordered;
-import infra.core.type.classreading.SimpleMetadataReaderFactory;
+import infra.core.type.classreading.MetadataReaderFactory;
 import infra.util.ClassUtils;
 
 /**
@@ -38,7 +38,7 @@ import infra.util.ClassUtils;
  */
 public class AutoConfigurations extends Configurations implements Ordered {
 
-  private static final SimpleMetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
+  private static final MetadataReaderFactory metadataReaderFactory = MetadataReaderFactory.create();
 
   private static final int ORDER = AutoConfigurationImportSelector.ORDER;
 
