@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ import infra.aot.generate.GenerationContext;
 import infra.aot.generate.MethodReference;
 import infra.aot.generate.MethodReference.ArgumentCodeGenerator;
 import infra.aot.test.generate.TestGenerationContext;
+import infra.beans.factory.config.AutowiredPropertyMarker;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.ConstructorArgumentValues.ValueHolder;
 import infra.beans.factory.support.BeanDefinitionBuilder;
@@ -623,6 +624,22 @@ class BeanDefinitionMethodGeneratorTests {
             assertThat(actual.getPropertyValues().getPropertyValue("customPropertyValue"))
                     .isInstanceOfSatisfying(CustomPropertyValue.class, customPropertyValue
                             -> assertThat(customPropertyValue.value()).isEqualTo("test")));
+  }
+
+  @Test
+  void generateBeanDefinitionMethodWhenHasAutowiredPropertyGeneratesMethod() {
+    RootBeanDefinition beanDefinition = (RootBeanDefinition) BeanDefinitionBuilder
+            .rootBeanDefinition(CustomBean.class).addAutowiredProperty("innerBean")
+            .getBeanDefinition();
+    RegisteredBean registeredBean = registerBean(beanDefinition);
+    BeanDefinitionMethodGenerator generator = new BeanDefinitionMethodGenerator(
+            this.methodGeneratorFactory, registeredBean, null,
+            Collections.emptyList());
+    MethodReference method = generator.generateBeanDefinitionMethod(
+            this.generationContext, this.beanRegistrationsCode);
+    compile(method, (actual, compiled) ->
+            assertThat(actual.getPropertyValues().get("innerBean"))
+                    .isSameAs(AutowiredPropertyMarker.INSTANCE));
   }
 
   @Test
