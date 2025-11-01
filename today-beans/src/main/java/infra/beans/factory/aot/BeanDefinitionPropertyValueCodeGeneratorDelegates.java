@@ -239,7 +239,7 @@ public abstract class BeanDefinitionPropertyValueCodeGeneratorDelegates {
   /**
    * {@link Delegate} for {@link AutowiredPropertyMarker} types.
    */
-  private static class AutowiredPropertyMarkerDelegate implements Delegate {
+  private static final class AutowiredPropertyMarkerDelegate implements Delegate {
 
     @Override
     public @Nullable CodeBlock generateCode(ValueCodeGenerator valueCodeGenerator, Object value) {
