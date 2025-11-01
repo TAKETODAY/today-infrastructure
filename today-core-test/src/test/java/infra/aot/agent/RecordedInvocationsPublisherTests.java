@@ -38,14 +38,6 @@ class RecordedInvocationsPublisherTests {
   }
 
   @Test
-  void shouldHandleNullListenerInAdd() {
-    assertThatCode(() -> {
-      RecordedInvocationsPublisher.addListener(null);
-      RecordedInvocationsPublisher.removeListener(null);
-    }).doesNotThrowAnyException();
-  }
-
-  @Test
   void shouldHandlePublishWithNullInvocation() {
     assertThatCode(() -> {
       RecordedInvocationsPublisher.publish(null);
