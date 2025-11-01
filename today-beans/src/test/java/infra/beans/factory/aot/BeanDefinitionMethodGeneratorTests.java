@@ -638,7 +638,7 @@ class BeanDefinitionMethodGeneratorTests {
     MethodReference method = generator.generateBeanDefinitionMethod(
             this.generationContext, this.beanRegistrationsCode);
     compile(method, (actual, compiled) ->
-            assertThat(actual.getPropertyValues().get("innerBean"))
+            assertThat(actual.getPropertyValues().getPropertyValue("innerBean"))
                     .isSameAs(AutowiredPropertyMarker.INSTANCE));
   }
 
