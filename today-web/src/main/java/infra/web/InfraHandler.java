@@ -33,6 +33,7 @@ import infra.context.ApplicationContextInitializer;
 import infra.context.ApplicationListener;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.EnvironmentAware;
+import infra.context.SmartLifecycle;
 import infra.context.event.ContextRefreshedEvent;
 import infra.context.event.SourceFilteringListener;
 import infra.context.support.AbstractRefreshableConfigApplicationContext;
@@ -55,7 +56,7 @@ import infra.util.ObjectUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/9/26 23:21
  */
-public abstract class InfraHandler implements ApplicationContextAware, EnvironmentCapable, EnvironmentAware, BeanNameAware {
+public abstract class InfraHandler implements ApplicationContextAware, EnvironmentCapable, EnvironmentAware, BeanNameAware, SmartLifecycle {
 
   protected static final Logger log = LoggerFactory.getLogger(DispatcherHandler.class);
 
@@ -93,7 +94,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   /** Whether to log potentially sensitive info (request params at DEBUG + headers at TRACE). */
   private boolean enableLoggingRequestDetails = false;
 
-  protected final AtomicBoolean initialized = new AtomicBoolean(false);
+  protected final AtomicBoolean running = new AtomicBoolean(false);
 
   protected InfraHandler() {
   }
@@ -179,36 +180,13 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
     return new StandardEnvironment();
   }
 
-  public void init() {
-    if (initialized.compareAndSet(false, true)) {
-      long startTime = System.currentTimeMillis();
-      try {
-        this.applicationContext = initApplicationContext();
-        afterApplicationContextInit();
-      }
-      catch (Exception ex) {
-        log.error("Context initialization failed", ex);
-        throw ex;
-      }
-
-      if (log.isDebugEnabled()) {
-        String value = isEnableLoggingRequestDetails() ?
-                "shown which may lead to unsafe logging of potentially sensitive data" :
-                "masked to prevent unsafe logging of potentially sensitive data";
-        log.debug("enableLoggingRequestDetails='{}': request parameters and headers will be {}",
-                isEnableLoggingRequestDetails(), value);
-      }
-
-      log.info("Completed initialization in {} ms", System.currentTimeMillis() - startTime);
-    }
-  }
-
   /**
    * This method will be invoked after any bean properties have been set and
    * the ApplicationContext has been loaded. The default implementation is empty;
    * subclasses may override this method to perform any initialization they require.
    */
-  protected void afterApplicationContextInit() { }
+  protected void afterApplicationContextInit() {
+  }
 
   /**
    * Initialize and publish the ApplicationContext for this handler.
@@ -355,7 +333,6 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    * @see ConfigurableApplicationContext#refresh()
    */
   protected void postProcessApplicationContext(ConfigurableApplicationContext context) {
-
   }
 
   /**
@@ -535,7 +512,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   /**
    * Whether to log request params at DEBUG level, and headers at TRACE level.
    * Both may contain sensitive information.
-   * <p>By default set to {@code false} so that request details are not shown.
+   * <p>By default, set to {@code false} so that request details are not shown.
    *
    * @param enable whether to enable or not
    */
@@ -549,6 +526,41 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    */
   public boolean isEnableLoggingRequestDetails() {
     return this.enableLoggingRequestDetails;
+  }
+
+  @Override
+  public boolean isRunning() {
+    return running.get();
+  }
+
+  @Override
+  public void start() {
+    if (running.compareAndSet(false, true)) {
+      long startTime = System.currentTimeMillis();
+      try {
+        this.applicationContext = initApplicationContext();
+        afterApplicationContextInit();
+      }
+      catch (Exception ex) {
+        log.error("Context initialization failed", ex);
+        throw ex;
+      }
+
+      if (log.isDebugEnabled()) {
+        String value = isEnableLoggingRequestDetails()
+                ? "shown which may lead to unsafe logging of potentially sensitive data"
+                : "masked to prevent unsafe logging of potentially sensitive data";
+        log.debug("enableLoggingRequestDetails='{}': request parameters and headers will be {}", isEnableLoggingRequestDetails(), value);
+      }
+
+      log.info("Completed initialization in {} ms", System.currentTimeMillis() - startTime);
+    }
+  }
+
+  @Override
+  public void stop() {
+    destroy();
+    running.set(false);
   }
 
   /**

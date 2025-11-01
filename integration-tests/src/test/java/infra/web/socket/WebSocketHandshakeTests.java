@@ -75,7 +75,7 @@ class WebSocketHandshakeTests extends AbstractWebSocketIntegrationTests {
     String url = getWsBaseUrl() + "/ws";
     WebSocketSession session = this.webSocketClient.connect(new WebSocketHandler() { }, url).await().obtain();
 
-    TestWebSocketHandler serverHandler = this.wac.getBean(TestWebSocketHandler.class);
+    TestWebSocketHandler serverHandler = this.ctx.getBean(TestWebSocketHandler.class);
     serverHandler.setWaitMessageCount(1);
 
     session.sendPong();

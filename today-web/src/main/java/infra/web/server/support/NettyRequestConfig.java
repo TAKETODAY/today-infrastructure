@@ -23,8 +23,12 @@ import java.nio.charset.Charset;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import infra.http.HttpRequest;
 import infra.lang.Assert;
 import infra.lang.Constant;
+import infra.util.DataSize;
+import infra.util.concurrent.Awaiter;
+import infra.util.concurrent.SimpleSingleThreadAwaiter;
 import infra.web.RequestContext;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
@@ -126,6 +130,18 @@ public final class NettyRequestConfig {
    */
   public final boolean secure;
 
+  /**
+   * The maximum length of the http content.
+   *
+   * @since 5.0
+   */
+  public final long maxContentLength;
+
+  /**
+   * @since 5.0
+   */
+  public final Function<HttpRequest, Awaiter> awaiterFactory;
+
   private NettyRequestConfig(Builder builder) {
     Assert.notNull(builder.sendErrorHandler, "SendErrorHandler is required");
     Assert.notNull(builder.httpDataFactory, "HttpDataFactory is required");
@@ -134,7 +150,9 @@ public final class NettyRequestConfig {
     this.secure = builder.secure;
     this.cookieEncoder = builder.cookieEncoder;
     this.cookieDecoder = builder.cookieDecoder;
+    this.awaiterFactory = builder.awaiterFactory;
     this.httpDataFactory = builder.httpDataFactory;
+    this.maxContentLength = builder.maxContentLength;
     this.sendErrorHandler = builder.sendErrorHandler;
     this.httpHeadersFactory = builder.httpHeadersFactory;
     this.responseBodyFactory = builder.responseBodyFactory;
@@ -196,6 +214,8 @@ public final class NettyRequestConfig {
     @Nullable
     private Charset writerCharset = Constant.DEFAULT_CHARSET;
 
+    private long maxContentLength = DataSize.BYTES_PER_GB;
+
     private HttpHeadersFactory httpHeadersFactory = DefaultHttpHeadersFactory.headersFactory();
 
     private HttpDataFactory httpDataFactory;
@@ -203,6 +223,8 @@ public final class NettyRequestConfig {
     private SendErrorHandler sendErrorHandler;
 
     private final boolean secure;
+
+    private Function<HttpRequest, Awaiter> awaiterFactory = ctx -> new SimpleSingleThreadAwaiter();
 
     Builder(boolean secure) {
       this.secure = secure;
@@ -425,6 +447,29 @@ public final class NettyRequestConfig {
     public Builder headersFactory(@Nullable HttpHeadersFactory headersFactory) {
       this.httpHeadersFactory = headersFactory == null ? DefaultHttpHeadersFactory.headersFactory()
               : headersFactory;
+      return this;
+    }
+
+    /**
+     * Set the maximum length of the http content.
+     *
+     * @param maxContentLength the maximum length of the http content.
+     * If the length of the http content exceeds this value,
+     * @since 5.0
+     */
+    public Builder maxContentLength(long maxContentLength) {
+      this.maxContentLength = maxContentLength;
+      return this;
+    }
+
+    /**
+     * Set {@link Awaiter} factory.
+     *
+     * @since 5.0
+     */
+    public Builder awaiterFactory(Function<HttpRequest, Awaiter> awaiterFactory) {
+      Assert.notNull(awaiterFactory, "awaiterFactory is required");
+      this.awaiterFactory = awaiterFactory;
       return this;
     }
 
