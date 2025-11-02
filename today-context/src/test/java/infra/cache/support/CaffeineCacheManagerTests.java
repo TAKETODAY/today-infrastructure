@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.cache.caffeine;
+package infra.cache.support;
 
 import com.github.benmanes.caffeine.cache.CacheLoader;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -27,8 +27,6 @@ import java.util.concurrent.CompletableFuture;
 
 import infra.cache.Cache;
 import infra.cache.CacheManager;
-import infra.cache.support.CaffeineCache;
-import infra.cache.support.CaffeineCacheManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
