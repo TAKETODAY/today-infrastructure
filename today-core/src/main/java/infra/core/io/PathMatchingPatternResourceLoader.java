@@ -589,6 +589,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
   private Set<ClassPathManifestEntry> getClassPathManifestEntriesFromJar(File jar) throws IOException {
     URL base = jar.toURI().toURL();
     File parent = jar.getAbsoluteFile().getParentFile();
+
     try (JarFile jarFile = new JarFile(jar)) {
       Manifest manifest = jarFile.getManifest();
       Attributes attributes = (manifest != null ? manifest.getMainAttributes() : null);
@@ -602,8 +603,14 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
             // See jdk.internal.loader.URLClassPath.JarLoader.tryResolveFile(URL, String)
             continue;
           }
-          File candidate = new File(parent, path);
-          if (candidate.isFile() && candidate.getCanonicalPath().contains(parent.getCanonicalPath())) {
+
+          // Handle absolute paths correctly: do not apply parent to absolute paths.
+          File pathFile = new File(path);
+          File candidate = pathFile.isAbsolute() ? pathFile : new File(parent, path);
+
+          // For relative paths, enforce security check: must be under parent.
+          // For absolute paths, just verify file exists (matching JVM behavior).
+          if (candidate.isFile() && (pathFile.isAbsolute() || candidate.getCanonicalPath().contains(parent.getCanonicalPath()))) {
             manifestEntries.add(ClassPathManifestEntry.of(candidate, this.useCaches));
           }
         }
