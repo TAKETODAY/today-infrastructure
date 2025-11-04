@@ -64,6 +64,7 @@ import java.sql.SQLException;
  * </ul>
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see DefaultLobHandler
  * @see ResultSet#getBlob
  * @see ResultSet#getClob
@@ -87,8 +88,8 @@ public interface LobHandler {
    * @throws SQLException if thrown by JDBC methods
    * @see ResultSet#getBytes
    */
-  @Nullable
-  byte[] getBlobAsBytes(ResultSet rs, String columnName) throws SQLException;
+
+  byte @Nullable [] getBlobAsBytes(ResultSet rs, String columnName) throws SQLException;
 
   /**
    * Retrieve the given column as bytes from the given ResultSet.
@@ -101,8 +102,7 @@ public interface LobHandler {
    * @throws SQLException if thrown by JDBC methods
    * @see ResultSet#getBytes
    */
-  @Nullable
-  byte[] getBlobAsBytes(ResultSet rs, int columnIndex) throws SQLException;
+  byte @Nullable [] getBlobAsBytes(ResultSet rs, int columnIndex) throws SQLException;
 
   /**
    * Retrieve the given column as binary stream from the given ResultSet.

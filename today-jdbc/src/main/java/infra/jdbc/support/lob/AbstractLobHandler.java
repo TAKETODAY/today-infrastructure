@@ -31,14 +31,14 @@ import java.sql.SQLException;
  * and delegating to the corresponding accessor that takes a column index.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see ResultSet#findColumn
  * @since 4.0
  */
 public abstract class AbstractLobHandler implements LobHandler {
 
   @Override
-  @Nullable
-  public byte[] getBlobAsBytes(ResultSet rs, String columnName) throws SQLException {
+  public byte @Nullable [] getBlobAsBytes(ResultSet rs, String columnName) throws SQLException {
     return getBlobAsBytes(rs, rs.findColumn(columnName));
   }
 
