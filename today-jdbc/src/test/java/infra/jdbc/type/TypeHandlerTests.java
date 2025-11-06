@@ -18,6 +18,7 @@
 package infra.jdbc.type;
 
 import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -51,6 +52,7 @@ import java.util.stream.Stream;
 import infra.util.function.ThrowingBiFunction;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -71,6 +73,116 @@ class TypeHandlerTests {
 
     void accept(PreparedStatement statement, int parameterIndex, T value) throws SQLException;
 
+  }
+
+  @Test
+  void testSetParameterWithNullValue() throws SQLException {
+    TypeHandler<String> typeHandler = new StringTypeHandler();
+    typeHandler.setParameter(preparedStatement, 1, null);
+    verify(preparedStatement).setObject(1, null);
+  }
+
+  @Test
+  void testGetResultByColumnIndexWithNonNullValue() throws SQLException {
+    TypeHandler<String> typeHandler = new StringTypeHandler();
+    given(resultSet.getString(1)).willReturn("testValue");
+    given(resultSet.wasNull()).willReturn(false);
+
+    String result = typeHandler.getResult(resultSet, 1);
+    assertThat(result).isEqualTo("testValue");
+  }
+
+  @Test
+  void testGetResultByColumnIndexWithNullValue() throws SQLException {
+    TypeHandler<String> typeHandler = new StringTypeHandler();
+    given(resultSet.getString(1)).willReturn(null);
+    given(resultSet.wasNull()).willReturn(true);
+
+    String result = typeHandler.getResult(resultSet, 1);
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void testGetResultByColumnNameWithNonNullValue() throws SQLException {
+    TypeHandler<String> typeHandler = new StringTypeHandler();
+    given(resultSet.getString("testColumn")).willReturn("testValue");
+    given(resultSet.wasNull()).willReturn(false);
+
+    String result = typeHandler.getResult(resultSet, "testColumn");
+    assertThat(result).isEqualTo("testValue");
+  }
+
+  @Test
+  void testGetResultByColumnNameWithNullValue() throws SQLException {
+    TypeHandler<String> typeHandler = new StringTypeHandler();
+    given(resultSet.getString("testColumn")).willReturn(null);
+    given(resultSet.wasNull()).willReturn(true);
+
+    String result = typeHandler.getResult(resultSet, "testColumn");
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void testGetResultFromCallableStatementWithNonNullValue() throws SQLException {
+    TypeHandler<String> typeHandler = new StringTypeHandler();
+    given(callableStatement.getString(1)).willReturn("testValue");
+    given(callableStatement.wasNull()).willReturn(false);
+
+    String result = typeHandler.getResult(callableStatement, 1);
+    assertThat(result).isEqualTo("testValue");
+  }
+
+  @Test
+  void testGetResultFromCallableStatementWithNullValue() throws SQLException {
+    TypeHandler<String> typeHandler = new StringTypeHandler();
+    given(callableStatement.getString(1)).willReturn(null);
+    given(callableStatement.wasNull()).willReturn(true);
+
+    String result = typeHandler.getResult(callableStatement, 1);
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void testSetParameterWithValidValue() throws SQLException {
+    TypeHandler<Integer> typeHandler = new IntegerTypeHandler();
+    typeHandler.setParameter(preparedStatement, 1, 42);
+    verify(preparedStatement).setInt(1, 42);
+  }
+
+  @Test
+  void testDefaultGetResultByColumnNameThrowsException() {
+    TypeHandler<String> typeHandler = new TypeHandler<String>() {
+      @Override
+      public void setParameter(PreparedStatement ps, int parameterIndex, @Nullable String arg) throws SQLException {
+        // Empty implementation
+      }
+
+      @Override
+      public @Nullable String getResult(ResultSet rs, int columnIndex) throws SQLException {
+        return null;
+      }
+    };
+
+    assertThatThrownBy(() -> typeHandler.getResult(resultSet, "columnName"))
+            .isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @Test
+  void testDefaultGetResultFromCallableStatementThrowsException() {
+    TypeHandler<String> typeHandler = new TypeHandler<String>() {
+      @Override
+      public void setParameter(PreparedStatement ps, int parameterIndex, @Nullable String arg) throws SQLException {
+        // Empty implementation
+      }
+
+      @Override
+      public @Nullable String getResult(ResultSet rs, int columnIndex) throws SQLException {
+        return null;
+      }
+    };
+
+    assertThatThrownBy(() -> typeHandler.getResult(callableStatement, 1))
+            .isInstanceOf(UnsupportedOperationException.class);
   }
 
   @ParameterizedTest
