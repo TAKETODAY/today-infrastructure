@@ -25,8 +25,8 @@ import java.sql.SQLException;
 import infra.beans.BeanProperty;
 import infra.core.conversion.ConversionException;
 import infra.core.conversion.ConversionService;
-import infra.jdbc.type.SmartTypeHandler;
 import infra.jdbc.type.TypeHandler;
+import infra.jdbc.type.WrappedTypeHandler;
 import infra.lang.Assert;
 
 /**
@@ -77,6 +77,7 @@ final class ObjectPropertySetter {
    */
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public void setTo(Object obj, ResultSet resultSet, int columnIndex) throws SQLException {
+    BeanProperty beanProperty = this.beanProperty;
     if (beanProperty.isWriteable()) {
       Object result = getResult(resultSet, columnIndex);
       if (result == null && beanProperty.isPrimitive()) {
@@ -96,7 +97,7 @@ final class ObjectPropertySetter {
         }
       }
     }
-    else if (typeHandler instanceof SmartTypeHandler handler) {
+    else if (typeHandler instanceof WrappedTypeHandler handler) {
       Object value = beanProperty.getValue(obj);
       Assert.state(value != null, "Not writable entity property its value is required");
       handler.applyResult(value, resultSet, columnIndex);

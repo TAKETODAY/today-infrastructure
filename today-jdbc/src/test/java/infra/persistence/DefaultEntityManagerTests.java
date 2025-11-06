@@ -26,7 +26,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -52,6 +51,7 @@ import infra.jdbc.format.SqlStatementLogger;
 import infra.jdbc.type.BasicTypeHandler;
 import infra.jdbc.type.SmartTypeHandler;
 import infra.jdbc.type.TypeHandler;
+import infra.jdbc.type.WrappedTypeHandler;
 import infra.persistence.model.Gender;
 import infra.persistence.model.NoIdModel;
 import infra.persistence.model.UserModel;
@@ -1295,7 +1295,8 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
 
   }
 
-  static class Base64ValueHandler extends BasicTypeHandler<Base64Value> implements SmartTypeHandler<Base64Value> {
+  static class Base64ValueHandler extends BasicTypeHandler<Base64Value>
+          implements SmartTypeHandler<Base64Value>, WrappedTypeHandler<Base64Value> {
 
     @Override
     public boolean supportsProperty(BeanProperty property) {
@@ -1310,24 +1311,6 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     @Override
     public void setNonNullParameter(PreparedStatement ps, int parameterIndex, Base64Value arg) throws SQLException {
       ps.setString(parameterIndex, arg.value);
-    }
-
-    @Nullable
-    @Override
-    public Base64Value getResult(ResultSet rs, String columnName) throws SQLException {
-      return new Base64Value(rs.getString(columnName));
-    }
-
-    @Nullable
-    @Override
-    public Base64Value getResult(ResultSet rs, int columnIndex) throws SQLException {
-      return new Base64Value(rs.getString(columnIndex));
-    }
-
-    @Nullable
-    @Override
-    public Base64Value getResult(CallableStatement cs, int columnIndex) throws SQLException {
-      return new Base64Value(cs.getString(columnIndex));
     }
 
   }

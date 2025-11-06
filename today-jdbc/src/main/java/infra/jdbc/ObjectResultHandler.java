@@ -17,6 +17,8 @@
 
 package infra.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -32,9 +34,9 @@ final class ObjectResultHandler<T> implements ResultSetExtractor<T> {
 
   private final JdbcBeanMetadata metadata;
 
-  private final ObjectPropertySetter[] setters;
+  private final @Nullable ObjectPropertySetter[] setters;
 
-  ObjectResultHandler(JdbcBeanMetadata metadata, ObjectPropertySetter[] setters, int columnCount) {
+  ObjectResultHandler(JdbcBeanMetadata metadata, @Nullable ObjectPropertySetter[] setters, int columnCount) {
     this.metadata = metadata;
     this.setters = setters;
     this.columnCount = columnCount;
@@ -46,7 +48,7 @@ final class ObjectResultHandler<T> implements ResultSetExtractor<T> {
     // otherwise we want executeAndFetch with object mapping
     final int columnCount = this.columnCount;
     final Object pojo = metadata.newInstance();
-    final ObjectPropertySetter[] setters = this.setters;
+    final @Nullable ObjectPropertySetter[] setters = this.setters;
     for (int colIdx = 1; colIdx <= columnCount; colIdx++) {
       ObjectPropertySetter setter = setters[colIdx - 1];
       if (setter != null) {

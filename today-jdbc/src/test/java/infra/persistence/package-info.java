@@ -15,22 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.jdbc.type;
+@NullMarked
+package infra.persistence;
 
-import infra.beans.BeanProperty;
-
-/**
- * @param <T> value type
- * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @since 5.0 2025/1/23 14:54
- */
-public interface SmartTypeHandler<T> extends TypeHandler<T> {
-
-  /**
-   * Test this handler can handle input property
-   *
-   * @param property bean property
-   */
-  boolean supportsProperty(BeanProperty property);
-
-}
+import org.jspecify.annotations.NullMarked;
