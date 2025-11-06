@@ -362,6 +362,15 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
         return true;
       }
     }
+    
+    MethodParameter methodParam = descriptor.getMethodParameter();
+    if (methodParam != null) {
+      for (Annotation annotation : methodParam.getMethodAnnotations()) {
+        if (isQualifier(annotation.annotationType())) {
+          return true;
+        }
+      }
+    }
     return false;
   }
 
