@@ -394,7 +394,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
     }
 
     if (version != null) {
-      apiVersionStrategy.handleDeprecations(version, request);
+      apiVersionStrategy.handleDeprecations(version, handler, request);
     }
     return chain;
   }

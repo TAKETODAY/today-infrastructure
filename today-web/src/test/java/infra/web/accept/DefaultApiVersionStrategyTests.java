@@ -200,7 +200,7 @@ class DefaultApiVersionStrategyTests {
     MockRequestContext request = new MockRequestContext();
 
     // Should not throw exception
-    strategy.handleDeprecations(parser.parseVersion("1.0"), request);
+    strategy.handleDeprecations(parser.parseVersion("1.0"), 1, request);
 
     assertThat(true).isTrue();
   }
