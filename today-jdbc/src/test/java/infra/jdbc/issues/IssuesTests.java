@@ -46,7 +46,7 @@ import static org.junit.Assert.assertEquals;
  * is to test for reported issues.
  */
 @RunWith(Parameterized.class)
-public class IssuesTest {
+public class IssuesTests {
 
   @Parameterized.Parameters(name = "{index} - {4}")
   public static Collection<Object[]> getData() {
@@ -62,7 +62,7 @@ public class IssuesTest {
   private String user;
   private String pass;
 
-  public IssuesTest(Driver driverToRegister, String url, String user, String pass, String testName) {
+  public IssuesTests(Driver driverToRegister, String url, String user, String pass, String testName) {
     if (driverToRegister != null) {
       try {
         DriverManager.registerDriver(driverToRegister);
