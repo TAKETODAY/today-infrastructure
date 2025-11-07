@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,14 +25,16 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import infra.jdbc.parsing.ParameterIndexHolder;
 import infra.jdbc.parsing.QueryParameter;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ArrayParametersTest {
+class ArrayParametersTests {
 
   @Test
   public void testUpdateParameterNamesToIndexes() {
@@ -171,6 +173,50 @@ public class ArrayParametersTest {
                     listOf(
                             new ArrayParameters.ArrayParameter(1, 5),
                             new ArrayParameters.ArrayParameter(3, 3))));
+  }
+
+  @Test
+  void shouldReturnOriginalQueryWhenNoArrayParameters() {
+    String parsedQuery = "SELECT * FROM user WHERE id = ? AND name = ?";
+    HashMap<String, QueryParameter> queryParameters = new HashMap<>();
+
+    QueryParameter idParam = new QueryParameter("id", ParameterIndexHolder.valueOf(1));
+    QueryParameter nameParam = new QueryParameter("name", ParameterIndexHolder.valueOf(2));
+
+    queryParameters.put("id", idParam);
+    queryParameters.put("name", nameParam);
+
+    String result = ArrayParameters.updateQueryAndParametersIndexes(parsedQuery, queryParameters, true);
+
+    assertThat(result).isEqualTo(parsedQuery);
+  }
+
+  @Test
+  void shouldUpdateMapWithMultipleParameterIndexes() {
+    HashMap<String, QueryParameter> queryParameters = new HashMap<>();
+
+    // Parameter with multiple indexes
+    ArrayList<Integer> indexes = new ArrayList<>();
+    indexes.add(1);
+    indexes.add(3);
+    QueryParameter param = new QueryParameter("test", ParameterIndexHolder.valueOf(indexes));
+
+    queryParameters.put("test", param);
+
+    ArrayList<ArrayParameters.ArrayParameter> arrayParameters = new ArrayList<>();
+    arrayParameters.add(new ArrayParameters.ArrayParameter(2, 3)); // Insert 3 parameters at index 2
+
+    Map<String, QueryParameter> result = ArrayParameters.updateMap(queryParameters, arrayParameters);
+
+    // Index 1 should remain 1
+    // Index 3 should become 5 (3 + 3 - 1)
+    QueryParameter updatedParam = result.get("test");
+    ArrayList<Integer> newIndexes = new ArrayList<>();
+    for (int index : updatedParam.getHolder()) {
+      newIndexes.add(index);
+    }
+
+    assertThat(newIndexes).containsExactly(1, 5);
   }
 
 }

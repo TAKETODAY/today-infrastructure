@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,8 +25,11 @@ import java.util.Map;
  * Represents an offline result set with columns and rows and data.
  */
 public final class Table {
+
   private final String name;
+
   private final List<Row> rows;
+
   private final List<Column> columns;
 
   public Table(String name, List<Row> rows, List<Column> columns) {
