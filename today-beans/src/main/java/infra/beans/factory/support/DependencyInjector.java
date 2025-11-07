@@ -59,12 +59,12 @@ public class DependencyInjector {
   // Inject to target injection-point
   //---------------------------------------------------------------------
 
-  public <T> T inject(Constructor<T> constructor, @Nullable Object... providedArgs) {
+  public <T> T inject(Constructor<T> constructor, @Nullable Object @Nullable ... providedArgs) {
     @Nullable Object[] parameter = resolveArguments(constructor, providedArgs);
     return BeanUtils.newInstance(constructor, parameter);
   }
 
-  public Object inject(Method method, Object bean, @Nullable Object... providedArgs) {
+  public Object inject(Method method, Object bean, @Nullable Object @Nullable ... providedArgs) {
     @Nullable Object[] args = resolveArguments(method, providedArgs);
     try {
       return method.invoke(bean, args);
@@ -81,8 +81,7 @@ public class DependencyInjector {
   // Resolving dependency
   //---------------------------------------------------------------------
 
-  @Nullable
-  public Object @Nullable [] resolveArguments(Executable executable, @Nullable Object... providedArgs) {
+  public @Nullable Object @Nullable [] resolveArguments(Executable executable, @Nullable Object @Nullable ... providedArgs) {
     int parameterLength = executable.getParameterCount();
     if (parameterLength != 0) {
       @Nullable Object[] arguments = new Object[parameterLength];
