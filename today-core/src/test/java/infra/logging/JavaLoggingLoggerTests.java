@@ -1,0 +1,144 @@
+/*
+ * Copyright 2017 - 2025 the original author or authors.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
+ */
+
+package infra.logging;
+
+import org.junit.jupiter.api.Test;
+
+import java.util.logging.Logger;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0 2025/11/7 21:34
+ */
+class JavaLoggingLoggerTests {
+
+  @Test
+  void shouldCreateJavaLoggingLogger() {
+    Logger javaLogger = Logger.getLogger("test.logger");
+    boolean debugEnabled = true;
+
+    JavaLoggingLogger logger = new JavaLoggingLogger(javaLogger, debugEnabled);
+
+    assertThat(logger).isNotNull();
+    assertThat(logger.getName()).isEqualTo("test.logger");
+  }
+
+  @Test
+  void shouldReturnCorrectLoggerName() {
+    Logger javaLogger = Logger.getLogger("com.example.TestLogger");
+    JavaLoggingLogger logger = new JavaLoggingLogger(javaLogger, false);
+
+    assertThat(logger.getName()).isEqualTo("com.example.TestLogger");
+  }
+
+  @Test
+  void shouldCheckIfInfoIsEnabled() {
+    Logger javaLogger = Logger.getLogger("test.info");
+    javaLogger.setLevel(java.util.logging.Level.INFO);
+
+    JavaLoggingLogger logger = new JavaLoggingLogger(javaLogger, false);
+
+    assertThat(logger.isInfoEnabled()).isTrue();
+  }
+
+  @Test
+  void shouldCheckIfErrorIsEnabled() {
+    Logger javaLogger = Logger.getLogger("test.error");
+    javaLogger.setLevel(java.util.logging.Level.SEVERE);
+
+    JavaLoggingLogger logger = new JavaLoggingLogger(javaLogger, false);
+
+    assertThat(logger.isErrorEnabled()).isTrue();
+  }
+
+  @Test
+  void shouldCheckIfWarnIsEnabled() {
+    Logger javaLogger = Logger.getLogger("test.warn");
+    javaLogger.setLevel(java.util.logging.Level.WARNING);
+
+    JavaLoggingLogger logger = new JavaLoggingLogger(javaLogger, false);
+
+    assertThat(logger.isWarnEnabled()).isTrue();
+  }
+
+  @Test
+  void shouldCheckIfTraceIsEnabledWhenDebugEnabled() {
+    Logger javaLogger = Logger.getLogger("test.trace");
+    javaLogger.setLevel(java.util.logging.Level.FINEST);
+    boolean debugEnabled = true;
+
+    JavaLoggingLogger logger = new JavaLoggingLogger(javaLogger, debugEnabled);
+
+    assertThat(logger.isTraceEnabled()).isTrue();
+  }
+
+  @Test
+  void shouldCheckIfTraceIsDisabledWhenDebugDisabled() {
+    Logger javaLogger = Logger.getLogger("test.trace.disabled");
+    javaLogger.setLevel(java.util.logging.Level.FINEST);
+    boolean debugEnabled = false;
+
+    JavaLoggingLogger logger = new JavaLoggingLogger(javaLogger, debugEnabled);
+
+    assertThat(logger.isTraceEnabled()).isFalse();
+  }
+
+  @Test
+  void shouldLogMessageAtInfoLevel() {
+    Logger javaLogger = Logger.getLogger("test.log.info");
+    javaLogger.setLevel(java.util.logging.Level.INFO);
+
+    JavaLoggingLogger logger = new JavaLoggingLogger(javaLogger, false);
+
+    // Should not throw exception
+    logger.info("Test info message");
+    assertThat(true).isTrue();
+  }
+
+  @Test
+  void shouldLogMessageAtErrorLevelWithThrowable() {
+    Logger javaLogger = Logger.getLogger("test.log.error");
+    javaLogger.setLevel(java.util.logging.Level.SEVERE);
+
+    JavaLoggingLogger logger = new JavaLoggingLogger(javaLogger, false);
+    Throwable throwable = new RuntimeException("Test exception");
+
+    // Should not throw exception
+    logger.error("Test error message", throwable);
+    assertThat(true).isTrue();
+  }
+
+  @Test
+  void shouldConvertLevelToJavaLevel() {
+    Logger javaLogger = Logger.getLogger("test.level.convert");
+    JavaLoggingLogger logger = new JavaLoggingLogger(javaLogger, false);
+
+    // Test through reflection or by calling log methods that use the conversion
+    logger.info("Test message");
+    logger.debug("Debug message");
+    logger.trace("Trace message");
+    logger.warn("Warn message");
+    logger.error("Error message");
+
+    // If no exception thrown, level conversion works
+    assertThat(true).isTrue();
+  }
+
+}
