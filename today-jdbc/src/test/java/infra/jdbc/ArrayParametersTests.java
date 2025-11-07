@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import infra.jdbc.ArrayParameters.ArrayParameter;
 import infra.jdbc.parsing.ParameterIndexHolder;
 import infra.jdbc.parsing.QueryParameter;
 
@@ -39,8 +40,8 @@ class ArrayParametersTests {
   @Test
   public void testUpdateParameterNamesToIndexes() {
     final ImmutableList<Integer> of = ImmutableList.of(3, 5);
-    ArrayList<ArrayParameters.ArrayParameter> arrayParametersSortedAsc =
-            listOf(new ArrayParameters.ArrayParameter(6, 3));
+    ArrayList<ArrayParameter> arrayParametersSortedAsc =
+            listOf(new ArrayParameter(6, 3));
 
     QueryParameter parameter = new QueryParameter("paramName", ParameterIndexHolder.valueOf(of));
 
@@ -59,12 +60,12 @@ class ArrayParametersTests {
             ImmutableMap.of("paramName", new QueryParameter("paramName", ParameterIndexHolder.valueOf(ImmutableList.of(3, 9)))),
             ArrayParameters.updateMap(
                     Maps.newHashMap(paramName1),
-                    listOf(new ArrayParameters.ArrayParameter(6, 3))));
+                    listOf(new ArrayParameter(6, 3))));
   }
 
-  static ArrayList<ArrayParameters.ArrayParameter> listOf(
-          ArrayParameters.ArrayParameter... parameter) {
-    ArrayList<ArrayParameters.ArrayParameter> parameters = new ArrayList<>();
+  static ArrayList<ArrayParameter> listOf(
+          ArrayParameter... parameter) {
+    ArrayList<ArrayParameter> parameters = new ArrayList<>();
     Collections.addAll(parameters, parameter);
     return parameters;
   }
@@ -77,47 +78,47 @@ class ArrayParametersTests {
             ArrayParameters.computeNewIndex(
                     2,
                     listOf(
-                            new ArrayParameters.ArrayParameter(3, 5))));
+                            new ArrayParameter(3, 5))));
 
     assertEquals(
             3,
             ArrayParameters.computeNewIndex(
                     3,
                     listOf(
-                            new ArrayParameters.ArrayParameter(3, 5))));
+                            new ArrayParameter(3, 5))));
 
     assertEquals(
             8,
             ArrayParameters.computeNewIndex(
                     4,
                     listOf(
-                            new ArrayParameters.ArrayParameter(3, 5))));
+                            new ArrayParameter(3, 5))));
 
     assertEquals(
             9,
             ArrayParameters.computeNewIndex(
                     4,
                     listOf(
-                            new ArrayParameters.ArrayParameter(1, 2),
-                            new ArrayParameters.ArrayParameter(3, 5))));
+                            new ArrayParameter(1, 2),
+                            new ArrayParameter(3, 5))));
 
     assertEquals(
             9,
             ArrayParameters.computeNewIndex(
                     4,
                     listOf(
-                            new ArrayParameters.ArrayParameter(1, 2),
-                            new ArrayParameters.ArrayParameter(3, 5),
-                            new ArrayParameters.ArrayParameter(4, 5))));
+                            new ArrayParameter(1, 2),
+                            new ArrayParameter(3, 5),
+                            new ArrayParameter(4, 5))));
 
     assertEquals(
             9,
             ArrayParameters.computeNewIndex(
                     4,
                     listOf(
-                            new ArrayParameters.ArrayParameter(1, 2),
-                            new ArrayParameters.ArrayParameter(3, 5),
-                            new ArrayParameters.ArrayParameter(5, 5))));
+                            new ArrayParameter(1, 2),
+                            new ArrayParameter(3, 5),
+                            new ArrayParameter(5, 5))));
   }
 
   @Test
@@ -126,53 +127,53 @@ class ArrayParametersTests {
             "SELECT * FROM user WHERE id IN(?,?,?,?,?)",
             ArrayParameters.updateQueryWithArrayParameters(
                     "SELECT * FROM user WHERE id IN(?)",
-                    listOf(new ArrayParameters.ArrayParameter(1, 5))));
+                    listOf(new ArrayParameter(1, 5))));
 
     assertEquals(
             "SELECT * FROM user WHERE id IN(?)",
             ArrayParameters.updateQueryWithArrayParameters(
                     "SELECT * FROM user WHERE id IN(?)",
-                    new ArrayList<ArrayParameters.ArrayParameter>()));
+                    new ArrayList<ArrayParameter>()));
 
     assertEquals(
             "SELECT * FROM user WHERE id IN(?)",
             ArrayParameters.updateQueryWithArrayParameters(
                     "SELECT * FROM user WHERE id IN(?)",
-                    listOf(new ArrayParameters.ArrayParameter(1, 0))));
+                    listOf(new ArrayParameter(1, 0))));
 
     assertEquals(
             "SELECT * FROM user WHERE id IN(?)",
             ArrayParameters.updateQueryWithArrayParameters(
                     "SELECT * FROM user WHERE id IN(?)",
-                    listOf(new ArrayParameters.ArrayParameter(1, 1))));
+                    listOf(new ArrayParameter(1, 1))));
 
     assertEquals(
             "SELECT * FROM user WHERE login = ? AND id IN(?,?)",
             ArrayParameters.updateQueryWithArrayParameters(
                     "SELECT * FROM user WHERE login = ? AND id IN(?)",
-                    listOf(new ArrayParameters.ArrayParameter(2, 2))));
+                    listOf(new ArrayParameter(2, 2))));
 
     assertEquals(
             "SELECT * FROM user WHERE login = ? AND id IN(?,?) AND name = ?",
             ArrayParameters.updateQueryWithArrayParameters(
                     "SELECT * FROM user WHERE login = ? AND id IN(?) AND name = ?",
-                    listOf(new ArrayParameters.ArrayParameter(2, 2))));
+                    listOf(new ArrayParameter(2, 2))));
 
     assertEquals(
             "SELECT ... WHERE other_id IN (?,?,?) login = ? AND id IN(?,?,?) AND name = ?",
             ArrayParameters.updateQueryWithArrayParameters(
                     "SELECT ... WHERE other_id IN (?) login = ? AND id IN(?) AND name = ?",
                     listOf(
-                            new ArrayParameters.ArrayParameter(1, 3),
-                            new ArrayParameters.ArrayParameter(3, 3))));
+                            new ArrayParameter(1, 3),
+                            new ArrayParameter(3, 3))));
 
     assertEquals(
             "SELECT ... WHERE other_id IN (?,?,?,?,?) login = ? AND id IN(?,?,?) AND name = ?",
             ArrayParameters.updateQueryWithArrayParameters(
                     "SELECT ... WHERE other_id IN (?) login = ? AND id IN(?) AND name = ?",
                     listOf(
-                            new ArrayParameters.ArrayParameter(1, 5),
-                            new ArrayParameters.ArrayParameter(3, 3))));
+                            new ArrayParameter(1, 5),
+                            new ArrayParameter(3, 3))));
   }
 
   @Test
@@ -203,8 +204,8 @@ class ArrayParametersTests {
 
     queryParameters.put("test", param);
 
-    ArrayList<ArrayParameters.ArrayParameter> arrayParameters = new ArrayList<>();
-    arrayParameters.add(new ArrayParameters.ArrayParameter(2, 3)); // Insert 3 parameters at index 2
+    ArrayList<ArrayParameter> arrayParameters = new ArrayList<>();
+    arrayParameters.add(new ArrayParameter(2, 3)); // Insert 3 parameters at index 2
 
     Map<String, QueryParameter> result = ArrayParameters.updateMap(queryParameters, arrayParameters);
 
@@ -217,6 +218,39 @@ class ArrayParametersTests {
     }
 
     assertThat(newIndexes).containsExactly(1, 5);
+  }
+
+  @Test
+  void shouldHandleEmptyArrayParametersList() {
+    String query = "SELECT * FROM users WHERE id = ?";
+    ArrayList<ArrayParameter> arrayParameters = new ArrayList<>();
+
+    String result = ArrayParameters.updateQueryWithArrayParameters(query, arrayParameters);
+
+    assertThat(result).isEqualTo(query);
+  }
+
+  @Test
+  void shouldHandleArrayParameterAtBeginning() {
+    String query = "SELECT * FROM users WHERE id IN(?) AND name = ?";
+    ArrayList<ArrayParameter> arrayParameters = new ArrayList<>();
+    arrayParameters.add(new ArrayParameter(1, 3)); // First parameter is array with 3 elements
+
+    String result = ArrayParameters.updateQueryWithArrayParameters(query, arrayParameters);
+
+    assertThat(result).isEqualTo("SELECT * FROM users WHERE id IN(?,?,?) AND name = ?");
+  }
+
+  @Test
+  void shouldHandleConsecutiveArrayParameters() {
+    String query = "SELECT * FROM users WHERE id IN(?) AND tags IN(?)";
+    ArrayList<ArrayParameter> arrayParameters = new ArrayList<>();
+    arrayParameters.add(new ArrayParameter(1, 2)); // First parameter array with 2 elements
+    arrayParameters.add(new ArrayParameter(2, 3)); // Second parameter array with 3 elements (will be shifted)
+
+    String result = ArrayParameters.updateQueryWithArrayParameters(query, arrayParameters);
+
+    assertThat(result).isEqualTo("SELECT * FROM users WHERE id IN(?,?) AND tags IN(?,?,?)");
   }
 
 }
