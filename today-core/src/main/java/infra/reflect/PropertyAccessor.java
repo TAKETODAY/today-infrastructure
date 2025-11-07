@@ -316,13 +316,14 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
 
       // get method
       generateGetMethod(classEmitter, owner, fieldName, type);
-      if (!isFinal) {
+      if (writeMethod != null) {
+        generateSetMethod(classEmitter, owner, writeMethod, type);
+      }
+      else if (!isFinal) {
         // set method
         generateSetMethod(classEmitter, owner, fieldName, type);
       }
-      else if (writeMethod != null) {
-        generateSetMethod(classEmitter, owner, writeMethod, type);
-      }
+
       classEmitter.endClass();
     }
 
