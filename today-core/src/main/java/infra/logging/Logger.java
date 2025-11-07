@@ -594,4 +594,9 @@ public abstract class Logger implements Serializable {
     return Objects.equals(getName(), logger.getName());
   }
 
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(getName());
+  }
+
 }
