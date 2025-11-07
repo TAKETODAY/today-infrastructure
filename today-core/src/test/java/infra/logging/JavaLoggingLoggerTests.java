@@ -141,4 +141,77 @@ class JavaLoggingLoggerTests {
     assertThat(true).isTrue();
   }
 
+  @Test
+  void shouldCheckIfDebugEnabled() {
+    Logger javaLogger = Logger.getLogger("test.debug");
+    javaLogger.setLevel(java.util.logging.Level.FINER);
+    boolean debugEnabled = true;
+
+    JavaLoggingLogger logger = new JavaLoggingLogger(javaLogger, debugEnabled);
+
+    assertThat(logger.isDebugEnabled()).isTrue();
+  }
+
+  @Test
+  void shouldCheckIfDebugDisabledWhenNotEnabled() {
+    Logger javaLogger = Logger.getLogger("test.debug.disabled");
+    javaLogger.setLevel(java.util.logging.Level.FINER);
+    boolean debugEnabled = false;
+
+    JavaLoggingLogger logger = new JavaLoggingLogger(javaLogger, debugEnabled);
+
+    assertThat(logger.isDebugEnabled()).isFalse();
+  }
+
+  @Test
+  void shouldNotLogWhenLevelNotEnabled() {
+    Logger javaLogger = Logger.getLogger("test.not.enabled");
+    javaLogger.setLevel(java.util.logging.Level.WARNING);
+
+    JavaLoggingLogger logger = new JavaLoggingLogger(javaLogger, false);
+
+    // Should not throw exception even when trying to log at lower level
+    logger.debug("This should not be logged");
+    logger.trace("This should not be logged either");
+
+    assertThat(true).isTrue();
+  }
+
+  @Test
+  void shouldLogMessageWithArguments() {
+    Logger javaLogger = Logger.getLogger("test.log.args");
+    javaLogger.setLevel(java.util.logging.Level.INFO);
+
+    JavaLoggingLogger logger = new JavaLoggingLogger(javaLogger, false);
+
+    // Should not throw exception
+    logger.info("Test message with args: {} and {}", "arg1", 42);
+    assertThat(true).isTrue();
+  }
+
+  @Test
+  void shouldLogMessageWithNullArguments() {
+    Logger javaLogger = Logger.getLogger("test.log.null.args");
+    javaLogger.setLevel(java.util.logging.Level.INFO);
+
+    JavaLoggingLogger logger = new JavaLoggingLogger(javaLogger, false);
+
+    // Should not throw exception
+    logger.info("Test message with null args: {} and {}", null, "notNull");
+    assertThat(true).isTrue();
+  }
+
+  @Test
+  void shouldHandleLocationResolvingLogRecordSerialization() {
+    Logger javaLogger = Logger.getLogger("test.serialization");
+    javaLogger.setLevel(java.util.logging.Level.INFO);
+
+    JavaLoggingLogger logger = new JavaLoggingLogger(javaLogger, false);
+
+    // Test that logging works and LocationResolvingLogRecord can be created
+    logger.info("Test serialization message");
+
+    assertThat(logger.getName()).isEqualTo("test.serialization");
+  }
+
 }

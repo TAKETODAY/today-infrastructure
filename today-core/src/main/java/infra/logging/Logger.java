@@ -21,6 +21,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Objects;
 
 import infra.util.CollectionUtils;
 
@@ -582,5 +583,15 @@ public abstract class Logger implements Serializable {
   }
 
   protected abstract void logInternal(Level level, @Nullable String msg, @Nullable Throwable t, @Nullable Object @Nullable [] args);
+
+  @Override
+  public boolean equals(Object object) {
+    if (this == object) {
+      return true;
+    }
+    if (!(object instanceof Logger logger))
+      return false;
+    return Objects.equals(getName(), logger.getName());
+  }
 
 }
