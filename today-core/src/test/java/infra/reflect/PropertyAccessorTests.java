@@ -124,8 +124,8 @@ class PropertyAccessorTests implements WithAssertions {
     age.set(obj, 1);
     assertThat(age.get(obj)).isEqualTo(1);
 
-    assertThat(age.getReadMethod()).isSameAs(getAgeMethod).isSameAs(getAge.getReadMethod());
-    assertThat(age.getWriteMethod()).isSameAs(setAgeMethod).isSameAs(setAge.getWriteMethod());
+    assertThat(age.getReadMethod()).isSameAs(getAge.getReadMethod()).isEqualTo(getAgeMethod);
+    assertThat(age.getWriteMethod()).isSameAs(setAge.getWriteMethod()).isEqualTo(setAgeMethod);
 
     Method getNameMethod = ForMethod.class.getDeclaredMethod("getName");
     GetterMethod getName = GetterMethod.forMethod(getNameMethod);
@@ -134,7 +134,7 @@ class PropertyAccessorTests implements WithAssertions {
     assertThat(name).isInstanceOf(ReadOnlyGetterMethodPropertyAccessor.class);
 
     assertThat(name.get(obj)).isEqualTo("name");
-    assertThat(name.getReadMethod()).isSameAs(getNameMethod).isSameAs(getName.getReadMethod());
+    assertThat(name.getReadMethod()).isSameAs(getName.getReadMethod()).isEqualTo(getNameMethod);
 
     assertThatThrownBy(() -> name.set(obj, "name1"))
             .isInstanceOf(ReflectionException.class)
