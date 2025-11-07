@@ -417,6 +417,159 @@ class PropertyTests {
             .isEqualTo(annotations2.stream().map(MergedAnnotation::getType).toList());
   }
 
+  @Test
+  void shouldCreatePropertyWithFieldOnly() throws NoSuchFieldException {
+    Field field = PropertyTests.NameField.class.getDeclaredField("name");
+    Property property = new Property(field, null, null);
+
+    assertThat(property.getName()).isEqualTo("name");
+    assertThat(property.getField()).isEqualTo(field);
+    assertThat(property.getType()).isEqualTo(String.class);
+    assertThat(property.getDeclaringClass()).isEqualTo(PropertyTests.NameField.class);
+  }
+
+  @Test
+  void shouldCreatePropertyWithReadAndWriteMethods() {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "getName");
+    Method writeMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "setName", String.class);
+    Property property = new Property(PropertyTests.Bean.class, readMethod, writeMethod);
+
+    assertThat(property.getName()).isNotNull();
+    assertThat(property.getReadMethod()).isEqualTo(readMethod);
+    assertThat(property.getWriteMethod()).isEqualTo(writeMethod);
+    assertThat(property.getType()).isEqualTo(String.class);
+  }
+
+  @Test
+  void shouldCreatePropertyWithNameAndMethods() {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "getName");
+    Method writeMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "setName", String.class);
+    Property property = new Property("customName", readMethod, writeMethod, PropertyTests.Bean.class);
+
+    assertThat(property.getName()).isEqualTo("customName");
+    assertThat(property.getReadMethod()).isEqualTo(readMethod);
+    assertThat(property.getWriteMethod()).isEqualTo(writeMethod);
+    assertThat(property.getType()).isEqualTo(String.class);
+  }
+
+  @Test
+  void shouldThrowExceptionWhenNoMethodsProvided() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> new Property("testName", null, null, PropertyTests.Bean.class))
+            .withMessageContaining("Property 'testName' in");
+  }
+
+  @Test
+  void shouldHandlePrimitivePropertyType() {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "getAge");
+    Property property = new Property("age", readMethod, null, PropertyTests.Bean.class);
+
+    assertThat(property.getType()).isEqualTo(int.class);
+    assertThat(property.isPrimitive()).isTrue();
+  }
+
+  @Test
+  void shouldHandleNonPrimitivePropertyType() {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "getName");
+    Property property = new Property("name", readMethod, null, PropertyTests.Bean.class);
+
+    assertThat(property.getType()).isEqualTo(String.class);
+    assertThat(property.isPrimitive()).isFalse();
+  }
+
+  @Test
+  void shouldDetermineWriteableBasedOnWriteMethod() {
+    Method writeMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "setName", String.class);
+    Property property = new Property("name", null, writeMethod, PropertyTests.Bean.class);
+
+    assertThat(property.isWriteable()).isTrue();
+  }
+
+  @Test
+  void shouldDetermineWriteableBasedOnNonFinalField() throws NoSuchFieldException {
+    Field field = PropertyTests.NameField.class.getDeclaredField("name");
+    Property property = new Property(field, null, null);
+
+    assertThat(property.isWriteable()).isTrue();
+  }
+
+  @Test
+  void shouldDetermineNotWriteableBasedOnFinalField() throws NoSuchFieldException {
+    Field field = PropertyTests.FinalNameField.class.getDeclaredField("name");
+    Property property = new Property(field, null, null);
+
+    assertThat(property.isWriteable()).isFalse();
+  }
+
+  @Test
+  void shouldDetermineReadableBasedOnReadMethod() {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "getName");
+    Property property = new Property("name", readMethod, null, PropertyTests.Bean.class);
+
+    assertThat(property.isReadable()).isTrue();
+  }
+
+  @Test
+  void shouldDetermineReadableBasedOnField() throws NoSuchFieldException {
+    Field field = PropertyTests.NameField.class.getDeclaredField("name");
+    Property property = new Property(field, null, null);
+
+    assertThat(property.isReadable()).isTrue();
+  }
+
+  @Test
+  void shouldGetInstanceCheck() {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "getName");
+    Property property = new Property("name", readMethod, null, PropertyTests.Bean.class);
+
+    assertThat(property.isInstance("testString")).isTrue();
+    assertThat(property.isInstance(123)).isFalse();
+  }
+
+  @Test
+  void shouldGetModifiersFromField() throws NoSuchFieldException {
+    Field field = PropertyTests.NameField.class.getDeclaredField("name");
+    Property property = new Property(field, null, null);
+
+    assertThat(property.getModifiers()).isEqualTo(field.getModifiers());
+  }
+
+  @Test
+  void shouldGetModifiersFromReadMethod() {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "getName");
+    Property property = new Property("name", readMethod, null, PropertyTests.Bean.class);
+
+    assertThat(property.getModifiers()).isEqualTo(readMethod.getModifiers());
+  }
+
+  @Test
+  void shouldHandleSyntheticMember() {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "getName");
+    Property property = new Property("name", readMethod, null, PropertyTests.Bean.class);
+
+    // Usually false for normal methods
+    assertThat(property.isSynthetic()).isEqualTo(readMethod.isSynthetic());
+  }
+
+  @Test
+  void shouldGetPropertyFromInterface() {
+    Method method = ReflectionUtils.findMethod(PropertyTests.Ifc.class, "getInt");
+    Property property = new Property("int", method, null, PropertyTests.Ifc.class);
+
+    assertThat(property.getType()).isEqualTo(Integer.class);
+  }
+
+  @Test
+  void shouldResolveFieldByNameVariations() throws NoSuchFieldException {
+    Field actualField = PropertyTests.NameField.class.getDeclaredField("name");
+    Method writeMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "setName", String.class);
+
+    // Test with capitalized name that should find the lowercase field
+    Property property = new Property("Name", null, writeMethod, PropertyTests.NameField.class);
+
+    assertThat(property.getField()).isEqualTo(actualField);
+  }
+
   static class SuperClass {
     public Object getValue() { return null; }
   }

@@ -19,6 +19,7 @@ package infra.reflect;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -89,7 +90,8 @@ class ReflectiveMethodAccessorTests {
     TestClass target = new TestClass();
 
     assertThatThrownBy(() -> accessor.invoke(target, new Object[0]))
-            .isInstanceOf(RuntimeException.class)
+            .isInstanceOf(InvocationTargetException.class)
+            .cause()
             .hasMessage("Test exception");
   }
 
