@@ -80,7 +80,7 @@ public abstract class Logger implements Serializable {
    * @param arg the argument
    */
   public void trace(@Nullable String format, @Nullable Object arg) {
-    logInternal(Level.TRACE, format, null, new Object[] { arg });
+    logInternal(Level.TRACE, format, null, new @Nullable Object[] { arg });
   }
 
   /**
@@ -97,7 +97,7 @@ public abstract class Logger implements Serializable {
    * @param arg2 the second argument
    */
   public void trace(@Nullable String format, @Nullable Object arg1, @Nullable Object arg2) {
-    logInternal(Level.TRACE, format, null, new Object[] { arg1, arg2 });
+    logInternal(Level.TRACE, format, null, new @Nullable Object[] { arg1, arg2 });
   }
 
   /**
@@ -161,7 +161,7 @@ public abstract class Logger implements Serializable {
    * @param arg the argument
    */
   public void debug(@Nullable String format, @Nullable Object arg) {
-    logInternal(Level.DEBUG, format, null, new Object[] { arg });
+    logInternal(Level.DEBUG, format, null, new @Nullable Object[] { arg });
   }
 
   /**
@@ -178,7 +178,7 @@ public abstract class Logger implements Serializable {
    * @param arg2 the second argument
    */
   public void debug(@Nullable String format, @Nullable Object arg1, @Nullable Object arg2) {
-    logInternal(Level.DEBUG, format, null, new Object[] { arg1, arg2 });
+    logInternal(Level.DEBUG, format, null, new @Nullable Object[] { arg1, arg2 });
   }
 
   /**
@@ -240,7 +240,7 @@ public abstract class Logger implements Serializable {
    * @param arg the argument
    */
   public void info(@Nullable String format, @Nullable Object arg) {
-    logInternal(Level.INFO, format, null, new Object[] { arg });
+    logInternal(Level.INFO, format, null, new @Nullable Object[] { arg });
   }
 
   /**
@@ -257,7 +257,7 @@ public abstract class Logger implements Serializable {
    * @param arg2 the second argument
    */
   public void info(@Nullable String format, @Nullable Object arg1, @Nullable Object arg2) {
-    logInternal(Level.INFO, format, null, new Object[] { arg1, arg2 });
+    logInternal(Level.INFO, format, null, new @Nullable Object[] { arg1, arg2 });
   }
 
   /**
@@ -319,7 +319,7 @@ public abstract class Logger implements Serializable {
    * @param arg the argument
    */
   public void warn(@Nullable String format, @Nullable Object arg) {
-    logInternal(Level.WARN, format, null, new Object[] { arg });
+    logInternal(Level.WARN, format, null, new @Nullable Object[] { arg });
   }
 
   /**
@@ -356,7 +356,7 @@ public abstract class Logger implements Serializable {
    * @param arg2 the second argument
    */
   public void warn(@Nullable String format, @Nullable Object arg1, @Nullable Object arg2) {
-    logInternal(Level.WARN, format, null, new Object[] { arg1, arg2 });
+    logInternal(Level.WARN, format, null, new @Nullable Object[] { arg1, arg2 });
   }
 
   /**
@@ -398,11 +398,11 @@ public abstract class Logger implements Serializable {
    * @param arg the argument
    */
   public void error(@Nullable String format, @Nullable Object arg) {
-    logInternal(Level.ERROR, format, null, new Object[] { arg });
+    logInternal(Level.ERROR, format, null, new @Nullable Object[] { arg });
   }
 
   public void error(@Nullable String format, @Nullable Object arg, @Nullable Throwable throwable) {
-    logInternal(Level.ERROR, format, throwable, new Object[] { arg });
+    logInternal(Level.ERROR, format, throwable, new @Nullable Object[] { arg });
   }
 
   /**
@@ -419,11 +419,11 @@ public abstract class Logger implements Serializable {
    * @param arg2 the second argument
    */
   public void error(@Nullable String format, @Nullable Object arg1, @Nullable Object arg2) {
-    logInternal(Level.ERROR, format, null, new Object[] { arg1, arg2 });
+    logInternal(Level.ERROR, format, null, new @Nullable Object[] { arg1, arg2 });
   }
 
   public void error(@Nullable String format, @Nullable Object arg1, @Nullable Object arg2, @Nullable Throwable throwable) {
-    logInternal(Level.ERROR, format, throwable, new Object[] { arg1, arg2 });
+    logInternal(Level.ERROR, format, throwable, new @Nullable Object[] { arg1, arg2 });
   }
 
   /**
