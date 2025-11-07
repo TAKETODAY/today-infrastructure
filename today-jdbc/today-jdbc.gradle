@@ -60,7 +60,5 @@ dependencies {
   testImplementation(testFixtures(project(":today-beans")))
   testImplementation(testFixtures(project(":today-core")))
 
-  testRuntimeOnly("org.junit.vintage:junit-vintage-engine") {
-    exclude group: "junit", module: "junit"
-  }
+  testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
 }

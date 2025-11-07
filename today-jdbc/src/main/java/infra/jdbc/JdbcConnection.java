@@ -340,11 +340,12 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   @SuppressWarnings("NullAway")
   public void close() {
     boolean connectionIsClosed;
+    Connection root = this.root;
     try {
       connectionIsClosed = root != null && root.isClosed();
     }
     catch (SQLException e) {
-      throw translateException("trying to determine whether the connection is closed.", e);
+      throw translateException("Trying to determine whether the connection is closed.", e);
     }
 
     if (!connectionIsClosed) {
@@ -364,7 +365,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
       statements.clear();
 
       boolean rollback = rollbackOnClose;
-      if (rollback) {
+      if (rollback && root != null) {
         try {
           rollback = !root.getAutoCommit();
         }

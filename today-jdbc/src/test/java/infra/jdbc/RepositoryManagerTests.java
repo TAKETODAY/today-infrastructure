@@ -451,7 +451,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
                     .executeUpdate()
                     .getConnection();
 
-    assertTrue(connection.getJdbcConnection().isClosed());
+    assertThat(connection.getJdbcConnection().isClosed()).isTrue();
 
     String insQuery = "insert into testUpdateNoTransaction(id, value) values (:id, :value)";
     repositoryManager.createNamedQuery(insQuery)
@@ -463,7 +463,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
             .addParameter("value", "val2")
             .executeUpdate();
 
-    assertTrue(connection.getJdbcConnection().isClosed());
+    assertThat(connection.getJdbcConnection().isClosed()).isTrue();
   }
 
   @Test
@@ -1241,8 +1241,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
       }
     }
 
-    assertTrue(con.getJdbcConnection().isClosed());
-
+    assertThat(con.getJdbcConnection().isClosed()).isTrue();
   }
 
   @Test
@@ -1273,8 +1272,10 @@ public class RepositoryManagerTests extends BaseMemDbTest {
     JdbcConnection connection = null;
     try {
       connection = repositoryManager.beginTransaction();
+      connection.setRollbackOnClose(true);
       String sql = "insert into testTransactionAutoClosable(id, val) values (:id, :val);";
-      connection.createNamedQuery(sql).addParameter("id", 1).addParameter("val", "foo").executeUpdate();
+      connection.createNamedQuery(sql).addParameter("id", 1).addParameter("val", "foo")
+              .executeUpdate();
     }
     finally {
       // autoclosing
