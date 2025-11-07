@@ -127,11 +127,11 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
     return new ObjectPropertySetter(propertyPath, beanProperty, repositoryManager);
   }
 
-  private static final class HandlerKey {
+  static final class HandlerKey {
     public final String stringKey;
     public final DefaultResultSetHandlerFactory factory;
 
-    private HandlerKey(String stringKey, DefaultResultSetHandlerFactory f) {
+    HandlerKey(String stringKey, DefaultResultSetHandlerFactory f) {
       this.stringKey = stringKey;
       this.factory = f;
     }
