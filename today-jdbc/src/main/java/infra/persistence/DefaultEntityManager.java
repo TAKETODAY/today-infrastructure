@@ -1347,7 +1347,7 @@ public class DefaultEntityManager implements EntityManager {
     }
   }
 
-  private String getDescription(Object handler) {
+  String getDescription(Object handler) {
     Descriptive descriptive = null;
     if (handler instanceof Descriptive) {
       descriptive = (Descriptive) handler;
@@ -1358,7 +1358,7 @@ public class DefaultEntityManager implements EntityManager {
     return descriptive.getDescription();
   }
 
-  private Object getDebugLogMessage(Object handler) {
+  Object getDebugLogMessage(Object handler) {
     if (handler instanceof DebugDescriptive descriptive) {
       return descriptive.getDebugLogMessage();
     }
@@ -1368,7 +1368,7 @@ public class DefaultEntityManager implements EntityManager {
     return NoConditionsQuery.instance.getDebugLogMessage();
   }
 
-  private boolean isNew(Object entity) throws IllegalEntityException {
+  boolean isNew(Object entity) throws IllegalEntityException {
     if (entity instanceof NewEntityIndicator e) {
       return e.isNew();
     }
@@ -1392,7 +1392,7 @@ public class DefaultEntityManager implements EntityManager {
 
   //
 
-  private static int setParameters(Object entity, ArrayList<EntityProperty> properties, PreparedStatement statement) throws SQLException {
+  static int setParameters(Object entity, ArrayList<EntityProperty> properties, PreparedStatement statement) throws SQLException {
     int idx = 1;
     for (EntityProperty property : properties) {
       property.setTo(statement, idx++, entity);
