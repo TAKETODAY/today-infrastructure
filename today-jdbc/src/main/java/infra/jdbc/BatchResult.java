@@ -41,11 +41,9 @@ public class BatchResult extends ExecutionResult {
 
   private int @Nullable [] batchResult;
 
-  @Nullable
-  private ArrayList<Object> generatedKeys;
+  private @Nullable ArrayList<Object> generatedKeys;
 
-  @Nullable
-  private Integer affectedRows;
+  private @Nullable Integer affectedRows;
 
   public BatchResult(JdbcConnection connection) {
     super(connection);

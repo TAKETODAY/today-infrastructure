@@ -85,7 +85,7 @@ public abstract class JdbcAccessor {
    * @return the DataSource (never {@code null})
    * @throws IllegalStateException in case of no DataSource set
    */
-  protected DataSource obtainDataSource() {
+  public DataSource obtainDataSource() {
     DataSource dataSource = getDataSource();
     Assert.state(dataSource != null, "No DataSource set");
     return dataSource;
