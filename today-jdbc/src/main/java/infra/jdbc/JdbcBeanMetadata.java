@@ -46,13 +46,13 @@ public class JdbcBeanMetadata {
 
   private static final Cache caseSensitiveTrue = new Cache();
 
-  private final boolean caseSensitive;
+  private final BeanMetadata beanMetadata;
 
-  private final boolean autoDeriveColumnNames;
+  final boolean caseSensitive;
+
+  final boolean autoDeriveColumnNames;
 
   final boolean throwOnMappingFailure;
-
-  private final BeanMetadata beanMetadata;
 
   @Nullable
   private HashMap<String, BeanProperty> beanProperties;

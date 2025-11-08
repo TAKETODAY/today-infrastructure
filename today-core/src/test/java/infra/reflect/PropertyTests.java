@@ -28,6 +28,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import infra.core.MethodParameter;
 import infra.core.ResolvableType;
 import infra.core.TypeDescriptor;
 import infra.core.annotation.AnnotationFilter;
@@ -415,6 +416,404 @@ class PropertyTests {
 
     assertThat(annotations1.stream().map(MergedAnnotation::getType).toList())
             .isEqualTo(annotations2.stream().map(MergedAnnotation::getType).toList());
+  }
+
+  @Test
+  void shouldCreatePropertyWithFieldOnly() throws NoSuchFieldException {
+    Field field = PropertyTests.NameField.class.getDeclaredField("name");
+    Property property = new Property(field, null, null);
+
+    assertThat(property.getName()).isEqualTo("name");
+    assertThat(property.getField()).isEqualTo(field);
+    assertThat(property.getType()).isEqualTo(String.class);
+    assertThat(property.getDeclaringClass()).isEqualTo(PropertyTests.NameField.class);
+  }
+
+  @Test
+  void shouldCreatePropertyWithReadAndWriteMethods() {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "getName");
+    Method writeMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "setName", String.class);
+    Property property = new Property(PropertyTests.Bean.class, readMethod, writeMethod);
+
+    assertThat(property.getName()).isNotNull();
+    assertThat(property.getReadMethod()).isEqualTo(readMethod);
+    assertThat(property.getWriteMethod()).isEqualTo(writeMethod);
+    assertThat(property.getType()).isEqualTo(String.class);
+  }
+
+  @Test
+  void shouldCreatePropertyWithNameAndMethods() {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "getName");
+    Method writeMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "setName", String.class);
+    Property property = new Property("customName", readMethod, writeMethod, PropertyTests.Bean.class);
+
+    assertThat(property.getName()).isEqualTo("customName");
+    assertThat(property.getReadMethod()).isEqualTo(readMethod);
+    assertThat(property.getWriteMethod()).isEqualTo(writeMethod);
+    assertThat(property.getType()).isEqualTo(String.class);
+  }
+
+  @Test
+  void shouldThrowExceptionWhenNoMethodsProvided() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> new Property("testName", null, null, PropertyTests.Bean.class))
+            .withMessageContaining("Property 'testName' in");
+  }
+
+  @Test
+  void shouldHandlePrimitivePropertyType() {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "getAge");
+    Property property = new Property("age", readMethod, null, PropertyTests.Bean.class);
+
+    assertThat(property.getType()).isEqualTo(int.class);
+    assertThat(property.isPrimitive()).isTrue();
+  }
+
+  @Test
+  void shouldHandleNonPrimitivePropertyType() {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "getName");
+    Property property = new Property("name", readMethod, null, PropertyTests.Bean.class);
+
+    assertThat(property.getType()).isEqualTo(String.class);
+    assertThat(property.isPrimitive()).isFalse();
+  }
+
+  @Test
+  void shouldDetermineWriteableBasedOnWriteMethod() {
+    Method writeMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "setName", String.class);
+    Property property = new Property("name", null, writeMethod, PropertyTests.Bean.class);
+
+    assertThat(property.isWriteable()).isTrue();
+  }
+
+  @Test
+  void shouldDetermineWriteableBasedOnNonFinalField() throws NoSuchFieldException {
+    Field field = PropertyTests.NameField.class.getDeclaredField("name");
+    Property property = new Property(field, null, null);
+
+    assertThat(property.isWriteable()).isTrue();
+  }
+
+  @Test
+  void shouldDetermineNotWriteableBasedOnFinalField() throws NoSuchFieldException {
+    Field field = PropertyTests.FinalNameField.class.getDeclaredField("name");
+    Property property = new Property(field, null, null);
+
+    assertThat(property.isWriteable()).isFalse();
+  }
+
+  @Test
+  void shouldDetermineReadableBasedOnReadMethod() {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "getName");
+    Property property = new Property("name", readMethod, null, PropertyTests.Bean.class);
+
+    assertThat(property.isReadable()).isTrue();
+  }
+
+  @Test
+  void shouldDetermineReadableBasedOnField() throws NoSuchFieldException {
+    Field field = PropertyTests.NameField.class.getDeclaredField("name");
+    Property property = new Property(field, null, null);
+
+    assertThat(property.isReadable()).isTrue();
+  }
+
+  @Test
+  void shouldGetInstanceCheck() {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "getName");
+    Property property = new Property("name", readMethod, null, PropertyTests.Bean.class);
+
+    assertThat(property.isInstance("testString")).isTrue();
+    assertThat(property.isInstance(123)).isFalse();
+  }
+
+  @Test
+  void shouldGetModifiersFromField() throws NoSuchFieldException {
+    Field field = PropertyTests.NameField.class.getDeclaredField("name");
+    Property property = new Property(field, null, null);
+
+    assertThat(property.getModifiers()).isEqualTo(field.getModifiers());
+  }
+
+  @Test
+  void shouldGetModifiersFromReadMethod() {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "getName");
+    Property property = new Property("name", readMethod, null, PropertyTests.Bean.class);
+
+    assertThat(property.getModifiers()).isEqualTo(readMethod.getModifiers());
+  }
+
+  @Test
+  void shouldHandleSyntheticMember() {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "getName");
+    Property property = new Property("name", readMethod, null, PropertyTests.Bean.class);
+
+    // Usually false for normal methods
+    assertThat(property.isSynthetic()).isEqualTo(readMethod.isSynthetic());
+  }
+
+  @Test
+  void shouldGetPropertyFromInterface() {
+    Method method = ReflectionUtils.findMethod(PropertyTests.Ifc.class, "getInt");
+    Property property = new Property("int", method, null, PropertyTests.Ifc.class);
+
+    assertThat(property.getType()).isEqualTo(Integer.class);
+  }
+
+  @Test
+  void shouldResolveFieldByNameVariations() throws NoSuchFieldException {
+    Field actualField = PropertyTests.NameField.class.getDeclaredField("name");
+    Method writeMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "setName", String.class);
+
+    // Test with capitalized name that should find the lowercase field
+    Property property = new Property("Name", null, writeMethod, PropertyTests.NameField.class);
+
+    assertThat(property.getField()).isEqualTo(actualField);
+  }
+
+  @Test
+  void shouldGetTypeDescriptorAndCacheIt() {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "getName");
+    Property property = new Property("name", readMethod, null, PropertyTests.Bean.class);
+
+    TypeDescriptor descriptor1 = property.getTypeDescriptor();
+    TypeDescriptor descriptor2 = property.getTypeDescriptor();
+
+    assertThat(descriptor1).isNotNull();
+    assertThat(descriptor1).isSameAs(descriptor2);
+  }
+
+  @Test
+  void shouldGetResolvableTypeFromReadMethod() {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "getName");
+    Property property = new Property("name", readMethod, null, PropertyTests.Bean.class);
+
+    ResolvableType resolvableType = property.getResolvableType();
+
+    assertThat(resolvableType).isNotNull();
+    assertThat(resolvableType).isEqualTo(ResolvableType.forMethodParameter(property.getMethodParameter()));
+  }
+
+  @Test
+  void shouldGetResolvableTypeFromWriteMethod() {
+    Method writeMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "setName", String.class);
+    Property property = new Property("name", null, writeMethod, PropertyTests.Bean.class);
+
+    ResolvableType resolvableType = property.getResolvableType();
+
+    assertThat(resolvableType).isNotNull();
+    assertThat(resolvableType).isEqualTo(ResolvableType.forMethodParameter(property.getMethodParameter()));
+  }
+
+  @Test
+  void shouldGetResolvableTypeFromField() throws NoSuchFieldException {
+    Field field = PropertyTests.NameField.class.getDeclaredField("name");
+    Property property = new Property(field, null, null);
+
+    ResolvableType resolvableType = property.getResolvableType();
+
+    assertThat(resolvableType).isNotNull();
+    assertThat(resolvableType).isEqualTo(ResolvableType.forField(field));
+  }
+
+  @Test
+  void shouldGetMethodParameterFromReadMethod() {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "getName");
+    Property property = new Property("name", readMethod, null, PropertyTests.Bean.class);
+
+    MethodParameter methodParameter = property.getMethodParameter();
+
+    assertThat(methodParameter).isNotNull();
+    assertThat(methodParameter.getMethod()).isEqualTo(readMethod);
+  }
+
+  @Test
+  void shouldGetMethodParameterFromWriteMethod() {
+    Method writeMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "setName", String.class);
+    Property property = new Property("name", null, writeMethod, PropertyTests.Bean.class);
+
+    MethodParameter methodParameter = property.getMethodParameter();
+
+    assertThat(methodParameter).isNotNull();
+    assertThat(methodParameter.getMethod()).isEqualTo(writeMethod);
+  }
+
+  @Test
+  void shouldGetWriteMethodParameter() {
+    Method writeMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "setName", String.class);
+    Property property = new Property("name", null, writeMethod, PropertyTests.Bean.class);
+
+    MethodParameter writeMethodParameter = property.getWriteMethodParameter();
+
+    assertThat(writeMethodParameter).isNotNull();
+    assertThat(writeMethodParameter.getMethod()).isEqualTo(writeMethod);
+  }
+
+  @Test
+  void shouldReturnNullForWriteMethodParameterWhenNoWriteMethod() {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "getName");
+    Property property = new Property("name", readMethod, null, PropertyTests.Bean.class);
+
+    MethodParameter writeMethodParameter = property.getWriteMethodParameter();
+
+    assertThat(writeMethodParameter).isNull();
+  }
+
+  @Test
+  void shouldDetermineMethodBasedProperty() {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "getName");
+    Method writeMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "setName", String.class);
+
+    Property propertyWithReadMethod = new Property("name", readMethod, null, PropertyTests.Bean.class);
+    Property propertyWithWriteMethod = new Property("name", null, writeMethod, PropertyTests.Bean.class);
+    Property propertyWithBothMethods = new Property("name", readMethod, writeMethod, PropertyTests.Bean.class);
+
+    assertThat(propertyWithReadMethod.isMethodBased()).isTrue();
+    assertThat(propertyWithWriteMethod.isMethodBased()).isTrue();
+    assertThat(propertyWithBothMethods.isMethodBased()).isTrue();
+  }
+
+  @Test
+  void shouldNotBeMethodBasedForFieldOnly() throws NoSuchFieldException {
+    Field field = PropertyTests.NameField.class.getDeclaredField("name");
+    Property property = new Property(field, null, null);
+
+    assertThat(property.isMethodBased()).isFalse();
+  }
+
+  @Test
+  void shouldGetMergedAnnotations() throws NoSuchFieldException {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.AnnotatedBean.class, "getName");
+    Method writeMethod = ReflectionUtils.findMethod(PropertyTests.AnnotatedBean.class, "setName", String.class);
+    Field field = PropertyTests.AnnotatedBean.class.getDeclaredField("name");
+
+    Property property = new Property(field, readMethod, writeMethod);
+    MergedAnnotations mergedAnnotations = property.mergedAnnotations();
+
+    assertThat(mergedAnnotations).isNotNull();
+    assertThat(mergedAnnotations.get(PropertyTests.ReadAnnotation.class).isPresent()).isTrue();
+    assertThat(mergedAnnotations.get(PropertyTests.WriteAnnotation.class).isPresent()).isTrue();
+    assertThat(mergedAnnotations.get(PropertyTests.FieldAnnotation.class).isPresent()).isTrue();
+  }
+
+  @Test
+  void shouldCacheMergedAnnotations() throws NoSuchFieldException {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.AnnotatedBean.class, "getName");
+    Method writeMethod = ReflectionUtils.findMethod(PropertyTests.AnnotatedBean.class, "setName", String.class);
+    Field field = PropertyTests.AnnotatedBean.class.getDeclaredField("name");
+
+    Property property = new Property(field, readMethod, writeMethod);
+    MergedAnnotations annotations1 = property.mergedAnnotations();
+    MergedAnnotations annotations2 = property.mergedAnnotations();
+
+    assertThat(annotations1).isSameAs(annotations2);
+  }
+
+  @Test
+  void shouldGetAnnotations() throws NoSuchFieldException {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.AnnotatedBean.class, "getName");
+    Method writeMethod = ReflectionUtils.findMethod(PropertyTests.AnnotatedBean.class, "setName", String.class);
+    Field field = PropertyTests.AnnotatedBean.class.getDeclaredField("name");
+
+    Property property = new Property(field, readMethod, writeMethod);
+    Annotation[] annotations = property.getAnnotations();
+
+    assertThat(annotations).isNotNull();
+    assertThat(annotations).hasSize(3); // ReadAnnotation, WriteAnnotation, FieldAnnotation
+  }
+
+  @Test
+  void shouldGetDeclaredAnnotations() throws NoSuchFieldException {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.AnnotatedBean.class, "getName");
+    Method writeMethod = ReflectionUtils.findMethod(PropertyTests.AnnotatedBean.class, "setName", String.class);
+    Field field = PropertyTests.AnnotatedBean.class.getDeclaredField("name");
+
+    Property property = new Property(field, readMethod, writeMethod);
+    Annotation[] declaredAnnotations = property.getDeclaredAnnotations();
+
+    assertThat(declaredAnnotations).isNotNull();
+    assertThat(declaredAnnotations).hasSize(3); // ReadAnnotation, WriteAnnotation, FieldAnnotation
+  }
+
+  @Test
+  void shouldCheckAnnotationPresence() throws NoSuchFieldException {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.AnnotatedBean.class, "getName");
+    Method writeMethod = ReflectionUtils.findMethod(PropertyTests.AnnotatedBean.class, "setName", String.class);
+    Field field = PropertyTests.AnnotatedBean.class.getDeclaredField("name");
+
+    Property property = new Property(field, readMethod, writeMethod);
+
+    assertThat(property.isAnnotationPresent(PropertyTests.ReadAnnotation.class)).isTrue();
+    assertThat(property.isAnnotationPresent(PropertyTests.WriteAnnotation.class)).isTrue();
+    assertThat(property.isAnnotationPresent(PropertyTests.FieldAnnotation.class)).isTrue();
+    assertThat(property.isAnnotationPresent(Deprecated.class)).isFalse();
+  }
+
+  @Test
+  void shouldGetSpecificAnnotation() throws NoSuchFieldException {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.AnnotatedBean.class, "getName");
+    Method writeMethod = ReflectionUtils.findMethod(PropertyTests.AnnotatedBean.class, "setName", String.class);
+    Field field = PropertyTests.AnnotatedBean.class.getDeclaredField("name");
+
+    Property property = new Property(field, readMethod, writeMethod);
+
+    PropertyTests.ReadAnnotation readAnnotation = property.getAnnotation(PropertyTests.ReadAnnotation.class);
+    PropertyTests.WriteAnnotation writeAnnotation = property.getAnnotation(PropertyTests.WriteAnnotation.class);
+    PropertyTests.FieldAnnotation fieldAnnotation = property.getAnnotation(PropertyTests.FieldAnnotation.class);
+
+    assertThat(readAnnotation).isNotNull();
+    assertThat(writeAnnotation).isNotNull();
+    assertThat(fieldAnnotation).isNotNull();
+  }
+
+  @Test
+  void shouldReturnNullForNonExistentAnnotation() throws NoSuchFieldException {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.AnnotatedBean.class, "getName");
+    Method writeMethod = ReflectionUtils.findMethod(PropertyTests.AnnotatedBean.class, "setName", String.class);
+    Field field = PropertyTests.AnnotatedBean.class.getDeclaredField("name");
+
+    Property property = new Property(field, readMethod, writeMethod);
+
+    Deprecated deprecated = property.getAnnotation(Deprecated.class);
+    assertThat(deprecated).isNull();
+  }
+
+  @Test
+  void shouldHandleEqualsAndHashCode() {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "getName");
+    Method writeMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "setName", String.class);
+
+    Property property1 = new Property("name", readMethod, writeMethod, PropertyTests.Bean.class);
+    Property property2 = new Property("name", readMethod, writeMethod, PropertyTests.Bean.class);
+    Property property3 = new Property("age",
+            ReflectionUtils.findMethod(PropertyTests.Bean.class, "getAge"), null, PropertyTests.Bean.class);
+
+    assertThat(property1.equals(property2)).isTrue();
+    assertThat(property1.equals(property3)).isFalse();
+    assertThat(property1.equals(null)).isFalse();
+    assertThat(property1.equals(new Object())).isFalse();
+
+    assertThat(property1.hashCode()).isEqualTo(property2.hashCode());
+  }
+
+  @Test
+  void shouldToStringReturnFormattedString() {
+    Method readMethod = ReflectionUtils.findMethod(PropertyTests.Bean.class, "getName");
+    Property property = new Property("name", readMethod, null, PropertyTests.Bean.class);
+
+    String result = property.toString();
+
+    assertThat(result).isEqualTo("String name");
+  }
+
+  @Test
+  void shouldHandleSyntheticField() throws NoSuchFieldException {
+    Field field = PropertyTests.NameField.class.getDeclaredField("name");
+    Property property = new Property(field, null, null);
+
+    boolean synthetic = property.isSynthetic();
+
+    assertThat(synthetic).isEqualTo(field.isSynthetic());
   }
 
   static class SuperClass {

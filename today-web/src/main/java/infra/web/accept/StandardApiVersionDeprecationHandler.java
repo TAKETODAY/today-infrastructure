@@ -85,7 +85,7 @@ public class StandardApiVersionDeprecationHandler implements ApiVersionDeprecati
   }
 
   @Override
-  public void handleVersion(Comparable<?> requestVersion, RequestContext request) {
+  public void handleVersion(Comparable<?> requestVersion, Object handler, RequestContext request) {
     for (VersionInfo info : this.infos.values()) {
       if (info.match(requestVersion, request)) {
         if (info.deprecationDate() != null) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,27 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.jdbc.support.xml;
+@NullMarked
+package infra.jdbc.type;
 
-import javax.xml.transform.Result;
-
-/**
- * Interface defining handling involved with providing {@code Result}
- * data for XML input.
- *
- * @author Thomas Risberg
- * @see Result
- * @since 4.0
- */
-public interface XmlResultProvider {
-
-  /**
-   * Implementations must implement this method to provide the XML content
-   * for the {@code Result}. Implementations will vary depending on
-   * the {@code Result} implementation used.
-   *
-   * @param result the {@code Result} object being used to provide the XML input
-   */
-  void provideXml(Result result);
-
-}
+import org.jspecify.annotations.NullMarked;

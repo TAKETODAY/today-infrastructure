@@ -70,6 +70,7 @@ import infra.logging.LoggerFactory;
  * <p>See the {@link LobHandler} interface javadoc for a summary of recommendations.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see ResultSet#getBytes
  * @see ResultSet#getBinaryStream
  * @see ResultSet#getString
@@ -80,7 +81,7 @@ import infra.logging.LoggerFactory;
  * @see PreparedStatement#setString
  * @see PreparedStatement#setAsciiStream
  * @see PreparedStatement#setCharacterStream
- * @since 04.12.2003
+ * @since 4.0
  */
 public class DefaultLobHandler extends AbstractLobHandler {
 
@@ -150,8 +151,7 @@ public class DefaultLobHandler extends AbstractLobHandler {
   }
 
   @Override
-  @Nullable
-  public byte[] getBlobAsBytes(ResultSet rs, int columnIndex) throws SQLException {
+  public byte @Nullable [] getBlobAsBytes(ResultSet rs, int columnIndex) throws SQLException {
     logger.debug("Returning BLOB as bytes");
     if (this.wrapAsLob) {
       Blob blob = rs.getBlob(columnIndex);
@@ -253,8 +253,7 @@ public class DefaultLobHandler extends AbstractLobHandler {
     }
 
     @Override
-    public void setBlobAsBinaryStream(
-            PreparedStatement ps, int paramIndex, @Nullable InputStream binaryStream, int contentLength)
+    public void setBlobAsBinaryStream(PreparedStatement ps, int paramIndex, @Nullable InputStream binaryStream, int contentLength)
             throws SQLException {
 
       if (streamAsLob) {

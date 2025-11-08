@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,10 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-/**
- * Abstraction for handling fields of SQLXML data type.
- */
 @NullMarked
-package infra.jdbc.support.xml;
+package infra.persistence;
 
 import org.jspecify.annotations.NullMarked;

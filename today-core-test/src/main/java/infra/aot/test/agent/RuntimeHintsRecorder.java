@@ -67,7 +67,7 @@ public final class RuntimeHintsRecorder {
     return new RuntimeHintsInvocations(recorder.listener.recordedInvocations.stream().toList());
   }
 
-  private static final class RuntimeHintsInvocationsListener implements RecordedInvocationsListener {
+  static final class RuntimeHintsInvocationsListener implements RecordedInvocationsListener {
 
     private final Deque<RecordedInvocation> recordedInvocations = new ArrayDeque<>();
 

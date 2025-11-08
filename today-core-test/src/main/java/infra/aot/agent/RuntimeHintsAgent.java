@@ -48,7 +48,6 @@ public final class RuntimeHintsAgent {
   private static boolean loaded = false;
 
   private RuntimeHintsAgent() {
-
   }
 
   public static void premain(@Nullable String agentArgs, Instrumentation inst) {
@@ -68,13 +67,13 @@ public final class RuntimeHintsAgent {
     return loaded;
   }
 
-  private static final class ParsedArguments {
+  static final class ParsedArguments {
 
     List<String> instrumentedPackages;
 
     List<String> ignoredPackages;
 
-    private ParsedArguments(List<String> instrumentedPackages, List<String> ignoredPackages) {
+    ParsedArguments(List<String> instrumentedPackages, List<String> ignoredPackages) {
       this.instrumentedPackages = instrumentedPackages;
       this.ignoredPackages = ignoredPackages;
     }

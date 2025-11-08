@@ -178,9 +178,9 @@ public class DefaultApiVersionStrategy implements ApiVersionStrategy {
   }
 
   @Override
-  public void handleDeprecations(Comparable<?> version, RequestContext request) {
+  public void handleDeprecations(Comparable<?> version, Object handler, RequestContext request) {
     if (deprecationHandler != null) {
-      deprecationHandler.handleVersion(version, request);
+      deprecationHandler.handleVersion(version, handler, request);
     }
   }
 

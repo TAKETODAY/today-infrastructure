@@ -35,7 +35,7 @@ import infra.util.StreamUtils;
  */
 final class BufferingClientHttpResponseWrapper extends ClientHttpResponseDecorator {
 
-  private byte @Nullable [] body;
+  private volatile byte @Nullable [] body;
 
   BufferingClientHttpResponseWrapper(ClientHttpResponse response) {
     super(response);
@@ -43,10 +43,17 @@ final class BufferingClientHttpResponseWrapper extends ClientHttpResponseDecorat
 
   @Override
   public InputStream getBody() throws IOException {
-    if (this.body == null) {
-      this.body = StreamUtils.copyToByteArray(delegate.getBody());
+    byte[] body = this.body;
+    if (body == null) {
+      synchronized(this) {
+        body = this.body;
+        if (body == null) {
+          body = StreamUtils.copyToByteArray(delegate.getBody());
+          this.body = body;
+        }
+      }
     }
-    return new ByteArrayInputStream(this.body);
+    return new ByteArrayInputStream(body);
   }
 
 }

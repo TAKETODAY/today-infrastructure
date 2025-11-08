@@ -129,7 +129,7 @@ class InvocationsRecorderClassVisitor extends ClassVisitor implements Opcodes {
       return owner.substring(classIndex + 1).toLowerCase(Locale.ROOT) + methodName;
     }
 
-    private String rewriteDescriptor(int opcode, String owner, String name, String descriptor) {
+      String rewriteDescriptor(int opcode, String owner, String name, String descriptor) {
       return (opcode == Opcodes.INVOKESTATIC || opcode == Opcodes.H_INVOKESTATIC) ? descriptor : "(L" + owner + ";" + descriptor.substring(1);
     }
 

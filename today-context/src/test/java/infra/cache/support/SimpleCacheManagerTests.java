@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,28 +15,22 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.jdbc.support.xml;
+package infra.cache.support;
 
-import java.io.IOException;
-import java.io.Writer;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.*;
 
 /**
- * Interface defining handling involved with providing {@code Writer}
- * data for XML input.
- *
- * @author Thomas Risberg
- * @see Writer
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0 2025/11/1 17:38
  */
-public interface XmlCharacterStreamProvider {
+class SimpleCacheManagerTests {
 
-  /**
-   * Implementations must implement this method to provide the XML content
-   * for the {@code Writer}.
-   *
-   * @param writer the {@code Writer} object being used to provide the XML input
-   * @throws IOException if an I/O error occurs while providing the XML
-   */
-  void provideXml(Writer writer) throws IOException;
-
+  @Test
+  void lookupCache(){
+    SimpleCacheManager cacheManager = new SimpleCacheManager() ;
+    assertThat(cacheManager.lookupCache("")).isNull();
+    assertThat(cacheManager.getMissingCache("")).isNull();
+  }
 }

@@ -991,9 +991,9 @@ public abstract class CollectionUtils {
    * @return the last element, or {@code null} if none
    * @since 4.0
    */
-  @Nullable
+
   @Contract("null -> null")
-  public static <T extends @Nullable Object> T lastElement(@Nullable final T @Nullable [] array) {
+  public static <T extends @Nullable Object> @Nullable T lastElement(final @Nullable T @Nullable [] array) {
     if (array == null || array.length == 0) {
       return null;
     }
@@ -1011,9 +1011,9 @@ public abstract class CollectionUtils {
    * @see java.util.LinkedHashSet
    * @since 4.0
    */
-  @Nullable
+
   @Contract("null -> null")
-  public static <T> T lastElement(@Nullable Set<T> set) {
+  public static <T> @Nullable T lastElement(@Nullable Set<T> set) {
     if (isEmpty(set)) {
       return null;
     }

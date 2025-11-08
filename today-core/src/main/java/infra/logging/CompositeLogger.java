@@ -36,13 +36,18 @@ final class CompositeLogger extends Logger {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private static final Logger NO_OP_LOG = new NoOpLogger();
+  static final Logger NO_OP_LOG = new NoOpLogger();
 
   private final Logger errorLogger;
+
   private final Logger warnLogger;
+
   private final Logger infoLogger;
+
   private final Logger debugLogger;
+
   private final Logger traceLogger;
+
   private final String name;
 
   /**

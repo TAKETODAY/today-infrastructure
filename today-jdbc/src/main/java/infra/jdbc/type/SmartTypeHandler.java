@@ -17,9 +17,6 @@
 
 package infra.jdbc.type;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import infra.beans.BeanProperty;
 
 /**
@@ -35,17 +32,5 @@ public interface SmartTypeHandler<T> extends TypeHandler<T> {
    * @param property bean property
    */
   boolean supportsProperty(BeanProperty property);
-
-  /**
-   * apply result to a wrapped object
-   *
-   * @param value a wrapped object
-   * @param rs database result set
-   * @param columnIndex idx
-   * @throws SQLException database read failed
-   */
-  default void applyResult(T value, ResultSet rs, int columnIndex) throws SQLException {
-    throw new UnsupportedOperationException();
-  }
 
 }

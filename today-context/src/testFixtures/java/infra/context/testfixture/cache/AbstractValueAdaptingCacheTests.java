@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import infra.cache.support.AbstractValueAdaptingCache;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
@@ -36,6 +37,7 @@ public abstract class AbstractValueAdaptingCacheTests<T extends AbstractValueAda
   @Test
   public void testCachePutNullValueAllowNullFalse() {
     T cache = getCache(false);
+    assertThat(cache.isAllowNullValues()).isFalse();
     String key = createRandomKey();
     assertThatIllegalArgumentException().isThrownBy(() ->
                     cache.put(key, null))

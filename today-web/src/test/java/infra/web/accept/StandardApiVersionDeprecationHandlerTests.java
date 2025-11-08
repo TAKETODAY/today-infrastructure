@@ -42,6 +42,8 @@ class StandardApiVersionDeprecationHandlerTests {
 
   private final HttpMockResponse response = new MockHttpResponseImpl();
 
+  private final Object handler = new Object();
+
   @Test
   void basic() {
     String deprecationUrl = "https://example.org/deprecation";
@@ -58,7 +60,7 @@ class StandardApiVersionDeprecationHandlerTests {
             .setSunsetLink(URI.create(sunsetUrl));
 
     MockRequestContext context = new MockRequestContext(request, response);
-    handler.handleVersion("1.1", context);
+    handler.handleVersion("1.1", this.handler, context);
     context.requestCompleted();
 
     assertThat(response.getHeader("Deprecation")).isEqualTo("@1688169599");
@@ -83,7 +85,7 @@ class StandardApiVersionDeprecationHandlerTests {
     HttpMockResponse response = new MockHttpResponseImpl();
     MockRequestContext context = new MockRequestContext(request, response);
 
-    handler.handleVersion("2.0", context);
+    handler.handleVersion("2.0", this.handler, context);
     context.requestCompleted();
 
     assertThat(response.getHeader("Deprecation")).isNull();
@@ -102,7 +104,7 @@ class StandardApiVersionDeprecationHandlerTests {
     HttpMockResponse response = new MockHttpResponseImpl();
     MockRequestContext context = new MockRequestContext(request, response);
 
-    handler.handleVersion("1.0", context);
+    handler.handleVersion("1.0", this.handler, context);
     context.requestCompleted();
 
     assertThat(response.getHeader("Deprecation")).isNull();
@@ -123,7 +125,7 @@ class StandardApiVersionDeprecationHandlerTests {
     HttpMockResponse response = new MockHttpResponseImpl();
     MockRequestContext context = new MockRequestContext(request, response);
 
-    handler.handleVersion("1.0", context);
+    handler.handleVersion("1.0", this.handler, context);
     context.requestCompleted();
 
     assertThat(response.getHeaders("Link")).containsExactly(
@@ -146,7 +148,7 @@ class StandardApiVersionDeprecationHandlerTests {
     HttpMockResponse response = new MockHttpResponseImpl();
     MockRequestContext context = new MockRequestContext(request, response);
 
-    handler.handleVersion("1.0", context);
+    handler.handleVersion("1.0", this.handler, context);
     context.requestCompleted();
 
     assertThat(response.getHeaders("Link")).containsExactly(
@@ -170,7 +172,7 @@ class StandardApiVersionDeprecationHandlerTests {
     HttpMockResponse response = new MockHttpResponseImpl();
     MockRequestContext context = new MockRequestContext(request, response);
 
-    handler.handleVersion("1.0", context);
+    handler.handleVersion("1.0", this.handler, context);
     context.requestCompleted();
 
     assertThat(response.getHeaders("Link")).containsExactlyInAnyOrder(
@@ -199,7 +201,7 @@ class StandardApiVersionDeprecationHandlerTests {
     HttpMockResponse response = new MockHttpResponseImpl();
     MockRequestContext context = new MockRequestContext(request, response);
 
-    handler.handleVersion("1.0", context);
+    handler.handleVersion("1.0", this.handler, context);
     context.requestCompleted();
 
     assertThat(response.getHeader("Deprecation")).isEqualTo("@1688169599");

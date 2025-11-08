@@ -37,8 +37,9 @@ public interface ApiVersionDeprecationHandler {
    * to specify relevant dates and provide links to further details.
    *
    * @param version the resolved and parsed request version
+   * @param handler the handler chosen for the request
    * @param request the current request
    */
-  void handleVersion(Comparable<?> version, RequestContext request);
+  void handleVersion(Comparable<?> version, Object handler, RequestContext request);
 
 }

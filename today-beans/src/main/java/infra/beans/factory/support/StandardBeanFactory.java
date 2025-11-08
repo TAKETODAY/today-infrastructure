@@ -2085,7 +2085,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       for (String candidate : candidateNames) {
         if (!isSelfReference(beanName, candidate)
                 && isAutowireCandidate(candidate, fallbackDescriptor)
-                && (!multiple || getAutowireCandidateResolver().hasQualifier(descriptor))) {
+                && (!multiple || matchesBeanName(candidate, descriptor.getDependencyName()) || getAutowireCandidateResolver().hasQualifier(descriptor))) {
           addCandidateEntry(result, candidate, descriptor, requiredType);
         }
       }
@@ -2354,13 +2354,13 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   /**
-   * Determine whether the given candidate name matches the bean name or the aliases
+   * Determine whether the given dependency name matches the bean name or the aliases
    * stored in this bean definition.
    */
-  protected boolean matchesBeanName(String beanName, @Nullable String candidateName) {
-    if (candidateName != null) {
-      return candidateName.equals(beanName)
-              || ObjectUtils.containsElement(getAliases(beanName), candidateName);
+  protected boolean matchesBeanName(String beanName, @Nullable String dependencyName) {
+    if (dependencyName != null) {
+      return dependencyName.equals(beanName)
+              || ObjectUtils.containsElement(getAliases(beanName), dependencyName);
     }
     return false;
   }
