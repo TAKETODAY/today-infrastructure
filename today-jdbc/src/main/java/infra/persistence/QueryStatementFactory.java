@@ -25,10 +25,8 @@ import org.jspecify.annotations.Nullable;
  */
 public interface QueryStatementFactory {
 
-  @Nullable
-  QueryStatement createQuery(Object example);
+  @Nullable QueryStatement createQuery(Object example);
 
-  @Nullable
-  ConditionStatement createCondition(Object example);
+  @Nullable ConditionStatement createCondition(Object example);
 
 }
