@@ -211,8 +211,7 @@ public abstract class StatementCreatorUtils {
    * @throws SQLException if thrown by PreparedStatement methods
    * @see SqlTypeValue
    */
-  private static void setParameterValueInternal(
-          PreparedStatement ps, int paramIndex, int sqlType,
+  private static void setParameterValueInternal(PreparedStatement ps, int paramIndex, int sqlType,
           @Nullable String typeName, @Nullable Integer scale, @Nullable Object inValue) throws SQLException {
 
     String typeNameToUse = typeName;

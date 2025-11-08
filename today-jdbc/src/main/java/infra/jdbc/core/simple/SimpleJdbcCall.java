@@ -58,6 +58,7 @@ import infra.jdbc.core.namedparam.SqlParameterSource;
  *
  * @author Thomas Risberg
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see java.sql.DatabaseMetaData
  * @see JdbcTemplate
  * @since 4.0
