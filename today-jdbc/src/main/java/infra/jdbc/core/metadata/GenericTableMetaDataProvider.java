@@ -327,7 +327,7 @@ public class GenericTableMetaDataProvider implements TableMetaDataProvider {
   /**
    * Method supporting the meta-data processing for a table.
    */
-  private void locateTableAndProcessMetaData(DatabaseMetaData databaseMetaData,
+  void locateTableAndProcessMetaData(DatabaseMetaData databaseMetaData,
           @Nullable String catalogName, @Nullable String schemaName, @Nullable String tableName) {
 
     Map<String, TableMetaData> tableMeta = new HashMap<>();
