@@ -17,8 +17,9 @@
 
 package infra.core.type.classreading;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.io.ResourceLoader;
-import infra.lang.Nullable;
 
 /**
  * Internal delegate for instantiating {@link MetadataReaderFactory} implementations.

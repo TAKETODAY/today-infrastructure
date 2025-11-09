@@ -10,6 +10,7 @@ configurations {
   java21Api.extendsFrom(api)
   java21Implementation.extendsFrom(implementation)
   java24Api.extendsFrom(api)
+  java24Implementation.extendsFrom(implementation)
 }
 
 dependencies {

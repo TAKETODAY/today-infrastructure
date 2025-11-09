@@ -17,6 +17,8 @@
 
 package infra.core.type.classreading;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.classfile.AccessFlags;
 import java.lang.classfile.ClassModel;
 import java.lang.classfile.Interfaces;
@@ -35,7 +37,6 @@ import java.util.Set;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.type.AnnotationMetadata;
 import infra.core.type.MethodMetadata;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
 

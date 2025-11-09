@@ -17,6 +17,8 @@
 
 package infra.core.type.classreading;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.classfile.Annotation;
 import java.lang.classfile.AnnotationElement;
 import java.lang.classfile.AnnotationValue;
@@ -35,7 +37,6 @@ import java.util.stream.Stream;
 import infra.core.annotation.AnnotationFilter;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**

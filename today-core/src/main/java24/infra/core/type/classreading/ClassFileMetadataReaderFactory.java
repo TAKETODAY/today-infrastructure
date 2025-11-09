@@ -17,11 +17,12 @@
 
 package infra.core.type.classreading;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
-import infra.lang.Nullable;
 
 /**
  * Implementation of the {@link MetadataReaderFactory} interface,
@@ -31,7 +32,7 @@ import infra.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-public class ClassFileMetadataReaderFactory extends AbstractMetadataReaderFactory {
+class ClassFileMetadataReaderFactory extends AbstractMetadataReaderFactory {
 
   /**
    * Create a new ClassFileMetadataReaderFactory for the default class loader.

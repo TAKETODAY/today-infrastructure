@@ -17,6 +17,8 @@
 
 package infra.core.type.classreading;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.classfile.ClassFile;
@@ -25,7 +27,6 @@ import java.lang.classfile.ClassModel;
 import infra.core.io.Resource;
 import infra.core.type.AnnotationMetadata;
 import infra.core.type.ClassMetadata;
-import infra.lang.Nullable;
 
 /**
  * {@link MetadataReader} implementation based on the {@link ClassFile} API.
