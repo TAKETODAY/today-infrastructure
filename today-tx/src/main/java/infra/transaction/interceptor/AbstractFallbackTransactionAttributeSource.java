@@ -24,6 +24,7 @@ import java.lang.reflect.Modifier;
 import java.util.concurrent.ConcurrentHashMap;
 
 import infra.aop.support.AopUtils;
+import infra.beans.factory.Aware;
 import infra.context.expression.EmbeddedValueResolverAware;
 import infra.core.StringValueResolver;
 import infra.logging.Logger;
@@ -168,6 +169,11 @@ public abstract class AbstractFallbackTransactionAttributeSource
   protected TransactionAttribute computeTransactionAttribute(Method method, @Nullable Class<?> targetClass) {
     // Don't allow non-public methods, as configured.
     if (allowPublicMethodsOnly() && !Modifier.isPublic(method.getModifiers())) {
+      return null;
+    }
+
+    // Skip methods declared on BeanFactoryAware and co.
+    if (method.getDeclaringClass().isInterface() && Aware.class.isAssignableFrom(method.getDeclaringClass())) {
       return null;
     }
 

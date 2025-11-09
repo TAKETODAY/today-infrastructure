@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import infra.aop.support.AopUtils;
+import infra.beans.factory.Aware;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
@@ -141,6 +142,10 @@ public abstract class AbstractFallbackCacheOperationSource implements CacheOpera
   private Collection<CacheOperation> computeCacheOperations(Method method, @Nullable Class<?> targetClass) {
     // Don't allow non-public methods, as configured.
     if (allowPublicMethodsOnly() && !Modifier.isPublic(method.getModifiers())) {
+      return null;
+    }
+    // Skip methods declared on BeanFactoryAware and co.
+    if (method.getDeclaringClass().isInterface() && Aware.class.isAssignableFrom(method.getDeclaringClass())) {
       return null;
     }
 
