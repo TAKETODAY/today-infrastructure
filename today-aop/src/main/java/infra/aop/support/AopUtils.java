@@ -143,7 +143,7 @@ public abstract class AopUtils {
   /**
    * Given a method, which may come from an interface, and a target class used
    * in the current AOP invocation, find the corresponding target method if there
-   * is one. E.g. the method may be {@code IFoo.bar()} and the target class
+   * is one. For example, the method may be {@code IFoo.bar()} and the target class
    * may be {@code DefaultFoo}. In this case, the method may be
    * {@code DefaultFoo.bar()}. This enables attributes on that method to be found.
    * <p><b>NOTE:</b> In contrast to {@link ReflectionUtils#getMostSpecificMethod},
@@ -151,10 +151,10 @@ public abstract class AopUtils {
    * the <i>original</i> method definition.
    *
    * @param method the method to be invoked, which may come from an interface
-   * @param targetClass the target class for the current invocation.
-   * May be {@code null} or may not even implement the method.
+   * @param targetClass the target class for the current invocation
+   * (can be {@code null} or may not even implement the method)
    * @return the specific target method, or the original method if the
-   * {@code targetClass} doesn't implement it or is {@code null}
+   * {@code targetClass} does not implement it
    * @see ReflectionUtils#getMostSpecificMethod
    * @see BridgeMethodResolver#getMostSpecificMethod
    * @since 4.0

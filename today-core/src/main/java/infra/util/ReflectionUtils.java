@@ -414,7 +414,8 @@ public abstract class ReflectionUtils {
    * @since 3.0
    */
   public static Method getMostSpecificMethod(Method method, @Nullable Class<?> targetClass) {
-    if (targetClass != null && targetClass != method.getDeclaringClass() && isOverridable(method, targetClass)) {
+    if (targetClass != null && targetClass != method.getDeclaringClass()
+            && (isOverridable(method, targetClass) || !method.getDeclaringClass().isAssignableFrom(targetClass))) {
       try {
         if (Modifier.isPublic(method.getModifiers())) {
           try {
