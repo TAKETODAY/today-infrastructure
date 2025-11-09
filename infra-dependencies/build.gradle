@@ -625,6 +625,7 @@ dependencies {
     api("org.seleniumhq.selenium:htmlunit-driver:4.8.1")
     api("org.seleniumhq.selenium:selenium-java:3.141.59")
     api("org.seleniumhq.selenium:selenium-bom:4.8.3")
+    api("org.reactivestreams:reactive-streams:1.0.4")
     api 'com.zaxxer:HikariCP:5.1.0'
     api 'mysql:mysql-connector-java:8.0.33'
     api 'com.mysql:mysql-connector-j:8.4.0'
