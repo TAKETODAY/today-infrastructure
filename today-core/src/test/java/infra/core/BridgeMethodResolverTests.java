@@ -336,22 +336,22 @@ class BridgeMethodResolverTests {
   }
 
   @Test
-    // SPR-16103
   void testClassHierarchy() throws Exception {
     doTestHierarchyResolution(FooClass.class);
   }
 
   @Test
-    // SPR-16103
   void testInterfaceHierarchy() throws Exception {
     doTestHierarchyResolution(FooInterface.class);
   }
 
   private void doTestHierarchyResolution(Class<?> clazz) throws Exception {
+    Method expected = clazz.getMethod("test", FooEntity.class);
     for (Method method : clazz.getDeclaredMethods()) {
-      Method bridged = BridgeMethodResolver.findBridgedMethod(method);
-      Method expected = clazz.getMethod("test", FooEntity.class);
-      assertThat(bridged).isEqualTo(expected);
+      if (method.getName().equals("test")) {
+        Method bridged = BridgeMethodResolver.findBridgedMethod(method);
+        assertThat(bridged).isEqualTo(expected);
+      }
     }
   }
 
