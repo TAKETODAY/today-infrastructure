@@ -47,7 +47,7 @@ public class MethodBasedEvaluationContext extends StandardEvaluationContext {
 
   private final Method method;
 
-  private final Object @Nullable [] arguments;
+  private final @Nullable Object @Nullable [] arguments;
 
   private final ParameterNameDiscoverer parameterNameDiscoverer;
 
@@ -61,7 +61,7 @@ public class MethodBasedEvaluationContext extends StandardEvaluationContext {
     this.parameterNameDiscoverer = parameterNameDiscoverer;
   }
 
-  public MethodBasedEvaluationContext(@Nullable Object rootObject, Method method, Object @Nullable [] arguments,
+  public MethodBasedEvaluationContext(@Nullable Object rootObject, Method method, @Nullable Object @Nullable [] arguments,
           ParameterNameDiscoverer parameterNameDiscoverer, StandardEvaluationContext shared) {
     super(rootObject, shared);
     this.method = method;

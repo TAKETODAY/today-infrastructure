@@ -887,7 +887,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
 
     public final CacheOperationMetadata metadata;
 
-    public final Object[] args;
+    public final @Nullable Object[] args;
 
     public final Object target;
 
@@ -901,7 +901,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
     @Nullable
     private Object key;
 
-    public CacheOperationContext(CacheOperationMetadata metadata, Object[] args, Object target) {
+    public CacheOperationContext(CacheOperationMetadata metadata, @Nullable Object[] args, Object target) {
       this.metadata = metadata;
       this.args = extractArgs(metadata.method, args);
       this.target = target;
@@ -925,11 +925,11 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
     }
 
     @Override
-    public Object[] getArgs() {
+    public @Nullable Object[] getArgs() {
       return this.args;
     }
 
-    private Object[] extractArgs(Method method, Object[] args) {
+    private @Nullable Object[] extractArgs(Method method, @Nullable Object[] args) {
       if (!method.isVarArgs()) {
         return args;
       }

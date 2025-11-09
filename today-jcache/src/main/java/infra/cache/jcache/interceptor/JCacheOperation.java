@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,10 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.cache.jcache.interceptor;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 
@@ -36,6 +35,7 @@ import infra.cache.interceptor.CacheResolver;
  *
  * @param <A> the type of the JSR-107 annotation
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public interface JCacheOperation<A extends Annotation> extends BasicOperation, CacheMethodDetails<A> {
@@ -53,6 +53,6 @@ public interface JCacheOperation<A extends Annotation> extends BasicOperation, C
    *
    * @param values the parameters value for a particular invocation
    */
-  CacheInvocationParameter[] getAllParameters(Object... values);
+  CacheInvocationParameter[] getAllParameters(@Nullable Object... values);
 
 }

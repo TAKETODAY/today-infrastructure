@@ -49,7 +49,7 @@ final class CacheEvaluationContext extends MethodBasedEvaluationContext {
 
   private final HashSet<String> unavailableVariables = new HashSet<>(1);
 
-  CacheEvaluationContext(@Nullable Object rootObject, Method method, Object @Nullable [] arguments,
+  CacheEvaluationContext(@Nullable Object rootObject, Method method, @Nullable Object @Nullable [] arguments,
           ParameterNameDiscoverer parameterNameDiscoverer, StandardEvaluationContext shared) {
 
     super(rootObject, method, arguments, parameterNameDiscoverer, shared);
