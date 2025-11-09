@@ -24,9 +24,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -36,8 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class GetterMethodTests {
 
-  @Getter
-  @Setter
   public static class POJO1 {
     boolean _boolean;
     byte _byte;
