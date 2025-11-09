@@ -34,6 +34,7 @@ import infra.util.ExceptionTypeFilter;
  * The {@link JCacheOperation} implementation for a {@link CachePut} operation.
  *
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see CachePut
  * @since 4.0
  */
@@ -43,8 +44,7 @@ class CachePutOperation extends AbstractJCacheKeyOperation<CachePut> {
 
   private final CacheParameterDetail valueParameterDetail;
 
-  public CachePutOperation(
-          CacheMethodDetails<CachePut> methodDetails, CacheResolver cacheResolver, KeyGenerator keyGenerator) {
+  public CachePutOperation(CacheMethodDetails<CachePut> methodDetails, CacheResolver cacheResolver, KeyGenerator keyGenerator) {
 
     super(methodDetails, cacheResolver, keyGenerator);
 
@@ -83,11 +83,11 @@ class CachePutOperation extends AbstractJCacheKeyOperation<CachePut> {
    * @param values the parameters value for a particular invocation
    * @return the {@link CacheInvocationParameter} instance for the value parameter
    */
-  public CacheInvocationParameter getValueParameter(Object... values) {
+  public CacheInvocationParameter getValueParameter(@Nullable Object... values) {
     int parameterPosition = this.valueParameterDetail.getParameterPosition();
     if (parameterPosition >= values.length) {
-      throw new IllegalStateException("Values mismatch, value parameter at position " +
-              parameterPosition + " cannot be matched against " + values.length + " value(s)");
+      throw new IllegalStateException("Values mismatch, value parameter at position %d cannot be matched against %d value(s)"
+              .formatted(parameterPosition, values.length));
     }
     return this.valueParameterDetail.toCacheInvocationParameter(values[parameterPosition]);
   }
@@ -103,7 +103,7 @@ class CachePutOperation extends AbstractJCacheKeyOperation<CachePut> {
           result = parameter;
         }
         else {
-          throw new IllegalArgumentException("More than one @CacheValue found on " + method + "");
+          throw new IllegalArgumentException("More than one @CacheValue found on " + method);
         }
       }
     }

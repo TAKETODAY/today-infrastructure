@@ -39,7 +39,7 @@ class DefaultCacheKeyInvocationContext<A extends Annotation> extends DefaultCach
   @Nullable
   private final CacheInvocationParameter valueParameter;
 
-  public DefaultCacheKeyInvocationContext(AbstractJCacheKeyOperation<A> operation, Object target, Object[] args) {
+  public DefaultCacheKeyInvocationContext(AbstractJCacheKeyOperation<A> operation, Object target, @Nullable Object[] args) {
     super(operation, target, args);
     this.keyParameters = operation.getKeyParameters(args);
     if (operation instanceof CachePutOperation) {

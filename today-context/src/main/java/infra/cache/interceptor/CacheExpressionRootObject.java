@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.cache.interceptor;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -36,14 +38,14 @@ class CacheExpressionRootObject {
 
   private final Method method;
 
-  private final Object[] args;
+  private final @Nullable Object[] args;
 
   private final Object target;
 
   private final Class<?> targetClass;
 
   public CacheExpressionRootObject(Collection<? extends Cache> caches,
-          Method method, Object[] args, Object target, Class<?> targetClass) {
+          Method method, @Nullable Object[] args, Object target, Class<?> targetClass) {
 
     this.method = method;
     this.target = target;
@@ -64,7 +66,7 @@ class CacheExpressionRootObject {
     return this.method.getName();
   }
 
-  public Object[] getArgs() {
+  public @Nullable Object[] getArgs() {
     return this.args;
   }
 

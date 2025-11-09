@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,10 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.cache.jcache.interceptor;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -37,6 +36,7 @@ import infra.cache.interceptor.CacheOperationInvocationContext;
  *
  * @param <A> the annotation type
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 class DefaultCacheInvocationContext<A extends Annotation>
@@ -46,11 +46,11 @@ class DefaultCacheInvocationContext<A extends Annotation>
 
   private final Object target;
 
-  private final Object[] args;
+  private final @Nullable Object[] args;
 
   private final CacheInvocationParameter[] allParameters;
 
-  public DefaultCacheInvocationContext(JCacheOperation<A> operation, Object target, Object[] args) {
+  public DefaultCacheInvocationContext(JCacheOperation<A> operation, Object target, @Nullable Object[] args) {
     this.operation = operation;
     this.target = target;
     this.args = args;
@@ -68,7 +68,7 @@ class DefaultCacheInvocationContext<A extends Annotation>
   }
 
   @Override
-  public Object[] getArgs() {
+  public @Nullable Object[] getArgs() {
     return this.args.clone();
   }
 
@@ -104,13 +104,8 @@ class DefaultCacheInvocationContext<A extends Annotation>
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("CacheInvocationContext{");
-    sb.append("operation=").append(this.operation);
-    sb.append(", target=").append(this.target);
-    sb.append(", args=").append(Arrays.toString(this.args));
-    sb.append(", allParameters=").append(Arrays.toString(this.allParameters));
-    sb.append('}');
-    return sb.toString();
+    return "CacheInvocationContext{operation=%s, target=%s, args=%s, allParameters=%s}"
+            .formatted(this.operation, this.target, Arrays.toString(this.args), Arrays.toString(this.allParameters));
   }
 
 }

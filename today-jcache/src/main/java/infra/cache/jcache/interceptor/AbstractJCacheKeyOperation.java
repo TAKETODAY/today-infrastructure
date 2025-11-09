@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,10 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.cache.jcache.interceptor;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -35,6 +34,7 @@ import infra.cache.interceptor.KeyGenerator;
  *
  * @param <A> the annotation type
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 abstract class AbstractJCacheKeyOperation<A extends Annotation> extends AbstractJCacheOperation<A> {
@@ -78,13 +78,13 @@ abstract class AbstractJCacheKeyOperation<A extends Annotation> extends Abstract
    * @return the {@link CacheInvocationParameter} instances for the parameters to be
    * used to compute the key
    */
-  public CacheInvocationParameter[] getKeyParameters(Object... values) {
+  public CacheInvocationParameter[] getKeyParameters(@Nullable Object... values) {
     List<CacheInvocationParameter> result = new ArrayList<>();
     for (CacheParameterDetail keyParameterDetail : this.keyParameterDetails) {
       int parameterPosition = keyParameterDetail.getParameterPosition();
       if (parameterPosition >= values.length) {
-        throw new IllegalStateException("Values mismatch, key parameter at position "
-                + parameterPosition + " cannot be matched against " + values.length + " value(s)");
+        throw new IllegalStateException("Values mismatch, key parameter at position %d cannot be matched against %d value(s)"
+                .formatted(parameterPosition, values.length));
       }
       result.add(keyParameterDetail.toCacheInvocationParameter(values[parameterPosition]));
     }

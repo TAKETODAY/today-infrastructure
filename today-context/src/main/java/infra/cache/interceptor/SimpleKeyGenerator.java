@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.cache.interceptor;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 
@@ -43,14 +45,14 @@ import infra.cache.concurrent.ConcurrentMapCache;
 public class SimpleKeyGenerator implements KeyGenerator {
 
   @Override
-  public Object generate(Object target, Method method, Object... params) {
+  public Object generate(Object target, Method method, @Nullable Object[] params) {
     return generateKey(params);
   }
 
   /**
    * Generate a key based on the specified parameters.
    */
-  public static Object generateKey(Object... params) {
+  public static Object generateKey(@Nullable Object... params) {
     if (params.length == 0) {
       return SimpleKey.EMPTY;
     }
