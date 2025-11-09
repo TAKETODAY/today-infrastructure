@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -121,6 +121,7 @@ class BridgeMethodResolverTests {
     Method bridged = MyBar.class.getDeclaredMethod("someMethod", String.class, Object.class);
     Method other = MyBar.class.getDeclaredMethod("someMethod", Integer.class, Object.class);
     Method bridge = MyBar.class.getDeclaredMethod("someMethod", Object.class, Object.class);
+    assertThat(bridge.isBridge()).isTrue();
 
     assertThat(BridgeMethodResolver.isBridgeMethodFor(bridge, bridged, MyBar.class)).as("Should be bridge method").isTrue();
     assertThat(BridgeMethodResolver.isBridgeMethodFor(bridge, other, MyBar.class)).as("Should not be bridge method").isFalse();
@@ -335,22 +336,22 @@ class BridgeMethodResolverTests {
   }
 
   @Test
+    // SPR-16103
   void testClassHierarchy() throws Exception {
     doTestHierarchyResolution(FooClass.class);
   }
 
   @Test
+    // SPR-16103
   void testInterfaceHierarchy() throws Exception {
     doTestHierarchyResolution(FooInterface.class);
   }
 
   private void doTestHierarchyResolution(Class<?> clazz) throws Exception {
-    Method expected = clazz.getMethod("test", FooEntity.class);
     for (Method method : clazz.getDeclaredMethods()) {
-      if (method.getName().equals("test")) {
-        Method bridged = BridgeMethodResolver.findBridgedMethod(method);
-        assertThat(bridged).isEqualTo(expected);
-      }
+      Method bridged = BridgeMethodResolver.findBridgedMethod(method);
+      Method expected = clazz.getMethod("test", FooEntity.class);
+      assertThat(bridged).isEqualTo(expected);
     }
   }
 
@@ -393,7 +394,10 @@ class BridgeMethodResolverTests {
     }
   }
 
-  public abstract static class SubBar<T extends StringBuffer> extends InterBar<T> {
+  public abstract static class SubBar<T extends StringProducer> extends InterBar<T> {
+  }
+
+  public interface StringProducer extends CharSequence {
   }
 
   public static class MyBar extends InterBar<String> {
@@ -411,13 +415,13 @@ class BridgeMethodResolverTests {
     void add(T item);
   }
 
-  public abstract static class AbstractDateAdder implements Adder<Date> {
+  public abstract static class AbstractAdder<T extends Serializable> implements Adder<T> {
 
     @Override
-    public abstract void add(Date date);
+    public abstract void add(T item);
   }
 
-  public static class DateAdder extends AbstractDateAdder {
+  public static class DateAdder extends AbstractAdder<Date> {
 
     @Override
     public void add(Date date) {
@@ -812,7 +816,7 @@ class BridgeMethodResolverTests {
 
   @SuppressWarnings({ "serial", "unchecked" })
   public static class MessageBroadcasterImpl extends GenericEventBroadcasterImpl<MessageEvent>
-          implements Serializable,  // implement an unrelated interface first
+          implements Serializable,  // implement an unrelated interface first (SPR-16288)
           MessageBroadcaster {
 
     public MessageBroadcasterImpl() {
@@ -840,7 +844,7 @@ class BridgeMethodResolverTests {
   }
 
   //-----------------------------
-  //  Test Classes
+  // SPR-2454 Test Classes
   //-----------------------------
 
   public interface SimpleGenericRepository<T> {
@@ -910,7 +914,7 @@ class BridgeMethodResolverTests {
     // parameter (!), we resort to requiring the caller to provide the
     // actual type as parameter, too.
     // Not set in a constructor to enable easy CGLIB-proxying (passing
-    // constructor arguments to AOP proxies is quite cumbersome).
+    // constructor arguments to Infra AOP proxies is quite cumbersome).
     public void setPersistentClass(Class<T> c) {
     }
 
@@ -976,7 +980,7 @@ class BridgeMethodResolverTests {
   }
 
   //-------------------
-  //  classes
+  // SPR-2603 classes
   //-------------------
 
   public interface Homer<E> {
@@ -1091,7 +1095,7 @@ class BridgeMethodResolverTests {
   }
 
   //-------------------
-  //  classes
+  // SPR-3304 classes
   //-------------------
 
   private static class MegaEvent {
@@ -1135,7 +1139,7 @@ class BridgeMethodResolverTests {
   }
 
   //-------------------
-  //  classes
+  // SPR-3357 classes
   //-------------------
 
   private static class DomainObjectSuper {
@@ -1169,7 +1173,7 @@ class BridgeMethodResolverTests {
   }
 
   //-------------------
-  //  classes
+  // SPR-3485 classes
   //-------------------
 
   @SuppressWarnings("serial")
@@ -1200,7 +1204,7 @@ class BridgeMethodResolverTests {
   }
 
   //-------------------
-  //  classes
+  // SPR-3534 classes
   //-------------------
 
   public interface SearchProvider<RETURN_TYPE, CONDITIONS_TYPE> {
@@ -1246,6 +1250,10 @@ class BridgeMethodResolverTests {
       return null;
     }
   }
+
+  //-------------------
+  // SPR-16103 classes
+  //-------------------
 
   public abstract static class BaseEntity {
   }
