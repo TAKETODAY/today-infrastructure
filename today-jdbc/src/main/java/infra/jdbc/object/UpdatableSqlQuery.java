@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jdbc.object;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
@@ -24,7 +26,6 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import infra.jdbc.core.RowMapper;
-import infra.lang.Nullable;
 
 /**
  * Reusable RDBMS query in which concrete subclasses must implement
@@ -36,6 +37,7 @@ import infra.lang.Nullable;
  *
  * @param <T> the result type
  * @author Thomas Risberg
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see SqlQuery
  */
 public abstract class UpdatableSqlQuery<T> extends SqlQuery<T> {
@@ -63,7 +65,7 @@ public abstract class UpdatableSqlQuery<T> extends SqlQuery<T> {
    * implementation of the {@code updateRow()} method.
    */
   @Override
-  protected RowMapper<T> newRowMapper(@Nullable Object[] parameters, @Nullable Map<?, ?> context) {
+  protected RowMapper<T> newRowMapper(@Nullable Object @Nullable [] parameters, @Nullable Map<?, ?> context) {
     return new RowMapperImpl(context);
   }
 

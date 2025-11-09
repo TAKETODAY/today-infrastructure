@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ class RandomHandlerIntegrationTests extends AbstractHttpHandlerIntegrationTests 
     ResponseEntity<byte[]> response = restTemplate.exchange(request, byte[].class);
 
     assertThat(response.getBody()).isNotNull();
-    assertThat(response.getHeaders().getContentLength()).isEqualTo(RESPONSE_SIZE);
+    assertThat(response.headers().getContentLength()).isEqualTo(RESPONSE_SIZE);
     assertThat(response.getBody().length).isEqualTo(RESPONSE_SIZE);
   }
 

@@ -17,6 +17,8 @@
 
 package infra.web.bind.resolver;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -36,7 +38,6 @@ import infra.http.RequestEntity;
 import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageConverter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 import infra.web.ErrorResponse;
 import infra.web.HttpMediaTypeNotSupportedException;
@@ -119,9 +120,8 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
             || resolvable.is(RequestEntity.class);
   }
 
-  @Nullable
   @Override
-  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable)
+  public @Nullable Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable)
           throws IOException, HttpMediaTypeNotSupportedException //
   {
     MethodParameter parameter = resolvable.getParameter();
@@ -141,8 +141,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
     }
   }
 
-  @Nullable
-  private Type getHttpEntityType(MethodParameter parameter) {
+  private @Nullable Type getHttpEntityType(MethodParameter parameter) {
     Assert.isAssignable(HttpEntity.class, parameter.getParameterType());
     Type parameterType = parameter.getGenericParameterType();
     if (parameterType instanceof ParameterizedType type) {
@@ -218,7 +217,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
     }
 
     if (httpEntity.hasHeaders()) {
-      HttpHeaders entityHeaders = httpEntity.getHeaders();
+      HttpHeaders entityHeaders = httpEntity.headers();
       HttpHeaders outputHeaders = context.responseHeaders();
 
       for (var entry : entityHeaders.entrySet()) {
@@ -301,6 +300,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
     RequestContextUtils.saveRedirectModel(location, request, redirectModelManager);
   }
 
+  @Override
   protected Class<?> getReturnValueType(@Nullable Object returnValue, @Nullable MethodParameter returnType) {
     if (returnValue != null) {
       return returnValue.getClass();

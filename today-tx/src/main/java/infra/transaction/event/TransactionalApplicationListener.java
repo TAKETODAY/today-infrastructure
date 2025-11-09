@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.transaction.event;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Consumer;
 
 import infra.context.ApplicationEvent;
@@ -24,7 +26,6 @@ import infra.context.ApplicationListener;
 import infra.context.PayloadApplicationEvent;
 import infra.context.event.SmartApplicationListener;
 import infra.core.Ordered;
-import infra.lang.Nullable;
 
 /**
  * An {@link ApplicationListener} that is invoked according to a {@link TransactionPhase}.
@@ -161,7 +162,8 @@ public interface TransactionalApplicationListener<E extends ApplicationEvent>
      *
      * @param event the event that transaction synchronization is about to process
      */
-    default void preProcessEvent(ApplicationEvent event) { }
+    default void preProcessEvent(ApplicationEvent event) {
+    }
 
     /**
      * Called after a transactional event listener invocation.
@@ -169,7 +171,8 @@ public interface TransactionalApplicationListener<E extends ApplicationEvent>
      * @param event the event that transaction synchronization finished processing
      * @param ex an exception that occurred during listener invocation, if any
      */
-    default void postProcessEvent(ApplicationEvent event, @Nullable Throwable ex) { }
+    default void postProcessEvent(ApplicationEvent event, @Nullable Throwable ex) {
+    }
   }
 
 }

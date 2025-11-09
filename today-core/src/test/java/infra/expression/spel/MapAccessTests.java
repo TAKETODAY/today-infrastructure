@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,19 +19,16 @@ package infra.expression.spel;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
 import java.util.Map;
 
-import infra.expression.AccessException;
 import infra.expression.EvaluationContext;
-import infra.expression.Expression;
-import infra.expression.ExpressionParser;
-import infra.expression.PropertyAccessor;
 import infra.expression.TypedValue;
 import infra.expression.spel.standard.SpelExpressionParser;
-import infra.expression.spel.support.StandardEvaluationContext;
+import infra.expression.spel.support.MapAccessor;
 
+import static infra.expression.spel.SpelMessage.PROPERTY_OR_FIELD_NOT_READABLE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Testing variations on map access.
@@ -41,144 +38,96 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MapAccessTests extends AbstractExpressionTests {
 
   @Test
-  public void testSimpleMapAccess01() {
+  void directMapAccess() {
     evaluate("testMap.get('monday')", "montag", String.class);
   }
 
   @Test
-  public void testMapAccessThroughIndexer() {
+  void mapAccessThroughIndexer() {
     evaluate("testMap['monday']", "montag", String.class);
   }
 
   @Test
-  public void testCustomMapAccessor() throws Exception {
-    ExpressionParser parser = new SpelExpressionParser();
-    StandardEvaluationContext ctx = TestScenarioCreator.getTestEvaluationContext();
-    ctx.addPropertyAccessor(new MapAccessor());
-
-    Expression expr = parser.parseExpression("testMap.monday");
-    Object value = expr.getValue(ctx, String.class);
-    assertThat(value).isEqualTo("montag");
+  void mapAccessThroughIndexerForNonexistentKey() {
+    evaluate("testMap['bogus']", null, String.class);
   }
 
   @Test
-  public void testVariableMapAccess() throws Exception {
-    ExpressionParser parser = new SpelExpressionParser();
-    StandardEvaluationContext ctx = TestScenarioCreator.getTestEvaluationContext();
+  void variableMapAccess() {
+    var parser = new SpelExpressionParser();
+    var ctx = TestScenarioCreator.getTestEvaluationContext();
     ctx.setVariable("day", "saturday");
 
-    Expression expr = parser.parseExpression("testMap[#day]");
-    Object value = expr.getValue(ctx, String.class);
-    assertThat(value).isEqualTo("samstag");
+    var expr = parser.parseExpression("testMap[#day]");
+    assertThat(expr.getValue(ctx, String.class)).isEqualTo("samstag");
   }
 
   @Test
-  public void testGetValue() {
-    Map<String, String> props1 = new HashMap<>();
-    props1.put("key1", "value1");
-    props1.put("key2", "value2");
-    props1.put("key3", "value3");
+  void mapAccessOnRoot() {
+    var map = Map.of("key", "value");
+    var parser = new SpelExpressionParser();
+    var expr = parser.parseExpression("#root['key']");
 
-    Object bean = new TestBean("name1", new TestBean("name2", null, "Description 2", 15, props1), "description 1", 6, props1);
-
-    ExpressionParser parser = new SpelExpressionParser();
-    Expression expr = parser.parseExpression("testBean.properties['key2']");
-    assertThat(expr.getValue(bean)).isEqualTo("value2");
-  }
-
-  @Test
-  public void testGetValueFromRootMap() {
-    Map<String, String> map = new HashMap<>();
-    map.put("key", "value");
-
-    ExpressionParser spelExpressionParser = new SpelExpressionParser();
-    Expression expr = spelExpressionParser.parseExpression("#root['key']");
     assertThat(expr.getValue(map)).isEqualTo("value");
   }
 
-  public static class TestBean {
+  @Test
+  void mapAccessOnProperty() {
+    var properties = Map.of("key", "value");
+    var bean = new TestBean(null, new TestBean(properties, null));
 
-    private String name;
-    private TestBean testBean;
-    private String description;
-    private Integer priority;
-    private Map<String, String> properties;
-
-    public TestBean(String name, TestBean testBean, String description, Integer priority, Map<String, String> props) {
-      this.name = name;
-      this.testBean = testBean;
-      this.description = description;
-      this.priority = priority;
-      this.properties = props;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public void setName(String name) {
-      this.name = name;
-    }
-
-    public TestBean getTestBean() {
-      return testBean;
-    }
-
-    public void setTestBean(TestBean testBean) {
-      this.testBean = testBean;
-    }
-
-    public String getDescription() {
-      return description;
-    }
-
-    public void setDescription(String description) {
-      this.description = description;
-    }
-
-    public Integer getPriority() {
-      return priority;
-    }
-
-    public void setPriority(Integer priority) {
-      this.priority = priority;
-    }
-
-    public Map<String, String> getProperties() {
-      return properties;
-    }
-
-    public void setProperties(Map<String, String> properties) {
-      this.properties = properties;
-    }
+    var parser = new SpelExpressionParser();
+    var expr = parser.parseExpression("nestedBean.properties['key']");
+    assertThat(expr.getValue(bean)).isEqualTo("value");
   }
 
-  public static class MapAccessor implements PropertyAccessor {
+  @Test
+  void mapAccessor() {
+    var parser = new SpelExpressionParser();
+    var ctx = TestScenarioCreator.getTestEvaluationContext();
+    ctx.addPropertyAccessor(new MapAccessor());
+
+    var expr1 = parser.parseExpression("testMap.monday");
+    assertThat(expr1.getValue(ctx, String.class)).isEqualTo("montag");
+
+    var expr2 = parser.parseExpression("testMap.bogus");
+    assertThatExceptionOfType(SpelEvaluationException.class)
+            .isThrownBy(() -> expr2.getValue(ctx, String.class))
+            .satisfies(ex -> assertThat(ex.getMessageCode()).isEqualTo(PROPERTY_OR_FIELD_NOT_READABLE));
+  }
+
+  @Test
+  void nullAwareMapAccessor() {
+    var parser = new SpelExpressionParser();
+    var ctx = TestScenarioCreator.getTestEvaluationContext();
+    ctx.addPropertyAccessor(new NullAwareMapAccessor());
+
+    var expr = parser.parseExpression("testMap.monday");
+    assertThat(expr.getValue(ctx, String.class)).isEqualTo("montag");
+
+    // Unlike MapAccessor, NullAwareMapAccessor returns null for a nonexistent key.
+    expr = parser.parseExpression("testMap.bogus");
+    assertThat(expr.getValue(ctx, String.class)).isNull();
+  }
+
+  record TestBean(Map<String, String> properties, TestBean nestedBean) {
+  }
+
+  /**
+   * In contrast to the standard {@link MapAccessor}, {@code NullAwareMapAccessor}
+   * reports that it can read any map (ignoring whether the map actually contains
+   * an entry for the given key) and returns {@code null} for a nonexistent key.
+   */
+  private static class NullAwareMapAccessor extends MapAccessor {
 
     @Override
-    public boolean canRead(EvaluationContext context, Object target, String name) throws AccessException {
-      return (((Map<?, ?>) target).containsKey(name));
+    public boolean canRead(EvaluationContext context, Object target, String name) {
+      return (target instanceof Map);
     }
 
     @Override
-    public TypedValue read(EvaluationContext context, Object target, String name) throws AccessException {
+    public TypedValue read(EvaluationContext context, Object target, String name) {
       return new TypedValue(((Map<?, ?>) target).get(name));
-    }
-
-    @Override
-    public boolean canWrite(EvaluationContext context, Object target, String name) throws AccessException {
-      return true;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public void write(EvaluationContext context, Object target, String name, Object newValue) throws AccessException {
-      ((Map<Object, Object>) target).put(name, newValue);
-    }
-
-    @Override
-    public Class<?>[] getSpecificTargetClasses() {
-      return new Class<?>[] { Map.class };
     }
   }
 

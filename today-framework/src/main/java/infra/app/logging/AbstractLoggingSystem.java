@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.app.logging;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -28,7 +30,6 @@ import java.util.function.Function;
 
 import infra.core.env.Environment;
 import infra.core.io.ClassPathResource;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
 import infra.util.SystemPropertyUtils;
@@ -41,6 +42,7 @@ import infra.util.SystemPropertyUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public abstract class AbstractLoggingSystem extends LoggingSystem {
 
   protected static final Comparator<LoggerConfiguration> CONFIGURATION_COMPARATOR
@@ -64,7 +66,7 @@ public abstract class AbstractLoggingSystem extends LoggingSystem {
     initializeWithConventions(startupContext, logFile);
   }
 
-  private void initializeWithSpecificConfig(LoggingStartupContext context, String configLocation, LogFile logFile) {
+  private void initializeWithSpecificConfig(LoggingStartupContext context, String configLocation, @Nullable LogFile logFile) {
     configLocation = SystemPropertyUtils.resolvePlaceholders(configLocation);
     loadConfiguration(context, configLocation, logFile);
   }
@@ -139,7 +141,8 @@ public abstract class AbstractLoggingSystem extends LoggingSystem {
     String[] locations = getStandardConfigLocations();
     for (int i = 0; i < locations.length; i++) {
       String extension = StringUtils.getFilenameExtension(locations[i]);
-      locations[i] = locations[i].substring(0, locations[i].length() - extension.length() - 1) + "-infra." + extension;
+      int extensionLength = (extension != null) ? (extension.length() + 1) : 0;
+      locations[i] = locations[i].substring(0, locations[i].length() - extensionLength) + "-infra." + extension;
     }
     return locations;
   }
@@ -193,7 +196,7 @@ public abstract class AbstractLoggingSystem extends LoggingSystem {
    * @param environment the environment
    * @return the default value resolver
    */
-  protected Function<String, String> getDefaultValueResolver(Environment environment) {
+  protected Function<String, @Nullable String> getDefaultValueResolver(Environment environment) {
     return name -> {
       String defaultLogCorrelationPattern = getDefaultLogCorrelationPattern();
       if (StringUtils.isNotEmpty(defaultLogCorrelationPattern)

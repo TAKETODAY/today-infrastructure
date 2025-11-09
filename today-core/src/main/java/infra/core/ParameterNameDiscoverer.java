@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,12 @@
 
 package infra.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 
 import infra.lang.Constant;
-import infra.lang.Nullable;
 
 /**
  * abstract class to discover parameter names for methods and constructors.
@@ -50,8 +51,7 @@ public abstract class ParameterNameDiscoverer {
    * or {@code null} if they cannot
    * @see Executable#getParameterCount()
    */
-  @Nullable
-  public String[] getParameterNames(Executable executable) {
+  public String @Nullable [] getParameterNames(Executable executable) {
     if (executable.getParameterCount() == 0) {
       return Constant.EMPTY_STRING_ARRAY;
     }
@@ -61,8 +61,7 @@ public abstract class ParameterNameDiscoverer {
     return doGet(executable);
   }
 
-  @Nullable
-  protected String[] doGet(Executable executable) {
+  protected String @Nullable [] doGet(Executable executable) {
     return null;
   }
 
@@ -87,8 +86,7 @@ public abstract class ParameterNameDiscoverer {
    * @see DefaultParameterNameDiscoverer
    * @see #getSharedInstance()
    */
-  @Nullable
-  public static String[] findParameterNames(Executable executable) {
+  public static String @Nullable [] findParameterNames(Executable executable) {
     return getSharedInstance().getParameterNames(executable);
   }
 

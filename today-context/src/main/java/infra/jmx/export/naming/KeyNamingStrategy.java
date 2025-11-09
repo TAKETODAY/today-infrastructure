@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jmx.export.naming;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.util.Properties;
 
@@ -29,7 +31,6 @@ import infra.core.io.Resource;
 import infra.jmx.export.MBeanExporter;
 import infra.jmx.support.ObjectNameManager;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;
@@ -47,6 +48,7 @@ import infra.util.CollectionUtils;
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see #setMappings
  * @see #setMappingLocation
  * @see #setMappingLocations
@@ -71,8 +73,7 @@ public class KeyNamingStrategy implements ObjectNamingStrategy, InitializingBean
    * into the final merged set of {@code Properties} used for {@code ObjectName}
    * resolution.
    */
-  @Nullable
-  private Resource[] mappingLocations;
+  private Resource @Nullable [] mappingLocations;
 
   /**
    * Stores the result of merging the {@code mappings} {@code Properties}

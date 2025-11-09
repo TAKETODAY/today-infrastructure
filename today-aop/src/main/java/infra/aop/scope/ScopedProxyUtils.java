@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,15 @@
 
 package infra.aop.scope;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.aop.framework.autoproxy.AutoProxyUtils;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.BeanDefinitionHolder;
 import infra.beans.factory.support.AbstractBeanDefinition;
 import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.beans.factory.support.RootBeanDefinition;
-import infra.lang.Nullable;
+import infra.lang.Contract;
 
 /**
  * Utility class for creating a scoped proxy.
@@ -81,13 +83,19 @@ public abstract class ScopedProxyUtils {
     // Copy autowire settings from original bean definition.
     proxyDefinition.setAutowireCandidate(targetDefinition.isAutowireCandidate());
     proxyDefinition.setPrimary(targetDefinition.isPrimary());
-    if (targetDefinition instanceof AbstractBeanDefinition) {
-      proxyDefinition.copyQualifiersFrom((AbstractBeanDefinition) targetDefinition);
+    proxyDefinition.setFallback(targetDefinition.isFallback());
+    if (targetDefinition instanceof AbstractBeanDefinition abd) {
+      proxyDefinition.setDefaultCandidate(abd.isDefaultCandidate());
+      proxyDefinition.copyQualifiersFrom(abd);
     }
 
     // The target bean should be ignored in favor of the scoped proxy.
     targetDefinition.setAutowireCandidate(false);
     targetDefinition.setPrimary(false);
+    targetDefinition.setFallback(false);
+    if (targetDefinition instanceof AbstractBeanDefinition abd) {
+      abd.setDefaultCandidate(false);
+    }
 
     // Register the target bean as separate bean in the factory.
     registry.registerBeanDefinition(targetBeanName, targetDefinition);
@@ -124,13 +132,14 @@ public abstract class ScopedProxyUtils {
       return targetBeanName.substring(TARGET_NAME_PREFIX_LENGTH);
     }
     throw new IllegalArgumentException(
-            "bean name '" + targetBeanName + "' does not refer to the target of a scoped proxy");
+            "bean name '%s' does not refer to the target of a scoped proxy".formatted(targetBeanName));
   }
 
   /**
    * Determine if the {@code beanName} is the name of a bean that references
    * the target bean within a scoped proxy.
    */
+  @Contract("null -> false")
   public static boolean isScopedTarget(@Nullable String beanName) {
     return beanName != null && beanName.startsWith(TARGET_NAME_PREFIX);
   }

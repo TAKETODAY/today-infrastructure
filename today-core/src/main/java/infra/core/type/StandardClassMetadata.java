@@ -17,6 +17,8 @@
 
 package infra.core.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.LinkedHashSet;
@@ -25,7 +27,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
 

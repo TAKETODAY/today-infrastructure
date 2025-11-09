@@ -17,10 +17,11 @@
 
 package infra.scripting;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 
 import infra.core.io.ResourceLoader;
-import infra.lang.Nullable;
 import infra.scripting.support.ScriptFactoryPostProcessor;
 
 /**
@@ -57,8 +58,7 @@ public interface ScriptFactory {
    *
    * @return the interfaces for the script
    */
-  @Nullable
-  Class<?>[] getScriptInterfaces();
+  Class<?> @Nullable [] getScriptInterfaces();
 
   /**
    * Return whether the script requires a config interface to be
@@ -87,7 +87,7 @@ public interface ScriptFactory {
    * @throws ScriptCompilationException if script compilation failed
    */
   @Nullable
-  Object getScriptedObject(ScriptSource scriptSource, @Nullable Class<?>... actualInterfaces)
+  Object getScriptedObject(ScriptSource scriptSource, Class<?> @Nullable ... actualInterfaces)
           throws IOException, ScriptCompilationException;
 
   /**

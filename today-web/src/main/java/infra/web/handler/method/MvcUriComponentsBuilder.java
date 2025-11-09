@@ -18,6 +18,7 @@
 package infra.web.handler.method;
 
 import org.aopalliance.intercept.MethodInterceptor;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -38,18 +39,17 @@ import infra.bytecode.proxy.Enhancer;
 import infra.bytecode.proxy.Factory;
 import infra.bytecode.proxy.MethodProxy;
 import infra.context.ApplicationContext;
-import infra.util.AntPathMatcher;
 import infra.core.MethodIntrospector;
 import infra.core.MethodParameter;
 import infra.core.ParameterNameDiscoverer;
-import infra.util.PathMatcher;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.annotation.SynthesizingMethodParameter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.AntPathMatcher;
 import infra.util.ObjectUtils;
+import infra.util.PathMatcher;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
 import infra.web.RequestContext;
@@ -90,6 +90,7 @@ import infra.web.util.UriComponentsBuilder;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/1 21:59
  */
+@SuppressWarnings("NullAway")
 public class MvcUriComponentsBuilder {
 
   /**
@@ -685,8 +686,7 @@ public class MvcUriComponentsBuilder {
     @Nullable
     private Method controllerMethod;
 
-    @Nullable
-    private Object[] argumentValues;
+    private Object @Nullable [] argumentValues;
 
     ControllerMethodInvocationInterceptor(Class<?> controllerType) {
       this.controllerType = controllerType;
@@ -694,7 +694,7 @@ public class MvcUriComponentsBuilder {
 
     @Override
     @Nullable
-    public Object intercept(@Nullable Object obj, Method method, Object[] args, @Nullable MethodProxy proxy) {
+    public Object intercept(@Nullable Object obj, Method method, Object @Nullable [] args, @Nullable MethodProxy proxy) {
       switch (method.getName()) {
         case "getControllerType":
           return this.controllerType;

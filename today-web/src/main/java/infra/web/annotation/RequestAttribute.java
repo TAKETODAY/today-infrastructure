@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.annotation;
@@ -50,14 +47,14 @@ public @interface RequestAttribute {
   /**
    * Alias for {@link #name}.
    */
-  @AliasFor("name")
+  @AliasFor(annotation = RequestParam.class, attribute = "value")
   String value() default "";
 
   /**
    * The name of the request attribute to bind to.
    * <p>The default name is inferred from the method parameter name.
    */
-  @AliasFor("value")
+  @AliasFor(annotation = RequestParam.class, attribute = "name")
   String name() default "";
 
   /**
@@ -67,6 +64,7 @@ public @interface RequestAttribute {
    * a {@code null} or Java 8 {@code java.util.Optional} if the attribute
    * doesn't exist.
    */
+  @AliasFor(annotation = RequestParam.class, attribute = "required")
   boolean required() default true;
 
 }

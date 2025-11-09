@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.transaction.interceptor;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -24,7 +26,6 @@ import java.lang.reflect.Method;
 import infra.aop.ClassFilter;
 import infra.aop.support.StaticMethodMatcherPointcut;
 import infra.dao.support.PersistenceExceptionTranslator;
-import infra.lang.Nullable;
 import infra.transaction.TransactionManager;
 import infra.util.ObjectUtils;
 
@@ -78,7 +79,7 @@ final class TransactionAttributeSourcePointcut extends StaticMethodMatcherPointc
    * {@link ClassFilter} that delegates to {@link TransactionAttributeSource#isCandidateClass}
    * for filtering classes whose methods are not worth searching to begin with.
    */
-  private final class TransactionAttributeSourceClassFilter implements ClassFilter {
+  final class TransactionAttributeSourceClassFilter implements ClassFilter {
 
     @Override
     public boolean matches(Class<?> clazz) {

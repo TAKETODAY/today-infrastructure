@@ -17,6 +17,8 @@
 
 package infra.context.properties.source;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -25,7 +27,6 @@ import java.util.stream.Stream;
 
 import infra.core.env.MapPropertySource;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * A {@link ConfigurationPropertySource} backed by a {@link Map} and using standard name

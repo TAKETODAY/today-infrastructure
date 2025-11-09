@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
 
 package infra.context.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serializable;
 
 import infra.context.MessageSourceResolvable;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 
@@ -37,11 +38,9 @@ import infra.util.StringUtils;
 @SuppressWarnings("serial")
 public class DefaultMessageSourceResolvable implements MessageSourceResolvable, Serializable {
 
-  @Nullable
-  private final String[] codes;
+  private final String @Nullable [] codes;
 
-  @Nullable
-  private final Object[] arguments;
+  private final Object @Nullable [] arguments;
 
   @Nullable
   private final String defaultMessage;
@@ -91,7 +90,7 @@ public class DefaultMessageSourceResolvable implements MessageSourceResolvable, 
    * @param arguments the array of arguments to be used to resolve this message
    * @param defaultMessage the default message to be used to resolve this message
    */
-  public DefaultMessageSourceResolvable(@Nullable String[] codes, @Nullable Object[] arguments, @Nullable String defaultMessage) {
+  public DefaultMessageSourceResolvable(String @Nullable [] codes, Object @Nullable [] arguments, @Nullable String defaultMessage) {
     this.codes = codes;
     this.arguments = arguments;
     this.defaultMessage = defaultMessage;
@@ -116,14 +115,12 @@ public class DefaultMessageSourceResolvable implements MessageSourceResolvable, 
   }
 
   @Override
-  @Nullable
-  public String[] getCodes() {
+  public String @Nullable [] getCodes() {
     return this.codes;
   }
 
   @Override
-  @Nullable
-  public Object[] getArguments() {
+  public Object @Nullable [] getArguments() {
     return this.arguments;
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.session;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -24,12 +26,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 
 import infra.core.ApplicationTemp;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.session.config.SessionProperties;
@@ -46,6 +48,7 @@ import infra.util.StringUtils;
  * @since 4.0 2023/2/27 21:43
  */
 public class FileSessionPersister implements SessionPersister {
+
   private static final Logger log = LoggerFactory.getLogger(FileSessionPersister.class);
 
   /**
@@ -56,11 +59,9 @@ public class FileSessionPersister implements SessionPersister {
   /**
    * The directory in which Sessions are stored.
    */
-  @Nullable
-  private File directory;
+  private @Nullable File directory;
 
-  @Nullable
-  private ApplicationTemp applicationTemp;
+  private @Nullable ApplicationTemp applicationTemp;
 
   private final SessionRepository repository;
 
@@ -107,9 +108,7 @@ public class FileSessionPersister implements SessionPersister {
       log.debug("Removing Session [{}] at file [{}]", id, file.getAbsolutePath());
     }
 
-    if (file.exists() && !file.delete()) {
-      throw new IOException("Unable to delete file [%s] which is no longer required".formatted(file));
-    }
+    Files.deleteIfExists(file.toPath());
   }
 
   @Override
@@ -145,7 +144,7 @@ public class FileSessionPersister implements SessionPersister {
     }
 
     // Build and return the list of session identifiers
-    ArrayList<String> list = new ArrayList<>();
+    ArrayList<String> list = new ArrayList<>(files.length);
     int n = FILE_EXT.length();
     for (String file : files) {
       if (file.endsWith(FILE_EXT)) {
@@ -156,17 +155,16 @@ public class FileSessionPersister implements SessionPersister {
   }
 
   /**
-   * Load and return the WebSession associated with the specified session
+   * Load and return the Session associated with the specified session
    * identifier from this Store, without removing it.  If there is no
-   * such stored WebSession, return <code>null</code>.
+   * such stored Session, return <code>null</code>.
    *
    * @param id Session identifier of the session to load
    * @throws ClassNotFoundException if a deserialization error occurs
    * @throws IOException if an input/output error occurs
    */
-  @Nullable
   @Override
-  public WebSession findById(String id) throws ClassNotFoundException, IOException {
+  public @Nullable Session findById(String id) throws ClassNotFoundException, IOException {
     // Open an input stream to the specified pathname, if any
     File file = sessionFile(id);
     if (!file.exists()) {
@@ -178,11 +176,11 @@ public class FileSessionPersister implements SessionPersister {
     }
 
     try (var ois = new ObjectInputStream(new FileInputStream(file))) {
-      WebSession session = repository.createSession(id);
+      Session session = repository.createSession(id);
       if (session instanceof SerializableSession serialized) {
         serialized.readObjectData(ois);
       }
-      else if (ois.readObject() instanceof WebSession ret) {
+      else if (ois.readObject() instanceof Session ret) {
         return new MapSession(ret);
       }
       return session;
@@ -201,7 +199,7 @@ public class FileSessionPersister implements SessionPersister {
    * @throws IOException if an input/output error occurs
    */
   @Override
-  public void persist(WebSession session) throws IOException {
+  public void persist(Session session) throws IOException {
     // Open an output stream to the specified pathname, if any
     File file = sessionFile(session.getId());
 

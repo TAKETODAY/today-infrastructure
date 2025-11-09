@@ -17,13 +17,14 @@
 
 package infra.cache.transaction;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 
 import infra.beans.factory.InitializingBean;
 import infra.cache.Cache;
 import infra.cache.CacheManager;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Proxy for a target {@link CacheManager}, exposing transaction-aware {@link Cache} objects
@@ -41,8 +42,7 @@ import infra.lang.Nullable;
  */
 public class TransactionAwareCacheManagerProxy implements CacheManager, InitializingBean {
 
-  @Nullable
-  private CacheManager targetCacheManager;
+  private @Nullable CacheManager targetCacheManager;
 
   /**
    * Create a new TransactionAwareCacheManagerProxy, setting the target CacheManager
@@ -57,14 +57,14 @@ public class TransactionAwareCacheManagerProxy implements CacheManager, Initiali
    * @param targetCacheManager the target CacheManager to proxy
    */
   public TransactionAwareCacheManagerProxy(CacheManager targetCacheManager) {
-    Assert.notNull(targetCacheManager, "Target CacheManager is required");
-    this.targetCacheManager = targetCacheManager;
+    setTargetCacheManager(targetCacheManager);
   }
 
   /**
    * Set the target CacheManager to proxy.
    */
   public void setTargetCacheManager(CacheManager targetCacheManager) {
+    Assert.notNull(targetCacheManager, "Target CacheManager is required");
     this.targetCacheManager = targetCacheManager;
   }
 

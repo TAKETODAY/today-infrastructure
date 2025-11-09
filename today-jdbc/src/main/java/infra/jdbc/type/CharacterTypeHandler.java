@@ -17,12 +17,12 @@
 
 package infra.jdbc.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import infra.lang.Nullable;
 
 /**
  * @author Clinton Begin
@@ -36,16 +36,19 @@ public class CharacterTypeHandler extends BasicTypeHandler<Character> {
     ps.setString(i, arg.toString());
   }
 
+  @Nullable
   @Override
   public Character getResult(ResultSet rs, String columnName) throws SQLException {
     return getCharacter(rs.getString(columnName));
   }
 
+  @Nullable
   @Override
   public Character getResult(ResultSet rs, int columnIndex) throws SQLException {
     return getCharacter(rs.getString(columnIndex));
   }
 
+  @Nullable
   @Override
   public Character getResult(CallableStatement cs, int columnIndex) throws SQLException {
     return getCharacter(cs.getString(columnIndex));

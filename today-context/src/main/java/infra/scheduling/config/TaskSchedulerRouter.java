@@ -17,6 +17,8 @@
 
 package infra.scheduling.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.Executors;
@@ -38,7 +40,6 @@ import infra.beans.factory.config.EmbeddedValueResolver;
 import infra.beans.factory.config.NamedBeanHolder;
 import infra.core.StringValueResolver;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.scheduling.SchedulingAwareRunnable;
@@ -78,7 +79,7 @@ public class TaskSchedulerRouter implements TaskScheduler, BeanNameAware, BeanFa
   @Nullable
   private StringValueResolver embeddedValueResolver;
 
-  private final Supplier<TaskScheduler> defaultScheduler = SingletonSupplier.from(this::determineDefaultScheduler);
+  private final Supplier<TaskScheduler> defaultScheduler = SingletonSupplier.of(this::determineDefaultScheduler);
 
   @Nullable
   private volatile ScheduledExecutorService localExecutor;

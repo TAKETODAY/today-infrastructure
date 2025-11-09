@@ -17,6 +17,8 @@
 
 package infra.aop.support.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 
 import infra.aop.ClassFilter;
@@ -24,7 +26,6 @@ import infra.aop.MethodMatcher;
 import infra.aop.Pointcut;
 import infra.core.annotation.AnnotationUtils;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Simple Pointcut that looks for a specific Java 5 annotation
@@ -41,6 +42,7 @@ import infra.lang.Nullable;
 public class AnnotationMatchingPointcut implements Pointcut {
 
   private final ClassFilter classFilter;
+
   private final MethodMatcher methodMatcher;
 
   /**
@@ -89,6 +91,7 @@ public class AnnotationMatchingPointcut implements Pointcut {
    * @see AnnotationClassFilter#AnnotationClassFilter(Class, boolean)
    * @see AnnotationMethodMatcher#AnnotationMethodMatcher(Class, boolean)
    */
+  @SuppressWarnings("NullAway")
   public AnnotationMatchingPointcut(@Nullable Class<? extends Annotation> classAnnotationType,
           @Nullable Class<? extends Annotation> methodAnnotationType, boolean checkInherited) {
     Assert.isTrue((classAnnotationType != null || methodAnnotationType != null),

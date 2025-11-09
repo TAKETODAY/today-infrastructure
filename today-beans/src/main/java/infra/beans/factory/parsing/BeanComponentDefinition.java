@@ -17,6 +17,8 @@
 
 package infra.beans.factory.parsing;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 
 import infra.beans.PropertyValue;
@@ -24,7 +26,6 @@ import infra.beans.PropertyValues;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.BeanDefinitionHolder;
 import infra.beans.factory.config.BeanReference;
-import infra.lang.Nullable;
 
 /**
  * ComponentDefinition based on a standard BeanDefinition, exposing the given bean
@@ -58,7 +59,7 @@ public class BeanComponentDefinition extends BeanDefinitionHolder implements Com
    * @param beanName the name of the bean
    * @param aliases alias names for the bean, or {@code null} if none
    */
-  public BeanComponentDefinition(BeanDefinition beanDefinition, String beanName, @Nullable String[] aliases) {
+  public BeanComponentDefinition(BeanDefinition beanDefinition, String beanName, String @Nullable [] aliases) {
     this(new BeanDefinitionHolder(beanDefinition, beanName, aliases));
   }
 

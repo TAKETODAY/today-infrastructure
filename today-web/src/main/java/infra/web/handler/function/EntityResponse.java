@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.web.handler.function;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -27,12 +29,11 @@ import java.util.function.Consumer;
 
 import infra.core.ParameterizedTypeReference;
 import infra.http.CacheControl;
-import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
-import infra.lang.Nullable;
+import infra.http.ResponseCookie;
 import infra.util.MultiValueMap;
 
 /**
@@ -136,7 +137,7 @@ public interface EntityResponse<T> extends ServerResponse {
      * @param cookie the cookie to add
      * @return this builder
      */
-    Builder<T> cookie(HttpCookie cookie);
+    Builder<T> cookie(ResponseCookie cookie);
 
     /**
      * Add a cookie with the given name and value(s).
@@ -158,7 +159,7 @@ public interface EntityResponse<T> extends ServerResponse {
      * @param cookiesConsumer a function that consumes the cookies
      * @return this builder
      */
-    Builder<T> cookies(Consumer<MultiValueMap<String, HttpCookie>> cookiesConsumer);
+    Builder<T> cookies(Consumer<MultiValueMap<String, ResponseCookie>> cookiesConsumer);
 
     /**
      * Add a cookies with the given name and values.
@@ -168,7 +169,7 @@ public interface EntityResponse<T> extends ServerResponse {
      * @see MultiValueMap#setAll(Map)
      * @since 5.0
      */
-    Builder<T> cookies(@Nullable Collection<HttpCookie> cookies);
+    Builder<T> cookies(@Nullable Collection<ResponseCookie> cookies);
 
     /**
      * Add a cookies with the given name and values.
@@ -178,7 +179,7 @@ public interface EntityResponse<T> extends ServerResponse {
      * @see MultiValueMap#setAll(Map)
      * @since 5.0
      */
-    Builder<T> cookies(@Nullable MultiValueMap<String, HttpCookie> cookies);
+    Builder<T> cookies(@Nullable MultiValueMap<String, ResponseCookie> cookies);
 
     /**
      * Set the set of allowed {@link HttpMethod HTTP methods}, as specified

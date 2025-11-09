@@ -27,11 +27,13 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
 import infra.dao.InvalidDataAccessApiUsageException;
 import infra.jdbc.BadSqlGrammarException;
+import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.core.RowMapper;
 import infra.jdbc.core.SqlOutParameter;
 import infra.jdbc.core.SqlParameter;
@@ -393,6 +395,660 @@ class SimpleJdbcCallTests {
     assertThatIllegalStateException()
             .isThrownBy(() -> call.returningResultSet("not added", (rs, i) -> new Object()))
             .withMessage("SqlCall for procedure is already compiled");
+  }
+
+  @Test
+  void shouldCreateSimpleJdbcCallWithDataSource() {
+    DataSource dataSource = mock(DataSource.class);
+
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource);
+
+    assertThat(call).isNotNull();
+  }
+
+  @Test
+  void shouldCreateSimpleJdbcCallWithJdbcTemplate() {
+    JdbcTemplate jdbcTemplate = mock(JdbcTemplate.class);
+
+    SimpleJdbcCall call = new SimpleJdbcCall(jdbcTemplate);
+
+    assertThat(call).isNotNull();
+  }
+
+  @Test
+  void shouldSetProcedureName() {
+    DataSource dataSource = mock(DataSource.class);
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource);
+
+    SimpleJdbcCall result = call.withProcedureName("test_proc");
+
+    assertThat(result).isEqualTo(call);
+  }
+
+  @Test
+  void shouldSetFunctionName() {
+    DataSource dataSource = mock(DataSource.class);
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource);
+
+    SimpleJdbcCall result = call.withFunctionName("test_func");
+
+    assertThat(result).isEqualTo(call);
+  }
+
+  @Test
+  void shouldSetSchemaName() {
+    DataSource dataSource = mock(DataSource.class);
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource);
+
+    SimpleJdbcCall result = call.withSchemaName("test_schema");
+
+    assertThat(result).isEqualTo(call);
+  }
+
+  @Test
+  void shouldSetCatalogName() {
+    DataSource dataSource = mock(DataSource.class);
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource);
+
+    SimpleJdbcCall result = call.withCatalogName("test_catalog");
+
+    assertThat(result).isEqualTo(call);
+  }
+
+  @Test
+  void shouldSetReturnValue() {
+    DataSource dataSource = mock(DataSource.class);
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource);
+
+    SimpleJdbcCall result = call.withReturnValue();
+
+    assertThat(result).isEqualTo(call);
+  }
+
+  @Test
+  void shouldDeclareParameters() {
+    DataSource dataSource = mock(DataSource.class);
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource);
+
+    SqlParameter param1 = new SqlParameter("param1", java.sql.Types.VARCHAR);
+    SqlParameter param2 = new SqlParameter("param2", java.sql.Types.INTEGER);
+
+    SimpleJdbcCall result = call.declareParameters(param1, param2);
+
+    assertThat(result).isEqualTo(call);
+  }
+
+  @Test
+  void shouldHandleNullParametersInDeclareParameters() {
+    DataSource dataSource = mock(DataSource.class);
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource);
+
+    SqlParameter param1 = new SqlParameter("param1", java.sql.Types.VARCHAR);
+    SqlParameter param2 = null;
+
+    SimpleJdbcCall result = call.declareParameters(param1, param2);
+
+    assertThat(result).isEqualTo(call);
+  }
+
+  @Test
+  void shouldUseInParameterNames() {
+    DataSource dataSource = mock(DataSource.class);
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource);
+
+    SimpleJdbcCall result = call.useInParameterNames("param1", "param2");
+
+    assertThat(result).isEqualTo(call);
+  }
+
+  @Test
+  void shouldSetWithoutProcedureColumnMetaDataAccess() {
+    DataSource dataSource = mock(DataSource.class);
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource);
+
+    SimpleJdbcCall result = call.withoutProcedureColumnMetaDataAccess();
+
+    assertThat(result).isEqualTo(call);
+  }
+
+  @Test
+  void shouldSetWithNamedBinding() {
+    DataSource dataSource = mock(DataSource.class);
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource);
+
+    SimpleJdbcCall result = call.withNamedBinding();
+
+    assertThat(result).isEqualTo(call);
+  }
+
+  @Test
+  void shouldReturnSameInstanceForFluentInterface() {
+    DataSource dataSource = mock(DataSource.class);
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource);
+
+    SimpleJdbcCall result1 = call.withProcedureName("test_proc");
+    SimpleJdbcCall result2 = call.withSchemaName("test_schema");
+    SimpleJdbcCall result3 = call.withCatalogName("test_catalog");
+
+    assertThat(result1).isSameAs(call);
+    assertThat(result2).isSameAs(call);
+    assertThat(result3).isSameAs(call);
+  }
+
+  @Test
+  void shouldExecuteFunctionWithVarArgs() throws Exception {
+    DataSource dataSource = mock(DataSource.class);
+    Connection connection = mock(Connection.class);
+    DatabaseMetaData databaseMetaData = mock(DatabaseMetaData.class);
+    CallableStatement callableStatement = mock(CallableStatement.class);
+
+    given(dataSource.getConnection()).willReturn(connection);
+    given(connection.getMetaData()).willReturn(databaseMetaData);
+    given(databaseMetaData.getDatabaseProductName()).willReturn("MyDB");
+    given(databaseMetaData.getUserName()).willReturn("me");
+    given(databaseMetaData.storesLowerCaseIdentifiers()).willReturn(true);
+    given(callableStatement.execute()).willReturn(false);
+    given(callableStatement.getUpdateCount()).willReturn(-1);
+    given(callableStatement.getObject(1)).willReturn(4L);
+    given(connection.prepareCall("{? = call test_func(?, ?)}")).willReturn(callableStatement);
+
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource)
+            .withFunctionName("test_func")
+            .declareParameters(
+                    new SqlOutParameter("return", Types.INTEGER),
+                    new SqlParameter("param1", Types.VARCHAR),
+                    new SqlParameter("param2", Types.INTEGER));
+
+    Number result = call.executeFunction(Number.class, "value1", 123);
+
+    assertThat(result.intValue()).isEqualTo(4);
+    verify(callableStatement).close();
+    verify(connection, atLeastOnce()).close();
+  }
+
+  @Test
+  void shouldExecuteFunctionWithMap() throws Exception {
+    DataSource dataSource = mock(DataSource.class);
+    Connection connection = mock(Connection.class);
+    DatabaseMetaData databaseMetaData = mock(DatabaseMetaData.class);
+    CallableStatement callableStatement = mock(CallableStatement.class);
+
+    given(dataSource.getConnection()).willReturn(connection);
+    given(connection.getMetaData()).willReturn(databaseMetaData);
+    given(databaseMetaData.getDatabaseProductName()).willReturn("MyDB");
+    given(databaseMetaData.getUserName()).willReturn("me");
+    given(databaseMetaData.storesLowerCaseIdentifiers()).willReturn(true);
+    given(callableStatement.execute()).willReturn(false);
+    given(callableStatement.getUpdateCount()).willReturn(-1);
+    given(callableStatement.getObject(1)).willReturn(4L);
+    given(connection.prepareCall("{? = call test_func(?, ?)}")).willReturn(callableStatement);
+
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource)
+            .withFunctionName("test_func")
+            .declareParameters(
+                    new SqlOutParameter("return", Types.INTEGER),
+                    new SqlParameter("param1", Types.VARCHAR),
+                    new SqlParameter("param2", Types.INTEGER));
+
+    Number result = call.executeFunction(Number.class, Map.of("param1", "value1", "param2", 123));
+
+    assertThat(result.intValue()).isEqualTo(4);
+    verify(callableStatement).close();
+    verify(connection, atLeastOnce()).close();
+  }
+
+  @Test
+  void shouldExecuteFunctionWithSqlParameterSource() throws Exception {
+    DataSource dataSource = mock(DataSource.class);
+    Connection connection = mock(Connection.class);
+    DatabaseMetaData databaseMetaData = mock(DatabaseMetaData.class);
+    CallableStatement callableStatement = mock(CallableStatement.class);
+
+    given(dataSource.getConnection()).willReturn(connection);
+    given(connection.getMetaData()).willReturn(databaseMetaData);
+    given(databaseMetaData.getDatabaseProductName()).willReturn("MyDB");
+    given(databaseMetaData.getUserName()).willReturn("me");
+    given(databaseMetaData.storesLowerCaseIdentifiers()).willReturn(true);
+    given(callableStatement.execute()).willReturn(false);
+    given(callableStatement.getUpdateCount()).willReturn(-1);
+    given(callableStatement.getObject(1)).willReturn(4L);
+    given(connection.prepareCall("{? = call test_func(?, ?)}")).willReturn(callableStatement);
+
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource)
+            .withFunctionName("test_func")
+            .declareParameters(
+                    new SqlOutParameter("return", Types.INTEGER),
+                    new SqlParameter("param1", Types.VARCHAR),
+                    new SqlParameter("param2", Types.INTEGER));
+
+    Number result = call.executeFunction(Number.class, new MapSqlParameterSource()
+            .addValue("param1", "value1")
+            .addValue("param2", 123));
+
+    assertThat(result.intValue()).isEqualTo(4);
+    verify(callableStatement).close();
+    verify(connection, atLeastOnce()).close();
+  }
+
+  @Test
+  void shouldExecuteObjectWithVarArgs() throws Exception {
+    DataSource dataSource = mock(DataSource.class);
+    Connection connection = mock(Connection.class);
+    DatabaseMetaData databaseMetaData = mock(DatabaseMetaData.class);
+    CallableStatement callableStatement = mock(CallableStatement.class);
+
+    given(dataSource.getConnection()).willReturn(connection);
+    given(connection.getMetaData()).willReturn(databaseMetaData);
+    given(databaseMetaData.getDatabaseProductName()).willReturn("MyDB");
+    given(databaseMetaData.getUserName()).willReturn("me");
+    given(databaseMetaData.storesLowerCaseIdentifiers()).willReturn(true);
+    given(callableStatement.execute()).willReturn(false);
+    given(callableStatement.getUpdateCount()).willReturn(-1);
+    given(callableStatement.getObject(3)).willReturn(4L);
+    given(connection.prepareCall("{call test_proc(?, ?, ?)}")).willReturn(callableStatement);
+
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource)
+            .withProcedureName("test_proc")
+            .declareParameters(
+                    new SqlParameter("param1", Types.VARCHAR),
+                    new SqlParameter("param2", Types.INTEGER),
+                    new SqlOutParameter("result", Types.INTEGER));
+
+    Number result = call.executeObject(Number.class, "value1", 123);
+
+    assertThat(result.intValue()).isEqualTo(4);
+    verify(callableStatement).close();
+    verify(connection, atLeastOnce()).close();
+  }
+
+  @Test
+  void shouldExecuteObjectWithMap() throws Exception {
+    DataSource dataSource = mock(DataSource.class);
+    Connection connection = mock(Connection.class);
+    DatabaseMetaData databaseMetaData = mock(DatabaseMetaData.class);
+    CallableStatement callableStatement = mock(CallableStatement.class);
+
+    given(dataSource.getConnection()).willReturn(connection);
+    given(connection.getMetaData()).willReturn(databaseMetaData);
+    given(databaseMetaData.getDatabaseProductName()).willReturn("MyDB");
+    given(databaseMetaData.getUserName()).willReturn("me");
+    given(databaseMetaData.storesLowerCaseIdentifiers()).willReturn(true);
+    given(callableStatement.execute()).willReturn(false);
+    given(callableStatement.getUpdateCount()).willReturn(-1);
+    given(callableStatement.getObject(3)).willReturn(4L);
+    given(connection.prepareCall("{call test_proc(?, ?, ?)}")).willReturn(callableStatement);
+
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource)
+            .withProcedureName("test_proc")
+            .declareParameters(
+                    new SqlParameter("param1", Types.VARCHAR),
+                    new SqlParameter("param2", Types.INTEGER),
+                    new SqlOutParameter("result", Types.INTEGER));
+
+    Number result = call.executeObject(Number.class, Map.of("param1", "value1", "param2", 123));
+
+    assertThat(result.intValue()).isEqualTo(4);
+    verify(callableStatement).close();
+    verify(connection, atLeastOnce()).close();
+  }
+
+  @Test
+  void shouldExecuteObjectWithSqlParameterSource() throws Exception {
+    DataSource dataSource = mock(DataSource.class);
+    Connection connection = mock(Connection.class);
+    DatabaseMetaData databaseMetaData = mock(DatabaseMetaData.class);
+    CallableStatement callableStatement = mock(CallableStatement.class);
+
+    given(dataSource.getConnection()).willReturn(connection);
+    given(connection.getMetaData()).willReturn(databaseMetaData);
+    given(databaseMetaData.getDatabaseProductName()).willReturn("MyDB");
+    given(databaseMetaData.getUserName()).willReturn("me");
+    given(databaseMetaData.storesLowerCaseIdentifiers()).willReturn(true);
+    given(callableStatement.execute()).willReturn(false);
+    given(callableStatement.getUpdateCount()).willReturn(-1);
+    given(callableStatement.getObject(3)).willReturn(4L);
+    given(connection.prepareCall("{call test_proc(?, ?, ?)}")).willReturn(callableStatement);
+
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource)
+            .withProcedureName("test_proc")
+            .declareParameters(
+                    new SqlParameter("param1", Types.VARCHAR),
+                    new SqlParameter("param2", Types.INTEGER),
+                    new SqlOutParameter("result", Types.INTEGER));
+
+    Number result = call.executeObject(Number.class, new MapSqlParameterSource()
+            .addValue("param1", "value1")
+            .addValue("param2", 123));
+
+    assertThat(result.intValue()).isEqualTo(4);
+    verify(callableStatement).close();
+    verify(connection, atLeastOnce()).close();
+  }
+
+  @Test
+  void shouldExecuteWithVarArgs() throws Exception {
+    DataSource dataSource = mock(DataSource.class);
+    Connection connection = mock(Connection.class);
+    DatabaseMetaData databaseMetaData = mock(DatabaseMetaData.class);
+    CallableStatement callableStatement = mock(CallableStatement.class);
+
+    given(dataSource.getConnection()).willReturn(connection);
+    given(connection.getMetaData()).willReturn(databaseMetaData);
+    given(databaseMetaData.getDatabaseProductName()).willReturn("MyDB");
+    given(databaseMetaData.getUserName()).willReturn("me");
+    given(databaseMetaData.storesLowerCaseIdentifiers()).willReturn(true);
+    given(callableStatement.execute()).willReturn(false);
+    given(callableStatement.getUpdateCount()).willReturn(-1);
+    given(callableStatement.getObject(3)).willReturn(4L);
+    given(connection.prepareCall("{call test_proc(?, ?, ?)}")).willReturn(callableStatement);
+
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource)
+            .withProcedureName("test_proc")
+            .declareParameters(
+                    new SqlParameter("param1", Types.VARCHAR),
+                    new SqlParameter("param2", Types.INTEGER),
+                    new SqlOutParameter("result", Types.INTEGER));
+
+    Map<String, Object> result = call.execute("value1", 123);
+
+    assertThat(result).isNotNull();
+    verify(callableStatement).close();
+    verify(connection, atLeastOnce()).close();
+  }
+
+  @Test
+  void shouldExecuteWithMap() throws Exception {
+    DataSource dataSource = mock(DataSource.class);
+    Connection connection = mock(Connection.class);
+    DatabaseMetaData databaseMetaData = mock(DatabaseMetaData.class);
+    CallableStatement callableStatement = mock(CallableStatement.class);
+
+    given(dataSource.getConnection()).willReturn(connection);
+    given(connection.getMetaData()).willReturn(databaseMetaData);
+    given(databaseMetaData.getDatabaseProductName()).willReturn("MyDB");
+    given(databaseMetaData.getUserName()).willReturn("me");
+    given(databaseMetaData.storesLowerCaseIdentifiers()).willReturn(true);
+    given(callableStatement.execute()).willReturn(false);
+    given(callableStatement.getUpdateCount()).willReturn(-1);
+    given(callableStatement.getObject(3)).willReturn(4L);
+    given(connection.prepareCall("{call test_proc(?, ?, ?)}")).willReturn(callableStatement);
+
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource)
+            .withProcedureName("test_proc")
+            .declareParameters(
+                    new SqlParameter("param1", Types.VARCHAR),
+                    new SqlParameter("param2", Types.INTEGER),
+                    new SqlOutParameter("result", Types.INTEGER));
+
+    Map<String, Object> result = call.execute(Map.of("param1", "value1", "param2", 123));
+
+    assertThat(result).isNotNull();
+    verify(callableStatement).close();
+    verify(connection, atLeastOnce()).close();
+  }
+
+  @Test
+  void shouldExecuteWithSqlParameterSource() throws Exception {
+    DataSource dataSource = mock(DataSource.class);
+    Connection connection = mock(Connection.class);
+    DatabaseMetaData databaseMetaData = mock(DatabaseMetaData.class);
+    CallableStatement callableStatement = mock(CallableStatement.class);
+
+    given(dataSource.getConnection()).willReturn(connection);
+    given(connection.getMetaData()).willReturn(databaseMetaData);
+    given(databaseMetaData.getDatabaseProductName()).willReturn("MyDB");
+    given(databaseMetaData.getUserName()).willReturn("me");
+    given(databaseMetaData.storesLowerCaseIdentifiers()).willReturn(true);
+    given(callableStatement.execute()).willReturn(false);
+    given(callableStatement.getUpdateCount()).willReturn(-1);
+    given(callableStatement.getObject(3)).willReturn(4L);
+    given(connection.prepareCall("{call test_proc(?, ?, ?)}")).willReturn(callableStatement);
+
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource)
+            .withProcedureName("test_proc")
+            .declareParameters(
+                    new SqlParameter("param1", Types.VARCHAR),
+                    new SqlParameter("param2", Types.INTEGER),
+                    new SqlOutParameter("result", Types.INTEGER));
+
+    Map<String, Object> result = call.execute(new MapSqlParameterSource()
+            .addValue("param1", "value1")
+            .addValue("param2", 123));
+
+    assertThat(result).isNotNull();
+    verify(callableStatement).close();
+    verify(connection, atLeastOnce()).close();
+  }
+
+  @Test
+  void shouldAddDeclaredRowMapper() {
+    DataSource dataSource = mock(DataSource.class);
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource);
+    RowMapper<Object> rowMapper = mock(RowMapper.class);
+
+    SimpleJdbcCall result = call.returningResultSet("test_result_set", rowMapper);
+
+    assertThat(result).isSameAs(call);
+  }
+
+  @Test
+  void shouldExecuteAndReturnResultSet() throws Exception {
+    DataSource dataSource = mock(DataSource.class);
+    Connection connection = mock(Connection.class);
+    DatabaseMetaData databaseMetaData = mock(DatabaseMetaData.class);
+    CallableStatement callableStatement = mock(CallableStatement.class);
+    ResultSet resultSet = mock(ResultSet.class);
+
+    given(dataSource.getConnection()).willReturn(connection);
+    given(connection.getMetaData()).willReturn(databaseMetaData);
+    given(databaseMetaData.getDatabaseProductName()).willReturn("MyDB");
+    given(databaseMetaData.getUserName()).willReturn("me");
+    given(databaseMetaData.storesLowerCaseIdentifiers()).willReturn(true);
+    given(callableStatement.execute()).willReturn(true);
+    given(callableStatement.getResultSet()).willReturn(resultSet);
+    given(callableStatement.getUpdateCount()).willReturn(-1);
+    given(connection.prepareCall("{call test_proc()}")).willReturn(callableStatement);
+
+    RowMapper<Object> rowMapper = mock(RowMapper.class);
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource)
+            .withProcedureName("test_proc")
+            .returningResultSet("result_set", rowMapper);
+
+    Map<String, Object> result = call.execute();
+
+    assertThat(result).isNotNull();
+    verify(callableStatement).close();
+    verify(connection, atLeastOnce()).close();
+  }
+
+  @Test
+  void shouldHandleMultipleResultSets() throws Exception {
+    DataSource dataSource = mock(DataSource.class);
+    Connection connection = mock(Connection.class);
+    DatabaseMetaData databaseMetaData = mock(DatabaseMetaData.class);
+    CallableStatement callableStatement = mock(CallableStatement.class);
+    ResultSet resultSet1 = mock(ResultSet.class);
+    ResultSet resultSet2 = mock(ResultSet.class);
+
+    given(dataSource.getConnection()).willReturn(connection);
+    given(connection.getMetaData()).willReturn(databaseMetaData);
+    given(databaseMetaData.getDatabaseProductName()).willReturn("MyDB");
+    given(databaseMetaData.getUserName()).willReturn("me");
+    given(databaseMetaData.storesLowerCaseIdentifiers()).willReturn(true);
+    given(callableStatement.execute()).willReturn(true);
+    given(callableStatement.getResultSet()).willReturn(resultSet1);
+    given(callableStatement.getMoreResults()).willReturn(true, false);
+    given(callableStatement.getResultSet()).willReturn(resultSet2, null);
+    given(callableStatement.getUpdateCount()).willReturn(-1);
+    given(connection.prepareCall("{call test_proc()}")).willReturn(callableStatement);
+
+    RowMapper<Object> rowMapper1 = mock(RowMapper.class);
+    RowMapper<Object> rowMapper2 = mock(RowMapper.class);
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource)
+            .withProcedureName("test_proc")
+            .returningResultSet("result_set_1", rowMapper1)
+            .returningResultSet("result_set_2", rowMapper2);
+
+    Map<String, Object> result = call.execute();
+
+    assertThat(result).isNotNull();
+    verify(callableStatement).close();
+    verify(connection, atLeastOnce()).close();
+  }
+
+  @Test
+  void shouldHandleUpdateCountResults() throws Exception {
+    DataSource dataSource = mock(DataSource.class);
+    Connection connection = mock(Connection.class);
+    DatabaseMetaData databaseMetaData = mock(DatabaseMetaData.class);
+    CallableStatement callableStatement = mock(CallableStatement.class);
+
+    given(dataSource.getConnection()).willReturn(connection);
+    given(connection.getMetaData()).willReturn(databaseMetaData);
+    given(databaseMetaData.getDatabaseProductName()).willReturn("MyDB");
+    given(databaseMetaData.getUserName()).willReturn("me");
+    given(databaseMetaData.storesLowerCaseIdentifiers()).willReturn(true);
+    given(callableStatement.execute()).willReturn(false);
+    given(callableStatement.getUpdateCount()).willReturn(5, -1);
+    given(connection.prepareCall("{call test_proc()}")).willReturn(callableStatement);
+
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource)
+            .withProcedureName("test_proc");
+
+    Map<String, Object> result = call.execute();
+
+    assertThat(result).isNotNull();
+    verify(callableStatement).close();
+    verify(connection, atLeastOnce()).close();
+  }
+
+  @Test
+  void shouldHandleSchemaAndCatalogWithProcedure() throws Exception {
+    DataSource dataSource = mock(DataSource.class);
+    Connection connection = mock(Connection.class);
+    DatabaseMetaData databaseMetaData = mock(DatabaseMetaData.class);
+    CallableStatement callableStatement = mock(CallableStatement.class);
+
+    given(dataSource.getConnection()).willReturn(connection);
+    given(connection.getMetaData()).willReturn(databaseMetaData);
+    given(databaseMetaData.getDatabaseProductName()).willReturn("MyDB");
+    given(databaseMetaData.getUserName()).willReturn("me");
+    given(databaseMetaData.storesLowerCaseIdentifiers()).willReturn(true);
+    given(callableStatement.execute()).willReturn(false);
+    given(callableStatement.getUpdateCount()).willReturn(-1);
+    given(callableStatement.getObject(3)).willReturn(4L);
+    given(connection.prepareCall("{call my_catalog.my_schema.test_proc(?, ?, ?)}")).willReturn(callableStatement);
+
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource)
+            .withCatalogName("my_catalog")
+            .withSchemaName("my_schema")
+            .withProcedureName("test_proc")
+            .declareParameters(
+                    new SqlParameter("param1", Types.VARCHAR),
+                    new SqlParameter("param2", Types.INTEGER),
+                    new SqlOutParameter("result", Types.INTEGER));
+
+    Number result = call.executeObject(Number.class, Map.of("param1", "value1", "param2", 123));
+
+    assertThat(result.intValue()).isEqualTo(4);
+    verify(callableStatement).close();
+    verify(connection, atLeastOnce()).close();
+  }
+
+  @Test
+  void shouldHandleReturnValueWithFunction() throws Exception {
+    DataSource dataSource = mock(DataSource.class);
+    Connection connection = mock(Connection.class);
+    DatabaseMetaData databaseMetaData = mock(DatabaseMetaData.class);
+    CallableStatement callableStatement = mock(CallableStatement.class);
+
+    given(dataSource.getConnection()).willReturn(connection);
+    given(connection.getMetaData()).willReturn(databaseMetaData);
+    given(databaseMetaData.getDatabaseProductName()).willReturn("MyDB");
+    given(databaseMetaData.getUserName()).willReturn("me");
+    given(databaseMetaData.storesLowerCaseIdentifiers()).willReturn(true);
+    given(callableStatement.execute()).willReturn(false);
+    given(callableStatement.getUpdateCount()).willReturn(-1);
+    given(callableStatement.getObject(1)).willReturn(4L);
+    given(connection.prepareCall("{? = call test_func(?, ?)}")).willReturn(callableStatement);
+
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource)
+            .withReturnValue()
+            .withFunctionName("test_func")
+            .declareParameters(
+                    new SqlOutParameter("return", Types.INTEGER),
+                    new SqlParameter("param1", Types.VARCHAR),
+                    new SqlParameter("param2", Types.INTEGER));
+
+    Number result = call.executeFunction(Number.class, "value1", 123);
+
+    assertThat(result.intValue()).isEqualTo(4);
+    verify(callableStatement).close();
+    verify(connection, atLeastOnce()).close();
+  }
+
+  @Test
+  void shouldUseInParameterNamesFilter() throws Exception {
+    DataSource dataSource = mock(DataSource.class);
+    Connection connection = mock(Connection.class);
+    DatabaseMetaData databaseMetaData = mock(DatabaseMetaData.class);
+    CallableStatement callableStatement = mock(CallableStatement.class);
+
+    given(dataSource.getConnection()).willReturn(connection);
+    given(connection.getMetaData()).willReturn(databaseMetaData);
+    given(databaseMetaData.getDatabaseProductName()).willReturn("MyDB");
+    given(databaseMetaData.getUserName()).willReturn("me");
+    given(databaseMetaData.storesLowerCaseIdentifiers()).willReturn(true);
+    given(callableStatement.execute()).willReturn(false);
+    given(callableStatement.getUpdateCount()).willReturn(-1);
+    given(callableStatement.getObject(3)).willReturn(4L);
+    given(connection.prepareCall("{call test_proc(?, ?, ?)}")).willReturn(callableStatement);
+
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource)
+            .withProcedureName("test_proc")
+            .useInParameterNames("param1", "param3") // Only use these parameters
+            .declareParameters(
+                    new SqlParameter("param1", Types.VARCHAR),
+                    new SqlParameter("param2", Types.INTEGER), // This should be ignored
+                    new SqlOutParameter("result", Types.INTEGER));
+
+    Map<String, Object> result = call.execute(Map.of("param1", "value1", "param2", 123, "param3", "value3"));
+
+    assertThat(result).isNotNull();
+    verify(callableStatement).close();
+    verify(connection, atLeastOnce()).close();
+  }
+
+  @Test
+  void shouldHandleWithoutProcedureColumnMetaDataAccess() throws Exception {
+    DataSource dataSource = mock(DataSource.class);
+    Connection connection = mock(Connection.class);
+    DatabaseMetaData databaseMetaData = mock(DatabaseMetaData.class);
+    CallableStatement callableStatement = mock(CallableStatement.class);
+
+    given(dataSource.getConnection()).willReturn(connection);
+    given(connection.getMetaData()).willReturn(databaseMetaData);
+    given(databaseMetaData.getDatabaseProductName()).willReturn("MyDB");
+    given(databaseMetaData.getUserName()).willReturn("me");
+    given(databaseMetaData.storesLowerCaseIdentifiers()).willReturn(true);
+    given(callableStatement.execute()).willReturn(false);
+    given(callableStatement.getUpdateCount()).willReturn(-1);
+    given(callableStatement.getObject(3)).willReturn(4L);
+    given(connection.prepareCall("{call test_proc(?, ?, ?)}")).willReturn(callableStatement);
+
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource)
+            .withoutProcedureColumnMetaDataAccess()
+            .withProcedureName("test_proc")
+            .declareParameters(
+                    new SqlParameter("param1", Types.VARCHAR),
+                    new SqlParameter("param2", Types.INTEGER),
+                    new SqlOutParameter("result", Types.INTEGER));
+
+    Number result = call.executeObject(Number.class, "value1", 123);
+
+    assertThat(result.intValue()).isEqualTo(4);
+    verify(callableStatement).close();
+    verify(connection, atLeastOnce()).close();
   }
 
 }

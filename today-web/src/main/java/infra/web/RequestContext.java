@@ -17,6 +17,8 @@
 
 package infra.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,11 +61,11 @@ import infra.http.HttpRequest;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
+import infra.http.ResponseCookie;
 import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
 import infra.lang.Assert;
 import infra.lang.NullValue;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
@@ -123,6 +125,7 @@ import static infra.lang.Constant.DEFAULT_CHARSET;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2.3.7 2019-06-22 15:48
  */
+@SuppressWarnings("NullAway")
 public abstract class RequestContext extends AttributeAccessorSupport
         implements InputStreamSource, OutputStreamSource, HttpInputMessage, HttpRequest, AttributeAccessor {
 
@@ -155,8 +158,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   public static final HttpCookie[] EMPTY_COOKIES = {};
 
-  @Nullable
-  protected HttpCookie[] cookies;
+  protected HttpCookie @Nullable [] cookies;
 
   @Nullable
   protected PrintWriter writer;
@@ -193,7 +195,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   /** @since 3.0 */
   @Nullable
-  protected ArrayList<HttpCookie> responseCookies;
+  protected ArrayList<ResponseCookie> responseCookies;
 
   /** @since 4.0 */
   @Nullable
@@ -259,7 +261,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   /**
-   * Return the WebApplicationContext that this request runs in.
+   * Return the ApplicationContext that this request runs in.
    *
    * @since 4.0
    */
@@ -541,7 +543,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    *
    * @param cookie the Cookie to return to the client
    */
-  public void addCookie(HttpCookie cookie) {
+  public void addCookie(ResponseCookie cookie) {
     responseCookies().add(cookie);
   }
 
@@ -553,7 +555,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @param value the Cookie value to return to the client
    */
   public void addCookie(String name, @Nullable String value) {
-    addCookie(new HttpCookie(name, value));
+    addCookie(ResponseCookie.from(name, value).build());
   }
 
   /**
@@ -576,10 +578,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * if no cookies were found or the internal cookie list is null
    */
   @Nullable
-  public List<HttpCookie> removeCookie(String name) {
+  public List<ResponseCookie> removeCookie(String name) {
     if (responseCookies != null) {
-      ArrayList<HttpCookie> toRemove = new ArrayList<>(2);
-      for (HttpCookie responseCookie : responseCookies) {
+      ArrayList<ResponseCookie> toRemove = new ArrayList<>(2);
+      for (ResponseCookie responseCookie : responseCookies) {
         if (Objects.equals(name, responseCookie.getName())) {
           toRemove.add(responseCookie);
         }
@@ -639,7 +641,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return a modifiable list of {@link HttpCookie} objects representing the
    * response cookies. If no cookies exist, an empty list is returned.
    */
-  public ArrayList<HttpCookie> responseCookies() {
+  public ArrayList<ResponseCookie> responseCookies() {
     var responseCookies = this.responseCookies;
     if (responseCookies == null) {
       responseCookies = new ArrayList<>();
@@ -697,8 +699,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * values
    * @see #getParameters()
    */
-  @Nullable
-  public String[] getParameters(String name) {
+  public String @Nullable [] getParameters(String name) {
     var parameters = getParameters();
     if (CollectionUtils.isEmpty(parameters)) {
       return null;

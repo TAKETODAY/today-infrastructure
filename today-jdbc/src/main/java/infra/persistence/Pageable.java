@@ -17,7 +17,7 @@
 
 package infra.persistence;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Interface for pagination information. Provides methods to retrieve details

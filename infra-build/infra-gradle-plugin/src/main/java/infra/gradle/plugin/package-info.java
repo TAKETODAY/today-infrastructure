@@ -18,9 +18,7 @@
 /**
  * Central classes for the Infra Gradle plugin.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.gradle.plugin;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

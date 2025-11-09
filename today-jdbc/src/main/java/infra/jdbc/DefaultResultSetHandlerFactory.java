@@ -17,6 +17,8 @@
 
 package infra.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Map;
@@ -26,7 +28,6 @@ import infra.beans.BeanUtils;
 import infra.jdbc.core.ResultSetExtractor;
 import infra.jdbc.support.JdbcUtils;
 import infra.jdbc.type.TypeHandler;
-import infra.lang.Nullable;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.MapCache;
 
@@ -62,7 +63,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
   }
 
   @Override
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "NullAway" })
   public ResultSetExtractor<T> getResultSetHandler(ResultSetMetaData meta) throws SQLException {
     int columnCount = meta.getColumnCount();
     StringBuilder builder = new StringBuilder(columnCount * 10);
@@ -73,7 +74,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
     return CACHE.get(new HandlerKey(builder.toString(), this), meta);
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "NullAway" })
   private ResultSetExtractor<T> createHandler(ResultSetMetaData meta) throws SQLException {
     // cache key is ResultSetMetadata + Bean type
     int columnCount = meta.getColumnCount();
@@ -126,11 +127,11 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
     return new ObjectPropertySetter(propertyPath, beanProperty, repositoryManager);
   }
 
-  private static final class HandlerKey {
+  static final class HandlerKey {
     public final String stringKey;
     public final DefaultResultSetHandlerFactory factory;
 
-    private HandlerKey(String stringKey, DefaultResultSetHandlerFactory f) {
+    HandlerKey(String stringKey, DefaultResultSetHandlerFactory f) {
       this.stringKey = stringKey;
       this.factory = f;
     }

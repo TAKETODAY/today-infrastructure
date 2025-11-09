@@ -16,13 +16,14 @@
  */
 package infra.web.cors;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import infra.util.AntPathMatcher;
 import infra.http.server.PathContainer;
 import infra.lang.Assert;
-import infra.lang.Nullable;
+import infra.util.AntPathMatcher;
 import infra.web.RequestContext;
 import infra.web.util.pattern.PathPattern;
 import infra.web.util.pattern.PathPatternParser;
@@ -101,6 +102,7 @@ public class UrlBasedCorsConfigurationSource implements CorsConfigurationSource 
     return this.corsConfigurations;
   }
 
+  @Nullable
   @Override
   public CorsConfiguration getCorsConfiguration(final RequestContext request) {
     PathContainer lookupPath = request.getRequestPath();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,15 +12,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.handler.mvc;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
-import infra.lang.Nullable;
-import infra.session.WebSession;
+import infra.session.Session;
 import infra.web.RequestContext;
 import infra.web.RequestContextUtils;
 import infra.web.WebContentGenerator;
@@ -81,8 +82,8 @@ import infra.web.util.WebUtils;
  * <td>synchronizeOnSession</td>
  * <td>false</td>
  * <td>whether the call to {@code handleRequestInternal} should be
- * synchronized around the WebSession, to serialize invocations
- * from the same client. No effect if there is no WebSession.
+ * synchronized around the Session, to serialize invocations
+ * from the same client. No effect if there is no Session.
  * </td>
  * </tr>
  * </table>
@@ -123,18 +124,18 @@ public abstract class AbstractController extends WebContentGenerator implements 
    * <p>More specifically, the execution of the {@code handleRequestInternal}
    * method will get synchronized if this flag is "true". The best available
    * session mutex will be used for the synchronization; ideally, this will
-   * be a mutex exposed by WebSessionMutexListener.
+   * be a mutex exposed by SessionMutexListener.
    * <p>The session mutex is guaranteed to be the same object during
    * the entire lifetime of the session, available under the key defined
    * by the {@code SESSION_MUTEX_ATTRIBUTE} constant. It serves as a
    * safe reference to synchronize on for locking on the current session.
-   * <p>In many cases, the WebSession reference itself is a safe mutex
+   * <p>In many cases, the Session reference itself is a safe mutex
    * as well, since it will always be the same object reference for the
    * same active logical session. However, this is not guaranteed across
    * different containers; the only 100% safe way is a session mutex.
    *
    * @see AbstractController#handleRequestInternal
-   * @see infra.web.util.WebUtils#getSessionMutex(WebSession)
+   * @see infra.web.util.WebUtils#getSessionMutex(Session)
    */
   public final void setSynchronizeOnSession(boolean synchronizeOnSession) {
     this.synchronizeOnSession = synchronizeOnSession;
@@ -161,7 +162,7 @@ public abstract class AbstractController extends WebContentGenerator implements 
 
     // Execute handleRequestInternal in synchronized block if required.
     if (this.synchronizeOnSession) {
-      WebSession session = RequestContextUtils.getSession(context, false);
+      Session session = RequestContextUtils.getSession(context, false);
       if (session != null) {
         Object mutex = WebUtils.getSessionMutex(session);
         synchronized(mutex) {

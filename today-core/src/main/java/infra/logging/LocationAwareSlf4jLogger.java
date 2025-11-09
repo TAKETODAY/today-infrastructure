@@ -17,11 +17,10 @@
 
 package infra.logging;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.spi.LocationAwareLogger;
 
 import java.io.Serial;
-
-import infra.lang.Nullable;
 
 /**
  * LocationAwareLogger
@@ -49,7 +48,7 @@ final class LocationAwareSlf4jLogger extends Slf4jLogger {
   }
 
   @Override
-  protected void logInternal(Level level, String format, @Nullable Throwable t, @Nullable Object[] args) {
+  protected void logInternal(Level level, @Nullable String format, @Nullable Throwable t, @Nullable Object @Nullable [] args) {
     log.log(null, FQCN, getLevel(level), format, args, t);
   }
 }

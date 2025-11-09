@@ -21,8 +21,10 @@ import java.util.List;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see ExampleQuery
  * @since 4.0 2024/4/10 16:53
  */
+@SuppressWarnings("rawtypes")
 final class DefaultQueryStatementFactory implements QueryStatementFactory {
 
   private final EntityMetadataFactory factory;

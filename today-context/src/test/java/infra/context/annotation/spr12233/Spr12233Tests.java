@@ -20,6 +20,7 @@ package infra.context.annotation.spr12233;
 import org.junit.jupiter.api.Test;
 
 import infra.beans.factory.annotation.Value;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.ComponentScan;
 import infra.context.annotation.ConditionContext;
 import infra.context.annotation.Conditional;
@@ -27,7 +28,6 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.ConfigurationCondition;
 import infra.context.annotation.Import;
 import infra.context.support.PropertySourcesPlaceholderConfigurer;
-import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.type.AnnotatedTypeMetadata;
 
 /**

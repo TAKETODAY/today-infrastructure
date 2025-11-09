@@ -17,10 +17,11 @@
 
 package infra.web.bind.resolver;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.MethodParameter;
 import infra.http.HttpCookie;
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 import infra.web.annotation.CookieValue;
 import infra.web.handler.method.ResolvableMethodParameter;
@@ -56,7 +57,7 @@ public class CookieParameterResolver
             new CookieCollectionParameterResolver(beanFactory));
   }
 
-  private static class CookieValueAnnotationParameterResolver extends AbstractNamedValueResolvingStrategy {
+  static class CookieValueAnnotationParameterResolver extends AbstractNamedValueResolvingStrategy {
 
     public CookieValueAnnotationParameterResolver(@Nullable ConfigurableBeanFactory beanFactory) {
       super(beanFactory);
@@ -91,7 +92,7 @@ public class CookieParameterResolver
     }
   }
 
-  private static final class AllCookieParameterResolver implements ParameterResolvingStrategy {
+  static final class AllCookieParameterResolver implements ParameterResolvingStrategy {
 
     @Override
     public boolean supportsParameter(ResolvableMethodParameter resolvable) {
@@ -106,7 +107,7 @@ public class CookieParameterResolver
     }
   }
 
-  private static class CookieCollectionParameterResolver extends AbstractNamedValueResolvingStrategy {
+  static class CookieCollectionParameterResolver extends AbstractNamedValueResolvingStrategy {
 
     public CookieCollectionParameterResolver(ConfigurableBeanFactory beanFactory) {
       super(beanFactory);

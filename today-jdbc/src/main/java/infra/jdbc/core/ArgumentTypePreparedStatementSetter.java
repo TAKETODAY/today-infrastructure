@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,28 +17,28 @@
 
 package infra.jdbc.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Collection;
 
 import infra.dao.InvalidDataAccessApiUsageException;
-import infra.lang.Nullable;
 
 /**
  * Simple adapter for {@link PreparedStatementSetter} that applies
  * given arrays of arguments and JDBC argument types.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class ArgumentTypePreparedStatementSetter implements PreparedStatementSetter, ParameterDisposer {
 
-  @Nullable
-  private final Object[] args;
+  private final @Nullable Object @Nullable [] args;
 
-  @Nullable
-  private final int[] argTypes;
+  private final int @Nullable [] argTypes;
 
   /**
    * Create a new ArgTypePreparedStatementSetter for the given arguments.
@@ -46,7 +46,8 @@ public class ArgumentTypePreparedStatementSetter implements PreparedStatementSet
    * @param args the arguments to set
    * @param argTypes the corresponding SQL types of the arguments
    */
-  public ArgumentTypePreparedStatementSetter(@Nullable Object[] args, @Nullable int[] argTypes) {
+  @SuppressWarnings("NullAway")
+  public ArgumentTypePreparedStatementSetter(@Nullable Object @Nullable [] args, int @Nullable [] argTypes) {
     if ((args != null && argTypes == null) || (args == null && argTypes != null) ||
             (args != null && args.length != argTypes.length)) {
       throw new InvalidDataAccessApiUsageException("args and argTypes parameters must match");
@@ -61,8 +62,7 @@ public class ArgumentTypePreparedStatementSetter implements PreparedStatementSet
     if (this.args != null && this.argTypes != null) {
       for (int i = 0; i < this.args.length; i++) {
         Object arg = this.args[i];
-        if (arg instanceof Collection && this.argTypes[i] != Types.ARRAY) {
-          Collection<?> entries = (Collection<?>) arg;
+        if (arg instanceof Collection<?> entries && this.argTypes[i] != Types.ARRAY) {
           for (Object entry : entries) {
             if (entry instanceof Object[] valueArray) {
               for (Object argValue : valueArray) {
@@ -94,7 +94,7 @@ public class ArgumentTypePreparedStatementSetter implements PreparedStatementSet
    * @param argValue the argument value
    * @throws SQLException if thrown by PreparedStatement methods
    */
-  protected void doSetValue(PreparedStatement ps, int parameterPosition, int argType, Object argValue)
+  protected void doSetValue(PreparedStatement ps, int parameterPosition, int argType, @Nullable Object argValue)
           throws SQLException {
 
     StatementCreatorUtils.setParameterValue(ps, parameterPosition, argType, argValue);

@@ -17,6 +17,8 @@
 
 package infra.app.test.context;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -37,7 +39,6 @@ import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.core.env.Environment;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
@@ -295,8 +296,7 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
     return (annotation != null) ? annotation.classes() : null;
   }
 
-  @Nullable
-  protected String[] getProperties(Class<?> testClass) {
+  protected String @Nullable [] getProperties(Class<?> testClass) {
     InfraTest annotation = getAnnotation(testClass);
     return (annotation != null) ? annotation.properties() : null;
   }

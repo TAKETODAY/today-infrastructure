@@ -18,19 +18,21 @@
 package infra.web.handler;
 
 import org.assertj.core.api.Assertions;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 
 import java.util.Comparator;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import infra.lang.Nullable;
+import infra.http.server.PathContainer;
+import infra.http.server.RequestPath;
 import infra.util.PathMatcher;
 import infra.web.HandlerInterceptor;
+import infra.web.InterceptorChain;
 import infra.web.RequestContext;
 import infra.web.i18n.LocaleChangeInterceptor;
 import infra.web.mock.MockRequestContext;
@@ -39,8 +41,13 @@ import infra.web.view.PathPatternsParameterizedTest;
 import infra.web.view.PathPatternsTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -126,7 +133,7 @@ class MappedInterceptorTests {
     new MappedInterceptor(null, delegate).beforeProcess(
             mock(RequestContext.class), null);
 
-    then(delegate).should().beforeProcess(ArgumentMatchers.any(RequestContext.class), ArgumentMatchers.any());
+    then(delegate).should().beforeProcess(any(RequestContext.class), any());
   }
 
   @Test
@@ -136,7 +143,185 @@ class MappedInterceptorTests {
     new MappedInterceptor(null, delegate).afterProcess(
             mock(RequestContext.class), null, mock(ModelAndView.class));
 
-    then(delegate).should().afterProcess(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
+    then(delegate).should().afterProcess(any(), any(), any());
+  }
+
+  @Test
+  void constructorWithIncludeAndExcludePatterns() {
+    String[] includePatterns = { "/api/**", "/admin/**" };
+    String[] excludePatterns = { "/admin/exclude/**" };
+    HandlerInterceptor interceptor = mock(HandlerInterceptor.class);
+
+    MappedInterceptor mappedInterceptor = new MappedInterceptor(includePatterns, excludePatterns, interceptor);
+
+    assertThat(mappedInterceptor.getInterceptor()).isSameAs(interceptor);
+    assertThat(mappedInterceptor.getPathPatterns()).containsExactlyInAnyOrder("/api/**", "/admin/**");
+  }
+
+  @Test
+  void constructorWithIncludePatternsOnly() {
+    String[] includePatterns = { "/api/**" };
+    HandlerInterceptor interceptor = mock(HandlerInterceptor.class);
+
+    MappedInterceptor mappedInterceptor = new MappedInterceptor(includePatterns, interceptor);
+
+    assertThat(mappedInterceptor.getInterceptor()).isSameAs(interceptor);
+    assertThat(mappedInterceptor.getPathPatterns()).containsExactly("/api/**");
+  }
+
+  @Test
+  void constructorWithNullPatterns() {
+    HandlerInterceptor interceptor = mock(HandlerInterceptor.class);
+
+    MappedInterceptor mappedInterceptor = new MappedInterceptor(null, interceptor);
+
+    assertThat(mappedInterceptor.getInterceptor()).isSameAs(interceptor);
+    assertThat(mappedInterceptor.getPathPatterns()).isNull();
+  }
+
+  @Test
+  void setPathMatcherWithValidMatcher() {
+    MappedInterceptor mappedInterceptor = new MappedInterceptor(null, mock(HandlerInterceptor.class));
+    PathMatcher pathMatcher = mock(PathMatcher.class);
+
+    mappedInterceptor.setPathMatcher(pathMatcher);
+
+    assertThat(mappedInterceptor.getPathMatcher()).isSameAs(pathMatcher);
+  }
+
+  @Test
+  void setPathMatcherWithNullThrowsException() {
+    MappedInterceptor mappedInterceptor = new MappedInterceptor(null, mock(HandlerInterceptor.class));
+
+    assertThatThrownBy(() -> mappedInterceptor.setPathMatcher(null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("pathMatcher is required");
+  }
+
+  @Test
+  void matchesWithRequestContext() {
+    RequestContext request = mock(RequestContext.class);
+    given(request.getRequestPath()).willReturn(RequestPath.parse("/test", null));
+
+    MappedInterceptor mappedInterceptor = new MappedInterceptor(new String[] { "/test" }, mock(HandlerInterceptor.class));
+
+    boolean result = mappedInterceptor.matches(request);
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  void matchesWithIncludePattern() {
+    PathContainer pathContainer = PathContainer.parsePath("/api/users");
+
+    MappedInterceptor mappedInterceptor = new MappedInterceptor(new String[] { "/api/**" }, mock(HandlerInterceptor.class));
+
+    boolean result = mappedInterceptor.matches(pathContainer);
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  void matchesWithExcludePattern() {
+    PathContainer pathContainer = PathContainer.parsePath("/admin/users");
+
+    MappedInterceptor mappedInterceptor = new MappedInterceptor(null, new String[] { "/admin/**" }, mock(HandlerInterceptor.class));
+
+    boolean result = mappedInterceptor.matches(pathContainer);
+
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  void matchesWithIncludeAndExcludePatternsMatchingExclude() {
+    PathContainer pathContainer = PathContainer.parsePath("/admin/users");
+
+    MappedInterceptor mappedInterceptor = new MappedInterceptor(new String[] { "/**" }, new String[] { "/admin/**" }, mock(HandlerInterceptor.class));
+
+    boolean result = mappedInterceptor.matches(pathContainer);
+
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  void matchesWithIncludeAndExcludePatternsNotMatchingEither() {
+    PathContainer pathContainer = PathContainer.parsePath("/public/info");
+
+    MappedInterceptor mappedInterceptor = new MappedInterceptor(new String[] { "/api/**" }, new String[] { "/admin/**" }, mock(HandlerInterceptor.class));
+
+    boolean result = mappedInterceptor.matches(pathContainer);
+
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  void matchesWithNoPatterns() {
+    PathContainer pathContainer = PathContainer.parsePath("/any/path");
+
+    MappedInterceptor mappedInterceptor = new MappedInterceptor(null, mock(HandlerInterceptor.class));
+
+    boolean result = mappedInterceptor.matches(pathContainer);
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  void matchesWithMatrixVariablesInPath() {
+    PathContainer pathContainer = PathContainer.parsePath("/api/users;jsessionid=12345");
+
+    MappedInterceptor mappedInterceptor = new MappedInterceptor(new String[] { "/api/**" }, mock(HandlerInterceptor.class));
+
+    boolean result = mappedInterceptor.matches(pathContainer);
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  void beforeProcessDelegatesToInterceptor() throws Throwable {
+    HandlerInterceptor delegate = mock(HandlerInterceptor.class);
+    RequestContext request = mock(RequestContext.class);
+    Object handler = new Object();
+    given(delegate.beforeProcess(request, handler)).willReturn(true);
+
+    MappedInterceptor mappedInterceptor = new MappedInterceptor(null, delegate);
+
+    boolean result = mappedInterceptor.beforeProcess(request, handler);
+
+    assertThat(result).isTrue();
+    verify(delegate).beforeProcess(request, handler);
+  }
+
+  @Test
+  void afterProcessDelegatesToInterceptor() throws Throwable {
+    HandlerInterceptor delegate = mock(HandlerInterceptor.class);
+    RequestContext request = mock(RequestContext.class);
+    Object handler = new Object();
+    Object result = new Object();
+
+    MappedInterceptor mappedInterceptor = new MappedInterceptor(null, delegate);
+
+    mappedInterceptor.afterProcess(request, handler, result);
+
+    verify(delegate).afterProcess(request, handler, result);
+  }
+
+  @Test
+  void interceptWhenNotMatchingProceedsWithChain() throws Throwable {
+    RequestContext request = mock(RequestContext.class);
+    given(request.getRequestPath()).willReturn(RequestPath.parse("/other", null));
+
+    HandlerInterceptor delegate = mock(HandlerInterceptor.class);
+    InterceptorChain chain = mock(InterceptorChain.class);
+    Object expectedResult = new Object();
+    given(chain.proceed(request)).willReturn(expectedResult);
+
+    MappedInterceptor mappedInterceptor = new MappedInterceptor(new String[] { "/test" }, delegate);
+
+    Object actualResult = mappedInterceptor.intercept(request, chain);
+
+    assertThat(actualResult).isSameAs(expectedResult);
+    verify(delegate, never()).intercept(any(), any());
+    verify(chain).proceed(request);
   }
 
   public static class TestPathMatcher implements PathMatcher {
@@ -185,6 +370,6 @@ class MappedInterceptorTests {
     public String[] extractVariableNames(String pattern) {
       return null;
     }
-    
+
   }
 }

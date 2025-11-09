@@ -17,6 +17,8 @@
 
 package infra.jdbc.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigDecimal;
@@ -41,7 +43,6 @@ import java.util.Map;
 
 import infra.jdbc.core.support.SqlLobValue;
 import infra.jdbc.support.SqlValue;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
@@ -171,8 +172,7 @@ public abstract class StatementCreatorUtils {
    * @throws SQLException if thrown by PreparedStatement methods
    * @see SqlTypeValue
    */
-  public static void setParameterValue(
-          PreparedStatement ps, int paramIndex, int sqlType, @Nullable Object inValue) throws SQLException {
+  public static void setParameterValue(PreparedStatement ps, int paramIndex, int sqlType, @Nullable Object inValue) throws SQLException {
     setParameterValueInternal(ps, paramIndex, sqlType, null, null, inValue);
   }
 
@@ -211,8 +211,7 @@ public abstract class StatementCreatorUtils {
    * @throws SQLException if thrown by PreparedStatement methods
    * @see SqlTypeValue
    */
-  private static void setParameterValueInternal(
-          PreparedStatement ps, int paramIndex, int sqlType,
+  private static void setParameterValueInternal(PreparedStatement ps, int paramIndex, int sqlType,
           @Nullable String typeName, @Nullable Integer scale, @Nullable Object inValue) throws SQLException {
 
     String typeNameToUse = typeName;
@@ -496,7 +495,7 @@ public abstract class StatementCreatorUtils {
    * @see DisposableSqlTypeValue#cleanup()
    * @see SqlLobValue#cleanup()
    */
-  public static void cleanupParameters(@Nullable Object... paramValues) {
+  public static void cleanupParameters(@Nullable Object @Nullable ... paramValues) {
     if (paramValues != null) {
       cleanupParameters(Arrays.asList(paramValues));
     }
@@ -510,6 +509,7 @@ public abstract class StatementCreatorUtils {
    * @see DisposableSqlTypeValue#cleanup()
    * @see SqlLobValue#cleanup()
    */
+  @SuppressWarnings("NullAway")
   public static void cleanupParameters(@Nullable Collection<?> paramValues) {
     if (paramValues != null) {
       for (Object inValue : paramValues) {

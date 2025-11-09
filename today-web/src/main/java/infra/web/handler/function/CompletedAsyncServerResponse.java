@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,12 @@
 
 package infra.web.handler.function;
 
-import infra.http.HttpCookie;
+import org.jspecify.annotations.Nullable;
+
 import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
+import infra.http.ResponseCookie;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 import infra.web.RequestContext;
 
@@ -52,7 +53,6 @@ final class CompletedAsyncServerResponse implements AsyncServerResponse {
   }
 
   @Override
-  @Deprecated
   public int rawStatusCode() {
     return this.serverResponse.rawStatusCode();
   }
@@ -63,7 +63,7 @@ final class CompletedAsyncServerResponse implements AsyncServerResponse {
   }
 
   @Override
-  public MultiValueMap<String, HttpCookie> cookies() {
+  public MultiValueMap<String, ResponseCookie> cookies() {
     return this.serverResponse.cookies();
   }
 

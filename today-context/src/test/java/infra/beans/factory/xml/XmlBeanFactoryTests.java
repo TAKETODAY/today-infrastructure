@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.beans.factory.xml;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.InputSource;
@@ -71,7 +72,6 @@ import infra.core.io.EncodedResource;
 import infra.core.io.FileSystemResource;
 import infra.core.io.UrlResource;
 import infra.core.testfixture.io.SerializationTestUtils;
-import infra.lang.Nullable;
 import infra.logging.LoggerFactory;
 import infra.tests.sample.beans.ResourceTestBean;
 import infra.util.FileCopyUtils;

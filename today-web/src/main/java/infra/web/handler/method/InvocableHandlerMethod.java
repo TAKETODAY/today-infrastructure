@@ -17,6 +17,8 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -27,7 +29,6 @@ import java.util.stream.IntStream;
 import infra.beans.factory.BeanFactory;
 import infra.context.MessageSource;
 import infra.http.HttpStatusCode;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 import infra.web.HttpRequestHandler;
 import infra.web.RequestContext;
@@ -112,7 +113,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
   }
 
   @Nullable
-  public Object invokeAndHandle(RequestContext request, @Nullable Object... providedArgs) throws Throwable {
+  public Object invokeAndHandle(RequestContext request, Object @Nullable ... providedArgs) throws Throwable {
     Object returnValue = invokeForRequest(request, providedArgs);
     applyResponseStatus(request);
 
@@ -168,8 +169,8 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * @see #getMethodArgumentValues
    */
   @Nullable
-  public Object invokeForRequest(RequestContext request, @Nullable Object... providedArgs) throws Throwable {
-    Object[] args = getMethodArgumentValues(request, providedArgs);
+  public Object invokeForRequest(RequestContext request, Object @Nullable ... providedArgs) throws Throwable {
+    @Nullable Object[] args = getMethodArgumentValues(request, providedArgs);
     if (log.isTraceEnabled()) {
       log.trace("Arguments: {}", Arrays.toString(args));
     }
@@ -206,13 +207,13 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * argument values and falling back to the configured argument resolvers.
    * <p>The resulting array will be passed into {@link Method#invoke(Object, Object...)}.
    */
-  private Object[] getMethodArgumentValues(RequestContext request, @Nullable Object[] providedArgs) throws Throwable {
+  private @Nullable Object[] getMethodArgumentValues(RequestContext request, Object @Nullable [] providedArgs) throws Throwable {
     ResolvableMethodParameter[] parameters = this.resolvableParameters;
     int length = parameters.length;
     if (length == 0) {
       return EMPTY_ARGS;
     }
-    Object[] args = new Object[length];
+    @Nullable Object[] args = new Object[length];
     for (int i = 0; i < length; i++) {
       Object arg = null;
       if (providedArgs != null) {
@@ -253,7 +254,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * beans, and others). {@code @Controller}'s that require proxying should prefer
    * class-based proxy mechanisms.
    */
-  private void assertTargetBean(Method method, Object targetBean, Object[] args) {
+  private void assertTargetBean(Method method, Object targetBean, @Nullable Object[] args) {
     Class<?> methodDeclaringClass = method.getDeclaringClass();
     Class<?> targetBeanClass = targetBean.getClass();
     if (!methodDeclaringClass.isAssignableFrom(targetBeanClass)) {
@@ -265,10 +266,13 @@ public class InvocableHandlerMethod extends HandlerMethod {
     }
   }
 
-  private String formatInvokeError(String text, Object[] args) {
+  private String formatInvokeError(String text, @Nullable Object[] args) {
     String formattedArgs = IntStream.range(0, args.length)
-            .mapToObj(i -> (args[i] == null ? "[%d] [null]".formatted(i)
-                    : "[%d] [type=%s] [value=%s]".formatted(i, args[i].getClass().getName(), args[i])))
+            .mapToObj(i -> {
+              Object arg = args[i];
+              return (arg == null ? "[%d] [null]".formatted(i)
+                      : "[%d] [type=%s] [value=%s]".formatted(i, arg.getClass().getName(), arg));
+            })
             .collect(Collectors.joining(",\n", " ", " "));
     return "%s\nController [%s]\nMethod [%s] with argument values:\n%s"
             .formatted(text, getBeanType().getName(), bridgedMethod.toGenericString(), formattedArgs);

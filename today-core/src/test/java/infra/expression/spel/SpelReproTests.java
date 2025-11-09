@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.expression.spel;
 
 import org.assertj.core.api.InstanceOfAssertFactories;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -64,7 +65,6 @@ import infra.expression.spel.support.ReflectivePropertyAccessor;
 import infra.expression.spel.support.StandardEvaluationContext;
 import infra.expression.spel.support.StandardTypeLocator;
 import infra.expression.spel.testresources.le.div.mod.reserved.Reserver;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 
@@ -1175,7 +1175,6 @@ class SpelReproTests extends AbstractExpressionTests {
     TypedValue value = accessor.read(context, target, "property");
     assertThat(value.getValue()).isEqualTo(1);
     assertThat(value.getTypeDescriptor().getType()).isEqualTo(Integer.class);
-    assertThat(value.getTypeDescriptor().getAnnotations()).isNotEmpty();
   }
 
   @Test

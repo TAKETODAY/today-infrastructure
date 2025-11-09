@@ -17,6 +17,7 @@
 
 package infra.web.service.invoker;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.ElementType;
@@ -36,7 +37,6 @@ import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.http.ResponseEntity;
-import infra.lang.Nullable;
 import infra.util.concurrent.Future;
 import infra.web.annotation.GET;
 import infra.web.client.ClientResponse;

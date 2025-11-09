@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
 
 package infra.session;
 
-import java.io.IOException;
+import org.jspecify.annotations.Nullable;
 
-import infra.lang.Nullable;
+import java.io.IOException;
 
 /**
  * A <b>SessionPersister</b> that provides persistent storage and loading
@@ -72,7 +72,7 @@ public interface SessionPersister {
    * @throws IOException if an input/output error occurs
    */
   @Nullable
-  WebSession findById(String id) throws ClassNotFoundException, IOException;
+  Session findById(String id) throws ClassNotFoundException, IOException;
 
   /**
    * Save the specified Session into this Store.  Any previously saved
@@ -81,6 +81,6 @@ public interface SessionPersister {
    * @param session Session to be saved
    * @throws IOException if an input/output error occurs
    */
-  void persist(WebSession session) throws IOException;
+  void persist(Session session) throws IOException;
 
 }

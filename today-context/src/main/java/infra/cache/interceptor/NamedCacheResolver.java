@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,12 @@
 
 package infra.cache.interceptor;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 
 import infra.cache.CacheManager;
-import infra.lang.Nullable;
 
 /**
  * A {@link CacheResolver} that forces the resolution to a configurable
@@ -36,7 +37,8 @@ public class NamedCacheResolver extends AbstractCacheResolver {
   @Nullable
   private Collection<String> cacheNames;
 
-  public NamedCacheResolver() { }
+  public NamedCacheResolver() {
+  }
 
   public NamedCacheResolver(CacheManager cacheManager, String... cacheNames) {
     super(cacheManager);
@@ -51,7 +53,7 @@ public class NamedCacheResolver extends AbstractCacheResolver {
   }
 
   @Override
-  protected Collection<String> getCacheNames(CacheOperationInvocationContext<?> context) {
+  protected @Nullable Collection<String> getCacheNames(CacheOperationInvocationContext<?> context) {
     return this.cacheNames;
   }
 

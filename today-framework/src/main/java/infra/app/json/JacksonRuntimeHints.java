@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,13 +24,14 @@ import com.fasterxml.jackson.databind.ser.std.StdJdkSerializers.AtomicIntegerSer
 import com.fasterxml.jackson.databind.ser.std.StdJdkSerializers.AtomicLongSerializer;
 import com.fasterxml.jackson.databind.ser.std.TokenBufferSerializer;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.aot.hint.MemberCategory;
 import infra.aot.hint.ReflectionHints;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.aot.hint.TypeHint;
 import infra.aot.hint.TypeReference;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**

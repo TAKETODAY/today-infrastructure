@@ -17,6 +17,8 @@
 
 package infra.web.handler;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +31,6 @@ import infra.context.support.ApplicationObjectSupport;
 import infra.core.Ordered;
 import infra.core.StringValueResolver;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.LogDelegateFactory;
 import infra.logging.Logger;
 import infra.util.CollectionUtils;
@@ -342,6 +343,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
    */
   @Nullable
   @Override
+  @SuppressWarnings("NullAway")
   public final Object getHandler(final RequestContext request) throws Exception {
     Comparable<?> version = null;
     if (this.apiVersionStrategy != null) {
@@ -392,7 +394,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
     }
 
     if (version != null) {
-      apiVersionStrategy.handleDeprecations(version, request);
+      apiVersionStrategy.handleDeprecations(version, handler, request);
     }
     return chain;
   }
@@ -464,8 +466,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
             ? null : interceptors.toArray(new HandlerInterceptor[interceptors.size()]));
   }
 
-  @Nullable
-  protected HandlerInterceptor[] getHandlerInterceptors(Object handler) {
+  protected HandlerInterceptor @Nullable [] getHandlerInterceptors(Object handler) {
     return null;
   }
 

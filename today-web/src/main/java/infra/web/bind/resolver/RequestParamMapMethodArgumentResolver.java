@@ -17,10 +17,11 @@
 
 package infra.web.bind.resolver;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Map;
 
 import infra.core.ResolvableType;
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
 import infra.web.RequestContext;

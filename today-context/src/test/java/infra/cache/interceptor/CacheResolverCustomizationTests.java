@@ -17,6 +17,7 @@
 
 package infra.cache.interceptor;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -37,7 +38,6 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.testfixture.cache.CacheTestUtils;
-import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 
 import static infra.context.testfixture.cache.CacheTestUtils.assertCacheHit;

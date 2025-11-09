@@ -17,6 +17,8 @@
 
 package infra.web.handler;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -25,7 +27,6 @@ import infra.beans.BeansException;
 import infra.context.ApplicationContext;
 import infra.http.server.PathContainer;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 import infra.web.HandlerMapping;
 import infra.web.HandlerMatchingMetadata;
@@ -104,6 +105,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
    */
   @Nullable
   @Override
+  @SuppressWarnings("NullAway")
   protected Object getHandlerInternal(RequestContext request) {
     Object handler = lookupHandler(request);
     if (handler == null) {
@@ -136,6 +138,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
    * @since 4.0
    */
   @Nullable
+  @SuppressWarnings("NullAway")
   protected Object lookupHandler(RequestContext request) {
     PathContainer lookupPath = request.getRequestPath();
 
@@ -205,7 +208,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
    * @param handler the handler object to validate
    * @param request current HTTP request
    */
-  protected void validateHandler(Object handler, RequestContext request) {
+  protected void validateHandler(@Nullable Object handler, RequestContext request) {
 
   }
 
@@ -234,6 +237,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
    * @throws BeansException if the handler couldn't be registered
    * @throws IllegalStateException if there is a conflicting handler registered
    */
+  @SuppressWarnings("NullAway")
   public void registerHandler(String urlPath, Object handler) throws BeansException, IllegalStateException {
     Assert.notNull(urlPath, "URL path is required");
     Assert.notNull(handler, "Handler object is required");

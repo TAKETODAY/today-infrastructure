@@ -19,9 +19,7 @@
  * Provides supporting infrastructure to allow Framework-created MBeans
  * to send JMX notifications.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jmx.export.notification;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

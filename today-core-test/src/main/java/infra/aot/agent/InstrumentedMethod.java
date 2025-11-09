@@ -46,6 +46,7 @@ import static infra.aot.hint.predicate.RuntimeHintsPredicates.resource;
  * @see RuntimeHintsPredicates
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 enum InstrumentedMethod {
 
   /*

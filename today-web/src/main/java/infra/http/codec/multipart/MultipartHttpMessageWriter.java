@@ -17,6 +17,7 @@
 
 package infra.http.codec.multipart;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.util.ArrayList;
@@ -44,7 +45,6 @@ import infra.http.codec.FormHttpMessageWriter;
 import infra.http.codec.HttpMessageWriter;
 import infra.http.codec.ResourceHttpMessageWriter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.LogFormatUtils;
 import infra.util.MultiValueMap;
 import reactor.core.publisher.Flux;
@@ -243,7 +243,7 @@ public class MultipartHttpMessageWriter extends MultipartWriterSupport implement
     Object body;
     ResolvableType resolvableType = null;
     if (value instanceof HttpEntity<?> httpEntity) {
-      headers.setAll(httpEntity.headers());
+      headers.setAll(httpEntity.getHeaders());
       body = httpEntity.getBody();
       Assert.state(body != null, "MultipartHttpMessageWriter only supports HttpEntity with body");
       if (httpEntity instanceof ResolvableTypeProvider provider) {

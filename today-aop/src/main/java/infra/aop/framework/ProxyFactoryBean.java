@@ -19,6 +19,7 @@ package infra.aop.framework;
 
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.Interceptor;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -44,7 +45,6 @@ import infra.beans.factory.FactoryBeanNotInitializedException;
 import infra.core.Ordered;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
@@ -104,8 +104,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport implements FactoryBean
    */
   public static final String GLOBAL_SUFFIX = "*";
 
-  @Nullable
-  private String[] interceptorNames;
+  private String @Nullable [] interceptorNames;
 
   @Nullable
   private String targetName;
@@ -435,6 +434,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport implements FactoryBean
    * is added. Interceptors added programmatically through the factory API
    * are unaffected by such changes.
    */
+  @SuppressWarnings("NullAway")
   private synchronized void initializeAdvisorChain() throws AopConfigException, BeansException {
     if (this.advisorChainInitialized || ObjectUtils.isEmpty(interceptorNames)) {
       return;
@@ -481,6 +481,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport implements FactoryBean
    * We need to do this every time a new prototype instance is returned,
    * to return distinct instances of prototype Advisors and Advices.
    */
+  @SuppressWarnings("NullAway")
   private List<Advisor> freshAdvisorChain() {
     Advisor[] advisors = getAdvisors();
     ArrayList<Advisor> freshAdvisors = new ArrayList<>(advisors.length);
@@ -551,6 +552,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport implements FactoryBean
    * this class's TargetSource member. Otherwise, we get the target bean and wrap
    * it in a TargetSource if necessary.
    */
+  @SuppressWarnings("NullAway")
   private TargetSource freshTargetSource() {
     if (targetName == null) {
       // Not refreshing target: bean name not specified in 'interceptorNames'

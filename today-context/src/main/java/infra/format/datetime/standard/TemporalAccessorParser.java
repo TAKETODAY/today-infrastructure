@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.format.datetime.standard;
 
+import org.jspecify.annotations.Nullable;
+
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -33,7 +35,6 @@ import java.time.temporal.TemporalAccessor;
 import java.util.Locale;
 
 import infra.format.Parser;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 /**
@@ -61,8 +62,7 @@ public final class TemporalAccessorParser implements Parser<TemporalAccessor> {
 
   private final DateTimeFormatter formatter;
 
-  @Nullable
-  private final String[] fallbackPatterns;
+  private final String @Nullable [] fallbackPatterns;
 
   @Nullable
   private final Object source;
@@ -79,7 +79,7 @@ public final class TemporalAccessorParser implements Parser<TemporalAccessor> {
   }
 
   TemporalAccessorParser(Class<? extends TemporalAccessor> temporalAccessorType,
-          DateTimeFormatter formatter, @Nullable String[] fallbackPatterns, @Nullable Object source) {
+          DateTimeFormatter formatter, String @Nullable [] fallbackPatterns, @Nullable Object source) {
     this.temporalAccessorType = temporalAccessorType;
     this.fallbackPatterns = fallbackPatterns;
     this.formatter = formatter;

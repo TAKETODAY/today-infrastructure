@@ -17,6 +17,7 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
@@ -49,7 +50,6 @@ import infra.core.annotation.Order;
 import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
 import infra.core.type.AnnotationMetadata;
-import infra.lang.Nullable;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 

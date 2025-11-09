@@ -17,6 +17,8 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyDescriptor;
 import java.io.Serial;
 import java.io.Serializable;
@@ -73,7 +75,6 @@ import infra.javapoet.ClassName;
 import infra.javapoet.CodeBlock;
 import infra.jndi.support.SimpleJndiBeanFactory;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
@@ -356,6 +357,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
   }
 
   @Override
+  @Nullable
   public PropertyValues processDependencies(@Nullable PropertyValues propertyValues, Object bean, String beanName) {
     InjectionMetadata metadata = findResourceMetadata(beanName, bean.getClass(), propertyValues);
     try {
@@ -391,6 +393,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
     }
   }
 
+  @SuppressWarnings("NullAway")
   private InjectionMetadata findResourceMetadata(String beanName, Class<?> clazz, @Nullable PropertyValues pvs) {
     // Fall back to class name as cache key, for backwards compatibility with custom callers.
     String cacheKey = StringUtils.isNotEmpty(beanName) ? beanName : clazz.getName();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,28 +17,29 @@
 
 package infra.jdbc.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-
-import infra.lang.Nullable;
 
 /**
  * Simple adapter for {@link PreparedStatementSetter} that applies a given array of arguments.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public class ArgumentPreparedStatementSetter implements PreparedStatementSetter, ParameterDisposer {
 
-  @Nullable
-  private final Object[] args;
+  private final @Nullable Object @Nullable [] args;
 
   /**
    * Create a new ArgPreparedStatementSetter for the given arguments.
    *
    * @param args the arguments to set
    */
-  public ArgumentPreparedStatementSetter(@Nullable Object[] args) {
+  public ArgumentPreparedStatementSetter(@Nullable Object @Nullable [] args) {
     this.args = args;
   }
 
@@ -61,7 +62,7 @@ public class ArgumentPreparedStatementSetter implements PreparedStatementSetter,
    * @param argValue the value to set
    * @throws SQLException if thrown by PreparedStatement methods
    */
-  protected void doSetValue(PreparedStatement ps, int parameterPosition, Object argValue) throws SQLException {
+  protected void doSetValue(PreparedStatement ps, int parameterPosition, @Nullable Object argValue) throws SQLException {
     if (argValue instanceof SqlParameterValue paramValue) {
       StatementCreatorUtils.setParameterValue(ps, parameterPosition, paramValue, paramValue.getValue());
     }

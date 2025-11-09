@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.aop.scope;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Predicate;
 
@@ -36,7 +38,6 @@ import infra.beans.factory.support.RootBeanDefinition;
 import infra.core.ResolvableType;
 import infra.javapoet.ClassName;
 import infra.javapoet.CodeBlock;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
@@ -53,6 +54,8 @@ class ScopedProxyBeanRegistrationAotProcessor implements BeanRegistrationAotProc
   private static final Logger logger = LoggerFactory.getLogger(ScopedProxyBeanRegistrationAotProcessor.class);
 
   @Override
+  @Nullable
+  @SuppressWarnings("NullAway")
   public BeanRegistrationAotContribution processAheadOfTime(RegisteredBean registeredBean) {
     Class<?> beanClass = registeredBean.getBeanClass();
     if (beanClass.equals(ScopedProxyFactoryBean.class)) {

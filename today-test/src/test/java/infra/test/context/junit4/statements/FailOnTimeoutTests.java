@@ -24,8 +24,6 @@ import org.mockito.stubbing.Answer;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import infra.test.context.junit4.statements.FailOnTimeout;
-
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.willAnswer;

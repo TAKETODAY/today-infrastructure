@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.app.loader.zip;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -29,7 +31,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.function.Supplier;
 
 import infra.app.loader.log.DebugLogger;
-import infra.lang.Nullable;
 
 /**
  * Reference counted {@link DataBlock} implementation backed by a {@link FileChannel} with
@@ -178,6 +179,7 @@ class FileDataBlock implements CloseableDataBlock {
     @Nullable
     private RandomAccessFile randomAccessFile;
 
+    @Nullable
     private ByteBuffer buffer;
 
     private long bufferPosition = -1;

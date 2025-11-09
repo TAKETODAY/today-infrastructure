@@ -23,9 +23,7 @@
  * "CustomXxxEditor" classes are intended for manual registration in
  * specific binding processes, as they are localized or the like.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.beans.propertyeditors;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

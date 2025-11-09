@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.app.context.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
@@ -31,7 +33,6 @@ import infra.core.io.PatternResourceLoader;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ResourceUtils;
 import infra.util.StringUtils;
 
@@ -98,6 +99,7 @@ class LocationResourceLoader {
    * @return the resources
    * @see #isPattern(String)
    */
+  @SuppressWarnings("NullAway")
   List<Resource> getResources(@Nullable String location, ResourceType type) {
     validatePattern(location, type);
     String directoryPath = location.substring(0, location.indexOf("*/"));
@@ -134,6 +136,7 @@ class LocationResourceLoader {
     return resources;
   }
 
+  @SuppressWarnings("null, _ -> fail")
   private void validatePattern(String location, ResourceType type) {
     Assert.state(isPattern(location), () -> String.format("Location '%s' must be a pattern", location));
     Assert.state(!location.startsWith(PatternResourceLoader.CLASSPATH_ALL_URL_PREFIX),
@@ -141,7 +144,7 @@ class LocationResourceLoader {
     Assert.state(StringUtils.countOccurrencesOf(location, "*") == 1,
             () -> String.format("Location '%s' cannot contain multiple wildcards", location));
     String directoryPath = (type != ResourceType.DIRECTORY) ? location.substring(0, location.lastIndexOf("/") + 1)
-                                                            : location;
+            : location;
     Assert.state(directoryPath.endsWith("*/"), () -> String.format("Location '%s' must end with '*/'", location));
   }
 

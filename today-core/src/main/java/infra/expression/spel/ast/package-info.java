@@ -18,9 +18,7 @@
 /**
  * SpEL's abstract syntax tree.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.expression.spel.ast;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

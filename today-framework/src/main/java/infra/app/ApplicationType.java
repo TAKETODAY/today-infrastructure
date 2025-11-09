@@ -17,11 +17,12 @@
 
 package infra.app;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.aot.hint.TypeReference;
 import infra.core.ReactiveStreams;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**

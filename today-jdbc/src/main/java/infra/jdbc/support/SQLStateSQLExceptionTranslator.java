@@ -17,6 +17,9 @@
 
 package infra.jdbc.support;
 
+import org.jspecify.annotations.Nullable;
+
+import java.sql.BatchUpdateException;
 import java.sql.SQLException;
 import java.util.Set;
 
@@ -29,7 +32,6 @@ import infra.dao.PessimisticLockingFailureException;
 import infra.dao.QueryTimeoutException;
 import infra.dao.TransientDataAccessResourceException;
 import infra.jdbc.BadSqlGrammarException;
-import infra.lang.Nullable;
 
 /**
  * {@link SQLExceptionTranslator} implementation that analyzes the SQL state in
@@ -68,10 +70,15 @@ public class SQLStateSQLExceptionTranslator extends AbstractFallbackSQLException
           "44"   // With check violation
   );
 
+  private static final Set<String> PESSIMISTIC_LOCKING_FAILURE_CODES = Set.of(
+          "40",  // Transaction rollback
+          "61"   // Oracle: deadlock
+  );
+
   private static final Set<String> DATA_ACCESS_RESOURCE_FAILURE_CODES = Set.of(
           "08",  // Connection exception
-          "53",  // PostgreSQL: insufficient resources (e.g. disk full)
-          "54",  // PostgreSQL: program limit exceeded (e.g. statement too complex)
+          "53",  // PostgreSQL: insufficient resources (for example, disk full)
+          "54",  // PostgreSQL: program limit exceeded (for example, statement too complex)
           "57",  // DB2: out-of-memory exception / database not started
           "58"   // DB2: unexpected system error
   );
@@ -80,11 +87,6 @@ public class SQLStateSQLExceptionTranslator extends AbstractFallbackSQLException
           "JW",  // Sybase: internal I/O error
           "JZ",  // Sybase: unexpected I/O error
           "S1"   // DB2: communication failure
-  );
-
-  private static final Set<String> PESSIMISTIC_LOCKING_FAILURE_CODES = Set.of(
-          "40",  // Transaction rollback
-          "61"   // Oracle: deadlock
   );
 
   private static final Set<Integer> DUPLICATE_KEY_ERROR_CODES = Set.of(
@@ -98,45 +100,61 @@ public class SQLStateSQLExceptionTranslator extends AbstractFallbackSQLException
   );
 
   @Override
-  @Nullable
-  protected DataAccessException doTranslate(String task, @Nullable String sql, SQLException ex) {
-    // First, the getSQLState check...
-    String sqlState = getSqlState(ex);
+  protected @Nullable DataAccessException doTranslate(String task, @Nullable String sql, SQLException ex) {
+    SQLException sqlEx = ex;
+    String sqlState;
+    if (sqlEx instanceof BatchUpdateException) {
+      // Unwrap BatchUpdateException to expose contained exception
+      // with potentially more specific SQL state.
+      if (sqlEx.getNextException() != null) {
+        SQLException nestedSqlEx = sqlEx.getNextException();
+        if (nestedSqlEx.getSQLState() != null) {
+          sqlEx = nestedSqlEx;
+        }
+      }
+      sqlState = sqlEx.getSQLState();
+    }
+    else {
+      // Expose top-level exception but potentially use nested SQL state.
+      sqlState = getSqlState(sqlEx);
+    }
+
+    // The actual SQL state check...
     if (sqlState != null && sqlState.length() >= 2) {
       String classCode = sqlState.substring(0, 2);
       if (logger.isDebugEnabled()) {
-        logger.debug("Extracted SQL state class '" + classCode + "' from value '" + sqlState + "'");
+        logger.debug("Extracted SQL state class '{}' from value '{}'", classCode, sqlState);
       }
       if (BAD_SQL_GRAMMAR_CODES.contains(classCode)) {
         return new BadSqlGrammarException(task, (sql != null ? sql : ""), ex);
       }
       else if (DATA_INTEGRITY_VIOLATION_CODES.contains(classCode)) {
-        if (indicatesDuplicateKey(sqlState, ex.getErrorCode())) {
-          return new DuplicateKeyException(buildMessage(task, sql, ex), ex);
+        if (indicatesDuplicateKey(sqlState, sqlEx.getErrorCode())) {
+          return new DuplicateKeyException(buildMessage(task, sql, sqlEx), ex);
         }
-        return new DataIntegrityViolationException(buildMessage(task, sql, ex), ex);
+        return new DataIntegrityViolationException(buildMessage(task, sql, sqlEx), ex);
       }
       else if (PESSIMISTIC_LOCKING_FAILURE_CODES.contains(classCode)) {
         if (indicatesCannotAcquireLock(sqlState)) {
-          return new CannotAcquireLockException(buildMessage(task, sql, ex), ex);
+          return new CannotAcquireLockException(buildMessage(task, sql, sqlEx), ex);
         }
-        return new PessimisticLockingFailureException(buildMessage(task, sql, ex), ex);
+        return new PessimisticLockingFailureException(buildMessage(task, sql, sqlEx), ex);
       }
       else if (DATA_ACCESS_RESOURCE_FAILURE_CODES.contains(classCode)) {
         if (indicatesQueryTimeout(sqlState)) {
-          return new QueryTimeoutException(buildMessage(task, sql, ex), ex);
+          return new QueryTimeoutException(buildMessage(task, sql, sqlEx), ex);
         }
-        return new DataAccessResourceFailureException(buildMessage(task, sql, ex), ex);
+        return new DataAccessResourceFailureException(buildMessage(task, sql, sqlEx), ex);
       }
       else if (TRANSIENT_DATA_ACCESS_RESOURCE_CODES.contains(classCode)) {
-        return new TransientDataAccessResourceException(buildMessage(task, sql, ex), ex);
+        return new TransientDataAccessResourceException(buildMessage(task, sql, sqlEx), ex);
       }
     }
 
     // For MySQL: exception class name indicating a timeout?
     // (since MySQL doesn't throw the JDBC 4 SQLTimeoutException)
-    if (ex.getClass().getName().contains("Timeout")) {
-      return new QueryTimeoutException(buildMessage(task, sql, ex), ex);
+    if (sqlEx.getClass().getName().contains("Timeout")) {
+      return new QueryTimeoutException(buildMessage(task, sql, sqlEx), ex);
     }
 
     // Couldn't resolve anything proper - resort to UncategorizedSQLException.
@@ -152,8 +170,7 @@ public class SQLStateSQLExceptionTranslator extends AbstractFallbackSQLException
    * is to be extracted
    * @return the SQL state code
    */
-  @Nullable
-  private String getSqlState(SQLException ex) {
+  private @Nullable String getSqlState(SQLException ex) {
     String sqlState = ex.getSQLState();
     if (sqlState == null) {
       SQLException nestedEx = ex.getNextException();

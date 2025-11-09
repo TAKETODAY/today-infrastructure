@@ -17,11 +17,12 @@
 
 package infra.http;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 import java.util.List;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
@@ -206,6 +207,17 @@ public final class ResponseCookie extends HttpCookie {
   }
 
   /**
+   * Creates a simple response cookie with the specified name and value.
+   *
+   * @param name the cookie name
+   * @param value the cookie value
+   * @return a ResponseCookie instance built with the provided name and value
+   */
+  public static ResponseCookie forSimple(String name, @Nullable String value) {
+    return ResponseCookie.from(name, value).build();
+  }
+
+  /**
    * Factory method to obtain a builder for a server-defined cookie, given its
    * name only, and where the value as well as other attributes can be set
    * later via builder methods.
@@ -225,7 +237,7 @@ public final class ResponseCookie extends HttpCookie {
    * @param value the cookie value
    * @return a builder to create the cookie with
    */
-  public static ResponseCookieBuilder from(final String name, final String value) {
+  public static ResponseCookieBuilder from(final String name, final @Nullable String value) {
     return new DefaultResponseCookieBuilder(name, value, false);
   }
 
@@ -239,7 +251,7 @@ public final class ResponseCookie extends HttpCookie {
    * @param value the cookie value
    * @return a builder to create the cookie with
    */
-  public static ResponseCookieBuilder fromClientResponse(final String name, final String value) {
+  public static ResponseCookieBuilder fromClientResponse(final String name, final @Nullable String value) {
     return new DefaultResponseCookieBuilder(name, value, true);
   }
 

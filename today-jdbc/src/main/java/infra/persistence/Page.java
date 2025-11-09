@@ -17,6 +17,9 @@
 
 package infra.persistence;
 
+import org.jspecify.annotations.Nullable;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -24,6 +27,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import infra.core.style.ToStringBuilder;
+import infra.lang.Assert;
 
 /**
  * Represents a paginated result set containing a subset of data from a larger dataset.
@@ -133,7 +137,7 @@ public class Page<T> {
    * typically retrieved from the database or another data source
    * @param rows the list of elements representing the data for the current page
    */
-  public Page(Pageable pageable, Number total, List<T> rows) {
+  public Page(Pageable pageable, Number total, @Nullable List<T> rows) {
     this(total, pageable.pageNumber(), pageable.pageSize(), rows);
   }
 
@@ -149,11 +153,12 @@ public class Page<T> {
    * @param rows the list of rows to be displayed on the current page.
    * Can be empty but must not be null.
    */
-  public Page(Number total, int pageNumber, int limit, List<T> rows) {
+  public Page(Number total, int pageNumber, int limit, @Nullable List<T> rows) {
+    Assert.isTrue(limit > 0, "limit must great than 0");
     // set basic params
     this.totalRows = total;
     this.limit = limit;
-    this.rows = rows;
+    this.rows = rows == null ? Collections.emptyList() : rows;
     this.totalPages = (int) ((total.longValue() - 1) / limit + 1);
 
     // automatic correction based on the current number of the wrong input
@@ -165,7 +170,7 @@ public class Page<T> {
     }
 
     this.firstPage = this.pageNumber == 1;
-    this.lastPage = this.totalPages == this.pageNumber && pageNumber != 1;
+    this.lastPage = this.totalPages == this.pageNumber;
     // and the determination of pageNum boundaries
     this.hasPrevPage = pageNumber != 1;
     this.hasNextPage = pageNumber != totalPages;
@@ -264,10 +269,8 @@ public class Page<T> {
    * @return the same {@code Page} instance, allowing for method chaining.
    */
   public Page<T> peek(Consumer<T> consumer) {
-    if (rows != null) {
-      for (T row : rows) {
-        consumer.accept(row);
-      }
+    for (T row : rows) {
+      consumer.accept(row);
     }
     return this;
   }
@@ -492,7 +495,7 @@ public class Page<T> {
    *
    * @return true if a previous page exists, false otherwise
    */
-  public boolean isHasPrevPage() {
+  public boolean hasPrevPage() {
     return hasPrevPage;
   }
 
@@ -507,7 +510,7 @@ public class Page<T> {
    *
    * @return true if there is a next page available; false otherwise.
    */
-  public boolean isHasNextPage() {
+  public boolean hasNextPage() {
     return hasNextPage;
   }
 

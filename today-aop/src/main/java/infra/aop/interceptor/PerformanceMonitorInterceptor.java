@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.aop.interceptor;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import infra.logging.Logger;
 import infra.util.StopWatch;
@@ -55,6 +56,7 @@ public class PerformanceMonitorInterceptor extends AbstractMonitoringInterceptor
   }
 
   @Override
+  @Nullable
   protected Object invokeUnderTrace(MethodInvocation invocation, Logger logger) throws Throwable {
     String name = createInvocationTraceName(invocation);
     StopWatch stopWatch = new StopWatch(name);

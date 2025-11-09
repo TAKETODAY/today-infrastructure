@@ -17,6 +17,8 @@
 
 package infra.context.properties.bind.handler;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -31,7 +33,6 @@ import infra.context.properties.source.ConfigurationProperty;
 import infra.context.properties.source.ConfigurationPropertyName;
 import infra.context.properties.source.ConfigurationPropertySource;
 import infra.context.properties.source.IterableConfigurationPropertySource;
-import infra.lang.Nullable;
 
 /**
  * {@link BindHandler} to enforce that all configuration properties under the root name
@@ -59,18 +60,21 @@ public class NoUnboundElementsBindHandler extends AbstractBindHandler {
     this.filter = filter;
   }
 
+  @Nullable
   @Override
   public <T> Bindable<T> onStart(ConfigurationPropertyName name, Bindable<T> target, BindContext context) {
     this.attemptedNames.add(name);
     return super.onStart(name, target, context);
   }
 
+  @Nullable
   @Override
   public Object onSuccess(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Object result) {
     this.boundNames.add(name);
     return super.onSuccess(name, target, context, result);
   }
 
+  @Nullable
   @Override
   public Object onFailure(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Exception error)
           throws Exception {
@@ -81,7 +85,7 @@ public class NoUnboundElementsBindHandler extends AbstractBindHandler {
   }
 
   @Override
-  public void onFinish(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Object result) {
+  public void onFinish(ConfigurationPropertyName name, Bindable<?> target, BindContext context, @Nullable Object result) {
     if (context.getDepth() == 0) {
       checkNoUnboundElements(name, context);
     }

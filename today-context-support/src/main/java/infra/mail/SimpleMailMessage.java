@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,12 @@
 
 package infra.mail;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serializable;
 import java.util.Date;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.mail.javamail.JavaMailSender;
 import infra.mail.javamail.MimeMailMessage;
 import infra.mail.javamail.MimeMessageHelper;
@@ -39,6 +40,7 @@ import infra.util.StringUtils;
  *
  * @author Dmitriy Kopylenko
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see MailSender
  * @see JavaMailSender
  * @see MimeMessagePreparator
@@ -55,14 +57,11 @@ public class SimpleMailMessage implements MailMessage, Serializable {
   @Nullable
   private String replyTo;
 
-  @Nullable
-  private String[] to;
+  private String @Nullable [] to;
 
-  @Nullable
-  private String[] cc;
+  private String @Nullable [] cc;
 
-  @Nullable
-  private String[] bcc;
+  private String @Nullable [] bcc;
 
   @Nullable
   private Date sentDate;
@@ -125,8 +124,7 @@ public class SimpleMailMessage implements MailMessage, Serializable {
     this.to = to;
   }
 
-  @Nullable
-  public String[] getTo() {
+  public String @Nullable [] getTo() {
     return this.to;
   }
 
@@ -140,8 +138,7 @@ public class SimpleMailMessage implements MailMessage, Serializable {
     this.cc = cc;
   }
 
-  @Nullable
-  public String[] getCc() {
+  public String @Nullable [] getCc() {
     return this.cc;
   }
 
@@ -155,8 +152,7 @@ public class SimpleMailMessage implements MailMessage, Serializable {
     this.bcc = bcc;
   }
 
-  @Nullable
-  public String[] getBcc() {
+  public String @Nullable [] getBcc() {
     return this.bcc;
   }
 
@@ -261,8 +257,7 @@ public class SimpleMailMessage implements MailMessage, Serializable {
     return sb.toString();
   }
 
-  @Nullable
-  private static String[] copyOrNull(@Nullable String[] state) {
+  private static String @Nullable [] copyOrNull(String @Nullable [] state) {
     if (state == null) {
       return null;
     }

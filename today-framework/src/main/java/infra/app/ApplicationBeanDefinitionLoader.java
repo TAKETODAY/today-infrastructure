@@ -17,6 +17,8 @@
 
 package infra.app;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.Collections;
@@ -38,7 +40,6 @@ import infra.core.io.ResourceLoader;
 import infra.core.type.filter.AbstractTypeHierarchyTraversingFilter;
 import infra.core.type.filter.TypeFilter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;

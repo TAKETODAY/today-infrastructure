@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jdbc.core.metadata;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -32,7 +34,6 @@ import infra.jdbc.core.namedparam.SqlParameterSource;
 import infra.jdbc.core.namedparam.SqlParameterSourceUtils;
 import infra.jdbc.support.JdbcUtils;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;
@@ -445,7 +446,7 @@ public class TableMetaDataContext {
       this.quoting = StringUtils.hasText(identifierQuoteString);
     }
 
-    public void appendTo(StringBuilder stringBuilder, String item) {
+    public void appendTo(StringBuilder stringBuilder, @Nullable String item) {
       if (this.quoting) {
         stringBuilder.append(this.identifierQuoteString)
                 .append(item).append(this.identifierQuoteString);

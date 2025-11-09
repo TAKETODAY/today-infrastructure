@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -273,7 +273,7 @@ class LoggingApplicationListenerTests {
   void parseDebugArgExpandGroups() {
     addPropertiesToEnvironment(this.context, "debug");
     this.listener.initialize(this.context.getEnvironment(), this.context.getClassLoader());
-    this.loggerContext.getLogger("infra.actuate.endpoint.web").debug("testdebugwebgroup");
+    this.loggerContext.getLogger("infra.session").debug("testdebugwebgroup");
     this.loggerContext.getLogger("org.hibernate.SQL").debug("testdebugsqlgroup");
     assertThat(this.output).contains("testdebugwebgroup");
     assertThat(this.output).contains("testdebugsqlgroup");
@@ -571,7 +571,6 @@ class LoggingApplicationListenerTests {
     assertTraceEnabled("infra.core.codec", true);
     assertTraceEnabled("infra.http", true);
     assertTraceEnabled("infra.web", true);
-    assertTraceEnabled("infra.actuate.endpoint.web", true);
   }
 
   @Test

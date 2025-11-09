@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 package infra.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.Collections;
 
 import infra.core.NestedRuntimeException;
 import infra.http.MediaType;
 import infra.http.ProblemDetail;
-import infra.lang.Nullable;
 import infra.lang.Unmodifiable;
 
 /**
@@ -41,8 +42,7 @@ public abstract class HttpMediaTypeException extends NestedRuntimeException impl
 
   private final String messageDetailCode;
 
-  @Nullable
-  private final Object[] messageDetailArguments;
+  private final Object @Nullable [] messageDetailArguments;
 
   /**
    * Create a new HttpMediaTypeException with a list of supported media types.
@@ -55,7 +55,7 @@ public abstract class HttpMediaTypeException extends NestedRuntimeException impl
    * @since 5.0
    */
   protected HttpMediaTypeException(@Nullable String message, Collection<MediaType> supportedMediaTypes,
-          @Nullable String messageDetailCode, @Nullable Object[] messageDetailArguments) {
+          @Nullable String messageDetailCode, Object @Nullable [] messageDetailArguments) {
 
     super(message);
     this.messageDetailArguments = messageDetailArguments;
@@ -82,8 +82,7 @@ public abstract class HttpMediaTypeException extends NestedRuntimeException impl
   }
 
   @Override
-  @Nullable
-  public Object[] getDetailMessageArguments() {
+  public Object @Nullable [] getDetailMessageArguments() {
     return this.messageDetailArguments;
   }
 

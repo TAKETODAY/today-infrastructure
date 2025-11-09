@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ import org.junit.runners.JUnit4;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import infra.core.annotation.AliasFor;
 import infra.test.annotation.Timed;
 import infra.test.context.TestExecutionListeners;
 
@@ -43,7 +44,7 @@ import infra.test.context.TestExecutionListeners;
 public class TimedInfraRunnerTests {
 
   protected Class<?> getTestCase() {
-    return TimedSpringRunnerTestCase.class;
+    return TimedInfraRunnerTestCase.class;
   }
 
   protected Class<? extends org.junit.runner.Runner> getRunnerClass() {
@@ -57,7 +58,7 @@ public class TimedInfraRunnerTests {
 
   @Ignore("TestCase classes are run manually by the enclosing test class")
   @TestExecutionListeners({})
-  public static class TimedSpringRunnerTestCase {
+  public static class TimedInfraRunnerTestCase {
 
     // Should Pass.
     @Test(timeout = 2000)
@@ -68,7 +69,7 @@ public class TimedInfraRunnerTests {
     // Should Pass.
     @Test
     @Timed(millis = 2000)
-    public void springTimeoutWithNoOp() {
+    public void infraTimeoutWithNoOp() {
       /* no-op */
     }
 
@@ -81,28 +82,28 @@ public class TimedInfraRunnerTests {
     // Should Fail due to timeout.
     @Test
     @Timed(millis = 10)
-    public void springTimeoutWithSleep() throws Exception {
+    public void infraTimeoutWithSleep() throws Exception {
       Thread.sleep(200);
     }
 
     // Should Fail due to timeout.
     @Test
     @MetaTimed
-    public void springTimeoutWithSleepAndMetaAnnotation() throws Exception {
+    public void infraTimeoutWithSleepAndMetaAnnotation() throws Exception {
       Thread.sleep(200);
     }
 
     // Should Fail due to timeout.
     @Test
     @MetaTimedWithOverride(millis = 10)
-    public void springTimeoutWithSleepAndMetaAnnotationAndOverride() throws Exception {
+    public void infraTimeoutWithSleepAndMetaAnnotationAndOverride() throws Exception {
       Thread.sleep(200);
     }
 
     // Should Fail due to duplicate configuration.
     @Test(timeout = 200)
     @Timed(millis = 200)
-    public void springAndJUnitTimeouts() {
+    public void infraAndJUnitTimeouts() {
       /* no-op */
     }
   }
@@ -115,6 +116,8 @@ public class TimedInfraRunnerTests {
   @Timed(millis = 1000)
   @Retention(RetentionPolicy.RUNTIME)
   private static @interface MetaTimedWithOverride {
+
+    @AliasFor(annotation = Timed.class)
     long millis() default 1000;
   }
 

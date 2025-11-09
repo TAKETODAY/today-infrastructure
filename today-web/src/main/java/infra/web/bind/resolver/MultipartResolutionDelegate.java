@@ -17,12 +17,13 @@
 
 package infra.web.bind.resolver;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 
 import infra.core.MethodParameter;
 import infra.core.ResolvableType;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.web.RequestContext;
 import infra.web.multipart.Multipart;

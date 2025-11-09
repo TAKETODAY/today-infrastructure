@@ -17,12 +17,13 @@
 
 package infra.web.handler.mvc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Supplier;
 
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
-import infra.lang.Nullable;
 import infra.web.HttpRequestHandler;
 import infra.web.RedirectModel;
 import infra.web.RequestContext;
@@ -43,16 +44,13 @@ import infra.web.view.View;
  */
 public class ParameterizableViewController extends AbstractController {
 
-  @Nullable
-  private Object returnValue;
+  private @Nullable Object returnValue;
 
-  @Nullable
-  private HttpStatusCode statusCode;
+  private @Nullable HttpStatusCode statusCode;
+
+  private @Nullable String contentType;
 
   private boolean statusOnly;
-
-  @Nullable
-  private String contentType;
 
   public ParameterizableViewController() {
     super(false);

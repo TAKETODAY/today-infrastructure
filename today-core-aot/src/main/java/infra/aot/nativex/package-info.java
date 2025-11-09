@@ -21,9 +21,7 @@
 /**
  * Support for generating GraalVM native configuration from runtime hints.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.aot.nativex;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

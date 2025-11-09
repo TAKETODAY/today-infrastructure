@@ -17,6 +17,8 @@
 
 package infra.jdbc.format;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Locale;
@@ -33,6 +35,7 @@ import infra.lang.TodayStrategies;
  * @since 4.0 2022/9/12 19:20
  */
 public class BasicSQLFormatter implements SQLFormatter {
+
   private static final boolean SKIP_DDL = TodayStrategies.getFlag("sql.BasicSQLFormatter.skip-ddl", true);
 
   private static final HashSet<String> BEGIN_CLAUSES = new HashSet<>();
@@ -108,6 +111,7 @@ public class BasicSQLFormatter implements SQLFormatter {
     return new BasicInternalFormatter().format(source);
   }
 
+  @SuppressWarnings("NullAway")
   private static final class BasicInternalFormatter {
     boolean beginLine = true;
     boolean afterBeginBeforeEnd;
@@ -123,9 +127,9 @@ public class BasicSQLFormatter implements SQLFormatter {
     int indent = 1;
 
     StringBuilder result = new StringBuilder();
-    String lastToken;
-    String token;
-    String lcToken;
+    @Nullable String lastToken;
+    @Nullable String token;
+    @Nullable String lcToken;
 
     public String format(String sql) {
       StringTokenizer tokens = new StringTokenizer(
@@ -394,7 +398,7 @@ public class BasicSQLFormatter implements SQLFormatter {
       parensSinceSelect++;
     }
 
-    private static boolean isFunctionName(String tok) {
+    private static boolean isFunctionName(@Nullable String tok) {
       if (tok == null || tok.isEmpty()) {
         return false;
       }

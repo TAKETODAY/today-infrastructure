@@ -17,6 +17,8 @@
 
 package infra.core.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Repeatable;
 import java.lang.reflect.Method;
@@ -25,7 +27,6 @@ import java.util.function.Function;
 
 import infra.lang.Assert;
 import infra.lang.NullValue;
-import infra.lang.Nullable;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.ObjectUtils;
 
@@ -106,8 +107,7 @@ public class RepeatableContainers {
    * (potentially an empty array), or {@code null} if the supplied annotation is
    * not a supported container annotation
    */
-  @Nullable
-  Annotation[] findRepeatedAnnotations(Annotation annotation) {
+  Annotation @Nullable [] findRepeatedAnnotations(Annotation annotation) {
     if (this.parent == null) {
       return null;
     }
@@ -202,8 +202,7 @@ public class RepeatableContainers {
     }
 
     @Override
-    @Nullable
-    Annotation[] findRepeatedAnnotations(Annotation annotation) {
+    Annotation @Nullable [] findRepeatedAnnotations(Annotation annotation) {
       Method method = getRepeatedAnnotationsMethod(annotation.annotationType());
       if (method != null) {
         return (Annotation[]) AnnotationUtils.invokeAnnotationMethod(method, annotation);
@@ -293,8 +292,7 @@ public class RepeatableContainers {
     }
 
     @Override
-    @Nullable
-    Annotation[] findRepeatedAnnotations(Annotation annotation) {
+    Annotation @Nullable [] findRepeatedAnnotations(Annotation annotation) {
       if (this.container.isAssignableFrom(annotation.annotationType())) {
         return (Annotation[]) AnnotationUtils.invokeAnnotationMethod(valueMethod, annotation);
       }
@@ -302,6 +300,7 @@ public class RepeatableContainers {
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public boolean equals(@Nullable Object other) {
       if (!super.equals(other)) {
         return false;

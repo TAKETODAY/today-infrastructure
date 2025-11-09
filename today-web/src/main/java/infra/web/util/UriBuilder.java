@@ -17,12 +17,13 @@
 
 package infra.web.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 
 /**
@@ -153,9 +154,10 @@ public interface UriBuilder {
   UriBuilder pathSegment(String... pathSegments) throws IllegalArgumentException;
 
   /**
-   * Parse the given query string into query parameters where parameters are
-   * separated with {@code '&'} and their values, if any, with {@code '='}.
-   * The query may contain URI template variables.
+   * Parse the given query string into query parameters, and append them to
+   * the query string. Query parameters are separated with {@code '&'} while
+   * their values, if any, are separated with {@code '='}. The query string
+   * may contain URI template variables.
    * <p><strong>Note: </strong> please, review the Javadoc of
    * {@link #queryParam(String, Object...)} for further notes on the treatment
    * and encoding of individual query parameters.
@@ -194,7 +196,7 @@ public interface UriBuilder {
    * @param values the query parameter values
    * @see #queryParam(String, Collection)
    */
-  UriBuilder queryParam(String name, Object... values);
+  UriBuilder queryParam(String name, @Nullable Object @Nullable ... values);
 
   /**
    * Variant of {@link #queryParam(String, Object...)} with a Collection.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -523,8 +523,8 @@ class ObjectUtilsTests {
 
   @Test
   void nullSafeToStringWithByteArray() {
-    byte[] array = { 5, 8 };
-    assertThat(ObjectUtils.nullSafeToString(array)).isEqualTo("{5, 8}");
+    byte[] array = { 5, 38 };
+    assertThat(ObjectUtils.nullSafeToString(array)).isEqualTo("{0526}");
   }
 
   @Test

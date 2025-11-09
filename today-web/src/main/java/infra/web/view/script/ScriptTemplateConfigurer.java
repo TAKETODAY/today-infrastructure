@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,10 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.view.script;
+
+import org.jspecify.annotations.Nullable;
 
 import java.nio.charset.Charset;
 import java.util.function.Supplier;
@@ -27,7 +26,6 @@ import javax.script.Bindings;
 import javax.script.ScriptEngine;
 
 import infra.core.io.ResourceLoader;
-import infra.lang.Nullable;
 
 /**
  * An implementation of Framework Web's {@link ScriptTemplateConfig} for creating
@@ -68,8 +66,7 @@ public class ScriptTemplateConfigurer implements ScriptTemplateConfig {
   @Nullable
   private Boolean sharedEngine;
 
-  @Nullable
-  private String[] scripts;
+  private String @Nullable [] scripts;
 
   @Nullable
   private String renderObject;
@@ -89,7 +86,8 @@ public class ScriptTemplateConfigurer implements ScriptTemplateConfig {
   /**
    * Default constructor.
    */
-  public ScriptTemplateConfigurer() { }
+  public ScriptTemplateConfigurer() {
+  }
 
   /**
    * Create a new ScriptTemplateConfigurer using the given engine name.
@@ -191,13 +189,12 @@ public class ScriptTemplateConfigurer implements ScriptTemplateConfig {
    * @see #setResourceLoaderPath
    * @see <a href="https://www.webjars.org">WebJars</a>
    */
-  public void setScripts(@Nullable String... scriptNames) {
+  public void setScripts(String @Nullable ... scriptNames) {
     this.scripts = scriptNames;
   }
 
   @Override
-  @Nullable
-  public String[] getScripts() {
+  public String @Nullable [] getScripts() {
     return this.scripts;
   }
 

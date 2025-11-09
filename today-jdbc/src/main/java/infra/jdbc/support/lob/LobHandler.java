@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,12 @@
 
 package infra.jdbc.support.lob;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.InputStream;
 import java.io.Reader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import infra.lang.Nullable;
 
 /**
  * Abstraction for handling large binary fields and large text fields in
@@ -64,6 +64,7 @@ import infra.lang.Nullable;
  * </ul>
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see DefaultLobHandler
  * @see ResultSet#getBlob
  * @see ResultSet#getClob
@@ -87,8 +88,8 @@ public interface LobHandler {
    * @throws SQLException if thrown by JDBC methods
    * @see ResultSet#getBytes
    */
-  @Nullable
-  byte[] getBlobAsBytes(ResultSet rs, String columnName) throws SQLException;
+
+  byte @Nullable [] getBlobAsBytes(ResultSet rs, String columnName) throws SQLException;
 
   /**
    * Retrieve the given column as bytes from the given ResultSet.
@@ -101,8 +102,7 @@ public interface LobHandler {
    * @throws SQLException if thrown by JDBC methods
    * @see ResultSet#getBytes
    */
-  @Nullable
-  byte[] getBlobAsBytes(ResultSet rs, int columnIndex) throws SQLException;
+  byte @Nullable [] getBlobAsBytes(ResultSet rs, int columnIndex) throws SQLException;
 
   /**
    * Retrieve the given column as binary stream from the given ResultSet.

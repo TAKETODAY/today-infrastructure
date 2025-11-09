@@ -17,6 +17,8 @@
 
 package infra.web.handler.function;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,8 +42,8 @@ import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
+import infra.http.server.RequestPath;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.validation.BindException;
@@ -235,6 +237,11 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
       this.cookies = new LinkedMultiValueMap<>(cookies);
       this.attributes = new LinkedHashMap<>(attributes);
       this.versionStrategy = versionStrategy;
+    }
+
+    @Override
+    public RequestPath requestPath() {
+      return requestContext.getRequestPath();
     }
 
     @Override

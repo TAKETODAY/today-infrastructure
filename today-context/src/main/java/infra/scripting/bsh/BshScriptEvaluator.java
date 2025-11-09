@@ -17,6 +17,8 @@
 
 package infra.scripting.bsh;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Map;
@@ -24,7 +26,6 @@ import java.util.Map;
 import bsh.EvalError;
 import bsh.Interpreter;
 import infra.beans.factory.BeanClassLoaderAware;
-import infra.lang.Nullable;
 import infra.scripting.ScriptCompilationException;
 import infra.scripting.ScriptEvaluator;
 import infra.scripting.ScriptSource;

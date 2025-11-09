@@ -17,6 +17,8 @@
 
 package infra.web.resource;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -26,7 +28,6 @@ import infra.core.io.FileSystemResource;
 import infra.core.io.Resource;
 import infra.core.io.UrlResource;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.LogFormatUtils;
@@ -209,7 +210,7 @@ public abstract class ResourceHandlerUtils {
    * @param path the path to validate
    * @return {@code true} if the path is invalid, {@code false} otherwise
    */
-  private static boolean isInvalidEncodedPath(String path) {
+  static boolean isInvalidEncodedPath(String path) {
     String decodedPath = decode(path);
     if (decodedPath.contains("%")) {
       decodedPath = decode(decodedPath);
@@ -264,7 +265,7 @@ public abstract class ResourceHandlerUtils {
     return resourcePath.startsWith(locationPath) && !isInvalidEncodedResourcePath(resourcePath);
   }
 
-  private static boolean isInvalidEncodedResourcePath(String resourcePath) {
+  static boolean isInvalidEncodedResourcePath(String resourcePath) {
     if (resourcePath.contains("%")) {
       // Use URLDecoder (vs UriUtils) to preserve potentially decoded UTF-8 chars...
       try {

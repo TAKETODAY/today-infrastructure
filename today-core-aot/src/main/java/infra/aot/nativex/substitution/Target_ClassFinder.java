@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,13 +12,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.aot.nativex.substitution;
 
 import com.oracle.svm.core.annotate.Alias;
 import com.oracle.svm.core.annotate.TargetClass;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * Allow to reference {@code com.sun.beans.finder.ClassFinder} from
@@ -36,6 +35,7 @@ import com.oracle.svm.core.annotate.TargetClass;
 final class Target_ClassFinder {
 
   @Alias
+  @Nullable
   public static Class<?> findClass(String name, ClassLoader loader) throws ClassNotFoundException {
     return null;
   }

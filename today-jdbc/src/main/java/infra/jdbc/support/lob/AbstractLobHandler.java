@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,12 @@
 
 package infra.jdbc.support.lob;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.InputStream;
 import java.io.Reader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import infra.lang.Nullable;
 
 /**
  * Abstract base class for {@link LobHandler} implementations.
@@ -31,14 +31,14 @@ import infra.lang.Nullable;
  * and delegating to the corresponding accessor that takes a column index.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see ResultSet#findColumn
  * @since 4.0
  */
 public abstract class AbstractLobHandler implements LobHandler {
 
   @Override
-  @Nullable
-  public byte[] getBlobAsBytes(ResultSet rs, String columnName) throws SQLException {
+  public byte @Nullable [] getBlobAsBytes(ResultSet rs, String columnName) throws SQLException {
     return getBlobAsBytes(rs, rs.findColumn(columnName));
   }
 

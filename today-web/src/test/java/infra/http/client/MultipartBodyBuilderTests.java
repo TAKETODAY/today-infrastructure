@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,30 +65,30 @@ public class MultipartBodyBuilderTests {
     HttpEntity<?> resultEntity = result.getFirst("key");
     assertThat(resultEntity).isNotNull();
     assertThat(resultEntity.getBody()).isEqualTo(multipartData);
-    assertThat(resultEntity.getHeaders().getFirst("foo")).isEqualTo("bar");
+    assertThat(resultEntity.headers().getFirst("foo")).isEqualTo("bar");
 
     resultEntity = result.getFirst("logo");
     assertThat(resultEntity).isNotNull();
     assertThat(resultEntity.getBody()).isEqualTo(logo);
-    assertThat(resultEntity.getHeaders().getFirst("baz")).isEqualTo("qux");
+    assertThat(resultEntity.headers().getFirst("baz")).isEqualTo("qux");
 
     resultEntity = result.getFirst("entity");
     assertThat(resultEntity).isNotNull();
     assertThat(resultEntity.getBody()).isEqualTo("body");
-    assertThat(resultEntity.getHeaders().getFirst("foo")).isEqualTo("bar");
-    assertThat(resultEntity.getHeaders().getFirst("baz")).isEqualTo("qux");
+    assertThat(resultEntity.headers().getFirst("foo")).isEqualTo("bar");
+    assertThat(resultEntity.headers().getFirst("baz")).isEqualTo("qux");
 
     resultEntity = result.getFirst("publisherClass");
     assertThat(resultEntity).isNotNull();
     assertThat(resultEntity.getBody()).isEqualTo(publisher);
     assertThat(((PublisherEntity<?, ?>) resultEntity).getResolvableType()).isEqualTo(ResolvableType.forClass(String.class));
-    assertThat(resultEntity.getHeaders().getFirst("baz")).isEqualTo("qux");
+    assertThat(resultEntity.headers().getFirst("baz")).isEqualTo("qux");
 
     resultEntity = result.getFirst("publisherPtr");
     assertThat(resultEntity).isNotNull();
     assertThat(resultEntity.getBody()).isEqualTo(publisher);
     assertThat(((PublisherEntity<?, ?>) resultEntity).getResolvableType()).isEqualTo(ResolvableType.forClass(String.class));
-    assertThat(resultEntity.getHeaders().getFirst("baz")).isEqualTo("qux");
+    assertThat(resultEntity.headers().getFirst("baz")).isEqualTo("qux");
   }
 
   @Test

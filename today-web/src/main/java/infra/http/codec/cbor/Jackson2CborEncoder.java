@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ package infra.http.codec.cbor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.util.Map;
@@ -56,7 +57,7 @@ public class Jackson2CborEncoder extends AbstractJackson2Encoder {
 
   @Override
   public Flux<DataBuffer> encode(Publisher<?> inputStream, DataBufferFactory bufferFactory,
-          ResolvableType elementType, MimeType mimeType, Map<String, Object> hints) {
+          ResolvableType elementType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
     throw new UnsupportedOperationException("Does not support stream encoding yet");
   }
 

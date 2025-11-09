@@ -17,6 +17,8 @@
 
 package infra.annotation.config.task;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 
 import infra.context.properties.ConfigurationProperties;
@@ -82,8 +84,10 @@ public class TaskExecutionProperties {
      * Set the maximum number of parallel accesses allowed. -1 indicates no
      * concurrency limit at all.
      */
+    @Nullable
     private Integer concurrencyLimit;
 
+    @Nullable
     public Integer getConcurrencyLimit() {
       return this.concurrencyLimit;
     }
@@ -203,6 +207,7 @@ public class TaskExecutionProperties {
     /**
      * Maximum time the executor should wait for remaining tasks to complete.
      */
+    @Nullable
     private Duration awaitTerminationPeriod;
 
     public boolean isAwaitTermination() {
@@ -213,6 +218,7 @@ public class TaskExecutionProperties {
       this.awaitTermination = awaitTermination;
     }
 
+    @Nullable
     public Duration getAwaitTerminationPeriod() {
       return this.awaitTerminationPeriod;
     }

@@ -17,11 +17,12 @@
 
 package infra.web.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Locale;
 import java.util.Set;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.LogDelegateFactory;
 import infra.logging.Logger;
 

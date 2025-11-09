@@ -20,9 +20,7 @@
  * Provides an abstraction over various serialization techniques.
  * Includes exceptions for serialization and deserialization failures.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.core.serializer;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

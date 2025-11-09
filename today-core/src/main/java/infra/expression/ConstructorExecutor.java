@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.expression;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * A {@code ConstructorExecutor} is built by a {@link ConstructorResolver} and
@@ -51,6 +53,6 @@ public interface ConstructorExecutor {
    * @throws AccessException if there is a problem executing the constructor or
    * if this {@code ConstructorExecutor} has become stale
    */
-  TypedValue execute(EvaluationContext context, Object... arguments) throws AccessException;
+  TypedValue execute(EvaluationContext context, @Nullable Object... arguments) throws AccessException;
 
 }

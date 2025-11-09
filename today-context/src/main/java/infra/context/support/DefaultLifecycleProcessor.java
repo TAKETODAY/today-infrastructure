@@ -21,6 +21,7 @@ import org.crac.CheckpointException;
 import org.crac.Core;
 import org.crac.RestoreException;
 import org.crac.management.CRaCMXBean;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,7 +51,6 @@ import infra.context.Phased;
 import infra.context.SmartLifecycle;
 import infra.core.NativeDetector;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
@@ -707,35 +707,36 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
    */
   private class CracResourceAdapter implements org.crac.Resource {
 
-    @Nullable
-    private CyclicBarrier barrier;
+    private final CyclicBarrier afterRestoreBarrier = new CyclicBarrier(2);
+
+    private final CyclicBarrier beforeCheckpointBarrier = new CyclicBarrier(2);
 
     @Override
     public void beforeCheckpoint(org.crac.Context<? extends org.crac.Resource> context) {
-      // A non-daemon thread for preventing an accidental JVM shutdown before the checkpoint
-      this.barrier = new CyclicBarrier(2);
-
-      Thread thread = new Thread(() -> {
-        awaitPreventShutdownBarrier();
-        // Checkpoint happens here
-        awaitPreventShutdownBarrier();
-      }, "prevent-shutdown");
-
+      Thread thread = new Thread(this::preventShutdown, "prevent-shutdown");
       thread.setDaemon(false);
       thread.start();
-      awaitPreventShutdownBarrier();
 
       log.debug("Stopping Infra-managed lifecycle beans before JVM checkpoint");
       stopForRestart();
     }
 
+    private void preventShutdown() {
+      awaitBarrier(this.beforeCheckpointBarrier);
+      // Checkpoint happens here
+      awaitBarrier(this.afterRestoreBarrier);
+    }
+
     @Override
     public void afterRestore(org.crac.Context<? extends org.crac.Resource> context) {
+      // Unlock barrier for beforeCheckpoint
+      awaitBarrier(this.beforeCheckpointBarrier);
+
       log.info("Restarting Infra-managed lifecycle beans after JVM restore");
       restartAfterStop();
 
-      // Barrier for prevent-shutdown thread not needed anymore
-      this.barrier = null;
+      // Unlock barrier for afterRestore to shutdown "prevent-shutdown" thread
+      awaitBarrier(this.afterRestoreBarrier);
 
       if (!checkpointOnRefresh) {
         log.info("Infra-managed lifecycle restart completed (restored JVM running for {} ms)",
@@ -743,14 +744,12 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
       }
     }
 
-    private void awaitPreventShutdownBarrier() {
+    private void awaitBarrier(CyclicBarrier barrier) {
       try {
-        if (this.barrier != null) {
-          this.barrier.await();
-        }
+        barrier.await();
       }
       catch (Exception ex) {
-        log.trace("Exception from prevent-shutdown barrier", ex);
+        log.trace("Exception from barrier", ex);
       }
     }
   }

@@ -17,6 +17,8 @@
 
 package infra.web.service.invoker;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -34,7 +36,6 @@ import infra.core.annotation.RepeatableContainers;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.VisibleForTesting;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
@@ -203,6 +204,7 @@ final class HttpRequestValuesInitializer {
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private static String initURL(@Nullable MergedAnnotation<?> typeAnnot,
           MergedAnnotation<?> annot, @Nullable StringValueResolver embeddedValueResolver) {
 

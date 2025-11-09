@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.util;
+
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -37,7 +39,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Unmodifiable wrapper for {@link MultiValueMap}.
@@ -99,6 +100,7 @@ final class UnmodifiableMultiValueMap<K, V> implements MultiValueMap<K, V>, Seri
     return result != null ? Collections.unmodifiableList(result) : null;
   }
 
+  @Nullable
   @Override
   public V getFirst(K key) {
     return this.delegate.getFirst(key);
@@ -234,7 +236,7 @@ final class UnmodifiableMultiValueMap<K, V> implements MultiValueMap<K, V>, Seri
 
   @Nullable
   @Override
-  public List<V> setOrRemove(K key, @Nullable V[] values) {
+  public List<V> setOrRemove(K key, V @Nullable [] values) {
     throw new UnsupportedOperationException();
   }
 

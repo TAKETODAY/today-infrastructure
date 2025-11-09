@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
 
 package infra.cache.jcache.config;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.cache.annotation.CachingConfigurer;
 import infra.cache.annotation.EnableCaching;
 import infra.cache.interceptor.CacheResolver;
-import infra.lang.Nullable;
 import infra.context.annotation.Bean;
 
 /**

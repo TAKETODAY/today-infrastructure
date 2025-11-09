@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@ package infra.aop.interceptor;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serializable;
 
@@ -47,6 +48,8 @@ import infra.logging.LoggerFactory;
  */
 @SuppressWarnings("serial")
 public abstract class AbstractTraceInterceptor implements MethodInterceptor, Serializable {
+
+  @Nullable
   protected transient Logger defaultLogger = LoggerFactory.getLogger(getClass());
 
   /**
@@ -121,6 +124,7 @@ public abstract class AbstractTraceInterceptor implements MethodInterceptor, Ser
    * @see #invokeUnderTrace(MethodInvocation, Logger)
    */
   @Override
+  @Nullable
   public Object invoke(MethodInvocation invocation) throws Throwable {
     Logger logger = getLoggerForInvocation(invocation);
     if (isInterceptorEnabled(invocation, logger)) {
@@ -216,7 +220,7 @@ public abstract class AbstractTraceInterceptor implements MethodInterceptor, Ser
    * @see #setLogExceptionStackTrace
    * @see #isLogEnabled
    */
-  protected void writeToLog(Logger logger, String message, Throwable ex) {
+  protected void writeToLog(Logger logger, String message, @Nullable Throwable ex) {
     if (ex != null && this.logExceptionStackTrace) {
       logger.trace(message, ex);
     }
@@ -244,6 +248,7 @@ public abstract class AbstractTraceInterceptor implements MethodInterceptor, Ser
    * @see #writeToLog(Logger, String)
    * @see #writeToLog(Logger, String, Throwable)
    */
+  @Nullable
   protected abstract Object invokeUnderTrace(MethodInvocation invocation, Logger logger) throws Throwable;
 
 }

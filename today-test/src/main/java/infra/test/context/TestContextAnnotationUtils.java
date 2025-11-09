@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.test.context;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.util.Collections;
@@ -34,8 +36,8 @@ import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.core.annotation.RepeatableContainers;
 import infra.core.style.ToStringBuilder;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
+import infra.test.context.NestedTestConfiguration.EnclosingConfiguration;
 import infra.util.ClassUtils;
 import infra.util.ConcurrentLruCache;
 import infra.util.ObjectUtils;
@@ -73,11 +75,11 @@ import infra.util.ObjectUtils;
  */
 public abstract class TestContextAnnotationUtils {
 
-  private static final ConcurrentLruCache<Class<?>, NestedTestConfiguration.EnclosingConfiguration> cachedEnclosingConfigurationModes =
+  private static final ConcurrentLruCache<Class<?>, EnclosingConfiguration> cachedEnclosingConfigurationModes =
           new ConcurrentLruCache<>(32, TestContextAnnotationUtils::lookUpEnclosingConfiguration);
 
   @Nullable
-  private static volatile NestedTestConfiguration.EnclosingConfiguration defaultEnclosingConfigurationMode;
+  private static volatile EnclosingConfiguration defaultEnclosingConfigurationMode;
 
   /**
    * Determine if an annotation of the specified {@code annotationType} is
@@ -404,7 +406,7 @@ public abstract class TestContextAnnotationUtils {
    */
   public static boolean searchEnclosingClass(Class<?> clazz) {
     return (ClassUtils.isInnerClass(clazz) &&
-            getEnclosingConfiguration(clazz) == NestedTestConfiguration.EnclosingConfiguration.INHERIT);
+            getEnclosingConfiguration(clazz) == EnclosingConfiguration.INHERIT);
   }
 
   static void clearCaches() {
@@ -413,17 +415,17 @@ public abstract class TestContextAnnotationUtils {
   }
 
   /**
-   * Get the {@link NestedTestConfiguration.EnclosingConfiguration} mode for the supplied class.
+   * Get the {@link EnclosingConfiguration} mode for the supplied class.
    *
    * @param clazz the class for which the enclosing configuration mode should
    * be resolved
    * @return the resolved enclosing configuration mode
    */
-  private static NestedTestConfiguration.EnclosingConfiguration getEnclosingConfiguration(Class<?> clazz) {
+  private static EnclosingConfiguration getEnclosingConfiguration(Class<?> clazz) {
     return cachedEnclosingConfigurationModes.get(clazz);
   }
 
-  private static NestedTestConfiguration.EnclosingConfiguration lookUpEnclosingConfiguration(Class<?> clazz) {
+  private static EnclosingConfiguration lookUpEnclosingConfiguration(Class<?> clazz) {
     // @NestedTestConfiguration should not be discovered on an enclosing class
     // for a nested interface (which is always static), so our predicate simply
     // ensures that the candidate class is an inner class.
@@ -433,13 +435,13 @@ public abstract class TestContextAnnotationUtils {
     return (nestedTestConfiguration != null ? nestedTestConfiguration.value() : getDefaultEnclosingConfigurationMode());
   }
 
-  private static NestedTestConfiguration.EnclosingConfiguration getDefaultEnclosingConfigurationMode() {
-    NestedTestConfiguration.EnclosingConfiguration defaultConfigurationMode = defaultEnclosingConfigurationMode;
+  private static EnclosingConfiguration getDefaultEnclosingConfigurationMode() {
+    EnclosingConfiguration defaultConfigurationMode = defaultEnclosingConfigurationMode;
     if (defaultConfigurationMode == null) {
       String value = TodayStrategies.getProperty(NestedTestConfiguration.ENCLOSING_CONFIGURATION_PROPERTY_NAME);
-      NestedTestConfiguration.EnclosingConfiguration enclosingConfigurationMode = NestedTestConfiguration.EnclosingConfiguration.from(value);
+      EnclosingConfiguration enclosingConfigurationMode = EnclosingConfiguration.from(value);
       defaultConfigurationMode =
-              (enclosingConfigurationMode != null ? enclosingConfigurationMode : NestedTestConfiguration.EnclosingConfiguration.INHERIT);
+              (enclosingConfigurationMode != null ? enclosingConfigurationMode : EnclosingConfiguration.INHERIT);
       defaultEnclosingConfigurationMode = defaultConfigurationMode;
     }
     return defaultConfigurationMode;

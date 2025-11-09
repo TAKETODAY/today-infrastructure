@@ -17,7 +17,8 @@
 
 package infra.web.accept;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import infra.web.RequestContext;
 
 /**
@@ -96,9 +97,10 @@ public interface ApiVersionStrategy {
    * to specify relevant dates and provide links to further details.
    *
    * @param version the resolved and parsed request version
+   * @param handler the handler chosen for the request
    * @param request the current request
    * @see ApiVersionDeprecationHandler
    */
-  void handleDeprecations(Comparable<?> version, RequestContext request);
+  void handleDeprecations(Comparable<?> version, Object handler, RequestContext request);
 
 }

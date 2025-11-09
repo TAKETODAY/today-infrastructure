@@ -17,12 +17,14 @@
 
 package infra.web.socket;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -30,12 +32,10 @@ import java.util.concurrent.CountDownLatch;
 import infra.app.InfraApplication;
 import infra.app.test.context.InfraTest;
 import infra.app.test.web.server.LocalServerPort;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.context.ActiveProfiles;
 import infra.test.context.TestPropertySource;
-import infra.util.StringUtils;
 import infra.util.concurrent.Future;
 import infra.web.RequestContext;
 import infra.web.socket.client.support.NettyWebSocketClient;
@@ -68,7 +68,7 @@ class DispatchTests {
 
   @Test
   void test() throws Exception {
-    String generated = StringUtils.generateRandomString(1024);
+    String generated = generateRandomString(1024);
     String path = "ws://localhost:%d/websocket".formatted(port);
     CountDownLatch latch = new CountDownLatch(1);
     CountDownLatch dataLatch = new CountDownLatch(connections);
@@ -183,5 +183,37 @@ class DispatchTests {
     }
 
   }
+
+  private static final Random random = new Random();
+
+  public static String generateRandomString(int length) {
+    final char[] ret = new char[length];
+    for (int i = 0; i < length; i++) {
+      ret[i] = generateRandomCharacter(random.nextInt(3));
+    }
+    return String.valueOf(ret);
+  }
+
+  private static char generateRandomCharacter(int type) {
+    int rand;
+    switch (type) {
+      case 0 -> {//随机小写字母
+        rand = random.nextInt(26);
+        rand += 97;
+        return (char) rand;
+      }
+      case 1 -> {//随机大写字母
+        rand = random.nextInt(26);
+        rand += 65;
+        return (char) rand;
+      }//随机数字
+      default -> {
+        rand = random.nextInt(10);
+        rand += 48;
+        return (char) rand;
+      }
+    }
+  }
+  // 3.0
 
 }

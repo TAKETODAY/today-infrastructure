@@ -17,6 +17,8 @@
 
 package infra.app.logging.logback;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Supplier;
 
 import ch.qos.logback.classic.Level;
@@ -27,7 +29,6 @@ import ch.qos.logback.core.pattern.Converter;
 import ch.qos.logback.core.spi.LifeCycle;
 import ch.qos.logback.core.status.InfoStatus;
 import ch.qos.logback.core.status.Status;
-import infra.lang.Nullable;
 
 /**
  * Custom {@link LogbackConfigurator} used to add {@link Status Statuses} when Logback

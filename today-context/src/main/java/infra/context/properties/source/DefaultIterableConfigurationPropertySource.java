@@ -17,6 +17,8 @@
 
 package infra.context.properties.source;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
@@ -36,7 +38,6 @@ import infra.core.env.MapPropertySource;
 import infra.core.env.PropertySource;
 import infra.core.env.StandardEnvironment;
 import infra.core.env.SystemEnvironmentPropertySource;
-import infra.lang.Nullable;
 import infra.origin.Origin;
 import infra.origin.OriginLookup;
 import infra.origin.PropertySourceOrigin;
@@ -55,6 +56,7 @@ import infra.util.ConcurrentReferenceHashMap;
  * @see PropertyMapper
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPropertySource
         implements IterableConfigurationPropertySource, CachingConfigurationPropertySource {
 
@@ -62,8 +64,7 @@ class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPro
 
   private final SoftReferenceConfigurationPropertyCache<Cache> cache;
 
-  @Nullable
-  private volatile ConfigurationPropertyName[] configurationPropertyNames;
+  private volatile ConfigurationPropertyName @Nullable [] configurationPropertyNames;
 
   @Nullable
   private final Map<ConfigurationPropertyName, ConfigurationPropertyState> containsDescendantOfCache;
@@ -354,8 +355,8 @@ class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPro
     private record Data(Map<ConfigurationPropertyName, Set<String>> mappings,
             @Nullable Map<String, ConfigurationPropertyName> reverseMappings,
             @Nullable Set<ConfigurationPropertyName> descendants,
-            @Nullable ConfigurationPropertyName[] configurationPropertyNames,
-            @Nullable Map<String, Object> systemEnvironmentCopy, @Nullable String[] lastUpdated) {
+            ConfigurationPropertyName @Nullable [] configurationPropertyNames,
+            @Nullable Map<String, Object> systemEnvironmentCopy, String @Nullable [] lastUpdated) {
 
     }
 

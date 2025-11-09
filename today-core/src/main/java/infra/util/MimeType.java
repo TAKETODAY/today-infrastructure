@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.util;
+
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -34,8 +36,6 @@ import java.util.Objects;
 import java.util.TreeSet;
 
 import infra.lang.Assert;
-import infra.lang.Constant;
-import infra.lang.Nullable;
 
 /**
  * Represents a MIME Type, as originally defined in RFC 2046 and subsequently
@@ -624,7 +624,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
   }
 
   @Override
-  public boolean equals(Object other) {
+  public boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;
     }
@@ -754,7 +754,13 @@ public class MimeType implements Comparable<MimeType>, Serializable {
       else {
         String thisValue = getParameters().get(thisAttribute);
         String otherValue = other.getParameters().get(otherAttribute);
-        comp = thisValue.compareTo(otherValue == null ? Constant.BLANK : otherValue);
+        if (thisValue == null) {
+          throw new IllegalArgumentException("Parameter for " + thisAttribute + " must not be null");
+        }
+        if (otherValue == null) {
+          otherValue = "";
+        }
+        comp = thisValue.compareTo(otherValue);
         if (comp != 0) {
           return comp;
         }

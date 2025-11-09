@@ -16,6 +16,8 @@
  */
 package infra.beans;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -33,7 +35,6 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
@@ -233,7 +234,7 @@ public class PropertyValues implements Iterable<PropertyValue>, Serializable {
    * @param pvs the PropertyValue array object to add
    * @return this in order to allow for adding multiple property values in a chain
    */
-  public PropertyValues add(@Nullable PropertyValue... pvs) {
+  public PropertyValues add(PropertyValue @Nullable ... pvs) {
     if (ObjectUtils.isNotEmpty(pvs)) {
       ArrayList<PropertyValue> propertyValues = propertyValues();
       outer:

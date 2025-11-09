@@ -17,6 +17,8 @@
 
 package infra.web.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.ParameterizedType;
@@ -55,7 +57,6 @@ import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;
@@ -87,7 +88,7 @@ final class DefaultRestClient implements RestClient {
   @Nullable
   private final List<ClientHttpRequestInterceptor> interceptors;
 
-  private final UriBuilderFactory uriBuilderFactory;
+  final UriBuilderFactory uriBuilderFactory;
 
   @Nullable
   private final HttpHeaders defaultHeaders;
@@ -100,7 +101,7 @@ final class DefaultRestClient implements RestClient {
 
   private final ResponseErrorHandler defaultStatusHandler;
 
-  private final DefaultRestClientBuilder builder;
+  final DefaultRestClientBuilder builder;
 
   private final List<HttpMessageConverter<?>> messageConverters;
 
@@ -251,7 +252,7 @@ final class DefaultRestClient implements RestClient {
     }
   }
 
-  private static MediaType getContentType(ClientHttpResponse clientResponse) {
+  static MediaType getContentType(ClientHttpResponse clientResponse) {
     MediaType contentType = clientResponse.getHeaders().getContentType();
     if (contentType == null) {
       contentType = MediaType.APPLICATION_OCTET_STREAM;
@@ -260,7 +261,7 @@ final class DefaultRestClient implements RestClient {
   }
 
   @SuppressWarnings("unchecked")
-  private static <T> Class<T> bodyClass(Type type) {
+  static <T> Class<T> bodyClass(Type type) {
     if (type instanceof Class<?> clazz) {
       return (Class<T>) clazz;
     }
@@ -301,30 +302,23 @@ final class DefaultRestClient implements RestClient {
     }
   }
 
-  private class DefaultRequestBodyUriSpec implements RequestBodyUriSpec {
+  class DefaultRequestBodyUriSpec implements RequestBodyUriSpec {
 
-    private final HttpMethod httpMethod;
+    public final HttpMethod httpMethod;
 
-    @Nullable
-    private URI uri;
+    public @Nullable URI uri;
 
-    @Nullable
-    private HttpHeaders headers;
+    public @Nullable HttpHeaders headers;
 
-    @Nullable
-    private MultiValueMap<String, String> cookies;
+    public @Nullable MultiValueMap<String, String> cookies;
 
-    @Nullable
-    private InternalBody body;
+    public @Nullable InternalBody body;
 
-    @Nullable
-    private Consumer<ClientHttpRequest> httpRequestConsumer;
+    public @Nullable Consumer<ClientHttpRequest> httpRequestConsumer;
 
-    @Nullable
-    private Map<String, Object> attributes;
+    public @Nullable Map<String, Object> attributes;
 
-    @Nullable
-    private Object apiVersion;
+    public @Nullable Object apiVersion;
 
     public DefaultRequestBodyUriSpec(HttpMethod httpMethod) {
       this.httpMethod = httpMethod;
@@ -754,15 +748,15 @@ final class DefaultRestClient implements RestClient {
     }
   }
 
-  private abstract class AbstractResponseSpec<T extends AbstractResponseSpec<T>> {
+  abstract class AbstractResponseSpec<T extends AbstractResponseSpec<T>> {
 
-    private final HttpRequest clientRequest;
+    public final HttpRequest clientRequest;
 
-    private final ArrayList<ResponseErrorHandler> statusHandlers = new ArrayList<>();
+    public final ArrayList<ResponseErrorHandler> statusHandlers = new ArrayList<>();
 
     protected boolean ignoreStatus;
 
-    private AbstractResponseSpec(HttpRequest clientRequest) {
+    public AbstractResponseSpec(HttpRequest clientRequest) {
       this.clientRequest = clientRequest;
       this.ignoreStatus = DefaultRestClient.this.ignoreStatusHandlers;
     }
@@ -877,12 +871,14 @@ final class DefaultRestClient implements RestClient {
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public <T> Future<T> body(Class<T> bodyType) {
       return clientResponse.map(response ->
               ignoreStatus(false).readBody(response, bodyType, bodyType));
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public <T> Future<T> body(ParameterizedTypeReference<T> bodyType) {
       return clientResponse.map(response -> {
         Type type = bodyType.getType();
@@ -919,9 +915,9 @@ final class DefaultRestClient implements RestClient {
 
   }
 
-  private class DefaultClientResponse implements ClientResponse {
+  class DefaultClientResponse implements ClientResponse {
 
-    private final ClientHttpResponse delegate;
+    public final ClientHttpResponse delegate;
 
     public DefaultClientResponse(ClientHttpResponse delegate) {
       this.delegate = delegate;

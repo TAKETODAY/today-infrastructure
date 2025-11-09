@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -26,7 +28,6 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.function.SingletonSupplier;
 
 /**
@@ -55,17 +56,16 @@ import infra.util.function.SingletonSupplier;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/16 17:01
  */
+@SuppressWarnings("NullAway")
 public final class PropertyMapper {
 
   private static final Predicate<?> ALWAYS = (t) -> true;
 
   private static final PropertyMapper INSTANCE = new PropertyMapper(null, null);
 
-  @Nullable
-  private final PropertyMapper parent;
+  private final @Nullable PropertyMapper parent;
 
-  @Nullable
-  private final SourceOperator sourceOperator;
+  private final @Nullable SourceOperator sourceOperator;
 
   private PropertyMapper(@Nullable PropertyMapper parent, @Nullable SourceOperator sourceOperator) {
     this.parent = parent;
@@ -107,7 +107,7 @@ public final class PropertyMapper {
    * @return a {@link Source} that can be used to complete the mapping
    * @see #from(Object)
    */
-  public <T> Source<T> from(Supplier<T> supplier) {
+  public <T> Source<T> from(Supplier<@Nullable T> supplier) {
     Assert.notNull(supplier, "Supplier is required");
     Source<T> source = getSource(supplier);
     if (this.sourceOperator != null) {
@@ -133,7 +133,7 @@ public final class PropertyMapper {
     if (this.parent != null) {
       return this.parent.from(supplier);
     }
-    return new Source<>(SingletonSupplier.from(supplier), (Predicate<T>) ALWAYS);
+    return new Source<>(SingletonSupplier.of(supplier), (Predicate<T>) ALWAYS);
   }
 
   /**
@@ -171,9 +171,9 @@ public final class PropertyMapper {
 
     private final Supplier<T> supplier;
 
-    private final Predicate<T> predicate;
+    private final Predicate<@Nullable T> predicate;
 
-    private Source(Supplier<T> supplier, Predicate<T> predicate) {
+    private Source(Supplier<T> supplier, Predicate<@Nullable T> predicate) {
       Assert.notNull(predicate, "Predicate is required");
       this.supplier = supplier;
       this.predicate = predicate;
@@ -201,7 +201,7 @@ public final class PropertyMapper {
       Assert.notNull(adapter, "Adapter is required");
       Supplier<Boolean> test = () -> this.predicate.test(this.supplier.get());
       Predicate<R> predicate = (t) -> test.get();
-      Supplier<R> supplier = () -> {
+      Supplier<@Nullable R> supplier = () -> {
         if (test.get()) {
           return adapter.apply(this.supplier.get());
         }
@@ -368,6 +368,7 @@ public final class PropertyMapper {
    */
   private record NullPointerExceptionSafeSupplier<T>(Supplier<T> supplier) implements Supplier<T> {
 
+    @Nullable
     @Override
     public T get() {
       try {

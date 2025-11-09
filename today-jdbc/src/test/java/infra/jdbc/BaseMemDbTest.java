@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,10 +42,10 @@ public abstract class BaseMemDbTest {
     }
   }
 
-  @Parameterized.Parameters(name = "{index} - {2}")
+  @Parameterized.Parameters(name = "{1}")
   public static Collection<Object[]> getData() {
     return Arrays.asList(new Object[][] {
-            { DbType.H2, "H2 test" },
+            { DbType.H2, "H2 Test" },
             { DbType.HyperSQL, "HyperSQL Test" }
     });
   }

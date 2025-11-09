@@ -17,6 +17,8 @@
 
 package infra.web.config.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,7 +28,6 @@ import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.BeanInitializationException;
 import infra.context.ApplicationContext;
 import infra.core.Ordered;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 import infra.web.accept.ContentNegotiationManager;
@@ -53,19 +54,15 @@ import infra.web.view.script.ScriptTemplateViewResolver;
  */
 public class ViewResolverRegistry {
 
-  @Nullable
-  private final ContentNegotiationManager contentNegotiationManager;
+  private final @Nullable ApplicationContext applicationContext;
 
-  @Nullable
-  private final ApplicationContext applicationContext;
-
-  @Nullable
-  private ContentNegotiatingViewResolver contentNegotiatingResolver;
+  private final @Nullable ContentNegotiationManager contentNegotiationManager;
 
   private final ArrayList<ViewResolver> viewResolvers = new ArrayList<>(4);
 
-  @Nullable
-  private Integer order;
+  private @Nullable ContentNegotiatingViewResolver contentNegotiatingResolver;
+
+  private @Nullable Integer order;
 
   /**
    * Class constructor with {@link ContentNegotiationManager} and {@link ApplicationContext}.
@@ -222,7 +219,7 @@ public class ViewResolverRegistry {
     this.order = order;
   }
 
-  private boolean notFoundBeanOfType(Class<?> beanType) {
+  boolean notFoundBeanOfType(Class<?> beanType) {
     return this.applicationContext != null
             && ObjectUtils.isEmpty(BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
             this.applicationContext, beanType, false, false));

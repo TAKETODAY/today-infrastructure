@@ -17,11 +17,12 @@
 
 package infra.web.server.support;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.SmartInitializingSingleton;
 import infra.context.ApplicationContext;
 import infra.core.env.ConfigurableEnvironment;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.web.DispatcherHandler;
 import infra.web.HttpStatusProvider;
 import infra.web.RequestContextHolder;
@@ -98,7 +99,7 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
   }
 
   protected NettyRequestContext createContext(ChannelHandlerContext ctx, FullHttpRequest httpRequest) {
-    return new NettyRequestContext(getApplicationContext(), ctx, httpRequest, requestConfig, this);
+    return new NettyRequestContext(getApplicationContext(), ctx.channel(), httpRequest, requestConfig, this);
   }
 
   @Override

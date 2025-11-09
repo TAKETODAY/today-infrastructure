@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.context.index;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -27,7 +29,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import infra.core.io.PropertiesUtils;
 import infra.core.io.UrlResource;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
@@ -66,7 +67,8 @@ public final class CandidateComponentsIndexLoader {
   private static final ConcurrentMap<ClassLoader, CandidateComponentsIndex> cache =
           new ConcurrentReferenceHashMap<>();
 
-  private CandidateComponentsIndexLoader() { }
+  private CandidateComponentsIndexLoader() {
+  }
 
   /**
    * Load and instantiate the {@link CandidateComponentsIndex} from
@@ -78,8 +80,7 @@ public final class CandidateComponentsIndexLoader {
    * @throws IllegalArgumentException if any module index cannot
    * be loaded or if an error occurs while creating {@link CandidateComponentsIndex}
    */
-  @Nullable
-  public static CandidateComponentsIndex loadIndex(@Nullable ClassLoader classLoader) {
+  public static @Nullable CandidateComponentsIndex loadIndex(@Nullable ClassLoader classLoader) {
     ClassLoader classLoaderToUse = classLoader;
     if (classLoaderToUse == null) {
       classLoaderToUse = CandidateComponentsIndexLoader.class.getClassLoader();
@@ -87,8 +88,7 @@ public final class CandidateComponentsIndexLoader {
     return cache.computeIfAbsent(classLoaderToUse, CandidateComponentsIndexLoader::doLoadIndex);
   }
 
-  @Nullable
-  private static CandidateComponentsIndex doLoadIndex(ClassLoader classLoader) {
+  private static @Nullable CandidateComponentsIndex doLoadIndex(ClassLoader classLoader) {
     if (shouldIgnoreIndex) {
       return null;
     }
@@ -111,9 +111,33 @@ public final class CandidateComponentsIndexLoader {
       return totalCount > 0 ? new CandidateComponentsIndex(result) : null;
     }
     catch (IOException ex) {
-      throw new IllegalStateException(
-              "Unable to load indexes from location [" + COMPONENTS_RESOURCE_LOCATION + "]", ex);
+      throw new IllegalStateException("Unable to load indexes from location [%s]".formatted(COMPONENTS_RESOURCE_LOCATION), ex);
     }
+  }
+
+  /**
+   * Programmatically add the given index instance for the given ClassLoader,
+   * replacing a file-determined index with a programmatically composed index.
+   * <p>The index instance will usually be pre-populated for AOT runtime setups
+   * or test scenarios with pre-configured results for runtime-attempted scans.
+   * Alternatively, it may be empty for it to get populated during AOT processing
+   * or a test run, for subsequent introspection the index-recorded candidate types.
+   *
+   * @param classLoader the ClassLoader to add the index for
+   * @param index the associated CandidateComponentsIndex instance
+   * @since 5.0
+   */
+  public static void addIndex(ClassLoader classLoader, CandidateComponentsIndex index) {
+    cache.put(classLoader, index);
+  }
+
+  /**
+   * Clear the runtime index cache.
+   *
+   * @since 5.0
+   */
+  public static void clearCache() {
+    cache.clear();
   }
 
 }

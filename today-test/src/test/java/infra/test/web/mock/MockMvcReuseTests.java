@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.session.config.EnableWebSession;
+import infra.session.config.EnableSession;
 import infra.test.context.junit.jupiter.web.JUnitWebConfig;
 import infra.web.annotation.GetMapping;
 import infra.web.annotation.RestController;
@@ -89,7 +89,7 @@ class MockMvcReuseTests {
 
   @Configuration
   @EnableWebMvc
-  @EnableWebSession
+  @EnableSession
   static class Config {
 
     @Bean

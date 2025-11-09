@@ -17,6 +17,8 @@
 
 package infra.web.view.freemarker;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serial;
@@ -40,7 +42,6 @@ import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.context.ApplicationContextException;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 import infra.web.RequestContextUtils;
 import infra.web.view.AbstractTemplateView;

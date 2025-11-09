@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,9 @@
 
 package infra.session;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 import infra.web.RequestContext;
 
@@ -56,13 +57,13 @@ public class DefaultSessionManager implements SessionManager {
   }
 
   @Override
-  public WebSession createSession() {
+  public Session createSession() {
     return sessionRepository.createSession();
   }
 
   @Override
-  public WebSession createSession(RequestContext context) {
-    WebSession session = sessionRepository.createSession();
+  public Session createSession(RequestContext context) {
+    Session session = sessionRepository.createSession();
     session.start();
     session.save();
     sessionIdResolver.setSessionId(context, session.getId());
@@ -71,7 +72,7 @@ public class DefaultSessionManager implements SessionManager {
 
   @Nullable
   @Override
-  public WebSession getSession(@Nullable String sessionId) {
+  public Session getSession(@Nullable String sessionId) {
     if (StringUtils.hasText(sessionId)) {
       return sessionRepository.retrieveSession(sessionId);
     }
@@ -79,16 +80,17 @@ public class DefaultSessionManager implements SessionManager {
   }
 
   @Override
-  public WebSession getSession(RequestContext context) {
+  @SuppressWarnings("NullAway")
+  public Session getSession(RequestContext context) {
     return getSession(context, true);
   }
 
   @Nullable
   @Override
-  public WebSession getSession(RequestContext context, boolean create) {
+  public Session getSession(RequestContext context, boolean create) {
     String sessionId = sessionIdResolver.getSessionId(context);
     if (StringUtils.hasText(sessionId)) {
-      WebSession session = sessionRepository.retrieveSession(sessionId);
+      Session session = sessionRepository.retrieveSession(sessionId);
       if (session == null && create) {
         // create a new session
         session = createSession(context);

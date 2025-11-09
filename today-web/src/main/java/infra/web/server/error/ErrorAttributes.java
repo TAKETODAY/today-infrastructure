@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,10 @@
 
 package infra.web.server.error;
 
-import java.util.Collections;
+import org.jspecify.annotations.Nullable;
+
 import java.util.Map;
 
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 import infra.web.annotation.ResponseBody;
 import infra.web.view.ModelAndView;
@@ -45,9 +45,7 @@ public interface ErrorAttributes {
    * @param options options for error attribute contents
    * @return a map of error attributes
    */
-  default Map<String, Object> getErrorAttributes(RequestContext context, ErrorAttributeOptions options) {
-    return Collections.emptyMap();
-  }
+  Map<String, Object> getErrorAttributes(RequestContext context, ErrorAttributeOptions options);
 
   /**
    * Return the underlying cause of the error or {@code null} if the error cannot be

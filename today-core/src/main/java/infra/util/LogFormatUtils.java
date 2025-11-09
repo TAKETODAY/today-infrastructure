@@ -17,10 +17,11 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-import infra.lang.Nullable;
 import infra.logging.Logger;
 
 /**

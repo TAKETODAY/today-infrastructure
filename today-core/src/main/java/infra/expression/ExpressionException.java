@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 
 package infra.expression;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Super class for exceptions that can occur whilst processing expressions.
@@ -164,6 +164,7 @@ public class ExpressionException extends RuntimeException {
    *
    * @since 4.0
    */
+  @SuppressWarnings("NullAway") // Dataflow analysis limitation
   public String getSimpleMessage() {
     return super.getMessage();
   }

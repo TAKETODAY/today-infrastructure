@@ -16,6 +16,8 @@
  */
 package infra.bytecode.reflect;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
@@ -70,7 +72,7 @@ public abstract class MethodAccess {
    * @throws java.lang.reflect.InvocationTargetException if the underlying method throws an exception
    * @see #getIndex(String, Class[])
    */
-  public abstract Object invoke(int index, Object obj, Object[] args) throws InvocationTargetException;
+  public abstract Object invoke(int index, @Nullable Object obj, @Nullable Object[] args) throws InvocationTargetException;
 
   /**
    * Create a new instance using the specified constructor index and arguments.
@@ -80,7 +82,7 @@ public abstract class MethodAccess {
    * @throws java.lang.reflect.InvocationTargetException if the constructor throws an exception
    * @see #getIndex(Class[])
    */
-  public abstract Object newInstance(int index, Object[] args) throws InvocationTargetException;
+  public abstract Object newInstance(int index, @Nullable Object @Nullable [] args) throws InvocationTargetException;
 
   public abstract int getIndex(MethodSignature sig);
 
@@ -93,7 +95,7 @@ public abstract class MethodAccess {
    */
   public abstract int getMaxIndex();
 
-  public Object invoke(String name, Class[] parameterTypes, Object obj, Object[] args) throws InvocationTargetException {
+  public Object invoke(String name, Class[] parameterTypes, Object obj, @Nullable Object[] args) throws InvocationTargetException {
     return invoke(getIndex(name, parameterTypes), obj, args);
   }
 

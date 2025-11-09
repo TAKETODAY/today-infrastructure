@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.core.io.buffer;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Closeable;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,7 +33,6 @@ import java.util.function.Consumer;
 import java.util.function.IntPredicate;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 /**
@@ -535,6 +536,29 @@ public abstract class DataBuffer {
   }
 
   /**
+   * Process a range of bytes from the current buffer using a
+   * {@link ByteProcessor}.
+   *
+   * @param index the index at which the processing will start
+   * @param length the maximum number of bytes to be processed
+   * @param processor the processor that consumes bytes
+   * @return the position that was reached when processing was stopped,
+   * or {@code -1} if the entire byte range was processed.
+   * @throws IndexOutOfBoundsException when {@code index} is out of bounds
+   * @since 5.0
+   */
+  public int forEach(int index, int length, ByteProcessor processor) {
+    Assert.isTrue(length >= 0, "Length must be >= 0");
+    for (int position = index; position < index + length; position++) {
+      byte b = getByte(position);
+      if (!processor.process(b)) {
+        return position;
+      }
+    }
+    return -1;
+  }
+
+  /**
    * Return this buffer's data a String using the specified charset. Default implementation
    * delegates to {@code toString(readPosition(), readableByteCount(), charset)}.
    *
@@ -663,6 +687,25 @@ public abstract class DataBuffer {
 
     @Override
     void close();
+  }
+
+  /**
+   * Process a range of bytes one by one.
+   *
+   * @since 5.0
+   */
+  @FunctionalInterface
+  interface ByteProcessor {
+
+    /**
+     * Process the given {@code byte} and indicate whether processing
+     * should continue further.
+     *
+     * @param b a byte from the {@link DataBuffer}
+     * @return {@code true} if processing should continue,
+     * or {@code false} if processing should stop at this element
+     */
+    boolean process(byte b);
   }
 
 }

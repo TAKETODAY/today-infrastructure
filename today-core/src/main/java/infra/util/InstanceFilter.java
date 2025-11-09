@@ -17,11 +17,12 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.Collections;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * A simple instance filter that checks if a given instance match based on
@@ -37,11 +38,11 @@ import infra.lang.Nullable;
  */
 public class InstanceFilter<T> {
 
-  private final Collection<? extends T> includes;
+  protected final Collection<? extends T> includes;
 
-  private final Collection<? extends T> excludes;
+  protected final Collection<? extends T> excludes;
 
-  private final boolean matchIfEmpty;
+  protected final boolean matchIfEmpty;
 
   /**
    * Create a new {@code InstanceFilter} based on include and exclude collections,

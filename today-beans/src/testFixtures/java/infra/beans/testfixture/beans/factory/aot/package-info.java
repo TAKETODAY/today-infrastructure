@@ -18,9 +18,7 @@
 /**
  * Test fixtures for bean factories AOT support.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.beans.testfixture.beans.factory.aot;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

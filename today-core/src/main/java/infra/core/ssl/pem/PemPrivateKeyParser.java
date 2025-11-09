@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.core.ssl.pem;
+
+import org.jspecify.annotations.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -45,7 +47,6 @@ import javax.crypto.spec.PBEKeySpec;
 import infra.core.ssl.pem.PemPrivateKeyParser.DerElement.TagType;
 import infra.core.ssl.pem.PemPrivateKeyParser.DerElement.ValueType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Parser for PKCS private key files in PEM format.
@@ -102,14 +103,16 @@ final class PemPrivateKeyParser {
           new PemParser(PKCS8_ENCRYPTED_HEADER, PKCS8_ENCRYPTED_FOOTER, PemPrivateKeyParser::createKeySpecForPkcs8Encrypted, "RSA", "RSASSA-PSS", "EC", "DSA", "EdDSA", "XDH")
   );
 
-  private PemPrivateKeyParser() { }
+  private PemPrivateKeyParser() {
+  }
 
-  private static PKCS8EncodedKeySpec createKeySpecForPkcs1Rsa(byte[] bytes, String password) {
+  private static PKCS8EncodedKeySpec createKeySpecForPkcs1Rsa(byte[] bytes, @Nullable String password) {
     return createKeySpecForAlgorithm(bytes, RSA_ALGORITHM, null);
   }
 
-  private static PKCS8EncodedKeySpec createKeySpecForSec1Ec(byte[] bytes, String password) {
+  private static PKCS8EncodedKeySpec createKeySpecForSec1Ec(byte[] bytes, @Nullable String password) {
     DerElement ecPrivateKey = DerElement.of(bytes);
+    Assert.state(ecPrivateKey != null, "Unable to find private key");
     Assert.state(ecPrivateKey.isType(ValueType.ENCODED, TagType.SEQUENCE), "Key spec should be an ASN.1 encoded sequence");
     DerElement version = DerElement.of(ecPrivateKey.getContents());
     Assert.state(version != null && version.isType(ValueType.PRIMITIVE, TagType.INTEGER), "Key spec should start with version");
@@ -147,8 +150,9 @@ final class PemPrivateKeyParser {
     }
   }
 
-  private static PKCS8EncodedKeySpec createKeySpecForPkcs8(byte[] bytes, String password) {
+  private static PKCS8EncodedKeySpec createKeySpecForPkcs8(byte[] bytes, @Nullable String password) {
     DerElement ecPrivateKey = DerElement.of(bytes);
+    Assert.state(ecPrivateKey != null, "Unable to find private key");
     Assert.state(ecPrivateKey.isType(ValueType.ENCODED, TagType.SEQUENCE),
             "Key spec should be an ASN.1 encoded sequence");
     DerElement version = DerElement.of(ecPrivateKey.getContents());
@@ -164,7 +168,7 @@ final class PemPrivateKeyParser {
     return (algorithmName != null) ? new PKCS8EncodedKeySpec(bytes, algorithmName) : new PKCS8EncodedKeySpec(bytes);
   }
 
-  private static PKCS8EncodedKeySpec createKeySpecForPkcs8Encrypted(byte[] bytes, String password) {
+  private static PKCS8EncodedKeySpec createKeySpecForPkcs8Encrypted(byte[] bytes, @Nullable String password) {
     return Pkcs8PrivateKeyDecryptor.decrypt(bytes, password);
   }
 
@@ -213,11 +217,11 @@ final class PemPrivateKeyParser {
 
     private final Pattern pattern;
 
-    private final BiFunction<byte[], String, PKCS8EncodedKeySpec> keySpecFactory;
+    private final BiFunction<byte[], @Nullable String, PKCS8EncodedKeySpec> keySpecFactory;
 
     private final String[] algorithms;
 
-    PemParser(String header, String footer, BiFunction<byte[], String, PKCS8EncodedKeySpec> keySpecFactory,
+    PemParser(String header, String footer, BiFunction<byte[], @Nullable String, PKCS8EncodedKeySpec> keySpecFactory,
             String... algorithms) {
       this.pattern = Pattern.compile(header + BASE64_TEXT + footer, Pattern.CASE_INSENSITIVE);
       this.keySpecFactory = keySpecFactory;
@@ -277,15 +281,15 @@ final class PemPrivateKeyParser {
       codeLengthBytes(0x02, bytes(encodedInteger));
     }
 
-    void octetString(@Nullable byte[] bytes) throws IOException {
+    void octetString(byte @Nullable [] bytes) throws IOException {
       codeLengthBytes(0x04, bytes);
     }
 
-    void sequence(@Nullable byte[] bytes) throws IOException {
+    void sequence(byte @Nullable [] bytes) throws IOException {
       codeLengthBytes(0x30, bytes);
     }
 
-    void codeLengthBytes(int code, @Nullable byte[] bytes) throws IOException {
+    void codeLengthBytes(int code, byte @Nullable [] bytes) throws IOException {
       this.stream.write(code);
       int length = (bytes != null) ? bytes.length : 0;
       if (length <= 127) {
@@ -308,8 +312,7 @@ final class PemPrivateKeyParser {
       }
     }
 
-    @Nullable
-    private static byte[] bytes(@Nullable int... elements) {
+    private static byte @Nullable [] bytes(int @Nullable ... elements) {
       if (elements == null) {
         return null;
       }
@@ -439,7 +442,7 @@ final class PemPrivateKeyParser {
 
     public static final String PBES2_ALGORITHM = "PBES2";
 
-    static PKCS8EncodedKeySpec decrypt(byte[] bytes, String password) {
+    static PKCS8EncodedKeySpec decrypt(byte[] bytes, @Nullable String password) {
       Assert.notNull(password, "Password is required for an encrypted private key");
       try {
         EncryptedPrivateKeyInfo keyInfo = new EncryptedPrivateKeyInfo(bytes);

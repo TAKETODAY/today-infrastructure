@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,13 @@
 
 package infra.core.test.tools;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.function.Function;
-
-import infra.lang.Nullable;
 
 /**
  * {@link ClassLoader} implementation to support
@@ -38,7 +38,7 @@ final class CompileWithForkedClassLoaderClassLoader extends ClassLoader {
 
   private final ClassLoader testClassLoader;
 
-  private Function<String, byte[]> classResourceLookup = name -> null;
+  private Function<String, byte @Nullable []> classResourceLookup = name -> null;
 
   public CompileWithForkedClassLoaderClassLoader(ClassLoader testClassLoader) {
     super(testClassLoader.getParent());
@@ -47,7 +47,7 @@ final class CompileWithForkedClassLoaderClassLoader extends ClassLoader {
 
   // Invoked reflectively by DynamicClassLoader
   @SuppressWarnings("unused")
-  void setClassResourceLookup(Function<String, byte[]> classResourceLookup) {
+  void setClassResourceLookup(Function<String, byte @Nullable []> classResourceLookup) {
     this.classResourceLookup = classResourceLookup;
   }
 
@@ -71,8 +71,7 @@ final class CompileWithForkedClassLoaderClassLoader extends ClassLoader {
     return (bytes != null) ? defineClass(name, bytes, 0, bytes.length, null) : super.findClass(name);
   }
 
-  @Nullable
-  private byte[] findClassBytes(String name) {
+  private byte @Nullable [] findClassBytes(String name) {
     byte[] bytes = this.classResourceLookup.apply(name);
     if (bytes != null) {
       return bytes;

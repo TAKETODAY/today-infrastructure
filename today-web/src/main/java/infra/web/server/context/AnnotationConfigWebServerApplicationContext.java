@@ -17,6 +17,8 @@
 
 package infra.web.server.context;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -64,7 +66,7 @@ public class AnnotationConfigWebServerApplicationContext extends GenericWebServe
 
   private final Set<Class<?>> annotatedClasses = new LinkedHashSet<>();
 
-  private String[] basePackages;
+  private String @Nullable [] basePackages;
 
   /**
    * Create a new {@link AnnotationConfigWebServerApplicationContext} that needs
@@ -208,8 +210,9 @@ public class AnnotationConfigWebServerApplicationContext extends GenericWebServe
   @Override
   protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
     super.postProcessBeanFactory(beanFactory);
-    if (ObjectUtils.isNotEmpty(this.basePackages)) {
-      this.scanner.scan(this.basePackages);
+    String[] basePackages = this.basePackages;
+    if (ObjectUtils.isNotEmpty(basePackages)) {
+      this.scanner.scan(basePackages);
     }
     if (!this.annotatedClasses.isEmpty()) {
       this.reader.register(ClassUtils.toClassArray(this.annotatedClasses));

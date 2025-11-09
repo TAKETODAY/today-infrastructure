@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 import java.util.Locale;
 import java.util.Map;
@@ -27,7 +29,6 @@ import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
 import infra.http.ProblemDetail;
 import infra.http.ResponseEntity;
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 
 /**
@@ -122,8 +123,7 @@ public interface ErrorResponse extends HttpStatusProvider {
    *
    * @since 5.0
    */
-  @Nullable
-  default Object[] getDetailMessageArguments() {
+  default Object @Nullable [] getDetailMessageArguments() {
     return null;
   }
 
@@ -138,8 +138,7 @@ public interface ErrorResponse extends HttpStatusProvider {
    * @param locale the {@code Locale} to use for the lookup
    * @since 5.0
    */
-  @Nullable
-  default Object[] getDetailMessageArguments(MessageSource messageSource, Locale locale) {
+  default Object @Nullable [] getDetailMessageArguments(MessageSource messageSource, Locale locale) {
     return getDetailMessageArguments();
   }
 
@@ -354,7 +353,7 @@ public interface ErrorResponse extends HttpStatusProvider {
      * @return the same builder instance
      * @see ErrorResponse#getDetailMessageArguments()
      */
-    Builder detailMessageArguments(Object... messageArguments);
+    Builder detailMessageArguments(Object @Nullable ... messageArguments);
 
     /**
      * Set a "dynamic" {@link ProblemDetail#setProperty(String, Object)

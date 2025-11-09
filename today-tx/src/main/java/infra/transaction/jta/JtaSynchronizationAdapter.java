@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,13 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.transaction.jta;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.transaction.support.TransactionSynchronization;
@@ -38,6 +39,7 @@ import jakarta.transaction.UserTransaction;
  * Framework transaction synchronization.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see jakarta.transaction.Transaction#registerSynchronization
  * @see infra.transaction.support.TransactionSynchronization
  * @since 4.0
@@ -79,7 +81,7 @@ public class JtaSynchronizationAdapter implements Synchronization {
    * in such a scenario, which is required by the JTA specification as of JTA 1.1).
    */
   public JtaSynchronizationAdapter(TransactionSynchronization frameworkSynchronization,
-                                   @Nullable UserTransaction jtaUserTransaction) {
+          @Nullable UserTransaction jtaUserTransaction) {
 
     this(frameworkSynchronization);
     this.jtaTransaction = jtaUserTransaction;
@@ -99,9 +101,7 @@ public class JtaSynchronizationAdapter implements Synchronization {
    * (can be omitted if the JTA provider itself marks the transaction rollback-only
    * in such a scenario, which is required by the JTA specification as of JTA 1.1)
    */
-  public JtaSynchronizationAdapter(
-          TransactionSynchronization frameworkSynchronization, @Nullable TransactionManager jtaTransactionManager) {
-
+  public JtaSynchronizationAdapter(TransactionSynchronization frameworkSynchronization, @Nullable TransactionManager jtaTransactionManager) {
     this(frameworkSynchronization);
     this.jtaTransaction = new UserTransactionAdapter(jtaTransactionManager);
   }

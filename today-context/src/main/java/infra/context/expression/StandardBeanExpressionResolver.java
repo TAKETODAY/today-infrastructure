@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.context.expression;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 import infra.beans.BeansException;
@@ -29,12 +31,12 @@ import infra.expression.ExpressionParser;
 import infra.expression.ParserContext;
 import infra.expression.spel.SpelParserConfiguration;
 import infra.expression.spel.standard.SpelExpressionParser;
+import infra.expression.spel.support.MapAccessor;
 import infra.expression.spel.support.StandardEvaluationContext;
 import infra.expression.spel.support.StandardTypeConverter;
 import infra.expression.spel.support.StandardTypeLocator;
 import infra.format.support.ApplicationConversionService;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.util.StringUtils;
 

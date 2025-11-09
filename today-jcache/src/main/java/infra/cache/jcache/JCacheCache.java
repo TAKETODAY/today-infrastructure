@@ -17,6 +17,8 @@
 
 package infra.cache.jcache;
 
+import org.jspecify.annotations.Nullable;
+
 import javax.cache.Cache;
 import javax.cache.processor.EntryProcessor;
 import javax.cache.processor.EntryProcessorException;
@@ -24,7 +26,6 @@ import javax.cache.processor.MutableEntry;
 
 import infra.cache.support.AbstractValueAdaptingCache;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.function.ThrowingFunction;
 
 /**

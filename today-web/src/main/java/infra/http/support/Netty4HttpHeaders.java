@@ -17,6 +17,8 @@
 
 package infra.http.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,7 +28,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import io.netty.handler.codec.http.HttpHeaders;
 
@@ -76,7 +77,9 @@ public final class Netty4HttpHeaders extends infra.http.HttpHeaders {
   public Map<String, String> toSingleValueMap() {
     Map<String, String> singleValueMap = CollectionUtils.newLinkedHashMap(headers.size());
     for (final Entry<String, String> entry : headers) {
-      singleValueMap.put(entry.getKey(), entry.getValue());
+      if (!singleValueMap.containsKey(entry.getKey())) {
+        singleValueMap.put(entry.getKey(), entry.getValue());
+      }
     }
     return singleValueMap;
   }

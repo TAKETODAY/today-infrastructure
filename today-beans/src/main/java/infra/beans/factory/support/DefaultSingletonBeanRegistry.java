@@ -17,6 +17,8 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,7 +45,6 @@ import infra.core.DefaultAliasRegistry;
 import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.lang.NullValue;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 
@@ -260,6 +261,7 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
    * with, if necessary
    * @return the registered singleton object
    */
+  @SuppressWarnings("NullAway")
   public Object getSingleton(String beanName, Supplier<?> singletonFactory) {
     Assert.notNull(beanName, "Bean name is required");
 

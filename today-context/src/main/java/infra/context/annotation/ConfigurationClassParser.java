@@ -17,6 +17,8 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -66,7 +68,6 @@ import infra.core.type.filter.AbstractTypeHierarchyTraversingFilter;
 import infra.core.type.filter.AssignableTypeFilter;
 import infra.core.type.filter.TypeFilter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.stereotype.Component;
@@ -849,6 +850,7 @@ class ConfigurationClassParser {
               deferredImport.configurationClass);
     }
 
+    @SuppressWarnings("NullAway")
     public void processGroupImports() {
       for (DeferredImportSelectorGrouping grouping : groupings.values()) {
         Predicate<String> exclusionFilter = grouping.getCandidateFilter();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.http.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.concurrent.Executor;
@@ -24,7 +26,6 @@ import java.util.concurrent.Executor;
 import infra.http.HttpHeaders;
 import infra.http.StreamingHttpOutputMessage;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.FastByteArrayOutputStream;
 import infra.util.concurrent.Future;
 
@@ -66,16 +67,18 @@ abstract class AbstractStreamingClientHttpRequest extends AbstractClientHttpRequ
 
   @Override
   protected final ClientHttpResponse executeInternal(HttpHeaders headers) throws IOException {
-    if (this.body == null && this.bodyStream != null) {
-      this.body = outputStream -> this.bodyStream.writeTo(outputStream);
+    FastByteArrayOutputStream bodyStream = this.bodyStream;
+    if (this.body == null && bodyStream != null) {
+      this.body = bodyStream::writeTo;
     }
     return executeInternal(headers, this.body);
   }
 
   @Override
   protected final Future<ClientHttpResponse> asyncInternal(HttpHeaders headers, @Nullable Executor executor) {
-    if (this.body == null && this.bodyStream != null) {
-      this.body = outputStream -> this.bodyStream.writeTo(outputStream);
+    FastByteArrayOutputStream bodyStream = this.bodyStream;
+    if (this.body == null && bodyStream != null) {
+      this.body = bodyStream::writeTo;
     }
     return asyncInternal(headers, body, executor);
   }

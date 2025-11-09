@@ -17,7 +17,7 @@
 
 package infra.persistence;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A functional interface for extracting and wrapping property values

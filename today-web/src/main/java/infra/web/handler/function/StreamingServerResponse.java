@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,22 +17,24 @@
 
 package infra.web.handler.function;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
 import java.util.function.Consumer;
 
-import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
+import infra.http.ResponseCookie;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.server.DelegatingServerHttpResponse;
 import infra.http.server.ServerHttpResponse;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
+import infra.util.function.ThrowingConsumer;
 import infra.web.RequestContext;
 import infra.web.async.DeferredResult;
 
@@ -45,20 +47,20 @@ import infra.web.async.DeferredResult;
  */
 final class StreamingServerResponse extends AbstractServerResponse {
 
-  private final Consumer<StreamBuilder> streamConsumer;
+  private final ThrowingConsumer<StreamBuilder> streamConsumer;
 
   @Nullable
   private final Duration timeout;
 
-  private StreamingServerResponse(HttpStatusCode statusCode, HttpHeaders headers, MultiValueMap<String, HttpCookie> cookies,
-          Consumer<StreamBuilder> streamConsumer, @Nullable Duration timeout) {
+  private StreamingServerResponse(HttpStatusCode statusCode, HttpHeaders headers, MultiValueMap<String, ResponseCookie> cookies,
+          ThrowingConsumer<StreamBuilder> streamConsumer, @Nullable Duration timeout) {
     super(statusCode, headers, cookies);
     this.streamConsumer = streamConsumer;
     this.timeout = timeout;
   }
 
-  static ServerResponse create(HttpStatusCode statusCode, HttpHeaders headers, MultiValueMap<String, HttpCookie> cookies,
-          Consumer<StreamBuilder> streamConsumer, @Nullable Duration timeout) {
+  static ServerResponse create(HttpStatusCode statusCode, HttpHeaders headers, MultiValueMap<String, ResponseCookie> cookies,
+          ThrowingConsumer<StreamBuilder> streamConsumer, @Nullable Duration timeout) {
     Assert.notNull(statusCode, "statusCode is required");
     Assert.notNull(headers, "headers is required");
     Assert.notNull(cookies, "cookies is required");

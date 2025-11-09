@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.mock.web;
+
+import org.jspecify.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -47,8 +49,6 @@ import java.util.stream.Collectors;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.lang.NonNull;
-import infra.lang.Nullable;
 import infra.mock.api.AsyncContext;
 import infra.mock.api.DispatcherType;
 import infra.mock.api.MockConnection;
@@ -416,7 +416,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
    * @see #getContentAsByteArray()
    * @see #getContentAsString()
    */
-  public void setContent(@Nullable byte[] content) {
+  public void setContent(byte @Nullable [] content) {
     this.content = content;
     this.inputStream = null;
     this.reader = null;
@@ -1017,7 +1017,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     }
   }
 
-  private static String encodeCookies(@NonNull Cookie... cookies) {
+  private static String encodeCookies(Cookie... cookies) {
     return Arrays.stream(cookies)
             .map(c -> c.getName() + '=' + (c.getValue() == null ? "" : c.getValue()))
             .collect(Collectors.joining("; "));

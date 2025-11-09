@@ -17,8 +17,9 @@
 
 package infra.aop.framework;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.NamedThreadLocal;
-import infra.lang.Nullable;
 
 /**
  * Class containing static methods used to obtain information about the current AOP invocation.

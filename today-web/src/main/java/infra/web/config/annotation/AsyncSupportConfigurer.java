@@ -17,12 +17,13 @@
 
 package infra.web.config.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import infra.core.task.AsyncTaskExecutor;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.web.async.CallableProcessingInterceptor;
 import infra.web.async.DeferredResult;
@@ -37,17 +38,13 @@ import infra.web.async.DeferredResultProcessingInterceptor;
  */
 public class AsyncSupportConfigurer {
 
-  @Nullable
-  protected AsyncTaskExecutor taskExecutor;
+  protected @Nullable AsyncTaskExecutor taskExecutor;
 
-  @Nullable
-  protected Long timeout;
+  protected @Nullable Long timeout;
 
-  @Nullable
-  protected List<CallableProcessingInterceptor> callableInterceptors;
+  protected @Nullable List<CallableProcessingInterceptor> callableInterceptors;
 
-  @Nullable
-  protected List<DeferredResultProcessingInterceptor> deferredResultInterceptors;
+  protected @Nullable List<DeferredResultProcessingInterceptor> deferredResultInterceptors;
 
   /**
    * The provided task executor is used for the following:

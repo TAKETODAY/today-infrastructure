@@ -17,6 +17,8 @@
 
 package infra.web.multipart;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.channels.AsynchronousCloseException;
@@ -30,7 +32,6 @@ import java.nio.file.StandardOpenOption;
 
 import infra.core.io.InputStreamSource;
 import infra.core.io.Resource;
-import infra.lang.Nullable;
 
 /**
  * A representation of an uploaded file received in a multipart request.

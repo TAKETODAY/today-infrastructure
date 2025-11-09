@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.context.annotation.Configuration;
+import infra.core.annotation.AliasFor;
 import infra.test.context.ActiveProfiles;
 import infra.test.context.BootstrapTestUtils;
 import infra.test.context.ContextConfiguration;
@@ -465,12 +466,13 @@ class BootstrapTestUtilsMergedConfigTests extends AbstractContextConfigurationUt
   @ContextConfiguration
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.TYPE)
-  public static @interface SpringAppConfig {
+  public static @interface MyAppConfig {
 
+    @AliasFor(annotation = ContextConfiguration.class)
     Class<?>[] classes() default {};
   }
 
-  @SpringAppConfig(classes = { FooConfig.class, BarConfig.class })
+  @MyAppConfig(classes = { FooConfig.class, BarConfig.class })
   public static abstract class Dog {
   }
 

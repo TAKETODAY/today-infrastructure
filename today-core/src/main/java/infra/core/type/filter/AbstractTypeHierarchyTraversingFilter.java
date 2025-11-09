@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,13 @@
 
 package infra.core.type.filter;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 
 import infra.core.type.ClassMetadata;
 import infra.core.type.classreading.MetadataReader;
 import infra.core.type.classreading.MetadataReaderFactory;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
@@ -39,6 +40,7 @@ import infra.logging.LoggerFactory;
  * @since 4.0
  */
 public abstract class AbstractTypeHierarchyTraversingFilter implements TypeFilter {
+
   private static final Logger log = LoggerFactory.getLogger(AbstractTypeHierarchyTraversingFilter.class);
 
   private final boolean considerInherited;
@@ -65,7 +67,7 @@ public abstract class AbstractTypeHierarchyTraversingFilter implements TypeFilte
     if (this.considerInherited) {
       String superClassName = metadata.getSuperClassName();
       if (superClassName != null) {
-        // Optimization to avoid creating ClassReader for super class.
+        // Optimization to avoid creating ClassReader for superclass.
         Boolean superClassMatch = matchSuperClass(superClassName);
         if (superClassMatch != null) {
           if (superClassMatch) {
@@ -73,16 +75,15 @@ public abstract class AbstractTypeHierarchyTraversingFilter implements TypeFilte
           }
         }
         else {
-          // Need to read super class to determine a match...
+          // Need to read superclass to determine a match...
           try {
-            if (match(metadata.getSuperClassName(), factory)) {
+            if (match(superClassName, factory)) {
               return true;
             }
           }
           catch (IOException ex) {
             if (log.isDebugEnabled()) {
-              log.debug("Could not read super class [{}] of type-filtered class [{]]",
-                      metadata.getSuperClassName(), metadata.getClassName());
+              log.debug("Could not read superclass [{}] of type-filtered class [{}]", superClassName, metadata.getClassName());
             }
           }
         }

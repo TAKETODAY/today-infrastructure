@@ -17,6 +17,8 @@
 
 package infra.app.logging.logback;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,7 +67,6 @@ import infra.core.NativeDetector;
 import infra.core.io.ByteArrayResource;
 import infra.core.io.ClassPathResource;
 import infra.core.io.PropertiesUtils;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ReflectionUtils;
@@ -81,6 +82,7 @@ import infra.util.function.ThrowingConsumer;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 class InfraJoranConfigurator extends JoranConfigurator {
 
   private final LoggingStartupContext startupContext;
@@ -299,7 +301,7 @@ class InfraJoranConfigurator extends JoranConfigurator {
     }
 
     @Nullable
-    private Object instantiate(Class<?> type) {
+    private Object instantiate(@Nullable Class<?> type) {
       try {
         return type.getConstructor().newInstance();
       }

@@ -18,6 +18,7 @@
 package infra.context.index;
 
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -25,10 +26,13 @@ import java.util.stream.Collectors;
 
 import infra.util.AntPathMatcher;
 import infra.util.ClassUtils;
+import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 
 /**
- * Provide access to the candidates that are defined in {@code META-INF/today.components}.
+ * Provide access to the candidates that are defined in {@code META-INF/today.components}
+ * component index files (see {@link #CandidateComponentsIndex(List)}) or registered
+ * programmatically (see {@link #CandidateComponentsIndex()}).
  *
  * <p>An arbitrary number of stereotypes can be registered (and queried) on the index: a
  * typical example is the fully qualified name of an annotation that flags the class for
@@ -51,23 +55,92 @@ public class CandidateComponentsIndex {
 
   private static final AntPathMatcher pathMatcher = new AntPathMatcher(".");
 
-  private final MultiValueMap<String, Entry> index;
+  private final Set<String> registeredScans = new LinkedHashSet<>();
 
+  private final MultiValueMap<String, Entry> index = new LinkedMultiValueMap<>();
+
+  private final boolean complete;
+
+  /**
+   * Create a new index instance from parsed component index files.
+   */
   CandidateComponentsIndex(List<Properties> content) {
-    this.index = parseIndex(content);
-  }
-
-  private static MultiValueMap<String, Entry> parseIndex(List<Properties> content) {
-    MultiValueMap<String, Entry> index = MultiValueMap.forLinkedHashMap();
     for (Properties entry : content) {
       entry.forEach((type, values) -> {
         String[] stereotypes = ((String) values).split(",");
         for (String stereotype : stereotypes) {
-          index.add(stereotype, new Entry((String) type));
+          this.index.add(stereotype, new Entry((String) type));
         }
       });
     }
-    return index;
+    this.complete = true;
+  }
+
+  /**
+   * Create a new index instance for programmatic population.
+   *
+   * @see #registerScan(String...)
+   * @see #registerCandidateType(String, String...)
+   * @since 5.0
+   */
+  public CandidateComponentsIndex() {
+    this.complete = false;
+  }
+
+  /**
+   * Programmatically register the given base packages (or base package patterns)
+   * as scanned.
+   *
+   * @see #registerCandidateType(String, String...)
+   * @since 5.0
+   */
+  public void registerScan(String... basePackages) {
+    Collections.addAll(this.registeredScans, basePackages);
+  }
+
+  /**
+   * Return the registered base packages (or base package patterns).
+   *
+   * @see #registerScan(String...)
+   * @since 5.0
+   */
+  public Set<String> getRegisteredScans() {
+    return this.registeredScans;
+  }
+
+  /**
+   * Determine whether this index contains an entry for the given base package
+   * (or base package pattern).
+   *
+   * @since 5.0
+   */
+  public boolean hasScannedPackage(String packageName) {
+    return this.complete ||
+            this.registeredScans.stream().anyMatch(basePackage -> matchPackage(basePackage, packageName));
+  }
+
+  /**
+   * Programmatically register one or more stereotypes for the given candidate type.
+   * <p>Note that the containing packages for candidates are not automatically
+   * considered scanned packages. Make sure to call {@link #registerScan(String...)}
+   * with the scan-specific base package accordingly.
+   *
+   * @see #registerScan(String...)
+   * @since 5.0
+   */
+  public void registerCandidateType(String type, String... stereotypes) {
+    for (String stereotype : stereotypes) {
+      this.index.add(stereotype, new Entry(type));
+    }
+  }
+
+  /**
+   * Return the registered stereotype packages (or base package patterns).
+   *
+   * @since 5.0
+   */
+  public Set<String> getRegisteredStereotypes() {
+    return this.index.keySet();
   }
 
   /**
@@ -81,18 +154,28 @@ public class CandidateComponentsIndex {
   public Set<String> getCandidateTypes(String basePackage, String stereotype) {
     List<Entry> candidates = this.index.get(stereotype);
     if (candidates != null) {
-      return candidates.parallelStream()
-              .filter(t -> t.match(basePackage))
-              .map(t -> t.type)
+      return candidates.stream()
+              .filter(entry -> entry.match(basePackage))
+              .map(entry -> entry.type)
               .collect(Collectors.toSet());
     }
     return Collections.emptySet();
   }
 
+  private static boolean matchPackage(String basePackage, String packageName) {
+    if (pathMatcher.isPattern(basePackage)) {
+      return pathMatcher.match(basePackage, packageName);
+    }
+    else {
+      return packageName.equals(basePackage) || packageName.startsWith(basePackage + ".");
+    }
+  }
+
   private static class Entry {
 
-    public final String type;
-    public final String packageName;
+    final String type;
+
+    private final String packageName;
 
     Entry(String type) {
       this.type = type;
@@ -100,12 +183,7 @@ public class CandidateComponentsIndex {
     }
 
     public boolean match(String basePackage) {
-      if (pathMatcher.isPattern(basePackage)) {
-        return pathMatcher.match(basePackage, this.packageName);
-      }
-      else {
-        return this.type.startsWith(basePackage);
-      }
+      return matchPackage(basePackage, this.packageName);
     }
   }
 

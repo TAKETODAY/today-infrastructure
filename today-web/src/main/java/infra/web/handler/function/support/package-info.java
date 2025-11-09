@@ -20,9 +20,7 @@
  * Contains a {@code HandlerAdapter} that supports {@code HandlerFunction}s,
  * and a {@code HandlerMapping} that supports {@code RouterFunction}s.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.handler.function.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

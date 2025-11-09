@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 package infra.cache.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -26,7 +28,6 @@ import java.util.concurrent.ConcurrentMap;
 import infra.beans.factory.InitializingBean;
 import infra.cache.Cache;
 import infra.cache.CacheManager;
-import infra.lang.Nullable;
 
 /**
  * Abstract base class implementing the common {@link CacheManager} methods.

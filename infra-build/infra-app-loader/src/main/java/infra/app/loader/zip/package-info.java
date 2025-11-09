@@ -19,9 +19,7 @@
  * Provides low-level support for handling zip content, including support for nested and
  * virtual zip files.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.app.loader.zip;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

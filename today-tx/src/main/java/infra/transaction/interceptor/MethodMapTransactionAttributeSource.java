@@ -17,6 +17,8 @@
 
 package infra.transaction.interceptor;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,7 +30,6 @@ import infra.beans.factory.InitializingBean;
 import infra.context.expression.EmbeddedValueResolverAware;
 import infra.core.StringValueResolver;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
@@ -41,6 +42,7 @@ import infra.util.PatternMatchUtils;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see #isMatch
  * @see NameMatchTransactionAttributeSource
  * @since 4.0

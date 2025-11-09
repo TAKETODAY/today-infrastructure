@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,13 @@
 
 package infra.session.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
 import infra.format.annotation.DurationUnit;
 import infra.http.ResponseCookie;
-import infra.lang.Nullable;
 
 /**
  * Cookie properties.
@@ -46,26 +47,22 @@ public class CookieProperties {
   /**
    * Domain for the cookie.
    */
-  @Nullable
-  private String domain;
+  private @Nullable String domain;
 
   /**
    * Path of the cookie.
    */
-  @Nullable
-  private String path;
+  private @Nullable String path;
 
   /**
    * Whether to use "HttpOnly" cookies for the cookie.
    */
-  @Nullable
-  private Boolean httpOnly;
+  private @Nullable Boolean httpOnly;
 
   /**
    * Whether to always mark the cookie as secure.
    */
-  @Nullable
-  private Boolean secure;
+  private @Nullable Boolean secure;
 
   /**
    * Maximum age of the cookie. If a duration suffix is not specified, seconds will be
@@ -79,14 +76,13 @@ public class CookieProperties {
   /**
    * SameSite setting for the cookie.
    */
-  @Nullable
-  private SameSite sameSite;
+  private @Nullable SameSite sameSite;
 
   /**
    * Whether the generated cookie carries the Partitioned attribute.
    */
-  @Nullable
-  private Boolean partitioned;
+
+  private @Nullable Boolean partitioned;
 
   public String getName() {
     return this.name;
@@ -96,8 +92,7 @@ public class CookieProperties {
     this.name = name == null ? DEFAULT_COOKIE_NAME : name;
   }
 
-  @Nullable
-  public String getDomain() {
+  public @Nullable String getDomain() {
     return this.domain;
   }
 
@@ -105,8 +100,7 @@ public class CookieProperties {
     this.domain = domain;
   }
 
-  @Nullable
-  public String getPath() {
+  public @Nullable String getPath() {
     return this.path;
   }
 
@@ -114,8 +108,7 @@ public class CookieProperties {
     this.path = path;
   }
 
-  @Nullable
-  public Boolean getHttpOnly() {
+  public @Nullable Boolean getHttpOnly() {
     return this.httpOnly;
   }
 
@@ -123,8 +116,7 @@ public class CookieProperties {
     this.httpOnly = httpOnly;
   }
 
-  @Nullable
-  public Boolean getSecure() {
+  public @Nullable Boolean getSecure() {
     return this.secure;
   }
 
@@ -140,8 +132,7 @@ public class CookieProperties {
     this.maxAge = maxAge;
   }
 
-  @Nullable
-  public SameSite getSameSite() {
+  public @Nullable SameSite getSameSite() {
     return this.sameSite;
   }
 
@@ -149,8 +140,7 @@ public class CookieProperties {
     this.sameSite = sameSite;
   }
 
-  @Nullable
-  public Boolean getPartitioned() {
+  public @Nullable Boolean getPartitioned() {
     return this.partitioned;
   }
 
@@ -166,7 +156,7 @@ public class CookieProperties {
             .httpOnly(Boolean.TRUE.equals(httpOnly))
             .maxAge(maxAge)
             .sameSite(sameSite == null ? null : sameSite.attributeValue())
-            .httpOnly(Boolean.TRUE.equals(partitioned))
+            .partitioned(Boolean.TRUE.equals(partitioned))
             .build();
   }
 

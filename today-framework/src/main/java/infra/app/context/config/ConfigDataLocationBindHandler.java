@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,16 +17,20 @@
 
 package infra.app.context.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import infra.context.properties.bind.AbstractBindHandler;
 import infra.context.properties.bind.BindContext;
 import infra.context.properties.bind.BindHandler;
 import infra.context.properties.bind.Bindable;
+import infra.context.properties.source.ConfigurationProperty;
 import infra.context.properties.source.ConfigurationPropertyName;
 import infra.origin.Origin;
-import infra.util.CollectionUtils;
 
 /**
  * {@link BindHandler} to set the {@link Origin} of bound {@link ConfigDataLocation}
@@ -39,43 +43,36 @@ import infra.util.CollectionUtils;
 class ConfigDataLocationBindHandler extends AbstractBindHandler {
 
   @Override
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  public Object onSuccess(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Object result) {
-    if (result instanceof ConfigDataLocation) {
-      return withOrigin(context, (ConfigDataLocation) result);
+  public @Nullable Object onSuccess(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Object result) {
+    OriginMapper originMapper = new OriginMapper(context.getConfigurationProperty());
+    if (result instanceof ConfigDataLocation location) {
+      return originMapper.map(location);
     }
-    if (result instanceof List list) {
-      CollectionUtils.removeNullElements(list);
-      for (int i = 0; i < list.size(); i++) {
-        Object element = list.get(i);
-        if (element instanceof ConfigDataLocation) {
-          list.set(i, withOrigin(context, (ConfigDataLocation) element));
-        }
-      }
-      return list;
+    if (result instanceof List<?> locations) {
+      return locations.stream().map(originMapper::mapIfPossible).collect(Collectors.toCollection(ArrayList::new));
     }
-    if (result instanceof ConfigDataLocation[] dataLocations) {
-      ArrayList<ConfigDataLocation> configDataLocations = new ArrayList<>(dataLocations.length);
-      for (ConfigDataLocation dataLocation : dataLocations) {
-        if (dataLocation != null) {
-          configDataLocations.add(dataLocation);
-        }
-      }
-      ConfigDataLocation[] locations = configDataLocations.toArray(new ConfigDataLocation[configDataLocations.size()]);
-      for (int i = 0; i < locations.length; i++) {
-        locations[i] = withOrigin(context, locations[i]);
-      }
-      return locations;
+    if (result instanceof ConfigDataLocation[] locations) {
+      return Arrays.stream(locations).map(originMapper::mapIfPossible).toArray(ConfigDataLocation[]::new);
     }
     return result;
   }
 
-  private ConfigDataLocation withOrigin(BindContext context, ConfigDataLocation result) {
-    if (result.getOrigin() != null) {
-      return result;
+  private record OriginMapper(@Nullable ConfigurationProperty property) {
+
+    @Nullable
+    Object mapIfPossible(@Nullable Object object) {
+      return (object instanceof ConfigDataLocation location) ? map(location) : object;
     }
-    Origin origin = Origin.from(context.getConfigurationProperty());
-    return result.withOrigin(origin);
+
+    @Nullable
+    ConfigDataLocation map(@Nullable ConfigDataLocation location) {
+      if (location == null) {
+        return null;
+      }
+      Origin origin = Origin.from(location);
+      return (origin != null) ? location : location.withOrigin(Origin.from(property()));
+    }
+
   }
 
 }

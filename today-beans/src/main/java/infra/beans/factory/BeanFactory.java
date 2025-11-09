@@ -17,6 +17,8 @@
 
 package infra.beans.factory;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,10 +33,10 @@ import infra.beans.factory.config.DestructionAwareBeanPostProcessor;
 import infra.beans.factory.support.ChildBeanDefinition;
 import infra.beans.factory.support.DependencyInjectorProvider;
 import infra.beans.factory.support.RootBeanDefinition;
+import infra.core.ParameterizedTypeReference;
 import infra.core.ResolvableType;
 import infra.core.annotation.MergedAnnotation;
 import infra.lang.Modifiable;
-import infra.lang.Nullable;
 
 /**
  * The root interface for accessing a bean container.
@@ -180,7 +182,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @since 4.0
    */
   @Nullable
-  Object getBean(String name, Object... args) throws BeansException;
+  Object getBean(String name, @Nullable Object @Nullable ... args) throws BeansException;
 
   /**
    * Return an instance, which may be shared or independent, of the specified bean.
@@ -487,7 +489,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @throws BeansException if the bean could not be created
    * @since 4.0
    */
-  <T> T getBean(Class<T> requiredType, Object... args) throws BeansException;
+  <T> T getBean(Class<T> requiredType, @Nullable Object @Nullable ... args) throws BeansException;
 
   /**
    * Find all beans which are annotated with the supplied {@link Annotation} type,
@@ -880,6 +882,25 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @since 4.0
    */
   <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType, boolean allowEagerInit);
+
+  /**
+   * Return a provider for the specified bean, allowing for lazy on-demand retrieval
+   * of instances, including availability and uniqueness options. This variant allows
+   * for specifying a generic type to match, similar to reflective injection points
+   * with generic type declarations in method/constructor parameters.
+   * <p>This is a variant of {@link #getBeanProvider(ResolvableType)} with a
+   * captured generic type for type-safe retrieval, typically used inline:
+   * {@code getBeanProvider(new ParameterizedTypeReference<>() {})} - and
+   * effectively equivalent to {@code getBeanProvider(ResolvableType.forType(...))}.
+   *
+   * @param requiredType a captured generic type that the bean must match
+   * @return a corresponding provider handle
+   * @see #getBeanProvider(ResolvableType)
+   * @since 5.0
+   */
+  default <T> ObjectProvider<T> getBeanProvider(ParameterizedTypeReference<T> requiredType) {
+    return getBeanProvider(ResolvableType.forType(requiredType), true);
+  }
 
   /**
    * Return a provider for the specified bean, allowing for lazy on-demand retrieval

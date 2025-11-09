@@ -17,10 +17,10 @@
 
 package infra.jdbc.core.metadata;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-
-import infra.lang.Nullable;
 
 /**
  * The PostgreSQL specific implementation of {@link TableMetaDataProvider}.

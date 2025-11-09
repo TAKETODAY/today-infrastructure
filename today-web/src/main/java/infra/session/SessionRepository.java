@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,47 +12,54 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.session;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
- * {@link WebSession} Storage
+ * Allowing for different storage strategies such as in-memory, database-backed,
+ * or distributed cache-based implementations.
+ * <p>
+ * Implementations of this interface are responsible for the entire lifecycle of a
+ * session, including its creation, retrieval, update, and deletion. They must
+ * also handle session expiration to ensure that stale sessions are properly
+ * cleaned up.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see Session
  * @since 2019-09-28 10:26
  */
 public interface SessionRepository {
 
   /**
-   * Create a new WebSession.
+   * Create a new Session.
    * <p>Note that this does nothing more than create a new instance.
-   * The session can later be started explicitly via {@link WebSession#start()}
+   * The session can later be started explicitly via {@link Session#start()}
    * or implicitly by adding attributes -- and then persisted via
-   * {@link WebSession#save()}.
+   * {@link Session#save()}.
    *
    * @return the created session instance
    * @since 4.0
    */
-  WebSession createSession();
+  Session createSession();
 
   /**
-   * Create a new WebSession with given session id.
+   * Create a new Session with given session id.
    * <p>Note that this does nothing more than create a new instance.
-   * The session can later be started explicitly via {@link WebSession#start()}
+   * The session can later be started explicitly via {@link Session#start()}
    * or implicitly by adding attributes -- and then persisted via
-   * {@link WebSession#save()}.
+   * {@link Session#save()}.
    *
    * @return the created session instance
    * @since 4.0
    */
-  WebSession createSession(String id);
+  Session createSession(String id);
 
   /**
-   * Return the WebSession for the given id.
+   * Return the Session for the given id.
    * <p><strong>Note:</strong> This method should perform an expiration check,
    * and if it has expired remove the session and return empty. This method
    * should also update the lastAccessTime of retrieved sessions.
@@ -64,33 +68,31 @@ public interface SessionRepository {
    * @return the session
    */
   @Nullable
-  WebSession retrieveSession(String sessionId);
+  Session retrieveSession(String sessionId);
 
   /**
-   * Remove the WebSession for the specified instance.
+   * Remove the Session for the specified instance.
    *
    * @param session the instance of the session to remove
    */
-  default void removeSession(WebSession session) {
-    removeSession(session.getId());
-  }
+  void removeSession(Session session);
 
   /**
-   * Remove the WebSession for the specified id.
+   * Remove the Session for the specified id.
    *
    * @param sessionId the id of the session to remove
    * @return an old session
    */
   @Nullable
-  WebSession removeSession(String sessionId);
+  Session removeSession(String sessionId);
 
   /**
    * Update the last accessed timestamp to "now".
    *
-   * @param webSession the session to update
+   * @param session the session to update
    * @since 4.0
    */
-  void updateLastAccessTime(WebSession webSession);
+  void updateLastAccessTime(Session session);
 
   boolean contains(String id);
 

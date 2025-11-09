@@ -18,9 +18,7 @@
 /**
  * Custom AssertJ assertions.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.test.assertj;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

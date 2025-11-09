@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.web.handler.function;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -43,7 +44,6 @@ import infra.core.io.InputStreamResource;
 import infra.core.io.Resource;
 import infra.core.io.ResourceRegion;
 import infra.http.CacheControl;
-import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpRange;
@@ -51,10 +51,10 @@ import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
+import infra.http.ResponseCookie;
 import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
@@ -83,7 +83,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
 
   private final HttpHeaders headers = HttpHeaders.forWritable();
 
-  private final LinkedMultiValueMap<String, HttpCookie> cookies = new LinkedMultiValueMap<>();
+  private final LinkedMultiValueMap<String, ResponseCookie> cookies = new LinkedMultiValueMap<>();
 
   public DefaultEntityResponseBuilder(T entity, @Nullable Type entityType) {
     this.entity = entity;
@@ -103,7 +103,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
   }
 
   @Override
-  public EntityResponse.Builder<T> cookie(HttpCookie cookie) {
+  public EntityResponse.Builder<T> cookie(ResponseCookie cookie) {
     Assert.notNull(cookie, "Cookie is required");
     this.cookies.add(cookie.getName(), cookie);
     return this;
@@ -112,21 +112,21 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
   @Override
   public EntityResponse.Builder<T> cookie(String name, String... values) {
     for (String value : values) {
-      this.cookies.add(name, new HttpCookie(name, value));
+      this.cookies.add(name, ResponseCookie.from(name, value).build());
     }
     return this;
   }
 
   @Override
-  public EntityResponse.Builder<T> cookies(Consumer<MultiValueMap<String, HttpCookie>> cookiesConsumer) {
+  public EntityResponse.Builder<T> cookies(Consumer<MultiValueMap<String, ResponseCookie>> cookiesConsumer) {
     cookiesConsumer.accept(this.cookies);
     return this;
   }
 
   @Override
-  public EntityResponse.Builder<T> cookies(@Nullable Collection<HttpCookie> cookies) {
+  public EntityResponse.Builder<T> cookies(@Nullable Collection<ResponseCookie> cookies) {
     if (CollectionUtils.isNotEmpty(cookies)) {
-      for (HttpCookie cookie : cookies) {
+      for (ResponseCookie cookie : cookies) {
         this.cookies.add(cookie.getName(), cookie);
       }
     }
@@ -134,7 +134,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
   }
 
   @Override
-  public EntityResponse.Builder<T> cookies(@Nullable MultiValueMap<String, HttpCookie> cookies) {
+  public EntityResponse.Builder<T> cookies(@Nullable MultiValueMap<String, ResponseCookie> cookies) {
     this.cookies.setAll(cookies);
     return this;
   }
@@ -244,7 +244,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
     private final Type entityType;
 
     public DefaultEntityResponse(HttpStatusCode statusCode, HttpHeaders headers,
-            MultiValueMap<String, HttpCookie> cookies, T entity, Type entityType) {
+            MultiValueMap<String, ResponseCookie> cookies, T entity, Type entityType) {
 
       super(statusCode, headers, cookies);
       this.entity = entity;
@@ -310,6 +310,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
     }
 
     @Nullable
+    @SuppressWarnings("NullAway")
     private static MediaType getContentType(RequestContext response) {
       try {
         return MediaType.parseMediaType(response.getResponseContentType()).removeQualityValue();
@@ -346,7 +347,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
   private static class CompletionStageEntityResponse<T> extends DefaultEntityResponse<CompletionStage<T>> {
 
     public CompletionStageEntityResponse(HttpStatusCode statusCode, HttpHeaders headers,
-            MultiValueMap<String, HttpCookie> cookies, CompletionStage<T> entity, Type entityType) {
+            MultiValueMap<String, ResponseCookie> cookies, CompletionStage<T> entity, Type entityType) {
 
       super(statusCode, headers, cookies, entity, entityType);
     }
@@ -398,7 +399,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
   private static class PublisherEntityResponse<T> extends DefaultEntityResponse<Publisher<T>> {
 
     public PublisherEntityResponse(HttpStatusCode statusCode, HttpHeaders headers,
-            MultiValueMap<String, HttpCookie> cookies, Publisher<T> entity, Type entityType) {
+            MultiValueMap<String, ResponseCookie> cookies, Publisher<T> entity, Type entityType) {
       super(statusCode, headers, cookies, entity, entityType);
     }
 

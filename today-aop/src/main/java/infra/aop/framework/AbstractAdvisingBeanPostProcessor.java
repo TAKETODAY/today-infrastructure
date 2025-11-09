@@ -17,6 +17,8 @@
 
 package infra.aop.framework;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,7 +29,6 @@ import infra.beans.factory.InitializationBeanPostProcessor;
 import infra.beans.factory.config.BeanPostProcessor;
 import infra.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
 import infra.core.SmartClassLoader;
-import infra.lang.Nullable;
 
 /**
  * Base class for {@link BeanPostProcessor} implementations that apply a

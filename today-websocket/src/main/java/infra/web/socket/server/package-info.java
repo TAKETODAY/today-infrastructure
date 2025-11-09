@@ -18,9 +18,7 @@
 /**
  * Server-side abstractions for WebSocket interactions.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.socket.server;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

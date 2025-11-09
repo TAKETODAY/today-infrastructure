@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.core.codec;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.io.ByteArrayInputStream;
@@ -27,7 +28,6 @@ import infra.core.io.ByteArrayResource;
 import infra.core.io.InputStreamResource;
 import infra.core.io.Resource;
 import infra.core.io.buffer.DataBuffer;
-import infra.lang.Nullable;
 import infra.util.MimeType;
 import reactor.core.publisher.Flux;
 
@@ -76,6 +76,7 @@ public class ResourceDecoder extends AbstractDataBufferDecoder<Resource> {
     String filename = hints != null ? (String) hints.get(FILENAME_HINT) : null;
     if (clazz == InputStreamResource.class) {
       return new InputStreamResource(new ByteArrayInputStream(bytes)) {
+        @Nullable
         @Override
         public String getName() {
           return filename;
@@ -89,6 +90,7 @@ public class ResourceDecoder extends AbstractDataBufferDecoder<Resource> {
     }
     else if (Resource.class.isAssignableFrom(clazz)) {
       return new ByteArrayResource(bytes) {
+        @Nullable
         @Override
         public String getName() {
           return filename;

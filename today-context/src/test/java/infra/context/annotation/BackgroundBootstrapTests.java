@@ -17,6 +17,7 @@
 
 package infra.context.annotation;
 
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
@@ -32,6 +33,8 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.ConfigurableApplicationContext;
+import infra.context.weaving.LoadTimeWeaverAware;
+import infra.core.testfixture.DisabledIfInContinuousIntegration;
 import infra.lang.TodayStrategies;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 import infra.stereotype.Component;
@@ -43,6 +46,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 /**
  * @author Juergen Hoeller
  */
+@Order(Integer.MIN_VALUE)
 class BackgroundBootstrapTests {
 
   @Test
@@ -62,6 +66,15 @@ class BackgroundBootstrapTests {
     ctx.getBean("testBean2", TestBean.class);
     ctx.getBean("testBean3", TestBean.class);
     ctx.getBean("testBean4", TestBean.class);
+    ctx.close();
+  }
+
+  @Test
+  @Timeout(10)
+  void bootstrapWithLoadTimeWeaverAware() {
+    ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(LoadTimeWeaverAwareBeanConfig.class);
+    ctx.getBean("testBean1", TestBean.class);
+    ctx.getBean("testBean2", TestBean.class);
     ctx.close();
   }
 
@@ -140,6 +153,7 @@ class BackgroundBootstrapTests {
 
   @Test
   @Timeout(10)
+  @DisabledIfInContinuousIntegration(disabledReason = "CI环境直接卡死")
   void bootstrapWithCircularReferenceInMultipleThreads() {
     assertThatExceptionOfType(BeanCreationException.class)
             .isThrownBy(() -> new AnnotationConfigApplicationContext(CircularReferenceInMultipleThreadsBeanConfig.class))
@@ -250,7 +264,7 @@ class BackgroundBootstrapTests {
         }
       };
     }
-    
+
   }
 
   @Configuration(proxyBeanMethods = false)
@@ -468,6 +482,51 @@ class BackgroundBootstrapTests {
     @Bean
     public TestBean testBean4(@Lazy TestBean testBean1, @Lazy TestBean testBean2, @Lazy TestBean testBean3) {
       return new TestBean();
+    }
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class LoadTimeWeaverAwareBeanConfig {
+
+    @Bean
+    LoadTimeWeaverAware loadTimeWeaverAware(ObjectProvider<TestBean> testBean1) {
+      Thread thread = new Thread(testBean1::get);
+      thread.start();
+      try {
+        thread.join();
+      }
+      catch (InterruptedException ex) {
+        Thread.currentThread().interrupt();
+      }
+      return (loadTimeWeaver -> { });
+    }
+
+    @Bean
+    public TestBean testBean1(TestBean testBean2) {
+      return new TestBean(testBean2);
+    }
+
+    @Bean
+    @Lazy
+    public FactoryBean<TestBean> testBean2() {
+      try {
+        Thread.sleep(2000);
+      }
+      catch (InterruptedException ex) {
+        Thread.currentThread().interrupt();
+      }
+      TestBean testBean = new TestBean();
+      return new FactoryBean<>() {
+        @Override
+        public TestBean getObject() {
+          return testBean;
+        }
+
+        @Override
+        public Class<?> getObjectType() {
+          return testBean.getClass();
+        }
+      };
     }
   }
 

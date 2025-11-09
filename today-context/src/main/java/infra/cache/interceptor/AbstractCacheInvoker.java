@@ -17,11 +17,12 @@
 
 package infra.cache.interceptor;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 import infra.cache.Cache;
-import infra.lang.Nullable;
 import infra.util.function.SingletonSupplier;
 import infra.util.function.ThrowingFunction;
 
@@ -40,11 +41,11 @@ public abstract class AbstractCacheInvoker {
   protected SingletonSupplier<CacheErrorHandler> errorHandler;
 
   protected AbstractCacheInvoker() {
-    this.errorHandler = SingletonSupplier.from(SimpleCacheErrorHandler::new);
+    this.errorHandler = SingletonSupplier.of(SimpleCacheErrorHandler::new);
   }
 
   protected AbstractCacheInvoker(CacheErrorHandler errorHandler) {
-    this.errorHandler = SingletonSupplier.valueOf(errorHandler);
+    this.errorHandler = SingletonSupplier.of(errorHandler);
   }
 
   /**
@@ -53,7 +54,7 @@ public abstract class AbstractCacheInvoker {
    * is used who throws any exception as is.
    */
   public void setErrorHandler(CacheErrorHandler errorHandler) {
-    this.errorHandler = SingletonSupplier.valueOf(errorHandler);
+    this.errorHandler = SingletonSupplier.of(errorHandler);
   }
 
   /**
@@ -71,8 +72,7 @@ public abstract class AbstractCacheInvoker {
    *
    * @see Cache#get(Object)
    */
-  @Nullable
-  protected Cache.ValueWrapper doGet(Cache cache, Object key) {
+  protected Cache.@Nullable ValueWrapper doGet(Cache cache, Object key) {
     try {
       return cache.get(key);
     }

@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
@@ -39,7 +41,6 @@ import infra.core.ConstructorNotFoundException;
 import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.lang.Contract;
-import infra.lang.Nullable;
 
 /**
  * Simple utility class for working with the reflection API and handling
@@ -177,7 +178,7 @@ public abstract class ReflectionUtils {
    * @param ex the exception to rethrow
    * @throws RuntimeException the rethrown exception
    */
-  public static void rethrowRuntimeException(Throwable ex) {
+  public static void rethrowRuntimeException(@Nullable Throwable ex) {
     if (ex instanceof RuntimeException) {
       throw (RuntimeException) ex;
     }
@@ -243,7 +244,7 @@ public abstract class ReflectionUtils {
    * @see Class#getMethod
    * @since 4.0
    */
-  public static Method getMethod(Class<?> clazz, String methodName, @Nullable Class<?>... paramTypes) {
+  public static Method getMethod(Class<?> clazz, String methodName, Class<?> @Nullable ... paramTypes) {
     Assert.notNull(clazz, "Class is required");
     Assert.notNull(methodName, "Method name is required");
     if (paramTypes != null) {
@@ -284,7 +285,7 @@ public abstract class ReflectionUtils {
    * @since 4.0
    */
   @Nullable
-  public static Method getMethodIfAvailable(Class<?> clazz, String methodName, @Nullable Class<?>... paramTypes) {
+  public static Method getMethodIfAvailable(Class<?> clazz, String methodName, Class<?> @Nullable ... paramTypes) {
     Assert.notNull(clazz, "Class is required");
     Assert.notNull(methodName, "Method name is required");
     if (paramTypes != null) {
@@ -500,19 +501,20 @@ public abstract class ReflectionUtils {
   }
 
   /**
-   * Get the highest publicly accessible method in the supplied method's type hierarchy that
+   * Get the closest publicly accessible method in the supplied method's type hierarchy that
    * has a method signature equivalent to the supplied method, if possible.
-   * <p>Otherwise, this method recursively searches the class hierarchy and implemented
-   * interfaces for an equivalent method that is {@code public} and declared in a
-   * {@code public} type.
-   * <p>If a publicly accessible equivalent method cannot be found, the supplied method
-   * will be returned, indicating that no such equivalent method exists. Consequently,
-   * callers of this method must manually validate the accessibility of the returned method
-   * if public access is a requirement.
+   * <p>This method recursively searches the class hierarchy and implemented interfaces for
+   * an equivalent method that is {@code public}, declared in a {@code public} type, and
+   * {@linkplain Module#isExported(String, Module) exported} to {@code today-core}.
+   * <p>If the supplied method is not {@code public} or is {@code static}, or if a publicly
+   * accessible equivalent method cannot be found, the supplied method will be returned,
+   * indicating that no such equivalent method exists. Consequently, callers of this method
+   * must manually validate the accessibility of the returned method if public access is a
+   * requirement.
    * <p>This is particularly useful for arriving at a public exported type on the Java
    * Module System which allows the method to be invoked via reflection without an illegal
    * access warning. This is also useful for invoking methods via a public API in bytecode
-   * &mdash; for example, for use with the SpEL compiler.
+   * &mdash; for example, for use with the (SpEL) compiler.
    * For example, if a non-public class overrides {@code toString()}, this method will
    * traverse up the type hierarchy to find the first public type that declares the method
    * (if there is one). For {@code toString()}, it may traverse as far as {@link Object}.
@@ -525,18 +527,22 @@ public abstract class ReflectionUtils {
    * @since 5.0
    */
   public static Method getPubliclyAccessibleMethodIfPossible(Method method, @Nullable Class<?> targetClass) {
-    // If the method is not public, we can abort the search immediately.
-    if (!Modifier.isPublic(method.getModifiers())) {
+    Class<?> declaringClass = method.getDeclaringClass();
+    // If the method is not public, or it's static, or its declaring class is public and exported
+    // already, we can abort the search immediately (avoiding reflection as well as cache access).
+    if (!Modifier.isPublic(method.getModifiers()) || Modifier.isStatic(method.getModifiers())
+            || (Modifier.isPublic(declaringClass.getModifiers())
+            && declaringClass.getModule().isExported(declaringClass.getPackageName(), ClassUtils.class.getModule()))) {
       return method;
     }
 
     Method interfaceMethod = getInterfaceMethodIfPossible(method, targetClass, true);
     // If we found a method in a public interface, return the interface method.
-    if (interfaceMethod != method) {
+    if (interfaceMethod != method && interfaceMethod.getDeclaringClass().getModule().isExported(
+            interfaceMethod.getDeclaringClass().getPackageName(), ClassUtils.class.getModule())) {
       return interfaceMethod;
     }
 
-    Class<?> declaringClass = method.getDeclaringClass();
     // Bypass cache for java.lang.Object unless it is actually an overridable method declared there.
     if (declaringClass.getSuperclass() == Object.class && !ReflectionUtils.isObjectMethod(method)) {
       return method;
@@ -547,23 +553,23 @@ public abstract class ReflectionUtils {
     return result != null ? result : method;
   }
 
-  @Nullable
-  private static Method findPubliclyAccessibleMethodIfPossible(
+  private static @Nullable Method findPubliclyAccessibleMethodIfPossible(
           String methodName, Class<?>[] parameterTypes, Class<?> declaringClass) {
 
-    Method result = null;
     Class<?> current = declaringClass.getSuperclass();
     while (current != null) {
       Method method = getMethodOrNull(current, methodName, parameterTypes);
       if (method == null) {
         break;
       }
-      if (Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
-        result = method;
+      if (Modifier.isPublic(method.getDeclaringClass().getModifiers())
+              && method.getDeclaringClass().getModule().isExported(
+              method.getDeclaringClass().getPackageName(), ClassUtils.class.getModule())) {
+        return method;
       }
       current = method.getDeclaringClass().getSuperclass();
     }
-    return result;
+    return null;
   }
 
   /**
@@ -611,7 +617,7 @@ public abstract class ReflectionUtils {
    * @return the Method object, or {@code null} if none found
    */
   @Nullable
-  public static Method findMethod(Class<?> clazz, String name, @Nullable Class<?>... paramTypes) {
+  public static Method findMethod(Class<?> clazz, String name, Class<?> @Nullable ... paramTypes) {
     Assert.notNull(clazz, "Class is required");
     Assert.notNull(name, "Method name is required");
     Class<?> searchType = clazz;
@@ -640,6 +646,7 @@ public abstract class ReflectionUtils {
    * @see FunctionalInterface
    * @since 4.0
    */
+  @SuppressWarnings("NullAway")
   public static Method findFunctionalInterfaceMethod(Class clazz) {
     if (clazz.isInterface()) {
       Method found = null;
@@ -688,7 +695,7 @@ public abstract class ReflectionUtils {
    * @return the invocation result, if any
    */
   @Nullable
-  public static Object invokeMethod(Method method, @Nullable Object target, Object... args) {
+  public static Object invokeMethod(Method method, @Nullable Object target, @Nullable Object @Nullable ... args) {
     try {
       return method.invoke(target, args);
     }
@@ -1309,6 +1316,7 @@ public abstract class ReflectionUtils {
    * @see Class#getDeclaredConstructor
    * @since 4.0
    */
+  @SuppressWarnings("NullAway")
   public static <T> Constructor<T> accessibleConstructor(Class<T> targetClass, Class<?>... parameterTypes) {
     return makeAccessible(getConstructor(targetClass, parameterTypes));
   }
@@ -1378,7 +1386,7 @@ public abstract class ReflectionUtils {
     }
   }
 
-  public static <T> T invokeConstructor(Constructor<T> constructor, @Nullable Object[] args) {
+  public static <T> T invokeConstructor(Constructor<T> constructor, @Nullable Object @Nullable [] args) {
     try {
       return constructor.newInstance(args);
     }
@@ -1706,7 +1714,8 @@ public abstract class ReflectionUtils {
   /**
    * @since 4.0
    */
-  public static <T> T newInstance(Class<T> type, Class[] parameterTypes, @Nullable Object[] args) {
+  @SuppressWarnings("NullAway")
+  public static <T> T newInstance(Class<T> type, Class[] parameterTypes, @Nullable Object @Nullable [] args) {
     return invokeConstructor(getConstructor(type, parameterTypes), args);
   }
 

@@ -17,6 +17,8 @@
 
 package infra.app.env;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -44,7 +46,6 @@ import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
 import infra.javapoet.CodeBlock;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.util.ClassUtils;
 import infra.util.Instantiator;
@@ -110,6 +111,7 @@ public class EnvironmentPostProcessorApplicationListener implements SmartApplica
     return instantiator.instantiate(strategiesNames);
   }
 
+  @SuppressWarnings("NullAway")
   private void addAotGeneratedEnvironmentPostProcessorIfNecessary(List<EnvironmentPostProcessor> postProcessors, Application application) {
     if (AotDetector.useGeneratedArtifacts()) {
       ClassLoader classLoader = (application.getResourceLoader() != null)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.core.annotation.AliasFor;
+import infra.session.Session;
 
 /**
  * Annotation to bind a method parameter to a session attribute.
@@ -33,7 +34,7 @@ import infra.core.annotation.AliasFor;
  * check and a cast to the target method parameter type.
  *
  * <p>For use cases that require adding or removing session attributes consider
- * injecting {@link infra.session.WebSession} into the controller method.
+ * injecting {@link Session} into the controller method.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see RequestMapping
@@ -49,14 +50,14 @@ public @interface SessionAttribute {
   /**
    * Alias for {@link #name}.
    */
-  @AliasFor("name")
+  @AliasFor(annotation = RequestParam.class, attribute = "value")
   String value() default "";
 
   /**
    * The name of the session attribute to bind to.
    * <p>The default name is inferred from the method parameter name.
    */
-  @AliasFor("value")
+  @AliasFor(annotation = RequestParam.class, attribute = "name")
   String name() default "";
 
   /**
@@ -66,6 +67,7 @@ public @interface SessionAttribute {
    * Switch this to {@code false} if you prefer a {@code null} or Java 8
    * {@code java.util.Optional} if the attribute doesn't exist.
    */
+  @AliasFor(annotation = RequestParam.class, attribute = "required")
   boolean required() default true;
 
 }

@@ -17,6 +17,8 @@
 
 package infra.web.bind.resolver;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -26,7 +28,6 @@ import java.util.function.Predicate;
 
 import infra.core.ArraySizeTrimmer;
 import infra.core.style.ToStringBuilder;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.web.RequestContext;
 import infra.web.handler.method.ResolvableMethodParameter;
@@ -148,7 +149,7 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
    *
    * @param resolver resolvers or resolving-strategies
    */
-  public void add(@Nullable ParameterResolvingStrategy... resolver) {
+  public void add(ParameterResolvingStrategy @Nullable ... resolver) {
     CollectionUtils.addAll(strategies, resolver);
   }
 

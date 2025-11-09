@@ -17,11 +17,11 @@
 
 package infra.web.config.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Predicate;
-
-import infra.lang.Nullable;
 
 /**
  * Assist with configuring {@code HandlerMapping}'s with path matching options.
@@ -33,14 +33,11 @@ import infra.lang.Nullable;
  */
 public class PathMatchConfigurer {
 
-  @Nullable
-  private Boolean trailingSlashMatch;
+  private @Nullable Boolean trailingSlashMatch;
 
-  @Nullable
-  private Boolean caseSensitiveMatch;
+  private @Nullable Boolean caseSensitiveMatch;
 
-  @Nullable
-  private Map<String, Predicate<Class<?>>> pathPrefixes;
+  private @Nullable Map<String, Predicate<Class<?>>> pathPrefixes;
 
   /**
    * Whether to match to URLs irrespective of their case.

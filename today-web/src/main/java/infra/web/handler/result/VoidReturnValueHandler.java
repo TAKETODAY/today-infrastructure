@@ -17,8 +17,9 @@
 
 package infra.web.handler.result;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.web.BindingContext;
 import infra.web.HandlerExceptionHandler;
 import infra.web.RequestContext;

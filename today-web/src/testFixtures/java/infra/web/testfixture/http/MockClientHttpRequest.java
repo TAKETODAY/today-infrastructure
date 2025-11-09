@@ -28,7 +28,7 @@ import infra.http.MockHttpOutputMessage;
 import infra.http.client.ClientHttpRequest;
 import infra.http.client.ClientHttpResponse;
 import infra.lang.Assert;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import infra.util.concurrent.Future;
 import infra.web.util.UriComponentsBuilder;
 

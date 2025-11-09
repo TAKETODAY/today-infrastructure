@@ -18,9 +18,7 @@
 /**
  * For @NonNull annotations on implementation classes
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.testfixture.http.server.reactive;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

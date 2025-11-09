@@ -19,6 +19,7 @@ package infra.http.client.reactive;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpMessage;
+import org.jspecify.annotations.Nullable;
 
 import java.util.AbstractSet;
 import java.util.ArrayList;
@@ -32,7 +33,6 @@ import java.util.Map;
 import java.util.Set;
 
 import infra.http.HttpHeaders;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 
 /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.web.handler.function;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -29,16 +31,16 @@ import java.util.function.Consumer;
 
 import infra.core.ParameterizedTypeReference;
 import infra.http.CacheControl;
-import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
+import infra.http.ResponseCookie;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
+import infra.util.function.ThrowingConsumer;
 import infra.web.RequestContext;
 import infra.web.view.ModelAndView;
 
@@ -55,7 +57,7 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
 
   private final HttpHeaders headers = HttpHeaders.forWritable();
 
-  private final MultiValueMap<String, HttpCookie> cookies = new LinkedMultiValueMap<>();
+  private final MultiValueMap<String, ResponseCookie> cookies = new LinkedMultiValueMap<>();
 
   public DefaultServerResponseBuilder(ServerResponse other) {
     Assert.notNull(other, "ServerResponse is required");
@@ -88,7 +90,7 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
   }
 
   @Override
-  public ServerResponse.BodyBuilder cookie(HttpCookie cookie) {
+  public ServerResponse.BodyBuilder cookie(ResponseCookie cookie) {
     Assert.notNull(cookie, "Cookie is required");
     this.cookies.add(cookie.getName(), cookie);
     return this;
@@ -97,21 +99,21 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
   @Override
   public ServerResponse.BodyBuilder cookie(String name, String... values) {
     for (String value : values) {
-      this.cookies.add(name, new HttpCookie(name, value));
+      this.cookies.add(name, ResponseCookie.from(name, value).build());
     }
     return this;
   }
 
   @Override
-  public ServerResponse.BodyBuilder cookies(Consumer<MultiValueMap<String, HttpCookie>> cookiesConsumer) {
+  public ServerResponse.BodyBuilder cookies(Consumer<MultiValueMap<String, ResponseCookie>> cookiesConsumer) {
     cookiesConsumer.accept(this.cookies);
     return this;
   }
 
   @Override
-  public ServerResponse.BodyBuilder cookies(@Nullable Collection<HttpCookie> cookies) {
+  public ServerResponse.BodyBuilder cookies(@Nullable Collection<ResponseCookie> cookies) {
     if (CollectionUtils.isNotEmpty(cookies)) {
-      for (HttpCookie cookie : cookies) {
+      for (ResponseCookie cookie : cookies) {
         this.cookies.add(cookie.getName(), cookie);
       }
     }
@@ -119,7 +121,7 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
   }
 
   @Override
-  public ServerResponse.BodyBuilder cookies(@Nullable MultiValueMap<String, HttpCookie> cookies) {
+  public ServerResponse.BodyBuilder cookies(@Nullable MultiValueMap<String, ResponseCookie> cookies) {
     this.cookies.setAll(cookies);
     return this;
   }
@@ -242,7 +244,7 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
   }
 
   @Override
-  public ServerResponse stream(Consumer<ServerResponse.StreamBuilder> streamConsumer) {
+  public ServerResponse stream(ThrowingConsumer<ServerResponse.StreamBuilder> streamConsumer) {
     return StreamingServerResponse.create(this.statusCode, this.headers, this.cookies, streamConsumer, null);
   }
 
@@ -251,7 +253,7 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
     private final WriteFunction writeFunction;
 
     public WriteFunctionResponse(HttpStatusCode statusCode, HttpHeaders headers,
-            MultiValueMap<String, HttpCookie> cookies, WriteFunction writeFunction) {
+            MultiValueMap<String, ResponseCookie> cookies, WriteFunction writeFunction) {
 
       super(statusCode, headers, cookies);
       Assert.notNull(writeFunction, "WriteFunction is required");

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
 
 package infra.session;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.web.AbstractRedirectModelManager;
 import infra.web.RedirectModel;
@@ -30,7 +31,7 @@ import infra.web.RequestContextUtils;
 import infra.web.util.WebUtils;
 
 /**
- * Store {@link RedirectModel} in {@link WebSession}
+ * Store {@link RedirectModel} in {@link Session}
  *
  * @author TODAY 2021/4/2 21:55
  * @since 3.0
@@ -39,20 +40,20 @@ public class SessionRedirectModelManager extends AbstractRedirectModelManager im
 
   private static final String SESSION_ATTRIBUTE = SessionRedirectModelManager.class.getName() + ".RedirectModel";
 
-  @Nullable
-  private SessionManager sessionManager;
+  private final @Nullable SessionManager sessionManager;
 
-  public SessionRedirectModelManager() { }
+  public SessionRedirectModelManager() {
+    this.sessionManager = null;
+  }
 
   public SessionRedirectModelManager(@Nullable SessionManager sessionManager) {
     this.sessionManager = sessionManager;
   }
 
-  @Nullable
   @Override
   @SuppressWarnings("unchecked")
-  protected List<RedirectModel> retrieveRedirectModel(RequestContext request) {
-    WebSession session = getSession(request, false);
+  protected @Nullable List<RedirectModel> retrieveRedirectModel(RequestContext request) {
+    Session session = getSession(request, false);
     if (session != null) {
       return (List<RedirectModel>) session.getAttribute(SESSION_ATTRIBUTE);
     }
@@ -62,22 +63,21 @@ public class SessionRedirectModelManager extends AbstractRedirectModelManager im
   @Override
   protected void updateRedirectModel(List<RedirectModel> redirectModels, RequestContext request) {
     if (CollectionUtils.isEmpty(redirectModels)) {
-      WebSession session = getSession(request, false);
+      Session session = getSession(request, false);
       if (session != null) {
         session.removeAttribute(SESSION_ATTRIBUTE);
       }
     }
     else {
-      WebSession session = getSession(request, true);
-      Assert.state(session != null, "WebSession not found in current request");
+      Session session = getSession(request, true);
+      Assert.state(session != null, "Session not found in current request");
       session.setAttribute(SESSION_ATTRIBUTE, redirectModels);
     }
   }
 
-  @Nullable
   @Override
-  protected Object getRedirectModelMutex(RequestContext request) {
-    WebSession session = getSession(request, false);
+  protected @Nullable Object getRedirectModelMutex(RequestContext request) {
+    Session session = getSession(request, false);
     if (session != null) {
       return WebUtils.getSessionMutex(session);
     }
@@ -89,8 +89,7 @@ public class SessionRedirectModelManager extends AbstractRedirectModelManager im
     return sessionManager;
   }
 
-  @Nullable
-  private WebSession getSession(RequestContext context, boolean create) {
+  @Nullable Session getSession(RequestContext context, boolean create) {
     SessionManager sessionManager = getSessionManager();
     if (sessionManager == null) {
       return RequestContextUtils.getSession(context, create);

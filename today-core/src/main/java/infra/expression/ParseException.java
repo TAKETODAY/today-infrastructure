@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 
 package infra.expression;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represent an exception that occurs during expression parsing.
@@ -47,7 +47,7 @@ public class ParseException extends ExpressionException {
    * @param message description of the problem that occurred
    * @param cause the underlying cause of this exception
    */
-  public ParseException(int position, String message,@Nullable Throwable cause) {
+  public ParseException(int position, String message, @Nullable Throwable cause) {
     super(position, message, cause);
   }
 

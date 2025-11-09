@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.context.annotation.config;
+
+import org.jspecify.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -91,7 +93,7 @@ final class AutoConfigurationReplacements {
    * @param classLoader class loader to use for loading
    * @return list of names of annotated classes
    */
-  static AutoConfigurationReplacements load(Class<?> annotation, ClassLoader classLoader) {
+  static AutoConfigurationReplacements load(Class<?> annotation, @Nullable ClassLoader classLoader) {
     Assert.notNull(annotation, "'annotation' is required");
     ClassLoader classLoaderToUse = decideClassloader(classLoader);
     String location = String.format(LOCATION, annotation.getName());
@@ -104,7 +106,7 @@ final class AutoConfigurationReplacements {
     return new AutoConfigurationReplacements(replacements);
   }
 
-  private static ClassLoader decideClassloader(ClassLoader classLoader) {
+  private static ClassLoader decideClassloader(@Nullable ClassLoader classLoader) {
     if (classLoader == null) {
       return ImportCandidates.class.getClassLoader();
     }

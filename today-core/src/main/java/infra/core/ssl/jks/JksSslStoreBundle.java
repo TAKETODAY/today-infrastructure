@@ -17,6 +17,8 @@
 
 package infra.core.ssl.jks;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
@@ -24,14 +26,12 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
-import java.util.function.Supplier;
 
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
 import infra.core.ssl.SslStoreBundle;
 import infra.core.style.ToStringBuilder;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 import infra.util.function.SingletonSupplier;
 
@@ -50,9 +50,9 @@ public class JksSslStoreBundle implements SslStoreBundle {
 
   private final ResourceLoader resourceLoader;
 
-  private final Supplier<KeyStore> keyStore;
+  private final SingletonSupplier<KeyStore> keyStore;
 
-  private final Supplier<KeyStore> trustStore;
+  private final SingletonSupplier<KeyStore> trustStore;
 
   /**
    * Create a new {@link JksSslStoreBundle} instance.
@@ -60,7 +60,7 @@ public class JksSslStoreBundle implements SslStoreBundle {
    * @param keyStoreDetails the key store details
    * @param trustStoreDetails the trust store details
    */
-  public JksSslStoreBundle(JksSslStoreDetails keyStoreDetails, JksSslStoreDetails trustStoreDetails) {
+  public JksSslStoreBundle(@Nullable JksSslStoreDetails keyStoreDetails, @Nullable JksSslStoreDetails trustStoreDetails) {
     this(keyStoreDetails, trustStoreDetails, new DefaultResourceLoader());
   }
 
@@ -76,8 +76,8 @@ public class JksSslStoreBundle implements SslStoreBundle {
     Assert.notNull(resourceLoader, "ResourceLoader is required");
     this.keyStoreDetails = keyStoreDetails;
     this.resourceLoader = resourceLoader;
-    this.keyStore = SingletonSupplier.from(() -> createKeyStore("key", keyStoreDetails));
-    this.trustStore = SingletonSupplier.from(() -> createKeyStore("trust", trustStoreDetails));
+    this.keyStore = SingletonSupplier.of(() -> createKeyStore("key", keyStoreDetails));
+    this.trustStore = SingletonSupplier.of(() -> createKeyStore("trust", trustStoreDetails));
   }
 
   @Nullable
@@ -130,7 +130,7 @@ public class JksSslStoreBundle implements SslStoreBundle {
     return type.equalsIgnoreCase("PKCS11");
   }
 
-  private void loadHardwareKeyStore(KeyStore store, @Nullable String location, @Nullable char[] password)
+  private void loadHardwareKeyStore(KeyStore store, @Nullable String location, char @Nullable [] password)
           throws IOException, NoSuchAlgorithmException, CertificateException {
     if (StringUtils.hasText(location)) {
       throw new IllegalStateException(
@@ -139,7 +139,7 @@ public class JksSslStoreBundle implements SslStoreBundle {
     store.load(null, password);
   }
 
-  private void loadKeyStore(KeyStore store, @Nullable String location, @Nullable char[] password) {
+  private void loadKeyStore(KeyStore store, @Nullable String location, char @Nullable [] password) {
     Assert.state(StringUtils.hasText(location), "Location must not be empty or null");
     try {
       try (InputStream stream = this.resourceLoader.getResource(location).getInputStream()) {

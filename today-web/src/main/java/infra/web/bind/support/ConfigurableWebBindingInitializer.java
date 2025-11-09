@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,14 +12,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.bind.support;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.PropertyEditorRegistrar;
 import infra.core.conversion.ConversionService;
-import infra.lang.Nullable;
 import infra.validation.BindingErrorProcessor;
 import infra.validation.DataBinder;
 import infra.validation.MessageCodesResolver;
@@ -62,8 +63,7 @@ public class ConfigurableWebBindingInitializer implements WebBindingInitializer 
   @Nullable
   private ConversionService conversionService;
 
-  @Nullable
-  private PropertyEditorRegistrar[] propertyEditorRegistrars;
+  private PropertyEditorRegistrar @Nullable [] propertyEditorRegistrars;
 
   /**
    * Set whether a binder should attempt to "auto-grow" a nested path that contains a null value.
@@ -201,15 +201,14 @@ public class ConfigurableWebBindingInitializer implements WebBindingInitializer 
   /**
    * Specify multiple PropertyEditorRegistrars to be applied to every DataBinder.
    */
-  public final void setPropertyEditorRegistrars(@Nullable PropertyEditorRegistrar[] propertyEditorRegistrars) {
+  public final void setPropertyEditorRegistrars(PropertyEditorRegistrar @Nullable [] propertyEditorRegistrars) {
     this.propertyEditorRegistrars = propertyEditorRegistrars;
   }
 
   /**
    * Return the PropertyEditorRegistrars to be applied to every DataBinder.
    */
-  @Nullable
-  public final PropertyEditorRegistrar[] getPropertyEditorRegistrars() {
+  public final PropertyEditorRegistrar @Nullable [] getPropertyEditorRegistrars() {
     return this.propertyEditorRegistrars;
   }
 

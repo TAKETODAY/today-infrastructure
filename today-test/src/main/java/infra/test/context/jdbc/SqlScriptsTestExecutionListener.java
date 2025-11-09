@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.test.context.jdbc;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -35,8 +37,6 @@ import infra.core.io.Resource;
 import infra.jdbc.datasource.init.ResourceDatabasePopulator;
 import infra.jdbc.datasource.init.ScriptUtils;
 import infra.lang.Assert;
-import infra.lang.NonNull;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.context.TestContext;
@@ -360,14 +360,13 @@ public class SqlScriptsTestExecutionListener extends AbstractTestExecutionListen
       }
       final DataSource finalDataSource = dataSource;
       int propagation = (newTxRequired ? TransactionDefinition.PROPAGATION_REQUIRES_NEW :
-                         TransactionDefinition.PROPAGATION_REQUIRED);
+              TransactionDefinition.PROPAGATION_REQUIRED);
       TransactionAttribute txAttr = TestContextTransactionUtils.createDelegatingTransactionAttribute(
               testContext, new DefaultTransactionAttribute(propagation), methodLevel);
       new TransactionTemplate(txMgr, txAttr).executeWithoutResult(s -> populator.execute(finalDataSource));
     }
   }
 
-  @NonNull
   private ResourceDatabasePopulator createDatabasePopulator(MergedSqlConfig mergedSqlConfig) {
     ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
     populator.setSqlScriptEncoding(mergedSqlConfig.getEncoding());

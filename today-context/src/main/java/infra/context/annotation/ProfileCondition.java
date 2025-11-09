@@ -17,6 +17,8 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.env.Environment;
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.util.MultiValueMap;
@@ -30,8 +32,9 @@ import infra.util.MultiValueMap;
 final class ProfileCondition implements Condition {
 
   @Override
+  @SuppressWarnings("NullAway") // Reflection
   public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-    MultiValueMap<String, Object> attrs = metadata.getAllAnnotationAttributes(Profile.class);
+    MultiValueMap<String, @Nullable Object> attrs = metadata.getAllAnnotationAttributes(Profile.class);
     if (attrs != null) {
       Environment environment = context.getEnvironment();
       for (Object value : attrs.get("value")) {

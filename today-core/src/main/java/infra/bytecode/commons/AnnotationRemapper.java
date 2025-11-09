@@ -70,8 +70,8 @@ public class AnnotationRemapper extends AnnotationVisitor {
     }
     else {
       return annotationVisitor == av
-             ? this
-             : createAnnotationRemapper(descriptor, annotationVisitor);
+              ? this
+              : createAnnotationRemapper(descriptor, annotationVisitor);
     }
   }
 
@@ -83,8 +83,8 @@ public class AnnotationRemapper extends AnnotationVisitor {
     }
     else {
       return annotationVisitor == av
-             ? this
-             : createAnnotationRemapper(/* descriptor = */ null, annotationVisitor);
+              ? this
+              : createAnnotationRemapper(/* descriptor = */ null, annotationVisitor);
     }
   }
 

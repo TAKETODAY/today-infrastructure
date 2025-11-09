@@ -17,9 +17,11 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 
-import infra.lang.Nullable;
+import infra.lang.Assert;
 
 /**
  * An {@link InstanceFilter} implementation that handles exception types. A type
@@ -65,6 +67,64 @@ public class ExceptionTypeFilter extends InstanceFilter<Class<? extends Throwabl
   }
 
   /**
+   * Determine if the type of the supplied {@code exception} matches this filter.
+   *
+   * @param exception the exception to match against
+   * @return {@code true} if this filter matches the supplied exception
+   * @see #match(Throwable, boolean)
+   * @since 5.0
+   */
+  public boolean match(Throwable exception) {
+    return match(exception, false);
+  }
+
+  /**
+   * Determine if the type of the supplied {@code exception} matches this filter,
+   * potentially matching against nested causes.
+   *
+   * @param exception the exception to match against
+   * @param traverseCauses whether the matching algorithm should recursively
+   * match against nested causes of the exception
+   * @return {@code true} if this filter matches the supplied exception or one
+   * of its nested causes
+   * @see InstanceFilter#match(Object)
+   * @since 5.0
+   */
+  public boolean match(Throwable exception, boolean traverseCauses) {
+    return (traverseCauses ? matchTraversingCauses(exception) : match(exception.getClass()));
+  }
+
+  private boolean matchTraversingCauses(Throwable exception) {
+    Assert.notNull(exception, "Throwable to match must not be null");
+
+    boolean emptyIncludes = includes.isEmpty();
+    boolean emptyExcludes = excludes.isEmpty();
+
+    if (emptyIncludes && emptyExcludes) {
+      return super.matchIfEmpty;
+    }
+    if (!emptyExcludes && matchTraversingCauses(exception, excludes)) {
+      return false;
+    }
+    return (emptyIncludes || matchTraversingCauses(exception, includes));
+  }
+
+  private boolean matchTraversingCauses(
+          Throwable exception, Collection<? extends Class<? extends Throwable>> candidateTypes) {
+
+    for (Class<? extends Throwable> candidateType : candidateTypes) {
+      Throwable current = exception;
+      while (current != null) {
+        if (match(current.getClass(), candidateType)) {
+          return true;
+        }
+        current = current.getCause();
+      }
+    }
+    return false;
+  }
+
+  /**
    * Determine if the specified {@code instance} matches the specified
    * {@code candidate}.
    * <p>By default, the two instances match if the {@code candidate} type is
@@ -79,16 +139,6 @@ public class ExceptionTypeFilter extends InstanceFilter<Class<? extends Throwabl
   @Override
   protected boolean match(Class<? extends Throwable> instance, Class<? extends Throwable> candidate) {
     return candidate.isAssignableFrom(instance);
-  }
-
-  /**
-   * Determine if the type of the supplied {@code exception} matches this filter.
-   *
-   * @see InstanceFilter#match(Object)
-   * @since 5.0
-   */
-  public boolean match(Throwable exception) {
-    return match(exception.getClass());
   }
 
 }

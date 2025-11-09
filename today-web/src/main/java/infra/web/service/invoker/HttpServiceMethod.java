@@ -17,6 +17,7 @@
 
 package infra.web.service.invoker;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.lang.reflect.Method;
@@ -38,7 +39,6 @@ import infra.http.HttpHeaders;
 import infra.http.ResponseEntity;
 import infra.http.client.ClientHttpResponse;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.concurrent.Future;
 import infra.web.client.ClientResponse;
@@ -114,14 +114,16 @@ final class HttpServiceMethod {
   }
 
   @Nullable
-  public Object invoke(Object[] arguments) {
+  @SuppressWarnings("NullAway")
+  public Object invoke(@Nullable Object[] arguments) {
     var requestValues = requestValuesInitializer.initializeRequestValuesBuilder();
     applyArguments(requestValues, arguments);
     requestValuesProcessor.process(method, parameters, arguments, requestValues);
     return responseFunction.execute(requestValues.build());
   }
 
-  private void applyArguments(HttpRequestValues.Builder requestValues, Object[] arguments) {
+  @SuppressWarnings("NullAway")
+  private void applyArguments(HttpRequestValues.Builder requestValues, @Nullable Object[] arguments) {
     MethodParameter[] parameters = this.parameters;
     Assert.isTrue(arguments.length == parameters.length, "Method argument mismatch");
     for (int i = 0; i < arguments.length; i++) {
@@ -143,6 +145,7 @@ final class HttpServiceMethod {
   /**
    * Create the {@code ResponseFunction} that matches the method return type.
    */
+  @SuppressWarnings("NullAway")
   private static ResponseFunction createResponseFunction(HttpExchangeAdapter client, Method method) {
     MethodParameter param = returnType(method);
 
@@ -334,7 +337,7 @@ final class HttpServiceMethod {
       return new ReactorExchangeResponseFunction(responseFunction, reactiveAdapter);
     }
 
-    @SuppressWarnings("ConstantConditions")
+    @SuppressWarnings("NullAway")
     private static Function<HttpRequestValues, Publisher<?>> initResponseEntityFunction(
             ReactorHttpExchangeAdapter client, MethodParameter methodParam, @Nullable ReactiveAdapter reactiveAdapter) {
 
@@ -357,7 +360,7 @@ final class HttpServiceMethod {
       return request -> client.exchangeForEntityFlux(request, bodyType)
               .map(entity -> {
                 Object body = reactiveAdapter.fromPublisher(entity.getBody());
-                return new ResponseEntity<>(body, entity.headers(), entity.getStatusCode());
+                return new ResponseEntity<>(body, entity.getHeaders(), entity.getStatusCode());
               });
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.aop.aspectj.annotation;
 
 import org.aspectj.lang.reflect.PerClauseKind;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +31,6 @@ import infra.aop.framework.AopConfigException;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryUtils;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
@@ -88,6 +88,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
    * @return the list of {@link infra.aop.Advisor} beans
    * @see #isEligibleBean
    */
+  @SuppressWarnings("NullAway")
   public List<Advisor> buildAspectJAdvisors() {
     List<String> aspectNames = this.aspectBeanNames;
 

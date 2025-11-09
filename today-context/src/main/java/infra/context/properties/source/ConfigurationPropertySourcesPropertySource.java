@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
 
 package infra.context.properties.source;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.env.Environment;
 import infra.core.env.PropertyResolver;
 import infra.core.env.PropertySource;
-import infra.lang.Nullable;
 import infra.origin.Origin;
 import infra.origin.OriginLookup;
 
@@ -47,11 +48,13 @@ class ConfigurationPropertySourcesPropertySource extends PropertySource<Iterable
   }
 
   @Override
+  @Nullable
   public Object getProperty(String name) {
     ConfigurationProperty configurationProperty = findConfigurationProperty(name);
     return configurationProperty != null ? configurationProperty.getValue() : null;
   }
 
+  @Nullable
   @Override
   public Origin getOrigin(String name) {
     return Origin.from(findConfigurationProperty(name));

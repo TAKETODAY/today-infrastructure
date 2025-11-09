@@ -17,6 +17,8 @@
 
 package infra.transaction.interceptor;
 
+import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
@@ -27,7 +29,6 @@ import infra.beans.factory.BeanFactory;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.core.ResolvableType;
 import infra.core.testfixture.io.SerializationTestUtils;
-import infra.lang.Nullable;
 import infra.transaction.PlatformTransactionManager;
 import infra.transaction.TransactionDefinition;
 import infra.transaction.TransactionException;
@@ -35,6 +36,7 @@ import infra.transaction.TransactionManager;
 import infra.transaction.TransactionStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -259,6 +261,105 @@ class TransactionInterceptorTests extends AbstractTransactionAspectTests {
     TransactionManager actual2 = ti.determineTransactionManager(attribute, null);
     assertThat(actual2).isSameAs(txManager);
     verify(beanFactory, times(1)).getBean(TransactionManager.class);
+  }
+
+  @Test
+  void defaultConstructorCreatesInstance() {
+    TransactionInterceptor interceptor = new TransactionInterceptor();
+    assertThat(interceptor).isNotNull();
+  }
+
+  @Test
+  void constructorWithTransactionManagerAndTransactionAttributeSource() {
+    PlatformTransactionManager transactionManager = mock();
+    TransactionAttributeSource attributeSource = mock();
+
+    TransactionInterceptor interceptor = new TransactionInterceptor(transactionManager, attributeSource);
+
+    assertThat(interceptor.getTransactionManager()).isEqualTo(transactionManager);
+    assertThat(interceptor.getTransactionAttributeSource()).isEqualTo(attributeSource);
+  }
+
+  @Test
+  void constructorWithTransactionManagerAndProperties() {
+    PlatformTransactionManager transactionManager = mock();
+    Properties properties = new Properties();
+    properties.setProperty("testMethod", "PROPAGATION_REQUIRED");
+
+    TransactionInterceptor interceptor = new TransactionInterceptor(transactionManager, properties);
+
+    assertThat(interceptor.getTransactionManager()).isEqualTo(transactionManager);
+    assertThat(interceptor.getTransactionAttributeSource()).isNotNull();
+  }
+
+  @Test
+  void invokeWithValidMethodInvocation() throws Throwable {
+    // Create a mock method invocation
+    MethodInvocation invocation = mock();
+    given(invocation.getMethod()).willReturn(TestClass.class.getMethod("testMethod"));
+    given(invocation.getThis()).willReturn(new TestClass());
+    given(invocation.proceed()).willReturn("result");
+
+    TransactionInterceptor interceptor = new TransactionInterceptor();
+
+    // This test mainly verifies that the method can be invoked without exceptions
+    assertThatCode(() -> interceptor.invoke(invocation)).doesNotThrowAnyException();
+  }
+
+  @Test
+  void invokeWithNullTarget() throws Throwable {
+    MethodInvocation invocation = mock();
+    given(invocation.getMethod()).willReturn(TestClass.class.getMethod("testMethod"));
+    given(invocation.getThis()).willReturn(null);
+    given(invocation.proceed()).willReturn("result");
+
+    TransactionInterceptor interceptor = new TransactionInterceptor();
+
+    assertThatCode(() -> interceptor.invoke(invocation)).doesNotThrowAnyException();
+  }
+
+  @Test
+  void serializableWithAttributeSource() throws Exception {
+    TransactionInterceptor ti = new TransactionInterceptor();
+    NameMatchTransactionAttributeSource source = new NameMatchTransactionAttributeSource();
+    source.addTransactionalMethod("test", new DefaultTransactionAttribute());
+    ti.setTransactionAttributeSource(source);
+    PlatformTransactionManager ptm = new TransactionInterceptorTests.SerializableTransactionManager();
+    ti.setTransactionManager(ptm);
+
+    TransactionInterceptor deserialized = SerializationTestUtils.serializeAndDeserialize(ti);
+
+    assertThat(deserialized).isNotNull();
+    assertThat(deserialized.getTransactionManager()).isInstanceOf(TransactionInterceptorTests.SerializableTransactionManager.class);
+    assertThat(deserialized.getTransactionAttributeSource()).isNotNull();
+  }
+
+  @Test
+  void serializableWithMultipleAttributeSources() throws Exception {
+    NameMatchTransactionAttributeSource tas1 = new NameMatchTransactionAttributeSource();
+    Properties props = new Properties();
+    props.setProperty("methodName", "PROPAGATION_REQUIRED");
+    tas1.setProperties(props);
+
+    NameMatchTransactionAttributeSource tas2 = new NameMatchTransactionAttributeSource();
+    props = new Properties();
+    props.setProperty("otherMethodName", "PROPAGATION_REQUIRES_NEW");
+    tas2.setProperties(props);
+
+    TransactionInterceptor ti = new TransactionInterceptor();
+    ti.setTransactionAttributeSources(tas1, tas2);
+    PlatformTransactionManager ptm = new TransactionInterceptorTests.SerializableTransactionManager();
+    ti.setTransactionManager(ptm);
+
+    TransactionInterceptor deserialized = SerializationTestUtils.serializeAndDeserialize(ti);
+
+    assertThat(deserialized.getTransactionManager() instanceof TransactionInterceptorTests.SerializableTransactionManager).isTrue();
+    assertThat(deserialized.getTransactionAttributeSource() instanceof CompositeTransactionAttributeSource).isTrue();
+  }
+
+  static class TestClass {
+    public void testMethod() {
+    }
   }
 
   private TransactionInterceptor createTransactionInterceptor(BeanFactory beanFactory,

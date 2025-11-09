@@ -19,9 +19,7 @@
  * Classes supporting the {@code infra.beans.factory} package.
  * Contains abstract base classes for {@code BeanFactory} implementations.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.beans.factory.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

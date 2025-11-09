@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
 
 package infra.validation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 /**
@@ -72,7 +73,7 @@ public class FieldError extends ObjectError {
    * @param defaultMessage the default message to be used to resolve this message
    */
   public FieldError(String objectName, String field, @Nullable Object rejectedValue, boolean bindingFailure,
-          @Nullable String[] codes, @Nullable Object[] arguments, @Nullable String defaultMessage) {
+          String @Nullable [] codes, Object @Nullable [] arguments, @Nullable String defaultMessage) {
 
     super(objectName, codes, arguments, defaultMessage);
     Assert.notNull(field, "Field is required");
@@ -105,6 +106,7 @@ public class FieldError extends ObjectError {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;

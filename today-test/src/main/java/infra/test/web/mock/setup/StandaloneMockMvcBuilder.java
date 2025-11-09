@@ -17,6 +17,8 @@
 
 package infra.test.web.mock.setup;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,10 +46,9 @@ import infra.format.support.DefaultFormattingConversionService;
 import infra.format.support.FormattingConversionService;
 import infra.http.converter.HttpMessageConverter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.mock.api.MockContext;
 import infra.mock.web.MockContextImpl;
-import infra.session.config.EnableWebSession;
+import infra.session.config.EnableSession;
 import infra.stereotype.Component;
 import infra.test.web.mock.MvcResult;
 import infra.util.CollectionUtils;
@@ -440,7 +441,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   /**
    * Using the MVC Java configuration as the starting point for the "standalone" setup.
    */
-  @EnableWebSession
+  @EnableSession
   @Configuration(proxyBeanMethods = false)
   private class StandaloneConfiguration extends DelegatingWebMvcConfiguration {
 

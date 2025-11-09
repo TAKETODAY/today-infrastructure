@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,14 +12,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.i18n;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Locale;
 
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ObjectUtils;
@@ -53,8 +51,7 @@ public class LocaleChangeInterceptor implements HandlerInterceptor {
 
   private String paramName = DEFAULT_PARAM_NAME;
 
-  @Nullable
-  private String[] httpMethods;
+  private String @Nullable [] httpMethods;
 
   private boolean ignoreInvalidLocale = false;
 
@@ -82,15 +79,14 @@ public class LocaleChangeInterceptor implements HandlerInterceptor {
    *
    * @param httpMethods the methods
    */
-  public void setHttpMethods(@Nullable String... httpMethods) {
+  public void setHttpMethods(String @Nullable ... httpMethods) {
     this.httpMethods = httpMethods;
   }
 
   /**
    * Return the configured HTTP methods.
    */
-  @Nullable
-  public String[] getHttpMethods() {
+  public String @Nullable [] getHttpMethods() {
     return this.httpMethods;
   }
 

@@ -174,6 +174,7 @@ class SimpleTransactionScopeTests {
   }
 
   @Test
+  @SuppressWarnings("cast")
   void bindSynchronizedResource() {
     CallCountingTransactionManager tm = new CallCountingTransactionManager();
     TransactionTemplate tt = new TransactionTemplate(tm);
@@ -189,6 +190,7 @@ class SimpleTransactionScopeTests {
   }
 
   @Test
+  @SuppressWarnings("cast")
   void bindSynchronizedResourceWithOldValue() {
     CallCountingTransactionManager tm = new CallCountingTransactionManager();
     TransactionTemplate tt = new TransactionTemplate(tm);

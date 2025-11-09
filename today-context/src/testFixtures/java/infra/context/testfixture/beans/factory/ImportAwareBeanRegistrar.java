@@ -17,12 +17,13 @@
 
 package infra.context.testfixture.beans.factory;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.BeanRegistrar;
 import infra.beans.factory.BeanRegistry;
 import infra.context.annotation.ImportAware;
 import infra.core.env.Environment;
 import infra.core.type.AnnotationMetadata;
-import infra.lang.Nullable;
 
 public class ImportAwareBeanRegistrar implements BeanRegistrar, ImportAware {
 

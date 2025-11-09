@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.core.test.tools;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +33,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
 
@@ -72,7 +73,7 @@ public class DynamicClassLoader extends ClassLoader {
               "setClassResourceLookup", Function.class);
       ReflectionUtils.makeAccessible(setClassResourceLookupMethod);
       ReflectionUtils.invokeMethod(setClassResourceLookupMethod,
-              getParent(), (Function<String, byte[]>) this::findClassBytes);
+              getParent(), (Function<String, byte @Nullable []>) this::findClassBytes);
       this.defineClassMethod = lookupMethod(parentClass,
               "defineDynamicClass", String.class, byte[].class, int.class, int.class);
       ReflectionUtils.makeAccessible(this.defineClassMethod);
@@ -90,7 +91,7 @@ public class DynamicClassLoader extends ClassLoader {
   }
 
   @Nullable
-  private Class<?> defineClass(String name, @Nullable byte[] bytes) {
+  private Class<?> defineClass(String name, byte @Nullable [] bytes) {
     if (bytes == null) {
       return null;
     }
@@ -132,8 +133,7 @@ public class DynamicClassLoader extends ClassLoader {
     return super.findResource(name);
   }
 
-  @Nullable
-  private byte[] findClassBytes(String name) {
+  private byte @Nullable [] findClassBytes(String name) {
     ClassFile classFile = this.classFiles.get(name);
     if (classFile != null) {
       return classFile.getContent();

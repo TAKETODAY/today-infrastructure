@@ -17,6 +17,8 @@
 
 package infra.expression.spel.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
@@ -38,7 +40,6 @@ import infra.expression.PropertyAccessor;
 import infra.expression.TypedValue;
 import infra.expression.spel.CompilablePropertyAccessor;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.reflect.Property;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
@@ -90,7 +91,6 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
    *
    * @param allowWrite whether to allow write operations on a target instance
    * @see #canWrite
-   * @since 4.3.15
    */
   public ReflectivePropertyAccessor(boolean allowWrite) {
     this.allowWrite = allowWrite;
@@ -100,8 +100,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
    * Returns {@code null} which means this is a general purpose accessor.
    */
   @Override
-  @Nullable
-  public Class<?>[] getSpecificTargetClasses() {
+  public Class<?> @Nullable [] getSpecificTargetClasses() {
     return null;
   }
 
@@ -146,6 +145,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public TypedValue read(EvaluationContext context, @Nullable Object target, String name) throws AccessException {
     Assert.state(target != null, "Target is required");
     Class<?> type = (target instanceof Class<?> clazz ? clazz : target.getClass());
@@ -503,6 +503,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
    *
    * @see OptimalPropertyAccessor
    */
+  @SuppressWarnings("NullAway")
   public PropertyAccessor createOptimalAccessor(EvaluationContext context, @Nullable Object target, String name) {
     // Don't be clever for arrays or a null target...
     if (target == null) {
@@ -596,8 +597,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
     }
 
     @Override
-    @Nullable
-    public Class<?>[] getSpecificTargetClasses() {
+    public Class<?> @Nullable [] getSpecificTargetClasses() {
       throw new UnsupportedOperationException("Should not be called on an OptimalPropertyAccessor");
     }
 

@@ -17,6 +17,8 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.support.BeanNameGenerator;
 import infra.core.type.MethodMetadata;
 import infra.stereotype.Component;
@@ -25,8 +27,7 @@ import infra.stereotype.Component;
  * Extended variant of {@link BeanNameGenerator} for
  * {@link Configuration @Configuration} class purposes, not only covering
  * bean name generation for component and configuration classes themselves
- * but also for {@link Component @Component} methods without a {@link Component#name() name}
- * attribute specified on the annotation itself.
+ * but also for {@link Component @Component} methods.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -38,11 +39,12 @@ public interface ConfigurationBeanNameGenerator extends BeanNameGenerator {
 
   /**
    * Derive a default bean name for the given {@link Component @Component} method,
-   * in the absence of a {@link Component#name() name} attribute specified.
+   * providing the {@link Component#name() name} attribute specified.
    *
-   * @param componentMethod the method metadata for the {@link Component @Component} method
+   * @param beanMethod the method metadata for the {@link Component @Component} method
+   * @param beanName the {@link Component#name() name} attribute or {@code null} if non is specified
    * @return the default bean name to use
    */
-  String deriveBeanName(MethodMetadata componentMethod);
+  String deriveBeanName(MethodMetadata beanMethod, @Nullable String beanName);
 
 }

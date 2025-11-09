@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.validation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -26,7 +28,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
 
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**
@@ -151,8 +152,7 @@ public class DefaultMessageCodesResolver implements MessageCodesResolver, Serial
    * @return the array of codes
    */
   @Override
-  public String[] resolveMessageCodes(
-          String errorCode, String objectName, String field, @Nullable Class<?> fieldType) {
+  public String[] resolveMessageCodes(String errorCode, String objectName, String field, @Nullable Class<?> fieldType) {
     Set<String> codeList = new LinkedHashSet<>();
     List<String> fieldList = new ArrayList<>();
     buildFieldList(field, fieldList);
@@ -169,15 +169,13 @@ public class DefaultMessageCodesResolver implements MessageCodesResolver, Serial
     return StringUtils.toStringArray(codeList);
   }
 
-  private void addCodes(Collection<String> codeList, String errorCode,
-          @Nullable String objectName, Iterable<String> fields) {
+  private void addCodes(Collection<String> codeList, String errorCode, @Nullable String objectName, Iterable<String> fields) {
     for (String field : fields) {
       addCode(codeList, errorCode, objectName, field);
     }
   }
 
-  private void addCode(Collection<String> codeList, String errorCode,
-          @Nullable String objectName, @Nullable String field) {
+  private void addCode(Collection<String> codeList, String errorCode, @Nullable String objectName, @Nullable String field) {
     codeList.add(postProcessMessageCode(this.formatter.format(errorCode, objectName, field)));
   }
 
@@ -249,7 +247,7 @@ public class DefaultMessageCodesResolver implements MessageCodesResolver, Serial
      * {@link DefaultMessageCodesResolver#CODE_SEPARATOR}, skipping zero-length or
      * null elements altogether.
      */
-    public static String toDelimitedString(String... elements) {
+    public static String toDelimitedString(@Nullable String... elements) {
       StringJoiner rtn = new StringJoiner(CODE_SEPARATOR);
       for (String element : elements) {
         if (StringUtils.isNotEmpty(element)) {

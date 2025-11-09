@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
 
 package infra.util.concurrent;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.EventListener;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Listens to the result of a {@link Future}.
@@ -45,6 +46,7 @@ public interface FutureListener<F extends Future<?>> extends EventListener {
 
   // Static Factory Methods
 
+  @SuppressWarnings("NullAway")
   static <V, F extends Future<V>, C> FutureListener<F> forAdaption(FutureContextListener<F, C> listener, @Nullable C context) {
     Assert.notNull(listener, "listener is required");
     return future -> listener.operationComplete(future, context);
@@ -64,6 +66,7 @@ public interface FutureListener<F extends Future<?>> extends EventListener {
    * @see Promise#setFailure(Throwable)
    * @see AbstractFuture#tryFailure(Throwable)
    */
+  @SuppressWarnings("NullAway")
   static <V, F extends Future<V>> FutureListener<F> forAdaption(SuccessCallback<V> onSuccess, @Nullable FailureCallback onFailed) {
     Assert.notNull(onSuccess, "successCallback is required");
     return future -> {

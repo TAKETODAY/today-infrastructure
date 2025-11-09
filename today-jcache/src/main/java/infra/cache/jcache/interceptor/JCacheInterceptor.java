@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ package infra.cache.jcache.interceptor;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -29,7 +30,6 @@ import infra.cache.interceptor.CacheInterceptor;
 import infra.cache.interceptor.CacheOperationInvoker;
 import infra.cache.interceptor.SimpleCacheErrorHandler;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.function.SingletonSupplier;
 
 /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@ import infra.lang.Assert;
 public class BeanFactoryRefreshableTargetSource extends AbstractRefreshableTargetSource {
 
   private final String beanName;
+
   private final BeanFactory beanFactory;
 
   /**
@@ -74,6 +75,7 @@ public class BeanFactoryRefreshableTargetSource extends AbstractRefreshableTarge
    *
    * @see BeanFactory#getBean
    */
+  @SuppressWarnings("NullAway")
   protected Object obtainFreshBean(BeanFactory beanFactory, String beanName) {
     return beanFactory.getBean(beanName);
   }

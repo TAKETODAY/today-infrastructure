@@ -30,7 +30,8 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Properties;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>

@@ -17,14 +17,21 @@
 
 package infra.jdbc.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import infra.lang.Nullable;
-
 /**
+ * Interface for handling the conversion between Java objects and JDBC types.
+ *
+ * <p>A {@code TypeHandler} is responsible for setting parameters on a
+ * {@link PreparedStatement} and retrieving results from a {@link ResultSet}.
+ * Implementations define how specific Java types are mapped to SQL types
+ * and vice versa.</p>
+ *
  * @param <T> value type
  * @author Clinton Begin
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -40,9 +47,8 @@ public interface TypeHandler<T> {
    * will be converted to the corresponding SQL type before being
    * sent to the database.
    *
-   * <p>Note that this method may be used to pass database-
-   * specific abstract data types, by using a driver-specific Java
-   * type.
+   * <p>Note that this method may be used to pass database-specific
+   * abstract data types, by using a driver-specific Java type.
    *
    * If the object is of a class implementing the interface {@code SQLData},
    * the JDBC driver should call the method {@code SQLData.writeSQL}
@@ -73,26 +79,48 @@ public interface TypeHandler<T> {
           throws SQLException;
 
   /**
-   * Gets the result.
+   * Retrieves the value of the designated column in the current row
+   * of this {@code ResultSet} object as a Java object.
    *
-   * @param rs the rs
-   * @param columnName Column name, when configuration <code>useColumnLabel</code> is <code>false</code>
-   * @return the result
-   * @throws SQLException the SQL exception
-   */
-  @Nullable
-  T getResult(ResultSet rs, String columnName) throws SQLException;
-
-  /**
-   * @param rs ResultSet
+   * @param rs the ResultSet object
    * @param columnIndex the first column is 1, the second is 2, ...
+   * @return the column value as a Java object; if the value is SQL NULL,
+   * the value returned is null
    * @throws SQLException if a database access error occurs or this method is
    * called on a closed result set
    */
   @Nullable
   T getResult(ResultSet rs, int columnIndex) throws SQLException;
 
+  /**
+   * Retrieves the value of the designated column in the current row
+   * of this {@code ResultSet} object as a Java object.
+   *
+   * @param rs the ResultSet object
+   * @param columnName Column name, when configuration <code>useColumnLabel</code> is <code>false</code>
+   * @return the column value as a Java object; if the value is SQL NULL,
+   * the value returned is null
+   * @throws SQLException the SQL exception
+   */
   @Nullable
-  T getResult(CallableStatement cs, int columnIndex) throws SQLException;
+  default T getResult(ResultSet rs, String columnName) throws SQLException {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Retrieves the value of the designated column in the current row
+   * of this {@code CallableStatement} object as a Java object.
+   *
+   * @param cs the CallableStatement object
+   * @param columnIndex the first column is 1, the second is 2, ...
+   * @return the column value as a Java object; if the value is SQL NULL,
+   * the value returned is null
+   * @throws SQLException if a database access error occurs or this method is
+   * called on a closed callable statement
+   */
+  @Nullable
+  default T getResult(CallableStatement cs, int columnIndex) throws SQLException {
+    throw new UnsupportedOperationException();
+  }
 
 }

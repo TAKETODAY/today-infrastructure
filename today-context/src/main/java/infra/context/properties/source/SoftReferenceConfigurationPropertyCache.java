@@ -17,14 +17,14 @@
 
 package infra.context.properties.source;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.ref.SoftReference;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
-
-import infra.lang.Nullable;
 
 /**
  * Simple cache that uses a {@link SoftReference} to cache a value for as long as

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.web.util;
+
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serial;
 
@@ -36,8 +38,8 @@ public class InvalidUrlException extends IllegalArgumentException {
    *
    * @param msg the detail message
    */
-  public InvalidUrlException(String msg) {
-    super(msg);
+  public InvalidUrlException(@Nullable String msg) {
+    this(msg, null);
   }
 
   /**
@@ -47,7 +49,7 @@ public class InvalidUrlException extends IllegalArgumentException {
    * @param msg the detail message
    * @param cause the nested exception
    */
-  public InvalidUrlException(String msg, Throwable cause) {
+  public InvalidUrlException(@Nullable String msg, @Nullable Throwable cause) {
     super(msg, cause);
   }
 }

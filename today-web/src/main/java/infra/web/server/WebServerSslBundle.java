@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.web.server;
 
+import org.jspecify.annotations.Nullable;
+
 import java.security.KeyStore;
 
 import infra.core.ssl.NoSuchSslBundleException;
@@ -32,7 +34,6 @@ import infra.core.ssl.pem.PemSslStoreBundle;
 import infra.core.ssl.pem.PemSslStoreDetails;
 import infra.core.style.ToStringBuilder;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**
@@ -148,7 +149,7 @@ public final class WebServerSslBundle implements SslBundle {
     return new WebServerSslBundle(stores, keyPassword, ssl);
   }
 
-  private static SslStoreBundle createStoreBundle(Ssl ssl) {
+  static SslStoreBundle createStoreBundle(Ssl ssl) {
     KeyStore keyStore = createKeyStore(ssl);
     KeyStore trustStore = createTrustStore(ssl);
     return new WebServerSslStoreBundle(keyStore, trustStore, ssl.keyStorePassword);
@@ -176,20 +177,20 @@ public final class WebServerSslBundle implements SslBundle {
     return null;
   }
 
-  private static boolean hasPemKeyStoreProperties(Ssl ssl) {
+  static boolean hasPemKeyStoreProperties(Ssl ssl) {
     return Ssl.isEnabled(ssl) && ssl.certificate != null && ssl.certificatePrivateKey != null;
   }
 
-  private static boolean hasPemTrustStoreProperties(Ssl ssl) {
+  static boolean hasPemTrustStoreProperties(Ssl ssl) {
     return Ssl.isEnabled(ssl) && ssl.trustCertificate != null;
   }
 
-  private static boolean hasJksKeyStoreProperties(Ssl ssl) {
+  static boolean hasJksKeyStoreProperties(Ssl ssl) {
     return Ssl.isEnabled(ssl)
             && (ssl.keyStore != null || (ssl.keyStoreType != null && ssl.keyStoreType.equals("PKCS11")));
   }
 
-  private static boolean hasJksTrustStoreProperties(Ssl ssl) {
+  static boolean hasJksTrustStoreProperties(Ssl ssl) {
     return Ssl.isEnabled(ssl) && (ssl.trustStore != null
             || (ssl.trustStoreType != null && ssl.trustStoreType.equals("PKCS11")));
   }
@@ -204,7 +205,7 @@ public final class WebServerSslBundle implements SslBundle {
     return creator.toString();
   }
 
-  private static final class WebServerSslStoreBundle implements SslStoreBundle {
+  static final class WebServerSslStoreBundle implements SslStoreBundle {
 
     @Nullable
     private final KeyStore keyStore;
@@ -215,7 +216,7 @@ public final class WebServerSslBundle implements SslBundle {
     @Nullable
     private final String keyStorePassword;
 
-    private WebServerSslStoreBundle(@Nullable KeyStore keyStore, @Nullable KeyStore trustStore, @Nullable String keyStorePassword) {
+    WebServerSslStoreBundle(@Nullable KeyStore keyStore, @Nullable KeyStore trustStore, @Nullable String keyStorePassword) {
       Assert.state(keyStore != null || trustStore != null, "SSL is enabled but no trust material is configured");
       this.keyStore = keyStore;
       this.trustStore = trustStore;

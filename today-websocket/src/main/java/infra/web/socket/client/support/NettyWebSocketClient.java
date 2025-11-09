@@ -17,6 +17,8 @@
 
 package infra.web.socket.client.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 import java.time.Duration;
 import java.util.List;
@@ -30,7 +32,6 @@ import infra.core.ssl.SslManagerBundle;
 import infra.core.ssl.SslOptions;
 import infra.http.HttpHeaders;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.DataSize;
 import infra.util.ExceptionUtils;
 import infra.util.concurrent.Future;
@@ -430,6 +431,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
     return eventLoopGroup;
   }
 
+  @SuppressWarnings("NullAway")
   final class MessageHandler extends ChannelInboundHandlerAdapter implements ChannelFutureListener {
 
     private final boolean secure;

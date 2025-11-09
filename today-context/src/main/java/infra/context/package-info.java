@@ -27,9 +27,7 @@
  * is that application objects can often be configured without
  * any dependency on Infra-specific APIs.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.context;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

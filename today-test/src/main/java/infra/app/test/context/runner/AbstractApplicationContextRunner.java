@@ -109,6 +109,7 @@ import infra.util.CollectionUtils;
  * @see ApplicationContextAssert
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public abstract class AbstractApplicationContextRunner<
         SELF extends AbstractApplicationContextRunner<SELF, C, A>,
         C extends ConfigurableApplicationContext, A extends ApplicationContextAssertProvider<C>> {

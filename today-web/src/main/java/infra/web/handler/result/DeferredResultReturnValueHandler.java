@@ -17,10 +17,11 @@
 
 package infra.web.handler.result;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 
-import infra.lang.Nullable;
 import infra.util.concurrent.Future;
 import infra.web.RequestContext;
 import infra.web.async.DeferredResult;

@@ -17,6 +17,8 @@
 
 package infra.context.condition;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -58,7 +60,7 @@ import infra.core.annotation.MergedAnnotations;
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.core.type.MethodMetadata;
 import infra.lang.Assert;
-import infra.lang.Nullable;
+import infra.lang.Contract;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
@@ -93,19 +95,18 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
   }
 
   @Override
-  protected final ConditionOutcome[] getOutcomes(String[] configClasses, AutoConfigurationMetadata configMetadata) {
-    ConditionOutcome[] outcomes = new ConditionOutcome[configClasses.length];
+  @SuppressWarnings("NullAway")
+  protected final @Nullable ConditionOutcome[] getOutcomes(String[] configClasses, AutoConfigurationMetadata configMetadata) {
+    @Nullable ConditionOutcome[] outcomes = new ConditionOutcome[configClasses.length];
     for (int i = 0; i < outcomes.length; i++) {
       String autoConfigurationClass = configClasses[i];
-      if (autoConfigurationClass != null) {
-        Set<String> onBeanTypes = configMetadata.getSet(autoConfigurationClass, "ConditionalOnBean");
-        ConditionOutcome outcome = getOutcome(onBeanTypes, ConditionalOnBean.class);
-        if (outcome == null) {
-          Set<String> onSingleCandidateTypes = configMetadata.getSet(autoConfigurationClass, "ConditionalOnSingleCandidate");
-          outcome = getOutcome(onSingleCandidateTypes, ConditionalOnSingleCandidate.class);
-        }
-        outcomes[i] = outcome;
+      Set<String> onBeanTypes = configMetadata.getSet(autoConfigurationClass, "ConditionalOnBean");
+      ConditionOutcome outcome = getOutcome(onBeanTypes, ConditionalOnBean.class);
+      if (outcome == null) {
+        Set<String> onSingleCandidateTypes = configMetadata.getSet(autoConfigurationClass, "ConditionalOnSingleCandidate");
+        outcome = getOutcome(onSingleCandidateTypes, ConditionalOnSingleCandidate.class);
       }
+      outcomes[i] = outcome;
     }
     return outcomes;
   }
@@ -171,7 +172,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
       return ConditionOutcome
               .match(spec.message(matchMessage).found("a single bean").items(ConditionMessage.Style.QUOTE, allBeans));
     }
-    var beanDefinitions = getBeanDefinitions(spec.context.getBeanFactory(), allBeans, spec.getStrategy() == SearchStrategy.ALL);
+    var beanDefinitions = getBeanDefinitions(spec.context.getRequiredBeanFactory(), allBeans, spec.getStrategy() == SearchStrategy.ALL);
     List<String> primaryBeans = getPrimaryBeans(beanDefinitions);
     if (primaryBeans.size() == 1) {
       return ConditionOutcome.match(spec.message(matchMessage)
@@ -243,6 +244,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     return result;
   }
 
+  @SuppressWarnings("NullAway")
   private ConfigurableBeanFactory getSearchBeanFactory(Spec<?> spec) {
     ConfigurableBeanFactory beanFactory = spec.context.getBeanFactory();
     if (spec.getStrategy() == SearchStrategy.ANCESTORS) {
@@ -265,23 +267,23 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
   }
 
   private boolean isCandidate(ConfigurableBeanFactory beanFactory, String name, @Nullable BeanDefinition definition, Set<String> ignoredBeans) {
-    return (!ignoredBeans.contains(name)) && (definition == null
-            || isAutowireCandidate(beanFactory, name, definition) && isDefaultCandidate(definition));
-  }
-
-  private boolean isAutowireCandidate(ConfigurableBeanFactory beanFactory, String name,
-          BeanDefinition definition) {
-    return definition.isAutowireCandidate() || isScopeTargetAutowireCandidate(beanFactory, name);
-  }
-
-  private boolean isScopeTargetAutowireCandidate(ConfigurableBeanFactory beanFactory, String name) {
-    try {
-      return ScopedProxyUtils.isScopedTarget(name)
-              && beanFactory.getBeanDefinition(ScopedProxyUtils.getOriginalBeanName(name)).isAutowireCandidate();
-    }
-    catch (NoSuchBeanDefinitionException ex) {
+    if (ignoredBeans.contains(name)) {
       return false;
     }
+    if (definition == null || (definition.isAutowireCandidate() && isDefaultCandidate(definition))) {
+      return true;
+    }
+    if (ScopedProxyUtils.isScopedTarget(name)) {
+      try {
+        var originalDefinition = beanFactory.getBeanDefinition(ScopedProxyUtils.getOriginalBeanName(name));
+        if (originalDefinition.isAutowireCandidate() && isDefaultCandidate(originalDefinition)) {
+          return true;
+        }
+      }
+      catch (NoSuchBeanDefinitionException ignored) {
+      }
+    }
+    return false;
   }
 
   private boolean isDefaultCandidate(BeanDefinition definition) {
@@ -310,6 +312,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private Map<String, BeanDefinition> collectBeanDefinitionsForType(BeanFactory beanFactory, boolean considerHierarchy,
           ResolvableType type, Set<ResolvableType> parameterizedContainers, @Nullable Map<String, BeanDefinition> result) {
     result = putAll(result, beanFactory.getBeanNamesForType(type, true, false), beanFactory);
@@ -687,6 +690,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
       throw new IllegalStateException("Unable to find bean method " + methodName);
     }
 
+    @Contract("null -> false")
     private boolean isBeanMethod(@Nullable Method method) {
       return method != null && MergedAnnotations.from(method, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY)
               .isPresent(Component.class);

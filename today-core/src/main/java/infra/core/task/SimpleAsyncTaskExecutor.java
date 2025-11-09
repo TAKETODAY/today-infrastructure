@@ -17,6 +17,8 @@
 
 package infra.core.task;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serializable;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -24,7 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadFactory;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ConcurrencyThrottleSupport;
 import infra.util.CustomizableThreadCreator;
 import infra.util.concurrent.Future;
@@ -292,7 +293,15 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator implement
 
     if (isThrottleActive() && startTimeout > TIMEOUT_IMMEDIATE) {
       this.concurrencyThrottle.beforeAccess();
-      doExecute(new TaskTrackingRunnable(task));
+      try {
+        doExecute(new TaskTrackingRunnable(task));
+      }
+      catch (Throwable ex) {
+        // Release concurrency permit if thread creation fails
+        this.concurrencyThrottle.afterAccess();
+        throw new TaskRejectedException(
+                "Failed to start execution thread for task: " + task, ex);
+      }
     }
     else if (this.activeThreads != null) {
       doExecute(new TaskTrackingRunnable(task));

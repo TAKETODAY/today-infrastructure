@@ -17,6 +17,8 @@
 
 package infra.core.io.buffer;
 
+import org.jspecify.annotations.Nullable;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -24,7 +26,6 @@ import java.util.NoSuchElementException;
 import java.util.function.IntPredicate;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import io.netty.buffer.ByteBuf;
@@ -308,6 +309,11 @@ public class NettyDataBuffer extends DataBuffer {
   }
 
   @Override
+  public int forEach(int index, int length, ByteProcessor processor) {
+    return this.byteBuf.forEachByte(index, length, processor::process);
+  }
+
+  @Override
   public ByteBufferIterator readableByteBuffers() {
     ByteBuffer[] readable = this.byteBuf.nioBuffers(this.byteBuf.readerIndex(), this.byteBuf.readableBytes());
     return new ByteBufferIterator(readable, true);
@@ -382,7 +388,13 @@ public class NettyDataBuffer extends DataBuffer {
 
   @Override
   public String toString() {
-    return this.byteBuf.toString();
+    try {
+      return this.byteBuf.toString();
+    }
+    catch (OutOfMemoryError ex) {
+      throw new DataBufferLimitException(
+              "Failed to convert data buffer to string: " + ex.getMessage(), ex);
+    }
   }
 
   private static final class ByteBufferIterator implements DataBuffer.ByteBufferIterator {

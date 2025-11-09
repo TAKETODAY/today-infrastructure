@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,16 +17,17 @@
 
 package infra.web.handler.function;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
+import infra.http.ResponseCookie;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
@@ -42,8 +43,10 @@ final class ModelAndViewRenderingResponseBuilder implements RenderingResponse.Vi
   private final ModelAndView modelAndView;
 
   private HttpStatusCode status = HttpStatus.OK;
+
   private final HttpHeaders headers = HttpHeaders.forWritable();
-  private final LinkedMultiValueMap<String, HttpCookie> cookies = new LinkedMultiValueMap<>();
+
+  private final LinkedMultiValueMap<String, ResponseCookie> cookies = new LinkedMultiValueMap<>();
 
   public ModelAndViewRenderingResponseBuilder(ModelAndView modelAndView) {
     Assert.notNull(modelAndView, "ModelAndView is required");
@@ -63,7 +66,7 @@ final class ModelAndViewRenderingResponseBuilder implements RenderingResponse.Vi
   }
 
   @Override
-  public RenderingResponse.ViewBuilder cookie(HttpCookie cookie) {
+  public RenderingResponse.ViewBuilder cookie(ResponseCookie cookie) {
     Assert.notNull(cookie, "Cookie is required");
     this.cookies.add(cookie.getName(), cookie);
     return this;
@@ -72,21 +75,21 @@ final class ModelAndViewRenderingResponseBuilder implements RenderingResponse.Vi
   @Override
   public RenderingResponse.ViewBuilder cookie(String name, String... values) {
     for (String value : values) {
-      this.cookies.add(name, new HttpCookie(name, value));
+      this.cookies.add(name, ResponseCookie.from(name, value).build());
     }
     return this;
   }
 
   @Override
-  public RenderingResponse.ViewBuilder cookies(Consumer<MultiValueMap<String, HttpCookie>> cookiesConsumer) {
+  public RenderingResponse.ViewBuilder cookies(Consumer<MultiValueMap<String, ResponseCookie>> cookiesConsumer) {
     cookiesConsumer.accept(this.cookies);
     return this;
   }
 
   @Override
-  public RenderingResponse.ViewBuilder cookies(@Nullable Collection<HttpCookie> cookies) {
+  public RenderingResponse.ViewBuilder cookies(@Nullable Collection<ResponseCookie> cookies) {
     if (CollectionUtils.isNotEmpty(cookies)) {
-      for (HttpCookie cookie : cookies) {
+      for (ResponseCookie cookie : cookies) {
         this.cookies.add(cookie.getName(), cookie);
       }
     }
@@ -94,7 +97,7 @@ final class ModelAndViewRenderingResponseBuilder implements RenderingResponse.Vi
   }
 
   @Override
-  public RenderingResponse.ViewBuilder cookies(@Nullable MultiValueMap<String, HttpCookie> cookies) {
+  public RenderingResponse.ViewBuilder cookies(@Nullable MultiValueMap<String, ResponseCookie> cookies) {
     this.cookies.setAll(cookies);
     return this;
   }
@@ -127,13 +130,14 @@ final class ModelAndViewRenderingResponseBuilder implements RenderingResponse.Vi
     private final ModelAndView modelAndView;
 
     public ModelAndViewRenderingResponse(HttpStatusCode statusCode, HttpHeaders headers,
-            MultiValueMap<String, HttpCookie> cookies, ModelAndView modelAndView) {
+            MultiValueMap<String, ResponseCookie> cookies, ModelAndView modelAndView) {
 
       super(statusCode, headers, cookies);
       this.modelAndView = modelAndView;
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public String name() {
       return modelAndView.getViewName();
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
 
 package infra.validation.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 
 import infra.core.annotation.AnnotationUtils;
-import infra.lang.Nullable;
 
 /**
  * Utility class for handling validation annotations.
@@ -47,8 +48,7 @@ public abstract class ValidationAnnotationUtils {
    * @return the validation hints to apply (possibly an empty array),
    * or {@code null} if this annotation does not trigger any validation
    */
-  @Nullable
-  public static Object[] determineValidationHints(Annotation ann) {
+  public static Object @Nullable [] determineValidationHints(Annotation ann) {
     // Direct presence of @Validated ?
     if (ann instanceof Validated validated) {
       return validated.value();

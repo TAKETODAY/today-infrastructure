@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.jdbc.object;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -39,7 +40,6 @@ import infra.dao.IncorrectResultSizeDataAccessException;
 import infra.dao.InvalidDataAccessApiUsageException;
 import infra.jdbc.core.SqlParameter;
 import infra.jdbc.core.namedparam.Customer;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -110,7 +110,7 @@ public class SqlQueryTests {
 
     SqlQuery<Integer> query = new MappingSqlQueryWithParameters<Integer>() {
       @Override
-      protected Integer mapRow(ResultSet rs, int rownum, @Nullable Object[] params, @Nullable Map<?, ?> context)
+      protected Integer mapRow(ResultSet rs, int rownum, @Nullable Object @Nullable [] params, @Nullable Map<?, ?> context)
               throws SQLException {
         assertThat(params == null).as("params were null").isTrue();
         assertThat(context == null).as("context was null").isTrue();

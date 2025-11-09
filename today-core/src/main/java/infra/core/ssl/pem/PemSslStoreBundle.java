@@ -17,6 +17,8 @@
 
 package infra.core.ssl.pem;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -30,7 +32,7 @@ import java.util.function.Supplier;
 import infra.core.ssl.SslStoreBundle;
 import infra.core.style.ToStringBuilder;
 import infra.lang.Assert;
-import infra.lang.Nullable;
+import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 import infra.util.function.SingletonSupplier;
 
@@ -66,9 +68,10 @@ public class PemSslStoreBundle implements SslStoreBundle {
    * @param pemKeyStore the PEM key store
    * @param pemTrustStore the PEM trust store
    */
+  @SuppressWarnings("NullAway")
   public PemSslStoreBundle(@Nullable PemSslStore pemKeyStore, @Nullable PemSslStore pemTrustStore) {
-    this.keyStore = SingletonSupplier.from(() -> createKeyStore("key", pemKeyStore));
-    this.trustStore = SingletonSupplier.from(() -> createKeyStore("trust", pemTrustStore));
+    this.keyStore = SingletonSupplier.of(() -> createKeyStore("key", pemKeyStore));
+    this.trustStore = SingletonSupplier.of(() -> createKeyStore("trust", pemTrustStore));
   }
 
   @Nullable
@@ -89,6 +92,7 @@ public class PemSslStoreBundle implements SslStoreBundle {
     return this.trustStore.get();
   }
 
+  @SuppressWarnings("NullAway")
   @Nullable
   private static KeyStore createKeyStore(String name, @Nullable PemSslStore pemSslStore) {
     if (pemSslStore == null) {
@@ -96,7 +100,7 @@ public class PemSslStoreBundle implements SslStoreBundle {
     }
     try {
       List<X509Certificate> certificates = pemSslStore.certificates();
-      Assert.notEmpty(certificates, "Certificates must not be empty");
+      Assert.state(ObjectUtils.isNotEmpty(certificates), "Certificates must not be empty");
       String alias = pemSslStore.alias();
       alias = alias != null ? alias : DEFAULT_ALIAS;
       KeyStore store = createKeyStore(pemSslStore.type());

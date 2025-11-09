@@ -17,8 +17,9 @@
 
 package infra.persistence;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.jdbc.PersistenceException;
-import infra.lang.Nullable;
 
 /**
  * Thrown to indicate that an entity is in an illegal or invalid state

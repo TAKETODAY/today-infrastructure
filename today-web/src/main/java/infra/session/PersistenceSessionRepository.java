@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 package infra.session;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 
 import infra.beans.factory.DisposableBean;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.StringUtils;
@@ -35,6 +36,7 @@ import infra.util.StringUtils;
  * @since 4.0 2023/2/27 21:35
  */
 public class PersistenceSessionRepository implements SessionRepository, DisposableBean {
+
   private static final Logger log = LoggerFactory.getLogger(PersistenceSessionRepository.class);
 
   private final SessionRepository delegate;
@@ -49,19 +51,19 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
   }
 
   @Override
-  public WebSession createSession() {
+  public Session createSession() {
     return delegate.createSession();
   }
 
   @Override
-  public WebSession createSession(String id) {
+  public Session createSession(String id) {
     return delegate.createSession(id);
   }
 
   @Nullable
   @Override
-  public WebSession retrieveSession(String sessionId) {
-    WebSession session = delegate.retrieveSession(sessionId);
+  public Session retrieveSession(String sessionId) {
+    Session session = delegate.retrieveSession(sessionId);
     if (session == null) {
       synchronized(sessionId.intern()) {
         session = delegate.retrieveSession(sessionId);
@@ -79,21 +81,21 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
   }
 
   @Override
-  public void removeSession(WebSession session) {
+  public void removeSession(Session session) {
     removeSession(session.getId());
   }
 
   @Nullable
   @Override
-  public WebSession removeSession(String sessionId) {
-    WebSession ret = delegate.removeSession(sessionId);
+  public Session removeSession(String sessionId) {
+    Session ret = delegate.removeSession(sessionId);
     removePersister(sessionId, sessionPersister);
     return ret;
   }
 
   @Override
-  public void updateLastAccessTime(WebSession webSession) {
-    delegate.updateLastAccessTime(webSession);
+  public void updateLastAccessTime(Session session) {
+    delegate.updateLastAccessTime(session);
   }
 
   @Override
@@ -121,7 +123,7 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
    */
   public void persistSessions() {
     for (String identifier : delegate.getIdentifiers()) {
-      WebSession session = delegate.retrieveSession(identifier);
+      Session session = delegate.retrieveSession(identifier);
       if (session != null) {
         try {
           sessionPersister.persist(session);
@@ -154,21 +156,21 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
   }
 
   /**
-   * for WebSession destroy event
+   * for Session destroy event
    */
-  public WebSessionListener createDestructionCallback() {
+  public SessionListener createDestructionCallback() {
     return createDestructionCallback(sessionPersister);
   }
 
   /**
-   * for WebSession destroy event
+   * for Session destroy event
    */
-  public static WebSessionListener createDestructionCallback(SessionPersister sessionPersister) {
+  public static SessionListener createDestructionCallback(SessionPersister sessionPersister) {
     Assert.notNull(sessionPersister, "No SessionPersister");
     return new PersisterDestructionCallback(sessionPersister);
   }
 
-  static class PersisterDestructionCallback implements WebSessionListener {
+  static class PersisterDestructionCallback implements SessionListener {
     final SessionPersister sessionPersister;
 
     public PersisterDestructionCallback(SessionPersister sessionPersister) {
@@ -176,9 +178,8 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
     }
 
     @Override
-    public void sessionDestroyed(WebSessionEvent se) {
-      String sessionId = se.getSessionId();
-      removePersister(sessionId, sessionPersister);
+    public void sessionDestroyed(Session session) {
+      removePersister(session.getId(), sessionPersister);
     }
 
   }

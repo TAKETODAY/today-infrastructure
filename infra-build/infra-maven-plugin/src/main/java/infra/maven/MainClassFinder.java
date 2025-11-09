@@ -42,7 +42,7 @@ import infra.bytecode.ClassReader;
 import infra.bytecode.ClassVisitor;
 import infra.bytecode.MethodVisitor;
 import infra.bytecode.Opcodes;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Finds any class with a {@code public static main} method by performing a breadth first

@@ -17,6 +17,8 @@
 
 package infra.web.resource;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +39,6 @@ import infra.core.io.AbstractResource;
 import infra.core.io.Resource;
 import infra.http.HttpHeaders;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 
 /**
@@ -172,7 +173,7 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
     return header != null ? header.toLowerCase(Locale.ROOT) : null;
   }
 
-  private String getExtension(String coding) {
+  String getExtension(String coding) {
     String extension = this.extensions.get(coding);
     if (extension == null) {
       throw new IllegalStateException("No file extension associated with content coding " + coding);
@@ -193,7 +194,7 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
 
     private final String coding;
 
-    private final Resource encoded;
+    final Resource encoded;
 
     private final Resource original;
 

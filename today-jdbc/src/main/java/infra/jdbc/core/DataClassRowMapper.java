@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jdbc.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,7 +30,6 @@ import infra.beans.support.BeanInstantiator;
 import infra.core.MethodParameter;
 import infra.core.TypeDescriptor;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.LoggerFactory;
 
 /**
@@ -53,11 +54,9 @@ public class DataClassRowMapper<T> extends BeanPropertyRowMapper<T> {
   @Nullable
   private BeanInstantiator mappedInstantiator;
 
-  @Nullable
-  private String[] constructorParameterNames;
+  private String @Nullable [] constructorParameterNames;
 
-  @Nullable
-  private TypeDescriptor[] constructorParameterTypes;
+  private TypeDescriptor @Nullable [] constructorParameterTypes;
 
   /**
    * Create a new {@code DataClassRowMapper} for bean-style configuration.
@@ -65,7 +64,8 @@ public class DataClassRowMapper<T> extends BeanPropertyRowMapper<T> {
    * @see #setMappedClass
    * @see #setConversionService
    */
-  public DataClassRowMapper() { }
+  public DataClassRowMapper() {
+  }
 
   /**
    * Create a new {@code DataClassRowMapper}.
@@ -103,6 +103,7 @@ public class DataClassRowMapper<T> extends BeanPropertyRowMapper<T> {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   protected T constructMappedInstance(ResultSet rs, TypeConverter converter) throws SQLException {
     BeanInstantiator mappedConstructor = this.mappedInstantiator;
     Assert.state(mappedConstructor != null, "Mapped constructor was not initialized");

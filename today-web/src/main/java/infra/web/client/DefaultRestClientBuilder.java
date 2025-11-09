@@ -17,6 +17,8 @@
 
 package infra.web.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,7 +54,6 @@ import infra.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
 import infra.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import infra.http.converter.yaml.MappingJackson2YamlHttpMessageConverter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
@@ -115,52 +116,38 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     jsonbPresent = ClassUtils.isPresent("jakarta.json.bind.Jsonb", loader);
   }
 
-  @Nullable
-  private URI baseURI;
+  public @Nullable URI baseURI;
 
-  @Nullable
-  private Map<String, ?> defaultUriVariables;
+  public @Nullable Map<String, ?> defaultUriVariables;
 
-  @Nullable
-  private UriBuilderFactory uriBuilderFactory;
+  public @Nullable UriBuilderFactory uriBuilderFactory;
 
-  @Nullable
-  private HttpHeaders defaultHeaders;
+  public @Nullable HttpHeaders defaultHeaders;
 
   /** @since 5.0 */
-  @Nullable
-  private MultiValueMap<String, String> defaultCookies;
+  public @Nullable MultiValueMap<String, String> defaultCookies;
 
-  @Nullable
-  private Consumer<RestClient.RequestHeadersSpec<?>> defaultRequest;
+  public @Nullable Consumer<RestClient.RequestHeadersSpec<?>> defaultRequest;
 
-  @Nullable
-  private List<ResponseErrorHandler> statusHandlers;
+  public @Nullable List<ResponseErrorHandler> statusHandlers;
 
-  @Nullable
-  private ClientHttpRequestFactory requestFactory;
+  public @Nullable ClientHttpRequestFactory requestFactory;
 
-  @Nullable
-  private List<HttpMessageConverter<?>> messageConverters;
+  public @Nullable List<HttpMessageConverter<?>> messageConverters;
 
-  @Nullable
-  private List<ClientHttpRequestInterceptor> interceptors;
+  public @Nullable List<ClientHttpRequestInterceptor> interceptors;
 
-  @Nullable
-  private List<ClientHttpRequestInitializer> initializers;
+  public @Nullable List<ClientHttpRequestInitializer> initializers;
 
-  @Nullable
-  private Predicate<HttpRequest> bufferingPredicate;
+  public @Nullable Predicate<HttpRequest> bufferingPredicate;
 
-  private boolean ignoreStatus = false;
+  public boolean ignoreStatus = false;
 
-  private boolean detectEmptyMessageBody = true;
+  public boolean detectEmptyMessageBody = true;
 
-  @Nullable
-  private Object defaultApiVersion;
+  public @Nullable Object defaultApiVersion;
 
-  @Nullable
-  private ApiVersionInserter apiVersionInserter;
+  public @Nullable ApiVersionInserter apiVersionInserter;
 
   public DefaultRestClientBuilder() {
   }
@@ -206,7 +193,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   }
 
   @Nullable
-  private static UriBuilderFactory getUriBuilderFactory(RestTemplate restTemplate) {
+  static UriBuilderFactory getUriBuilderFactory(RestTemplate restTemplate) {
     UriTemplateHandler uriTemplateHandler = restTemplate.getUriTemplateHandler();
     if (uriTemplateHandler instanceof DefaultUriBuilderFactory builderFactory) {
       // only reuse the DefaultUriBuilderFactory if it has been customized
@@ -229,7 +216,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
    * Indicate whether this {@code DefaultUriBuilderFactory} uses the default
    * {@link infra.web.client.RestTemplate RestTemplate} settings.
    */
-  private static boolean hasRestTemplateDefaults(DefaultUriBuilderFactory factory) {
+  static boolean hasRestTemplateDefaults(DefaultUriBuilderFactory factory) {
     // see RestTemplate::initUriTemplateHandler
     return (!factory.hasBaseUri() &&
             factory.getEncodingMode() == DefaultUriBuilderFactory.EncodingMode.URI_COMPONENT &&
@@ -237,7 +224,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
             factory.shouldParsePath());
   }
 
-  private static ClientHttpRequestFactory getRequestFactory(RestTemplate restTemplate) {
+  static ClientHttpRequestFactory getRequestFactory(RestTemplate restTemplate) {
     ClientHttpRequestFactory requestFactory = restTemplate.getRequestFactory();
     if (requestFactory instanceof InterceptingClientHttpRequestFactory factory) {
       return factory.getRequestFactory();
@@ -291,7 +278,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     return this;
   }
 
-  private HttpHeaders initHeaders() {
+  HttpHeaders initHeaders() {
     if (this.defaultHeaders == null) {
       this.defaultHeaders = HttpHeaders.forWritable();
     }
@@ -299,7 +286,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   }
 
   @Override
-  public RestClient.Builder defaultCookie(String cookie, @Nullable String... values) {
+  public RestClient.Builder defaultCookie(String cookie, String @Nullable ... values) {
     initCookies().setOrRemove(cookie, values);
     return this;
   }
@@ -328,7 +315,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     return this;
   }
 
-  private MultiValueMap<String, String> initCookies() {
+  MultiValueMap<String, String> initCookies() {
     if (this.defaultCookies == null) {
       this.defaultCookies = new LinkedMultiValueMap<>(3);
     }
@@ -391,7 +378,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     return this;
   }
 
-  private List<ClientHttpRequestInterceptor> initInterceptors() {
+  List<ClientHttpRequestInterceptor> initInterceptors() {
     if (this.interceptors == null) {
       this.interceptors = new ArrayList<>();
     }
@@ -411,7 +398,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     return this;
   }
 
-  private List<ClientHttpRequestInitializer> initInitializers() {
+  List<ClientHttpRequestInitializer> initInitializers() {
     if (this.initializers == null) {
       this.initializers = new ArrayList<>();
     }
@@ -444,7 +431,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     return this;
   }
 
-  private List<HttpMessageConverter<?>> initMessageConverters() {
+  List<HttpMessageConverter<?>> initMessageConverters() {
     if (this.messageConverters == null) {
       this.messageConverters = new ArrayList<>();
 

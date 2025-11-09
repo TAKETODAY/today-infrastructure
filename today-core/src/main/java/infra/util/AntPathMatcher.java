@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -27,7 +29,6 @@ import java.util.regex.Pattern;
 
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 
 /**
  * {@link PathMatcher} implementation for Ant-style path patterns.
@@ -834,8 +835,7 @@ public class AntPathMatcher implements PathMatcher {
       return start == end ? Constant.BLANK : Pattern.quote(s.substring(start, end));
     }
 
-    @Nullable
-    public String[] extractVariables(String str) {
+    public String @Nullable [] extractVariables(String str) {
       if (pattern != null) {
         Matcher matcher = this.pattern.matcher(str);
         if (matcher.matches()) {

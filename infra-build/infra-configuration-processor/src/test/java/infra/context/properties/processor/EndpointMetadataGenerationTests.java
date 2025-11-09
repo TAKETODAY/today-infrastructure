@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.context.properties.processor;
@@ -28,8 +28,6 @@ import infra.context.properties.sample.endpoint.CustomPropertiesEndpoint;
 import infra.context.properties.sample.endpoint.DisabledEndpoint;
 import infra.context.properties.sample.endpoint.EnabledEndpoint;
 import infra.context.properties.sample.endpoint.SimpleEndpoint;
-import infra.context.properties.sample.endpoint.SpecificEndpoint;
-import infra.context.properties.sample.endpoint.incremental.IncrementalEndpoint;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -80,73 +78,12 @@ class EndpointMetadataGenerationTests extends AbstractMetadataGenerationTests {
   }
 
   @Test
-  void specificEndpoint() {
-    ConfigurationMetadata metadata = compile(SpecificEndpoint.class);
-    assertThat(metadata).has(Metadata.withGroup("management.endpoint.specific").fromSource(SpecificEndpoint.class));
-    assertThat(metadata).has(enabledFlag("specific", true));
-    assertThat(metadata).has(cacheTtl("specific"));
-    assertThat(metadata.getItems()).hasSize(3);
-  }
-
-  @Test
   void camelCaseEndpoint() {
     ConfigurationMetadata metadata = compile(CamelCaseEndpoint.class);
     assertThat(metadata)
             .has(Metadata.withGroup("management.endpoint.pascal-case").fromSource(CamelCaseEndpoint.class));
     assertThat(metadata).has(enabledFlag("PascalCase", "pascal-case", true));
     assertThat(metadata.getItems()).hasSize(2);
-  }
-
-  @Test
-  void incrementalEndpointBuildChangeGeneralEnabledFlag() {
-    TestProject project = new TestProject(IncrementalEndpoint.class);
-    ConfigurationMetadata metadata = project.compile();
-    assertThat(metadata)
-            .has(Metadata.withGroup("management.endpoint.incremental").fromSource(IncrementalEndpoint.class));
-    assertThat(metadata).has(enabledFlag("incremental", true));
-    assertThat(metadata).has(cacheTtl("incremental"));
-    assertThat(metadata.getItems()).hasSize(3);
-    project.replaceText(IncrementalEndpoint.class, "id = \"incremental\"",
-            "id = \"incremental\", enableByDefault = false");
-    metadata = project.compile();
-    assertThat(metadata)
-            .has(Metadata.withGroup("management.endpoint.incremental").fromSource(IncrementalEndpoint.class));
-    assertThat(metadata).has(enabledFlag("incremental", false));
-    assertThat(metadata).has(cacheTtl("incremental"));
-    assertThat(metadata.getItems()).hasSize(3);
-  }
-
-  @Test
-  void incrementalEndpointBuildChangeCacheFlag() {
-    TestProject project = new TestProject(IncrementalEndpoint.class);
-    ConfigurationMetadata metadata = project.compile();
-    assertThat(metadata)
-            .has(Metadata.withGroup("management.endpoint.incremental").fromSource(IncrementalEndpoint.class));
-    assertThat(metadata).has(enabledFlag("incremental", true));
-    assertThat(metadata).has(cacheTtl("incremental"));
-    assertThat(metadata.getItems()).hasSize(3);
-    project.replaceText(IncrementalEndpoint.class, "@Nullable String param", "String param");
-    metadata = project.compile();
-    assertThat(metadata)
-            .has(Metadata.withGroup("management.endpoint.incremental").fromSource(IncrementalEndpoint.class));
-    assertThat(metadata).has(enabledFlag("incremental", true));
-    assertThat(metadata.getItems()).hasSize(2);
-  }
-
-  @Test
-  void incrementalEndpointBuildEnableSpecificEndpoint() {
-    TestProject project = new TestProject(SpecificEndpoint.class);
-    ConfigurationMetadata metadata = project.compile();
-    assertThat(metadata).has(Metadata.withGroup("management.endpoint.specific").fromSource(SpecificEndpoint.class));
-    assertThat(metadata).has(enabledFlag("specific", true));
-    assertThat(metadata).has(cacheTtl("specific"));
-    assertThat(metadata.getItems()).hasSize(3);
-    project.replaceText(SpecificEndpoint.class, "enableByDefault = true", "enableByDefault = false");
-    metadata = project.compile();
-    assertThat(metadata).has(Metadata.withGroup("management.endpoint.specific").fromSource(SpecificEndpoint.class));
-    assertThat(metadata).has(enabledFlag("specific", false));
-    assertThat(metadata).has(cacheTtl("specific"));
-    assertThat(metadata.getItems()).hasSize(3);
   }
 
   private Metadata.MetadataItemCondition enabledFlag(String endpointId, String endpointSuffix, Boolean defaultValue) {

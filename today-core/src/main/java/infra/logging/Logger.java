@@ -17,10 +17,12 @@
 
 package infra.logging;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Objects;
 
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 
 /**
@@ -61,7 +63,7 @@ public abstract class Logger implements Serializable {
    *
    * @param msg the message string to be logged
    */
-  public void trace(String msg) {
+  public void trace(@Nullable String msg) {
     logInternal(Level.TRACE, msg, null, null);
   }
 
@@ -77,8 +79,8 @@ public abstract class Logger implements Serializable {
    * @param format the format string
    * @param arg the argument
    */
-  public void trace(String format, @Nullable Object arg) {
-    logInternal(Level.TRACE, format, null, new Object[] { arg });
+  public void trace(@Nullable String format, @Nullable Object arg) {
+    logInternal(Level.TRACE, format, null, new @Nullable Object[] { arg });
   }
 
   /**
@@ -94,8 +96,8 @@ public abstract class Logger implements Serializable {
    * @param arg1 the first argument
    * @param arg2 the second argument
    */
-  public void trace(String format, @Nullable Object arg1, @Nullable Object arg2) {
-    logInternal(Level.TRACE, format, null, new Object[] { arg1, arg2 });
+  public void trace(@Nullable String format, @Nullable Object arg1, @Nullable Object arg2) {
+    logInternal(Level.TRACE, format, null, new @Nullable Object[] { arg1, arg2 });
   }
 
   /**
@@ -114,7 +116,7 @@ public abstract class Logger implements Serializable {
    * @param format the format string
    * @param arguments a list of 3 or more arguments
    */
-  public void trace(String format, @Nullable Object... arguments) {
+  public void trace(@Nullable String format, @Nullable Object... arguments) {
     logInternal(arguments, Level.TRACE, format);
   }
 
@@ -124,7 +126,7 @@ public abstract class Logger implements Serializable {
    * @param msg the message accompanying the exception
    * @param t the exception (throwable) to log
    */
-  public void trace(String msg, @Nullable Throwable t) {
+  public void trace(@Nullable String msg, @Nullable Throwable t) {
     logInternal(Level.TRACE, msg, t);
   }
 
@@ -142,7 +144,7 @@ public abstract class Logger implements Serializable {
    *
    * @param msg the message string to be logged
    */
-  public void debug(String msg) {
+  public void debug(@Nullable String msg) {
     logInternal(Level.DEBUG, msg, null, null);
   }
 
@@ -158,8 +160,8 @@ public abstract class Logger implements Serializable {
    * @param format the format string
    * @param arg the argument
    */
-  public void debug(String format, @Nullable Object arg) {
-    logInternal(Level.DEBUG, format, null, new Object[] { arg });
+  public void debug(@Nullable String format, @Nullable Object arg) {
+    logInternal(Level.DEBUG, format, null, new @Nullable Object[] { arg });
   }
 
   /**
@@ -175,8 +177,8 @@ public abstract class Logger implements Serializable {
    * @param arg1 the first argument
    * @param arg2 the second argument
    */
-  public void debug(String format, @Nullable Object arg1, @Nullable Object arg2) {
-    logInternal(Level.DEBUG, format, null, new Object[] { arg1, arg2 });
+  public void debug(@Nullable String format, @Nullable Object arg1, @Nullable Object arg2) {
+    logInternal(Level.DEBUG, format, null, new @Nullable Object[] { arg1, arg2 });
   }
 
   /**
@@ -195,7 +197,7 @@ public abstract class Logger implements Serializable {
    * @param format the format string
    * @param arguments a list of 3 or more arguments
    */
-  public void debug(String format, @Nullable Object... arguments) {
+  public void debug(@Nullable String format, @Nullable Object @Nullable ... arguments) {
     logInternal(arguments, Level.DEBUG, format);
   }
 
@@ -205,7 +207,7 @@ public abstract class Logger implements Serializable {
    * @param msg the message accompanying the exception
    * @param t the exception (throwable) to log
    */
-  public void debug(String msg, @Nullable Throwable t) {
+  public void debug(@Nullable String msg, @Nullable Throwable t) {
     logInternal(Level.DEBUG, msg, t);
   }
 
@@ -221,7 +223,7 @@ public abstract class Logger implements Serializable {
    *
    * @param msg the message string to be logged
    */
-  public void info(String msg) {
+  public void info(@Nullable String msg) {
     logInternal(Level.INFO, msg, null, null);
   }
 
@@ -237,8 +239,8 @@ public abstract class Logger implements Serializable {
    * @param format the format string
    * @param arg the argument
    */
-  public void info(String format, @Nullable Object arg) {
-    logInternal(Level.INFO, format, null, new Object[] { arg });
+  public void info(@Nullable String format, @Nullable Object arg) {
+    logInternal(Level.INFO, format, null, new @Nullable Object[] { arg });
   }
 
   /**
@@ -254,8 +256,8 @@ public abstract class Logger implements Serializable {
    * @param arg1 the first argument
    * @param arg2 the second argument
    */
-  public void info(String format, @Nullable Object arg1, @Nullable Object arg2) {
-    logInternal(Level.INFO, format, null, new Object[] { arg1, arg2 });
+  public void info(@Nullable String format, @Nullable Object arg1, @Nullable Object arg2) {
+    logInternal(Level.INFO, format, null, new @Nullable Object[] { arg1, arg2 });
   }
 
   /**
@@ -274,7 +276,7 @@ public abstract class Logger implements Serializable {
    * @param format the format string
    * @param arguments a list of 3 or more arguments
    */
-  public void info(String format, @Nullable Object... arguments) {
+  public void info(@Nullable String format, @Nullable Object... arguments) {
     logInternal(arguments, Level.INFO, format);
   }
 
@@ -284,7 +286,7 @@ public abstract class Logger implements Serializable {
    * @param msg the message accompanying the exception
    * @param t the exception (throwable) to log
    */
-  public void info(String msg, @Nullable Throwable t) {
+  public void info(@Nullable String msg, @Nullable Throwable t) {
     logInternal(Level.INFO, msg, t, null);
   }
 
@@ -300,7 +302,7 @@ public abstract class Logger implements Serializable {
    *
    * @param msg the message string to be logged
    */
-  public void warn(String msg) {
+  public void warn(@Nullable String msg) {
     logInternal(Level.WARN, msg, null, null);
   }
 
@@ -316,8 +318,8 @@ public abstract class Logger implements Serializable {
    * @param format the format string
    * @param arg the argument
    */
-  public void warn(String format, @Nullable Object arg) {
-    logInternal(Level.WARN, format, null, new Object[] { arg });
+  public void warn(@Nullable String format, @Nullable Object arg) {
+    logInternal(Level.WARN, format, null, new @Nullable Object[] { arg });
   }
 
   /**
@@ -336,7 +338,7 @@ public abstract class Logger implements Serializable {
    * @param format the format string
    * @param arguments a list of 3 or more arguments
    */
-  public void warn(String format, @Nullable Object... arguments) {
+  public void warn(@Nullable String format, @Nullable Object... arguments) {
     logInternal(arguments, Level.WARN, format);
   }
 
@@ -353,8 +355,8 @@ public abstract class Logger implements Serializable {
    * @param arg1 the first argument
    * @param arg2 the second argument
    */
-  public void warn(String format, @Nullable Object arg1, @Nullable Object arg2) {
-    logInternal(Level.WARN, format, null, new Object[] { arg1, arg2 });
+  public void warn(@Nullable String format, @Nullable Object arg1, @Nullable Object arg2) {
+    logInternal(Level.WARN, format, null, new @Nullable Object[] { arg1, arg2 });
   }
 
   /**
@@ -363,7 +365,7 @@ public abstract class Logger implements Serializable {
    * @param msg the message accompanying the exception
    * @param t the exception (throwable) to log
    */
-  public void warn(String msg, @Nullable Throwable t) {
+  public void warn(@Nullable String msg, @Nullable Throwable t) {
     logInternal(Level.WARN, msg, t, null);
   }
 
@@ -379,7 +381,7 @@ public abstract class Logger implements Serializable {
    *
    * @param msg the message string to be logged
    */
-  public void error(String msg) {
+  public void error(@Nullable String msg) {
     logInternal(Level.ERROR, msg, null, null);
   }
 
@@ -395,12 +397,12 @@ public abstract class Logger implements Serializable {
    * @param format the format string
    * @param arg the argument
    */
-  public void error(String format, @Nullable Object arg) {
-    logInternal(Level.ERROR, format, null, new Object[] { arg });
+  public void error(@Nullable String format, @Nullable Object arg) {
+    logInternal(Level.ERROR, format, null, new @Nullable Object[] { arg });
   }
 
-  public void error(String format, @Nullable Object arg, @Nullable Throwable throwable) {
-    logInternal(Level.ERROR, format, throwable, new Object[] { arg });
+  public void error(@Nullable String format, @Nullable Object arg, @Nullable Throwable throwable) {
+    logInternal(Level.ERROR, format, throwable, new @Nullable Object[] { arg });
   }
 
   /**
@@ -416,12 +418,12 @@ public abstract class Logger implements Serializable {
    * @param arg1 the first argument
    * @param arg2 the second argument
    */
-  public void error(String format, @Nullable Object arg1, @Nullable Object arg2) {
-    logInternal(Level.ERROR, format, null, new Object[] { arg1, arg2 });
+  public void error(@Nullable String format, @Nullable Object arg1, @Nullable Object arg2) {
+    logInternal(Level.ERROR, format, null, new @Nullable Object[] { arg1, arg2 });
   }
 
-  public void error(String format, @Nullable Object arg1, @Nullable Object arg2, @Nullable Throwable throwable) {
-    logInternal(Level.ERROR, format, throwable, new Object[] { arg1, arg2 });
+  public void error(@Nullable String format, @Nullable Object arg1, @Nullable Object arg2, @Nullable Throwable throwable) {
+    logInternal(Level.ERROR, format, throwable, new @Nullable Object[] { arg1, arg2 });
   }
 
   /**
@@ -440,7 +442,7 @@ public abstract class Logger implements Serializable {
    * @param format the format string
    * @param arguments a list of 3 or more arguments
    */
-  public void error(String format, @Nullable Object... arguments) {
+  public void error(@Nullable String format, @Nullable Object... arguments) {
     logInternal(arguments, Level.ERROR, format);
   }
 
@@ -450,7 +452,7 @@ public abstract class Logger implements Serializable {
    * @param msg the message accompanying the exception
    * @param t the exception (throwable) to log
    */
-  public void error(String msg, @Nullable Throwable t) {
+  public void error(@Nullable String msg, @Nullable Throwable t) {
     logInternal(Level.ERROR, msg, t, null);
   }
 
@@ -461,7 +463,7 @@ public abstract class Logger implements Serializable {
    *
    * @param message log this message
    */
-  public void error(Object message) {
+  public void error(@Nullable Object message) {
     logInternal(Level.ERROR, message, null);
   }
 
@@ -471,7 +473,7 @@ public abstract class Logger implements Serializable {
    * @param message log this message
    * @param t log this cause
    */
-  public void error(Object message, @Nullable Throwable t) {
+  public void error(@Nullable Object message, @Nullable Throwable t) {
     logInternal(Level.ERROR, message, t);
   }
 
@@ -480,7 +482,7 @@ public abstract class Logger implements Serializable {
    *
    * @param message log this message
    */
-  public void warn(Object message) {
+  public void warn(@Nullable Object message) {
     logInternal(Level.WARN, message, null);
   }
 
@@ -490,7 +492,7 @@ public abstract class Logger implements Serializable {
    * @param message log this message
    * @param t log this cause
    */
-  public void warn(Object message, @Nullable Throwable t) {
+  public void warn(@Nullable Object message, @Nullable Throwable t) {
     logInternal(Level.WARN, message, t);
   }
 
@@ -499,7 +501,7 @@ public abstract class Logger implements Serializable {
    *
    * @param message log this message
    */
-  public void info(Object message) {
+  public void info(@Nullable Object message) {
     logInternal(Level.INFO, message, null);
   }
 
@@ -509,7 +511,7 @@ public abstract class Logger implements Serializable {
    * @param message log this message
    * @param t log this cause
    */
-  public void info(Object message, @Nullable Throwable t) {
+  public void info(@Nullable Object message, @Nullable Throwable t) {
     logInternal(Level.INFO, message, t);
   }
 
@@ -518,7 +520,7 @@ public abstract class Logger implements Serializable {
    *
    * @param message log this message
    */
-  public void debug(Object message) {
+  public void debug(@Nullable Object message) {
     logInternal(Level.DEBUG, message, null);
   }
 
@@ -528,7 +530,7 @@ public abstract class Logger implements Serializable {
    * @param message log this message
    * @param t log this cause
    */
-  public void debug(Object message, @Nullable Throwable t) {
+  public void debug(@Nullable Object message, @Nullable Throwable t) {
     logInternal(Level.DEBUG, message, t);
   }
 
@@ -537,7 +539,7 @@ public abstract class Logger implements Serializable {
    *
    * @param message log this message
    */
-  public void trace(Object message) {
+  public void trace(@Nullable Object message) {
     logInternal(Level.TRACE, message, null);
   }
 
@@ -547,13 +549,13 @@ public abstract class Logger implements Serializable {
    * @param message log this message
    * @param t log this cause
    */
-  public void trace(Object message, @Nullable Throwable t) {
+  public void trace(@Nullable Object message, @Nullable Throwable t) {
     logInternal(Level.TRACE, message, t);
   }
 
   // internal
 
-  private void logInternal(@Nullable Object[] arguments, Level level, String format) {
+  private void logInternal(@Nullable Object @Nullable [] arguments, Level level, @Nullable String format) {
     Object lastElement = CollectionUtils.lastElement(arguments);
     if (lastElement instanceof Throwable throwable) {
       logInternal(level, format, throwable, arguments);
@@ -563,7 +565,7 @@ public abstract class Logger implements Serializable {
     }
   }
 
-  protected void logInternal(Level level, Object msg, @Nullable Throwable t) {
+  protected void logInternal(Level level, @Nullable Object msg, @Nullable Throwable t) {
     if (isEnabled(level)) {
       String message = String.valueOf(msg);
       logInternal(level, message, t, null);
@@ -580,6 +582,21 @@ public abstract class Logger implements Serializable {
     };
   }
 
-  protected abstract void logInternal(Level level, String msg, @Nullable Throwable t, @Nullable Object[] args);
+  protected abstract void logInternal(Level level, @Nullable String msg, @Nullable Throwable t, @Nullable Object @Nullable [] args);
+
+  @Override
+  public boolean equals(Object object) {
+    if (this == object) {
+      return true;
+    }
+    if (!(object instanceof Logger logger))
+      return false;
+    return Objects.equals(getName(), logger.getName());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(getName());
+  }
 
 }

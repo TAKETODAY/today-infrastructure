@@ -17,9 +17,7 @@
 /**
  * Configuration support for tests.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.context.annotation.config;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -17,6 +17,8 @@
 
 package infra.web.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.nio.charset.Charset;
 import java.util.function.Function;
 
@@ -26,7 +28,6 @@ import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 
 /**
  * Common base class for exceptions that contain actual HTTP response data.
@@ -62,7 +63,7 @@ public class RestClientResponseException extends RestClientException {
    * @param responseCharset the response body charset (may be {@code null})
    */
   public RestClientResponseException(@Nullable String message, int statusCode, String statusText,
-          @Nullable HttpHeaders headers, @Nullable byte[] responseBody, @Nullable Charset responseCharset) {
+          @Nullable HttpHeaders headers, byte @Nullable [] responseBody, @Nullable Charset responseCharset) {
 
     this(message, HttpStatusCode.valueOf(statusCode), statusText, headers, responseBody, responseCharset);
   }
@@ -77,7 +78,7 @@ public class RestClientResponseException extends RestClientException {
    * @param responseCharset the response body charset (may be {@code null})
    */
   public RestClientResponseException(@Nullable String message, HttpStatusCode statusCode, String statusText,
-          @Nullable HttpHeaders headers, @Nullable byte[] responseBody, @Nullable Charset responseCharset) {
+          @Nullable HttpHeaders headers, byte @Nullable [] responseBody, @Nullable Charset responseCharset) {
 
     super(message);
     this.statusCode = statusCode;

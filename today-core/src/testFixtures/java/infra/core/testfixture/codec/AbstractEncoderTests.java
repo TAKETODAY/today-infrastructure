@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ import infra.core.codec.Encoder;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.testfixture.io.buffer.AbstractLeakCheckingTests;
 import infra.lang.Assert;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import infra.util.MimeType;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,13 @@
 
 package infra.web.server;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.lang.Nullable;
+import infra.lang.Contract;
 
 /**
  * Simple server-independent abstraction for SSL configuration.
@@ -138,14 +140,12 @@ public class Ssl {
   /**
    * The supported SSL ciphers
    */
-  @Nullable
-  public String[] ciphers;
+  public String @Nullable [] ciphers;
 
   /**
    * The enabled SSL protocols.
    */
-  @Nullable
-  public String[] enabledProtocols;
+  public String @Nullable [] enabledProtocols;
 
   /**
    * Return Whether client authentication is not wanted ("none"), wanted ("want") or
@@ -170,6 +170,7 @@ public class Ssl {
    * @param ssl the {@link Ssl SSL} instance or {@code null}
    * @return {@code true} is SSL is enabled
    */
+  @Contract("null -> false")
   public static boolean isEnabled(@Nullable Ssl ssl) {
     return ssl != null && ssl.enabled;
   }
@@ -189,6 +190,7 @@ public class Ssl {
   /**
    * @since 5.0
    */
+  @SuppressWarnings("NullAway")
   public static class ServerNameSslBundle {
 
     private String serverName;

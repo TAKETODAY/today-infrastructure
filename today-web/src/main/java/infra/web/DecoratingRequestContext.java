@@ -17,6 +17,8 @@
 
 package infra.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,9 +46,9 @@ import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
+import infra.http.ResponseCookie;
 import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 import infra.web.async.AsyncWebRequest;
 import infra.web.async.WebAsyncManager;
@@ -65,6 +67,7 @@ import infra.web.multipart.MultipartRequest;
  */
 public abstract class DecoratingRequestContext extends RequestContext {
 
+  @SuppressWarnings("NullAway")
   protected DecoratingRequestContext() {
     super(null, null);
   }
@@ -171,7 +174,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public void addCookie(HttpCookie cookie) {
+  public void addCookie(ResponseCookie cookie) {
     getDelegate().addCookie(cookie);
   }
 
@@ -182,7 +185,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
 
   @Nullable
   @Override
-  public List<HttpCookie> removeCookie(String name) {
+  public List<ResponseCookie> removeCookie(String name) {
     return getDelegate().removeCookie(name);
   }
 
@@ -192,7 +195,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public ArrayList<HttpCookie> responseCookies() {
+  public ArrayList<ResponseCookie> responseCookies() {
     return getDelegate().responseCookies();
   }
 
@@ -212,8 +215,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  @Nullable
-  public String[] getParameters(String name) {
+  public String @Nullable [] getParameters(String name) {
     return getDelegate().getParameters(name);
   }
 

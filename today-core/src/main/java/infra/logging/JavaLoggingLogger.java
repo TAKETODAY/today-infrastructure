@@ -17,14 +17,14 @@
 
 package infra.logging;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
-
-import infra.lang.Nullable;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -78,7 +78,8 @@ final class JavaLoggingLogger extends infra.logging.Logger {
   }
 
   @Override
-  protected void logInternal(Level level, String format, @Nullable Throwable t, @Nullable Object[] args) {
+  @SuppressWarnings("NullAway")
+  protected void logInternal(Level level, String format, @Nullable Throwable t, @Nullable Object @Nullable [] args) {
     java.util.logging.Level levelToJavaLevel = levelToJavaLevel(level);
     if (logger.isLoggable(levelToJavaLevel)) {
       String message = MessageFormatter.format(format, args);
@@ -98,7 +99,7 @@ final class JavaLoggingLogger extends infra.logging.Logger {
 
     private volatile boolean resolved;
 
-    public LocationResolvingLogRecord(java.util.logging.Level level, String msg) {
+    public LocationResolvingLogRecord(java.util.logging.Level level, @Nullable String msg) {
       super(level, msg);
     }
 

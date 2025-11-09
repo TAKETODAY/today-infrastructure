@@ -17,6 +17,8 @@
 
 package infra.core.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
@@ -34,7 +36,6 @@ import java.util.Set;
 import infra.core.BridgeMethodResolver;
 import infra.core.type.AnnotationMetadata;
 import infra.core.type.StandardAnnotationMetadata;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.ReflectionUtils;
@@ -124,7 +125,7 @@ public abstract class AnnotationUtils {
    * @param annType Target annotation type
    * @return Whether it's present
    */
-  public static <A extends Annotation> boolean isPresent(@Nullable AnnotatedElement element, @Nullable Class<A> annType) {
+  public static <A extends Annotation> boolean isPresent(AnnotatedElement element, Class<A> annType) {
     return AnnotatedElementUtils.hasAnnotation(element, annType);
   }
 
@@ -342,8 +343,7 @@ public abstract class AnnotationUtils {
    * failed to resolve at runtime)
    * @see AnnotatedElement#getAnnotations()
    */
-  @Nullable
-  public static Annotation[] getAnnotations(AnnotatedElement annotatedElement) {
+  public static Annotation @Nullable [] getAnnotations(AnnotatedElement annotatedElement) {
     try {
       return synthesizeAnnotationArray(annotatedElement.getAnnotations(), annotatedElement);
     }
@@ -366,8 +366,7 @@ public abstract class AnnotationUtils {
    * @see BridgeMethodResolver#findBridgedMethod(Method)
    * @see AnnotatedElement#getAnnotations()
    */
-  @Nullable
-  public static Annotation[] getAnnotations(Method method) {
+  public static Annotation @Nullable [] getAnnotations(Method method) {
     try {
       return synthesizeAnnotationArray(BridgeMethodResolver.findBridgedMethod(method).getAnnotations(), method);
     }
@@ -1032,20 +1031,23 @@ public abstract class AnnotationUtils {
     }
   }
 
-  private static Object getAttributeValueForMirrorResolution(Method attribute, Object attributes) {
-    Object result = ((AnnotationAttributes) attributes).get(attribute.getName());
-    return (result instanceof DefaultValueHolder ? ((DefaultValueHolder) result).defaultValue : result);
+  @Nullable
+  private static Object getAttributeValueForMirrorResolution(Method attribute, @Nullable Object attributes) {
+    if (!(attributes instanceof AnnotationAttributes annotationAttributes)) {
+      return null;
+    }
+    Object result = annotationAttributes.get(attribute.getName());
+    return (result instanceof DefaultValueHolder defaultValueHolder ? defaultValueHolder.defaultValue : result);
   }
 
-  @Nullable
-  private static Object adaptValue(@Nullable Object annotatedElement, @Nullable Object value, boolean classValuesAsString) {
+  private static @Nullable Object adaptValue(
+          @Nullable Object annotatedElement, @Nullable Object value, boolean classValuesAsString) {
 
     if (classValuesAsString) {
-      if (value instanceof Class) {
-        return ((Class<?>) value).getName();
+      if (value instanceof Class<?> clazz) {
+        return clazz.getName();
       }
-      if (value instanceof Class[]) {
-        Class<?>[] classes = (Class<?>[]) value;
+      if (value instanceof Class<?>[] classes) {
         String[] names = new String[classes.length];
         for (int i = 0; i < classes.length; i++) {
           names[i] = classes[i].getName();
@@ -1058,7 +1060,7 @@ public abstract class AnnotationUtils {
     }
     if (value instanceof Annotation[] annotations) {
       Annotation[] synthesized = (Annotation[]) Array.newInstance(
-              annotations.getClass().getComponentType(), annotations.length);
+              annotations.getClass().componentType(), annotations.length);
       for (int i = 0; i < annotations.length; i++) {
         synthesized[i] = MergedAnnotation.from(annotatedElement, annotations[i]).synthesize();
       }

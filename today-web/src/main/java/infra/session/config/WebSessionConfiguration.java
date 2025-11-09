@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.session.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 
 import infra.beans.factory.SmartInitializingSingleton;
@@ -32,24 +34,23 @@ import infra.context.annotation.Role;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.ApplicationTemp;
-import infra.lang.Nullable;
 import infra.session.CookieSessionIdResolver;
 import infra.session.DefaultSessionManager;
 import infra.session.FileSessionPersister;
 import infra.session.InMemorySessionRepository;
 import infra.session.PersistenceSessionRepository;
 import infra.session.SecureRandomSessionIdGenerator;
+import infra.session.SessionAttributeListener;
+import infra.session.SessionAttributeParameterResolver;
 import infra.session.SessionEventDispatcher;
 import infra.session.SessionIdGenerator;
 import infra.session.SessionIdResolver;
+import infra.session.SessionListener;
 import infra.session.SessionManager;
 import infra.session.SessionMethodArgumentResolver;
 import infra.session.SessionPersister;
 import infra.session.SessionRedirectModelManager;
 import infra.session.SessionRepository;
-import infra.session.WebSessionAttributeListener;
-import infra.session.WebSessionAttributeParameterResolver;
-import infra.session.WebSessionListener;
 import infra.stereotype.Component;
 import infra.web.RedirectModelManager;
 import infra.web.RequestContext;
@@ -103,9 +104,9 @@ class WebSessionConfiguration implements MergedBeanDefinitionPostProcessor, Smar
    */
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  static WebSessionAttributeParameterResolver webSessionAttributeMethodArgumentResolver(
+  static SessionAttributeParameterResolver webSessionAttributeMethodArgumentResolver(
           SessionManager sessionManager, ConfigurableBeanFactory beanFactory) {
-    return new WebSessionAttributeParameterResolver(sessionManager, beanFactory);
+    return new SessionAttributeParameterResolver(sessionManager, beanFactory);
   }
 
   /**
@@ -182,8 +183,8 @@ class WebSessionConfiguration implements MergedBeanDefinitionPostProcessor, Smar
   @Override
   public void afterSingletonsInstantiated(ConfigurableBeanFactory beanFactory) {
     SessionEventDispatcher eventDispatcher = beanFactory.getBean(SessionEventDispatcher.class);
-    eventDispatcher.addSessionListeners(beanFactory.getBeanProvider(WebSessionListener.class).orderedList());
-    eventDispatcher.addAttributeListeners(beanFactory.getBeanProvider(WebSessionAttributeListener.class).orderedList());
+    eventDispatcher.addSessionListeners(beanFactory.getBeanProvider(SessionListener.class).orderedList());
+    eventDispatcher.addAttributeListeners(beanFactory.getBeanProvider(SessionAttributeListener.class).orderedList());
 
     if (destructionCallbackRegistered) {
       eventDispatcher.addAttributeListeners(SessionScope.createDestructionCallback());

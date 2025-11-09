@@ -17,19 +17,28 @@
 
 package infra.beans.factory;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.config.ConfigurableBeanFactory;
-import infra.lang.Nullable;
 
 /**
  * Extension of the {@link FactoryBean} interface. Implementations may
  * indicate whether they always return independent instances, for the
- * case where their is singleton implementation returning {@code false}
- * does not clearly indicate independent instances.
- *
- * <p>Plain {@link FactoryBean} implementations which do not implement
+ * case where their {@link #isSingleton()} implementation returning
+ * {@code false} does not clearly indicate independent instances.
+ * Plain {@link FactoryBean} implementations which do not implement
  * this extended interface are simply assumed to always return independent
- * instances if their is singleton implementation returns {@code false};
- * the exposed object is only accessed on demand.
+ * instances if their {@link #isSingleton()} implementation returns
+ * {@code false}; the exposed object is only accessed on demand.
+ *
+ * <p>As of 5.0, this interface also allows for exposing additional object
+ * types for dependency injection through implementing a pair of methods:
+ * {@link #getObject(Class)} as well as {@link #supportsType(Class)}.
+ * The primary {@link #getObjectType()} will be exposed for regular access;
+ * only if a specific type is requested, additional types are considered.
+ * The container will not cache {@code SmartFactoryBean}-produced objects;
+ * make sure that the {@code getObject} implementation is thread-safe for
+ * repeated invocations.
  *
  * <p><b>NOTE:</b> This interface is a special purpose interface, mainly for
  * internal use within the framework and within collaborating frameworks.
@@ -39,8 +48,8 @@ import infra.lang.Nullable;
  *
  * @param <T> the bean type
  * @author Juergen Hoeller
- * @author TODAY 2021/3/9 14:06
- * @since 3.0
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 3.0 2021/3/9 14:06
  */
 public interface SmartFactoryBean<T> extends FactoryBean<T> {
 

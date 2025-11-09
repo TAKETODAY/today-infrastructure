@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,10 @@
 
 package infra.context.properties.bind;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.context.properties.source.ConfigurationPropertyName;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Abstract base class for {@link BindHandler} implementations.
@@ -50,11 +51,13 @@ public abstract class AbstractBindHandler implements BindHandler {
     this.parent = parent;
   }
 
+  @Nullable
   @Override
   public <T> Bindable<T> onStart(ConfigurationPropertyName name, Bindable<T> target, BindContext context) {
     return this.parent.onStart(name, target, context);
   }
 
+  @Nullable
   @Override
   public Object onSuccess(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Object result) {
     return this.parent.onSuccess(name, target, context, result);
@@ -68,7 +71,7 @@ public abstract class AbstractBindHandler implements BindHandler {
   }
 
   @Override
-  public void onFinish(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Object result)
+  public void onFinish(ConfigurationPropertyName name, Bindable<?> target, BindContext context, @Nullable Object result)
           throws Exception {
     this.parent.onFinish(name, target, context, result);
   }

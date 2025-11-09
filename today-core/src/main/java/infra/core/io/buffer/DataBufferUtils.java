@@ -17,6 +17,7 @@
 
 package infra.core.io.buffer;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -48,7 +49,6 @@ import infra.core.io.Resource;
 import infra.core.io.buffer.DataBuffer.ByteBufferIterator;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
@@ -735,13 +735,9 @@ public abstract class DataBufferUtils {
 
     @Override
     public int match(DataBuffer dataBuffer) {
-      for (int pos = dataBuffer.readPosition(); pos < dataBuffer.writePosition(); pos++) {
-        byte b = dataBuffer.getByte(pos);
-        if (match(b)) {
-          return pos;
-        }
-      }
-      return -1;
+      int start = dataBuffer.readPosition();
+      int end = dataBuffer.writePosition();
+      return dataBuffer.forEach(start, end - start, b -> !this.match(b));
     }
 
     @Override
@@ -755,7 +751,8 @@ public abstract class DataBufferUtils {
     }
 
     @Override
-    public void reset() { }
+    public void reset() {
+    }
   }
 
   /**
@@ -771,14 +768,13 @@ public abstract class DataBufferUtils {
 
     @Override
     public int match(DataBuffer dataBuffer) {
-      for (int pos = dataBuffer.readPosition(); pos < dataBuffer.writePosition(); pos++) {
-        byte b = dataBuffer.getByte(pos);
-        if (match(b)) {
-          reset();
-          return pos;
-        }
+      int start = dataBuffer.readPosition();
+      int end = dataBuffer.writePosition();
+      int matchPosition = dataBuffer.forEach(start, end - start, b -> !this.match(b));
+      if (matchPosition != -1) {
+        reset();
       }
-      return -1;
+      return matchPosition;
     }
 
     @Override
@@ -956,7 +952,7 @@ public abstract class DataBufferUtils {
       attachment.iterator().close();
       DataBuffer dataBuffer = attachment.dataBuffer();
 
-      if (this.state.get().equals(State.DISPOSED)) {
+      if (this.state.get() == State.DISPOSED) {
         dataBuffer.release();
         closeChannel(this.channel);
         return;

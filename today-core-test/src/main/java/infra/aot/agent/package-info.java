@@ -18,9 +18,7 @@
 /**
  * Support for recording method invocations relevant to {@link infra.aot.hint.RuntimeHints} metadata.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.aot.agent;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

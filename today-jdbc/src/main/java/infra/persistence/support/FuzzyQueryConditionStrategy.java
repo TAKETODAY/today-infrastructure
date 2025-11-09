@@ -17,9 +17,10 @@
 
 package infra.persistence.support;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.annotation.MergedAnnotation;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.persistence.EntityProperty;
 import infra.persistence.Like;
 import infra.persistence.PrefixLike;

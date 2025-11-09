@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.accept;
@@ -37,24 +34,31 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rossen Stoyanchev
  * @author Melissa Hartsock
  */
-public class MappingMediaTypeFileExtensionResolverTests {
+class MappingMediaTypeFileExtensionResolverTests {
 
   private static final Map<String, MediaType> DEFAULT_MAPPINGS =
           Collections.singletonMap("json", MediaType.APPLICATION_JSON);
 
   @Test
-  public void resolveExtensions() {
+  void resolveExtensions() {
     List<String> extensions = new MappingMediaTypeFileExtensionResolver(DEFAULT_MAPPINGS)
             .resolveFileExtensions(MediaType.APPLICATION_JSON);
 
-    assertThat(extensions).hasSize(1);
-    assertThat(extensions.get(0)).isEqualTo("json");
+    assertThat(extensions).containsExactly("json");
   }
 
   @Test
-  public void resolveExtensionsNoMatch() {
+  void resolveExtensionsNoMatch() {
     assertThat(new MappingMediaTypeFileExtensionResolver(DEFAULT_MAPPINGS)
             .resolveFileExtensions(MediaType.TEXT_HTML)).isEmpty();
+  }
+
+  @Test
+  void resolveExtensionsWithQualityParameter() {
+    List<String> extensions = new MappingMediaTypeFileExtensionResolver(DEFAULT_MAPPINGS)
+            .resolveFileExtensions(MediaType.parseMediaType("application/json;q=0.9"));
+
+    assertThat(extensions).containsExactly("json");
   }
 
   @Test
@@ -64,7 +68,7 @@ public class MappingMediaTypeFileExtensionResolverTests {
   }
 
   @Test
-  public void allFileExtensions() {
+  void allFileExtensions() {
     Map<String, MediaType> mappings = new HashMap<>();
     mappings.put("json", MediaType.APPLICATION_JSON);
     mappings.put("JsOn", MediaType.APPLICATION_JSON);

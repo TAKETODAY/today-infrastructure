@@ -17,6 +17,8 @@
 
 package infra.beans.factory.aot;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.ArrayDeque;
@@ -58,7 +60,6 @@ import infra.beans.factory.support.RootBeanDefinition;
 import infra.core.ReactiveStreams;
 import infra.javapoet.CodeBlock;
 import infra.javapoet.CodeBlock.Builder;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
@@ -111,6 +112,7 @@ class BeanDefinitionPropertiesCodeGenerator {
             .createValueCodeGenerator(generatedMethods, customDelegates);
   }
 
+  @SuppressWarnings("NullAway")
   CodeBlock generateCode(RootBeanDefinition beanDefinition) {
     CodeBlock.Builder code = CodeBlock.builder();
 
@@ -141,7 +143,7 @@ class BeanDefinitionPropertiesCodeGenerator {
   }
 
   private void addInitDestroyMethods(Builder code, AbstractBeanDefinition beanDefinition,
-          @Nullable String[] methodNames, String format) {
+          String @Nullable [] methodNames, String format) {
     // For Publisher-based destroy methods
     hints.reflection().registerType(TypeReference.of(ReactiveStreams.INDICATOR_CLASS));
     if (ObjectUtils.isNotEmpty(methodNames)) {

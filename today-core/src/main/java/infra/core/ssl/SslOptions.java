@@ -17,12 +17,13 @@
 
 package infra.core.ssl;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.Set;
 
 import javax.net.ssl.SSLEngine;
 
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**
@@ -56,8 +57,7 @@ public interface SslOptions {
    *
    * @return the ciphers that can be used or {@code null}
    */
-  @Nullable
-  String[] getCiphers();
+  String @Nullable [] getCiphers();
 
   /**
    * Return the protocols that should be enabled or an empty set. The protocols names in
@@ -66,8 +66,7 @@ public interface SslOptions {
    *
    * @return the protocols to enable or {@code null}
    */
-  @Nullable
-  String[] getEnabledProtocols();
+  String @Nullable [] getEnabledProtocols();
 
   /**
    * Factory method to create a new {@link SslOptions} instance.
@@ -76,18 +75,16 @@ public interface SslOptions {
    * @param enabledProtocols the enabled protocols
    * @return a new {@link SslOptions} instance
    */
-  static SslOptions of(@Nullable String[] ciphers, @Nullable String[] enabledProtocols) {
+  static SslOptions of(String @Nullable [] ciphers, String @Nullable [] enabledProtocols) {
     return new SslOptions() {
 
-      @Nullable
       @Override
-      public String[] getCiphers() {
+      public String @Nullable [] getCiphers() {
         return ciphers;
       }
 
-      @Nullable
       @Override
-      public String[] getEnabledProtocols() {
+      public String @Nullable [] getEnabledProtocols() {
         return enabledProtocols;
       }
 
@@ -113,12 +110,11 @@ public interface SslOptions {
    * @return a collection or {@code null}
    */
   @Nullable
-  static Set<String> asSet(@Nullable String[] array) {
+  static Set<String> asSet(String @Nullable [] array) {
     return array != null ? Set.of(array) : null;
   }
 
-  @Nullable
-  private static String[] toArray(@Nullable Collection<String> collection) {
+  private static String @Nullable [] toArray(@Nullable Collection<String> collection) {
     return collection != null ? StringUtils.toStringArray(collection) : null;
   }
 

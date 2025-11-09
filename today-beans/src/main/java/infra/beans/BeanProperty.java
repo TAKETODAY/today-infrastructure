@@ -17,6 +17,8 @@
 
 package infra.beans;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyDescriptor;
 import java.io.Serial;
 import java.lang.reflect.Field;
@@ -27,7 +29,6 @@ import infra.beans.support.BeanInstantiator;
 import infra.core.MethodParameter;
 import infra.core.conversion.ConversionService;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.reflect.Property;
 import infra.reflect.PropertyAccessor;
 import infra.reflect.SetterMethod;
@@ -168,7 +169,7 @@ public class BeanProperty extends Property {
    * @throws BeanInstantiationException if the property's type cannot be instantiated,
    * such as when it is a simple value type or lacks a suitable constructor
    */
-  public Object instantiate(@Nullable Object[] args) {
+  public Object instantiate(@Nullable Object @Nullable [] args) {
     BeanInstantiator constructor = this.instantiator;
     if (constructor == null) {
       Class<?> type = getType();

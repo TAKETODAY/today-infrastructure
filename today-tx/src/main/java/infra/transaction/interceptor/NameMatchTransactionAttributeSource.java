@@ -17,6 +17,8 @@
 
 package infra.transaction.interceptor;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Enumeration;
@@ -27,7 +29,6 @@ import java.util.Properties;
 import infra.beans.factory.InitializingBean;
 import infra.context.expression.EmbeddedValueResolverAware;
 import infra.core.StringValueResolver;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
@@ -39,6 +40,7 @@ import infra.util.PatternMatchUtils;
  * allows attributes to be matched by registered name.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see #isMatch
  * @see MethodMapTransactionAttributeSource
  * @since 4.0
@@ -46,6 +48,7 @@ import infra.util.PatternMatchUtils;
 @SuppressWarnings("serial")
 public class NameMatchTransactionAttributeSource
         implements TransactionAttributeSource, EmbeddedValueResolverAware, InitializingBean, Serializable {
+
   private static final Logger logger = LoggerFactory.getLogger(NameMatchTransactionAttributeSource.class);
 
   /** Keys are method names; values are TransactionAttributes. */

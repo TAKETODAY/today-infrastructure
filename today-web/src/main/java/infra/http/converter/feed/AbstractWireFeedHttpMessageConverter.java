@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ public abstract class AbstractWireFeedHttpMessageConverter<T extends WireFeed> e
     WireFeedInput feedInput = new WireFeedInput();
     MediaType contentType = inputMessage.getHeaders().getContentType();
     Charset charset = contentType != null && contentType.getCharset() != null
-                      ? contentType.getCharset() : Constant.DEFAULT_CHARSET;
+            ? contentType.getCharset() : Constant.DEFAULT_CHARSET;
     try {
       InputStream inputStream = StreamUtils.nonClosing(inputMessage.getBody());
       Reader reader = new InputStreamReader(inputStream, charset);

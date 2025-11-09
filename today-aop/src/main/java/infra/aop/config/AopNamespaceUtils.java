@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,13 @@
 
 package infra.aop.config;
 
+import org.jspecify.annotations.Nullable;
 import org.w3c.dom.Element;
 
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.parsing.BeanComponentDefinition;
 import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.beans.factory.xml.ParserContext;
-import infra.lang.Nullable;
 
 /**
  * Utility class for handling registration of auto-proxy creators used internally

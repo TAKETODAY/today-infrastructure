@@ -17,6 +17,8 @@
 
 package infra.jdbc.core.metadata;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,7 +32,6 @@ import java.util.Map;
 
 import infra.dao.DataAccessResourceFailureException;
 import infra.jdbc.support.JdbcUtils;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
@@ -326,7 +327,7 @@ public class GenericTableMetaDataProvider implements TableMetaDataProvider {
   /**
    * Method supporting the meta-data processing for a table.
    */
-  private void locateTableAndProcessMetaData(DatabaseMetaData databaseMetaData,
+  void locateTableAndProcessMetaData(DatabaseMetaData databaseMetaData,
           @Nullable String catalogName, @Nullable String schemaName, @Nullable String tableName) {
 
     Map<String, TableMetaData> tableMeta = new HashMap<>();

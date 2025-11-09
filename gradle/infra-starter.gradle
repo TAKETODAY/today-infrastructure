@@ -20,10 +20,4 @@ publishing {
   }
 }
 
-if (isReleaseVersion) {
-  signing {
-    for (Publication publication in publishing.publications) {
-      sign(publication)
-    }
-  }
-}
+apply from: "$rootDir/gradle/signing.gradle"

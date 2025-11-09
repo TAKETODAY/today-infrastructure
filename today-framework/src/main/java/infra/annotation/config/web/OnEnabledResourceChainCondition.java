@@ -17,6 +17,8 @@
 
 package infra.annotation.config.web;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.context.annotation.Condition;
 import infra.context.annotation.ConditionContext;
 import infra.context.condition.ConditionMessage;
@@ -66,7 +68,8 @@ class OnEnabledResourceChainCondition extends InfraCondition {
     return ConditionOutcome.noMatch(message.because("disabled"));
   }
 
-  private Boolean getEnabledProperty(ConfigurableEnvironment environment, String key, Boolean defaultValue) {
+  @SuppressWarnings("NullAway")
+  private Boolean getEnabledProperty(ConfigurableEnvironment environment, String key, @Nullable Boolean defaultValue) {
     String name = "web.resources.chain." + key + "enabled";
     return environment.getProperty(name, Boolean.class, defaultValue);
   }

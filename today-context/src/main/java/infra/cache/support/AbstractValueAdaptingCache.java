@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,10 @@
 
 package infra.cache.support;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.cache.Cache;
 import infra.lang.NullValue;
-import infra.lang.Nullable;
 
 /**
  * Common base class for {@link Cache} implementations that need to adapt
@@ -123,7 +124,7 @@ public abstract class AbstractValueAdaptingCache implements Cache {
    * @return the wrapped value
    */
   @Nullable
-  protected Cache.ValueWrapper toValueWrapper(@Nullable Object storeValue) {
+  protected ValueWrapper toValueWrapper(@Nullable Object storeValue) {
     return storeValue != null ? new SimpleValueWrapper(fromStoreValue(storeValue)) : null;
   }
 

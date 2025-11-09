@@ -24,9 +24,7 @@
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/6/10 21:10
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.multipart.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

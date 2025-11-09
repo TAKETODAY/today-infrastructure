@@ -17,6 +17,8 @@
 
 package infra.aot.hint.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -28,7 +30,6 @@ import infra.aot.hint.ReflectionHints;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.aot.hint.TypeReference;
-import infra.lang.Nullable;
 
 /**
  * {@link RuntimeHintsRegistrar} to register hints for popular conventions in

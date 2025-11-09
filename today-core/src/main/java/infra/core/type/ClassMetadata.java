@@ -17,10 +17,11 @@
 
 package infra.core.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Set;
 
 import infra.core.type.classreading.MetadataReader;
-import infra.lang.Nullable;
 
 /**
  * Interface that defines abstract metadata of a specific class,

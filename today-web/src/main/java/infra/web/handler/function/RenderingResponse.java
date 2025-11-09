@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,15 +17,16 @@
 
 package infra.web.handler.function;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Consumer;
 
 import infra.core.Conventions;
-import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
-import infra.lang.Nullable;
+import infra.http.ResponseCookie;
 import infra.util.MultiValueMap;
 import infra.web.view.ModelAndView;
 
@@ -182,7 +183,7 @@ public interface RenderingResponse extends ServerResponse {
      * @param cookie the cookie to add
      * @return this builder
      */
-    Builder cookie(HttpCookie cookie);
+    Builder cookie(ResponseCookie cookie);
 
     /**
      * Add a cookie with the given name and value(s).
@@ -204,7 +205,7 @@ public interface RenderingResponse extends ServerResponse {
      * @param cookiesConsumer a function that consumes the cookies
      * @return this builder
      */
-    Builder cookies(Consumer<MultiValueMap<String, HttpCookie>> cookiesConsumer);
+    Builder cookies(Consumer<MultiValueMap<String, ResponseCookie>> cookiesConsumer);
 
     /**
      * Add a cookies with the given name and values.
@@ -214,7 +215,7 @@ public interface RenderingResponse extends ServerResponse {
      * @see MultiValueMap#setAll(Map)
      * @since 5.0
      */
-    Builder cookies(@Nullable Collection<HttpCookie> cookies);
+    Builder cookies(@Nullable Collection<ResponseCookie> cookies);
 
     /**
      * Add a cookies with the given name and values.
@@ -224,7 +225,7 @@ public interface RenderingResponse extends ServerResponse {
      * @see MultiValueMap#setAll(Map)
      * @since 5.0
      */
-    Builder cookies(@Nullable MultiValueMap<String, HttpCookie> cookies);
+    Builder cookies(@Nullable MultiValueMap<String, ResponseCookie> cookies);
 
     /**
      * Build the response.
@@ -293,7 +294,7 @@ public interface RenderingResponse extends ServerResponse {
      * @param cookie the cookie to add
      * @return this builder
      */
-    ViewBuilder cookie(HttpCookie cookie);
+    ViewBuilder cookie(ResponseCookie cookie);
 
     /**
      * Add a cookie with the given name and value(s).
@@ -315,7 +316,7 @@ public interface RenderingResponse extends ServerResponse {
      * @param cookiesConsumer a function that consumes the cookies
      * @return this builder
      */
-    ViewBuilder cookies(Consumer<MultiValueMap<String, HttpCookie>> cookiesConsumer);
+    ViewBuilder cookies(Consumer<MultiValueMap<String, ResponseCookie>> cookiesConsumer);
 
     /**
      * Add a cookies with the given name and values.
@@ -325,7 +326,7 @@ public interface RenderingResponse extends ServerResponse {
      * @see MultiValueMap#setAll(Map)
      * @since 5.0
      */
-    ViewBuilder cookies(@Nullable Collection<HttpCookie> cookies);
+    ViewBuilder cookies(@Nullable Collection<ResponseCookie> cookies);
 
     /**
      * Add a cookies with the given name and values.
@@ -335,7 +336,7 @@ public interface RenderingResponse extends ServerResponse {
      * @see MultiValueMap#setAll(Map)
      * @since 5.0
      */
-    ViewBuilder cookies(@Nullable MultiValueMap<String, HttpCookie> cookies);
+    ViewBuilder cookies(@Nullable MultiValueMap<String, ResponseCookie> cookies);
 
     /**
      * Build the response.

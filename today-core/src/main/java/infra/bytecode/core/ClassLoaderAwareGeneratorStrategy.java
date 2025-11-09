@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 
 package infra.bytecode.core;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * GeneratorStrategy variant which exposes the application ClassLoader
@@ -31,6 +31,7 @@ import infra.lang.Nullable;
  */
 public class ClassLoaderAwareGeneratorStrategy extends DefaultGeneratorStrategy {
 
+  @Nullable
   private final ClassLoader classLoader;
 
   @Nullable
@@ -41,7 +42,7 @@ public class ClassLoaderAwareGeneratorStrategy extends DefaultGeneratorStrategy 
    *
    * @param classLoader the ClassLoader to expose as current thread context ClassLoader
    */
-  public ClassLoaderAwareGeneratorStrategy(ClassLoader classLoader) {
+  public ClassLoaderAwareGeneratorStrategy(@Nullable ClassLoader classLoader) {
     this(classLoader, null);
   }
 
@@ -51,7 +52,7 @@ public class ClassLoaderAwareGeneratorStrategy extends DefaultGeneratorStrategy 
    * @param classLoader the ClassLoader to expose as current thread context ClassLoader
    * @since 5.0
    */
-  public ClassLoaderAwareGeneratorStrategy(ClassLoader classLoader, @Nullable GeneratorStrategy delegate) {
+  public ClassLoaderAwareGeneratorStrategy(@Nullable ClassLoader classLoader, @Nullable GeneratorStrategy delegate) {
     this.classLoader = classLoader;
     this.delegate = delegate;
   }

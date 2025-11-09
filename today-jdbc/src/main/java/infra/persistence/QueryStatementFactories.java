@@ -17,29 +17,33 @@
 
 package infra.persistence;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
-import infra.lang.Nullable;
+import infra.lang.Assert;
 import infra.lang.TodayStrategies;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/4/10 17:55
  */
+@SuppressWarnings("rawtypes")
 final class QueryStatementFactories implements QueryStatementFactory {
 
   final List<QueryStatementFactory> factories;
 
-  QueryStatementFactories(EntityMetadataFactory entityMetadataFactory, List<ConditionPropertyExtractor> extractors) {
-    List<QueryStatementFactory> list = TodayStrategies.find(QueryStatementFactory.class);
-    list.add(new MapQueryStatementFactory());
-    list.add(new DefaultQueryStatementFactory(entityMetadataFactory, extractors));
-    this.factories = List.copyOf(list);
+  QueryStatementFactories(EntityMetadataFactory metadataFactory, List<ConditionPropertyExtractor> extractors) {
+    this(defaultFactories(metadataFactory, extractors));
   }
 
-  @Nullable
+  QueryStatementFactories(List<QueryStatementFactory> factories) {
+    this.factories = factories;
+  }
+
   @Override
-  public QueryStatement createQuery(Object example) {
+  public @Nullable QueryStatement createQuery(Object example) {
+    Assert.notNull(example, "Example object is required");
     for (QueryStatementFactory factory : factories) {
       QueryStatement query = factory.createQuery(example);
       if (query != null) {
@@ -49,9 +53,9 @@ final class QueryStatementFactories implements QueryStatementFactory {
     return null;
   }
 
-  @Nullable
   @Override
-  public ConditionStatement createCondition(Object example) {
+  public @Nullable ConditionStatement createCondition(Object example) {
+    Assert.notNull(example, "Example object is required");
     for (QueryStatementFactory factory : factories) {
       ConditionStatement condition = factory.createCondition(example);
       if (condition != null) {
@@ -59,6 +63,13 @@ final class QueryStatementFactories implements QueryStatementFactory {
       }
     }
     return null;
+  }
+
+  private static List<QueryStatementFactory> defaultFactories(EntityMetadataFactory entityMetadataFactory, List<ConditionPropertyExtractor> extractors) {
+    List<QueryStatementFactory> list = TodayStrategies.find(QueryStatementFactory.class);
+    list.add(new MapQueryStatementFactory());
+    list.add(new DefaultQueryStatementFactory(entityMetadataFactory, extractors));
+    return list;
   }
 
 }

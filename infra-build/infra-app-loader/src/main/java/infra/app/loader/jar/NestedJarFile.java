@@ -17,6 +17,8 @@
 
 package infra.app.loader.jar;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -81,12 +83,15 @@ public class NestedJarFile extends JarFile {
 
   private final int version;
 
+  @Nullable
   private volatile NestedJarEntry lastEntry;
 
   private volatile boolean closed;
 
+  @Nullable
   private volatile ManifestInfo manifestInfo;
 
+  @Nullable
   private volatile MetaInfVersionsInfo metaInfVersionsInfo;
 
   /**
@@ -142,8 +147,8 @@ public class NestedJarFile extends JarFile {
    * @throws IllegalArgumentException if {@code nestedEntryName} is {@code null} or
    * empty
    */
-  NestedJarFile(File file, String nestedEntryName, Runtime.Version version, boolean onlyNestedJars, Cleaner cleaner)
-          throws IOException {
+  NestedJarFile(File file, @Nullable String nestedEntryName, Runtime.@Nullable Version version,
+          boolean onlyNestedJars, Cleaner cleaner) throws IOException {
     super(file);
     if (onlyNestedJars && (nestedEntryName == null || nestedEntryName.isEmpty())) {
       throw new IllegalArgumentException("nestedEntryName must not be empty");
@@ -163,6 +168,7 @@ public class NestedJarFile extends JarFile {
     return inputStream;
   }
 
+  @Nullable
   @Override
   public Manifest getManifest() throws IOException {
     try {
@@ -208,6 +214,7 @@ public class NestedJarFile extends JarFile {
     return StreamSupport.stream(spliterator, false);
   }
 
+  @Nullable
   private String getBaseName(ZipContent.Entry contentEntry) {
     String name = contentEntry.getName();
     if (!name.startsWith(META_INF_VERSIONS)) {
@@ -261,6 +268,7 @@ public class NestedJarFile extends JarFile {
     }
   }
 
+  @Nullable
   private NestedJarEntry getNestedJarEntry(String name) {
     Objects.requireNonNull(name, "name");
     NestedJarEntry lastEntry = this.lastEntry;
@@ -277,7 +285,7 @@ public class NestedJarFile extends JarFile {
     return nestedJarEntry;
   }
 
-  private ZipContent.Entry getVersionedContentEntry(String name) {
+  private ZipContent.@Nullable Entry getVersionedContentEntry(String name) {
     // NOTE: we can't call isMultiRelease() directly because it's a final method and
     // it inspects the container jar. We use ManifestInfo instead.
     if (BASE_VERSION >= this.version || name.startsWith(META_INF) || !getManifestInfo().isMultiRelease()) {
@@ -297,7 +305,7 @@ public class NestedJarFile extends JarFile {
     return null;
   }
 
-  private ZipContent.Entry getContentEntry(String namePrefix, String name) {
+  private ZipContent.@Nullable Entry getContentEntry(@Nullable String namePrefix, String name) {
     synchronized(this) {
       ensureOpen();
       return this.resources.zipContent().getEntry(namePrefix, name);
@@ -599,12 +607,12 @@ public class NestedJarFile extends JarFile {
     }
 
     @Override
-    public Certificate[] getCertificates() {
+    public Certificate @Nullable [] getCertificates() {
       return getSecurityInfo().getCertificates(contentEntry());
     }
 
     @Override
-    public CodeSigner[] getCodeSigners() {
+    public CodeSigner @Nullable [] getCodeSigners() {
       return getSecurityInfo().getCodeSigners(contentEntry());
     }
 

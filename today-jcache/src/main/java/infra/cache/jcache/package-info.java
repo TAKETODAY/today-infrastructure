@@ -21,9 +21,7 @@
  * and {@link infra.cache.Cache Cache} implementation for
  * use in a Framework context, using a JSR-107 compliant cache provider.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.cache.jcache;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -17,6 +17,8 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.context.ConfigurableApplicationContext;
@@ -27,7 +29,6 @@ import infra.core.env.StandardEnvironment;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**

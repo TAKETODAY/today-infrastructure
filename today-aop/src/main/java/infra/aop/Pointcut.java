@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -127,6 +127,7 @@ public interface Pointcut {
    * @param args arguments to the method
    * @return whether there's a runtime match
    */
+  @SuppressWarnings("NullAway")
   static boolean matches(Pointcut pointcut, Method method, Class<?> targetClass, Object... args) {
     Assert.notNull(pointcut, "Pointcut is required");
     if (pointcut == Pointcut.TRUE) {

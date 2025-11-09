@@ -17,6 +17,8 @@
 
 package infra.validation.beanvalidation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -29,7 +31,6 @@ import infra.beans.NotReadablePropertyException;
 import infra.context.MessageSourceResolvable;
 import infra.context.support.DefaultMessageSourceResolvable;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
 import infra.validation.BindingResult;

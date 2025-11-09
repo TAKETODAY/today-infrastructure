@@ -17,15 +17,16 @@
 
 package infra.web.handler.function;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpStatusCode;
-import infra.lang.Nullable;
+import infra.http.ResponseCookie;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.web.RequestContext;
@@ -46,10 +47,10 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
   private final HttpHeaders headers;
 
   @Nullable
-  private final MultiValueMap<String, HttpCookie> cookies;
+  private final MultiValueMap<String, ResponseCookie> cookies;
 
   protected AbstractServerResponse(HttpStatusCode statusCode,
-          HttpHeaders headers, @Nullable MultiValueMap<String, HttpCookie> cookies) {
+          HttpHeaders headers, @Nullable MultiValueMap<String, ResponseCookie> cookies) {
     this.statusCode = statusCode;
     this.headers = headers.asReadOnly();
     this.cookies = cookies;
@@ -71,7 +72,7 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
   }
 
   @Override
-  public MultiValueMap<String, HttpCookie> cookies() {
+  public MultiValueMap<String, ResponseCookie> cookies() {
     if (cookies != null) {
       return this.cookies;
     }
@@ -114,8 +115,8 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
 
   private void writeCookies(RequestContext context) {
     if (CollectionUtils.isNotEmpty(cookies)) {
-      for (Map.Entry<String, List<HttpCookie>> entry : cookies.entrySet()) {
-        for (HttpCookie cookie : entry.getValue()) {
+      for (Map.Entry<String, List<ResponseCookie>> entry : cookies.entrySet()) {
+        for (ResponseCookie cookie : entry.getValue()) {
           context.addCookie(cookie);
         }
       }

@@ -19,9 +19,7 @@
  * General {@link infra.context.properties.bind.BindHandler BindHandler} implementations.
  */
 
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.context.properties.bind.handler;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

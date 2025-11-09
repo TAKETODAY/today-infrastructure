@@ -39,9 +39,12 @@ import infra.core.annotation.AliasFor;
  *
  * <p>This is particularly useful with Virtual Threads where there is generally
  * no thread pool limit in place. For asynchronous tasks, this can be constrained
- * on {@link infra.core.task.SimpleAsyncTaskExecutor}; for
+ * on {@link infra.core.task.SimpleAsyncTaskExecutor}. For
  * synchronous invocations, this annotation provides equivalent behavior through
  * {@link infra.aop.interceptor.ConcurrencyThrottleInterceptor}.
+ * Alternatively, consider {@link infra.core.task.SyncTaskExecutor}
+ * and its inherited concurrency throttling support (new as of 5.0) for
+ * programmatic use.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>

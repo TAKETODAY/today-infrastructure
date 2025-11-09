@@ -19,6 +19,7 @@ package infra.aop.framework;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
@@ -29,7 +30,6 @@ import java.util.Objects;
 import infra.aop.ProxyMethodInvocation;
 import infra.aop.support.AopUtils;
 import infra.core.AttributeAccessorSupport;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 
@@ -121,6 +121,7 @@ public class DefaultMethodInvocation extends AttributeAccessorSupport implements
    * @return the result of the call to {@link MethodInvocation#proceed()}, might be
    * intercepted by the interceptor.
    */
+  @Nullable
   protected Object invokeJoinPoint() throws Throwable {
     return AopUtils.invokeJoinpointUsingReflection(target, method, args);
   }

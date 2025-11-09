@@ -23,10 +23,10 @@ import infra.aop.support.AopUtils;
 import infra.beans.factory.annotation.Autowired;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.ApplicationContext;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
-import infra.context.annotation.AnnotationConfigApplicationContext;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,13 @@
 
 package infra.aot.generate;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Function;
 
 import infra.javapoet.ClassName;
 import infra.javapoet.CodeBlock;
 import infra.javapoet.TypeName;
-import infra.lang.Nullable;
 
 /**
  * A reference to a method with convenient code generation for
@@ -101,7 +102,7 @@ public interface MethodReference {
      */
     static ArgumentCodeGenerator of(Class<?> argumentType, String argumentCode) {
       return from(candidateType -> candidateType.equals(ClassName.get(argumentType)) ?
-                                   CodeBlock.of(argumentCode) : null);
+              CodeBlock.of(argumentCode) : null);
     }
 
     /**
@@ -113,7 +114,7 @@ public interface MethodReference {
      * @param function the resolver function
      * @return a new {@link ArgumentCodeGenerator} instance backed by the function
      */
-    static ArgumentCodeGenerator from(Function<TypeName, CodeBlock> function) {
+    static ArgumentCodeGenerator from(Function<TypeName, @Nullable CodeBlock> function) {
       return function::apply;
     }
 

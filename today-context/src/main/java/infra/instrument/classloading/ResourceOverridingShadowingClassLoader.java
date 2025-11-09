@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.instrument.classloading;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -25,7 +27,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Subclass of ShadowingClassLoader that overrides attempts to
@@ -53,7 +54,7 @@ public class ResourceOverridingShadowingClassLoader extends ShadowingClassLoader
   /**
    * Key is asked for value: value is actual value.
    */
-  private final Map<String, String> overrides = new HashMap<>();
+  private final Map<String, @Nullable String> overrides = new HashMap<>();
 
   /**
    * Create a new ResourceOverridingShadowingClassLoader,
@@ -96,6 +97,7 @@ public class ResourceOverridingShadowingClassLoader extends ShadowingClassLoader
     this.overrides.putAll(other.overrides);
   }
 
+  @Nullable
   @Override
   public URL getResource(String requestedPath) {
     if (this.overrides.containsKey(requestedPath)) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
 
 package infra.web.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.nio.charset.Charset;
 
 import infra.http.HttpHeaders;
-import infra.lang.Nullable;
 
 /**
  * Exception thrown when an unknown (or custom) HTTP status code is received.
@@ -42,7 +43,7 @@ public class UnknownHttpStatusCodeException extends RestClientResponseException 
    * @param responseCharset the response body charset (may be {@code null})
    */
   public UnknownHttpStatusCodeException(int rawStatusCode, String statusText, @Nullable HttpHeaders responseHeaders,
-          @Nullable byte[] responseBody, @Nullable Charset responseCharset) {
+          byte @Nullable [] responseBody, @Nullable Charset responseCharset) {
 
     this("Unknown status code [%d] %s".formatted(rawStatusCode, statusText),
             rawStatusCode, statusText, responseHeaders, responseBody, responseCharset);
@@ -59,7 +60,7 @@ public class UnknownHttpStatusCodeException extends RestClientResponseException 
    * @param responseCharset the response body charset (may be {@code null})
    */
   public UnknownHttpStatusCodeException(String message, int rawStatusCode, String statusText,
-          @Nullable HttpHeaders responseHeaders, @Nullable byte[] responseBody, @Nullable Charset responseCharset) {
+          @Nullable HttpHeaders responseHeaders, byte @Nullable [] responseBody, @Nullable Charset responseCharset) {
 
     super(message, rawStatusCode, statusText, responseHeaders, responseBody, responseCharset);
   }

@@ -17,6 +17,8 @@
 
 package infra.web.config.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,7 +28,6 @@ import java.util.function.Predicate;
 
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.web.accept.ApiVersionDeprecationHandler;
 import infra.web.accept.ApiVersionParser;
 import infra.web.accept.ApiVersionResolver;
@@ -47,26 +48,21 @@ import infra.web.accept.StandardApiVersionDeprecationHandler;
  */
 public class ApiVersionConfigurer {
 
-  private final ArrayList<ApiVersionResolver> versionResolvers = new ArrayList<>();
-
-  @Nullable
-  private ApiVersionParser<?> versionParser;
-
-  @Nullable
-  private Boolean versionRequired;
-
-  @Nullable
-  private String defaultVersion;
+  final ArrayList<ApiVersionResolver> versionResolvers = new ArrayList<>();
 
   private final Set<String> supportedVersions = new LinkedHashSet<>();
 
-  private boolean detectSupportedVersions = true;
+  private @Nullable ApiVersionParser<?> versionParser;
 
-  @Nullable
-  private ApiVersionDeprecationHandler deprecationHandler;
+  private @Nullable Boolean versionRequired;
 
-  @Nullable
-  private Predicate<Comparable<?>> supportedVersionPredicate;
+  private @Nullable String defaultVersion;
+
+  private @Nullable ApiVersionDeprecationHandler deprecationHandler;
+
+  private @Nullable Predicate<Comparable<?>> supportedVersionPredicate;
+
+  boolean detectSupportedVersions = true;
 
   /**
    * Add resolver to extract the version from a request header.
@@ -236,7 +232,7 @@ public class ApiVersionConfigurer {
     return strategy;
   }
 
-  private boolean isNotCustomized() {
+  boolean isNotCustomized() {
     return (this.versionParser == null && this.versionRequired == null &&
             this.defaultVersion == null && this.supportedVersions.isEmpty());
   }

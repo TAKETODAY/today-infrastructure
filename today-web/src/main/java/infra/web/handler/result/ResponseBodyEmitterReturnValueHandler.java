@@ -17,6 +17,8 @@
 
 package infra.web.handler.result;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -34,7 +36,6 @@ import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.async.DeferredResult;
@@ -160,8 +161,8 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
       // for ResponseEntity unwrap body
       if (returnValue instanceof ResponseEntity<?> entity) {
         request.setStatus(entity.getStatusCode());
-        request.addHeaders(entity.headers());
-        contentType = entity.getHeaders().getContentType();
+        request.addHeaders(entity.getHeaders());
+        contentType = entity.headers().getContentType();
         returnValue = entity.getBody();
         returnType = returnType.nested();
         if (returnValue == null) {

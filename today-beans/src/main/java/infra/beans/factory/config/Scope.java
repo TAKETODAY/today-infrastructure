@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
 
 package infra.beans.factory.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Supplier;
 
 import infra.beans.factory.DisposableBean;
-import infra.lang.Nullable;
 
 /**
  * Strategy interface used by a {@link ConfigurableBeanFactory},
@@ -153,7 +154,7 @@ public interface Scope {
    * <p>The exact meaning of the conversation ID depends on the underlying
    * storage mechanism. In the case of session-scoped objects, the
    * conversation ID would typically be equal to (or derived from) the
-   * {@link infra.session.WebSession#getId() session ID}; in the
+   * {@link infra.session.Session#getId() session ID}; in the
    * case of a custom conversation that sits within the overall session,
    * the specific ID for the current conversation would be appropriate.
    * <p><b>Note: This is an optional operation.</b> It is perfectly valid to

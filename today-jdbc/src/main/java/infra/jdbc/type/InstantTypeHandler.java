@@ -17,13 +17,13 @@
 
 package infra.jdbc.type;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.OffsetDateTime;
-
-import infra.lang.Nullable;
 
 /**
  * Config server time zone like: {@code serverTimezone=UTC}
@@ -34,16 +34,19 @@ import infra.lang.Nullable;
  */
 public class InstantTypeHandler extends BasicTypeHandler<Instant> {
 
+  @Nullable
   @Override
   public Instant getResult(ResultSet rs, String columnName) throws SQLException {
     return getInstant(rs.getObject(columnName, OffsetDateTime.class));
   }
 
+  @Nullable
   @Override
   public Instant getResult(ResultSet rs, int columnIndex) throws SQLException {
     return getInstant(rs.getObject(columnIndex, OffsetDateTime.class));
   }
 
+  @Nullable
   @Override
   public Instant getResult(CallableStatement cs, int columnIndex) throws SQLException {
     return getInstant(cs.getObject(columnIndex, OffsetDateTime.class));

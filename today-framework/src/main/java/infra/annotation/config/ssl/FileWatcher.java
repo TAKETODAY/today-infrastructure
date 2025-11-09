@@ -17,6 +17,8 @@
 
 package infra.annotation.config.ssl;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -39,7 +41,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
@@ -237,6 +238,7 @@ final class FileWatcher {
       }
     }
 
+    @SuppressWarnings("NullAway")
     private void accumulate(WatchKey key, Set<Runnable> actions) {
       List<Registration> registrations = this.registrations.get(key);
       Path directory = (Path) key.watchable();

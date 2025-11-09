@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.web.handler.method;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -37,7 +39,6 @@ import infra.core.Ordered;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.annotation.OrderUtils;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.web.annotation.ControllerAdvice;
@@ -242,6 +243,7 @@ public class ControllerAdviceBean implements Ordered {
    * <p> the bean instance has been resolved it will be cached if it is a
    * singleton, thereby avoiding repeated lookups in the {@code BeanFactory}.
    */
+  @SuppressWarnings("NullAway")
   public Object resolveBean() {
     Object resolvedBean = this.resolvedBean;
     if (resolvedBean == null) {
@@ -305,6 +307,7 @@ public class ControllerAdviceBean implements Ordered {
    * @see OrderComparator
    * @see Ordered
    */
+  @SuppressWarnings("NullAway")
   public static List<ControllerAdviceBean> findAnnotatedBeans(ApplicationContext context, Class<?>... types) {
     BeanFactory beanFactory = context;
     if (context instanceof ConfigurableApplicationContext cac) {
@@ -329,7 +332,7 @@ public class ControllerAdviceBean implements Ordered {
     return adviceBeans;
   }
 
-  static boolean isCandidate(@Nullable Class<?> beanType, @Nullable Class<?>[] types) {
+  static boolean isCandidate(@Nullable Class<?> beanType, Class<?> @Nullable [] types) {
     if (ObjectUtils.isEmpty(types)) {
       return true;
     }

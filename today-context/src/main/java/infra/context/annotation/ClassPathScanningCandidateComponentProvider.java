@@ -17,6 +17,8 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -46,7 +48,6 @@ import infra.core.type.filter.AnnotationTypeFilter;
 import infra.core.type.filter.AssignableTypeFilter;
 import infra.core.type.filter.TypeFilter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.stereotype.Controller;
 import infra.stereotype.Indexed;
@@ -289,12 +290,17 @@ public class ClassPathScanningCandidateComponentProvider extends ClassPathScanni
    */
   public void scanCandidateComponents(String basePackage, MetadataReaderConsumer metadataReaderConsumer) throws IOException {
     if (componentsIndex != null && indexSupportsIncludeFilters()) {
-      scanCandidateComponentsFromIndex(
-              componentsIndex, basePackage, new FilteredMetadataReaderConsumer(metadataReaderConsumer));
+      if (componentsIndex.hasScannedPackage(basePackage)) {
+        scanCandidateComponentsFromIndex(
+                componentsIndex, basePackage, new FilteredMetadataReaderConsumer(metadataReaderConsumer));
+        return;
+      }
+      else {
+        componentsIndex.registerScan(basePackage);
+      }
     }
-    else {
-      scan(basePackage, new FilteredMetadataReaderConsumer(metadataReaderConsumer));
-    }
+
+    scan(basePackage, new FilteredMetadataReaderConsumer(metadataReaderConsumer));
   }
 
   /**
@@ -321,16 +327,36 @@ public class ClassPathScanningCandidateComponentProvider extends ClassPathScanni
    */
   private boolean indexSupportsIncludeFilter(TypeFilter filter) {
     if (filter instanceof AnnotationTypeFilter) {
-      Class<? extends Annotation> annotation = ((AnnotationTypeFilter) filter).getAnnotationType();
-      return AnnotationUtils.isAnnotationDeclaredLocally(Indexed.class, annotation)
-              || annotation.getName().startsWith("jakarta.")
-              || annotation.getName().startsWith("javax.");
+      return isStereotypeAnnotationForIndex(((AnnotationTypeFilter) filter).getAnnotationType());
     }
     else if (filter instanceof AssignableTypeFilter atf) {
       Class<?> target = atf.getTargetType();
       return AnnotationUtils.isAnnotationDeclaredLocally(Indexed.class, target);
     }
     return false;
+  }
+
+  /**
+   * Register the given class as a candidate type with the runtime-populated index, if any.
+   *
+   * @param className the fully-qualified class name of the candidate type
+   * @param filter the include filter to introspect for the associated stereotype
+   */
+  private void registerCandidateTypeForIncludeFilter(String className, TypeFilter filter) {
+    if (this.componentsIndex != null) {
+      if (filter instanceof AnnotationTypeFilter atf) {
+        Class<? extends Annotation> annotationType = atf.getAnnotationType();
+        if (isStereotypeAnnotationForIndex(annotationType)) {
+          this.componentsIndex.registerCandidateType(className, annotationType.getName());
+        }
+      }
+      else if (filter instanceof AssignableTypeFilter atf) {
+        Class<?> target = atf.getTargetType();
+        if (AnnotationUtils.isAnnotationDeclaredLocally(Indexed.class, target)) {
+          this.componentsIndex.registerCandidateType(className, target.getName());
+        }
+      }
+    }
   }
 
   /**
@@ -349,6 +375,12 @@ public class ClassPathScanningCandidateComponentProvider extends ClassPathScanni
       return ((AssignableTypeFilter) filter).getTargetType().getName();
     }
     return null;
+  }
+
+  private boolean isStereotypeAnnotationForIndex(Class<? extends Annotation> annotationType) {
+    return AnnotationUtils.isAnnotationDeclaredLocally(Indexed.class, annotationType)
+            || annotationType.getName().startsWith("jakarta.")
+            || annotationType.getName().startsWith("javax.");
   }
 
   private void scanCandidateComponentsFromIndex(CandidateComponentsIndex index,
@@ -401,6 +433,7 @@ public class ClassPathScanningCandidateComponentProvider extends ClassPathScanni
     }
     for (TypeFilter tf : includeFilters) {
       if (tf.match(metadataReader, factory)) {
+        registerCandidateTypeForIncludeFilter(metadataReader.getClassMetadata().getClassName(), tf);
         return isConditionMatch(metadataReader);
       }
     }

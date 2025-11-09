@@ -17,6 +17,8 @@
 
 package infra.web.handler.function;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +32,6 @@ import infra.core.io.Resource;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
-import infra.lang.Nullable;
 
 /**
  * Resource-based implementation of {@link HandlerFunction}.
@@ -75,7 +76,7 @@ class ResourceHandlerFunction implements HandlerFunction<ServerResponse> {
             .allow(SUPPORTED_METHODS).build();
   }
 
-  private static class HeadMethodResource implements Resource {
+  static class HeadMethodResource implements Resource {
 
     private static final byte[] EMPTY = new byte[0];
 

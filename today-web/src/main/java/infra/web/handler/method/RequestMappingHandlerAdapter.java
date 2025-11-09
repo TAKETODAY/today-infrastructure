@@ -17,6 +17,8 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.InitializingBean;
@@ -25,9 +27,8 @@ import infra.context.ApplicationContext;
 import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.ParameterNameDiscoverer;
 import infra.http.HttpHeaders;
-import infra.lang.Nullable;
+import infra.session.Session;
 import infra.session.SessionManager;
-import infra.session.WebSession;
 import infra.web.RedirectModelManager;
 import infra.web.RequestContext;
 import infra.web.RequestContextUtils;
@@ -36,6 +37,7 @@ import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.bind.support.WebBindingInitializer;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
+import infra.web.util.SessionMutexListener;
 import infra.web.util.WebUtils;
 import infra.web.view.ModelAndView;
 
@@ -52,6 +54,7 @@ import infra.web.view.ModelAndView;
  * @see RequestMappingHandlerMapping
  * @since 4.0 2022/4/8 22:46
  */
+@SuppressWarnings("NullAway.Init")
 public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
         implements BeanFactoryAware, InitializingBean {
 
@@ -118,8 +121,8 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
    * same active logical session. However, this is not guaranteed across
    * different containers; the only 100% safe way is a session mutex.
    *
-   * @see infra.web.util.WebSessionMutexListener
-   * @see infra.web.util.WebUtils#getSessionMutex(WebSession)
+   * @see SessionMutexListener
+   * @see infra.web.util.WebUtils#getSessionMutex(Session)
    */
   public void setSynchronizeOnSession(boolean synchronizeOnSession) {
     this.synchronizeOnSession = synchronizeOnSession;
@@ -190,7 +193,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
     // Execute invokeHandlerMethod in synchronized block if required.
     if (synchronizeOnSession) {
-      WebSession session = getSession(request);
+      Session session = getSession(request);
       if (session != null) {
         Object mutex = WebUtils.getSessionMutex(session);
         synchronized(mutex) {
@@ -215,8 +218,8 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   }
 
   @Nullable
-  private WebSession getSession(RequestContext request) {
-    WebSession session = null;
+  private Session getSession(RequestContext request) {
+    Session session = null;
     if (sessionManager != null) {
       session = sessionManager.getSession(request, false);
     }

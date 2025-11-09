@@ -17,10 +17,11 @@
 
 package infra.web.util.pattern;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.Map;
 
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 
 /**

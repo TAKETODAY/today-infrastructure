@@ -23,9 +23,7 @@
  * <p>Can be used independently, for example in custom JDBC access code,
  * or in JDBC-based O/R mapping layers.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jdbc.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

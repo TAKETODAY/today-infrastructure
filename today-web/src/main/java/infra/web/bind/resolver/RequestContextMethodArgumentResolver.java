@@ -17,6 +17,8 @@
 
 package infra.web.bind.resolver;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -29,7 +31,6 @@ import java.util.TimeZone;
 import infra.core.io.InputStreamSource;
 import infra.core.io.OutputStreamSource;
 import infra.http.HttpMethod;
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 import infra.web.RequestContextUtils;
 import infra.web.handler.method.ResolvableMethodParameter;

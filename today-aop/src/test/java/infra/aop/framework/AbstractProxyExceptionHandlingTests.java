@@ -18,6 +18,7 @@
 package infra.aop.framework;
 
 import org.aopalliance.intercept.MethodInterceptor;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,8 +27,6 @@ import org.mockito.stubbing.Answer;
 
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Objects;
-
-import infra.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;

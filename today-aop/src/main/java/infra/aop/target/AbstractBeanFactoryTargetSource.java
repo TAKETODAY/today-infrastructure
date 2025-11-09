@@ -17,6 +17,8 @@
 
 package infra.aop.target;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
@@ -26,7 +28,6 @@ import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
@@ -128,6 +129,7 @@ public abstract class AbstractBeanFactoryTargetSource implements TargetSource, B
     return this.beanFactory;
   }
 
+  @Nullable
   @Override
   public Class<?> getTargetClass() {
     Class<?> targetClass = this.targetClass;
@@ -203,8 +205,9 @@ public abstract class AbstractBeanFactoryTargetSource implements TargetSource, B
   public String toString() {
     StringBuilder sb = new StringBuilder(getClass().getSimpleName());
     sb.append(" for target bean '").append(this.targetBeanName).append("'");
-    if (this.targetClass != null) {
-      sb.append(" of type [").append(this.targetClass.getName()).append("]");
+    Class<?> targetClass = this.targetClass;
+    if (targetClass != null) {
+      sb.append(" of type [").append(targetClass.getName()).append("]");
     }
     return sb.toString();
   }

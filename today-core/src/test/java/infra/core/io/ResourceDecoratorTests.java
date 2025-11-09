@@ -196,7 +196,7 @@ class ResourceDecoratorTests {
 
   @Test
   void existsReturnsFalseOnIOException() throws IOException {
-    Resource delegate = new ResourceDecorator() {
+    Resource delegate = new ResourceDecorator(mock(Resource.class)) {
       @Override
       public boolean exists() {
         throw ExceptionUtils.sneakyThrow(new IOException());

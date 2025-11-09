@@ -17,6 +17,7 @@
 
 package infra.http.codec.multipart;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Subscription;
 
 import java.nio.charset.Charset;
@@ -35,7 +36,6 @@ import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferLimitException;
 import infra.core.io.buffer.DataBufferUtils;
 import infra.http.HttpHeaders;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import reactor.core.publisher.BaseSubscriber;
@@ -112,11 +112,13 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   protected void hookOnNext(DataBuffer value) {
     requestOutstanding.set(false);
     state.get().onNext(value);
   }
 
+  @SuppressWarnings("NullAway")
   @Override
   protected void hookOnComplete() {
     state.get().onComplete();

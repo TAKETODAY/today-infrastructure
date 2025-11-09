@@ -17,6 +17,8 @@
 
 package infra.web.handler;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 
 import infra.beans.ConversionNotSupportedException;
@@ -27,7 +29,6 @@ import infra.http.HttpStatus;
 import infra.http.ProblemDetail;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.converter.HttpMessageNotWritableException;
-import infra.lang.Nullable;
 import infra.validation.BindException;
 import infra.validation.BindingResult;
 import infra.web.DispatcherHandler;

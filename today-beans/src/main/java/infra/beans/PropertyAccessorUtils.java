@@ -17,7 +17,7 @@
 
 package infra.beans;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Utility methods for classes that perform bean property access
@@ -184,8 +184,7 @@ public abstract class PropertyAccessorUtils {
    * (as array of the same size)
    * @see #canonicalPropertyName(String)
    */
-  @Nullable
-  public static String[] canonicalPropertyNames(@Nullable String[] propertyNames) {
+  public static String @Nullable [] canonicalPropertyNames(String @Nullable [] propertyNames) {
     if (propertyNames == null) {
       return null;
     }

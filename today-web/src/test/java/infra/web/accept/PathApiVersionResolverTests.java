@@ -43,6 +43,64 @@ class PathApiVersionResolverTests {
     assertThatThrownBy(() -> testResolve(0, "/", "1.0")).isInstanceOf(InvalidApiVersionException.class);
   }
 
+  @Test
+  void constructorWithNegativeIndexThrowsException() {
+    assertThatThrownBy(() -> new PathApiVersionResolver(-1))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("'pathSegmentIndex' must be >= 0");
+  }
+
+  @Test
+  void constructorWithZeroIndex() {
+    PathApiVersionResolver resolver = new PathApiVersionResolver(0);
+    assertThat(resolver).isNotNull();
+  }
+
+  @Test
+  void resolveVersionWithExactSegmentMatch() {
+    HttpMockRequest request = new HttpMockRequestImpl("GET", "/api/v2/users");
+    MockRequestContext context = new MockRequestContext(null, request, null);
+
+    PathApiVersionResolver resolver = new PathApiVersionResolver(1);
+    String version = resolver.resolveVersion(context);
+
+    assertThat(version).isEqualTo("v2");
+  }
+
+  @Test
+  void resolveVersionWithFirstSegment() {
+    HttpMockRequest request = new HttpMockRequestImpl("GET", "/v1/products/123");
+    MockRequestContext context = new MockRequestContext(null, request, null);
+
+    PathApiVersionResolver resolver = new PathApiVersionResolver(0);
+    String version = resolver.resolveVersion(context);
+
+    assertThat(version).isEqualTo("v1");
+  }
+
+  @Test
+  void resolveVersionWithEncodedPathSegments() {
+    HttpMockRequest request = new HttpMockRequestImpl("GET", "/api/v3%2E0/resource");
+    MockRequestContext context = new MockRequestContext(null, request, null);
+
+    PathApiVersionResolver resolver = new PathApiVersionResolver(1);
+    String version = resolver.resolveVersion(context);
+
+    assertThat(version).isEqualTo("v3%2E0");
+  }
+
+  @Test
+  void resolveVersionThrowsExceptionWhenIndexOutOfBounds() {
+    HttpMockRequest request = new HttpMockRequestImpl("GET", "/api");
+    MockRequestContext context = new MockRequestContext(null, request, null);
+
+    PathApiVersionResolver resolver = new PathApiVersionResolver(2);
+
+    assertThatThrownBy(() -> resolver.resolveVersion(context))
+            .isInstanceOf(InvalidApiVersionException.class)
+            .hasMessage("400 BAD_REQUEST \"Invalid API version: 'No path segment at index 2'.\"");
+  }
+
   private static void testResolve(int index, String requestUri, String expected) {
     HttpMockRequest request = new HttpMockRequestImpl("GET", requestUri);
     String actual = new PathApiVersionResolver(index).resolveVersion(

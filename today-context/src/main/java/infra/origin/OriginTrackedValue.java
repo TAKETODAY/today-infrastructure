@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,9 @@
 
 package infra.origin;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
+import infra.lang.Contract;
 import infra.util.ObjectUtils;
 
 /**
@@ -77,6 +79,7 @@ public class OriginTrackedValue implements OriginProvider {
   }
 
   @Nullable
+  @Contract("!null -> !null")
   public static OriginTrackedValue of(Object value) {
     return of(value, null);
   }
@@ -92,6 +95,7 @@ public class OriginTrackedValue implements OriginProvider {
    * {@code null}.
    */
   @Nullable
+  @Contract("null, _ -> null; !null, _ -> !null")
   public static OriginTrackedValue of(@Nullable Object value, @Nullable Origin origin) {
     if (value == null) {
       return null;

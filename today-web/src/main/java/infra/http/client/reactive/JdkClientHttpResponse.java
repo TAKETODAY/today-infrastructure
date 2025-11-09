@@ -51,6 +51,10 @@ class JdkClientHttpResponse extends AbstractClientHttpResponse {
   }
 
   private static Flux<DataBuffer> adaptBody(HttpResponse<Flow.Publisher<List<ByteBuffer>>> response, DataBufferFactory bufferFactory) {
+    Flow.Publisher<List<ByteBuffer>> body = response.body();
+    if (body == null) {
+      return Flux.empty();
+    }
     return JdkFlowAdapter.flowPublisherToFlux(response.body())
             .flatMapIterable(Function.identity())
             .map(bufferFactory::wrap)

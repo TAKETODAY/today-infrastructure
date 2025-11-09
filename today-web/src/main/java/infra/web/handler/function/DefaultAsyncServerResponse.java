@@ -17,6 +17,8 @@
 
 package infra.web.handler.function;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -25,10 +27,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
-import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
-import infra.lang.Nullable;
+import infra.http.ResponseCookie;
 import infra.util.MultiValueMap;
 import infra.web.RequestContext;
 import infra.web.async.DeferredResult;
@@ -83,7 +84,7 @@ final class DefaultAsyncServerResponse extends ErrorHandlingServerResponse imple
   }
 
   @Override
-  public MultiValueMap<String, HttpCookie> cookies() {
+  public MultiValueMap<String, ResponseCookie> cookies() {
     return delegate(ServerResponse::cookies);
   }
 

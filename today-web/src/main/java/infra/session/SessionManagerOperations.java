@@ -17,12 +17,18 @@
 
 package infra.session;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 
 /**
- * SessionManager
+ * Central abstraction for session operations.
+ *
+ * <p>This class provides a convenient base for session management operations,
+ * delegating to a configured {@link SessionManager} instance. It offers
+ * methods for session retrieval, attribute management, and other common
+ * session operations.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2021/4/30 23:01
@@ -45,21 +51,21 @@ public class SessionManagerOperations {
    * does not have a session, creates one.
    *
    * @param context Current request
-   * @return the <code>WebSession</code> associated with this request
+   * @return the <code>Session</code> associated with this request
    * @see #getSession(RequestContext, boolean)
    */
-  public WebSession getSession(RequestContext context) {
+  public Session getSession(RequestContext context) {
     return sessionManager.getSession(context);
   }
 
   /**
-   * Returns the current <code>WebSession</code> associated with this request or,
+   * Returns the current <code>Session</code> associated with this request or,
    * if there is no current session and <code>create</code> is true, returns a new
    * session.
    *
    * <p>
    * If <code>create</code> is <code>false</code> and the request has no valid
-   * <code>WebSession</code>, this method returns <code>null</code>.
+   * <code>Session</code>, this method returns <code>null</code>.
    *
    * <p>
    * To make sure the session is properly maintained, you must call this method
@@ -71,13 +77,13 @@ public class SessionManagerOperations {
    * @param create <code>true</code> to create a new session for this request if
    * necessary; <code>false</code> to return <code>null</code> if
    * there's no current session
-   * @return the <code>WebSession</code> associated with this request or
+   * @return the <code>Session</code> associated with this request or
    * <code>null</code> if <code>create</code> is <code>false</code> and
    * the request has no valid session
    * @see #getSession(RequestContext)
    */
   @Nullable
-  public WebSession getSession(RequestContext context, boolean create) {
+  public Session getSession(RequestContext context, boolean create) {
     return sessionManager.getSession(context, create);
   }
 
@@ -89,13 +95,13 @@ public class SessionManagerOperations {
    * @return the current value of the attribute, if any
    */
   @Nullable
-  public Object getAttribute(WebSession session, String name) {
+  public Object getAttribute(Session session, String name) {
     return session.getAttribute(name);
   }
 
   @Nullable
   public Object getAttribute(RequestContext context, String name) {
-    WebSession session = getSession(context, false);
+    Session session = getSession(context, false);
     if (session != null) {
       return getAttribute(session, name);
     }
@@ -116,7 +122,7 @@ public class SessionManagerOperations {
    * @since 4.0
    */
   public void setAttribute(RequestContext context, String name, @Nullable Object attribute) {
-    WebSession session = getSession(context, false);
+    Session session = getSession(context, false);
     if (session != null) {
       session.setAttribute(name, attribute);
     }
@@ -132,7 +138,7 @@ public class SessionManagerOperations {
    */
   @Nullable
   public Object removeAttribute(RequestContext context, String name) {
-    WebSession session = getSession(context, false);
+    Session session = getSession(context, false);
     if (session != null) {
       return session.removeAttribute(name);
     }

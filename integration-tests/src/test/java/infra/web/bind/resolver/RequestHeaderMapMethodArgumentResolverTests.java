@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -128,6 +128,99 @@ class RequestHeaderMapMethodArgumentResolverTests {
     boolean condition = result instanceof HttpHeaders;
     assertThat(condition).isTrue();
     assertThat(result).as("Invalid result").isEqualTo(expected);
+  }
+
+  @Test
+  void resolveMapArgumentWithNoHeaders() throws Throwable {
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
+
+    Object result = resolver.resolveArgument(webRequest, paramMap);
+
+    assertThat(result instanceof Map).isTrue();
+    assertThat(((Map<?, ?>) result)).isEmpty();
+  }
+
+  @Test
+  void resolveMultiValueMapArgumentWithNoHeaders() throws Throwable {
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
+
+    Object result = resolver.resolveArgument(webRequest, paramMultiValueMap);
+
+    assertThat(result instanceof MultiValueMap).isTrue();
+    assertThat(((MultiValueMap<?, ?>) result)).isEmpty();
+  }
+
+  @Test
+  void resolveHttpHeadersArgumentWithNoHeaders() throws Throwable {
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
+
+    Object result = resolver.resolveArgument(webRequest, paramHttpHeaders);
+
+    assertThat(result instanceof HttpHeaders).isTrue();
+    assertThat(((HttpHeaders) result)).isEmpty();
+  }
+
+  @Test
+  void resolveMapArgumentWithMultipleHeaders() throws Throwable {
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    request.addHeader("header1", "value1");
+    request.addHeader("header2", "value2");
+    MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
+
+    Object result = resolver.resolveArgument(webRequest, paramMap);
+
+    assertThat(result instanceof Map).isTrue();
+    Map resultMap = (Map<?, ?>) result;
+    assertThat(resultMap).containsEntry("header1", "value1");
+    assertThat(resultMap).containsEntry("header2", "value2");
+  }
+
+  @Test
+  void resolveCustomMapImplementation() throws Throwable {
+    Method method = getClass().getMethod("customMapParam", CustomMap.class);
+    ResolvableMethodParameter customMapParam = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    request.addHeader("test", "value");
+    MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
+
+    Object result = resolver.resolveArgument(webRequest, customMapParam);
+
+    assertThat(result instanceof CustomMap).isTrue();
+    CustomMap resultMap = (CustomMap<?, ?>) result;
+    assertThat(resultMap).containsEntry("test", "value");
+  }
+
+  @Test
+  void resolveCustomMultiValueMapImplementation() throws Throwable {
+    Method method = getClass().getMethod("customMultiValueMapParam", CustomMultiValueMap.class);
+    ResolvableMethodParameter customMultiValueMapParam = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    request.addHeader("test", "value1");
+    request.addHeader("test", "value2");
+    MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
+
+    Object result = resolver.resolveArgument(webRequest, customMultiValueMapParam);
+
+    assertThat(result instanceof CustomMultiValueMap).isTrue();
+    CustomMultiValueMap resultMap = (CustomMultiValueMap<?, ?>) result;
+    assertThat(resultMap.get("test")).containsExactly("value1", "value2");
+  }
+
+  public void customMapParam(@RequestHeader CustomMap<?, ?> param) {
+  }
+
+  public void customMultiValueMapParam(@RequestHeader CustomMultiValueMap<?, ?> param) {
+  }
+
+  static class CustomMap<K, V> extends java.util.HashMap<K, V> {
+  }
+
+  static class CustomMultiValueMap<K, V> extends LinkedMultiValueMap<K, V> {
   }
 
   public void params(@RequestHeader Map<?, ?> param1,

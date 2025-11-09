@@ -21,9 +21,7 @@
  * and {@link infra.test.web.mock.result.MockMvcResultHandlers}
  * to access instances of those implementations.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.test.web.mock.result;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -19,9 +19,7 @@
  * Support package for Framework's dynamic language machinery,
  * with XML schema being the primary configuration format.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.scripting.config;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,10 @@
 
 package infra.beans.factory.config;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.FactoryBean;
 import infra.beans.factory.FactoryBeanNotInitializedException;
-import infra.lang.Nullable;
 import infra.util.ReflectiveMethodInvoker;
 
 /**
@@ -137,6 +138,7 @@ public class MethodInvokingFactoryBean extends MethodInvokingBean implements Fac
    * or {@code null} if not known in advance.
    */
   @Override
+  @Nullable
   public Class<?> getObjectType() {
     if (!isPrepared()) {
       // Not fully initialized yet -> return null to indicate "not known yet".

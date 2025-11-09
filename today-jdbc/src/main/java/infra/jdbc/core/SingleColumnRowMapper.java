@@ -17,6 +17,8 @@
 
 package infra.jdbc.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -26,7 +28,6 @@ import infra.core.conversion.support.DefaultConversionService;
 import infra.dao.TypeMismatchDataAccessException;
 import infra.jdbc.IncorrectResultSetColumnCountException;
 import infra.jdbc.support.JdbcUtils;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.NumberUtils;
 

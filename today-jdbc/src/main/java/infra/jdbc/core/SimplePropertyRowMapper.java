@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,13 +34,13 @@ import infra.core.MethodParameter;
 import infra.core.TypeDescriptor;
 import infra.core.conversion.ConversionService;
 import infra.core.conversion.support.DefaultConversionService;
+import infra.jdbc.core.namedparam.SimplePropertySqlParameterSource;
+import infra.jdbc.core.simple.JdbcClient;
 import infra.jdbc.support.JdbcUtils;
 import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.lang.NullValue;
 import infra.util.ReflectionUtils;
-import infra.jdbc.core.namedparam.SimplePropertySqlParameterSource;
-import infra.jdbc.core.simple.JdbcClient;
 
 /**
  * {@link RowMapper} implementation that converts a row into a new instance
@@ -117,8 +117,8 @@ public class SimplePropertyRowMapper<T> implements RowMapper<T> {
     this.mappedConstructor = BeanUtils.obtainConstructor(mappedClass);
     int paramCount = this.mappedConstructor.getParameterCount();
     this.constructorParameterNames = paramCount > 0
-                                     ? BeanUtils.getParameterNames(this.mappedConstructor)
-                                     : Constant.EMPTY_STRING_ARRAY;
+            ? BeanUtils.getParameterNames(this.mappedConstructor)
+            : Constant.EMPTY_STRING_ARRAY;
     this.constructorParameterTypes = new TypeDescriptor[paramCount];
     for (int i = 0; i < paramCount; i++) {
       this.constructorParameterTypes[i] = new TypeDescriptor(new MethodParameter(this.mappedConstructor, i));
@@ -126,6 +126,7 @@ public class SimplePropertyRowMapper<T> implements RowMapper<T> {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public T mapRow(ResultSet rs, int rowNumber) throws SQLException {
     Object[] args = new Object[this.constructorParameterNames.length];
     Set<Integer> usedIndex = new HashSet<>();

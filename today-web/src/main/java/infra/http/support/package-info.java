@@ -19,9 +19,7 @@
  * This package provides internal HTTP support classes,
  * to be used by higher-level client and server classes.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.http.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ package infra.transaction.interceptor;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -31,7 +32,6 @@ import infra.aop.framework.ProxyFactory;
 import infra.aop.framework.ProxyFactoryBean;
 import infra.aop.support.AopUtils;
 import infra.beans.factory.BeanFactory;
-import infra.lang.Nullable;
 import infra.transaction.PlatformTransactionManager;
 import infra.transaction.TransactionManager;
 
@@ -67,7 +67,8 @@ public class TransactionInterceptor extends TransactionAspectSupport implements 
    * @see #setTransactionAttributes(java.util.Properties)
    * @see #setTransactionAttributeSource(TransactionAttributeSource)
    */
-  public TransactionInterceptor() { }
+  public TransactionInterceptor() {
+  }
 
   /**
    * Create a new TransactionInterceptor.

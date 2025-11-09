@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jmx.export.assembler;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -27,7 +29,6 @@ import java.util.Properties;
 import infra.beans.factory.BeanClassLoaderAware;
 import infra.beans.factory.InitializingBean;
 import infra.jmx.export.MBeanExporter;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
@@ -63,8 +64,7 @@ import infra.util.StringUtils;
 public class InterfaceBasedMBeanInfoAssembler extends AbstractConfigurableMBeanInfoAssembler
         implements BeanClassLoaderAware, InitializingBean {
 
-  @Nullable
-  private Class<?>[] managedInterfaces;
+  private Class<?> @Nullable [] managedInterfaces;
 
   /** Mappings of bean keys to an array of classes. */
   @Nullable
@@ -86,7 +86,7 @@ public class InterfaceBasedMBeanInfoAssembler extends AbstractConfigurableMBeanI
    * Each entry <strong>MUST</strong> be an interface.
    * @see #setInterfaceMappings
    */
-  public void setManagedInterfaces(@Nullable Class<?>... managedInterfaces) {
+  public void setManagedInterfaces(Class<?> @Nullable ... managedInterfaces) {
     if (managedInterfaces != null) {
       for (Class<?> ifc : managedInterfaces) {
         if (!ifc.isInterface()) {

@@ -17,6 +17,8 @@
 
 package infra.beans.factory.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.InvocationTargetException;
@@ -29,7 +31,6 @@ import infra.beans.BeansException;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.lang.NullValue;
-import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
 
@@ -148,7 +149,7 @@ public class InstantiationStrategy {
    * @throws BeansException if the instantiation attempt failed
    */
   public Object instantiate(RootBeanDefinition bd, @Nullable String beanName,
-          BeanFactory owner, Constructor<?> ctor, Object... args) throws BeansException {
+          BeanFactory owner, Constructor<?> ctor, @Nullable Object... args) throws BeansException {
     if (bd.hasMethodOverrides()) {
       return instantiateWithMethodInjection(bd, beanName, owner, ctor, args);
     }
@@ -164,7 +165,7 @@ public class InstantiationStrategy {
    * Instantiation should use the given constructor and parameters.
    */
   protected Object instantiateWithMethodInjection(RootBeanDefinition bd,
-          @Nullable String beanName, BeanFactory owner, @Nullable Constructor<?> ctor, Object... args) {
+          @Nullable String beanName, BeanFactory owner, @Nullable Constructor<?> ctor, @Nullable Object... args) {
 
     throw new UnsupportedOperationException("Method Injection not supported in InstantiationStrategy");
   }
@@ -183,8 +184,9 @@ public class InstantiationStrategy {
    * @throws BeansException if the instantiation attempt failed
    * @see NullValue#INSTANCE
    */
+  @SuppressWarnings("NullAway")
   public Object instantiate(RootBeanDefinition merged, @Nullable String beanName, BeanFactory owner,
-          @Nullable Object factoryBean, final Method factoryMethod, Object... args) throws BeansException {
+          @Nullable Object factoryBean, final Method factoryMethod, @Nullable Object @Nullable ... args) throws BeansException {
     return instantiateWithFactoryMethod(factoryMethod, () -> {
       try {
         ReflectionUtils.makeAccessible(factoryMethod);

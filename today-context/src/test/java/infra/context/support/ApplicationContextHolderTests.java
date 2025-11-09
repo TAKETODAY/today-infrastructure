@@ -17,6 +17,7 @@
 
 package infra.context.support;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -45,7 +46,6 @@ import infra.core.env.Environment;
 import infra.core.io.Resource;
 import infra.core.io.ResourceConsumer;
 import infra.core.io.SmartResourceConsumer;
-import infra.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -402,12 +402,12 @@ class ApplicationContextHolderTests {
 
     @Nullable
     @Override
-    public String getMessage(String code, @Nullable Object[] args, @Nullable String defaultMessage, Locale locale) {
+    public String getMessage(String code, Object @Nullable [] args, @Nullable String defaultMessage, Locale locale) {
       return "";
     }
 
     @Override
-    public String getMessage(String code, @Nullable Object[] args, Locale locale) throws NoSuchMessageException {
+    public String getMessage(String code, Object @Nullable [] args, Locale locale) throws NoSuchMessageException {
       return "";
     }
 

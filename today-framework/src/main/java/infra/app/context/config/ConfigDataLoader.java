@@ -17,12 +17,13 @@
 
 package infra.app.context.config;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 
 import infra.app.BootstrapContext;
 import infra.app.BootstrapRegistry;
 import infra.app.ConfigurableBootstrapContext;
-import infra.lang.Nullable;
 
 /**
  * Strategy class that can be used to load {@link ConfigData} for a given

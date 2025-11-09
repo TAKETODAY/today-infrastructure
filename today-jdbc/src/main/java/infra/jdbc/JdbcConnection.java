@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -28,7 +30,6 @@ import javax.sql.DataSource;
 import infra.dao.DataAccessException;
 import infra.dao.InvalidDataAccessApiUsageException;
 import infra.jdbc.datasource.DataSourceUtils;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.transaction.HeuristicCompletionException;
@@ -221,7 +222,6 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     if (transaction != null) {
       throw new InvalidDataAccessApiUsageException("Transaction require commit or rollback");
     }
-    setRollbackOnClose(false);
     return this.transaction = manager.getTransactionManager().getTransaction(definition);
   }
 
@@ -336,13 +336,15 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   // Closeable
 
   @Override
+  @SuppressWarnings("NullAway")
   public void close() {
     boolean connectionIsClosed;
+    Connection root = this.root;
     try {
       connectionIsClosed = root != null && root.isClosed();
     }
     catch (SQLException e) {
-      throw translateException("trying to determine whether the connection is closed.", e);
+      throw translateException("Trying to determine whether the connection is closed.", e);
     }
 
     if (!connectionIsClosed) {
@@ -362,7 +364,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
       statements.clear();
 
       boolean rollback = rollbackOnClose;
-      if (rollback) {
+      if (rollback && root != null) {
         try {
           rollback = !root.getAutoCommit();
         }
@@ -388,6 +390,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     this.root = DataSourceUtils.getConnection(dataSource);
   }
 
+  @SuppressWarnings("NullAway")
   private void closeConnection() {
     if (transaction != null || DataSourceUtils.isConnectionTransactional(root, dataSource)) {
       DataSourceUtils.releaseConnection(root, dataSource);
@@ -424,6 +427,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     this.rollbackOnClose = rollbackOnClose;
   }
 
+  @SuppressWarnings("NullAway")
   public Connection getJdbcConnection() {
     return root;
   }

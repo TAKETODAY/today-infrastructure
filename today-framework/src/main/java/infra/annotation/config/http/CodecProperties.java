@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.annotation.config.http;
+
+import org.jspecify.annotations.Nullable;
 
 import infra.context.properties.ConfigurationProperties;
 import infra.util.DataSize;
@@ -41,6 +43,7 @@ public class CodecProperties {
    * WebClient instances. By default this is not set, in which case individual codec
    * defaults apply. Most codecs are limited to 256K by default.
    */
+  @Nullable
   private DataSize maxInMemorySize;
 
   public boolean isLogRequestDetails() {
@@ -51,6 +54,7 @@ public class CodecProperties {
     this.logRequestDetails = logRequestDetails;
   }
 
+  @Nullable
   public DataSize getMaxInMemorySize() {
     return this.maxInMemorySize;
   }

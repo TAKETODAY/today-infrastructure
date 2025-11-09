@@ -17,6 +17,8 @@
 
 package infra.context.properties.bind;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -32,7 +34,6 @@ import infra.core.ResolvableType;
 import infra.core.style.ToStringBuilder;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.function.SingletonSupplier;
 
@@ -188,7 +189,7 @@ public final class Bindable<T> {
    * @param annotations the annotations
    * @return an updated {@link Bindable}
    */
-  public Bindable<T> withAnnotations(@Nullable Annotation... annotations) {
+  public Bindable<T> withAnnotations(Annotation @Nullable ... annotations) {
     return new Bindable<>(this.type, this.boxedType, this.value,
             annotations != null ? annotations : Constant.EMPTY_ANNOTATIONS,
             NO_BIND_RESTRICTIONS, this.bindMethod);
@@ -201,12 +202,13 @@ public final class Bindable<T> {
    * @param existingValue the existing value
    * @return an updated {@link Bindable}
    */
+  @SuppressWarnings("NullAway")
   public Bindable<T> withExistingValue(@Nullable T existingValue) {
     if (!(existingValue == null || this.type.isArray() || boxedType.resolve().isInstance(existingValue))) {
       throw new IllegalArgumentException("ExistingValue must be an instance of " + this.type);
     }
     Assert.state(this.bindMethod != BindMethod.VALUE_OBJECT, "An existing value cannot be provided when binding as a value object");
-    Supplier<T> value = existingValue != null ? SingletonSupplier.valueOf(existingValue) : null;
+    Supplier<T> value = existingValue != null ? SingletonSupplier.of(existingValue) : null;
     return new Bindable<>(this.type, this.boxedType, value,
             this.annotations, this.bindRestrictions, BindMethod.JAVA_BEAN);
   }

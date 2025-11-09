@@ -17,6 +17,7 @@
 
 package infra.web.handler.function;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.io.IOException;
@@ -36,15 +37,15 @@ import infra.core.Conventions;
 import infra.core.ParameterizedTypeReference;
 import infra.core.ReactiveAdapterRegistry;
 import infra.http.CacheControl;
-import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
+import infra.http.ResponseCookie;
 import infra.http.converter.HttpMessageConverter;
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
+import infra.util.function.ThrowingConsumer;
 import infra.web.ErrorResponse;
 import infra.web.HttpRequestHandler;
 import infra.web.RequestContext;
@@ -89,7 +90,7 @@ public interface ServerResponse {
   /**
    * Return the cookies of this response.
    */
-  MultiValueMap<String, HttpCookie> cookies();
+  MultiValueMap<String, ResponseCookie> cookies();
 
   /**
    * Write this response to the given response.
@@ -393,7 +394,7 @@ public interface ServerResponse {
      * @param cookie the cookie to add
      * @return this builder
      */
-    B cookie(HttpCookie cookie);
+    B cookie(ResponseCookie cookie);
 
     /**
      * Add a cookie with the given name and value(s).
@@ -415,7 +416,7 @@ public interface ServerResponse {
      * @param cookiesConsumer a function that consumes the cookies
      * @return this builder
      */
-    B cookies(Consumer<MultiValueMap<String, HttpCookie>> cookiesConsumer);
+    B cookies(Consumer<MultiValueMap<String, ResponseCookie>> cookiesConsumer);
 
     /**
      * Add a cookies with the given name and values.
@@ -425,7 +426,7 @@ public interface ServerResponse {
      * @see MultiValueMap#setAll(Map)
      * @since 5.0
      */
-    B cookies(@Nullable Collection<HttpCookie> cookies);
+    B cookies(@Nullable Collection<ResponseCookie> cookies);
 
     /**
      * Add a cookies with the given name and values.
@@ -435,7 +436,7 @@ public interface ServerResponse {
      * @see MultiValueMap#setAll(Map)
      * @since 5.0
      */
-    B cookies(@Nullable MultiValueMap<String, HttpCookie> cookies);
+    B cookies(@Nullable MultiValueMap<String, ResponseCookie> cookies);
 
     /**
      * Set the set of allowed {@link HttpMethod HTTP methods}, as specified
@@ -664,7 +665,7 @@ public interface ServerResponse {
      * @return the server-side streaming response
      * @since 5.0
      */
-    ServerResponse stream(Consumer<StreamBuilder> streamConsumer);
+    ServerResponse stream(ThrowingConsumer<StreamBuilder> streamConsumer);
 
   }
 

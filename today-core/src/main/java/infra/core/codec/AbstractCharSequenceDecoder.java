@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.core.codec;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.nio.charset.Charset;
@@ -33,7 +34,6 @@ import infra.core.io.buffer.DataBufferUtils;
 import infra.core.io.buffer.LimitedDataBufferList;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 import infra.util.LogFormatUtils;
 import infra.util.MimeType;
 import reactor.core.publisher.Flux;
@@ -170,14 +170,18 @@ public abstract class AbstractCharSequenceDecoder<T extends CharSequence> extend
   public final T decode(DataBuffer dataBuffer, ResolvableType elementType,
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-    Charset charset = getCharset(mimeType);
-    T value = decodeInternal(dataBuffer, charset);
-    dataBuffer.release();
-    LogFormatUtils.traceDebug(logger, traceOn -> {
-      String formatted = LogFormatUtils.formatValue(value, !traceOn);
-      return Hints.getLogPrefix(hints) + "Decoded " + formatted;
-    });
-    return value;
+    try {
+      Charset charset = getCharset(mimeType);
+      T value = decodeInternal(dataBuffer, charset);
+      LogFormatUtils.traceDebug(logger, traceOn -> {
+        String formatted = LogFormatUtils.formatValue(value, !traceOn);
+        return Hints.getLogPrefix(hints) + "Decoded " + formatted;
+      });
+      return value;
+    }
+    finally {
+      dataBuffer.release();
+    }
   }
 
   private Charset getCharset(@Nullable MimeType mimeType) {

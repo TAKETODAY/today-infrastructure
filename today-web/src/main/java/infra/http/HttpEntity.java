@@ -17,9 +17,10 @@
 
 package infra.http;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Objects;
 
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 
@@ -54,7 +55,7 @@ import infra.util.MultiValueMap;
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #getBody()
- * @see #getHeaders()
+ * @see #headers()
  * @since 3.0 2020/12/6 17:10
  */
 public class HttpEntity<T> {
@@ -64,11 +65,9 @@ public class HttpEntity<T> {
    */
   public static final HttpEntity<?> EMPTY = new HttpEntity<>(HttpHeaders.empty());
 
-  @Nullable
-  private final T body;
+  private final @Nullable T body;
 
-  @Nullable
-  private HttpHeaders headers;
+  private @Nullable HttpHeaders headers;
 
   /**
    * Create a new, empty {@code HttpEntity}.
@@ -103,7 +102,7 @@ public class HttpEntity<T> {
    */
   public HttpEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers) {
     this.body = body;
-    this.headers = CollectionUtils.isNotEmpty(headers) ? HttpHeaders.copyOf(headers) : null;
+    this.headers = headers != null ? HttpHeaders.copyOf(headers) : null;
   }
 
   private HttpEntity(HttpHeaders headers) {
@@ -114,7 +113,7 @@ public class HttpEntity<T> {
   /**
    * Returns the headers of this entity.
    */
-  public HttpHeaders getHeaders() {
+  public HttpHeaders headers() {
     HttpHeaders headers = this.headers;
     if (headers == null) {
       headers = HttpHeaders.forWritable();
@@ -129,7 +128,7 @@ public class HttpEntity<T> {
    * @since 5.0
    */
   @Nullable
-  public HttpHeaders headers() {
+  public HttpHeaders getHeaders() {
     return headers;
   }
 
@@ -168,8 +167,7 @@ public class HttpEntity<T> {
   /**
    * Returns the body of this entity.
    */
-  @Nullable
-  public T getBody() {
+  public @Nullable T getBody() {
     return body;
   }
 
@@ -181,7 +179,7 @@ public class HttpEntity<T> {
   }
 
   @Override
-  public boolean equals(Object other) {
+  public boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;
     }

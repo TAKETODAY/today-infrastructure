@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.http.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Duration;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -27,27 +29,28 @@ import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
 import infra.context.SmartLifecycle;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import reactor.netty.http.HttpResources;
 import reactor.netty.resources.ConnectionProvider;
 import reactor.netty.resources.LoopResources;
 
 /**
  * Factory to manage Reactor Netty resources, i.e. {@link LoopResources} for
- * event loop threads, and {@link ConnectionProvider} for the connection pool,
+ * event loop threads and {@link ConnectionProvider} for the connection pool,
  * within the lifecycle of a Spring {@code ApplicationContext}.
  *
  * <p>This factory implements {@link SmartLifecycle} and is expected typically
- * to be declared as a Infra-managed bean.
+ * to be declared as a Spring-managed bean.
  *
- * <p>Notice that after a {@link SmartLifecycle} stop/restart, new instances of
+ * <p>Note that after a {@link SmartLifecycle} stop/restart, new instances of
  * the configured {@link LoopResources} and {@link ConnectionProvider} are
- * created, so any references to those should be updated.
+ * created, so any references to those should be updated. However, this factory
+ * does not participate in {@linkplain #isPauseable() pause} scenarios.
  *
  * @author Rossen Stoyanchev
  * @author Brian Clozel
  * @author Sebastien Deleuze
  * @author Juergen Hoeller
+ * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
@@ -338,6 +341,17 @@ public class ReactorResourceFactory implements ApplicationContextAware, Initiali
   @Override
   public boolean isRunning() {
     return this.running;
+  }
+
+  /**
+   * Returns {@code false} to indicate that a {@code ReactorResourceFactory}
+   * should be skipped in a pause scenario.
+   *
+   * @since 5.0
+   */
+  @Override
+  public boolean isPausable() {
+    return false;
   }
 
   @Override

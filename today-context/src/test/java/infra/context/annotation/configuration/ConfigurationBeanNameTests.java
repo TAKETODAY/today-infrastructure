@@ -22,10 +22,10 @@ import org.junit.jupiter.api.Test;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.context.annotation.AnnotationBeanNameGenerator;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
-import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.stereotype.Component;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;

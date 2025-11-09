@@ -17,6 +17,8 @@
 
 package infra.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -31,7 +33,6 @@ import java.util.stream.StreamSupport;
 
 import infra.dao.IncorrectResultSizeDataAccessException;
 import infra.jdbc.support.JdbcUtils;
-import infra.lang.Nullable;
 
 /**
  * Iterator for a {@link ResultSet}. Tricky part here is getting
@@ -83,6 +84,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public T next() {
     ResultSetValue<T> result = next;
     if (result == null) {
@@ -478,6 +480,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
    * @param entities the collection to which the entities will be added;
    * must not be null
    */
+  @SuppressWarnings("NullAway")
   public void collect(Collection<T> entities) {
     final ResultSet resultSet = this.resultSet;
     try {
@@ -493,7 +496,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
     }
   }
 
-  private ResultSetValue<T> safeReadNext() {
+  private @Nullable ResultSetValue<T> safeReadNext() {
     final ResultSet resultSet = this.resultSet;
     try {
       return resultSet.next() ? new ResultSetValue<>(readNext(resultSet)) : null;
@@ -503,8 +506,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
     }
   }
 
-  @Nullable
-  private T readNext() {
+  private @Nullable T readNext() {
     final ResultSet resultSet = this.resultSet;
     try {
       return resultSet.next() ? readNext(resultSet) : null;
@@ -518,13 +520,13 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
     return new PersistenceException("Database read error: " + ex.getMessage(), ex);
   }
 
-  @Nullable
-  protected abstract T readNext(ResultSet resultSet) throws SQLException;
+  protected abstract @Nullable T readNext(ResultSet resultSet) throws SQLException;
 
   static final class ResultSetValue<T> {
-    public final T value;
 
-    private ResultSetValue(T value) {
+    public final @Nullable T value;
+
+    private ResultSetValue(@Nullable T value) {
       this.value = value;
     }
   }

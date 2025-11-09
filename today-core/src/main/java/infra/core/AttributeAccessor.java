@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,13 @@
 
 package infra.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Interface defining a generic contract for attaching and accessing metadata
@@ -135,7 +136,7 @@ public interface AttributeAccessor {
    * @since 3.0
    */
   @SuppressWarnings("unchecked")
-  default <T> T computeAttribute(String name, Function<String, T> computeFunction) {
+  default <T> T computeAttribute(String name, Function<String, @Nullable T> computeFunction) {
     Assert.notNull(name, "Name is required");
     Assert.notNull(computeFunction, "Compute function is required");
     Object value = getAttribute(name);

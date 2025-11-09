@@ -18,9 +18,7 @@
 /**
  * Auto-configuration for Infra AOP.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.annotation.config.aop;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

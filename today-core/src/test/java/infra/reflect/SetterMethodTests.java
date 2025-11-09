@@ -17,6 +17,7 @@
 
 package infra.reflect;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -376,6 +377,13 @@ class SetterMethodTests {
     }
     pojo2._obj = null;
     assertEquals(pojo2, pojo1);
+
+    assertThat(new SetterMethod() {
+      @Override
+      public void set(Object obj, @Nullable Object value) {
+
+      }
+    }.getWriteMethod()).isNull();
   }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.aop.framework;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.aop.TargetSource;
 import infra.aop.framework.adapter.AdvisorAdapterRegistry;
 import infra.aop.framework.adapter.DefaultAdvisorAdapterRegistry;
@@ -28,7 +30,6 @@ import infra.beans.factory.BeanClassLoaderAware;
 import infra.beans.factory.FactoryBean;
 import infra.beans.factory.FactoryBeanNotInitializedException;
 import infra.beans.factory.InitializingBean;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**
@@ -50,14 +51,11 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
   @Nullable
   private Object target;
 
-  @Nullable
-  private Class<?>[] proxyInterfaces;
+  private Class<?> @Nullable [] proxyInterfaces;
 
-  @Nullable
-  private Object[] preInterceptors;
+  private Object @Nullable [] preInterceptors;
 
-  @Nullable
-  private Object[] postInterceptors;
+  private Object @Nullable [] postInterceptors;
 
   /** Default is global AdvisorAdapterRegistry. */
   private AdvisorAdapterRegistry advisorAdapterRegistry = DefaultAdvisorAdapterRegistry.getInstance();
@@ -89,7 +87,7 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
    * out which interfaces need proxying by analyzing the target,
    * proxying all the interfaces that the target object implements.
    */
-  public void setProxyInterfaces(Class<?>[] proxyInterfaces) {
+  public void setProxyInterfaces(Class<?> @Nullable [] proxyInterfaces) {
     this.proxyInterfaces = proxyInterfaces;
   }
 
@@ -101,7 +99,7 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
    *
    * @see PerformanceMonitorInterceptor
    */
-  public void setPreInterceptors(Object[] preInterceptors) {
+  public void setPreInterceptors(Object @Nullable [] preInterceptors) {
     this.preInterceptors = preInterceptors;
   }
 
@@ -111,7 +109,7 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
    * <p>You may specify any AOP Alliance MethodInterceptors or other
    * Framework AOP Advices, as well as Framework AOP Advisors.
    */
-  public void setPostInterceptors(Object[] postInterceptors) {
+  public void setPostInterceptors(Object @Nullable [] postInterceptors) {
     this.postInterceptors = postInterceptors;
   }
 
@@ -212,7 +210,8 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
    *
    * @param proxyFactory the AOP ProxyFactory about to be used
    */
-  protected void postProcessProxyFactory(ProxyFactory proxyFactory) { }
+  protected void postProcessProxyFactory(ProxyFactory proxyFactory) {
+  }
 
   @Override
   public Object getObject() {

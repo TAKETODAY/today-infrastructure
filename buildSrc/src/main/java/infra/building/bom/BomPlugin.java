@@ -33,7 +33,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import groovy.namespace.QName;
 import groovy.util.Node;
 

@@ -17,6 +17,8 @@
 
 package infra.ui.template;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -28,7 +30,6 @@ import infra.context.ApplicationContext;
 import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.lang.VisibleForTesting;
 
@@ -117,6 +118,7 @@ public class TemplateAvailabilityProviders {
    * @return a {@link TemplateAvailabilityProvider} or null
    */
   @Nullable
+  @SuppressWarnings("NullAway")
   public TemplateAvailabilityProvider getProvider(String view, ApplicationContext applicationContext) {
     Assert.notNull(applicationContext, "ApplicationContext is required");
     return getProvider(view, applicationContext.getEnvironment(), applicationContext.getClassLoader(), applicationContext);

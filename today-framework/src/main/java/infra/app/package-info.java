@@ -20,9 +20,7 @@
  *
  * @since 4.0 2022/1/16 11:14
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.app;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -17,7 +17,7 @@
 
 package infra.expression;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A bean resolver can be registered with the evaluation context and will kick in

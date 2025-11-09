@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,12 @@
 
 package infra.web.multipart.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 import infra.web.multipart.Multipart;
 import infra.web.multipart.MultipartFile;
@@ -37,11 +38,9 @@ import infra.web.util.WebUtils;
  */
 public abstract class AbstractMultipartRequest implements MultipartRequest {
 
-  @Nullable
-  private MultiValueMap<String, Multipart> parts;
+  private @Nullable MultiValueMap<String, Multipart> parts;
 
-  @Nullable
-  private MultiValueMap<String, MultipartFile> multipartFiles;
+  private @Nullable MultiValueMap<String, MultipartFile> multipartFiles;
 
   @Override
   public Iterator<String> getFileNames() {
@@ -49,18 +48,17 @@ public abstract class AbstractMultipartRequest implements MultipartRequest {
   }
 
   @Override
-  public MultipartFile getFile(String name) {
+  public @Nullable MultipartFile getFile(String name) {
     return getMultipartFiles().getFirst(name);
   }
 
   @Override
-  public List<MultipartFile> getFiles(String name) {
+  public @Nullable List<MultipartFile> getFiles(String name) {
     return getMultipartFiles().get(name);
   }
 
-  @Nullable
   @Override
-  public List<Multipart> multipartData(String name) {
+  public @Nullable List<Multipart> multipartData(String name) {
     return multipartData().get(name);
   }
 

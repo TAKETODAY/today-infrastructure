@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  */
-public class HeaderContentNegotiationStrategyTests {
+class HeaderContentNegotiationStrategyTests {
 
   private final HeaderContentNegotiationStrategy strategy = new HeaderContentNegotiationStrategy();
 
@@ -95,6 +95,71 @@ public class HeaderContentNegotiationStrategyTests {
             .isThrownBy(() -> this.strategy.resolveMediaTypes(this.context))
             .withMessageStartingWith("Could not parse 'Accept' header")
             .withMessageEndingWith("Too many elements");
+  }
+
+  @Test
+  void resolveMediaTypesReturnsAllMediaTypeWhenNoAcceptHeader() throws Exception {
+    List<MediaType> mediaTypes = strategy.resolveMediaTypes(context);
+
+    assertThat(mediaTypes).containsExactly(MediaType.ALL);
+  }
+
+  @Test
+  void resolveMediaTypesWithWildcardAcceptHeader() throws Exception {
+    mockRequest.addHeader("Accept", "*/*");
+    List<MediaType> mediaTypes = strategy.resolveMediaTypes(context);
+
+    assertThat(mediaTypes).containsExactly(MediaType.ALL);
+  }
+
+  @Test
+  void resolveMediaTypesWithEmptyAcceptHeader() throws Exception {
+    mockRequest.addHeader("Accept", "");
+    List<MediaType> mediaTypes = strategy.resolveMediaTypes(context);
+
+    assertThat(mediaTypes).containsExactly(MediaType.ALL);
+  }
+
+  @Test
+  void resolveMediaTypesSortsByQualityValue() throws Exception {
+    mockRequest.addHeader("Accept", "text/html;q=0.5, application/json;q=1.0, text/plain;q=0.8");
+    List<MediaType> mediaTypes = strategy.resolveMediaTypes(context);
+
+    assertThat(mediaTypes).hasSize(3);
+    assertThat(mediaTypes.get(0).toString()).isEqualTo("application/json;q=1.0");
+    assertThat(mediaTypes.get(1).toString()).isEqualTo("text/plain;q=0.8");
+    assertThat(mediaTypes.get(2).toString()).isEqualTo("text/html;q=0.5");
+  }
+
+  @Test
+  void resolveMediaTypesWithInvalidMediaTypeThrowsException() throws Exception {
+    mockRequest.addHeader("Accept", "invalid/media-type/bad");
+
+    assertThatExceptionOfType(HttpMediaTypeNotAcceptableException.class)
+            .isThrownBy(() -> strategy.resolveMediaTypes(context))
+            .withMessageContaining("Could not parse 'Accept' header");
+  }
+
+  @Test
+  void resolveMediaTypesWithMalformedQualityValue() throws Exception {
+    mockRequest.addHeader("Accept", "text/html;q=invalid");
+
+    assertThatExceptionOfType(HttpMediaTypeNotAcceptableException.class)
+            .isThrownBy(() -> strategy.resolveMediaTypes(context))
+            .withMessageContaining("Could not parse 'Accept' header");
+  }
+
+  @Test
+  void resolveMediaTypesWithMultipleAcceptHeadersSortsCorrectly() throws Exception {
+    mockRequest.addHeader("Accept", "text/html;q=0.9");
+    mockRequest.addHeader("Accept", "application/json;q=0.9");
+    mockRequest.addHeader("Accept", "text/plain");
+    List<MediaType> mediaTypes = strategy.resolveMediaTypes(context);
+
+    assertThat(mediaTypes).hasSize(3);
+    assertThat(mediaTypes.get(0).toString()).isEqualTo("text/plain");
+    assertThat(mediaTypes.get(1).toString()).isEqualTo("text/html;q=0.9");
+    assertThat(mediaTypes.get(2).toString()).isEqualTo("application/json;q=0.9");
   }
 
 }

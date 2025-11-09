@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,7 +65,9 @@ public class JarModeLibrary extends Library {
 
   @Override
   public InputStream openStream() throws IOException {
-    String path = "META-INF/jarmode/" + getCoordinates().getArtifactId() + ".jar";
+    LibraryCoordinates coordinates = getCoordinates();
+    Assert.state(coordinates != null, "'coordinates' is required");
+    String path = "META-INF/jarmode/" + coordinates.getArtifactId() + ".jar";
     URL resource = getClass().getClassLoader().getResource(path);
     Assert.state(resource != null, () -> "Unable to find resource " + path);
     return resource.openStream();

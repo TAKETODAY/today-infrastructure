@@ -2,9 +2,9 @@
 
 import java.time.OffsetDateTime
 
-apply plugin: "signing"
 apply plugin: 'java-library'
 apply plugin: 'me.champeau.jmh'
+apply plugin: "infra.nullability"
 
 // Currently commented out due to ZipException: archive is not a ZIP archive
 // apply plugin: 'io.github.goooler.shadow'
@@ -92,13 +92,7 @@ publishing {
   }
 }
 
-if (isReleaseVersion) {
-  signing {
-    for (Publication publication in publishing.publications) {
-      sign(publication)
-    }
-  }
-}
+apply from: "$rootDir/gradle/signing.gradle"
 
 // Disable publication of test fixture artifacts.
 if (configurations.findByName("testFixturesApiElements") != null) {

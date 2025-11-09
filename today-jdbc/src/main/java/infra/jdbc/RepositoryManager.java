@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
@@ -33,8 +35,6 @@ import infra.jdbc.datasource.DriverManagerDataSource;
 import infra.jdbc.datasource.SingleConnectionDataSource;
 import infra.jdbc.parsing.QueryParameter;
 import infra.jdbc.parsing.SqlParameterParser;
-import infra.persistence.DefaultEntityManager;
-import infra.persistence.EntityManager;
 import infra.jdbc.support.ClobToStringConverter;
 import infra.jdbc.support.JdbcAccessor;
 import infra.jdbc.support.JdbcTransactionManager;
@@ -42,7 +42,8 @@ import infra.jdbc.support.OffsetTimeToSQLTimeConverter;
 import infra.jdbc.type.TypeHandler;
 import infra.jdbc.type.TypeHandlerManager;
 import infra.lang.Assert;
-import infra.lang.Nullable;
+import infra.persistence.DefaultEntityManager;
+import infra.persistence.EntityManager;
 import infra.transaction.PlatformTransactionManager;
 import infra.transaction.TransactionDefinition;
 import infra.transaction.TransactionException;
@@ -391,7 +392,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection open(boolean autoClose) {
-    return new JdbcConnection(this, getDataSource(), autoClose);
+    return new JdbcConnection(this, obtainDataSource(), autoClose);
   }
 
   /**
@@ -514,7 +515,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection beginTransaction(int isolationLevel) {
-    return beginTransaction(getDataSource(), TransactionDefinition.forIsolationLevel(isolationLevel));
+    return beginTransaction(obtainDataSource(), TransactionDefinition.forIsolationLevel(isolationLevel));
   }
 
   /**
@@ -531,7 +532,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection beginTransaction(Isolation isolationLevel) {
-    return beginTransaction(getDataSource(), TransactionDefinition.forIsolationLevel(isolationLevel));
+    return beginTransaction(obtainDataSource(), TransactionDefinition.forIsolationLevel(isolationLevel));
   }
 
   /**
@@ -549,7 +550,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection beginTransaction(@Nullable TransactionDefinition definition) {
-    return beginTransaction(getDataSource(), definition);
+    return beginTransaction(obtainDataSource(), definition);
   }
 
   /**

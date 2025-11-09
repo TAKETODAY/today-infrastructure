@@ -19,6 +19,8 @@ package infra.context.annotation;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.stubbing.Answer;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -49,11 +51,13 @@ import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.BeanDefinitionHolder;
 import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import infra.beans.factory.support.BeanNameGenerator;
 import infra.beans.factory.support.ChildBeanDefinition;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.beans.testfixture.beans.ITestBean;
 import infra.beans.testfixture.beans.TestBean;
+import infra.context.BootstrapContext;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.componentscan.simple.SimpleComponent;
 import infra.core.ResolvableType;
@@ -63,6 +67,7 @@ import infra.core.env.ConfigurableEnvironment;
 import infra.core.io.DescriptiveResource;
 import infra.core.task.SimpleAsyncTaskExecutor;
 import infra.core.task.SyncTaskExecutor;
+import infra.core.type.MethodMetadata;
 import infra.lang.Assert;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
@@ -71,6 +76,12 @@ import jakarta.annotation.PostConstruct;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * @author Chris Beams
@@ -517,6 +528,69 @@ class ConfigurationClassPostProcessorTests {
     pp.postProcessBeanFactory(bf2); // first invocation for bf2 -- should succeed
     assertThatIllegalStateException().isThrownBy(() ->
             pp.postProcessBeanFactory(bf2)); // second invocation for bf2 -- should throw
+  }
+
+  @Test
+  void beanDefinitionsFromBeanMethodWithoutBeanNameGenerator() {
+    beanFactory.registerBeanDefinition("config", new RootBeanDefinition(BeanNamesConfig.class));
+    ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor();
+    pp.postProcessBeanFactory(beanFactory);
+    assertThat(beanFactory.getBeanDefinitionNames())
+            .containsOnly("config", "beanWithoutName", "specificName", "specificNames");
+    assertThat(beanFactory.getBean("beanWithoutName")).isEqualTo("beanWithoutName");
+    assertThat(beanFactory.getBean("specificName")).isEqualTo("beanWithName");
+    assertThat(beanFactory.getBean("specificNames")).isEqualTo("beanWithMultipleNames");
+    assertThat(beanFactory.getBean("specificNames2")).isEqualTo("beanWithMultipleNames");
+    assertThat(beanFactory.getBean("specificNames3")).isEqualTo("beanWithMultipleNames");
+  }
+
+  @Test
+  void beanDefinitionsFromBeanMethodWithBeanNameGenerator() {
+    BeanNameGenerator beanNameGenerator = mock(BeanNameGenerator.class);
+    beanFactory.registerBeanDefinition("config", new RootBeanDefinition(BeanNamesConfig.class));
+    ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor();
+    pp.setBootstrapContext(new BootstrapContext(null, beanFactory));
+    pp.setBeanNameGenerator(beanNameGenerator);
+    pp.postProcessBeanFactory(beanFactory);
+    assertThat(beanFactory.getBeanDefinitionNames())
+            .containsOnly("config", "beanWithoutName", "specificName", "specificNames");
+    assertThat(beanFactory.getBean("beanWithoutName")).isEqualTo("beanWithoutName");
+    assertThat(beanFactory.getBean("specificName")).isEqualTo("beanWithName");
+    assertThat(beanFactory.getBean("specificNames")).isEqualTo("beanWithMultipleNames");
+    assertThat(beanFactory.getBean("specificNames2")).isEqualTo("beanWithMultipleNames");
+    assertThat(beanFactory.getBean("specificNames3")).isEqualTo("beanWithMultipleNames");
+    verifyNoInteractions(beanNameGenerator);
+  }
+
+  @Test
+  void beanDefinitionsFromBeanMethodWithConfigurationBeanNameGenerator() {
+    ConfigurationBeanNameGenerator beanNameGenerator = mock(ConfigurationBeanNameGenerator.class);
+    Answer<?> answer = invocation -> {
+      MethodMetadata methodMetadata = invocation.getArgument(0);
+      String providedBeanName = invocation.getArgument(1);
+      return (providedBeanName != null) ? "test.fromBean." + providedBeanName : "test." + methodMetadata.getMethodName();
+    };
+    given(beanNameGenerator.deriveBeanName(any(), any())).willAnswer(answer).willAnswer(answer).willAnswer(answer);
+    beanFactory.registerBeanDefinition("config", new RootBeanDefinition(BeanNamesConfig.class));
+    ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor();
+    pp.setBootstrapContext(new BootstrapContext(null, beanFactory));
+    pp.setBeanNameGenerator(beanNameGenerator);
+    pp.postProcessBeanFactory(beanFactory);
+    assertThat(beanFactory.getBeanDefinitionNames())
+            .containsOnly("config", "test.beanWithoutName", "test.fromBean.specificName", "test.fromBean.specificNames");
+    assertThat(beanFactory.getBean("test.beanWithoutName")).isEqualTo("beanWithoutName");
+    assertThat(beanFactory.getBean("test.fromBean.specificName")).isEqualTo("beanWithName");
+    assertThat(beanFactory.getBean("test.fromBean.specificNames")).isEqualTo("beanWithMultipleNames");
+    assertThat(beanFactory.getBean("specificNames2")).isEqualTo("beanWithMultipleNames");
+    assertThat(beanFactory.getBean("specificNames3")).isEqualTo("beanWithMultipleNames");
+    ArgumentCaptor<MethodMetadata> methodMetadataCaptor = ArgumentCaptor.forClass(MethodMetadata.class);
+    ArgumentCaptor<String> beanNameCaptor = ArgumentCaptor.forClass(String.class);
+    verify(beanNameGenerator, times(3)).deriveBeanName(methodMetadataCaptor.capture(), beanNameCaptor.capture());
+    List<MethodMetadata> beansMethodMetadata = methodMetadataCaptor.getAllValues();
+    assertThat(beansMethodMetadata).map(MethodMetadata::getMethodName)
+            .containsExactly("beanWithoutName", "beanWithName", "beanWithMultipleNames");
+    List<String> beanNames = beanNameCaptor.getAllValues();
+    assertThat(beanNames).containsExactly(null, "specificName", "specificNames");
   }
 
   @Test
@@ -2107,6 +2181,26 @@ class ConfigurationClassPostProcessorTests {
 
       };
     }
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  public static class BeanNamesConfig {
+
+    @Component
+    public String beanWithoutName() {
+      return "beanWithoutName";
+    }
+
+    @Component(name = "specificName")
+    public String beanWithName() {
+      return "beanWithName";
+    }
+
+    @Bean(name = { "specificNames", "specificNames2", "specificNames3" })
+    public String beanWithMultipleNames() {
+      return "beanWithMultipleNames";
+    }
+
   }
 
 }

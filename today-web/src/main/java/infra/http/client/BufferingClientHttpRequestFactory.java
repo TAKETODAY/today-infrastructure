@@ -17,13 +17,14 @@
 
 package infra.http.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.function.Predicate;
 
 import infra.http.HttpMethod;
 import infra.http.HttpRequest;
-import infra.lang.Nullable;
 
 /**
  * Wrapper for a {@link ClientHttpRequestFactory} that buffers

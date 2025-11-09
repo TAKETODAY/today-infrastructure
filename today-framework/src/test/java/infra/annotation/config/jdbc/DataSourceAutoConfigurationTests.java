@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,13 +38,13 @@ import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
+import infra.app.test.context.FilteredClassLoader;
+import infra.app.test.context.assertj.AssertableApplicationContext;
+import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.BeanCreationException;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
-import infra.app.test.context.FilteredClassLoader;
-import infra.app.test.context.assertj.AssertableApplicationContext;
-import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.jdbc.datasource.SimpleDriverDataSource;
 import infra.jdbc.datasource.embedded.EmbeddedDatabase;
 import infra.util.StringUtils;

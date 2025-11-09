@@ -17,6 +17,8 @@
 
 package infra.persistence;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -50,7 +52,6 @@ import infra.jdbc.datasource.DataSourceUtils;
 import infra.jdbc.format.SqlStatementLogger;
 import infra.lang.Assert;
 import infra.lang.Descriptive;
-import infra.lang.Nullable;
 import infra.logging.LogMessage;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
@@ -133,6 +134,7 @@ public class DefaultEntityManager implements EntityManager {
     this(repositoryManager, Platform.forClasspath());
   }
 
+  @SuppressWarnings("NullAway")
   public DefaultEntityManager(RepositoryManager repositoryManager, Platform platform) {
     this.dataSource = repositoryManager.getDataSource();
     this.repositoryManager = repositoryManager;
@@ -828,6 +830,7 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public int delete(Object entityOrExample) throws DataAccessException {
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityOrExample.getClass());
 
@@ -944,6 +947,7 @@ public class DefaultEntityManager implements EntityManager {
     return iterate(entityClass, example).first();
   }
 
+  @Nullable
   @Override
   public <T> T findFirst(Class<T> entityClass, @Nullable QueryStatement handler) throws DataAccessException {
     return iterate(entityClass, handler).first();
@@ -962,6 +966,7 @@ public class DefaultEntityManager implements EntityManager {
     return iterate(entityClass, example).unique();
   }
 
+  @Nullable
   @Override
   public <T> T findUnique(Class<T> entityClass, @Nullable QueryStatement handler) throws DataAccessException {
     return iterate(entityClass, handler).unique();
@@ -1342,7 +1347,7 @@ public class DefaultEntityManager implements EntityManager {
     }
   }
 
-  private String getDescription(Object handler) {
+  String getDescription(Object handler) {
     Descriptive descriptive = null;
     if (handler instanceof Descriptive) {
       descriptive = (Descriptive) handler;
@@ -1353,7 +1358,7 @@ public class DefaultEntityManager implements EntityManager {
     return descriptive.getDescription();
   }
 
-  private Object getDebugLogMessage(Object handler) {
+  Object getDebugLogMessage(Object handler) {
     if (handler instanceof DebugDescriptive descriptive) {
       return descriptive.getDebugLogMessage();
     }
@@ -1363,7 +1368,7 @@ public class DefaultEntityManager implements EntityManager {
     return NoConditionsQuery.instance.getDebugLogMessage();
   }
 
-  private boolean isNew(Object entity) throws IllegalEntityException {
+  boolean isNew(Object entity) throws IllegalEntityException {
     if (entity instanceof NewEntityIndicator e) {
       return e.isNew();
     }
@@ -1387,7 +1392,7 @@ public class DefaultEntityManager implements EntityManager {
 
   //
 
-  private static int setParameters(Object entity, ArrayList<EntityProperty> properties, PreparedStatement statement) throws SQLException {
+  static int setParameters(Object entity, ArrayList<EntityProperty> properties, PreparedStatement statement) throws SQLException {
     int idx = 1;
     for (EntityProperty property : properties) {
       property.setTo(statement, idx++, entity);
@@ -1395,7 +1400,7 @@ public class DefaultEntityManager implements EntityManager {
     return idx;
   }
 
-  private static void assertUpdateCount(String sql, int actualCount, int expectCount) {
+  static void assertUpdateCount(String sql, int actualCount, int expectCount) {
     if (actualCount != expectCount) {
       throw new JdbcUpdateAffectedIncorrectNumberOfRowsException(sql, expectCount, actualCount);
     }
@@ -1423,6 +1428,7 @@ public class DefaultEntityManager implements EntityManager {
       }
     }
 
+    @Nullable
     @Override
     protected T readNext(ResultSet resultSet) throws SQLException {
       return handler.extractData(resultSet);

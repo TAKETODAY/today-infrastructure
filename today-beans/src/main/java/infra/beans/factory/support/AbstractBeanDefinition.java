@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.beans.factory.support;
+
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -44,7 +46,6 @@ import infra.core.annotation.Order;
 import infra.core.io.DescriptiveResource;
 import infra.core.io.Resource;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
@@ -202,8 +203,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
   private int dependencyCheck = DEPENDENCY_CHECK_NONE;
 
-  @Nullable
-  private String[] dependsOn;
+  private String @Nullable [] dependsOn;
 
   private boolean autowireCandidate = true;
 
@@ -238,11 +238,9 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   @Nullable
   private MethodOverrides methodOverrides;
 
-  @Nullable
-  private String[] initMethodNames;
+  private String @Nullable [] initMethodNames;
 
-  @Nullable
-  private String[] destroyMethodNames;
+  private String @Nullable [] destroyMethodNames;
 
   private boolean enforceInitMethod = true;
 
@@ -731,7 +729,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    * of dependencies like statics (*ugh*) or database preparation on startup.
    */
   @Override
-  public void setDependsOn(@Nullable String... dependsOn) {
+  public void setDependsOn(String @Nullable ... dependsOn) {
     this.dependsOn = dependsOn;
   }
 
@@ -739,8 +737,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    * Return the bean names that this bean depends on.
    */
   @Override
-  @Nullable
-  public String[] getDependsOn() {
+  public String @Nullable [] getDependsOn() {
     return this.dependsOn;
   }
 
@@ -1076,15 +1073,14 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    *
    * @see #setInitMethodName
    */
-  public void setInitMethodNames(@Nullable String... initMethodNames) {
+  public void setInitMethodNames(String @Nullable ... initMethodNames) {
     this.initMethodNames = initMethodNames;
   }
 
   /**
    * Return the names of the initializer methods.
    */
-  @Nullable
-  public String[] getInitMethodNames() {
+  public String @Nullable [] getInitMethodNames() {
     return this.initMethodNames;
   }
 
@@ -1137,15 +1133,14 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    *
    * @see #setDestroyMethodName
    */
-  public void setDestroyMethodNames(@Nullable String... destroyMethodNames) {
+  public void setDestroyMethodNames(String @Nullable ... destroyMethodNames) {
     this.destroyMethodNames = destroyMethodNames;
   }
 
   /**
    * Return the names of the destroy methods.
    */
-  @Nullable
-  public String[] getDestroyMethodNames() {
+  public String @Nullable [] getDestroyMethodNames() {
     return this.destroyMethodNames;
   }
 

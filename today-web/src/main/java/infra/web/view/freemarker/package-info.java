@@ -4,9 +4,7 @@
  * as Framework web view technology.
  * Contains a View implementation for FreeMarker templates.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.web.view.freemarker;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

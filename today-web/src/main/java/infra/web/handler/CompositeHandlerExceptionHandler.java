@@ -17,10 +17,12 @@
 
 package infra.web.handler;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 import infra.core.OrderedSupport;
-import infra.lang.Nullable;
+import infra.lang.Assert;
 import infra.web.HandlerExceptionHandler;
 import infra.web.RequestContext;
 
@@ -29,17 +31,10 @@ import infra.web.RequestContext;
  */
 public class CompositeHandlerExceptionHandler extends OrderedSupport implements HandlerExceptionHandler {
 
-  @Nullable
-  private List<HandlerExceptionHandler> handlers;
+  private final List<HandlerExceptionHandler> handlers;
 
   public CompositeHandlerExceptionHandler(final List<HandlerExceptionHandler> handlers) {
-    this.handlers = handlers;
-  }
-
-  /**
-   * Set the list of exception resolvers to delegate to.
-   */
-  public void setExceptionHandlers(@Nullable List<HandlerExceptionHandler> handlers) {
+    Assert.notNull(handlers, "handlers is required");
     this.handlers = handlers;
   }
 
@@ -65,4 +60,5 @@ public class CompositeHandlerExceptionHandler extends OrderedSupport implements 
     }
     return null;
   }
+
 }

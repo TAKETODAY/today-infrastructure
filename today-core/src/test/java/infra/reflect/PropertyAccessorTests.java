@@ -18,6 +18,7 @@
 package infra.reflect;
 
 import org.assertj.core.api.WithAssertions;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +26,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 import static infra.reflect.ReadOnlyPropertyAccessor.classToString;
@@ -124,8 +124,8 @@ class PropertyAccessorTests implements WithAssertions {
     age.set(obj, 1);
     assertThat(age.get(obj)).isEqualTo(1);
 
-    assertThat(age.getReadMethod()).isSameAs(getAgeMethod).isSameAs(getAge.getReadMethod());
-    assertThat(age.getWriteMethod()).isSameAs(setAgeMethod).isSameAs(setAge.getWriteMethod());
+    assertThat(age.getReadMethod()).isSameAs(getAge.getReadMethod()).isEqualTo(getAgeMethod);
+    assertThat(age.getWriteMethod()).isSameAs(setAge.getWriteMethod()).isEqualTo(setAgeMethod);
 
     Method getNameMethod = ForMethod.class.getDeclaredMethod("getName");
     GetterMethod getName = GetterMethod.forMethod(getNameMethod);
@@ -134,7 +134,7 @@ class PropertyAccessorTests implements WithAssertions {
     assertThat(name).isInstanceOf(ReadOnlyGetterMethodPropertyAccessor.class);
 
     assertThat(name.get(obj)).isEqualTo("name");
-    assertThat(name.getReadMethod()).isSameAs(getNameMethod).isSameAs(getName.getReadMethod());
+    assertThat(name.getReadMethod()).isSameAs(getName.getReadMethod()).isEqualTo(getNameMethod);
 
     assertThatThrownBy(() -> name.set(obj, "name1"))
             .isInstanceOf(ReflectionException.class)
@@ -228,6 +228,137 @@ class PropertyAccessorTests implements WithAssertions {
             .isInstanceOf(ReflectionException.class)
             .hasMessage("Can't set value '%s' to '%s' read only property"
                     .formatted("null", classToString(obj)));
+  }
+
+  @Test
+  void shouldCreatePropertyAccessorFromClassNameAndPropertyName() throws NoSuchFieldException {
+    PropertyAccessor accessor = PropertyAccessor.from(BeanTest.class, "name");
+
+    assertThat(accessor).isNotNull();
+    BeanTest bean = new BeanTest();
+    accessor.set(bean, "testName");
+    assertThat(accessor.get(bean)).isEqualTo("testName");
+  }
+
+  @Test
+  void shouldThrowExceptionWhenPropertyNotFound() {
+    assertThatThrownBy(() -> PropertyAccessor.from(BeanTest.class, "nonExistent"))
+            .isInstanceOf(ReflectionException.class)
+            .hasMessageContaining("No such property");
+  }
+
+  @Test
+  void shouldCreatePropertyAccessorForMethodWithGetterAndSetter() throws NoSuchMethodException {
+    Method getAge = ForMethod.class.getDeclaredMethod("getAge");
+    Method setAge = ForMethod.class.getDeclaredMethod("setAge", int.class);
+
+    PropertyAccessor accessor = PropertyAccessor.forMethod(getAge, setAge);
+
+    assertThat(accessor).isNotNull();
+    ForMethod obj = new ForMethod();
+    accessor.set(obj, 25);
+    assertThat(accessor.get(obj)).isEqualTo(25);
+  }
+
+  @Test
+  void shouldCreateReadOnlyPropertyAccessorForMethodWithOnlyGetter() throws NoSuchMethodException {
+    Method getName = ForMethod.class.getDeclaredMethod("getName");
+
+    PropertyAccessor accessor = PropertyAccessor.forMethod(GetterMethod.forMethod(getName), null);
+
+    assertThat(accessor).isNotNull();
+    ForMethod obj = new ForMethod();
+    assertThat(accessor.get(obj)).isEqualTo("name");
+    assertThat(accessor.isWriteable()).isFalse();
+  }
+
+  @Test
+  void shouldThrowExceptionWhenBothMethodsAreNull() {
+    assertThatThrownBy(() -> PropertyAccessor.forMethod((Method) null, null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("read-write cannot be null at the same time");
+  }
+
+  @Test
+  void shouldCreatePropertyAccessorForField() throws NoSuchFieldException {
+    Field nameField = BeanTest.class.getDeclaredField("name");
+
+    PropertyAccessor accessor = PropertyAccessor.forField(nameField);
+
+    assertThat(accessor).isNotNull();
+    BeanTest bean = new BeanTest();
+    accessor.set(bean, "fieldValue");
+    assertThat(accessor.get(bean)).isEqualTo("fieldValue");
+  }
+
+  @Test
+  void shouldCreatePropertyAccessorForPublicFinalField() throws NoSuchFieldException, NoSuchMethodException {
+    Field intValueField = PublicFinalBean.class.getField("intValue");
+    Method setIntValue = PublicFinalBean.class.getMethod("setIntValue", IntValue.class);
+
+    PropertyAccessor accessor = PropertyAccessor.forField(intValueField, null, setIntValue);
+
+    assertThat(accessor).isNotNull();
+    PublicFinalBean bean = new PublicFinalBean();
+    IntValue newValue = new IntValue(42);
+    accessor.set(bean, newValue);
+    assertThat(accessor.get(bean)).isEqualTo(newValue);
+  }
+
+  @Test
+  void shouldCreateReflectivePropertyAccessor() throws NoSuchFieldException {
+    Field privateValueField = ForReflective.class.getDeclaredField("privateValue");
+
+    PropertyAccessor accessor = PropertyAccessor.forReflective(privateValueField);
+
+    assertThat(accessor).isNotNull();
+    ForReflective obj = new ForReflective();
+    IntValue value = new IntValue(10);
+    accessor.set(obj, value);
+    assertThat(accessor.get(obj)).isEqualTo(value);
+  }
+
+  @Test
+  void shouldCreateReflectivePropertyAccessorWithMethods() throws NoSuchFieldException, NoSuchMethodException {
+    Field privateValueField = ForReflective.class.getDeclaredField("privateValue");
+    Method getPrivateValue = ForReflective.class.getMethod("getPrivateValue");
+    Method setPrivateValue = ForReflective.class.getMethod("setPrivateValue", IntValue.class);
+
+    PropertyAccessor accessor = PropertyAccessor.forReflective(privateValueField, getPrivateValue, setPrivateValue);
+
+    assertThat(accessor).isNotNull();
+    ForReflective obj = new ForReflective();
+    IntValue value = new IntValue(20);
+    accessor.set(obj, value);
+    assertThat(accessor.get(obj)).isEqualTo(value);
+  }
+
+  @Test
+  void shouldHandleReadOnlyReflectiveProperty() throws NoSuchFieldException, NoSuchMethodException {
+    Field intValueField = ForReflective.class.getField("intValue");
+
+    PropertyAccessor accessor = PropertyAccessor.forReflective(intValueField, null, null);
+
+    assertThat(accessor).isNotNull();
+    ForReflective obj = new ForReflective();
+    assertThat(accessor.get(obj)).isNotNull();
+    assertThat(accessor.isWriteable()).isFalse();
+  }
+
+  @Test
+  void shouldCreatePropertyAccessorForMethodWithGetterMethodAndSetterMethod() throws NoSuchMethodException {
+    Method getName = ForMethod.class.getDeclaredMethod("getName");
+    Method setAge = ForMethod.class.getDeclaredMethod("setAge", int.class);
+    GetterMethod getter = GetterMethod.forMethod(getName);
+    SetterMethod setter = SetterMethod.forMethod(setAge);
+
+    PropertyAccessor accessor = PropertyAccessor.forMethod(getter, setter);
+
+    assertThat(accessor).isNotNull();
+    ForMethod obj = new ForMethod();
+    accessor.set(obj, 30);
+    // getter is still reading the original name field
+    assertThat(accessor.get(obj)).isEqualTo("name");
   }
 
   static class ForMethod {

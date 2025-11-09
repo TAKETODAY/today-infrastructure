@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -192,7 +192,7 @@ public class DefaultClientResponseTests {
     assertThat(result.getBody()).isEqualTo("foo");
     assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(result.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
-    assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(result.headers().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
   }
 
   @Test
@@ -212,7 +212,7 @@ public class DefaultClientResponseTests {
     assertThat(result.getBody()).isEqualTo("foo");
     assertThat(result.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(999));
     assertThat(result.getStatusCodeValue()).isEqualTo(999);
-    assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(result.headers().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
   }
 
   @Test
@@ -228,7 +228,7 @@ public class DefaultClientResponseTests {
     assertThat(result.getBody()).isEqualTo("foo");
     assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(result.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
-    assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(result.headers().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
   }
 
   @Test
@@ -244,7 +244,7 @@ public class DefaultClientResponseTests {
     assertThat(result.getBody()).containsExactly("foo");
     assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(result.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
-    assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(result.headers().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
   }
 
   @Test
@@ -264,7 +264,7 @@ public class DefaultClientResponseTests {
     assertThat(result.getBody()).containsExactly("foo");
     assertThat(result.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(999));
     assertThat(result.getStatusCodeValue()).isEqualTo(999);
-    assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(result.headers().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
   }
 
   @Test
@@ -281,7 +281,7 @@ public class DefaultClientResponseTests {
     assertThat(result.getBody()).containsExactly("foo");
     assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(result.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
-    assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(result.headers().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
   }
 
   @Test

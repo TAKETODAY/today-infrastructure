@@ -17,12 +17,13 @@
 
 package infra.jdbc.datasource;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Savepoint;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.transaction.CannotCreateTransactionException;
 import infra.transaction.NestedTransactionNotSupportedException;
 import infra.transaction.SavepointManager;
@@ -185,9 +186,13 @@ public abstract class JdbcTransactionObjectSupport implements SavepointManager, 
       // typically on Oracle - ignore
     }
     catch (SQLException ex) {
+      if ("3B001".equals(ex.getSQLState())) {
+        // Savepoint already released (HSQLDB, PostgreSQL, DB2) - ignore
+        return;
+      }
       // ignore Microsoft SQLServerException: This operation is not supported.
       String msg = ex.getMessage();
-      if (msg == null || !msg.contains("not supported")) {
+      if (msg == null || (!msg.contains("not supported") && !msg.contains("3B001"))) {
         throw new TransactionSystemException("Could not explicitly release JDBC savepoint", ex);
       }
     }

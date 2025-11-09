@@ -17,12 +17,17 @@
 
 package infra.reflect;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
+import lombok.Getter;
+import lombok.Setter;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -31,6 +36,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class GetterMethodTests {
 
+  @Getter
+  @Setter
   public static class POJO1 {
     boolean _boolean;
     byte _byte;
@@ -247,6 +254,71 @@ class GetterMethodTests {
       Object val1 = field.get(pojo);
       assertEquals(val1, getter.get(pojo));
     }
+  }
+
+  @Test
+  void shouldCreateGetterMethodForFieldWithExistingReadMethod() throws NoSuchFieldException, NoSuchMethodException {
+    Field field = POJO1.class.getDeclaredField("_int");
+    Method readMethod = POJO1.class.getDeclaredMethod("get_int");
+
+    GetterMethod getter = GetterMethod.forField(field);
+
+    assertThat(getter).isNotNull();
+    assertThat(getter.getReadMethod()).isEqualTo(readMethod);
+  }
+
+  @Test
+  void shouldCreateGetterMethodForMethod() throws NoSuchMethodException {
+    Method method = POJO1.class.getDeclaredMethod("get_int");
+
+    GetterMethod getter = GetterMethod.forMethod(method);
+
+    assertThat(getter).isNotNull();
+    POJO1 pojo = new POJO1();
+    pojo._int = 42;
+    assertThat(getter.get(pojo)).isEqualTo(42);
+  }
+
+  @Test
+  void shouldCreateGetterMethodForMethodInvoker() throws NoSuchMethodException {
+    Method method = POJO1.class.getDeclaredMethod("get_int");
+    MethodInvoker invoker = MethodInvoker.forMethod(method);
+
+    GetterMethod getter = GetterMethod.forMethod(invoker);
+
+    assertThat(getter).isNotNull();
+    POJO1 pojo = new POJO1();
+    pojo._int = 42;
+    assertThat(getter.get(pojo)).isEqualTo(42);
+  }
+
+  @Test
+  void shouldCreateReflectiveGetterMethod() throws NoSuchFieldException {
+    Field field = POJO1.class.getDeclaredField("_int");
+
+    GetterMethod getter = GetterMethod.forReflective(field);
+
+    assertThat(getter).isNotNull();
+    POJO1 pojo = new POJO1();
+    pojo._int = 42;
+    assertThat(getter.get(pojo)).isEqualTo(42);
+  }
+
+  @Test
+  void shouldGetMethodAccessorGetterMethod() throws NoSuchMethodException {
+    Method method = POJO1.class.getDeclaredMethod("get_int");
+    MethodInvoker invoker = MethodInvoker.forMethod(method);
+    MethodAccessorGetterMethod getter = new MethodAccessorGetterMethod(invoker);
+
+    assertThat(getter).isNotNull();
+    assertThat(getter.getReadMethod()).isEqualTo(method);
+
+    assertThat(new GetterMethod() {
+      @Override
+      public @Nullable Object get(Object obj) {
+        return null;
+      }
+    }.getReadMethod()).isNull();
   }
 
 }

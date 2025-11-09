@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -28,7 +30,6 @@ import infra.beans.BeanMetadata;
 import infra.beans.BeanProperty;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
-import infra.lang.Nullable;
 import infra.persistence.Column;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.MapCache;
@@ -45,13 +46,13 @@ public class JdbcBeanMetadata {
 
   private static final Cache caseSensitiveTrue = new Cache();
 
-  private final boolean caseSensitive;
+  private final BeanMetadata beanMetadata;
 
-  private final boolean autoDeriveColumnNames;
+  final boolean caseSensitive;
+
+  final boolean autoDeriveColumnNames;
 
   final boolean throwOnMappingFailure;
-
-  private final BeanMetadata beanMetadata;
 
   @Nullable
   private HashMap<String, BeanProperty> beanProperties;
@@ -92,6 +93,7 @@ public class JdbcBeanMetadata {
     return null;
   }
 
+  @Nullable
   private BeanProperty getProperty(String propertyName) {
     HashMap<String, BeanProperty> beanProperties = this.beanProperties;
     if (beanProperties == null) {

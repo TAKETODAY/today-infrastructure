@@ -17,13 +17,14 @@
 
 package infra.core.conversion.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Optional;
 import java.util.Set;
 
 import infra.core.TypeDescriptor;
 import infra.core.conversion.ConditionalGenericConverter;
 import infra.core.conversion.ConversionService;
-import infra.lang.Nullable;
 
 /**
  * Convert an {@link Optional} to an {@link Object} by unwrapping the {@code Optional},

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,13 @@
 
 package infra.web.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.nio.charset.Charset;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**
@@ -73,7 +74,7 @@ public abstract class HttpStatusCodeException extends RestClientResponseExceptio
    * @param responseCharset the response body charset, may be {@code null}
    */
   protected HttpStatusCodeException(HttpStatusCode statusCode, String statusText,
-          @Nullable byte[] responseBody, @Nullable Charset responseCharset) {
+          byte @Nullable [] responseBody, @Nullable Charset responseCharset) {
 
     this(statusCode, statusText, null, responseBody, responseCharset);
   }
@@ -89,7 +90,7 @@ public abstract class HttpStatusCodeException extends RestClientResponseExceptio
    * @param responseCharset the response body charset, may be {@code null}
    */
   protected HttpStatusCodeException(HttpStatusCode statusCode, String statusText,
-          @Nullable HttpHeaders responseHeaders, @Nullable byte[] responseBody, @Nullable Charset responseCharset) {
+          @Nullable HttpHeaders responseHeaders, byte @Nullable [] responseBody, @Nullable Charset responseCharset) {
 
     this(getMessage(statusCode, statusText),
             statusCode, statusText, responseHeaders, responseBody, responseCharset);
@@ -107,7 +108,7 @@ public abstract class HttpStatusCodeException extends RestClientResponseExceptio
    * @param responseCharset the response body charset, may be {@code null}
    */
   protected HttpStatusCodeException(@Nullable String message, HttpStatusCode statusCode, String statusText,
-          @Nullable HttpHeaders responseHeaders, @Nullable byte[] responseBody, @Nullable Charset responseCharset) {
+          @Nullable HttpHeaders responseHeaders, byte @Nullable [] responseBody, @Nullable Charset responseCharset) {
     super(message == null ? getMessage(statusCode, statusText) : message, statusCode, statusText, responseHeaders, responseBody, responseCharset);
   }
 

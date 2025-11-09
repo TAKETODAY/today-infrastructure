@@ -17,6 +17,8 @@
 
 package infra.instrument.classloading;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
@@ -25,7 +27,6 @@ import java.util.ArrayList;
 
 import infra.instrument.InstrumentationSavingAgent;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**
@@ -162,8 +163,7 @@ public class InstrumentationLoadTimeWeaver implements LoadTimeWeaver {
           ClassFileTransformer targetTransformer, @Nullable ClassLoader targetClassLoader) implements ClassFileTransformer {
 
     @Override
-    @Nullable
-    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+    public byte @Nullable [] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
             ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 
       if (this.targetClassLoader != loader) {

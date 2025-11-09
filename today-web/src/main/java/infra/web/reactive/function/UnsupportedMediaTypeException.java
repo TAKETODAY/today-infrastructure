@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 package infra.web.reactive.function;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.List;
 
 import infra.core.NestedRuntimeException;
 import infra.core.ResolvableType;
 import infra.http.MediaType;
-import infra.lang.Nullable;
 
 /**
  * Exception thrown to indicate that a {@code Content-Type} is not supported.
@@ -34,13 +35,11 @@ import infra.lang.Nullable;
  */
 public class UnsupportedMediaTypeException extends NestedRuntimeException {
 
-  @Nullable
-  private final MediaType contentType;
+  private final @Nullable MediaType contentType;
+
+  private final @Nullable ResolvableType bodyType;
 
   private final List<MediaType> supportedMediaTypes;
-
-  @Nullable
-  private final ResolvableType bodyType;
 
   /**
    * Constructor for when trying to encode from or decode to a specific Java type.
@@ -56,15 +55,14 @@ public class UnsupportedMediaTypeException extends NestedRuntimeException {
 
   private static String initReason(@Nullable MediaType contentType, @Nullable ResolvableType bodyType) {
     return "Content type '" + (contentType != null ? contentType : "") + "' not supported" +
-            (bodyType != null ? " for bodyType=" + bodyType.toString() : "");
+            (bodyType != null ? " for bodyType=" + bodyType : "");
   }
 
   /**
    * Return the request Content-Type header if it was parsed successfully,
    * or {@code null} otherwise.
    */
-  @Nullable
-  public MediaType getContentType() {
+  public @Nullable MediaType getContentType() {
     return this.contentType;
   }
 
@@ -83,8 +81,7 @@ public class UnsupportedMediaTypeException extends NestedRuntimeException {
    *
    * @return the body type, or {@code null} if not available
    */
-  @Nullable
-  public ResolvableType getBodyType() {
+  public @Nullable ResolvableType getBodyType() {
     return this.bodyType;
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.context.annotation.config;
+
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -50,8 +52,10 @@ import infra.core.type.filter.TypeFilter;
  */
 public class TypeExcludeFilter implements TypeFilter, BeanFactoryAware {
 
+  @Nullable
   private BeanFactory beanFactory;
 
+  @Nullable
   private Collection<TypeExcludeFilter> delegates;
 
   @Override
@@ -61,8 +65,9 @@ public class TypeExcludeFilter implements TypeFilter, BeanFactoryAware {
 
   @Override
   public boolean match(MetadataReader metadataReader, MetadataReaderFactory factory) throws IOException {
-    if (this.beanFactory != null && getClass() == TypeExcludeFilter.class) {
-      for (TypeExcludeFilter delegate : getDelegates()) {
+    BeanFactory beanFactory = this.beanFactory;
+    if (beanFactory != null && getClass() == TypeExcludeFilter.class) {
+      for (TypeExcludeFilter delegate : getDelegates(beanFactory)) {
         if (delegate.match(metadataReader, factory)) {
           return true;
         }
@@ -71,7 +76,7 @@ public class TypeExcludeFilter implements TypeFilter, BeanFactoryAware {
     return false;
   }
 
-  private Collection<TypeExcludeFilter> getDelegates() {
+  private Collection<TypeExcludeFilter> getDelegates(BeanFactory beanFactory) {
     Collection<TypeExcludeFilter> delegates = this.delegates;
     if (delegates == null) {
       delegates = beanFactory.getBeansOfType(TypeExcludeFilter.class).values();

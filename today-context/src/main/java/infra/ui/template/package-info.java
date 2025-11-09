@@ -18,9 +18,7 @@
 /**
  * Base classes for template.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.ui.template;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

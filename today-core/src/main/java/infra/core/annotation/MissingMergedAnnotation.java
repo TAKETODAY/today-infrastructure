@@ -17,6 +17,8 @@
 
 package infra.core.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.List;
@@ -24,8 +26,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import infra.lang.Nullable;
 
 /**
  * An {@link AbstractMergedAnnotation} used as the implementation of
@@ -96,11 +96,13 @@ final class MissingMergedAnnotation<A extends Annotation> extends AbstractMerged
             "Unable to check default value for missing annotation");
   }
 
+  @Nullable
   @Override
   public <T> T getValue(String attributeName, Class<T> type) {
     return null;
   }
 
+  @Nullable
   @Override
   public <T> T getDefaultValue(@Nullable String attributeName, Class<T> type) {
     return null;
@@ -130,11 +132,6 @@ final class MissingMergedAnnotation<A extends Annotation> extends AbstractMerged
   public <T extends Map<String, Object>> T asMap(
           Function<MergedAnnotation<?>, T> factory, MergedAnnotation.Adapt... adaptations) {
     return factory.apply(this);
-  }
-
-  @Override
-  public boolean isSynthesizable() {
-    return false;
   }
 
   @Override

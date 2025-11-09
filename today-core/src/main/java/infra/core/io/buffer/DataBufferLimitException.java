@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ package infra.core.io.buffer;
  * parsing with Jackson, SSE parsing and aggregating lines per event.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
@@ -33,6 +34,15 @@ public class DataBufferLimitException extends IllegalStateException {
 
   public DataBufferLimitException(String message) {
     super(message);
+  }
+
+  /**
+   * Create an instance with a message and a cause, e.g. {@link OutOfMemoryError}.
+   *
+   * @since 5.0
+   */
+  public DataBufferLimitException(String message, Throwable cause) {
+    super(message, cause);
   }
 
 }

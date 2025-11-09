@@ -37,8 +37,8 @@ class OnClassWithPackageResourcesTests {
   @Test
   void whenWithPackageResourcesIsUsedOnAClassThenResourcesAreAvailable() throws IOException {
     assertThat(new ClassPathResource("resource-1.txt").getContentAsString(StandardCharsets.UTF_8)).isEqualTo("one");
-    assertThat(new ClassPathResource("resource-2.txt").getContentAsString(StandardCharsets.UTF_8)).isEqualTo("two");
-    assertThat(new ClassPathResource("sub/resource-3.txt").getContentAsString(StandardCharsets.UTF_8))
+    assertThat(new ClassPathResource("resource-2.txt").getContentAsString()).isEqualTo("two");
+    assertThat(new ClassPathResource("sub/resource-3.txt").getContentAsString())
             .isEqualTo("three");
   }
 

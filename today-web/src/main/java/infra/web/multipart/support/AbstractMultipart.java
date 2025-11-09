@@ -17,9 +17,10 @@
 
 package infra.web.multipart.support;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.http.DefaultHttpHeaders;
 import infra.http.HttpHeaders;
-import infra.lang.Nullable;
 import infra.web.multipart.Multipart;
 
 /**
@@ -50,8 +51,7 @@ import infra.web.multipart.Multipart;
  */
 public abstract class AbstractMultipart implements Multipart {
 
-  @Nullable
-  protected HttpHeaders headers;
+  protected @Nullable HttpHeaders headers;
 
   @Override
   public HttpHeaders getHeaders() {

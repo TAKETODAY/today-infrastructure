@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,12 @@
 
 package infra.beans.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
 
@@ -39,6 +40,7 @@ import infra.util.ReflectionUtils;
  * @author TODAY 2021/9/5 16:42
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public final class SunReflectionFactoryInstantiator extends BeanInstantiator {
   private static final Object reflectionFactory;
   private static final Method newConstructorForSerialization;
@@ -64,7 +66,7 @@ public final class SunReflectionFactoryInstantiator extends BeanInstantiator {
   }
 
   @Override
-  protected Object doInstantiate(@Nullable Object[] args) throws Throwable {
+  protected Object doInstantiate(@Nullable Object @Nullable [] args) throws Throwable {
     return constructor.newInstance(); // serialization
   }
 

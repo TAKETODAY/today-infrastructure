@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,13 +25,21 @@ import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 import infra.core.MethodParameter;
 import infra.http.HttpEntity;
+import infra.http.HttpHeaders;
+import infra.http.HttpMethod;
+import infra.http.HttpStatus;
+import infra.http.HttpStatusCode;
 import infra.http.MediaType;
+import infra.http.ProblemDetail;
+import infra.http.RequestEntity;
 import infra.http.ResponseEntity;
 import infra.http.converter.ByteArrayHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
@@ -39,6 +47,7 @@ import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.MappingJackson2HttpMessageConverter;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
+import infra.web.ErrorResponse;
 import infra.web.annotation.RequestMapping;
 import infra.web.annotation.ResponseBody;
 import infra.web.handler.method.HandlerMethod;
@@ -182,7 +191,7 @@ class HttpEntityMethodProcessorTests {
     assertThat(mockResponse.getContentAsString()).isEqualTo("Foo");
   }
 
-  @Test  // gh-24539
+  @Test
   public void handleReturnValueWithMalformedAcceptHeader() throws Exception {
     mockRequest.addHeader("Accept", "null");
 
@@ -200,6 +209,340 @@ class HttpEntityMethodProcessorTests {
     assertThat(mockResponse.getStatus()).isEqualTo(400);
     assertThat(mockResponse.getHeader("Content-Type")).isNull();
     assertThat(mockResponse.getContentAsString()).isEmpty();
+  }
+
+  @Test
+  public void supportsParameterWithRequestEntity() throws Exception {
+    List<HttpMessageConverter<?>> converters = new ArrayList<>();
+    converters.add(new MappingJackson2HttpMessageConverter());
+
+    ResolvableMethodParameter param = new ResolvableMethodParameter(
+            new MethodParameter(getClass().getDeclaredMethod("handleRequestEntity", RequestEntity.class), 0));
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters, null);
+    assertThat(processor.supportsParameter(param)).isTrue();
+  }
+
+  @Test
+  public void supportsParameterWithNonHttpEntity() throws Exception {
+    ResolvableMethodParameter param = new ResolvableMethodParameter(
+            new MethodParameter(getClass().getDeclaredMethod("handleString", String.class), 0));
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    assertThat(processor.supportsParameter(param)).isFalse();
+  }
+
+  @Test
+  public void supportsReturnValueWithHttpEntity() {
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    assertThat(processor.supportsReturnValue(new HttpEntity<>("test"))).isTrue();
+  }
+
+  @Test
+  public void supportsReturnValueWithResponseEntity() {
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    assertThat(processor.supportsReturnValue(ResponseEntity.ok("test"))).isTrue();
+  }
+
+  @Test
+  public void supportsReturnValueWithRequestEntity() {
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    assertThat(processor.supportsReturnValue(new RequestEntity<>("test", HttpMethod.GET, URI.create("/")))).isFalse();
+  }
+
+  @Test
+  public void supportsReturnValueWithNull() {
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    assertThat(processor.supportsReturnValue(null)).isFalse();
+  }
+
+  @Test
+  public void supportsReturnValueWithProblemDetail() {
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    assertThat(processor.supportsReturnValue(ProblemDetail.forRawStatusCode(404))).isTrue();
+  }
+
+  @Test
+  public void supportsReturnValueWithErrorStatus() {
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    assertThat(processor.supportsReturnValue(new TestErrorResponse())).isTrue();
+  }
+
+  @Test
+  public void supportsHandlerMethodWithHttpEntityReturnType() throws Exception {
+    Method method = getClass().getDeclaredMethod("handleReturnHttpEntity");
+    HandlerMethod handlerMethod = new HandlerMethod(this, method);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    assertThat(processor.supportsHandlerMethod(handlerMethod)).isTrue();
+  }
+
+  @Test
+  public void supportsHandlerMethodWithResponseEntityReturnType() throws Exception {
+    Method method = getClass().getDeclaredMethod("handleReturnResponseEntity");
+    HandlerMethod handlerMethod = new HandlerMethod(this, method);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    assertThat(processor.supportsHandlerMethod(handlerMethod)).isTrue();
+  }
+
+  @Test
+  public void supportsHandlerMethodWithRequestEntityReturnType() throws Exception {
+    Method method = getClass().getDeclaredMethod("handleReturnRequestEntity");
+    HandlerMethod handlerMethod = new HandlerMethod(this, method);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    assertThat(processor.supportsHandlerMethod(handlerMethod)).isFalse();
+  }
+
+  @Test
+  public void supportsHandlerMethodWithStringReturnType() throws Exception {
+    Method method = getClass().getDeclaredMethod("handleString", String.class);
+    HandlerMethod handlerMethod = new HandlerMethod(this, method);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    assertThat(processor.supportsHandlerMethod(handlerMethod)).isFalse();
+  }
+
+  @Test
+  public void handleNullReturnValue() throws Exception {
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    processor.handleReturnValue(webRequest, null, null);
+    // Should not throw exception
+  }
+
+  @Test
+  public void handleProblemDetailReturnValue() throws Exception {
+    ProblemDetail problemDetail = ProblemDetail.forRawStatusCode(404);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+
+    processor.handleReturnValue(webRequest, null, problemDetail);
+
+    assertThat(webRequest.getStatus()).isEqualTo(404);
+  }
+
+  @Test
+  public void handleErrorResponseReturnValue() throws Exception {
+    TestErrorResponse errorResponse = new TestErrorResponse();
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+
+    processor.handleReturnValue(webRequest, null, errorResponse);
+
+    assertThat(webRequest.getStatus()).isEqualTo(500);
+  }
+
+  @Test
+  public void handleResponseEntityWithHeaders() throws Exception {
+    HttpHeaders headers = HttpHeaders.forWritable();
+    headers.add("Custom-Header", "custom-value");
+    ResponseEntity<String> responseEntity = new ResponseEntity<>("body", headers, HttpStatusCode.valueOf(201));
+
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    processor.handleReturnValue(webRequest, null, responseEntity);
+
+    assertThat(webRequest.getStatus()).isEqualTo(201);
+    assertThat(webRequest.responseHeaders().getFirst("Custom-Header")).isEqualTo("custom-value");
+  }
+
+  @Test
+  public void handleResponseEntityWithRedirect() throws Exception {
+    HttpHeaders headers = HttpHeaders.forWritable();
+    headers.add(HttpHeaders.LOCATION, "/redirect");
+    ResponseEntity<String> responseEntity = new ResponseEntity<>("body", headers, HttpStatusCode.valueOf(302));
+
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    processor.handleReturnValue(webRequest, null, responseEntity);
+
+    assertThat(webRequest.getStatus()).isEqualTo(302);
+    assertThat(webRequest.responseHeaders().getFirst(HttpHeaders.LOCATION)).isEqualTo("/redirect");
+  }
+
+  @Test
+  public void supportsParameterWithRawHttpEntity() throws Exception {
+    Method method = getClass().getDeclaredMethod("handleRawHttpEntity", HttpEntity.class);
+    ResolvableMethodParameter param = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    assertThat(processor.supportsParameter(param)).isTrue();
+  }
+
+  @Test
+  public void resolveArgumentWithRawHttpEntity() throws Exception {
+    mockRequest.setContent("test content".getBytes(StandardCharsets.UTF_8));
+    mockRequest.setContentType("text/plain");
+
+    Method method = getClass().getDeclaredMethod("handleStringRawHttpEntity", HttpEntity.class);
+    ResolvableMethodParameter param = new ResolvableMethodParameter(new MethodParameter(method, 0));
+
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new StringHttpMessageConverter()), null);
+    HttpEntity<?> result = (HttpEntity<?>) processor.resolveArgument(webRequest, param);
+
+    assertThat(result).isNotNull();
+    assertThat(result.getBody()).isEqualTo("test content");
+  }
+
+  @Test
+  public void resolveArgumentWithRequestEntity() throws Exception {
+    String content = "{\"name\":\"test\"}";
+    mockRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
+    mockRequest.setContentType("application/json");
+
+    List<HttpMessageConverter<?>> converters = new ArrayList<>();
+    converters.add(new MappingJackson2HttpMessageConverter());
+
+    Method method = getClass().getDeclaredMethod("handleRequestEntity", RequestEntity.class);
+    ResolvableMethodParameter param = new ResolvableMethodParameter(new MethodParameter(method, 0));
+
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters, null);
+    RequestEntity<SimpleBean> result = (RequestEntity<SimpleBean>) processor.resolveArgument(webRequest, param);
+
+    assertThat(result).isNotNull();
+    assertThat(result.getBody().getName()).isEqualTo("test");
+    assertThat(result.getMethod()).isEqualTo(HttpMethod.POST);
+    assertThat(result.getURI()).isEqualTo(webRequest.getURI());
+  }
+
+  @Test
+  public void getHttpEntityTypeWithNonParameterizedType() throws Exception {
+    Method method = getClass().getDeclaredMethod("handleRawHttpEntity", HttpEntity.class);
+    MethodParameter parameter = new MethodParameter(method, 0);
+
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    // Access private method via reflection
+    java.lang.reflect.Method getHttpEntityType = HttpEntityMethodProcessor.class.getDeclaredMethod("getHttpEntityType", MethodParameter.class);
+    getHttpEntityType.setAccessible(true);
+
+    Type type = (Type) getHttpEntityType.invoke(processor, parameter);
+    assertThat(type).isEqualTo(Object.class);
+  }
+
+  @Test
+  public void handleResponseEntityWithVaryHeader() throws Exception {
+    HttpHeaders entityHeaders = HttpHeaders.forWritable();
+    entityHeaders.setVary(List.of("Accept-Encoding"));
+    HttpHeaders responseHeaders = webRequest.responseHeaders();
+    responseHeaders.setVary(List.of("Accept-Language"));
+
+    ResponseEntity<String> responseEntity = new ResponseEntity<>("body", entityHeaders, HttpStatus.OK);
+
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    processor.handleReturnValue(webRequest, null, responseEntity);
+
+    List<String> varyHeaders = responseHeaders.getVary();
+    assertThat(varyHeaders).contains("Accept-Encoding");
+  }
+
+  @Test
+  public void handleResponseEntityWithWildcardVaryHeader() throws Exception {
+    HttpHeaders entityHeaders = HttpHeaders.forWritable();
+    entityHeaders.setVary(List.of("Accept-Encoding"));
+
+    HttpHeaders responseHeaders = webRequest.responseHeaders();
+    responseHeaders.setVary(List.of("*"));
+
+    ResponseEntity<String> responseEntity = new ResponseEntity<>("body", entityHeaders, HttpStatus.OK);
+
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    processor.handleReturnValue(webRequest, null, responseEntity);
+
+    List<String> varyHeaders = responseHeaders.getVary();
+    assertThat(varyHeaders).containsExactly("*");
+  }
+
+  @Test
+  public void handleResponseEntityWithNotModified() throws Exception {
+    mockRequest.setMethod("GET");
+    mockRequest.addHeader("If-None-Match", "\"etag1\"");
+
+    HttpHeaders entityHeaders = HttpHeaders.forWritable();
+    entityHeaders.setETag("\"etag1\"");
+
+    ResponseEntity<String> responseEntity = new ResponseEntity<>("body", entityHeaders, HttpStatus.OK);
+
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    processor.handleReturnValue(webRequest, null, responseEntity);
+
+    assertThat(webRequest.getStatus()).isEqualTo(304);
+  }
+
+  @Test
+  public void handleProblemDetailWithInstance() throws Exception {
+    ProblemDetail problemDetail = ProblemDetail.forRawStatusCode(404);
+    problemDetail.setInstance(URI.create("/test"));
+
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    processor.handleReturnValue(webRequest, null, problemDetail);
+
+    assertThat(problemDetail.getInstance()).isEqualTo(URI.create("/test"));
+  }
+
+  @Test
+  public void handleProblemDetailWithoutInstance() throws Exception {
+    ProblemDetail problemDetail = ProblemDetail.forRawStatusCode(404);
+    mockRequest.setRequestURI("/test-path");
+
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    processor.handleReturnValue(webRequest, null, problemDetail);
+
+    assertThat(problemDetail.getInstance()).isEqualTo(URI.create("/test-path"));
+  }
+
+  @Test
+  public void getReturnValueTypeWithReturnValue() throws Exception {
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+
+    java.lang.reflect.Method getReturnValueType = HttpEntityMethodProcessor.class.getDeclaredMethod("getReturnValueType", Object.class, MethodParameter.class);
+    getReturnValueType.setAccessible(true);
+
+    ResponseEntity<String> returnValue = ResponseEntity.ok("test");
+    Class<?> type = (Class<?>) getReturnValueType.invoke(processor, returnValue, null);
+
+    assertThat(type).isEqualTo(ResponseEntity.class);
+  }
+
+  @Test
+  public void getReturnValueTypeWithoutReturnValue() throws Exception {
+    Method method = getClass().getDeclaredMethod("handleReturnResponseEntity");
+    MethodParameter returnType = new MethodParameter(method, -1);
+
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+
+    java.lang.reflect.Method getReturnValueType = HttpEntityMethodProcessor.class.getDeclaredMethod("getReturnValueType", Object.class, MethodParameter.class);
+    getReturnValueType.setAccessible(true);
+
+    Class<?> type = (Class<?>) getReturnValueType.invoke(processor, null, returnType);
+
+    assertThat(type).isEqualTo(String.class);
+  }
+
+  @SuppressWarnings("unused")
+  private void handleStringRawHttpEntity(HttpEntity<String> entity) {
+  }
+
+  @SuppressWarnings("unused")
+  private void handleRawHttpEntity(HttpEntity entity) {
+  }
+
+  @SuppressWarnings("unused")
+  private void handleRequestEntity(RequestEntity<SimpleBean> requestEntity) { }
+
+  @SuppressWarnings("unused")
+  private void handleString(String string) { }
+
+  @SuppressWarnings("unused")
+  private HttpEntity<String> handleReturnHttpEntity() { return null; }
+
+  @SuppressWarnings("unused")
+  private ResponseEntity<String> handleReturnResponseEntity() { return null; }
+
+  @SuppressWarnings("unused")
+  private RequestEntity<String> handleReturnRequestEntity() { return null; }
+
+  private static class TestErrorResponse implements ErrorResponse {
+
+    @Override
+    public HttpStatusCode getStatusCode() {
+      return HttpStatusCode.valueOf(500);
+    }
+
+    @Override
+    public ProblemDetail getBody() {
+      return ProblemDetail.forRawStatusCode(500);
+    }
+
   }
 
   @SuppressWarnings("unused")

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.http.converter.json;
@@ -38,6 +35,8 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
+import org.jspecify.annotations.Nullable;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -50,7 +49,6 @@ import infra.beans.factory.FactoryBean;
 import infra.beans.factory.InitializingBean;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
-import infra.lang.Nullable;
 
 /**
  * A {@link FactoryBean} for creating a Jackson 2.x {@link ObjectMapper} (default) or
@@ -397,7 +395,7 @@ public class Jackson2ObjectMapperFactoryBean
    * Specify one or more modules by class (or class name in XML)
    * to be registered with the {@link ObjectMapper}.
    * <p>Modules specified here will be registered after
-   *  autodetection of JSR-310 and Joda-Time, or Jackson's
+   * autodetection of JSR-310 and Joda-Time, or Jackson's
    * finding of modules (see {@link #setFindModulesViaServiceLoader}),
    * allowing to eventually override their configuration.
    * <p>Specify either this or {@link #setModules}, not both.
@@ -470,6 +468,7 @@ public class Jackson2ObjectMapperFactoryBean
     return this.objectMapper;
   }
 
+  @Nullable
   @Override
   public Class<?> getObjectType() {
     return this.objectMapper != null ? this.objectMapper.getClass() : null;

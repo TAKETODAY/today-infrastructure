@@ -17,11 +17,12 @@
 
 package infra.web.socket.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 
 import infra.http.HttpHeaders;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.concurrent.Future;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketSession;

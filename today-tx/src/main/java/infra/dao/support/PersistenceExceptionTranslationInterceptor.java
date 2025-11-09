@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ package infra.dao.support;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import infra.beans.BeansException;
 import infra.beans.factory.BeanCreationNotAllowedException;
@@ -26,7 +27,6 @@ import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.InitializingBean;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 
 /**
@@ -40,19 +40,18 @@ import infra.util.ReflectionUtils;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see PersistenceExceptionTranslator
  * @since 2.0
  */
 public class PersistenceExceptionTranslationInterceptor
         implements MethodInterceptor, BeanFactoryAware, InitializingBean {
 
-  @Nullable
-  private volatile PersistenceExceptionTranslator persistenceExceptionTranslator;
-
   private boolean alwaysTranslate = false;
 
-  @Nullable
-  private BeanFactory beanFactory;
+  private @Nullable BeanFactory beanFactory;
+
+  private volatile @Nullable PersistenceExceptionTranslator persistenceExceptionTranslator;
 
   /**
    * Create a new PersistenceExceptionTranslationInterceptor.
@@ -61,7 +60,6 @@ public class PersistenceExceptionTranslationInterceptor
    * @see #setPersistenceExceptionTranslator
    */
   public PersistenceExceptionTranslationInterceptor() {
-
   }
 
   /**

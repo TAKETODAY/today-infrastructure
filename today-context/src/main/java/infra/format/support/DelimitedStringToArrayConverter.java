@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.format.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Array;
 import java.util.Collections;
 import java.util.Set;
@@ -26,13 +28,13 @@ import infra.core.conversion.ConditionalGenericConverter;
 import infra.core.conversion.ConversionService;
 import infra.format.annotation.Delimiter;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**
  * Converts a {@link Delimiter delimited} String to an Array.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
 final class DelimitedStringToArrayConverter implements ConditionalGenericConverter {
 
@@ -67,6 +69,7 @@ final class DelimitedStringToArrayConverter implements ConditionalGenericConvert
     Delimiter delimiter = targetType.getAnnotation(Delimiter.class);
     String[] elements = getElements(source, delimiter != null ? delimiter.value() : ",");
     TypeDescriptor elementDescriptor = targetType.getElementDescriptor();
+    Assert.state(elementDescriptor != null, "elementDescriptor is missing");
     Object target = Array.newInstance(elementDescriptor.getType(), elements.length);
     for (int i = 0; i < elements.length; i++) {
       String sourceElement = elements[i];

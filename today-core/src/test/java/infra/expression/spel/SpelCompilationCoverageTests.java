@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.expression.spel;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -58,11 +59,11 @@ import infra.expression.spel.ast.Ternary;
 import infra.expression.spel.standard.SpelCompiler;
 import infra.expression.spel.standard.SpelExpression;
 import infra.expression.spel.standard.SpelExpressionParser;
+import infra.expression.spel.support.MapAccessor;
 import infra.expression.spel.support.ReflectiveIndexAccessor;
 import infra.expression.spel.support.StandardEvaluationContext;
 import infra.expression.spel.testdata.PersonInOtherPackage;
 import infra.expression.spel.testresources.Person;
-import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 
 import static infra.expression.spel.SpelMessage.EXCEPTION_DURING_INDEX_READ;
@@ -566,10 +567,9 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
     }
 
     @Test
-      // gh-32356
     void indexIntoMapOfPrimitiveIntArrayWithCompilableMapAccessor() {
       StandardEvaluationContext context = new StandardEvaluationContext();
-      context.addPropertyAccessor(new CompilableMapAccessor());
+      context.addPropertyAccessor(new MapAccessor());
 
       Map<String, int[]> map = Map.of("foo", new int[] { 1, 2, 3 });
 

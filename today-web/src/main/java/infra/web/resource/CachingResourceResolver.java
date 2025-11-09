@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.web.resource;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,7 +31,6 @@ import infra.cache.CacheManager;
 import infra.core.io.Resource;
 import infra.http.HttpHeaders;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.StringUtils;
 import infra.web.RequestContext;
 
@@ -102,6 +103,7 @@ public class CachingResourceResolver extends AbstractResourceResolver {
     return Collections.unmodifiableList(this.contentCodings);
   }
 
+  @Nullable
   @Override
   protected Resource resolveResourceInternal(@Nullable RequestContext request,
           String requestPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
@@ -134,8 +136,7 @@ public class CachingResourceResolver extends AbstractResourceResolver {
     return RESOLVED_RESOURCE_CACHE_KEY_PREFIX + requestPath;
   }
 
-  @Nullable
-  private String getContentCodingKey(RequestContext request) {
+  @Nullable String getContentCodingKey(RequestContext request) {
     String header = request.getHeaders().getFirst(HttpHeaders.ACCEPT_ENCODING);
     if (StringUtils.hasText(header)) {
       return Arrays.stream(StringUtils.tokenizeToStringArray(header, ","))
@@ -150,6 +151,7 @@ public class CachingResourceResolver extends AbstractResourceResolver {
     return null;
   }
 
+  @Nullable
   @Override
   protected String resolveUrlPathInternal(
           String resourceUrlPath, List<? extends Resource> locations, ResourceResolvingChain chain) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.bytecode;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * The path to a type argument, wildcard bound, array element type, or static inner type within an
@@ -105,7 +107,8 @@ public final class TypePath {
    * {@literal null} or empty.
    * @return the corresponding TypePath object, or {@literal null} if the path is empty.
    */
-  public static TypePath fromString(final String typePath) {
+  @Nullable
+  public static TypePath fromString(@Nullable final String typePath) {
     if (typePath == null || typePath.isEmpty()) {
       return null;
     }
@@ -176,7 +179,7 @@ public final class TypePath {
    * @param typePath a TypePath instance, or {@literal null} for empty paths.
    * @param output where the type path must be put.
    */
-  static void put(final TypePath typePath, final ByteVector output) {
+  static void put(@Nullable final TypePath typePath, final ByteVector output) {
     if (typePath == null) {
       output.putByte(0);
     }

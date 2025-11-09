@@ -17,11 +17,11 @@
 
 package infra.web.service.invoker;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
 
 import infra.core.ParameterizedTypeReference;
-import infra.lang.Nullable;
 import infra.web.annotation.RequestBody;
 import infra.web.service.annotation.GetExchange;
 import io.reactivex.rxjava3.core.Completable;

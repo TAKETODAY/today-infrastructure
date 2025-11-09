@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -224,14 +224,12 @@ class AnnotationMetadataTests {
   }
 
   @Test
-
   void multipleAnnotationsWithIdenticalAttributeNamesUsingStandardAnnotationMetadata() {
     AnnotationMetadata metadata = AnnotationMetadata.introspect(NamedAnnotationsClass.class);
     assertMultipleAnnotationsWithIdenticalAttributeNames(metadata);
   }
 
   @Test
-
   void multipleAnnotationsWithIdenticalAttributeNamesUsingSimpleAnnotationMetadata() throws Exception {
     MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
     MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(NamedAnnotationsClass.class.getName());
@@ -240,14 +238,12 @@ class AnnotationMetadataTests {
   }
 
   @Test
-
   void composedAnnotationWithMetaAnnotationsWithIdenticalAttributeNamesUsingStandardAnnotationMetadata() {
     AnnotationMetadata metadata = AnnotationMetadata.introspect(NamedComposedAnnotationClass.class);
     assertMultipleAnnotationsWithIdenticalAttributeNames(metadata);
   }
 
   @Test
-
   void composedAnnotationWithMetaAnnotationsWithIdenticalAttributeNamesUsingSimpleAnnotationMetadata() throws Exception {
     MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
     MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(NamedComposedAnnotationClass.class.getName());
@@ -608,7 +604,6 @@ class AnnotationMetadataTests {
     SubclassEnum[] value();
   }
 
-
   public enum SubclassEnum {
     FOO {
       /* Do not delete! This subclassing is intentional. */
@@ -621,8 +616,8 @@ class AnnotationMetadataTests {
   @Component("myName")
   @Scope("myScope")
   @SpecialAttr(clazz = String.class, state = Thread.State.NEW,
-               nestedAnno = @NestedAnno(value = "na", anEnum = SomeEnum.LABEL1, classArray = { String.class }),
-               nestedAnnoArray = { @NestedAnno, @NestedAnno(value = "na1", anEnum = SomeEnum.LABEL2, classArray = { Number.class }) })
+          nestedAnno = @NestedAnno(value = "na", anEnum = SomeEnum.LABEL1, classArray = { String.class }),
+          nestedAnnoArray = { @NestedAnno, @NestedAnno(value = "na1", anEnum = SomeEnum.LABEL2, classArray = { Number.class }) })
   @SuppressWarnings({ "serial", "unused" })
   @DirectAnnotation(value = "direct", additional = "", additionalArray = {})
   @MetaMetaAnnotation
@@ -685,8 +680,7 @@ class AnnotationMetadataTests {
   @Target(ElementType.TYPE)
   public @interface ComposedConfigurationWithAttributeOverrides {
 
-    // Do NOT use @AliasFor here until 4.0
-    // @AliasFor(annotation = TestComponentScan.class)
+    @AliasFor(annotation = TestComponentScan.class)
     String[] basePackages() default {};
   }
 

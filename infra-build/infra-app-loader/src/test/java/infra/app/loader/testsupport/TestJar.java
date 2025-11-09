@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -91,7 +91,7 @@ public abstract class TestJar {
     nestedEntry.setSize(nestedJarData.length);
     nestedEntry.setCompressedSize(nestedJarData.length);
     if (unpackNested) {
-      nestedEntry.setComment("UNPACK:0000000000000000000000000000000000000000");
+      nestedEntry.setComment("UNPACK");
     }
     CRC32 crc32 = new CRC32();
     crc32.update(nestedJarData);

@@ -17,6 +17,8 @@
 
 package infra.web.bind.resolver;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,17 +34,12 @@ import infra.http.converter.AllEncompassingFormHttpMessageConverter;
 import infra.http.converter.ByteArrayHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.web.RedirectModelManager;
 import infra.web.RequestContext;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.annotation.RequestAttribute;
 import infra.web.bind.RequestBindingException;
-import infra.web.bind.resolver.date.DateParameterResolver;
-import infra.web.bind.resolver.date.LocalDateParameterResolver;
-import infra.web.bind.resolver.date.LocalDateTimeParameterResolver;
-import infra.web.bind.resolver.date.LocalTimeParameterResolver;
 import infra.web.handler.method.ModelAttributeMethodProcessor;
 import infra.web.handler.method.RequestBodyAdvice;
 import infra.web.handler.method.ResolvableMethodParameter;
@@ -68,6 +65,7 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
   private RedirectModelManager redirectModelManager;
 
   // @since 4.0
+  @SuppressWarnings("NullAway.Init")
   private List<HttpMessageConverter<?>> messageConverters;
 
   // @since 4.0
@@ -83,6 +81,7 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
     this.messageConverters.add(new AllEncompassingFormHttpMessageConverter());
   }
 
+  @SuppressWarnings("NullAway")
   public ParameterResolvingRegistry(List<HttpMessageConverter<?>> messageConverters) {
     setMessageConverters(messageConverters);
   }
@@ -238,12 +237,6 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
     strategies.add(new HttpEntityMethodProcessor(
             getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice, modelManager));
 
-    // Date API support @since 3.0
-    strategies.add(new DateParameterResolver());
-    strategies.add(new LocalDateParameterResolver());
-    strategies.add(new LocalTimeParameterResolver());
-    strategies.add(new LocalDateTimeParameterResolver());
-
     // fallback
 
     strategies.add(new RequestParamMethodArgumentResolver(beanFactory, true));
@@ -269,11 +262,11 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
 
   //
 
-  public void addCustomizedStrategies(@Nullable ParameterResolvingStrategy... strategies) {
+  public void addCustomizedStrategies(ParameterResolvingStrategy @Nullable ... strategies) {
     customizedStrategies.add(strategies);
   }
 
-  public void addDefaultStrategies(@Nullable ParameterResolvingStrategy... strategies) {
+  public void addDefaultStrategies(ParameterResolvingStrategy @Nullable ... strategies) {
     defaultStrategies.add(strategies);
   }
 

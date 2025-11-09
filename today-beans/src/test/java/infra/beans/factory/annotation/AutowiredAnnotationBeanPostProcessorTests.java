@@ -17,6 +17,7 @@
 
 package infra.beans.factory.annotation;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -78,7 +79,6 @@ import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.core.annotation.Order;
 import infra.core.testfixture.io.SerializationTestUtils;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 
@@ -163,6 +163,19 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
     assertThatThrownBy(() -> bf.getBean("annotatedBean"))
             .hasMessageContaining("Only one bean which qualifies as autowire candidate, but its factory method");
+
+//    @SuppressWarnings("rawtypes")
+//    NonPublicResourceInjectionBean bean = bf.getBean("annotatedBean", NonPublicResourceInjectionBean.class);
+//    assertThat(bean.getTestBean()).isNull();
+//    assertThat(bean.getTestBean2()).isNull();
+//    assertThat(bean.getTestBean3()).isNull();
+//
+//    bean = bf.getBean("annotatedBean", NonPublicResourceInjectionBean.class);
+//    assertThat(bean.getTestBean()).isNull();
+//    assertThat(bean.getTestBean2()).isNull();
+//    assertThat(bean.getTestBean3()).isNull();
+//
+//    assertThat(bf.getDependenciesForBean("annotatedBean")).isEqualTo(new String[] { "testBean" });
   }
 
   @Test
@@ -944,6 +957,7 @@ class AutowiredAnnotationBeanPostProcessorTests {
   @Test
   void constructorResourceInjectionWithNoCandidatesAndNoFallback() {
     bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(ConstructorWithoutFallbackBean.class));
+
     assertThatExceptionOfType(UnsatisfiedDependencyException.class)
             .isThrownBy(() -> bf.getBean("annotatedBean"))
             .satisfies(methodParameterDeclaredOn(ConstructorWithoutFallbackBean.class));
@@ -1203,6 +1217,7 @@ class AutowiredAnnotationBeanPostProcessorTests {
   @Test
   void singleConstructorInjectionWithMissingDependency() {
     bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(SingleConstructorOptionalCollectionBean.class));
+
     assertThatExceptionOfType(UnsatisfiedDependencyException.class)
             .isThrownBy(() -> bf.getBean("annotatedBean"));
   }
@@ -1213,6 +1228,7 @@ class AutowiredAnnotationBeanPostProcessorTests {
     RootBeanDefinition tb = new RootBeanDefinition(NullFactoryMethods.class);
     tb.setFactoryMethodName("createTestBean");
     bf.registerBeanDefinition("testBean", tb);
+
     assertThatExceptionOfType(UnsatisfiedDependencyException.class)
             .isThrownBy(() -> bf.getBean("annotatedBean"));
   }
@@ -1258,88 +1274,6 @@ class AutowiredAnnotationBeanPostProcessorTests {
     assertThat(bean.getTestBean()).hasSize(1);
     assertThat(bean.getTestBean().get("testBean1")).isSameAs(tb1);
     assertThat(bean.getTestBean().get("testBean2")).isNull();
-  }
-
-  @Test
-  void fieldInjectionWithMap() {
-    RootBeanDefinition bd = new RootBeanDefinition(MapFieldInjectionBean.class);
-    bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
-    bf.registerBeanDefinition("annotatedBean", bd);
-    TestBean tb1 = new TestBean("tb1");
-    TestBean tb2 = new TestBean("tb2");
-    bf.registerSingleton("testBean1", tb1);
-    bf.registerSingleton("testBean2", tb2);
-    bf.registerAlias("testBean1", "testBean");
-
-    MapFieldInjectionBean bean = bf.getBean("annotatedBean", MapFieldInjectionBean.class);
-    assertThat(bean.getTestBeanMap()).hasSize(2);
-    assertThat(bean.getTestBeanMap()).containsKey("testBean1");
-    assertThat(bean.getTestBeanMap()).containsKey("testBean2");
-    assertThat(bean.getTestBeanMap()).containsValue(tb1);
-    assertThat(bean.getTestBeanMap()).containsValue(tb2);
-
-    bean = bf.getBean("annotatedBean", MapFieldInjectionBean.class);
-    assertThat(bean.getTestBeanMap()).hasSize(2);
-    assertThat(bean.getTestBeanMap()).containsKey("testBean1");
-    assertThat(bean.getTestBeanMap()).containsKey("testBean2");
-    assertThat(bean.getTestBeanMap()).containsValue(tb1);
-    assertThat(bean.getTestBeanMap()).containsValue(tb2);
-  }
-
-  @Test
-  void methodInjectionWithMap() {
-    RootBeanDefinition bd = new RootBeanDefinition(MapMethodInjectionBean.class);
-    bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
-    bf.registerBeanDefinition("annotatedBean", bd);
-    TestBean tb = new TestBean();
-    bf.registerSingleton("testBean", tb);
-
-    MapMethodInjectionBean bean = bf.getBean("annotatedBean", MapMethodInjectionBean.class);
-    assertThat(bean.getTestBeanMap()).hasSize(1);
-    assertThat(bean.getTestBeanMap()).containsKey("testBean");
-    assertThat(bean.getTestBeanMap()).containsValue(tb);
-    assertThat(bean.getTestBean()).isSameAs(tb);
-
-    bean = bf.getBean("annotatedBean", MapMethodInjectionBean.class);
-    assertThat(bean.getTestBeanMap()).hasSize(1);
-    assertThat(bean.getTestBeanMap()).containsKey("testBean");
-    assertThat(bean.getTestBeanMap()).containsValue(tb);
-    assertThat(bean.getTestBean()).isSameAs(tb);
-  }
-
-  @Test
-  void methodInjectionWithMapAndMultipleMatches() {
-    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(MapMethodInjectionBean.class));
-    bf.registerBeanDefinition("testBean1", new RootBeanDefinition(TestBean.class));
-    bf.registerBeanDefinition("testBean2", new RootBeanDefinition(TestBean.class));
-    assertThatExceptionOfType(UnsatisfiedDependencyException.class).as("should have failed, more than one bean of type")
-            .isThrownBy(() -> bf.getBean("annotatedBean"))
-            .satisfies(methodParameterDeclaredOn(MapMethodInjectionBean.class));
-  }
-
-  @Test
-  void methodInjectionWithMapAndMultipleMatchesButOnlyOneAutowireCandidate() {
-    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(MapMethodInjectionBean.class));
-    bf.registerBeanDefinition("testBean1", new RootBeanDefinition(TestBean.class));
-    RootBeanDefinition rbd2 = new RootBeanDefinition(TestBean.class);
-    rbd2.setAutowireCandidate(false);
-    bf.registerBeanDefinition("testBean2", rbd2);
-
-    MapMethodInjectionBean bean = bf.getBean("annotatedBean", MapMethodInjectionBean.class);
-    TestBean tb = bf.getBean("testBean1", TestBean.class);
-    assertThat(bean.getTestBeanMap()).hasSize(1);
-    assertThat(bean.getTestBeanMap()).containsKey("testBean1");
-    assertThat(bean.getTestBeanMap()).containsValue(tb);
-    assertThat(bean.getTestBean()).isSameAs(tb);
-  }
-
-  @Test
-  void methodInjectionWithMapAndNoMatches() {
-    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(MapMethodInjectionBean.class));
-
-    MapMethodInjectionBean bean = bf.getBean("annotatedBean", MapMethodInjectionBean.class);
-    assertThat(bean.getTestBeanMap()).isNull();
-    assertThat(bean.getTestBean()).isNull();
   }
 
   @Test
@@ -1394,6 +1328,19 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
   @Test
   void constructorInjectionWithPlainHashMapAsBean() {
+    RootBeanDefinition bd = new RootBeanDefinition(NamedMapConstructorInjectionBean.class);
+    bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
+    bf.registerBeanDefinition("annotatedBean", bd);
+    bf.registerBeanDefinition("testBeanMap", new RootBeanDefinition(HashMap.class));
+
+    NamedMapConstructorInjectionBean bean = bf.getBean("annotatedBean", NamedMapConstructorInjectionBean.class);
+    assertThat(bean.getTestBeanMap()).isSameAs(bf.getBean("testBeanMap"));
+    bean = bf.getBean("annotatedBean", NamedMapConstructorInjectionBean.class);
+    assertThat(bean.getTestBeanMap()).isSameAs(bf.getBean("testBeanMap"));
+  }
+
+  @Test
+  void constructorInjectionWithQualifiedPlainHashMapAsBean() {
     RootBeanDefinition bd = new RootBeanDefinition(QualifiedMapConstructorInjectionBean.class);
     bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     bf.registerBeanDefinition("annotatedBean", bd);
@@ -1480,6 +1427,114 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
     SortedSetConstructorInjectionBean bean = bf.getBean("annotatedBean", SortedSetConstructorInjectionBean.class);
     assertThat(bean.getTestBeanSet()).contains(tb1, tb2);
+  }
+
+  @Test
+  void fieldInjectionWithMap() {
+    RootBeanDefinition bd = new RootBeanDefinition(MapFieldInjectionBean.class);
+    bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
+    bf.registerBeanDefinition("annotatedBean", bd);
+    TestBean tb1 = new TestBean("tb1");
+    TestBean tb2 = new TestBean("tb2");
+    bf.registerSingleton("testBean1", tb1);
+    bf.registerSingleton("testBean2", tb2);
+    bf.registerAlias("testBean1", "testBean");
+
+    MapFieldInjectionBean bean = bf.getBean("annotatedBean", MapFieldInjectionBean.class);
+    assertThat(bean.getTestBeanMap()).hasSize(2);
+    assertThat(bean.getTestBeanMap()).containsKey("testBean1");
+    assertThat(bean.getTestBeanMap()).containsKey("testBean2");
+    assertThat(bean.getTestBeanMap()).containsValue(tb1);
+    assertThat(bean.getTestBeanMap()).containsValue(tb2);
+
+    bean = bf.getBean("annotatedBean", MapFieldInjectionBean.class);
+    assertThat(bean.getTestBeanMap()).hasSize(2);
+    assertThat(bean.getTestBeanMap()).containsKey("testBean1");
+    assertThat(bean.getTestBeanMap()).containsKey("testBean2");
+    assertThat(bean.getTestBeanMap()).containsValue(tb1);
+    assertThat(bean.getTestBeanMap()).containsValue(tb2);
+  }
+
+  @Test
+  void methodInjectionWithMap() {
+    RootBeanDefinition bd = new RootBeanDefinition(MapMethodInjectionBean.class);
+    bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
+    bf.registerBeanDefinition("annotatedBean", bd);
+    TestBean tb = new TestBean();
+    bf.registerSingleton("testBean", tb);
+
+    MapMethodInjectionBean bean = bf.getBean("annotatedBean", MapMethodInjectionBean.class);
+    assertThat(bean.getTestBeanMap()).hasSize(1);
+    assertThat(bean.getTestBeanMap()).containsKey("testBean");
+    assertThat(bean.getTestBeanMap()).containsValue(tb);
+    assertThat(bean.getTestBean()).isSameAs(tb);
+
+    bean = bf.getBean("annotatedBean", MapMethodInjectionBean.class);
+    assertThat(bean.getTestBeanMap()).hasSize(1);
+    assertThat(bean.getTestBeanMap()).containsKey("testBean");
+    assertThat(bean.getTestBeanMap()).containsValue(tb);
+    assertThat(bean.getTestBean()).isSameAs(tb);
+  }
+
+  @Test
+  void methodInjectionWithMapAndMultipleMatches() {
+    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(MapMethodInjectionBean.class));
+    bf.registerBeanDefinition("testBean1", new RootBeanDefinition(TestBean.class));
+    bf.registerBeanDefinition("testBean2", new RootBeanDefinition(TestBean.class));
+    assertThatExceptionOfType(UnsatisfiedDependencyException.class).as("should have failed, more than one bean of type")
+            .isThrownBy(() -> bf.getBean("annotatedBean"))
+            .satisfies(methodParameterDeclaredOn(MapMethodInjectionBean.class));
+  }
+
+  @Test
+  void methodInjectionWithMapAndMultipleMatchesButOnlyOneAutowireCandidate() {
+    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(MapMethodInjectionBean.class));
+    bf.registerBeanDefinition("testBean1", new RootBeanDefinition(TestBean.class));
+    RootBeanDefinition rbd2 = new RootBeanDefinition(TestBean.class);
+    rbd2.setAutowireCandidate(false);
+    bf.registerBeanDefinition("testBean2", rbd2);
+
+    MapMethodInjectionBean bean = bf.getBean("annotatedBean", MapMethodInjectionBean.class);
+    TestBean tb = bf.getBean("testBean1", TestBean.class);
+    assertThat(bean.getTestBeanMap()).hasSize(1);
+    assertThat(bean.getTestBeanMap()).containsKey("testBean1");
+    assertThat(bean.getTestBeanMap()).containsValue(tb);
+    assertThat(bean.getTestBean()).isSameAs(tb);
+  }
+
+  @Test
+  void methodInjectionWithMapAndNoMatches() {
+    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(MapMethodInjectionBean.class));
+
+    MapMethodInjectionBean bean = bf.getBean("annotatedBean", MapMethodInjectionBean.class);
+    assertThat(bean.getTestBeanMap()).isNull();
+    assertThat(bean.getTestBean()).isNull();
+  }
+
+  @Test
+  void methodInjectionWithPlainHashMapAsBean() {
+    RootBeanDefinition bd = new RootBeanDefinition(NamedMapMethodInjectionBean.class);
+    bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
+    bf.registerBeanDefinition("annotatedBean", bd);
+    bf.registerBeanDefinition("testBeanMap", new RootBeanDefinition(HashMap.class));
+
+    NamedMapMethodInjectionBean bean = bf.getBean("annotatedBean", NamedMapMethodInjectionBean.class);
+    assertThat(bean.getTestBeanMap()).isSameAs(bf.getBean("testBeanMap"));
+    bean = bf.getBean("annotatedBean", NamedMapMethodInjectionBean.class);
+    assertThat(bean.getTestBeanMap()).isSameAs(bf.getBean("testBeanMap"));
+  }
+
+  @Test
+  void methodInjectionWithQualifiedPlainHashMapAsBean() {
+    RootBeanDefinition bd = new RootBeanDefinition(QualifiedMapMethodInjectionBean.class);
+    bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
+    bf.registerBeanDefinition("annotatedBean", bd);
+    bf.registerBeanDefinition("myTestBeanMap", new RootBeanDefinition(HashMap.class));
+
+    QualifiedMapMethodInjectionBean bean = bf.getBean("annotatedBean", QualifiedMapMethodInjectionBean.class);
+    assertThat(bean.getTestBeanMap()).isSameAs(bf.getBean("myTestBeanMap"));
+    bean = bf.getBean("annotatedBean", QualifiedMapMethodInjectionBean.class);
+    assertThat(bean.getTestBeanMap()).isSameAs(bf.getBean("myTestBeanMap"));
   }
 
   @Test
@@ -2048,7 +2103,10 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
   /**
    * Verifies that a dependency on a {@link FactoryBean} can be autowired via
-   * {@link Autowired @Autowired}
+   * {@link Autowired @Autowired}, specifically addressing the JIRA issue
+   * raised in <a
+   * href="https://opensource.atlassian.com/projects/spring/browse/SPR-4040"
+   * target="_blank">SPR-4040</a>.
    */
   @Test
   void beanAutowiredWithFactoryBean() {
@@ -2221,17 +2279,15 @@ class AutowiredAnnotationBeanPostProcessorTests {
     assertThat(bean.stringRepository).isSameAs(repo);
     assertThat(bean.repositoryArray).containsExactly(repo);
     assertThat(bean.stringRepositoryArray).hasSize(1);
-    assertThat(bean.repositoryArray[0]).isSameAs(repo);
     assertThat(bean.stringRepositoryArray[0]).isSameAs(repo);
     assertThat(bean.repositoryList).containsExactly(repo);
     assertThat(bean.stringRepositoryList).hasSize(1);
     assertThat(bean.stringRepositoryList).element(0).isSameAs(repo);
     assertThat(bean.repositoryMap).containsOnly(entry("repo", repo));
     assertThat(bean.stringRepositoryMap).hasSize(1);
-    assertThat(bean.repositoryMap.get("repo")).isSameAs(repo);
     assertThat(bean.stringRepositoryMap.get("repo")).isSameAs(repo);
 
-    assertThat(bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class))).contains("repo");
+    assertThat(bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class))).isEqualTo(new String[] { "repo" });
   }
 
   @Test
@@ -2437,7 +2493,7 @@ class AutowiredAnnotationBeanPostProcessorTests {
   }
 
   @Test
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   void genericsBasedConstructorInjectionWithNonTypedTarget() {
     RootBeanDefinition bd = new RootBeanDefinition(RepositoryConstructorInjectionBean.class);
     bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
@@ -2485,7 +2541,7 @@ class AutowiredAnnotationBeanPostProcessorTests {
   }
 
   @Test
-  @SuppressWarnings({ "rawtypes" })
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   void genericsBasedConstructorInjectionWithMixedTargets() {
     RootBeanDefinition bd = new RootBeanDefinition(RepositoryConstructorInjectionBean.class);
     bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
@@ -2511,6 +2567,7 @@ class AutowiredAnnotationBeanPostProcessorTests {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   void genericsBasedConstructorInjectionWithMixedTargetsIncludingNonGeneric() {
     RootBeanDefinition bd = new RootBeanDefinition(RepositoryConstructorInjectionBean.class);
     bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
@@ -2576,12 +2633,12 @@ class AutowiredAnnotationBeanPostProcessorTests {
     GenericInterface1Impl bean1 = (GenericInterface1Impl) bf.getBean("bean1");
     GenericInterface2Impl bean2 = (GenericInterface2Impl) bf.getBean("bean2");
     assertThat(bean1.gi2).isSameAs(bean2);
-    assertThat(bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(GenericInterface1.class, String.class))).contains(("bean1"));
-    assertThat(bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(GenericInterface2.class, String.class))).contains(("bean2"));
+    assertThat(bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(GenericInterface1.class, String.class))).isEqualTo(new String[] { "bean1" });
+    assertThat(bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(GenericInterface2.class, String.class))).isEqualTo(new String[] { "bean2" });
   }
 
   @Test
-  @Disabled
+  @Disabled  // SPR-11521
   @SuppressWarnings("rawtypes")
   void genericsBasedInjectionIntoTypeVariableSelectingBestMatchAgainstFactoryMethodSignature() {
     RootBeanDefinition bd = new RootBeanDefinition(GenericInterface1Impl.class);
@@ -2646,6 +2703,7 @@ class AutowiredAnnotationBeanPostProcessorTests {
   }
 
   @Test
+    // SPR-15125
   void factoryBeanSelfInjection() {
     bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(SelfInjectingFactoryBean.class));
 
@@ -2654,6 +2712,7 @@ class AutowiredAnnotationBeanPostProcessorTests {
   }
 
   @Test
+    // SPR-15125
   void factoryBeanSelfInjectionViaFactoryMethod() {
     RootBeanDefinition bd = new RootBeanDefinition(SelfInjectingFactoryBean.class);
     bd.setFactoryMethodName("create");
@@ -2713,22 +2772,22 @@ class AutowiredAnnotationBeanPostProcessorTests {
   public static class ResourceInjectionBean {
 
     @Autowired(required = false)
-    private TestBean testBean;
+    private @Nullable TestBean testBean;
 
-    TestBean testBean2;
+    @Nullable TestBean testBean2;
 
     @Autowired
-    public void setTestBean2(TestBean testBean2) {
+    public void setTestBean2(@Nullable TestBean testBean2) {
       Assert.state(this.testBean != null, "Wrong initialization order");
       Assert.state(this.testBean2 == null, "Already called");
       this.testBean2 = testBean2;
     }
 
-    public TestBean getTestBean() {
+    public @Nullable TestBean getTestBean() {
       return this.testBean;
     }
 
-    public TestBean getTestBean2() {
+    public @Nullable TestBean getTestBean2() {
       return this.testBean2;
     }
   }
@@ -2738,11 +2797,11 @@ class AutowiredAnnotationBeanPostProcessorTests {
     @Autowired
     public final ITestBean testBean3 = null;
 
-    private T nestedTestBean;
+    private @Nullable T nestedTestBean;
 
-    private ITestBean testBean4;
+    private @Nullable ITestBean testBean4;
 
-    protected BeanFactory beanFactory;
+    protected @Nullable BeanFactory beanFactory;
 
     public boolean baseInjected = false;
 
@@ -2751,18 +2810,18 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
     @Override
     @Autowired
-    public void setTestBean2(TestBean testBean2) {
+    public void setTestBean2(@Nullable TestBean testBean2) {
       this.testBean2 = testBean2;
     }
 
     @Autowired
-    private void inject(ITestBean testBean4, T nestedTestBean) {
+    private void inject(@Nullable ITestBean testBean4, @Nullable T nestedTestBean) {
       this.testBean4 = testBean4;
       this.nestedTestBean = nestedTestBean;
     }
 
     @Autowired
-    private void inject(ITestBean testBean4) {
+    private void inject(@Nullable ITestBean testBean4) {
       this.baseInjected = true;
     }
 
@@ -2772,11 +2831,11 @@ class AutowiredAnnotationBeanPostProcessorTests {
       this.beanFactory = beanFactory;
     }
 
-    public ITestBean getTestBean3() {
+    public @Nullable ITestBean getTestBean3() {
       return this.testBean3;
     }
 
-    public ITestBean getTestBean4() {
+    public @Nullable ITestBean getTestBean4() {
       return this.testBean4;
     }
 
@@ -3066,14 +3125,12 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
   public static class ConstructorWithNullableArgument {
 
-    @Nullable
     protected ITestBean testBean3;
 
     public ConstructorWithNullableArgument(@Nullable ITestBean testBean3) {
       this.testBean3 = testBean3;
     }
 
-    @Nullable
     public ITestBean getTestBean3() {
       return this.testBean3;
     }
@@ -3220,6 +3277,20 @@ class AutowiredAnnotationBeanPostProcessorTests {
     }
   }
 
+  public static class NamedMapConstructorInjectionBean {
+
+    private Map<String, TestBean> testBeanMap;
+
+    @Autowired
+    public NamedMapConstructorInjectionBean(Map<String, TestBean> testBeanMap) {
+      this.testBeanMap = testBeanMap;
+    }
+
+    public Map<String, TestBean> getTestBeanMap() {
+      return this.testBeanMap;
+    }
+  }
+
   public static class QualifiedMapConstructorInjectionBean {
 
     private Map<String, TestBean> testBeanMap;
@@ -3305,6 +3376,35 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
     public TestBean getTestBean() {
       return this.testBean;
+    }
+
+    public Map<String, TestBean> getTestBeanMap() {
+      return this.testBeanMap;
+    }
+  }
+
+  public static class NamedMapMethodInjectionBean {
+
+    private Map<String, TestBean> testBeanMap;
+
+    @Autowired
+    public void setTestBeanMap(Map<String, TestBean> testBeanMap) {
+      this.testBeanMap = testBeanMap;
+    }
+
+    public Map<String, TestBean> getTestBeanMap() {
+      return this.testBeanMap;
+    }
+  }
+
+  public static class QualifiedMapMethodInjectionBean {
+
+    private Map<String, TestBean> testBeanMap;
+
+    @Autowired
+    @Qualifier("myTestBeanMap")
+    public void setTestBeanMap(Map<String, TestBean> testBeanMap) {
+      this.testBeanMap = testBeanMap;
     }
 
     public Map<String, TestBean> getTestBeanMap() {
@@ -4230,7 +4330,7 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
   public static class SometimesNullFactoryMethods {
 
-    public static volatile boolean active = false;
+    public static boolean active = false;
 
     public static TestBean createTestBean() {
       return (active ? new TestBean() : null);
@@ -4372,8 +4472,7 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
   static class MixedNullableInjectionBean {
 
-    @Nullable
-    public Integer nullableBean;
+    public @Nullable Integer nullableBean;
 
     public String nonNullBean;
 
@@ -4386,8 +4485,7 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
   static class MixedOptionalInjectionBean {
 
-    @Nullable
-    public Integer nullableBean;
+    public @Nullable Integer nullableBean;
 
     public String nonNullBean;
 

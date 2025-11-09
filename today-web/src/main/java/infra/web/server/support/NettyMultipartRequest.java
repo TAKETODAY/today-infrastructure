@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.web.server.support;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -42,6 +44,7 @@ final class NettyMultipartRequest extends AbstractMultipartRequest {
     this.context = context;
   }
 
+  @Nullable
   @Override
   public HttpHeaders getMultipartHeaders(String paramOrFileName) {
     List<InterfaceHttpData> bodyHttpDatas = context.requestDecoder().getBodyHttpDatas(paramOrFileName);

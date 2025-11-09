@@ -17,11 +17,12 @@
 
 package infra.web.bind;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.NestedRuntimeException;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.ProblemDetail;
-import infra.lang.Nullable;
 import infra.web.ErrorResponse;
 
 /**
@@ -43,8 +44,7 @@ public class RequestBindingException extends NestedRuntimeException implements E
 
   private final String messageDetailCode;
 
-  @Nullable
-  private final Object[] messageDetailArguments;
+  private final Object @Nullable [] messageDetailArguments;
 
   /**
    * Constructor with a message only.
@@ -74,7 +74,7 @@ public class RequestBindingException extends NestedRuntimeException implements E
    * @param messageDetailArguments the arguments to make available when
    * resolving the problem "detail" through a {@code MessageSource}
    */
-  protected RequestBindingException(@Nullable String msg, @Nullable String messageDetailCode, @Nullable Object[] messageDetailArguments) {
+  protected RequestBindingException(@Nullable String msg, @Nullable String messageDetailCode, Object @Nullable [] messageDetailArguments) {
     this(msg, null, messageDetailCode, messageDetailArguments);
   }
 
@@ -90,7 +90,7 @@ public class RequestBindingException extends NestedRuntimeException implements E
    * @since 5.0
    */
   protected RequestBindingException(@Nullable String msg, @Nullable Throwable cause,
-          @Nullable String messageDetailCode, @Nullable Object[] messageDetailArguments) {
+          @Nullable String messageDetailCode, Object @Nullable [] messageDetailArguments) {
 
     super(msg, cause);
     if (messageDetailCode == null) {
@@ -116,8 +116,7 @@ public class RequestBindingException extends NestedRuntimeException implements E
   }
 
   @Override
-  @Nullable
-  public Object[] getDetailMessageArguments() {
+  public Object @Nullable [] getDetailMessageArguments() {
     return this.messageDetailArguments;
   }
 

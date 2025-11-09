@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.scheduling.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.lang.annotation.Annotation;
 import java.util.concurrent.Executor;
@@ -27,7 +29,6 @@ import infra.aop.interceptor.AsyncUncaughtExceptionHandler;
 import infra.beans.factory.BeanFactory;
 import infra.core.task.TaskExecutor;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.function.SingletonSupplier;
 
 /**
@@ -110,7 +111,7 @@ public class AsyncAnnotationBeanPostProcessor extends AbstractBeanFactoryAwareAd
    * @see #DEFAULT_TASK_EXECUTOR_BEAN_NAME
    */
   public void setExecutor(Executor executor) {
-    this.executor = SingletonSupplier.valueOf(executor);
+    this.executor = SingletonSupplier.of(executor);
   }
 
   /**
@@ -118,7 +119,7 @@ public class AsyncAnnotationBeanPostProcessor extends AbstractBeanFactoryAwareAd
    * exceptions thrown by asynchronous method executions.
    */
   public void setExceptionHandler(AsyncUncaughtExceptionHandler exceptionHandler) {
-    this.exceptionHandler = SingletonSupplier.valueOf(exceptionHandler);
+    this.exceptionHandler = SingletonSupplier.of(exceptionHandler);
   }
 
   /**

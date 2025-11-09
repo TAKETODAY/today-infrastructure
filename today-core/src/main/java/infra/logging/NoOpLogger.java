@@ -17,9 +17,9 @@
 
 package infra.logging;
 
-import java.io.Serial;
+import org.jspecify.annotations.Nullable;
 
-import infra.lang.Nullable;
+import java.io.Serial;
 
 /**
  * @author TODAY 2021/11/5 22:53
@@ -60,12 +60,11 @@ public class NoOpLogger extends Logger {
   }
 
   @Override
-  protected void logInternal(Level level, Object msg, @Nullable Throwable t) {
-
+  protected void logInternal(Level level, @Nullable Object msg, @Nullable Throwable t) {
   }
 
   @Override
-  protected void logInternal(Level level, String msg, @Nullable Throwable t, @Nullable Object[] args) {
-
+  protected void logInternal(Level level, @Nullable String msg, @Nullable Throwable t, @Nullable Object @Nullable [] args) {
   }
+
 }

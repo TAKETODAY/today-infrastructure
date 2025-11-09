@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
 
 package infra.aop.target;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.aop.TargetSource;
 import infra.beans.BeansException;
 import infra.beans.factory.BeanFactory;
-import infra.lang.Nullable;
 
 /**
  * {@link TargetSource} that lazily accesses a
@@ -68,6 +69,7 @@ public class LazyInitTargetSource extends AbstractBeanFactoryTargetSource {
 
   @Override
   @Nullable
+  @SuppressWarnings("NullAway")
   public synchronized Object getTarget() throws BeansException {
     if (this.target == null) {
       this.target = getBeanFactory().getBean(getTargetBeanName());
@@ -82,6 +84,7 @@ public class LazyInitTargetSource extends AbstractBeanFactoryTargetSource {
    *
    * @param targetObject the target object that has just been instantiated (and configured)
    */
-  protected void postProcessTargetObject(Object targetObject) { }
+  protected void postProcessTargetObject(Object targetObject) {
+  }
 
 }

@@ -16,6 +16,8 @@
  */
 package infra.web.cors;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +27,6 @@ import infra.http.HttpMethod;
 import infra.http.HttpStatus;
 import infra.lang.Constant;
 import infra.lang.Modifiable;
-import infra.lang.Nullable;
 import infra.lang.Unmodifiable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
@@ -119,6 +120,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
   /**
    * Handle the given request.
    */
+  @SuppressWarnings("NullAway")
   protected boolean handleInternal(RequestContext context, CorsConfiguration config, boolean preFlightRequest) throws IOException {
     String requestOrigin = context.requestHeaders().getOrigin();
 
@@ -199,8 +201,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
     return config.checkHttpMethod(method);
   }
 
-  @Nullable
-  private HttpMethod getMethodToUse(RequestContext request, boolean isPreFlight) {
+  @Nullable HttpMethod getMethodToUse(RequestContext request, boolean isPreFlight) {
     return isPreFlight ? request.getHeaders().getAccessControlRequestMethod() : request.getMethod();
   }
 
@@ -215,7 +216,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
     return config.checkHeaders(requestHeaders);
   }
 
-  private List<String> getHeadersToUse(RequestContext context, boolean isPreFlight) {
+  List<String> getHeadersToUse(RequestContext context, boolean isPreFlight) {
     if (isPreFlight) {
       return context.requestHeaders().getAccessControlRequestHeaders();
     }

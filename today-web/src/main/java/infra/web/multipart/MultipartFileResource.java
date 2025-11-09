@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 package infra.web.multipart;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 
 import infra.core.io.AbstractResource;
 import infra.core.io.Resource;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Adapt {@link MultipartFile} to {@link Resource},
@@ -65,6 +66,7 @@ class MultipartFileResource extends AbstractResource {
     return this.multipartFile.getSize();
   }
 
+  @Nullable
   @Override
   public String getName() {
     return this.multipartFile.getOriginalFilename();

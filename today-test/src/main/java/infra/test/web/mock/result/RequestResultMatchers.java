@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,17 +18,17 @@
 package infra.test.web.mock.result;
 
 import org.hamcrest.Matcher;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Enumeration;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpSession;
 import infra.mock.web.HttpMockRequestImpl;
-import infra.session.WebSession;
+import infra.session.Session;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.ResultMatcher;
 import infra.web.RequestContext;
@@ -138,16 +138,16 @@ public class RequestResultMatchers {
   @SuppressWarnings("unchecked")
   public <T> ResultMatcher sessionAttribute(String name, Matcher<? super T> matcher) {
     return result -> {
-      WebSession session = getSession(result);
+      Session session = getSession(result);
       T value = (T) session.getAttribute(name);
       assertThat("Session attribute '" + name + "'", value, matcher);
     };
   }
 
-  private static WebSession getSession(MvcResult result) {
+  private static Session getSession(MvcResult result) {
     HttpSession httpSession = result.getRequest().getSession();
-    WebSession session = RequestContextUtils.getSession(result.getRequestContext());
-    Assert.state(session != null, "No WebSession");
+    Session session = RequestContextUtils.getSession(result.getRequestContext());
+    Assert.state(session != null, "No Session");
     if (httpSession != null) {
       // 暂时使用合并的方式
       Enumeration<String> attributeNames = httpSession.getAttributeNames();
@@ -164,7 +164,7 @@ public class RequestResultMatchers {
    */
   public ResultMatcher sessionAttribute(String name, @Nullable Object value) {
     return result -> {
-      WebSession session = getSession(result);
+      Session session = getSession(result);
       assertEquals("Session attribute '" + name + "'", value, session.getAttribute(name));
     };
   }
@@ -174,7 +174,7 @@ public class RequestResultMatchers {
    */
   public ResultMatcher sessionAttributeDoesNotExist(String... names) {
     return result -> {
-      WebSession session = getSession(result);
+      Session session = getSession(result);
       for (String name : names) {
         assertNull("Session attribute '" + name + "' exists", session.getAttribute(name));
       }

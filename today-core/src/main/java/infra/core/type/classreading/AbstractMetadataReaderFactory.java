@@ -17,13 +17,14 @@
 
 package infra.core.type.classreading;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 abstract class AbstractMetadataReaderFactory implements MetadataReaderFactory {

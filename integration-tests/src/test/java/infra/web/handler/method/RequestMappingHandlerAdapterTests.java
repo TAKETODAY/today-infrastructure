@@ -41,13 +41,13 @@ import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.MappingJackson2HttpMessageConverter;
 import infra.http.converter.json.MappingJacksonValue;
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.session.SessionManager;
-import infra.session.WebSession;
-import infra.session.config.EnableWebSession;
+import infra.session.Session;
+import infra.session.config.EnableSession;
 import infra.ui.Model;
 import infra.ui.ModelMap;
 import infra.web.BindingContext;
@@ -121,7 +121,7 @@ class RequestMappingHandlerAdapterTests {
   }
 
   @EnableWebMvc
-  @EnableWebSession
+  @EnableSession
   static class Config {
 
   }
@@ -324,7 +324,7 @@ class RequestMappingHandlerAdapterTests {
   @Test
   void handleMethodWithCustomSessionManager() throws Throwable {
     SessionManager sessionManager = mock(SessionManager.class);
-    WebSession session = mock(WebSession.class);
+    Session session = mock(Session.class);
     when(sessionManager.getSession(any(), eq(false))).thenReturn(session);
 
     this.handlerAdapter.setSessionManager(sessionManager);

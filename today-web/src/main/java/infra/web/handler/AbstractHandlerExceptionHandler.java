@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 package infra.web.handler;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Set;
 import java.util.function.Predicate;
 
 import infra.core.Ordered;
 import infra.core.OrderedSupport;
 import infra.http.HttpHeaders;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.LogFormatUtils;
@@ -64,8 +65,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
   @Nullable
   private Set<?> mappedHandlers;
 
-  @Nullable
-  private Class<?>[] mappedHandlerClasses;
+  private Class<?> @Nullable [] mappedHandlerClasses;
 
   @Nullable
   private Logger warnLogger;
@@ -113,8 +113,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * Return the {@link #setMappedHandlerClasses(Class[]) configured} mapped
    * handler classes.
    */
-  @Nullable
-  protected Class<?>[] getMappedHandlerClasses() {
+  protected Class<?> @Nullable [] getMappedHandlerClasses() {
     return this.mappedHandlerClasses;
   }
 
@@ -200,6 +199,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * @see #setMappedHandlers
    * @see #setMappedHandlerClasses
    */
+  @SuppressWarnings("NullAway")
   protected boolean shouldApplyTo(RequestContext request, @Nullable Object handler) {
     if (this.mappedHandlerPredicate != null) {
       return this.mappedHandlerPredicate.test(handler);

@@ -17,10 +17,11 @@
 
 package infra.web.service.invoker;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 
 import infra.core.MethodParameter;
-import infra.lang.Nullable;
 
 /**
  * {@link HttpServiceArgumentResolver} that resolves the URL for the request

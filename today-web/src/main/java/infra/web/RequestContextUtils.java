@@ -17,6 +17,8 @@
 
 package infra.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Locale;
@@ -30,9 +32,9 @@ import infra.context.ApplicationContext;
 import infra.core.i18n.LocaleContext;
 import infra.core.i18n.LocaleContextHolder;
 import infra.core.i18n.TimeZoneAwareLocaleContext;
-import infra.lang.Nullable;
+import infra.lang.Contract;
+import infra.session.Session;
 import infra.session.SessionManager;
-import infra.session.WebSession;
 import infra.util.CollectionUtils;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.RequestBindingException;
@@ -99,7 +101,7 @@ public final class RequestContextUtils {
    */
   @Nullable
   public static String getSessionId(RequestContext request) {
-    WebSession session = getSession(request, false);
+    Session session = getSession(request, false);
     return session != null ? session.getId() : null;
   }
 
@@ -108,11 +110,11 @@ public final class RequestContextUtils {
    * does not have a session, creates one.
    *
    * @param request Current request
-   * @return the <code>WebSession</code> associated with this request
+   * @return the <code>Session</code> associated with this request
    * @see #getSession(RequestContext, boolean)
    */
   @Nullable
-  public static WebSession getSession(RequestContext request) {
+  public static Session getSession(RequestContext request) {
     SessionManager sessionManager = getSessionManager(request);
     if (sessionManager != null) {
       return sessionManager.getSession(request);
@@ -125,26 +127,26 @@ public final class RequestContextUtils {
    * does not have a session, creates one.
    *
    * @param request Current request
-   * @return the <code>WebSession</code> associated with this request
+   * @return the <code>Session</code> associated with this request
    * @see #getSession(RequestContext, boolean)
    * @see IllegalStateException
    */
-  public static WebSession getRequiredSession(RequestContext request) {
-    WebSession session = getSession(request);
+  public static Session getRequiredSession(RequestContext request) {
+    Session session = getSession(request);
     if (session == null) {
-      throw new IllegalStateException("Cannot get WebSession");
+      throw new IllegalStateException("Cannot get Session");
     }
     return session;
   }
 
   /**
-   * Returns the current <code>WebSession</code> associated with this request or,
+   * Returns the current <code>Session</code> associated with this request or,
    * if there is no current session and <code>create</code> is true, returns a new
    * session.
    *
    * <p>
    * If <code>create</code> is <code>false</code> and the request has no valid
-   * <code>WebSession</code>, this method returns <code>null</code>.
+   * <code>Session</code>, this method returns <code>null</code>.
    *
    * <p>
    * To make sure the session is properly maintained, you must call this method
@@ -156,13 +158,13 @@ public final class RequestContextUtils {
    * @param create <code>true</code> to create a new session for this request if
    * necessary; <code>false</code> to return <code>null</code> if
    * there's no current session
-   * @return the <code>WebSession</code> associated with this request or
+   * @return the <code>Session</code> associated with this request or
    * <code>null</code> if <code>create</code> is <code>false</code> and
    * the request has no valid session
    * @see #getSession(RequestContext)
    */
   @Nullable
-  public static WebSession getSession(RequestContext request, boolean create) {
+  public static Session getSession(RequestContext request, boolean create) {
     SessionManager sessionManager = getSessionManager(request);
     if (sessionManager != null) {
       return sessionManager.getSession(request, create);
@@ -171,7 +173,7 @@ public final class RequestContextUtils {
   }
 
   /**
-   * Return the WebSessionManager
+   * Return the SessionManager
    *
    * @param request current HTTP request
    * @return the current LocaleResolver, or {@code null} if not found
@@ -317,8 +319,8 @@ public final class RequestContextUtils {
    */
   public static void registerScopes(ConfigurableBeanFactory beanFactory) {
 
-    // @Autowired WebSession currentSession;
-    beanFactory.registerResolvableDependency(WebSession.class, new WebSessionProvider(beanFactory));
+    // @Autowired Session currentSession;
+    beanFactory.registerResolvableDependency(Session.class, new WebSessionProvider(beanFactory));
 
     beanFactory.registerScope(RequestContext.SCOPE_REQUEST, RequestScope.instance);
     beanFactory.registerScope(RequestContext.SCOPE_SESSION, new SessionScope(beanFactory));
@@ -846,6 +848,7 @@ public final class RequestContextUtils {
       }
     }
 
+    @Contract("_, null -> fail")
     protected final void validateRequiredParameter(String name, @Nullable Object parameter)
             throws RequestBindingException {
 
@@ -875,7 +878,7 @@ public final class RequestContextUtils {
       return parse(name, parameter);
     }
 
-    public int[] parseInts(String name, @Nullable String[] values) throws RequestBindingException {
+    public int[] parseInts(String name, String @Nullable [] values) throws RequestBindingException {
       validateRequiredParameter(name, values);
       int[] parameters = new int[values.length];
       for (int i = 0; i < values.length; i++) {
@@ -901,7 +904,7 @@ public final class RequestContextUtils {
       return parse(name, parameter);
     }
 
-    public long[] parseLongs(String name, @Nullable String[] values) throws RequestBindingException {
+    public long[] parseLongs(String name, String @Nullable [] values) throws RequestBindingException {
       validateRequiredParameter(name, values);
       long[] parameters = new long[values.length];
       for (int i = 0; i < values.length; i++) {
@@ -927,7 +930,7 @@ public final class RequestContextUtils {
       return parse(name, parameter);
     }
 
-    public float[] parseFloats(String name, @Nullable String[] values) throws RequestBindingException {
+    public float[] parseFloats(String name, String @Nullable [] values) throws RequestBindingException {
       validateRequiredParameter(name, values);
       float[] parameters = new float[values.length];
       for (int i = 0; i < values.length; i++) {
@@ -953,7 +956,7 @@ public final class RequestContextUtils {
       return parse(name, parameter);
     }
 
-    public double[] parseDoubles(String name, @Nullable String[] values) throws RequestBindingException {
+    public double[] parseDoubles(String name, String @Nullable [] values) throws RequestBindingException {
       validateRequiredParameter(name, values);
       double[] parameters = new double[values.length];
       for (int i = 0; i < values.length; i++) {
@@ -980,7 +983,7 @@ public final class RequestContextUtils {
       return parse(name, parameter);
     }
 
-    public boolean[] parseBooleans(String name, @Nullable String[] values) throws RequestBindingException {
+    public boolean[] parseBooleans(String name, String @Nullable [] values) throws RequestBindingException {
       validateRequiredParameter(name, values);
       boolean[] parameters = new boolean[values.length];
       for (int i = 0; i < values.length; i++) {
@@ -1007,7 +1010,8 @@ public final class RequestContextUtils {
       return value;
     }
 
-    public String[] validateRequiredStrings(String name, @Nullable String[] values) throws RequestBindingException {
+    @SuppressWarnings("NullAway")
+    public String[] validateRequiredStrings(String name, String @Nullable [] values) throws RequestBindingException {
       validateRequiredParameter(name, values);
       for (String value : values) {
         validateRequiredParameter(name, value);
@@ -1021,7 +1025,7 @@ public final class RequestContextUtils {
   /**
    * Factory that exposes the current web-session object on demand.
    */
-  static final class WebSessionProvider implements Supplier<WebSession>, Serializable {
+  static final class WebSessionProvider implements Supplier<Session>, Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -1033,7 +1037,7 @@ public final class RequestContextUtils {
     }
 
     @Override
-    public WebSession get() {
+    public Session get() {
       RequestContext request = RequestContextHolder.getRequired();
       return sessionManagerDiscover.obtain(request)
               .getSession(request);
@@ -1041,7 +1045,7 @@ public final class RequestContextUtils {
 
     @Override
     public String toString() {
-      return "Current WebSession";
+      return "Current Session";
     }
 
   }

@@ -17,8 +17,9 @@
 
 package infra.context.properties.bind;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.env.PropertyResolver;
-import infra.lang.Nullable;
 
 /**
  * Optional strategy that used by a {@link Binder} to resolve property placeholders.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.app.availability;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -58,6 +60,7 @@ public class ApplicationAvailabilityBean implements ApplicationAvailability, App
     return (state != null) ? state : defaultState;
   }
 
+  @Nullable
   @Override
   public <S extends AvailabilityState> S getState(Class<S> stateType) {
     AvailabilityChangeEvent<S> event = getLastChangeEvent(stateType);
@@ -66,6 +69,7 @@ public class ApplicationAvailabilityBean implements ApplicationAvailability, App
 
   @Override
   @SuppressWarnings("unchecked")
+  @Nullable
   public <S extends AvailabilityState> AvailabilityChangeEvent<S> getLastChangeEvent(Class<S> stateType) {
     return (AvailabilityChangeEvent<S>) this.events.get(stateType);
   }
@@ -89,7 +93,7 @@ public class ApplicationAvailabilityBean implements ApplicationAvailability, App
     return message;
   }
 
-  private String getSourceDescription(Object source) {
+  private String getSourceDescription(@Nullable Object source) {
     if (source == null || source instanceof ApplicationEventPublisher) {
       return "";
     }

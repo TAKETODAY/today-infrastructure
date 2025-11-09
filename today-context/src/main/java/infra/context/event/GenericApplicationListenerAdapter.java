@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.context.event;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Map;
 
 import infra.aop.support.AopUtils;
@@ -25,7 +27,6 @@ import infra.context.ApplicationListener;
 import infra.core.Ordered;
 import infra.core.ResolvableType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ConcurrentReferenceHashMap;
 
 /**

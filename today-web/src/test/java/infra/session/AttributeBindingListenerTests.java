@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ class AttributeBindingListenerTests {
     InMemorySessionRepository repository = new InMemorySessionRepository(
             new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
 
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
 
     SerializableAttribute attribute = new SerializableAttribute();
     session.setAttribute("valueBound", attribute);
@@ -56,7 +56,7 @@ class AttributeBindingListenerTests {
     sessionPersister.setDirectory(tempDir);
     var persistenceRepository = new PersistenceSessionRepository(sessionPersister, repository);
 
-    WebSession session = repository.createSession();
+    Session session = repository.createSession();
     session.start();
     session.save();
 
@@ -70,7 +70,7 @@ class AttributeBindingListenerTests {
 
     persistenceRepository.persistSessions();
 
-    WebSession webSession = sessionPersister.findById(session.getId());
+    Session webSession = sessionPersister.findById(session.getId());
     assertThat(webSession).isNotNull();
     assertThat(webSession.hasAttribute("serializable")).isTrue();
     assertThat(webSession.hasAttribute("unserializable")).isFalse();
@@ -81,16 +81,159 @@ class AttributeBindingListenerTests {
     assertThat(serializableAttribute.bindCount).isEqualTo(2);
   }
 
+  @Test
+  void valueBoundIsCalledWhenAttributeIsSet() {
+    InMemorySessionRepository repository = new InMemorySessionRepository(
+            new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
+    Session session = repository.createSession();
+
+    SerializableAttribute attribute = new SerializableAttribute();
+    session.setAttribute("testAttribute", attribute);
+
+    assertThat(attribute.bindCount).isEqualTo(1);
+  }
+
+  @Test
+  void valueUnboundIsCalledWhenAttributeIsRemoved() {
+    InMemorySessionRepository repository = new InMemorySessionRepository(
+            new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
+    Session session = repository.createSession();
+
+    SerializableAttribute attribute = new SerializableAttribute();
+    session.setAttribute("testAttribute", attribute);
+    session.removeAttribute("testAttribute");
+
+    assertThat(attribute.bindCount).isEqualTo(0);
+  }
+
+  @Test
+  void valueUnboundIsCalledWhenSessionIsInvalidated() {
+    InMemorySessionRepository repository = new InMemorySessionRepository(
+            new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
+    Session session = repository.createSession();
+
+    SerializableAttribute attribute = new SerializableAttribute();
+    session.setAttribute("testAttribute", attribute);
+    session.invalidate();
+
+    assertThat(attribute.bindCount).isEqualTo(0);
+  }
+
+  @Test
+  void multipleAttributesWithBindingListeners() {
+    InMemorySessionRepository repository = new InMemorySessionRepository(
+            new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
+    Session session = repository.createSession();
+
+    SerializableAttribute attribute1 = new SerializableAttribute();
+    SerializableAttribute attribute2 = new SerializableAttribute();
+
+    session.setAttribute("attr1", attribute1);
+    session.setAttribute("attr2", attribute2);
+
+    assertThat(attribute1.bindCount).isEqualTo(1);
+    assertThat(attribute2.bindCount).isEqualTo(1);
+
+    session.removeAttribute("attr1");
+
+    assertThat(attribute1.bindCount).isEqualTo(0);
+    assertThat(attribute2.bindCount).isEqualTo(1);
+  }
+
+  @Test
+  void sameAttributeAddedMultipleTimes() {
+    InMemorySessionRepository repository = new InMemorySessionRepository(
+            new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
+    Session session = repository.createSession();
+
+    SerializableAttribute attribute = new SerializableAttribute();
+
+    session.setAttribute("testAttribute", attribute);
+    session.setAttribute("testAttribute", attribute); // Set the same attribute again
+    session.setAttribute("empty", new AttributeBindingListener() { });
+
+    assertThat(attribute.bindCount).isEqualTo(1); // Should still be 1, not 2
+  }
+
+  @Test
+  void attributeBindingListenerMethodsReceiveCorrectParameters() {
+    InMemorySessionRepository repository = new InMemorySessionRepository(
+            new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
+    Session session = repository.createSession();
+
+    TrackingAttributeBindingListener attribute = new TrackingAttributeBindingListener();
+    session.setAttribute("trackedAttribute", attribute);
+    session.setAttribute("empty", new AttributeBindingListener() { });
+
+    assertThat(attribute.boundSession).isSameAs(session);
+    assertThat(attribute.boundAttributeName).isEqualTo("trackedAttribute");
+
+    session.removeAttribute("trackedAttribute");
+
+    assertThat(attribute.unboundSession).isSameAs(session);
+    assertThat(attribute.unboundAttributeName).isEqualTo("trackedAttribute");
+  }
+
+  @Test
+  void valueUnboundCalledOnSessionInvalidate() {
+    InMemorySessionRepository repository = new InMemorySessionRepository(
+            new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
+    Session session = repository.createSession();
+
+    SerializableAttribute attribute = new SerializableAttribute();
+    session.setAttribute("testAttribute", attribute);
+    session.setAttribute("empty", new AttributeBindingListener() { });
+
+    session.invalidate();
+
+    assertThat(attribute.bindCount).isEqualTo(0);
+  }
+
+  @Test
+  void nonSerializableAttributeBindingListener() {
+    InMemorySessionRepository repository = new InMemorySessionRepository(
+            new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
+    Session session = repository.createSession();
+
+    UnSerializableAttribute attribute = new UnSerializableAttribute();
+    session.setAttribute("nonSerializable", attribute);
+
+    assertThat(attribute.bindCount).isEqualTo(1);
+
+    session.removeAttribute("nonSerializable");
+
+    assertThat(attribute.bindCount).isEqualTo(0);
+  }
+
+  static class TrackingAttributeBindingListener implements AttributeBindingListener {
+    Session boundSession;
+    String boundAttributeName;
+    Session unboundSession;
+    String unboundAttributeName;
+
+    @Override
+    public void valueBound(Session session, String attributeName) {
+      this.boundSession = session;
+      this.boundAttributeName = attributeName;
+    }
+
+    @Override
+    public void valueUnbound(Session session, String attributeName) {
+      this.unboundSession = session;
+      this.unboundAttributeName = attributeName;
+    }
+  }
+
   static class UnSerializableAttribute implements AttributeBindingListener {
     int bindCount = 0;
 
     @Override
-    public void valueBound(WebSession session, String attributeName) {
+    public void valueBound(Session session, String attributeName) {
       bindCount++;
     }
 
     @Override
-    public void valueUnbound(WebSession session, String attributeName) {
+    public void valueUnbound(Session session, String attributeName) {
       bindCount--;
     }
   }
@@ -100,12 +243,12 @@ class AttributeBindingListenerTests {
     int bindCount = 0;
 
     @Override
-    public void valueBound(WebSession session, String attributeName) {
+    public void valueBound(Session session, String attributeName) {
       bindCount++;
     }
 
     @Override
-    public void valueUnbound(WebSession session, String attributeName) {
+    public void valueUnbound(Session session, String attributeName) {
       bindCount--;
     }
   }

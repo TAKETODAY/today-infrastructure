@@ -17,6 +17,8 @@
 
 package infra.web.accept;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -28,7 +30,6 @@ import java.util.function.Predicate;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 
 /**
@@ -84,7 +85,7 @@ public class StandardApiVersionDeprecationHandler implements ApiVersionDeprecati
   }
 
   @Override
-  public void handleVersion(Comparable<?> requestVersion, RequestContext request) {
+  public void handleVersion(Comparable<?> requestVersion, Object handler, RequestContext request) {
     for (VersionInfo info : this.infos.values()) {
       if (info.match(requestVersion, request)) {
         if (info.deprecationDate() != null) {

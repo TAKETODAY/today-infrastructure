@@ -17,9 +17,10 @@
 
 package infra.scripting;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Map;
 
-import infra.lang.Nullable;
 import infra.scripting.support.StandardScriptEvaluator;
 
 /**

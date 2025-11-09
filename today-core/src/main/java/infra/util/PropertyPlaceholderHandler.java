@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Properties;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Utility class for working with Strings that have placeholder values in them.
@@ -111,10 +112,6 @@ public class PropertyPlaceholderHandler {
    */
   public String replacePlaceholders(String value, PlaceholderResolver placeholderResolver) {
     Assert.notNull(value, "'value' is required");
-    return parseStringValue(value, placeholderResolver);
-  }
-
-  protected String parseStringValue(String value, PlaceholderResolver placeholderResolver) {
     return this.parser.replacePlaceholders(value, placeholderResolver);
   }
 

@@ -17,6 +17,8 @@
 
 package infra.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.annotation.ConditionalOnWebApplication.Type;
 import infra.app.ApplicationType;
 import infra.context.annotation.Condition;
@@ -28,7 +30,6 @@ import infra.context.condition.FilteringInfraCondition;
 import infra.core.Ordered;
 import infra.core.io.ResourceLoader;
 import infra.core.type.AnnotatedTypeMetadata;
-import infra.lang.Nullable;
 import infra.web.server.context.GenericWebServerApplicationContext;
 import infra.web.server.reactive.context.ConfigurableReactiveWebEnvironment;
 import infra.web.server.reactive.context.ReactiveWebApplicationContext;
@@ -52,8 +53,9 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
     return Ordered.HIGHEST_PRECEDENCE + 20;
   }
 
+  @SuppressWarnings("NullAway")
   @Override
-  protected ConditionOutcome[] getOutcomes(String[] configClasses, AutoConfigurationMetadata configMetadata) {
+  protected @Nullable ConditionOutcome[] getOutcomes(String[] configClasses, AutoConfigurationMetadata configMetadata) {
     ConditionOutcome[] outcomes = new ConditionOutcome[configClasses.length];
     for (int i = 0; i < outcomes.length; i++) {
       String autoConfigurationClass = configClasses[i];

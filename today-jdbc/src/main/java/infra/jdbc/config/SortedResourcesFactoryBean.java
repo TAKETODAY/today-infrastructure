@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,10 @@ package infra.jdbc.config;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import infra.beans.factory.FactoryBean;
 import infra.beans.factory.config.AbstractFactoryBean;
@@ -69,16 +72,25 @@ public class SortedResourcesFactoryBean extends AbstractFactoryBean<Resource[]> 
   protected Resource[] createBeanInstance() throws Exception {
     ArrayList<Resource> scripts = new ArrayList<>();
     for (String location : locations) {
-      ArrayList<Resource> resources = new ArrayList<>(patternResourceLoader.getResources(location));
-      resources.sort((r1, r2) -> {
+      var resources = patternResourceLoader.getResources(location);
+
+      // Cache URLs to avoid repeated I/O during sorting
+      Map<Resource, String> urlCache = new LinkedHashMap<>(resources.size());
+      for (Resource resource : resources) {
         try {
-          return r1.getURL().toString().compareTo(r2.getURL().toString());
+          urlCache.put(resource, resource.getURL().toString());
         }
         catch (IOException ex) {
-          return 0;
+          throw new IllegalStateException(
+                  "Failed to resolve URL for resource [%s] from location pattern [%s]".formatted(resource, location), ex);
         }
-      });
-      scripts.addAll(resources);
+      }
+
+      // Sort using cached URLs
+      ArrayList<Resource> sortedResources = new ArrayList<>(urlCache.keySet());
+      sortedResources.sort(Comparator.comparing(urlCache::get));
+
+      scripts.addAll(sortedResources);
     }
     return scripts.toArray(Resource.EMPTY_ARRAY);
   }

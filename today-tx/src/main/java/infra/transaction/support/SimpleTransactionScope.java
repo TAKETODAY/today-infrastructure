@@ -17,6 +17,8 @@
 
 package infra.transaction.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.function.Supplier;
@@ -25,7 +27,6 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.config.CustomScopeConfigurer;
 import infra.beans.factory.config.Scope;
 import infra.context.support.SimpleThreadScope;
-import infra.lang.Nullable;
 
 /**
  * A simple transaction-backed {@link Scope} implementation, delegating to

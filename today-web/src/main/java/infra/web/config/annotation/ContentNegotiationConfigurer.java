@@ -17,13 +17,14 @@
 
 package infra.web.config.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import infra.http.MediaType;
-import infra.lang.Nullable;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.ContentNegotiationManagerFactoryBean;
 import infra.web.accept.ContentNegotiationStrategy;
@@ -83,9 +84,10 @@ public class ContentNegotiationConfigurer {
 
   private final ContentNegotiationManagerFactoryBean factory = new ContentNegotiationManagerFactoryBean();
 
-  private final Map<String, MediaType> mediaTypes = new HashMap<>();
+  final Map<String, MediaType> mediaTypes = new HashMap<>();
 
-  public ContentNegotiationConfigurer() { }
+  public ContentNegotiationConfigurer() {
+  }
 
   /**
    * Set the exact list of strategies to use.

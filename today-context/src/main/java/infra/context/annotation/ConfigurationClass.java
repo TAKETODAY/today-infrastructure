@@ -17,6 +17,8 @@
 
 package infra.context.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -32,9 +34,10 @@ import infra.core.type.AnnotationMetadata;
 import infra.core.type.MethodMetadata;
 import infra.core.type.classreading.MetadataReader;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
+import infra.util.LinkedMultiValueMap;
+import infra.util.MultiValueMap;
 
 /**
  * Represents a user-defined {@link Configuration @Configuration} class.
@@ -55,8 +58,7 @@ final class ConfigurationClass {
 
   public final Resource resource;
 
-  @Nullable
-  public String beanName;
+  public @Nullable String beanName;
 
   /**
    * whether this configuration class has been registered through a scan.
@@ -79,7 +81,7 @@ final class ConfigurationClass {
 
   public final HashSet<String> skippedComponentMethods = new HashSet<>();
 
-  public final LinkedHashMap<String, BeanRegistrar> beanRegistrars = new LinkedHashMap<>();
+  public final MultiValueMap<String, BeanRegistrar> beanRegistrars = new LinkedMultiValueMap<>();
 
   /**
    * Create a new {@link ConfigurationClass} with the given name.
@@ -189,7 +191,7 @@ final class ConfigurationClass {
   }
 
   void addBeanRegistrar(String sourceClassName, BeanRegistrar beanRegistrar) {
-    this.beanRegistrars.put(sourceClassName, beanRegistrar);
+    this.beanRegistrars.add(sourceClassName, beanRegistrar);
   }
 
   void addImportBeanDefinitionRegistrar(ImportBeanDefinitionRegistrar registrar, AnnotationMetadata importingClassMetadata) {

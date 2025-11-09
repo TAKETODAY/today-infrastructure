@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.core.conversion.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.nio.ByteBuffer;
 import java.util.Set;
 
@@ -24,7 +26,6 @@ import infra.core.TypeDescriptor;
 import infra.core.conversion.ConditionalGenericConverter;
 import infra.core.conversion.ConversionService;
 import infra.lang.Constant;
-import infra.lang.Nullable;
 
 /**
  * Converts a {@link ByteBuffer} directly to and from {@code byte[] ByteBuffer} directly to and from {@code byte[]s} and indirectly
@@ -103,7 +104,7 @@ final class ByteBufferConverter implements ConditionalGenericConverter {
 
   private Object convertToByteBuffer(@Nullable Object source, TypeDescriptor sourceType) {
     byte[] bytes = (byte[]) (source instanceof byte[] ? source :
-                             conversionService.convert(source, sourceType, BYTE_ARRAY_TYPE));
+            conversionService.convert(source, sourceType, BYTE_ARRAY_TYPE));
 
     if (bytes == null) {
       return ByteBuffer.wrap(Constant.EMPTY_BYTES);

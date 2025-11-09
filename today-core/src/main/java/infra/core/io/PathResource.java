@@ -17,6 +17,8 @@
 
 package infra.core.io;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -35,7 +37,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * {@link Resource} implementation for {@link java.nio.file.Path} handles,

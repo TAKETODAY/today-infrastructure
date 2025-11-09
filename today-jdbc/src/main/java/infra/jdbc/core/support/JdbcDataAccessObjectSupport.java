@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jdbc.core.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.Connection;
 
 import javax.sql.DataSource;
@@ -27,7 +29,6 @@ import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.datasource.DataSourceUtils;
 import infra.jdbc.support.SQLExceptionTranslator;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Convenient super class for JDBC-based data access objects.

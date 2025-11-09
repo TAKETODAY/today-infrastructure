@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.web.accept;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -27,7 +29,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import infra.http.MediaType;
-import infra.lang.Nullable;
 
 /**
  * An implementation of {@code MediaTypeFileExtensionResolver} that maintains
@@ -93,7 +94,7 @@ public class MappingMediaTypeFileExtensionResolver implements MediaTypeFileExten
 
   @Override
   public List<String> resolveFileExtensions(MediaType mediaType) {
-    List<String> fileExtensions = this.fileExtensions.get(mediaType);
+    List<String> fileExtensions = this.fileExtensions.get(mediaType.removeQualityValue());
     return (fileExtensions != null ? fileExtensions : Collections.emptyList());
   }
 

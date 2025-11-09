@@ -18,9 +18,7 @@
 /**
  * Integration with the JSR-354 <code>javax.money</code> package.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.format.number.money;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

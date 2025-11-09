@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,13 @@
 
 package infra.jmx.access;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.aop.framework.ProxyFactory;
 import infra.beans.factory.BeanClassLoaderAware;
 import infra.beans.factory.FactoryBean;
 import infra.beans.factory.InitializingBean;
 import infra.jmx.MBeanServerNotFoundException;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**
@@ -43,6 +44,7 @@ import infra.util.ClassUtils;
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see MBeanClientInterceptor
  * @see InvalidInvocationException
  * @since 4.0
@@ -104,6 +106,7 @@ public class MBeanProxyFactoryBean extends MBeanClientInterceptor
     return this.mbeanProxy;
   }
 
+  @Nullable
   @Override
   public Class<?> getObjectType() {
     return this.proxyInterface;

@@ -17,6 +17,8 @@
 
 package infra.http.server.reactive;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -27,7 +29,6 @@ import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -206,7 +207,7 @@ class DefaultServerHttpRequestBuilder implements ServerHttpRequest.Builder {
 
     public MutatedServerHttpRequest(URI uri, @Nullable String contextPath,
             String method, @Nullable SslInfo sslInfo, @Nullable InetSocketAddress remoteAddress,
-            InetSocketAddress localAddress, HttpHeaders headers, Flux<DataBuffer> body, ServerHttpRequest originalRequest) {
+            @Nullable InetSocketAddress localAddress, HttpHeaders headers, Flux<DataBuffer> body, ServerHttpRequest originalRequest) {
 
       super(uri, contextPath, headers);
       this.localAddress = localAddress;

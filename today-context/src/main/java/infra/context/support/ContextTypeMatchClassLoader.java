@@ -17,6 +17,8 @@
 
 package infra.context.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,7 +27,6 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.DecoratingClassLoader;
 import infra.core.OverridingClassLoader;
 import infra.core.SmartClassLoader;
-import infra.lang.Nullable;
 import infra.logging.LoggerFactory;
 import infra.util.ReflectionUtils;
 

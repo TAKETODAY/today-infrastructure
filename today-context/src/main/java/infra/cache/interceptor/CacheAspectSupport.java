@@ -17,6 +17,7 @@
 
 package infra.cache.interceptor;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
@@ -55,7 +56,6 @@ import infra.core.ReactiveStreams;
 import infra.expression.EvaluationContext;
 import infra.expression.spel.support.StandardEvaluationContext;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
@@ -135,7 +135,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   @Nullable
   private CacheOperationSource cacheOperationSource;
 
-  private SingletonSupplier<KeyGenerator> keyGenerator = SingletonSupplier.from(SimpleKeyGenerator::new);
+  private SingletonSupplier<KeyGenerator> keyGenerator = SingletonSupplier.of(SimpleKeyGenerator::new);
 
   @Nullable
   private SingletonSupplier<CacheResolver> cacheResolver;
@@ -195,7 +195,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
    * <p>The default is a {@link SimpleKeyGenerator}.
    */
   public void setKeyGenerator(KeyGenerator keyGenerator) {
-    this.keyGenerator = SingletonSupplier.valueOf(keyGenerator);
+    this.keyGenerator = SingletonSupplier.of(keyGenerator);
   }
 
   /**
@@ -234,7 +234,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
    * @see SimpleCacheResolver
    */
   public void setCacheManager(CacheManager cacheManager) {
-    this.cacheResolver = SingletonSupplier.valueOf(new SimpleCacheResolver(cacheManager));
+    this.cacheResolver = SingletonSupplier.of(new SimpleCacheResolver(cacheManager));
   }
 
   /**
@@ -440,6 +440,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private Object executeSynchronized(CacheOperationInvoker invoker, Method method, CacheOperationContexts contexts) {
     CacheOperationContext context = contexts.get(CacheableOperation.class).iterator().next();
     if (isConditionPassing(context, CacheOperationExpressionEvaluator.NO_RESULT)) {

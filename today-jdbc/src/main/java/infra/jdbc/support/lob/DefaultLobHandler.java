@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.jdbc.support.lob;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,7 +31,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
@@ -69,6 +70,7 @@ import infra.logging.LoggerFactory;
  * <p>See the {@link LobHandler} interface javadoc for a summary of recommendations.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see ResultSet#getBytes
  * @see ResultSet#getBinaryStream
  * @see ResultSet#getString
@@ -79,7 +81,7 @@ import infra.logging.LoggerFactory;
  * @see PreparedStatement#setString
  * @see PreparedStatement#setAsciiStream
  * @see PreparedStatement#setCharacterStream
- * @since 04.12.2003
+ * @since 4.0
  */
 public class DefaultLobHandler extends AbstractLobHandler {
 
@@ -149,8 +151,7 @@ public class DefaultLobHandler extends AbstractLobHandler {
   }
 
   @Override
-  @Nullable
-  public byte[] getBlobAsBytes(ResultSet rs, int columnIndex) throws SQLException {
+  public byte @Nullable [] getBlobAsBytes(ResultSet rs, int columnIndex) throws SQLException {
     logger.debug("Returning BLOB as bytes");
     if (this.wrapAsLob) {
       Blob blob = rs.getBlob(columnIndex);
@@ -223,7 +224,7 @@ public class DefaultLobHandler extends AbstractLobHandler {
   protected class DefaultLobCreator implements LobCreator {
 
     @Override
-    public void setBlobAsBytes(PreparedStatement ps, int paramIndex, @Nullable byte[] content)
+    public void setBlobAsBytes(PreparedStatement ps, int paramIndex, byte @Nullable [] content)
             throws SQLException {
 
       if (streamAsLob) {
@@ -247,13 +248,12 @@ public class DefaultLobHandler extends AbstractLobHandler {
       }
       if (logger.isDebugEnabled()) {
         logger.debug(content != null ? "Set bytes for BLOB with length " + content.length :
-                     "Set BLOB to null");
+                "Set BLOB to null");
       }
     }
 
     @Override
-    public void setBlobAsBinaryStream(
-            PreparedStatement ps, int paramIndex, @Nullable InputStream binaryStream, int contentLength)
+    public void setBlobAsBinaryStream(PreparedStatement ps, int paramIndex, @Nullable InputStream binaryStream, int contentLength)
             throws SQLException {
 
       if (streamAsLob) {
@@ -285,7 +285,7 @@ public class DefaultLobHandler extends AbstractLobHandler {
       }
       if (logger.isDebugEnabled()) {
         logger.debug(binaryStream != null ? "Set binary stream for BLOB with length " + contentLength :
-                     "Set BLOB to null");
+                "Set BLOB to null");
       }
     }
 
@@ -314,7 +314,7 @@ public class DefaultLobHandler extends AbstractLobHandler {
       }
       if (logger.isDebugEnabled()) {
         logger.debug(content != null ? "Set string for CLOB with length " + content.length() :
-                     "Set CLOB to null");
+                "Set CLOB to null");
       }
     }
 
@@ -353,7 +353,7 @@ public class DefaultLobHandler extends AbstractLobHandler {
       }
       if (logger.isDebugEnabled()) {
         logger.debug(asciiStream != null ? "Set ASCII stream for CLOB with length " + contentLength :
-                     "Set CLOB to null");
+                "Set CLOB to null");
       }
     }
 
@@ -391,7 +391,7 @@ public class DefaultLobHandler extends AbstractLobHandler {
       }
       if (logger.isDebugEnabled()) {
         logger.debug(characterStream != null ? "Set character stream for CLOB with length " + contentLength :
-                     "Set CLOB to null");
+                "Set CLOB to null");
       }
     }
 

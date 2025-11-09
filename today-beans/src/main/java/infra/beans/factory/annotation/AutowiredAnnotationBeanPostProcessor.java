@@ -17,6 +17,8 @@
 
 package infra.beans.factory.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -86,7 +88,6 @@ import infra.core.type.classreading.MetadataReaderFactory;
 import infra.javapoet.ClassName;
 import infra.javapoet.CodeBlock;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
@@ -360,8 +361,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
   }
 
   @Override
-  @Nullable
-  public Constructor<?>[] determineCandidateConstructors(Class<?> beanClass, final String beanName)
+  public Constructor<?> @Nullable [] determineCandidateConstructors(Class<?> beanClass, final String beanName)
           throws BeanCreationException {
     checkLookupMethods(beanClass, beanName);
 
@@ -522,6 +522,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
     }
   }
 
+  @SuppressWarnings("NullAway")
   private InjectionMetadata findAutowiringMetadata(String beanName, Class<?> clazz, @Nullable PropertyValues pvs) {
     // Fall back to class name as cache key, for backwards compatibility with custom callers.
     String cacheKey = StringUtils.isNotEmpty(beanName) ? beanName : clazz.getName();
@@ -798,8 +799,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 
     private volatile boolean cached;
 
-    @Nullable
-    private volatile Object[] cachedMethodArguments;
+    private volatile Object @Nullable [] cachedMethodArguments;
 
     public AutowiredMethodElement(Method method, boolean required, @Nullable PropertyDescriptor pd) {
       super(method, pd, required);
@@ -811,7 +811,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
         return;
       }
       Method method = (Method) this.member;
-      Object[] arguments;
+      @Nullable Object[] arguments;
       if (this.cached) {
         try {
           arguments = resolveCachedArguments(beanName, this.cachedMethodArguments);
@@ -838,11 +838,11 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
     }
 
     @Nullable
-    private Object[] resolveCachedArguments(@Nullable String beanName, @Nullable Object[] cachedMethodArguments) {
+    private Object @Nullable [] resolveCachedArguments(@Nullable String beanName, @Nullable Object @Nullable [] cachedMethodArguments) {
       if (cachedMethodArguments == null) {
         return null;
       }
-      Object[] arguments = new Object[cachedMethodArguments.length];
+      @Nullable Object[] arguments = new Object[cachedMethodArguments.length];
       for (int i = 0; i < arguments.length; i++) {
         arguments[i] = resolveCachedArgument(beanName, cachedMethodArguments[i]);
       }
@@ -850,9 +850,9 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
     }
 
     @Nullable
-    private Object[] resolveMethodArguments(Method method, Object bean, @Nullable String beanName) {
+    private Object @Nullable [] resolveMethodArguments(Method method, Object bean, @Nullable String beanName) {
       int argumentCount = method.getParameterCount();
-      Object[] arguments = new Object[argumentCount];
+      @Nullable Object[] arguments = new Object[argumentCount];
       DependencyDescriptor[] descriptors = new DependencyDescriptor[argumentCount];
       var autowiredBeans = new LinkedHashSet<String>(argumentCount * 2);
 

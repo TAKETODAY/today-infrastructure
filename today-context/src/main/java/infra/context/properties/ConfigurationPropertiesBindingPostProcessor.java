@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.context.properties;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.BeansException;
 import infra.beans.factory.InitializationBeanPostProcessor;
 import infra.beans.factory.InitializingBean;
@@ -31,7 +33,6 @@ import infra.core.Ordered;
 import infra.core.PriorityOrdered;
 import infra.core.env.PropertySources;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * {@link BeanPostProcessor} to bind {@link PropertySources} to beans annotated with
@@ -53,10 +54,13 @@ public class ConfigurationPropertiesBindingPostProcessor
    */
   public static final String BEAN_NAME = ConfigurationPropertiesBindingPostProcessor.class.getName();
 
+  @SuppressWarnings("NullAway.Init")
   private ApplicationContext applicationContext;
 
+  @SuppressWarnings("NullAway.Init")
   private BeanDefinitionRegistry registry;
 
+  @SuppressWarnings("NullAway.Init")
   private ConfigurationPropertiesBinder binder;
 
   @Override

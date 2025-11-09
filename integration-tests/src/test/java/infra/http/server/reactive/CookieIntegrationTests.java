@@ -63,7 +63,7 @@ public class CookieIntegrationTests extends AbstractHttpHandlerIntegrationTests 
     assertThat(requestCookies.get("SID")).extracting(HttpCookie::getValue).containsExactly("31d4d96e407aad42");
     assertThat(requestCookies.get("lang")).extracting(HttpCookie::getValue).containsExactly("en-US");
 
-    List<String> headerValues = response.getHeaders().get("Set-Cookie");
+    List<String> headerValues = response.headers().get("Set-Cookie");
     assertThat(headerValues).hasSize(2);
 
     List<String> cookie0 = splitCookie(headerValues.get(0));
@@ -85,7 +85,7 @@ public class CookieIntegrationTests extends AbstractHttpHandlerIntegrationTests 
     ResponseEntity<Void> response = new RestTemplate().exchange(
             RequestEntity.get(url).header("Cookie", header).build(), Void.class);
 
-    List<String> headerValues = response.getHeaders().get("Set-Cookie");
+    List<String> headerValues = response.headers().get("Set-Cookie");
     assertThat(headerValues).hasSize(2);
 
     List<String> cookie0 = splitCookie(headerValues.get(0));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.http.server.reactive;
 
+import org.jspecify.annotations.Nullable;
+
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -24,7 +26,6 @@ import java.util.ArrayList;
 import javax.net.ssl.SSLSession;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Default implementation of {@link SslInfo}.
@@ -38,8 +39,7 @@ final class DefaultSslInfo implements SslInfo {
   @Nullable
   private final String sessionId;
 
-  @Nullable
-  private final X509Certificate[] peerCertificates;
+  private final X509Certificate @Nullable [] peerCertificates;
 
   DefaultSslInfo(@Nullable String sessionId, X509Certificate[] peerCertificates) {
     Assert.notNull(peerCertificates, "No SSL certificates");
@@ -60,8 +60,7 @@ final class DefaultSslInfo implements SslInfo {
   }
 
   @Override
-  @Nullable
-  public X509Certificate[] getPeerCertificates() {
+  public X509Certificate @Nullable [] getPeerCertificates() {
     return this.peerCertificates;
   }
 
@@ -86,8 +85,7 @@ final class DefaultSslInfo implements SslInfo {
     return sb.toString();
   }
 
-  @Nullable
-  private static X509Certificate[] initCertificates(SSLSession session) {
+  private static X509Certificate @Nullable [] initCertificates(SSLSession session) {
     Certificate[] certificates;
     try {
       certificates = session.getPeerCertificates();

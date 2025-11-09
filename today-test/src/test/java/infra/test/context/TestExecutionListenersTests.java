@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,10 +23,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
-import infra.core.Ordered;
-import infra.core.annotation.AnnotationConfigurationException;
 import infra.app.test.mock.mockito.MockitoTestExecutionListener;
 import infra.app.test.mock.mockito.ResetMocksTestExecutionListener;
+import infra.core.Ordered;
+import infra.core.annotation.AliasFor;
+import infra.core.annotation.AnnotationConfigurationException;
 import infra.test.context.event.ApplicationEventsTestExecutionListener;
 import infra.test.context.event.EventPublishingTestExecutionListener;
 import infra.test.context.jdbc.SqlScriptsTestExecutionListener;
@@ -308,16 +309,19 @@ class TestExecutionListenersTests {
   @Retention(RetentionPolicy.RUNTIME)
   @interface MetaListenersWithOverrides {
 
+    @AliasFor(annotation = TestExecutionListeners.class)
     Class<? extends TestExecutionListener>[] listeners() default
-            { FooTestExecutionListener.class, BarTestExecutionListener.class };
+            {FooTestExecutionListener.class, BarTestExecutionListener.class};
   }
 
   @TestExecutionListeners
   @Retention(RetentionPolicy.RUNTIME)
   @interface MetaInheritedListenersWithOverrides {
 
+    @AliasFor(annotation = TestExecutionListeners.class)
     Class<? extends TestExecutionListener>[] listeners() default QuuxTestExecutionListener.class;
 
+    @AliasFor(annotation = TestExecutionListeners.class)
     boolean inheritListeners() default true;
   }
 
@@ -325,8 +329,10 @@ class TestExecutionListenersTests {
   @Retention(RetentionPolicy.RUNTIME)
   @interface MetaNonInheritedListenersWithOverrides {
 
+    @AliasFor(annotation = TestExecutionListeners.class)
     Class<? extends TestExecutionListener>[] listeners() default QuuxTestExecutionListener.class;
 
+    @AliasFor(annotation = TestExecutionListeners.class)
     boolean inheritListeners() default false;
   }
 

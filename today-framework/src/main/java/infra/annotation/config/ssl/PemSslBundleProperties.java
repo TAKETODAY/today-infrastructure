@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.annotation.config.ssl;
+
+import org.jspecify.annotations.Nullable;
 
 import infra.core.ssl.pem.PemSslStoreBundle;
 
@@ -56,21 +58,25 @@ public class PemSslBundleProperties extends SslBundleProperties {
     /**
      * Type of the store to create, e.g. JKS.
      */
+    @Nullable
     private String type;
 
     /**
      * Location or content of the certificate or certificate chain in PEM format.
      */
+    @Nullable
     private String certificate;
 
     /**
      * Location or content of the private key in PEM format.
      */
+    @Nullable
     private String privateKey;
 
     /**
      * Password used to decrypt an encrypted private key.
      */
+    @Nullable
     private String privateKeyPassword;
 
     /**
@@ -78,6 +84,7 @@ public class PemSslBundleProperties extends SslBundleProperties {
      */
     private boolean verifyKeys;
 
+    @Nullable
     public String getType() {
       return this.type;
     }
@@ -86,6 +93,7 @@ public class PemSslBundleProperties extends SslBundleProperties {
       this.type = type;
     }
 
+    @Nullable
     public String getCertificate() {
       return this.certificate;
     }
@@ -94,6 +102,7 @@ public class PemSslBundleProperties extends SslBundleProperties {
       this.certificate = certificate;
     }
 
+    @Nullable
     public String getPrivateKey() {
       return this.privateKey;
     }
@@ -102,6 +111,7 @@ public class PemSslBundleProperties extends SslBundleProperties {
       this.privateKey = privateKey;
     }
 
+    @Nullable
     public String getPrivateKeyPassword() {
       return this.privateKeyPassword;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,13 @@
 
 package infra.context;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Consumer;
 
 import infra.core.ResolvableType;
 import infra.core.ResolvableTypeProvider;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * An {@link ApplicationEvent} that carries an arbitrary payload.
@@ -69,6 +70,7 @@ public class PayloadApplicationEvent<T> extends ApplicationEvent implements Reso
     this.payloadType = payloadType != null ? payloadType : ResolvableType.forInstance(payload);
   }
 
+  @Nullable
   @Override
   public ResolvableType getResolvableType() {
     return ResolvableType.forClassWithGenerics(getClass(), this.payloadType);

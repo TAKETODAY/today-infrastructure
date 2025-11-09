@@ -21,9 +21,7 @@
 /**
  * GraalVM native image features, not part of Infra public API.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.aot.nativex.feature;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,9 @@
 
 package infra.context.properties;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.BeanCreationException;
-import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**
@@ -58,6 +59,7 @@ public class ConfigurationPropertiesBindException extends BeanCreationException 
     return this.bean.getAnnotation();
   }
 
+  @SuppressWarnings("NullAway")
   private static String getMessage(ConfigurationPropertiesBean bean) {
     ConfigurationProperties annotation = bean.getAnnotation();
     return "Could not bind properties to '%s' : prefix=%s, ignoreInvalidFields=%s, ignoreUnknownFields=%s"

@@ -20,9 +20,7 @@
  * Provides a ScriptFactoryPostProcessor for turning ScriptFactory
  * definitions into scripted objects.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.scripting.support;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

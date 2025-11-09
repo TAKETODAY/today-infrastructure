@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 
 package infra.bytecode;
 
-import infra.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A non standard class, field, method or Code attribute, as defined in the Java Virtual Machine
@@ -55,6 +55,7 @@ public class Attribute {
    *
    * @param type the type of the attribute.
    */
+  @SuppressWarnings("NullAway")
   protected Attribute(final String type) {
     this.type = type;
   }
@@ -139,7 +140,7 @@ public class Attribute {
    * attribute, or -1 if this attribute is not a Code attribute.
    * @return the byte array form of this attribute.
    */
-  protected ByteVector write(final ClassWriter classWriter, final byte[] code,
+  protected ByteVector write(final ClassWriter classWriter, final byte @Nullable [] code,
           final int codeLength, final int maxStack, final int maxLocals) {
     return new ByteVector(content);
   }
@@ -195,7 +196,7 @@ public class Attribute {
    * the attribute headers.
    */
   final int computeAttributesSize(final SymbolTable symbolTable,
-          final byte[] code, final int codeLength, final int maxStack, final int maxLocals) {
+          final byte @Nullable [] code, final int codeLength, final int maxStack, final int maxLocals) {
     final ClassWriter classWriter = symbolTable.classWriter;
     int size = 0;
     Attribute attribute = this;
@@ -275,7 +276,7 @@ public class Attribute {
    * Code attributes, or -1 if they are not Code attribute.
    * @param output where the attributes must be written.
    */
-  final void putAttributes(final SymbolTable symbolTable, final byte[] code,
+  final void putAttributes(final SymbolTable symbolTable, final byte @Nullable [] code,
           final int codeLength, final int maxStack, final int maxLocals, final ByteVector output) {
     final ClassWriter classWriter = symbolTable.classWriter;
     Attribute attribute = this;

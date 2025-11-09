@@ -17,6 +17,8 @@
 
 package infra.jdbc.datasource;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -27,7 +29,6 @@ import java.sql.Statement;
 
 import javax.sql.DataSource;
 
-import infra.lang.Nullable;
 import infra.transaction.support.TransactionSynchronizationManager;
 
 /**

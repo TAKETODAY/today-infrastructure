@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.annotation.config;
 
 import org.assertj.core.api.Assertions;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.ElementType;
@@ -32,6 +33,9 @@ import java.util.Set;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import infra.annotation.config.context.LifecycleAutoConfiguration;
+import infra.annotation.config.context.MessageSourceAutoConfiguration;
+import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.support.StandardBeanFactory;
@@ -49,11 +53,7 @@ import infra.context.annotation.config.AutoConfigureAfter;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.annotation.config.ImportCandidates;
 import infra.core.type.AnnotationMetadata;
-import infra.lang.Nullable;
 import infra.mock.env.MockEnvironment;
-import infra.annotation.config.context.LifecycleAutoConfiguration;
-import infra.annotation.config.context.MessageSourceAutoConfiguration;
-import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

@@ -17,6 +17,8 @@
 
 package infra.aop.framework.autoproxy;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +28,6 @@ import infra.beans.factory.BeanCurrentlyInCreationException;
 import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
@@ -40,12 +41,12 @@ import infra.logging.LoggerFactory;
  * @since 4.0
  */
 public class BeanFactoryAdvisorRetriever {
+
   private static final Logger logger = LoggerFactory.getLogger(BeanFactoryAdvisorRetriever.class);
 
   private final ConfigurableBeanFactory beanFactory;
 
-  @Nullable
-  private volatile String[] cachedAdvisorBeanNames;
+  private volatile String @Nullable [] cachedAdvisorBeanNames;
 
   /**
    * Create a new BeanFactoryAdvisorRetrievalHelper for the given BeanFactory.

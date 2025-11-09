@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.http;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -27,7 +29,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.DataSize;
 import infra.util.MultiValueMap;
@@ -167,7 +168,8 @@ public class ResponseEntity<T> extends HttpEntity<T> {
   }
 
   @Override
-  public boolean equals(Object other) {
+  @SuppressWarnings("NullAway")
+  public boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;
     }
@@ -197,7 +199,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
       builder.append(body);
       builder.append(',');
     }
-    builder.append(toString(headers()));
+    builder.append(toString(getHeaders()));
     builder.append('>');
     return builder.toString();
   }
@@ -377,7 +379,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
     B headers(Consumer<HttpHeaders> headersConsumer);
 
     /**
-     * Set the set of allowed {@link jodd.net.HttpMethod HTTP methods}, as specified
+     * Set the set of allowed {@link HttpMethod HTTP methods}, as specified
      * by the {@code Allow} header.
      *
      * @param allowedMethods the allowed methods

@@ -21,9 +21,7 @@
  *
  * <p>Useful for testing web contexts and controllers.
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.mock.web;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

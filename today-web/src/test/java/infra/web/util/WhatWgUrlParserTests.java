@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,10 @@
 
 package infra.web.util;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
-import infra.lang.Nullable;
+import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -89,4 +90,96 @@ class WhatWgUrlParserTests {
       assertThat(result.query()).as("Query is not null").isNull();
     }
   }
+
+  @Test
+  void shouldParseSpecialSchemes() {
+    WhatWgUrlParser.UrlRecord result = WhatWgUrlParser.parse("http://example.com", EMPTY_URL_RECORD, null, null);
+    assertThat(result.scheme()).isEqualTo("http");
+
+    result = WhatWgUrlParser.parse("https://example.com", EMPTY_URL_RECORD, null, null);
+    assertThat(result.scheme()).isEqualTo("https");
+
+    result = WhatWgUrlParser.parse("ftp://example.com", EMPTY_URL_RECORD, null, null);
+    assertThat(result.scheme()).isEqualTo("ftp");
+
+    result = WhatWgUrlParser.parse("file:///path", EMPTY_URL_RECORD, null, null);
+    assertThat(result.scheme()).isEqualTo("file");
+  }
+
+  @Test
+  void shouldParseOpaquePaths() {
+    WhatWgUrlParser.UrlRecord result = WhatWgUrlParser.parse("mailto:user@example.com", EMPTY_URL_RECORD, null, null);
+    assertThat(result.scheme()).isEqualTo("mailto");
+    assertThat(result.hasOpaquePath()).isTrue();
+    assertThat(result.path().toString()).isEqualTo("user@example.com");
+
+    result = WhatWgUrlParser.parse("javascript:alert('hello')", EMPTY_URL_RECORD, null, null);
+    assertThat(result.scheme()).isEqualTo("javascript");
+    assertThat(result.hasOpaquePath()).isTrue();
+    assertThat(result.path().toString()).isEqualTo("alert('hello')");
+  }
+
+  @Test
+  void shouldParsePathsWithNormalization() {
+    WhatWgUrlParser.UrlRecord result = WhatWgUrlParser.parse("/foo/bar/../baz", EMPTY_URL_RECORD, null, null);
+    assertThat(result.path().toString()).isEqualTo("/foo/baz");
+
+    result = WhatWgUrlParser.parse("/foo/./bar", EMPTY_URL_RECORD, null, null);
+    assertThat(result.path().toString()).isEqualTo("/foo/bar");
+  }
+
+  @Test
+  void shouldParseUrlsWithPort() {
+    WhatWgUrlParser.UrlRecord result = WhatWgUrlParser.parse("https://example.com:8080/path", EMPTY_URL_RECORD, null, null);
+    assertThat(result.scheme()).isEqualTo("https");
+    assertThat(result.host().toString()).isEqualTo("example.com");
+    assertThat(result.port().toString()).isEqualTo("8080");
+    assertThat(result.path().toString()).isEqualTo("/path");
+  }
+
+  @Test
+  void shouldParseUrlsWithQueryAndFragment() {
+    WhatWgUrlParser.UrlRecord result = WhatWgUrlParser.parse("https://example.com/path?query=value#fragment", EMPTY_URL_RECORD, null, null);
+    assertThat(result.scheme()).isEqualTo("https");
+    assertThat(result.host().toString()).isEqualTo("example.com");
+    assertThat(result.path().toString()).isEqualTo("/path");
+    assertThat(result.query()).isEqualTo("query=value");
+    assertThat(result.fragment()).isEqualTo("fragment");
+  }
+
+  @Test
+  void shouldParseRelativeUrls() {
+    WhatWgUrlParser.UrlRecord base = WhatWgUrlParser.parse("https://example.com/base/", EMPTY_URL_RECORD, null, null);
+    WhatWgUrlParser.UrlRecord result = WhatWgUrlParser.parse("../other", EMPTY_URL_RECORD, StandardCharsets.UTF_8, null);
+    assertThat(result.path().toString()).isEqualTo("/other");
+
+    result = WhatWgUrlParser.parse("./other", base, StandardCharsets.UTF_8, null);
+    assertThat(result.path().toString()).isEqualTo("/base/other");
+  }
+
+  @Test
+  void shouldParseFileUrls() {
+    WhatWgUrlParser.UrlRecord result = WhatWgUrlParser.parse("file:///C:/Windows/System32", EMPTY_URL_RECORD, null, null);
+    assertThat(result.scheme()).isEqualTo("file");
+    assertThat(result.host().toString()).isEqualTo("");
+    assertThat(result.path().toString()).isEqualTo("/C:/Windows/System32");
+  }
+
+  @Test
+  void shouldParseIpv6Hosts() {
+    WhatWgUrlParser.UrlRecord result = WhatWgUrlParser.parse("http://[::1]/path", EMPTY_URL_RECORD, null, null);
+    assertThat(result.scheme()).isEqualTo("http");
+    assertThat(result.host()).isNotNull();
+    assertThat(result.path().toString()).isEqualTo("/path");
+  }
+
+  @Test
+  void shouldHandleUrlEncoding() {
+    WhatWgUrlParser.UrlRecord result = WhatWgUrlParser.parse("https://example.com/hello%20world", EMPTY_URL_RECORD, null, null);
+    assertThat(result.path().toString()).isEqualTo("/hello%20world");
+
+    result = WhatWgUrlParser.parse("https://example.com/search?q=hello world", EMPTY_URL_RECORD, null, null);
+    assertThat(result.query()).isEqualTo("q=hello world");
+  }
+
 }

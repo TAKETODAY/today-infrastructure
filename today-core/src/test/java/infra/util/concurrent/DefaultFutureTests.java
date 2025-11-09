@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import infra.lang.NonNull;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import io.netty.util.Signal;
@@ -495,7 +494,7 @@ class DefaultFutureTests {
 //    ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Override
-    public void execute(@NonNull Runnable command) {
+    public void execute(Runnable command) {
       command.run();
 //      executorService.execute(command);
     }

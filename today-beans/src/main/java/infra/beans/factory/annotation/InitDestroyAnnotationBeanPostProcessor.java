@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.beans.factory.annotation;
+
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -52,7 +54,6 @@ import infra.core.OrderedSupport;
 import infra.core.PriorityOrdered;
 import infra.core.annotation.AnnotationUtils;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
@@ -213,7 +214,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
     return metadata;
   }
 
-  private static String[] safeMerge(@Nullable String[] existingNames, Collection<LifecycleMethod> detectedMethods) {
+  private static String[] safeMerge(String @Nullable [] existingNames, Collection<LifecycleMethod> detectedMethods) {
     LinkedHashSet<String> ret = new LinkedHashSet<>();
     for (LifecycleMethod detectedMethod : detectedMethods) {
       ret.add(detectedMethod.identifier);
@@ -444,7 +445,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
 
     public void invoke(Object target, @Nullable DependencyInjector resolver) throws Throwable {
       if (resolver != null) {
-        Object[] args = resolver.resolveArguments(method);
+        @Nullable Object[] args = resolver.resolveArguments(method);
         method.invoke(target, args);
       }
       else {

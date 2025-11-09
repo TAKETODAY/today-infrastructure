@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.aop.interceptor;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
@@ -37,7 +39,6 @@ import infra.core.StringValueResolver;
 import infra.core.task.AsyncTaskExecutor;
 import infra.core.task.TaskExecutor;
 import infra.core.task.support.TaskExecutorAdapter;
-import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ReflectionUtils;
@@ -92,7 +93,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
    */
   public AsyncExecutionAspectSupport(@Nullable Executor defaultExecutor) {
     this.defaultExecutor = new SingletonSupplier<>(defaultExecutor, () -> getDefaultExecutor(this.beanFactory));
-    this.exceptionHandler = SingletonSupplier.from(SimpleAsyncUncaughtExceptionHandler::new);
+    this.exceptionHandler = SingletonSupplier.of(SimpleAsyncUncaughtExceptionHandler::new);
   }
 
   /**
@@ -106,7 +107,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
    */
   public AsyncExecutionAspectSupport(@Nullable Executor defaultExecutor, AsyncUncaughtExceptionHandler exceptionHandler) {
     this.defaultExecutor = new SingletonSupplier<>(defaultExecutor, () -> getDefaultExecutor(this.beanFactory));
-    this.exceptionHandler = SingletonSupplier.valueOf(exceptionHandler);
+    this.exceptionHandler = SingletonSupplier.of(exceptionHandler);
   }
 
   /**
@@ -132,7 +133,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
    * @see #getDefaultExecutor(BeanFactory)
    */
   public void setExecutor(Executor defaultExecutor) {
-    this.defaultExecutor = SingletonSupplier.valueOf(defaultExecutor);
+    this.defaultExecutor = SingletonSupplier.of(defaultExecutor);
   }
 
   /**
@@ -140,7 +141,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
    * thrown by invoking asynchronous methods with a {@code void} return type.
    */
   public void setExceptionHandler(AsyncUncaughtExceptionHandler exceptionHandler) {
-    this.exceptionHandler = SingletonSupplier.valueOf(exceptionHandler);
+    this.exceptionHandler = SingletonSupplier.of(exceptionHandler);
   }
 
   /**
@@ -184,7 +185,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
         return null;
       }
       executor = targetExecutor instanceof AsyncTaskExecutor ate
-                 ? ate : new TaskExecutorAdapter(targetExecutor);
+              ? ate : new TaskExecutorAdapter(targetExecutor);
       this.executors.put(method, executor);
     }
     return executor;
@@ -213,6 +214,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
    * @see #getExecutorQualifier(Method)
    */
   @Nullable
+  @SuppressWarnings("NullAway")
   protected Executor findQualifiedExecutor(@Nullable BeanFactory beanFactory, String qualifier) {
     if (beanFactory == null) {
       throw new IllegalStateException("BeanFactory must be set on %s to access qualified executor '%s'"
@@ -285,7 +287,8 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
    * @return the execution result (potentially a corresponding {@link Future} handle)
    */
   @Nullable
-  protected Object doSubmit(Callable<Object> task, AsyncTaskExecutor executor, Class<?> returnType) {
+  @SuppressWarnings("NullAway")
+  protected Object doSubmit(Callable<@Nullable Object> task, AsyncTaskExecutor executor, Class<?> returnType) {
     if (CompletableFuture.class.isAssignableFrom(returnType)) {
       return CompletableFuture.supplyAsync(() -> {
         try {
@@ -318,7 +321,8 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
    * @param method the method that was invoked
    * @param params the parameters used to invoke the method
    */
-  public void handleError(Throwable ex, Method method, Object... params) throws Exception {
+  @SuppressWarnings("NullAway")
+  public void handleError(Throwable ex, Method method, @Nullable Object... params) throws Exception {
     if (Future.class.isAssignableFrom(method.getReturnType())) {
       ReflectionUtils.rethrowException(ex);
     }

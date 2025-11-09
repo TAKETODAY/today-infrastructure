@@ -18,9 +18,7 @@
 /**
  * SQL formatting
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package infra.jdbc.format;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

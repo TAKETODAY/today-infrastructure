@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
 
 package infra.web.bind.resolver;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.annotation.Value;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.MethodParameter;
-import infra.lang.Nullable;
 import infra.web.RequestContext;
 import infra.web.bind.WebDataBinder;
 import infra.web.handler.method.NamedValueInfo;
@@ -59,6 +60,7 @@ public class ExpressionValueMethodArgumentResolver extends AbstractNamedValueRes
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   protected NamedValueInfo getNamedValueInfo(ResolvableMethodParameter resolvable) {
     if (resolvable.hasNamedValueInfo()) {
       return resolvable.getNamedValueInfo();

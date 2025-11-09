@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,14 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -31,7 +33,6 @@ import infra.core.annotation.AnnotatedElementUtils;
 import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.util.ConcurrentLruCache;
 import infra.util.MimeType;
 import infra.util.comparator.ExceptionDepthComparator;
@@ -72,6 +73,7 @@ public class ExceptionHandlerMethodResolver {
 
   private final HashMap<ExceptionMapping, ExceptionHandlerMappingInfo> mappedMethods = new HashMap<>(16);
 
+  @SuppressWarnings("NullAway")
   private final ConcurrentLruCache<ExceptionMapping, ExceptionHandlerMappingInfo> lookupCache = new ConcurrentLruCache<>(24,
           cacheKey -> getMappedMethod(cacheKey.exceptionType(), cacheKey.mediaType()));
 
@@ -114,7 +116,7 @@ public class ExceptionHandlerMethodResolver {
     if (exceptions.isEmpty()) {
       throw new IllegalStateException("No exception types mapped to " + method);
     }
-    Set<MediaType> mediaTypes = new HashSet<>();
+    Set<MediaType> mediaTypes = new LinkedHashSet<>();
     for (String mediaType : exceptionHandler.produces()) {
       try {
         mediaTypes.add(MediaType.parseMediaType(mediaType));

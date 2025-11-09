@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
@@ -35,7 +37,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * A {@link ConcurrentHashMap} that uses {@link ReferenceType#SOFT soft} or
@@ -473,7 +474,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
      * Array of references indexed using the low order bits from the hash.
      * This property should only be set along with {@code resizeThreshold}.
      */
-    private volatile Reference<K, V>[] references;
+    private volatile @Nullable Reference<K, V>[] references;
 
     /**
      * The total number of references contained in this segment. This includes chained
@@ -675,18 +676,18 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     }
 
     @Nullable
-    private static Reference findInChain(final @Nullable Object key, final int hash, final Reference[] references) {
+    private static Reference findInChain(final @Nullable Object key, final int hash, @Nullable final Reference[] references) {
       final Reference head = references[getIndex(hash, references)];
       return findInChain(head, key, hash);
     }
 
     @SuppressWarnings("rawtypes")
-    private static int getIndex(final int hash, final Reference[] references) {
+    private static int getIndex(final int hash, @Nullable final Reference[] references) {
       return (hash & (references.length - 1));
     }
 
     @Nullable
-    private static <K, V> Reference<K, V> findInChain(final Reference<K, V> ref, final @Nullable Object key, final int hash) {
+    private static <K, V> Reference<K, V> findInChain(@Nullable Reference<K, V> ref, final @Nullable Object key, final int hash) {
       Reference<K, V> currRef = ref;
       while (currRef != null) {
         if (currRef.getHash() == hash) {
@@ -826,8 +827,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
      * @see #execute(Reference, Entry)
      */
     @Nullable
-    protected T execute(@Nullable Reference<K, V> ref,
-            @Nullable Entry<K, V> entry, @Nullable Entries entries) {
+    protected T execute(@Nullable Reference<K, V> ref, @Nullable Entry<K, V> entry, @Nullable Entries entries) {
       return execute(ref, entry);
     }
 
@@ -916,8 +916,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
     private int referenceIndex;
 
-    @Nullable
-    private Reference<K, V>[] references;
+    private @Nullable Reference<K, V> @Nullable [] references;
 
     @Nullable
     private Reference<K, V> reference;

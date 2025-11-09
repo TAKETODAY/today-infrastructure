@@ -17,9 +17,10 @@
 
 package infra.beans.factory;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.BeansException;
 import infra.beans.factory.config.BeanPostProcessor;
-import infra.lang.Nullable;
 
 /**
  * Factory hook that allows for custom modification of new bean instances

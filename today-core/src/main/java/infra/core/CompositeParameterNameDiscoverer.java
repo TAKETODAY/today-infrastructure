@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
 
 package infra.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Executable;
 import java.util.ArrayList;
 
-import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 
 /**
@@ -47,9 +48,8 @@ public class CompositeParameterNameDiscoverer extends ParameterNameDiscoverer im
     trimToSize();
   }
 
-  @Nullable
   @Override
-  public String[] getParameterNames(Executable executable) {
+  public String @Nullable [] getParameterNames(Executable executable) {
     for (ParameterNameDiscoverer discoverer : discoverers) {
       String[] parameterNames = discoverer.getParameterNames(executable);
       if (parameterNames != null) {

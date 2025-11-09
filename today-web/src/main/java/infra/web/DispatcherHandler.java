@@ -17,6 +17,8 @@
 
 package infra.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -30,8 +32,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.lang.Nullable;
-import infra.util.ArrayHolder;
+import infra.util.CollectionUtils;
 import infra.util.ExceptionUtils;
 import infra.util.StringUtils;
 import infra.web.async.WebAsyncManagerFactory;
@@ -53,7 +54,7 @@ import infra.web.util.WebUtils;
  */
 public class DispatcherHandler extends InfraHandler {
 
-  private final ArrayHolder<RequestCompletedListener> requestCompletedActions = ArrayHolder.forGenerator(RequestCompletedListener[]::new);
+  private final ArrayList<RequestCompletedListener> requestCompletedActions = new ArrayList<>();
 
   /** Action mapping registry */
   private HandlerMapping handlerMapping;
@@ -83,6 +84,7 @@ public class DispatcherHandler extends InfraHandler {
   @Nullable
   protected WebAsyncManagerFactory webAsyncManagerFactory;
 
+  @SuppressWarnings("NullAway")
   public DispatcherHandler() {
   }
 
@@ -99,6 +101,7 @@ public class DispatcherHandler extends InfraHandler {
    * @see #initApplicationContext
    * @see #configureAndRefreshApplicationContext
    */
+  @SuppressWarnings("NullAway")
   public DispatcherHandler(ApplicationContext context) {
     super(context);
   }
@@ -203,8 +206,9 @@ public class DispatcherHandler extends InfraHandler {
    * @param array RequestHandledListener array
    * @since 4.0
    */
-  public void addRequestCompletedActions(@Nullable RequestCompletedListener... array) {
-    requestCompletedActions.addAll(array);
+  public void addRequestCompletedActions(RequestCompletedListener @Nullable ... array) {
+    CollectionUtils.addAll(requestCompletedActions, array);
+    requestCompletedActions.trimToSize();
   }
 
   /**
@@ -215,6 +219,7 @@ public class DispatcherHandler extends InfraHandler {
    */
   public void addRequestCompletedActions(@Nullable Collection<RequestCompletedListener> list) {
     requestCompletedActions.addAll(list);
+    requestCompletedActions.trimToSize();
   }
 
   /**
@@ -224,7 +229,9 @@ public class DispatcherHandler extends InfraHandler {
    * @since 4.0
    */
   public void setRequestCompletedActions(@Nullable Collection<RequestCompletedListener> list) {
-    requestCompletedActions.set(list);
+    requestCompletedActions.clear();
+    CollectionUtils.addAll(requestCompletedActions, list);
+    requestCompletedActions.trimToSize();
   }
 
   @Override
@@ -315,6 +322,7 @@ public class DispatcherHandler extends InfraHandler {
    *
    * @see SimpleNotFoundHandler
    */
+  @SuppressWarnings("NullAway")
   private void initNotFoundHandler(ApplicationContext context) {
     if (notFoundHandler == null) {
       notFoundHandler = BeanFactoryUtils.find(context, NotFoundHandler.class);
@@ -330,6 +338,7 @@ public class DispatcherHandler extends InfraHandler {
    *
    * @see WebAsyncManagerFactory
    */
+  @SuppressWarnings("NullAway")
   private void initWebAsyncManagerFactory(ApplicationContext context) {
     if (webAsyncManagerFactory == null) {
       setWebAsyncManagerFactory(WebAsyncManagerFactory.find(context));
@@ -585,9 +594,8 @@ public class DispatcherHandler extends InfraHandler {
   }
 
   protected void requestCompleted(RequestContext request, @Nullable Throwable notHandled) throws Throwable {
-    RequestCompletedListener[] actions = requestCompletedActions.array;
-    if (actions != null) {
-      for (RequestCompletedListener action : actions) {
+    if (!requestCompletedActions.isEmpty()) {
+      for (RequestCompletedListener action : requestCompletedActions) {
         action.requestCompleted(request, notHandled);
       }
     }

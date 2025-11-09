@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.aop.target;
+
+import org.jspecify.annotations.Nullable;
 
 import infra.aop.TargetSource;
 import infra.logging.Logger;
@@ -41,6 +43,7 @@ public abstract class AbstractRefreshableTargetSource implements TargetSource, R
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
+  @Nullable
   protected Object targetObject;
 
   private long refreshCheckDelay = -1;
@@ -62,6 +65,7 @@ public abstract class AbstractRefreshableTargetSource implements TargetSource, R
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public synchronized Class<?> getTargetClass() {
     if (this.targetObject == null) {
       refresh();
@@ -78,6 +82,7 @@ public abstract class AbstractRefreshableTargetSource implements TargetSource, R
   }
 
   @Override
+  @Nullable
   public final synchronized Object getTarget() {
     if ((refreshCheckDelayElapsed() && requiresRefresh()) || this.targetObject == null) {
       refresh();

@@ -17,6 +17,8 @@
 
 package infra.http;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.net.URI;
@@ -25,7 +27,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * Representation for an RFC 9457 problem detail. Includes spec-defined
@@ -352,13 +353,8 @@ public class ProblemDetail implements Serializable {
 
   @Override
   public int hashCode() {
-    int result = type.hashCode();
-    result = 31 * result + Objects.hashCode(getTitle());
-    result = 31 * result + status;
-    result = 31 * result + Objects.hashCode(detail);
-    result = 31 * result + Objects.hashCode(instance);
-    result = 31 * result + Objects.hashCode(properties);
-    return result;
+    return Objects.hash(this.type, getTitle(), this.status, this.detail,
+            this.instance, this.properties);
   }
 
   @Override
@@ -395,7 +391,7 @@ public class ProblemDetail implements Serializable {
   /**
    * Create a {@code ProblemDetail} instance with the given status and detail.
    */
-  public static ProblemDetail forStatusAndDetail(HttpStatusCode status, String detail) {
+  public static ProblemDetail forStatusAndDetail(HttpStatusCode status, @Nullable String detail) {
     return forStatus(status).withDetail(detail);
   }
 

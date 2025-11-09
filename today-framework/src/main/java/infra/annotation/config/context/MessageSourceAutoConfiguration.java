@@ -17,6 +17,8 @@
 
 package infra.annotation.config.context;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.Duration;
@@ -48,7 +50,6 @@ import infra.core.io.PathMatchingPatternResourceLoader;
 import infra.core.io.PropertiesUtils;
 import infra.core.io.Resource;
 import infra.core.type.AnnotatedTypeMetadata;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.util.CollectionUtils;
 import infra.util.ConcurrentReferenceHashMap;
@@ -160,7 +161,7 @@ public class MessageSourceAutoConfiguration {
   static class Hints implements RuntimeHintsRegistrar {
 
     @Override
-    public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+    public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
       hints.resources().registerPattern("messages.properties").registerPattern("messages_*.properties");
     }
 
