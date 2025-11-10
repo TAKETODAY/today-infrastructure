@@ -56,7 +56,8 @@ public class JavaConventions {
   private static final JavaLanguageVersion DEFAULT_LANGUAGE_VERSION = JavaLanguageVersion.of(25);
 
   /**
-   * The Java version we should use as the baseline for the compiled bytecode (the "-release" compiler argument)
+   * The Java version we should use as the baseline for the compiled bytecode
+   * (the "-release" compiler argument).
    */
   private static final JavaLanguageVersion DEFAULT_RELEASE_VERSION = JavaLanguageVersion.of(17);
 
@@ -99,7 +100,7 @@ public class JavaConventions {
   }
 
   /**
-   * Applies the common Java compiler options for main sources, test fixture sources, and
+   * Apply the common Java compiler options for main sources, test fixture sources, and
    * test sources.
    *
    * @param project the current project
