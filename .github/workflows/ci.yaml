@@ -26,8 +26,8 @@ jobs:
       matrix:
         os: [ ubuntu-latest, macOS-latest ] #, windows-latest
         java:
-#          - version: 21
-#            toolchain: true
+          - version: 21
+            toolchain: true
           - version: 25
             toolchain: true
       fail-fast: false
