@@ -17,6 +17,8 @@
 
 package infra.cache.jcache.interceptor;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -106,12 +108,12 @@ abstract class AbstractJCacheOperation<A extends Annotation> implements JCacheOp
   }
 
   @Override
-  public CacheInvocationParameter[] getAllParameters(Object... values) {
+  public CacheInvocationParameter[] getAllParameters(@Nullable Object... values) {
     if (this.allParameterDetails.size() != values.length) {
       throw new IllegalStateException("Values mismatch, operation has " +
               this.allParameterDetails.size() + " parameter(s) but got " + values.length + " value(s)");
     }
-    List<CacheInvocationParameter> result = new ArrayList<>();
+    ArrayList<CacheInvocationParameter> result = new ArrayList<>();
     for (int i = 0; i < this.allParameterDetails.size(); i++) {
       result.add(this.allParameterDetails.get(i).toCacheInvocationParameter(values[i]));
     }
@@ -200,7 +202,7 @@ abstract class AbstractJCacheOperation<A extends Annotation> implements JCacheOp
       return this.isValue;
     }
 
-    public CacheInvocationParameter toCacheInvocationParameter(Object value) {
+    public CacheInvocationParameter toCacheInvocationParameter(@Nullable Object value) {
       return new CacheInvocationParameterImpl(this, value);
     }
   }
@@ -212,9 +214,9 @@ abstract class AbstractJCacheOperation<A extends Annotation> implements JCacheOp
 
     private final CacheParameterDetail detail;
 
-    private final Object value;
+    private final @Nullable Object value;
 
-    public CacheInvocationParameterImpl(CacheParameterDetail detail, Object value) {
+    public CacheInvocationParameterImpl(CacheParameterDetail detail, @Nullable Object value) {
       this.detail = detail;
       this.value = value;
     }
@@ -225,7 +227,7 @@ abstract class AbstractJCacheOperation<A extends Annotation> implements JCacheOp
     }
 
     @Override
-    public Object getValue() {
+    public @Nullable Object getValue() {
       return this.value;
     }
 

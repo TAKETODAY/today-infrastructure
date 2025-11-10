@@ -22,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 import infra.app.diagnostics.AbstractFailureAnalyzer;
 import infra.app.diagnostics.FailureAnalysis;
 import infra.app.diagnostics.FailureAnalyzer;
+import jakarta.validation.NoProviderFoundException;
 import jakarta.validation.ValidationException;
 
 /**
@@ -41,13 +42,12 @@ class ValidationExceptionFailureAnalyzer extends AbstractFailureAnalyzer<Validat
           + "Configuration, because no Jakarta Bean Validation provider could be found";
 
   @Override
-  @Nullable
-  protected FailureAnalysis analyze(Throwable rootFailure, ValidationException cause) {
+  protected @Nullable FailureAnalysis analyze(Throwable rootFailure, ValidationException cause) {
     String message = cause.getMessage();
     if (message == null) {
-      return null;
+      message = "";
     }
-    if (message.startsWith(JAVAX_MISSING_IMPLEMENTATION_MESSAGE)
+    if (cause instanceof NoProviderFoundException || message.startsWith(JAVAX_MISSING_IMPLEMENTATION_MESSAGE)
             || message.startsWith(JAKARTA_MISSING_IMPLEMENTATION_MESSAGE)) {
       return new FailureAnalysis(
               "The Bean Validation API is on the classpath but no implementation could be found",

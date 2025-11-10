@@ -33,18 +33,16 @@ import infra.persistence.sql.SimpleSelect;
  */
 final class MapQueryStatementFactory implements QueryStatementFactory {
 
-  @Nullable
   @Override
-  public QueryStatement createQuery(Object example) {
+  public @Nullable QueryStatement createQuery(Object example) {
     if (example instanceof Map<?, ?> map) {
       return new MapQueryStatement(map);
     }
     return null;
   }
 
-  @Nullable
   @Override
-  public ConditionStatement createCondition(Object example) {
+  public @Nullable ConditionStatement createCondition(Object example) {
     if (example instanceof Map<?, ?> map) {
       return new MapQueryStatement(map);
     }

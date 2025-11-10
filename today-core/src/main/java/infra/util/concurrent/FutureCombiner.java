@@ -349,7 +349,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
   }
 
   @Override
-  public void operationComplete(Future<?> completed, AbstractFuture<?> future) throws Throwable {
+  public synchronized void operationComplete(Future<?> completed, AbstractFuture<?> future) throws Throwable {
     int doneCount = done.incrementAndGet();
     if (allMustSucceed) {
       Throwable cause = completed.getCause();

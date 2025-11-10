@@ -1,0 +1,139 @@
+/*
+ * Copyright 2017 - 2025 the original author or authors.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
+ */
+
+package infra.jdbc.core;
+
+import org.junit.jupiter.api.Test;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Types;
+
+import infra.dao.InvalidDataAccessApiUsageException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+
+/**
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0 2025/11/8 21:30
+ */
+class ArgumentTypePreparedStatementSetterTests {
+
+  @Test
+  void shouldCreateSetterWithValidArguments() {
+    Object[] args = { "test", 123 };
+    int[] argTypes = { Types.VARCHAR, Types.INTEGER };
+
+    ArgumentTypePreparedStatementSetter setter = new ArgumentTypePreparedStatementSetter(args, argTypes);
+
+    assertThat(setter).isNotNull();
+  }
+
+  @Test
+  void shouldCreateSetterWithNullArguments() {
+    ArgumentTypePreparedStatementSetter setter = new ArgumentTypePreparedStatementSetter(null, null);
+
+    assertThat(setter).isNotNull();
+  }
+
+  @Test
+  void shouldThrowExceptionWhenArgsProvidedWithoutTypes() {
+    Object[] args = { "test", 123 };
+
+    assertThatThrownBy(() -> new ArgumentTypePreparedStatementSetter(args, null))
+            .isInstanceOf(InvalidDataAccessApiUsageException.class)
+            .hasMessage("args and argTypes parameters must match");
+  }
+
+  @Test
+  void shouldThrowExceptionWhenTypesProvidedWithoutArgs() {
+    int[] argTypes = { Types.VARCHAR, Types.INTEGER };
+
+    assertThatThrownBy(() -> new ArgumentTypePreparedStatementSetter(null, argTypes))
+            .isInstanceOf(InvalidDataAccessApiUsageException.class)
+            .hasMessage("args and argTypes parameters must match");
+  }
+
+  @Test
+  void shouldThrowExceptionWhenArgsAndTypesLengthMismatch() {
+    Object[] args = { "test", 123, true };
+    int[] argTypes = { Types.VARCHAR, Types.INTEGER };
+
+    assertThatThrownBy(() -> new ArgumentTypePreparedStatementSetter(args, argTypes))
+            .isInstanceOf(InvalidDataAccessApiUsageException.class)
+            .hasMessage("args and argTypes parameters must match");
+  }
+
+  @Test
+  void shouldSetValuesWithNullArguments() throws SQLException {
+    PreparedStatement ps = mock(PreparedStatement.class);
+
+    ArgumentTypePreparedStatementSetter setter = new ArgumentTypePreparedStatementSetter(null, null);
+    setter.setValues(ps);
+
+    // No interactions expected
+    verifyNoInteractions(ps);
+  }
+
+  @Test
+  void shouldHandleCollectionArgument() throws SQLException {
+    Object[] args = { java.util.Arrays.asList("value1", "value2") };
+    int[] argTypes = { Types.VARCHAR };
+    PreparedStatement ps = mock(PreparedStatement.class);
+
+    ArgumentTypePreparedStatementSetter setter = new ArgumentTypePreparedStatementSetter(args, argTypes);
+    setter.setValues(ps);
+
+    verify(ps).setString(1, "value1");
+    verify(ps).setString(2, "value2");
+  }
+
+  @Test
+  void shouldHandleCollectionWithArrayElements() throws SQLException {
+    Object[] args = { java.util.Arrays.asList(new Object[] { "a", "b" }, "c") };
+    int[] argTypes = { Types.VARCHAR };
+    PreparedStatement ps = mock(PreparedStatement.class);
+
+    ArgumentTypePreparedStatementSetter setter = new ArgumentTypePreparedStatementSetter(args, argTypes);
+    setter.setValues(ps);
+
+    verify(ps).setString(1, "a");
+    verify(ps).setString(2, "b");
+    verify(ps).setString(3, "c");
+  }
+
+  @Test
+  void shouldCleanupParameters() {
+    Object[] args = { "test", 123 };
+    int[] argTypes = { Types.VARCHAR, Types.INTEGER };
+
+    ArgumentTypePreparedStatementSetter setter = new ArgumentTypePreparedStatementSetter(args, argTypes);
+    assertThatCode(setter::cleanupParameters).doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldCleanupParametersWithNullArguments() {
+    ArgumentTypePreparedStatementSetter setter = new ArgumentTypePreparedStatementSetter(null, null);
+    assertThatCode(setter::cleanupParameters).doesNotThrowAnyException();
+  }
+
+}

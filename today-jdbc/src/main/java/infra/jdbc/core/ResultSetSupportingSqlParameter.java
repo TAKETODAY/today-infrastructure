@@ -26,6 +26,7 @@ import java.sql.ResultSet;
  * {@link SqlOutParameter} and {@link SqlReturnResultSet}.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class ResultSetSupportingSqlParameter extends SqlParameter {

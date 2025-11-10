@@ -34,6 +34,7 @@ import infra.beans.factory.ObjectProvider;
 import infra.beans.factory.config.BeanDefinition;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationEventPublisher;
+import infra.context.annotation.ImportRuntimeHints;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.Role;
 import infra.context.annotation.config.AutoConfigureOrder;
@@ -101,6 +102,7 @@ import static infra.annotation.config.task.TaskExecutionAutoConfiguration.APPLIC
 @ConditionalOnWebApplication
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE + 10)
+@ImportRuntimeHints(WebResourcesRuntimeHints.class)
 @EnableConfigurationProperties({ WebMvcProperties.class, WebProperties.class })
 public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 

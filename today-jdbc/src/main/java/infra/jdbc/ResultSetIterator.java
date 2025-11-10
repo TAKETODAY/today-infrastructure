@@ -496,8 +496,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
     }
   }
 
-  @Nullable
-  private ResultSetValue<T> safeReadNext() {
+  private @Nullable ResultSetValue<T> safeReadNext() {
     final ResultSet resultSet = this.resultSet;
     try {
       return resultSet.next() ? new ResultSetValue<>(readNext(resultSet)) : null;
@@ -507,8 +506,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
     }
   }
 
-  @Nullable
-  private T readNext() {
+  private @Nullable T readNext() {
     final ResultSet resultSet = this.resultSet;
     try {
       return resultSet.next() ? readNext(resultSet) : null;
@@ -522,13 +520,11 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
     return new PersistenceException("Database read error: " + ex.getMessage(), ex);
   }
 
-  @Nullable
-  protected abstract T readNext(ResultSet resultSet) throws SQLException;
+  protected abstract @Nullable T readNext(ResultSet resultSet) throws SQLException;
 
   static final class ResultSetValue<T> {
 
-    @Nullable
-    public final T value;
+    public final @Nullable T value;
 
     private ResultSetValue(@Nullable T value) {
       this.value = value;

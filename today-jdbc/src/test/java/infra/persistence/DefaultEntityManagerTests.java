@@ -52,6 +52,7 @@ import infra.jdbc.type.BasicTypeHandler;
 import infra.jdbc.type.SmartTypeHandler;
 import infra.jdbc.type.TypeHandler;
 import infra.jdbc.type.WrappedTypeHandler;
+import infra.lang.Descriptive;
 import infra.persistence.model.Gender;
 import infra.persistence.model.NoIdModel;
 import infra.persistence.model.UserModel;
@@ -837,6 +838,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
 
     // Should accept single listener
     assertThatCode(() -> entityManager.addBatchPersistListeners(listener1)).doesNotThrowAnyException();
+    assertThatCode(() -> entityManager.addBatchPersistListeners(List.of(listener1))).doesNotThrowAnyException();
   }
 
   @Test
@@ -1141,6 +1143,159 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     when(mergedAnnotations.isPresent(annotationType)).thenReturn(true);
     boolean present = entityProperty.isPresent(annotationType);
     assertThat(present).isTrue();
+  }
+
+  @Test
+  void shouldHandleEntityPropertyWithIdProperty() {
+    // Mock BeanProperty
+    BeanProperty beanProperty = mock(BeanProperty.class);
+    when(beanProperty.getName()).thenReturn("id");
+
+    // Mock TypeHandler
+    @SuppressWarnings("unchecked")
+    TypeHandler<Object> typeHandler = mock(TypeHandler.class);
+
+    // Create EntityProperty with isIdProperty = true
+    EntityProperty entityProperty = new EntityProperty(beanProperty, "id_column", typeHandler, true);
+
+    assertThat(entityProperty.isIdProperty).isTrue();
+    assertThat(entityProperty.columnName).isEqualTo("id_column");
+    assertThat(entityProperty.property).isEqualTo(beanProperty);
+  }
+
+  @Test
+  void shouldHandleEntityPropertyWithoutIdProperty() {
+    // Mock BeanProperty
+    BeanProperty beanProperty = mock(BeanProperty.class);
+    when(beanProperty.getName()).thenReturn("name");
+
+    // Mock TypeHandler
+    @SuppressWarnings("unchecked")
+    TypeHandler<Object> typeHandler = mock(TypeHandler.class);
+
+    // Create EntityProperty with isIdProperty = false
+    EntityProperty entityProperty = new EntityProperty(beanProperty, "name_column", typeHandler, false);
+
+    assertThat(entityProperty.isIdProperty).isFalse();
+    assertThat(entityProperty.columnName).isEqualTo("name_column");
+    assertThat(entityProperty.property).isEqualTo(beanProperty);
+  }
+
+  @Test
+  void shouldHandleIsNewWithNewEntityIndicator() {
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    // Mock NewEntityIndicator
+    NewEntityIndicator entity = mock(NewEntityIndicator.class);
+    when(entity.isNew()).thenReturn(true);
+
+    assertThat(entityManager.isNew(entity)).isTrue();
+
+    when(entity.isNew()).thenReturn(false);
+    assertThat(entityManager.isNew(entity)).isFalse();
+  }
+
+  @Test
+  void shouldSetParametersCorrectly() throws SQLException {
+    Object entity = new Object();
+
+    // Mock EntityProperties
+    EntityProperty prop1 = mock(EntityProperty.class);
+    EntityProperty prop2 = mock(EntityProperty.class);
+
+    ArrayList<EntityProperty> properties = new ArrayList<>();
+    properties.add(prop1);
+    properties.add(prop2);
+
+    PreparedStatement statement = mock(PreparedStatement.class);
+
+    DefaultEntityManager.setParameters(entity, properties, statement);
+
+    verify(prop1).setTo(statement, 1, entity);
+    verify(prop2).setTo(statement, 2, entity);
+  }
+
+  @Test
+  void shouldGetDescriptionFromDescriptiveObject() {
+    Descriptive descriptive = mock(Descriptive.class);
+    when(descriptive.getDescription()).thenReturn("Test description");
+
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    String description = entityManager.getDescription(descriptive);
+
+    assertThat(description).isEqualTo("Test description");
+  }
+
+  @Test
+  void shouldGetDescriptionFromNonDescriptiveObject() {
+    Object nonDescriptive = new Object();
+
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    String description = entityManager.getDescription(nonDescriptive);
+
+    assertThat(description).isEqualTo("Query entities without conditions");
+  }
+
+  @Test
+  void shouldGetDebugLogMessageFromDebugDescriptive() {
+    DebugDescriptive debugDescriptive = mock(DebugDescriptive.class);
+    Object logMessage = new Object();
+    when(debugDescriptive.getDebugLogMessage()).thenReturn(logMessage);
+
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    Object result = entityManager.getDebugLogMessage(debugDescriptive);
+
+    assertThat(result).isEqualTo(logMessage);
+  }
+
+  @Test
+  void shouldGetDebugLogMessageFromDescriptive() {
+    Descriptive descriptive = mock(Descriptive.class);
+    when(descriptive.getDescription()).thenReturn("Test description");
+
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    Object result = entityManager.getDebugLogMessage(descriptive);
+
+    assertThat(result.toString()).contains("Test description");
+  }
+
+  @Test
+  void shouldGetDebugLogMessageFromNonDescriptive() {
+    Object nonDescriptive = new Object();
+
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    Object result = entityManager.getDebugLogMessage(nonDescriptive);
+
+    assertThat(result.toString()).contains("Query entities without conditions");
   }
 
   public static void createData(DefaultEntityManager entityManager) {

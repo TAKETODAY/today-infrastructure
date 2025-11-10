@@ -87,7 +87,7 @@ class CacheOperationExpressionEvaluator extends CachedExpressionEvaluator {
    * @return the evaluation context
    */
   public EvaluationContext createEvaluationContext(Collection<? extends Cache> caches, Method method,
-          Object[] args, Object target, Class<?> targetClass, Method targetMethod, @Nullable Object result) {
+          @Nullable Object[] args, Object target, Class<?> targetClass, Method targetMethod, @Nullable Object result) {
 
     var rootObject = new CacheExpressionRootObject(caches, method, args, target, targetClass);
     var evaluationContext = new CacheEvaluationContext(rootObject, targetMethod, args, parameterNameDiscoverer, shared);

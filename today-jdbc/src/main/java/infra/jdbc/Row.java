@@ -40,8 +40,8 @@ public final class Row {
 
   private final Map<String, Integer> columnNameToIdxMap;
 
-  public Row(Map<String, Integer> columnNameToIdxMap,
-          int columnCnt, boolean isCaseSensitive, ConversionService conversionService) {
+  public Row(Map<String, Integer> columnNameToIdxMap, int columnCnt,
+          boolean isCaseSensitive, ConversionService conversionService) {
     this.columnNameToIdxMap = columnNameToIdxMap;
     this.isCaseSensitive = isCaseSensitive;
     // lol. array works better

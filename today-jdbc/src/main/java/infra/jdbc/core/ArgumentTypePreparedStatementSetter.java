@@ -31,6 +31,7 @@ import infra.dao.InvalidDataAccessApiUsageException;
  * given arrays of arguments and JDBC argument types.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class ArgumentTypePreparedStatementSetter implements PreparedStatementSetter, ParameterDisposer {

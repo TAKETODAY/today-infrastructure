@@ -103,7 +103,6 @@ public class AopUtilsTests {
   }
 
   @Test
-    // gh-32365
   void mostSpecificMethodBetweenJdkProxyAndTarget() throws Exception {
     Class<?> proxyClass = new ProxyFactory(new WithInterface()).getProxyClass(getClass().getClassLoader());
     Method specificMethod = AopUtils.getMostSpecificMethod(proxyClass.getMethod("handle", List.class), WithInterface.class);

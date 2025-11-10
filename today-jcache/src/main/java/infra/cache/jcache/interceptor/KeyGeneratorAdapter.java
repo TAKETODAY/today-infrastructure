@@ -37,6 +37,7 @@ import infra.util.CollectionUtils;
  * so that only relevant parameters are handled.
  *
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @author Juergen Hoeller
  * @since 4.0
  */
@@ -84,7 +85,7 @@ class KeyGeneratorAdapter implements KeyGenerator {
   }
 
   @Override
-  public Object generate(Object target, Method method, Object... params) {
+  public Object generate(Object target, Method method, @Nullable Object[] params) {
     JCacheOperation<?> operation = this.cacheOperationSource.getCacheOperation(method, target.getClass());
     if (!(operation instanceof AbstractJCacheKeyOperation)) {
       throw new IllegalStateException("Invalid operation, should be a key-based operation " + operation);
@@ -117,7 +118,7 @@ class KeyGeneratorAdapter implements KeyGenerator {
 
   @SuppressWarnings("unchecked")
   private CacheKeyInvocationContext<?> createCacheKeyInvocationContext(
-          Object target, JCacheOperation<?> operation, Object[] params) {
+          Object target, JCacheOperation<?> operation, @Nullable Object[] params) {
 
     AbstractJCacheKeyOperation<Annotation> keyCacheOperation = (AbstractJCacheKeyOperation<Annotation>) operation;
     return new DefaultCacheKeyInvocationContext<>(keyCacheOperation, target, params);

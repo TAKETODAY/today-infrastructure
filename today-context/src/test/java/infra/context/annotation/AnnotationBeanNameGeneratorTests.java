@@ -26,7 +26,6 @@ import java.lang.annotation.Target;
 import java.util.List;
 
 import example.scannable.DefaultNamedComponent;
-import example.scannable.JakartaManagedBeanComponent;
 import example.scannable.JakartaNamedComponent;
 import example.scannable.JavaxManagedBeanComponent;
 import example.scannable.JavaxNamedComponent;
@@ -123,11 +122,6 @@ class AnnotationBeanNameGeneratorTests {
   @Test
   void generateBeanNameWithJavaxNamedComponent() {
     assertGeneratedName(JavaxNamedComponent.class, "myJavaxNamedComponent");
-  }
-
-  @Test
-  void generateBeanNameWithJakartaManagedBeanComponent() {
-    assertGeneratedName(JakartaManagedBeanComponent.class, "myJakartaManagedBeanComponent");
   }
 
   @Test

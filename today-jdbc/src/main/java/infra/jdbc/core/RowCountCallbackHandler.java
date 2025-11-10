@@ -43,6 +43,7 @@ import infra.jdbc.support.JdbcUtils;
  * int rowCount = countCallback.getRowCount();</pre>
  *
  * @author Rod Johnson
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class RowCountCallbackHandler implements RowCallbackHandler {

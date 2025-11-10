@@ -30,6 +30,7 @@ import java.sql.ResultSet;
  * @author Rod Johnson
  * @author Thomas Risberg
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see SqlReturnResultSet
  * @see SqlInOutParameter
  */

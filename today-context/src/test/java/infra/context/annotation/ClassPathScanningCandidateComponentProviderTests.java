@@ -31,7 +31,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import example.gh24375.AnnotatedComponent;
-import example.indexed.IndexedJakartaManagedBeanComponent;
 import example.indexed.IndexedJakartaNamedComponent;
 import example.indexed.IndexedJavaxManagedBeanComponent;
 import example.indexed.IndexedJavaxNamedComponent;
@@ -44,7 +43,6 @@ import example.scannable.DefaultNamedComponent;
 import example.scannable.FooDao;
 import example.scannable.FooService;
 import example.scannable.FooServiceImpl;
-import example.scannable.JakartaManagedBeanComponent;
 import example.scannable.JakartaNamedComponent;
 import example.scannable.JavaxManagedBeanComponent;
 import example.scannable.JavaxNamedComponent;
@@ -102,8 +100,7 @@ class ClassPathScanningCandidateComponentProviderTests {
           BarComponent.class);
 
   private static final Set<Class<?>> scannedJakartaComponents = Set.of(
-          JakartaNamedComponent.class,
-          JakartaManagedBeanComponent.class
+          JakartaNamedComponent.class
   );
 
   private static final Set<Class<?>> scannedJavaxComponents = Set.of(
@@ -113,7 +110,7 @@ class ClassPathScanningCandidateComponentProviderTests {
 
   private static final Set<Class<?>> indexedComponents = Set.of(
           IndexedJakartaNamedComponent.class,
-          IndexedJakartaManagedBeanComponent.class,
+//          IndexedJakartaManagedBeanComponent.class,
           IndexedJavaxNamedComponent.class,
           IndexedJavaxManagedBeanComponent.class
   );
@@ -312,7 +309,7 @@ class ClassPathScanningCandidateComponentProviderTests {
     Set<AnnotatedBeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
     assertScannedBeanDefinitions(candidates);
     assertBeanTypes(candidates, FooServiceImpl.class, StubFooDao.class, ServiceInvocationCounter.class,
-            BarComponent.class, JakartaManagedBeanComponent.class, JavaxManagedBeanComponent.class, OtherFooService.class);
+            BarComponent.class, JavaxManagedBeanComponent.class, OtherFooService.class);
   }
 
   @Test
