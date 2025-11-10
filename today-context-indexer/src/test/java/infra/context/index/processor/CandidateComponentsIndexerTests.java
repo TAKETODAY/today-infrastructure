@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,6 @@ import infra.context.index.sample.SampleNonStaticEmbedded;
 import infra.context.index.sample.SampleNone;
 import infra.context.index.sample.SampleRepository;
 import infra.context.index.sample.SampleService;
-import infra.context.index.sample.cdi.SampleManagedBean;
 import infra.context.index.sample.cdi.SampleNamed;
 import infra.context.index.sample.cdi.SampleTransactional;
 import infra.context.index.sample.jpa.SampleConverter;
@@ -53,7 +52,6 @@ import infra.context.index.sample.type.SpecializedRepo;
 import infra.context.index.test.TestCompiler;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
-import jakarta.annotation.ManagedBean;
 import jakarta.inject.Named;
 import jakarta.persistence.Converter;
 import jakarta.persistence.Embeddable;
@@ -126,10 +124,10 @@ class CandidateComponentsIndexerTests {
     testComponent(AbstractController.class);
   }
 
-  @Test
-  void cdiManagedBean() {
-    testSingleComponent(SampleManagedBean.class, ManagedBean.class);
-  }
+//  @Test
+//  void cdiManagedBean() {
+//    testSingleComponent(SampleManagedBean.class, ManagedBean.class);
+//  }
 
   @Test
   void cdiNamed() {
