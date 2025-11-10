@@ -23,8 +23,10 @@ import org.junit.jupiter.api.Test;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 
 import infra.core.annotation.MergedAnnotation;
 import infra.util.MultiValueMap;
@@ -557,8 +559,13 @@ public abstract class AbstractAnnotationMetadataTests {
 
     @Test
     void declaredMethodsToString() {
-      List<String> methods = get(TestMethods.class).getDeclaredMethods().stream().map(Object::toString).toList();
-      List<String> expected = Arrays.stream(TestMethods.class.getDeclaredMethods()).map(Object::toString).toList();
+      List<String> methods = get(TestMethods.class).getDeclaredMethods().stream()
+              .filter(Predicate.not(MethodMetadata::isStatic)) // jacocoInit
+              .map(Object::toString).toList();
+
+      List<String> expected = Arrays.stream(TestMethods.class.getDeclaredMethods())
+              .filter(Predicate.not(Method::isSynthetic))
+              .map(Object::toString).toList();
       assertThat(methods).containsExactlyInAnyOrderElementsOf(expected);
     }
 
