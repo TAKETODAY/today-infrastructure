@@ -75,7 +75,7 @@ bom {
       ]
     }
   }
-  library("Caffeine", "3.2.1") {
+  library("Caffeine", "3.2.3") {
     group("com.github.ben-manes.caffeine") {
       modules = [
           "caffeine",
