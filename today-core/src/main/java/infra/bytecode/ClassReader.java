@@ -143,7 +143,16 @@ public class ClassReader {
    * @param classFile the JVMS ClassFile structure to be read.
    */
   public ClassReader(final byte[] classFile) {
-    this(classFile, 0);
+    this(classFile, true);
+  }
+
+  /**
+   * Constructs a new {@link ClassReader} object.
+   *
+   * @param classFile the JVMS ClassFile structure to be read.
+   */
+  public ClassReader(final byte[] classFile, final boolean checkClassVersion) {
+    this(classFile, 0, checkClassVersion);
   }
 
   /**
@@ -168,7 +177,7 @@ public class ClassReader {
     this.classFileBuffer = classFileBuffer;
     // Check the class' major_version. This field is after the magic and minor_version fields, which
     // use 4 and 2 bytes respectively.
-    if (checkClassVersion && readShort(classFileOffset + 6) > Opcodes.V25) {
+    if (checkClassVersion && readShort(classFileOffset + 6) > Opcodes.V26) {
       throw new IllegalArgumentException(
               "Unsupported class file major version " + readShort(classFileOffset + 6));
     }
