@@ -264,8 +264,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
    * @see #isBindExceptionRequired
    */
   protected void validateIfApplicable(WebDataBinder binder, MethodParameter parameter) {
-    Annotation[] annotations = parameter.getParameterAnnotations();
-    for (Annotation ann : annotations) {
+    for (Annotation ann : parameter.getParameterAnnotations()) {
       Object[] validationHints = ValidationAnnotationUtils.determineValidationHints(ann);
       if (validationHints != null) {
         binder.validate(validationHints);
