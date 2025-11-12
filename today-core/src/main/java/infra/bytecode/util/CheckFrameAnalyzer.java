@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -114,7 +114,7 @@ class CheckFrameAnalyzer<V extends Value> extends Analyzer<V> {
     currentLocals = Type.getArgumentsAndReturnSizes(method.desc) >> 2;
 
     Frame<V>[] frames = getFrames();
-    Frame<V> currentFrame = frames[0];
+    Frame<V> currentFrame = newFrame(frames[0]);
     expandFrames(owner, method, currentFrame);
     for (int insnIndex = 0; insnIndex < insnList.size(); ++insnIndex) {
       Frame<V> oldFrame = frames[insnIndex];

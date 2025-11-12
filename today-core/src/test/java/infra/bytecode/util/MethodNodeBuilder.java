@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,11 +34,15 @@ final class MethodNodeBuilder {
   private final MethodNode methodNode;
 
   MethodNodeBuilder() {
-    this(/* maxStack = */ 10, /* maxLocals = */ 10);
+    this(/* maxStack= */ 10, /* maxLocals= */ 10);
   }
 
   MethodNodeBuilder(final int maxStack, final int maxLocals) {
-    methodNode = new MethodNode(Opcodes.ACC_PUBLIC, "m", "()V", null, null);
+    this("()V", maxStack, maxLocals);
+  }
+
+  MethodNodeBuilder(final String descriptor, final int maxStack, final int maxLocals) {
+    methodNode = new MethodNode(Opcodes.ACC_PUBLIC, "m", descriptor, null, null);
     methodNode.maxStack = maxStack;
     methodNode.maxLocals = maxLocals;
     methodNode.visitCode();
@@ -51,6 +55,21 @@ final class MethodNodeBuilder {
 
   MethodNodeBuilder iconst_0() {
     methodNode.visitInsn(Opcodes.ICONST_0);
+    return this;
+  }
+
+  MethodNodeBuilder istore(final int variable) {
+    methodNode.visitVarInsn(Opcodes.ISTORE, variable);
+    return this;
+  }
+
+  MethodNodeBuilder aload(final int variable) {
+    methodNode.visitVarInsn(Opcodes.ALOAD, variable);
+    return this;
+  }
+
+  MethodNodeBuilder astore(final int variable) {
+    methodNode.visitVarInsn(Opcodes.ASTORE, variable);
     return this;
   }
 
