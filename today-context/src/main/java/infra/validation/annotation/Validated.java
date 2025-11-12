@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ import infra.validation.beanvalidation.MethodValidationPostProcessor;
  * specification of validation groups. Designed for convenient use with
  * Framework's JSR-303 support but not JSR-303 specific.
  *
- * <p>Can be used e.g. with Framework MVC handler methods arguments.
+ * <p>Can be used e.g. with Web MVC handler methods arguments.
  * Supported through {@link SmartValidator}'s
  * validation hint concept, with validation group classes acting as hint objects.
  *
@@ -48,6 +48,7 @@ import infra.validation.beanvalidation.MethodValidationPostProcessor;
  * custom stereotype annotation or a custom group-specific validated annotation.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see jakarta.validation.Validator#validate(Object, Class[])
  * @see SmartValidator#validate(Object, Errors, Object...)
  * @see InfraValidatorAdapter
