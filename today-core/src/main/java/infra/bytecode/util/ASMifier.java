@@ -651,11 +651,14 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitParameter(final String parameterName, final int access) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(name).append(".visitParameter(");
-    appendString(stringBuilder, parameterName);
+    if (parameterName == null) {
+      stringBuilder.append("null");
+    }
+    else {
+      appendString(stringBuilder, parameterName);
+    }
     stringBuilder.append(", ");
     appendAccessFlags(access);
     text.add(stringBuilder.append(");\n").toString());
