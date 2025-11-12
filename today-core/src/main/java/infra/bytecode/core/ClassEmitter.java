@@ -47,11 +47,11 @@ public class ClassEmitter extends ClassTransformer {
 
   private MethodVisitor rawStaticInit;
 
-  private CodeEmitter staticInit;
+  private @Nullable CodeEmitter staticInit;
 
-  private CodeEmitter staticHook;
+  private @Nullable CodeEmitter staticHook;
 
-  private MethodSignature staticHookSig;
+  private @Nullable MethodSignature staticHookSig;
 
   public ClassEmitter(ClassVisitor cv) {
     setTarget(cv);
@@ -215,7 +215,7 @@ public class ClassEmitter extends ClassTransformer {
             access, sig.getName(), sig.getDescriptor(), null, Type.toInternalNames(exceptions));
 
     if (sig.equals(MethodSignature.SIG_STATIC) && !Modifier.isInterface(getAccess())) {
-      return begin_static(true, visitor);
+      return begin_static(true, visitor, exceptions);
     }
     else if (sig.equals(staticHookSig)) {
       return new CodeEmitter(this, visitor, access, sig, exceptions) {
@@ -239,7 +239,7 @@ public class ClassEmitter extends ClassTransformer {
             Opcodes.ACC_STATIC, sigStatic.getName(), sigStatic.getDescriptor(), null, null));
   }
 
-  public CodeEmitter begin_static(boolean hook, MethodVisitor visitor) {
+  public CodeEmitter begin_static(boolean hook, MethodVisitor visitor, Type... exceptions) {
     rawStaticInit = visitor;
     final MethodVisitor wrapped = new MethodVisitor(visitor) {
       public void visitMaxs(int maxStack, int maxLocals) { }
@@ -250,7 +250,7 @@ public class ClassEmitter extends ClassTransformer {
         }
       }
     };
-    staticInit = new CodeEmitter(this, wrapped, Opcodes.ACC_STATIC, MethodSignature.SIG_STATIC, null);
+    staticInit = new CodeEmitter(this, wrapped, Opcodes.ACC_STATIC, MethodSignature.SIG_STATIC, exceptions);
     if (hook) {
       if (staticHook == null) {
         getStaticHook(); // force static hook creation

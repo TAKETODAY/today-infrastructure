@@ -93,7 +93,7 @@ public abstract class ClassVisitor {
    * @param debug additional debug information to compute the correspondence between source and
    * compiled elements of the class. May be {@literal null}.
    */
-  public void visitSource(final String source, final String debug) {
+  public void visitSource(final String source, final @Nullable String debug) {
     if (cv != null) {
       cv.visitSource(source, debug);
     }
