@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -181,6 +181,7 @@ public class GeneratorAdapterTest {
   @Test
   public void testPush_type() {
     assertEquals("ACONST_NULL", new Generator().push((Type) null));
+    assertEquals("GETSTATIC java/lang/Void.TYPE : Ljava/lang/Class;", new Generator().push(Type.VOID_TYPE));
     assertEquals(
             "GETSTATIC java/lang/Boolean.TYPE : Ljava/lang/Class;",
             new Generator().push(Type.BOOLEAN_TYPE));
