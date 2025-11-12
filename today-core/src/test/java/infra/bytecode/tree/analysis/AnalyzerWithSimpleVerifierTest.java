@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +44,33 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class AnalyzerWithSimpleVerifierTest extends AsmTest {
 
   private static final String CLASS_NAME = "C";
+
+  @Test
+  void testAnalyze_differentDimensions() {
+    Label otherwise = new Label();
+    Label finish = new Label();
+    MethodNode methodNode =
+            new MethodNodeBuilder("()[Ljava/io/Serializable;", 3, 1)
+                    .insn(Opcodes.ICONST_0)
+                    .ifne(otherwise)
+                    .iconst_0()
+                    .iconst_0()
+                    .multiANewArrayInsn("[[I", 2)
+                    .go(finish)
+                    .label(otherwise)
+                    .iconst_0()
+                    .iconst_0()
+                    .iconst_0()
+                    .multiANewArrayInsn("[[[Ljava/lang/System;", 3)
+                    .label(finish)
+                    .areturn()
+                    .build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    assertDoesNotThrow(analyze);
+    assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
+  }
 
   @Test
   public void testAnalyze_invalidInvokevirtual() {

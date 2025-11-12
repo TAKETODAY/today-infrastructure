@@ -99,7 +99,7 @@ public class ClassWriter extends ClassVisitor {
    * The fields of this class, stored in a linked list of {@link FieldWriter} linked via their
    * {@link FieldWriter#fv} field. This field stores the first element of this list.
    */
-  private FieldWriter firstField;
+  private @Nullable FieldWriter firstField;
 
   /**
    * The fields of this class, stored in a linked list of {@link FieldWriter} linked via their
@@ -111,7 +111,7 @@ public class ClassWriter extends ClassVisitor {
    * The methods of this class, stored in a linked list of {@link MethodWriter} linked via their
    * {@link MethodWriter#mv} field. This field stores the first element of this list.
    */
-  private MethodWriter firstMethod;
+  private @Nullable MethodWriter firstMethod;
 
   /**
    * The methods of this class, stored in a linked list of {@link MethodWriter} linked via their
@@ -123,7 +123,7 @@ public class ClassWriter extends ClassVisitor {
   private int numberOfInnerClasses;
 
   /** The 'classes' array of the InnerClasses attribute, or {@literal null}. */
-  private ByteVector innerClasses;
+  private @Nullable ByteVector innerClasses;
 
   /** The class_index field of the EnclosingMethod attribute, or 0. */
   private int enclosingClassIndex;
@@ -138,34 +138,34 @@ public class ClassWriter extends ClassVisitor {
   private int sourceFileIndex;
 
   /** The debug_extension field of the SourceDebugExtension attribute, or {@literal null}. */
-  private ByteVector debugExtension;
+  private @Nullable ByteVector debugExtension;
 
   /**
    * The last runtime visible annotation of this class. The previous ones can be accessed with the
    * {@link AnnotationWriter#previousAnnotation} field. May be {@literal null}.
    */
-  private AnnotationWriter lastRuntimeVisibleAnnotation;
+  private @Nullable AnnotationWriter lastRuntimeVisibleAnnotation;
 
   /**
    * The last runtime invisible annotation of this class. The previous ones can be accessed with the
    * {@link AnnotationWriter#previousAnnotation} field. May be {@literal null}.
    */
-  private AnnotationWriter lastRuntimeInvisibleAnnotation;
+  private @Nullable AnnotationWriter lastRuntimeInvisibleAnnotation;
 
   /**
    * The last runtime visible type annotation of this class. The previous ones can be accessed with
    * the {@link AnnotationWriter#previousAnnotation} field. May be {@literal null}.
    */
-  private AnnotationWriter lastRuntimeVisibleTypeAnnotation;
+  private @Nullable AnnotationWriter lastRuntimeVisibleTypeAnnotation;
 
   /**
    * The last runtime invisible type annotation of this class. The previous ones can be accessed
    * with the {@link AnnotationWriter#previousAnnotation} field. May be {@literal null}.
    */
-  private AnnotationWriter lastRuntimeInvisibleTypeAnnotation;
+  private @Nullable AnnotationWriter lastRuntimeInvisibleTypeAnnotation;
 
   /** The Module attribute of this class, or {@literal null}. */
-  private ModuleWriter moduleWriter;
+  private @Nullable ModuleWriter moduleWriter;
 
   /** The host_class_index field of the NestHost attribute, or 0. */
   private int nestHostClassIndex;
@@ -174,13 +174,13 @@ public class ClassWriter extends ClassVisitor {
   private int numberOfNestMemberClasses;
 
   /** The 'classes' array of the NestMembers attribute, or {@literal null}. */
-  private ByteVector nestMemberClasses;
+  private @Nullable ByteVector nestMemberClasses;
 
   /** The number_of_classes field of the PermittedSubclasses attribute, or 0. */
   private int numberOfPermittedSubclasses;
 
   /** The 'classes' array of the PermittedSubclasses attribute, or {@literal null}. */
-  private ByteVector permittedSubclasses;
+  private @Nullable ByteVector permittedSubclasses;
 
   /**
    * The record components of this class, stored in a linked list of {@link RecordComponentWriter}
@@ -305,19 +305,35 @@ public class ClassWriter extends ClassVisitor {
    * #getCommonSuperClass(String, String)}, that of this {@link ClassWriter}'s runtime type by
    * default.
    */
-  public ClassWriter(final ClassReader classReader, final int flags, final @Nullable ClassLoader classLoader) {
+  public ClassWriter(final @Nullable ClassReader classReader, final int flags, final @Nullable ClassLoader classLoader) {
     this.flags = flags;
+    this.classLoader = classLoader;
     this.symbolTable = classReader == null ? new SymbolTable(this) : new SymbolTable(this, classReader);
-    if ((flags & COMPUTE_FRAMES) != 0) {
-      this.compute = MethodWriter.COMPUTE_ALL_FRAMES;
+    setFlags(flags);
+  }
+
+  /**
+   * Changes the computation strategy of method properties like max stack size, max number of local
+   * variables, and frames.
+   *
+   * <p><b>WARNING</b>: {@link #setFlags(int)} method changes the behavior of new method visitors
+   * returned from {@link #visitMethod(int, String, String, String, String[])}. The behavior will be
+   * changed only after the next method visitor is returned. All the previously returned method
+   * visitors keep their previous behavior.
+   *
+   * @param flags option flags that can be used to modify the default behavior of this class. Must
+   * be zero or more of {@link #COMPUTE_MAXS} and {@link #COMPUTE_FRAMES}.
+   */
+  public final void setFlags(final int flags) {
+    if ((flags & ClassWriter.COMPUTE_FRAMES) != 0) {
+      compute = MethodWriter.COMPUTE_ALL_FRAMES;
     }
-    else if ((flags & COMPUTE_MAXS) != 0) {
-      this.compute = MethodWriter.COMPUTE_MAX_STACK_AND_LOCAL;
+    else if ((flags & ClassWriter.COMPUTE_MAXS) != 0) {
+      compute = MethodWriter.COMPUTE_MAX_STACK_AND_LOCAL;
     }
     else {
-      this.compute = MethodWriter.COMPUTE_NOTHING;
+      compute = MethodWriter.COMPUTE_NOTHING;
     }
-    this.classLoader = classLoader;
   }
 
   // -----------------------------------------------------------------------------------------------

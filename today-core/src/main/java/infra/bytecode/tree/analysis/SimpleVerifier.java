@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,9 @@ import infra.bytecode.Type;
  * @author Bing Ran
  */
 public class SimpleVerifier extends BasicVerifier {
+
+  /** The type of the Object class. */
+  private static final Type OBJECT_TYPE = Type.forInternalName("java/lang/Object");
 
   /** The type of the class that is verified. */
   private final Type currentClass;
@@ -151,33 +154,70 @@ public class SimpleVerifier extends BasicVerifier {
 
   @Override
   protected boolean isSubTypeOf(final BasicValue value, final BasicValue expected) {
-    Type expectedType = expected.getType();
     Type type = value.getType();
+    Type expectedType = expected.getType();
+    // Null types correspond to BasicValue.UNINITIALIZED_VALUE.
+    if (type == null || expectedType == null) {
+      return type == null && expectedType == null;
+    }
+    if (type.equals(expectedType)) {
+      return true;
+    }
     switch (expectedType.getSort()) {
       case Type.INT:
       case Type.FLOAT:
       case Type.LONG:
       case Type.DOUBLE:
-        return type.equals(expectedType);
+        return false;
       case Type.ARRAY:
       case Type.OBJECT:
         if (type.equals(NULL_TYPE)) {
           return true;
         }
-        else if (type.getSort() == Type.OBJECT || type.getSort() == Type.ARRAY) {
-          if (isAssignableFrom(expectedType, type)) {
-            return true;
+        // Convert 'type' to its element type and array dimension. Arrays of primitive values are
+        // seen as Object arrays with one dimension less. Hence the element type is always of
+        // Type.OBJECT sort.
+        int dim = 0;
+        if (type.getSort() == Type.ARRAY) {
+          dim = type.getDimensions();
+          type = type.getElementType();
+          if (type.getSort() != Type.OBJECT) {
+            dim = dim - 1;
+            type = OBJECT_TYPE;
           }
-          else if (getClass(expectedType).isInterface()) {
-            // The merge of class or interface types can only yield class types (because it is not
-            // possible in general to find an unambiguous common super interface, due to multiple
-            // inheritance). Because of this limitation, we need to relax the subtyping check here
-            // if 'value' is an interface.
-            return Object.class.isAssignableFrom(getClass(type));
-          }
-          else {
+        }
+        // Do the same for expectedType.
+        int expectedDim = 0;
+        if (expectedType.getSort() == Type.ARRAY) {
+          expectedDim = expectedType.getDimensions();
+          expectedType = expectedType.getElementType();
+          if (expectedType.getSort() != Type.OBJECT) {
+            // If the expected type is an array of some primitive type, it does not have any subtype
+            // other than itself. And 'type' is different by hypothesis.
             return false;
           }
+        }
+        // A type with less dimensions than expected can't be a subtype of the expected type.
+        if (dim < expectedDim) {
+          return false;
+        }
+        // A type with more dimensions than expected is seen as an array with the expected
+        // dimensions but with an Object element type. For instance an array of arrays of Integer is
+        // seen as an array of Object if the expected type is an array of Serializable.
+        if (dim > expectedDim) {
+          type = OBJECT_TYPE;
+        }
+        // type and expectedType have a Type.OBJECT sort by construction (see above),
+        // as expected by isAssignableFrom.
+        if (isAssignableFrom(expectedType, type)) {
+          return true;
+        }
+        if (getClass(expectedType).isInterface()) {
+          // The merge of class or interface types can only yield class types (because it is not
+          // possible in general to find an unambiguous common super interface, due to multiple
+          // inheritance). Because of this limitation, we need to relax the subtyping check here
+          // if 'value' is an interface.
+          return Object.class.isAssignableFrom(getClass(type));
         }
         else {
           return false;
