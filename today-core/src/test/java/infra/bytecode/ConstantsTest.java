@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -191,6 +191,14 @@ public class ConstantsTest {
       case "V16":
       case "V17":
       case "V18":
+      case "V19":
+      case "V20":
+      case "V21":
+      case "V22":
+      case "V23":
+      case "V24":
+      case "V25":
+      case "V26":
         return ConstantType.CLASS_VERSION;
       case "ACC_PUBLIC":
       case "ACC_PRIVATE":

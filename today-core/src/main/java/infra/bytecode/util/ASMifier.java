@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,7 +95,12 @@ public class ASMifier extends Printer {
             Map.entry(Opcodes.V18, "V18"),
             Map.entry(Opcodes.V19, "V19"),
             Map.entry(Opcodes.V20, "V20"),
-            Map.entry(Opcodes.V21, "V21")
+            Map.entry(Opcodes.V21, "V21"),
+            Map.entry(Opcodes.V22, "V22"),
+            Map.entry(Opcodes.V23, "V23"),
+            Map.entry(Opcodes.V24, "V24"),
+            Map.entry(Opcodes.V25, "V25"),
+            Map.entry(Opcodes.V26, "V26")
     );
   }
 
