@@ -44,21 +44,9 @@ public class MethodSignature {
 
   public static final MethodSignature EMPTY_CONSTRUCTOR = new MethodSignature(CONSTRUCTOR_NAME, "()V");
 
-  // Number
-  public static final MethodSignature INT_VALUE = MethodSignature.from("int intValue()");
-  public static final MethodSignature LONG_VALUE = MethodSignature.from("long longValue()");
-  public static final MethodSignature CHAR_VALUE = MethodSignature.from("char charValue()");
-  public static final MethodSignature FLOAT_VALUE = MethodSignature.from("float floatValue()");
-  public static final MethodSignature DOUBLE_VALUE = MethodSignature.from("double doubleValue()");
-  public static final MethodSignature BOOLEAN_VALUE = MethodSignature.from("boolean booleanValue()");
-
-  // Object
-  public static final MethodSignature HASH_CODE = MethodSignature.from("int hashCode()");
   // public static final MethodSignature GET_CLASS = MethodSignature.from("Class getClass()");
   public static final MethodSignature TO_STRING = MethodSignature.from("String toString()");
   public static final MethodSignature EQUALS = MethodSignature.from("boolean equals(Object)");
-
-  public static final MethodSignature constructWithString = MethodSignature.forConstructor("String");
 
   /** The method name. */
   private final String name;

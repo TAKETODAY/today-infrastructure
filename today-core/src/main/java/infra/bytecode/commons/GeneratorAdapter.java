@@ -760,16 +760,16 @@ public class GeneratorAdapter extends LocalVariablesSorter {
       }
       case Type.CHAR -> {
         boxedType = Type.TYPE_CHARACTER;
-        unboxMethod = MethodSignature.CHAR_VALUE;
+        unboxMethod = MethodSignature.from("char charValue()");
       }
       case Type.BOOLEAN -> {
         boxedType = Type.TYPE_BOOLEAN;
-        unboxMethod = MethodSignature.BOOLEAN_VALUE;
+        unboxMethod = MethodSignature.from("boolean booleanValue()");
       }
-      case Type.DOUBLE -> unboxMethod = MethodSignature.DOUBLE_VALUE;
-      case Type.FLOAT -> unboxMethod = MethodSignature.FLOAT_VALUE;
-      case Type.LONG -> unboxMethod = MethodSignature.LONG_VALUE;
-      case Type.INT, Type.SHORT, Type.BYTE -> unboxMethod = MethodSignature.INT_VALUE;
+      case Type.DOUBLE -> unboxMethod = MethodSignature.from("double doubleValue()");
+      case Type.FLOAT -> unboxMethod = MethodSignature.from("float floatValue()");
+      case Type.LONG -> unboxMethod = MethodSignature.from("long longValue()");
+      case Type.INT, Type.SHORT, Type.BYTE -> unboxMethod = MethodSignature.from("int intValue()");
       default -> unboxMethod = null;
     }
 
@@ -1203,7 +1203,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     newInstance(type);
     dup();
     push(message);
-    invokeConstructor(type, MethodSignature.constructWithString);
+    invokeConstructor(type, MethodSignature.forConstructor("String"));
     throwException();
   }
 

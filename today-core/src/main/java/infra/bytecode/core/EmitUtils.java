@@ -127,7 +127,7 @@ public abstract class EmitUtils {
     Label def = e.newLabel();
     Label end = e.newLabel();
     e.dup();
-    e.invokeVirtual(Type.TYPE_OBJECT, MethodSignature.HASH_CODE);
+    e.invokeVirtual(Type.TYPE_OBJECT, MethodSignature.from("int hashCode()"));
     e.tableSwitch(getSwitchKeys(buckets), new TableSwitchGenerator() {
       public void generateCase(int key, Label ignore_end) {
         List<String> bucket = buckets.get(key);
