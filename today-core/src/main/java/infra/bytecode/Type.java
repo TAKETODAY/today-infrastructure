@@ -356,7 +356,7 @@ public final class Type {
    * @see Executable#getExceptionTypes()
    * @since 4.0
    */
-  public static Type[] forExceptionTypes(Member member) {
+  public static Type @Nullable [] forExceptionTypes(Member member) {
     if (member instanceof Executable) {
       return Type.getTypes(((Executable) member).getExceptionTypes());
     }

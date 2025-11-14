@@ -17,6 +17,8 @@
 
 package infra.bytecode.transform;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
@@ -47,7 +49,7 @@ final class UndeclaredThrowableTransformer extends ClassEmitter {
   }
 
   @Override
-  public CodeEmitter beginMethod(int access, final MethodSignature sig, final Type... exceptions) {
+  public CodeEmitter beginMethod(int access, final MethodSignature sig, final Type @Nullable ... exceptions) {
     final CodeEmitter e = super.beginMethod(access, sig, exceptions);
     if (Modifier.isAbstract(access) || sig.equals(MethodSignature.STATIC_INIT)) {
       return e;

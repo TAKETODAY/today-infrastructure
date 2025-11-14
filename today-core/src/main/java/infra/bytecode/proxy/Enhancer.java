@@ -588,7 +588,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       e.declare_field(Opcodes.ACC_PRIVATE, CONSTRUCTED_FIELD, Type.BOOLEAN_TYPE, null);
     }
     e.declare_field(Opcodes.PRIVATE_FINAL_STATIC, THREAD_CALLBACKS_FIELD, THREAD_LOCAL, null);
-    e.declare_field(Opcodes.PRIVATE_FINAL_STATIC, STATIC_CALLBACKS_FIELD, CALLBACK_ARRAY, null);
+    e.declare_field(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC, STATIC_CALLBACKS_FIELD, CALLBACK_ARRAY, null);
     if (serialVersionUID != null) {
       e.declare_field(Opcodes.PRIVATE_FINAL_STATIC, SUID_FIELD_NAME, Type.LONG_TYPE, serialVersionUID);
     }
@@ -1118,7 +1118,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     }
 
     HashSet seenGen = new HashSet<>();
-    CodeEmitter se = ce.getStaticHook();
+    CodeEmitter se = ce.getStaticInit();
 
     se.newInstance(THREAD_LOCAL);
     se.dup();
@@ -1233,9 +1233,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         }
       }
     }
-    
-    se.returnValue();
-    se.end_method();
+
   }
 
   static <T> HashMap<T, Integer> getIndexMap(List<T> list) {

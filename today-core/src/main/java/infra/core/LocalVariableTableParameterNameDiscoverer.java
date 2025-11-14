@@ -123,7 +123,7 @@ public class LocalVariableTableParameterNameDiscoverer extends ParameterNameDisc
 
     @Override
     @Nullable
-    public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+    public MethodVisitor visitMethod(int access, String name, String desc, @Nullable String signature, String @Nullable [] exceptions) {
       // exclude synthetic + bridged && static class initialization
       if (!isSyntheticOrBridged(access) && !STATIC_CLASS_INIT.equals(name)) {
         return new LocalVariableTableVisitor(clazz, executableMap, name, desc, isStatic(access));
@@ -171,7 +171,7 @@ public class LocalVariableTableParameterNameDiscoverer extends ParameterNameDisc
 
     @Override
     public void visitLocalVariable(
-            String name, String description, String signature, Label start, Label end, int index) {
+            String name, String description, @Nullable String signature, Label start, Label end, int index) {
       this.hasLvtInfo = true;
       for (int i = 0; i < this.lvtSlotIndex.length; i++) {
         if (this.lvtSlotIndex[i] == index) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.bytecode.core;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Modifier;
 
@@ -36,11 +38,10 @@ public class CodeEmitter extends GeneratorAdapter {
 
   private final SimpleMethodInfo methodInfo;
 
-  CodeEmitter(ClassEmitter ce, MethodVisitor mv, int access, MethodSignature sig, Type[] exceptionTypes) {
+  CodeEmitter(ClassEmitter ce, MethodVisitor mv, int access, MethodSignature sig, Type @Nullable [] exceptionTypes) {
     super(access, sig, mv);
     this.ce = ce;
-    this.methodInfo = new SimpleMethodInfo(
-            ce.getClassInfo(), access, sig, exceptionTypes);
+    this.methodInfo = new SimpleMethodInfo(ce.getClassInfo(), access, sig, exceptionTypes);
   }
 
   public CodeEmitter(CodeEmitter wrap) {

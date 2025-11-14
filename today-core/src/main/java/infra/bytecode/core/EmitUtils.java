@@ -199,7 +199,7 @@ public abstract class EmitUtils {
       String fieldName = "$today$LoadClass$".concat(escapeType(typeName));
       if (!ce.isFieldDeclared(fieldName)) {
         ce.declare_field(Opcodes.PRIVATE_FINAL_STATIC, fieldName, Type.TYPE_CLASS, null);
-        CodeEmitter hook = ce.getStaticHook();
+        CodeEmitter hook = ce.getStaticInit();
         hook.push(typeName);
         hook.invokeStatic(Type.TYPE_CLASS, FOR_NAME);
         hook.putStatic(ce.getClassType(), fieldName, Type.TYPE_CLASS);

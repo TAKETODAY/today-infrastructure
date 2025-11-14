@@ -156,21 +156,42 @@ public class ClassEmitter extends ClassTransformer {
     init();
   }
 
-  public CodeEmitter getStaticHook() {
+  public CodeEmitter getStaticInit() {
     if (Modifier.isInterface(getAccess())) {
       throw new IllegalStateException("static hook is invalid for this class");
     }
-    if (staticHook == null) {
-      staticHookSig = new MethodSignature("today$StaticHook" + getNextHook(), "()V");
-      staticHook = beginMethod(Opcodes.ACC_STATIC, staticHookSig);
-      if (staticInit != null) {
-        staticInit.invoke_static_this(staticHookSig);
-      }
+    if (staticInit == null) {
+      final MethodSignature sigStatic = MethodSignature.STATIC_INIT;
+      rawStaticInit = cv.visitMethod(Opcodes.ACC_STATIC, sigStatic.getName(), sigStatic.getDescriptor(), null, null);
+
+      MethodVisitor wrapped = new MethodVisitor(rawStaticInit) {
+        public void visitMaxs(int maxStack, int maxLocals) {
+        }
+
+        public void visitInsn(int insn) {
+          if (insn != Opcodes.RETURN) {
+            super.visitInsn(insn);
+          }
+        }
+      };
+
+      staticInit = new CodeEmitter(this, wrapped, Opcodes.ACC_STATIC, sigStatic, null);
     }
-    return staticHook;
+
+//    if (staticHook == null) {
+//      staticHookSig = new MethodSignature("today$StaticHook" + getNextHook(), "()V");
+//      staticHook = beginMethod(Opcodes.ACC_STATIC, staticHookSig);
+//      if (staticInit != null) {
+//        staticInit.invoke_static_this(staticHookSig);
+//      }
+//    }
+//    return staticHook;
+
+    return staticInit;
   }
 
-  protected void init() { }
+  protected void init() {
+  }
 
   public int getAccess() {
     return classInfo.getModifiers();
@@ -187,8 +208,9 @@ public class ClassEmitter extends ClassTransformer {
   public void endClass() {
     if (staticHook != null && staticInit == null) {
       // force creation of static init
-      staticInit();
+//      staticInit();
     }
+
     if (staticInit != null) {
       if (staticHook != null) {
         staticHook.returnValue();
@@ -206,7 +228,7 @@ public class ClassEmitter extends ClassTransformer {
     return beginMethod(access, MethodSignature.from(method), Type.forExceptionTypes(method));
   }
 
-  public CodeEmitter beginMethod(int access, MethodSignature sig, Type... exceptions) {
+  public CodeEmitter beginMethod(int access, MethodSignature sig, Type @Nullable ... exceptions) {
     if (classInfo == null) {
       throw new IllegalStateException("classInfo is null! " + this);
     }
@@ -239,7 +261,7 @@ public class ClassEmitter extends ClassTransformer {
             Opcodes.ACC_STATIC, sigStatic.getName(), sigStatic.getDescriptor(), null, null));
   }
 
-  public CodeEmitter begin_static(boolean hook, MethodVisitor visitor, Type... exceptions) {
+  public CodeEmitter begin_static(boolean hook, MethodVisitor visitor, Type @Nullable ... exceptions) {
     rawStaticInit = visitor;
     final MethodVisitor wrapped = new MethodVisitor(visitor) {
       public void visitMaxs(int maxStack, int maxLocals) { }
@@ -253,7 +275,7 @@ public class ClassEmitter extends ClassTransformer {
     staticInit = new CodeEmitter(this, wrapped, Opcodes.ACC_STATIC, MethodSignature.STATIC_INIT, exceptions);
     if (hook) {
       if (staticHook == null) {
-        getStaticHook(); // force static hook creation
+        getStaticInit(); // force static hook creation
       }
       else {
         staticInit.invoke_static_this(staticHookSig);
