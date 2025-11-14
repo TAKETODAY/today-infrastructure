@@ -580,7 +580,7 @@ public class MethodVisitor {
    * @throws IllegalArgumentException if one of the labels has already been visited by this visitor
    * (by the {@link #visitLabel} method).
    */
-  public void visitTryCatchBlock(final Label start, final Label end, final Label handler, final String type) {
+  public void visitTryCatchBlock(final Label start, final Label end, final Label handler, final @Nullable String type) {
     if (mv != null) {
       mv.visitTryCatchBlock(start, end, handler, type);
     }
@@ -625,7 +625,7 @@ public class MethodVisitor {
    * visitor (by the {@link #visitLabel} method).
    */
   public void visitLocalVariable(final String name, final String descriptor,
-          final String signature, final Label start, final Label end, final int index) {
+          final @Nullable String signature, final Label start, final Label end, final int index) {
     if (mv != null) {
       mv.visitLocalVariable(name, descriptor, signature, start, end, index);
     }

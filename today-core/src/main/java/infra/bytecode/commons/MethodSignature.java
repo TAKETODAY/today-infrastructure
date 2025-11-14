@@ -40,7 +40,7 @@ public class MethodSignature {
 
   public static final String STATIC_CLASS_INIT = "<clinit>";
 
-  public static final MethodSignature SIG_STATIC = new MethodSignature(STATIC_CLASS_INIT, "()V");
+  public static final MethodSignature STATIC_INIT = new MethodSignature(STATIC_CLASS_INIT, "()V");
 
   public static final MethodSignature EMPTY_CONSTRUCTOR = new MethodSignature(CONSTRUCTOR_NAME, "()V");
 

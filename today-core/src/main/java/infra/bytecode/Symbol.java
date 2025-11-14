@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +15,8 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package infra.bytecode;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * An entry of the constant pool, of the BootstrapMethods attribute, or of the (ASM specific) type
@@ -202,9 +204,9 @@ abstract class Symbol {
    */
   Symbol(final int index,
           final int tag,
-          final String owner,
-          final String name,
-          final String value,
+          final @Nullable String owner,
+          final @Nullable String name,
+          final @Nullable String value,
           final long data) {
     this.index = index;
     this.tag = tag;

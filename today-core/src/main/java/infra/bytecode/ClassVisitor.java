@@ -77,9 +77,9 @@ public abstract class ClassVisitor {
           final int version,
           final int access,
           final String name,
-          final String signature,
-          final String superName,
-          final String[] interfaces) {
+          final @Nullable String signature,
+          final @Nullable String superName,
+          final String @Nullable [] interfaces) {
     if (cv != null) {
       cv.visit(version, access, name, signature, superName, interfaces);
     }
@@ -258,7 +258,7 @@ public abstract class ClassVisitor {
    */
   @Nullable
   public RecordComponentVisitor visitRecordComponent(
-          final String name, final String descriptor, final String signature) {
+          final String name, final String descriptor, final @Nullable String signature) {
     if (cv != null) {
       return cv.visitRecordComponent(name, descriptor, signature);
     }
@@ -285,7 +285,7 @@ public abstract class ClassVisitor {
    */
   @Nullable
   public FieldVisitor visitField(final int access, final String name,
-          final String descriptor, final String signature, final Object value) {
+          final String descriptor, final @Nullable String signature, final @Nullable Object value) {
     if (cv != null) {
       return cv.visitField(access, name, descriptor, signature, value);
     }
@@ -310,7 +310,7 @@ public abstract class ClassVisitor {
    */
   @Nullable
   public MethodVisitor visitMethod(final int access, final String name,
-          final String descriptor, final String signature, final String[] exceptions) {
+          final String descriptor, final @Nullable String signature, final String @Nullable [] exceptions) {
     if (cv != null) {
       return cv.visitMethod(access, name, descriptor, signature, exceptions);
     }

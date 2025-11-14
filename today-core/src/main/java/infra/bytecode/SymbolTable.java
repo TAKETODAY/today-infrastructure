@@ -17,6 +17,8 @@
 
 package infra.bytecode;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * The constant pool entries, the BootstrapMethods attribute entries and the (ASM specific) type
  * table entries of a class.
@@ -65,7 +67,7 @@ final class SymbolTable {
    * at the same array index, they are linked together via their {@link Entry#next} field. The
    * factory methods of this class make sure that this table does not contain duplicated entries.
    */
-  private Entry[] entries;
+  private @Nullable Entry[] entries;
 
   /**
    * The number of constant pool items in {@link #constantPool}, plus 1. The first constant pool
@@ -338,7 +340,7 @@ final class SymbolTable {
    * @return the list of entries which can potentially have the given hash code. The list is stored
    * via the {@link Entry#next} field.
    */
-  private Entry get(final int hashCode) {
+  private @Nullable Entry get(final int hashCode) {
     final Entry[] entries = this.entries;
     return entries[hashCode % entries.length];
   }
@@ -353,7 +355,7 @@ final class SymbolTable {
    * @return the given entry
    */
   private Entry put(final Entry entry) {
-    Entry[] entries = this.entries;
+    @Nullable Entry[] entries = this.entries;
     if (entryCount > (entries.length * 3) / 4) {
       int currentCapacity = entries.length;
       int newCapacity = currentCapacity * 2 + 1;
@@ -1215,9 +1217,9 @@ final class SymbolTable {
      * Another entry (and so on recursively) having the same hash code (modulo the size of {@link
      * #entries}) as this one.
      */
-    public Entry next;
+    public @Nullable Entry next;
 
-    Entry(final int index, final int tag, final String owner, final String name,
+    Entry(final int index, final int tag, final @Nullable String owner, final String name,
             final String value, final long data, final int hashCode) {
       super(index, tag, owner, name, value, data);
       this.hashCode = hashCode;

@@ -79,7 +79,7 @@ public class ClassEmitter extends ClassTransformer {
   }
 
   public void beginClass(int version, int access, String className,
-          @Nullable Type superType, Type[] interfaces, @Nullable String source) {
+          @Nullable Type superType, Type @Nullable [] interfaces, @Nullable String source) {
 
     Type classType = Type.forDescriptor('L' + className.replace('.', '/') + ';');
     classInfo = new ClassInfo() {
@@ -91,7 +91,7 @@ public class ClassEmitter extends ClassTransformer {
         return superType != null ? superType : Type.TYPE_OBJECT;
       }
 
-      public Type[] getInterfaces() {
+      public Type @Nullable [] getInterfaces() {
         return interfaces;
       }
 
@@ -187,7 +187,7 @@ public class ClassEmitter extends ClassTransformer {
   public void endClass() {
     if (staticHook != null && staticInit == null) {
       // force creation of static init
-      begin_static();
+      staticInit();
     }
     if (staticInit != null) {
       if (staticHook != null) {
@@ -214,7 +214,7 @@ public class ClassEmitter extends ClassTransformer {
     final MethodVisitor visitor = cv.visitMethod(
             access, sig.getName(), sig.getDescriptor(), null, Type.toInternalNames(exceptions));
 
-    if (sig.equals(MethodSignature.SIG_STATIC) && !Modifier.isInterface(getAccess())) {
+    if (sig.equals(MethodSignature.STATIC_INIT) && !Modifier.isInterface(getAccess())) {
       return begin_static(true, visitor, exceptions);
     }
     else if (sig.equals(staticHookSig)) {
@@ -229,12 +229,12 @@ public class ClassEmitter extends ClassTransformer {
     }
   }
 
-  public CodeEmitter begin_static() {
+  public CodeEmitter staticInit() {
     return begin_static(true);
   }
 
   public CodeEmitter begin_static(boolean hook) {
-    final MethodSignature sigStatic = MethodSignature.SIG_STATIC;
+    final MethodSignature sigStatic = MethodSignature.STATIC_INIT;
     return begin_static(hook, cv.visitMethod(
             Opcodes.ACC_STATIC, sigStatic.getName(), sigStatic.getDescriptor(), null, null));
   }
@@ -250,7 +250,7 @@ public class ClassEmitter extends ClassTransformer {
         }
       }
     };
-    staticInit = new CodeEmitter(this, wrapped, Opcodes.ACC_STATIC, MethodSignature.SIG_STATIC, exceptions);
+    staticInit = new CodeEmitter(this, wrapped, Opcodes.ACC_STATIC, MethodSignature.STATIC_INIT, exceptions);
     if (hook) {
       if (staticHook == null) {
         getStaticHook(); // force static hook creation
@@ -262,12 +262,12 @@ public class ClassEmitter extends ClassTransformer {
     return staticInit;
   }
 
-  public void declare_field(int access, String name, Type type, Object value) {
+  public void declare_field(int access, String name, Type type, @Nullable Object value) {
     FieldInfo existing = fieldInfo.get(name);
     FieldInfo info = new FieldInfo(access, name, type, value);
     if (existing != null) {
       if (!info.equals(existing)) {
-        throw new IllegalArgumentException("Field \"" + name + "\" has been declared differently");
+        throw new IllegalArgumentException("Field \"%s\" has been declared differently".formatted(name));
       }
     }
     else {
@@ -283,14 +283,13 @@ public class ClassEmitter extends ClassTransformer {
   FieldInfo getFieldInfo(String name) {
     FieldInfo field = fieldInfo.get(name);
     if (field == null) {
-      throw new IllegalArgumentException("Field " + name + " is not declared in " + getClassType().getClassName());
+      throw new IllegalArgumentException("Field %s is not declared in %s".formatted(name, getClassType().getClassName()));
     }
     return field;
   }
 
   @Override
-  public void visit(
-          int version, int access, String name, String signature, String superName, String[] interfaces) {
+  public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
     beginClass(version, access, name.replace('/', '.'),
             Type.forInternalName(superName),
             Type.forInternalNames(interfaces), null); // TODO
@@ -302,7 +301,7 @@ public class ClassEmitter extends ClassTransformer {
   }
 
   @Override
-  public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
+  public FieldVisitor visitField(int access, String name, String desc, String signature, @Nullable Object value) {
     declare_field(access, name, Type.forDescriptor(desc), value);
     return null; // TODO
   }
@@ -317,9 +316,10 @@ public class ClassEmitter extends ClassTransformer {
     public final int access;
     public final Type type;
     public final String name;
-    public final Object value;
 
-    public FieldInfo(int access, String name, Type type, Object value) {
+    public final @Nullable Object value;
+
+    public FieldInfo(int access, String name, Type type, @Nullable Object value) {
       this.access = access;
       this.name = name;
       this.type = type;

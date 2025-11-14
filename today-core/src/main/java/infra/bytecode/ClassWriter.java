@@ -205,7 +205,7 @@ public class ClassWriter extends ClassVisitor {
    * #toByteArray} method writes the attributes in the order defined by this list, i.e. in the
    * reverse order specified by the user.
    */
-  private Attribute firstAttribute;
+  private @Nullable Attribute firstAttribute;
 
   /**
    * Indicates what must be automatically computed in {@link MethodWriter}. Must be one of {@link
@@ -509,7 +509,7 @@ public class ClassWriter extends ClassVisitor {
 
   @Override
   public final FieldVisitor visitField(final int access, final String name,
-          final String descriptor, final String signature, final Object value) {
+          final String descriptor, final @Nullable String signature, final @Nullable Object value) {
     FieldWriter fieldWriter =
             new FieldWriter(symbolTable, access, name, descriptor, signature, value);
     if (firstField == null) {
@@ -523,7 +523,7 @@ public class ClassWriter extends ClassVisitor {
 
   @Override
   public final MethodVisitor visitMethod(final int access, final String name,
-          final String descriptor, final String signature, final String[] exceptions) {
+          final String descriptor, final @Nullable String signature, final String @Nullable [] exceptions) {
     MethodWriter methodWriter =
             new MethodWriter(symbolTable, access, name, descriptor, signature, exceptions, compute);
     if (firstMethod == null) {

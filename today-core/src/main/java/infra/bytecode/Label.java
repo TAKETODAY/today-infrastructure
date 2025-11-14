@@ -16,6 +16,8 @@
  */
 package infra.bytecode;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * A position in the bytecode of a method. Labels are used for jump, goto, and switch instructions,
  * and for try catch blocks. A label designates the <i>instruction</i> that is just after. Note
@@ -145,7 +147,7 @@ public class Label {
    * null. The first element of this array is the number n of source line numbers it contains, which
    * are stored between indices 1 and n (inclusive).
    */
-  private int[] otherLineNumbers;
+  private int @Nullable [] otherLineNumbers;
 
   /**
    * The offset of this label in the bytecode of its method, in bytes. This value is set if and only
@@ -176,7 +178,7 @@ public class Label {
    * instruction uses a 4 bytes bytecode offset operand stored one to four bytes after the start of
    * the instruction itself).
    */
-  private int[] forwardReferences;
+  private int @Nullable [] forwardReferences;
 
   // -----------------------------------------------------------------------------------------------
 
@@ -244,14 +246,14 @@ public class Label {
    * then it does not contain either successive labels that denote the same bytecode offset (in this
    * case only the first label appears in this list).
    */
-  Label nextBasicBlock;
+  @Nullable Label nextBasicBlock;
 
   /**
    * The outgoing edges of the basic block corresponding to this label, in the control flow graph of
    * its method. These edges are stored in a linked list of {@link Edge} objects, linked to each
    * other by their {@link Edge#nextEdge} field.
    */
-  Edge outgoingEdges;
+  @Nullable Edge outgoingEdges;
 
   /**
    * The next element in the list of labels to which this label belongs, or {@literal null} if it
@@ -268,7 +270,7 @@ public class Label {
    * methods, this field should be null (this property is a precondition and a postcondition of
    * these methods).
    */
-  Label nextListElement;
+  @Nullable Label nextListElement;
 
   // -----------------------------------------------------------------------------------------------
   // Constructor and accessors
@@ -376,8 +378,7 @@ public class Label {
    * reference to be appended.
    * @param wideReference whether the reference must be stored in 4 bytes (instead of 2 bytes).
    */
-  final void put(
-          final ByteVector code, final int sourceInsnBytecodeOffset, final boolean wideReference) {
+  final void put(final ByteVector code, final int sourceInsnBytecodeOffset, final boolean wideReference) {
     if ((flags & FLAG_RESOLVED) == 0) {
       if (wideReference) {
         addForwardReference(sourceInsnBytecodeOffset, FORWARD_REFERENCE_TYPE_WIDE, code.length);
@@ -410,8 +411,7 @@ public class Label {
    * @param referenceHandle the offset in the bytecode where the forward reference value must be
    * stored.
    */
-  private void addForwardReference(
-          final int sourceInsnBytecodeOffset, final int referenceType, final int referenceHandle) {
+  private void addForwardReference(final int sourceInsnBytecodeOffset, final int referenceType, final int referenceHandle) {
     int[] forwardReferences = this.forwardReferences;
     if (forwardReferences == null) {
       forwardReferences = new int[FORWARD_REFERENCES_CAPACITY_INCREMENT];

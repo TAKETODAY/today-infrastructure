@@ -17,6 +17,8 @@
 
 package infra.bytecode;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.lang.Constant;
 
 /**
@@ -220,7 +222,7 @@ class Frame {
    * algorithm, where the frames are fully computed. Note that this array can contain abstract types
    * that are relative to the input locals or to the input stack.
    */
-  private int[] initializations;
+  private int @Nullable [] initializations;
 
   // -----------------------------------------------------------------------------------------------
   // Constructor
@@ -385,11 +387,8 @@ class Frame {
    * @param descriptor the method descriptor.
    * @param maxLocals the maximum number of local variables of the method.
    */
-  final void setInputFrameFromDescriptor(
-          final SymbolTable symbolTable,
-          final int access,
-          final String descriptor,
-          final int maxLocals) {
+  final void setInputFrameFromDescriptor(final SymbolTable symbolTable,
+          final int access, final String descriptor, final int maxLocals) {
     inputLocals = new int[maxLocals];
     inputStack = new int[0];
     int inputLocalIndex = 0;
@@ -426,12 +425,8 @@ class Frame {
    * @param stack the operand stack types, described using the same format as in {@link
    * MethodVisitor#visitFrame}.
    */
-  final void setInputFrameFromApiFormat(
-          final SymbolTable symbolTable,
-          final int numLocal,
-          final Object[] local,
-          final int numStack,
-          final Object[] stack) {
+  final void setInputFrameFromApiFormat(final SymbolTable symbolTable,
+          final int numLocal, final Object[] local, final int numStack, final Object[] stack) {
     int inputLocalIndex = 0;
     for (int i = 0; i < numLocal; ++i) {
       inputLocals[inputLocalIndex++] = getAbstractTypeFromApiFormat(symbolTable, local[i]);
@@ -681,8 +676,7 @@ class Frame {
    * @param argSymbol the Symbol operand of the instruction, if any.
    * @param symbolTable the type table to use to lookup and store type {@link Symbol}.
    */
-  void execute(
-          final int opcode, final int arg, final Symbol argSymbol, final SymbolTable symbolTable) {
+  void execute(final int opcode, final int arg, final @Nullable Symbol argSymbol, final @Nullable SymbolTable symbolTable) {
     // Abstract types popped from the stack or read from local variables.
     int abstractType1;
     int abstractType2;

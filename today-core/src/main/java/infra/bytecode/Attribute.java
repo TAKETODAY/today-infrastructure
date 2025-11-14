@@ -323,9 +323,10 @@ public class Attribute {
     private static final int SIZE_INCREMENT = 6;
 
     private int size;
+
     private Attribute[] data = new Attribute[SIZE_INCREMENT];
 
-    void addAttributes(final Attribute attributeList) {
+    void addAttributes(final @Nullable Attribute attributeList) {
       Attribute attribute = attributeList;
       while (attribute != null) {
         if (!contains(attribute)) {

@@ -1233,6 +1233,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         }
       }
     }
+    
     se.returnValue();
     se.end_method();
   }

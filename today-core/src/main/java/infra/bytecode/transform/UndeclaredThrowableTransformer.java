@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ final class UndeclaredThrowableTransformer extends ClassEmitter {
   @Override
   public CodeEmitter beginMethod(int access, final MethodSignature sig, final Type... exceptions) {
     final CodeEmitter e = super.beginMethod(access, sig, exceptions);
-    if (Modifier.isAbstract(access) || sig.equals(MethodSignature.SIG_STATIC)) {
+    if (Modifier.isAbstract(access) || sig.equals(MethodSignature.STATIC_INIT)) {
       return e;
     }
 
