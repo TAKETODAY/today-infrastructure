@@ -43,15 +43,9 @@ public class ClassEmitter extends ClassTransformer {
 
   private Map<String, FieldInfo> fieldInfo;
 
-  private static int hookCounter;
-
   private MethodVisitor rawStaticInit;
 
   private @Nullable CodeEmitter staticInit;
-
-  private @Nullable CodeEmitter staticHook;
-
-  private @Nullable MethodSignature staticHookSig;
 
   public ClassEmitter(ClassVisitor cv) {
     setTarget(cv);
@@ -66,12 +60,8 @@ public class ClassEmitter extends ClassTransformer {
     fieldInfo = new HashMap<>();
 
     // just to be safe
-    staticInit = staticHook = null;
-    staticHookSig = null;
-  }
-
-  private static synchronized int getNextHook() {
-    return ++hookCounter;
+    staticInit = null;
+    rawStaticInit = null;
   }
 
   public ClassInfo getClassInfo() {
@@ -106,7 +96,7 @@ public class ClassEmitter extends ClassTransformer {
     if (source != null) {
       cv.visitSource(source, null);
     }
-    init();
+    postBeginClass();
   }
 
   public void beginClass(int access, String name, String superName, String... interfaces) {
@@ -153,7 +143,7 @@ public class ClassEmitter extends ClassTransformer {
     if (source != null) {
       cv.visitSource(source, null);
     }
-    init();
+    postBeginClass();
   }
 
   public CodeEmitter getStaticInit() {
@@ -178,19 +168,10 @@ public class ClassEmitter extends ClassTransformer {
       staticInit = new CodeEmitter(this, wrapped, Opcodes.ACC_STATIC, sigStatic, null);
     }
 
-//    if (staticHook == null) {
-//      staticHookSig = new MethodSignature("today$StaticHook" + getNextHook(), "()V");
-//      staticHook = beginMethod(Opcodes.ACC_STATIC, staticHookSig);
-//      if (staticInit != null) {
-//        staticInit.invoke_static_this(staticHookSig);
-//      }
-//    }
-//    return staticHook;
-
     return staticInit;
   }
 
-  protected void init() {
+  protected void postBeginClass() {
   }
 
   public int getAccess() {
@@ -206,20 +187,10 @@ public class ClassEmitter extends ClassTransformer {
   }
 
   public void endClass() {
-    if (staticHook != null && staticInit == null) {
-      // force creation of static init
-//      staticInit();
-    }
-
     if (staticInit != null) {
-      if (staticHook != null) {
-        staticHook.returnValue();
-        staticHook.end_method();
-      }
       rawStaticInit.visitInsn(Opcodes.RETURN);
       rawStaticInit.visitMaxs(0, 0);
-      staticInit = staticHook = null;
-      staticHookSig = null;
+      staticInit = null;
     }
     cv.visitEnd();
   }
@@ -235,53 +206,7 @@ public class ClassEmitter extends ClassTransformer {
 
     final MethodVisitor visitor = cv.visitMethod(
             access, sig.getName(), sig.getDescriptor(), null, Type.toInternalNames(exceptions));
-
-    if (sig.equals(MethodSignature.STATIC_INIT) && !Modifier.isInterface(getAccess())) {
-      return begin_static(true, visitor, exceptions);
-    }
-    else if (sig.equals(staticHookSig)) {
-      return new CodeEmitter(this, visitor, access, sig, exceptions) {
-        public boolean isStaticHook() {
-          return true;
-        }
-      };
-    }
-    else {
-      return new CodeEmitter(this, visitor, access, sig, exceptions);
-    }
-  }
-
-  public CodeEmitter staticInit() {
-    return begin_static(true);
-  }
-
-  public CodeEmitter begin_static(boolean hook) {
-    final MethodSignature sigStatic = MethodSignature.STATIC_INIT;
-    return begin_static(hook, cv.visitMethod(
-            Opcodes.ACC_STATIC, sigStatic.getName(), sigStatic.getDescriptor(), null, null));
-  }
-
-  public CodeEmitter begin_static(boolean hook, MethodVisitor visitor, Type @Nullable ... exceptions) {
-    rawStaticInit = visitor;
-    final MethodVisitor wrapped = new MethodVisitor(visitor) {
-      public void visitMaxs(int maxStack, int maxLocals) { }
-
-      public void visitInsn(int insn) {
-        if (insn != Opcodes.RETURN) {
-          super.visitInsn(insn);
-        }
-      }
-    };
-    staticInit = new CodeEmitter(this, wrapped, Opcodes.ACC_STATIC, MethodSignature.STATIC_INIT, exceptions);
-    if (hook) {
-      if (staticHook == null) {
-        getStaticInit(); // force static hook creation
-      }
-      else {
-        staticInit.invoke_static_this(staticHookSig);
-      }
-    }
-    return staticInit;
+    return new CodeEmitter(this, visitor, access, sig, exceptions);
   }
 
   public void declare_field(int access, String name, Type type, @Nullable Object value) {
