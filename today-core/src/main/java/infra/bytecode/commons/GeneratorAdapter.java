@@ -1093,7 +1093,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * @param type the class in which the constructor is defined.
    */
   public void invokeConstructor(final Type type) {
-    invokeInsn(Opcodes.INVOKESPECIAL, type, MethodSignature.EMPTY_CONSTRUCTOR, false);
+    invokeInsn(Opcodes.INVOKESPECIAL, type, MethodSignature.forConstructor(), false);
   }
 
   /**

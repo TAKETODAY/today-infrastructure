@@ -120,7 +120,7 @@ final class UndeclaredThrowableTransformer extends ClassEmitter {
     e.newInstance(wrapper);
     e.dupX1();
     e.swap();
-    e.invokeConstructor(wrapper, EmitUtils.CSTRUCT_THROWABLE);
+    e.invokeConstructor(wrapper, MethodSignature.forConstructor("Throwable"));
     e.throwException();
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,18 +30,15 @@ import infra.bytecode.core.CodeEmitter;
 import infra.bytecode.core.MethodInfo;
 
 /**
- * @author TODAY <br>
- * 2019-09-03 19:17
+ * @author TODAY
+ * @since 2019-09-03 19:17
  */
 final class LazyLoaderGenerator implements CallbackGenerator {
 
   public static final LazyLoaderGenerator INSTANCE = new LazyLoaderGenerator();
 
-  private static final MethodSignature LOAD_OBJECT = MethodSignature.from("Object loadObject()");
-  private static final Type LAZY_LOADER = Type.forClass(LazyLoader.class);
-
+  @Override
   public void generate(ClassEmitter ce, Context context, List<MethodInfo> methods) {
-
     final Set<Integer> indexes = new HashSet<>();
 
     for (final MethodInfo method : methods) {
@@ -77,7 +74,7 @@ final class LazyLoaderGenerator implements CallbackGenerator {
       e.pop();
       e.loadThis();
       context.emitCallback(e, index);
-      e.invokeInterface(LAZY_LOADER, LOAD_OBJECT);
+      e.invokeInterface(Type.forClass(LazyLoader.class), MethodSignature.from("Object loadObject()"));
       e.dupX1();
       e.putField(delegate);
       e.mark(end);
@@ -90,5 +87,8 @@ final class LazyLoaderGenerator implements CallbackGenerator {
     return new MethodSignature(Type.TYPE_OBJECT, "today$LoadPrivate" + index, Type.EMPTY_ARRAY);
   }
 
-  public void generateStatic(CodeEmitter e, Context context, List<MethodInfo> methods) { }
+  @Override
+  public void generateStatic(CodeEmitter e, Context context, List<MethodInfo> methods) {
+  }
+
 }

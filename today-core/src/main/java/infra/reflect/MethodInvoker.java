@@ -154,13 +154,8 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
   public static class MethodInvokerGenerator extends GeneratorSupport<MethodInvoker> implements ClassGenerator {
 
     private static final String superType = "Linfra/reflect/MethodInvoker;";
-    private static final String[] interfaces = { "Linfra/reflect/Invoker;" };
-    private static final MethodInfo invokeInfo = MethodInfo.from(
-            ReflectionUtils.getMethod(MethodInvoker.class, "invoke", Object.class, Object[].class));
 
-    /** @since 3.0.2 */
-    private static final MethodSignature SIG_CONSTRUCTOR
-            = new MethodSignature(MethodSignature.CONSTRUCTOR_NAME, "(Ljava/lang/reflect/Method;)V");
+    private static final String[] interfaces = { "Linfra/reflect/Invoker;" };
 
     private final Method targetMethod;
 
@@ -183,6 +178,8 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
     @Override
     public void generateClass(ClassVisitor v) {
       ClassEmitter classEmitter = beginClass(v);
+      MethodInfo invokeInfo = MethodInfo.from(
+              ReflectionUtils.getMethod(MethodInvoker.class, "invoke", Object.class, Object[].class));
 
       CodeEmitter codeEmitter = EmitUtils.beginMethod(classEmitter, invokeInfo, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
       if (!Modifier.isStatic(targetMethod.getModifiers())) {
@@ -208,10 +205,11 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
      */
     @Override
     protected void generateConstructor(ClassEmitter ce) {
-      CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, SIG_CONSTRUCTOR);
+      var signature = MethodSignature.forConstructor(Type.forClass(Method.class));
+      CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, signature);
       e.loadThis();
       e.loadArg(0);
-      e.super_invoke_constructor(SIG_CONSTRUCTOR);
+      e.super_invoke_constructor(signature);
       e.returnValue();
       e.end_method();
     }
