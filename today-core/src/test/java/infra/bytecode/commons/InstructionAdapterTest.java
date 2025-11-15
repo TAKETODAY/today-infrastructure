@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -158,11 +158,12 @@ public class InstructionAdapterTest extends AsmTest {
     instructionAdapter.visitLdcInsn("9");
     instructionAdapter.visitLdcInsn(Type.forInternalName("pkg/Class"));
     instructionAdapter.visitLdcInsn(
-            new Handle(Opcodes.H_GETFIELD, "pkg/Class", "name", "I", /* isInterface= */ false));
+            new Handle(org.objectweb.asm.Opcodes.H_GETFIELD, "pkg/Class", "name", "I", /* isInterface= */ false));
 
     assertEquals(
-            "ICONST_0 ICONST_1 ICONST_2 BIPUSH 51 ICONST_4 ICONST_5 LDC 6 LDC 7.0 LDC 8.0 LDC \"9\" "
-                    + "LDC Lpkg/Class;.class LDC pkg/Class.nameI (1)",
+            "ICONST_0 ICONST_1 ICONST_2 BIPUSH 51 ICONST_4 ICONST_5 LDC 6L LDC 7.0F LDC 8.0D LDC \"9\" "
+                    + "LDC Lpkg/Class;.class // handle kind 0x1 : GETFIELD\n"
+                    + "    LDC pkg/Class.name(I)",
             textifier.text.stream()
                     .map(text -> text.toString().trim())
                     .collect(Collectors.joining(" ")));
