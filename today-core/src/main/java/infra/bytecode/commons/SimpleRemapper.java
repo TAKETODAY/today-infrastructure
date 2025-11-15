@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,10 +20,14 @@ package infra.bytecode.commons;
 import java.util.Collections;
 import java.util.Map;
 
+import infra.bytecode.Handle;
+import infra.bytecode.Type;
+
 /**
  * A {@link Remapper} using a {@link Map} to define its mapping.
  *
  * @author Eugene Kuleshov
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
 public class SimpleRemapper extends Remapper {
 
@@ -39,11 +43,13 @@ public class SimpleRemapper extends Remapper {
    *       name.
    *   <li>for invokedynamic method names, the key is the name and descriptor of the method (in
    *       the form .&lt;name&gt;&lt;descriptor&gt;), and the value is the new method name.
-   *   <li>for field and attribute names, the key is the owner and name of the field or
-   *       attribute (in the form &lt;owner&gt;.&lt;name&gt;), and the value is the new field
-   *       name.
+   *   <li>for field names, the key is the owner and name of the field or attribute (in the form
+   *       &lt;owner&gt;.&lt;name&gt;), and the value is the new field name.
+   *   <li>for attribute names, the key is the annotation descriptor and the name of the
+   *       attribute (in the form &lt;descriptor&gt;.&lt;name&gt;), and the value is the new
+   *       attribute name.
    *   <li>for internal names, the key is the old internal name, and the value is the new
-   *       internal name.
+   *       internal name (see {@link Type#getInternalName()}).
    * </ul>
    */
   public SimpleRemapper(final Map<String, String> mapping) {
@@ -55,7 +61,8 @@ public class SimpleRemapper extends Remapper {
    *
    * @param oldName the key corresponding to a method, field or internal name (see {@link
    * #SimpleRemapper(Map)} for the format of these keys).
-   * @param newName the new method, field or internal name.
+   * @param newName the new method, field or internal name (see {@link
+   * Type#getInternalName()}).
    */
   public SimpleRemapper(final String oldName, final String newName) {
     this.mapping = Collections.singletonMap(oldName, newName);
@@ -68,7 +75,8 @@ public class SimpleRemapper extends Remapper {
   }
 
   @Override
-  public String mapInvokeDynamicMethodName(final String name, final String descriptor) {
+  public String mapBasicInvokeDynamicMethodName(final String name, final String descriptor,
+          final Handle bootstrapMethodHandle, final Object... bootstrapMethodArguments) {
     String remappedName = map('.' + name + descriptor);
     return remappedName == null ? name : remappedName;
   }

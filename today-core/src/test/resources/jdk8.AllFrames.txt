@@ -108,15 +108,17 @@ public class jdk8/AllFrames {
     LINENUMBER 73 L0
     ILOAD 1
     IFEQ L1
+   L2
+    LINENUMBER 74 L2
     ALOAD 0
     ILOAD 1
-    IFNE L2
+    IFNE L3
     ICONST_1
-    GOTO L3
-   L2
+    GOTO L4
+   L3
    FRAME SAME1 jdk8/AllFrames
     ICONST_0
-   L3
+   L4
    FRAME FULL [jdk8/AllFrames I I I I I F J D java/lang/Object [Ljava/lang/Object; [[Ljava/lang/Object;] [jdk8/AllFrames I]
     ILOAD 2
     ILOAD 3
@@ -136,11 +138,10 @@ public class jdk8/AllFrames {
     ALOAD 11
     ALOAD 12
     ALOAD 13
-   L4
-    LINENUMBER 74 L4
     INVOKEVIRTUAL jdk8/AllFrames.m0 (ZBCSIFJDLjava/lang/Object;[Ljava/lang/Object;[[Ljava/lang/Object;)I
     GOTO L5
    L1
+    LINENUMBER 75 L1
    FRAME SAME
     ALOAD 0
     ILOAD 1
@@ -170,28 +171,124 @@ public class jdk8/AllFrames {
     ALOAD 11
     ALOAD 12
     ALOAD 13
-   L8
-    LINENUMBER 75 L8
     INVOKEVIRTUAL jdk8/AllFrames.m0 (ZBCSIFJDLjava/lang/Object;[Ljava/lang/Object;[[Ljava/lang/Object;)I
    L5
     LINENUMBER 73 L5
    FRAME SAME1 I
     IRETURN
-   L9
-    LOCALVARIABLE this Ljdk8/AllFrames; L0 L9 0
-    LOCALVARIABLE b Z L0 L9 1
-    LOCALVARIABLE y B L0 L9 2
-    LOCALVARIABLE c C L0 L9 3
-    LOCALVARIABLE s S L0 L9 4
-    LOCALVARIABLE i I L0 L9 5
-    LOCALVARIABLE f F L0 L9 6
-    LOCALVARIABLE l J L0 L9 7
-    LOCALVARIABLE d D L0 L9 9
-    LOCALVARIABLE o Ljava/lang/Object; L0 L9 11
-    LOCALVARIABLE p [Ljava/lang/Object; L0 L9 12
-    LOCALVARIABLE q [[Ljava/lang/Object; L0 L9 13
+   L8
+    LOCALVARIABLE this Ljdk8/AllFrames; L0 L8 0
+    LOCALVARIABLE b Z L0 L8 1
+    LOCALVARIABLE y B L0 L8 2
+    LOCALVARIABLE c C L0 L8 3
+    LOCALVARIABLE s S L0 L8 4
+    LOCALVARIABLE i I L0 L8 5
+    LOCALVARIABLE f F L0 L8 6
+    LOCALVARIABLE l J L0 L8 7
+    LOCALVARIABLE d D L0 L8 9
+    LOCALVARIABLE o Ljava/lang/Object; L0 L8 11
+    LOCALVARIABLE p [Ljava/lang/Object; L0 L8 12
+    LOCALVARIABLE q [[Ljava/lang/Object; L0 L8 13
     MAXSTACK = 14
     MAXLOCALS = 14
+
+  // access flags 0x9
+  public static m0Static(ZBCSIFJDLjava/lang/Object;[Ljava/lang/Object;[[Ljava/lang/Object;)I
+    // parameter  b
+    // parameter  y
+    // parameter  c
+    // parameter  s
+    // parameter  i
+    // parameter  f
+    // parameter  l
+    // parameter  d
+    // parameter  o
+    // parameter  p
+    // parameter  q
+   L0
+    LINENUMBER 92 L0
+    ILOAD 0
+    IFEQ L1
+   L2
+    LINENUMBER 93 L2
+    ILOAD 0
+    IFNE L3
+    ICONST_1
+    GOTO L4
+   L3
+   FRAME SAME
+    ICONST_0
+   L4
+   FRAME SAME1 I
+    ILOAD 1
+    ILOAD 2
+    ILOAD 3
+    ILOAD 4
+    ICONST_1
+    ISUB
+    FLOAD 5
+    FCONST_1
+    FSUB
+    LLOAD 6
+    LCONST_1
+    LSUB
+    DLOAD 8
+    DCONST_1
+    DSUB
+    ALOAD 10
+    ALOAD 11
+    ALOAD 12
+    INVOKESTATIC jdk8/AllFrames.m0Static (ZBCSIFJDLjava/lang/Object;[Ljava/lang/Object;[[Ljava/lang/Object;)I
+    GOTO L5
+   L1
+    LINENUMBER 94 L1
+   FRAME SAME
+    ILOAD 0
+    IFNE L6
+    ICONST_1
+    GOTO L7
+   L6
+   FRAME SAME
+    ICONST_0
+   L7
+   FRAME SAME1 I
+    ILOAD 1
+    ILOAD 2
+    ILOAD 3
+    ILOAD 4
+    ICONST_1
+    IADD
+    FLOAD 5
+    FCONST_1
+    FADD
+    LLOAD 6
+    LCONST_1
+    LADD
+    DLOAD 8
+    DCONST_1
+    DADD
+    ALOAD 10
+    ALOAD 11
+    ALOAD 12
+    INVOKESTATIC jdk8/AllFrames.m0Static (ZBCSIFJDLjava/lang/Object;[Ljava/lang/Object;[[Ljava/lang/Object;)I
+   L5
+    LINENUMBER 92 L5
+   FRAME SAME1 I
+    IRETURN
+   L8
+    LOCALVARIABLE b Z L0 L8 0
+    LOCALVARIABLE y B L0 L8 1
+    LOCALVARIABLE c C L0 L8 2
+    LOCALVARIABLE s S L0 L8 3
+    LOCALVARIABLE i I L0 L8 4
+    LOCALVARIABLE f F L0 L8 5
+    LOCALVARIABLE l J L0 L8 6
+    LOCALVARIABLE d D L0 L8 8
+    LOCALVARIABLE o Ljava/lang/Object; L0 L8 10
+    LOCALVARIABLE p [Ljava/lang/Object; L0 L8 11
+    LOCALVARIABLE q [[Ljava/lang/Object; L0 L8 12
+    MAXSTACK = 13
+    MAXLOCALS = 13
 
   // access flags 0x1
   public m0([BZ)Ljava/lang/String;
@@ -199,7 +296,7 @@ public class jdk8/AllFrames {
     // parameter  b
     TRYCATCHBLOCK L0 L1 L2 java/io/UnsupportedEncodingException
    L0
-    LINENUMBER 81 L0
+    LINENUMBER 100 L0
     ALOAD 1
     IFNONNULL L3
     ACONST_NULL
@@ -223,11 +320,11 @@ public class jdk8/AllFrames {
    FRAME SAME1 java/lang/String
     ARETURN
    L2
-    LINENUMBER 82 L2
+    LINENUMBER 101 L2
    FRAME SAME1 java/io/UnsupportedEncodingException
     ASTORE 3
    L6
-    LINENUMBER 83 L6
+    LINENUMBER 102 L6
     ACONST_NULL
     ARETURN
    L7
@@ -243,20 +340,20 @@ public class jdk8/AllFrames {
     // parameter  i
     // parameter  j
    L0
-    LINENUMBER 91 L0
+    LINENUMBER 110 L0
     ILOAD 2
     ISTORE 4
    L1
-    LINENUMBER 92 L1
+    LINENUMBER 111 L1
     ILOAD 1
     IFGE L2
    L3
-    LINENUMBER 93 L3
+    LINENUMBER 112 L3
     ILOAD 1
     INEG
     ISTORE 1
    L2
-    LINENUMBER 95 L2
+    LINENUMBER 114 L2
    FRAME APPEND [T I]
     RETURN
    L4
@@ -267,24 +364,52 @@ public class jdk8/AllFrames {
     MAXSTACK = 1
     MAXLOCALS = 5
 
+  // access flags 0x9
+  public static m1Static(II)V
+    // parameter  i
+    // parameter  j
+   L0
+    LINENUMBER 120 L0
+    ILOAD 1
+    ISTORE 3
+   L1
+    LINENUMBER 121 L1
+    ILOAD 0
+    IFGE L2
+   L3
+    LINENUMBER 122 L3
+    ILOAD 0
+    INEG
+    ISTORE 0
+   L2
+    LINENUMBER 124 L2
+   FRAME APPEND [T I]
+    RETURN
+   L4
+    LOCALVARIABLE i I L0 L4 0
+    LOCALVARIABLE j I L0 L4 1
+    LOCALVARIABLE l I L1 L4 3
+    MAXSTACK = 1
+    MAXLOCALS = 4
+
   // access flags 0x1
   public m2(IZ)J
     // parameter  n
     // parameter  b
    L0
-    LINENUMBER 99 L0
+    LINENUMBER 128 L0
     LCONST_0
     LSTORE 3
    L1
-    LINENUMBER 100 L1
+    LINENUMBER 129 L1
     ILOAD 2
     IFEQ L2
    L3
-    LINENUMBER 101 L3
+    LINENUMBER 130 L3
     ICONST_0
     ISTORE 5
    L4
-    LINENUMBER 103 L4
+    LINENUMBER 132 L4
    FRAME APPEND [J I]
     LLOAD 3
     ILOAD 5
@@ -293,20 +418,20 @@ public class jdk8/AllFrames {
     LADD
     LSTORE 3
    L5
-    LINENUMBER 104 L5
+    LINENUMBER 133 L5
     ILOAD 5
     ILOAD 1
     IF_ICMPLT L4
    L6
-    LINENUMBER 105 L6
+    LINENUMBER 134 L6
     GOTO L7
    L2
-    LINENUMBER 106 L2
+    LINENUMBER 135 L2
    FRAME CHOP 1
     LCONST_0
     LSTORE 5
    L8
-    LINENUMBER 108 L8
+    LINENUMBER 137 L8
    FRAME APPEND [J]
     LLOAD 3
     LLOAD 5
@@ -317,14 +442,14 @@ public class jdk8/AllFrames {
     LADD
     LSTORE 3
    L9
-    LINENUMBER 109 L9
+    LINENUMBER 138 L9
     LLOAD 5
     ILOAD 1
     I2L
     LCMP
     IFLT L8
    L7
-    LINENUMBER 111 L7
+    LINENUMBER 140 L7
    FRAME CHOP 1
     LLOAD 3
     LRETURN
@@ -338,15 +463,85 @@ public class jdk8/AllFrames {
     MAXSTACK = 8
     MAXLOCALS = 7
 
+  // access flags 0x9
+  public static m2Static(IZ)J
+    // parameter  n
+    // parameter  b
+   L0
+    LINENUMBER 145 L0
+    LCONST_0
+    LSTORE 2
+   L1
+    LINENUMBER 146 L1
+    ILOAD 1
+    IFEQ L2
+   L3
+    LINENUMBER 147 L3
+    ICONST_0
+    ISTORE 4
+   L4
+    LINENUMBER 149 L4
+   FRAME APPEND [J I]
+    LLOAD 2
+    ILOAD 4
+    IINC 4 1
+    I2L
+    LADD
+    LSTORE 2
+   L5
+    LINENUMBER 150 L5
+    ILOAD 4
+    ILOAD 0
+    IF_ICMPLT L4
+   L6
+    LINENUMBER 151 L6
+    GOTO L7
+   L2
+    LINENUMBER 152 L2
+   FRAME CHOP 1
+    LCONST_0
+    LSTORE 4
+   L8
+    LINENUMBER 154 L8
+   FRAME APPEND [J]
+    LLOAD 2
+    LLOAD 4
+    DUP2
+    LCONST_1
+    LADD
+    LSTORE 4
+    LADD
+    LSTORE 2
+   L9
+    LINENUMBER 155 L9
+    LLOAD 4
+    ILOAD 0
+    I2L
+    LCMP
+    IFLT L8
+   L7
+    LINENUMBER 157 L7
+   FRAME CHOP 1
+    LLOAD 2
+    LRETURN
+   L10
+    LOCALVARIABLE i I L4 L6 4
+    LOCALVARIABLE i J L8 L7 4
+    LOCALVARIABLE n I L0 L10 0
+    LOCALVARIABLE b Z L0 L10 1
+    LOCALVARIABLE total J L1 L10 2
+    MAXSTACK = 8
+    MAXLOCALS = 6
+
   // access flags 0x1
   public m3(I)I
     // parameter  i
    L0
-    LINENUMBER 116 L0
+    LINENUMBER 162 L0
     ILOAD 1
     IFGE L1
    L2
-    LINENUMBER 117 L2
+    LINENUMBER 163 L2
     ILOAD 1
     ILOAD 1
     IADD
@@ -380,7 +575,7 @@ public class jdk8/AllFrames {
     IADD
     ISTORE 1
    L3
-    LINENUMBER 118 L3
+    LINENUMBER 164 L3
     ILOAD 1
     ILOAD 1
     IADD
@@ -414,7 +609,7 @@ public class jdk8/AllFrames {
     IADD
     ISTORE 1
    L1
-    LINENUMBER 120 L1
+    LINENUMBER 166 L1
    FRAME SAME
     ILOAD 1
     IRETURN
@@ -424,11 +619,96 @@ public class jdk8/AllFrames {
     MAXSTACK = 2
     MAXLOCALS = 2
 
+  // access flags 0x9
+  public static m3Static(I)I
+    // parameter  i
+   L0
+    LINENUMBER 171 L0
+    ILOAD 0
+    IFGE L1
+   L2
+    LINENUMBER 172 L2
+    ILOAD 0
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ISTORE 0
+   L3
+    LINENUMBER 173 L3
+    ILOAD 0
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ILOAD 0
+    IADD
+    ISTORE 0
+   L1
+    LINENUMBER 175 L1
+   FRAME SAME
+    ILOAD 0
+    IRETURN
+   L4
+    LOCALVARIABLE i I L0 L4 0
+    MAXSTACK = 2
+    MAXLOCALS = 1
+
   // access flags 0x1
   public m4(I)V
     // parameter  i
    L0
-    LINENUMBER 125 L0
+    LINENUMBER 180 L0
     ILOAD 1
     ILOAD 1
     IADD
@@ -462,7 +742,7 @@ public class jdk8/AllFrames {
     IADD
     ISTORE 1
    L1
-    LINENUMBER 126 L1
+    LINENUMBER 181 L1
     ILOAD 1
     ILOAD 1
     IADD
@@ -496,7 +776,7 @@ public class jdk8/AllFrames {
     IADD
     ISTORE 1
    L2
-    LINENUMBER 127 L2
+    LINENUMBER 182 L2
     ALOAD 0
     ILOAD 1
     IFNE L3
@@ -509,7 +789,7 @@ public class jdk8/AllFrames {
    FRAME FULL [jdk8/AllFrames I] [jdk8/AllFrames java/lang/String]
     PUTFIELD jdk8/AllFrames.s : Ljava/lang/String;
    L5
-    LINENUMBER 128 L5
+    LINENUMBER 183 L5
     RETURN
    L6
     LOCALVARIABLE this Ljdk8/AllFrames; L0 L6 0
@@ -521,7 +801,7 @@ public class jdk8/AllFrames {
   public static m5(Z)Ljava/lang/Number;
     // parameter  b
    L0
-    LINENUMBER 132 L0
+    LINENUMBER 187 L0
     ILOAD 0
     IFEQ L1
     NEW java/lang/Integer
@@ -551,7 +831,7 @@ public class jdk8/AllFrames {
   public static m6(Z)[Ljava/lang/Number;
     // parameter  b
    L0
-    LINENUMBER 137 L0
+    LINENUMBER 192 L0
     ILOAD 0
     IFEQ L1
     ICONST_1
@@ -573,7 +853,7 @@ public class jdk8/AllFrames {
   public static m7(Z)[[Ljava/lang/Number;
     // parameter  b
    L0
-    LINENUMBER 142 L0
+    LINENUMBER 197 L0
     ILOAD 0
     IFEQ L1
     ICONST_1
@@ -597,7 +877,7 @@ public class jdk8/AllFrames {
   public static m8(Z)[Ljava/lang/Object;
     // parameter  b
    L0
-    LINENUMBER 147 L0
+    LINENUMBER 202 L0
     ILOAD 0
     IFEQ L1
     ICONST_1
@@ -623,7 +903,7 @@ public class jdk8/AllFrames {
   public static m9(Z)Ljava/lang/Object;
     // parameter  b
    L0
-    LINENUMBER 152 L0
+    LINENUMBER 207 L0
     ILOAD 0
     IFEQ L1
     ICONST_1
@@ -645,7 +925,7 @@ public class jdk8/AllFrames {
   public static m10(Z)[Ljava/lang/Object;
     // parameter  b
    L0
-    LINENUMBER 157 L0
+    LINENUMBER 212 L0
     ILOAD 0
     IFEQ L1
     ICONST_1
@@ -670,7 +950,7 @@ public class jdk8/AllFrames {
   public static m11(Z)Ljava/lang/Object;
     // parameter  b
    L0
-    LINENUMBER 162 L0
+    LINENUMBER 217 L0
     ILOAD 0
     IFEQ L1
     ICONST_1
@@ -693,7 +973,7 @@ public class jdk8/AllFrames {
   public static m12(Z)[Ljava/lang/Object;
     // parameter  b
    L0
-    LINENUMBER 167 L0
+    LINENUMBER 222 L0
     ILOAD 0
     IFEQ L1
     ICONST_1
@@ -716,7 +996,7 @@ public class jdk8/AllFrames {
   public static m13(Z)[Ljava/lang/Object;
     // parameter  b
    L0
-    LINENUMBER 172 L0
+    LINENUMBER 227 L0
     ILOAD 0
     IFEQ L1
     ICONST_1
@@ -743,7 +1023,7 @@ public class jdk8/AllFrames {
   public static m14(Z)[[Ljava/lang/Object;
     // parameter  b
    L0
-    LINENUMBER 177 L0
+    LINENUMBER 232 L0
     ILOAD 0
     IFEQ L1
     ICONST_1
@@ -772,7 +1052,7 @@ public class jdk8/AllFrames {
   public static m15(Z)Ljava/lang/Object;
     // parameter  b
    L0
-    LINENUMBER 182 L0
+    LINENUMBER 237 L0
     ILOAD 0
     IFEQ L1
     NEW java/lang/Integer
@@ -796,7 +1076,7 @@ public class jdk8/AllFrames {
   public static m16(Z)Ljava/lang/Object;
     // parameter  b
    L0
-    LINENUMBER 187 L0
+    LINENUMBER 242 L0
     ILOAD 0
     IFEQ L1
     NEW java/lang/Integer
@@ -820,7 +1100,7 @@ public class jdk8/AllFrames {
   public m17(Z)Ljava/lang/Object;
     // parameter  b
    L0
-    LINENUMBER 192 L0
+    LINENUMBER 247 L0
     ILOAD 1
     IFEQ L1
     ICONST_0
@@ -843,7 +1123,7 @@ public class jdk8/AllFrames {
   public m18(Z)Ljava/lang/Object;
     // parameter  b
    L0
-    LINENUMBER 197 L0
+    LINENUMBER 252 L0
     ILOAD 1
     IFEQ L1
     ICONST_0
@@ -866,7 +1146,7 @@ public class jdk8/AllFrames {
   public m19(Z)Ljava/lang/Object;
     // parameter  b
    L0
-    LINENUMBER 202 L0
+    LINENUMBER 257 L0
     ILOAD 1
     IFEQ L1
     ICONST_0
@@ -889,7 +1169,7 @@ public class jdk8/AllFrames {
   public static m20(Z)Ljava/lang/Object;
     // parameter  b
    L0
-    LINENUMBER 207 L0
+    LINENUMBER 262 L0
     ILOAD 0
     IFEQ L1
     ACONST_NULL
@@ -912,7 +1192,7 @@ public class jdk8/AllFrames {
   public static m21(Z)Ljava/lang/Object;
     // parameter  b
    L0
-    LINENUMBER 212 L0
+    LINENUMBER 267 L0
     ILOAD 0
     IFEQ L1
     NEW java/lang/Integer
@@ -934,11 +1214,11 @@ public class jdk8/AllFrames {
   // access flags 0x9
   public static m23()I
    L0
-    LINENUMBER 218 L0
+    LINENUMBER 273 L0
     ACONST_NULL
     ASTORE 0
    L1
-    LINENUMBER 219 L1
+    LINENUMBER 274 L1
     ALOAD 0
     ICONST_0
     AALOAD

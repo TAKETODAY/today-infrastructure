@@ -50,30 +50,18 @@ import infra.util.StringUtils;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 final class MethodAccessEmitter extends ClassEmitter {
 
-  static final MethodSignature CSTRUCT_CLASS = MethodSignature.forConstructor("Class");
-  static final MethodSignature METHOD_GET_INDEX = MethodSignature.from("int getIndex(String, Class[])");
-  static final MethodSignature SIGNATURE_GET_INDEX = new MethodSignature(Type.INT_TYPE, "getIndex", Type.TYPE_SIGNATURE);
-  static final MethodSignature CONSTRUCTOR_GET_INDEX = MethodSignature.from("int getIndex(Class[])");
-  static final MethodSignature INVOKE = MethodSignature.from("Object invoke(int, Object, Object[])");
-  static final MethodSignature NEW_INSTANCE = MethodSignature.from("Object newInstance(int, Object[])");
-  static final MethodSignature GET_MAX_INDEX = MethodSignature.from("int getMaxIndex()");
-
-  private static final Type FAST_CLASS = Type.forClass(MethodAccess.class);
-
-  private static final Type INVOCATION_TARGET_EXCEPTION =
-          Type.forInternalName("java/lang/reflect/InvocationTargetException");
-
   public MethodAccessEmitter(ClassVisitor v, String className, Class type) {
     super(v);
 
     Type base = Type.forClass(type);
-    beginClass(Opcodes.JAVA_VERSION, Opcodes.ACC_PUBLIC, className, FAST_CLASS, null, Constant.SOURCE_FILE);
+    beginClass(Opcodes.JAVA_VERSION, Opcodes.ACC_PUBLIC, className, Type.forClass(MethodAccess.class), null, Constant.SOURCE_FILE);
 
+    MethodSignature signature = MethodSignature.forConstructor("Class");
     // constructor
-    CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, CSTRUCT_CLASS);
+    CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, signature);
     e.loadThis();
     e.loadArgs();
-    e.super_invoke_constructor(CSTRUCT_CLASS);
+    e.super_invoke_constructor(signature);
     e.returnValue();
     e.end_method();
 
@@ -94,14 +82,14 @@ final class MethodAccessEmitter extends ClassEmitter {
     emitIndexByClassArray(methods);
 
     // getIndex(Class[])
-    e = beginMethod(Opcodes.ACC_PUBLIC, CONSTRUCTOR_GET_INDEX);
+    e = beginMethod(Opcodes.ACC_PUBLIC, MethodSignature.from("int getIndex(Class[])"));
     e.loadArgs();
     List<MethodInfo> info = CollectionUtils.transform(constructors, MethodInfoTransformer.getInstance());
     EmitUtils.constructorSwitch(e, info, new GetIndexCallback(e, info));
     e.end_method();
 
     // invoke(int, Object, Object[])
-    e = beginMethod(Opcodes.ACC_PUBLIC, INVOKE, INVOCATION_TARGET_EXCEPTION);
+    e = beginMethod(Opcodes.ACC_PUBLIC, MethodSignature.from("Object invoke(int, Object, Object[])"), invocationTargetException());
     e.loadArg(1);
     e.checkCast(base);
     e.loadArg(0);
@@ -109,7 +97,7 @@ final class MethodAccessEmitter extends ClassEmitter {
     e.end_method();
 
     // newInstance(int, Object[])
-    e = beginMethod(Opcodes.ACC_PUBLIC, NEW_INSTANCE, INVOCATION_TARGET_EXCEPTION);
+    e = beginMethod(Opcodes.ACC_PUBLIC, MethodSignature.from("Object newInstance(int, Object[])"), invocationTargetException());
     e.newInstance(base);
     e.dup();
     e.loadArg(0);
@@ -117,7 +105,7 @@ final class MethodAccessEmitter extends ClassEmitter {
     e.end_method();
 
     // getMaxIndex()
-    e = beginMethod(Opcodes.ACC_PUBLIC, GET_MAX_INDEX);
+    e = beginMethod(Opcodes.ACC_PUBLIC, MethodSignature.from("int getMaxIndex()"));
     e.push(methods.size() - 1);
     e.returnValue();
     e.end_method();
@@ -127,7 +115,7 @@ final class MethodAccessEmitter extends ClassEmitter {
 
   // TODO: support constructor indices ("<init>")
   private void emitIndexBySignature(List<Method> methods) {
-    CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, SIGNATURE_GET_INDEX);
+    CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature(Type.INT_TYPE, "getIndex", Type.TYPE_SIGNATURE));
     List<String> signatures = CollectionUtils.transform(methods, obj -> MethodSignature.from(obj).toString());
     e.loadArg(0);
     e.invokeVirtual(Type.TYPE_OBJECT, MethodSignature.TO_STRING);
@@ -138,7 +126,7 @@ final class MethodAccessEmitter extends ClassEmitter {
   private static final int TOO_MANY_METHODS = 100; // TODO
 
   private void emitIndexByClassArray(List<Method> methods) {
-    CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, METHOD_GET_INDEX);
+    CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, MethodSignature.from("int getIndex(String, Class[])"));
     if (methods.size() > TOO_MANY_METHODS) {
       // hack for big classes
       List<String> signatures = CollectionUtils.transform(methods, obj -> {
@@ -146,7 +134,7 @@ final class MethodAccessEmitter extends ClassEmitter {
         return s.substring(0, s.lastIndexOf(')') + 1);
       });
       e.loadArgs();
-      e.invokeStatic(FAST_CLASS, MethodSignature.from("String getSignatureWithoutReturnType(String, Class[])"));
+      e.invokeStatic(Type.forClass(MethodAccess.class), MethodSignature.from("String getSignatureWithoutReturnType(String, Class[])"));
       signatureSwitchHelper(e, signatures);
     }
     else {
@@ -202,9 +190,13 @@ final class MethodAccessEmitter extends ClassEmitter {
       }
     });
     block.end();
-    EmitUtils.wrapThrowable(block, INVOCATION_TARGET_EXCEPTION);
+    EmitUtils.wrapThrowable(block, invocationTargetException());
     e.mark(illegalArg);
     e.throwException(Type.forClass(IllegalArgumentException.class), "Cannot find matching method/constructor");
+  }
+
+  private static Type invocationTargetException() {
+    return Type.forInternalName("java/lang/reflect/InvocationTargetException");
   }
 
   private static int[] getIntRange(int length) {

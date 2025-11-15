@@ -16,6 +16,8 @@
  */
 package infra.bytecode;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * A {@link MethodVisitor} that generates a corresponding 'method_info' structure, as defined in the
  * Java Virtual Machine Specification (JVMS).
@@ -315,7 +317,7 @@ final class MethodWriter extends MethodVisitor {
    * Code attribute). The next ones can be accessed with the {@link Handler#nextHandler} field. May
    * be {@literal null}.
    */
-  private Handler firstHandler;
+  private @Nullable Handler firstHandler;
 
   /**
    * The last element in the exception handler list (used to generate the exception_table of the
@@ -328,7 +330,7 @@ final class MethodWriter extends MethodVisitor {
   private int lineNumberTableLength;
 
   /** The line_number_table array of the LineNumberTable code attribute, or {@literal null}. */
-  private ByteVector lineNumberTable;
+  private @Nullable ByteVector lineNumberTable;
 
   /** The local_variable_table_length field of the LocalVariableTable code attribute. */
   private int localVariableTableLength;
@@ -336,7 +338,7 @@ final class MethodWriter extends MethodVisitor {
   /**
    * The local_variable_table array of the LocalVariableTable code attribute, or {@literal null}.
    */
-  private ByteVector localVariableTable;
+  private @Nullable ByteVector localVariableTable;
 
   /** The local_variable_type_table_length field of the LocalVariableTypeTable code attribute. */
   private int localVariableTypeTableLength;
@@ -345,25 +347,25 @@ final class MethodWriter extends MethodVisitor {
    * The local_variable_type_table array of the LocalVariableTypeTable code attribute, or {@literal
    * null}.
    */
-  private ByteVector localVariableTypeTable;
+  private @Nullable ByteVector localVariableTypeTable;
 
   /** The number_of_entries field of the StackMapTable code attribute. */
   private int stackMapTableNumberOfEntries;
 
   /** The 'entries' array of the StackMapTable code attribute. */
-  private ByteVector stackMapTableEntries;
+  private @Nullable ByteVector stackMapTableEntries;
 
   /**
    * The last runtime visible type annotation of the Code attribute. The previous ones can be
    * accessed with the {@link AnnotationWriter#previousAnnotation} field. May be {@literal null}.
    */
-  private AnnotationWriter lastCodeRuntimeVisibleTypeAnnotation;
+  private @Nullable AnnotationWriter lastCodeRuntimeVisibleTypeAnnotation;
 
   /**
    * The last runtime invisible type annotation of the Code attribute. The previous ones can be
    * accessed with the {@link AnnotationWriter#previousAnnotation} field. May be {@literal null}.
    */
-  private AnnotationWriter lastCodeRuntimeInvisibleTypeAnnotation;
+  private @Nullable AnnotationWriter lastCodeRuntimeInvisibleTypeAnnotation;
 
   /**
    * The first non standard attribute of the Code attribute. The next ones can be accessed with the
@@ -374,7 +376,7 @@ final class MethodWriter extends MethodVisitor {
    * #putMethodInfo} method writes the attributes in the order defined by this list, i.e. in the
    * reverse order specified by the user.
    */
-  private Attribute firstCodeAttribute;
+  private @Nullable Attribute firstCodeAttribute;
 
   // Other method_info attributes:
 
@@ -391,13 +393,13 @@ final class MethodWriter extends MethodVisitor {
    * The last runtime visible annotation of this method. The previous ones can be accessed with the
    * {@link AnnotationWriter#previousAnnotation} field. May be {@literal null}.
    */
-  private AnnotationWriter lastRuntimeVisibleAnnotation;
+  private @Nullable AnnotationWriter lastRuntimeVisibleAnnotation;
 
   /**
    * The last runtime invisible annotation of this method. The previous ones can be accessed with
    * the {@link AnnotationWriter#previousAnnotation} field. May be {@literal null}.
    */
-  private AnnotationWriter lastRuntimeInvisibleAnnotation;
+  private @Nullable AnnotationWriter lastRuntimeInvisibleAnnotation;
 
   /** The number of method parameters that can have runtime visible annotations, or 0. */
   private int visibleAnnotableParameterCount;
@@ -407,7 +409,7 @@ final class MethodWriter extends MethodVisitor {
    * annotation of a parameter (which can be {@literal null} - the previous ones can be accessed
    * with the {@link AnnotationWriter#previousAnnotation} field). May be {@literal null}.
    */
-  private AnnotationWriter[] lastRuntimeVisibleParameterAnnotations;
+  private AnnotationWriter @Nullable [] lastRuntimeVisibleParameterAnnotations;
 
   /** The number of method parameters that can have runtime visible annotations, or 0. */
   private int invisibleAnnotableParameterCount;
@@ -417,28 +419,28 @@ final class MethodWriter extends MethodVisitor {
    * last annotation of a parameter (which can be {@literal null} - the previous ones can be
    * accessed with the {@link AnnotationWriter#previousAnnotation} field). May be {@literal null}.
    */
-  private AnnotationWriter[] lastRuntimeInvisibleParameterAnnotations;
+  private AnnotationWriter @Nullable [] lastRuntimeInvisibleParameterAnnotations;
 
   /**
    * The last runtime visible type annotation of this method. The previous ones can be accessed with
    * the {@link AnnotationWriter#previousAnnotation} field. May be {@literal null}.
    */
-  private AnnotationWriter lastRuntimeVisibleTypeAnnotation;
+  private @Nullable AnnotationWriter lastRuntimeVisibleTypeAnnotation;
 
   /**
    * The last runtime invisible type annotation of this method. The previous ones can be accessed
    * with the {@link AnnotationWriter#previousAnnotation} field. May be {@literal null}.
    */
-  private AnnotationWriter lastRuntimeInvisibleTypeAnnotation;
+  private @Nullable AnnotationWriter lastRuntimeInvisibleTypeAnnotation;
 
   /** The default_value field of the AnnotationDefault attribute, or {@literal null}. */
-  private ByteVector defaultValue;
+  private @Nullable ByteVector defaultValue;
 
   /** The parameters_count field of the MethodParameters attribute. */
   private int parametersCount;
 
   /** The 'parameters' array of the MethodParameters attribute, or {@literal null}. */
-  private ByteVector parameters;
+  private @Nullable ByteVector parameters;
 
   /**
    * The first non standard attribute of this method. The next ones can be accessed with the {@link
@@ -449,7 +451,7 @@ final class MethodWriter extends MethodVisitor {
    * #putMethodInfo} method writes the attributes in the order defined by this list, i.e. in the
    * reverse order specified by the user.
    */
-  private Attribute firstAttribute;
+  private @Nullable Attribute firstAttribute;
 
   // -----------------------------------------------------------------------------------------------
   // Fields used to compute the maximum stack size and number of locals, and the stack map frames
@@ -466,13 +468,13 @@ final class MethodWriter extends MethodVisitor {
    * The first basic block of the method. The next ones (in bytecode offset order) can be accessed
    * with the {@link Label#nextBasicBlock} field.
    */
-  private Label firstBasicBlock;
+  private @Nullable Label firstBasicBlock;
 
   /**
    * The last basic block of the method (in bytecode offset order). This field is updated each time
    * a basic block is encountered, and is used to append it at the end of the basic block list.
    */
-  private Label lastBasicBlock;
+  private @Nullable Label lastBasicBlock;
 
   /**
    * The current basic block, i.e. the basic block of the last visited instruction. When {@link
@@ -483,7 +485,7 @@ final class MethodWriter extends MethodVisitor {
    * indeed, the existing frames are sufficient by hypothesis to compute any intermediate frame -
    * and the maximum stack size as well - without using any control flow graph).
    */
-  private Label currentBasicBlock;
+  private @Nullable Label currentBasicBlock;
 
   /**
    * The relative stack size after the last visited instruction. This size is relative to the
@@ -517,7 +519,7 @@ final class MethodWriter extends MethodVisitor {
    * The last frame that was written in {@link #stackMapTableEntries}. This field has the same
    * format as {@link #currentFrame}.
    */
-  private int[] previousFrame;
+  private int @Nullable [] previousFrame;
 
   /**
    * The current stack map frame. The first element contains the bytecode offset of the instruction
@@ -528,7 +530,7 @@ final class MethodWriter extends MethodVisitor {
    * but restricted to {@link Frame#CONSTANT_KIND}, {@link Frame#REFERENCE_KIND} or {@link
    * Frame#UNINITIALIZED_KIND} abstract types. Long and double types use only one array entry.
    */
-  private int[] currentFrame;
+  private int @Nullable [] currentFrame;
 
   /** Whether this method contains subroutines. */
   private boolean hasSubroutines;
@@ -577,7 +579,7 @@ final class MethodWriter extends MethodVisitor {
    * @param compute indicates what must be computed (see #compute).
    */
   MethodWriter(final SymbolTable symbolTable, final int access, final String name,
-          final String descriptor, final String signature, final String[] exceptions, final int compute) {
+          final String descriptor, final @Nullable String signature, final String @Nullable [] exceptions, final int compute) {
     this.symbolTable = symbolTable;
     this.accessFlags = "<init>".equals(name) ? access | Constants.ACC_CONSTRUCTOR : access;
     this.nameIndex = symbolTable.addConstantUtf8(name);
@@ -1197,7 +1199,7 @@ final class MethodWriter extends MethodVisitor {
   @Override
   public void visitLabel(final Label label) {
     // Resolve the forward references to this label, if any.
-    hasAsmInstructions |= label.resolve(code.data, code.length);
+    hasAsmInstructions |= label.resolve(code.data, stackMapTableEntries, code.length);
     // visitLabel starts a new basic block (except for debug only labels), so we need to update the
     // previous and current block references and list of successors.
     if ((label.flags & Label.FLAG_DEBUG_ONLY) != 0) {
@@ -1435,10 +1437,9 @@ final class MethodWriter extends MethodVisitor {
 
   @Override
   public void visitTryCatchBlock(
-          final Label start, final Label end, final Label handler, final String type) {
-    Handler newHandler =
-            new Handler(
-                    start, end, handler, type != null ? symbolTable.addConstantClass(type).index : 0, type);
+          final Label start, final Label end, final Label handler, final @Nullable String type) {
+    Handler newHandler = new Handler(
+            start, end, handler, type != null ? symbolTable.addConstantClass(type).index : 0, type);
     if (firstHandler == null) {
       firstHandler = newHandler;
     }
@@ -1465,7 +1466,7 @@ final class MethodWriter extends MethodVisitor {
 
   @Override
   public void visitLocalVariable(final String name, final String descriptor,
-          final String signature, final Label start, final Label end, final int index) {
+          final @Nullable String signature, final Label start, final Label end, final int index) {
     if (signature != null) {
       if (localVariableTypeTable == null) {
         localVariableTypeTable = new ByteVector();
@@ -1565,8 +1566,7 @@ final class MethodWriter extends MethodVisitor {
     // Complete the control flow graph with exception handler blocks.
     Handler handler = firstHandler;
     while (handler != null) {
-      String catchTypeDescriptor =
-              handler.catchTypeDescriptor == null ? "java/lang/Throwable" : handler.catchTypeDescriptor;
+      String catchTypeDescriptor = handler.catchTypeDescriptor == null ? "java/lang/Throwable" : handler.catchTypeDescriptor;
       int catchType = Frame.getAbstractTypeFromInternalName(symbolTable, catchTypeDescriptor);
       // Mark handlerBlock as an exception handler.
       Label handlerBlock = handler.handlerPc.getCanonicalInstance();
@@ -1801,7 +1801,7 @@ final class MethodWriter extends MethodVisitor {
     if (compute == COMPUTE_ALL_FRAMES) {
       Label nextBasicBlock = new Label();
       nextBasicBlock.frame = new Frame(nextBasicBlock);
-      nextBasicBlock.resolve(code.data, code.length);
+      nextBasicBlock.resolve(code.data, stackMapTableEntries, code.length);
       lastBasicBlock.nextBasicBlock = nextBasicBlock;
       lastBasicBlock = nextBasicBlock;
       currentBasicBlock = null;
@@ -1971,9 +1971,8 @@ final class MethodWriter extends MethodVisitor {
               .putShort(symbolTable.addConstantClass((String) type).index);
     }
     else {
-      stackMapTableEntries
-              .putByte(Frame.ITEM_UNINITIALIZED)
-              .putShort(((Label) type).bytecodeOffset);
+      stackMapTableEntries.putByte(Frame.ITEM_UNINITIALIZED);
+      ((Label) type).put(stackMapTableEntries);
     }
   }
 
@@ -2109,9 +2108,8 @@ final class MethodWriter extends MethodVisitor {
                         Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS);
       }
       if (firstCodeAttribute != null) {
-        size +=
-                firstCodeAttribute.computeAttributesSize(
-                        symbolTable, code.data, code.length, maxStack, maxLocals);
+        size += firstCodeAttribute.computeAttributesSize(
+                symbolTable, code.data, code.length, maxStack, maxLocals);
       }
     }
     if (numberOfExceptions > 0) {

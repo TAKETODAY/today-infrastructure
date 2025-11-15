@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.bytecode.core;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.bytecode.Type;
 
 /**
@@ -26,13 +28,14 @@ import infra.bytecode.Type;
 @SuppressWarnings("rawtypes")
 public abstract class ClassInfo {
 
-  protected ClassInfo() { }
+  protected ClassInfo() {
+  }
 
   public abstract Type getType();
 
   public abstract Type getSuperType();
 
-  public abstract Type[] getInterfaces();
+  public abstract Type @Nullable [] getInterfaces();
 
   public abstract int getModifiers();
 
@@ -63,7 +66,7 @@ public abstract class ClassInfo {
         return sc;
       }
 
-      public Type[] getInterfaces() {
+      public Type @Nullable [] getInterfaces() {
         return Type.getTypes(clazz.getInterfaces());
       }
 

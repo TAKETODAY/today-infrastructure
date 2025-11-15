@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,13 +14,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.bytecode;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * A dynamically extensible vector of bytes. This class is roughly equivalent to a DataOutputStream
  * on top of a ByteArrayOutputStream, but is more efficient.
  *
  * @author Eric Bruneton
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
 public class ByteVector {
 
@@ -339,8 +343,7 @@ public class ByteVector {
    * @param byteLength number of bytes of byteArrayValue that must be copied.
    * @return this byte vector.
    */
-  public ByteVector putByteArray(
-          final byte[] byteArrayValue, final int byteOffset, final int byteLength) {
+  public ByteVector putByteArray(final byte @Nullable [] byteArrayValue, final int byteOffset, final int byteLength) {
     if (length + byteLength > data.length) {
       enlarge(byteLength);
     }

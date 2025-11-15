@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@ import org.codehaus.janino.Scanner;
 import org.codehaus.janino.UnitCompiler;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
-import org.junit.jupiter.api.function.ThrowingSupplier;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -34,6 +33,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 
 import infra.bytecode.AsmTest;
 import infra.bytecode.Attribute;
@@ -58,14 +58,14 @@ public class ASMifierTest extends AsmTest {
 
   private static final String EXPECTED_USAGE =
           "Prints the ASM code to generate the given class.\n"
-                  + "Usage: ASMifier [-nodebug] <fully qualified class name or class file name>\n";
+                  + "Usage: ASMifier [-nodebug] <fully qualified class name or class file name>";
 
   private static final IClassLoader ICLASS_LOADER =
           new ClassLoaderIClassLoader(new URLClassLoader(new URL[0]));
 
   @Test
-  public void testConstructor() {
-    assertDoesNotThrow((ThrowingSupplier<ASMifier>) ASMifier::new);
+  void testConstructor() {
+    assertDoesNotThrow(() -> new ASMifier());
   }
 
   /**
@@ -99,9 +99,12 @@ public class ASMifierTest extends AsmTest {
 
   private static byte[] compile(final String name, final String source) throws IOException {
     Parser parser = new Parser(new Scanner(name, new StringReader(source)));
+    ArrayList<org.codehaus.janino.util.ClassFile> generatedClassFiles = new ArrayList<>();
     try {
-      UnitCompiler unitCompiler = new UnitCompiler(parser.parseAbstractCompilationUnit(), ICLASS_LOADER);
-      return unitCompiler.compileUnit(true, true, true)[0].toByteArray();
+      UnitCompiler unitCompiler =
+              new UnitCompiler(parser.parseAbstractCompilationUnit(), ICLASS_LOADER);
+      unitCompiler.compileUnit(true, true, true, generatedClassFiles);
+      return generatedClassFiles.get(0).toByteArray();
     }
     catch (CompileException e) {
       throw new AssertionError(source, e);
@@ -109,49 +112,43 @@ public class ASMifierTest extends AsmTest {
   }
 
   @Test
-  public void testMain_missingClassName() throws IOException {
+  void testMain_missingClassName() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = new String[0];
 
     ASMifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
-    assertTextEquals("", output.toString());
-    assertTextEquals(EXPECTED_USAGE, logger.toString());
+    assertEquals("", output.toString());
+    assertEquals(EXPECTED_USAGE, logger.toString().trim());
   }
 
   @Test
-  public void testMain_missingClassName_withNodebug() throws IOException {
+  void testMain_missingClassName_withNodebug() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = { "-nodebug" };
 
     ASMifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
-    assertTextEquals("", output.toString());
-    assertTextEquals(EXPECTED_USAGE, logger.toString());
+    assertEquals("", output.toString());
+    assertEquals(EXPECTED_USAGE, logger.toString().trim());
   }
 
   @Test
-  public void testMain_tooManyArguments() throws IOException {
+  void testMain_tooManyArguments() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = { "-nodebug", getClass().getName(), "extraArgument" };
 
     ASMifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
-    assertTextEquals("", output.toString());
-    assertTextEquals(EXPECTED_USAGE, logger.toString());
-  }
-
-  static void assertTextEquals(String one, String two) {
-    two = two.replace("\r", "").replace("\n", "");
-    one = one.replace("\r", "").replace("\n", "");
-    assertEquals(one, two);
+    assertEquals("", output.toString());
+    assertEquals(EXPECTED_USAGE, logger.toString().trim());
   }
 
   @Test
-  public void testMain_classFileNotFound() {
+  void testMain_classFileNotFound() {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = { "DoNotExist.class" };
@@ -165,7 +162,7 @@ public class ASMifierTest extends AsmTest {
   }
 
   @Test
-  public void testMain_classNotFound() {
+  void testMain_classNotFound() {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = { "do\\not\\exist" };
@@ -179,7 +176,7 @@ public class ASMifierTest extends AsmTest {
   }
 
   @Test
-  public void testMain_className() throws IOException {
+  void testMain_className() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = { getClass().getName() };
@@ -193,7 +190,7 @@ public class ASMifierTest extends AsmTest {
   }
 
   @Test
-  public void testMain_className_withNodebug() throws IOException {
+  void testMain_className_withNodebug() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = { "-nodebug", getClass().getName() };
@@ -207,7 +204,7 @@ public class ASMifierTest extends AsmTest {
   }
 
   @Test
-  public void testMain_classFile() throws IOException {
+  void testMain_classFile() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = {

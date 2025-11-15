@@ -126,7 +126,7 @@ final class AnnotationWriter extends AnnotationVisitor {
   static AnnotationWriter create(
           final SymbolTable symbolTable,
           final String descriptor,
-          final AnnotationWriter previousAnnotation) {
+          final @Nullable AnnotationWriter previousAnnotation) {
     // Create a ByteVector to hold an 'annotation' JVMS structure.
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.
     ByteVector annotation = new ByteVector();
@@ -158,7 +158,7 @@ final class AnnotationWriter extends AnnotationVisitor {
           final int typeRef,
           final TypePath typePath,
           final String descriptor,
-          final AnnotationWriter previousAnnotation) {
+          final @Nullable AnnotationWriter previousAnnotation) {
     // Create a ByteVector to hold a 'type_annotation' JVMS structure.
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.
     ByteVector typeAnnotation = new ByteVector();

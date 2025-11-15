@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,8 +16,6 @@
  */
 package infra.bytecode.tree.analysis;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -35,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 /**
  * Unit tests for {@link Analyzer}, when used with a {@link SimpleVerifier}.
@@ -46,7 +45,89 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
   private static final String CLASS_NAME = "C";
 
   @Test
-  public void testAnalyze_invalidInvokevirtual() {
+  void testAnalyze_differentDimensions() {
+    Label otherwise = new Label();
+    Label finish = new Label();
+    MethodNode methodNode =
+            new MethodNodeBuilder("()[Ljava/io/Serializable;", 3, 1)
+                    .insn(Opcodes.ICONST_0)
+                    .ifne(otherwise)
+                    .iconst_0()
+                    .iconst_0()
+                    .multiANewArrayInsn("[[I", 2)
+                    .go(finish)
+                    .label(otherwise)
+                    .iconst_0()
+                    .iconst_0()
+                    .iconst_0()
+                    .multiANewArrayInsn("[[[Ljava/lang/System;", 3)
+                    .label(finish)
+                    .areturn()
+                    .build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    assertDoesNotThrow(analyze);
+    assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
+  }
+
+  @Test
+  void testAnalyze_arrayOfCurrentClass() {
+    Label label0 = new Label();
+    Label label1 = new Label();
+    Label label2 = new Label();
+    Label label3 = new Label();
+    MethodNode methodNode =
+            new MethodNodeBuilder()
+                    .iconst_0()
+                    .typeInsn(Opcodes.ANEWARRAY, CLASS_NAME)
+                    .astore(1)
+                    .iconst_0()
+                    .istore(2)
+                    .label(label0)
+                    .iload(2)
+                    .ifne(label1)
+                    .aload(1)
+                    .iload(2)
+                    .insn(Opcodes.AALOAD)
+                    .pop()
+                    .go(label0)
+                    .label(label1)
+                    .label(label2)
+                    .iload(2)
+                    .ifne(label3)
+                    .aload(1)
+                    .iload(2)
+                    .insn(Opcodes.AALOAD)
+                    .pop()
+                    .go(label2)
+                    .label(label3)
+                    .vreturn()
+                    .build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    assertDoesNotThrow(analyze);
+    assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
+  }
+
+  @Test
+  void testAnalyze_primitiveArrayReturnType() {
+    MethodNode methodNode =
+            new MethodNodeBuilder("()[I", 1, 1)
+                    .iconst_0()
+                    .typeInsn(Opcodes.ANEWARRAY, CLASS_NAME)
+                    .areturn()
+                    .build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    String message = assertThrows(AnalyzerException.class, analyze).getMessage();
+    assertTrue(message.contains("Incompatible return type: expected [I, but found [LC;"));
+  }
+
+  @Test
+  void testAnalyze_invalidInvokevirtual() {
     MethodNode methodNode =
             new MethodNodeBuilder()
                     .insn(Opcodes.ACONST_NULL)
@@ -64,7 +145,7 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_invalidInvokeinterface() {
+  void testAnalyze_invalidInvokeinterface() {
     MethodNode methodNode =
             new MethodNodeBuilder()
                     .insn(Opcodes.ACONST_NULL)
@@ -82,7 +163,7 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_classNotFound() {
+  void testAnalyze_classNotFound() {
     Label loopLabel = new Label();
     MethodNode methodNode =
             new MethodNodeBuilder()
@@ -102,7 +183,7 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_mergeStackFrames() throws AnalyzerException {
+  void testAnalyze_mergeStackFrames() {
     Label loopLabel = new Label();
     MethodNode methodNode =
             new MethodNodeBuilder(1, 4)
@@ -128,7 +209,74 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
     assertDoesNotThrow(analyze);
-    Assertions.assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
+    assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
+  }
+
+  @Test
+  void testAnalyze_mergeStackFramesWithExceptionHandlers() {
+    Label startTry0Label = new Label();
+    Label endTry0Label = new Label();
+    Label catch0Label = new Label();
+    Label startTry1Label = new Label();
+    Label endTry1Label = new Label();
+    Label catch1Label = new Label();
+    Label startTry2Label = new Label();
+    Label endTry2Label = new Label();
+    Label catch2Label = new Label();
+    Label label0 = new Label();
+    Label labelReturn = new Label();
+    MethodNode methodNode =
+            new MethodNodeBuilder(2, 6)
+                    .trycatch(startTry0Label, endTry0Label, catch0Label, "java/lang/Throwable")
+                    .trycatch(startTry1Label, endTry1Label, catch1Label, "java/lang/Throwable")
+                    .trycatch(startTry2Label, endTry2Label, catch2Label)
+                    .iconst_0()
+                    .istore(2)
+                    .typeInsn(Opcodes.NEW, "java/lang/String")
+                    .astore(3)
+                    .typeInsn(Opcodes.NEW, "java/nio/file/Path")
+                    .astore(1)
+                    .label(startTry2Label)
+                    .typeInsn(Opcodes.NEW, "java/io/PrintWriter")
+                    .astore(2)
+                    .label(startTry0Label)
+                    .label(endTry0Label)
+                    .aload(2)
+                    .methodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintWriter", "close", "()V", false)
+                    .go(endTry2Label)
+                    .label(catch0Label)
+                    .astore(3)
+                    .label(startTry1Label)
+                    .aload(2)
+                    .methodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintWriter", "close", "()V", false)
+                    .label(endTry1Label)
+                    .go(label0)
+                    .label(catch1Label)
+                    .astore(4)
+                    .aload(3)
+                    .aload(4)
+                    .methodInsn(
+                            Opcodes.INVOKEVIRTUAL,
+                            "java/lang/Throwable",
+                            "addSuppressed",
+                            "(Ljava/lang/Throwable;)V",
+                            false)
+                    .label(label0)
+                    .aload(3)
+                    .athrow()
+                    .label(endTry2Label)
+                    .go(labelReturn)
+                    .label(catch2Label)
+                    .astore(5)
+                    .aload(5)
+                    .athrow()
+                    .label(labelReturn)
+                    .vreturn()
+                    .build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    assertDoesNotThrow(analyze);
   }
 
   /**
@@ -138,11 +286,10 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testAnalyze_simpleVerifier(
-          final PrecompiledClass classParameter) {
+  void testAnalyze_simpleVerifier(final PrecompiledClass classParameter, final Api apiParameter) {
     ClassNode classNode = new ClassNode();
     new ClassReader(classParameter.getBytes()).accept(classNode, 0);
-    Assumptions.assumeFalse(classNode.methods.isEmpty());
+    assumeFalse(classNode.methods.isEmpty());
     Analyzer<BasicValue> analyzer =
             new Analyzer<BasicValue>(
                     new SimpleVerifier(
@@ -164,7 +311,7 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
    * @throws AnalyzerException if the test class can't be analyzed.
    */
   @Test
-  public void testIsAssignableFrom_interface() throws AnalyzerException {
+  void testIsAssignableFrom_interface() throws AnalyzerException {
     Label elseLabel = new Label();
     Label endIfLabel = new Label();
     MethodNode methodNode =
@@ -183,7 +330,7 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
     assertDoesNotThrow(analyze);
-    Assertions.assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
+    assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
   private static Analyzer<BasicValue> newAnalyzer() {

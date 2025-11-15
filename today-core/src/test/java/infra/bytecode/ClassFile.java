@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1783,6 +1783,7 @@ public class ClassFile {
   private abstract static class CpInfo {
     /** The dump of this item. */
     private String dump;
+
     /** The context to use to get the referenced constant pool items. */
     private final ClassContext classContext;
 
@@ -2314,6 +2315,7 @@ public class ClassFile {
   private static class InstructionIndex {
     /** An offset in bytes from the start of the bytecode of a method. */
     private final int bytecodeOffset;
+
     /** The context to use to find the index from the bytecode offset. */
     private final MethodContext methodContext;
 
@@ -2408,10 +2410,13 @@ public class ClassFile {
   private abstract static class AbstractBuilder<T> implements ClassContext, MethodContext {
     /** Flag used to distinguish CpInfo keys in {@link #context}. */
     private static final int CP_INFO_KEY = 0xF0000000;
+
     /** The parent node of this node. May be {@literal null}. */
     private final AbstractBuilder<?> parent;
+
     /** The children of this builder. */
     final ArrayList<T> children;
+
     /** The map used to implement the Context interfaces. */
     private final HashMap<Integer, Object> context;
 

@@ -140,19 +140,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   private static final Type ILLEGAL_STATE_EXCEPTION = Type.forInternalName("java/lang/IllegalStateException");
   private static final Type ILLEGAL_ARGUMENT_EXCEPTION = Type.forInternalName("java/lang/IllegalArgumentException");
 
-  static final MethodSignature NEW_INSTANCE = new MethodSignature(Type.TYPE_OBJECT, "newInstance", CALLBACK_ARRAY);
   static final MethodSignature SET_THREAD_CALLBACKS = new MethodSignature(Type.VOID_TYPE, SET_THREAD_CALLBACKS_NAME, CALLBACK_ARRAY);
-  static final MethodSignature SET_STATIC_CALLBACKS = new MethodSignature(Type.VOID_TYPE, SET_STATIC_CALLBACKS_NAME, CALLBACK_ARRAY);
-  static final MethodSignature MULTIARG_NEW_INSTANCE = new MethodSignature(
-          Type.TYPE_OBJECT, "newInstance", Type.TYPE_CLASS_ARRAY, Type.TYPE_OBJECT_ARRAY, CALLBACK_ARRAY);
-  static final MethodSignature GET_CALLBACKS = new MethodSignature(CALLBACK_ARRAY, "getCallbacks");
-  static final MethodSignature GET_CALLBACK = new MethodSignature(CALLBACK, "getCallback", Type.INT_TYPE);
-  static final MethodSignature SET_CALLBACKS = new MethodSignature(Type.VOID_TYPE, "setCallbacks", CALLBACK_ARRAY);
-  static final MethodSignature SET_CALLBACK = new MethodSignature(Type.VOID_TYPE, "setCallback", Type.INT_TYPE, CALLBACK);
-  static final MethodSignature SINGLE_NEW_INSTANCE = new MethodSignature(Type.TYPE_OBJECT, "newInstance", CALLBACK);
 
-  static final MethodSignature THREAD_LOCAL_GET = MethodSignature.from("Object get()");
-  static final MethodSignature THREAD_LOCAL_SET = MethodSignature.from("void set(Object)");
   static final MethodSignature BIND_CALLBACKS = MethodSignature.from("void today$BindCallbacks(Object)");
 
   private EnhancerFactoryData currentData;
@@ -588,7 +577,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       e.declare_field(Opcodes.ACC_PRIVATE, CONSTRUCTED_FIELD, Type.BOOLEAN_TYPE, null);
     }
     e.declare_field(Opcodes.PRIVATE_FINAL_STATIC, THREAD_CALLBACKS_FIELD, THREAD_LOCAL, null);
-    e.declare_field(Opcodes.PRIVATE_FINAL_STATIC, STATIC_CALLBACKS_FIELD, CALLBACK_ARRAY, null);
+    e.declare_field(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC, STATIC_CALLBACKS_FIELD, CALLBACK_ARRAY, null);
     if (serialVersionUID != null) {
       e.declare_field(Opcodes.PRIVATE_FINAL_STATIC, SUID_FIELD_NAME, Type.LONG_TYPE, serialVersionUID);
     }
@@ -886,7 +875,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
   private void emitConstructors(ClassEmitter ce, List<MethodInfo> constructors) {
     boolean seenNull = false;
-    String descriptor = MethodSignature.EMPTY_CONSTRUCTOR.getDescriptor();
+    String descriptor = MethodSignature.forConstructor().getDescriptor();
     for (MethodInfo constructor : constructors) {
 
       if (currentData != null && !descriptor.equals(constructor.getSignature().getDescriptor())) {
@@ -925,7 +914,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   }
 
   private void emitGetCallback(ClassEmitter ce, int[] keys) {
-    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, GET_CALLBACK);
+    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature(CALLBACK, "getCallback", Type.INT_TYPE));
     e.loadThis();
     e.invoke_static_this(BIND_CALLBACKS);
     e.loadThis();
@@ -946,7 +935,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   }
 
   private void emitSetCallback(ClassEmitter ce, int[] keys) {
-    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, SET_CALLBACK);
+    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature(Type.VOID_TYPE, "setCallback", Type.INT_TYPE, CALLBACK));
     e.loadArg(0);
     e.tableSwitch(keys, new TableSwitchGenerator() {
       public void generateCase(int key, Label end) {
@@ -966,7 +955,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   }
 
   private void emitSetCallbacks(ClassEmitter ce) {
-    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, SET_CALLBACKS);
+    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature(Type.VOID_TYPE, "setCallbacks", CALLBACK_ARRAY));
     e.loadThis();
     e.loadArg(0);
     for (int i = 0; i < callbackTypes.length; i++) {
@@ -980,7 +969,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   }
 
   private void emitGetCallbacks(ClassEmitter ce) {
-    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, GET_CALLBACKS);
+    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature(CALLBACK_ARRAY, "getCallbacks"));
     e.loadThis();
     e.invoke_static_this(BIND_CALLBACKS);
     e.loadThis();
@@ -998,7 +987,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   }
 
   private void emitNewInstanceCallbacks(ClassEmitter ce) {
-    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, NEW_INSTANCE);
+    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature(Type.TYPE_OBJECT, "newInstance", CALLBACK_ARRAY));
     Type thisType = getThisType(e);
     e.loadArg(0);
     e.invokeStatic(thisType, SET_THREAD_CALLBACKS);
@@ -1026,7 +1015,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   }
 
   private void emitNewInstanceCallback(ClassEmitter ce) {
-    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, SINGLE_NEW_INSTANCE);
+    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature(Type.TYPE_OBJECT, "newInstance", CALLBACK));
     if (callbackTypes.length == 1) {
       // for now just make a new array; TODO: optimize
       e.push(1);
@@ -1047,7 +1036,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   }
 
   private void emitNewInstanceMultiarg(ClassEmitter ce, List constructors) {
-    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, MULTIARG_NEW_INSTANCE);
+    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature(
+            Type.TYPE_OBJECT, "newInstance", Type.TYPE_CLASS_ARRAY, Type.TYPE_OBJECT_ARRAY, CALLBACK_ARRAY));
     Type thisType = getThisType(e);
     e.loadArg(2);
     e.invokeStatic(thisType, SET_THREAD_CALLBACKS);
@@ -1118,11 +1108,11 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     }
 
     HashSet seenGen = new HashSet<>();
-    CodeEmitter se = ce.getStaticHook();
+    CodeEmitter se = ce.getStaticInit();
 
     se.newInstance(THREAD_LOCAL);
     se.dup();
-    se.invokeConstructor(THREAD_LOCAL, MethodSignature.EMPTY_CONSTRUCTOR);
+    se.invokeConstructor(THREAD_LOCAL, MethodSignature.forConstructor());
     se.putField(THREAD_CALLBACKS_FIELD);
 
     CallbackGenerator.Context context = new CallbackGenerator.Context() {
@@ -1233,8 +1223,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         }
       }
     }
-    se.returnValue();
-    se.end_method();
+
   }
 
   static <T> HashMap<T, Integer> getIndexMap(List<T> list) {
@@ -1250,13 +1239,14 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, SET_THREAD_CALLBACKS);
     e.getField(THREAD_CALLBACKS_FIELD);
     e.loadArg(0);
-    e.invokeVirtual(THREAD_LOCAL, THREAD_LOCAL_SET);
+    e.invokeVirtual(THREAD_LOCAL, MethodSignature.from("void set(Object)"));
     e.returnValue();
     e.end_method();
   }
 
   private void emitSetStaticCallbacks(ClassEmitter ce) {
-    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, SET_STATIC_CALLBACKS);
+    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC,
+            new MethodSignature(Type.VOID_TYPE, SET_STATIC_CALLBACKS_NAME, CALLBACK_ARRAY));
     e.loadArg(0);
     e.putField(STATIC_CALLBACKS_FIELD);
     e.returnValue();
@@ -1293,7 +1283,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     e.putField(BOUND_FIELD);
 
     e.getField(THREAD_CALLBACKS_FIELD);
-    e.invokeVirtual(THREAD_LOCAL, THREAD_LOCAL_GET);
+    e.invokeVirtual(THREAD_LOCAL, MethodSignature.from("Object get()"));
     e.dup();
     Label found_callback = e.newLabel();
     e.ifNonNull(found_callback);

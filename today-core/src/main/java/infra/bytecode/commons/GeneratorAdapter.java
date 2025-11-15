@@ -314,6 +314,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     }
     else {
       switch (value.getSort()) {
+        case Type.VOID -> mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Void", "TYPE", CLASS_DESCRIPTOR);
         case Type.BYTE -> mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Byte", "TYPE", CLASS_DESCRIPTOR);
         case Type.LONG -> mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Long", "TYPE", CLASS_DESCRIPTOR);
         case Type.SHORT -> mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Short", "TYPE", CLASS_DESCRIPTOR);
@@ -759,16 +760,16 @@ public class GeneratorAdapter extends LocalVariablesSorter {
       }
       case Type.CHAR -> {
         boxedType = Type.TYPE_CHARACTER;
-        unboxMethod = MethodSignature.CHAR_VALUE;
+        unboxMethod = MethodSignature.from("char charValue()");
       }
       case Type.BOOLEAN -> {
         boxedType = Type.TYPE_BOOLEAN;
-        unboxMethod = MethodSignature.BOOLEAN_VALUE;
+        unboxMethod = MethodSignature.from("boolean booleanValue()");
       }
-      case Type.DOUBLE -> unboxMethod = MethodSignature.DOUBLE_VALUE;
-      case Type.FLOAT -> unboxMethod = MethodSignature.FLOAT_VALUE;
-      case Type.LONG -> unboxMethod = MethodSignature.LONG_VALUE;
-      case Type.INT, Type.SHORT, Type.BYTE -> unboxMethod = MethodSignature.INT_VALUE;
+      case Type.DOUBLE -> unboxMethod = MethodSignature.from("double doubleValue()");
+      case Type.FLOAT -> unboxMethod = MethodSignature.from("float floatValue()");
+      case Type.LONG -> unboxMethod = MethodSignature.from("long longValue()");
+      case Type.INT, Type.SHORT, Type.BYTE -> unboxMethod = MethodSignature.from("int intValue()");
       default -> unboxMethod = null;
     }
 
@@ -1092,7 +1093,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * @param type the class in which the constructor is defined.
    */
   public void invokeConstructor(final Type type) {
-    invokeInsn(Opcodes.INVOKESPECIAL, type, MethodSignature.EMPTY_CONSTRUCTOR, false);
+    invokeInsn(Opcodes.INVOKESPECIAL, type, MethodSignature.forConstructor(), false);
   }
 
   /**
@@ -1202,7 +1203,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     newInstance(type);
     dup();
     push(message);
-    invokeConstructor(type, MethodSignature.constructWithString);
+    invokeConstructor(type, MethodSignature.forConstructor("String"));
     throwException();
   }
 

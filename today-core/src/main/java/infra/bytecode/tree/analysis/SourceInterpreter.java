@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import infra.bytecode.ConstantDynamic;
 import infra.bytecode.Opcodes;
 import infra.bytecode.Type;
 import infra.bytecode.tree.AbstractInsnNode;
@@ -38,7 +39,8 @@ public class SourceInterpreter extends Interpreter<SourceValue> implements Opcod
   /**
    * Constructs a new {@link SourceInterpreter} for the latest ASM API version.
    */
-  public SourceInterpreter() { }
+  public SourceInterpreter() {
+  }
 
   @Override
   public SourceValue newValue(final Type type) {
@@ -52,13 +54,38 @@ public class SourceInterpreter extends Interpreter<SourceValue> implements Opcod
   public SourceValue newOperation(final AbstractInsnNode insn) {
     int size;
     switch (insn.getOpcode()) {
-      case LCONST_0, LCONST_1, DCONST_0, DCONST_1 -> size = 2;
-      case LDC -> {
+      case LCONST_0:
+      case LCONST_1:
+      case DCONST_0:
+      case DCONST_1:
+        size = 2;
+        break;
+      case LDC:
+        // Values able to be pushed by LDC:
+        //   - int, float, string (object), type (Class, object), type (MethodType, object),
+        //       handle (MethodHandle, object): one word
+        //   - long, double, ConstantDynamic (can produce either single word values, or double word
+        //       values): (up to) two words
         Object value = ((LdcInsnNode) insn).cst;
-        size = value instanceof Long || value instanceof Double ? 2 : 1;
-      }
-      case GETSTATIC -> size = Type.forDescriptor(((FieldInsnNode) insn).desc).getSize();
-      default -> size = 1;
+        if (value instanceof Long || value instanceof Double) {
+          // two words guaranteed
+          size = 2;
+        }
+        else if (value instanceof ConstantDynamic) {
+          // might yield two words
+          size = ((ConstantDynamic) value).getSize();
+        }
+        else {
+          // one word guaranteed
+          size = 1;
+        }
+        break;
+      case GETSTATIC:
+        size = Type.forDescriptor(((FieldInsnNode) insn).desc).getSize();
+        break;
+      default:
+        size = 1;
+        break;
     }
     return new SourceValue(size, insn);
   }

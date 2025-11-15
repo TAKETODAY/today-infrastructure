@@ -17,11 +17,14 @@
 
 package infra.bytecode.commons;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 
 import infra.bytecode.Type;
+import infra.util.ObjectUtils;
 
 /**
  * A named method descriptor.
@@ -32,7 +35,7 @@ import infra.bytecode.Type;
  * @author Juozas Baliuka
  * @author Chris Nokleberg
  * @author Eric Bruneton
- * @author TODAY
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
 public class MethodSignature {
 
@@ -40,25 +43,11 @@ public class MethodSignature {
 
   public static final String STATIC_CLASS_INIT = "<clinit>";
 
-  public static final MethodSignature SIG_STATIC = new MethodSignature(STATIC_CLASS_INIT, "()V");
+  public static final MethodSignature STATIC_INIT = new MethodSignature(STATIC_CLASS_INIT, "()V");
 
-  public static final MethodSignature EMPTY_CONSTRUCTOR = new MethodSignature(CONSTRUCTOR_NAME, "()V");
-
-  // Number
-  public static final MethodSignature INT_VALUE = MethodSignature.from("int intValue()");
-  public static final MethodSignature LONG_VALUE = MethodSignature.from("long longValue()");
-  public static final MethodSignature CHAR_VALUE = MethodSignature.from("char charValue()");
-  public static final MethodSignature FLOAT_VALUE = MethodSignature.from("float floatValue()");
-  public static final MethodSignature DOUBLE_VALUE = MethodSignature.from("double doubleValue()");
-  public static final MethodSignature BOOLEAN_VALUE = MethodSignature.from("boolean booleanValue()");
-
-  // Object
-  public static final MethodSignature HASH_CODE = MethodSignature.from("int hashCode()");
-  // public static final MethodSignature GET_CLASS = MethodSignature.from("Class getClass()");
   public static final MethodSignature TO_STRING = MethodSignature.from("String toString()");
-  public static final MethodSignature EQUALS = MethodSignature.from("boolean equals(Object)");
 
-  public static final MethodSignature constructWithString = MethodSignature.forConstructor("String");
+  public static final MethodSignature EQUALS = MethodSignature.from("boolean equals(Object)");
 
   /** The method name. */
   private final String name;
@@ -145,7 +134,10 @@ public class MethodSignature {
    * @see #CONSTRUCTOR_NAME
    * @since 4.0
    */
-  public static MethodSignature forConstructor(Type... parameterTypes) {
+  public static MethodSignature forConstructor(Type @Nullable ... parameterTypes) {
+    if (ObjectUtils.isEmpty(parameterTypes)) {
+      return new MethodSignature(CONSTRUCTOR_NAME, "()V");
+    }
     StringBuilder descriptor = new StringBuilder(parameterTypes.length * 8);
     for (final Type type : parameterTypes) {
       descriptor.append(type.getDescriptor());

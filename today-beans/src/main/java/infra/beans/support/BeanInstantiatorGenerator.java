@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,12 +42,6 @@ import infra.util.ReflectionUtils;
 class BeanInstantiatorGenerator extends GeneratorSupport<ConstructorAccessor> implements ClassGenerator {
 
   private static final String superType = "Linfra/beans/support/ConstructorAccessor;";
-  private static final MethodInfo newInstanceInfo = MethodInfo.from(
-          ReflectionUtils.getMethod(ConstructorAccessor.class, "doInstantiate", Object[].class));
-
-  /** @since 4.0 */
-  private static final MethodSignature SIG_CONSTRUCTOR
-          = new MethodSignature(MethodSignature.CONSTRUCTOR_NAME, "(Ljava/lang/reflect/Constructor;)V");
 
   private final Constructor<?> targetConstructor;
 
@@ -71,10 +65,11 @@ class BeanInstantiatorGenerator extends GeneratorSupport<ConstructorAccessor> im
    */
   @Override
   protected void generateConstructor(ClassEmitter ce) {
-    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, SIG_CONSTRUCTOR);
+    MethodSignature signature = MethodSignature.forConstructor(Type.forClass(Constructor.class));
+    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, signature);
     e.loadThis();
     e.loadArg(0);
-    e.super_invoke_constructor(SIG_CONSTRUCTOR);
+    e.super_invoke_constructor(signature);
     e.returnValue();
     e.end_method();
   }
@@ -88,6 +83,9 @@ class BeanInstantiatorGenerator extends GeneratorSupport<ConstructorAccessor> im
 //    Method constructor = Method.fromConstructor(targetConstructor);
 //    GeneratorAdapter generator = new GeneratorAdapter(ACC_PUBLIC | ACC_FINAL, constructor, null, null, visitor);
 //    generator.loadThis();
+
+    MethodInfo newInstanceInfo = MethodInfo.from(
+            ReflectionUtils.getMethod(ConstructorAccessor.class, "doInstantiate", Object[].class));
 
     CodeEmitter codeEmitter = EmitUtils.beginMethod(
             classEmitter, newInstanceInfo, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);

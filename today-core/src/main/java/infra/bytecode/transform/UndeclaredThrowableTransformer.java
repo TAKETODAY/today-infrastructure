@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.bytecode.transform;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
@@ -26,7 +28,6 @@ import infra.bytecode.commons.MethodSignature;
 import infra.bytecode.core.Block;
 import infra.bytecode.core.ClassEmitter;
 import infra.bytecode.core.CodeEmitter;
-import infra.bytecode.core.EmitUtils;
 import infra.util.CollectionUtils;
 
 final class UndeclaredThrowableTransformer extends ClassEmitter {
@@ -47,9 +48,9 @@ final class UndeclaredThrowableTransformer extends ClassEmitter {
   }
 
   @Override
-  public CodeEmitter beginMethod(int access, final MethodSignature sig, final Type... exceptions) {
+  public CodeEmitter beginMethod(int access, final MethodSignature sig, final Type @Nullable ... exceptions) {
     final CodeEmitter e = super.beginMethod(access, sig, exceptions);
-    if (Modifier.isAbstract(access) || sig.equals(MethodSignature.SIG_STATIC)) {
+    if (Modifier.isAbstract(access) || sig.equals(MethodSignature.STATIC_INIT)) {
       return e;
     }
 
@@ -118,7 +119,7 @@ final class UndeclaredThrowableTransformer extends ClassEmitter {
     e.newInstance(wrapper);
     e.dupX1();
     e.swap();
-    e.invokeConstructor(wrapper, EmitUtils.CSTRUCT_THROWABLE);
+    e.invokeConstructor(wrapper, MethodSignature.forConstructor("Throwable"));
     e.throwException();
   }
 

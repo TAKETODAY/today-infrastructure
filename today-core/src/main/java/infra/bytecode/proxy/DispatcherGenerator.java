@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.bytecode.proxy;
 
 import java.lang.reflect.Modifier;
@@ -26,18 +27,14 @@ import infra.bytecode.core.CodeEmitter;
 import infra.bytecode.core.MethodInfo;
 
 /**
- * @author TODAY <br>
- * 2018-11-08 15:09
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 2018-11-08 15:09
  */
 final class DispatcherGenerator implements CallbackGenerator {
 
   public static final DispatcherGenerator INSTANCE = new DispatcherGenerator(false);
-  public static final DispatcherGenerator PROXY_REF_INSTANCE = new DispatcherGenerator(true);
 
-  private static final Type DISPATCHER = Type.forClass(Dispatcher.class);
-  private static final Type PROXY_REF_DISPATCHER = Type.forClass(ProxyRefDispatcher.class);
-  private static final MethodSignature LOAD_OBJECT = MethodSignature.from("Object loadObject()");
-  private static final MethodSignature PROXY_REF_LOAD_OBJECT = MethodSignature.from("Object loadObject(Object)");
+  public static final DispatcherGenerator PROXY_REF_INSTANCE = new DispatcherGenerator(true);
 
   private final boolean proxyRef;
 
@@ -53,10 +50,10 @@ final class DispatcherGenerator implements CallbackGenerator {
         context.emitCallback(e, context.getIndex(method));
         if (proxyRef) {
           e.loadThis();
-          e.invokeInterface(PROXY_REF_DISPATCHER, PROXY_REF_LOAD_OBJECT);
+          e.invokeInterface(Type.forClass(ProxyRefDispatcher.class), MethodSignature.from("Object loadObject(Object)"));
         }
         else {
-          e.invokeInterface(DISPATCHER, LOAD_OBJECT);
+          e.invokeInterface(Type.forClass(Dispatcher.class), MethodSignature.from("Object loadObject()"));
         }
         e.checkCast(method.getClassInfo().getType());
         e.loadArgs();

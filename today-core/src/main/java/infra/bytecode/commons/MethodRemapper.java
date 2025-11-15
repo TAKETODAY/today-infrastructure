@@ -47,20 +47,20 @@ public class MethodRemapper extends MethodVisitor {
   }
 
   @Override
-  public AnnotationVisitor visitAnnotationDefault() {
+  public @Nullable AnnotationVisitor visitAnnotationDefault() {
     AnnotationVisitor annotationVisitor = super.visitAnnotationDefault();
     return createAnnotationRemapper(/* descriptor = */ null, annotationVisitor);
   }
 
   @Override
-  public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+  public @Nullable AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
     AnnotationVisitor annotationVisitor =
             super.visitAnnotation(remapper.mapDesc(descriptor), visible);
     return createAnnotationRemapper(descriptor, annotationVisitor);
   }
 
   @Override
-  public AnnotationVisitor visitTypeAnnotation(
+  public @Nullable AnnotationVisitor visitTypeAnnotation(
           final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     AnnotationVisitor annotationVisitor =
             super.visitTypeAnnotation(typeRef, typePath, remapper.mapDesc(descriptor), visible);
@@ -68,7 +68,7 @@ public class MethodRemapper extends MethodVisitor {
   }
 
   @Override
-  public AnnotationVisitor visitParameterAnnotation(
+  public @Nullable AnnotationVisitor visitParameterAnnotation(
           final int parameter, final String descriptor, final boolean visible) {
     AnnotationVisitor annotationVisitor =
             super.visitParameterAnnotation(parameter, remapper.mapDesc(descriptor), visible);
@@ -90,11 +90,10 @@ public class MethodRemapper extends MethodVisitor {
             remapFrameTypes(numStack, stack));
   }
 
-  private Object[] remapFrameTypes(final int numTypes, final Object[] frameTypes) {
+  private Object @Nullable [] remapFrameTypes(final int numTypes, final Object[] frameTypes) {
     if (frameTypes == null) {
       return null;
     }
-    final Remapper remapper = this.remapper;
     Object[] remappedFrameTypes = null;
     for (int i = 0; i < numTypes; ++i) {
       if (frameTypes[i] instanceof String) {
@@ -111,7 +110,6 @@ public class MethodRemapper extends MethodVisitor {
   @Override
   public void visitFieldInsn(
           final int opcode, final String owner, final String name, final String descriptor) {
-    final Remapper remapper = this.remapper;
     super.visitFieldInsn(
             opcode,
             remapper.mapType(owner),
@@ -126,7 +124,6 @@ public class MethodRemapper extends MethodVisitor {
           final String name,
           final String descriptor,
           final boolean isInterface) {
-    final Remapper remapper = this.remapper;
     super.visitMethodInsn(
             opcodeAndSource,
             remapper.mapType(owner),
@@ -136,19 +133,16 @@ public class MethodRemapper extends MethodVisitor {
   }
 
   @Override
-  public void visitInvokeDynamicInsn(
-          final String name,
-          final String descriptor,
-          final Handle bootstrapMethodHandle,
-          final Object... bootstrapMethodArguments) {
+  public void visitInvokeDynamicInsn(final String name, final String descriptor,
+          final Handle bootstrapMethodHandle, final Object... bootstrapMethodArguments) {
+    String remappedName = remapper.mapInvokeDynamicMethodName(
+            name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
     Object[] remappedBootstrapMethodArguments = new Object[bootstrapMethodArguments.length];
-
-    final Remapper remapper = this.remapper;
     for (int i = 0; i < bootstrapMethodArguments.length; ++i) {
       remappedBootstrapMethodArguments[i] = remapper.mapValue(bootstrapMethodArguments[i]);
     }
     super.visitInvokeDynamicInsn(
-            remapper.mapInvokeDynamicMethodName(name, descriptor),
+            remappedName,
             remapper.mapMethodDesc(descriptor),
             (Handle) remapper.mapValue(bootstrapMethodHandle),
             remappedBootstrapMethodArguments);
@@ -199,8 +193,6 @@ public class MethodRemapper extends MethodVisitor {
           final Label start,
           final Label end,
           final int index) {
-
-    final Remapper remapper = this.remapper;
     super.visitLocalVariable(
             name,
             remapper.mapDesc(descriptor),

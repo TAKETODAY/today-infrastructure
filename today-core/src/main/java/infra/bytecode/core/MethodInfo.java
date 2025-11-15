@@ -14,7 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.bytecode.core;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -31,8 +34,8 @@ import static java.lang.reflect.Modifier.FINAL;
 import static java.lang.reflect.Modifier.STATIC;
 
 /**
- * @author TODAY <br>
- * 2019-09-03 19:01
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 2019-09-03 19:01
  */
 public abstract class MethodInfo {
 
@@ -61,7 +64,7 @@ public abstract class MethodInfo {
 
   public abstract MethodSignature getSignature();
 
-  public abstract Type[] getExceptionTypes();
+  public abstract Type @Nullable [] getExceptionTypes();
 
   @Override
   public boolean equals(Object o) {
@@ -94,7 +97,8 @@ public abstract class MethodInfo {
 
   public static MethodInfo from(final Member member, final int modifiers) {
     return new MethodInfo() {
-      private ClassInfo ci;
+
+      private @Nullable ClassInfo ci;
 
       public ClassInfo getClassInfo() {
         if (ci == null)
@@ -106,7 +110,7 @@ public abstract class MethodInfo {
         return modifiers;
       }
 
-      MethodSignature sig;
+      @Nullable MethodSignature sig;
 
       public MethodSignature getSignature() {
         if (sig == null) {
@@ -115,7 +119,7 @@ public abstract class MethodInfo {
         return sig;
       }
 
-      public Type[] getExceptionTypes() {
+      public Type @Nullable [] getExceptionTypes() {
         return Type.forExceptionTypes(member);
       }
 

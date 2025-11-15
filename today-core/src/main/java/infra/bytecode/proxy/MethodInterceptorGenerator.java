@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,36 +44,14 @@ import infra.util.StringUtils;
  * @since 2019-09-03 19:29
  */
 final class MethodInterceptorGenerator implements CallbackGenerator {
+
   public static final MethodInterceptorGenerator INSTANCE = new MethodInterceptorGenerator();
 
   static final String FIND_PROXY_NAME = "today$FindMethodProxy";
 
   private static final Type METHOD = Type.forClass(Method.class);
 
-  private static final Type REFLECT_UTILS = Type.forClass(CglibReflectUtils.class);
   private static final Type METHOD_PROXY = Type.forClass(MethodProxy.class);
-  private static final Type METHOD_INTERCEPTOR = Type.forClass(MethodInterceptor.class);
-
-  private static final MethodSignature GET_DECLARED_METHODS = //
-          MethodSignature.from("java.lang.reflect.Method[] getDeclaredMethods()");
-
-  private static final MethodSignature FIND_METHODS = //
-          MethodSignature.from("java.lang.reflect.Method[] findMethods(String[], java.lang.reflect.Method[])");
-
-  private static final MethodSignature MAKE_PROXY = new MethodSignature(
-          METHOD_PROXY,
-          "create",
-          Type.TYPE_CLASS, Type.TYPE_CLASS, Type.TYPE_STRING, Type.TYPE_STRING, Type.TYPE_STRING
-  );
-
-  private static final MethodSignature INTERCEPT = new MethodSignature(
-          Type.TYPE_OBJECT,
-          "intercept",
-          Type.TYPE_OBJECT, METHOD, Type.TYPE_OBJECT_ARRAY, METHOD_PROXY
-  );
-
-  private static final MethodSignature FIND_PROXY = new MethodSignature(
-          METHOD_PROXY, FIND_PROXY_NAME, Type.TYPE_SIGNATURE);
 
   private String getMethodField(MethodSignature impl) {
     return impl.getName() + "$Method";
@@ -123,7 +101,8 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
       }
 
       codeEmitter.getField(methodProxyField);  // methodProxy
-      codeEmitter.invokeInterface(METHOD_INTERCEPTOR, INTERCEPT);
+      codeEmitter.invokeInterface(Type.forClass(MethodInterceptor.class), new MethodSignature(
+              Type.TYPE_OBJECT, "intercept", Type.TYPE_OBJECT, METHOD, Type.TYPE_OBJECT_ARRAY, METHOD_PROXY));
       codeEmitter.unbox_or_zero(sig.getReturnType());
       codeEmitter.returnValue();
 
@@ -158,8 +137,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
   // }
 
   @Override
-  public void generateStatic(final CodeEmitter e, final Context context, final List<MethodInfo> methods) throws Exception {
-
+  public void generateStatic(final CodeEmitter e, final Context context, final List<MethodInfo> methods) {
     Local thisClass = e.newLocal();
     Local declaringClass = e.newLocal();
     EmitUtils.loadClassThis(e);
@@ -191,8 +169,8 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
       EmitUtils.loadClass(e, classInfo.getType());
       e.dup();
       e.storeLocal(declaringClass);
-      e.invokeVirtual(Type.TYPE_CLASS, GET_DECLARED_METHODS);
-      e.invokeStatic(REFLECT_UTILS, FIND_METHODS);
+      e.invokeVirtual(Type.TYPE_CLASS, MethodSignature.from("java.lang.reflect.Method[] getDeclaredMethods()"));
+      e.invokeStatic(Type.forClass(CglibReflectUtils.class), MethodSignature.from("java.lang.reflect.Method[] findMethods(String[], java.lang.reflect.Method[])"));
 
       for (int index = 0; index < size; index++) {
         MethodInfo method = classMethods.get(index);
@@ -208,7 +186,10 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
         e.push(sig.getDescriptor());
         e.push(sig.getName());
         e.push(impl.getName());
-        e.invokeStatic(METHOD_PROXY, MAKE_PROXY);
+        e.invokeStatic(METHOD_PROXY, new MethodSignature(METHOD_PROXY,
+                "create",
+                Type.TYPE_CLASS, Type.TYPE_CLASS, Type.TYPE_STRING, Type.TYPE_STRING, Type.TYPE_STRING
+        ));
         e.putField(getMethodProxyField(impl));
       }
       e.pop();
@@ -217,7 +198,8 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
 
   public void generateFindProxy(final ClassEmitter ce, final Map<String, String> sigMap) {
 
-    final CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, FIND_PROXY);
+    final CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC,
+            new MethodSignature(METHOD_PROXY, FIND_PROXY_NAME, Type.TYPE_SIGNATURE));
     e.loadArg(0);
     e.invokeVirtual(Type.TYPE_OBJECT, MethodSignature.TO_STRING);
 

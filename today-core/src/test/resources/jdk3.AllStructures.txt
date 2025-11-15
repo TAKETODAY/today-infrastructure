@@ -9,10 +9,10 @@ abstract class jdk3/AllStructures implements java/lang/Runnable java/lang/Clonea
   INNERCLASS jdk3/AllStructures$1 null null
 
   // access flags 0x1A
-  private final static Ljava/lang/String; UTF8 = "ࠀ耀"
+  private final static Ljava/lang/String; UTF8 = "\u0008\u0080\u0800\u8000"
 
   // access flags 0x1A
-  private final static J serialVersionUID = 123456
+  private final static J serialVersionUID = 123456L
 
   // access flags 0x1
   public I f0

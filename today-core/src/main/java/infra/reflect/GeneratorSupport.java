@@ -50,10 +50,6 @@ import static infra.bytecode.Opcodes.INVOKESTATIC;
  */
 public abstract class GeneratorSupport<T extends Accessor> {
 
-  static final Type GENERATOR_SUPPORT_TYPE = Type.forClass(GeneratorSupport.class);
-
-  static final String GENERATOR_SUPPORT_TYPE_INTERNAL_NAME = GENERATOR_SUPPORT_TYPE.getInternalName();
-
   static final String DEFAULT_SUPER = "Ljava/lang/Object;";
 
   @Nullable
@@ -230,7 +226,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
 
     // use "convert" method
     String descriptor = boxedType.getDescriptor();
-    code.visitMethodInsn(INVOKESTATIC, GENERATOR_SUPPORT_TYPE_INTERNAL_NAME,
+    code.visitMethodInsn(INVOKESTATIC, Type.forClass(GeneratorSupport.class).getInternalName(),
             "convert", '(' + descriptor + ')' + parameterType.getDescriptor(), false);
   }
 

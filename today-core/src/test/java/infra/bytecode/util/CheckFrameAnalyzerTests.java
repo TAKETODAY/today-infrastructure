@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@ import infra.bytecode.tree.analysis.BasicValue;
 import infra.bytecode.tree.analysis.BasicVerifier;
 import infra.bytecode.tree.analysis.Frame;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -53,6 +54,22 @@ class CheckFrameAnalyzerTests extends AsmTest {
 
   // Labels used to generate test cases.
   private final Label label0 = new Label();
+
+  @Test
+  void testAnalyze_validBytecode() {
+    MethodNode methodNode =
+            new MethodNodeBuilder("(Ljava/lang/Object;)V", 1, 2)
+                    .aload(0)
+                    .astore(1)
+                    .iconst_0()
+                    .istore(0)
+                    .vreturn()
+                    .build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    assertDoesNotThrow(analyze);
+  }
 
   @Test
   void testAnalyze_invalidJsr() {
