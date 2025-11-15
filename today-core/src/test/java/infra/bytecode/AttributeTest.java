@@ -18,7 +18,7 @@ package infra.bytecode;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -29,9 +29,54 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class AttributeTest {
 
   @Test
-  public void testIsUnknown() {
+  void testIsUnknown() {
     assertTrue(new Attribute("Comment").isUnknown());
   }
 
+  @Test
+  void testStaticWrite() {
+    ClassWriter classWriter = new ClassWriter(0);
+    ByteAttribute attribute = new ByteAttribute((byte) 42);
+    byte[] content0 = Attribute.write(attribute, classWriter, null, -1, -1, -1);
+    byte[] content1 = Attribute.write(attribute, classWriter, null, -1, -1, -1);
 
+    assertEquals(42, content0[0]);
+    assertEquals(42, content1[0]);
+  }
+
+  @Test
+  void testCachedContent() {
+    SymbolTable table = new SymbolTable(new ClassWriter(0));
+    ByteAttribute attributes = new ByteAttribute((byte) 42);
+    attributes.nextAttribute = new ByteAttribute((byte) 123);
+    int size = attributes.computeAttributesSize(table, null, -1, -1, -1);
+    ByteVector result = new ByteVector();
+    attributes.putAttributes(table, result);
+
+    assertEquals(14, size);
+    assertEquals(42, result.data[6]);
+    assertEquals(123, result.data[13]);
+  }
+
+  static class ByteAttribute extends Attribute {
+
+    private byte value;
+
+    ByteAttribute(final byte value) {
+      super("Byte");
+      this.value = value;
+    }
+
+    @Override
+    protected ByteVector write(
+            final ClassWriter classWriter,
+            final byte[] code,
+            final int codeLength,
+            final int maxStack,
+            final int maxLocals) {
+      ByteVector result = new ByteVector();
+      result.putByte(value++);
+      return result;
+    }
+  }
 }
