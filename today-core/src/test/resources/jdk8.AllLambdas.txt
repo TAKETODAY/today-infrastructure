@@ -1,0 +1,243 @@
+// class version 52.0 (52)
+// access flags 0x21
+public class jdk8/AllLambdas {
+
+  // compiled from: AllLambdas.java
+  // access flags 0x609
+  public static abstract INNERCLASS jdk8/AllLambdas$InnerClass jdk8/AllLambdas InnerClass
+  // access flags 0x19
+  public final static INNERCLASS java/lang/invoke/MethodHandles$Lookup java/lang/invoke/MethodHandles Lookup
+
+  // access flags 0x1
+  public <init>()V
+   L0
+    LINENUMBER 32 L0
+    ALOAD 0
+    INVOKESPECIAL java/lang/Object.<init> ()V
+    RETURN
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x9
+  public static normalLambda()V
+   L0
+    LINENUMBER 39 L0
+    INVOKEDYNAMIC run()Ljava/lang/Runnable; [
+      // handle kind 0x6 : INVOKESTATIC
+      java/lang/invoke/LambdaMetafactory.metafactory(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;
+      // arguments:
+      ()V, 
+      // handle kind 0x6 : INVOKESTATIC
+      java/lang/Thread.dumpStack()V, 
+      ()V
+    ]
+    ASTORE 0
+   L1
+    LINENUMBER 40 L1
+    RETURN
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x9
+  public static advancedLambda()V
+   L0
+    LINENUMBER 43 L0
+    INVOKEDYNAMIC run()Ljava/lang/Runnable; [
+      // handle kind 0x6 : INVOKESTATIC
+      java/lang/invoke/LambdaMetafactory.altMetafactory(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+      // arguments:
+      ()V, 
+      // handle kind 0x6 : INVOKESTATIC
+      java/lang/Thread.dumpStack()V, 
+      ()V, 
+      6, 
+      1, 
+      jdk8.AllLambdas$InnerClass.class, 
+      0
+    ]
+    CHECKCAST jdk8/AllLambdas$InnerClass
+    CHECKCAST java/lang/Runnable
+    ASTORE 0
+   L1
+    LINENUMBER 44 L1
+    RETURN
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x9
+  public static serializableLambda()V
+   L0
+    LINENUMBER 47 L0
+    INVOKEDYNAMIC run()Ljava/lang/Runnable; [
+      // handle kind 0x6 : INVOKESTATIC
+      java/lang/invoke/LambdaMetafactory.altMetafactory(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+      // arguments:
+      ()V, 
+      // handle kind 0x6 : INVOKESTATIC
+      java/lang/Thread.dumpStack()V, 
+      ()V, 
+      5, 
+      0
+    ]
+    CHECKCAST java/io/Serializable
+    CHECKCAST java/lang/Runnable
+    ASTORE 0
+   L1
+    LINENUMBER 48 L1
+    RETURN
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x9
+  public static serializableAdvancedLambda()V
+   L0
+    LINENUMBER 51 L0
+    INVOKEDYNAMIC run()Ljava/lang/Runnable; [
+      // handle kind 0x6 : INVOKESTATIC
+      java/lang/invoke/LambdaMetafactory.altMetafactory(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+      // arguments:
+      ()V, 
+      // handle kind 0x6 : INVOKESTATIC
+      java/lang/Thread.dumpStack()V, 
+      ()V, 
+      7, 
+      1, 
+      jdk8.AllLambdas$InnerClass.class, 
+      0
+    ]
+    CHECKCAST java/io/Serializable
+    CHECKCAST jdk8/AllLambdas$InnerClass
+    CHECKCAST java/lang/Runnable
+    ASTORE 0
+   L1
+    LINENUMBER 52 L1
+    RETURN
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x100A
+  private static synthetic $deserializeLambda$(Ljava/lang/invoke/SerializedLambda;)Ljava/lang/Object;
+   L0
+    LINENUMBER 32 L0
+    ALOAD 0
+    INVOKEVIRTUAL java/lang/invoke/SerializedLambda.getImplMethodName ()Ljava/lang/String;
+    ASTORE 1
+    ICONST_M1
+    ISTORE 2
+    ALOAD 1
+    INVOKEVIRTUAL java/lang/String.hashCode ()I
+    LOOKUPSWITCH
+      -1366118156: L1
+      default: L2
+   L1
+   FRAME APPEND [java/lang/String I]
+    ALOAD 1
+    LDC "dumpStack"
+    INVOKEVIRTUAL java/lang/String.equals (Ljava/lang/Object;)Z
+    IFEQ L2
+    ICONST_0
+    ISTORE 2
+   L2
+   FRAME SAME
+    ILOAD 2
+    LOOKUPSWITCH
+      0: L3
+      default: L4
+   L3
+   FRAME SAME
+    ALOAD 0
+    INVOKEVIRTUAL java/lang/invoke/SerializedLambda.getImplMethodKind ()I
+    BIPUSH 6
+    IF_ICMPNE L5
+    ALOAD 0
+    INVOKEVIRTUAL java/lang/invoke/SerializedLambda.getFunctionalInterfaceClass ()Ljava/lang/String;
+    LDC "java/lang/Runnable"
+    INVOKEVIRTUAL java/lang/Object.equals (Ljava/lang/Object;)Z
+    IFEQ L5
+    ALOAD 0
+    INVOKEVIRTUAL java/lang/invoke/SerializedLambda.getFunctionalInterfaceMethodName ()Ljava/lang/String;
+    LDC "run"
+    INVOKEVIRTUAL java/lang/Object.equals (Ljava/lang/Object;)Z
+    IFEQ L5
+    ALOAD 0
+    INVOKEVIRTUAL java/lang/invoke/SerializedLambda.getFunctionalInterfaceMethodSignature ()Ljava/lang/String;
+    LDC "()V"
+    INVOKEVIRTUAL java/lang/Object.equals (Ljava/lang/Object;)Z
+    IFEQ L5
+    ALOAD 0
+    INVOKEVIRTUAL java/lang/invoke/SerializedLambda.getImplClass ()Ljava/lang/String;
+    LDC "java/lang/Thread"
+    INVOKEVIRTUAL java/lang/Object.equals (Ljava/lang/Object;)Z
+    IFEQ L5
+    ALOAD 0
+    INVOKEVIRTUAL java/lang/invoke/SerializedLambda.getImplMethodSignature ()Ljava/lang/String;
+    LDC "()V"
+    INVOKEVIRTUAL java/lang/Object.equals (Ljava/lang/Object;)Z
+    IFEQ L5
+    INVOKEDYNAMIC run()Ljava/lang/Runnable; [
+      // handle kind 0x6 : INVOKESTATIC
+      java/lang/invoke/LambdaMetafactory.altMetafactory(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+      // arguments:
+      ()V, 
+      // handle kind 0x6 : INVOKESTATIC
+      java/lang/Thread.dumpStack()V, 
+      ()V, 
+      5, 
+      0
+    ]
+    ARETURN
+   L5
+   FRAME SAME
+    ALOAD 0
+    INVOKEVIRTUAL java/lang/invoke/SerializedLambda.getImplMethodKind ()I
+    BIPUSH 6
+    IF_ICMPNE L4
+    ALOAD 0
+    INVOKEVIRTUAL java/lang/invoke/SerializedLambda.getFunctionalInterfaceClass ()Ljava/lang/String;
+    LDC "java/lang/Runnable"
+    INVOKEVIRTUAL java/lang/Object.equals (Ljava/lang/Object;)Z
+    IFEQ L4
+    ALOAD 0
+    INVOKEVIRTUAL java/lang/invoke/SerializedLambda.getFunctionalInterfaceMethodName ()Ljava/lang/String;
+    LDC "run"
+    INVOKEVIRTUAL java/lang/Object.equals (Ljava/lang/Object;)Z
+    IFEQ L4
+    ALOAD 0
+    INVOKEVIRTUAL java/lang/invoke/SerializedLambda.getFunctionalInterfaceMethodSignature ()Ljava/lang/String;
+    LDC "()V"
+    INVOKEVIRTUAL java/lang/Object.equals (Ljava/lang/Object;)Z
+    IFEQ L4
+    ALOAD 0
+    INVOKEVIRTUAL java/lang/invoke/SerializedLambda.getImplClass ()Ljava/lang/String;
+    LDC "java/lang/Thread"
+    INVOKEVIRTUAL java/lang/Object.equals (Ljava/lang/Object;)Z
+    IFEQ L4
+    ALOAD 0
+    INVOKEVIRTUAL java/lang/invoke/SerializedLambda.getImplMethodSignature ()Ljava/lang/String;
+    LDC "()V"
+    INVOKEVIRTUAL java/lang/Object.equals (Ljava/lang/Object;)Z
+    IFEQ L4
+    INVOKEDYNAMIC run()Ljava/lang/Runnable; [
+      // handle kind 0x6 : INVOKESTATIC
+      java/lang/invoke/LambdaMetafactory.altMetafactory(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+      // arguments:
+      ()V, 
+      // handle kind 0x6 : INVOKESTATIC
+      java/lang/Thread.dumpStack()V, 
+      ()V, 
+      7, 
+      1, 
+      jdk8.AllLambdas$InnerClass.class, 
+      0
+    ]
+    ARETURN
+   L4
+   FRAME SAME
+    NEW java/lang/IllegalArgumentException
+    DUP
+    LDC "Invalid lambda deserialization"
+    INVOKESPECIAL java/lang/IllegalArgumentException.<init> (Ljava/lang/String;)V
+    ATHROW
+    MAXSTACK = 3
+    MAXLOCALS = 3
+}

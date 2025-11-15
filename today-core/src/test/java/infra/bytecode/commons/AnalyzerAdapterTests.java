@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,22 +37,23 @@ import infra.bytecode.Opcodes;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for {@link AnalyzerAdapter}.
  *
  * @author Eric Bruneton
  */
-public class AnalyzerAdapterTest extends AsmTest {
+class AnalyzerAdapterTests extends AsmTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     assertDoesNotThrow(
             () -> new AnalyzerAdapter("pkg/Class", Opcodes.ACC_PUBLIC, "name", "()V", null));
   }
 
   @Test
-  public void testVisitFrame_emptyFrame() {
+  void testVisitFrame_emptyFrame() {
     AnalyzerAdapter analyzerAdapter =
             new AnalyzerAdapter("pkg/Class", Opcodes.ACC_PUBLIC, "name", "()V", null);
 
@@ -62,7 +63,7 @@ public class AnalyzerAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitFrame_invalidFrameType() {
+  void testVisitFrame_invalidFrameType() {
     AnalyzerAdapter analyzerAdapter =
             new AnalyzerAdapter("pkg/Class", Opcodes.ACC_PUBLIC, "name", "()V", null);
 
@@ -81,8 +82,7 @@ public class AnalyzerAdapterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testAllMethods_precompiledClass(
-          final PrecompiledClass classParameter) throws Exception {
+  void testAllMethods_precompiledClass(final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -95,6 +95,10 @@ public class AnalyzerAdapterTest extends AsmTest {
             || classParameter == PrecompiledClass.JDK3_LARGE_METHOD) {
       Exception exception = assertThrows(IllegalArgumentException.class, accept);
       assertEquals("JSR/RET are not supported", exception.getMessage());
+    }
+    else if (classParameter.isMoreRecentThan(apiParameter)) {
+      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
+      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
     }
     else {
       assertDoesNotThrow(accept);
@@ -187,13 +191,11 @@ public class AnalyzerAdapterTest extends AsmTest {
 
     private void maybeInsertFrame() {
       // Don't insert a frame if we already have one for this instruction, from the original class.
-      if (!hasOriginalFrame) {
-        if (analyzerAdapter.locals != null && analyzerAdapter.stack != null) {
-          ArrayList<Object> local = toFrameTypes(analyzerAdapter.locals);
-          ArrayList<Object> stack = toFrameTypes(analyzerAdapter.stack);
-          super.visitFrame(
-                  Opcodes.F_NEW, local.size(), local.toArray(), stack.size(), stack.toArray());
-        }
+      if (!hasOriginalFrame && analyzerAdapter.locals != null && analyzerAdapter.stack != null) {
+        ArrayList<Object> local = toFrameTypes(analyzerAdapter.locals);
+        ArrayList<Object> stack = toFrameTypes(analyzerAdapter.stack);
+        super.visitFrame(
+                Opcodes.F_NEW, local.size(), local.toArray(), stack.size(), stack.toArray());
       }
       hasOriginalFrame = false;
     }
@@ -229,9 +231,9 @@ public class AnalyzerAdapterTest extends AsmTest {
     }
 
     @Override
-    public void visitVarInsn(final int opcode, final int var) {
+    public void visitVarInsn(final int opcode, final int varIndex) {
       maybeInsertFrame();
-      super.visitVarInsn(opcode, var);
+      super.visitVarInsn(opcode, varIndex);
     }
 
     @Override
@@ -282,9 +284,9 @@ public class AnalyzerAdapterTest extends AsmTest {
     }
 
     @Override
-    public void visitIincInsn(final int var, final int increment) {
+    public void visitIincInsn(final int varIndex, final int increment) {
       maybeInsertFrame();
-      super.visitIincInsn(var, increment);
+      super.visitIincInsn(varIndex, increment);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.bytecode.commons;
 
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ import infra.bytecode.Type;
  * and {@link #stack} fields will be null for these instructions.
  *
  * @author Eric Bruneton
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
 public class AnalyzerAdapter extends MethodVisitor {
 
@@ -51,9 +53,10 @@ public class AnalyzerAdapter extends MethodVisitor {
    * {@link Opcodes#TOP}, {@link Opcodes#INTEGER}, {@link Opcodes#FLOAT}, {@link Opcodes#LONG},
    * {@link Opcodes#DOUBLE},{@link Opcodes#NULL} or {@link Opcodes#UNINITIALIZED_THIS} (long and
    * double are represented by two elements, the second one being TOP). Reference types are
-   * represented by String objects (representing internal names), and uninitialized types by Label
-   * objects (this label designates the NEW instruction that created this uninitialized value). This
-   * field is {@literal null} for unreachable instructions.
+   * represented by String objects (representing internal names, see {@link
+   * Type#getInternalName()}), and uninitialized types by Label objects (this label designates the
+   * NEW instruction that created this uninitialized value). This field is {@literal null} for
+   * unreachable instructions.
    */
   public List<Object> locals;
 
@@ -62,9 +65,10 @@ public class AnalyzerAdapter extends MethodVisitor {
    * {@link Opcodes#TOP}, {@link Opcodes#INTEGER}, {@link Opcodes#FLOAT}, {@link Opcodes#LONG},
    * {@link Opcodes#DOUBLE},{@link Opcodes#NULL} or {@link Opcodes#UNINITIALIZED_THIS} (long and
    * double are represented by two elements, the second one being TOP). Reference types are
-   * represented by String objects (representing internal names), and uninitialized types by Label
-   * objects (this label designates the NEW instruction that created this uninitialized value). This
-   * field is {@literal null} for unreachable instructions.
+   * represented by String objects (representing internal names, see {@link
+   * Type#getInternalName()}), and uninitialized types by Label objects (this label designates the
+   * NEW instruction that created this uninitialized value). This field is {@literal null} for
+   * unreachable instructions.
    */
   public List<Object> stack;
 
@@ -73,9 +77,9 @@ public class AnalyzerAdapter extends MethodVisitor {
 
   /**
    * The uninitialized types in the current execution frame. This map associates internal names to
-   * Label objects. Each label designates a NEW instruction that created the currently uninitialized
-   * types, and the associated internal name represents the NEW operand, i.e. the final, initialized
-   * type value.
+   * Label objects (see {@link Type#getInternalName()}). Each label designates a NEW instruction
+   * that created the currently uninitialized types, and the associated internal name represents the
+   * NEW operand, i.e. the final, initialized type value.
    */
   public Map<Object, Object> uninitializedTypes;
 
@@ -97,6 +101,7 @@ public class AnalyzerAdapter extends MethodVisitor {
    * @param descriptor the method's descriptor (see {@link Type}).
    * @param methodVisitor the method visitor to which this adapter delegates calls. May be {@literal
    * null}.
+   * @throws IllegalStateException If a subclass calls this constructor.
    */
   public AnalyzerAdapter(
           final String owner,
@@ -120,19 +125,32 @@ public class AnalyzerAdapter extends MethodVisitor {
     }
     for (Type argumentType : Type.forArgumentTypes(descriptor)) {
       switch (argumentType.getSort()) {
-        case Type.BOOLEAN, Type.CHAR, Type.BYTE, Type.SHORT, Type.INT -> locals.add(Opcodes.INTEGER);
-        case Type.FLOAT -> locals.add(Opcodes.FLOAT);
-        case Type.LONG -> {
+        case Type.BOOLEAN:
+        case Type.CHAR:
+        case Type.BYTE:
+        case Type.SHORT:
+        case Type.INT:
+          locals.add(Opcodes.INTEGER);
+          break;
+        case Type.FLOAT:
+          locals.add(Opcodes.FLOAT);
+          break;
+        case Type.LONG:
           locals.add(Opcodes.LONG);
           locals.add(Opcodes.TOP);
-        }
-        case Type.DOUBLE -> {
+          break;
+        case Type.DOUBLE:
           locals.add(Opcodes.DOUBLE);
           locals.add(Opcodes.TOP);
-        }
-        case Type.ARRAY -> locals.add(argumentType.getDescriptor());
-        case Type.OBJECT -> locals.add(argumentType.getInternalName());
-        default -> throw new AssertionError();
+          break;
+        case Type.ARRAY:
+          locals.add(argumentType.getDescriptor());
+          break;
+        case Type.OBJECT:
+          locals.add(argumentType.getInternalName());
+          break;
+        default:
+          throw new AssertionError();
       }
     }
     maxLocals = locals.size();
@@ -194,15 +212,15 @@ public class AnalyzerAdapter extends MethodVisitor {
   }
 
   @Override
-  public void visitVarInsn(final int opcode, final int var) {
-    super.visitVarInsn(opcode, var);
+  public void visitVarInsn(final int opcode, final int varIndex) {
+    super.visitVarInsn(opcode, varIndex);
     boolean isLongOrDouble =
             opcode == Opcodes.LLOAD
                     || opcode == Opcodes.DLOAD
                     || opcode == Opcodes.LSTORE
                     || opcode == Opcodes.DSTORE;
-    maxLocals = Math.max(maxLocals, var + (isLongOrDouble ? 2 : 1));
-    execute(opcode, var, null);
+    maxLocals = Math.max(maxLocals, varIndex + (isLongOrDouble ? 2 : 1));
+    execute(opcode, varIndex, null);
   }
 
   @Override
@@ -255,7 +273,7 @@ public class AnalyzerAdapter extends MethodVisitor {
           initializedValue = this.owner;
         }
         else {
-          initializedValue = uninitializedTypes.get(value);
+          initializedValue = owner;
         }
         for (int i = 0; i < locals.size(); ++i) {
           if (locals.get(i) == value) {
@@ -357,10 +375,10 @@ public class AnalyzerAdapter extends MethodVisitor {
   }
 
   @Override
-  public void visitIincInsn(final int var, final int increment) {
-    super.visitIincInsn(var, increment);
-    maxLocals = Math.max(maxLocals, var + 1);
-    execute(Opcodes.IINC, var, null);
+  public void visitIincInsn(final int varIndex, final int increment) {
+    super.visitIincInsn(varIndex, increment);
+    maxLocals = Math.max(maxLocals, varIndex + 1);
+    execute(Opcodes.IINC, varIndex, null);
   }
 
   @Override
@@ -474,8 +492,8 @@ public class AnalyzerAdapter extends MethodVisitor {
   private void pop(final int numSlots) {
     int size = stack.size();
     int end = size - numSlots;
-    if (size > end) {
-      stack.subList(end, size).clear();
+    for (int i = size - 1; i >= end; --i) {
+      stack.remove(i);
     }
   }
 

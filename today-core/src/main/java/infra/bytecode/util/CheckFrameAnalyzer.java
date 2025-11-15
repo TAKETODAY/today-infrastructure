@@ -19,7 +19,6 @@ package infra.bytecode.util;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import infra.bytecode.Opcodes;
 import infra.bytecode.Type;
@@ -112,6 +111,9 @@ class CheckFrameAnalyzer<V extends Value> extends Analyzer<V> {
   protected void init(final String owner, final MethodNode method) throws AnalyzerException {
     insnList = method.instructions;
     currentLocals = Type.getArgumentsAndReturnSizes(method.desc) >> 2;
+    if ((method.access & Opcodes.ACC_STATIC) != 0) {
+      currentLocals -= 1;
+    }
 
     Frame<V>[] frames = getFrames();
     Frame<V> currentFrame = newFrame(frames[0]);
@@ -129,7 +131,7 @@ class CheckFrameAnalyzer<V extends Value> extends Analyzer<V> {
         if (insnType == AbstractInsnNode.LABEL
                 || insnType == AbstractInsnNode.LINE
                 || insnType == AbstractInsnNode.FRAME) {
-          checkFrame(insnIndex + 1, oldFrame, /* requireFrame = */ false);
+          checkFrame(insnIndex + 1, oldFrame, /* requireFrame= */ false);
         }
         else {
           currentFrame.init(oldFrame).execute(insnNode, interpreter);
@@ -139,35 +141,35 @@ class CheckFrameAnalyzer<V extends Value> extends Analyzer<V> {
               throw new AnalyzerException(insnNode, "JSR instructions are unsupported");
             }
             int targetInsnIndex = insnList.indexOf(jumpInsn.label);
-            checkFrame(targetInsnIndex, currentFrame, /* requireFrame = */ true);
+            checkFrame(targetInsnIndex, currentFrame, /* requireFrame= */ true);
             if (insnOpcode == GOTO) {
               endControlFlow(insnIndex);
             }
             else {
-              checkFrame(insnIndex + 1, currentFrame, /* requireFrame = */ false);
+              checkFrame(insnIndex + 1, currentFrame, /* requireFrame= */ false);
             }
           }
           else if (insnNode instanceof LookupSwitchInsnNode lookupSwitchInsn) {
             int targetInsnIndex = insnList.indexOf(lookupSwitchInsn.dflt);
-            checkFrame(targetInsnIndex, currentFrame, /* requireFrame = */ true);
+            checkFrame(targetInsnIndex, currentFrame, /* requireFrame= */ true);
             for (int i = 0; i < lookupSwitchInsn.labels.size(); ++i) {
               LabelNode label = lookupSwitchInsn.labels.get(i);
               targetInsnIndex = insnList.indexOf(label);
               currentFrame.initJumpTarget(insnOpcode, label);
-              checkFrame(targetInsnIndex, currentFrame, /* requireFrame = */ true);
+              checkFrame(targetInsnIndex, currentFrame, /* requireFrame= */ true);
             }
             endControlFlow(insnIndex);
           }
           else if (insnNode instanceof TableSwitchInsnNode tableSwitchInsn) {
             int targetInsnIndex = insnList.indexOf(tableSwitchInsn.dflt);
             currentFrame.initJumpTarget(insnOpcode, tableSwitchInsn.dflt);
-            checkFrame(targetInsnIndex, currentFrame, /* requireFrame = */ true);
+            checkFrame(targetInsnIndex, currentFrame, /* requireFrame= */ true);
             newControlFlowEdge(insnIndex, targetInsnIndex);
             for (int i = 0; i < tableSwitchInsn.labels.size(); ++i) {
               LabelNode label = tableSwitchInsn.labels.get(i);
               currentFrame.initJumpTarget(insnOpcode, label);
               targetInsnIndex = insnList.indexOf(label);
-              checkFrame(targetInsnIndex, currentFrame, /* requireFrame = */ true);
+              checkFrame(targetInsnIndex, currentFrame, /* requireFrame= */ true);
             }
             endControlFlow(insnIndex);
           }
@@ -175,7 +177,7 @@ class CheckFrameAnalyzer<V extends Value> extends Analyzer<V> {
             throw new AnalyzerException(insnNode, "RET instructions are unsupported");
           }
           else if (insnOpcode != ATHROW && (insnOpcode < IRETURN || insnOpcode > RETURN)) {
-            checkFrame(insnIndex + 1, currentFrame, /* requireFrame = */ false);
+            checkFrame(insnIndex + 1, currentFrame, /* requireFrame= */ false);
           }
           else {
             endControlFlow(insnIndex);
@@ -185,11 +187,17 @@ class CheckFrameAnalyzer<V extends Value> extends Analyzer<V> {
         List<TryCatchBlockNode> insnHandlers = getHandlers(insnIndex);
         if (insnHandlers != null) {
           for (TryCatchBlockNode tryCatchBlock : insnHandlers) {
-            Type catchType = Type.forInternalName(Objects.requireNonNullElse(tryCatchBlock.type, "java/lang/Throwable"));
+            Type catchType;
+            if (tryCatchBlock.type == null) {
+              catchType = Type.forInternalName("java/lang/Throwable");
+            }
+            else {
+              catchType = Type.forInternalName(tryCatchBlock.type);
+            }
             Frame<V> handler = newFrame(oldFrame);
             handler.clearStack();
             handler.push(interpreter.newExceptionValue(tryCatchBlock, handler, catchType));
-            checkFrame(insnList.indexOf(tryCatchBlock.handler), handler, /* requireFrame = */ true);
+            checkFrame(insnList.indexOf(tryCatchBlock.handler), handler, /* requireFrame= */ true);
           }
         }
 
@@ -221,7 +229,8 @@ class CheckFrameAnalyzer<V extends Value> extends Analyzer<V> {
    * "instructions", are invalid.
    */
   private void expandFrames(
-          final String owner, final MethodNode method, final Frame<V> initialFrame) throws AnalyzerException {
+          final String owner, final MethodNode method, final Frame<V> initialFrame)
+          throws AnalyzerException {
     int lastJvmOrFrameInsnIndex = -1;
     Frame<V> currentFrame = initialFrame;
     int currentInsnIndex = 0;
@@ -319,7 +328,8 @@ class CheckFrameAnalyzer<V extends Value> extends Analyzer<V> {
    * @return a value that represents the given type.
    * @throws AnalyzerException if 'type' is an invalid stack map frame type.
    */
-  private V newFrameValue(final String owner, final FrameNode frameNode, final Object type) throws AnalyzerException {
+  private V newFrameValue(final String owner, final FrameNode frameNode, final Object type)
+          throws AnalyzerException {
     if (type == Opcodes.TOP) {
       return interpreter.newValue(null);
     }
@@ -370,7 +380,8 @@ class CheckFrameAnalyzer<V extends Value> extends Analyzer<V> {
    * @throws AnalyzerException if the frames have incompatible sizes or if the frame at 'insnIndex'
    * is missing (if required) or not compatible with 'frame'.
    */
-  private void checkFrame(final int insnIndex, final Frame<V> frame, final boolean requireFrame) throws AnalyzerException {
+  private void checkFrame(final int insnIndex, final Frame<V> frame, final boolean requireFrame)
+          throws AnalyzerException {
     Frame<V> oldFrame = getFrames()[insnIndex];
     if (oldFrame == null) {
       if (requireFrame) {
@@ -382,7 +393,12 @@ class CheckFrameAnalyzer<V extends Value> extends Analyzer<V> {
       String error = checkMerge(frame, oldFrame);
       if (error != null) {
         throw new AnalyzerException(
-                null, "Stack map frame incompatible with frame at instruction " + insnIndex + " (" + error + ")");
+                null,
+                "Stack map frame incompatible with frame at instruction "
+                        + insnIndex
+                        + " ("
+                        + error
+                        + ")");
       }
     }
   }
@@ -405,7 +421,12 @@ class CheckFrameAnalyzer<V extends Value> extends Analyzer<V> {
     for (int i = 0; i < numLocals; ++i) {
       V v = interpreter.merge(srcFrame.getLocal(i), dstFrame.getLocal(i));
       if (!v.equals(dstFrame.getLocal(i))) {
-        return "incompatible types at local " + i + ": " + srcFrame.getLocal(i) + " and " + dstFrame.getLocal(i);
+        return "incompatible types at local "
+                + i
+                + ": "
+                + srcFrame.getLocal(i)
+                + " and "
+                + dstFrame.getLocal(i);
       }
     }
     int numStack = srcFrame.getStackSize();
@@ -415,7 +436,12 @@ class CheckFrameAnalyzer<V extends Value> extends Analyzer<V> {
     for (int i = 0; i < numStack; ++i) {
       V v = interpreter.merge(srcFrame.getStack(i), dstFrame.getStack(i));
       if (!v.equals(dstFrame.getStack(i))) {
-        return "incompatible types at stack item " + i + ": " + srcFrame.getStack(i) + " and " + dstFrame.getStack(i);
+        return "incompatible types at stack item "
+                + i
+                + ": "
+                + srcFrame.getStack(i)
+                + " and "
+                + dstFrame.getStack(i);
       }
     }
     return null;
@@ -462,5 +488,4 @@ class CheckFrameAnalyzer<V extends Value> extends Analyzer<V> {
   private static boolean isJvmInsnNode(final AbstractInsnNode insnNode) {
     return insnNode.getOpcode() >= 0;
   }
-
 }

@@ -19,8 +19,6 @@ package infra.bytecode;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.lang.Constant;
-
 /**
  * The input and output stack map frames of a basic block.
  *
@@ -143,7 +141,7 @@ class Frame {
   // Constants to manipulate the DIM field of an abstract type.
 
   /** The constant to be added to an abstract type to get one with one more array dimension. */
-  private static final int ARRAY_OF = 1 << DIM_SHIFT;
+  private static final int ARRAY_OF = +1 << DIM_SHIFT;
 
   /** The constant to be added to an abstract type to get one with one less array dimension. */
   private static final int ELEMENT_OF = -1 << DIM_SHIFT;
@@ -153,8 +151,9 @@ class Frame {
   private static final int CONSTANT_KIND = 1 << KIND_SHIFT;
   private static final int REFERENCE_KIND = 2 << KIND_SHIFT;
   private static final int UNINITIALIZED_KIND = 3 << KIND_SHIFT;
-  private static final int LOCAL_KIND = 4 << KIND_SHIFT;
-  private static final int STACK_KIND = 5 << KIND_SHIFT;
+  private static final int FORWARD_UNINITIALIZED_KIND = 4 << KIND_SHIFT;
+  private static final int LOCAL_KIND = 5 << KIND_SHIFT;
+  private static final int STACK_KIND = 6 << KIND_SHIFT;
 
   // Possible flags for the FLAGS field of an abstract type.
 
@@ -184,7 +183,7 @@ class Frame {
   // -----------------------------------------------------------------------------------------------
 
   /** The basic block to which these input and output stack map frames correspond. */
-  public Label owner;
+  Label owner;
 
   /** The input stack map frame locals. This is an array of abstract types. */
   private int[] inputLocals;
@@ -214,13 +213,13 @@ class Frame {
 
   /**
    * The abstract types that are initialized in the basic block. A constructor invocation on an
-   * UNINITIALIZED or UNINITIALIZED_THIS abstract type must replace <i>every occurrence</i> of this
-   * type in the local variables and in the operand stack. This cannot be done during the first step
-   * of the algorithm since, during this step, the local variables and the operand stack types are
-   * still abstract. It is therefore necessary to store the abstract types of the constructors which
-   * are invoked in the basic block, in order to do this replacement during the second step of the
-   * algorithm, where the frames are fully computed. Note that this array can contain abstract types
-   * that are relative to the input locals or to the input stack.
+   * UNINITIALIZED, FORWARD_UNINITIALIZED or UNINITIALIZED_THIS abstract type must replace <i>every
+   * occurrence</i> of this type in the local variables and in the operand stack. This cannot be
+   * done during the first step of the algorithm since, during this step, the local variables and
+   * the operand stack types are still abstract. It is therefore necessary to store the abstract
+   * types of the constructors which are invoked in the basic block, in order to do this replacement
+   * during the second step of the algorithm, where the frames are fully computed. Note that this
+   * array can contain abstract types that are relative to the input locals or to the input stack.
    */
   private int @Nullable [] initializations;
 
@@ -233,7 +232,6 @@ class Frame {
    *
    * @param owner the basic block to which these input and output stack map frames correspond.
    */
-  @SuppressWarnings("NullAway")
   Frame(final Label owner) {
     this.owner = owner;
   }
@@ -274,15 +272,20 @@ class Frame {
    */
   static int getAbstractTypeFromApiFormat(final SymbolTable symbolTable, final Object type) {
     if (type instanceof Integer) {
-      return CONSTANT_KIND | (Integer) type;
+      return CONSTANT_KIND | ((Integer) type).intValue();
     }
     else if (type instanceof String) {
       String descriptor = Type.forInternalName((String) type).getDescriptor();
       return getAbstractTypeFromDescriptor(symbolTable, descriptor, 0);
     }
     else {
-      return UNINITIALIZED_KIND
-              | symbolTable.addUninitializedType(Constant.BLANK, ((Label) type).bytecodeOffset);
+      Label label = (Label) type;
+      if ((label.flags & Label.FLAG_RESOLVED) != 0) {
+        return UNINITIALIZED_KIND | symbolTable.addUninitializedType("", label.bytecodeOffset);
+      }
+      else {
+        return FORWARD_UNINITIALIZED_KIND | symbolTable.addForwardUninitializedType("", label);
+      }
     }
   }
 
@@ -633,12 +636,14 @@ class Frame {
    * @param symbolTable the type table to use to lookup and store type {@link Symbol}.
    * @param abstractType an abstract type.
    * @return the REFERENCE_KIND abstract type corresponding to abstractType if it is
-   * UNINITIALIZED_THIS or an UNINITIALIZED_KIND abstract type for one of the types on which a
-   * constructor is invoked in the basic block. Otherwise returns abstractType.
+   * UNINITIALIZED_THIS or an UNINITIALIZED_KIND or FORWARD_UNINITIALIZED_KIND abstract type for
+   * one of the types on which a constructor is invoked in the basic block. Otherwise returns
+   * abstractType.
    */
   private int getInitializedType(final SymbolTable symbolTable, final int abstractType) {
     if (abstractType == UNINITIALIZED_THIS
-            || (abstractType & (DIM_MASK | KIND_MASK)) == UNINITIALIZED_KIND) {
+            || (abstractType & (DIM_MASK | KIND_MASK)) == UNINITIALIZED_KIND
+            || (abstractType & (DIM_MASK | KIND_MASK)) == FORWARD_UNINITIALIZED_KIND) {
       for (int i = 0; i < initializationCount; ++i) {
         int initializedType = initializations[i];
         int dim = initializedType & DIM_MASK;
@@ -676,7 +681,8 @@ class Frame {
    * @param argSymbol the Symbol operand of the instruction, if any.
    * @param symbolTable the type table to use to lookup and store type {@link Symbol}.
    */
-  void execute(final int opcode, final int arg, final @Nullable Symbol argSymbol, final @Nullable SymbolTable symbolTable) {
+  void execute(
+          final int opcode, final int arg, final Symbol argSymbol, final SymbolTable symbolTable) {
     // Abstract types popped from the stack or read from local variables.
     int abstractType1;
     int abstractType2;
@@ -1258,11 +1264,12 @@ class Frame {
    *
    * @param symbolTable the type table to use to lookup and store type {@link Symbol}.
    * @param sourceType the abstract type with which the abstract type array element must be merged.
-   * This type should be of {@link #CONSTANT_KIND}, {@link #REFERENCE_KIND} or {@link
-   * #UNINITIALIZED_KIND} kind, with positive or {@literal null} array dimensions.
+   * This type should be of {@link #CONSTANT_KIND}, {@link #REFERENCE_KIND}, {@link
+   * #UNINITIALIZED_KIND} or {@link #FORWARD_UNINITIALIZED_KIND} kind, with positive or
+   * {@literal null} array dimensions.
    * @param dstTypes an array of abstract types. These types should be of {@link #CONSTANT_KIND},
-   * {@link #REFERENCE_KIND} or {@link #UNINITIALIZED_KIND} kind, with positive or {@literal
-   * null} array dimensions.
+   * {@link #REFERENCE_KIND}, {@link #UNINITIALIZED_KIND} or {@link #FORWARD_UNINITIALIZED_KIND}
+   * kind, with positive or {@literal null} array dimensions.
    * @param dstIndex the index of the type that must be merged in dstTypes.
    * @return {@literal true} if the type array has been modified by this operation.
    */
@@ -1412,13 +1419,13 @@ class Frame {
    *
    * @param symbolTable the type table to use to lookup and store type {@link Symbol}.
    * @param abstractType an abstract type, restricted to {@link Frame#CONSTANT_KIND}, {@link
-   * Frame#REFERENCE_KIND} or {@link Frame#UNINITIALIZED_KIND} types.
+   * Frame#REFERENCE_KIND}, {@link Frame#UNINITIALIZED_KIND} or {@link
+   * Frame#FORWARD_UNINITIALIZED_KIND} types.
    * @param output where the abstract type must be put.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.4">JVMS
    * 4.7.4</a>
    */
-  static void putAbstractType(
-          final SymbolTable symbolTable, final int abstractType, final ByteVector output) {
+  static void putAbstractType(final SymbolTable symbolTable, final int abstractType, final ByteVector output) {
     int arrayDimensions = (abstractType & Frame.DIM_MASK) >> DIM_SHIFT;
     if (arrayDimensions == 0) {
       int typeValue = abstractType & VALUE_MASK;
@@ -1433,6 +1440,10 @@ class Frame {
           break;
         case UNINITIALIZED_KIND:
           output.putByte(ITEM_UNINITIALIZED).putShort((int) symbolTable.getType(typeValue).data);
+          break;
+        case FORWARD_UNINITIALIZED_KIND:
+          output.putByte(ITEM_UNINITIALIZED);
+          symbolTable.getForwardUninitializedLabel(typeValue).put(output);
           break;
         default:
           throw new AssertionError();

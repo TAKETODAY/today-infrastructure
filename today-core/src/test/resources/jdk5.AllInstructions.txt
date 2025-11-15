@@ -341,7 +341,7 @@ class jdk5/AllInstructions {
    L0
     LINENUMBER 82 L0
     LLOAD 0
-    LDC -1
+    LDC -1L
     LCMP
     IFGE L1
     ICONST_1
@@ -365,7 +365,7 @@ class jdk5/AllInstructions {
    L6
     LINENUMBER 84 L6
     LLOAD 4
-    LDC 2
+    LDC 2L
     LCMP
     IFGT L7
     ICONST_1
@@ -377,7 +377,7 @@ class jdk5/AllInstructions {
    L9
     LINENUMBER 85 L9
     LLOAD 6
-    LDC 3
+    LDC 3L
     LCMP
     IFLT L10
     ICONST_1
@@ -389,7 +389,7 @@ class jdk5/AllInstructions {
    L12
     LINENUMBER 86 L12
     LLOAD 8
-    LDC 4
+    LDC 4L
     LCMP
     IFNE L13
     ICONST_1
@@ -401,7 +401,7 @@ class jdk5/AllInstructions {
    L15
     LINENUMBER 87 L15
     LLOAD 10
-    LDC 5
+    LDC 5L
     LCMP
     IFEQ L16
     ICONST_1
@@ -415,12 +415,12 @@ class jdk5/AllInstructions {
     ILOAD 18
     IFEQ L19
     LLOAD 12
-    LDC 5
+    LDC 5L
     LADD
     GOTO L20
    L19
     LLOAD 12
-    LDC 5
+    LDC 5L
     LSUB
    L20
     LSTORE 0
@@ -429,12 +429,12 @@ class jdk5/AllInstructions {
     ILOAD 19
     IFEQ L22
     LLOAD 14
-    LDC 100
+    LDC 100L
     LMUL
     GOTO L23
    L22
     LLOAD 14
-    LDC 100
+    LDC 100L
     LDIV
    L23
     LSTORE 2
@@ -443,12 +443,12 @@ class jdk5/AllInstructions {
     ILOAD 20
     IFEQ L25
     LLOAD 16
-    LDC 10000
+    LDC 10000L
     LREM
     GOTO L26
    L25
     LLOAD 16
-    LDC -1
+    LDC -1L
     LXOR
    L26
     LSTORE 4
@@ -457,12 +457,12 @@ class jdk5/AllInstructions {
     ILOAD 21
     IFEQ L28
     LLOAD 0
-    LDC 1000000
+    LDC 1000000L
     LAND
     GOTO L29
    L28
     LLOAD 0
-    LDC 1000000
+    LDC 1000000L
     LOR
    L29
     LSTORE 6
@@ -560,7 +560,7 @@ class jdk5/AllInstructions {
    L0
     LINENUMBER 101 L0
     FLOAD 0
-    LDC -1.0
+    LDC -1.0F
     FCMPG
     IFGE L1
     ICONST_1
@@ -596,7 +596,7 @@ class jdk5/AllInstructions {
    L9
     LINENUMBER 104 L9
     FLOAD 3
-    LDC 3.0
+    LDC 3.0F
     FCMPL
     IFLT L10
     ICONST_1
@@ -608,7 +608,7 @@ class jdk5/AllInstructions {
    L12
     LINENUMBER 105 L12
     FLOAD 4
-    LDC 4.0
+    LDC 4.0F
     FCMPL
     IFNE L13
     ICONST_1
@@ -620,7 +620,7 @@ class jdk5/AllInstructions {
    L15
     LINENUMBER 106 L15
     FLOAD 5
-    LDC 5.0
+    LDC 5.0F
     FCMPL
     IFEQ L16
     ICONST_1
@@ -634,12 +634,12 @@ class jdk5/AllInstructions {
     ILOAD 9
     IFEQ L19
     FLOAD 6
-    LDC 5.0
+    LDC 5.0F
     FADD
     GOTO L20
    L19
     FLOAD 6
-    LDC 5.0
+    LDC 5.0F
     FSUB
    L20
     FSTORE 0
@@ -648,12 +648,12 @@ class jdk5/AllInstructions {
     ILOAD 10
     IFEQ L22
     FLOAD 7
-    LDC 100.0
+    LDC 100.0F
     FMUL
     GOTO L23
    L22
     FLOAD 7
-    LDC 100.0
+    LDC 100.0F
     FDIV
    L23
     FSTORE 1
@@ -662,7 +662,7 @@ class jdk5/AllInstructions {
     ILOAD 11
     IFEQ L25
     FLOAD 8
-    LDC 10000.0
+    LDC 10000.0F
     FREM
     GOTO L26
    L25
@@ -769,7 +769,7 @@ class jdk5/AllInstructions {
    L0
     LINENUMBER 129 L0
     DLOAD 0
-    LDC -1.0
+    LDC -1.0D
     DCMPG
     IFGE L1
     ICONST_1
@@ -793,7 +793,7 @@ class jdk5/AllInstructions {
    L6
     LINENUMBER 131 L6
     DLOAD 4
-    LDC 2.0
+    LDC 2.0D
     DCMPG
     IFGT L7
     ICONST_1
@@ -805,7 +805,7 @@ class jdk5/AllInstructions {
    L9
     LINENUMBER 132 L9
     DLOAD 6
-    LDC 3.0
+    LDC 3.0D
     DCMPL
     IFLT L10
     ICONST_1
@@ -817,7 +817,7 @@ class jdk5/AllInstructions {
    L12
     LINENUMBER 133 L12
     DLOAD 8
-    LDC 4.0
+    LDC 4.0D
     DCMPL
     IFNE L13
     ICONST_1
@@ -829,7 +829,7 @@ class jdk5/AllInstructions {
    L15
     LINENUMBER 134 L15
     DLOAD 10
-    LDC 5.0
+    LDC 5.0D
     DCMPL
     IFEQ L16
     ICONST_1
@@ -843,12 +843,12 @@ class jdk5/AllInstructions {
     ILOAD 18
     IFEQ L19
     DLOAD 12
-    LDC 5.0
+    LDC 5.0D
     DADD
     GOTO L20
    L19
     DLOAD 12
-    LDC 5.0
+    LDC 5.0D
     DSUB
    L20
     DSTORE 0
@@ -857,12 +857,12 @@ class jdk5/AllInstructions {
     ILOAD 19
     IFEQ L22
     DLOAD 14
-    LDC 100.0
+    LDC 100.0D
     DMUL
     GOTO L23
    L22
     DLOAD 14
-    LDC 100.0
+    LDC 100.0D
     DDIV
    L23
     DSTORE 2
@@ -871,7 +871,7 @@ class jdk5/AllInstructions {
     ILOAD 20
     IFEQ L25
     DLOAD 16
-    LDC 10000.0
+    LDC 10000.0D
     DREM
     GOTO L26
    L25

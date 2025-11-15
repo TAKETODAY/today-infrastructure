@@ -1199,7 +1199,7 @@ final class MethodWriter extends MethodVisitor {
   @Override
   public void visitLabel(final Label label) {
     // Resolve the forward references to this label, if any.
-    hasAsmInstructions |= label.resolve(code.data, code.length);
+    hasAsmInstructions |= label.resolve(code.data, stackMapTableEntries, code.length);
     // visitLabel starts a new basic block (except for debug only labels), so we need to update the
     // previous and current block references and list of successors.
     if ((label.flags & Label.FLAG_DEBUG_ONLY) != 0) {
@@ -1801,7 +1801,7 @@ final class MethodWriter extends MethodVisitor {
     if (compute == COMPUTE_ALL_FRAMES) {
       Label nextBasicBlock = new Label();
       nextBasicBlock.frame = new Frame(nextBasicBlock);
-      nextBasicBlock.resolve(code.data, code.length);
+      nextBasicBlock.resolve(code.data, stackMapTableEntries, code.length);
       lastBasicBlock.nextBasicBlock = nextBasicBlock;
       lastBasicBlock = nextBasicBlock;
       currentBasicBlock = null;
@@ -1971,9 +1971,8 @@ final class MethodWriter extends MethodVisitor {
               .putShort(symbolTable.addConstantClass((String) type).index);
     }
     else {
-      stackMapTableEntries
-              .putByte(Frame.ITEM_UNINITIALIZED)
-              .putShort(((Label) type).bytecodeOffset);
+      stackMapTableEntries.putByte(Frame.ITEM_UNINITIALIZED);
+      ((Label) type).put(stackMapTableEntries);
     }
   }
 

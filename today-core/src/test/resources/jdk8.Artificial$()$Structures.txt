@@ -53,4 +53,24 @@ public class jdk8/Artificial$()$Structures {
     ARETURN
     MAXSTACK = 1
     MAXLOCALS = 0
+
+  // access flags 0x9
+  public static frameWithForwardLabelReferences([Ljava/lang/String;)V
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    GOTO L0
+   L1
+   FRAME FULL [[Ljava/lang/String;] [java/io/PrintStream L0 L0]
+    INVOKESPECIAL jdk8/Artificial$()$Structures.<init> ()V
+    GOTO L2
+   L0
+   FRAME SAME1 java/io/PrintStream
+    NEW jdk8/Artificial$()$Structures
+    DUP
+    GOTO L1
+   L2
+   FRAME FULL [[Ljava/lang/String;] [java/io/PrintStream jdk8/Artificial$()$Structures]
+    INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/Object;)V
+    RETURN
+    MAXSTACK = 3
+    MAXLOCALS = 1
 }

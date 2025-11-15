@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.bytecode;
 
 import org.jspecify.annotations.Nullable;
@@ -25,6 +26,7 @@ import org.jspecify.annotations.Nullable;
  * as other labels, stack map frames, line numbers, etc.).
  *
  * @author Eric Bruneton
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
 public class Label {
 
@@ -72,6 +74,9 @@ public class Label {
   /** A flag indicating that the basic block corresponding to a label is the end of a subroutine. */
   static final int FLAG_SUBROUTINE_END = 64;
 
+  /** A flag indicating that this label has at least one associated line number. */
+  static final int FLAG_LINE_NUMBER = 128;
+
   /**
    * The number of elements to add to the {@link #otherLineNumbers} array when it needs to be
    * resized to store a new source line number.
@@ -105,6 +110,13 @@ public class Label {
   static final int FORWARD_REFERENCE_TYPE_WIDE = 0x20000000;
 
   /**
+   * The type of forward references stored in two bytes in the <i>stack map table</i>. This is the
+   * case of the labels of {@link Frame#ITEM_UNINITIALIZED} stack map frame elements, when the NEW
+   * instruction is after the &lt;init&gt; constructor call (in bytecode offset order).
+   */
+  static final int FORWARD_REFERENCE_TYPE_STACK_MAP = 0x30000000;
+
+  /**
    * The bit mask to extract the 'handle' of a forward reference to this label. The extracted handle
    * is the bytecode offset where the forward reference value is stored (using either 2 or 4 bytes,
    * as indicated by the {@link #FORWARD_REFERENCE_TYPE_MASK}).
@@ -136,9 +148,9 @@ public class Label {
   short flags;
 
   /**
-   * The source line number corresponding to this label, or 0. If there are several source line
-   * numbers corresponding to this label, the first one is stored in this field, and the remaining
-   * ones are stored in {@link #otherLineNumbers}.
+   * The source line number corresponding to this label, if {@link #FLAG_LINE_NUMBER} is set. If
+   * there are several source line numbers corresponding to this label, the first one is stored in
+   * this field, and the remaining ones are stored in {@link #otherLineNumbers}.
    */
   private short lineNumber;
 
@@ -277,7 +289,6 @@ public class Label {
   // -----------------------------------------------------------------------------------------------
 
   /** Constructs a new label. */
-  @SuppressWarnings("NullAway")
   public Label() {
     // Nothing to do.
   }
@@ -324,21 +335,19 @@ public class Label {
    * @param lineNumber a source line number (which should be strictly positive).
    */
   final void addLineNumber(final int lineNumber) {
-    if (this.lineNumber == 0) {
+    if ((flags & FLAG_LINE_NUMBER) == 0) {
+      flags |= FLAG_LINE_NUMBER;
       this.lineNumber = (short) lineNumber;
     }
     else {
-      int[] otherLineNumbers = this.otherLineNumbers;
       if (otherLineNumbers == null) {
         otherLineNumbers = new int[LINE_NUMBERS_CAPACITY_INCREMENT];
-        this.otherLineNumbers = otherLineNumbers;
       }
       int otherLineNumberIndex = ++otherLineNumbers[0];
       if (otherLineNumberIndex >= otherLineNumbers.length) {
         int[] newLineNumbers = new int[otherLineNumbers.length + LINE_NUMBERS_CAPACITY_INCREMENT];
         System.arraycopy(otherLineNumbers, 0, newLineNumbers, 0, otherLineNumbers.length);
-        otherLineNumbers = newLineNumbers; // update
-        this.otherLineNumbers = newLineNumbers;
+        otherLineNumbers = newLineNumbers;
       }
       otherLineNumbers[otherLineNumberIndex] = lineNumber;
     }
@@ -352,9 +361,8 @@ public class Label {
    */
   final void accept(final MethodVisitor methodVisitor, final boolean visitLineNumbers) {
     methodVisitor.visitLabel(this);
-    if (visitLineNumbers && lineNumber != 0) {
+    if (visitLineNumbers && (flags & FLAG_LINE_NUMBER) != 0) {
       methodVisitor.visitLineNumber(lineNumber & 0xFFFF, this);
-      int[] otherLineNumbers = this.otherLineNumbers;
       if (otherLineNumbers != null) {
         for (int i = 1; i <= otherLineNumbers[0]; ++i) {
           methodVisitor.visitLineNumber(otherLineNumbers[i], this);
@@ -378,7 +386,8 @@ public class Label {
    * reference to be appended.
    * @param wideReference whether the reference must be stored in 4 bytes (instead of 2 bytes).
    */
-  final void put(final ByteVector code, final int sourceInsnBytecodeOffset, final boolean wideReference) {
+  final void put(
+          final ByteVector code, final int sourceInsnBytecodeOffset, final boolean wideReference) {
     if ((flags & FLAG_RESOLVED) == 0) {
       if (wideReference) {
         addForwardReference(sourceInsnBytecodeOffset, FORWARD_REFERENCE_TYPE_WIDE, code.length);
@@ -400,6 +409,20 @@ public class Label {
   }
 
   /**
+   * Puts a reference to this label in the <i>stack map table</i> of a method. If the bytecode
+   * offset of the label is known, it is written directly. Otherwise, a null relative offset is
+   * written and a new forward reference is declared for this label.
+   *
+   * @param stackMapTableEntries the stack map table where the label offset must be added.
+   */
+  final void put(final ByteVector stackMapTableEntries) {
+    if ((flags & FLAG_RESOLVED) == 0) {
+      addForwardReference(0, FORWARD_REFERENCE_TYPE_STACK_MAP, stackMapTableEntries.length);
+    }
+    stackMapTableEntries.putShort(bytecodeOffset);
+  }
+
+  /**
    * Adds a forward reference to this label. This method must be called only for a true forward
    * reference, i.e. only if this label is not resolved yet. For backward references, the relative
    * bytecode offset of the reference can be, and must be, computed and stored directly.
@@ -411,17 +434,15 @@ public class Label {
    * @param referenceHandle the offset in the bytecode where the forward reference value must be
    * stored.
    */
-  private void addForwardReference(final int sourceInsnBytecodeOffset, final int referenceType, final int referenceHandle) {
-    int[] forwardReferences = this.forwardReferences;
+  private void addForwardReference(
+          final int sourceInsnBytecodeOffset, final int referenceType, final int referenceHandle) {
     if (forwardReferences == null) {
       forwardReferences = new int[FORWARD_REFERENCES_CAPACITY_INCREMENT];
-      this.forwardReferences = forwardReferences;
     }
     int lastElementIndex = forwardReferences[0];
     if (lastElementIndex + 2 >= forwardReferences.length) {
       int[] newValues = new int[forwardReferences.length + FORWARD_REFERENCES_CAPACITY_INCREMENT];
       System.arraycopy(forwardReferences, 0, newValues, 0, forwardReferences.length);
-      this.forwardReferences = newValues;
       forwardReferences = newValues;
     }
     forwardReferences[++lastElementIndex] = sourceInsnBytecodeOffset;
@@ -433,9 +454,12 @@ public class Label {
    * Sets the bytecode offset of this label to the given value and resolves the forward references
    * to this label, if any. This method must be called when this label is added to the bytecode of
    * the method, i.e. when its bytecode offset becomes known. This method fills in the blanks that
-   * where left in the bytecode by each forward reference previously added to this label.
+   * where left in the bytecode (and optionally in the stack map table) by each forward reference
+   * previously added to this label.
    *
    * @param code the bytecode of the method.
+   * @param stackMapTableEntries the 'entries' array of the StackMapTable code attribute of the
+   * method. Maybe {@literal null}.
    * @param bytecodeOffset the bytecode offset of this label.
    * @return {@literal true} if a blank that was left for this label was too small to store the
    * offset. In such a case the corresponding jump instruction is replaced with an equivalent
@@ -443,7 +467,7 @@ public class Label {
    * instructions are later replaced with standard bytecode instructions with wider offsets (4
    * bytes instead of 2), in ClassReader.
    */
-  final boolean resolve(final byte[] code, final int bytecodeOffset) {
+  final boolean resolve(final byte[] code, final ByteVector stackMapTableEntries, final int bytecodeOffset) {
     this.flags |= FLAG_RESOLVED;
     this.bytecodeOffset = bytecodeOffset;
     int[] forwardReferences = this.forwardReferences;
@@ -476,11 +500,15 @@ public class Label {
         code[handle++] = (byte) (relativeOffset >>> 8);
         code[handle] = (byte) relativeOffset;
       }
-      else {
+      else if ((reference & FORWARD_REFERENCE_TYPE_MASK) == FORWARD_REFERENCE_TYPE_WIDE) {
         code[handle++] = (byte) (relativeOffset >>> 24);
         code[handle++] = (byte) (relativeOffset >>> 16);
         code[handle++] = (byte) (relativeOffset >>> 8);
         code[handle] = (byte) relativeOffset;
+      }
+      else {
+        stackMapTableEntries.data[handle++] = (byte) (bytecodeOffset >>> 8);
+        stackMapTableEntries.data[handle] = (byte) bytecodeOffset;
       }
     }
     return hasAsmInstructions;
@@ -502,7 +530,6 @@ public class Label {
    * @param subroutineId the id of the subroutine starting with the basic block corresponding to
    * this label.
    */
-  @SuppressWarnings("NullAway")
   final void markSubroutine(final short subroutineId) {
     // Data flow algorithm: put this basic block in a list of blocks to process (which are blocks
     // belonging to subroutine subroutineId) and, while there are blocks to process, remove one from
@@ -538,7 +565,6 @@ public class Label {
    * @param subroutineCaller a basic block that ends with a jsr to the basic block corresponding to
    * this label. This label is supposed to correspond to the start of a subroutine.
    */
-  @SuppressWarnings("NullAway")
   final void addSubroutineRetSuccessors(final Label subroutineCaller) {
     // Data flow algorithm: put this basic block in a list blocks to process (which are blocks
     // belonging to a subroutine starting with this label) and, while there are blocks to process,
