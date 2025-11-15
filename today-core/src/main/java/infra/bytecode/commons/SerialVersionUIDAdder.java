@@ -402,7 +402,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
   // DontCheck(AbbreviationAsWordInName): can't be renamed (for backward binary compatibility).
   protected byte[] computeSHADigest(final byte[] value) {
     try {
-      return MessageDigest.getInstance("SHA").digest(value);
+      return MessageDigest.getInstance("SHA-1").digest(value);
     }
     catch (NoSuchAlgorithmException e) {
       throw new UnsupportedOperationException(e);
