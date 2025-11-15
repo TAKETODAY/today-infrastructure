@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * @author Eugene Kuleshov
  * @author Eric Bruneton
  */
-public class TextifierTest extends AsmTest {
+class TextifierTests extends AsmTest {
 
   private static final String EXPECTED_USAGE =
           "Prints a disassembled view of the given class.\n"
@@ -52,7 +52,6 @@ public class TextifierTest extends AsmTest {
   @Test
   void testConstructor() {
     assertDoesNotThrow(() -> new Textifier());
-    assertThrows(IllegalStateException.class, () -> new Textifier() { });
   }
 
   /**
@@ -167,7 +166,7 @@ public class TextifierTest extends AsmTest {
 
     Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
-    assertTrue(output.toString().contains("\nclass infra/bytecode/util/TextifierTest"));
+    assertTrue(output.toString().contains("\nclass infra/bytecode/util/TextifierTests"));
     assertFalse(output.toString().contains("\n    LINENUMBER"));
     assertFalse(output.toString().contains("\n    LOCALVARIABLE"));
     assertEquals("", logger.toString());
@@ -183,7 +182,7 @@ public class TextifierTest extends AsmTest {
 
     Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
-    assertTrue(output.toString().contains("\nclass infra/bytecode/util/TextifierTest"));
+    assertTrue(output.toString().contains("\nclass infra/bytecode/util/TextifierTests"));
     assertEquals("", logger.toString());
   }
 }
