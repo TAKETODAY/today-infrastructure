@@ -49,7 +49,7 @@ dependencies {
   testImplementation("org.skyscreamer:jsonassert")
   testImplementation("com.squareup.okhttp3:mockwebserver")
   testImplementation("com.fasterxml.jackson.core:jackson-databind")
-  testImplementation 'org.codehaus.janino:janino:3.1.6'
+  testImplementation 'org.codehaus.janino:janino'
   testImplementation("ch.qos.logback:logback-classic")
   testImplementation 'org.apache.logging.log4j:log4j-core'
 

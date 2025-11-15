@@ -36,6 +36,7 @@ import infra.bytecode.TypeReference;
  * A {@link Printer} that prints the ASM code to generate the classes if visits.
  *
  * @author Eric Bruneton
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
 // DontCheck(AbbreviationAsWordInName): can't be renamed (for backward binary compatibility).
 public class ASMifier extends Printer {
@@ -65,44 +66,24 @@ public class ASMifier extends Printer {
   private static final String NEW_OBJECT_ARRAY = ", new Object[] {";
   private static final String VISIT_END = ".visitEnd();\n";
 
-  private static final List<String> FRAME_TYPES =
-          List.of("Opcodes.TOP", "Opcodes.INTEGER",
-                  "Opcodes.FLOAT", "Opcodes.DOUBLE",
-                  "Opcodes.LONG", "Opcodes.NULL",
-                  "Opcodes.UNINITIALIZED_THIS");
+  private static final List<String> FRAME_TYPES = List.of("Opcodes.TOP", "Opcodes.INTEGER", "Opcodes.FLOAT", "Opcodes.DOUBLE",
+          "Opcodes.LONG", "Opcodes.NULL", "Opcodes.UNINITIALIZED_THIS");
 
-  private static final Map<Integer, String> CLASS_VERSIONS;
-
-  static {
-    CLASS_VERSIONS = Map.ofEntries(
-            Map.entry(Opcodes.V1_1, "V1_1"),
-            Map.entry(Opcodes.V1_2, "V1_2"),
-            Map.entry(Opcodes.V1_3, "V1_3"),
-            Map.entry(Opcodes.V1_4, "V1_4"),
-            Map.entry(Opcodes.V1_5, "V1_5"),
-            Map.entry(Opcodes.V1_6, "V1_6"),
-            Map.entry(Opcodes.V1_7, "V1_7"),
-            Map.entry(Opcodes.V1_8, "V1_8"),
-            Map.entry(Opcodes.V9, "V9"),
-            Map.entry(Opcodes.V10, "V10"),
-            Map.entry(Opcodes.V11, "V11"),
-            Map.entry(Opcodes.V12, "V12"),
-            Map.entry(Opcodes.V13, "V13"),
-            Map.entry(Opcodes.V14, "V14"),
-            Map.entry(Opcodes.V15, "V15"),
-            Map.entry(Opcodes.V16, "V16"),
-            Map.entry(Opcodes.V17, "V17"),
-            Map.entry(Opcodes.V18, "V18"),
-            Map.entry(Opcodes.V19, "V19"),
-            Map.entry(Opcodes.V20, "V20"),
-            Map.entry(Opcodes.V21, "V21"),
-            Map.entry(Opcodes.V22, "V22"),
-            Map.entry(Opcodes.V23, "V23"),
-            Map.entry(Opcodes.V24, "V24"),
-            Map.entry(Opcodes.V25, "V25"),
-            Map.entry(Opcodes.V26, "V26")
-    );
-  }
+  private static final Map<Integer, String> CLASS_VERSIONS = Map.ofEntries(
+          Map.entry(Opcodes.V1_1, "V1_1"), Map.entry(Opcodes.V1_2, "V1_2"),
+          Map.entry(Opcodes.V1_3, "V1_3"), Map.entry(Opcodes.V1_4, "V1_4"),
+          Map.entry(Opcodes.V1_5, "V1_5"), Map.entry(Opcodes.V1_6, "V1_6"),
+          Map.entry(Opcodes.V1_7, "V1_7"), Map.entry(Opcodes.V1_8, "V1_8"),
+          Map.entry(Opcodes.V9, "V9"), Map.entry(Opcodes.V10, "V10"),
+          Map.entry(Opcodes.V11, "V11"), Map.entry(Opcodes.V12, "V12"),
+          Map.entry(Opcodes.V13, "V13"), Map.entry(Opcodes.V14, "V14"),
+          Map.entry(Opcodes.V15, "V15"), Map.entry(Opcodes.V16, "V16"),
+          Map.entry(Opcodes.V17, "V17"), Map.entry(Opcodes.V18, "V18"),
+          Map.entry(Opcodes.V19, "V19"), Map.entry(Opcodes.V20, "V20"),
+          Map.entry(Opcodes.V21, "V21"), Map.entry(Opcodes.V22, "V22"),
+          Map.entry(Opcodes.V23, "V23"), Map.entry(Opcodes.V24, "V24"),
+          Map.entry(Opcodes.V25, "V25"), Map.entry(Opcodes.V26, "V26")
+  );
 
   /** The name of the visitor variable in the produced code. */
   protected final String name;
@@ -114,7 +95,10 @@ public class ASMifier extends Printer {
   protected Map<Label, String> labelNames;
 
   /**
-   * Constructs a new {@link ASMifier}.
+   * Constructs a new {@link ASMifier}. <i>Subclasses must not use this constructor</i>. Instead,
+   * they must use the {@link #ASMifier(String, int)} version.
+   *
+   * @throws IllegalStateException If a subclass calls this constructor.
    */
   public ASMifier() {
     this("classWriter", 0);
@@ -252,6 +236,7 @@ public class ASMifier extends Printer {
   @Override
   public Printer visitModule(final String name, final int flags, final String version) {
     stringBuilder.setLength(0);
+    stringBuilder.append("{\n");
     stringBuilder.append("ModuleVisitor moduleVisitor = classWriter.visitModule(");
     appendConstant(name);
     stringBuilder.append(", ");
@@ -692,7 +677,6 @@ public class ASMifier extends Printer {
 
   @Override
   public ASMifier visitAnnotableParameterCount(final int parameterCount, final boolean visible) {
-
     stringBuilder.setLength(0);
     stringBuilder
             .append(name)
@@ -708,8 +692,6 @@ public class ASMifier extends Printer {
   @Override
   public ASMifier visitParameterAnnotation(
           final int parameter, final String descriptor, final boolean visible) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder
             .append("{\n")
@@ -744,11 +726,10 @@ public class ASMifier extends Printer {
           final Object[] local,
           final int numStack,
           final Object[] stack) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     switch (type) {
-      case Opcodes.F_NEW, Opcodes.F_FULL -> {
+      case Opcodes.F_NEW:
+      case Opcodes.F_FULL:
         declareFrameTypes(numLocal, local);
         declareFrameTypes(numStack, stack);
         if (type == Opcodes.F_NEW) {
@@ -762,8 +743,8 @@ public class ASMifier extends Printer {
         stringBuilder.append("}, ").append(numStack).append(NEW_OBJECT_ARRAY);
         appendFrameTypes(numStack, stack);
         stringBuilder.append('}');
-      }
-      case Opcodes.F_APPEND -> {
+        break;
+      case Opcodes.F_APPEND:
         declareFrameTypes(numLocal, local);
         stringBuilder
                 .append(name)
@@ -772,22 +753,27 @@ public class ASMifier extends Printer {
                 .append(NEW_OBJECT_ARRAY);
         appendFrameTypes(numLocal, local);
         stringBuilder.append("}, 0, null");
-      }
-      case Opcodes.F_CHOP -> stringBuilder
-              .append(name)
-              .append(".visitFrame(Opcodes.F_CHOP,")
-              .append(numLocal)
-              .append(", null, 0, null");
-      case Opcodes.F_SAME -> stringBuilder.append(name).append(".visitFrame(Opcodes.F_SAME, 0, null, 0, null");
-      case Opcodes.F_SAME1 -> {
+        break;
+      case Opcodes.F_CHOP:
+        stringBuilder
+                .append(name)
+                .append(".visitFrame(Opcodes.F_CHOP,")
+                .append(numLocal)
+                .append(", null, 0, null");
+        break;
+      case Opcodes.F_SAME:
+        stringBuilder.append(name).append(".visitFrame(Opcodes.F_SAME, 0, null, 0, null");
+        break;
+      case Opcodes.F_SAME1:
         declareFrameTypes(1, stack);
         stringBuilder
                 .append(name)
                 .append(".visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[] {");
         appendFrameTypes(1, stack);
         stringBuilder.append('}');
-      }
-      default -> throw new IllegalArgumentException();
+        break;
+      default:
+        throw new IllegalArgumentException();
     }
     stringBuilder.append(");\n");
     text.add(stringBuilder.toString());
@@ -795,8 +781,6 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitInsn(final int opcode) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(name).append(".visitInsn(").append(OPCODES[opcode]).append(");\n");
     text.add(stringBuilder.toString());
@@ -804,8 +788,6 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitIntInsn(final int opcode, final int operand) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder
             .append(name)
@@ -818,24 +800,20 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitVarInsn(final int opcode, final int var) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
+  public void visitVarInsn(final int opcode, final int varIndex) {
     stringBuilder.setLength(0);
     stringBuilder
             .append(name)
             .append(".visitVarInsn(")
             .append(OPCODES[opcode])
             .append(", ")
-            .append(var)
+            .append(varIndex)
             .append(");\n");
     text.add(stringBuilder.toString());
   }
 
   @Override
   public void visitTypeInsn(final int opcode, final String type) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(name).append(".visitTypeInsn(").append(OPCODES[opcode]).append(", ");
     appendConstant(type);
@@ -846,8 +824,6 @@ public class ASMifier extends Printer {
   @Override
   public void visitFieldInsn(
           final int opcode, final String owner, final String name, final String descriptor) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(this.name).append(".visitFieldInsn(").append(OPCODES[opcode]).append(", ");
     appendConstant(owner);
@@ -937,14 +913,12 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitIincInsn(final int var, final int increment) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
+  public void visitIincInsn(final int varIndex, final int increment) {
     stringBuilder.setLength(0);
     stringBuilder
             .append(name)
             .append(".visitIincInsn(")
-            .append(var)
+            .append(varIndex)
             .append(", ")
             .append(increment)
             .append(");\n");
@@ -954,8 +928,6 @@ public class ASMifier extends Printer {
   @Override
   public void visitTableSwitchInsn(
           final int min, final int max, final Label dflt, final Label... labels) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     for (Label label : labels) {
       declareLabel(label);
@@ -981,8 +953,6 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitLookupSwitchInsn(final Label dflt, final int[] keys, final Label[] labels) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     for (Label label : labels) {
       declareLabel(label);
@@ -1006,8 +976,6 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitMultiANewArrayInsn(final String descriptor, final int numDimensions) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(name).append(".visitMultiANewArrayInsn(");
     appendConstant(descriptor);
@@ -1024,8 +992,6 @@ public class ASMifier extends Printer {
   @Override
   public void visitTryCatchBlock(
           final Label start, final Label end, final Label handler, final String type) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     declareLabel(start);
     declareLabel(end);
@@ -1056,8 +1022,6 @@ public class ASMifier extends Printer {
           final Label start,
           final Label end,
           final int index) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(this.name).append(".visitLocalVariable(");
     appendConstant(name);
@@ -1082,8 +1046,6 @@ public class ASMifier extends Printer {
           final int[] index,
           final String descriptor,
           final boolean visible) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder
             .append("{\n")
@@ -1123,8 +1085,6 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitLineNumber(final int line, final Label start) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(name).append(".visitLineNumber(").append(line).append(", ");
     appendLabel(start);
@@ -1134,8 +1094,6 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitMaxs(final int maxStack, final int maxLocals) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder
             .append(name)
@@ -1216,16 +1174,14 @@ public class ASMifier extends Printer {
           final TypePath typePath,
           final String descriptor,
           final boolean visible) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder
             .append("{\n")
             .append(ANNOTATION_VISITOR0)
             .append(name)
-            .append(".")
+            .append('.')
             .append(method)
-            .append("(")
+            .append('(')
             .append(typeRef);
     if (typePath == null) {
       stringBuilder.append(", null, ");
@@ -1248,8 +1204,6 @@ public class ASMifier extends Printer {
    * @param attribute an attribute.
    */
   public void visitAttribute(final Attribute attribute) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append("// ATTRIBUTE ").append(attribute.type).append('\n');
     if (attribute instanceof ASMifierSupport) {
@@ -1294,7 +1248,6 @@ public class ASMifier extends Printer {
    * @param accessFlags some access flags.
    */
   private void appendAccessFlags(final int accessFlags) {
-    StringBuilder stringBuilder = this.stringBuilder;
     boolean isEmpty = true;
     if ((accessFlags & Opcodes.ACC_PUBLIC) != 0) {
       stringBuilder.append("ACC_PUBLIC");
@@ -1312,12 +1265,7 @@ public class ASMifier extends Printer {
       if (!isEmpty) {
         stringBuilder.append(" | ");
       }
-      if ((accessFlags & ACCESS_MODULE) == 0) {
-        stringBuilder.append("ACC_FINAL");
-      }
-      else {
-        stringBuilder.append("ACC_TRANSITIVE");
-      }
+      stringBuilder.append("ACC_FINAL");
       isEmpty = false;
     }
     if ((accessFlags & Opcodes.ACC_STATIC) != 0) {
@@ -1476,20 +1424,22 @@ public class ASMifier extends Printer {
       appendString(stringBuilder, (String) value);
     }
     else if (value instanceof Type) {
-      stringBuilder.append("Type.getType(\"");
+      stringBuilder.append("Type.forDescriptor(\"");
       stringBuilder.append(((Type) value).getDescriptor());
       stringBuilder.append("\")");
     }
-    else if (value instanceof Handle handle) {
+    else if (value instanceof Handle) {
       stringBuilder.append("new Handle(");
+      Handle handle = (Handle) value;
       stringBuilder.append("Opcodes.").append(HANDLE_TAG[handle.getTag()]).append(", \"");
       stringBuilder.append(handle.getOwner()).append(COMMA);
       stringBuilder.append(handle.getName()).append(COMMA);
       stringBuilder.append(handle.getDesc()).append("\", ");
       stringBuilder.append(handle.isInterface()).append(')');
     }
-    else if (value instanceof ConstantDynamic constantDynamic) {
+    else if (value instanceof ConstantDynamic) {
       stringBuilder.append("new ConstantDynamic(\"");
+      ConstantDynamic constantDynamic = (ConstantDynamic) value;
       stringBuilder.append(constantDynamic.getName()).append(COMMA);
       stringBuilder.append(constantDynamic.getDescriptor()).append("\", ");
       appendConstant(constantDynamic.getBootstrapMethod());
@@ -1530,56 +1480,64 @@ public class ASMifier extends Printer {
     else if (value instanceof Double) {
       stringBuilder.append("Double.valueOf(\"").append(value).append("\")");
     }
-    else if (value instanceof byte[] byteArray) {
+    else if (value instanceof byte[]) {
+      byte[] byteArray = (byte[]) value;
       stringBuilder.append("new byte[] {");
       for (int i = 0; i < byteArray.length; i++) {
         stringBuilder.append(i == 0 ? "" : ",").append(byteArray[i]);
       }
       stringBuilder.append('}');
     }
-    else if (value instanceof boolean[] booleanArray) {
+    else if (value instanceof boolean[]) {
+      boolean[] booleanArray = (boolean[]) value;
       stringBuilder.append("new boolean[] {");
       for (int i = 0; i < booleanArray.length; i++) {
         stringBuilder.append(i == 0 ? "" : ",").append(booleanArray[i]);
       }
       stringBuilder.append('}');
     }
-    else if (value instanceof short[] shortArray) {
+    else if (value instanceof short[]) {
+      short[] shortArray = (short[]) value;
       stringBuilder.append("new short[] {");
       for (int i = 0; i < shortArray.length; i++) {
         stringBuilder.append(i == 0 ? "" : ",").append("(short)").append(shortArray[i]);
       }
       stringBuilder.append('}');
     }
-    else if (value instanceof char[] charArray) {
+    else if (value instanceof char[]) {
+      char[] charArray = (char[]) value;
       stringBuilder.append("new char[] {");
       for (int i = 0; i < charArray.length; i++) {
         stringBuilder.append(i == 0 ? "" : ",").append("(char)").append((int) charArray[i]);
       }
       stringBuilder.append('}');
     }
-    else if (value instanceof int[] intArray) {
+    else if (value instanceof int[]) {
+      int[] intArray = (int[]) value;
       stringBuilder.append("new int[] {");
       for (int i = 0; i < intArray.length; i++) {
         stringBuilder.append(i == 0 ? "" : ",").append(intArray[i]);
       }
       stringBuilder.append('}');
     }
-    else if (value instanceof long[] longArray) {
+    else if (value instanceof long[]) {
+      long[] longArray = (long[]) value;
       stringBuilder.append("new long[] {");
       for (int i = 0; i < longArray.length; i++) {
         stringBuilder.append(i == 0 ? "" : ",").append(longArray[i]).append('L');
       }
       stringBuilder.append('}');
     }
-    else if (value instanceof float[] floatArray) {
+    else if (value instanceof float[]) {
+      float[] floatArray = (float[]) value;
       stringBuilder.append("new float[] {");
       for (int i = 0; i < floatArray.length; i++) {
         stringBuilder.append(i == 0 ? "" : ",").append(floatArray[i]).append('f');
       }
       stringBuilder.append('}');
     }
-    else if (value instanceof double[] doubleArray) {
+    else if (value instanceof double[]) {
+      double[] doubleArray = (double[]) value;
       stringBuilder.append("new double[] {");
       for (int i = 0; i < doubleArray.length; i++) {
         stringBuilder.append(i == 0 ? "" : ",").append(doubleArray[i]).append('d');
@@ -1619,7 +1577,7 @@ public class ASMifier extends Printer {
         appendConstant(frameTypes[i]);
       }
       else if (frameTypes[i] instanceof Integer) {
-        stringBuilder.append(FRAME_TYPES.get((Integer) frameTypes[i]));
+        stringBuilder.append(FRAME_TYPES.get(((Integer) frameTypes[i]).intValue()));
       }
       else {
         appendLabel((Label) frameTypes[i]);

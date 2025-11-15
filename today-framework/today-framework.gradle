@@ -33,7 +33,6 @@ dependencies {
   optional 'org.javamoney.moneta:moneta-core'
   optional 'org.glassfish:jakarta.el'
   optional 'org.awaitility:awaitility'
-  optional 'org.codehaus.janino:janino:3.1.6'
   optional 'jakarta.json.bind:jakarta.json.bind-api'
   optional 'jakarta.resource:jakarta.resource-api'
   optional 'org.aspectj:aspectjweaver'

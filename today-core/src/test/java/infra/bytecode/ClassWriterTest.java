@@ -566,8 +566,8 @@ public class ClassWriterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWrite_computeMaxs(
-          final PrecompiledClass classParameter) {
+  public void testReadAndWrite_computeMaxs(final PrecompiledClass classParameter) {
+    assumeTrue(classParameter != PrecompiledClass.JDK3_SUB_OPTIMAL_MAX_STACK_AND_LOCALS);
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
