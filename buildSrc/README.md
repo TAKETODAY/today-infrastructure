@@ -35,7 +35,27 @@ current working version with. You can generate the reports for all modules or a 
 ```      
 
 The reports are located under `build/reports/api-diff/$OLDVERSION_to_$NEWVERSION/`.
-                                                                                       
+
+### MultiRelease Jar
+
+The `infra.building.multiReleaseJar` plugin configures the project with MultiRelease JAR support.
+It creates a new SourceSet and dedicated tasks for each Java variant considered.
+This can be configured with the DSL, by setting a list of Java variants to configure:
+
+```groovy
+plugins {
+    id 'infra.building.multiReleaseJar'
+}
+
+multiRelease {
+	releaseVersions 21, 24
+}
+```
+
+Note, Java classes will be compiled with the toolchain pre-configured by the project, assuming that its
+Java language version is equal or higher than all variants we consider. Each compilation task will only
+set the "-release" compilation option accordingly to produce the expected bytecode version.
+
 
 ### RuntimeHints Java Agent
 

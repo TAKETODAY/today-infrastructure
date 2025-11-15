@@ -154,7 +154,7 @@ public class ConditionEvaluator {
 
   @SuppressWarnings("unchecked")
   private List<String[]> getConditionClasses(AnnotatedTypeMetadata metadata) {
-    MultiValueMap<String, Object> attributes = metadata.getAllAnnotationAttributes(Conditional.class, true);
+    MultiValueMap<String, @Nullable Object> attributes = metadata.getAllAnnotationAttributes(Conditional.class, true);
     Object values = (attributes != null ? attributes.get("value") : null);
     return (List<String[]>) (values != null ? values : Collections.emptyList());
   }

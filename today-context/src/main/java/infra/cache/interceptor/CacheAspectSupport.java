@@ -388,7 +388,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   }
 
   @Nullable
-  protected Object execute(CacheOperationInvoker invoker, Object target, Method method, Object[] args) {
+  protected Object execute(CacheOperationInvoker invoker, Object target, Method method, @Nullable Object[] args) {
     // Check whether aspect is enabled (to cope with cases where the AJ is pulled in automatically)
     if (this.initialized) {
       Class<?> targetClass = AopProxyUtils.ultimateTargetClass(target);

@@ -17,6 +17,7 @@
 
 package infra.gradle.testkit;
 
+import org.gradle.api.JavaVersion;
 import org.gradle.util.GradleVersion;
 
 import java.util.Arrays;
@@ -35,11 +36,23 @@ public final class GradleVersions {
   }
 
   public static List<String> allCompatible() {
-    return Arrays.asList(GradleVersion.current().getVersion(), "9.0.0", "8.14.3", "8.13");
+    if (isJavaVersion(JavaVersion.VERSION_25)) {
+      return Arrays.asList("9.0.0", GradleVersion.current().getVersion());
+    }
+    return Arrays.asList("8.14.3", "9.0.0", GradleVersion.current().getVersion());
   }
 
   public static String minimumCompatible() {
     return allCompatible().get(0);
+  }
+
+  public static String maximumCompatible() {
+    List<String> versions = allCompatible();
+    return versions.get(versions.size() - 1);
+  }
+
+  private static boolean isJavaVersion(JavaVersion version) {
+    return JavaVersion.current().isCompatibleWith(version);
   }
 
 }

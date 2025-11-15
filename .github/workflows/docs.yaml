@@ -26,8 +26,8 @@ jobs:
       - name: Set up JDK 17 🔧
         uses: actions/setup-java@v4.2.1
         with:
-          java-version: 17
-          distribution: adopt
+          java-version: 25
+          distribution: liberica
 
       - name: Setup Gradle 🔧
         uses: gradle/gradle-build-action@v3.1.0

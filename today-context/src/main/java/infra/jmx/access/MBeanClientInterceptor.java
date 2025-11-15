@@ -526,7 +526,7 @@ public class MBeanClientInterceptor
    * @param args the invocation arguments
    * @return the value returned by the method invocation.
    */
-  private Object invokeOperation(Method method, Object[] args) throws JMException, IOException {
+  private Object invokeOperation(Method method, @Nullable Object[] args) throws JMException, IOException {
     Assert.state(this.serverToUse != null, "No MBeanServerConnection available");
 
     MethodCacheKey key = new MethodCacheKey(method.getName(), method.getParameterTypes());
