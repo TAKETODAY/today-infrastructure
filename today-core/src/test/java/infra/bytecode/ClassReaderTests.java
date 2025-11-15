@@ -68,7 +68,7 @@ class ClassReaderTests extends AsmTest implements Opcodes {
   public void testGetAccess() throws Exception {
     String name = getClass().getName();
 
-    assertEquals(ACC_PUBLIC | ACC_SUPER, new ClassReader(name).getAccess());
+    assertEquals(ACC_SUPER, new ClassReader(name).getAccess());
   }
 
   @Test
