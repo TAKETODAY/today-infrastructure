@@ -35,6 +35,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import infra.lang.Assert;
 
@@ -290,7 +292,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     return doTask(key, new Task<V>(TaskOption.RESTRUCTURE_BEFORE, TaskOption.RESIZE) {
       @Override
       @Nullable
-      protected V execute(@Nullable Reference<K, V> ref, @Nullable Entry<K, V> entry, @Nullable Entries entries) {
+      protected V execute(@Nullable Reference<K, V> ref, @Nullable Entry<K, V> entry, @Nullable Entries<V> entries) {
         if (entry != null) {
           V oldValue = entry.getValue();
           if (overwriteExisting) {
@@ -366,6 +368,116 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
           return oldValue;
         }
         return null;
+      }
+    });
+  }
+
+  @Override
+  public @Nullable V computeIfAbsent(@Nullable K key, Function<? super @Nullable K, ? extends @Nullable V> mappingFunction) {
+    return doTask(key, new Task<V>(TaskOption.RESTRUCTURE_BEFORE, TaskOption.RESIZE) {
+
+      @Override
+      protected @Nullable V execute(@Nullable Reference<K, V> ref, @Nullable Entry<K, V> entry, @Nullable Entries<V> entries) {
+        if (entry != null) {
+          return entry.getValue();
+        }
+        V value = mappingFunction.apply(key);
+        // Add entry only if not null
+        if (value != null) {
+          Assert.state(entries != null, "No entries segment");
+          entries.add(value);
+        }
+        return value;
+      }
+    });
+  }
+
+  @Override
+  public @Nullable V computeIfPresent(@Nullable K key, BiFunction<? super @Nullable K, ? super @Nullable V, ? extends @Nullable V> remappingFunction) {
+    return doTask(key, new Task<V>(TaskOption.RESTRUCTURE_BEFORE, TaskOption.RESIZE) {
+
+      @Override
+      protected @Nullable V execute(@Nullable Reference<K, V> ref, @Nullable Entry<K, V> entry, @Nullable Entries<V> entries) {
+        if (entry != null) {
+          V oldValue = entry.getValue();
+          V value = remappingFunction.apply(key, oldValue);
+          if (value != null) {
+            // Replace entry
+            entry.setValue(value);
+            return value;
+          }
+          else {
+            // Remove entry
+            if (ref != null) {
+              ref.release();
+            }
+          }
+        }
+        return null;
+      }
+    });
+  }
+
+  @Override
+  public @Nullable V compute(@Nullable K key, BiFunction<? super @Nullable K, ? super @Nullable V, ? extends @Nullable V> remappingFunction) {
+    return doTask(key, new Task<V>(TaskOption.RESTRUCTURE_BEFORE, TaskOption.RESIZE) {
+      @Override
+      protected @Nullable V execute(@Nullable Reference<K, V> ref, @Nullable Entry<K, V> entry, @Nullable Entries<V> entries) {
+        V oldValue = null;
+        if (entry != null) {
+          oldValue = entry.getValue();
+        }
+        V value = remappingFunction.apply(key, oldValue);
+        if (value != null) {
+          if (entry != null) {
+            // Replace entry
+            entry.setValue(value);
+          }
+          else {
+            // Add entry
+            Assert.state(entries != null, "No entries segment");
+            entries.add(value);
+          }
+          return value;
+        }
+        else {
+          // Remove entry
+          if (ref != null) {
+            ref.release();
+          }
+        }
+        return null;
+      }
+    });
+  }
+
+  @Override
+  public @Nullable V merge(@Nullable K key, @Nullable V value, BiFunction<? super @Nullable V, ? super @Nullable V, ? extends @Nullable V> remappingFunction) {
+    return doTask(key, new Task<V>(TaskOption.RESTRUCTURE_BEFORE, TaskOption.RESIZE) {
+      @Override
+      protected @Nullable V execute(@Nullable Reference<K, V> ref, @Nullable Entry<K, V> entry, @Nullable Entries<V> entries) {
+        if (entry != null) {
+          V oldValue = entry.getValue();
+          V newValue = remappingFunction.apply(oldValue, value);
+          if (newValue != null) {
+            // Replace entry
+            entry.setValue(newValue);
+            return newValue;
+          }
+          else {
+            // Remove entry
+            if (ref != null) {
+              ref.release();
+            }
+            return null;
+          }
+        }
+        else {
+          // Add entry
+          Assert.state(entries != null, "No entries segment");
+          entries.add(value);
+          return value;
+        }
       }
     });
   }
@@ -827,7 +939,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
      * @see #execute(Reference, Entry)
      */
     @Nullable
-    protected T execute(@Nullable Reference<K, V> ref, @Nullable Entry<K, V> entry, @Nullable Entries entries) {
+    protected T execute(@Nullable Reference<K, V> ref, @Nullable Entry<K, V> entry, @Nullable Entries<V> entries) {
       return execute(ref, entry);
     }
 
