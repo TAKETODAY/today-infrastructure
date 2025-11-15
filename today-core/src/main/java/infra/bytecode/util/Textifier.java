@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import infra.bytecode.Attribute;
@@ -1375,7 +1376,7 @@ public class Textifier extends Printer {
   private void appendRawAccess(final int accessFlags) {
     stringBuilder
             .append("// access flags 0x")
-            .append(Integer.toHexString(accessFlags).toUpperCase())
+            .append(Integer.toHexString(accessFlags).toUpperCase(Locale.ROOT))
             .append('\n');
   }
 
