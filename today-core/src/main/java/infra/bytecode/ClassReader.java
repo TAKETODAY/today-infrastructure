@@ -3021,6 +3021,20 @@ public class ClassReader {
   }
 
   /**
+   * Reads several bytes in this {@link ClassReader}. <i>This method is intended for {@link
+   * Attribute} sub classes, and is normally not needed by class generators or adapters.</i>
+   *
+   * @param offset the start offset of the bytes to be read in this {@link ClassReader}.
+   * @param length the number of bytes to read.
+   * @return the read bytes.
+   */
+  public byte[] readBytes(final int offset, final int length) {
+    byte[] result = new byte[length];
+    System.arraycopy(classFileBuffer, offset, result, 0, length);
+    return result;
+  }
+
+  /**
    * Reads an unsigned short value in this {@link ClassReader}. <i>This method is intended for
    * {@link Attribute} sub classes, and is normally not needed by class generators or adapters.</i>
    *
