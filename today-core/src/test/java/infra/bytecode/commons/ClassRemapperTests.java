@@ -63,7 +63,7 @@ class ClassRemapperTests extends AsmTest {
                     classNode,
                     new SimpleRemapper("pkg/C", "new/pkg/C"));
 
-    classRemapper.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC, "pkg/C", null, "java/lang/Object", null);
+    classRemapper.visit(infra.bytecode.Opcodes.V1_5, Opcodes.ACC_PUBLIC, "pkg/C", null, "java/lang/Object", null);
 
     assertEquals("new/pkg/C", classNode.name);
   }
@@ -194,15 +194,16 @@ class ClassRemapperTests extends AsmTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   void testVisitLdcInsn_constantDynamic_deprecated() {
     ClassNode classNode = new ClassNode();
     ClassRemapper classRemapper =
             new ClassRemapper(
                     classNode,
                     new Remapper() {
+
                       @Override
-                      public String mapInvokeDynamicMethodName(final String name, final String descriptor) {
+                      public String mapBasicInvokeDynamicMethodName(String name, String descriptor,
+                              Handle bootstrapMethodHandle, Object... bootstrapMethodArguments) {
                         return "new." + name;
                       }
 
@@ -242,7 +243,11 @@ class ClassRemapperTests extends AsmTest {
                     classNode,
                     new Remapper() {
                       @Override
-                      public String mapInvokeDynamicMethodName(final String name, final String descriptor) {
+                      public String mapBasicInvokeDynamicMethodName(
+                              final String name,
+                              final String descriptor,
+                              final Handle bootstrapMethodHandle,
+                              final Object... bootstrapMethodArguments) {
                         return "new." + name;
                       }
 
@@ -275,54 +280,19 @@ class ClassRemapperTests extends AsmTest {
   }
 
   @Test
-  void testInvokeDynamicInsn_field_deprecated() {
-    ClassNode classNode = new ClassNode();
-    @SuppressWarnings("deprecation")
-    ClassRemapper classRemapper =
-            new ClassRemapper(
-                    classNode,
-                    new Remapper() {
-                      @Override
-                      @Deprecated
-                      public String mapInvokeDynamicMethodName(final String name, final String descriptor) {
-                        return "new." + name;
-                      }
-
-                      @Override
-                      public String mapFieldName(
-                              final String owner, final String name, final String descriptor) {
-                        if ("a".equals(name)) {
-                          return "demo";
-                        }
-                        return name;
-                      }
-                    });
-    classRemapper.visit(Opcodes.V11, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
-    MethodVisitor methodVisitor =
-            classRemapper.visitMethod(Opcodes.ACC_PUBLIC, "hello", "()V", null, null);
-    methodVisitor.visitCode();
-
-    methodVisitor.visitInvokeDynamicInsn(
-            "foo",
-            "()Ljava/lang/String;",
-            new Handle(Opcodes.H_GETFIELD, "pkg/B", "a", "Ljava/lang/String;", false));
-
-    InvokeDynamicInsnNode invokeDynamic =
-            (InvokeDynamicInsnNode) classNode.methods.get(0).instructions.get(0);
-    assertEquals("new.foo", invokeDynamic.name);
-    assertEquals("demo", invokeDynamic.bsm.getName());
-  }
-
-  @Test
   void testInvokeDynamicInsn_field() {
     ClassNode classNode = new ClassNode();
     ClassRemapper classRemapper =
             new ClassRemapper(
+
                     classNode,
                     new Remapper() {
                       @Override
-                      @Deprecated
-                      public String mapInvokeDynamicMethodName(final String name, final String descriptor) {
+                      public String mapBasicInvokeDynamicMethodName(
+                              final String name,
+                              final String descriptor,
+                              final Handle bootstrapMethodHandle,
+                              final Object... bootstrapMethodArguments) {
                         return "new." + name;
                       }
 
@@ -359,7 +329,8 @@ class ClassRemapperTests extends AsmTest {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
-    ClassRemapper classRemapper = newClassRemapper(classWriter, new SimpleRemapper(Map.of()));
+    ClassRemapper classRemapper =
+            newClassRemapper(classWriter, new SimpleRemapper(Map.of()));
 
     Executable accept =
             () -> classReader.accept(classRemapper, new Attribute[] { new CodeComment() }, 0);
@@ -395,7 +366,8 @@ class ClassRemapperTests extends AsmTest {
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
     ClassRemapper classRemapper =
-            new ClassRemapper(classWriter, new SimpleRemapper(Map.of()));
+            new ClassRemapper(
+                    classWriter, new SimpleRemapper(Map.of()));
 
     classReader.accept(classRemapper, new Attribute[] { new CodeComment() }, 0);
 
@@ -524,7 +496,11 @@ class ClassRemapperTests extends AsmTest {
     }
 
     @Override
-    public String mapInvokeDynamicMethodName(final String name, final String descriptor) {
+    public String mapBasicInvokeDynamicMethodName(
+            final String name,
+            final String descriptor,
+            final Handle bootstrapMethodHandle,
+            final Object... bootstrapMethodArguments) {
       return name.toUpperCase(LOCALE);
     }
 

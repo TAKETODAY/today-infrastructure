@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,10 @@
 
 package infra.bytecode.commons;
 
+import org.jspecify.annotations.Nullable;
+
+import java.util.Objects;
+
 import infra.bytecode.ClassValueHolder;
 import infra.bytecode.ConstantDynamic;
 import infra.bytecode.Handle;
@@ -25,13 +29,35 @@ import infra.bytecode.Type;
 import infra.bytecode.signature.SignatureReader;
 import infra.bytecode.signature.SignatureVisitor;
 import infra.bytecode.signature.SignatureWriter;
+import infra.lang.Contract;
 
 /**
  * A class responsible for remapping types and names.
  *
  * @author Eugene Kuleshov
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
 public abstract class Remapper {
+
+  // The class name of LambdaMetafactory.
+  private static final String LAMBDA_FACTORY_CLASSNAME = "java/lang/invoke/LambdaMetafactory";
+
+  // The method signature of LambdaMetafactory.metafactory(...).
+  private static final String LAMBDA_FACTORY_METAFACTORY =
+          "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;"
+                  + "Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;"
+                  + "Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;";
+
+  // The method signature of LambdaMetafactory.altMetafactory(...).
+  private static final String LAMBDA_FACTORY_ALTMETAFACTORY =
+          "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;"
+                  + "[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;";
+
+  /**
+   * Creates a new {@link Remapper}.
+   */
+  protected Remapper() {
+  }
 
   /**
    * Returns the given descriptor, remapped with {@link #map(String)}.
@@ -39,7 +65,7 @@ public abstract class Remapper {
    * @param descriptor a type descriptor.
    * @return the given descriptor, with its [array element type] internal name remapped with {@link
    * #map(String)} (if the descriptor corresponds to an array or object type, otherwise the
-   * descriptor is returned as is).
+   * descriptor is returned as is). See {@link Type#getInternalName()}.
    */
   public String mapDesc(final String descriptor) {
     return mapType(Type.forDescriptor(descriptor)).getDescriptor();
@@ -53,7 +79,7 @@ public abstract class Remapper {
    * @return the given type, with its [array element type] internal name remapped with {@link
    * #map(String)} (if the type is an array or object type, otherwise the type is returned as
    * is) or, of the type is a method type, with its descriptor remapped with {@link
-   * #mapMethodDesc(String)}.
+   * #mapMethodDesc(String)}. See {@link Type#getInternalName()}.
    */
   private Type mapType(final Type type) {
     switch (type.getSort()) {
@@ -73,10 +99,13 @@ public abstract class Remapper {
   /**
    * Returns the given internal name, remapped with {@link #map(String)}.
    *
-   * @param internalName the internal name (or array type descriptor) of some (array) class.
-   * @return the given internal name, remapped with {@link #map(String)}.
+   * @param internalName the internal name (or array type descriptor) of some (array) class (see
+   * {@link Type#getInternalName()}).
+   * @return the given internal name, remapped with {@link #map(String)} (see {@link
+   * Type#getInternalName()}).
    */
-  public String mapType(final String internalName) {
+  @Contract("null -> null")
+  public @Nullable String mapType(final @Nullable String internalName) {
     if (internalName == null) {
       return null;
     }
@@ -86,8 +115,10 @@ public abstract class Remapper {
   /**
    * Returns the given internal names, remapped with {@link #map(String)}.
    *
-   * @param internalNames the internal names (or array type descriptors) of some (array) classes.
-   * @return the given internal name, remapped with {@link #map(String)}.
+   * @param internalNames the internal names (or array type descriptors) of some (array) classes
+   * (see {@link Type#getInternalName()}).
+   * @return the given internal name, remapped with {@link #map(String)} (see {@link
+   * Type#getInternalName()}).
    */
   public String[] mapTypes(final String[] internalNames) {
     String[] remappedInternalNames = null;
@@ -160,17 +191,22 @@ public abstract class Remapper {
               handle.isInterface());
     }
     if (value instanceof ConstantDynamic constantDynamic) {
+      String name = constantDynamic.getName();
+      String descriptor = constantDynamic.getDescriptor();
+      Handle bootstrapMethod = constantDynamic.getBootstrapMethod();
       int bootstrapMethodArgumentCount = constantDynamic.getBootstrapMethodArgumentCount();
+      Object[] bootstrapMethodArguments = new Object[bootstrapMethodArgumentCount];
       Object[] remappedBootstrapMethodArguments = new Object[bootstrapMethodArgumentCount];
       for (int i = 0; i < bootstrapMethodArgumentCount; ++i) {
-        remappedBootstrapMethodArguments[i] =
-                mapValue(constantDynamic.getBootstrapMethodArgument(i));
+        bootstrapMethodArguments[i] = constantDynamic.getBootstrapMethodArgument(i);
+        remappedBootstrapMethodArguments[i] = mapValue(bootstrapMethodArguments[i]);
       }
-      String descriptor = constantDynamic.getDescriptor();
+
+      name = mapInvokeDynamicMethodName(name, descriptor, bootstrapMethod, bootstrapMethodArguments);
       return new ConstantDynamic(
-              mapInvokeDynamicMethodName(constantDynamic.getName(), descriptor),
+              name,
               mapDesc(descriptor),
-              (Handle) mapValue(constantDynamic.getBootstrapMethod()),
+              (Handle) mapValue(bootstrapMethod),
               remappedBootstrapMethodArguments);
     }
     return value;
@@ -185,7 +221,8 @@ public abstract class Remapper {
    * @return signature the given signature, remapped with the {@link SignatureVisitor} returned by
    * {@link #createSignatureRemapper(SignatureVisitor)}.
    */
-  public String mapSignature(final String signature, final boolean typeSignature) {
+  @Contract("null, _ -> null")
+  public @Nullable String mapSignature(final @Nullable String signature, final boolean typeSignature) {
     if (signature == null) {
       return null;
     }
@@ -199,6 +236,20 @@ public abstract class Remapper {
       signatureReader.accept(signatureRemapper);
     }
     return signatureWriter.toString();
+  }
+
+  /**
+   * Constructs a new remapper for signatures. The default implementation of this method returns a
+   * new {@link SignatureRemapper}.
+   *
+   * @param signatureVisitor the SignatureVisitor the remapper must delegate to.
+   * @return the newly created remapper.
+   * @deprecated use {@link #createSignatureRemapper} instead.
+   */
+  @Deprecated(forRemoval = false)
+  protected SignatureVisitor createRemappingSignatureAdapter(
+          final SignatureVisitor signatureVisitor) {
+    return createSignatureRemapper(signatureVisitor);
   }
 
   /**
@@ -229,14 +280,31 @@ public abstract class Remapper {
    * strategy that will work for inner classes produced by Java, but not necessarily other
    * languages. Subclasses can override.
    *
-   * @param name the fully-qualified internal name of the inner class.
-   * @param ownerName the internal name of the owner class of the inner class.
-   * @param innerName the internal name of the inner class.
+   * @param name the fully-qualified internal name of the inner class (see {@link
+   * Type#getInternalName()}).
+   * @param ownerName the internal name of the owner class of the inner class (see {@link
+   * Type#getInternalName()}).
+   * @param innerName the internal name of the inner class (see {@link Type#getInternalName()}).
    * @return the new inner name of the inner class.
    */
   public String mapInnerClassName(
           final String name, final String ownerName, final String innerName) {
     final String remappedInnerName = this.mapType(name);
+
+    if (Objects.equals(remappedInnerName, name)) {
+      return innerName;
+    }
+    else {
+      int originSplit = name.lastIndexOf('/');
+      int remappedSplit = remappedInnerName.lastIndexOf('/');
+      if (originSplit != -1
+              && remappedSplit != -1
+              && name.substring(originSplit).equals(remappedInnerName.substring(remappedSplit))) {
+        // class name not changed
+        return innerName;
+      }
+    }
+
     if (remappedInnerName.contains("$")) {
       int index = remappedInnerName.lastIndexOf('$') + 1;
       while (index < remappedInnerName.length()
@@ -254,7 +322,8 @@ public abstract class Remapper {
    * Maps a method name to its new name. The default implementation of this method returns the given
    * name, unchanged. Subclasses can override.
    *
-   * @param owner the internal name of the owner class of the method.
+   * @param owner the internal name of the owner class of the method (see {@link
+   * Type#getInternalName()}).
    * @param name the name of the method.
    * @param descriptor the descriptor of the method.
    * @return the new name of the method.
@@ -264,14 +333,103 @@ public abstract class Remapper {
   }
 
   /**
+   * Maps an invokedynamic or a constant dynamic method name to its new name. Subclasses can
+   * override.
+   *
+   * <p>The default implementation of this method first performs well-known rule checks (calling
+   * {@link #mapWellKnownInvokeDynamicMethodName(String, String, Handle, Object...)}) and then
+   * performs basic remapping (calling {@link #mapBasicInvokeDynamicMethodName(String, String,
+   * Handle, Object...)}).
+   *
+   * <p>For most users, only {@link #mapBasicInvokeDynamicMethodName(String, String, Handle,
+   * Object...)} needs to be overridden.
+   *
+   * @param name the name of the method.
+   * @param descriptor the descriptor of the method.
+   * @param bootstrapMethodHandle the bootstrap method.
+   * @param bootstrapMethodArguments the bootstrap method constant arguments. Each argument must be
+   * an {@link Integer}, {@link Float}, {@link Long}, {@link Double}, {@link String}, {@link
+   * Type}, {@link Handle} or {@link ConstantDynamic} value. This method is allowed to modify
+   * the content of the array so a caller should expect that this array may change.
+   * @return the new name of the method.
+   */
+  public String mapInvokeDynamicMethodName(final String name, final String descriptor,
+          final Handle bootstrapMethodHandle, final Object... bootstrapMethodArguments) {
+    String mappedWellKnownName = mapWellKnownInvokeDynamicMethodName(
+            name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
+    if (mappedWellKnownName != null) {
+      return mappedWellKnownName;
+    }
+    return mapBasicInvokeDynamicMethodName(
+            name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
+  }
+
+  /**
+   * Maps well-known invokedynamic (e.g. lambda creation) or const dynamic method names to their new
+   * names. This method detects specific invokedynamic method rules and remaps using the
+   * corresponding rules. When no rule is matched, returns {@literal null}. When non-null is
+   * returned, it means that this invokedynamic method name matches a rule and has been remapped
+   * with the relevant rule. Subclasses can override.
+   *
+   * @param name the name of the method.
+   * @param descriptor the descriptor of the method.
+   * @param bootstrapMethodHandle the bootstrap method.
+   * @param bootstrapMethodArguments the bootstrap method constant arguments. Each argument must be
+   * an {@link Integer}, {@link Float}, {@link Long}, {@link Double}, {@link String}, {@link
+   * Type}, {@link Handle} or {@link ConstantDynamic} value. This method is allowed to modify
+   * the content of the array so a caller should expect that this array may change.
+   * @return the new name of the method, or null if no special rule is matched.
+   */
+  public @Nullable String mapWellKnownInvokeDynamicMethodName(final String name, final String descriptor,
+          final Handle bootstrapMethodHandle, final Object... bootstrapMethodArguments) {
+
+    if (LAMBDA_FACTORY_CLASSNAME.equals(bootstrapMethodHandle.getOwner())
+            && bootstrapMethodHandle.getTag() == Opcodes.H_INVOKESTATIC) {
+      // This is a lambda creation.
+      // Note: **if** is reserved for future JDK changes.
+      boolean isMetafactory = false;
+      isMetafactory |= "metafactory".equals(bootstrapMethodHandle.getName())
+              && LAMBDA_FACTORY_METAFACTORY.equals(bootstrapMethodHandle.getDesc());
+      isMetafactory |= "altMetafactory".equals(bootstrapMethodHandle.getName())
+              && LAMBDA_FACTORY_ALTMETAFACTORY.equals(bootstrapMethodHandle.getDesc());
+
+      if (isMetafactory) {
+        // Note:
+        // Java lambda instances are created by LambdaMetafactory.metafactory() and
+        // LambdaMetafactory.altMetafactory().
+        // The specification can be found in the LambdaMetafactory javadoc:
+        // https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/invoke/LambdaMetafactory.html
+        //
+        // In short, all the necessary parameters can be obtained from this invokedynamic, including
+        // the following three:
+        // - Class name: From return type of method descriptor.
+        // - Method name: Same as the name of invokedynamic.
+        // - Method descriptor: From the first bootstrap argument.
+        return mapMethodName(
+                Type.forReturnType(descriptor).getInternalName(),
+                name,
+                bootstrapMethodArguments[0].toString());
+      }
+    }
+
+    return null;
+  }
+
+  /**
    * Maps an invokedynamic or a constant dynamic method name to its new name. The default
    * implementation of this method returns the given name, unchanged. Subclasses can override.
    *
    * @param name the name of the method.
    * @param descriptor the descriptor of the method.
+   * @param bootstrapMethodHandle the bootstrap method.
+   * @param bootstrapMethodArguments the bootstrap method constant arguments. Each argument must be
+   * an {@link Integer}, {@link Float}, {@link Long}, {@link Double}, {@link String}, {@link
+   * Type}, {@link Handle} or {@link ConstantDynamic} value. This method is allowed to modify
+   * the content of the array so a caller should expect that this array may change.
    * @return the new name of the method.
    */
-  public String mapInvokeDynamicMethodName(final String name, final String descriptor) {
+  public String mapBasicInvokeDynamicMethodName(final String name, final String descriptor,
+          final Handle bootstrapMethodHandle, final Object... bootstrapMethodArguments) {
     return name;
   }
 
@@ -279,7 +437,8 @@ public abstract class Remapper {
    * Maps a record component name to its new name. The default implementation of this method returns
    * the given name, unchanged. Subclasses can override.
    *
-   * @param owner the internal name of the owner class of the field.
+   * @param owner the internal name of the owner class of the field (see {@link
+   * Type#getInternalName()}).
    * @param name the name of the field.
    * @param descriptor the descriptor of the field.
    * @return the new name of the field.
@@ -293,7 +452,8 @@ public abstract class Remapper {
    * Maps a field name to its new name. The default implementation of this method returns the given
    * name, unchanged. Subclasses can override.
    *
-   * @param owner the internal name of the owner class of the field.
+   * @param owner the internal name of the owner class of the field (see {@link
+   * Type#getInternalName()}).
    * @param name the name of the field.
    * @param descriptor the descriptor of the field.
    * @return the new name of the field.
@@ -328,8 +488,8 @@ public abstract class Remapper {
    * Maps the internal name of a class to its new name. The default implementation of this method
    * returns the given name, unchanged. Subclasses can override.
    *
-   * @param internalName the internal name of a class.
-   * @return the new internal name.
+   * @param internalName the internal name of a class (see {@link Type#getInternalName()}).
+   * @return the new internal name (see {@link Type#getInternalName()}).
    */
   public String map(final String internalName) {
     return internalName;

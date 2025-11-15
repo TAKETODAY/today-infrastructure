@@ -258,7 +258,7 @@ public class MethodVisitor {
    * is silently ignored).
    */
   public void visitFrame(final int type, final int numLocal,
-          final Object[] local, final int numStack, final Object[] stack) {
+          final Object @Nullable [] local, final int numStack, final Object @Nullable [] stack) {
     if (mv != null) {
       mv.visitFrame(type, numLocal, local, numStack, stack);
     }

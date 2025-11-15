@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * @author Eric Bruneton
  */
-public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
+class CheckMethodAdapterTests extends AsmTest implements Opcodes {
 
   private final CheckMethodAdapter checkMethodAdapter = new CheckMethodAdapter(null);
 
