@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ package infra.web.client;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
+import infra.http.HttpOutputMessage;
 import infra.http.client.ClientHttpRequest;
 
 /**
@@ -46,6 +47,12 @@ public interface RequestCallback {
    * Gets called by {@link RestTemplate#execute} with an opened {@code ClientHttpRequest}.
    * Does not need to care about closing the request or about handling errors:
    * this will all be handled by the {@code RestTemplate}.
+   * <p><strong>Note:</strong> In order to stream request body content directly
+   * to the underlying HTTP library, implementations must check if the request
+   * is an implementation of {@link infra.http.StreamingHttpOutputMessage},
+   * and set the request body through it. Use of the {@link HttpOutputMessage#getBody()}
+   * is also supported, but results in full content aggregation prior to execution.
+   * All built-in request implementations support {@code StreamingHttpOutputMessage}.
    *
    * @param request the active HTTP request
    * @throws IOException in case of I/O errors
