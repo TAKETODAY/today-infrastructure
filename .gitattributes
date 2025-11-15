@@ -15,3 +15,5 @@
 *.jpg   binary
 *.png   binary
 *.vsd   binary
+*.class   binary
+*.clazz   binary
