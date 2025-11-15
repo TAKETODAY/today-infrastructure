@@ -27,6 +27,7 @@ import infra.bytecode.Attribute;
 import infra.bytecode.ConstantDynamic;
 import infra.bytecode.Handle;
 import infra.bytecode.Label;
+import infra.bytecode.MethodVisitor;
 import infra.bytecode.Opcodes;
 import infra.bytecode.Type;
 import infra.bytecode.TypePath;
@@ -1630,7 +1631,7 @@ public class Textifier extends Printer {
    *
    * @param numTypes the number of stack map frame types in 'frameTypes'.
    * @param frameTypes an array of stack map frame types, in the format described in {@link
-   * org.objectweb.asm.MethodVisitor#visitFrame}.
+   * MethodVisitor#visitFrame}.
    */
   private void appendFrameTypes(final int numTypes, final Object[] frameTypes) {
     for (int i = 0; i < numTypes; ++i) {
