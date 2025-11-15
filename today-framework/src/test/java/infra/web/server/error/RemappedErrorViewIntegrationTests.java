@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
+import infra.annotation.config.task.TaskExecutionAutoConfiguration;
 import infra.annotation.config.web.ErrorMvcAutoConfiguration;
 import infra.annotation.config.web.RandomPortWebServerConfig;
 import infra.annotation.config.web.WebMvcAutoConfiguration;
@@ -58,7 +59,7 @@ class RemappedErrorViewIntegrationTests {
   }
 
   @Configuration(proxyBeanMethods = false)
-  @Import({ RandomPortWebServerConfig.class,
+  @Import({ RandomPortWebServerConfig.class, TaskExecutionAutoConfiguration.class,
           PropertyPlaceholderAutoConfiguration.class, WebMvcAutoConfiguration.class,
           HttpMessageConvertersAutoConfiguration.class, ErrorMvcAutoConfiguration.class })
   @Controller

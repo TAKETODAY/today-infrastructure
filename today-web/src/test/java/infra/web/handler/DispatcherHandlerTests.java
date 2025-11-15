@@ -71,7 +71,7 @@ class DispatcherHandlerTests {
     assertThat(handler).extracting("notFoundHandler").isNull();
     assertThat(handler).extracting("webAsyncManagerFactory").isNull();
 
-    handler.init();
+    handler.start();
 
     assertThat(handler).extracting("handlerMapping").isNotNull();
     assertThat(handler).extracting("handlerAdapter").isNotNull();
