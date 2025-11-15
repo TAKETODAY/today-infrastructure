@@ -24,9 +24,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -36,8 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class GetterMethodTests {
 
-  @Getter
-  @Setter
   public static class POJO1 {
     boolean _boolean;
     byte _byte;
@@ -48,6 +43,78 @@ class GetterMethodTests {
     double _double;
     char _char;
     Object _obj;
+
+    public short get_short() {
+      return _short;
+    }
+
+    public void set_boolean(boolean _boolean) {
+      this._boolean = _boolean;
+    }
+
+    public void set_byte(byte _byte) {
+      this._byte = _byte;
+    }
+
+    public void set_char(char _char) {
+      this._char = _char;
+    }
+
+    public void set_double(double _double) {
+      this._double = _double;
+    }
+
+    public void set_float(float _float) {
+      this._float = _float;
+    }
+
+    public void set_int(int _int) {
+      this._int = _int;
+    }
+
+    public void set_long(long _long) {
+      this._long = _long;
+    }
+
+    public void set_obj(Object _obj) {
+      this._obj = _obj;
+    }
+
+    public void set_short(short _short) {
+      this._short = _short;
+    }
+
+    public boolean is_boolean() {
+      return _boolean;
+    }
+
+    public byte get_byte() {
+      return _byte;
+    }
+
+    public char get_char() {
+      return _char;
+    }
+
+    public double get_double() {
+      return _double;
+    }
+
+    public float get_float() {
+      return _float;
+    }
+
+    public int get_int() {
+      return _int;
+    }
+
+    public long get_long() {
+      return _long;
+    }
+
+    public Object get_obj() {
+      return _obj;
+    }
 
     volatile boolean _volatileBoolean;
     volatile byte _volatileByte;

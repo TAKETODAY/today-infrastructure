@@ -31,7 +31,6 @@ import infra.context.annotation.ConfigurationCondition;
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.core.type.AnnotationMetadata;
 import infra.core.type.classreading.MetadataReaderFactory;
-import infra.core.type.classreading.SimpleMetadataReaderFactory;
 import infra.lang.Assert;
 import infra.util.ClassUtils;
 import infra.util.MultiValueMap;
@@ -95,7 +94,7 @@ public abstract class AbstractNestedCondition extends InfraCondition implements 
 
     MemberConditions(ConditionContext context, ConfigurationPhase phase, String className) {
       this.context = context;
-      this.readerFactory = new SimpleMetadataReaderFactory(context.getResourceLoader());
+      this.readerFactory = MetadataReaderFactory.create(context.getResourceLoader());
       String[] members = getMetadata(className).getMemberClassNames();
       this.memberConditions = getMemberConditions(members, phase, className);
     }

@@ -1,17 +1,16 @@
-plugins {
-  id 'me.champeau.mrjar'
-}
-
 description = "Infra Core Technologies"
 
+apply plugin: "infra.building.multiReleaseJar"
 
 multiRelease {
-  targetVersions 17, 21
+  releaseVersions 21, 24
 }
 
 configurations {
   java21Api.extendsFrom(api)
   java21Implementation.extendsFrom(implementation)
+  java24Api.extendsFrom(api)
+  java24Implementation.extendsFrom(implementation)
 }
 
 dependencies {
@@ -30,6 +29,7 @@ dependencies {
   optional("jakarta.annotation:jakarta.annotation-api")
   optional("io.micrometer:context-propagation")
 
+  testCompileOnly("com.github.ben-manes.caffeine:caffeine")
   testImplementation("jakarta.xml.bind:jakarta.xml.bind-api")
   testImplementation("com.google.code.findbugs:jsr305")
   testImplementation("com.fasterxml.woodstox:woodstox-core")

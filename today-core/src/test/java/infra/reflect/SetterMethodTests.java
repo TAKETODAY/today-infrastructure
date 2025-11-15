@@ -25,9 +25,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Objects;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -40,8 +37,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  */
 class SetterMethodTests {
 
-  @Getter
-  @Setter
   public static class POJO1 {
 
     boolean _boolean;
@@ -83,6 +78,150 @@ class SetterMethodTests {
     static volatile double _staticVolatileDouble;
     static volatile char _staticVolatileChar;
     static volatile Object _staticVolatileObj;
+
+    public void set_boolean(boolean _boolean) {
+      this._boolean = _boolean;
+    }
+
+    public void set_byte(byte _byte) {
+      this._byte = _byte;
+    }
+
+    public void set_char(char _char) {
+      this._char = _char;
+    }
+
+    public void set_double(double _double) {
+      this._double = _double;
+    }
+
+    public void set_float(float _float) {
+      this._float = _float;
+    }
+
+    public void set_int(int _int) {
+      this._int = _int;
+    }
+
+    public void set_long(long _long) {
+      this._long = _long;
+    }
+
+    public void set_obj(Object _obj) {
+      this._obj = _obj;
+    }
+
+    public void set_short(short _short) {
+      this._short = _short;
+    }
+
+    public void set_volatileBoolean(boolean _volatileBoolean) {
+      this._volatileBoolean = _volatileBoolean;
+    }
+
+    public void set_volatileByte(byte _volatileByte) {
+      this._volatileByte = _volatileByte;
+    }
+
+    public void set_volatileChar(char _volatileChar) {
+      this._volatileChar = _volatileChar;
+    }
+
+    public void set_volatileDouble(double _volatileDouble) {
+      this._volatileDouble = _volatileDouble;
+    }
+
+    public void set_volatileFloat(float _volatileFloat) {
+      this._volatileFloat = _volatileFloat;
+    }
+
+    public void set_volatileInt(int _volatileInt) {
+      this._volatileInt = _volatileInt;
+    }
+
+    public void set_volatileLong(long _volatileLong) {
+      this._volatileLong = _volatileLong;
+    }
+
+    public void set_volatileObj(Object _volatileObj) {
+      this._volatileObj = _volatileObj;
+    }
+
+    public void set_volatileShort(short _volatileShort) {
+      this._volatileShort = _volatileShort;
+    }
+
+    public boolean is_boolean() {
+      return _boolean;
+    }
+
+    public byte get_byte() {
+      return _byte;
+    }
+
+    public char get_char() {
+      return _char;
+    }
+
+    public double get_double() {
+      return _double;
+    }
+
+    public float get_float() {
+      return _float;
+    }
+
+    public int get_int() {
+      return _int;
+    }
+
+    public long get_long() {
+      return _long;
+    }
+
+    public Object get_obj() {
+      return _obj;
+    }
+
+    public short get_short() {
+      return _short;
+    }
+
+    public boolean is_volatileBoolean() {
+      return _volatileBoolean;
+    }
+
+    public byte get_volatileByte() {
+      return _volatileByte;
+    }
+
+    public char get_volatileChar() {
+      return _volatileChar;
+    }
+
+    public double get_volatileDouble() {
+      return _volatileDouble;
+    }
+
+    public float get_volatileFloat() {
+      return _volatileFloat;
+    }
+
+    public int get_volatileInt() {
+      return _volatileInt;
+    }
+
+    public long get_volatileLong() {
+      return _volatileLong;
+    }
+
+    public Object get_volatileObj() {
+      return _volatileObj;
+    }
+
+    public short get_volatileShort() {
+      return _volatileShort;
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -24,7 +24,6 @@ jobs:
         if: ${{ steps.read-version.outputs.snapshot == 'true' }}
         uses: ./.github/actions/building
         with:
-          java-version: 21
           publish: true
           server-id: snapshots
           server-username:  ${{ secrets.SNAPSHOTS_USERNAME }}

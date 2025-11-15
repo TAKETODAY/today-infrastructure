@@ -62,10 +62,12 @@ class TestConventions {
     if (project.hasProperty("testGroups")) {
       test.systemProperty("testGroups", project.getProperties().get("testGroups"));
     }
+
     test.jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED",
             "--add-opens=java.base/java.util=ALL-UNNAMED",
             "--add-opens=java.base/java.net=ALL-UNNAMED",
-            "-Djava.locale.providers=COMPAT");
+            "-Djava.locale.providers=COMPAT",
+            "-Xshare:off");
 
   }
 
