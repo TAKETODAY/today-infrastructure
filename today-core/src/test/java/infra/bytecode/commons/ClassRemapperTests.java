@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,10 +23,12 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Map;
 
 import infra.bytecode.AnnotationValueHolder;
 import infra.bytecode.AnnotationVisitor;
 import infra.bytecode.AsmTest;
+import infra.bytecode.Attribute;
 import infra.bytecode.ClassFile;
 import infra.bytecode.ClassReader;
 import infra.bytecode.ClassVisitor;
@@ -44,19 +46,22 @@ import infra.bytecode.util.CheckMethodAdapter;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for {@link ClassRemapper}.
  *
  * @author Eric Bruneton
  */
-public class ClassRemapperTest extends AsmTest {
+class ClassRemapperTests extends AsmTest {
 
   @Test
-  public void testVisit() {
+  void testVisit() {
     ClassNode classNode = new ClassNode();
     ClassRemapper classRemapper =
-            new ClassRemapper(classNode, new SimpleRemapper("pkg/C", "new/pkg/C"));
+            new ClassRemapper(
+                    classNode,
+                    new SimpleRemapper("pkg/C", "new/pkg/C"));
 
     classRemapper.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC, "pkg/C", null, "java/lang/Object", null);
 
@@ -64,7 +69,7 @@ public class ClassRemapperTest extends AsmTest {
   }
 
   @Test
-  public void testVisitAnnotation() {
+  void testVisitAnnotation() {
     ClassNode classNode = new ClassNode();
     ClassRemapper remapper =
             new ClassRemapper(
@@ -86,7 +91,7 @@ public class ClassRemapperTest extends AsmTest {
   }
 
   @Test
-  public void testVisitInnerClass() {
+  void testVisitInnerClass() {
     ClassNode classNode = new ClassNode();
     ClassRemapper remapper =
             new ClassRemapper(
@@ -113,7 +118,7 @@ public class ClassRemapperTest extends AsmTest {
   }
 
   @Test
-  public void testVisitInnerClass_localInnerClass() {
+  void testVisitInnerClass_localInnerClass() {
     ClassNode classNode = new ClassNode();
     ClassRemapper remapper =
             new ClassRemapper(
@@ -140,7 +145,34 @@ public class ClassRemapperTest extends AsmTest {
   }
 
   @Test
-  public void testVisitAttribute_moduleHashes() {
+  void testVisitInnerClass_specialRemap() {
+    ClassNode classNode = new ClassNode();
+    ClassRemapper remapper =
+            new ClassRemapper(
+                    classNode,
+                    new Remapper() {
+                      @Override
+                      public String map(final String internalName) {
+                        if ("pkg/C".equals(internalName)) {
+                          return "pkg2/C";
+                        }
+                        if ("pkg/C$$a".equals(internalName)) {
+                          return "pkg2/C$$a";
+                        }
+                        return internalName;
+                      }
+                    });
+    remapper.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC, "pkg/C", null, "java/lang/Object", null);
+
+    remapper.visitInnerClass("pkg/C$$a", "pkg/C", "$a", Opcodes.ACC_PUBLIC);
+
+    assertEquals("pkg2/C$$a", classNode.innerClasses.get(0).name);
+    assertEquals("pkg2/C", classNode.innerClasses.get(0).outerName);
+    assertEquals("$a", classNode.innerClasses.get(0).innerName);
+  }
+
+  @Test
+  void testVisitAttribute_moduleHashes() {
     ClassNode classNode = new ClassNode();
     ClassRemapper classRemapper =
             new ClassRemapper(
@@ -153,6 +185,7 @@ public class ClassRemapperTest extends AsmTest {
                     });
     classRemapper.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
 
+    // The ClassRemapper change the modules and the hashes so the lists have to be mutable.
     classRemapper.visitAttribute(
             new ModuleHashesAttribute("algorithm", Arrays.asList("pkg.C"), Arrays.asList(new byte[0])));
 
@@ -161,7 +194,8 @@ public class ClassRemapperTest extends AsmTest {
   }
 
   @Test
-  public void testVisitLdcInsn_constantDynamic() {
+  @SuppressWarnings("deprecation")
+  void testVisitLdcInsn_constantDynamic_deprecated() {
     ClassNode classNode = new ClassNode();
     ClassRemapper classRemapper =
             new ClassRemapper(
@@ -201,12 +235,59 @@ public class ClassRemapperTest extends AsmTest {
   }
 
   @Test
-  public void testInvokeDynamicInsn_field() {
+  void testVisitLdcInsn_constantDynamic() {
     ClassNode classNode = new ClassNode();
     ClassRemapper classRemapper =
             new ClassRemapper(
                     classNode,
                     new Remapper() {
+                      @Override
+                      public String mapInvokeDynamicMethodName(final String name, final String descriptor) {
+                        return "new." + name;
+                      }
+
+                      @Override
+                      public String map(final String internalName) {
+                        if (internalName.equals("java/lang/String")) {
+                          return "java/lang/Integer";
+                        }
+                        return internalName;
+                      }
+                    }) {
+              /* inner class so it can access the protected constructor */
+            };
+    classRemapper.visit(Opcodes.V11, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
+    MethodVisitor methodVisitor =
+            classRemapper.visitMethod(Opcodes.ACC_PUBLIC, "hello", "()V", null, null);
+    methodVisitor.visitCode();
+
+    methodVisitor.visitLdcInsn(
+            new ConstantDynamic(
+                    "foo",
+                    "Ljava/lang/String;",
+                    new Handle(Opcodes.H_INVOKESTATIC, "BSMHost", "bsm", "()Ljava/lang/String;", false)));
+
+    ConstantDynamic constantDynamic =
+            (ConstantDynamic) ((LdcInsnNode) classNode.methods.get(0).instructions.get(0)).cst;
+    assertEquals("new.foo", constantDynamic.getName());
+    assertEquals("Ljava/lang/Integer;", constantDynamic.getDescriptor());
+    assertEquals("()Ljava/lang/Integer;", constantDynamic.getBootstrapMethod().getDesc());
+  }
+
+  @Test
+  void testInvokeDynamicInsn_field_deprecated() {
+    ClassNode classNode = new ClassNode();
+    @SuppressWarnings("deprecation")
+    ClassRemapper classRemapper =
+            new ClassRemapper(
+                    classNode,
+                    new Remapper() {
+                      @Override
+                      @Deprecated
+                      public String mapInvokeDynamicMethodName(final String name, final String descriptor) {
+                        return "new." + name;
+                      }
+
                       @Override
                       public String mapFieldName(
                               final String owner, final String name, final String descriptor) {
@@ -228,14 +309,104 @@ public class ClassRemapperTest extends AsmTest {
 
     InvokeDynamicInsnNode invokeDynamic =
             (InvokeDynamicInsnNode) classNode.methods.get(0).instructions.get(0);
+    assertEquals("new.foo", invokeDynamic.name);
     assertEquals("demo", invokeDynamic.bsm.getName());
+  }
+
+  @Test
+  void testInvokeDynamicInsn_field() {
+    ClassNode classNode = new ClassNode();
+    ClassRemapper classRemapper =
+            new ClassRemapper(
+                    classNode,
+                    new Remapper() {
+                      @Override
+                      @Deprecated
+                      public String mapInvokeDynamicMethodName(final String name, final String descriptor) {
+                        return "new." + name;
+                      }
+
+                      @Override
+                      public String mapFieldName(
+                              final String owner, final String name, final String descriptor) {
+                        if ("a".equals(name)) {
+                          return "demo";
+                        }
+                        return name;
+                      }
+                    });
+    classRemapper.visit(Opcodes.V11, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
+    MethodVisitor methodVisitor =
+            classRemapper.visitMethod(Opcodes.ACC_PUBLIC, "hello", "()V", null, null);
+    methodVisitor.visitCode();
+
+    methodVisitor.visitInvokeDynamicInsn(
+            "foo",
+            "()Ljava/lang/String;",
+            new Handle(Opcodes.H_GETFIELD, "pkg/B", "a", "Ljava/lang/String;", false));
+
+    InvokeDynamicInsnNode invokeDynamic =
+            (InvokeDynamicInsnNode) classNode.methods.get(0).instructions.get(0);
+    assertEquals("new.foo", invokeDynamic.name);
+    assertEquals("demo", invokeDynamic.bsm.getName());
+  }
+
+  /** Tests that classes transformed with an empty ClassRemapper are unchanged. */
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  void testEmptyClassRemapper_precompiledClass(
+          final PrecompiledClass classParameter, final Api apiParameter) {
+    byte[] classFile = classParameter.getBytes();
+    ClassReader classReader = new ClassReader(classFile);
+    ClassWriter classWriter = new ClassWriter(0);
+    ClassRemapper classRemapper = newClassRemapper(classWriter, new SimpleRemapper(Map.of()));
+
+    Executable accept =
+            () -> classReader.accept(classRemapper, new Attribute[] { new CodeComment() }, 0);
+
+    if (classParameter.isMoreRecentThan(apiParameter)) {
+      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
+      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
+    }
+    else {
+      assertDoesNotThrow(accept);
+      assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
+    }
+  }
+
+  /** Tests that inner class names are unchanged with by an empty ClassRemapper. */
+  @Test
+  void testEmptyClassRemapper_innerClassNames() {
+    ClassWriter classFileWriter = new ClassWriter(0);
+    classFileWriter.visit(
+            Opcodes.V1_8,
+            Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE,
+            "Outer",
+            null,
+            "java/lang/Object",
+            null);
+    classFileWriter.visitInnerClass(
+            "Outer$$Inner",
+            "Outer",
+            "$Inner",
+            Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE);
+    classFileWriter.visitEnd();
+    byte[] classFile = classFileWriter.toByteArray();
+    ClassReader classReader = new ClassReader(classFile);
+    ClassWriter classWriter = new ClassWriter(0);
+    ClassRemapper classRemapper =
+            new ClassRemapper(classWriter, new SimpleRemapper(Map.of()));
+
+    classReader.accept(classRemapper, new Attribute[] { new CodeComment() }, 0);
+
+    assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
   }
 
   /** Tests that classes transformed with a ClassRemapper can be loaded and instantiated. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testAllMethods_precompiledClass(
-          final PrecompiledClass classParameter) {
+  void testAllMethods_precompiledClass(
+          final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter = new ClassWriter(0);
     UpperCaseRemapper upperCaseRemapper = new UpperCaseRemapper(classParameter.getInternalName());
@@ -244,13 +415,19 @@ public class ClassRemapperTest extends AsmTest {
 
     Executable accept = () -> classReader.accept(classRemapper, 0);
 
-    assertDoesNotThrow(accept);
-    Executable newInstance = () -> new ClassFile(classWriter.toByteArray()).newInstance();
-    if (classParameter.isNotCompatibleWithCurrentJdk()) {
-      assertThrows(UnsupportedClassVersionError.class, newInstance);
+    if (classParameter.isMoreRecentThan(apiParameter)) {
+      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
+      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
     }
     else {
-      assertDoesNotThrow(newInstance);
+      assertDoesNotThrow(accept);
+      Executable newInstance = () -> new ClassFile(classWriter.toByteArray()).newInstance();
+      if (classParameter.isNotCompatibleWithCurrentJdk()) {
+        assertThrows(UnsupportedClassVersionError.class, newInstance);
+      }
+      else {
+        assertDoesNotThrow(newInstance);
+      }
     }
   }
 
@@ -260,8 +437,8 @@ public class ClassRemapperTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testAllMethods_precompiledClass_fromClassNode(
-          final PrecompiledClass classParameter) {
+  void testAllMethods_precompiledClass_fromClassNode(
+          final PrecompiledClass classParameter, final Api apiParameter) {
     ClassNode classNode = new ClassNode();
     new ClassReader(classParameter.getBytes()).accept(classNode, 0);
     ClassWriter classWriter = new ClassWriter(0);
@@ -271,13 +448,19 @@ public class ClassRemapperTest extends AsmTest {
 
     Executable accept = () -> classNode.accept(classRemapper);
 
-    assertDoesNotThrow(accept);
-    Executable newInstance = () -> new ClassFile(classWriter.toByteArray()).newInstance();
-    if (classParameter.isNotCompatibleWithCurrentJdk()) {
-      assertThrows(UnsupportedClassVersionError.class, newInstance);
+    if (classParameter.isMoreRecentThan(apiParameter)) {
+      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
+      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
     }
     else {
-      assertDoesNotThrow(newInstance);
+      assertDoesNotThrow(accept);
+      Executable newInstance = () -> new ClassFile(classWriter.toByteArray()).newInstance();
+      if (classParameter.isNotCompatibleWithCurrentJdk()) {
+        assertThrows(UnsupportedClassVersionError.class, newInstance);
+      }
+      else {
+        assertDoesNotThrow(newInstance);
+      }
     }
   }
 
@@ -294,8 +477,7 @@ public class ClassRemapperTest extends AsmTest {
     checkMethodAdapter.visitFieldInsn(Opcodes.GETFIELD, internalName, "name", "I");
   }
 
-  ClassRemapper newClassRemapper(
-          final ClassVisitor classVisitor, final Remapper remapper) {
+  ClassRemapper newClassRemapper(final ClassVisitor classVisitor, final Remapper remapper) {
     return new ClassRemapper(classVisitor, remapper);
   }
 
@@ -307,11 +489,12 @@ public class ClassRemapperTest extends AsmTest {
     private final String remappedInternalClassName;
 
     UpperCaseRemapper(final String internalClassName) {
+      super();
       this.internalClassName = internalClassName;
       this.remappedInternalClassName =
               internalClassName.equals("module-info")
-              ? internalClassName
-              : internalClassName.toUpperCase(LOCALE);
+                      ? internalClassName
+                      : internalClassName.toUpperCase(LOCALE);
     }
 
     String getRemappedClassName() {
