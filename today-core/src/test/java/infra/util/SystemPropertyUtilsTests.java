@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -135,6 +135,132 @@ class SystemPropertyUtilsTests {
       String text = "${PATH}";
       assertThat(SystemPropertyUtils.resolvePlaceholders(text)).isEqualTo(env.get("PATH"));
     }
+  }
+
+  @Test
+  void resolvePlaceholdersWithEmptyString() {
+    String result = SystemPropertyUtils.resolvePlaceholders("");
+    assertThat(result).isEqualTo("");
+  }
+
+  @Test
+  void resolvePlaceholdersWithNoPlaceholders() {
+    String result = SystemPropertyUtils.resolvePlaceholders("no placeholders here");
+    assertThat(result).isEqualTo("no placeholders here");
+  }
+
+  @Test
+  void resolvePlaceholdersWithMultiplePlaceholders() {
+    System.setProperty("prop1", "value1");
+    System.setProperty("prop2", "value2");
+    try {
+      String result = SystemPropertyUtils.resolvePlaceholders("First: ${prop1}, Second: ${prop2}");
+      assertThat(result).isEqualTo("First: value1, Second: value2");
+    }
+    finally {
+      System.getProperties().remove("prop1");
+      System.getProperties().remove("prop2");
+    }
+  }
+
+  @Test
+  void resolvePlaceholdersWithMixedPlaceholdersAndDefaults() {
+    System.setProperty("prop1", "value1");
+    try {
+      String result = SystemPropertyUtils.resolvePlaceholders("First: ${prop1}, Second: ${prop2:default2}");
+      assertThat(result).isEqualTo("First: value1, Second: default2");
+    }
+    finally {
+      System.getProperties().remove("prop1");
+    }
+  }
+
+  @Test
+  void resolvePlaceholdersWithNestedPlaceholdersInDefault() {
+    System.setProperty("prop1", "value1");
+    try {
+      String result = SystemPropertyUtils.resolvePlaceholders("${prop1:${prop2:default}}");
+      assertThat(result).isEqualTo("value1");
+    }
+    finally {
+      System.getProperties().remove("prop1");
+    }
+  }
+
+  @Test
+  void resolvePlaceholdersWithUnresolvablePlaceholderAndIgnoreFlag() {
+    String result = SystemPropertyUtils.resolvePlaceholders("${unknown.prop}", true);
+    assertThat(result).isEqualTo("${unknown.prop}");
+  }
+
+  @Test
+  void resolvePlaceholdersWithMultipleUnresolvablePlaceholdersAndIgnoreFlag() {
+    String result = SystemPropertyUtils.resolvePlaceholders("${unknown.prop1} and ${unknown.prop2}", true);
+    assertThat(result).isEqualTo("${unknown.prop1} and ${unknown.prop2}");
+  }
+
+  @Test
+  void resolvePlaceholdersWithSpecialCharactersInPropertyName() {
+    System.setProperty("prop.with.dots", "value");
+    System.setProperty("prop-with-dashes", "value2");
+    try {
+      String result = SystemPropertyUtils.resolvePlaceholders("${prop.with.dots} and ${prop-with-dashes}");
+      assertThat(result).isEqualTo("value and value2");
+    }
+    finally {
+      System.getProperties().remove("prop.with.dots");
+      System.getProperties().remove("prop-with-dashes");
+    }
+  }
+
+  @Test
+  void resolvePlaceholdersWithRecursiveResolutionAndDefaults() {
+    System.setProperty("prop1", "${prop2:default}");
+    System.setProperty("prop2", "value2");
+    try {
+      String result = SystemPropertyUtils.resolvePlaceholders("${prop1}");
+      assertThat(result).isEqualTo("value2");
+    }
+    finally {
+      System.getProperties().remove("prop1");
+      System.getProperties().remove("prop2");
+    }
+  }
+
+  @Test
+  void resolvePlaceholdersWithCircularReference() {
+    System.setProperty("prop1", "${prop2}");
+    System.setProperty("prop2", "${prop1}");
+    try {
+      assertThatExceptionOfType(PlaceholderResolutionException.class)
+              .isThrownBy(() -> SystemPropertyUtils.resolvePlaceholders("${prop1}"));
+    }
+    finally {
+      System.getProperties().remove("prop1");
+      System.getProperties().remove("prop2");
+    }
+  }
+
+  @Test
+  void resolvePlaceholdersWithEnvVariableFallback() {
+    Map<String, String> env = System.getenv();
+    if (env.containsKey("USER") || env.containsKey("USERNAME")) {
+      String envVar = env.containsKey("USER") ? "USER" : "USERNAME";
+      String result = SystemPropertyUtils.resolvePlaceholders("${nonexistent.prop:${" + envVar + "}}");
+      assertThat(result).isEqualTo(env.get(envVar));
+    }
+  }
+
+  @Test
+  void resolvePlaceholdersWithEscapedDollarSign() {
+    String result = SystemPropertyUtils.resolvePlaceholders("\\${not.a.placeholder}");
+    assertThat(result).isEqualTo("${not.a.placeholder}");
+  }
+
+  @Test
+  void resolvePlaceholdersWithIgnoreUnresolvableAndComplexText() {
+    String result = SystemPropertyUtils.resolvePlaceholders("Before ${prop1} middle ${prop2:default} after", true);
+    assertThat(result).isEqualTo("Before ${prop1} middle default after");
   }
 
 }
