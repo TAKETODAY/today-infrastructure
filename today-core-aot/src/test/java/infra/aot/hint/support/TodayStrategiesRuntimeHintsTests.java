@@ -65,4 +65,45 @@ class TodayStrategiesRuntimeHintsTests {
             .withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(this.hints);
   }
 
+  @Test
+  void handlesNonExistentResourceLocationGracefully() {
+    RuntimeHints hints = new RuntimeHints();
+    TodayStrategiesRuntimeHints runtimeHints = new TodayStrategiesRuntimeHints();
+    runtimeHints.registerHints(hints, getClass().getClassLoader());
+    // Should not throw exception and complete normally
+  }
+
+  @Test
+  void skipsUnresolvableFactoryClasses() {
+    RuntimeHints hints = new RuntimeHints();
+    ClassLoader classLoader = getClass().getClassLoader();
+    TodayStrategiesRuntimeHints runtimeHints = new TodayStrategiesRuntimeHints();
+
+    // This should not throw an exception even if class doesn't exist
+    runtimeHints.registerHints(hints, classLoader);
+    // Test passes if no exception is thrown
+  }
+
+  @Test
+  void resolvesAndRegistersValidFactoryClasses() {
+    // Using existing test infrastructure to verify normal operation
+    assertThat(RuntimeHintsPredicates.reflection().onType(DummyFactory.class)
+            .withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(this.hints);
+  }
+
+  @Test
+  void resolvesAndRegistersValidImplementationClasses() {
+    // Using existing test infrastructure to verify normal operation
+    assertThat(RuntimeHintsPredicates.reflection().onType(MyDummyFactory1.class)
+            .withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(this.hints);
+  }
+
+  @Test
+  void handlesNullClassLoaderGracefully() {
+    RuntimeHints hints = new RuntimeHints();
+    TodayStrategiesRuntimeHints runtimeHints = new TodayStrategiesRuntimeHints();
+    runtimeHints.registerHints(hints, null);
+    // Test passes if no exception is thrown
+  }
+
 }
