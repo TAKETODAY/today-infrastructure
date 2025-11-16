@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
@@ -29,6 +30,7 @@ import java.lang.reflect.Modifier;
 import java.net.URLConnection;
 import java.rmi.ConnectException;
 import java.rmi.RemoteException;
+import java.security.ProtectionDomain;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,6 +82,269 @@ class ReflectionUtilsTests {
     MethodFilter methodFilter = ReflectionUtils.USER_DECLARED_METHODS.and(isSetterMethodOrNameContainsQ);
     ReflectionUtils.doWithMethods(TestObject.class, mc, methodFilter);
     assertThat(mc.getMethodNames()).containsExactlyInAnyOrder("setName", "setAge", "setSpouse", "absquatulate");
+  }
+
+  @Test
+  void findMethodWithMinimalParametersReturnsMethodWithNoParameters() throws Exception {
+    Method method = ReflectionUtils.findMethodWithMinimalParameters(B.class, "bar");
+    assertThat(method).isNotNull();
+    assertThat(method.getName()).isEqualTo("bar");
+    assertThat(method.getParameterCount()).isEqualTo(1);
+
+    method = ReflectionUtils.findMethodWithMinimalParameters(B.class, "add");
+    assertThat(method).isNotNull();
+    assertThat(method.getName()).isEqualTo("add");
+    assertThat(method.getParameterCount()).isEqualTo(1);
+  }
+
+  @Test
+  void findMethodWithMinimalParametersReturnsNullForNonExistentMethod() throws Exception {
+    Method method = ReflectionUtils.findMethodWithMinimalParameters(B.class, "nonExistentMethod");
+    assertThat(method).isNull();
+  }
+
+  @Test
+  void findDeclaredMethodWithMinimalParameters() throws Exception {
+    Method method = ReflectionUtils.findDeclaredMethodWithMinimalParameters(B.class, "bar");
+    assertThat(method).isNotNull();
+    assertThat(method.getName()).isEqualTo("bar");
+    assertThat(method.getParameterCount()).isEqualTo(1);
+  }
+
+  @Test
+  void getReadMethodReturnsGetterForBooleanField() throws Exception {
+    class TestBean {
+      private boolean active;
+
+      public boolean isActive() { return active; }
+    }
+
+    Field field = TestBean.class.getDeclaredField("active");
+    Method readMethod = ReflectionUtils.getReadMethod(field);
+
+    assertThat(readMethod).isNotNull();
+    assertThat(readMethod.getName()).isEqualTo("isActive");
+    assertThat(readMethod.getParameterCount()).isEqualTo(0);
+  }
+
+  @Test
+  void getReadMethodReturnsGetterForStringField() throws Exception {
+    class TestBean {
+      private String name;
+
+      public String getName() { return name; }
+    }
+
+    Field field = TestBean.class.getDeclaredField("name");
+    Method readMethod = ReflectionUtils.getReadMethod(field);
+
+    assertThat(readMethod).isNotNull();
+    assertThat(readMethod.getName()).isEqualTo("getName");
+    assertThat(readMethod.getParameterCount()).isEqualTo(0);
+  }
+
+  @Test
+  void getReadMethodReturnsNullForFieldWithoutGetter() throws Exception {
+    class TestBean {
+      private String name;
+    }
+
+    Field field = TestBean.class.getDeclaredField("name");
+    Method readMethod = ReflectionUtils.getReadMethod(field);
+
+    assertThat(readMethod).isNull();
+  }
+
+  @Test
+  void getWriteMethodReturnsSetterForField() throws Exception {
+    class TestBean {
+      private String name;
+
+      public void setName(String name) { this.name = name; }
+    }
+
+    Field field = TestBean.class.getDeclaredField("name");
+    Method writeMethod = ReflectionUtils.getWriteMethod(field);
+
+    assertThat(writeMethod).isNotNull();
+    assertThat(writeMethod.getName()).isEqualTo("setName");
+    assertThat(writeMethod.getParameterCount()).isEqualTo(1);
+    assertThat(writeMethod.getParameterTypes()[0]).isEqualTo(String.class);
+  }
+
+  @Test
+  void getWriteMethodReturnsNullForFieldWithoutSetter() throws Exception {
+    class TestBean {
+      private String name;
+    }
+
+    Field field = TestBean.class.getDeclaredField("name");
+    Method writeMethod = ReflectionUtils.getWriteMethod(field);
+
+    assertThat(writeMethod).isNull();
+  }
+
+  @Test
+  void getPropertyNameFromReadMethod() throws Exception {
+    class TestBean {
+      public String getName() { return null; }
+
+      public void setName(String name) { }
+    }
+
+    Method readMethod = TestBean.class.getMethod("getName");
+    Method writeMethod = TestBean.class.getMethod("setName", String.class);
+
+    String propertyName = ReflectionUtils.getPropertyName(readMethod, writeMethod);
+    assertThat(propertyName).isEqualTo("name");
+  }
+
+  @Test
+  void getPropertyNameFromWriteMethod() throws Exception {
+    class TestBean {
+      public void setName(String name) { }
+    }
+
+    Method writeMethod = TestBean.class.getMethod("setName", String.class);
+
+    String propertyName = ReflectionUtils.getPropertyName(null, writeMethod);
+    assertThat(propertyName).isEqualTo("name");
+  }
+
+  @Test
+  void getPropertyNameReturnsNullForInvalidMethods() {
+    String propertyName = ReflectionUtils.getPropertyName(null, null);
+    assertThat(propertyName).isNull();
+  }
+
+  @Test
+  void isPublicStaticFinalReturnsTrueForConstants() throws Exception {
+    class TestBean {
+      public static final String CONSTANT = "value";
+      private static final String PRIVATE_CONSTANT = "private";
+      public static String NON_FINAL = "non-final";
+    }
+
+    Field constantField = TestBean.class.getField("CONSTANT");
+    Field nonFinalField = TestBean.class.getField("NON_FINAL");
+
+    assertThat(ReflectionUtils.isPublicStaticFinal(constantField)).isTrue();
+    assertThat(ReflectionUtils.isPublicStaticFinal(nonFinalField)).isFalse();
+  }
+
+  @Test
+  void makeAccessibleReturnsNullForNullField() {
+    Field field = ReflectionUtils.makeAccessible((Field) null);
+    assertThat(field).isNull();
+  }
+
+  @Test
+  void makeAccessibleReturnsNullForNullMethod() {
+    Method method = ReflectionUtils.makeAccessible((Method) null);
+    assertThat(method).isNull();
+  }
+
+  @Test
+  void makeAccessibleReturnsNullForNullConstructor() {
+    Constructor<?> constructor = ReflectionUtils.makeAccessible((Constructor) null);
+    assertThat(constructor).isNull();
+  }
+
+  @Test
+  void hasConstructorReturnsTrueForExistingConstructor() {
+    assertThat(ReflectionUtils.hasConstructor(String.class, String.class)).isTrue();
+    assertThat(ReflectionUtils.hasConstructor(String.class, int.class)).isFalse();
+  }
+
+  @Test
+  void getConstructorIfAvailableReturnsConstructor() {
+    Constructor<String> constructor = ReflectionUtils.getConstructorIfAvailable(String.class, String.class);
+    assertThat(constructor).isNotNull();
+
+    constructor = ReflectionUtils.getConstructorIfAvailable(String.class, int.class);
+    assertThat(constructor).isNull();
+  }
+
+  @Test
+  void accessibleConstructorReturnsConstructor() {
+    Constructor<String> constructor = ReflectionUtils.accessibleConstructor(String.class, String.class);
+    assertThat(constructor).isNotNull();
+  }
+
+  @Test
+  void invokeConstructorCreatesInstance() {
+    Constructor<String> constructor = ReflectionUtils.getConstructor(String.class, String.class);
+    String instance = ReflectionUtils.invokeConstructor(constructor, new Object[] { "test" });
+    assertThat(instance).isEqualTo("test");
+  }
+
+  @Test
+  void newInstanceWithClassNameCreatesInstance() throws Exception {
+    String instance = ReflectionUtils.newInstance("java.lang.String");
+    assertThat(instance).isNotNull();
+  }
+
+  @Test
+  void getProtectionDomainReturnsDomain() {
+    ProtectionDomain domain = ReflectionUtils.getProtectionDomain(String.class);
+    assertThat(domain).isNotNull();
+  }
+
+  @Test
+  void getProtectionDomainReturnsNullForNullClass() {
+    ProtectionDomain domain = ReflectionUtils.getProtectionDomain(null);
+    assertThat(domain).isNull();
+  }
+
+  @Test
+  void findFieldIgnoreCaseFindsField() throws Exception {
+    Field field = ReflectionUtils.findFieldIgnoreCase(TestObjectSubclassWithNewField.class, "PROT");
+    assertThat(field).isNotNull();
+    assertThat(field.getName()).isEqualTo("prot");
+  }
+
+  @Test
+  void findFieldIgnoreCaseReturnsNullForNonExistentField() {
+    Field field = ReflectionUtils.findFieldIgnoreCase(TestObjectSubclassWithNewField.class, "NONEXISTENT");
+    assertThat(field).isNull();
+  }
+
+  @Test
+  void doWithLocalFieldsProcessesFields() {
+    List<String> fieldNames = new ArrayList<>();
+    ReflectionUtils.doWithLocalFields(TestObjectSubclassWithNewField.class, field -> fieldNames.add(field.getName()));
+
+    assertThat(fieldNames).contains("magic", "prot");
+  }
+
+  @Test
+  void doWithFieldsProcessesAllFields() {
+    List<String> fieldNames = new ArrayList<>();
+    ReflectionUtils.doWithFields(TestObjectSubclassWithNewField.class, field -> fieldNames.add(field.getName()));
+
+    assertThat(fieldNames).contains("magic", "prot", "name", "age", "spouse");
+  }
+
+  @Test
+  void toMethodArrayConvertsCollection() {
+    Method method = ReflectionUtils.findMethod(B.class, "bar", String.class);
+    Collection<Method> methods = Collections.singletonList(method);
+
+    Method[] methodArray = ReflectionUtils.toMethodArray(methods);
+    assertThat(methodArray).hasSize(1);
+    assertThat(methodArray[0]).isEqualTo(method);
+  }
+
+  @Test
+  void toMethodArrayReturnsEmptyArrayForNull() {
+    Method[] methodArray = ReflectionUtils.toMethodArray(null);
+    assertThat(methodArray).isEmpty();
+  }
+
+  @Test
+  void toMethodArrayReturnsEmptyArrayForEmptyCollection() {
+    Method[] methodArray = ReflectionUtils.toMethodArray(Collections.emptyList());
+    assertThat(methodArray).isEmpty();
   }
 
   public static class POJO1 {
