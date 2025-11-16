@@ -441,6 +441,253 @@ class StopWatchTests {
     assertThat(stopWatch.getTaskInfo()).hasSize(2);
   }
 
+  @Test
+  void startWithNullId() {
+    StopWatch stopWatch = new StopWatch(null);
+    assertThat(stopWatch.getId()).isNull();
+  }
+
+  @Test
+  void startWithCustomId() {
+    StopWatch stopWatch = new StopWatch("customId");
+    assertThat(stopWatch.getId()).isEqualTo("customId");
+  }
+
+  @Test
+  void prettyPrintWithEmptyTaskList() {
+    StopWatch stopWatch = new StopWatch("test");
+    String output = stopWatch.prettyPrint();
+    assertThat(output).contains("StopWatch 'test'")
+            .contains("No task info kept");
+  }
+
+  @Test
+  void prettyPrintWithSingleTask() throws Exception {
+    StopWatch stopWatch = new StopWatch("test");
+    stopWatch.start("singleTask");
+    Thread.sleep(50);
+    stopWatch.stop();
+
+    String output = stopWatch.prettyPrint();
+    assertThat(output).contains("singleTask")
+            .contains("StopWatch 'test'")
+            .contains("seconds");
+  }
+
+  @Test
+  void prettyPrintWithMultipleTasks() throws Exception {
+    StopWatch stopWatch = new StopWatch("test");
+    stopWatch.start("task1");
+    Thread.sleep(50);
+    stopWatch.stop();
+    stopWatch.start("task2");
+    Thread.sleep(50);
+    stopWatch.stop();
+
+    String output = stopWatch.prettyPrint();
+    assertThat(output).contains("task1")
+            .contains("task2")
+            .contains("StopWatch 'test'");
+  }
+
+  @Test
+  void prettyPrintWithNanoseconds() throws Exception {
+    StopWatch stopWatch = new StopWatch("test");
+    stopWatch.start("nanoTask");
+    Thread.sleep(1);
+    stopWatch.stop();
+
+    String output = stopWatch.prettyPrint(TimeUnit.NANOSECONDS);
+    assertThat(output).contains("Nanoseconds")
+            .contains("nanoTask");
+  }
+
+  @Test
+  void getTotalTimeWithDifferentTimeUnits() throws Exception {
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    Thread.sleep(100);
+    stopWatch.stop();
+
+    assertThat(stopWatch.getTotalTime(TimeUnit.MILLISECONDS)).isPositive();
+    assertThat(stopWatch.getTotalTime(TimeUnit.SECONDS)).isPositive();
+    assertThat(stopWatch.getTotalTime(TimeUnit.NANOSECONDS)).isPositive();
+  }
+
+  @Test
+  void getLastTaskName() throws Exception {
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start("lastTask");
+    Thread.sleep(10);
+    stopWatch.stop();
+
+    assertThat(stopWatch.getLastTaskName()).isEqualTo("lastTask");
+  }
+
+  @Test
+  void getLastTaskTimeMillis() throws Exception {
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start("timedTask");
+    Thread.sleep(100);
+    stopWatch.stop();
+
+    assertThat(stopWatch.getLastTaskTimeMillis()).isGreaterThanOrEqualTo(100);
+  }
+
+  @Test
+  void shortSummaryWithNoTasks() {
+    StopWatch stopWatch = new StopWatch("empty");
+    String summary = stopWatch.shortSummary();
+    assertThat(summary).isEqualTo("StopWatch 'empty': 0.0 seconds");
+  }
+
+  @Test
+  void shortSummaryWithTasks() throws Exception {
+    StopWatch stopWatch = new StopWatch("withTasks");
+    stopWatch.start();
+    Thread.sleep(50);
+    stopWatch.stop();
+
+    String summary = stopWatch.shortSummary();
+    assertThat(summary).contains("StopWatch 'withTasks'")
+            .contains("seconds");
+  }
+
+  @Test
+  void toStringWithTasks() throws Exception {
+    StopWatch stopWatch = new StopWatch("withTasks");
+    stopWatch.start("toStringTask");
+    Thread.sleep(10);
+    stopWatch.stop();
+
+    String result = stopWatch.toString();
+    assertThat(result).contains("StopWatch 'withTasks'")
+            .contains("toStringTask")
+            .contains("seconds")
+            .contains("%");
+  }
+
+  @Test
+  void taskInfoGetTaskName() {
+    StopWatch.TaskInfo taskInfo = new StopWatch.TaskInfo("testTask", 1000000);
+    assertThat(taskInfo.getTaskName()).isEqualTo("testTask");
+  }
+
+  @Test
+  void taskInfoGetTimeNanos() {
+    StopWatch.TaskInfo taskInfo = new StopWatch.TaskInfo("testTask", 1000000);
+    assertThat(taskInfo.getTimeNanos()).isEqualTo(1000000);
+  }
+
+  @Test
+  void taskInfoGetTimeMillis() {
+    StopWatch.TaskInfo taskInfo = new StopWatch.TaskInfo("testTask", 2000000);
+    assertThat(taskInfo.getTimeMillis()).isEqualTo(2);
+  }
+
+  @Test
+  void taskInfoGetTimeSeconds() {
+    StopWatch.TaskInfo taskInfo = new StopWatch.TaskInfo("testTask", 1000000000);
+    assertThat(taskInfo.getTimeSeconds()).isEqualTo(1.0);
+  }
+
+  @Test
+  void taskInfoGetTimeWithDifferentUnits() {
+    StopWatch.TaskInfo taskInfo = new StopWatch.TaskInfo("testTask", 1000000000);
+    assertThat(taskInfo.getTime(TimeUnit.SECONDS)).isEqualTo(1.0);
+    assertThat(taskInfo.getTime(TimeUnit.MILLISECONDS)).isEqualTo(1000.0);
+    assertThat(taskInfo.getTime(TimeUnit.NANOSECONDS)).isEqualTo(1000000000.0);
+  }
+
+  @Test
+  void setKeepTaskListToFalseThenTrue() {
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.setKeepTaskList(false);
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(stopWatch::getTaskInfo);
+
+    stopWatch.setKeepTaskList(true);
+    stopWatch.start("task");
+    stopWatch.stop();
+    assertThat(stopWatch.getTaskInfo()).hasSize(1);
+  }
+
+  @Test
+  void startWithoutTaskName() {
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    assertThat(stopWatch.currentTaskName()).isEmpty();
+    stopWatch.stop();
+  }
+
+  @Test
+  void isRunningWhenNotStarted() {
+    StopWatch stopWatch = new StopWatch();
+    assertThat(stopWatch.isRunning()).isFalse();
+  }
+
+  @Test
+  void isRunningWhenStarted() {
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start("runningTask");
+    assertThat(stopWatch.isRunning()).isTrue();
+    stopWatch.stop();
+  }
+
+  @Test
+  void isRunningWhenStopped() {
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start("stoppedTask");
+    stopWatch.stop();
+    assertThat(stopWatch.isRunning()).isFalse();
+  }
+
+  @Test
+  void currentTaskNameWhenNotRunning() {
+    StopWatch stopWatch = new StopWatch();
+    assertThat(stopWatch.currentTaskName()).isNull();
+  }
+
+  @Test
+  void currentTaskNameWhenRunning() {
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start("currentTask");
+    assertThat(stopWatch.currentTaskName()).isEqualTo("currentTask");
+    stopWatch.stop();
+  }
+
+  @Test
+  void lastTaskInfoThrowsExceptionWhenNoTasks() {
+    StopWatch stopWatch = new StopWatch();
+    assertThatIllegalStateException()
+            .isThrownBy(stopWatch::lastTaskInfo)
+            .withMessage("No tasks run");
+  }
+
+  @Test
+  void getLastTaskNameThrowsExceptionWhenNoTasks() {
+    StopWatch stopWatch = new StopWatch();
+    assertThatIllegalStateException()
+            .isThrownBy(stopWatch::getLastTaskName)
+            .withMessage("No tasks run");
+  }
+
+  @Test
+  void getLastTaskTimeNanosThrowsExceptionWhenNoTasks() {
+    StopWatch stopWatch = new StopWatch();
+    assertThatIllegalStateException()
+            .isThrownBy(stopWatch::getLastTaskTimeNanos)
+            .withMessage("No tasks run");
+  }
+
+  @Test
+  void getLastTaskTimeMillisThrowsExceptionWhenNoTasks() {
+    StopWatch stopWatch = new StopWatch();
+    assertThatIllegalStateException()
+            .isThrownBy(stopWatch::getLastTaskTimeMillis)
+            .withMessage("No tasks run");
+  }
+
   private static long millisToNanos(long duration) {
     return MILLISECONDS.toNanos(duration);
   }

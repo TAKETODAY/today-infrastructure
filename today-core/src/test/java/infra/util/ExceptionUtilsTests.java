@@ -27,6 +27,7 @@ import infra.util.function.ThrowingRunnable;
 import infra.util.function.ThrowingSupplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
@@ -244,6 +245,109 @@ class ExceptionUtilsTests {
                     new InvocationTargetException(original)));
 
     assertThat(ExceptionUtils.unwrapIfNecessary(wrapped)).isSameAs(original);
+  }
+
+  @Test
+  void getMostSpecificCauseReturnsRootCauseWhenPresent() {
+    Exception root = new RuntimeException("root");
+    Exception middle = new RuntimeException("middle", root);
+    Exception top = new RuntimeException("top", middle);
+
+    assertThat(ExceptionUtils.getMostSpecificCause(top)).isSameAs(root);
+  }
+
+  @Test
+  void getMostSpecificCauseWithNullException() {
+    assertThat(ExceptionUtils.getMostSpecificCause(null)).isNull();
+  }
+
+  @Test
+  void containsReturnsTrueForDirectExceptionType() {
+    RuntimeException ex = new RuntimeException();
+    assertThat(ExceptionUtils.contains(ex, RuntimeException.class)).isTrue();
+  }
+
+  @Test
+  void containsReturnsTrueForNestedExceptionType() {
+    Exception root = new IllegalArgumentException();
+    Exception wrapper = new RuntimeException(root);
+    assertThat(ExceptionUtils.contains(wrapper, IllegalArgumentException.class)).isTrue();
+  }
+
+  @Test
+  void stackTraceToStringWithNullException() {
+    assertThatThrownBy(() -> ExceptionUtils.stackTraceToString(null))
+            .isInstanceOf(NullPointerException.class);
+  }
+
+  @Test
+  void stackTraceToStringWithStandardException() {
+    Exception ex = new Exception("test exception");
+    String trace = ExceptionUtils.stackTraceToString(ex);
+
+    assertThat(trace).contains("java.lang.Exception: test exception");
+    assertThat(trace).contains("at " + ExceptionUtilsTests.class.getName());
+  }
+
+  @Test
+  void sneakyThrowWithRuntimeException() {
+    RuntimeException ex = new RuntimeException("sneaky");
+    assertThatThrownBy(() -> { throw ExceptionUtils.sneakyThrow(ex); })
+            .isSameAs(ex);
+  }
+
+  @Test
+  void sneakyThrowWithCheckedException() {
+    IOException ex = new IOException("sneaky checked");
+    assertThatThrownBy(() -> { throw ExceptionUtils.sneakyThrow(ex); })
+            .isSameAs(ex);
+  }
+
+  @Test
+  void sneakyThrowRunnableExecutesSuccessfully() {
+    assertThatCode(() -> ExceptionUtils.sneakyThrow(() -> { }))
+            .doesNotThrowAnyException();
+  }
+
+  @Test
+  void sneakyThrowRunnableThrowsException() {
+    RuntimeException expected = new RuntimeException("expected");
+    assertThatThrownBy(() -> ExceptionUtils.sneakyThrow((ThrowingRunnable) () -> { throw expected; }))
+            .isSameAs(expected);
+  }
+
+  @Test
+  void getNestedMessageWithMessageAndNullException() {
+    String message = ExceptionUtils.getNestedMessage(null, "base message");
+    assertThat(message).isEqualTo("base message");
+  }
+
+  @Test
+  void unwrapIfNecessaryWithNonWrappingException() {
+    Exception ex = new RuntimeException("normal");
+    assertThat(ExceptionUtils.unwrapIfNecessary(ex)).isSameAs(ex);
+  }
+
+  @Test
+  void getNestedMessageHandlesExceptionWithNullMessage() {
+    Exception cause = new RuntimeException(); // No message
+    String message = ExceptionUtils.getNestedMessage(cause, "base message");
+    assertThat(message).startsWith("base message; nested exception is java.lang.RuntimeException");
+  }
+
+  @Test
+  void stackTraceToStringHandlesExceptionWithNullMessage() {
+    Exception ex = new RuntimeException((String) null);
+    String trace = ExceptionUtils.stackTraceToString(ex);
+
+    assertThat(trace).contains("java.lang.RuntimeException");
+  }
+
+  @Test
+  void sneakyThrowSupplierWithCheckedException() {
+    IOException expected = new IOException("checked");
+    assertThatThrownBy(() -> ExceptionUtils.sneakyThrow(() -> { throw expected; }))
+            .isSameAs(expected);
   }
 
 }
