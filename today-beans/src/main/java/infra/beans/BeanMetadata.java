@@ -45,6 +45,7 @@ import infra.util.ReflectionUtils;
  */
 public final class BeanMetadata implements Iterable<BeanProperty> {
 
+  @SuppressWarnings("NullAway")
   private static final MapCache<Class<?>, BeanMetadata, ?> metadataMappings = new MapCache<>(
           new ConcurrentReferenceHashMap<>(), BeanMetadata::new);
 

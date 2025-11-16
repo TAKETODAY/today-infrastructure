@@ -248,6 +248,7 @@ final class AttributeMethods {
    * @param annotationType the annotation type
    * @return the attribute methods for the annotation type
    */
+  @SuppressWarnings("NullAway")
   static AttributeMethods forAnnotationType(@Nullable Class<? extends Annotation> annotationType) {
     if (annotationType == null) {
       return NONE;

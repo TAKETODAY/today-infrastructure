@@ -138,6 +138,7 @@ public class ReactorClientHttpConnector implements ClientHttpConnector, SmartLif
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public Mono<ClientHttpResponse> connect(HttpMethod method, URI uri,
           Function<? super ClientHttpRequest, Mono<Void>> requestCallback) {
 

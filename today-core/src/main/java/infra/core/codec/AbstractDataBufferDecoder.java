@@ -79,6 +79,7 @@ public abstract class AbstractDataBufferDecoder<T> extends AbstractDecoder<T> {
     return this.maxInMemorySize;
   }
 
+  @SuppressWarnings("NullAway")
   @Override
   public Flux<T> decode(Publisher<DataBuffer> input, ResolvableType elementType,
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
@@ -87,6 +88,7 @@ public abstract class AbstractDataBufferDecoder<T> extends AbstractDecoder<T> {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public Mono<T> decodeToMono(Publisher<DataBuffer> input, ResolvableType elementType,
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 

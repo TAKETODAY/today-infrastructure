@@ -60,6 +60,7 @@ class InfraProfileModelHandler extends ModelHandlerBase {
     }
   }
 
+  @SuppressWarnings("NullAway")
   private boolean acceptsProfiles(ModelInterpretationContext ic, InfraProfileModel model) {
     if (this.environment == null) {
       return false;

@@ -191,6 +191,7 @@ public abstract class ClientHttpRequestFactories {
   /**
    * Support for {@link JdkClientHttpRequestFactory}.
    */
+  @SuppressWarnings("NullAway")
   static class Jdk {
 
     static JdkClientHttpRequestFactory get(ClientHttpRequestFactorySettings settings) {
@@ -218,6 +219,7 @@ public abstract class ClientHttpRequestFactories {
   /**
    * Support for {@link ReactorClientHttpRequestFactory}.
    */
+  @SuppressWarnings("NullAway")
   static class Reactor {
 
     static ReactorClientHttpRequestFactory get(ClientHttpRequestFactorySettings settings) {
@@ -254,6 +256,7 @@ public abstract class ClientHttpRequestFactories {
    * Support for reflective configuration of an unknown {@link ClientHttpRequestFactory}
    * implementation.
    */
+  @SuppressWarnings("NullAway")
   static class Reflective {
 
     static <T extends ClientHttpRequestFactory> T get(Supplier<T> supplier, ClientHttpRequestFactorySettings settings) {

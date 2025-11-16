@@ -546,7 +546,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     public final Set<ResolvableType> parameterizedContainers;
 
     Spec(ConditionContext context, AnnotatedTypeMetadata metadata, MergedAnnotations annotations, Class<A> annotationType) {
-      MultiValueMap<String, Object> attributes = annotations.stream(annotationType)
+      MultiValueMap<String, @Nullable Object> attributes = annotations.stream(annotationType)
               .filter(MergedAnnotationPredicates.unique(MergedAnnotation::getMetaTypes))
               .collect(MergedAnnotationCollectors.toMultiValueMap(Adapt.CLASS_TO_STRING));
       this.annotationType = annotationType;
@@ -570,17 +570,17 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
       validate(deductionException);
     }
 
-    protected Set<String> extractTypes(MultiValueMap<String, Object> attributes) {
+    protected Set<String> extractTypes(@Nullable MultiValueMap<String, @Nullable Object> attributes) {
       return extract(attributes, "value", "type");
     }
 
-    private Set<String> extract(MultiValueMap<String, Object> attributes, String... attributeNames) {
-      if (attributes.isEmpty()) {
+    private Set<String> extract(@Nullable MultiValueMap<String, @Nullable Object> attributes, String... attributeNames) {
+      if (CollectionUtils.isEmpty(attributes)) {
         return Collections.emptySet();
       }
       var result = new LinkedHashSet<String>();
       for (String attributeName : attributeNames) {
-        List<Object> values = attributes.getOrDefault(attributeName, Collections.emptyList());
+        List<@Nullable Object> values = attributes.getOrDefault(attributeName, Collections.emptyList());
         for (Object value : values) {
           if (value instanceof String[] stringArray) {
             merge(result, stringArray);
@@ -754,7 +754,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     }
 
     @Override
-    protected Set<String> extractTypes(MultiValueMap<String, Object> attributes) {
+    protected Set<String> extractTypes(@Nullable MultiValueMap<String, @Nullable Object> attributes) {
       Set<String> types = super.extractTypes(attributes);
       types.removeAll(FILTERED_TYPES);
       return types;

@@ -50,6 +50,7 @@ import infra.util.function.ThrowingConsumer;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
+@SuppressWarnings("NullAway")
 class JsonValueWriter {
 
   private static final int DEFAULT_MAX_NESTING_DEPTH = 500;

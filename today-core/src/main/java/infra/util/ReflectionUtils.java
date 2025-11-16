@@ -527,6 +527,7 @@ public abstract class ReflectionUtils {
    * @see #getMostSpecificMethod(Method, Class)
    * @since 5.0
    */
+  @SuppressWarnings("NullAway")
   public static Method getPubliclyAccessibleMethodIfPossible(Method method, @Nullable Class<?> targetClass) {
     Class<?> declaringClass = method.getDeclaringClass();
     // If the method is not public, or it's static, or its declaring class is public and exported

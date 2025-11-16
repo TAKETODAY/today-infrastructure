@@ -312,7 +312,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   }
 
   protected CacheOperationContext getOperationContext(CacheOperation operation,
-          Method method, Object[] args, Object target, Class<?> targetClass) {
+          Method method, @Nullable Object[] args, Object target, Class<?> targetClass) {
 
     CacheOperationMetadata metadata = getCacheOperationMetadata(operation, method, targetClass);
     return new CacheOperationContext(metadata, args, target);
@@ -791,7 +791,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
     public boolean processed;
 
     public CacheOperationContexts(Collection<? extends CacheOperation> operations,
-            Method method, Object[] args, Object target, Class<?> targetClass) {
+            Method method, @Nullable Object[] args, Object target, Class<?> targetClass) {
 
       this.contexts = MultiValueMap.forLinkedHashMap(operations.size());
       for (CacheOperation op : operations) {
@@ -1132,6 +1132,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   /**
    * Inner class to avoid a hard dependency on the Reactive Streams API at runtime.
    */
+  @SuppressWarnings("NullAway")
   private final class ReactiveCachingHandler {
 
     public static final Object NOT_HANDLED = new Object();

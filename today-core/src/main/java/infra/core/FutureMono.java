@@ -68,7 +68,7 @@ public abstract class FutureMono<T> extends Mono<T> {
     return new DeferredFutureMono<>(deferredFuture);
   }
 
-  @SuppressWarnings("FutureReturnValueIgnored")
+  @SuppressWarnings({ "FutureReturnValueIgnored", "NullAway" })
   private static <T, F extends Future<T>> void doSubscribe(CoreSubscriber<? super T> s, F future) {
     if (future.isDone()) {
       if (future.isSuccess()) {

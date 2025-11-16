@@ -62,7 +62,7 @@ class InvocationsRecorderClassVisitor extends ClassVisitor implements Opcodes {
   }
 
   @Override
-  public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
+  public MethodVisitor visitMethod(int access, String name, String descriptor, @Nullable String signature, String @Nullable [] exceptions) {
     MethodVisitor mv = super.visitMethod(access, name, descriptor, signature, exceptions);
     return new InvocationsRecorderMethodVisitor(mv);
   }
@@ -129,7 +129,7 @@ class InvocationsRecorderClassVisitor extends ClassVisitor implements Opcodes {
       return owner.substring(classIndex + 1).toLowerCase(Locale.ROOT) + methodName;
     }
 
-      String rewriteDescriptor(int opcode, String owner, String name, String descriptor) {
+    String rewriteDescriptor(int opcode, String owner, String name, String descriptor) {
       return (opcode == Opcodes.INVOKESTATIC || opcode == Opcodes.H_INVOKESTATIC) ? descriptor : "(L" + owner + ";" + descriptor.substring(1);
     }
 
