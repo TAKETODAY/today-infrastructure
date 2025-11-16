@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,32 +17,28 @@
 
 package infra.jdbc;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.zapodot.junit.db.EmbeddedDatabaseRule;
-
 import java.util.List;
+
+import infra.persistence.AbstractRepositoryManagerTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author zapodot
  */
-public class NamedQueryArrayTest {
+class NamedQueryArrayTests extends AbstractRepositoryManagerTests {
 
   private static class Foo {
     private int bar;
   }
 
-  @Rule
-  public EmbeddedDatabaseRule databaseRule = EmbeddedDatabaseRule.builder()
-          .withMode(EmbeddedDatabaseRule.CompatibilityMode.Oracle)
-          .withInitialSql("CREATE TABLE FOO(BAR int PRIMARY KEY); INSERT INTO FOO VALUES(1); INSERT INTO FOO VALUES(2)")
-          .build();
+  @ParameterizedRepositoryManagerTest
+  void arrayTest(DbType dbType, RepositoryManager database) {
+    database.createQuery("Drop table if exists FOO").executeUpdate();
+    database.createQuery("CREATE TABLE FOO(BAR int PRIMARY KEY)").executeUpdate();
+    database.createQuery("INSERT INTO FOO VALUES(1)").executeUpdate();
+    database.createQuery("INSERT INTO FOO VALUES(2)").executeUpdate();
 
-  @Test
-  public void arrayTest() throws Exception {
-    final RepositoryManager database = new RepositoryManager(databaseRule.getDataSource());
     try (final JdbcConnection connection = database.open();
             final NamedQuery query = connection.createNamedQuery("SELECT * FROM FOO WHERE BAR IN (:bars)")) {
 
@@ -53,10 +49,12 @@ public class NamedQueryArrayTest {
     }
   }
 
-  @Test
-  public void emptyArrayTest() throws Exception {
-    final RepositoryManager database = new RepositoryManager(databaseRule.getDataSource());
-
+  @ParameterizedRepositoryManagerTest
+  void emptyArrayTest(DbType dbType, RepositoryManager database) throws Exception {
+    database.createQuery("Drop table if exists FOO").executeUpdate();
+    database.createQuery("CREATE TABLE FOO(BAR int PRIMARY KEY)").executeUpdate();
+    database.createQuery("INSERT INTO FOO VALUES(1)").executeUpdate();
+    database.createQuery("INSERT INTO FOO VALUES(2)").executeUpdate();
     try (final JdbcConnection connection = database.open();
             final NamedQuery query = connection.createNamedQuery("SELECT * FROM FOO WHERE BAR IN (:bars)")) {
 

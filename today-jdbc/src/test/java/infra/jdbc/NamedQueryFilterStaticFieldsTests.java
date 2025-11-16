@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,21 +19,13 @@ package infra.jdbc;
 
 import com.google.common.primitives.Longs;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.zapodot.junit.db.EmbeddedDatabaseRule;
-
 import java.util.Comparator;
+
+import infra.persistence.AbstractRepositoryManagerTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class NamedQueryFilterStaticFieldsTest {
-
-  @Rule
-  public EmbeddedDatabaseRule databaseRule = EmbeddedDatabaseRule.builder()
-          .withInitialSql(
-                  "CREATE TABLE TEST(ver int primary key); INSERT INTO TEST VALUES(1);")
-          .build();
+class NamedQueryFilterStaticFieldsTests extends AbstractRepositoryManagerTests {
 
   static class Entity {
     public long ver;
@@ -45,10 +37,13 @@ public class NamedQueryFilterStaticFieldsTest {
     };
   }
 
-  @Test
-  public void dontTouchTheStaticFieldTest() throws Exception {
-    final RepositoryManager dataBase = new RepositoryManager(databaseRule.getDataSource());
-    try (final JdbcConnection connection = dataBase.open();
+  @ParameterizedRepositoryManagerTest
+  void dontTouchTheStaticFieldTest(DbType dbType, RepositoryManager database) {
+    database.createQuery("Drop table if exists TEST").executeUpdate();
+    database.createQuery("CREATE TABLE TEST(ver int primary key)").executeUpdate();
+    database.createQuery("INSERT INTO TEST VALUES(1)").executeUpdate();
+
+    try (final JdbcConnection connection = database.open();
             final NamedQuery query = connection.createNamedQuery("SELECT * FROM TEST WHERE ver=1")) {
       final Entity entity = query.fetchFirst(Entity.class);
       assertThat(entity.ver).isEqualTo(1L);

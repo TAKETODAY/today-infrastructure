@@ -19,7 +19,6 @@ package infra.persistence;
 
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 
 import java.io.Serializable;
 import java.lang.annotation.ElementType;
@@ -46,6 +45,7 @@ import infra.dao.IncorrectResultSizeDataAccessException;
 import infra.dao.InvalidDataAccessApiUsageException;
 import infra.jdbc.JdbcUpdateAffectedIncorrectNumberOfRowsException;
 import infra.jdbc.NamedQuery;
+import infra.jdbc.Query;
 import infra.jdbc.RepositoryManager;
 import infra.jdbc.format.SqlStatementLogger;
 import infra.jdbc.type.BasicTypeHandler;
@@ -76,24 +76,24 @@ import static org.mockito.Mockito.when;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/8/16 22:48
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
 
   @Override
   protected void prepareTestsData(DbType dbType, RepositoryManager repositoryManager) {
+    repositoryManager.createNamedQuery("drop table if exists t_user").executeUpdate();
+
     try (NamedQuery query = repositoryManager.createNamedQuery("""
-            drop table if exists t_user;
             create table t_user
             (
                 `id`               int auto_increment primary key,
-                `age`              int           default 0    comment 'Age',
-                `name`             varchar(255)  default null comment '用户名',
-                `avatar`           mediumtext    default null comment '头像',
-                `password`         varchar(255)  default null comment '密码',
-                `introduce`        varchar(1000) default null comment '介绍',
-                `email`            varchar(255)  default null comment 'email',
-                `gender`           int           default -1   comment '性别',
-                `mobile_phone`     varchar(36)   default null comment '手机号'
+                `age`              int           default 0    ,
+                `name`             varchar(255)  default null ,
+                `avatar`           varchar(255)  default null ,
+                `password`         varchar(255)  default null ,
+                `introduce`        varchar(1000) default null ,
+                `email`            varchar(255)  default null ,
+                `gender`           int           default -1   ,
+                `mobile_phone`     varchar(36)   default null
             );
             """)) {
 
@@ -103,7 +103,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
   }
 
   @ParameterizedRepositoryManagerTest
-  void exception(RepositoryManager repositoryManager) {
+  void exception(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
 
     assertThatThrownBy(() ->
@@ -114,7 +114,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
   }
 
   @ParameterizedRepositoryManagerTest
-  void persist(RepositoryManager repositoryManager) {
+  void persist(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
 
     UserModel userModel = new UserModel();
@@ -126,7 +126,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
 
     assertThat(userModel.id).isNotNull();
 
-    try (NamedQuery query = repositoryManager.createNamedQuery("SELECT * from t_user where id=:id")) {
+    try (NamedQuery query = repositoryManager.createNamedQuery("SELECT * from t_user where `id`=:id")) {
       query.addParameter("id", userModel.id);
       query.setAutoDerivingColumns(true);
 
@@ -141,7 +141,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
   }
 
   @ParameterizedRepositoryManagerTest
-  void batchPersist(RepositoryManager repositoryManager) {
+  void batchPersist(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     entityManager.setMaxBatchRecords(10);
 
@@ -185,23 +185,23 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     @Column("id")
     Integer userId;
 
-    @Where("name = ?")
+    @Where("`name` = ?")
     String name;
 
     @Nullable
     @Where(operator = "=")
     Integer age;
 
-    @Where("birthday >= ?")
+    @Where("`birthday` >= ?")
     LocalDate birthdayBegin;
 
-    @Where("birthday <= ?")
+    @Where("`birthday` <= ?")
     LocalDate birthdayEnd;
 
   }
 
   @ParameterizedRepositoryManagerTest
-  void findByExample(RepositoryManager repositoryManager) {
+  void findByExample(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
 
     UserModel userModel = UserModel.male("TODAY", 9);
@@ -226,7 +226,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
   }
 
   @ParameterizedRepositoryManagerTest
-  void iterateListOfQueryConditions(RepositoryManager repositoryManager) {
+  void iterateListOfQueryConditions(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     createData(entityManager);
 
@@ -239,7 +239,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
   }
 
   @ParameterizedRepositoryManagerTest
-  void deleteById(RepositoryManager repositoryManager) {
+  void deleteById(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     createData(entityManager);
 
@@ -253,7 +253,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
   }
 
   @ParameterizedRepositoryManagerTest
-  void deleteByEntity(RepositoryManager repositoryManager) {
+  void deleteByEntity(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     createData(entityManager);
 
@@ -292,7 +292,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
   }
 
   @ParameterizedRepositoryManagerTest
-  void findUnique(RepositoryManager repositoryManager) {
+  void findUnique(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     createData(entityManager);
 
@@ -323,7 +323,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
   }
 
   @ParameterizedRepositoryManagerTest
-  void updateBy(RepositoryManager repositoryManager) {
+  void updateBy(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     createData(entityManager);
 
@@ -349,7 +349,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
   }
 
   @ParameterizedRepositoryManagerTest
-  void updateById(RepositoryManager repositoryManager) {
+  void updateById(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     createData(entityManager);
 
@@ -404,7 +404,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
   }
 
   @ParameterizedRepositoryManagerTest
-  void findMap(RepositoryManager repositoryManager) {
+  void findMap(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     createData(entityManager);
 
@@ -418,7 +418,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
   }
 
   @ParameterizedRepositoryManagerTest
-  void findMapWithMappingFunction(RepositoryManager repositoryManager) {
+  void findMapWithMappingFunction(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     createData(entityManager);
 
@@ -431,7 +431,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
   }
 
   @ParameterizedRepositoryManagerTest
-  void findList(RepositoryManager repositoryManager) {
+  void findList(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     createData(entityManager);
 
@@ -446,7 +446,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
   }
 
   @ParameterizedRepositoryManagerTest
-  void findByExampleMap(RepositoryManager repositoryManager) {
+  void findByExampleMap(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     createData(entityManager);
 
@@ -460,7 +460,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
   }
 
   @ParameterizedRepositoryManagerTest
-  void findSortBy(RepositoryManager repositoryManager) {
+  void findSortBy(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     createData(entityManager);
 
@@ -469,7 +469,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
   }
 
   @ParameterizedRepositoryManagerTest
-  void batchPersistListener(RepositoryManager repositoryManager) {
+  void batchPersistListener(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     entityManager.setMaxBatchRecords(120);
     EntityMetadataFactory entityMetadataFactory = ReflectionTestUtils.getField(entityManager, "entityMetadataFactory");
@@ -487,9 +487,11 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
   }
 
   @ParameterizedRepositoryManagerTest
-  void count(RepositoryManager repositoryManager) {
+  void count(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
-
+    if (dbType == DbType.HyperSQL) {
+      entityManager.setPlatform(new HyperSQLPlatform());
+    }
     UserModel userModel = UserModel.male("TODAY", 9);
     List<Object> entities = new ArrayList<>();
     entities.add(userModel);
@@ -510,9 +512,11 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
   }
 
   @ParameterizedRepositoryManagerTest
-  void page(RepositoryManager repositoryManager) {
+  void page(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
-
+    if (dbType == DbType.HyperSQL) {
+      entityManager.setPlatform(new HyperSQLPlatform());
+    }
     UserModel userModel = UserModel.male("TODAY", 9);
 
     List<Object> entities = new ArrayList<>();
@@ -561,7 +565,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
   // update
 
   @ParameterizedRepositoryManagerTest
-  void update(RepositoryManager repositoryManager) {
+  void update(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     createData(entityManager);
 
@@ -600,8 +604,12 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
   }
 
   @ParameterizedRepositoryManagerTest
-  void truncate(RepositoryManager repositoryManager) {
+  void truncate(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    if (dbType == DbType.HyperSQL) {
+      entityManager.setPlatform(new HyperSQLPlatform());
+    }
+
     createData(entityManager);
 
     assertThat(entityManager.count(UserModel.class).intValue()).isEqualTo(11);
@@ -614,10 +622,10 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
   }
 
   @ParameterizedRepositoryManagerTest
-  void addConditionPropertyExtractor(RepositoryManager repositoryManager) {
+  void addConditionPropertyExtractor(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
-    try (NamedQuery query = repositoryManager.createNamedQuery("""
-            drop table if exists t_option;
+    repositoryManager.createQuery("drop table if exists t_option").executeUpdate();
+    try (Query query = repositoryManager.createQuery("""
             create table t_option (
                 `name`  varchar(255) default null,
                 `value` varchar(255) default null
@@ -649,10 +657,10 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
   }
 
   @ParameterizedRepositoryManagerTest
-  void setConditionPropertyExtractors(RepositoryManager repositoryManager) {
+  void setConditionPropertyExtractors(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    repositoryManager.createQuery("drop table if exists t_option").executeUpdate();
     try (NamedQuery query = repositoryManager.createNamedQuery("""
-            drop table if exists t_option;
             create table t_option (
                 `name`  varchar(255) default null,
                 `value` varchar(255) default null
@@ -676,7 +684,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
   }
 
   @ParameterizedRepositoryManagerTest
-  void saveOrUpdate(RepositoryManager repositoryManager) {
+  void saveOrUpdate(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
 
     UserModel model = UserModel.male("TODAY", 2);
@@ -684,7 +692,6 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
 
     List<UserModel> userModels = entityManager.find(model);
     assertThat(userModels).contains(model).hasSize(1);
-
   }
 
   @Test

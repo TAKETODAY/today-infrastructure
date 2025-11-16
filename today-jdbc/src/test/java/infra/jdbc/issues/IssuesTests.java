@@ -17,17 +17,6 @@
 
 package infra.jdbc.issues;
 
-import org.hsqldb.jdbcDriver;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
-import java.sql.Driver;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -38,50 +27,14 @@ import infra.jdbc.Row;
 import infra.jdbc.Table;
 import infra.jdbc.issues.pojos.Issue1Pojo;
 import infra.jdbc.issues.pojos.KeyValueEntity;
+import infra.persistence.AbstractRepositoryManagerTests;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-/**
- * Created by IntelliJ IDEA. User: lars Date: 10/17/11 Time: 9:02 PM This class
- * is to test for reported issues.
- */
-@RunWith(Parameterized.class)
-public class IssuesTests {
-
-  @Parameterized.Parameters(name = "{index} - {4}")
-  public static Collection<Object[]> getData() {
-    return Arrays.asList(
-            new Object[][] {
-                    { null, "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", "", "H2 test" },
-                    { new jdbcDriver(), "jdbc:hsqldb:mem:testmemdb", "SA", "", "HyperSQL DB test" }
-            });
-  }
-
-  private RepositoryManager sql2o;
-  private String url;
-  private String user;
-  private String pass;
-
-  public IssuesTests(Driver driverToRegister, String url, String user, String pass, String testName) {
-    if (driverToRegister != null) {
-      try {
-        DriverManager.registerDriver(driverToRegister);
-      }
-      catch (SQLException e) {
-        throw new RuntimeException("could not register driver '" + driverToRegister.getClass().getName() + "'", e);
-      }
-    }
-
-    this.sql2o = new RepositoryManager(url, user, pass);
-
-    this.url = url;
-    this.user = user;
-    this.pass = pass;
-
-    if ("HyperSQL DB test".equals(testName)) {
-      sql2o.createNamedQuery("set database sql syntax MSS true").executeUpdate();
-    }
-  }
+class IssuesTests extends AbstractRepositoryManagerTests {
 
   /**
    * Tests for issue #1 https://github.com/aaberg/sql2o/issues/1
@@ -94,9 +47,8 @@ public class IssuesTests {
    * afterwards the setter. The priority should be the setter first and the field
    * after.
    */
-  @Test
-  public void testSetterPriority() {
-    RepositoryManager sql2o = new RepositoryManager(url, user, pass);
+  @ParameterizedRepositoryManagerTest
+  void testSetterPriority(DbType dbType, RepositoryManager sql2o) {
     Issue1Pojo pojo = sql2o.createNamedQuery("select 1 val from (values(0))")
             .fetchFirst(Issue1Pojo.class);
 
@@ -108,16 +60,14 @@ public class IssuesTests {
    *
    * Issue: NPE - should instead tell what the problem is
    */
-  @Test
-  public void testForFieldDoesNotExistException() {
-    RepositoryManager sql2o = new RepositoryManager(url, user, pass);
-
+  @ParameterizedRepositoryManagerTest
+  void testForFieldDoesNotExistException(DbType dbType, RepositoryManager sql2o) {
     try {
       KeyValueEntity pojo = sql2o.createNamedQuery("select 1 id, 'something' foo from (values(0))").fetchFirst(
               KeyValueEntity.class);
     }
     catch (PersistenceException ex) {
-      Assert.assertTrue(ex.getMessage().contains("Could not map"));
+      assertThat(ex).hasMessageContaining("Could not map");
     }
   }
 
@@ -127,8 +77,8 @@ public class IssuesTests {
    * NPE when typing wrong column name in row.get(...) Also, column name should
    * not be case sensitive, if sql2o not is in casesensitive property is false.
    */
-  @Test
-  public void testForNpeInRowGet() {
+  @ParameterizedRepositoryManagerTest
+  public void testForNpeInRowGet(DbType dbType, RepositoryManager sql2o) {
     sql2o.createNamedQuery("create table issue4table(id integer identity primary key, val varchar(20))").executeUpdate();
 
     sql2o.createNamedQuery("insert into issue4table (val) values (:val)")
@@ -142,7 +92,7 @@ public class IssuesTests {
     Row row0 = table.rows().get(0);
     String row0Val = row0.getString("vAl");
 
-    Assert.assertEquals("something", row0Val);
+    assertThat("something").isEqualTo(row0Val);
 
     Row row1 = table.rows().get(1);
     boolean failed = false;
@@ -153,10 +103,10 @@ public class IssuesTests {
     catch (PersistenceException ex) {
       failed = true;
 
-      Assert.assertTrue(ex.getMessage().startsWith("Column with name 'ahsHashah' does not exist"));
+      assertThat(ex.getMessage()).startsWith("Column with name 'ahsHashah' does not exist");
     }
 
-    Assert.assertTrue("assert that exception occurred", failed);
+    assertThat(failed).isTrue().as("assert that exception occurred");
 
   }
 
@@ -190,8 +140,8 @@ public class IssuesTests {
    * Tests for issue #5 https://github.com/aaberg/sql2o/issues/5 crashes if the
    * POJO has a int field where we try to set a null value
    */
-  @Test
-  public void testForNullToSimpeType() {
+  @ParameterizedRepositoryManagerTest
+  void testForNullToSimpeType(DbType dbType, RepositoryManager sql2o) {
     sql2o.createNamedQuery("create table issue5table(id int identity primary key, val integer)").executeUpdate();
 
     sql2o.createNamedQuery("insert into issue5table(val) values (:val)")
@@ -203,10 +153,10 @@ public class IssuesTests {
     List<Issue5POJO2> list2 = sql2o.createNamedQuery("select * from issue5table")
             .fetch(Issue5POJO2.class);
 
-    Assert.assertEquals(1, list1.size());
-    Assert.assertEquals(1, list2.size());
-    Assert.assertEquals(0, list1.get(0).val);
-    Assert.assertEquals(0, list2.get(0).getVal());
+    assertThat(list1.size()).isEqualTo(1);
+    assertThat(list2.size()).isEqualTo(1);
+    assertThat(list1.get(0).val).isEqualTo(0);
+    assertThat(list2.get(0).getVal()).isEqualTo(0);
   }
 
   /**
@@ -223,8 +173,8 @@ public class IssuesTests {
    * though a label was used. To get the label with HSQLDB,
    * ResultSet.getColumnLabel().
    */
-  @Test
-  public void testForLabelErrorInHsqlDb() {
+  @ParameterizedRepositoryManagerTest
+  void testForLabelErrorInHsqlDb(DbType dbType, RepositoryManager sql2o) {
     sql2o.createNamedQuery("create table issue9test (id integer identity primary key, val varchar(50))").executeUpdate();
 
     String insertSql = "insert into issue9test(val) values (:val)";
@@ -234,8 +184,8 @@ public class IssuesTests {
 
     List<Issue9Pojo> pojos = sql2o.createNamedQuery("select id, val theVal from issue9Test").fetch(Issue9Pojo.class);
 
-    Assert.assertEquals(3, pojos.size());
-    Assert.assertEquals("something", pojos.get(0).theVal);
+    assertEquals(3, pojos.size());
+    assertEquals("something", pojos.get(0).theVal);
 
   }
 
@@ -243,8 +193,8 @@ public class IssuesTests {
     VAL, ANOTHER_VAL;
   }
 
-  @Test
-  public void testForNullPointerExceptionInAddParameterMethod() {
+  @ParameterizedRepositoryManagerTest
+  void testForNullPointerExceptionInAddParameterMethod(DbType dbType, RepositoryManager sql2o) {
     sql2o.createNamedQuery("create table issue11test (id integer identity primary key, val varchar(50), adate datetime)")
             .executeUpdate();
 
@@ -268,8 +218,8 @@ public class IssuesTests {
    * If a column cannot be mapped to a property, an exception should be thrown.
    * Today it is silently ignored.
    */
-  @Test
-  public void testErrorWhenFieldDoesntExist() {
+  @ParameterizedRepositoryManagerTest
+  void testErrorWhenFieldDoesntExist(DbType dbType, RepositoryManager sql2o) {
 
     class LocalPojo {
       private long id;
@@ -304,7 +254,7 @@ public class IssuesTests {
       catch (Exception e) {
         ex = e;
       }
-      Assert.assertNotNull(ex);
+      assertNotNull(ex);
 
     }
   }
@@ -325,8 +275,8 @@ public class IssuesTests {
    * name, sql2o 1.5.1 will throw an IndexOutOfRange exception when calling
    * executeAndFetchTable() method.
    */
-  @Test
-  public void testIndexOutOfRangeExceptionWithMultipleColumnsWithSameName() {
+  @ParameterizedRepositoryManagerTest
+  void testIndexOutOfRangeExceptionWithMultipleColumnsWithSameName(DbType dbType, RepositoryManager sql2o) {
 
     String sql = "select 11 id, 'something' name, 'something else' name from (values(0))";
 
@@ -338,10 +288,10 @@ public class IssuesTests {
       t = connection.createNamedQuery(sql).fetchTable();
     }
 
-    Assert.assertEquals(11, p.id);
-    Assert.assertEquals("something else", p.name);
+    assertEquals(11, p.id);
+    assertEquals("something else", p.name);
 
-    Assert.assertEquals(11, (int) t.rows().get(0).getInteger("id"));
+    assertEquals(11, (int) t.rows().get(0).getInteger("id"));
     assertEquals("something else", t.rows().get(0).getString("name"));
   }
 
@@ -354,8 +304,8 @@ public class IssuesTests {
   /**
    * Reproduce issue #142 (https://github.com/aaberg/sql2o/issues/142)
    */
-  @Test
-  public void testIgnoreSqlComments() {
+  @ParameterizedRepositoryManagerTest
+  void testIgnoreSqlComments(DbType dbType, RepositoryManager sql2o) {
 
     String createSql = "create table testIgnoreSqlComments(id integer primary key, intval integer, strval varchar(100))";
 
@@ -385,7 +335,7 @@ public class IssuesTests {
               .addParameter("param", 5)
               .fetch(TheIgnoreSqlCommentPojo.class);
 
-      Assert.assertEquals(10, resultList.size());
+      assertEquals(10, resultList.size());
     }
   }
 
@@ -394,8 +344,8 @@ public class IssuesTests {
     public String val1;
   }
 
-  @Test
-  public void testIssue166OneCharacterParameterFail() {
+  @ParameterizedRepositoryManagerTest
+  void testIssue166OneCharacterParameterFail(DbType dbType, RepositoryManager sql2o) {
     try (JdbcConnection connection = sql2o.open()) {
       connection.createNamedQuery("create table testIssue166OneCharacterParameterFail(id integer, val varchar(10))")
               .executeUpdate();
@@ -410,12 +360,12 @@ public class IssuesTests {
               .addParameter("p", 1)
               .scalar(Integer.class);
 
-      Assert.assertEquals(1, cnt);
+      assertEquals(1, cnt);
     }
   }
 
-  @Test
-  public void testIssue149NullPointerWhenUsingWrongParameterName() {
+  @ParameterizedRepositoryManagerTest
+  void testIssue149NullPointerWhenUsingWrongParameterName(DbType dbType, RepositoryManager sql2o) {
 
     try (JdbcConnection connection = sql2o.open()) {
       connection.createNamedQuery("create table issue149 (id integer primary key, val varchar(20))").executeUpdate();
@@ -424,13 +374,13 @@ public class IssuesTests {
               .addParameter("asdsa", "something") // spell-error in parameter name
               .executeUpdate();
 
-      Assert.fail("Expected exception!!");
+      fail("Expected exception!!");
     }
     catch (PersistenceException ex) {
       // awesome!
     }
     catch (Throwable t) {
-      Assert.fail("A " + t.getClass().getName() + " was thrown, but An " + PersistenceException.class.getName() + " was expected");
+      fail("A " + t.getClass().getName() + " was thrown, but An " + PersistenceException.class.getName() + " was expected");
     }
   }
 }

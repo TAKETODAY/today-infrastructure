@@ -33,7 +33,7 @@ import infra.jdbc.RepositoryManager;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class BidirectionalConverterTest {
+public class BidirectionalConverterTests {
 
   private RepositoryManager sql2o;
   private List<UUIDWrapper> wrappers;

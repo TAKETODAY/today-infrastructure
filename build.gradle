@@ -91,7 +91,6 @@ configure([rootProject] + javaProjects) {
     testImplementation("org.junit.platform:junit-platform-suite-api")
     testImplementation("org.mockito:mockito-core")
     testImplementation("org.mockito:mockito-junit-jupiter")
-    testImplementation("junit:junit")
     testImplementation("org.assertj:assertj-core")
 
     // Pull in the latest JUnit 5 Launcher API to ensure proper support in IDEs.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,9 +37,10 @@ import static org.mockito.Mockito.when;
 /**
  * User: dimzon Date: 4/29/14 Time: 10:05 PM
  */
-public class ConnectionTest {
+class ConnectionTests {
+
   @Test
-  public void test_createQueryWithParams() throws Throwable {
+  void createQueryWithParams() throws Throwable {
     DataSource dataSource = mock(DataSource.class);
     Connection jdbcConnection = mock(Connection.class);
     when(jdbcConnection.isClosed()).thenReturn(false);
@@ -64,10 +65,11 @@ public class ConnectionTest {
   }
 
   @SuppressWarnings("serial")
-  public class MyException extends RuntimeException { }
+  public class MyException extends RuntimeException {
+  }
 
   @Test
-  public void test_createQueryWithParamsThrowingException() throws Throwable {
+  void createQueryWithParamsThrowingException() throws Throwable {
     DataSource dataSource = mock(DataSource.class);
     Connection jdbcConnection = mock(Connection.class);
     when(jdbcConnection.isClosed()).thenReturn(false);
