@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,12 +27,13 @@ import infra.core.conversion.ConversionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author Today
  * 2018年7月6日 下午1:36:29
  */
-public class NumberUtilsTest {
+class NumberUtilsTests {
 
   @Test
   public void test_IsNumber() throws ConversionException {
@@ -375,6 +376,187 @@ public class NumberUtilsTest {
     assertToNumberOverflow(BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE), Long.class);
     assertToNumberOverflow(BigInteger.valueOf(Long.MIN_VALUE).subtract(BigInteger.ONE), Long.class);
     assertToNumberOverflow(new BigDecimal("18446744073709551611"), Long.class);
+  }
+
+  @Test
+  void isNumberWithPrimitiveTypes() {
+    assertThat(NumberUtils.isNumber(int.class)).isTrue();
+    assertThat(NumberUtils.isNumber(long.class)).isTrue();
+    assertThat(NumberUtils.isNumber(float.class)).isTrue();
+    assertThat(NumberUtils.isNumber(double.class)).isTrue();
+    assertThat(NumberUtils.isNumber(short.class)).isTrue();
+    assertThat(NumberUtils.isNumber(byte.class)).isTrue();
+    assertThat(NumberUtils.isNumber(boolean.class)).isFalse();
+    assertThat(NumberUtils.isNumber(char.class)).isFalse();
+  }
+
+  @Test
+  void isNumberWithWrapperTypes() {
+    assertThat(NumberUtils.isNumber(Integer.class)).isTrue();
+    assertThat(NumberUtils.isNumber(Long.class)).isTrue();
+    assertThat(NumberUtils.isNumber(Float.class)).isTrue();
+    assertThat(NumberUtils.isNumber(Double.class)).isTrue();
+    assertThat(NumberUtils.isNumber(Short.class)).isTrue();
+    assertThat(NumberUtils.isNumber(Byte.class)).isTrue();
+    assertThat(NumberUtils.isNumber(Character.class)).isFalse();
+  }
+
+  @Test
+  void isNumberWithBigIntegerAndBigDecimal() {
+    assertThat(NumberUtils.isNumber(BigInteger.class)).isTrue();
+    assertThat(NumberUtils.isNumber(BigDecimal.class)).isTrue();
+  }
+
+  @Test
+  void isNumberWithNonNumberTypes() {
+    assertThat(NumberUtils.isNumber(String.class)).isFalse();
+    assertThat(NumberUtils.isNumber(Object.class)).isFalse();
+    assertThat(NumberUtils.isNumber(NumberUtils.class)).isFalse();
+  }
+
+  @Test
+  void convertNumberToTargetClassWithSameType() {
+    Integer number = 42;
+    Integer result = NumberUtils.convertNumberToTargetClass(number, Integer.class);
+    assertThat(result).isSameAs(number);
+  }
+
+  @Test
+  void convertNumberToTargetClassWithNullNumber() {
+    assertThatThrownBy(() -> NumberUtils.convertNumberToTargetClass(null, Integer.class))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Number is required");
+  }
+
+  @Test
+  void convertNumberToTargetClassWithNullTargetClass() {
+    assertThatThrownBy(() -> NumberUtils.convertNumberToTargetClass(42, null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Target class is required");
+  }
+
+  @Test
+  void convertBigDecimalToTargetClass() {
+    BigDecimal decimal = new BigDecimal("123.45");
+    Integer integer = NumberUtils.convertNumberToTargetClass(decimal, Integer.class);
+    assertThat(integer).isEqualTo(123);
+
+    Double dbl = NumberUtils.convertNumberToTargetClass(decimal, Double.class);
+    assertThat(dbl).isEqualTo(123.45);
+  }
+
+  @Test
+  void convertFloatToBigDecimal() {
+    Float flt = 123.45f;
+    BigDecimal decimal = NumberUtils.convertNumberToTargetClass(flt, BigDecimal.class);
+    assertThat(decimal).isEqualTo(new BigDecimal(flt.toString()));
+  }
+
+  @Test
+  void parseNumberWithNullText() {
+    assertThatThrownBy(() -> NumberUtils.parseNumber(null, Integer.class))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Text is required");
+  }
+
+  @Test
+  void parseNumberWithNullTargetClass() {
+    assertThatThrownBy(() -> NumberUtils.parseNumber("42", null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Target class is required");
+  }
+
+  @Test
+  void parseNumberWithHexValues() {
+    assertThat(NumberUtils.parseNumber("0xFF", Integer.class)).isEqualTo(255);
+    assertThat(NumberUtils.parseNumber("0xff", Integer.class)).isEqualTo(255);
+    assertThat(NumberUtils.parseNumber("#FF", Integer.class)).isEqualTo(255);
+    assertThat(NumberUtils.parseNumber("-0xFF", Integer.class)).isEqualTo(-255);
+  }
+
+  @Test
+  void parseNumberWithInvalidFormat() {
+    assertThatThrownBy(() -> NumberUtils.parseNumber("invalid", Integer.class))
+            .isInstanceOf(NumberFormatException.class);
+  }
+
+  @Test
+  void parseNumberWithNullNumberFormat() {
+    Integer result = NumberUtils.parseNumber("42", Integer.class, null);
+    assertThat(result).isEqualTo(42);
+  }
+
+  @Test
+  void parseNumberWithInvalidNumberFormat() {
+    NumberFormat nf = NumberFormat.getInstance();
+    assertThatThrownBy(() -> NumberUtils.parseNumber("invalid", Integer.class, nf))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Could not parse number");
+  }
+
+  @Test
+  void parseNumberWithWhitespaceOnly() {
+    assertThat(NumberUtils.parseNumber("   42   ", Integer.class)).isEqualTo(42);
+    assertThat(NumberUtils.parseNumber("  0xFF  ", Integer.class)).isEqualTo(255);
+  }
+
+  @Test
+  void convertByteToAllTypes() {
+    Byte value = 100;
+    assertThat(NumberUtils.convertNumberToTargetClass(value, Byte.class)).isEqualTo(value);
+    assertThat(NumberUtils.convertNumberToTargetClass(value, Short.class)).isEqualTo(Short.valueOf((short) 100));
+    assertThat(NumberUtils.convertNumberToTargetClass(value, Integer.class)).isEqualTo(Integer.valueOf(100));
+    assertThat(NumberUtils.convertNumberToTargetClass(value, Long.class)).isEqualTo(Long.valueOf(100));
+    assertThat(NumberUtils.convertNumberToTargetClass(value, Float.class)).isEqualTo(Float.valueOf(100));
+    assertThat(NumberUtils.convertNumberToTargetClass(value, Double.class)).isEqualTo(Double.valueOf(100));
+    assertThat(NumberUtils.convertNumberToTargetClass(value, BigInteger.class)).isEqualTo(BigInteger.valueOf(100));
+    assertThat(NumberUtils.convertNumberToTargetClass(value, BigDecimal.class)).isEqualTo(new BigDecimal("100"));
+  }
+
+  @Test
+  void convertShortToAllTypes() {
+    Short value = 1000;
+    assertThat(NumberUtils.convertNumberToTargetClass(value, Short.class)).isEqualTo(value);
+    assertThat(NumberUtils.convertNumberToTargetClass(value, Integer.class)).isEqualTo(Integer.valueOf(1000));
+    assertThat(NumberUtils.convertNumberToTargetClass(value, Long.class)).isEqualTo(Long.valueOf(1000));
+    assertThat(NumberUtils.convertNumberToTargetClass(value, Float.class)).isEqualTo(Float.valueOf(1000));
+    assertThat(NumberUtils.convertNumberToTargetClass(value, Double.class)).isEqualTo(Double.valueOf(1000));
+    assertThat(NumberUtils.convertNumberToTargetClass(value, BigInteger.class)).isEqualTo(BigInteger.valueOf(1000));
+    assertThat(NumberUtils.convertNumberToTargetClass(value, BigDecimal.class)).isEqualTo(new BigDecimal("1000"));
+  }
+
+  @Test
+  void convertFloatToAllTypes() {
+    Float value = 123.45f;
+    assertThat(NumberUtils.convertNumberToTargetClass(value, Byte.class)).isEqualTo(Byte.valueOf((byte) 123.45f));
+    assertThat(NumberUtils.convertNumberToTargetClass(value, Short.class)).isEqualTo(Short.valueOf((short) 123.45f));
+    assertThat(NumberUtils.convertNumberToTargetClass(value, Integer.class)).isEqualTo(Integer.valueOf((int) 123.45f));
+    assertThat(NumberUtils.convertNumberToTargetClass(value, Long.class)).isEqualTo(Long.valueOf((long) 123.45f));
+    assertThat(NumberUtils.convertNumberToTargetClass(value, Float.class)).isEqualTo(value);
+    assertThat(NumberUtils.convertNumberToTargetClass(value, Double.class)).isEqualTo(Double.valueOf(123.45f));
+    assertThat(NumberUtils.convertNumberToTargetClass(value, BigInteger.class)).isEqualTo(BigInteger.valueOf(123));
+    assertThat(NumberUtils.convertNumberToTargetClass(value, BigDecimal.class)).isEqualTo(new BigDecimal(value.toString()));
+  }
+
+  @Test
+  void convertDoubleToAllTypes() {
+    Double value = 123.45;
+    assertThat(NumberUtils.convertNumberToTargetClass(value, Byte.class)).isEqualTo(Byte.valueOf((byte) 123.45));
+    assertThat(NumberUtils.convertNumberToTargetClass(value, Short.class)).isEqualTo(Short.valueOf((short) 123.45));
+    assertThat(NumberUtils.convertNumberToTargetClass(value, Integer.class)).isEqualTo(Integer.valueOf((int) 123.45));
+    assertThat(NumberUtils.convertNumberToTargetClass(value, Long.class)).isEqualTo(Long.valueOf((long) 123.45));
+    assertThat(NumberUtils.convertNumberToTargetClass(value, Float.class)).isEqualTo(Float.valueOf((float) 123.45));
+    assertThat(NumberUtils.convertNumberToTargetClass(value, Double.class)).isEqualTo(value);
+    assertThat(NumberUtils.convertNumberToTargetClass(value, BigInteger.class)).isEqualTo(BigInteger.valueOf(123));
+    assertThat(NumberUtils.convertNumberToTargetClass(value, BigDecimal.class)).isEqualTo(new BigDecimal(value.toString()));
+  }
+
+  @Test
+  void isHexNumberWithValidHexValues() {
+    assertThat(NumberUtils.parseNumber("0x10", Integer.class)).isEqualTo(16);
+    assertThat(NumberUtils.parseNumber("0X10", Integer.class)).isEqualTo(16);
+    assertThat(NumberUtils.parseNumber("#10", Integer.class)).isEqualTo(16);
+    assertThat(NumberUtils.parseNumber("-0x10", Integer.class)).isEqualTo(-16);
   }
 
   private void assertLongEquals(String aLong) {
