@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,6 +58,97 @@ class BooleanComparatorTests {
     Comparator<Boolean> c = BooleanComparator.TRUE_HIGH;
     assertThat(c.compare(true, false)).isGreaterThan(0);
     assertThat(c.compare(Boolean.TRUE, Boolean.TRUE)).isEqualTo(0);
+  }
+
+  @Test
+  void compareWithFalseFirst() {
+    BooleanComparator comparator = new BooleanComparator(true);
+
+    assertThat(comparator.compare(false, true)).isGreaterThan(0);
+    assertThat(comparator.compare(true, false)).isLessThan(0);
+    assertThat(comparator.compare(false, false)).isEqualTo(0);
+    assertThat(comparator.compare(true, true)).isEqualTo(0);
+  }
+
+  @Test
+  void compareWithTrueFirst() {
+    BooleanComparator comparator = new BooleanComparator(false);
+
+    assertThat(comparator.compare(false, true)).isLessThan(0);
+    assertThat(comparator.compare(true, false)).isGreaterThan(0);
+    assertThat(comparator.compare(false, false)).isEqualTo(0);
+    assertThat(comparator.compare(true, true)).isEqualTo(0);
+  }
+
+  @Test
+  void equalsWithSameInstance() {
+    BooleanComparator comparator = new BooleanComparator(true);
+    assertThat(comparator.equals(comparator)).isTrue();
+  }
+
+  @Test
+  void equalsWithEqualInstances() {
+    BooleanComparator comparator1 = new BooleanComparator(true);
+    BooleanComparator comparator2 = new BooleanComparator(true);
+
+    assertThat(comparator1.equals(comparator2)).isTrue();
+  }
+
+  @Test
+  void equalsWithDifferentFlagValues() {
+    BooleanComparator trueLow = new BooleanComparator(true);
+    BooleanComparator trueHigh = new BooleanComparator(false);
+
+    assertThat(trueLow.equals(trueHigh)).isFalse();
+  }
+
+  @Test
+  void equalsWithNull() {
+    BooleanComparator comparator = new BooleanComparator(true);
+    assertThat(comparator.equals(null)).isFalse();
+  }
+
+  @Test
+  void equalsWithDifferentObjectType() {
+    BooleanComparator comparator = new BooleanComparator(true);
+    assertThat(comparator.equals("not a comparator")).isFalse();
+  }
+
+  @Test
+  void hashCodeWithTrueLow() {
+    BooleanComparator comparator = new BooleanComparator(true);
+    assertThat(comparator.hashCode()).isEqualTo(Boolean.hashCode(true));
+  }
+
+  @Test
+  void hashCodeWithTrueHigh() {
+    BooleanComparator comparator = new BooleanComparator(false);
+    assertThat(comparator.hashCode()).isEqualTo(Boolean.hashCode(false));
+  }
+
+  @Test
+  void toStringWithTrueLow() {
+    BooleanComparator comparator = new BooleanComparator(true);
+    assertThat(comparator.toString()).isEqualTo("BooleanComparator: true low");
+  }
+
+  @Test
+  void toStringWithTrueHigh() {
+    BooleanComparator comparator = new BooleanComparator(false);
+    assertThat(comparator.toString()).isEqualTo("BooleanComparator: true high");
+  }
+
+  @Test
+  void sharedInstancesAreSingletons() {
+    assertThat(BooleanComparator.TRUE_LOW).isSameAs(BooleanComparator.TRUE_LOW);
+    assertThat(BooleanComparator.TRUE_HIGH).isSameAs(BooleanComparator.TRUE_HIGH);
+    assertThat(BooleanComparator.TRUE_LOW).isNotSameAs(BooleanComparator.TRUE_HIGH);
+  }
+
+  @Test
+  void sharedInstancesBehaveCorrectly() {
+    assertThat(BooleanComparator.TRUE_LOW.compare(true, false)).isLessThan(0);
+    assertThat(BooleanComparator.TRUE_HIGH.compare(true, false)).isGreaterThan(0);
   }
 
 }

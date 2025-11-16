@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
 package infra.util.comparator;
 
 import org.junit.jupiter.api.Test;
+
+import java.util.Comparator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,6 +61,68 @@ class ComparatorsTests {
     assertThat(Comparators.nullsHigh(String::compareTo).compare(null, null)).isZero();
     assertThat(Comparators.nullsHigh(String::compareTo).compare(null, "boo")).isPositive();
     assertThat(Comparators.nullsHigh(String::compareTo).compare("boo", null)).isNegative();
+  }
+
+  @Test
+  void comparableWithStrings() {
+    Comparator<String> comparator = Comparators.comparable();
+    assertThat(comparator.compare("apple", "banana")).isNegative();
+    assertThat(comparator.compare("banana", "apple")).isPositive();
+    assertThat(comparator.compare("apple", "apple")).isZero();
+  }
+
+  @Test
+  void comparableWithIntegers() {
+    Comparator<Integer> comparator = Comparators.comparable();
+    assertThat(comparator.compare(1, 2)).isNegative();
+    assertThat(comparator.compare(2, 1)).isPositive();
+    assertThat(comparator.compare(1, 1)).isZero();
+  }
+
+  @Test
+  void nullsLowWithCustomComparator() {
+    Comparator<String> lengthComparator = Comparator.comparing(String::length);
+    Comparator<String> comparator = Comparators.nullsLow(lengthComparator);
+
+    assertThat(comparator.compare(null, "hi")).isNegative();
+    assertThat(comparator.compare("hi", null)).isPositive();
+    assertThat(comparator.compare(null, null)).isZero();
+    assertThat(comparator.compare("hi", "go")).isZero();
+    assertThat(comparator.compare("hi", "hello")).isNegative();
+  }
+
+  @Test
+  void nullsHighWithCustomComparator() {
+    Comparator<String> lengthComparator = Comparator.comparing(String::length);
+    Comparator<String> comparator = Comparators.nullsHigh(lengthComparator);
+
+    assertThat(comparator.compare(null, "hi")).isPositive();
+    assertThat(comparator.compare("hi", null)).isNegative();
+    assertThat(comparator.compare(null, null)).isZero();
+    assertThat(comparator.compare("hi", "go")).isZero();
+    assertThat(comparator.compare("hi", "hello")).isNegative();
+  }
+
+  @Test
+  void nullsLowAndNullsHighReturnDifferentOrderings() {
+    Comparator<String> nullsLow = Comparators.nullsLow();
+    Comparator<String> nullsHigh = Comparators.nullsHigh();
+
+    assertThat(nullsLow.compare(null, "test")).isNegative();
+    assertThat(nullsHigh.compare(null, "test")).isPositive();
+
+    assertThat(nullsLow.compare("test", null)).isPositive();
+    assertThat(nullsHigh.compare("test", null)).isNegative();
+  }
+
+  @Test
+  void comparableReturnsSameInstance() {
+    Comparator<String> comparator1 = Comparators.comparable();
+    Comparator<Integer> comparator2 = Comparators.comparable();
+
+    // These should be functionally equivalent
+    assertThat(comparator1.compare("a", "b")).isNegative();
+    assertThat(comparator2.compare(1, 2)).isNegative();
   }
 
 }

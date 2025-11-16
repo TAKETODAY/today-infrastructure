@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +20,10 @@ package infra.util.comparator;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -81,6 +83,97 @@ class ExceptionDepthComparatorTests {
   void lowestDepthBeforeHighestDepth() throws Exception {
     Class<? extends Throwable> foundClass = findClosestMatch(LowestDepthException.class, HighestDepthException.class);
     assertThat(foundClass).isEqualTo(LowestDepthException.class);
+  }
+
+  @Test
+  void constructorWithNullExceptionThrowsException() {
+    assertThatThrownBy(() -> new ExceptionDepthComparator((Throwable) null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Target exception is required");
+  }
+
+  @Test
+  void constructorWithNullExceptionTypeThrowsException() {
+    assertThatThrownBy(() -> new ExceptionDepthComparator((Class<? extends Throwable>) null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Target exception type is required");
+  }
+
+  @Test
+  void compareWithSameExceptionTypes() {
+    ExceptionDepthComparator comparator = new ExceptionDepthComparator(TargetException.class);
+    int result = comparator.compare(TargetException.class, TargetException.class);
+    assertThat(result).isEqualTo(0);
+  }
+
+  @Test
+  void compareWithDifferentExceptionTypesAtSameDepth() {
+    ExceptionDepthComparator comparator = new ExceptionDepthComparator(TargetException.class);
+    int result = comparator.compare(SameDepthException.class, SameDepthException.class);
+    assertThat(result).isEqualTo(0);
+  }
+
+  @Test
+  void compareWithParentAndChildExceptionTypes() {
+    ExceptionDepthComparator comparator = new ExceptionDepthComparator(TargetException.class);
+    int result = comparator.compare(HighestDepthException.class, TargetException.class);
+    assertThat(result).isGreaterThan(0);
+  }
+
+  @Test
+  void compareWithChildAndParentExceptionTypes() {
+    ExceptionDepthComparator comparator = new ExceptionDepthComparator(TargetException.class);
+    int result = comparator.compare(TargetException.class, HighestDepthException.class);
+    assertThat(result).isLessThan(0);
+  }
+
+  @Test
+  void findClosestMatchWithEmptyCollectionThrowsException() {
+    assertThatThrownBy(() -> ExceptionDepthComparator.findClosestMatch(
+            java.util.Collections.emptyList(), new TargetException()))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Exception types must not be empty");
+  }
+
+  @Test
+  void findClosestMatchWithSingleExceptionType() {
+    Collection<Class<? extends Throwable>> exceptionTypes = Arrays.asList(TargetException.class);
+    Class<? extends Throwable> result = ExceptionDepthComparator.findClosestMatch(
+            exceptionTypes, new SameDepthException());
+    assertThat(result).isEqualTo(TargetException.class);
+  }
+
+  @Test
+  void findClosestMatchReturnsMostSpecificException() {
+    Collection<Class<? extends Throwable>> exceptionTypes = Arrays.asList(
+            Throwable.class, Exception.class, TargetException.class, HighestDepthException.class);
+    Class<? extends Throwable> result = ExceptionDepthComparator.findClosestMatch(
+            exceptionTypes, new TargetException());
+    assertThat(result).isEqualTo(TargetException.class);
+  }
+
+  @Test
+  void findClosestMatchReturnsClosestWhenExactMatchNotFound() {
+    Collection<Class<? extends Throwable>> exceptionTypes = Arrays.asList(
+            Throwable.class, HighestDepthException.class);
+    Class<? extends Throwable> result = ExceptionDepthComparator.findClosestMatch(
+            exceptionTypes, new TargetException());
+    assertThat(result).isEqualTo(HighestDepthException.class);
+  }
+
+  @Test
+  void getDepthReturnsMaxValueForUnrelatedException() {
+    ExceptionDepthComparator comparator = new ExceptionDepthComparator(TargetException.class);
+    // Using reflection to test private method
+    int depth = comparator.compare(Throwable.class, TargetException.class);
+    assertThat(depth).isGreaterThan(0);
+  }
+
+  @Test
+  void compareWithThrowableClass() {
+    ExceptionDepthComparator comparator = new ExceptionDepthComparator(TargetException.class);
+    int result = comparator.compare(TargetException.class, Throwable.class);
+    assertThat(result).isLessThan(0);
   }
 
   @SafeVarargs
