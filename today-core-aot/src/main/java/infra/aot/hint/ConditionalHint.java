@@ -26,6 +26,7 @@ import infra.util.ClassUtils;
  * if the described condition is met.
  *
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public interface ConditionalHint {
