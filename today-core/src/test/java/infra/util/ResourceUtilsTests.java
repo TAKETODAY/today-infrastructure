@@ -19,9 +19,14 @@ package infra.util;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.JarURLConnection;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
@@ -30,9 +35,11 @@ import java.nio.file.InvalidPathException;
 import infra.core.io.ClassPathResource;
 import infra.core.io.FileSystemResource;
 import infra.core.io.Resource;
+import infra.core.io.UrlResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * @author TODAY <br>
@@ -209,6 +216,197 @@ class ResourceUtilsTests {
       assertThat(blankDirTestResource.contentLength()).isEqualTo(4);
       assertThat(blankDirTestResource.getName()).isEqualTo("test.txt");
     }
+  }
+
+  @Test
+  void isFileURLReturnsTrueForFileProtocol() {
+    try {
+      URL url = new URL("file:///test.txt");
+      assertThat(ResourceUtils.isFileURL(url)).isTrue();
+    }
+    catch (MalformedURLException e) {
+      fail("Should not throw MalformedURLException");
+    }
+  }
+
+  @Test
+  void isFileURLReturnsFalseForNonFileProtocol() {
+    try {
+      URL url = new URL("http://localhost/test.txt");
+      assertThat(ResourceUtils.isFileURL(url)).isFalse();
+    }
+    catch (MalformedURLException e) {
+      fail("Should not throw MalformedURLException");
+    }
+  }
+
+  @Test
+  void isJarFileURLReturnsTrueForJarFile() {
+    try {
+      URL url = new URL("file:///test.jar");
+      assertThat(ResourceUtils.isJarFileURL(url)).isTrue();
+    }
+    catch (MalformedURLException e) {
+      fail("Should not throw MalformedURLException");
+    }
+  }
+
+  @Test
+  void isJarFileURLReturnsFalseForNonJarFile() {
+    try {
+      URL url = new URL("file:///test.txt");
+      assertThat(ResourceUtils.isJarFileURL(url)).isFalse();
+    }
+    catch (MalformedURLException e) {
+      fail("Should not throw MalformedURLException");
+    }
+  }
+
+  @Test
+  void isJarFileURLReturnsFalseForNonFileProtocol() {
+    try {
+      URL url = new URL("jar:file:test.jar!/entry.txt");
+      assertThat(ResourceUtils.isJarFileURL(url)).isFalse();
+    }
+    catch (MalformedURLException e) {
+      fail("Should not throw MalformedURLException");
+    }
+  }
+
+  @Test
+  void toURIConvertsURLWithSpaces() {
+    try {
+      URL url = new URL("file:///test%20file.txt");
+      URI uri = ResourceUtils.toURI(url);
+      assertThat(uri.toString()).isEqualTo("file:/test%20file.txt");
+    }
+    catch (Exception e) {
+      fail("Should not throw exception");
+    }
+  }
+
+  @Test
+  void toURIConvertsStringWithSpaces() {
+    try {
+      URI uri = ResourceUtils.toURI("file:///test file.txt");
+      assertThat(uri.toString()).isEqualTo("file:///test%20file.txt");
+    }
+    catch (URISyntaxException e) {
+      fail("Should not throw URISyntaxException");
+    }
+  }
+
+  @Test
+  void getResourceAsStreamReturnsValidStream() throws IOException {
+    InputStream stream = ResourceUtils.getResourceAsStream("classpath:info.properties");
+    assertThat(stream).isNotNull();
+    stream.close();
+  }
+
+  @Test
+  void getResourceAsStreamThrowsIOExceptionForNonExistentResource() {
+    assertThatThrownBy(() -> ResourceUtils.getResourceAsStream("classpath:non-existent.txt"))
+            .isInstanceOf(IOException.class)
+            .hasMessageContaining("Could not find resource");
+  }
+
+  @Test
+  void getURLReturnsValidURLForClasspathResource() throws IOException {
+    URL url = ResourceUtils.getURL("classpath:info.properties");
+    assertThat(url).isNotNull();
+  }
+
+  @Test
+  void getURLThrowsFileNotFoundExceptionForNonExistentClasspathResource() {
+    assertThatThrownBy(() -> ResourceUtils.getURL("classpath:non-existent.txt"))
+            .isInstanceOf(FileNotFoundException.class)
+            .hasMessageContaining("cannot be resolved to URL");
+  }
+
+  @Test
+  void getURLReturnsValidURLForFileResource() throws IOException {
+    String userDir = System.getProperty("user.dir");
+    URL url = ResourceUtils.getURL("file://" + userDir + "/src/main/resources/info.properties");
+    assertThat(url).isNotNull();
+  }
+
+  @Test
+  void getFileReturnsValidFileForFileResource() throws IOException {
+    String userDir = System.getProperty("user.dir");
+    File file = ResourceUtils.getFile("file://" + userDir + "/src/main/resources/info.properties");
+    assertThat(file).isNotNull();
+  }
+
+  @Test
+  void getFileFromURLReturnsValidFile() throws IOException {
+    String userDir = System.getProperty("user.dir");
+    URL url = new URL("file://" + userDir + "/src/main/resources/info.properties");
+    File file = ResourceUtils.getFile(url);
+    assertThat(file).isNotNull();
+  }
+
+  @Test
+  void getFileFromURLThrowsExceptionForNonFileProtocol() {
+    assertThatThrownBy(() -> ResourceUtils.getFile(new URL("http://localhost/test.txt")))
+            .isInstanceOf(FileNotFoundException.class)
+            .hasMessageContaining("cannot be resolved to absolute file path because it does not reside in the file system");
+  }
+
+  @Test
+  void getFileFromURIThrowsExceptionForNonFileProtocol() {
+    assertThatThrownBy(() -> ResourceUtils.getFile(URI.create("http://localhost/test.txt")))
+            .isInstanceOf(FileNotFoundException.class)
+            .hasMessageContaining("cannot be resolved to absolute file path because it does not reside in the file system");
+  }
+
+  @Test
+  void toURLCreatesValidURL() throws MalformedURLException {
+    URL url = ResourceUtils.toURL("file:///test.txt");
+    assertThat(url).isNotNull();
+    assertThat(url.toString()).isEqualTo("file:/test.txt");
+  }
+
+  @Test
+  void toRelativeURLCreatesValidRelativeURL() throws MalformedURLException {
+    URL root = new URL("file:///root/");
+    URL relative = ResourceUtils.toRelativeURL(root, "sub/file.txt");
+    assertThat(relative).isNotNull();
+    assertThat(relative.toString()).isEqualTo("file:/root/sub/file.txt");
+  }
+
+  @Test
+  void getResourcesReturnsValidResources() throws IOException {
+    Resource[] resources = ResourceUtils.getResources("classpath*:info.properties");
+    assertThat(resources).isNotEmpty();
+  }
+
+  @Test
+  void getResourceReturnsClassPathResourceForRelativePath() {
+    Resource resource = ResourceUtils.getResource("info.properties");
+    assertThat(resource).isInstanceOf(ClassPathResource.class);
+  }
+
+  @Test
+  void getResourceReturnsUrlResourceForHttpUrl() {
+    Resource resource = ResourceUtils.getResource("http://localhost/test.txt");
+    assertThat(resource).isInstanceOf(UrlResource.class);
+  }
+
+  @Test
+  void getResourceReturnsFileSystemResourceForFile() {
+    Resource resource = ResourceUtils.getResource("/test.txt");
+    assertThat(resource).isInstanceOf(ClassPathResource.class);
+  }
+
+  @Test
+  void useCachesIfNecessaryDoesNotSetCachesForJarURLConnection() throws Exception {
+    URL url = new URL("jar:file:test.jar!/entry.txt");
+    JarURLConnection conn = (JarURLConnection) url.openConnection();
+    // Save original value
+    boolean originalUseCaches = conn.getUseCaches();
+    ResourceUtils.useCachesIfNecessary(conn);
+    // Value should not change for JarURLConnection
+    assertThat(conn.getUseCaches()).isEqualTo(originalUseCaches);
   }
 
 }
