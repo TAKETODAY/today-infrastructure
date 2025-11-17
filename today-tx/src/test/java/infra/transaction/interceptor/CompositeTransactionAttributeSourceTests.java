@@ -32,7 +32,7 @@ class CompositeTransactionAttributeSourceTests {
 
   @Test
   void constructorWithNullSourcesThrowsException() {
-    assertThatThrownBy(() -> new CompositeTransactionAttributeSource(null))
+    assertThatThrownBy(() -> new CompositeTransactionAttributeSource((TransactionAttributeSource[]) null))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("TransactionAttributeSource array is required");
   }
