@@ -62,10 +62,9 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
 
   private final String source;
 
-  @Nullable
-  private ClassLoader classLoader;
+  private @Nullable ClassLoader classLoader;
 
-  private String namePrefix;
+  private @Nullable String namePrefix;
 
   private Object key;
 
@@ -98,7 +97,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
     this(source.getSimpleName());
   }
 
-  protected void setNamePrefix(String namePrefix) {
+  protected void setNamePrefix(@Nullable String namePrefix) {
     this.namePrefix = namePrefix;
   }
 

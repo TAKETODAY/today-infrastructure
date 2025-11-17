@@ -17,6 +17,8 @@
 
 package infra.bytecode.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Predicate;
 
 final class InfraNamingPolicy implements NamingPolicy {
@@ -28,7 +30,7 @@ final class InfraNamingPolicy implements NamingPolicy {
   private static final String METHOD_ACCESS_SUFFIX = "MethodAccess$$";
 
   @Override
-  public String getClassName(String prefix, String source, Object key, Predicate<String> names) {
+  public String getClassName(@Nullable String prefix, String source, Object key, Predicate<String> names) {
     if (prefix == null) {
       prefix = "infra.bytecode.Object";
     }

@@ -17,6 +17,8 @@
 
 package infra.bytecode.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Predicate;
 
 /**
@@ -42,7 +44,7 @@ public interface NamingPolicy {
    * been used in the same ClassLoader.
    * @return the fully-qualified class name
    */
-  String getClassName(String prefix, String source, Object key, Predicate<String> names);
+  String getClassName(@Nullable String prefix, String source, Object key, Predicate<String> names);
 
   /**
    * The <code>NamingPolicy</code> in use does not currently, but may in the
