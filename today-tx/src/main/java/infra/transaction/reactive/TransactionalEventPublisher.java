@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -71,7 +71,7 @@ public class TransactionalEventPublisher {
    */
   public Mono<Void> publishEvent(Function<TransactionContext, ApplicationEvent> eventCreationFunction) {
     return TransactionContextManager.currentContext().map(eventCreationFunction)
-        .doOnSuccess(this.eventPublisher::publishEvent).then();
+            .doOnSuccess(this.eventPublisher::publishEvent).then();
   }
 
   /**
@@ -83,7 +83,7 @@ public class TransactionalEventPublisher {
   public Mono<Void> publishEvent(Object payload) {
     if (payload instanceof ApplicationEvent) {
       return Mono.error(new IllegalArgumentException("Cannot publish ApplicationEvent with transactional " +
-          "source - publish payload object or use publishEvent(Function<Object, ApplicationEvent>"));
+              "source - publish payload object or use publishEvent(Function<Object, ApplicationEvent>"));
     }
     return publishEvent(source -> new PayloadApplicationEvent<>(source, payload));
   }
