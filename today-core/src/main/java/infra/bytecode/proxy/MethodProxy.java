@@ -40,18 +40,16 @@ import infra.bytecode.reflect.MethodAccess;
  */
 public final class MethodProxy {
 
-  @Nullable
-  private MethodSignature sig1;
+  private @Nullable MethodSignature sig1;
 
-  @Nullable
-  private MethodSignature sig2;
+  private @Nullable MethodSignature sig2;
 
-  private CreateInfo createInfo;
+  private @Nullable CreateInfo createInfo;
 
-  private volatile FastClassInfo fastClassInfo;
+  private volatile @Nullable FastClassInfo fastClassInfo;
 
-  private MethodProxy() {
-
+  private MethodProxy(CreateInfo createInfo) {
+    this.createInfo = createInfo;
   }
 
   /**
@@ -60,10 +58,9 @@ public final class MethodProxy {
    */
   @SuppressWarnings({ "rawtypes" })
   public static MethodProxy create(Class c1, Class c2, String desc, String name1, String name2) {
-    MethodProxy proxy = new MethodProxy();
+    MethodProxy proxy = new MethodProxy(new CreateInfo(c1, c2));
     proxy.sig1 = new MethodSignature(name1, desc);
     proxy.sig2 = new MethodSignature(name2, desc);
-    proxy.createInfo = new CreateInfo(c1, c2);
 
     if (!c1.isInterface() && c1 != Object.class && !Factory.class.isAssignableFrom(c2)) {
       // Try early initialization for overridden methods on specifically purposed subclasses
@@ -164,7 +161,7 @@ public final class MethodProxy {
       throw ex.getTargetException();
     }
     catch (IllegalArgumentException ex) {
-      if (fastClassInfo.i1 < 0)
+      if (init().i1 < 0)
         throw new IllegalArgumentException("Protected method: " + sig1);
       throw ex;
     }
