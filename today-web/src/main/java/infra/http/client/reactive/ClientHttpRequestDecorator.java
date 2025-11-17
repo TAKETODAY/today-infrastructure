@@ -129,7 +129,7 @@ public class ClientHttpRequestDecorator implements ClientHttpRequest {
   }
 
   @Override
-  public <T> T computeAttribute(String name, Function<String, T> computeFunction) {
+  public <T> T computeAttribute(String name, Function<String, @Nullable T> computeFunction) {
     return delegate.computeAttribute(name, computeFunction);
   }
 

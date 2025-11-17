@@ -1227,9 +1227,7 @@ public class DefaultEntityManager implements EntityManager {
 
   private Number doQueryCount(EntityMetadata metadata, ConditionStatement handler, ArrayList<Restriction> restrictions, Connection con) throws DataAccessException {
     StringBuilder countSql = new StringBuilder(restrictions.size() * 10 + 25 + metadata.tableName.length());
-    countSql.append("SELECT COUNT(*) FROM `")
-            .append(metadata.tableName)
-            .append('`');
+    platform.selectCountFrom(countSql, metadata.tableName);
 
     Restriction.render(restrictions, countSql);
 

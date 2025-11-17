@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -138,6 +138,7 @@ public abstract class AsmTest {
     JDK3_ARTIFICIAL_STRUCTURES("jdk3.ArtificialStructures"),
     JDK3_INNER_CLASS("jdk3.AllStructures$InnerClass"),
     JDK3_LARGE_METHOD("jdk3.LargeMethod"),
+    JDK3_SUB_OPTIMAL_MAX_STACK_AND_LOCALS("jdk3.SubOptimalMaxStackAndLocals"),
     JDK5_ALL_INSTRUCTIONS("jdk5.AllInstructions"),
     JDK5_ALL_STRUCTURES("jdk5.AllStructures"),
     JDK5_ANNOTATION("jdk5.AllStructures$InvisibleAnnotation"),
@@ -146,6 +147,7 @@ public abstract class AsmTest {
     JDK8_ALL_FRAMES("jdk8.AllFrames", JdkVersion.JDK8),
     JDK8_ALL_INSTRUCTIONS("jdk8.AllInstructions", JdkVersion.JDK8),
     JDK8_ALL_STRUCTURES("jdk8.AllStructures", JdkVersion.JDK8),
+    JDK8_ALL_LAMBDAS("jdk8.AllLambdas", JdkVersion.JDK8),
     JDK8_ANONYMOUS_INNER_CLASS("jdk8.AllStructures$1", JdkVersion.JDK8),
     JDK8_ARTIFICIAL_STRUCTURES("jdk8.Artificial$()$Structures", JdkVersion.JDK8),
     JDK8_INNER_CLASS("jdk8.AllStructures$InnerClass", JdkVersion.JDK8),

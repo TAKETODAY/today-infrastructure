@@ -22,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
+import java.util.concurrent.Executor;
 import java.util.function.Function;
 
 import infra.context.SmartLifecycle;
@@ -30,6 +31,7 @@ import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import io.netty.channel.ChannelOption;
+import reactor.core.scheduler.Schedulers;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
 import reactor.netty.resources.LoopResources;
@@ -54,29 +56,26 @@ public class ReactorClientHttpRequestFactory implements ClientHttpRequestFactory
                   .responseTimeout(Duration.ofSeconds(10))
                   .proxyWithSystemProperties();
 
-  @Nullable
-  private final ReactorResourceFactory resourceFactory;
+  private final @Nullable ReactorResourceFactory resourceFactory;
 
-  @Nullable
-  private final Function<HttpClient, HttpClient> mapper;
+  private final @Nullable Function<HttpClient, HttpClient> mapper;
 
-  @Nullable
-  private Integer connectTimeout;
+  private @Nullable Executor executor;
 
-  @Nullable
-  private Duration readTimeout;
+  private @Nullable Integer connectTimeout;
 
-  @Nullable
-  private Duration exchangeTimeout;
+  private @Nullable Duration readTimeout;
 
-  @Nullable
-  private volatile HttpClient httpClient;
+  private @Nullable Duration exchangeTimeout;
+
+  private volatile @Nullable HttpClient httpClient;
 
   private final Object lifecycleMonitor = new Object();
 
   /**
    * Constructor with default client, created via {@link HttpClient#create()},
-   * and with {@link HttpClient#compress compression} enabled.
+   * and with {@link HttpClient#compress compression} and
+   * {@link HttpClient#proxyWithSystemProperties() proxyWithSystemProperties} enabled.
    */
   public ReactorClientHttpRequestFactory() {
     this(defaultInitializer.apply(HttpClient.create()));
@@ -128,6 +127,17 @@ public class ReactorClientHttpRequestFactory implements ClientHttpRequestFactory
       client = client.responseTimeout(this.readTimeout);
     }
     return client;
+  }
+
+  /**
+   * Set the {@code Executor} to use for performing blocking I/O operations.
+   * <p>If no executor is provided, the request will use an {@link Schedulers#boundedElastic() elastic scheduler}.
+   *
+   * @param executor the executor to use.
+   */
+  public void setExecutor(Executor executor) {
+    Assert.notNull(executor, "Executor is required");
+    this.executor = executor;
   }
 
   /**
@@ -212,7 +222,7 @@ public class ReactorClientHttpRequestFactory implements ClientHttpRequestFactory
               "Expected HttpClient or ResourceFactory and mapper");
       client = createHttpClient(this.resourceFactory, this.mapper);
     }
-    return new ReactorClientHttpRequest(client, httpMethod, uri, this.exchangeTimeout);
+    return new ReactorClientHttpRequest(client, httpMethod, uri, this.executor, this.exchangeTimeout);
   }
 
   @Override

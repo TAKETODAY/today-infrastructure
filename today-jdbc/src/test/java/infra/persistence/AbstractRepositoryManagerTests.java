@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,9 @@
 
 package infra.persistence;
 
-import org.junit.jupiter.api.Named;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.lang.annotation.ElementType;
@@ -29,11 +30,16 @@ import java.util.stream.Stream;
 
 import infra.jdbc.JdbcConnection;
 import infra.jdbc.RepositoryManager;
+import infra.persistence.platform.MySQLPlatform;
+
+import static org.junit.jupiter.api.Named.named;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/9/7 20:10
  */
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class AbstractRepositoryManagerTests {
 
   @Retention(RetentionPolicy.RUNTIME)
@@ -44,10 +50,10 @@ public abstract class AbstractRepositoryManagerTests {
 
   }
 
-  public Stream<Named<RepositoryManager>> data() {
+  public Stream<Arguments> data() {
     return Stream.of(
-            Named.named("H2", createRepositoryManager(DbType.H2))
-//            Named.named("HyperSQL", createRepositoryManager(DbType.HyperSQL))
+            arguments(named("H2 tests", DbType.H2), createRepositoryManager(DbType.H2)),
+            arguments(named("HyperSQL tests", DbType.HyperSQL), createRepositoryManager(DbType.HyperSQL))
     );
   }
 
@@ -55,8 +61,11 @@ public abstract class AbstractRepositoryManagerTests {
     RepositoryManager repositoryManager = new RepositoryManager(dbType.url, dbType.user, dbType.pass);
     if (dbType == DbType.HyperSQL) {
       try (JdbcConnection con = repositoryManager.open()) {
-        con.createNamedQuery("set database sql syntax MSS true")
+        con.createNamedQuery("set database sql syntax MYS true")
                 .executeUpdate();
+      }
+      if (repositoryManager.getEntityManager() instanceof DefaultEntityManager entityManager) {
+        entityManager.setPlatform(new HyperSQLPlatform());
       }
     }
 
@@ -64,11 +73,12 @@ public abstract class AbstractRepositoryManagerTests {
     return repositoryManager;
   }
 
-  protected void prepareTestsData(DbType dbType, RepositoryManager repositoryManager) { }
+  protected void prepareTestsData(DbType dbType, RepositoryManager repositoryManager) {
+  }
 
   public enum DbType {
     H2("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", ""),
-    HyperSQL("jdbc:hsqldb:mem:testmemdb", "SA", "");
+    HyperSQL("jdbc:hsqldb:mem:testmemdb;sql.syntax_mys=true", "SA", "");
 
     public final String url;
     public final String user;
@@ -78,6 +88,15 @@ public abstract class AbstractRepositoryManagerTests {
       this.url = url;
       this.user = user;
       this.pass = pass;
+    }
+  }
+
+  static class HyperSQLPlatform extends MySQLPlatform {
+
+    @Override
+    public void selectCountFrom(StringBuilder countSql, String tableName) {
+      countSql.append("SELECT COUNT(*) FROM ")
+              .append(tableName);
     }
   }
 

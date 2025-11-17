@@ -245,4 +245,108 @@ class MethodClassKeyTests {
     assertThat(key1.compareTo(key2)).isNotEqualTo(0);
   }
 
+  @Test
+  void equalsWithSameInstance() throws Exception {
+    Method method = String.class.getMethod("trim");
+    MethodClassKey key = new MethodClassKey(method, String.class);
+
+    assertThat(key).isEqualTo(key);
+  }
+
+  @Test
+  void equalsWithNull() throws Exception {
+    Method method = String.class.getMethod("trim");
+    MethodClassKey key = new MethodClassKey(method, String.class);
+
+    assertThat(key).isNotEqualTo(null);
+  }
+
+  @Test
+  void equalsWithDifferentObjectType() throws Exception {
+    Method method = String.class.getMethod("trim");
+    MethodClassKey key = new MethodClassKey(method, String.class);
+
+    assertThat(key).isNotEqualTo("not a MethodClassKey");
+  }
+
+  @Test
+  void hashCodeWithMethodOnly() throws Exception {
+    Method method = String.class.getMethod("trim");
+    MethodClassKey key = new MethodClassKey(method, null);
+
+    assertThat(key.hashCode()).isEqualTo(method.hashCode());
+  }
+
+  @Test
+  void hashCodeWithMethodAndTargetClass() throws Exception {
+    Method method = String.class.getMethod("trim");
+    MethodClassKey key = new MethodClassKey(method, String.class);
+
+    int expectedHash = method.hashCode() + String.class.hashCode() * 29;
+    assertThat(key.hashCode()).isEqualTo(expectedHash);
+  }
+
+  @Test
+  void toStringWithoutTargetClass() throws Exception {
+    Method method = String.class.getMethod("trim");
+    MethodClassKey key = new MethodClassKey(method, null);
+
+    assertThat(key.toString()).isEqualTo(method.toString());
+  }
+
+  @Test
+  void compareToWithDifferentTargetClassNames() throws Exception {
+    Method toString = Object.class.getMethod("toString");
+
+    MethodClassKey key1 = new MethodClassKey(toString, String.class);
+    MethodClassKey key2 = new MethodClassKey(toString, Integer.class);
+
+    int result = key1.compareTo(key2);
+    assertThat(result).isEqualTo(String.class.getName().compareTo(Integer.class.getName()));
+  }
+
+  @Test
+  void compareToWithOneNullTargetClassReturnsZero() throws Exception {
+    Method method = String.class.getMethod("trim");
+
+    MethodClassKey keyWithClass = new MethodClassKey(method, String.class);
+    MethodClassKey keyWithoutClass = new MethodClassKey(method, null);
+
+    assertThat(keyWithClass.compareTo(keyWithoutClass)).isEqualTo(0);
+    assertThat(keyWithoutClass.compareTo(keyWithClass)).isEqualTo(0);
+  }
+
+  @Test
+  void compareToWithSameMethodNameButDifferentParameters() throws Exception {
+    Method method1 = String.class.getMethod("valueOf", Object.class);
+    Method method2 = String.class.getMethod("valueOf", char[].class);
+
+    MethodClassKey key1 = new MethodClassKey(method1, null);
+    MethodClassKey key2 = new MethodClassKey(method2, null);
+
+    assertThat(key1.compareTo(key2)).isNotEqualTo(0);
+  }
+
+  @Test
+  void compareToReturnsZeroForIdenticalKeys() throws Exception {
+    Method method = String.class.getMethod("trim");
+
+    MethodClassKey key1 = new MethodClassKey(method, String.class);
+    MethodClassKey key2 = new MethodClassKey(method, String.class);
+
+    assertThat(key1.compareTo(key2)).isEqualTo(0);
+  }
+
+  @Test
+  void compareToDifferentMethodsByName() throws Exception {
+    Method methodA = String.class.getMethod("charAt", int.class); // 'charAt' comes before 'length'
+    Method methodB = String.class.getMethod("length");
+
+    MethodClassKey keyA = new MethodClassKey(methodA, null);
+    MethodClassKey keyB = new MethodClassKey(methodB, null);
+
+    assertThat(keyA.compareTo(keyB)).isNegative();
+    assertThat(keyB.compareTo(keyA)).isPositive();
+  }
+
 }

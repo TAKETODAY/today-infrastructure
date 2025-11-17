@@ -20,6 +20,8 @@ package infra.building;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.tasks.testing.Test;
+import org.gradle.api.tasks.testing.TestFrameworkOptions;
+import org.gradle.api.tasks.testing.junitplatform.JUnitPlatformOptions;
 import org.gradle.testretry.TestRetryPlugin;
 import org.gradle.testretry.TestRetryTaskExtension;
 
@@ -53,19 +55,27 @@ class TestConventions {
   }
 
   private void configureTests(Project project, Test test) {
-    test.useJUnitPlatform();
+    TestFrameworkOptions existingOptions = test.getOptions();
+    test.useJUnitPlatform(options -> {
+      if (existingOptions instanceof JUnitPlatformOptions junitPlatformOptions) {
+        options.copyFrom(junitPlatformOptions);
+      }
+    });
+
     test.include("**/*Tests.class", "**/*Test.class");
     test.setSystemProperties(Map.of(
             "java.awt.headless", "true",
             "io.netty.leakDetection.level", "paranoid"
     ));
+
     if (project.hasProperty("testGroups")) {
       test.systemProperty("testGroups", project.getProperties().get("testGroups"));
     }
+
     test.jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED",
             "--add-opens=java.base/java.util=ALL-UNNAMED",
             "--add-opens=java.base/java.net=ALL-UNNAMED",
-            "-Djava.locale.providers=COMPAT");
+            "-Xshare:off");
 
   }
 

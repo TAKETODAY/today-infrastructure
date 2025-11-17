@@ -240,6 +240,7 @@ final class AnnotationTypeMappings implements Iterable<AnnotationTypeMapping> {
    * some JVM languages support (such as Kotlin)
    * @return type mappings for the annotation type
    */
+  @SuppressWarnings("NullAway")
   private static AnnotationTypeMappings forAnnotationType(
           Class<? extends Annotation> annotationType, RepeatableContainers repeatableContainers,
           AnnotationFilter annotationFilter, Set<Class<? extends Annotation>> visitedAnnotationTypes) {
@@ -290,6 +291,7 @@ final class AnnotationTypeMappings implements Iterable<AnnotationTypeMapping> {
      * some JVM languages support (such as Kotlin)
      * @return a new or existing {@link AnnotationTypeMappings} instance
      */
+    @SuppressWarnings("NullAway")
     AnnotationTypeMappings get(Class<? extends Annotation> annotationType,
             Set<Class<? extends Annotation>> visitedAnnotationTypes) {
       return mappings.computeIfAbsent(annotationType, key -> new AnnotationTypeMappings(

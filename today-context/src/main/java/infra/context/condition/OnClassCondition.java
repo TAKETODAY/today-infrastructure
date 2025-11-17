@@ -21,7 +21,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import infra.context.annotation.Condition;
@@ -29,6 +28,7 @@ import infra.context.annotation.ConditionContext;
 import infra.context.annotation.config.AutoConfigurationMetadata;
 import infra.core.Ordered;
 import infra.core.type.AnnotatedTypeMetadata;
+import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
@@ -112,8 +112,9 @@ final class OnClassCondition extends FilteringInfraCondition implements Conditio
   }
 
   @Nullable
+  @SuppressWarnings("NullAway")
   private List<String> getCandidates(AnnotatedTypeMetadata metadata, Class<? extends Annotation> annotationType) {
-    MultiValueMap<String, Object> attributes = metadata.getAllAnnotationAttributes(annotationType, true);
+    MultiValueMap<String, @Nullable Object> attributes = metadata.getAllAnnotationAttributes(annotationType, true);
     if (attributes == null) {
       return null;
     }
@@ -123,10 +124,10 @@ final class OnClassCondition extends FilteringInfraCondition implements Conditio
     return candidates;
   }
 
-  private void addAll(List<String> list, @Nullable List<Object> itemsToAdd) {
+  private void addAll(List<String> list, @Nullable List<@Nullable Object> itemsToAdd) {
     if (itemsToAdd != null) {
       for (Object item : itemsToAdd) {
-        Collections.addAll(list, (String[]) item);
+        CollectionUtils.addAll(list, (String[]) item);
       }
     }
   }

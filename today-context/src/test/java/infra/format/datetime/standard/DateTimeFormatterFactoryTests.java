@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.format.datetime.standard;
@@ -38,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Phillip Webb
  * @author Sam Brannen
  */
-public class DateTimeFormatterFactoryTests {
+class DateTimeFormatterFactoryTests {
 
   // Potential test timezone, both have daylight savings on October 21st
   private static final TimeZone ZURICH = TimeZone.getTimeZone("Europe/Zurich");
@@ -52,36 +49,36 @@ public class DateTimeFormatterFactoryTests {
   private LocalDateTime dateTime = LocalDateTime.of(2009, 10, 21, 12, 10, 00, 00);
 
   @Test
-  public void createDateTimeFormatter() {
+  void createDateTimeFormatter() {
     assertThat(factory.createDateTimeFormatter().toString()).isEqualTo(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).toString());
   }
 
   @Test
-  public void createDateTimeFormatterWithPattern() {
+  void createDateTimeFormatterWithPattern() {
     factory = new DateTimeFormatterFactory("yyyyMMddHHmmss");
     DateTimeFormatter formatter = factory.createDateTimeFormatter();
     assertThat(formatter.format(dateTime)).isEqualTo("20091021121000");
   }
 
   @Test
-  public void createDateTimeFormatterWithNullFallback() {
+  void createDateTimeFormatterWithNullFallback() {
     DateTimeFormatter formatter = factory.createDateTimeFormatter(null);
     assertThat(formatter).isNull();
   }
 
   @Test
-  public void createDateTimeFormatterWithFallback() {
+  void createDateTimeFormatterWithFallback() {
     DateTimeFormatter fallback = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG);
     DateTimeFormatter formatter = factory.createDateTimeFormatter(fallback);
     assertThat(formatter).isSameAs(fallback);
   }
 
   @Test
-  public void createDateTimeFormatterInOrderOfPropertyPriority() {
+  void createDateTimeFormatterInOrderOfPropertyPriority() {
     factory.setStylePattern("SS");
     String value = applyLocale(factory.createDateTimeFormatter()).format(dateTime);
-    assertThat(value.startsWith("10/21/09")).isTrue();
-    assertThat(value.endsWith("12:10 PM")).isTrue();
+    // \p{Zs} matches any Unicode space character
+    assertThat(value).startsWith("10/21/09").matches(".+?12:10\\p{Zs}PM");
 
     factory.setIso(ISO.DATE);
     assertThat(applyLocale(factory.createDateTimeFormatter()).format(dateTime)).isEqualTo("2009-10-21");
@@ -91,7 +88,7 @@ public class DateTimeFormatterFactoryTests {
   }
 
   @Test
-  public void createDateTimeFormatterWithTimeZone() {
+  void createDateTimeFormatterWithTimeZone() {
     factory.setPattern("yyyyMMddHHmmss Z");
     factory.setTimeZone(TEST_TIMEZONE);
     ZoneId dateTimeZone = TEST_TIMEZONE.toZoneId();

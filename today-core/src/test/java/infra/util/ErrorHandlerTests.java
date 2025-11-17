@@ -212,4 +212,51 @@ class ErrorHandlerTests {
     assertThat(output.toString()).contains("Test message");
   }
 
+  @Test
+  void constructorWithValidParameters() {
+    PropagatingErrorHandler handler = new PropagatingErrorHandler("Test message", "test.logger");
+    assertThat(handler).isNotNull();
+  }
+
+  @Test
+  void handleErrorPropagatesRuntimeException() {
+    PropagatingErrorHandler handler = new PropagatingErrorHandler("Test message", "test.logger");
+    RuntimeException exception = new RuntimeException("Test exception");
+
+    assertThatThrownBy(() -> handler.handleError(exception))
+            .isSameAs(exception);
+  }
+
+  @Test
+  void handleErrorWrapsCheckedException() {
+    PropagatingErrorHandler handler = new PropagatingErrorHandler("Test message", "test.logger");
+    IOException exception = new IOException("Test exception");
+
+    assertThatThrownBy(() -> handler.handleError(exception))
+            .isInstanceOf(RuntimeException.class)
+            .hasCause(exception);
+  }
+
+  @Test
+  void handleErrorLogsErrorBeforePropagating(CapturedOutput output) {
+    PropagatingErrorHandler handler = new PropagatingErrorHandler("Error occurred", "test.logger");
+    RuntimeException exception = new RuntimeException("Test exception");
+
+    assertThatThrownBy(() -> handler.handleError(exception))
+            .isSameAs(exception);
+
+    assertThat(output.toString())
+            .contains("Error occurred")
+            .contains("test.logger")
+            .contains("Test exception");
+  }
+
+  @Test
+  void handleErrorWithNullThrowable() {
+    PropagatingErrorHandler handler = new PropagatingErrorHandler("Test message", "test.logger");
+
+    assertThatThrownBy(() -> handler.handleError(null))
+            .isInstanceOf(RuntimeException.class);
+  }
+
 }

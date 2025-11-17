@@ -107,22 +107,6 @@ public class ReflectionHintsPredicates {
   }
 
   /**
-   * Return a predicate that checks whether a reflection hint is registered for the given method.
-   * By default, both introspection and invocation hints match.
-   * <p>The returned type exposes additional methods that refine the predicate behavior.
-   *
-   * @param method the method
-   * @return the {@link RuntimeHints} predicate
-   * @deprecated since 5.0 in favor of {@link #onMethodInvocation(Method)}
-   * or {@link #onType(Class)}.
-   */
-  @Deprecated(since = "5.0", forRemoval = true)
-  public MethodHintPredicate onMethod(Method method) {
-    Assert.notNull(method, "'method' is required");
-    return new MethodHintPredicate(method);
-  }
-
-  /**
    * Return a predicate that checks whether an invocation hint is registered for the given method.
    *
    * @param method the method

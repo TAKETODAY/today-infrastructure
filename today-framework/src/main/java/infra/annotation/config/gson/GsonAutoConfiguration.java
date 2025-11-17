@@ -80,6 +80,7 @@ public class GsonAutoConfiguration {
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public void customize(GsonBuilder builder) {
       GsonProperties properties = this.properties;
       PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();

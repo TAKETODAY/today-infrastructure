@@ -14,7 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.bytecode;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * Information about an exception handler. Corresponds to an element of the exception_table array of
@@ -23,6 +26,7 @@ package infra.bytecode;
  * exception_table array.
  *
  * @author Eric Bruneton
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.3">JVMS
  * 4.7.3</a>
  */
@@ -57,10 +61,10 @@ final class Handler {
    * The internal name of the type of exceptions handled by this handler, or {@literal null} to
    * catch any exceptions.
    */
-  public final String catchTypeDescriptor;
+  public final @Nullable String catchTypeDescriptor;
 
   /** The next exception handler. */
-  public Handler nextHandler;
+  public @Nullable Handler nextHandler;
 
   /**
    * Constructs a new Handler.
@@ -72,11 +76,8 @@ final class Handler {
    * @param catchTypeDescriptor The internal name of the type of exceptions handled by this handler,
    * or {@literal null} to catch any exceptions.
    */
-  Handler(final Label startPc,
-          final Label endPc,
-          final Label handlerPc,
-          final int catchType,
-          final String catchTypeDescriptor) {
+  Handler(final Label startPc, final Label endPc, final Label handlerPc,
+          final int catchType, final @Nullable String catchTypeDescriptor) {
     this.startPc = startPc;
     this.endPc = endPc;
     this.handlerPc = handlerPc;
@@ -105,7 +106,7 @@ final class Handler {
    * @param end the end of the range to be removed. Maybe {@literal null}.
    * @return the exception handler list with the start-end range removed.
    */
-  static Handler removeRange(final Handler firstHandler, final Label start, final Label end) {
+  static @Nullable Handler removeRange(final @Nullable Handler firstHandler, final Label start, final @Nullable Label end) {
     if (firstHandler == null) {
       return null;
     }

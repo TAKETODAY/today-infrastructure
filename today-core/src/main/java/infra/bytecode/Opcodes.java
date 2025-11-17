@@ -269,7 +269,7 @@ public interface Opcodes {
   int V25 = 0 << 16 | 69;
   int V26 = 0 << 16 | 70;
 
-  int JAVA_VERSION = V1_8;
+  int JAVA_VERSION = V17;
 
   /**
    * Version flag indicating that the class is using 'preview' features.

@@ -31,7 +31,7 @@ public class jdk3/ArtificialStructures {
     LDC "1"
     GOTO L1
    L0
-    LINENUMBER 1 L0
+    LINENUMBER 0 L0
     LINENUMBER 3 L0
    FRAME FULL [U I] [U]
     LDC "0"

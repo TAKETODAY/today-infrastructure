@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import infra.bytecode.Attribute;
+import infra.bytecode.ConstantDynamic;
 import infra.bytecode.Handle;
 import infra.bytecode.Label;
 import infra.bytecode.MethodVisitor;
@@ -45,7 +46,9 @@ public class Textifier extends Printer {
           "Prints a disassembled view of the given class.\n"
                   + "Usage: Textifier [-nodebug] <fully qualified class name or class file name>";
 
-  /** The type of internal names. See {@link #appendDescriptor}. */
+  /**
+   * The type of internal names (see {@link Type#getInternalName()}). See {@link #appendDescriptor}.
+   */
   public static final int INTERNAL_NAME = 0;
 
   /** The type of field descriptors. See {@link #appendDescriptor}. */
@@ -97,7 +100,8 @@ public class Textifier extends Printer {
   /**
    * Constructs a new {@link Textifier}.
    */
-  public Textifier() { }
+  public Textifier() {
+  }
 
   /**
    * Prints a disassembled view of the given class to the standard output.
@@ -292,7 +296,7 @@ public class Textifier extends Printer {
           final String name, final String outerName, final String innerName, final int access) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab);
-    appendRawAccess(access & ~Opcodes.ACC_SUPER);
+    appendRawAccess(access);
     stringBuilder.append(tab);
     appendAccess(access);
     stringBuilder.append("INNERCLASS ");
@@ -355,12 +359,7 @@ public class Textifier extends Printer {
     stringBuilder.append(' ').append(name);
     if (value != null) {
       stringBuilder.append(" = ");
-      if (value instanceof String) {
-        stringBuilder.append('\"').append(value).append('\"');
-      }
-      else {
-        stringBuilder.append(value);
-      }
+      appendConstant(value);
     }
 
     stringBuilder.append('\n');
@@ -432,8 +431,6 @@ public class Textifier extends Printer {
 
   @Override
   public void visitMainClass(final String mainClass) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append("  // main class ").append(mainClass).append('\n');
     text.add(stringBuilder.toString());
@@ -441,8 +438,6 @@ public class Textifier extends Printer {
 
   @Override
   public void visitPackage(final String packaze) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append("  // package ").append(packaze).append('\n');
     text.add(stringBuilder.toString());
@@ -450,8 +445,6 @@ public class Textifier extends Printer {
 
   @Override
   public void visitRequire(final String require, final int access, final String version) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append("requires ");
     if ((access & Opcodes.ACC_TRANSITIVE) != 0) {
@@ -480,8 +473,6 @@ public class Textifier extends Printer {
 
   private void visitExportOrOpen(
           final String method, final String packaze, final int access, final String... modules) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append(method);
     stringBuilder.append(packaze);
@@ -503,8 +494,6 @@ public class Textifier extends Printer {
 
   @Override
   public void visitUse(final String use) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append("uses ");
     appendDescriptor(INTERNAL_NAME, use);
@@ -514,8 +503,6 @@ public class Textifier extends Printer {
 
   @Override
   public void visitProvide(final String provide, final String... providers) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append("provides ");
     appendDescriptor(INTERNAL_NAME, provide);
@@ -548,28 +535,28 @@ public class Textifier extends Printer {
       visitType((Type) value);
     }
     else if (value instanceof Byte) {
-      visitByte((Byte) value);
+      visitByte(((Byte) value).byteValue());
     }
     else if (value instanceof Boolean) {
-      visitBoolean((Boolean) value);
+      visitBoolean(((Boolean) value).booleanValue());
     }
     else if (value instanceof Short) {
-      visitShort((Short) value);
+      visitShort(((Short) value).shortValue());
     }
     else if (value instanceof Character) {
-      visitChar((Character) value);
+      visitChar(((Character) value).charValue());
     }
     else if (value instanceof Integer) {
-      visitInt((Integer) value);
+      visitInt(((Integer) value).intValue());
     }
     else if (value instanceof Float) {
-      visitFloat((Float) value);
+      visitFloat(((Float) value).floatValue());
     }
     else if (value instanceof Long) {
-      visitLong((Long) value);
+      visitLong(((Long) value).longValue());
     }
     else if (value instanceof Double) {
-      visitDouble((Double) value);
+      visitDouble(((Double) value).doubleValue());
     }
     else if (value.getClass().isArray()) {
       stringBuilder.append('{');
@@ -668,8 +655,6 @@ public class Textifier extends Printer {
 
   @Override
   public void visitEnum(final String name, final String descriptor, final String value) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     visitAnnotationValue(name);
     appendDescriptor(FIELD_DESCRIPTOR, descriptor);
     stringBuilder.append('.').append(value);
@@ -678,8 +663,6 @@ public class Textifier extends Printer {
 
   @Override
   public Textifier visitAnnotation(final String name, final String descriptor) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     visitAnnotationValue(name);
     stringBuilder.append('@');
     appendDescriptor(FIELD_DESCRIPTOR, descriptor);
@@ -690,8 +673,6 @@ public class Textifier extends Printer {
 
   @Override
   public Textifier visitArray(final String name) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     visitAnnotationValue(name);
     stringBuilder.append('{');
     text.add(stringBuilder.toString());
@@ -767,8 +748,6 @@ public class Textifier extends Printer {
 
   @Override
   public void visitParameter(final String name, final int access) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("// parameter ");
     appendAccess(access);
@@ -795,8 +774,6 @@ public class Textifier extends Printer {
 
   @Override
   public Textifier visitAnnotableParameterCount(final int parameterCount, final boolean visible) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("// annotable parameter count: ");
     stringBuilder.append(parameterCount);
@@ -808,8 +785,6 @@ public class Textifier extends Printer {
   @Override
   public Textifier visitParameterAnnotation(
           final int parameter, final String descriptor, final boolean visible) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append('@');
     appendDescriptor(FIELD_DESCRIPTOR, descriptor);
@@ -841,31 +816,35 @@ public class Textifier extends Printer {
           final Object[] local,
           final int numStack,
           final Object[] stack) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(ltab);
     stringBuilder.append("FRAME ");
     switch (type) {
-      case Opcodes.F_NEW, Opcodes.F_FULL -> {
+      case Opcodes.F_NEW:
+      case Opcodes.F_FULL:
         stringBuilder.append("FULL [");
         appendFrameTypes(numLocal, local);
         stringBuilder.append("] [");
         appendFrameTypes(numStack, stack);
         stringBuilder.append(']');
-      }
-      case Opcodes.F_APPEND -> {
+        break;
+      case Opcodes.F_APPEND:
         stringBuilder.append("APPEND [");
         appendFrameTypes(numLocal, local);
         stringBuilder.append(']');
-      }
-      case Opcodes.F_CHOP -> stringBuilder.append("CHOP ").append(numLocal);
-      case Opcodes.F_SAME -> stringBuilder.append("SAME");
-      case Opcodes.F_SAME1 -> {
+        break;
+      case Opcodes.F_CHOP:
+        stringBuilder.append("CHOP ").append(numLocal);
+        break;
+      case Opcodes.F_SAME:
+        stringBuilder.append("SAME");
+        break;
+      case Opcodes.F_SAME1:
         stringBuilder.append("SAME1 ");
         appendFrameTypes(1, stack);
-      }
-      default -> throw new IllegalArgumentException();
+        break;
+      default:
+        throw new IllegalArgumentException();
     }
     stringBuilder.append('\n');
     text.add(stringBuilder.toString());
@@ -873,8 +852,6 @@ public class Textifier extends Printer {
 
   @Override
   public void visitInsn(final int opcode) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append(OPCODES[opcode]).append('\n');
     text.add(stringBuilder.toString());
@@ -882,8 +859,6 @@ public class Textifier extends Printer {
 
   @Override
   public void visitIntInsn(final int opcode, final int operand) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder
             .append(tab2)
@@ -895,18 +870,14 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public void visitVarInsn(final int opcode, final int var) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
+  public void visitVarInsn(final int opcode, final int varIndex) {
     stringBuilder.setLength(0);
-    stringBuilder.append(tab2).append(OPCODES[opcode]).append(' ').append(var).append('\n');
+    stringBuilder.append(tab2).append(OPCODES[opcode]).append(' ').append(varIndex).append('\n');
     text.add(stringBuilder.toString());
   }
 
   @Override
   public void visitTypeInsn(final int opcode, final String type) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append(OPCODES[opcode]).append(' ');
     appendDescriptor(INTERNAL_NAME, type);
@@ -917,8 +888,6 @@ public class Textifier extends Printer {
   @Override
   public void visitFieldInsn(
           final int opcode, final String owner, final String name, final String descriptor) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append(OPCODES[opcode]).append(' ');
     appendDescriptor(INTERNAL_NAME, owner);
@@ -935,8 +904,6 @@ public class Textifier extends Printer {
           final String name,
           final String descriptor,
           final boolean isInterface) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append(OPCODES[opcode]).append(' ');
     appendDescriptor(INTERNAL_NAME, owner);
@@ -955,8 +922,6 @@ public class Textifier extends Printer {
           final String descriptor,
           final Handle bootstrapMethodHandle,
           final Object... bootstrapMethodArguments) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("INVOKEDYNAMIC").append(' ');
     stringBuilder.append(name);
@@ -964,37 +929,9 @@ public class Textifier extends Printer {
     stringBuilder.append(" [");
     stringBuilder.append('\n');
     stringBuilder.append(tab3);
-    appendHandle(bootstrapMethodHandle);
-    stringBuilder.append('\n');
-    stringBuilder.append(tab3).append("// arguments:");
-    if (bootstrapMethodArguments.length == 0) {
-      stringBuilder.append(" none");
-    }
-    else {
-      stringBuilder.append('\n');
-      for (Object value : bootstrapMethodArguments) {
-        stringBuilder.append(tab3);
-        if (value instanceof String) {
-          appendString(stringBuilder, (String) value);
-        }
-        else if (value instanceof Type type) {
-          if (type.getSort() == Type.METHOD) {
-            appendDescriptor(METHOD_DESCRIPTOR, type.getDescriptor());
-          }
-          else {
-            visitType(type);
-          }
-        }
-        else if (value instanceof Handle) {
-          appendHandle((Handle) value);
-        }
-        else {
-          stringBuilder.append(value);
-        }
-        stringBuilder.append(", \n");
-      }
-      stringBuilder.setLength(stringBuilder.length() - 3);
-    }
+    appendHandle(bootstrapMethodHandle, tab3);
+    stringBuilder.append('\n').append(tab3);
+    appendBoostrapMethodArgs(bootstrapMethodArguments, tab3);
     stringBuilder.append('\n');
     stringBuilder.append(tab2).append("]\n");
     text.add(stringBuilder.toString());
@@ -1002,8 +939,6 @@ public class Textifier extends Printer {
 
   @Override
   public void visitJumpInsn(final int opcode, final Label label) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append(OPCODES[opcode]).append(' ');
     appendLabel(label);
@@ -1013,8 +948,6 @@ public class Textifier extends Printer {
 
   @Override
   public void visitLabel(final Label label) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(ltab);
     appendLabel(label);
@@ -1024,32 +957,30 @@ public class Textifier extends Printer {
 
   @Override
   public void visitLdcInsn(final Object value) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
-    stringBuilder.append(tab2).append("LDC ");
-    if (value instanceof String) {
-      appendString(stringBuilder, (String) value);
+    if (value instanceof ConstantDynamic) {
+      stringBuilder.append(tab2).append("LDC ");
+      appendConstantDynamic((ConstantDynamic) value, tab2);
     }
-    else if (value instanceof Type) {
-      stringBuilder.append(((Type) value).getDescriptor()).append(CLASS_SUFFIX);
+    else if (value instanceof Handle) {
+      stringBuilder.append(tab2);
+      appendHandle((Handle) value, tab2 + "LDC ");
     }
     else {
-      stringBuilder.append(value);
+      stringBuilder.append(tab2).append("LDC ");
+      appendConstant(value);
     }
     stringBuilder.append('\n');
     text.add(stringBuilder.toString());
   }
 
   @Override
-  public void visitIincInsn(final int var, final int increment) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
+  public void visitIincInsn(final int varIndex, final int increment) {
     stringBuilder.setLength(0);
     stringBuilder
             .append(tab2)
             .append("IINC ")
-            .append(var)
+            .append(varIndex)
             .append(' ')
             .append(increment)
             .append('\n');
@@ -1059,8 +990,6 @@ public class Textifier extends Printer {
   @Override
   public void visitTableSwitchInsn(
           final int min, final int max, final Label dflt, final Label... labels) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("TABLESWITCH\n");
     for (int i = 0; i < labels.length; ++i) {
@@ -1076,8 +1005,6 @@ public class Textifier extends Printer {
 
   @Override
   public void visitLookupSwitchInsn(final Label dflt, final int[] keys, final Label[] labels) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("LOOKUPSWITCH\n");
     for (int i = 0; i < labels.length; ++i) {
@@ -1093,8 +1020,6 @@ public class Textifier extends Printer {
 
   @Override
   public void visitMultiANewArrayInsn(final String descriptor, final int numDimensions) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("MULTIANEWARRAY ");
     appendDescriptor(FIELD_DESCRIPTOR, descriptor);
@@ -1111,8 +1036,6 @@ public class Textifier extends Printer {
   @Override
   public void visitTryCatchBlock(
           final Label start, final Label end, final Label handler, final String type) {
-    StringBuilder stringBuilder = this.stringBuilder;
-
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("TRYCATCHBLOCK ");
     appendLabel(start);
@@ -1129,7 +1052,6 @@ public class Textifier extends Printer {
   @Override
   public Printer visitTryCatchAnnotation(
           final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
-    StringBuilder stringBuilder = this.stringBuilder;
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("TRYCATCHBLOCK @");
     appendDescriptor(FIELD_DESCRIPTOR, descriptor);
@@ -1152,7 +1074,6 @@ public class Textifier extends Printer {
           final Label start,
           final Label end,
           final int index) {
-    StringBuilder stringBuilder = this.stringBuilder;
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("LOCALVARIABLE ").append(name).append(' ');
     appendDescriptor(FIELD_DESCRIPTOR, descriptor);
@@ -1180,7 +1101,6 @@ public class Textifier extends Printer {
           final int[] index,
           final String descriptor,
           final boolean visible) {
-    StringBuilder stringBuilder = this.stringBuilder;
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("LOCALVARIABLE @");
     appendDescriptor(FIELD_DESCRIPTOR, descriptor);
@@ -1204,7 +1124,6 @@ public class Textifier extends Printer {
 
   @Override
   public void visitLineNumber(final int line, final Label start) {
-    StringBuilder stringBuilder = this.stringBuilder;
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("LINENUMBER ").append(line).append(' ');
     appendLabel(start);
@@ -1214,7 +1133,6 @@ public class Textifier extends Printer {
 
   @Override
   public void visitMaxs(final int maxStack, final int maxLocals) {
-    StringBuilder stringBuilder = this.stringBuilder;
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("MAXSTACK = ").append(maxStack).append('\n');
     text.add(stringBuilder.toString());
@@ -1242,7 +1160,6 @@ public class Textifier extends Printer {
    */
   // DontCheck(OverloadMethodsDeclarationOrder): overloads are semantically different.
   public Textifier visitAnnotation(final String descriptor, final boolean visible) {
-    StringBuilder stringBuilder = this.stringBuilder;
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append('@');
     appendDescriptor(FIELD_DESCRIPTOR, descriptor);
@@ -1264,7 +1181,6 @@ public class Textifier extends Printer {
    */
   public Textifier visitTypeAnnotation(
           final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
-    StringBuilder stringBuilder = this.stringBuilder;
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append('@');
     appendDescriptor(FIELD_DESCRIPTOR, descriptor);
@@ -1285,7 +1201,6 @@ public class Textifier extends Printer {
    * @param attribute an attribute.
    */
   public void visitAttribute(final Attribute attribute) {
-    StringBuilder stringBuilder = this.stringBuilder;
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append("ATTRIBUTE ");
     appendDescriptor(-1, attribute.type);
@@ -1313,7 +1228,6 @@ public class Textifier extends Printer {
    * @param accessFlags some access flags.
    */
   private void appendAccess(final int accessFlags) {
-    StringBuilder stringBuilder = this.stringBuilder;
     if ((accessFlags & Opcodes.ACC_PUBLIC) != 0) {
       stringBuilder.append("public ");
     }
@@ -1356,6 +1270,106 @@ public class Textifier extends Printer {
   }
 
   /**
+   * Appends a constant value. This method can be used for {@link Integer}, {@link Float}, {@link
+   * Long}, {@link Double}, {@link Boolean}, {@link String}, and {@link Type}. Attempting to use any
+   * other type will result in its {@link Object#toString()} representation.
+   *
+   * @param constant the constant to be appended.
+   */
+  private void appendConstant(final Object constant) {
+    if (constant instanceof Number) {
+      if (constant instanceof Double) {
+        stringBuilder.append(constant).append('D');
+      }
+      else if (constant instanceof Float) {
+        stringBuilder.append(constant).append('F');
+      }
+      else if (constant instanceof Long) {
+        stringBuilder.append(constant).append('L');
+      }
+      else {
+        // Integer (or other "unsupported" Number subclass)
+        stringBuilder.append(constant);
+      }
+    }
+    else {
+      if (constant instanceof Type) {
+        stringBuilder.append(((Type) constant).getDescriptor()).append(CLASS_SUFFIX);
+      }
+      else if (constant instanceof String) {
+        Printer.appendString(stringBuilder, constant.toString());
+      }
+      else {
+        // Boolean or other "unsupported" constant
+        stringBuilder.append(constant);
+      }
+    }
+  }
+
+  /**
+   * Append the contents of a {@link ConstantDynamic}.
+   *
+   * @param condy the constant dynamic to append
+   * @param condyIndent the indent to use for newlines.
+   */
+  private void appendConstantDynamic(final ConstantDynamic condy, final String condyIndent) {
+    stringBuilder
+            .append(condy.getName())
+            .append(" : ")
+            .append(condy.getDescriptor())
+            .append(" [\n");
+    stringBuilder.append(condyIndent).append(tab);
+    appendHandle(condy.getBootstrapMethod(), condyIndent + tab);
+    stringBuilder.append('\n').append(condyIndent).append(tab);
+    Object[] bsmArgs = new Object[condy.getBootstrapMethodArgumentCount()];
+    for (int i = 0; i < bsmArgs.length; i++) {
+      bsmArgs[i] = condy.getBootstrapMethodArgument(i);
+    }
+    appendBoostrapMethodArgs(bsmArgs, condyIndent + tab);
+    stringBuilder.append('\n').append(condyIndent).append(']');
+  }
+
+  /**
+   * Appends bootstrap method args for {@link ConstantDynamic} and {@link #visitInvokeDynamicInsn}.
+   *
+   * @param bsmArgs the bootstrap method arguments.
+   * @param argIndent the indent to use for newlines.
+   */
+  private void appendBoostrapMethodArgs(final Object[] bsmArgs, final String argIndent) {
+    stringBuilder.append("// arguments:");
+    if (bsmArgs.length == 0) {
+      stringBuilder.append(" none");
+    }
+    else {
+      for (int i = 0; i < bsmArgs.length; i++) {
+        Object arg = bsmArgs[i];
+        if (i != 0) {
+          stringBuilder.append(", ");
+        }
+        stringBuilder.append('\n').append(argIndent);
+        if (arg instanceof Type type) {
+          if (type.getSort() == Type.METHOD) {
+            appendDescriptor(METHOD_DESCRIPTOR, type.getDescriptor());
+          }
+          else {
+            visitType(type);
+          }
+        }
+        else if (arg instanceof Handle) {
+          appendHandle((Handle) arg, argIndent);
+        }
+        else if (arg instanceof ConstantDynamic) {
+          stringBuilder.append("// constant dynamic: ").append('\n').append(argIndent);
+          appendConstantDynamic((ConstantDynamic) arg, argIndent);
+        }
+        else {
+          appendConstant(arg);
+        }
+      }
+    }
+  }
+
+  /**
    * Appends the hexadecimal value of the given access flags to {@link #stringBuilder}.
    *
    * @param accessFlags some access flags.
@@ -1373,7 +1387,8 @@ public class Textifier extends Printer {
    * @param type the type of 'value'. Must be one of {@link #INTERNAL_NAME}, {@link
    * #FIELD_DESCRIPTOR}, {@link #FIELD_SIGNATURE}, {@link #METHOD_DESCRIPTOR}, {@link
    * #METHOD_SIGNATURE}, {@link #CLASS_SIGNATURE} or {@link #HANDLE_DESCRIPTOR}.
-   * @param value an internal name, type descriptor or a type signature. May be {@literal null}.
+   * @param value an internal name (see {@link Type#getInternalName()}), type descriptor or a type
+   * signature. May be {@literal null}.
    */
   protected void appendDescriptor(final int type, final String value) {
     if (type == CLASS_SIGNATURE || type == FIELD_SIGNATURE || type == METHOD_SIGNATURE) {
@@ -1395,7 +1410,6 @@ public class Textifier extends Printer {
   private void appendJavaDeclaration(final String name, final String signature) {
     TraceSignatureVisitor traceSignatureVisitor = new TraceSignatureVisitor(access);
     new SignatureReader(signature).accept(traceSignatureVisitor);
-    StringBuilder stringBuilder = this.stringBuilder;
     stringBuilder.append("// declaration: ");
     if (traceSignatureVisitor.getReturnType() != null) {
       stringBuilder.append(traceSignatureVisitor.getReturnType());
@@ -1431,41 +1445,61 @@ public class Textifier extends Printer {
    * Appends a string representation of the given handle to {@link #stringBuilder}.
    *
    * @param handle a handle.
+   * @deprecated use {@link #appendHandle(Handle, String)} instead.
    */
+  @Deprecated(forRemoval = false)
   protected void appendHandle(final Handle handle) {
+    appendHandle(handle, tab3);
+  }
+
+  /**
+   * Appends a string representation of the given handle to {@link #stringBuilder}.
+   *
+   * @param handle a handle.
+   * @param afterComment this is the prefix of the line after the handle kind.
+   */
+  protected void appendHandle(final Handle handle, final String afterComment) {
     int tag = handle.getTag();
-    StringBuilder stringBuilder = this.stringBuilder;
     stringBuilder.append("// handle kind 0x").append(Integer.toHexString(tag)).append(" : ");
     boolean isMethodHandle = false;
     switch (tag) {
-      case Opcodes.H_GETFIELD -> stringBuilder.append("GETFIELD");
-      case Opcodes.H_GETSTATIC -> stringBuilder.append("GETSTATIC");
-      case Opcodes.H_PUTFIELD -> stringBuilder.append("PUTFIELD");
-      case Opcodes.H_PUTSTATIC -> stringBuilder.append("PUTSTATIC");
-      case Opcodes.H_INVOKEINTERFACE -> {
+      case Opcodes.H_GETFIELD:
+        stringBuilder.append("GETFIELD");
+        break;
+      case Opcodes.H_GETSTATIC:
+        stringBuilder.append("GETSTATIC");
+        break;
+      case Opcodes.H_PUTFIELD:
+        stringBuilder.append("PUTFIELD");
+        break;
+      case Opcodes.H_PUTSTATIC:
+        stringBuilder.append("PUTSTATIC");
+        break;
+      case Opcodes.H_INVOKEINTERFACE:
         stringBuilder.append("INVOKEINTERFACE");
         isMethodHandle = true;
-      }
-      case Opcodes.H_INVOKESPECIAL -> {
+        break;
+      case Opcodes.H_INVOKESPECIAL:
         stringBuilder.append("INVOKESPECIAL");
         isMethodHandle = true;
-      }
-      case Opcodes.H_INVOKESTATIC -> {
+        break;
+      case Opcodes.H_INVOKESTATIC:
         stringBuilder.append("INVOKESTATIC");
         isMethodHandle = true;
-      }
-      case Opcodes.H_INVOKEVIRTUAL -> {
+        break;
+      case Opcodes.H_INVOKEVIRTUAL:
         stringBuilder.append("INVOKEVIRTUAL");
         isMethodHandle = true;
-      }
-      case Opcodes.H_NEWINVOKESPECIAL -> {
+        break;
+      case Opcodes.H_NEWINVOKESPECIAL:
         stringBuilder.append("NEWINVOKESPECIAL");
         isMethodHandle = true;
-      }
-      default -> throw new IllegalArgumentException();
+        break;
+      default:
+        throw new IllegalArgumentException();
     }
     stringBuilder.append('\n');
-    stringBuilder.append(tab3);
+    stringBuilder.append(afterComment);
     appendDescriptor(INTERNAL_NAME, handle.getOwner());
     stringBuilder.append('.');
     stringBuilder.append(handle.getName());
@@ -1600,7 +1634,6 @@ public class Textifier extends Printer {
    * MethodVisitor#visitFrame}.
    */
   private void appendFrameTypes(final int numTypes, final Object[] frameTypes) {
-    final StringBuilder stringBuilder = this.stringBuilder;
     for (int i = 0; i < numTypes; ++i) {
       if (i > 0) {
         stringBuilder.append(' ');
@@ -1614,7 +1647,7 @@ public class Textifier extends Printer {
         }
       }
       else if (frameTypes[i] instanceof Integer) {
-        stringBuilder.append(FRAME_TYPES.get((Integer) frameTypes[i]));
+        stringBuilder.append(FRAME_TYPES.get(((Integer) frameTypes[i]).intValue()));
       }
       else {
         appendLabel((Label) frameTypes[i]);

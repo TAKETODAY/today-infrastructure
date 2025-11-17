@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -186,6 +186,75 @@ class ResourceHintsTests {
             .registerResourceBundle("com.example.message");
     assertThat(this.resourceHints.resourceBundleHints()).singleElement()
             .satisfies(resourceBundle("com.example.message"));
+  }
+
+  @Test
+  void registerPatternWithNullConsumerDoesNotFail() {
+    this.resourceHints.registerPattern((Consumer<ResourcePatternHints.Builder>) null);
+    assertThat(this.resourceHints.resourcePatternHints()).hasSize(1);
+  }
+
+  @Test
+  void registerResourceBundleWithConditionalHint() {
+    TypeReference reachableType = TypeReference.of("com.example.SomeClass");
+    this.resourceHints.registerResourceBundle("com.example.messages",
+            builder -> builder.onReachableType(reachableType));
+
+    assertThat(this.resourceHints.resourceBundleHints()).singleElement().satisfies(bundle -> {
+      assertThat(bundle.getBaseName()).isEqualTo("com.example.messages");
+      assertThat(bundle.getReachableType()).isEqualTo(reachableType);
+    });
+  }
+
+  @Test
+  void registerResourceBundleWithNullConsumerDoesNotFail() {
+    this.resourceHints.registerResourceBundle("com.example.messages", null);
+    assertThat(this.resourceHints.resourceBundleHints()).singleElement()
+            .satisfies(resourceBundle("com.example.messages"));
+  }
+
+  @Test
+  void resourcePatternHintsReturnsEmptyStreamInitially() {
+    ResourceHints hints = new ResourceHints();
+    assertThat(hints.resourcePatternHints()).isEmpty();
+  }
+
+  @Test
+  void resourceBundleHintsReturnsEmptyStreamInitially() {
+    ResourceHints hints = new ResourceHints();
+    assertThat(hints.resourceBundleHints()).isEmpty();
+  }
+
+  @Test
+  void registerPatternIfPresentWithNullClassLoaderUsesDefault() {
+    this.resourceHints.registerPatternIfPresent(null, "infra/aot/hint/",
+            builder -> builder.includes("*.class"));
+
+    assertThat(this.resourceHints.resourcePatternHints()).isNotEmpty();
+  }
+
+  @Test
+  void registerTypeMultipleDifferentTypes() {
+    this.resourceHints.registerType(String.class)
+            .registerType(Integer.class);
+
+    assertThat(this.resourceHints.resourcePatternHints()).singleElement().satisfies(pattern -> {
+      List<String> patterns = pattern.getIncludes().stream()
+              .map(ResourcePatternHint::getPattern)
+              .toList();
+      assertThat(patterns).contains("java/lang/String.class", "java/lang/Integer.class");
+    });
+  }
+
+  @Test
+  void registerResourceBundleMultipleDifferentBundles() {
+    this.resourceHints.registerResourceBundle("com.example.messages")
+            .registerResourceBundle("com.example.errors");
+
+    assertThat(this.resourceHints.resourceBundleHints())
+            .anySatisfy(resourceBundle("com.example.messages"))
+            .anySatisfy(resourceBundle("com.example.errors"))
+            .hasSize(2);
   }
 
   private Consumer<ResourcePatternHints> patternOf(String... includes) {

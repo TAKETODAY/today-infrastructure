@@ -36,7 +36,7 @@ import infra.web.handler.method.RequestMappingHandlerAdapter;
  * <p>Supported for annotated handler methods.
  *
  * @author Arjen Poutsma
- * @author TODAY <br>
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see RequestHeader
  * @see ResponseBody
  * @see RequestMappingHandlerAdapter

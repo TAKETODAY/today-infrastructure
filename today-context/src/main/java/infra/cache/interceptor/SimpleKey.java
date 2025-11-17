@@ -44,7 +44,7 @@ public class SimpleKey implements Serializable {
    */
   public static final SimpleKey EMPTY = new SimpleKey();
 
-  private final Object[] params;
+  private final @Nullable Object[] params;
 
   // Effectively final, just re-calculated on deserialization
   private transient int hashCode;
@@ -54,7 +54,7 @@ public class SimpleKey implements Serializable {
    *
    * @param elements the elements of the key
    */
-  public SimpleKey(Object @Nullable ... elements) {
+  public SimpleKey(@Nullable Object @Nullable ... elements) {
     Assert.notNull(elements, "Elements is required");
     this.params = elements.clone();
     // Pre-calculate hashCode field

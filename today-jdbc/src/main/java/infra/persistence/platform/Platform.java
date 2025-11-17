@@ -110,6 +110,30 @@ public abstract class Platform {
   }
 
   /**
+   * A SQL statement that truncates the given table.
+   *
+   * @param tableName the name of the table
+   * @since 5.0
+   */
+  public String getTruncateTableStatement(String tableName) {
+    return "TRUNCATE TABLE " + tableName;
+  }
+
+  /**
+   * SELECT COUNT
+   *
+   * @param tableName the name of the table
+   * @since 5.0
+   */
+  public void selectCountFrom(StringBuilder countSql, String tableName) {
+    countSql.append("SELECT COUNT(*) FROM `")
+            .append(tableName)
+            .append('`');
+  }
+
+  //
+
+  /**
    * Determines the database platform based on the classpath. This method checks for the presence
    * of specific JDBC driver classes in the classpath and returns an appropriate {@link Platform}
    * instance corresponding to the detected database.
@@ -142,16 +166,6 @@ public abstract class Platform {
       return new PostgreSQLPlatform();
     }
     throw new IllegalStateException("Cannot determine database platform");
-  }
-
-  /**
-   * A SQL statement that truncates the given table.
-   *
-   * @param tableName the name of the table
-   * @since 5.0
-   */
-  public String getTruncateTableStatement(String tableName) {
-    return "TRUNCATE TABLE " + tableName;
   }
 
 }

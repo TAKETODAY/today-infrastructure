@@ -63,28 +63,25 @@ final class FieldWriter extends FieldVisitor {
    * The last runtime visible annotation of this field. The previous ones can be accessed with the
    * {@link AnnotationWriter#previousAnnotation} field. May be {@literal null}.
    */
-  private AnnotationWriter lastRuntimeVisibleAnnotation;
+  private @Nullable AnnotationWriter lastRuntimeVisibleAnnotation;
 
   /**
    * The last runtime invisible annotation of this field. The previous ones can be accessed with the
    * {@link AnnotationWriter#previousAnnotation} field. May be {@literal null}.
    */
-  @Nullable
-  private AnnotationWriter lastRuntimeInvisibleAnnotation;
+  private @Nullable AnnotationWriter lastRuntimeInvisibleAnnotation;
 
   /**
    * The last runtime visible type annotation of this field. The previous ones can be accessed with
    * the {@link AnnotationWriter#previousAnnotation} field. May be {@literal null}.
    */
-  @Nullable
-  private AnnotationWriter lastRuntimeVisibleTypeAnnotation;
+  private @Nullable AnnotationWriter lastRuntimeVisibleTypeAnnotation;
 
   /**
    * The last runtime invisible type annotation of this field. The previous ones can be accessed
    * with the {@link AnnotationWriter#previousAnnotation} field. May be {@literal null}.
    */
-  @Nullable
-  private AnnotationWriter lastRuntimeInvisibleTypeAnnotation;
+  private @Nullable AnnotationWriter lastRuntimeInvisibleTypeAnnotation;
 
   /**
    * The first non standard attribute of this field. The next ones can be accessed with the {@link
@@ -95,8 +92,7 @@ final class FieldWriter extends FieldVisitor {
    * #putFieldInfo} method writes the attributes in the order defined by this list, i.e. in the
    * reverse order specified by the user.
    */
-  @Nullable
-  private Attribute firstAttribute;
+  private @Nullable Attribute firstAttribute;
 
   // -----------------------------------------------------------------------------------------------
   // Constructor
@@ -113,7 +109,7 @@ final class FieldWriter extends FieldVisitor {
    * @param constantValue the field's constant value. May be {@literal null}.
    */
   FieldWriter(final SymbolTable symbolTable, final int access, final String name,
-          final String descriptor, final String signature, final Object constantValue) {
+          final String descriptor, final @Nullable String signature, final @Nullable Object constantValue) {
     this.symbolTable = symbolTable;
     this.accessFlags = access;
     this.nameIndex = symbolTable.addConstantUtf8(name);
@@ -189,12 +185,9 @@ final class FieldWriter extends FieldVisitor {
       size += 8;
     }
     size += Attribute.computeAttributesSize(symbolTable, accessFlags, signatureIndex);
-    size +=
-            AnnotationWriter.computeAnnotationsSize(
-                    lastRuntimeVisibleAnnotation,
-                    lastRuntimeInvisibleAnnotation,
-                    lastRuntimeVisibleTypeAnnotation,
-                    lastRuntimeInvisibleTypeAnnotation);
+    size += AnnotationWriter.computeAnnotationsSize(
+            lastRuntimeVisibleAnnotation, lastRuntimeInvisibleAnnotation,
+            lastRuntimeVisibleTypeAnnotation, lastRuntimeInvisibleTypeAnnotation);
     if (firstAttribute != null) {
       size += firstAttribute.computeAttributesSize(symbolTable);
     }
@@ -246,19 +239,14 @@ final class FieldWriter extends FieldVisitor {
     // Put the field_info attributes.
     // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.
     if (constantValueIndex != 0) {
-      output
-              .putShort(symbolTable.addConstantUtf8(Constants.CONSTANT_VALUE))
+      output.putShort(symbolTable.addConstantUtf8(Constants.CONSTANT_VALUE))
               .putInt(2)
               .putShort(constantValueIndex);
     }
     Attribute.putAttributes(symbolTable, accessFlags, signatureIndex, output);
-    AnnotationWriter.putAnnotations(
-            symbolTable,
-            lastRuntimeVisibleAnnotation,
-            lastRuntimeInvisibleAnnotation,
-            lastRuntimeVisibleTypeAnnotation,
-            lastRuntimeInvisibleTypeAnnotation,
-            output);
+    AnnotationWriter.putAnnotations(symbolTable,
+            lastRuntimeVisibleAnnotation, lastRuntimeInvisibleAnnotation,
+            lastRuntimeVisibleTypeAnnotation, lastRuntimeInvisibleTypeAnnotation, output);
     if (firstAttribute != null) {
       firstAttribute.putAttributes(symbolTable, output);
     }

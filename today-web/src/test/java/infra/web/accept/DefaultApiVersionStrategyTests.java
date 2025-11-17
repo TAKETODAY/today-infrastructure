@@ -60,6 +60,13 @@ class DefaultApiVersionStrategyTests {
   }
 
   @Test
+  void validateSupportedVersionForDefaultVersion() {
+    String defaultVersion = "1.2";
+    DefaultApiVersionStrategy strategy = apiVersionStrategy(defaultVersion);
+    validateVersion(defaultVersion, strategy);
+  }
+
+  @Test
   void validateUnsupportedVersion() {
     assertThatThrownBy(() -> validateVersion("1.2", apiVersionStrategy()))
             .isInstanceOf(InvalidApiVersionException.class)

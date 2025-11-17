@@ -62,10 +62,9 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
 
   private final String source;
 
-  @Nullable
-  private ClassLoader classLoader;
+  private @Nullable ClassLoader classLoader;
 
-  private String namePrefix;
+  private @Nullable String namePrefix;
 
   private Object key;
 
@@ -76,7 +75,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
   private boolean attemptLoad;
 
   // @since 4.0
-  private Class<?> neighbor;
+  private @Nullable Class<?> neighbor;
 
   // @since 4.0
   @Nullable
@@ -98,7 +97,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
     this(source.getSimpleName());
   }
 
-  protected void setNamePrefix(String namePrefix) {
+  protected void setNamePrefix(@Nullable String namePrefix) {
     this.namePrefix = namePrefix;
   }
 
@@ -189,7 +188,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
    * Set the strategy to use to create the bytecode from this generator. By
    * default an instance of {@see DefaultGeneratorStrategy} is used.
    */
-  public void setStrategy(GeneratorStrategy strategy) {
+  public void setStrategy(@Nullable GeneratorStrategy strategy) {
     this.strategy = strategy == null ? DefaultGeneratorStrategy.INSTANCE : strategy;
   }
 
@@ -322,7 +321,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
   }
 
   // @since 4.0
-  public void setNeighbor(Class<?> neighbor) {
+  public void setNeighbor(@Nullable Class<?> neighbor) {
     this.neighbor = neighbor;
   }
 

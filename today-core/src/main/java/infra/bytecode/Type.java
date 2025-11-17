@@ -122,13 +122,10 @@ public final class Type {
           "boolean", "Z"
   );
 
-  public static final Type TYPE_TYPE = Type.forClass(Type.class);
   public static final Type TYPE_CONSTANT = Type.forClass(Constant.class);
   public static final Type TYPE_OBJECT_ARRAY = Type.forInternalName("[Ljava/lang/Object;");
   public static final Type TYPE_CLASS_ARRAY = Type.forInternalName("[Ljava/lang/Class;");
-  public static final Type TYPE_STRING_ARRAY = Type.forInternalName("[Ljava/lang/String;");
   public static final Type TYPE_ERROR = Type.forInternalName("java/lang/Error");
-  public static final Type TYPE_SYSTEM = Type.forInternalName("java/lang/System");
   public static final Type TYPE_LONG = Type.forInternalName("java/lang/Long");
   public static final Type TYPE_BYTE = Type.forInternalName("java/lang/Byte");
   public static final Type TYPE_CLASS = Type.forInternalName("java/lang/Class");
@@ -141,12 +138,12 @@ public final class Type {
   public static final Type TYPE_INTEGER = Type.forInternalName("java/lang/Integer");
   public static final Type TYPE_CHARACTER = Type.forInternalName("java/lang/Character");
   public static final Type TYPE_THROWABLE = Type.forInternalName("java/lang/Throwable");
-  public static final Type TYPE_CLASS_LOADER = Type.forInternalName("java/lang/ClassLoader");
   public static final Type TYPE_RUNTIME_EXCEPTION = Type.forInternalName("java/lang/RuntimeException");
   public static final Type TYPE_SIGNATURE = Type.forClass(MethodSignature.class);
 
   /** The type of the java.lang.Object class. */
   public static final Type TYPE_OBJECT = Type.forInternalName("java/lang/Object");
+
   public static final Type[] EMPTY_ARRAY = {};
 
   // -----------------------------------------------------------------------------------------------
@@ -356,7 +353,7 @@ public final class Type {
    * @see Executable#getExceptionTypes()
    * @since 4.0
    */
-  public static Type[] forExceptionTypes(Member member) {
+  public static Type @Nullable [] forExceptionTypes(Member member) {
     if (member instanceof Executable) {
       return Type.getTypes(((Executable) member).getExceptionTypes());
     }

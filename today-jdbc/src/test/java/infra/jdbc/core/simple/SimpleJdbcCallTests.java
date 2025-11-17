@@ -878,7 +878,7 @@ class SimpleJdbcCallTests {
     given(callableStatement.execute()).willReturn(true);
     given(callableStatement.getResultSet()).willReturn(resultSet1);
     given(callableStatement.getMoreResults()).willReturn(true, false);
-    given(callableStatement.getResultSet()).willReturn(resultSet2, null);
+    given(callableStatement.getResultSet()).willReturn(resultSet2, (ResultSet) null);
     given(callableStatement.getUpdateCount()).willReturn(-1);
     given(connection.prepareCall("{call test_proc()}")).willReturn(callableStatement);
 

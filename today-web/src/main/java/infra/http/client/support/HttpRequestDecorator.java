@@ -115,7 +115,7 @@ public class HttpRequestDecorator implements HttpRequest {
   }
 
   @Override
-  public <T> T computeAttribute(String name, Function<String, T> computeFunction) {
+  public <T> T computeAttribute(String name, Function<String, @Nullable T> computeFunction) {
     return request.computeAttribute(name, computeFunction);
   }
 

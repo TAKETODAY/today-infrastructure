@@ -30,6 +30,7 @@ import infra.bytecode.MethodVisitor;
 import infra.bytecode.Opcodes;
 import infra.bytecode.Type;
 import infra.bytecode.TypePath;
+import infra.lang.Constant;
 import infra.util.ObjectUtils;
 
 /**
@@ -179,6 +180,9 @@ public class MethodNode extends MethodVisitor {
     this.signature = signature;
     if (ObjectUtils.isNotEmpty(exceptions)) {
       this.exceptions = exceptions;
+    }
+    else {
+      this.exceptions = Constant.EMPTY_STRING_ARRAY;
     }
     if ((access & Opcodes.ACC_ABSTRACT) == 0) {
       this.localVariables = new ArrayList<>(5);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.bytecode.core;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Predicate;
 
@@ -45,7 +47,7 @@ public class DefaultNamingPolicy implements NamingPolicy {
   private static final boolean STRESS_HASH_CODE = TodayStrategies.getFlag("bytecode.stressHashCodes");
 
   @Override
-  public String getClassName(String prefix, String source, Object key, Predicate<String> names) {
+  public String getClassName(@Nullable String prefix, String source, Object key, Predicate<String> names) {
     if (prefix == null) {
       prefix = "infra.bytecode.Object";
     }

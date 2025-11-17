@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.bytecode;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * An edge in the control flow graph of a method. Each node of this graph is a basic block,
@@ -24,6 +27,7 @@ package infra.bytecode;
  * handler.
  *
  * @author Eric Bruneton
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see Label
  */
 final class Edge {
@@ -63,7 +67,7 @@ final class Edge {
   /**
    * The next edge in the list of outgoing edges of a basic block. See {@link Label#outgoingEdges}.
    */
-  public Edge nextEdge;
+  public @Nullable Edge nextEdge;
 
   /**
    * Constructs a new Edge.
@@ -72,7 +76,7 @@ final class Edge {
    * @param successor see {@link #successor}.
    * @param nextEdge see {@link #nextEdge}.
    */
-  Edge(final int info, final Label successor, final Edge nextEdge) {
+  Edge(final int info, final Label successor, final @Nullable Edge nextEdge) {
     this.info = info;
     this.successor = successor;
     this.nextEdge = nextEdge;

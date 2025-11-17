@@ -39,12 +39,7 @@ import static infra.lang.Constant.SOURCE_FILE;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class StringSwitcher {
 
-  private static final Type STRING_SWITCHER = Type.forClass(StringSwitcher.class);
-
-  private static final MethodSignature INT_VALUE = MethodSignature.from("int intValue(String)");
-
   protected StringSwitcher() {
-
   }
 
   /**
@@ -143,9 +138,9 @@ public abstract class StringSwitcher {
     @Override
     public void generateClass(ClassVisitor v) throws Exception {
       final ClassEmitter ce = new ClassEmitter(v);
-      ce.beginClass(Opcodes.JAVA_VERSION, Opcodes.ACC_PUBLIC, getClassName(), STRING_SWITCHER, null, SOURCE_FILE);
+      ce.beginClass(Opcodes.JAVA_VERSION, Opcodes.ACC_PUBLIC, getClassName(), Type.forClass(StringSwitcher.class), null, SOURCE_FILE);
       EmitUtils.nullConstructor(ce);
-      final CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, INT_VALUE);
+      final CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, MethodSignature.from("int intValue(String)"));
       e.loadArg(0);
       final List<String> stringList = Arrays.asList(strings);
       int style = fixedInput ? Opcodes.SWITCH_STYLE_HASHONLY : Opcodes.SWITCH_STYLE_HASH;

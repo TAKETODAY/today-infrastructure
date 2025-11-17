@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -89,6 +89,102 @@ class ResourcePatternHintTests {
     assertThat(hint.matches("com/example/another")).isTrue();
     assertThat(hint.matches("file.properties")).isFalse();
     assertThat(hint.matches("com/file.properties")).isFalse();
+  }
+
+  @Test
+  void patternWithWildcardMatchesMultipleFiles() {
+    ResourcePatternHint hint = new ResourcePatternHint("*.xml", null);
+    assertThat(hint.matches("config.xml")).isTrue();
+    assertThat(hint.matches("application.xml")).isTrue();
+    assertThat(hint.matches("config.json")).isFalse();
+    assertThat(hint.matches("sub/config.xml")).isFalse();
+  }
+
+  @Test
+  void patternWithDoubleWildcardMatchesNestedDirectories() {
+    ResourcePatternHint hint = new ResourcePatternHint("config/**/*.yaml", null);
+    assertThat(hint.matches("config/application.yaml")).isTrue();
+    assertThat(hint.matches("config/env/dev.yaml")).isTrue();
+    assertThat(hint.matches("config/env/prod/test.yaml")).isTrue();
+    assertThat(hint.matches("application.yaml")).isFalse();
+    assertThat(hint.matches("config/application.json")).isFalse();
+  }
+
+  @Test
+  void patternWithPathAndExtension() {
+    ResourcePatternHint hint = new ResourcePatternHint("META-INF/*.txt", null);
+    assertThat(hint.matches("META-INF/notice.txt")).isTrue();
+    assertThat(hint.matches("META-INF/license.txt")).isTrue();
+    assertThat(hint.matches("META-INF/sub/readme.txt")).isFalse();
+    assertThat(hint.matches("WEB-INF/classes/META-INF/notice.txt")).isFalse();
+  }
+
+  @Test
+  void equalsAndHashCodeWithSamePatternAndReachableType() {
+    TypeReference type = TypeReference.of("com.example.TestClass");
+    ResourcePatternHint hint1 = new ResourcePatternHint("*.properties", type);
+    ResourcePatternHint hint2 = new ResourcePatternHint("*.properties", type);
+
+    assertThat(hint1).isEqualTo(hint2);
+    assertThat(hint1.hashCode()).isEqualTo(hint2.hashCode());
+  }
+
+  @Test
+  void equalsAndHashCodeWithSamePatternButDifferentReachableType() {
+    TypeReference type1 = TypeReference.of("com.example.TestClass1");
+    TypeReference type2 = TypeReference.of("com.example.TestClass2");
+    ResourcePatternHint hint1 = new ResourcePatternHint("*.properties", type1);
+    ResourcePatternHint hint2 = new ResourcePatternHint("*.properties", type2);
+
+    assertThat(hint1).isNotEqualTo(hint2);
+    assertThat(hint1.hashCode()).isNotEqualTo(hint2.hashCode());
+  }
+
+  @Test
+  void equalsAndHashCodeWithDifferentPatternButSameReachableType() {
+    TypeReference type = TypeReference.of("com.example.TestClass");
+    ResourcePatternHint hint1 = new ResourcePatternHint("*.properties", type);
+    ResourcePatternHint hint2 = new ResourcePatternHint("*.xml", type);
+
+    assertThat(hint1).isNotEqualTo(hint2);
+    assertThat(hint1.hashCode()).isNotEqualTo(hint2.hashCode());
+  }
+
+  @Test
+  void equalsWithSameInstance() {
+    ResourcePatternHint hint = new ResourcePatternHint("*.properties", null);
+    assertThat(hint).isEqualTo(hint);
+  }
+
+  @Test
+  void equalsWithNull() {
+    ResourcePatternHint hint = new ResourcePatternHint("*.properties", null);
+    assertThat(hint).isNotEqualTo(null);
+  }
+
+  @Test
+  void equalsWithDifferentObjectType() {
+    ResourcePatternHint hint = new ResourcePatternHint("*.properties", null);
+    assertThat(hint).isNotEqualTo("some string");
+  }
+
+  @Test
+  void getPatternReturnsCorrectValue() {
+    ResourcePatternHint hint = new ResourcePatternHint("com/example/*.properties", null);
+    assertThat(hint.getPattern()).isEqualTo("com/example/*.properties");
+  }
+
+  @Test
+  void getReachableTypeReturnsCorrectValue() {
+    TypeReference type = TypeReference.of("com.example.TestClass");
+    ResourcePatternHint hint = new ResourcePatternHint("*.properties", type);
+    assertThat(hint.getReachableType()).isEqualTo(type);
+  }
+
+  @Test
+  void getReachableTypeReturnsNullWhenNotSet() {
+    ResourcePatternHint hint = new ResourcePatternHint("*.properties", null);
+    assertThat(hint.getReachableType()).isNull();
   }
 
 }

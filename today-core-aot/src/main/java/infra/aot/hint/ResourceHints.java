@@ -36,6 +36,7 @@ import infra.util.ClassUtils;
  *
  * @author Stephane Nicoll
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class ResourceHints {

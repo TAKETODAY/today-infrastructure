@@ -36,15 +36,8 @@ import infra.util.StringUtils;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class EmitUtils {
 
-  public static final MethodSignature CSTRUCT_THROWABLE = MethodSignature.forConstructor("Throwable");
-
-  private static final MethodSignature LENGTH = MethodSignature.from("int length()");
-  private static final MethodSignature GET_NAME = MethodSignature.from("String getName()");
-  private static final MethodSignature FOR_NAME = MethodSignature.from("Class forName(String)");
-  private static final MethodSignature STRING_CHAR_AT = MethodSignature.from("char charAt(int)");
-
   public static void nullConstructor(ClassEmitter ce) {
-    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, MethodSignature.EMPTY_CONSTRUCTOR);
+    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, MethodSignature.forConstructor());
     e.loadThis();
     e.super_invoke_constructor();
     e.returnValue();
@@ -67,7 +60,7 @@ public abstract class EmitUtils {
     Map<Integer, List<String>> buckets = CollectionUtils.buckets(strings, String::length);
 
     e.dup();
-    e.invokeVirtual(Type.TYPE_STRING, LENGTH);
+    e.invokeVirtual(Type.TYPE_STRING, MethodSignature.from("int length()"));
     e.tableSwitch(getSwitchKeys(buckets), new TableSwitchGenerator() {
       public void generateCase(int key, Label ignore_end) {
         List bucket = buckets.get(key);
@@ -90,7 +83,7 @@ public abstract class EmitUtils {
     Map buckets = CollectionUtils.buckets(strings, (Function) value -> (int) ((String) value).charAt(index));
     e.dup();
     e.push(index);
-    e.invokeVirtual(Type.TYPE_STRING, STRING_CHAR_AT);
+    e.invokeVirtual(Type.TYPE_STRING, MethodSignature.from("char charAt(int)"));
     e.tableSwitch(getSwitchKeys(buckets), new TableSwitchGenerator() {
       public void generateCase(int key, Label ignore_end) {
         List bucket = (List) buckets.get(key);
@@ -127,7 +120,7 @@ public abstract class EmitUtils {
     Label def = e.newLabel();
     Label end = e.newLabel();
     e.dup();
-    e.invokeVirtual(Type.TYPE_OBJECT, MethodSignature.HASH_CODE);
+    e.invokeVirtual(Type.TYPE_OBJECT, MethodSignature.from("int hashCode()"));
     e.tableSwitch(getSwitchKeys(buckets), new TableSwitchGenerator() {
       public void generateCase(int key, Label ignore_end) {
         List<String> bucket = buckets.get(key);
@@ -185,10 +178,11 @@ public abstract class EmitUtils {
   }
 
   private static void loadClassHelper(CodeEmitter e, Type type) {
+    MethodSignature forName = MethodSignature.from("Class forName(String)");
     if (e.isStaticHook()) {
       // have to fall back on non-optimized load
       e.push(type.emulateClassGetName());
-      e.invokeStatic(Type.TYPE_CLASS, FOR_NAME);
+      e.invokeStatic(Type.TYPE_CLASS, forName);
     }
     else {
       ClassEmitter ce = e.getClassEmitter();
@@ -199,9 +193,9 @@ public abstract class EmitUtils {
       String fieldName = "$today$LoadClass$".concat(escapeType(typeName));
       if (!ce.isFieldDeclared(fieldName)) {
         ce.declare_field(Opcodes.PRIVATE_FINAL_STATIC, fieldName, Type.TYPE_CLASS, null);
-        CodeEmitter hook = ce.getStaticHook();
+        CodeEmitter hook = ce.getStaticInit();
         hook.push(typeName);
-        hook.invokeStatic(Type.TYPE_CLASS, FOR_NAME);
+        hook.invokeStatic(Type.TYPE_CLASS, forName);
         hook.putStatic(ce.getClassType(), fieldName, Type.TYPE_CLASS);
       }
       e.getField(fieldName);
@@ -289,7 +283,7 @@ public abstract class EmitUtils {
           ParameterTyper typer, Label def,
           Label end, BitSet checked)  //
   {
-
+    MethodSignature getName = MethodSignature.from("String getName()");
     if (members.size() == 1) {
       MethodInfo member = members.get(0);
       Type[] types = typer.getParameterTypes(member);
@@ -298,7 +292,7 @@ public abstract class EmitUtils {
         if (checked == null || !checked.get(i)) {
           e.dup();
           e.aaload(i);
-          e.invokeVirtual(Type.TYPE_CLASS, GET_NAME);
+          e.invokeVirtual(Type.TYPE_CLASS, getName);
           e.push(types[i].emulateClassGetName());
           e.invokeVirtual(Type.TYPE_OBJECT, MethodSignature.EQUALS);
           e.ifJump(CodeEmitter.EQ, def);
@@ -335,7 +329,7 @@ public abstract class EmitUtils {
 
         e.dup();
         e.aaload(index);
-        e.invokeVirtual(Type.TYPE_CLASS, GET_NAME);
+        e.invokeVirtual(Type.TYPE_CLASS, getName);
 
         Map<String, List<MethodInfo>> fbuckets = buckets;
         String[] names = StringUtils.toStringArray(buckets.keySet());
@@ -361,7 +355,7 @@ public abstract class EmitUtils {
     e.newInstance(wrapper);
     e.dupX1();
     e.swap();
-    e.invokeConstructor(wrapper, CSTRUCT_THROWABLE);
+    e.invokeConstructor(wrapper, MethodSignature.forConstructor("Throwable"));
     e.throwException();
   }
 

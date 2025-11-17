@@ -596,7 +596,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   // AttributeAccessorSupport
 
   @Override
-  public <T> T computeAttribute(String name, Function<String, T> computeFunction) {
+  public <T> T computeAttribute(String name, Function<String, @Nullable T> computeFunction) {
     return getDelegate().computeAttribute(name, computeFunction);
   }
 

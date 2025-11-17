@@ -22,6 +22,9 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import infra.aop.Pointcut;
@@ -35,7 +38,6 @@ import infra.context.expression.EmbeddedValueResolverAware;
 import infra.core.StringValueResolver;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.lang.Assert;
-import infra.util.ConcurrentReferenceHashMap;
 import infra.util.StringUtils;
 
 /**
@@ -69,8 +71,8 @@ public class ConcurrencyLimitBeanPostProcessor extends AbstractBeanFactoryAwareA
 
   private final class ConcurrencyLimitInterceptor implements MethodInterceptor {
 
-    private final ConcurrentReferenceHashMap<Object, ConcurrencyThrottleCache> cachePerInstance =
-            new ConcurrentReferenceHashMap<>(16, ConcurrentReferenceHashMap.ReferenceType.WEAK);
+    private final Map<Object, ConcurrencyThrottleCache> cachePerInstance =
+            Collections.synchronizedMap(new IdentityHashMap<>(16));
 
     @Nullable
     @Override

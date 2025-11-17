@@ -81,8 +81,8 @@ final class SimpleAnnotationMetadataReadingVisitor extends ClassVisitor {
   }
 
   @Override
-  public void visit(int version, int access, String name, String signature,
-          @Nullable String supername, String[] interfaces) {
+  public void visit(int version, int access, String name, @Nullable String signature,
+          @Nullable String supername, String @Nullable [] interfaces) {
 
     this.className = toClassName(name);
     this.access = access;
@@ -135,7 +135,7 @@ final class SimpleAnnotationMetadataReadingVisitor extends ClassVisitor {
 
   @Override
   @Nullable
-  public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
+  public MethodVisitor visitMethod(int access, String name, String descriptor, @Nullable String signature, String @Nullable [] exceptions) {
     // Skip bridge methods and constructors - we're only interested in original user methods.
     if (isBridge(access) || "<init>".equals(name)) {
       return null;

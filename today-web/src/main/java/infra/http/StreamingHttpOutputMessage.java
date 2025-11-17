@@ -23,8 +23,13 @@ import java.io.OutputStream;
 import infra.util.StreamUtils;
 
 /**
- * Represents an HTTP output message that allows for setting a streaming body.
- * Note that such messages typically do not support {@link #getBody()} access.
+ * Contract for {@code HttpOutputMessage} implementations to expose the ability
+ * to stream request body content by writing to an {@link OutputStream} from
+ * a callback.
+ *
+ * <p>The {@link #setBody(Body)} method provides the option to stream, and is
+ * mutually exclusive use of {@link #getBody()}, which instead returns an
+ * {@code OutputStream} that aggregates the request body before sending it.
  *
  * @author Arjen Poutsma
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -35,16 +40,18 @@ public interface StreamingHttpOutputMessage extends HttpOutputMessage {
 
   /**
    * Set the streaming body callback for this message.
+   * <p>Note that this is mutually exclusive with {@link #getBody()}, which
+   * may instead aggregate the request body before sending it.
    *
    * @param body the streaming body callback
    */
   void setBody(Body body);
 
   /**
-   * Variant of {@link #setBody(Body)} for a non-streaming write.
+   * Contract to stream request body content to an {@link OutputStream}.
+   * In some HTTP client libraries this is only possible indirectly through a
+   * callback mechanism.
    *
-   * @param body the content to write
-   * @throws IOException if an I/O exception occurs
    * @since 5.0
    */
   default void setBody(byte[] body) throws IOException {
