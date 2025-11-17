@@ -1,6 +1,5 @@
-description = 'Starter for building web, including RESTful, applications using Web MVC.'
+description = 'Starter for building web, including RESTful, applications using Web API.'
 
 dependencies {
   api project(':today-web')
-  api project(':today-starter:today-starter-json')
 }
