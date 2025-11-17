@@ -76,7 +76,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
   private boolean attemptLoad;
 
   // @since 4.0
-  private Class<?> neighbor;
+  private @Nullable Class<?> neighbor;
 
   // @since 4.0
   @Nullable
@@ -189,7 +189,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
    * Set the strategy to use to create the bytecode from this generator. By
    * default an instance of {@see DefaultGeneratorStrategy} is used.
    */
-  public void setStrategy(GeneratorStrategy strategy) {
+  public void setStrategy(@Nullable GeneratorStrategy strategy) {
     this.strategy = strategy == null ? DefaultGeneratorStrategy.INSTANCE : strategy;
   }
 
@@ -322,7 +322,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
   }
 
   // @since 4.0
-  public void setNeighbor(Class<?> neighbor) {
+  public void setNeighbor(@Nullable Class<?> neighbor) {
     this.neighbor = neighbor;
   }
 

@@ -30,8 +30,7 @@ import infra.bytecode.Type;
 @SuppressWarnings({ "rawtypes" })
 public abstract class CglibReflectUtils {
 
-  @Nullable
-  public static String[] getNames(final Class[] classes) {
+  public static String @Nullable [] getNames(final Class @Nullable [] classes) {
     if (classes == null) {
       return null;
     }

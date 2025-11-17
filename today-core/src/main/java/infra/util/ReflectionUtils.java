@@ -1378,7 +1378,7 @@ public abstract class ReflectionUtils {
    * @see Class#getDeclaredConstructor
    * @since 4.0
    */
-  public static <T> Constructor<T> getConstructor(Class<T> type, Class<?>... parameterTypes) {
+  public static <T> Constructor<T> getConstructor(Class<T> type, Class<?> @Nullable ... parameterTypes) {
     Assert.notNull(type, "Class is required");
     try {
       return type.getDeclaredConstructor(parameterTypes);
@@ -1717,7 +1717,7 @@ public abstract class ReflectionUtils {
    * @since 4.0
    */
   @SuppressWarnings("NullAway")
-  public static <T> T newInstance(Class<T> type, Class[] parameterTypes, @Nullable Object @Nullable [] args) {
+  public static <T> T newInstance(Class<T> type, Class @Nullable [] parameterTypes, @Nullable Object @Nullable [] args) {
     return invokeConstructor(getConstructor(type, parameterTypes), args);
   }
 
