@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,46 +57,4 @@ public interface NamingPolicy {
     return InfraNamingPolicy.INSTANCE;
   }
 
-  class InfraNamingPolicy implements NamingPolicy {
-
-    public static final InfraNamingPolicy INSTANCE = new InfraNamingPolicy();
-
-    private static final String LABEL = "$$Infra$$";
-
-    private static final String METHOD_ACCESS_SUFFIX = "MethodAccess$$";
-
-    @Override
-    public String getClassName(String prefix, String source, Object key, Predicate<String> names) {
-      if (prefix == null) {
-        prefix = "infra.bytecode.Object";
-      }
-      else if (prefix.startsWith("java.") || prefix.startsWith("javax.")) {
-        prefix = "_" + prefix;
-      }
-
-      String base;
-      int existingLabel = prefix.indexOf(LABEL);
-      if (existingLabel >= 0) {
-        base = prefix.substring(0, existingLabel + LABEL.length());
-      }
-      else {
-        base = prefix + LABEL;
-      }
-
-      // When the generated class name is for a FastClass, the source is
-      // "infra.bytecode.reflect.MethodAccess".
-      boolean isMethodAccess = (source != null && source.endsWith("MethodAccess"));
-      if (isMethodAccess && !prefix.contains(METHOD_ACCESS_SUFFIX)) {
-        base += METHOD_ACCESS_SUFFIX;
-      }
-
-      int index = 0;
-      String attempt = base + index;
-      while (names.test(attempt)) {
-        attempt = base + index++;
-      }
-      return attempt;
-    }
-
-  }
 }
