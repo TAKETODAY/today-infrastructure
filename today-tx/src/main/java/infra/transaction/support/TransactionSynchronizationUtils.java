@@ -39,6 +39,7 @@ import infra.util.ClassUtils;
  * @since 4.0
  */
 public abstract class TransactionSynchronizationUtils {
+
   private static final Logger log = LoggerFactory.getLogger(TransactionSynchronizationUtils.class);
 
   private static final boolean aopAvailable = ClassUtils.isPresent(
