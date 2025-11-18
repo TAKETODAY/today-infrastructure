@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @since 5.0 2025/11/18 22:42
  */
 class SmartClassLoaderTests {
-  
+
   @Test
   void isClassReloadableReturnsFalseByDefault() {
     SmartClassLoader smartClassLoader = new SmartClassLoader() { };
@@ -36,7 +36,7 @@ class SmartClassLoaderTests {
 
   @Test
   void getOriginalClassLoaderReturnsSelfByDefault() {
-    SmartClassLoader smartClassLoader = new SmartClassLoader() { };
+    SmartClassLoader smartClassLoader = new MySmartClassLoader();
     assertThat(smartClassLoader.getOriginalClassLoader()).isSameAs(smartClassLoader);
   }
 
@@ -45,6 +45,10 @@ class SmartClassLoaderTests {
     SmartClassLoader smartClassLoader = new SmartClassLoader() { };
     assertThatThrownBy(() -> smartClassLoader.publicDefineClass("test.ClassName", new byte[0], null))
             .isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  static class MySmartClassLoader extends ClassLoader implements SmartClassLoader {
+
   }
 
 }
