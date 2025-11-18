@@ -29,10 +29,10 @@ import org.jspecify.annotations.Nullable;
 public abstract class NativeDetector {
 
   // See https://github.com/oracle/graal/blob/master/sdk/src/org.graalvm.nativeimage/src/org/graalvm/nativeimage/ImageInfo.java
-  @Nullable
-  private static final String imageCode = System.getProperty("org.graalvm.nativeimage.imagecode");
 
-  private static final boolean inNativeImage = (imageCode != null);
+  private static final @Nullable String imageCode = System.getProperty("org.graalvm.nativeimage.imagecode");
+
+  private static final boolean inNativeImage = imageCode != null;
 
   /**
    * Returns {@code true} if running in a native image context (for example
