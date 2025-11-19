@@ -81,7 +81,14 @@ public enum JavaVersion {
    *
    * @since 5.0
    */
-  TWENTY_FOUR("24", Reader.class, "of", CharSequence.class);
+  TWENTY_FOUR("24", Reader.class, "of", CharSequence.class),
+
+  /**
+   * Java 25.
+   *
+   * @since 5.0
+   */
+  TWENTY_FIVE("25", Reader.class, "readAllLines");
 
   private final String name;
 
@@ -102,7 +109,7 @@ public enum JavaVersion {
    *
    * @return the {@link JavaVersion}
    */
-  public static JavaVersion getJavaVersion() {
+  public static JavaVersion current() {
     List<JavaVersion> candidates = Arrays.asList(JavaVersion.values());
     Collections.reverse(candidates);
     for (JavaVersion candidate : candidates) {

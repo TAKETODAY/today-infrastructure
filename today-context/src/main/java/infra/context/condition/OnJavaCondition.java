@@ -38,7 +38,7 @@ import infra.core.type.AnnotatedTypeMetadata;
 @Order(Ordered.HIGHEST_PRECEDENCE + 20)
 class OnJavaCondition extends InfraCondition {
 
-  private static final JavaVersion JVM_VERSION = JavaVersion.getJavaVersion();
+  private static final JavaVersion JVM_VERSION = JavaVersion.current();
 
   @Override
   @SuppressWarnings("NullAway")
