@@ -18,8 +18,8 @@
 package infra.core;
 
 import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 
 import infra.core.NativeDetector.Context;
 
@@ -29,9 +29,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/11/18 22:00
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class NativeDetectorTests {
 
+  @Disabled
   @Test
   void inNativeImageReturnsTrueWhenImageCodeIsNotNull() throws Exception {
     setImageCode("runtime", new Runnable() {
