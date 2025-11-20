@@ -34,13 +34,16 @@ import java.util.function.Predicate;
  * @param <A> the annotation type
  * @author Phillip Webb
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 final class MissingMergedAnnotation<A extends Annotation> extends AbstractMergedAnnotation<A> {
 
-  private static final MissingMergedAnnotation<?> INSTANCE = new MissingMergedAnnotation<>();
+  @SuppressWarnings("rawtypes")
+  public static final MissingMergedAnnotation INSTANCE = new MissingMergedAnnotation<>();
 
-  private MissingMergedAnnotation() { }
+  private MissingMergedAnnotation() {
+  }
 
   @Override
   public Class<A> getType() {
@@ -164,11 +167,6 @@ final class MissingMergedAnnotation<A extends Annotation> extends AbstractMerged
   @Override
   protected A createSynthesizedAnnotation() {
     throw new NoSuchElementException("Unable to synthesize missing annotation");
-  }
-
-  @SuppressWarnings("unchecked")
-  static <A extends Annotation> MergedAnnotation<A> getInstance() {
-    return (MergedAnnotation<A>) INSTANCE;
   }
 
 }
