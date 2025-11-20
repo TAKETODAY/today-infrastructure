@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,9 @@ import org.junit.jupiter.api.Test;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -222,6 +224,242 @@ class AnnotationAttributesTests {
     AnnotationUtils.registerDefaultValues(attributes);
     AnnotationUtils.postProcessAnnotationAttributes(null, attributes, false);
     aliases.stream().forEach(alias -> assertThat(attributes.getStringArray(alias)).isEqualTo(new String[] { "" }));
+  }
+
+  @Test
+  void fromMapWithNullMap() {
+    AnnotationAttributes result = AnnotationAttributes.fromMap(null);
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void fromMapWithExistingAnnotationAttributes() {
+    AnnotationAttributes original = new AnnotationAttributes();
+    original.put("key", "value");
+
+    AnnotationAttributes result = AnnotationAttributes.fromMap(original);
+    assertThat(result).isSameAs(original);
+  }
+
+  @Test
+  void fromMapWithRegularMap() {
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put("key1", "value1");
+    map.put("key2", 42);
+
+    AnnotationAttributes result = AnnotationAttributes.fromMap(map);
+    assertThat(result).isNotNull();
+    assertThat(result.getString("key1")).isEqualTo("value1");
+    assertThat((Integer) result.getNumber("key2")).isEqualTo(42);
+  }
+
+  @Test
+  void constructorWithInitialCapacity() {
+    AnnotationAttributes attributes = new AnnotationAttributes(16);
+    attributes.put("key", "value");
+
+    assertThat(attributes.getString("key")).isEqualTo("value");
+  }
+
+  @Test
+  void constructorWithMap() {
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put("key1", "value1");
+    map.put("key2", 123);
+
+    AnnotationAttributes attributes = new AnnotationAttributes(map);
+    assertThat(attributes.getString("key1")).isEqualTo("value1");
+    assertThat((Integer) attributes.getNumber("key2")).isEqualTo(123);
+  }
+
+  @Test
+  void constructorWithAnnotationAttributes() {
+    AnnotationAttributes original = new AnnotationAttributes();
+    original.put("key1", "value1");
+    original.put("key2", true);
+
+    AnnotationAttributes copy = new AnnotationAttributes(original);
+    assertThat(copy.getString("key1")).isEqualTo("value1");
+    assertThat(copy.getBoolean("key2")).isEqualTo(true);
+    assertThat(copy.annotationType()).isEqualTo(original.annotationType());
+    assertThat(copy.displayName).isEqualTo(original.displayName);
+    assertThat(copy.validated).isEqualTo(original.validated);
+  }
+
+  @Test
+  void constructorWithStringAnnotationType() {
+    AnnotationAttributes attributes = new AnnotationAttributes("java.lang.Deprecated", null);
+    assertThat(attributes.annotationType()).isNull();
+    assertThat(attributes.displayName).isEqualTo("java.lang.Deprecated");
+    assertThat(attributes.validated).isFalse();
+  }
+
+  @Test
+  void constructorWithStringAnnotationTypeAndClassLoader() {
+    AnnotationAttributes attributes = new AnnotationAttributes("java.lang.Deprecated",
+            Thread.currentThread().getContextClassLoader());
+    assertThat(attributes.annotationType()).isEqualTo(Deprecated.class);
+    assertThat(attributes.displayName).isEqualTo("java.lang.Deprecated");
+    assertThat(attributes.validated).isFalse();
+  }
+
+  @Test
+  void constructorWithAnnotationTypeAndValidated() {
+    AnnotationAttributes attributes = new AnnotationAttributes(Deprecated.class, true);
+    assertThat(attributes.annotationType()).isEqualTo(Deprecated.class);
+    assertThat(attributes.displayName).isEqualTo("java.lang.Deprecated");
+    assertThat(attributes.validated).isTrue();
+  }
+
+  @Test
+  void getAnnotationType() {
+    AnnotationAttributes attributes = new AnnotationAttributes(Deprecated.class);
+    assertThat(attributes.annotationType()).isEqualTo(Deprecated.class);
+  }
+
+  @Test
+  void getAnnotationTypeWhenUnknown() {
+    AnnotationAttributes attributes = new AnnotationAttributes();
+    assertThat(attributes.annotationType()).isNull();
+  }
+
+  @Test
+  void getStringWithValidAttribute() {
+    AnnotationAttributes attributes = new AnnotationAttributes();
+    attributes.put("name", "test");
+
+    assertThat(attributes.getString("name")).isEqualTo("test");
+  }
+
+  @Test
+  void getStringWithInvalidAttributeType() {
+    AnnotationAttributes attributes = new AnnotationAttributes();
+    attributes.put("name", 123);
+
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> attributes.getString("name"))
+            .withMessageContaining("Attribute 'name' is of type Integer, but String was expected");
+  }
+
+  @Test
+  void getStringWithMissingAttribute() {
+    AnnotationAttributes attributes = new AnnotationAttributes();
+
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> attributes.getString("missing"))
+            .withMessageContaining("Attribute 'missing' not found");
+  }
+
+  @Test
+  void getBooleanWithValidAttribute() {
+    AnnotationAttributes attributes = new AnnotationAttributes();
+    attributes.put("flag", true);
+
+    assertThat(attributes.getBoolean("flag")).isTrue();
+  }
+
+  @Test
+  void getNumberWithValidAttribute() {
+    AnnotationAttributes attributes = new AnnotationAttributes();
+    attributes.put("count", 42);
+
+    assertThat((Integer) attributes.getNumber("count")).isEqualTo(42);
+  }
+
+  @Test
+  void getClassWithValidAttribute() {
+    AnnotationAttributes attributes = new AnnotationAttributes();
+    attributes.put("clazz", String.class);
+
+    assertThat(attributes.getClass("clazz")).isEqualTo(String.class);
+  }
+
+  @Test
+  void getClassArrayWithSingleClass() {
+    AnnotationAttributes attributes = new AnnotationAttributes();
+    attributes.put("classes", String.class);
+
+    Class<?>[] result = attributes.getClassArray("classes");
+    assertThat(result).hasSize(1);
+    assertThat(result[0]).isEqualTo(String.class);
+  }
+
+  @Test
+  void getClassArrayWithClassArray() {
+    AnnotationAttributes attributes = new AnnotationAttributes();
+    attributes.put("classes", new Class<?>[] { String.class, Integer.class });
+
+    Class<?>[] result = attributes.getClassArray("classes");
+    assertThat(result).hasSize(2);
+    assertThat(result[0]).isEqualTo(String.class);
+    assertThat(result[1]).isEqualTo(Integer.class);
+  }
+
+  @Test
+  void getAnnotationWithValidAttribute() {
+    AnnotationAttributes attributes = new AnnotationAttributes();
+    AnnotationAttributes nested = new AnnotationAttributes();
+    nested.put("value", "nested");
+    attributes.put("nestedAnnotation", nested);
+
+    AnnotationAttributes result = attributes.getAnnotation("nestedAnnotation");
+    assertThat(result.getString("value")).isEqualTo("nested");
+  }
+
+  @Test
+  void getAnnotationArrayWithSingleAnnotation() {
+    AnnotationAttributes attributes = new AnnotationAttributes();
+    AnnotationAttributes nested = new AnnotationAttributes();
+    nested.put("value", "nested");
+    attributes.put("annotations", nested);
+
+    AnnotationAttributes[] result = attributes.getAnnotationArray("annotations");
+    assertThat(result).hasSize(1);
+    assertThat(result[0].getString("value")).isEqualTo("nested");
+  }
+
+  @Test
+  void getAnnotationArrayWithAnnotationArray() {
+    AnnotationAttributes attributes = new AnnotationAttributes();
+    AnnotationAttributes nested1 = new AnnotationAttributes();
+    nested1.put("value", "nested1");
+    AnnotationAttributes nested2 = new AnnotationAttributes();
+    nested2.put("value", "nested2");
+    attributes.put("annotations", new AnnotationAttributes[] { nested1, nested2 });
+
+    AnnotationAttributes[] result = attributes.getAnnotationArray("annotations");
+    assertThat(result).hasSize(2);
+    assertThat(result[0].getString("value")).isEqualTo("nested1");
+    assertThat(result[1].getString("value")).isEqualTo("nested2");
+  }
+
+  @Test
+  void toStringMethod() {
+    AnnotationAttributes attributes = new AnnotationAttributes();
+    attributes.put("name", "test");
+    attributes.put("count", 42);
+
+    String result = attributes.toString();
+    assertThat(result).contains("name=test");
+    assertThat(result).contains("count=42");
+  }
+
+  @Test
+  void toStringWithArrayValue() {
+    AnnotationAttributes attributes = new AnnotationAttributes();
+    attributes.put("names", new String[] { "a", "b" });
+
+    String result = attributes.toString();
+    assertThat(result).contains("names=[a, b]");
+  }
+
+  @Test
+  void toStringWithCircularReference() {
+    AnnotationAttributes attributes = new AnnotationAttributes();
+    attributes.put("self", attributes);
+
+    String result = attributes.toString();
+    assertThat(result).contains("self=(this Map)");
   }
 
   enum Color {

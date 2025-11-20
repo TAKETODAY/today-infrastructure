@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ class JavaVersionTests {
 
   @Test
   void getJavaVersionShouldBeAvailable() {
-    assertThat(JavaVersion.getJavaVersion()).isNotNull();
+    assertThat(JavaVersion.current()).isNotNull();
   }
 
   @Test
@@ -82,37 +82,37 @@ class JavaVersionTests {
   @Test
   @EnabledOnJre(JRE.JAVA_17)
   void currentJavaVersionSeventeen() {
-    assertThat(JavaVersion.getJavaVersion()).isEqualTo(JavaVersion.SEVENTEEN);
+    assertThat(JavaVersion.current()).isEqualTo(JavaVersion.SEVENTEEN);
   }
 
   @Test
   @EnabledOnJre(JRE.JAVA_18)
   void currentJavaVersionEighteen() {
-    assertThat(JavaVersion.getJavaVersion()).isEqualTo(JavaVersion.EIGHTEEN);
+    assertThat(JavaVersion.current()).isEqualTo(JavaVersion.EIGHTEEN);
   }
 
   @Test
   @EnabledOnJre(JRE.JAVA_19)
   void currentJavaVersionNineteen() {
-    assertThat(JavaVersion.getJavaVersion()).isEqualTo(JavaVersion.NINETEEN);
+    assertThat(JavaVersion.current()).isEqualTo(JavaVersion.NINETEEN);
   }
 
   @Test
   @EnabledOnJre(JRE.JAVA_20)
   void currentJavaVersionTwenty() {
-    assertThat(JavaVersion.getJavaVersion()).isEqualTo(JavaVersion.TWENTY);
+    assertThat(JavaVersion.current()).isEqualTo(JavaVersion.TWENTY);
   }
 
   @Test
   @EnabledOnJre(JRE.JAVA_21)
   void currentJavaVersionTwentyOne() {
-    assertThat(JavaVersion.getJavaVersion()).isEqualTo(JavaVersion.TWENTY_ONE);
+    assertThat(JavaVersion.current()).isEqualTo(JavaVersion.TWENTY_ONE);
   }
 
   @Test
   @EnabledOnJre(JRE.JAVA_22)
   void currentJavaVersionTwentyTwo() {
-    assertThat(JavaVersion.getJavaVersion()).isEqualTo(JavaVersion.TWENTY_TWO);
+    assertThat(JavaVersion.current()).isEqualTo(JavaVersion.TWENTY_TWO);
   }
 
 }

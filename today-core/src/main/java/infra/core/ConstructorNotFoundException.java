@@ -32,7 +32,7 @@ public class ConstructorNotFoundException extends NestedRuntimeException {
   private final Class<?> @Nullable [] parameterTypes;
 
   public ConstructorNotFoundException(Class<?> type) {
-    this(type, "No suitable constructor in class: " + type);
+    this(type, "No suitable constructor in " + type);
   }
 
   public ConstructorNotFoundException(Class<?> type, String msg) {
@@ -40,7 +40,7 @@ public class ConstructorNotFoundException extends NestedRuntimeException {
   }
 
   public ConstructorNotFoundException(Class<?> type, Class<?> @Nullable [] parameterTypes, Throwable e) {
-    this(type, "No suitable constructor in class: " + type, parameterTypes, e);
+    this(type, "No suitable constructor in " + type, parameterTypes, e);
   }
 
   public ConstructorNotFoundException(Class<?> type, String msg, Class<?> @Nullable [] parameterTypes, @Nullable Throwable e) {

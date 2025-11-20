@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectOutputStream;
 
+import infra.util.ClassUtils;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -212,6 +214,90 @@ class ConfigurableObjectInputStreamTests {
     };
 
     assertThat(ois.getFallbackClassLoader()).isSameAs(fallbackLoader);
+  }
+
+  @Test
+  void resolveClassWithValidClassAndClassLoader() throws Exception {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ObjectOutputStream oos = new ObjectOutputStream(out);
+    oos.writeObject("testString");
+    oos.close();
+
+    ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+    ConfigurableObjectInputStream ois = new ConfigurableObjectInputStream(in, classLoader);
+
+    Object result = ois.readObject();
+    assertThat(result).isInstanceOf(String.class).isEqualTo("testString");
+  }
+
+  @Test
+  void resolveClassUsesFallbackWhenPrimaryClassLoaderFails() throws Exception {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ObjectOutputStream oos = new ObjectOutputStream(out);
+    oos.writeObject("test");
+    oos.close();
+
+    ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+    ClassLoader failingClassLoader = new ClassLoader() {
+      @Override
+      protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+        throw new ClassNotFoundException(name);
+      }
+    };
+
+    ClassLoader fallbackClassLoader = Thread.currentThread().getContextClassLoader();
+    ConfigurableObjectInputStream ois = new ConfigurableObjectInputStream(in, failingClassLoader) {
+      @Override
+      protected Class<?> resolveFallbackIfPossible(String className, ClassNotFoundException ex) throws ClassNotFoundException {
+        return ClassUtils.forName(className, fallbackClassLoader);
+      }
+    };
+
+    assertThatCode(ois::readObject).doesNotThrowAnyException();
+  }
+
+  @Test
+  void constructorWithDisabledProxyClassesRejectsProxyDeserialization() throws Exception {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ObjectOutputStream oos = new ObjectOutputStream(out);
+    oos.writeObject("test");
+    oos.close();
+
+    ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+    ConfigurableObjectInputStream ois = new ConfigurableObjectInputStream(in, null, false);
+
+    assertThatThrownBy(() -> ois.resolveProxyClass(new String[] { "java.lang.Runnable" }))
+            .isInstanceOf(NotSerializableException.class)
+            .hasMessage("Not allowed to accept serialized proxy classes");
+  }
+
+  @Test
+  void getFallbackClassLoaderReturnsNullByDefault() throws Exception {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ObjectOutputStream oos = new ObjectOutputStream(out);
+    oos.writeObject("test");
+    oos.close();
+
+    ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+    ConfigurableObjectInputStream ois = new ConfigurableObjectInputStream(in, null);
+
+    assertThat(ois.getFallbackClassLoader()).isNull();
+  }
+
+  @Test
+  void resolveFallbackIfPossibleRethrowsOriginalExceptionByDefault() throws Exception {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ObjectOutputStream oos = new ObjectOutputStream(out);
+    oos.writeObject("test");
+    oos.close();
+
+    ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+    ConfigurableObjectInputStream ois = new ConfigurableObjectInputStream(in, null);
+    ClassNotFoundException originalException = new ClassNotFoundException("test class");
+
+    assertThatThrownBy(() -> ois.resolveFallbackIfPossible("test.ClassName", originalException))
+            .isSameAs(originalException);
   }
 
 }
