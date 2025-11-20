@@ -145,7 +145,7 @@ public abstract class MergedAnnotationCollectors {
    * <p>This method is only invoked if the {@link java.util.stream.Stream} is
    * processed in {@linkplain java.util.stream.Stream#parallel() parallel}.
    */
-  private static <E, C extends Collection<E>> C combiner(C collection, C additions) {
+  static <E, C extends Collection<E>> C combiner(C collection, C additions) {
     collection.addAll(additions);
     return collection;
   }
@@ -155,7 +155,7 @@ public abstract class MergedAnnotationCollectors {
    * <p>This method is only invoked if the {@link java.util.stream.Stream} is
    * processed in {@linkplain java.util.stream.Stream#parallel() parallel}.
    */
-  private static <K, V> MultiValueMap<K, V> combiner(MultiValueMap<K, V> map, MultiValueMap<K, V> additions) {
+  static <K, V> MultiValueMap<K, V> combiner(MultiValueMap<K, V> map, MultiValueMap<K, V> additions) {
     map.addAll(additions);
     return map;
   }
