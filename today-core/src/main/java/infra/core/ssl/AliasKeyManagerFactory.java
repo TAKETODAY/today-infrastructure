@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,7 +102,7 @@ final class AliasKeyManagerFactory extends KeyManagerFactory {
 
     private final String alias;
 
-    private AliasX509ExtendedKeyManager(X509ExtendedKeyManager keyManager, String alias) {
+    AliasX509ExtendedKeyManager(X509ExtendedKeyManager keyManager, String alias) {
       this.delegate = keyManager;
       this.alias = alias;
     }

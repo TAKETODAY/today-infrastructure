@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ import java.util.List;
 import infra.core.io.ClassPathResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * Tests for {@link PemCertificateParser}.
@@ -50,6 +51,19 @@ class PemCertificateParserTests {
     assertThat(certificates).hasSize(2);
     assertThat(certificates.get(0).getType()).isEqualTo("X.509");
     assertThat(certificates.get(1).getType()).isEqualTo("X.509");
+  }
+
+  @Test
+  void parseReturnsNullWhenInputIsNull() {
+    List<X509Certificate> certificates = PemCertificateParser.parse(null);
+    assertThat(certificates).isNull();
+  }
+
+  @Test
+  void parseThrowsExceptionWhenNoCertificatesFound() {
+    assertThatIllegalStateException()
+            .isThrownBy(() -> PemCertificateParser.parse("no certificates here"))
+            .withMessageContaining("Missing certificates or unrecognized format");
   }
 
   private String read(String path) throws IOException {
