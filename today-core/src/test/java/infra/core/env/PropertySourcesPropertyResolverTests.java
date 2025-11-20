@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,15 +20,19 @@ package infra.core.env;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Spliterator;
 
 import infra.core.conversion.ConverterNotFoundException;
 import infra.core.testfixture.env.MockPropertySource;
 import infra.util.PlaceholderResolutionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -337,6 +341,160 @@ class PropertySourcesPropertyResolverTests {
     assertThatExceptionOfType(PlaceholderResolutionException.class).isThrownBy(() ->
                     pr.resolveRequiredPlaceholders("${p1}:${p2}:${bogus}"))
             .withMessageContaining("Could not resolve placeholder 'bogus' in value \"${p1}:${p2}:${bogus}\"");
+  }
+
+  @Test
+  void constructorWithNullPropertySources() {
+    PropertySourcesPropertyResolver resolver = new PropertySourcesPropertyResolver(null);
+    assertThat(resolver).isNotNull();
+    assertThat(resolver.containsProperty("any")).isFalse();
+  }
+
+  @Test
+  void containsPropertyReturnsFalseWhenPropertySourcesIsNull() {
+    PropertySourcesPropertyResolver resolver = new PropertySourcesPropertyResolver(null);
+    assertThat(resolver.containsProperty("foo")).isFalse();
+  }
+
+  @Test
+  void getPropertyReturnsNullWhenPropertySourcesIsNull() {
+    PropertySourcesPropertyResolver resolver = new PropertySourcesPropertyResolver(null);
+    assertThat(resolver.getProperty("foo")).isNull();
+  }
+
+  @Test
+  void getPropertyWithTargetTypeReturnsNullWhenPropertySourcesIsNull() {
+    PropertySourcesPropertyResolver resolver = new PropertySourcesPropertyResolver(null);
+    assertThat(resolver.getProperty("foo", String.class)).isNull();
+  }
+
+  @Test
+  void getPropertyNamesReturnsEmptyListWhenPropertySourcesIsNull() {
+    PropertySourcesPropertyResolver resolver = new PropertySourcesPropertyResolver(null);
+    ArrayList<String> propertyNames = resolver.getPropertyNames();
+    assertThat(propertyNames).isEmpty();
+  }
+
+  @Test
+  void iteratorReturnsEmptyIteratorWhenPropertySourcesIsNull() {
+    PropertySourcesPropertyResolver resolver = new PropertySourcesPropertyResolver(null);
+    assertThat(resolver.iterator().hasNext()).isFalse();
+  }
+
+  @Test
+  void forEachDoesNotExecuteWhenPropertySourcesIsNull() {
+    PropertySourcesPropertyResolver resolver = new PropertySourcesPropertyResolver(null);
+    assertThatCode(() -> resolver.forEach(s -> {
+      throw new RuntimeException("Should not be called");
+    })).doesNotThrowAnyException();
+  }
+
+  @Test
+  void spliteratorReturnsEmptySpliteratorWhenPropertySourcesIsNull() {
+    PropertySourcesPropertyResolver resolver = new PropertySourcesPropertyResolver(null);
+    assertThat(resolver.spliterator().estimateSize()).isEqualTo(0);
+  }
+
+  @Test
+  void getPropertyWithNonEnumerablePropertySource() {
+    PropertySources sources = new PropertySources();
+    PropertySource<?> nonEnumerableSource = new PropertySource<>("nonEnumerable") {
+      @Override
+      public Object getProperty(String name) {
+        return "value".equals(name) ? "testValue" : null;
+      }
+    };
+    sources.addFirst(nonEnumerableSource);
+    PropertySourcesPropertyResolver resolver = new PropertySourcesPropertyResolver(sources);
+
+    assertThat(resolver.getProperty("value")).isEqualTo("testValue");
+    ArrayList<String> propertyNames = resolver.getPropertyNames();
+    assertThat(propertyNames).isEmpty();
+  }
+
+  @Test
+  void getPropertyNamesWithEnumerablePropertySources() {
+    PropertySources sources = new PropertySources();
+    MockPropertySource source1 = new MockPropertySource("source1").withProperty("prop1", "value1");
+    MockPropertySource source2 = new MockPropertySource("source2").withProperty("prop2", "value2");
+    sources.addFirst(source1);
+    sources.addFirst(source2);
+
+    PropertySourcesPropertyResolver resolver = new PropertySourcesPropertyResolver(sources);
+    ArrayList<String> propertyNames = resolver.getPropertyNames();
+
+    assertThat(propertyNames).contains("prop1", "prop2");
+  }
+
+  @Test
+  void iteratorIteratesOverPropertyNames() {
+    PropertySources sources = new PropertySources();
+    MockPropertySource source = new MockPropertySource("source").withProperty("prop1", "value1").withProperty("prop2", "value2");
+    sources.addFirst(source);
+
+    PropertySourcesPropertyResolver resolver = new PropertySourcesPropertyResolver(sources);
+    Iterator<String> iterator = resolver.iterator();
+
+    assertThat(iterator.hasNext()).isTrue();
+    assertThat(iterator.next()).isIn("prop1", "prop2");
+    assertThat(iterator.hasNext()).isTrue();
+    assertThat(iterator.next()).isIn("prop1", "prop2");
+    assertThat(iterator.hasNext()).isFalse();
+  }
+
+  @Test
+  void forEachExecutesActionForAllPropertyNames() {
+    PropertySources sources = new PropertySources();
+    MockPropertySource source = new MockPropertySource("source").withProperty("prop1", "value1").withProperty("prop2", "value2");
+    sources.addFirst(source);
+
+    PropertySourcesPropertyResolver resolver = new PropertySourcesPropertyResolver(sources);
+
+    ArrayList<String> collected = new ArrayList<>();
+    resolver.forEach(collected::add);
+
+    assertThat(collected).containsExactlyInAnyOrder("prop1", "prop2");
+  }
+
+  @Test
+  void spliteratorSplitsPropertyNames() {
+    PropertySources sources = new PropertySources();
+    MockPropertySource source = new MockPropertySource("source").withProperty("prop1", "value1").withProperty("prop2", "value2");
+    sources.addFirst(source);
+
+    PropertySourcesPropertyResolver resolver = new PropertySourcesPropertyResolver(sources);
+    Spliterator<String> spliterator = resolver.spliterator();
+
+    assertThat(spliterator.estimateSize()).isEqualTo(2);
+    assertThat(spliterator.hasCharacteristics(Spliterator.SIZED)).isTrue();
+  }
+
+  @Test
+  void getPropertyWithNestedPlaceholdersAndResolveFlag() {
+    PropertySources sources = new PropertySources();
+    MockPropertySource source = new MockPropertySource("source")
+            .withProperty("prop1", "value1")
+            .withProperty("prop2", "${prop1}");
+    sources.addFirst(source);
+
+    PropertySourcesPropertyResolver resolver = new PropertySourcesPropertyResolver(sources);
+    String value = resolver.getProperty("prop2", String.class, true);
+
+    assertThat(value).isEqualTo("value1");
+  }
+
+  @Test
+  void getPropertyWithNestedPlaceholdersAndDoNotResolveFlag() {
+    PropertySources sources = new PropertySources();
+    MockPropertySource source = new MockPropertySource("source")
+            .withProperty("prop1", "value1")
+            .withProperty("prop2", "${prop1}");
+    sources.addFirst(source);
+
+    PropertySourcesPropertyResolver resolver = new PropertySourcesPropertyResolver(sources);
+    String value = resolver.getProperty("prop2", String.class, false);
+
+    assertThat(value).isEqualTo("${prop1}");
   }
 
 }

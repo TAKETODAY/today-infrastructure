@@ -31,6 +31,7 @@ import infra.util.ObjectUtils;
  * Constants and convenience methods for working with hints.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see ResourceRegionEncoder#BOUNDARY_STRING_HINT
  * @since 4.0
  */
