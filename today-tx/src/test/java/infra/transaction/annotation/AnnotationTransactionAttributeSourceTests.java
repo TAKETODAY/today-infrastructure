@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ import groovy.lang.GroovyObject;
 import groovy.lang.MetaClass;
 import infra.aop.framework.Advised;
 import infra.aop.framework.ProxyFactory;
+import infra.beans.factory.BeanNameAware;
 import infra.core.annotation.AliasFor;
 import infra.core.annotation.AnnotationUtils;
 import infra.core.testfixture.io.SerializationTestUtils;
@@ -53,7 +54,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @author Mark Paluch
  */
-public class AnnotationTransactionAttributeSourceTests {
+class AnnotationTransactionAttributeSourceTests {
 
   private final AnnotationTransactionAttributeSource attributeSource = new AnnotationTransactionAttributeSource();
 
@@ -120,6 +121,10 @@ public class AnnotationTransactionAttributeSourceTests {
   @Test
   void transactionAttributeDeclaredOnInterfaceMethodOnly() {
     TransactionAttribute actual = getTransactionAttribute(TestBean2.class, ITestBean2.class, "getAge");
+    assertThat(actual).satisfies(hasNoRollbackRule());
+    actual = getTransactionAttribute(TestBean2.class, ITestBean2X.class, "getAge");
+    assertThat(actual).satisfies(hasNoRollbackRule());
+    actual = getTransactionAttribute(ITestBean2X.class, ITestBean2X.class, "getAge");
     assertThat(actual).satisfies(hasNoRollbackRule());
   }
 
@@ -371,7 +376,6 @@ public class AnnotationTransactionAttributeSourceTests {
 
       void setName(String name);
     }
-
   }
 
   @Nested
@@ -617,7 +621,12 @@ public class AnnotationTransactionAttributeSourceTests {
     void setAge(int age);
   }
 
-  interface ITestBean2X extends ITestBean2 {
+  interface ITestBean2X extends ITestBean2, BeanNameAware {
+
+    @Transactional
+    int getAge();
+
+    void setAge(int age);
 
     String getName();
 
@@ -723,6 +732,10 @@ public class AnnotationTransactionAttributeSourceTests {
     }
 
     @Override
+    public void setBeanName(String name) {
+    }
+
+    @Override
     public String getName() {
       return name;
     }
@@ -769,15 +782,15 @@ public class AnnotationTransactionAttributeSourceTests {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ,
-                   timeout = 5, readOnly = true, rollbackFor = Exception.class, noRollbackFor = IOException.class)
+            timeout = 5, readOnly = true, rollbackFor = Exception.class, noRollbackFor = IOException.class)
     public int getAge() {
       return age;
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ,
-                   timeoutString = "${myTimeout}", readOnly = true, rollbackFor = Exception.class,
-                   noRollbackFor = IOException.class)
+            timeoutString = "${myTimeout}", readOnly = true, rollbackFor = Exception.class,
+            noRollbackFor = IOException.class)
     public void setAge(int age) {
       this.age = age;
     }
