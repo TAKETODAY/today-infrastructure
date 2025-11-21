@@ -188,7 +188,7 @@ class CaffeineCacheTests extends AbstractValueAdaptingCacheTests<CaffeineCache> 
     CompletableFuture<?> result = cache.retrieve(key);
 
     assertThat(result).isNotNull();
-    assertThat(result.join()).isEqualTo(value);
+    assertThat(result.join()).isEqualTo(new SimpleValueWrapper(value));
   }
 
   @Test
