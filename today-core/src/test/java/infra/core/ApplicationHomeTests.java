@@ -21,6 +21,7 @@ import net.bytebuddy.ByteBuddy;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -29,10 +30,12 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.jar.JarFile;
 
 import infra.util.FileCopyUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -111,6 +114,92 @@ class ApplicationHomeTests {
   void whenHomeDirectoryDoesNotExistThenUsesCurrentDirectory() {
     ApplicationHome home = new ApplicationHome(File.class);
     assertThat(home.getDir()).isEqualTo(new File("").getAbsoluteFile());
+  }
+
+  @Test
+  void getSourceReturnsNullWhenNoSourceFound() {
+    ApplicationHome home = new ApplicationHome(null);
+    assertThat(home.getSource()).isNull();
+  }
+
+  @Test
+  void getSourceReturnsFileWhenSourceClassProvided() throws Exception {
+    File app = new File(tempDir, "app");
+    ApplicationHome applicationHome = createApplicationHome(app);
+    assertThat(applicationHome.getSource()).isNotNull();
+    assertThat(applicationHome.getSource()).isEqualTo(app.getAbsoluteFile());
+  }
+
+  @Test
+  void findDefaultHomeDirUsesUserDirProperty() {
+    String originalUserDir = System.getProperty("user.dir");
+    try {
+      System.setProperty("user.dir", tempDir.getAbsolutePath());
+      ApplicationHome home = new ApplicationHome();
+      assertThat(home.getDir()).isEqualTo(tempDir.getAbsoluteFile());
+    }
+    finally {
+      System.setProperty("user.dir", originalUserDir);
+    }
+  }
+
+  @Test
+  void findDefaultHomeDirUsesCurrentDirectoryWhenUserDirIsEmpty() {
+    String originalUserDir = System.getProperty("user.dir");
+    try {
+      System.clearProperty("user.dir");
+      ApplicationHome home = new ApplicationHome();
+      assertThat(home.getDir()).isEqualTo(new File(".").getAbsoluteFile());
+    }
+    finally {
+      System.setProperty("user.dir", originalUserDir);
+    }
+  }
+
+  @Test
+  void constructorWithClassReturnsCorrectSourceAndDir() throws Exception {
+    File app = new File(tempDir, "app");
+    ApplicationHome applicationHome = createApplicationHome(app);
+
+    assertThat(applicationHome.getSource()).isEqualTo(app.getAbsoluteFile());
+    assertThat(applicationHome.getDir()).isEqualTo(app.getAbsoluteFile());
+  }
+
+  @Test
+  void getRootJarFileExtractsCorrectPathFromNestedJar() {
+    String jarPath = "/path/to/app.jar!/BOOT-INF/classes!/";
+    JarFile mockJarFile = Mockito.mock(JarFile.class);
+    Mockito.when(mockJarFile.getName()).thenReturn(jarPath);
+
+    ApplicationHome home = new ApplicationHome();
+    // Access private method via reflection
+    try {
+      java.lang.reflect.Method method = ApplicationHome.class.getDeclaredMethod("getRootJarFile", JarFile.class);
+      method.setAccessible(true);
+      File result = (File) method.invoke(home, mockJarFile);
+      assertThat(result.getPath()).isEqualTo("/path/to/app.jar");
+    }
+    catch (Exception e) {
+      fail("Reflection failed: " + e.getMessage());
+    }
+  }
+
+  @Test
+  void getRootJarFileReturnsSamePathWhenNotNested() {
+    String jarPath = "/path/to/app.jar";
+    JarFile mockJarFile = Mockito.mock(JarFile.class);
+    Mockito.when(mockJarFile.getName()).thenReturn(jarPath);
+
+    ApplicationHome home = new ApplicationHome();
+    try {
+      java.lang.reflect.Method method = ApplicationHome.class.getDeclaredMethod("getRootJarFile", JarFile.class);
+      method.setAccessible(true);
+      File result = (File) method.invoke(home, mockJarFile);
+      assertThat(result.getPath()).isEqualTo("/path/to/app.jar");
+    }
+    catch (Exception e) {
+      fail("Reflection failed: " + e.getMessage());
+    }
   }
 
   private ApplicationHome createApplicationHome(File location) throws Exception {

@@ -685,8 +685,9 @@ public interface MergedAnnotation<A extends Annotation> {
    *
    * @return an instance representing a missing annotation
    */
+  @SuppressWarnings("unchecked")
   static <A extends Annotation> MergedAnnotation<A> missing() {
-    return MissingMergedAnnotation.getInstance();
+    return MissingMergedAnnotation.INSTANCE;
   }
 
   /**

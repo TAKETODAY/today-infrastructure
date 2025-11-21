@@ -168,6 +168,129 @@ class AnnotatedElementAdapterTests {
     verify(annotated, times(1)).getAnnotations();
   }
 
+  @Test
+  void forAnnotationsReturnsEmptyAdapterWhenArrayIsEmpty() {
+    var adapter = AnnotatedElementAdapter.forAnnotations(new Annotation[0]);
+    assertThat(adapter).isSameAs(AnnotatedElementAdapter.EMPTY);
+  }
+
+  @Test
+  void forAnnotationsReturnsEmptyAdapterWhenArrayIsNull() {
+    var adapter = AnnotatedElementAdapter.forAnnotations(null);
+    assertThat(adapter).isSameAs(AnnotatedElementAdapter.EMPTY);
+  }
+
+  @Test
+  void forAnnotationsReturnsNewAdapterWhenArrayHasElements() {
+    var annotations = new Annotation[] { createAnnotation() };
+    var adapter = AnnotatedElementAdapter.forAnnotations(annotations);
+    assertThat(adapter).isNotSameAs(AnnotatedElementAdapter.EMPTY);
+    assertThat(adapter.getAnnotations()).containsExactly(annotations);
+  }
+
+  @Test
+  void getDeclaredAnnotationsReturnsCopyOfArray() {
+    var annotations = new Annotation[] { createAnnotation() };
+    var adapter = new AnnotatedElementAdapter(annotations, null);
+    var returned = adapter.getDeclaredAnnotations();
+
+    assertThat(returned).isNotSameAs(annotations);
+    assertThat(returned).containsExactly(annotations);
+  }
+
+  @Test
+  void getDeclaredAnnotationsReturnsSameAsGetAnnotations() {
+    var annotations = new Annotation[] { createAnnotation() };
+    var adapter = new AnnotatedElementAdapter(annotations, null);
+
+    assertThat(adapter.getDeclaredAnnotations()).containsExactly(adapter.getAnnotations());
+  }
+
+  @Test
+  void isAnnotationPresentReturnsFalseWhenNoMatch() {
+    var adapter = AnnotatedElementAdapter.forAnnotations(new Annotation[] { createAnnotation() });
+    assertThat(adapter.isAnnotationPresent(Deprecated.class)).isFalse();
+  }
+
+  @Test
+  void isAnnotationPresentReturnsFalseWhenAdapterIsEmpty() {
+    var adapter = AnnotatedElementAdapter.EMPTY;
+    assertThat(adapter.isAnnotationPresent(Override.class)).isFalse();
+  }
+
+  @Test
+  void getAnnotationReturnsNullWhenAdapterIsEmpty() {
+    var adapter = AnnotatedElementAdapter.EMPTY;
+    assertThat(adapter.getAnnotation(Override.class)).isNull();
+  }
+
+  @Test
+  void isEmptyReturnsTrueWhenNoAnnotations() {
+    var adapter = new AnnotatedElementAdapter(new Annotation[0], null);
+    assertThat(adapter.isEmpty()).isTrue();
+  }
+
+  @Test
+  void isEmptyReturnsFalseWhenHasAnnotations() {
+    var adapter = new AnnotatedElementAdapter(new Annotation[] { createAnnotation() }, null);
+    assertThat(adapter.isEmpty()).isFalse();
+  }
+
+  @Test
+  void annotationsAreNotClonedWhenCloneArrayIsFalse() {
+    var annotations = new Annotation[] { createAnnotation() };
+    var adapter = new AnnotatedElementAdapter(annotations, null);
+    var returned = adapter.getAnnotations(false);
+
+    assertThat(returned).isSameAs(annotations);
+  }
+
+  @Test
+  void annotationsFromAnnotatedElementAreCached() {
+    var annotation = createAnnotation();
+    var annotated = mock(AnnotatedElement.class);
+    when(annotated.getAnnotations()).thenReturn(new Annotation[] { annotation });
+
+    var adapter = new AnnotatedElementAdapter(null, annotated);
+    var first = adapter.getAnnotations();
+    var second = adapter.getAnnotations();
+
+    assertThat(first).isEqualTo(second);
+    verify(annotated, times(1)).getAnnotations();
+  }
+
+  @Test
+  void toStringReturnsExpectedFormat() {
+    var annotation = createAnnotation();
+    var adapter = new AnnotatedElementAdapter(new Annotation[] { annotation }, null);
+    var toString = adapter.toString();
+
+    assertThat(toString).startsWith("AnnotatedElementAdapter annotations=[");
+    assertThat(toString).contains(annotation.toString());
+  }
+
+  @Test
+  void equalsReturnsTrueForSameInstance() {
+    var adapter = new AnnotatedElementAdapter(new Annotation[0], null);
+    assertThat(adapter).isEqualTo(adapter);
+  }
+
+  @Test
+  void equalsReturnsFalseForNull() {
+    var adapter = new AnnotatedElementAdapter(new Annotation[0], null);
+    assertThat(adapter).isNotEqualTo(null);
+  }
+
+  @Test
+  void hashCodeIsConsistent() {
+    var annotations = new Annotation[] { createAnnotation() };
+    var adapter = new AnnotatedElementAdapter(annotations, null);
+    var hashCode1 = adapter.hashCode();
+    var hashCode2 = adapter.hashCode();
+
+    assertThat(hashCode1).isEqualTo(hashCode2);
+  }
+
   private static Annotation createAnnotation() {
     return () -> Override.class;
   }

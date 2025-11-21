@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import infra.core.Ordered;
 import jakarta.annotation.Priority;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -108,6 +109,123 @@ class AnnotationAwareOrderComparatorTests {
     assertThat(list.get(1)).isEqualTo(B.class);
     assertThat(list.get(2)).isNull();
     assertThat(list.get(3)).isNull();
+  }
+
+  @Test
+  void sortArray() {
+    Object[] array = new Object[] { new B(), new A() };
+    AnnotationAwareOrderComparator.sort(array);
+    assertThat(array[0] instanceof A).isTrue();
+    assertThat(array[1] instanceof B).isTrue();
+  }
+
+  @Test
+  void sortArrayWithPriority() {
+    Object[] array = new Object[] { new B2(), new A2() };
+    AnnotationAwareOrderComparator.sort(array);
+    assertThat(array[0] instanceof A2).isTrue();
+    assertThat(array[1] instanceof B2).isTrue();
+  }
+
+  @Test
+  void sortArrayWithOrderAndPriority() {
+    Object[] array = new Object[] { new B(), new A2() };
+    AnnotationAwareOrderComparator.sort(array);
+    assertThat(array[0] instanceof A2).isTrue();
+    assertThat(array[1] instanceof B).isTrue();
+  }
+
+  @Test
+  void sortArrayWithSubclass() {
+    Object[] array = new Object[] { new B(), new C() };
+    AnnotationAwareOrderComparator.sort(array);
+    assertThat(array[0] instanceof C).isTrue();
+    assertThat(array[1] instanceof B).isTrue();
+  }
+
+  @Test
+  void sortArrayWithNulls() {
+    Object[] array = new Object[] { null, B.class, null, A.class };
+    AnnotationAwareOrderComparator.sort(array);
+    assertThat(array[0]).isEqualTo(A.class);
+    assertThat(array[1]).isEqualTo(B.class);
+    assertThat(array[2]).isNull();
+    assertThat(array[3]).isNull();
+  }
+
+  @Test
+  void sortIfNecessaryWithList() {
+    List<Object> list = new ArrayList<>();
+    list.add(new B());
+    list.add(new A());
+    AnnotationAwareOrderComparator.sortIfNecessary(list);
+    assertThat(list.get(0) instanceof A).isTrue();
+    assertThat(list.get(1) instanceof B).isTrue();
+  }
+
+  @Test
+  void sortIfNecessaryWithArray() {
+    Object[] array = new Object[] { new B(), new A() };
+    AnnotationAwareOrderComparator.sortIfNecessary(array);
+    assertThat(array[0] instanceof A).isTrue();
+    assertThat(array[1] instanceof B).isTrue();
+  }
+
+  @Test
+  void sortIfNecessaryWithOtherValue() {
+    String value = "not sortable";
+    // Should not throw exception
+    AnnotationAwareOrderComparator.sortIfNecessary(value);
+    assertThat(value).isEqualTo("not sortable");
+  }
+
+  @Test
+  void findOrderFromOrderedInstance() {
+    Ordered ordered = () -> 10;
+    Integer order = AnnotationAwareOrderComparator.INSTANCE.findOrder(ordered);
+    assertThat(order).isEqualTo(10);
+  }
+
+  @Test
+  void findOrderFromOrderAnnotation() {
+    Integer order = AnnotationAwareOrderComparator.INSTANCE.findOrder(new A());
+    assertThat(order).isEqualTo(1);
+  }
+
+  @Test
+  void findOrderFromPriorityAnnotation() {
+    Integer order = AnnotationAwareOrderComparator.INSTANCE.findOrder(new A2());
+    assertThat(order).isEqualTo(1);
+  }
+
+  @Test
+  void findOrderFromClassWithOrderAnnotation() {
+    Integer order = AnnotationAwareOrderComparator.INSTANCE.findOrder(A.class);
+    assertThat(order).isEqualTo(1);
+  }
+
+  @Test
+  void findOrderFromNull() {
+    Integer order = AnnotationAwareOrderComparator.INSTANCE.findOrder(null);
+    assertThat(order).isNull();
+  }
+
+  @Test
+  void getPriorityFromClass() {
+    Integer priority = AnnotationAwareOrderComparator.INSTANCE.getPriority(A2.class);
+    assertThat(priority).isEqualTo(1);
+  }
+
+  @Test
+  void getPriorityFromObject() {
+    Integer priority = AnnotationAwareOrderComparator.INSTANCE.getPriority(new A2());
+    assertThat(priority).isEqualTo(1);
+  }
+
+  @Test
+  void getPriorityFromObjectWithoutPriority() {
+    Integer priority = AnnotationAwareOrderComparator.INSTANCE.getPriority(new A());
+    assertThat(priority).isNull();
   }
 
   @Order(1)

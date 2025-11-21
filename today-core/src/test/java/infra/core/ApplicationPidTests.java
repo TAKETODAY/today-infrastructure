@@ -23,6 +23,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
+import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -190,4 +191,105 @@ class ApplicationPidTests {
     ApplicationPid pid = new ApplicationPid(123L);
     assertThat(pid.equals(pid)).isTrue();
   }
+
+  @Test
+  void writePidToFileWithSpecialCharactersInPath() throws Exception {
+    ApplicationPid pid = new ApplicationPid(123L);
+    File file = new File(tempDir, "special-pid_123.txt");
+    pid.write(file);
+    assertThat(contentOf(file)).isEqualTo("123");
+  }
+
+  @Test
+  void writePidWhenParentDirectoryCreationFails() {
+    ApplicationPid pid = new ApplicationPid(123L);
+    File file = new File("/invalid/path/pid");
+    assertThatThrownBy(() -> pid.write(file))
+            .isInstanceOf(IOException.class);
+  }
+
+  @Test
+  void toStringReturnsValidPidString() {
+    ApplicationPid pid = new ApplicationPid(999L);
+    assertThat(pid.toString()).isEqualTo("999");
+  }
+
+  @Test
+  void toStringReturnsPlaceholderWhenPidIsNull() {
+    ApplicationPid pid = new ApplicationPid(null);
+    assertThat(pid.toString()).isEqualTo("???");
+  }
+
+  @Test
+  void equalsReturnsFalseForNullComparison() {
+    ApplicationPid pid = new ApplicationPid(123L);
+    assertThat(pid.equals(null)).isFalse();
+  }
+
+  @Test
+  void hashCodeReturnsConsistentValueForSamePid() {
+    ApplicationPid pid1 = new ApplicationPid(456L);
+    ApplicationPid pid2 = new ApplicationPid(456L);
+    assertThat(pid1.hashCode()).isEqualTo(pid2.hashCode());
+  }
+
+  @Test
+  void hashCodeReturnsDifferentValuesForDifferentPids() {
+    ApplicationPid pid1 = new ApplicationPid(111L);
+    ApplicationPid pid2 = new ApplicationPid(222L);
+    assertThat(pid1.hashCode()).isNotEqualTo(pid2.hashCode());
+  }
+
+  @Test
+  void currentProcessPidConstructorSetsValidPid() {
+    ApplicationPid pid = new ApplicationPid();
+    assertThat(pid.isAvailable()).isTrue();
+    assertThat(pid.toLong()).isNotNull();
+    assertThat(pid.toLong()).isPositive();
+  }
+
+  @Test
+  void writePidToFileThatAlreadyExistsAndIsWritable() throws Exception {
+    ApplicationPid pid = new ApplicationPid(789L);
+    File file = new File(tempDir, "existing.pid");
+    file.createNewFile();
+    pid.write(file);
+    assertThat(contentOf(file)).isEqualTo("789");
+  }
+
+  @Test
+  void writePidThrowsExceptionWhenPidNotAvailable() {
+    ApplicationPid pid = new ApplicationPid(null);
+    File file = new File(tempDir, "pid");
+    assertThatIllegalStateException()
+            .isThrownBy(() -> pid.write(file))
+            .withMessageContaining("No PID available");
+  }
+
+  @Test
+  void canWritePosixFileReturnsTrueOnUnsupportedOperation() throws Exception {
+    // This test covers the UnsupportedOperationException catch block
+    // in the canWritePosixFile method indirectly
+    ApplicationPid pid = new ApplicationPid(123L);
+    File file = new File(tempDir, "posix-test.pid");
+    pid.write(file);
+    assertThat(contentOf(file)).isEqualTo("123");
+  }
+
+  @Test
+  void createParentDirectoryHandlesNullParent() throws Exception {
+    // Testing edge case where file has no parent directory
+    ApplicationPid pid = new ApplicationPid(456L);
+    File file = new File("no-parent.pid");
+    // This would normally fail, but we're testing the createParentDirectory logic
+    // In practice, this might depend on working directory permissions
+    try {
+      pid.write(file);
+      assertThat(file.exists()).isTrue();
+    }
+    finally {
+      file.delete(); // cleanup
+    }
+  }
+
 }

@@ -81,7 +81,8 @@ public class TransactionTemplate extends DefaultTransactionDefinition implements
    *
    * @see #setTransactionManager
    */
-  public TransactionTemplate() { }
+  public TransactionTemplate() {
+  }
 
   /**
    * Construct a new TransactionTemplate using the given transaction manager.

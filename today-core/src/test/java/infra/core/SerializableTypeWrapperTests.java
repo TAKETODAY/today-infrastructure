@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -105,6 +106,87 @@ class SerializableTypeWrapperTests {
     assertSerializable(type);
     assertSerializable(type.getLowerBounds());
     assertSerializable(type.getUpperBounds());
+  }
+
+  @Test
+  void unwrapClassType() throws Exception {
+    Field field = Fields.class.getField("classType");
+    Type type = SerializableTypeWrapper.forField(field);
+    Type unwrapped = SerializableTypeWrapper.unwrap(type);
+    assertThat(unwrapped).isEqualTo(String.class);
+  }
+
+  @Test
+  void unwrapParameterizedType() throws Exception {
+    Field field = Fields.class.getField("parameterizedType");
+    Type type = SerializableTypeWrapper.forField(field);
+    Type unwrapped = SerializableTypeWrapper.unwrap(type);
+    assertThat(unwrapped).isInstanceOf(ParameterizedType.class);
+    assertThat(((ParameterizedType) unwrapped).getRawType()).isEqualTo(List.class);
+  }
+
+  @Test
+  void unwrapGenericArrayType() throws Exception {
+    Field field = Fields.class.getField("genericArrayType");
+    Type type = SerializableTypeWrapper.forField(field);
+    Type unwrapped = SerializableTypeWrapper.unwrap(type);
+    assertThat(unwrapped).isInstanceOf(GenericArrayType.class);
+    Type componentUnwrapped = SerializableTypeWrapper.unwrap(((GenericArrayType) type).getGenericComponentType());
+    assertThat(componentUnwrapped.toString()).isEqualTo("java.util.List<java.lang.String>");
+  }
+
+  @Test
+  void unwrapTypeVariable() throws Exception {
+    Field field = Fields.class.getField("typeVariableType");
+    Type type = SerializableTypeWrapper.forField(field);
+    Type unwrapped = SerializableTypeWrapper.unwrap(type);
+    assertThat(unwrapped).isInstanceOf(TypeVariable.class);
+    assertThat(((TypeVariable<?>) unwrapped).getName()).isEqualTo("T");
+  }
+
+  @Test
+  void unwrapWildcardType() throws Exception {
+    Field field = Fields.class.getField("wildcardType");
+    ParameterizedType type = (ParameterizedType) SerializableTypeWrapper.forField(field);
+    WildcardType wildcardType = (WildcardType) type.getActualTypeArguments()[0];
+    Type unwrapped = SerializableTypeWrapper.unwrap(wildcardType);
+    assertThat(unwrapped).isInstanceOf(WildcardType.class);
+    assertThat(((WildcardType) unwrapped).getUpperBounds()[0]).isEqualTo(CharSequence.class);
+  }
+
+  @Test
+  void methodReturnType() throws Exception {
+    Method method = Methods.class.getDeclaredMethod("method", Class.class, Object.class);
+    Type type = SerializableTypeWrapper.forMethodParameter(MethodParameter.forExecutable(method, -1));
+    assertThat(type.toString()).isEqualTo("java.util.List<T>");
+    assertSerializable(type);
+  }
+
+  @Test
+  void equalsAndHashCode() throws Exception {
+    Field field = Fields.class.getField("parameterizedType");
+    Type type1 = SerializableTypeWrapper.forField(field);
+    Type type2 = SerializableTypeWrapper.forField(field);
+
+    assertThat(type1).isEqualTo(type2);
+    assertThat(type1.hashCode()).isEqualTo(type2.hashCode());
+  }
+
+  @Test
+  void serializesAndDeserializesCorrectly() throws Exception {
+    Field field = Fields.class.getField("parameterizedType");
+    Type originalType = SerializableTypeWrapper.forField(field);
+
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    ObjectOutputStream oos = new ObjectOutputStream(bos);
+    oos.writeObject(originalType);
+    oos.close();
+
+    ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()));
+    Type deserializedType = (Type) ois.readObject();
+
+    assertThat(deserializedType.toString()).isEqualTo(originalType.toString());
+    assertThat(deserializedType).isEqualTo(originalType);
   }
 
   private void assertSerializable(Object source) throws Exception {

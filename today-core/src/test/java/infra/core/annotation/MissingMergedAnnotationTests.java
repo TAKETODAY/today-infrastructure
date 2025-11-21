@@ -20,9 +20,11 @@ package infra.core.annotation;
 import org.assertj.core.api.ThrowableTypeAssert;
 import org.junit.jupiter.api.Test;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -38,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 class MissingMergedAnnotationTests {
 
-  private final MergedAnnotation<?> missing = MissingMergedAnnotation.getInstance();
+  private final MergedAnnotation<?> missing = MissingMergedAnnotation.INSTANCE;
 
   @Test
   void getTypeThrowsNoSuchElementException() {
@@ -293,6 +295,121 @@ class MissingMergedAnnotationTests {
   void asMapWithFactoryReturnsNewMapFromFactory() {
     Map<String, Object> map = this.missing.asMap(annotation -> new ConcurrentReferenceHashMap<>());
     assertThat(map).isInstanceOf(ConcurrentReferenceHashMap.class);
+  }
+
+  @Test
+  void getInstanceReturnsSameInstance() {
+    MergedAnnotation<?> instance1 = MissingMergedAnnotation.INSTANCE;
+    MergedAnnotation<?> instance2 = MissingMergedAnnotation.INSTANCE;
+    assertThat(instance1).isSameAs(instance2);
+  }
+
+  @Test
+  void filterAttributesReturnsSameInstance() {
+    MergedAnnotation<?> missing = MissingMergedAnnotation.INSTANCE;
+    MergedAnnotation<?> filtered = missing.filterAttributes(name -> true);
+    assertThat(filtered).isSameAs(missing);
+  }
+
+  @Test
+  void withNonMergedAttributesReturnsSameInstance() {
+    MergedAnnotation<?> missing = MissingMergedAnnotation.INSTANCE;
+    MergedAnnotation<?> nonMerged = missing.withNonMergedAttributes();
+    assertThat(nonMerged).isSameAs(missing);
+  }
+
+  @Test
+  void getValueReturnsNull() {
+    MergedAnnotation<?> missing = MissingMergedAnnotation.INSTANCE;
+    assertThat(missing.getValue("test")).isNull();
+    assertThat(missing.getValue("test", String.class)).isNull();
+  }
+
+  @Test
+  void getValueWithTypeReturnsDefaultValue() {
+    MergedAnnotation<?> missing = MissingMergedAnnotation.INSTANCE;
+    assertThat(missing.getValue("test", String.class, "default")).isEqualTo("default");
+  }
+
+  @Test
+  void getDefaultValueReturnsNull() {
+    MergedAnnotation<?> missing = MissingMergedAnnotation.INSTANCE;
+    assertThat(missing.getDefaultValue("test")).isNull();
+    assertThat(missing.getDefaultValue("test", String.class)).isNull();
+  }
+
+  @Test
+  void asAnnotationAttributesReturnsEmptyAttributes() {
+    MergedAnnotation<?> missing = MissingMergedAnnotation.INSTANCE;
+    AnnotationAttributes attributes = missing.asAnnotationAttributes();
+    assertThat(attributes).isEmpty();
+    assertThat(attributes.annotationType()).isNull();
+  }
+
+  @Test
+  void asMapWithAdaptationsReturnsEmptyMap() {
+    MergedAnnotation<?> missing = MissingMergedAnnotation.INSTANCE;
+    Map<String, Object> map = missing.asMap(MergedAnnotation.Adapt.CLASS_TO_STRING);
+    assertThat(map).isSameAs(Collections.EMPTY_MAP);
+  }
+
+  @Test
+  void asAnnotationAttributesWithAdaptationsReturnsEmptyAttributes() {
+    MergedAnnotation<?> missing = MissingMergedAnnotation.INSTANCE;
+    AnnotationAttributes attributes = missing.asAnnotationAttributes(MergedAnnotation.Adapt.CLASS_TO_STRING);
+    assertThat(attributes).isEmpty();
+  }
+
+  @Test
+  void getMetaTypesReturnsEmptyList() {
+    MergedAnnotation<?> missing = MissingMergedAnnotation.INSTANCE;
+    List<Class<? extends Annotation>> metaTypes = missing.getMetaTypes();
+    assertThat(metaTypes).isEmpty();
+  }
+
+  @Test
+  void getRootReturnsSameInstance() {
+    MergedAnnotation<?> missing = MissingMergedAnnotation.INSTANCE;
+    MergedAnnotation<?> root = missing.getRoot();
+    assertThat(root).isSameAs(missing);
+  }
+
+  @Test
+  void getAttributeValueThrowsNoSuchElementException() {
+    MergedAnnotation<?> missing = MissingMergedAnnotation.INSTANCE;
+    assertThatExceptionOfType(NoSuchElementException.class)
+            .isThrownBy(() -> missing.getString("test"))
+            .withMessageContaining("Unable to get attribute 'test'");
+  }
+
+  @Test
+  void synthesizeWithPredicateReturnsNullWhenPredicateDoesNotMatch() {
+    MergedAnnotation<?> missing = MissingMergedAnnotation.INSTANCE;
+    var result = missing.synthesize(a -> false);
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void synthesizeWithPredicateThrowsNoSuchElementExceptionWhenPredicateMatches() {
+    MergedAnnotation<?> missing = MissingMergedAnnotation.INSTANCE;
+    assertThatExceptionOfType(NoSuchElementException.class)
+            .isThrownBy(() -> missing.synthesize(a -> true))
+            .withMessage("Unable to synthesize missing annotation");
+  }
+
+  @Test
+  void toStringReturnsMissing() {
+    MergedAnnotation<?> missing = MissingMergedAnnotation.INSTANCE;
+    String string = missing.toString();
+    assertThat(string).isEqualTo("(missing)");
+  }
+
+  @Test
+  void createSynthesizedAnnotation() {
+    var missing = MissingMergedAnnotation.INSTANCE;
+    assertThatExceptionOfType(NoSuchElementException.class)
+            .isThrownBy(missing::createSynthesizedAnnotation)
+            .withMessage("Unable to synthesize missing annotation");
   }
 
   private static ThrowableTypeAssert<NoSuchElementException> assertThatNoSuchElementException() {

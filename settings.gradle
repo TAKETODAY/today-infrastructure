@@ -59,10 +59,4 @@ file("${rootDir}/infra-build").eachDirMatch(~/infra-.*/) {
   include "infra-build:${it.name}"
 }
 
-rootProject.children.findAll {
-  it.name.startsWith("today-") && !it.name.startsWith("today-starter")
-}.each {
-  it.buildFileName = "${it.name}.gradle"
-}
-
 

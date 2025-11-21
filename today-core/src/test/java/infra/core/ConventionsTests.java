@@ -36,6 +36,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
@@ -175,6 +176,212 @@ class ConventionsTests {
     List<TestObject> value = Collections.singletonList(new TestObject());
     assertThat(Conventions.getVariableNameForReturnType(method, value))
             .isEqualTo("testObjectList");
+  }
+
+  @Test
+  void getVariableNameForObjectArray() {
+    TestObject[] array = new TestObject[0];
+    assertThat(Conventions.getVariableName(array)).isEqualTo("testObjectList");
+  }
+
+  @Test
+  void getVariableNameForPrimitiveArray() {
+    int[] array = new int[0];
+    assertThat(Conventions.getVariableName(array)).isEqualTo("intList");
+  }
+
+  @Test
+  void getVariableNameForProxyObject() {
+    Runnable proxy = (Runnable) Proxy.newProxyInstance(
+            getClass().getClassLoader(),
+            new Class<?>[] { Runnable.class },
+            (proxy1, method, args) -> null);
+
+    assertThat(Conventions.getVariableName(proxy)).isEqualTo("runnable");
+  }
+
+  @Test
+  void getVariableNameForInnerClass() {
+    ConventionsTests.InnerTestClass inner = new ConventionsTests.InnerTestClass();
+    assertThat(Conventions.getVariableName(inner)).isEqualTo("innerTestClass");
+  }
+
+  @Test
+  void getVariableNameForAnonymousClass() {
+    Object anonymous = new Object() { };
+    assertThat(Conventions.getVariableName(anonymous)).isEqualTo("object");
+  }
+
+  @Test
+  void getVariableNameForTypedCollection() {
+    List<String> typedList = Collections.singletonList("test");
+    assertThat(Conventions.getVariableName(typedList)).isEqualTo("stringList");
+  }
+
+  @Test
+  void getVariableNameForUntypedCollectionWithNonNullElements() {
+    List<Object> untypedList = Collections.singletonList("test");
+    assertThat(Conventions.getVariableName(untypedList)).isEqualTo("stringList");
+  }
+
+  @Test
+  void getVariableNameForParameterWithReactiveTypes() {
+    Parameter monoParam = getMethodParameter(Mono.class);
+    Parameter fluxParam = getMethodParameter(Flux.class);
+    Parameter singleParam = getMethodParameter(Single.class);
+    Parameter observableParam = getMethodParameter(Observable.class);
+
+    assertThat(Conventions.getVariableNameForParameter(monoParam)).isEqualTo("testObjectMono");
+    assertThat(Conventions.getVariableNameForParameter(fluxParam)).isEqualTo("testObjectFlux");
+    assertThat(Conventions.getVariableNameForParameter(singleParam)).isEqualTo("testObjectSingle");
+    assertThat(Conventions.getVariableNameForParameter(observableParam)).isEqualTo("testObjectObservable");
+  }
+
+  @Test
+  void getVariableNameForParameterWithArrayType() {
+    Parameter arrayParam = Arrays.stream(TestBean.class.getDeclaredMethods())
+            .filter(m -> m.getName().equals("handle"))
+            .findFirst()
+            .map(m -> m.getParameters()[0])
+            .orElseThrow();
+
+    assertThat(Conventions.getVariableNameForParameter(arrayParam)).isEqualTo("testObject");
+  }
+
+  @Test
+  void getVariableNameForParameterWithCollectionType() {
+    Parameter listParam = getMethodParameter(List.class);
+    assertThat(Conventions.getVariableNameForParameter(listParam)).isEqualTo("testObjectList");
+  }
+
+  @Test
+  void getVariableNameForReturnTypeWithReactiveTypes() {
+    Method monoMethod = getMethodForReturnType(Mono.class);
+    Method fluxMethod = getMethodForReturnType(Flux.class);
+    Method singleMethod = getMethodForReturnType(Single.class);
+    Method observableMethod = getMethodForReturnType(Observable.class);
+
+    assertThat(Conventions.getVariableNameForReturnType(monoMethod)).isEqualTo("testObjectMono");
+    assertThat(Conventions.getVariableNameForReturnType(fluxMethod)).isEqualTo("testObjectFlux");
+    assertThat(Conventions.getVariableNameForReturnType(singleMethod)).isEqualTo("testObjectSingle");
+    assertThat(Conventions.getVariableNameForReturnType(observableMethod)).isEqualTo("testObjectObservable");
+  }
+
+  @Test
+  void getVariableNameForReturnTypeWithCollectionType() {
+    Method listMethod = getMethodForReturnType(List.class);
+    assertThat(Conventions.getVariableNameForReturnType(listMethod)).isEqualTo("testObjectList");
+  }
+
+  @Test
+  void attributeNameToPropertyNameWithoutHyphens() {
+    assertThat(Conventions.attributeNameToPropertyName("simple")).isEqualTo("simple");
+  }
+
+  @Test
+  void attributeNameToPropertyNameWithMultipleHyphens() {
+    assertThat(Conventions.attributeNameToPropertyName("multi-word-name")).isEqualTo("multiWordName");
+  }
+
+  @Test
+  void attributeNameToPropertyNameWithLeadingHyphen() {
+    assertThat(Conventions.attributeNameToPropertyName("-name")).isEqualTo("Name");
+  }
+
+  @Test
+  void attributeNameToPropertyNameWithTrailingHyphen() {
+    assertThat(Conventions.attributeNameToPropertyName("name-")).isEqualTo("name");
+  }
+
+  @Test
+  void getQualifiedAttributeNameWithNestedClass() {
+    String result = Conventions.getQualifiedAttributeName(InnerTestClass.class, "field");
+    assertThat(result).isEqualTo("infra.core.ConventionsTests$InnerTestClass.field");
+  }
+
+  @Test
+  void getVariableNameForParameterWithMethodParameter() throws Exception {
+    Method method = TestBean.class.getDeclaredMethod("handle", TestObject.class, List.class, Set.class,
+            Mono.class, Flux.class, Single.class, Observable.class);
+    MethodParameter methodParameter = new MethodParameter(method, 0);
+
+    assertThat(Conventions.getVariableNameForParameter(methodParameter)).isEqualTo("testObject");
+  }
+
+  @Test
+  void getVariableNameForParameterWithMethodParameterForList() throws Exception {
+    Method method = TestBean.class.getDeclaredMethod("handle", TestObject.class, List.class, Set.class,
+            Mono.class, Flux.class, Single.class, Observable.class);
+    MethodParameter methodParameter = new MethodParameter(method, 1);
+
+    assertThat(Conventions.getVariableNameForParameter(methodParameter)).isEqualTo("testObjectList");
+  }
+
+  @Test
+  void getVariableNameForParameterWithMethodParameterForReactiveTypes() throws Exception {
+    Method method = TestBean.class.getDeclaredMethod("handle", TestObject.class, List.class, Set.class,
+            Mono.class, Flux.class, Single.class, Observable.class);
+
+    MethodParameter monoParam = new MethodParameter(method, 3);
+    MethodParameter fluxParam = new MethodParameter(method, 4);
+    MethodParameter singleParam = new MethodParameter(method, 5);
+    MethodParameter observableParam = new MethodParameter(method, 6);
+
+    assertThat(Conventions.getVariableNameForParameter(monoParam)).isEqualTo("testObjectMono");
+    assertThat(Conventions.getVariableNameForParameter(fluxParam)).isEqualTo("testObjectFlux");
+    assertThat(Conventions.getVariableNameForParameter(singleParam)).isEqualTo("testObjectSingle");
+    assertThat(Conventions.getVariableNameForParameter(observableParam)).isEqualTo("testObjectObservable");
+  }
+
+  @Test
+  void getVariableNameForReturnTypeWithUntypedCollectionAndNonNullValue() throws Exception {
+    Method method = TestBean.class.getMethod("handleToList");
+    List<TestObject> value = Collections.singletonList(new TestObject());
+    assertThat(Conventions.getVariableNameForReturnType(method, value)).isEqualTo("testObjectList");
+  }
+
+  @Test
+  void attributeNameToPropertyNameWithSingleCharacter() {
+    assertThat(Conventions.attributeNameToPropertyName("a")).isEqualTo("a");
+  }
+
+  @Test
+  void attributeNameToPropertyNameWithConsecutiveHyphens() {
+    assertThat(Conventions.attributeNameToPropertyName("a--b")).isEqualTo("aB");
+  }
+
+  @Test
+  void attributeNameToPropertyNameWithOnlyHyphens() {
+    assertThat(Conventions.attributeNameToPropertyName("--")).isEqualTo("");
+  }
+
+  @Test
+  void getQualifiedAttributeNameWithPrimitiveType() {
+    String result = Conventions.getQualifiedAttributeName(int.class, "value");
+    assertThat(result).isEqualTo("int.value");
+  }
+
+  @Test
+  void getClassForValueWithSpecialSubclass() {
+    // Creating a special subclass simulating the behavior described in the method comments
+    class SpecialSubclass extends TestObject {
+      // This nested class has $ in its name but no declaring class
+    }
+
+    SpecialSubclass instance = new SpecialSubclass();
+    String className = instance.getClass().getName();
+    // Verify our assumption about the class name
+    assertThat(className).contains("$");
+    assertThat(instance.getClass().getDeclaringClass()).isNull();
+
+    // We can't easily test the exact logic without mocking or complex reflection,
+    // but we can at least verify the method doesn't throw
+    assertThatCode(() -> {
+      // Access private method via reflection
+      java.lang.reflect.Method method = Conventions.class.getDeclaredMethod("getClassForValue", Object.class);
+      method.setAccessible(true);
+      method.invoke(null, instance);
+    }).doesNotThrowAnyException();
   }
 
   private static class InnerTestClass {

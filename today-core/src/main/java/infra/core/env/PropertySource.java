@@ -222,7 +222,7 @@ public abstract class PropertySource<T> {
    */
   static class ComparisonPropertySource extends StubPropertySource {
 
-    private static final String USAGE_ERROR =
+      static final String USAGE_ERROR =
             "ComparisonPropertySource instances are for use with collection comparison only";
 
     public ComparisonPropertySource(String name) {

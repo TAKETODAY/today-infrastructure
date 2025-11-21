@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ import java.util.Set;
 import infra.util.ObjectUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Harry Yang 2021/10/11 14:54
@@ -129,6 +130,148 @@ class ToStringBuilderTests {
             .append("myMethod", this.getClass().getDeclaredMethod("appendMethod")).toString();
     assertThat(str).isEqualTo(("[ToStringBuilderTests@" + ObjectUtils.getIdentityHexString(this) +
             " myMethod = appendMethod@ToStringBuilderTests]"));
+  }
+
+  @Test
+  void constructorWithObjectCreatesBuilder() {
+    Object obj = new Object();
+    ToStringBuilder builder = new ToStringBuilder(obj);
+    assertThat(builder).isNotNull();
+    assertThat(builder.toString()).contains(obj.getClass().getSimpleName());
+  }
+
+  @Test
+  void constructorWithObjectAndValueStylerCreatesBuilder() {
+    Object obj = new Object();
+    ValueStyler styler = new DefaultValueStyler();
+    ToStringBuilder builder = new ToStringBuilder(obj, styler);
+    assertThat(builder).isNotNull();
+    assertThat(builder.toString()).contains(obj.getClass().getSimpleName());
+  }
+
+  @Test
+  void constructorWithObjectAndToStringStylerCreatesBuilder() {
+    Object obj = new Object();
+    ToStringStyler styler = new DefaultToStringStyler(new DefaultValueStyler());
+    ToStringBuilder builder = new ToStringBuilder(obj, styler);
+    assertThat(builder).isNotNull();
+    assertThat(builder.toString()).contains(obj.getClass().getSimpleName());
+  }
+
+  @Test
+  void appendByteFieldValue() {
+    ToStringBuilder builder = new ToStringBuilder(this);
+    builder.append("byteField", (byte) 42);
+    String result = builder.toString();
+    assertThat(result).contains("byteField = 42");
+  }
+
+  @Test
+  void appendShortFieldValue() {
+    ToStringBuilder builder = new ToStringBuilder(this);
+    builder.append("shortField", (short) 1000);
+    String result = builder.toString();
+    assertThat(result).contains("shortField = 1000");
+  }
+
+  @Test
+  void appendIntFieldValue() {
+    ToStringBuilder builder = new ToStringBuilder(this);
+    builder.append("intField", 12345);
+    String result = builder.toString();
+    assertThat(result).contains("intField = 12345");
+  }
+
+  @Test
+  void appendLongFieldValue() {
+    ToStringBuilder builder = new ToStringBuilder(this);
+    builder.append("longField", 123456789L);
+    String result = builder.toString();
+    assertThat(result).contains("longField = 123456789");
+  }
+
+  @Test
+  void appendFloatFieldValue() {
+    ToStringBuilder builder = new ToStringBuilder(this);
+    builder.append("floatField", 3.14f);
+    String result = builder.toString();
+    assertThat(result).contains("floatField = 3.14");
+  }
+
+  @Test
+  void appendDoubleFieldValue() {
+    ToStringBuilder builder = new ToStringBuilder(this);
+    builder.append("doubleField", 3.14159);
+    String result = builder.toString();
+    assertThat(result).contains("doubleField = 3.14159");
+  }
+
+  @Test
+  void appendBooleanFieldValue() {
+    ToStringBuilder builder = new ToStringBuilder(this);
+    builder.append("booleanField", true);
+    String result = builder.toString();
+    assertThat(result).contains("booleanField = true");
+  }
+
+  @Test
+  void appendMultipleFields() {
+    ToStringBuilder builder = new ToStringBuilder(this);
+    builder.append("field1", "value1").append("field2", "value2");
+    String result = builder.toString();
+    assertThat(result).contains("field1 = 'value1'");
+    assertThat(result).contains("field2 = 'value2'");
+  }
+
+  @Test
+  void appendObjectValue() {
+    ToStringBuilder builder = new ToStringBuilder(this);
+    Object obj = new Object() {
+      @Override
+      public String toString() {
+        return "testObject";
+      }
+    };
+    builder.append("objectField", obj);
+    String result = builder.toString();
+    assertThat(result).contains("objectField = testObject");
+  }
+
+  @Test
+  void appendNullValue() {
+    ToStringBuilder builder = new ToStringBuilder(this);
+    builder.append("nullField", null);
+    String result = builder.toString();
+    assertThat(result).contains("nullField = [null]");
+  }
+
+  @Test
+  void appendValueWithoutFieldName() {
+    ToStringBuilder builder = new ToStringBuilder(this);
+    Object obj = new Object() {
+      @Override
+      public String toString() {
+        return "standaloneValue";
+      }
+    };
+    builder.append(obj);
+    String result = builder.toString();
+    assertThat(result).contains("standaloneValue");
+  }
+
+  @Test
+  void forInstanceCreatesBuilder() {
+    Object obj = new Object();
+    ToStringBuilder builder = ToStringBuilder.forInstance(obj);
+    assertThat(builder).isNotNull();
+    assertThat(builder.toString()).contains(obj.getClass().getSimpleName());
+  }
+
+  @Test
+  void constructorWithNullObjectThrowsException() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> new ToStringBuilder(null))
+            .withMessageContaining("The object to be styled is required");
   }
 
   public static class SomeObject {

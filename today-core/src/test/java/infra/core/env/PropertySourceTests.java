@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Unit tests for {@link PropertySource} implementations.
@@ -97,6 +98,21 @@ class PropertySourceTests {
     assertThat(propertySources.indexOf(PropertySource.named("ps1"))).isEqualTo(0);
     assertThat(propertySources.indexOf(PropertySource.named("ps2"))).isEqualTo(1);
     propertySources.clear();
+  }
+
+  @Test
+  void comparisonPropertySource() {
+    PropertySource<?> name = PropertySource.named("name");
+
+    assertThatThrownBy(name::getSource).isInstanceOf(UnsupportedOperationException.class)
+            .hasMessage(PropertySource.ComparisonPropertySource.USAGE_ERROR);
+
+    assertThatThrownBy(() -> name.getProperty("")).isInstanceOf(UnsupportedOperationException.class)
+            .hasMessage(PropertySource.ComparisonPropertySource.USAGE_ERROR);
+
+    assertThatThrownBy(() -> name.containsProperty("")).isInstanceOf(UnsupportedOperationException.class)
+            .hasMessage(PropertySource.ComparisonPropertySource.USAGE_ERROR);
+
   }
 
 }
