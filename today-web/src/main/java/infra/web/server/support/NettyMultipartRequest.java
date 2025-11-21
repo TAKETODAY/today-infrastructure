@@ -47,10 +47,10 @@ final class NettyMultipartRequest extends AbstractMultipartRequest {
   @Nullable
   @Override
   public HttpHeaders getMultipartHeaders(String paramOrFileName) {
-    List<InterfaceHttpData> bodyHttpDatas = context.requestDecoder().getBodyHttpDatas(paramOrFileName);
-    if (bodyHttpDatas != null) {
+    List<InterfaceHttpData> bodyHttpList = context.requestDecoder().getBodyHttpDatas(paramOrFileName);
+    if (bodyHttpList != null) {
       HttpHeaders headers = HttpHeaders.forWritable();
-      for (InterfaceHttpData bodyHttpData : bodyHttpDatas) {
+      for (InterfaceHttpData bodyHttpData : bodyHttpList) {
         if (bodyHttpData instanceof FileUpload httpData) {
           String contentType = httpData.getContentType();
           headers.setOrRemove(HttpHeaders.CONTENT_TYPE, contentType);
