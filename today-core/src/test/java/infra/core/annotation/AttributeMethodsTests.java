@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -140,6 +142,149 @@ class AttributeMethodsTests {
     given(annotation.value()).willReturn((Class) InputStream.class);
     AttributeMethods attributes = AttributeMethods.forAnnotationType(annotation.annotationType());
     attributes.validate(annotation);
+  }
+
+  @Test
+  void forAnnotationTypeReturnsCachedInstance() {
+    AttributeMethods methods1 = AttributeMethods.forAnnotationType(MultipleAttributes.class);
+    AttributeMethods methods2 = AttributeMethods.forAnnotationType(MultipleAttributes.class);
+    assertThat(methods1).isSameAs(methods2);
+  }
+
+  @Test
+  void getMethodByNameReturnsCorrectMethod() {
+    AttributeMethods methods = AttributeMethods.forAnnotationType(MultipleAttributes.class);
+    Method method = methods.get("intValue");
+    assertThat(method).isNotNull();
+    assertThat(method.getName()).isEqualTo("intValue");
+  }
+
+  @Test
+  void getMethodByIndexReturnsCorrectMethod() {
+    AttributeMethods methods = AttributeMethods.forAnnotationType(MultipleAttributes.class);
+    Method method = methods.get(0);
+    assertThat(method.getName()).isEqualTo("intValue");
+  }
+
+  @Test
+  void getMethodByInvalidNameReturnsNull() {
+    AttributeMethods methods = AttributeMethods.forAnnotationType(MultipleAttributes.class);
+    Method method = methods.get("nonexistent");
+    assertThat(method).isNull();
+  }
+
+  @Test
+  void indexOfInvalidNameReturnsNegativeOne() {
+    AttributeMethods methods = AttributeMethods.forAnnotationType(MultipleAttributes.class);
+    int index = methods.indexOf("nonexistent");
+    assertThat(index).isEqualTo(-1);
+  }
+
+  @Test
+  void indexOfInvalidMethodReturnsNegativeOne() throws Exception {
+    AttributeMethods methods = AttributeMethods.forAnnotationType(MultipleAttributes.class);
+    Method invalidMethod = String.class.getDeclaredMethod("toString");
+    int index = methods.indexOf(invalidMethod);
+    assertThat(index).isEqualTo(-1);
+  }
+
+  @Test
+  void sizeReturnsCorrectSize() {
+    AttributeMethods methods = AttributeMethods.forAnnotationType(MultipleAttributes.class);
+    assertThat(methods.size()).isEqualTo(2);
+
+    AttributeMethods noAttrMethods = AttributeMethods.forAnnotationType(NoAttributes.class);
+    assertThat(noAttrMethods.size()).isEqualTo(0);
+  }
+
+  @Test
+  void canThrowTypeNotPresentExceptionReturnsFalseForSimpleTypes() {
+    AttributeMethods methods = AttributeMethods.forAnnotationType(ValueOnly.class);
+    assertThat(methods.canThrowTypeNotPresentException(0)).isFalse();
+  }
+
+  @Test
+  void canThrowTypeNotPresentExceptionReturnsTrueForEnum() {
+    AttributeMethods methods = AttributeMethods.forAnnotationType(EnumValue.class);
+    assertThat(methods.canThrowTypeNotPresentException(0)).isTrue();
+  }
+
+  @Test
+  void hasNestedAnnotationReturnsTrueWhenHasNestedAnnotation() {
+    AttributeMethods methods = AttributeMethods.forAnnotationType(NestedAnnotation.class);
+    assertThat(methods.hasNestedAnnotation).isTrue();
+  }
+
+  @Test
+  void hasNestedAnnotationReturnsFalseWhenNoNestedAnnotation() {
+    AttributeMethods methods = AttributeMethods.forAnnotationType(ValueOnly.class);
+    assertThat(methods.hasNestedAnnotation).isFalse();
+  }
+
+  @Test
+  void hasDefaultValueMethodReturnsFalseWhenNoDefaultValues() {
+    AttributeMethods methods = AttributeMethods.forAnnotationType(MultipleAttributes.class);
+    assertThat(methods.hasDefaultValueMethod).isFalse();
+  }
+
+  @Test
+  void hasDefaultValueMethodReturnsTrueWhenHasDefaultValues() {
+    AttributeMethods methods = AttributeMethods.forAnnotationType(DefaultValueAttribute.class);
+    assertThat(methods.hasDefaultValueMethod).isTrue();
+  }
+
+  @Test
+  void validateDoesNotThrowForValidAnnotation() {
+    ValueOnly annotation = mock(ValueOnly.class);
+    given(annotation.annotationType()).willReturn((Class) ValueOnly.class);
+    given(annotation.value()).willReturn("test");
+
+    AttributeMethods methods = AttributeMethods.forAnnotationType(ValueOnly.class);
+    assertThatCode(() -> methods.validate(annotation)).doesNotThrowAnyException();
+  }
+
+  @Test
+  void describeMethodReturnsCorrectDescription() throws Exception {
+    Method method = MultipleAttributes.class.getDeclaredMethod("intValue");
+    String description = AttributeMethods.describe(method);
+    assertThat(description).isEqualTo("attribute 'intValue' in annotation [infra.core.annotation.AttributeMethodsTests$MultipleAttributes]");
+  }
+
+  @Test
+  void describeWithNullMethodReturnsNone() {
+    String description = AttributeMethods.describe((Method) null);
+    assertThat(description).isEqualTo("(none)");
+  }
+
+  @Test
+  void describeWithNullAttributeNameReturnsNone() {
+    String description = AttributeMethods.describe(MultipleAttributes.class, null);
+    assertThat(description).isEqualTo("(none)");
+  }
+
+  @Test
+  void getNameReturnsCanonicalNameWhenAvailable() {
+    String name = AttributeMethods.getName(MultipleAttributes.class);
+    assertThat(name).isEqualTo("infra.core.annotation.AttributeMethodsTests.MultipleAttributes");
+  }
+
+  @Test
+  void getMethodByIndexThrowsIndexOutOfBoundsExceptionForInvalidIndex() {
+    AttributeMethods methods = AttributeMethods.forAnnotationType(MultipleAttributes.class);
+    assertThatThrownBy(() -> methods.get(-1))
+            .isInstanceOf(IndexOutOfBoundsException.class);
+    assertThatThrownBy(() -> methods.get(methods.size()))
+            .isInstanceOf(IndexOutOfBoundsException.class);
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface EnumValue {
+    RetentionPolicy value();
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface NestedAnnotation {
+    ValueOnly value();
   }
 
   private List<Method> getAll(AttributeMethods attributes) {

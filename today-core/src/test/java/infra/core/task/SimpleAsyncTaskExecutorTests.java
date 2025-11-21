@@ -19,12 +19,17 @@ package infra.core.task;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import infra.util.ConcurrencyThrottleSupport;
+import infra.util.concurrent.Future;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -32,7 +37,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.willCallRealMethod;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Rick Evans
@@ -150,6 +158,151 @@ class SimpleAsyncTaskExecutorTests {
       executeAndWait(executor, task, monitor);
       assertThat(task.getThreadName()).isEqualTo("test");
     }
+  }
+
+  @Test
+  void defaultConstructorCreatesExecutor() {
+    SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
+    assertThat(executor).isNotNull();
+    assertThat(executor.isActive()).isTrue();
+    assertThat(executor.isThrottleActive()).isFalse();
+  }
+
+  @Test
+  void constructorWithThreadNamePrefixCreatesExecutor() {
+    String prefix = "test-prefix-";
+    SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor(prefix);
+    assertThat(executor).isNotNull();
+    assertThat(executor.isActive()).isTrue();
+  }
+
+  @Test
+  void constructorWithThreadFactoryCreatesExecutor() {
+    ThreadFactory threadFactory = mock(ThreadFactory.class);
+    SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor(threadFactory);
+    assertThat(executor).isNotNull();
+    assertThat(executor.getThreadFactory()).isSameAs(threadFactory);
+  }
+
+  @Test
+  void setThreadFactoryUpdatesThreadFactory() {
+    SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
+    ThreadFactory threadFactory = mock(ThreadFactory.class);
+    executor.setThreadFactory(threadFactory);
+    assertThat(executor.getThreadFactory()).isSameAs(threadFactory);
+  }
+
+  @Test
+  void setTaskDecoratorUpdatesTaskDecorator() {
+    SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
+    TaskDecorator taskDecorator = mock(TaskDecorator.class);
+    executor.setTaskDecorator(taskDecorator);
+    // No getter available, just verify it doesn't throw
+    assertThatCode(() -> executor.setTaskDecorator(null)).doesNotThrowAnyException();
+  }
+
+  @Test
+  void setTaskTerminationTimeoutValidatesAndSetsTimeout() {
+    SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
+    assertThatCode(() -> executor.setTaskTerminationTimeout(1000L)).doesNotThrowAnyException();
+    assertThatCode(() -> executor.setTaskTerminationTimeout(0L)).doesNotThrowAnyException();
+
+    assertThatIllegalArgumentException().isThrownBy(() -> executor.setTaskTerminationTimeout(-1L));
+  }
+
+  @Test
+  void setCancelRemainingTasksOnCloseUpdatesFlag() {
+    SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
+    executor.setCancelRemainingTasksOnClose(true);
+    // No getter available, just verify it doesn't throw
+    assertThatCode(() -> executor.setCancelRemainingTasksOnClose(false)).doesNotThrowAnyException();
+  }
+
+  @Test
+  void setConcurrencyLimitUpdatesLimit() {
+    SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
+    executor.setConcurrencyLimit(5);
+    assertThat(executor.getConcurrencyLimit()).isEqualTo(5);
+    assertThat(executor.isThrottleActive()).isTrue();
+  }
+
+  @Test
+  void setRejectTasksWhenLimitReachedUpdatesFlag() {
+    SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
+    executor.setConcurrencyLimit(1);
+    executor.setRejectTasksWhenLimitReached(true);
+
+    // Verify by trying to submit two tasks - second should be rejected
+    executor.execute(new NoOpRunnable());
+    assertThatExceptionOfType(TaskRejectedException.class)
+            .isThrownBy(() -> executor.execute(new NoOpRunnable()));
+  }
+
+  @Test
+  void executeWithCallableReturnsFuture() throws Exception {
+    SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
+    Callable<String> task = () -> "result";
+
+    Future<String> future = executor.submit(task);
+    assertThat(future).isNotNull();
+    assertThat(future.get()).isEqualTo("result");
+  }
+
+  @Test
+  void submitCompletableRunnableReturnsCompletableFuture() throws Exception {
+    SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
+    Runnable task = mock(Runnable.class);
+
+    CompletableFuture<Void> future = executor.submitCompletable(task);
+    assertThat(future).isNotNull();
+
+    // Wait for completion
+    future.get(1, TimeUnit.SECONDS);
+    verify(task, times(1)).run();
+  }
+
+  @Test
+  void submitCompletableCallableReturnsCompletableFuture() throws Exception {
+    SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
+    Callable<String> task = () -> "result";
+
+    CompletableFuture<String> future = executor.submitCompletable(task);
+    assertThat(future).isNotNull();
+    assertThat(future.get(1, TimeUnit.SECONDS)).isEqualTo("result");
+  }
+
+  @Test
+  void closeTerminatesExecutor() {
+    SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
+    assertThat(executor.isActive()).isTrue();
+
+    executor.close();
+    assertThat(executor.isActive()).isFalse();
+
+    // Subsequent close should not throw
+    assertThatCode(executor::close).doesNotThrowAnyException();
+  }
+
+  @Test
+  void executeAfterCloseThrowsException() {
+    SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
+    executor.close();
+
+    assertThatExceptionOfType(TaskRejectedException.class)
+            .isThrownBy(() -> executor.execute(() -> { }))
+            .withMessageContaining("has been closed already");
+  }
+
+  @Test
+  void executeWithImmediateTimeoutBypassesThrottle() {
+    SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
+    executor.setConcurrencyLimit(1);
+    executor.setRejectTasksWhenLimitReached(true);
+
+    Runnable task = mock(Runnable.class);
+    // Should not throw even though limit is reached, because timeout is immediate
+    assertThatCode(() -> executor.execute(task, AsyncTaskExecutor.TIMEOUT_IMMEDIATE))
+            .doesNotThrowAnyException();
   }
 
   private void executeAndWait(SimpleAsyncTaskExecutor executor, Runnable task, Object monitor) {

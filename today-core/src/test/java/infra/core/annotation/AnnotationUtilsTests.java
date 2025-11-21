@@ -60,6 +60,7 @@ import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
@@ -950,6 +951,42 @@ class AnnotationUtilsTests {
     assertThat(getAnnotation(SubclassOfDeprecatedClass.class, Deprecated.class)).isNull();
     assertThat(findAnnotation(DeprecatedClass.class, Deprecated.class)).isNotNull();
     assertThat(findAnnotation(SubclassOfDeprecatedClass.class, Deprecated.class)).isNotNull();
+  }
+
+  @Test
+  void handleIntrospectionFailureWithAnnotationConfigurationException() {
+    AnnotationConfigurationException exception = new AnnotationConfigurationException("Test exception");
+    assertThatExceptionOfType(AnnotationConfigurationException.class)
+            .isThrownBy(() -> AnnotationUtils.handleIntrospectionFailure(null, exception))
+            .withMessage("Test exception");
+  }
+
+  @Test
+  void handleIntrospectionFailureWithRegularException() {
+    Exception exception = new RuntimeException("Test exception");
+    // Should not throw an exception, just log it
+    assertThatCode(() -> AnnotationUtils.handleIntrospectionFailure(null, exception))
+            .doesNotThrowAnyException();
+  }
+
+  @Test
+  void handleIntrospectionFailureWithMetaAnnotation() {
+    Exception exception = new RuntimeException("Test exception");
+    // Should not throw an exception, just log it
+    assertThatCode(() -> AnnotationUtils.handleIntrospectionFailure(TestAnnotation.class, exception))
+            .doesNotThrowAnyException();
+  }
+
+  @Test
+  void handleIntrospectionFailureWithClassElement() {
+    Exception exception = new RuntimeException("Test exception");
+    // Should not throw an exception, just log it
+    assertThatCode(() -> AnnotationUtils.handleIntrospectionFailure(String.class, exception))
+            .doesNotThrowAnyException();
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface TestAnnotation {
   }
 
   @SafeVarargs

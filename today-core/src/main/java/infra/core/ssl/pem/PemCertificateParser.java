@@ -51,7 +51,8 @@ final class PemCertificateParser {
 
   private static final Pattern PATTERN = Pattern.compile(HEADER + BASE64_TEXT + FOOTER, Pattern.CASE_INSENSITIVE);
 
-  private PemCertificateParser() { }
+  private PemCertificateParser() {
+  }
 
   /**
    * Parse certificates from the specified string.

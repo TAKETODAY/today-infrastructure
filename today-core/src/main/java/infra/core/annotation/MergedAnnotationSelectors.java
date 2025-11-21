@@ -33,6 +33,7 @@ import java.util.function.Predicate;
 public abstract class MergedAnnotationSelectors {
 
   private static final MergedAnnotationSelector<?> NEAREST = new Nearest();
+
   private static final MergedAnnotationSelector<?> FIRST_DIRECTLY_DECLARED = new FirstDirectlyDeclared();
 
   /**

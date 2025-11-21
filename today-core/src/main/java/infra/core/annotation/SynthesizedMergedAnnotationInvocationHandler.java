@@ -240,7 +240,7 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
    *
    * @param array the array to clone
    */
-  private static Object cloneArray(Object array) {
+  static Object cloneArray(Object array) {
     if (array instanceof boolean[]) {
       return ((boolean[]) array).clone();
     }
