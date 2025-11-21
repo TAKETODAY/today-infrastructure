@@ -20,6 +20,7 @@ package infra.core.style;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -114,7 +115,7 @@ class DefaultValueStylerTests {
   @Test
   void styleSetWithElements() {
     DefaultValueStyler styler = new DefaultValueStyler();
-    Set<String> set = Set.of("a", "b", "c");
+    Set<String> set = new LinkedHashSet<>(List.of("a", "b", "c"));
     String result = styler.style(set);
     assertThat(result).isEqualTo("set['a', 'b', 'c']");
   }
@@ -161,7 +162,5 @@ class DefaultValueStylerTests {
     String result = styler.style(true);
     assertThat(result).isEqualTo("true");
   }
-
-  
 
 }
