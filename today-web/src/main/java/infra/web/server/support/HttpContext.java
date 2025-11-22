@@ -20,9 +20,6 @@ package infra.web.server.support;
 import org.jspecify.annotations.Nullable;
 
 import infra.context.ApplicationContext;
-import infra.http.HttpMethod;
-import infra.http.MediaType;
-import infra.util.StringUtils;
 import infra.util.concurrent.Awaiter;
 import infra.web.DispatcherHandler;
 import infra.web.RequestContextHolder;
@@ -50,8 +47,7 @@ final class HttpContext extends NettyRequestContext implements Runnable {
   @Nullable
   private volatile BodyInputStream requestBody;
 
-  @Nullable
-  private Boolean formURLEncoded;
+  private volatile boolean readCompleted;
 
   @Nullable
   private InterfaceHttpPostRequestDecoder requestDecoder;
@@ -73,8 +69,8 @@ final class HttpContext extends NettyRequestContext implements Runnable {
 
   public void onDataReceived(HttpContent httpContent) {
     long currentBytes = receivedBytes;
-    int bufferSize = httpContent.content().readableBytes();
-    if (currentBytes + bufferSize > config.maxContentLength) {
+    int chunkSize = httpContent.content().readableBytes();
+    if (currentBytes + chunkSize > config.maxContentLength) {
       httpContent.release();
       BodyInputStream requestBody = this.requestBody;
       if (requestBody != null) {
@@ -83,24 +79,26 @@ final class HttpContext extends NettyRequestContext implements Runnable {
       return;
     }
 
-    receivedBytes += bufferSize;
+    receivedBytes += chunkSize;
 
-    if (isMultipart() || isFormURLEncoded()) {
+    if (isMultipart()) {
       requestDecoderInternal().offer(httpContent);
       if (httpContent instanceof LastHttpContent) {
+        readCompleted = true;
         awaiter.resume();
       }
     }
     else {
       if (httpContent instanceof LastHttpContent) {
+        readCompleted = true;
         BodyInputStream inputStream = this.requestBody;
         if (inputStream != null) {
-          if (bufferSize > 0) {
+          if (chunkSize > 0) {
             inputStream.onDataReceived(httpContent.content());
           }
           inputStream.onComplete();
         }
-        else if (bufferSize > 0) {
+        else if (chunkSize > 0) {
           inputStream = requestBody();
           inputStream.onDataReceived(httpContent.content());
           inputStream.onComplete();
@@ -136,16 +134,6 @@ final class HttpContext extends NettyRequestContext implements Runnable {
     return requestBody();
   }
 
-  @Override
-  protected boolean isFormURLEncoded() {
-    if (formURLEncoded == null) {
-      HttpMethod method = getMethod();
-      formURLEncoded = method != HttpMethod.GET && method != HttpMethod.HEAD
-              && StringUtils.startsWithIgnoreCase(getContentType(), MediaType.APPLICATION_FORM_URLENCODED_VALUE);
-    }
-    return formURLEncoded;
-  }
-
   private InterfaceHttpPostRequestDecoder requestDecoderInternal() {
     InterfaceHttpPostRequestDecoder requestDecoder = this.requestDecoder;
     if (requestDecoder == null) {
@@ -162,7 +150,9 @@ final class HttpContext extends NettyRequestContext implements Runnable {
 
   @Override
   protected InterfaceHttpPostRequestDecoder requestDecoder() {
-    awaiter.await();
+    if (!readCompleted) {
+      awaiter.await();
+    }
     return requestDecoderInternal();
   }
 

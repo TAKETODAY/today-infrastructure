@@ -179,29 +179,6 @@ class HttpContextTests {
     // Stream should be created, data delivered and completed
   }
 
-  @Test
-  void formUrlEncodedDetectionReturnsTrueForValidPostRequest() {
-    // Given
-    Channel channel = mock(Channel.class);
-    HttpRequest request = mock(HttpRequest.class);
-    NettyRequestConfig config = createRequestConfig();
-    ApplicationContext context = mock(ApplicationContext.class);
-    DispatcherHandler dispatcherHandler = mock(DispatcherHandler.class);
-    NettyChannelHandler channelHandler = mock(NettyChannelHandler.class);
-
-    when(request.method()).thenReturn(HttpMethod.POST);
-    when(request.headers()).thenReturn(new DefaultHttpHeaders()
-            .set(HttpHeaderNames.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE + "; charset=UTF-8"));
-
-    HttpContext contextUnderTest = new HttpContext(channel, request, config, context, dispatcherHandler, channelHandler);
-
-    // When
-    boolean result = contextUnderTest.isFormURLEncoded();
-
-    // Then
-    assertThat(result).isTrue();
-  }
-
   private static NettyRequestConfig createRequestConfig() {
     return createConfigBuilder().build();
   }

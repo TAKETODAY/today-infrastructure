@@ -22,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 import infra.http.HttpHeaders;
+import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.web.bind.NotMultipartRequestException;
 import infra.web.multipart.MaxUploadSizeExceededException;
@@ -47,17 +48,9 @@ final class NettyMultipartRequest extends AbstractMultipartRequest {
   @Nullable
   @Override
   public HttpHeaders getMultipartHeaders(String paramOrFileName) {
-    List<InterfaceHttpData> bodyHttpList = context.requestDecoder().getBodyHttpDatas(paramOrFileName);
-    if (bodyHttpList != null) {
-      HttpHeaders headers = HttpHeaders.forWritable();
-      for (InterfaceHttpData bodyHttpData : bodyHttpList) {
-        if (bodyHttpData instanceof FileUpload httpData) {
-          String contentType = httpData.getContentType();
-          headers.setOrRemove(HttpHeaders.CONTENT_TYPE, contentType);
-          break;
-        }
-      }
-      return headers;
+    List<Multipart> multipartData = multipartData(paramOrFileName);
+    if (CollectionUtils.isNotEmpty(multipartData)) {
+      return multipartData.get(0).getHeaders();
     }
     return null;
   }

@@ -78,8 +78,6 @@ import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.CookieHeaderNames;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
-import io.netty.handler.codec.http.multipart.Attribute;
-import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 import io.netty.handler.stream.ChunkedNioFile;
 import io.netty.handler.stream.ChunkedWriteHandler;
@@ -362,22 +360,21 @@ public abstract class NettyRequestContext extends RequestContext {
       parseParameters(parameters, queryString);
     }
 
-    if (isFormURLEncoded()) {
-      for (InterfaceHttpData data : requestDecoder().getBodyHttpDatas()) {
-        if (data instanceof Attribute) {
-          try {
-            parameters.add(data.getName(), ((Attribute) data).getValue());
-          }
-          catch (IOException e) {
-            throw new HttpMessageNotReadableException("'application/x-www-form-urlencoded' content read failed", e, this);
-          }
+    if (getContentLength() > 0 && getMethod() != HttpMethod.GET && getMethod() != HttpMethod.HEAD
+            && StringUtils.startsWithIgnoreCase(getContentType(), MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
+
+      try {
+        String s = new String(getInputStream().readAllBytes(), StandardCharsets.ISO_8859_1);
+        if (StringUtils.isNotEmpty(s)) {
+          parseParameters(parameters, s);
         }
+      }
+      catch (IOException e) {
+        throw new HttpMessageNotReadableException("'application/x-www-form-urlencoded' content read failed", e, this);
       }
     }
     return parameters;
   }
-
-  protected abstract boolean isFormURLEncoded();
 
   /**
    * blocking get InterfaceHttpPostRequestDecoder

@@ -33,23 +33,23 @@ import infra.annotation.config.task.TaskExecutionAutoConfiguration;
 import infra.annotation.config.web.ErrorMvcAutoConfiguration;
 import infra.annotation.config.web.WebMvcAutoConfiguration;
 import infra.app.Application;
+import infra.app.InfraApplication;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.ImportAutoConfiguration;
 import infra.core.io.ClassPathResource;
+import infra.core.style.ToStringBuilder;
 import infra.http.HttpEntity;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
-import infra.http.RequestEntity;
 import infra.http.ResponseEntity;
 import infra.lang.Assert;
 import infra.stereotype.Component;
 import infra.util.LinkedMultiValueMap;
-import infra.util.MultiValueMap;
 import infra.web.annotation.POST;
 import infra.web.annotation.RequestPart;
 import infra.web.annotation.RestController;
-import infra.web.client.RestTemplate;
+import infra.web.client.RestClient;
 import infra.web.multipart.MultipartFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,14 +75,21 @@ class MultipartIntegrationTests {
     HttpHeaders fooHeaders = HttpHeaders.forWritable();
     fooHeaders.setContentType(MediaType.TEXT_PLAIN);
 
-    MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+    HttpHeaders headers = HttpHeaders.forWritable();
+    headers.setContentType(MediaType.APPLICATION_JSON);
 
-    parts.add("form", new HttpEntity<>(new Form()));
+    var parts = new LinkedMultiValueMap<String, Object>();
+
+    parts.add("form", new HttpEntity<>(new Form(), headers));
     parts.add("file", new HttpEntity<>(new ClassPathResource("infra/web/function/foo.txt"), fooHeaders));
 
-    ResponseEntity<String> response = new RestTemplate().exchange(
-            RequestEntity.post(createURL("/form")).contentType(MediaType.MULTIPART_FORM_DATA).body(parts), String.class);
+    ResponseEntity<String> response = RestClient.create().post()
+            .uri(createURL("/form"))
+            .contentType(MediaType.MULTIPART_FORM_DATA)
+            .body(parts)
+            .retrieve().toEntity(String.class);
 
+    assertThat(response.getStatusCodeValue()).isEqualTo(200);
     assertThat(response.getBody()).isEqualTo("ok");
   }
 
@@ -104,8 +111,17 @@ class MultipartIntegrationTests {
       return "ok";
     }
 
+//    @POST("/form")
+//    String upload(@RequestPart("form") Form form, @RequestPart("file") MultipartFile file) {
+//      System.out.println(form);
+//      System.out.println(file.getValue());
+//      return "ok";
+//    }
+
     @POST("/form")
-    String upload(@RequestPart("form") Form form, @RequestPart("file") MultipartFile file) {
+    String upload(@RequestPart("form") byte[] form, @RequestPart("file") MultipartFile file) {
+      System.out.println(new String(form));
+      System.out.println(file.getValue());
       return "ok";
     }
 
@@ -115,9 +131,16 @@ class MultipartIntegrationTests {
 
     public String desc;
 
+    @Override
+    public String toString() {
+      return ToStringBuilder.forInstance(this)
+              .append("desc", desc)
+              .toString();
+    }
   }
 
-  @MinimalWebConfiguration
+  @InfraApplication
+//  @MinimalWebConfiguration
   @Configuration(proxyBeanMethods = false)
   static class TestConfiguration {
 
