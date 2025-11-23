@@ -31,7 +31,6 @@ import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.TooLongHttpContentException;
 import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
-import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 
 final class HttpContext extends NettyRequestContext implements Runnable {
@@ -137,12 +136,7 @@ final class HttpContext extends NettyRequestContext implements Runnable {
   private InterfaceHttpPostRequestDecoder requestDecoderInternal() {
     InterfaceHttpPostRequestDecoder requestDecoder = this.requestDecoder;
     if (requestDecoder == null) {
-      if (isMultipart()) {
-        requestDecoder = new HttpPostMultipartRequestDecoder(config.httpDataFactory, request, config.postRequestDecoderCharset);
-      }
-      else {
-        requestDecoder = new HttpPostStandardRequestDecoder(config.httpDataFactory, request, config.postRequestDecoderCharset);
-      }
+      requestDecoder = new HttpPostMultipartRequestDecoder(config.httpDataFactory, request, config.postRequestDecoderCharset);
       this.requestDecoder = requestDecoder;
     }
     return requestDecoder;
