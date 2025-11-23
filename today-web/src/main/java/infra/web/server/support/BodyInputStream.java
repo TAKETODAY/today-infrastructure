@@ -63,8 +63,12 @@ class BodyInputStream extends InputStream {
   private @Nullable Throwable error;
 
   BodyInputStream(Awaiter awaiter) {
+    this(awaiter, 128);
+  }
+
+  BodyInputStream(Awaiter awaiter, int capacity) {
     this.awaiter = awaiter;
-    this.capacity = 128;
+    this.capacity = capacity;
     this.queue = new ConcurrentLinkedQueue<>();
     this.lock = new ReentrantLock(false);
   }
