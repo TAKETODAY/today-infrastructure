@@ -303,7 +303,7 @@ public abstract class AbstractFuture<V> extends Future<V> {
     // assert state > COMPLETING;
     for (Waiter q; (q = waiters) != null; ) {
       if (WAITERS.weakCompareAndSet(this, q, null)) {
-        while (true) {
+        for (; ; ) {
           Thread t = q.thread;
           if (t != null) {
             q.thread = null;
@@ -339,7 +339,7 @@ public abstract class AbstractFuture<V> extends Future<V> {
     long startTime = 0L;    // Special value 0L means not yet parked
     Waiter q = null;
     boolean queued = false;
-    while (true) {
+    for (; ; ) {
       int s = state;
       if (s > COMPLETING) {
         if (q != null) {
