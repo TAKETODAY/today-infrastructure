@@ -19,8 +19,11 @@ package infra.util.concurrent;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
+
+import infra.lang.TodayStrategies;
 
 /**
  * A simple implementation of {@link Awaiter} that supports only one thread waiting at a time.
@@ -45,6 +48,8 @@ import java.util.concurrent.locks.LockSupport;
  * @since 5.0
  */
 public class SimpleSingleThreadAwaiter implements Awaiter {
+
+  protected static final long threadParkNanos = TodayStrategies.getLong("awaiter.thread.pack-nanos", TimeUnit.SECONDS.toNanos(3));
 
   protected static final Object READY = new Object();
 
@@ -78,7 +83,8 @@ public class SimpleSingleThreadAwaiter implements Awaiter {
       }
 
       if (this.parkedThread.compareAndSet(null, currentThread)) {
-        LockSupport.park();
+        // LockSupport.park() 在极小的情况下会出现永远阻塞的状态
+        LockSupport.parkNanos(threadParkNanos);
         // we don't just break here because park() can wake up spuriously
         // if we got a proper resume, get() == READY and the loop will quit above
       }

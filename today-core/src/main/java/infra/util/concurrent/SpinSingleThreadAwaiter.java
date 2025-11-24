@@ -59,17 +59,17 @@ public class SpinSingleThreadAwaiter extends SimpleSingleThreadAwaiter {
 
   @Override
   public void await() {
-    Thread toUnpark = Thread.currentThread();
+    Thread currentThread = Thread.currentThread();
     int currentSpinCount = calculateSpinCount();
 
-    while (true) {
+    for (; ; ) {
       Object current = this.parkedThread.get();
       if (current == READY) {
         successiveSpins.incrementAndGet();
         break;
       }
 
-      if (current != null && current != toUnpark) {
+      if (current != null && current != currentThread) {
         throw new IllegalStateException("Only one (Virtual)Thread can await!");
       }
 
@@ -85,8 +85,9 @@ public class SpinSingleThreadAwaiter extends SimpleSingleThreadAwaiter {
       // 自旋失败，降低下次自旋次数
       successiveSpins.decrementAndGet();
 
-      if (this.parkedThread.compareAndSet(null, toUnpark)) {
-        LockSupport.park();
+      if (this.parkedThread.compareAndSet(null, currentThread)) {
+        // LockSupport.park() 在极小的情况下会出现永远阻塞的状态
+        LockSupport.parkNanos(threadParkNanos);
       }
     }
 
