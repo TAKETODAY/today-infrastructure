@@ -65,19 +65,19 @@ public class SimpleSingleThreadAwaiter implements Awaiter {
 
   @Override
   public void await() {
-    Thread toUnpark = Thread.currentThread();
+    Thread currentThread = Thread.currentThread();
 
-    while (true) {
+    for (; ; ) {
       Object current = this.parkedThread.get();
       if (current == READY) {
         break;
       }
 
-      if (current != null && current != toUnpark) {
+      if (current != null && current != currentThread) {
         throw new IllegalStateException("Only one (Virtual)Thread can await!");
       }
 
-      if (this.parkedThread.compareAndSet(null, toUnpark)) {
+      if (this.parkedThread.compareAndSet(null, currentThread)) {
         LockSupport.park();
         // we don't just break here because park() can wake up spuriously
         // if we got a proper resume, get() == READY and the loop will quit above
