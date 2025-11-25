@@ -81,15 +81,19 @@ public abstract class RequestThreadLocal {
       threadLocal.remove();
     }
 
-    @Nullable
     @Override
-    public RequestContext get() {
+    public @Nullable RequestContext get() {
       return threadLocal.get();
     }
 
     @Override
     public void set(@Nullable RequestContext context) {
-      threadLocal.set(context);
+      if (context == null) {
+        threadLocal.remove();
+      }
+      else {
+        threadLocal.set(context);
+      }
     }
   }
 
