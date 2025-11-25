@@ -75,14 +75,15 @@ class SimpleSingleThreadAwaiterTests {
   }
 
   @Test
-  void testMultipleThreadsAwait() {
+  void testMultipleThreadsAwait() throws InterruptedException {
     SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter();
     Thread first = new Thread(awaiter::await);
     first.start();
 
-    assertThrows(IllegalStateException.class, () -> {
-      awaiter.await(); // 在主线程中尝试等待应该抛出异常
-    });
+    Thread.sleep(100);
+
+    // 在主线程中尝试等待应该抛出异常
+    assertThrows(IllegalStateException.class, awaiter::await);
 
     awaiter.resume();
   }
