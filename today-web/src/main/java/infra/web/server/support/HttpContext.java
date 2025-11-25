@@ -67,9 +67,9 @@ final class HttpContext extends NettyRequestContext implements Runnable {
   }
 
   public void onDataReceived(HttpContent httpContent) {
-    long currentBytes = receivedBytes;
-    int chunkSize = httpContent.content().readableBytes();
-    if (currentBytes + chunkSize > config.maxContentLength) {
+    final long received = receivedBytes;
+    final int chunkSize = httpContent.content().readableBytes();
+    if (received + chunkSize > config.maxContentLength) {
       httpContent.release();
       BodyInputStream requestBody = this.requestBody;
       if (requestBody != null) {
@@ -78,7 +78,7 @@ final class HttpContext extends NettyRequestContext implements Runnable {
       return;
     }
 
-    receivedBytes += chunkSize;
+    receivedBytes = received + chunkSize;
 
     if (isMultipart()) {
       requestDecoderInternal().offer(httpContent);
