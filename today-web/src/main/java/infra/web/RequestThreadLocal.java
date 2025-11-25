@@ -22,36 +22,56 @@ import org.jspecify.annotations.Nullable;
 import infra.core.NamedThreadLocal;
 import infra.lang.TodayStrategies;
 import infra.lang.VisibleForTesting;
-import infra.util.ClassUtils;
-import io.netty.util.concurrent.FastThreadLocal;
 
 /**
+ * Abstract base class for managing request context in a thread-local manner.
+ * Provides mechanisms to get, set, and remove the current request context.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0 2021/4/1 19:28
  */
 public abstract class RequestThreadLocal {
 
+  /**
+   * Remove the current request context from the thread local storage.
+   */
   public abstract void remove();
 
-  @Nullable
-  public abstract RequestContext get();
+  /**
+   * Get the current request context from the thread local storage.
+   *
+   * @return the current request context, or {@code null} if none is bound
+   */
+  public abstract @Nullable RequestContext get();
 
+  /**
+   * Set the current request context in the thread local storage.
+   *
+   * @param context the request context to bind, or {@code null} to clear
+   */
   public abstract void set(@Nullable RequestContext context);
 
   /**
-   * Static factory method
+   * Static factory method to lookup and create an appropriate RequestThreadLocal instance.
+   * <p>
+   * This method first attempts to find an implementation via {@link TodayStrategies}.
+   * If none is found, it checks for the presence of Netty's FastThreadLocal class.
+   * If available, it returns a Netty-based implementation; otherwise, it falls back
+   * to a default implementation using NamedThreadLocal.
+   *
+   * @return an appropriate RequestThreadLocal instance
    */
   public static RequestThreadLocal lookup() {
     RequestThreadLocal ret = TodayStrategies.findFirst(RequestThreadLocal.class, null);
     if (ret == null) {
-      if (ClassUtils.isPresent("io.netty.util.concurrent.FastThreadLocal")) {
-        return new Netty();
-      }
       return new Default();
     }
     return ret;
   }
 
+  /**
+   * Default implementation using {@link NamedThreadLocal} for storing request context.
+   */
   @VisibleForTesting
   static final class Default extends RequestThreadLocal {
     private final NamedThreadLocal<RequestContext> threadLocal = new NamedThreadLocal<>("Current Request Context");
@@ -62,26 +82,6 @@ public abstract class RequestThreadLocal {
     }
 
     @Nullable
-    @Override
-    public RequestContext get() {
-      return threadLocal.get();
-    }
-
-    @Override
-    public void set(@Nullable RequestContext context) {
-      threadLocal.set(context);
-    }
-  }
-
-  @VisibleForTesting
-  static final class Netty extends RequestThreadLocal {
-    private final FastThreadLocal<RequestContext> threadLocal = new FastThreadLocal<>();
-
-    @Override
-    public void remove() {
-      threadLocal.remove();
-    }
-
     @Override
     public RequestContext get() {
       return threadLocal.get();
