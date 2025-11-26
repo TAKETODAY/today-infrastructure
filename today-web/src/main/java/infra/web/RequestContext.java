@@ -844,7 +844,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   /**
    * Determines whether the current request is a multipart request.
-   *
+   * <p>
    * This method checks if the request's content type starts with "multipart/".
    * For GET and HEAD requests, it automatically returns false as these methods
    * do not support multipart content. The result is cached internally to avoid
@@ -857,7 +857,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
     if (multipartFlag == null) {
       HttpMethod method = getMethod();
       if (method == HttpMethod.GET || method == HttpMethod.HEAD) {
-        multipartFlag = false;
+        multipartFlag = Boolean.FALSE;
       }
       else {
         multipartFlag = StringUtils.startsWithIgnoreCase(getContentType(), "multipart/");

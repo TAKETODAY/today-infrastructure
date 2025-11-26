@@ -86,6 +86,7 @@ final class HttpContext extends NettyRequestContext implements Runnable {
         readCompleted = true;
         awaiter.resume();
       }
+      httpContent.release();
     }
     else {
       if (httpContent instanceof LastHttpContent) {
