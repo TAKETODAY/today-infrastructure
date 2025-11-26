@@ -181,4 +181,111 @@ class SimpleSingleThreadAwaiterTests {
     awaiter.await();
   }
 
+  @Test
+  void testConstructorWithParkNanosEnabled() {
+    SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter(true);
+    // Just test that it can be constructed without error
+    awaiter.resume();
+    awaiter.await();
+  }
+
+  @Test
+  void testMultipleResumeCallsAreIdempotent() {
+    SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter();
+
+    // Multiple resume calls should not affect behavior
+    awaiter.resume();
+    awaiter.resume();
+
+    // Next await should not block
+    Thread thread = new Thread(() -> {
+      awaiter.await();
+      assertTrue(true); // Should reach here immediately
+    });
+    thread.start();
+
+    try {
+      thread.join(1000);
+      assertFalse(thread.isAlive());
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  @Test
+  void testConcurrentMultipleResumesAndAwaits() throws InterruptedException {
+    SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter();
+    int rounds = 5;
+
+    for (int i = 0; i < rounds; i++) {
+      boolean[] completed = { false };
+
+      Thread t = new Thread(() -> {
+        awaiter.await();
+        completed[0] = true;
+      });
+      t.start();
+
+      Thread.sleep(50); // Allow thread to park
+
+      awaiter.resume();
+      t.join(1000);
+
+      assertTrue(completed[0], "Round " + i + " failed");
+    }
+  }
+
+  @Test
+  void testExceptionWhenTwoThreadsAwaitSimultaneously() throws InterruptedException {
+    SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter();
+
+    // Start first thread that will await
+    Thread first = new Thread(awaiter::await);
+    first.start();
+
+    Thread.sleep(100); // Give time for first thread to start awaiting
+
+    // Second thread trying to await should throw exception
+    Thread second = new Thread(() -> assertThrows(IllegalStateException.class, awaiter::await));
+    second.start();
+
+    second.join(1000);
+
+    // Clean up
+    awaiter.resume();
+    first.join(1000);
+  }
+
+  @Test
+  void testStateResetAfterUse() throws InterruptedException {
+    SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter();
+
+    // Use the awaiter once
+    boolean[] completed1 = { false };
+    Thread t1 = new Thread(() -> {
+      awaiter.await();
+      completed1[0] = true;
+    });
+    t1.start();
+
+    Thread.sleep(50);
+    awaiter.resume();
+    t1.join(1000);
+    assertTrue(completed1[0]);
+
+    // Use the awaiter again - should work fine
+    boolean[] completed2 = { false };
+    Thread t2 = new Thread(() -> {
+      awaiter.await();
+      completed2[0] = true;
+    });
+    t2.start();
+
+    Thread.sleep(50);
+    awaiter.resume();
+    t2.join(1000);
+    assertTrue(completed2[0]);
+  }
+
 }

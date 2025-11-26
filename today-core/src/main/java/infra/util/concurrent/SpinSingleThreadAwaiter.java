@@ -18,7 +18,6 @@
 package infra.util.concurrent;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.LockSupport;
 
 /**
  * A spin-optimized implementation of {@link SimpleSingleThreadAwaiter} that uses
@@ -57,6 +56,14 @@ public class SpinSingleThreadAwaiter extends SimpleSingleThreadAwaiter {
 
   private final AtomicInteger successiveSpins = new AtomicInteger();
 
+  public SpinSingleThreadAwaiter() {
+    super(false);
+  }
+
+  public SpinSingleThreadAwaiter(boolean parkNanosEnabled) {
+    super(parkNanosEnabled);
+  }
+
   @Override
   public void await() {
     Thread currentThread = Thread.currentThread();
@@ -86,8 +93,7 @@ public class SpinSingleThreadAwaiter extends SimpleSingleThreadAwaiter {
       successiveSpins.decrementAndGet();
 
       if (this.parkedThread.compareAndSet(null, currentThread)) {
-        // LockSupport.park() 在极小的情况下会出现永远阻塞的状态
-        LockSupport.parkNanos(threadParkNanos);
+        parkThread();
       }
     }
 

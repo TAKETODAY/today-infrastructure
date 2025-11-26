@@ -55,6 +55,16 @@ public class SimpleSingleThreadAwaiter implements Awaiter {
 
   protected final AtomicReference<@Nullable Object> parkedThread = new AtomicReference<>();
 
+  private final boolean parkNanosEnabled;
+
+  public SimpleSingleThreadAwaiter() {
+    this(false);
+  }
+
+  public SimpleSingleThreadAwaiter(boolean parkNanosEnabled) {
+    this.parkNanosEnabled = parkNanosEnabled;
+  }
+
   /**
    * 唤醒等待的线程
    *
@@ -73,7 +83,7 @@ public class SimpleSingleThreadAwaiter implements Awaiter {
     Thread currentThread = Thread.currentThread();
 
     for (; ; ) {
-      Object current = this.parkedThread.get();
+      Object current = parkedThread.get();
       if (current == READY) {
         break;
       }
@@ -82,15 +92,24 @@ public class SimpleSingleThreadAwaiter implements Awaiter {
         throw new IllegalStateException("Only one (Virtual)Thread can await!");
       }
 
-      if (this.parkedThread.compareAndSet(null, currentThread)) {
-        // LockSupport.park() 在极小的情况下会出现永远阻塞的状态
-        LockSupport.parkNanos(threadParkNanos);
+      if (parkedThread.compareAndSet(null, currentThread)) {
+        parkThread();
         // we don't just break here because park() can wake up spuriously
         // if we got a proper resume, get() == READY and the loop will quit above
       }
     }
     // clear the resume indicator so that the next await call will park without a resume()
-    this.parkedThread.lazySet(null);
+    parkedThread.lazySet(null);
+  }
+
+  protected final void parkThread() {
+    if (parkNanosEnabled) {
+      // LockSupport.park() 在极小的情况下会出现永远阻塞的状态
+      LockSupport.parkNanos(threadParkNanos);
+    }
+    else {
+      LockSupport.park();
+    }
   }
 
 }
