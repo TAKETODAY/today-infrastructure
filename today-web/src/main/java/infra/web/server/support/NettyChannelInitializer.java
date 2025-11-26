@@ -37,8 +37,7 @@ sealed class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
 
   private final ChannelHandlerFactory channelHandlerFactory;
 
-  @Nullable
-  private final ChannelConfigurer channelConfigurer;
+  private final @Nullable ChannelConfigurer channelConfigurer;
 
   /**
    * A configuration object for specifying the behaviour

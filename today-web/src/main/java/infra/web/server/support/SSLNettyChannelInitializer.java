@@ -63,8 +63,7 @@ final class SSLNettyChannelInitializer extends NettyChannelInitializer {
 
   private static final Logger logger = LoggerFactory.getLogger(SSLNettyChannelInitializer.class);
 
-  @Nullable
-  private final HashMap<String, SslContext> serverNameSslContexts;
+  private final @Nullable HashMap<String, SslContext> serverNameSslContexts;
 
   private final long handshakeTimeout;
 
@@ -118,8 +117,7 @@ final class SSLNettyChannelInitializer extends NettyChannelInitializer {
     return sslContext.newHandler(ch.alloc());
   }
 
-  @Nullable
-  private HashMap<String, SslContext> createServerNameSSLContexts(Map<String, SslBundle> serverNameSslBundles) {
+  private @Nullable HashMap<String, SslContext> createServerNameSSLContexts(Map<String, SslBundle> serverNameSslBundles) {
     if (serverNameSslBundles.isEmpty()) {
       return null;
     }
@@ -153,8 +151,7 @@ final class SSLNettyChannelInitializer extends NettyChannelInitializer {
     }
   }
 
-  @Nullable
-  private List<String> getCiphers(SslOptions options) {
+  private @Nullable List<String> getCiphers(SslOptions options) {
     if (ObjectUtils.isNotEmpty(options.getCiphers())) {
       return Arrays.asList(options.getCiphers());
     }
