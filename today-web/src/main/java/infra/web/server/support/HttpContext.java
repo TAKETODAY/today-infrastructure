@@ -19,19 +19,32 @@ package infra.web.server.support;
 
 import org.jspecify.annotations.Nullable;
 
+import java.io.InputStream;
+
 import infra.context.ApplicationContext;
 import infra.util.concurrent.Awaiter;
 import infra.web.DispatcherHandler;
 import infra.web.RequestContextHolder;
+import infra.web.server.RequestBodySizeExceededException;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
-import io.netty.handler.codec.DecoderResult;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.TooLongHttpContentException;
 import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
+
+import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFactory;
+import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
+import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 final class HttpContext extends NettyRequestContext implements Runnable {
 
@@ -56,13 +69,6 @@ final class HttpContext extends NettyRequestContext implements Runnable {
     super(context, channel, request, config, dispatcherHandler);
     this.channelHandler = channelHandler;
     this.contentLength = HttpUtil.getContentLength(request, -1L);
-    if (contentLength != -1 && contentLength > config.maxContentLength) {
-      // todo handle maxContentLength
-      request.setDecoderResult(DecoderResult.failure(new TooLongHttpContentException(
-              String.format("Content length exceeded '%d' bytes", config.maxContentLength))));
-//      processException(request.decoderResult().cause());
-//      throw new TooLongHttpContentException(String.format("Content length exceeded '%d' bytes", config.maxContentLength));
-    }
     this.awaiter = config.awaiterFactory.apply(this);
   }
 
@@ -160,7 +166,26 @@ final class HttpContext extends NettyRequestContext implements Runnable {
   @Override
   public void run() {
     RequestContextHolder.set(this);
+
     try {
+      if (HttpUtil.is100ContinueExpected(request)) {
+        HttpResponse accept = acceptMessage();
+        if (accept == null) {
+          // the expectation failed so we refuse the request.
+          channel.writeAndFlush(rejectResponse())
+                  .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+          return;
+        }
+
+        channel.writeAndFlush(accept)
+                .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+        request.headers().remove(HttpHeaderNames.EXPECT);
+      }
+      else if (contentLength != -1 && contentLength > config.maxContentLength) {
+        processException(new RequestBodySizeExceededException(config.maxContentLength));
+        return;
+      }
+
       if (request.decoderResult().cause() != null) {
         processException(request.decoderResult().cause());
       }
@@ -191,6 +216,35 @@ final class HttpContext extends NettyRequestContext implements Runnable {
 
   public void channelInactive() {
     cleanup();
+  }
+
+  /**
+   * Produces a {@link HttpResponse} for {@link HttpRequest}s which define an expectation.
+   * Returns {@code null} if the request should be rejected. See {@link #rejectResponse()}.
+   */
+  private @Nullable HttpResponse acceptMessage() {
+    Boolean continueExpected = dispatcherHandler.requestContinueExpected(this);
+    if (continueExpected != null) {
+      if (!continueExpected) {
+        return null;
+      }
+    }
+    else if (contentLength > config.maxContentLength) {
+      return null;
+    }
+
+    return new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE, Unpooled.EMPTY_BUFFER,
+            config.httpHeadersFactory, trailersFactory());
+  }
+
+  /**
+   * Returns the appropriate 4XX {@link HttpResponse} for the given {@link HttpRequest}.
+   */
+  private HttpResponse rejectResponse() {
+    DefaultFullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.EXPECTATION_FAILED, Unpooled.EMPTY_BUFFER,
+            config.httpHeadersFactory, trailersFactory());
+    response.headers().set(CONTENT_LENGTH, 0);
+    return response;
   }
 
 }

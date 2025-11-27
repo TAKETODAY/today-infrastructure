@@ -25,7 +25,6 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.handler.codec.http.HttpDecoderConfig;
 import io.netty.handler.codec.http.HttpObjectDecoder;
 import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
 
 /**
  * HTTP netty channel initializer
@@ -57,7 +56,6 @@ sealed class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
     preInitChannel(channelConfigurer, ch);
     ch.pipeline()
             .addLast("HttpServerCodec", new HttpServerCodec(httpDecoderConfig))
-            .addLast("HttpServerExpectContinueHandler", new HttpServerExpectContinueHandler())
             .addLast("NettyChannelHandler", channelHandlerFactory.createChannelHandler(ch))
             .remove(this);
   }
