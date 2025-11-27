@@ -136,7 +136,14 @@ final class HttpContext extends NettyRequestContext implements Runnable {
   }
 
   @Override
-  protected BodyInputStream createInputStream() {
+  protected InputStream createInputStream() {
+    if (readCompleted) {
+      BodyInputStream requestBody = this.requestBody;
+      if (requestBody == null) {
+        return InputStream.nullInputStream();
+      }
+      return requestBody;
+    }
     return requestBody();
   }
 
