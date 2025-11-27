@@ -30,10 +30,21 @@ import infra.http.converter.HttpMessageNotReadableException;
  */
 public class MultipartException extends HttpMessageNotReadableException {
 
+  /**
+   * Constructor for MultipartException.
+   *
+   * @param message the detail message
+   */
   public MultipartException(@Nullable String message) {
     super(message, null, null);
   }
 
+  /**
+   * Constructor for MultipartException.
+   *
+   * @param message the detail message
+   * @param cause the root cause from the multipart parsing API in use
+   */
   public MultipartException(@Nullable String message, @Nullable Throwable cause) {
     super(message, cause, null);
   }

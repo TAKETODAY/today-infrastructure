@@ -90,36 +90,27 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
    */
   private int maxConnection = NetUtil.SOMAXCONN;
 
-  @Nullable
-  private EventLoopGroup workerGroup;
+  private @Nullable EventLoopGroup workerGroup;
 
-  @Nullable
-  private EventLoopGroup acceptorGroup;
+  private @Nullable EventLoopGroup acceptorGroup;
 
-  @Nullable
-  private Class<? extends ServerSocketChannel> socketChannel;
+  private @Nullable Class<? extends ServerSocketChannel> socketChannel;
 
-  @Nullable
-  private LogLevel loggingLevel;
+  private @Nullable LogLevel loggingLevel;
 
-  @Nullable
-  private List<ServerBootstrapCustomizer> bootstrapCustomizers;
+  private @Nullable List<ServerBootstrapCustomizer> bootstrapCustomizers;
 
   private Netty nettyConfig = new Netty();
 
-  @Nullable
-  private ChannelConfigurer channelConfigurer;
+  private @Nullable ChannelConfigurer channelConfigurer;
 
   /** @since 5.0 */
-  @Nullable
-  private String workerPoolName;
+  private @Nullable String workerPoolName;
 
   /** @since 5.0 */
-  @Nullable
-  private String acceptorPoolName;
+  private @Nullable String acceptorPoolName;
 
-  @Nullable
-  private ChannelHandlerFactory channelHandlerFactory;
+  private @Nullable ChannelHandlerFactory channelHandlerFactory;
 
   /**
    * EventLoopGroup for acceptor
@@ -268,28 +259,23 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
    * @see LoggingHandler
    * @see ServerBootstrap#handler
    */
-  @Nullable
-  public LogLevel getLoggingLevel() {
+  public @Nullable LogLevel getLoggingLevel() {
     return loggingLevel;
   }
 
-  @Nullable
-  public EventLoopGroup getWorkerGroup() {
+  public @Nullable EventLoopGroup getWorkerGroup() {
     return workerGroup;
   }
 
-  @Nullable
-  public EventLoopGroup getAcceptorGroup() {
+  public @Nullable EventLoopGroup getAcceptorGroup() {
     return acceptorGroup;
   }
 
-  @Nullable
-  public Class<? extends ServerSocketChannel> getSocketChannel() {
+  public @Nullable Class<? extends ServerSocketChannel> getSocketChannel() {
     return socketChannel;
   }
 
-  @Nullable
-  public ChannelHandlerFactory getChannelHandlerFactory() {
+  public @Nullable ChannelHandlerFactory getChannelHandlerFactory() {
     return channelHandlerFactory;
   }
 

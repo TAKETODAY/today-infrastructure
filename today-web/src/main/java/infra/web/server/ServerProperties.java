@@ -71,14 +71,12 @@ public class ServerProperties {
   /**
    * Server HTTP port.
    */
-  @Nullable
-  public Integer port;
+  public @Nullable Integer port;
 
   /**
    * Network address to which the server should bind.
    */
-  @Nullable
-  public InetAddress address;
+  public @Nullable InetAddress address;
 
   @NestedConfigurationProperty
   public final EncodingProperties encoding = new EncodingProperties();
@@ -89,26 +87,21 @@ public class ServerProperties {
   /**
    * Strategy for handling X-Forwarded-* headers.
    */
-  @Nullable
-  public ForwardHeadersStrategy forwardHeadersStrategy;
+  public @Nullable ForwardHeadersStrategy forwardHeadersStrategy;
 
   /**
    * Type of shutdown that the server will support.
    */
-  @Nullable
-  public Shutdown shutdown = Shutdown.GRACEFUL;
+  public @Nullable Shutdown shutdown = Shutdown.GRACEFUL;
 
-  @Nullable
   @NestedConfigurationProperty
-  public Ssl ssl;
+  public @Nullable Ssl ssl;
 
-  @Nullable
   @NestedConfigurationProperty
-  public Compression compression;
+  public @Nullable Compression compression;
 
-  @Nullable
   @NestedConfigurationProperty
-  public Http2 http2;
+  public @Nullable Http2 http2;
 
   @NestedConfigurationProperty
   public final Netty netty = new Netty();
@@ -159,8 +152,7 @@ public class ServerProperties {
      *
      * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
      */
-    @Nullable
-    public Integer workerThreads;
+    public @Nullable Integer workerThreads;
 
     /**
      * the number of threads that will be used by
@@ -170,43 +162,48 @@ public class ServerProperties {
      *
      * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
      */
-    @Nullable
-    public Integer acceptorThreads;
+    public @Nullable Integer acceptorThreads;
 
     /**
      * The worker thread pool name
      *
      * @since 5.0
      */
-    @Nullable
-    public String workerPoolName;
+    public @Nullable String workerPoolName;
 
     /**
-     * The acceptor thread pool name @since 5.0
+     * The acceptor thread pool name
+     *
+     * @since 5.0
      */
-    @Nullable
-    public String acceptorPoolName;
+    public @Nullable String acceptorPoolName;
 
     /**
      * The SOMAXCONN value of the current machine. If failed to get the value, {@code 200} is used as a
      * default value for Windows and {@code 128} for others.
      */
-    @Nullable
-    public Integer maxConnection;
+    public @Nullable Integer maxConnection;
 
-    @Nullable
-    public Class<? extends ServerSocketChannel> socketChannel;
+    /**
+     * The ServerSocketChannel class to be used by the Netty server.
+     * <p>
+     * This allows customization of the underlying socket channel implementation
+     * that Netty will use for accepting incoming connections.
+     */
+    public @Nullable Class<? extends ServerSocketChannel> socketChannel;
 
     /**
      * Set netty LoggingHandler logging Level. If that loggingLevel
      * is null will not register logging handler
      */
-    @Nullable
-    public LogLevel loggingLevel;
+    public @Nullable LogLevel loggingLevel;
 
     /**
-     * the maximum length of the aggregated content.
-     * If the length of the aggregated content exceeds this value,
+     * The maximum length of the request body content.
+     * <p>
+     * This setting controls the maximum amount of data that can be received
+     * in a single HTTP request body. Requests exceeding this limit will
+     * typically result in an error being returned to the client.
      */
     public DataSize maxContentLength = DataSize.ofMegabytes(100);
 
@@ -221,8 +218,12 @@ public class ServerProperties {
     public DataSize maxChunkSize = DataSize.ofBytes(8192);
 
     /**
-     * Set the initial size of the temporary buffer used when parsing the lines of the HTTP headers.
-     * (The buffer size in bytes.)
+     * Initial buffer size for HTTP request decoding.
+     * <p>
+     * This setting determines the initial capacity of the buffer used when
+     * decoding incoming HTTP requests. A larger buffer may improve performance
+     * for requests with large headers or bodies, while a smaller buffer may
+     * reduce memory usage for applications handling many concurrent requests.
      */
     public DataSize initialBufferSize = DataSize.ofBytes(128);
 
@@ -316,8 +317,7 @@ public class ServerProperties {
        * If mixedMode is disabled and this property is not empty will be
        * using disk mode
        */
-      @Nullable
-      public String baseDir;
+      public @Nullable String baseDir;
 
       /**
        * true if temporary files should be deleted with the JVM, false otherwise.
@@ -328,8 +328,7 @@ public class ServerProperties {
        * HttpData will be on Disk if the size of the file is greater than minSize, else it
        * will be in memory. The type will be Mixed.
        */
-      @Nullable
-      public DataSize fieldSizeThreshold = DataSize.ofKilobytes(16); // 16kB
+      public @Nullable DataSize fieldSizeThreshold = DataSize.ofKilobytes(16); // 16kB
 
       /**
        * Disk and memory mix mode
@@ -345,8 +344,7 @@ public class ServerProperties {
        * To set a max size limitation on fields. Exceeding it will generate an ErrorDataDecoderException.
        * A value of -1 means no limitation (default).
        */
-      @Nullable
-      public DataSize maxFieldSize = DataSize.ofGigabytes(1); // total size in every field
+      public @Nullable DataSize maxFieldSize = DataSize.ofGigabytes(1); // total size in every field
 
     }
 
@@ -360,8 +358,7 @@ public class ServerProperties {
     /**
      * Connection timeout of the Netty channel.
      */
-    @Nullable
-    public Duration connectionTimeout;
+    public @Nullable Duration connectionTimeout;
 
     /**
      * Maximum content length of an H2C upgrade request.
@@ -392,8 +389,7 @@ public class ServerProperties {
      * Maximum number of requests that can be made per connection. By default, a
      * connection serves unlimited number of requests.
      */
-    @Nullable
-    public Integer maxKeepAliveRequests;
+    public @Nullable Integer maxKeepAliveRequests;
 
     /**
      * Whether to validate headers when decoding requests.
@@ -404,8 +400,7 @@ public class ServerProperties {
      * Idle timeout of the Netty channel. When not specified, an infinite timeout is
      * used.
      */
-    @Nullable
-    public Duration idleTimeout;
+    public @Nullable Duration idleTimeout;
 
   }
 
