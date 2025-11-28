@@ -1,0 +1,18 @@
+description = "Web MVC, provides default netty implementation"
+
+configurations {
+  testFixturesAnnotationProcessor.extendsFrom(dependencyManagement)
+}
+
+dependencies {
+  api(project(":today-web"))
+
+  optional(project(":today-aop"))
+  optional(project(":today-oxm"))
+  optional(project(":today-core-aot"))
+  optional("org.apache.groovy:groovy-templates")
+  optional('io.micrometer:context-propagation')
+
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+
+}
