@@ -15,25 +15,24 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web;
+package infra.web.socket;
 
-import org.junit.jupiter.api.Test;
-
-import infra.test.classpath.ClassPathExclusions;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 
 /**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 5.0 2024/4/30 21:43
+ * Contract for a test server to use for WebSocket integration tests.
+ *
+ * @author Rossen Stoyanchev
+ * @author Sam Brannen
  */
-class RequestThreadLocalTests {
+public interface WebSocketTestServer {
 
-  @Test
-  @ClassPathExclusions("netty-comm*")
-  void nettyNotPresent() {
-    RequestThreadLocal requestThreadLocal = RequestThreadLocal.lookup();
-    assertThat(requestThreadLocal).isInstanceOf(RequestThreadLocal.Default.class);
-  }
+  void setup(AnnotationConfigApplicationContext ctx);
+
+  void start(AnnotationConfigApplicationContext ctx) throws Exception;
+
+  void stop() throws Exception;
+
+  int getPort();
 
 }

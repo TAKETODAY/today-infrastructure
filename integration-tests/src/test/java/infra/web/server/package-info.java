@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,24 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.socket;
+@NullMarked
+package infra.web.server;
 
-import infra.context.annotation.AnnotationConfigApplicationContext;
-
-/**
- * Contract for a test server to use for WebSocket integration tests.
- *
- * @author Rossen Stoyanchev
- * @author Sam Brannen
- */
-public interface WebSocketTestServer {
-
-  void setup(AnnotationConfigApplicationContext wac);
-
-  void start() throws Exception;
-
-  void stop() throws Exception;
-
-  int getPort();
-
-}
+import org.jspecify.annotations.NullMarked;

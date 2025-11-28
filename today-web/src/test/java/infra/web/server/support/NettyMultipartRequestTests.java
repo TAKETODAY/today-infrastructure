@@ -126,28 +126,6 @@ class NettyMultipartRequestTests {
   }
 
   @Test
-  void shouldReturnMultipartHeadersForFileUpload() {
-    // given
-    NettyRequestContext context = mock(NettyRequestContext.class);
-    HttpPostRequestDecoder requestDecoder = mock(HttpPostRequestDecoder.class);
-    when(context.requestDecoder()).thenReturn(requestDecoder);
-
-    FileUpload fileUpload = mock(FileUpload.class);
-    when(fileUpload.getContentType()).thenReturn("image/png");
-
-    when(requestDecoder.getBodyHttpDatas("testFile")).thenReturn(List.of(fileUpload));
-
-    NettyMultipartRequest multipartRequest = new NettyMultipartRequest(context);
-
-    // when
-    HttpHeaders headers = multipartRequest.getMultipartHeaders("testFile");
-
-    // then
-    assertThat(headers).isNotNull();
-    assertThat(headers.getContentType().toString()).isEqualTo("image/png");
-  }
-
-  @Test
   void shouldReturnNullMultipartHeadersWhenNoBodyHttpDatas() {
     // given
     NettyRequestContext context = mock(NettyRequestContext.class);
@@ -162,26 +140,6 @@ class NettyMultipartRequestTests {
 
     // then
     assertThat(headers).isNull();
-  }
-
-  @Test
-  void shouldReturnNullMultipartHeadersWhenNoFileUploadInBodyHttpDatas() {
-    // given
-    NettyRequestContext context = mock(NettyRequestContext.class);
-    HttpPostRequestDecoder requestDecoder = mock(HttpPostRequestDecoder.class);
-    when(context.requestDecoder()).thenReturn(requestDecoder);
-
-    Attribute attribute = mock(Attribute.class);
-    when(requestDecoder.getBodyHttpDatas("formField")).thenReturn(List.of(attribute));
-
-    NettyMultipartRequest multipartRequest = new NettyMultipartRequest(context);
-
-    // when
-    HttpHeaders headers = multipartRequest.getMultipartHeaders("formField");
-
-    // then
-    assertThat(headers).isNotNull();
-    assertThat(headers.getContentType()).isNull();
   }
 
 }

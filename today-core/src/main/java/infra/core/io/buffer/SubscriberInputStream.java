@@ -29,11 +29,10 @@ import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 
 import infra.lang.Assert;
+import infra.util.concurrent.SimpleSingleThreadAwaiter;
 import reactor.core.Exceptions;
 
 /**
@@ -59,8 +58,6 @@ import reactor.core.Exceptions;
  */
 final class SubscriberInputStream extends InputStream implements Subscriber<DataBuffer> {
 
-  private static final Object READY = new Object();
-
   private static final DataBuffer DONE = DefaultDataBufferFactory.sharedInstance.allocateBuffer(0);
 
   private static final DataBuffer CLOSED = DefaultDataBufferFactory.sharedInstance.allocateBuffer(0);
@@ -73,7 +70,7 @@ final class SubscriberInputStream extends InputStream implements Subscriber<Data
 
   private final Queue<DataBuffer> queue;
 
-  private final AtomicReference<Object> parkedThread = new AtomicReference<>();
+  private final SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter();
 
   private final AtomicInteger workAmount = new AtomicInteger();
 
@@ -188,12 +185,7 @@ final class SubscriberInputStream extends InputStream implements Subscriber<Data
   }
 
   private void resume() {
-    if (this.parkedThread != READY) {
-      Object old = this.parkedThread.getAndSet(READY);
-      if (old != READY) {
-        LockSupport.unpark((Thread) old);
-      }
-    }
+    awaiter.resume();
   }
 
   /* InputStream implementation */
@@ -384,26 +376,7 @@ final class SubscriberInputStream extends InputStream implements Subscriber<Data
   }
 
   private void await() {
-    Thread toUnpark = Thread.currentThread();
-
-    while (true) {
-      Object current = this.parkedThread.get();
-      if (current == READY) {
-        break;
-      }
-
-      if (current != null && current != toUnpark) {
-        throw new IllegalStateException("Only one (Virtual)Thread can await!");
-      }
-
-      if (this.parkedThread.compareAndSet(null, toUnpark)) {
-        LockSupport.park();
-        // we don't just break here because park() can wake up spuriously
-        // if we got a proper resume, get() == READY and the loop will quit above
-      }
-    }
-    // clear the resume indicator so that the next await call will park without a resume()
-    this.parkedThread.lazySet(null);
+    awaiter.await();
   }
 
 }

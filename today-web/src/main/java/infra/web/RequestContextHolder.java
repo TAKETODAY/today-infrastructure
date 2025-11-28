@@ -44,8 +44,7 @@ public abstract class RequestContextHolder {
   /**
    * current context
    */
-  @Nullable
-  public static RequestContext get() {
+  public static @Nullable RequestContext get() {
     return contextHolder.get();
   }
 
