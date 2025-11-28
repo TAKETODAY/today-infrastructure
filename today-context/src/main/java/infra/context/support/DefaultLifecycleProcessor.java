@@ -650,7 +650,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
         if (!latch.await(shutdownTimeout, TimeUnit.MILLISECONDS)) {
           // Count is still >0 after timeout
           if (!countDownBeanNames.isEmpty() && log.isInfoEnabled()) {
-            log.info("Shutdown phase {} ends with {} bean%s still running after timeout of {}ms: {}",
+            log.info("Shutdown phase {} ends with {} bean{} still running after timeout of {}ms: {}",
                     this.phase, countDownBeanNames.size(), countDownBeanNames.size() > 1 ? "s" : "", shutdownTimeout, countDownBeanNames);
           }
         }
