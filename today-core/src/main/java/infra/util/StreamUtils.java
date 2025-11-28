@@ -31,7 +31,6 @@ import java.nio.charset.StandardCharsets;
 
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.Contract;
 
 /**
  * Simple utility methods for dealing with streams. The copy methods of this class are
@@ -249,7 +248,6 @@ public abstract class StreamUtils {
    * @return the number of bytes read
    * @throws IOException in case of I/O errors
    */
-  @Contract("null -> fail")
   public static int drain(@Nullable InputStream in) throws IOException {
     return drain(in, BUFFER_SIZE);
   }
