@@ -34,7 +34,7 @@ import io.netty.handler.codec.http.HttpServerCodec;
  */
 sealed class NettyChannelInitializer extends ChannelInitializer<Channel> implements ChannelHandler permits SSLNettyChannelInitializer {
 
-  private final ChannelHandlerFactory channelHandlerFactory;
+  private final ChannelHandler channelHandler;
 
   private final @Nullable ChannelConfigurer channelConfigurer;
 
@@ -44,9 +44,9 @@ sealed class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
    */
   private final HttpDecoderConfig httpDecoderConfig;
 
-  protected NettyChannelInitializer(ChannelHandlerFactory channelHandlerFactory,
+  protected NettyChannelInitializer(ChannelHandler channelHandler,
           @Nullable ChannelConfigurer channelConfigurer, HttpDecoderConfig httpDecoderConfig) {
-    this.channelHandlerFactory = channelHandlerFactory;
+    this.channelHandler = channelHandler;
     this.channelConfigurer = channelConfigurer;
     this.httpDecoderConfig = httpDecoderConfig;
   }
@@ -56,7 +56,7 @@ sealed class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
     preInitChannel(channelConfigurer, ch);
     ch.pipeline()
             .addLast("HttpServerCodec", new HttpServerCodec(httpDecoderConfig))
-            .addLast("NettyChannelHandler", channelHandlerFactory.createChannelHandler(ch))
+            .addLast("NettyChannelHandler", channelHandler)
             .remove(this);
   }
 

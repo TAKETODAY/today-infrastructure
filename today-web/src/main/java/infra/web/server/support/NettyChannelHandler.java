@@ -22,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 
 import infra.context.ApplicationContext;
+import infra.lang.Assert;
 import infra.web.DispatcherHandler;
 import infra.web.HttpStatusProvider;
 import infra.web.server.ServiceExecutor;
@@ -37,6 +38,7 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty.util.AttributeKey;
 
 import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFactory;
 
@@ -48,6 +50,8 @@ import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFact
  */
 public class NettyChannelHandler extends ChannelInboundHandlerAdapter {
 
+  public static final AttributeKey<@Nullable HttpContext> KEY = AttributeKey.valueOf(HttpContext.class, "KEY");
+
   protected final NettyRequestConfig requestConfig;
 
   protected final ApplicationContext context;
@@ -56,11 +60,12 @@ public class NettyChannelHandler extends ChannelInboundHandlerAdapter {
 
   protected final ServiceExecutor executor;
 
-  private HttpContext httpContext;
-
-  @SuppressWarnings("NullAway")
-  protected NettyChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context,
+  public NettyChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context,
           DispatcherHandler dispatcherHandler, ServiceExecutor executor) {
+    Assert.notNull(executor, "ServiceExecutor is required");
+    Assert.notNull(context, "ApplicationContext is required");
+    Assert.notNull(requestConfig, "NettyRequestConfig is required");
+    Assert.notNull(dispatcherHandler, "DispatcherHandler is required");
     this.context = context;
     this.executor = executor;
     this.requestConfig = requestConfig;
@@ -68,8 +73,8 @@ public class NettyChannelHandler extends ChannelInboundHandlerAdapter {
   }
 
   @Override
-  public boolean isSharable() {
-    return false;
+  public final boolean isSharable() {
+    return true;
   }
 
   @Override
@@ -77,11 +82,14 @@ public class NettyChannelHandler extends ChannelInboundHandlerAdapter {
     if (msg instanceof HttpRequest request) {
       Channel channel = ctx.channel();
       HttpContext httpContext = new HttpContext(channel, request, requestConfig, context, dispatcherHandler, this);
-      this.httpContext = httpContext;
+      channel.attr(KEY).set(httpContext);
       executor.execute(httpContext, httpContext);
     }
     else if (msg instanceof HttpContent content) {
-      httpContext.onDataReceived(content);
+      HttpContext httpContext = ctx.channel().attr(KEY).get();
+      if (httpContext != null) {
+        httpContext.onDataReceived(content);
+      }
     }
     else if (msg instanceof WebSocketFrame) {
       handleWebSocketFrame(ctx, (WebSocketFrame) msg);
@@ -118,12 +126,8 @@ public class NettyChannelHandler extends ChannelInboundHandlerAdapter {
   //
 
   @Override
-  public void channelActive(ChannelHandlerContext ctx) {
-    ctx.fireChannelActive();
-  }
-
-  @Override
   public void channelInactive(ChannelHandlerContext ctx) {
+    HttpContext httpContext = ctx.channel().attr(KEY).getAndSet(null);
     if (httpContext != null) {
       httpContext.channelInactive();
     }

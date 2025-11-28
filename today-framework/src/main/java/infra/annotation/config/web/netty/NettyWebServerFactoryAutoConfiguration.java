@@ -53,14 +53,14 @@ import infra.web.server.Ssl;
 import infra.web.server.WebServerFactoryCustomizerBeanPostProcessor;
 import infra.web.server.error.SendErrorHandler;
 import infra.web.server.support.ChannelConfigurer;
-import infra.web.server.support.ChannelHandlerFactory;
 import infra.web.server.support.JUCServiceExecutor;
-import infra.web.server.support.NettyChannelHandlerFactory;
+import infra.web.server.support.NettyChannelHandler;
 import infra.web.server.support.NettyRequestConfig;
 import infra.web.server.support.NettyWebServerFactory;
 import infra.web.server.support.ServerBootstrapCustomizer;
 import infra.web.server.support.StandardNettyWebEnvironment;
-import infra.web.socket.server.support.WsNettyChannelHandlerFactory;
+import infra.web.socket.server.support.WsNettyChannelHandler;
+import io.netty.channel.ChannelHandler;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 
@@ -105,9 +105,9 @@ public class NettyWebServerFactoryAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public static ChannelHandlerFactory nettyChannelHandlerFactory(ApplicationContext context,
+  public static ChannelHandler nettyChannelHandler(ApplicationContext context,
           NettyRequestConfig requestConfig, DispatcherHandler dispatcherHandler, ServiceExecutor executor) {
-    return createChannelHandlerFactory(requestConfig, context, dispatcherHandler, executor, context.getClassLoader());
+    return createChannelHandler(requestConfig, context, dispatcherHandler, executor, context.getClassLoader());
   }
 
   @Component
@@ -133,7 +133,7 @@ public class NettyWebServerFactoryAutoConfiguration {
   public static NettyWebServerFactory nettyWebServerFactory(ServerProperties serverProperties,
           @Nullable ChannelConfigurer channelConfigurer, @Nullable SslBundles sslBundles,
           @Nullable List<ServerBootstrapCustomizer> customizers, @Nullable ApplicationTemp applicationTemp,
-          ChannelHandlerFactory channelHandlerFactory) {
+          ChannelHandler channelHandler) {
     NettyWebServerFactory factory = new NettyWebServerFactory();
 
     serverProperties.applyTo(factory, sslBundles, applicationTemp);
@@ -141,7 +141,7 @@ public class NettyWebServerFactoryAutoConfiguration {
     factory.applyFrom(serverProperties.netty);
     factory.setBootstrapCustomizers(customizers);
     factory.setChannelConfigurer(channelConfigurer);
-    factory.setChannelHandlerFactory(channelHandlerFactory);
+    factory.setChannelHandler(channelHandler);
     return factory;
   }
 
@@ -179,19 +179,19 @@ public class NettyWebServerFactoryAutoConfiguration {
     }
   }
 
-  private static ChannelHandlerFactory createChannelHandlerFactory(NettyRequestConfig requestConfig, ApplicationContext context,
+  private static ChannelHandler createChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context,
           DispatcherHandler dispatcherHandler, ServiceExecutor executor, @Nullable ClassLoader classLoader) {
     if (ClassUtils.isPresent("infra.web.socket.server.support.WsNettyChannelHandler", classLoader)) {
       return Ws.createChannelHandler(requestConfig, context, dispatcherHandler, executor);
     }
 
-    return new NettyChannelHandlerFactory(requestConfig, context, dispatcherHandler, executor);
+    return new NettyChannelHandler(requestConfig, context, dispatcherHandler, executor);
   }
 
   static class Ws {
-    private static WsNettyChannelHandlerFactory createChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context,
+    private static ChannelHandler createChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context,
             DispatcherHandler dispatcherHandler, ServiceExecutor executor) {
-      return new WsNettyChannelHandlerFactory(requestConfig, context, dispatcherHandler, executor);
+      return new WsNettyChannelHandler(requestConfig, context, dispatcherHandler, executor);
     }
   }
 

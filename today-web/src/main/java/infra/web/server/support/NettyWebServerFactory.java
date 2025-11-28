@@ -30,6 +30,7 @@ import infra.web.server.Ssl;
 import infra.web.server.WebServer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -110,7 +111,7 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   /** @since 5.0 */
   private @Nullable String acceptorPoolName;
 
-  private @Nullable ChannelHandlerFactory channelHandlerFactory;
+  private @Nullable ChannelHandler channelHandler;
 
   /**
    * EventLoopGroup for acceptor
@@ -244,12 +245,12 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   }
 
   /**
-   * set NettyChannelHandlerFactory
+   * set ChannelHandler
    *
    * @since 5.0
    */
-  public void setChannelHandlerFactory(@Nullable ChannelHandlerFactory channelHandlerFactory) {
-    this.channelHandlerFactory = channelHandlerFactory;
+  public void setChannelHandler(@Nullable ChannelHandler channelHandler) {
+    this.channelHandler = channelHandler;
   }
 
   /**
@@ -275,8 +276,8 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
     return socketChannel;
   }
 
-  public @Nullable ChannelHandlerFactory getChannelHandlerFactory() {
-    return channelHandlerFactory;
+  public @Nullable ChannelHandler getChannelHandlerFactory() {
+    return channelHandler;
   }
 
   /**
@@ -333,7 +334,7 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
       bootstrap.handler(new LoggingHandler(loggingLevel));
     }
 
-    ChannelHandlerFactory channelHandlerFactory = getChannelHandlerFactory();
+    ChannelHandler channelHandlerFactory = getChannelHandlerFactory();
     Assert.state(channelHandlerFactory != null, "No 'channelHandlerFactory' set");
     bootstrap.childHandler(createChannelInitializer(nettyConfig, channelHandlerFactory));
     bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
@@ -355,10 +356,10 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
    * Creates Infra netty channel initializer
    *
    * @param netty netty config
-   * @param channelHandlerFactory NettyChannelHandlerFactory
+   * @param channelHandler ChannelHandler
    */
-  protected ChannelInitializer<Channel> createChannelInitializer(Netty netty, ChannelHandlerFactory channelHandlerFactory) {
-    return createInitializer(channelHandlerFactory, createHttpDecoderConfig(netty));
+  protected ChannelInitializer<Channel> createChannelInitializer(Netty netty, ChannelHandler channelHandler) {
+    return createInitializer(channelHandler, createHttpDecoderConfig(netty));
   }
 
   protected final HttpDecoderConfig createHttpDecoderConfig(Netty netty) {
@@ -417,15 +418,15 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
     nettyConfig = netty;
   }
 
-  private NettyChannelInitializer createInitializer(ChannelHandlerFactory factory, HttpDecoderConfig config) {
+  private NettyChannelInitializer createInitializer(ChannelHandler channelHandler, HttpDecoderConfig config) {
     Ssl ssl = getSsl();
     if (Ssl.isEnabled(ssl)) {
-      SSLNettyChannelInitializer initializer = new SSLNettyChannelInitializer(factory, config,
+      SSLNettyChannelInitializer initializer = new SSLNettyChannelInitializer(channelHandler, config,
               channelConfigurer, isHttp2Enabled(), ssl, getSslBundle(), getServerNameSslBundles());
       addBundleUpdateHandler(ssl, initializer::updateSSLBundle);
       return initializer;
     }
-    return new NettyChannelInitializer(factory, channelConfigurer, config);
+    return new NettyChannelInitializer(channelHandler, channelConfigurer, config);
   }
 
   private InetSocketAddress getListenAddress() {

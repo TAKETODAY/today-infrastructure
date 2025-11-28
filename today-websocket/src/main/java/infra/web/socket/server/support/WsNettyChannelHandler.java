@@ -36,11 +36,11 @@ import static infra.web.socket.handler.ExceptionWebSocketHandlerDecorator.tryClo
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/4/28 15:02
  */
-final class WsNettyChannelHandler extends NettyChannelHandler {
+public final class WsNettyChannelHandler extends NettyChannelHandler {
 
   private static final Logger log = LoggerFactory.getLogger(WsNettyChannelHandler.class);
 
-  WsNettyChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context,
+  public WsNettyChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context,
           DispatcherHandler dispatcherHandler, ServiceExecutor executor) {
     super(requestConfig, context, dispatcherHandler, executor);
   }
@@ -73,7 +73,7 @@ final class WsNettyChannelHandler extends NettyChannelHandler {
       onClose(ctx.channel(), CloseStatus.NO_CLOSE_FRAME);
     }
     finally {
-      ctx.fireChannelInactive();
+      super.channelInactive(ctx);
     }
   }
 
