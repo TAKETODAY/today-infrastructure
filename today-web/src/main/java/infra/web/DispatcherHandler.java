@@ -57,6 +57,8 @@ public class DispatcherHandler extends InfraHandler {
 
   private final ArrayList<RequestCompletedListener> requestCompletedActions = new ArrayList<>();
 
+  private final ArrayList<RequestContinueExpectedResolver> requestContinueExpectedResolvers = new ArrayList<>();
+
   /** Action mapping registry */
   private HandlerMapping handlerMapping;
 
@@ -84,8 +86,6 @@ public class DispatcherHandler extends InfraHandler {
 
   @Nullable
   protected WebAsyncManagerFactory webAsyncManagerFactory;
-
-  private final ArrayList<RequestContinueExpectedResolver> requestContinueExpectedResolvers = new ArrayList<>();
 
   @SuppressWarnings("NullAway")
   public DispatcherHandler() {
@@ -364,6 +364,14 @@ public class DispatcherHandler extends InfraHandler {
     addRequestCompletedActions(handlers);
   }
 
+  /**
+   * Initialize the RequestContinueExpectedResolvers used by this class.
+   * <p>Collects all RequestContinueExpectedResolver beans from the application context
+   * and sorts them according to their order.
+   *
+   * @param context the ApplicationContext to search for resolvers
+   * @see RequestContinueExpectedResolver
+   */
   private void initRequestContinueExpectedResolvers(ApplicationContext context) {
     var matchingBeans = BeanFactoryUtils.beansOfTypeIncludingAncestors(
             context, RequestContinueExpectedResolver.class, true, false);
