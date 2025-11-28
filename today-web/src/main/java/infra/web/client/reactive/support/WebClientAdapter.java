@@ -232,10 +232,9 @@ public final class WebClientAdapter extends AbstractReactorHttpExchangeAdapter {
       InputStream body = this.body;
       if (body != null) {
         try (body) {
-          StreamUtils.drain(this.body);
+          StreamUtils.drain(body);
         }
         catch (IOException ignored) {
-
         }
       }
     }
