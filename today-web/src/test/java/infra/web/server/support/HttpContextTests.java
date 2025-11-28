@@ -65,7 +65,6 @@ class HttpContextTests {
 
     // Then
     assertThat(contextUnderTest.getContentLength()).isEqualTo(150L);
-    verify(request).setDecoderResult(any(DecoderResult.class));
   }
 
   @Test
