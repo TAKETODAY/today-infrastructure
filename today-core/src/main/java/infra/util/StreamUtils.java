@@ -251,10 +251,30 @@ public abstract class StreamUtils {
    */
   @Contract("null -> fail")
   public static int drain(@Nullable InputStream in) throws IOException {
+    return drain(in, BUFFER_SIZE);
+  }
+
+  /**
+   * Drain the remaining content of the given InputStream.
+   * <p>Leaves the InputStream open when done.
+   *
+   * @param in the InputStream to drain
+   * @param bufferSize buffer size
+   * @return the number of bytes read
+   * @throws IOException in case of I/O errors
+   */
+  public static int drain(@Nullable InputStream in, int bufferSize) throws IOException {
     if (in == null) {
       return 0;
     }
-    return (int) in.transferTo(OutputStream.nullOutputStream());
+
+    byte[] buffer = new byte[bufferSize];
+    int bytesRead;
+    int byteCount = 0;
+    while ((bytesRead = in.read(buffer, 0, buffer.length)) != -1) {
+      byteCount += bytesRead;
+    }
+    return byteCount;
   }
 
   /**
