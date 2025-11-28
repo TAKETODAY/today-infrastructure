@@ -33,7 +33,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -285,13 +284,7 @@ public abstract class NettyRequestContext extends RequestContext {
 
   @Override
   protected infra.http.HttpHeaders createRequestHeaders() {
-    HttpHeaders headers = request.headers();
-    DefaultHttpHeaders ret = new DefaultHttpHeaders();
-    for (Map.Entry<String, String> header : headers) {
-      ret.add(header.getKey(), header.getValue());
-    }
-    // todo Netty4HttpHeaders nettyHeaders = new Netty4HttpHeaders(headers);
-    return ret;
+    return new Netty4HttpHeaders(request.headers());
   }
 
   @Override
