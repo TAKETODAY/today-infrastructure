@@ -45,9 +45,9 @@ class AbstractMultipartFileTests {
     byte[] cached = "cached content".getBytes();
     multipartFile.cachedBytes = cached;
 
-    when(multipartFile.getBytes()).thenCallRealMethod();
+    when(multipartFile.getContentAsByteArray()).thenCallRealMethod();
 
-    assertThat(multipartFile.getBytes()).isSameAs(cached);
+    assertThat(multipartFile.getContentAsByteArray()).isSameAs(cached);
   }
 
   @Test
@@ -55,10 +55,10 @@ class AbstractMultipartFileTests {
     AbstractMultipartFile multipartFile = mock(AbstractMultipartFile.class);
     byte[] content = "new content".getBytes();
 
-    when(multipartFile.getBytes()).thenCallRealMethod();
+    when(multipartFile.getContentAsByteArray()).thenCallRealMethod();
     when(multipartFile.doGetBytes()).thenReturn(content);
 
-    byte[] result = multipartFile.getBytes();
+    byte[] result = multipartFile.getContentAsByteArray();
 
     assertThat(result).isNotNull().isEqualTo(content);
     assertThat(multipartFile.cachedBytes).isSameAs(content);
@@ -79,7 +79,7 @@ class AbstractMultipartFileTests {
     String content = "test content";
 
     when(multipartFile.getValue()).thenCallRealMethod();
-    when(multipartFile.getBytes()).thenReturn(content.getBytes(StandardCharsets.UTF_8));
+    when(multipartFile.getContentAsByteArray()).thenReturn(content.getBytes(StandardCharsets.UTF_8));
 
     assertThat(multipartFile.getValue()).isEqualTo(content);
   }
@@ -89,7 +89,7 @@ class AbstractMultipartFileTests {
     AbstractMultipartFile multipartFile = mock(AbstractMultipartFile.class);
 
     when(multipartFile.getValue()).thenCallRealMethod();
-    when(multipartFile.getBytes()).thenThrow(new IOException("test exception"));
+    when(multipartFile.getContentAsByteArray()).thenThrow(new IOException("test exception"));
 
     assertThatExceptionOfType(IOException.class)
             .isThrownBy(multipartFile::getValue);

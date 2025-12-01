@@ -25,7 +25,7 @@ import java.util.Map;
 
 import infra.test.util.ReflectionTestUtils;
 import infra.util.MultiValueMap;
-import infra.web.multipart.Multipart;
+import infra.web.multipart.Part;
 import infra.web.multipart.MultipartFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -121,13 +121,13 @@ class AbstractMultipartRequestTests {
   @Test
   void getMultipartFilesInitializesFromMultipartData() {
     AbstractMultipartRequest multipartRequest = mock(AbstractMultipartRequest.class);
-    MultiValueMap<String, Multipart> parts = MultiValueMap.forLinkedHashMap();
+    MultiValueMap<String, Part> parts = MultiValueMap.forLinkedHashMap();
     MultipartFile multipart1 = mock(MultipartFile.class);
-    Multipart multipart2 = mock(Multipart.class);
+    Part part2 = mock(Part.class);
     when(multipart1.isFormField()).thenReturn(false);
-    when(multipart2.isFormField()).thenReturn(true);
+    when(part2.isFormField()).thenReturn(true);
     parts.add("file1", multipart1);
-    parts.add("field1", multipart2);
+    parts.add("field1", part2);
 
     when(multipartRequest.getMultipartFiles()).thenCallRealMethod();
     when(multipartRequest.multipartData()).thenReturn(parts);
@@ -141,12 +141,12 @@ class AbstractMultipartRequestTests {
   @Test
   void multipartDataReturnsParsedRequest() {
     AbstractMultipartRequest multipartRequest = mock(AbstractMultipartRequest.class);
-    MultiValueMap<String, Multipart> parsedParts = MultiValueMap.forLinkedHashMap();
+    MultiValueMap<String, Part> parsedParts = MultiValueMap.forLinkedHashMap();
 
     when(multipartRequest.multipartData()).thenCallRealMethod();
     when(multipartRequest.parseRequest()).thenReturn(parsedParts);
 
-    MultiValueMap<String, Multipart> result = multipartRequest.multipartData();
+    MultiValueMap<String, Part> result = multipartRequest.multipartData();
 
     assertThat(result).isSameAs(parsedParts);
   }
@@ -154,7 +154,7 @@ class AbstractMultipartRequestTests {
   @Test
   void isResolvedReturnsTrueWhenPartsAreInitialized() {
     AbstractMultipartRequest multipartRequest = mock(AbstractMultipartRequest.class);
-    MultiValueMap<String, Multipart> parsedParts = MultiValueMap.forLinkedHashMap();
+    MultiValueMap<String, Part> parsedParts = MultiValueMap.forLinkedHashMap();
 
     ReflectionTestUtils.setField(multipartRequest, "parts", parsedParts);
 

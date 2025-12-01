@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import infra.util.MultiValueMap;
-import infra.web.multipart.Multipart;
+import infra.web.multipart.Part;
 import infra.web.multipart.MultipartFile;
 import infra.web.multipart.MultipartRequest;
 import infra.web.util.WebUtils;
@@ -38,7 +38,7 @@ import infra.web.util.WebUtils;
  */
 public abstract class AbstractMultipartRequest implements MultipartRequest {
 
-  private @Nullable MultiValueMap<String, Multipart> parts;
+  private @Nullable MultiValueMap<String, Part> parts;
 
   private @Nullable MultiValueMap<String, MultipartFile> multipartFiles;
 
@@ -58,7 +58,7 @@ public abstract class AbstractMultipartRequest implements MultipartRequest {
   }
 
   @Override
-  public @Nullable List<Multipart> multipartData(String name) {
+  public @Nullable List<Part> multipartData(String name) {
     return multipartData().get(name);
   }
 
@@ -78,10 +78,10 @@ public abstract class AbstractMultipartRequest implements MultipartRequest {
     var multipartFiles = this.multipartFiles;
     if (multipartFiles == null) {
       multipartFiles = MultiValueMap.forLinkedHashMap();
-      for (Map.Entry<String, List<Multipart>> entry : multipartData().entrySet()) {
-        for (Multipart multipart : entry.getValue()) {
-          if (!multipart.isFormField()) {
-            multipartFiles.add(entry.getKey(), (MultipartFile) multipart);
+      for (Map.Entry<String, List<Part>> entry : multipartData().entrySet()) {
+        for (Part part : entry.getValue()) {
+          if (!part.isFormField()) {
+            multipartFiles.add(entry.getKey(), (MultipartFile) part);
           }
         }
       }
@@ -91,7 +91,7 @@ public abstract class AbstractMultipartRequest implements MultipartRequest {
   }
 
   @Override
-  public MultiValueMap<String, Multipart> multipartData() {
+  public MultiValueMap<String, Part> multipartData() {
     var parts = this.parts;
     if (parts == null) {
       parts = parseRequest();
@@ -121,6 +121,6 @@ public abstract class AbstractMultipartRequest implements MultipartRequest {
    * Lazily initialize the multipart request, if possible.
    * Only called if not already eagerly initialized.
    */
-  protected abstract MultiValueMap<String, Multipart> parseRequest();
+  protected abstract MultiValueMap<String, Part> parseRequest();
 
 }

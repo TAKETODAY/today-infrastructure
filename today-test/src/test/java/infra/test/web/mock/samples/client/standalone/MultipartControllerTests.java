@@ -254,8 +254,8 @@ public class MultipartControllerTests {
             @RequestPart(required = false) Map<String, String> json) throws IOException {
 
       if (file != null && file.length > 0) {
-        byte[] content = file[0].getBytes();
-        assertThat(file[1].getBytes()).isEqualTo(content);
+        byte[] content = file[0].getContentAsByteArray();
+        assertThat(file[1].getContentAsByteArray()).isEqualTo(content);
       }
       return "redirect:/index";
     }
@@ -265,8 +265,8 @@ public class MultipartControllerTests {
             @RequestPart(required = false) Map<String, String> json) throws IOException {
 
       if (file != null && !file.isEmpty()) {
-        byte[] content = file.get(0).getBytes();
-        assertThat(file.get(1).getBytes()).isEqualTo(content);
+        byte[] content = file.get(0).getContentAsByteArray();
+        assertThat(file.get(1).getContentAsByteArray()).isEqualTo(content);
       }
       return "redirect:/index";
     }
@@ -283,8 +283,8 @@ public class MultipartControllerTests {
             @RequestParam MultipartFile @Nullable [] file, @RequestPart Map<String, String> json) throws IOException {
 
       if (file != null) {
-        byte[] content = file[0].getBytes();
-        assertThat(file[1].getBytes()).isEqualTo(content);
+        byte[] content = file[0].getContentAsByteArray();
+        assertThat(file[1].getContentAsByteArray()).isEqualTo(content);
       }
       return "redirect:/index";
     }
@@ -295,8 +295,8 @@ public class MultipartControllerTests {
             throws IOException {
 
       if (file != null) {
-        byte[] content = file.get(0).getBytes();
-        assertThat(file.get(1).getBytes()).isEqualTo(content);
+        byte[] content = file.get(0).getContentAsByteArray();
+        assertThat(file.get(1).getContentAsByteArray()).isEqualTo(content);
       }
       return "redirect:/index";
     }

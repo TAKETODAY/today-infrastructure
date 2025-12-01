@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,13 +102,13 @@ class MockMultipartHttpRequestTests {
     assertThat(file1.getName()).isEqualTo("file1");
     assertThat(file1.getOriginalFilename()).isEqualTo("");
     assertThat(file1.getContentType()).isNull();
-    assertThat(ObjectUtils.nullSafeEquals("myContent1".getBytes(), file1.getBytes())).isTrue();
+    assertThat(ObjectUtils.nullSafeEquals("myContent1".getBytes(), file1.getContentAsByteArray())).isTrue();
     assertThat(ObjectUtils.nullSafeEquals("myContent1".getBytes(),
             FileCopyUtils.copyToByteArray(file1.getInputStream()))).isTrue();
     assertThat(file2.getName()).isEqualTo("file2");
     assertThat(file2.getOriginalFilename()).isEqualTo("myOrigFilename");
     assertThat(file2.getContentType()).isEqualTo("text/plain");
-    assertThat(ObjectUtils.nullSafeEquals("myContent2".getBytes(), file2.getBytes())).isTrue();
+    assertThat(ObjectUtils.nullSafeEquals("myContent2".getBytes(), file2.getContentAsByteArray())).isTrue();
     assertThat(ObjectUtils.nullSafeEquals("myContent2".getBytes(),
             FileCopyUtils.copyToByteArray(file2.getInputStream()))).isTrue();
   }

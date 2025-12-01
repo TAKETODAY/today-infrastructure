@@ -34,7 +34,7 @@ import infra.web.multipart.MultipartFile;
  *
  * <p>This class is designed to be extended by concrete implementations that provide
  * the actual logic for interacting with multipart files. It implements the {@link MultipartFile}
- * interface and extends {@link AbstractMultipart}, offering a foundation for file handling
+ * interface and extends {@link AbstractPart}, offering a foundation for file handling
  * in web applications or frameworks.
  *
  * <p><strong>Key Features:</strong>
@@ -56,10 +56,10 @@ import infra.web.multipart.MultipartFile;
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see MultipartFile
- * @see AbstractMultipart
+ * @see AbstractPart
  * @since 3.0 2021/4/18 20:38
  */
-public abstract class AbstractMultipartFile extends AbstractMultipart implements MultipartFile {
+public abstract class AbstractMultipartFile extends AbstractPart implements MultipartFile {
 
   protected byte @Nullable [] cachedBytes;
 
@@ -97,7 +97,7 @@ public abstract class AbstractMultipartFile extends AbstractMultipart implements
   protected abstract void saveInternal(File dest) throws IOException;
 
   @Override
-  public byte[] getBytes() throws IOException {
+  public byte[] getContentAsByteArray() throws IOException {
     byte[] cachedBytes = this.cachedBytes;
     if (cachedBytes == null) {
       cachedBytes = doGetBytes();
@@ -116,7 +116,7 @@ public abstract class AbstractMultipartFile extends AbstractMultipart implements
   @Override
   public String getValue() {
     try {
-      return new String(getBytes(), StandardCharsets.UTF_8);
+      return new String(getContentAsByteArray(), StandardCharsets.UTF_8);
     }
     catch (IOException e) {
       throw ExceptionUtils.sneakyThrow(e);

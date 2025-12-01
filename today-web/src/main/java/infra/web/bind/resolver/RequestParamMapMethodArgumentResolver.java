@@ -27,7 +27,7 @@ import infra.util.StringUtils;
 import infra.web.RequestContext;
 import infra.web.annotation.RequestParam;
 import infra.web.handler.method.ResolvableMethodParameter;
-import infra.web.multipart.Multipart;
+import infra.web.multipart.Part;
 import infra.web.multipart.MultipartFile;
 import infra.web.multipart.MultipartRequest;
 
@@ -75,7 +75,7 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
       if (valueType == MultipartFile.class) {
         return context.multipartRequest().getMultipartFiles();
       }
-      else if (valueType == Multipart.class) {
+      else if (valueType == Part.class) {
         return context.multipartRequest().multipartData();
       }
       else {
@@ -89,7 +89,7 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
       if (valueType == MultipartFile.class) {
         return context.multipartRequest().getFileMap();
       }
-      else if (valueType == Multipart.class) {
+      else if (valueType == Part.class) {
         return context.multipartRequest().multipartData().toSingleValueMap();
       }
       else {

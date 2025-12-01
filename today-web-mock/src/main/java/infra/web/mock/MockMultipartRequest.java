@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,13 +24,12 @@ import infra.http.ContentDisposition;
 import infra.http.HttpHeaders;
 import infra.mock.api.MockException;
 import infra.mock.api.http.HttpMockRequest;
-import infra.mock.api.http.Part;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.bind.MultipartException;
 import infra.web.bind.NotMultipartRequestException;
 import infra.web.multipart.MaxUploadSizeExceededException;
-import infra.web.multipart.Multipart;
+import infra.web.multipart.Part;
 import infra.web.multipart.support.AbstractMultipartRequest;
 
 /**
@@ -69,12 +68,12 @@ public class MockMultipartRequest extends AbstractMultipartRequest {
     }
   }
 
-  private MultiValueMap<String, Multipart> parseRequest(HttpMockRequest request) {
+  private MultiValueMap<String, Part> parseRequest(HttpMockRequest request) {
     try {
-      Collection<Part> parts = request.getParts();
-      LinkedMultiValueMap<String, Multipart> files = new LinkedMultiValueMap<>(parts.size());
+      Collection<infra.mock.api.http.Part> parts = request.getParts();
+      LinkedMultiValueMap<String, Part> files = new LinkedMultiValueMap<>(parts.size());
 
-      for (Part part : parts) {
+      for (infra.mock.api.http.Part part : parts) {
         String headerValue = part.getHeader(HttpHeaders.CONTENT_DISPOSITION);
         ContentDisposition disposition = ContentDisposition.parse(headerValue);
         String filename = disposition.getFilename();
@@ -98,14 +97,14 @@ public class MockMultipartRequest extends AbstractMultipartRequest {
   }
 
   @Override
-  protected MultiValueMap<String, Multipart> parseRequest() {
+  protected MultiValueMap<String, Part> parseRequest() {
     return parseRequest(request);
   }
 
   @Override
   public HttpHeaders getMultipartHeaders(String paramOrFileName) {
     try {
-      Part part = request.getPart(paramOrFileName);
+      infra.mock.api.http.Part part = request.getPart(paramOrFileName);
       if (part != null) {
         HttpHeaders headers = HttpHeaders.forWritable();
         for (String headerName : part.getHeaderNames()) {

@@ -26,7 +26,7 @@ import infra.http.HttpHeaders;
 import infra.util.MultiValueMap;
 import infra.web.bind.NotMultipartRequestException;
 import infra.web.multipart.MaxUploadSizeExceededException;
-import infra.web.multipart.Multipart;
+import infra.web.multipart.Part;
 import io.netty.handler.codec.http.multipart.Attribute;
 import io.netty.handler.codec.http.multipart.FileUpload;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
@@ -61,7 +61,7 @@ class NettyMultipartRequestTests {
     NettyMultipartRequest multipartRequest = new NettyMultipartRequest(context);
 
     // when
-    MultiValueMap<String, Multipart> result = multipartRequest.parseRequest();
+    MultiValueMap<String, Part> result = multipartRequest.parseRequest();
 
     // then
     assertThat(result).isNotNull();
@@ -69,12 +69,12 @@ class NettyMultipartRequestTests {
     assertThat(result.containsKey("fileParam")).isTrue();
     assertThat(result.containsKey("formParam")).isTrue();
 
-    Multipart fileMultipart = result.getFirst("fileParam");
-    Multipart formMultipart = result.getFirst("formParam");
+    Part filePart = result.getFirst("fileParam");
+    Part formPart = result.getFirst("formParam");
 
-    assertThat(fileMultipart).isInstanceOf(NettyMultipartFile.class);
-    assertThat(formMultipart).isInstanceOf(NettyFormData.class);
-    assertThat(formMultipart.getValue()).isEqualTo("formValue");
+    assertThat(filePart).isInstanceOf(NettyMultipartFile.class);
+    assertThat(formPart).isInstanceOf(NettyFormField.class);
+    assertThat(formPart.getValue()).isEqualTo("formValue");
   }
 
   @Test
@@ -88,7 +88,7 @@ class NettyMultipartRequestTests {
     NettyMultipartRequest multipartRequest = new NettyMultipartRequest(context);
 
     // when
-    MultiValueMap<String, Multipart> result = multipartRequest.parseRequest();
+    MultiValueMap<String, Part> result = multipartRequest.parseRequest();
 
     // then
     assertThat(result).isNotNull();

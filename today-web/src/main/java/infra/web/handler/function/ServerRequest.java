@@ -48,7 +48,7 @@ import infra.validation.BindException;
 import infra.web.RequestContext;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.bind.WebDataBinder;
-import infra.web.multipart.Multipart;
+import infra.web.multipart.Part;
 import infra.web.multipart.MultipartRequest;
 import infra.web.util.UriBuilder;
 
@@ -249,7 +249,7 @@ public interface ServerRequest extends ServerResponse.Context {
    * @see RequestContext#multipartRequest()
    * @see MultipartRequest#multipartData()
    */
-  MultiValueMap<String, Multipart> multipartData() throws IOException;
+  MultiValueMap<String, Part> multipartData() throws IOException;
 
   /**
    * Get the path variable with the given name, if present.

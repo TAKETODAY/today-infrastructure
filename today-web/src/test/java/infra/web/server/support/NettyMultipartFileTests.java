@@ -280,7 +280,7 @@ class NettyMultipartFileTests {
     NettyMultipartFile multipartFile = new NettyMultipartFile(fileUpload);
 
     // when
-    byte[] bytes = multipartFile.getBytes();
+    byte[] bytes = multipartFile.getContentAsByteArray();
 
     // then
     assertThat(bytes).isEqualTo(expectedBytes);

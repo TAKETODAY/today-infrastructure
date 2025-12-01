@@ -78,7 +78,7 @@ class MultipartFileTests {
       public boolean isEmpty() { return false; }
 
       @Override
-      public byte[] getBytes() throws IOException { return new byte[0]; }
+      public byte[] getContentAsByteArray() throws IOException { return new byte[0]; }
 
       @Override
       public boolean isFormField() {
@@ -138,7 +138,7 @@ class MultipartFileTests {
       public boolean isEmpty() { return false; }
 
       @Override
-      public byte[] getBytes() throws IOException { return "hello".getBytes(); }
+      public byte[] getContentAsByteArray() throws IOException { return "hello".getBytes(); }
 
       @Override
       public boolean isFormField() {
@@ -200,7 +200,7 @@ class MultipartFileTests {
       public boolean isEmpty() { return false; }
 
       @Override
-      public byte[] getBytes() throws IOException { return new byte[0]; }
+      public byte[] getContentAsByteArray() throws IOException { return new byte[0]; }
 
       @Override
       public boolean isFormField() {

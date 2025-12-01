@@ -55,7 +55,7 @@ import infra.web.HandlerMapping;
 import infra.web.RequestContext;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.bind.WebDataBinder;
-import infra.web.multipart.Multipart;
+import infra.web.multipart.Part;
 import infra.web.util.UriBuilder;
 import infra.web.util.UriUtils;
 import infra.web.util.pattern.PathMatchInfo;
@@ -1244,7 +1244,7 @@ public abstract class RequestPredicates {
     }
 
     @Override
-    public MultiValueMap<String, Multipart> multipartData() throws IOException {
+    public MultiValueMap<String, Part> multipartData() throws IOException {
       return request.multipartData();
     }
 

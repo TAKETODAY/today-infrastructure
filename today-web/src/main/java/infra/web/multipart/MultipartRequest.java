@@ -83,7 +83,7 @@ public interface MultipartRequest {
    * @see #multipartData()
    */
   @Nullable
-  List<Multipart> multipartData(String name);
+  List<Part> multipartData(String name);
 
   /**
    * Return a {@link java.util.Map} of the multipart files contained in this request.
@@ -113,7 +113,7 @@ public interface MultipartRequest {
    * @see RequestContext#multipartRequest()
    * @see MultipartRequest#multipartData()
    */
-  MultiValueMap<String, Multipart> multipartData() throws IOException;
+  MultiValueMap<String, Part> multipartData() throws IOException;
 
   /**
    * Return the headers for the specified part of the multipart request.

@@ -33,11 +33,10 @@ import infra.http.HttpMethod;
 import infra.lang.Assert;
 import infra.mock.api.MockContext;
 import infra.mock.api.MockException;
-import infra.mock.api.http.Part;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.bind.MultipartException;
-import infra.web.multipart.Multipart;
+import infra.web.multipart.Part;
 import infra.web.multipart.MultipartFile;
 import infra.web.multipart.MultipartRequest;
 import infra.web.util.WebUtils;
@@ -57,7 +56,7 @@ import infra.web.util.WebUtils;
  */
 public class MockMultipartHttpMockRequest extends HttpMockRequestImpl implements MultipartRequest {
 
-  private final MultiValueMap<String, Multipart> multipartData = new LinkedMultiValueMap<>();
+  private final MultiValueMap<String, Part> multipartData = new LinkedMultiValueMap<>();
 
   /**
    * Create a new {@code MockMultipartHttpServletRequest} with a default
@@ -109,7 +108,7 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl implements
   }
 
   @Override
-  public List<Multipart> multipartData(String name) {
+  public List<Part> multipartData(String name) {
     return multipartData().get(name);
   }
 
@@ -125,9 +124,9 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl implements
   @Override
   public MultiValueMap<String, MultipartFile> getMultipartFiles() {
     MultiValueMap<String, MultipartFile> ret = new LinkedMultiValueMap<>();
-    for (Map.Entry<String, List<Multipart>> entry : multipartData().entrySet()) {
-      for (Multipart multipart : entry.getValue()) {
-        if (multipart instanceof MultipartFile file) {
+    for (Map.Entry<String, List<Part>> entry : multipartData().entrySet()) {
+      for (Part part : entry.getValue()) {
+        if (part instanceof MultipartFile file) {
           ret.add(entry.getKey(), file);
         }
       }
@@ -136,7 +135,7 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl implements
   }
 
   @Override
-  public MultiValueMap<String, Multipart> multipartData() {
+  public MultiValueMap<String, Part> multipartData() {
     return multipartData;
   }
 
@@ -146,7 +145,7 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl implements
       return file.getContentType();
     }
     try {
-      Part part = getPart(paramOrFileName);
+      infra.mock.api.http.Part part = getPart(paramOrFileName);
       if (part != null) {
         return part.getContentType();
       }
@@ -185,7 +184,7 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl implements
       return headers;
     }
     try {
-      Part part = getPart(paramOrFileName);
+      infra.mock.api.http.Part part = getPart(paramOrFileName);
       if (part != null) {
         HttpHeaders headers = HttpHeaders.forWritable();
         for (String headerName : part.getHeaderNames()) {

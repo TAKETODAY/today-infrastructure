@@ -26,7 +26,7 @@ import infra.core.MethodParameter;
 import infra.core.ResolvableType;
 import infra.util.CollectionUtils;
 import infra.web.RequestContext;
-import infra.web.multipart.Multipart;
+import infra.web.multipart.Part;
 import infra.web.multipart.MultipartFile;
 
 /**
@@ -49,7 +49,7 @@ final class MultipartResolutionDelegate {
 
   public static boolean isMultipartArgument(MethodParameter parameter) {
     Class<?> paramType = parameter.getNestedParameterType();
-    return Multipart.class.isAssignableFrom(paramType)
+    return Part.class.isAssignableFrom(paramType)
             || isMultipartCollection(parameter, paramType)
             || isMultipartArray(paramType);
   }
@@ -64,33 +64,33 @@ final class MultipartResolutionDelegate {
     }
 
     Class<?> parameterType = parameter.getNestedParameterType();
-    if (Multipart.class.isAssignableFrom(parameterType)) {
+    if (Part.class.isAssignableFrom(parameterType)) {
       return CollectionUtils.firstElement(request.multipartRequest().multipartData(name));
     }
     else if (isMultipartCollection(parameter, parameterType)) {
       return request.multipartRequest().multipartData(name);
     }
     else if (isMultipartArray(parameterType)) {
-      List<Multipart> parts = request.multipartRequest().multipartData(name);
+      List<Part> parts = request.multipartRequest().multipartData(name);
       if (parts == null) {
         return null;
       }
       if (parameterType.getComponentType() == MultipartFile.class) {
         return parts.toArray(new MultipartFile[parts.size()]);
       }
-      return parts.toArray(new Multipart[parts.size()]);
+      return parts.toArray(new Part[parts.size()]);
     }
     return UNRESOLVABLE;
   }
 
   private static boolean isMultipartCollection(MethodParameter methodParam, Class<?> parameterType) {
     parameterType = getCollectionParameterType(methodParam, parameterType);
-    return parameterType != null && Multipart.class.isAssignableFrom(parameterType);
+    return parameterType != null && Part.class.isAssignableFrom(parameterType);
   }
 
   private static boolean isMultipartArray(Class<?> parameterType) {
     Class<?> componentType = parameterType.getComponentType();
-    return componentType != null && Multipart.class.isAssignableFrom(componentType);
+    return componentType != null && Part.class.isAssignableFrom(componentType);
   }
 
   @Nullable
