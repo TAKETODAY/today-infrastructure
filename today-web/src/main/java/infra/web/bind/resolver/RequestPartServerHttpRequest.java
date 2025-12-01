@@ -30,7 +30,7 @@ import infra.http.MediaType;
 import infra.http.client.support.HttpRequestDecorator;
 import infra.util.CollectionUtils;
 import infra.web.RequestContext;
-import infra.web.bind.MultipartException;
+import infra.web.multipart.MultipartException;
 import infra.web.multipart.Multipart;
 import infra.web.multipart.MultipartFile;
 import infra.web.multipart.MultipartRequest;

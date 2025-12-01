@@ -31,7 +31,7 @@ import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestParam;
 import infra.web.annotation.RequestPart;
 import infra.web.bind.MethodArgumentNotValidException;
-import infra.web.bind.MultipartException;
+import infra.web.multipart.MultipartException;
 import infra.web.handler.method.NamedValueInfo;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.multipart.MultipartFile;

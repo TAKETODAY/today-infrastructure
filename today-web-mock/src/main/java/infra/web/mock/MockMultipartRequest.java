@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,8 +27,8 @@ import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.Part;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
-import infra.web.bind.MultipartException;
-import infra.web.bind.NotMultipartRequestException;
+import infra.web.multipart.MultipartException;
+import infra.web.multipart.NotMultipartRequestException;
 import infra.web.multipart.MaxUploadSizeExceededException;
 import infra.web.multipart.Multipart;
 import infra.web.multipart.support.AbstractMultipartRequest;

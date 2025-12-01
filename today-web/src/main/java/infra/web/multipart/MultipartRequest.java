@@ -27,7 +27,6 @@ import java.util.Map;
 import infra.http.HttpHeaders;
 import infra.util.MultiValueMap;
 import infra.web.RequestContext;
-import infra.web.bind.NotMultipartRequestException;
 
 /**
  * This interface defines the multipart request access operations that are exposed

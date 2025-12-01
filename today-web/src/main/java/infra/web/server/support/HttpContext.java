@@ -20,6 +20,7 @@ package infra.web.server.support;
 import org.jspecify.annotations.Nullable;
 
 import java.io.InputStream;
+import java.nio.channels.ClosedChannelException;
 
 import infra.context.ApplicationContext;
 import infra.util.concurrent.Awaiter;
@@ -38,7 +39,6 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
-import io.netty.handler.codec.http.TooLongHttpContentException;
 import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 
@@ -77,9 +77,10 @@ final class HttpContext extends NettyRequestContext implements Runnable {
     final int chunkSize = httpContent.content().readableBytes();
     if (received + chunkSize > config.maxContentLength) {
       httpContent.release();
+      readCompleted = true;
       BodyInputStream requestBody = this.requestBody;
       if (requestBody != null) {
-        requestBody.onError(new TooLongHttpContentException(String.format("Content length exceeded %d bytes", config.maxContentLength)));
+        requestBody.onError(new RequestBodySizeExceededException(config.maxContentLength));
       }
       return;
     }
@@ -166,7 +167,7 @@ final class HttpContext extends NettyRequestContext implements Runnable {
 
   @Override
   protected void requestCompletedInternal(@Nullable Throwable notHandled) {
-    cleanup();
+    cleanup(null);
     super.requestCompletedInternal(notHandled);
   }
 
@@ -208,9 +209,12 @@ final class HttpContext extends NettyRequestContext implements Runnable {
     }
   }
 
-  private void cleanup() {
+  private void cleanup(@Nullable Throwable error) {
     BodyInputStream requestBody = this.requestBody;
     if (requestBody != null) {
+      if (error != null) {
+        requestBody.onError(error);
+      }
       requestBody.close();
       this.requestBody = null;
     }
@@ -222,7 +226,7 @@ final class HttpContext extends NettyRequestContext implements Runnable {
   }
 
   public void channelInactive() {
-    cleanup();
+    cleanup(new ClosedChannelException());
   }
 
   /**

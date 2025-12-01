@@ -50,6 +50,7 @@ import infra.web.accept.ApiVersionStrategy;
 import infra.web.bind.WebDataBinder;
 import infra.web.multipart.Multipart;
 import infra.web.multipart.MultipartRequest;
+import infra.web.multipart.NotMultipartRequestException;
 import infra.web.util.UriBuilder;
 
 /**
@@ -245,7 +246,7 @@ public interface ServerRequest extends ServerResponse.Context {
    *
    * @return the multipart data, mapping from name to part(s)
    * @throws IOException if an I/O error occurred during the retrieval
-   * @throws infra.web.bind.NotMultipartRequestException if this request is not of type {@code "multipart/form-data"}
+   * @throws NotMultipartRequestException if this request is not of type {@code "multipart/form-data"}
    * @see RequestContext#multipartRequest()
    * @see MultipartRequest#multipartData()
    */

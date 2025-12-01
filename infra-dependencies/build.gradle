@@ -577,7 +577,7 @@ dependencies {
     api("org.apache-extras.beanshell:bsh:2.0b6")
     api("org.apache.poi:poi-ooxml:5.2.3")
     api("org.apache.commons:commons-compress:1.27.1")
-    api("commons-io:commons-io:2.18.0")
+    api("commons-io:commons-io:2.21.0")
     api("org.bouncycastle:bcpkix-jdk18on:1.72")
     api("org.codehaus.jettison:jettison:1.5.4")
     api("org.crac:crac:1.4.0")

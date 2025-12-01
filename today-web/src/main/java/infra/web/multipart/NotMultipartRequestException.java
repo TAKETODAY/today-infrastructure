@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.bind;
+package infra.web.multipart;
 
 import org.jspecify.annotations.Nullable;
 

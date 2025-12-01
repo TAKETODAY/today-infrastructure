@@ -24,7 +24,7 @@ import java.util.List;
 
 import infra.http.HttpHeaders;
 import infra.util.MultiValueMap;
-import infra.web.bind.NotMultipartRequestException;
+import infra.web.multipart.NotMultipartRequestException;
 import infra.web.multipart.MaxUploadSizeExceededException;
 import infra.web.multipart.Multipart;
 import io.netty.handler.codec.http.multipart.Attribute;
