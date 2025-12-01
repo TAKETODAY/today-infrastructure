@@ -371,6 +371,7 @@ abstract class AbstractInfraArchiveIntegrationTests {
     assertThat(indexedLayers.keySet()).containsExactlyElementsOf(layerNames);
     Set<String> expectedDependencies = new TreeSet<>();
     expectedDependencies.add(this.libPath + "commons-lang3-3.9.jar");
+    expectedDependencies.add(this.libPath + "jspecify-1.0.0.jar");
     expectedDependencies.add(this.libPath + "today-core-5.0-Draft.4.jar");
     Set<String> expectedSnapshotDependencies = new TreeSet<>();
     (layerToolsJar.contains("SNAPSHOT") ? expectedSnapshotDependencies : expectedDependencies).add(layerToolsJar);
@@ -417,6 +418,7 @@ abstract class AbstractInfraArchiveIntegrationTests {
     assertThat(indexedLayers.keySet()).containsExactlyElementsOf(layerNames);
     Set<String> expectedDependencies = new TreeSet<>();
     expectedDependencies.add(this.libPath + "commons-lang3-3.9.jar");
+    expectedDependencies.add(this.libPath + "jspecify-1.0.0.jar");
     expectedDependencies.add(this.libPath + "today-core-5.0-Draft.4.jar");
     Set<String> expectedSnapshotDependencies = new TreeSet<>();
     expectedSnapshotDependencies.add(this.libPath + "library-1.0-SNAPSHOT.jar");
@@ -458,6 +460,7 @@ abstract class AbstractInfraArchiveIntegrationTests {
             "static", "app");
     assertThat(indexedLayers.keySet()).containsExactlyElementsOf(layerNames);
     Set<String> expectedDependencies = new TreeSet<>();
+    expectedDependencies.add(this.libPath + "jspecify-1.0.0.jar");
     expectedDependencies.add(this.libPath + "today-core-5.0-Draft.4.jar");
     List<String> expectedSnapshotDependencies = new ArrayList<>();
     (layerToolsJar.contains("SNAPSHOT") ? expectedSnapshotDependencies : expectedDependencies).add(layerToolsJar);
@@ -510,6 +513,7 @@ abstract class AbstractInfraArchiveIntegrationTests {
     expectedSubprojectDependencies.add(this.libPath + "bravo-1.2.3.jar");
     expectedSubprojectDependencies.add(this.libPath + "charlie-1.2.3.jar");
     Set<String> expectedDependencies = new TreeSet<>();
+    expectedDependencies.add(this.libPath + "jspecify-1.0.0.jar");
     expectedDependencies.add(this.libPath + "today-core-5.0-Draft.4.jar");
     List<String> expectedSnapshotDependencies = new ArrayList<>();
     (layerToolsJar.contains("SNAPSHOT") ? expectedSnapshotDependencies : expectedDependencies).add(layerToolsJar);
