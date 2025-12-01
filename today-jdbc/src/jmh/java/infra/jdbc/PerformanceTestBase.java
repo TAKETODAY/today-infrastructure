@@ -24,11 +24,11 @@ import java.sql.SQLException;
  */
 public abstract class PerformanceTestBase implements AutoCloseable {
 
-  public void initialize() {
+  public void initialize() throws Exception {
     init();
   }
 
-  public abstract void init();
+  public abstract void init() throws Exception;
 
   int input = 1;
 
@@ -38,7 +38,7 @@ public abstract class PerformanceTestBase implements AutoCloseable {
 
   public abstract Object run(int input) throws SQLException;
 
-  public abstract void close();
+  public abstract void close() throws Exception;
 
   String getName() {
     return getClass().getSimpleName();
