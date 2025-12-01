@@ -301,11 +301,10 @@ public abstract class WebUtils {
     return port;
   }
 
-  public static void cleanupMultipartRequest(@Nullable MultiValueMap<String, Part> multipartFiles) {
-    if (CollectionUtils.isNotEmpty(multipartFiles)) {
-      for (Map.Entry<String, List<Part>> entry : multipartFiles.entrySet()) {
-        List<Part> value = entry.getValue();
-        for (Part partFile : value) {
+  public static void cleanupMultipartRequest(@Nullable MultiValueMap<String, Part> map) {
+    if (CollectionUtils.isNotEmpty(map)) {
+      for (var entry : map.entrySet()) {
+        for (Part partFile : entry.getValue()) {
           try {
             partFile.cleanup();
           }

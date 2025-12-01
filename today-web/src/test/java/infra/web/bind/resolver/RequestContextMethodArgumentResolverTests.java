@@ -176,7 +176,7 @@ class RequestContextMethodArgumentResolverTests {
     RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
     RequestContext requestContext = mock();
     MultipartRequest multipartRequest = mock(MultipartRequest.class);
-    when(requestContext.multipartRequest()).thenReturn(multipartRequest);
+    when(requestContext.asMultipartRequest()).thenReturn(multipartRequest);
 
     Method method = TestController.class.getDeclaredMethod("handleRequest", MultipartRequest.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
@@ -265,7 +265,7 @@ class RequestContextMethodArgumentResolverTests {
   void resolveArgumentWithWrongMultipartRequestType() throws Throwable {
     RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
     RequestContext requestContext = mock();
-    when(requestContext.multipartRequest()).thenReturn(mock(MultipartRequest.class));
+    when(requestContext.asMultipartRequest()).thenReturn(mock(MultipartRequest.class));
 
     Method method = TestController.class.getDeclaredMethod("handleWrongMultipartRequest", WrongMultipartRequest.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));

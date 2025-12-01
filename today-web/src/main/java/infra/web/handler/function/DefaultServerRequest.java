@@ -277,7 +277,7 @@ class DefaultServerRequest implements ServerRequest {
   public MultiValueMap<String, Part> multipartData() throws IOException {
     MultiValueMap<String, Part> result = this.parts;
     if (result == null) {
-      result = requestContext.multipartRequest().multipartData();
+      result = requestContext.asMultipartRequest().getParts();
       this.parts = result;
     }
     return result;

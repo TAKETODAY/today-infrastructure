@@ -178,7 +178,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
 
     if (arg == null) {
       if (request.isMultipart()) {
-        List<Part> parts = request.multipartRequest().multipartData(name);
+        List<Part> parts = request.asMultipartRequest().getParts(name);
         if (parts != null) {
           arg = parts.size() == 1 ? parts.get(0) : parts;
         }

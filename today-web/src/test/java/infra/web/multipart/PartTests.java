@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/10/11 10:37
  */
-class MultipartTests {
+class PartTests {
 
   @Test
   void testGetContentTypeDefaultImplementation() {

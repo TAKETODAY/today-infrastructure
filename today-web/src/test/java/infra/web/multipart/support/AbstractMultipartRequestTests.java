@@ -25,8 +25,8 @@ import java.util.Map;
 
 import infra.test.util.ReflectionTestUtils;
 import infra.util.MultiValueMap;
-import infra.web.multipart.Part;
 import infra.web.multipart.MultipartFile;
+import infra.web.multipart.Part;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -46,9 +46,9 @@ class AbstractMultipartRequestTests {
     multipartFiles.add("file2", mock(MultipartFile.class));
 
     when(multipartRequest.getFileNames()).thenCallRealMethod();
-    when(multipartRequest.getMultipartFiles()).thenReturn(multipartFiles);
+    when(multipartRequest.getFiles()).thenReturn(multipartFiles);
 
-    Iterator<String> fileNames = multipartRequest.getFileNames();
+    Iterator<String> fileNames = multipartRequest.getFileNames().iterator();
 
     assertThat(fileNames).isNotNull();
     assertThat(fileNames.hasNext()).isTrue();
@@ -62,7 +62,7 @@ class AbstractMultipartRequestTests {
     multipartFiles.add("test-file", expectedFile);
 
     when(multipartRequest.getFile("test-file")).thenCallRealMethod();
-    when(multipartRequest.getMultipartFiles()).thenReturn(multipartFiles);
+    when(multipartRequest.getFiles()).thenReturn(multipartFiles);
 
     MultipartFile result = multipartRequest.getFile("test-file");
 
@@ -75,7 +75,7 @@ class AbstractMultipartRequestTests {
     MultiValueMap<String, MultipartFile> multipartFiles = MultiValueMap.forLinkedHashMap();
 
     when(multipartRequest.getFile("nonexistent")).thenCallRealMethod();
-    when(multipartRequest.getMultipartFiles()).thenReturn(multipartFiles);
+    when(multipartRequest.getFiles()).thenReturn(multipartFiles);
 
     MultipartFile result = multipartRequest.getFile("nonexistent");
 
@@ -92,7 +92,7 @@ class AbstractMultipartRequestTests {
     multipartFiles.add("test-file", file2);
 
     when(multipartRequest.getFiles("test-file")).thenCallRealMethod();
-    when(multipartRequest.getMultipartFiles()).thenReturn(multipartFiles);
+    when(multipartRequest.getFiles()).thenReturn(multipartFiles);
 
     List<MultipartFile> result = multipartRequest.getFiles("test-file");
 
@@ -109,7 +109,7 @@ class AbstractMultipartRequestTests {
     multipartFiles.add("file2", file2);
 
     when(multipartRequest.getFileMap()).thenCallRealMethod();
-    when(multipartRequest.getMultipartFiles()).thenReturn(multipartFiles);
+    when(multipartRequest.getFiles()).thenReturn(multipartFiles);
 
     Map<String, MultipartFile> result = multipartRequest.getFileMap();
 
@@ -119,7 +119,7 @@ class AbstractMultipartRequestTests {
   }
 
   @Test
-  void getMultipartFilesInitializesFromMultipartData() {
+  void getMultipartFilesInitializesFromGetParts() {
     AbstractMultipartRequest multipartRequest = mock(AbstractMultipartRequest.class);
     MultiValueMap<String, Part> parts = MultiValueMap.forLinkedHashMap();
     MultipartFile multipart1 = mock(MultipartFile.class);
@@ -129,24 +129,24 @@ class AbstractMultipartRequestTests {
     parts.add("file1", multipart1);
     parts.add("field1", part2);
 
-    when(multipartRequest.getMultipartFiles()).thenCallRealMethod();
-    when(multipartRequest.multipartData()).thenReturn(parts);
+    when(multipartRequest.getFiles()).thenCallRealMethod();
+    when(multipartRequest.getParts()).thenReturn(parts);
 
-    MultiValueMap<String, MultipartFile> result = multipartRequest.getMultipartFiles();
+    MultiValueMap<String, MultipartFile> result = multipartRequest.getFiles();
 
     assertThat(result).hasSize(1);
     assertThat(result.getFirst("file1")).isEqualTo(multipart1);
   }
 
   @Test
-  void multipartDataReturnsParsedRequest() {
+  void getPartsReturnsParsedRequest() {
     AbstractMultipartRequest multipartRequest = mock(AbstractMultipartRequest.class);
     MultiValueMap<String, Part> parsedParts = MultiValueMap.forLinkedHashMap();
 
-    when(multipartRequest.multipartData()).thenCallRealMethod();
+    when(multipartRequest.getParts()).thenCallRealMethod();
     when(multipartRequest.parseRequest()).thenReturn(parsedParts);
 
-    MultiValueMap<String, Part> result = multipartRequest.multipartData();
+    MultiValueMap<String, Part> result = multipartRequest.getParts();
 
     assertThat(result).isSameAs(parsedParts);
   }

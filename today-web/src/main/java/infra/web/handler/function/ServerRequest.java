@@ -246,8 +246,8 @@ public interface ServerRequest extends ServerResponse.Context {
    * @return the multipart data, mapping from name to part(s)
    * @throws IOException if an I/O error occurred during the retrieval
    * @throws infra.web.bind.NotMultipartRequestException if this request is not of type {@code "multipart/form-data"}
-   * @see RequestContext#multipartRequest()
-   * @see MultipartRequest#multipartData()
+   * @see RequestContext#asMultipartRequest()
+   * @see MultipartRequest#getParts()
    */
   MultiValueMap<String, Part> multipartData() throws IOException;
 

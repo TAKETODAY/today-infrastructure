@@ -1642,7 +1642,7 @@ class DecoratingRequestContextTests {
   void multipartRequest_ShouldDelegateToDelegate() {
     RequestContext delegate = mock(RequestContext.class);
     MultipartRequest multipartRequest = mock(MultipartRequest.class);
-    when(delegate.multipartRequest()).thenReturn(multipartRequest);
+    when(delegate.asMultipartRequest()).thenReturn(multipartRequest);
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
@@ -1651,10 +1651,10 @@ class DecoratingRequestContextTests {
       }
     };
 
-    MultipartRequest result = wrapper.multipartRequest();
+    MultipartRequest result = wrapper.asMultipartRequest();
 
     assertThat(result).isSameAs(multipartRequest);
-    verify(delegate).multipartRequest();
+    verify(delegate).asMultipartRequest();
   }
 
   @Test

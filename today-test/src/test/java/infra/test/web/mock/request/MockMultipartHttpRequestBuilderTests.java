@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MockMultipartHttpRequestBuilderTests {
 
   @Test
-    // gh-26166
   void addFileAndParts() throws Exception {
     MockMultipartHttpMockRequest mockRequest =
             (MockMultipartHttpMockRequest) new MockMultipartHttpRequestBuilder("/upload")
@@ -47,7 +46,7 @@ public class MockMultipartHttpRequestBuilderTests {
                     .part(new MockPart("name", "value".getBytes(UTF_8)))
                     .buildRequest(new MockContextImpl());
 
-    assertThat(mockRequest.getFileMap()).containsOnlyKeys("file");
+    assertThat(mockRequest.getMultipartRequest().getFileMap()).containsOnlyKeys("file");
     assertThat(mockRequest.getParameterMap()).containsOnlyKeys("name");
     assertThat(mockRequest.getParts()).extracting(Part::getName).containsExactly("name");
   }
@@ -64,7 +63,7 @@ public class MockMultipartHttpRequestBuilderTests {
                     .part(jsonPart)
                     .buildRequest(new MockContextImpl());
 
-    assertThat(mockRequest.getFileMap()).containsOnlyKeys("file");
+    assertThat(mockRequest.getMultipartRequest().getFileMap()).containsOnlyKeys("file");
     assertThat(mockRequest.getParameterMap()).hasSize(1);
     assertThat(mockRequest.getParameter("data")).isEqualTo("{\"node\":\"node\"}");
     assertThat(mockRequest.getParts()).extracting(Part::getName).containsExactly("data");

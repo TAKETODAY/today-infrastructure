@@ -19,14 +19,13 @@ package infra.web.multipart.support;
 
 import org.jspecify.annotations.Nullable;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import infra.util.MultiValueMap;
-import infra.web.multipart.Part;
 import infra.web.multipart.MultipartFile;
 import infra.web.multipart.MultipartRequest;
+import infra.web.multipart.Part;
 import infra.web.util.WebUtils;
 
 /**
@@ -43,28 +42,33 @@ public abstract class AbstractMultipartRequest implements MultipartRequest {
   private @Nullable MultiValueMap<String, MultipartFile> multipartFiles;
 
   @Override
-  public Iterator<String> getFileNames() {
-    return getMultipartFiles().keySet().iterator();
+  public Iterable<String> getFileNames() {
+    return getFiles().keySet();
+  }
+
+  @Override
+  public Iterable<String> getPartNames() {
+    return getParts().keySet();
   }
 
   @Override
   public @Nullable MultipartFile getFile(String name) {
-    return getMultipartFiles().getFirst(name);
+    return getFiles().getFirst(name);
   }
 
   @Override
   public @Nullable List<MultipartFile> getFiles(String name) {
-    return getMultipartFiles().get(name);
+    return getFiles().get(name);
   }
 
   @Override
-  public @Nullable List<Part> multipartData(String name) {
-    return multipartData().get(name);
+  public @Nullable List<Part> getParts(String name) {
+    return getParts().get(name);
   }
 
   @Override
   public Map<String, MultipartFile> getFileMap() {
-    return getMultipartFiles().toSingleValueMap();
+    return getFiles().toSingleValueMap();
   }
 
   /**
@@ -74,11 +78,11 @@ public abstract class AbstractMultipartRequest implements MultipartRequest {
    * @see #parseRequest()
    */
   @Override
-  public MultiValueMap<String, MultipartFile> getMultipartFiles() {
+  public MultiValueMap<String, MultipartFile> getFiles() {
     var multipartFiles = this.multipartFiles;
     if (multipartFiles == null) {
       multipartFiles = MultiValueMap.forLinkedHashMap();
-      for (Map.Entry<String, List<Part>> entry : multipartData().entrySet()) {
+      for (Map.Entry<String, List<Part>> entry : getParts().entrySet()) {
         for (Part part : entry.getValue()) {
           if (!part.isFormField()) {
             multipartFiles.add(entry.getKey(), (MultipartFile) part);
@@ -91,7 +95,7 @@ public abstract class AbstractMultipartRequest implements MultipartRequest {
   }
 
   @Override
-  public MultiValueMap<String, Part> multipartData() {
+  public MultiValueMap<String, Part> getParts() {
     var parts = this.parts;
     if (parts == null) {
       parts = parseRequest();
@@ -100,13 +104,18 @@ public abstract class AbstractMultipartRequest implements MultipartRequest {
     return parts;
   }
 
+  @Override
+  public @Nullable Part getPart(String name) {
+    return getParts().getFirst(name);
+  }
+
   /**
    * Determine whether the underlying multipart request has been resolved.
    *
    * @return {@code true} when eagerly initialized or lazily triggered,
    * {@code false} in case of a lazy-resolution request that got aborted
    * before any parameters or multipart files have been accessed
-   * @see #getMultipartFiles()
+   * @see #getFiles()
    */
   public boolean isResolved() {
     return parts != null;

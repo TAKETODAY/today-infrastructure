@@ -67,7 +67,7 @@ public class RequestPartServerHttpRequest extends HttpRequestDecorator implement
     super(request);
     this.request = request;
     this.requestPartName = requestPartName;
-    this.multipartRequest = request.multipartRequest();
+    this.multipartRequest = request.asMultipartRequest();
     HttpHeaders multipartHeaders = multipartRequest.getMultipartHeaders(requestPartName);
     if (multipartHeaders == null) {
       throw new MissingRequestPartException(requestPartName);
@@ -82,7 +82,7 @@ public class RequestPartServerHttpRequest extends HttpRequestDecorator implement
 
   @Override
   public InputStream getBody() throws IOException {
-    Part part = CollectionUtils.firstElement(multipartRequest.multipartData(requestPartName));
+    Part part = CollectionUtils.firstElement(multipartRequest.getParts(requestPartName));
     if (part instanceof MultipartFile file) {
       return file.getInputStream();
     }

@@ -19,6 +19,7 @@ package infra.web.bind.resolver;
 
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
@@ -26,8 +27,8 @@ import infra.core.MethodParameter;
 import infra.core.ResolvableType;
 import infra.util.CollectionUtils;
 import infra.web.RequestContext;
-import infra.web.multipart.Part;
 import infra.web.multipart.MultipartFile;
+import infra.web.multipart.Part;
 
 /**
  * A common delegate for {@code ParameterResolvingStrategy} implementations
@@ -55,7 +56,7 @@ final class MultipartResolutionDelegate {
   }
 
   @Nullable
-  public static Object resolveMultipartArgument(String name, MethodParameter parameter, RequestContext request) {
+  public static Object resolveMultipartArgument(String name, MethodParameter parameter, RequestContext request) throws IOException {
     if (!request.isMultipart()) {
       if (isMultipartArgument(parameter)) {
         return null;
@@ -65,13 +66,13 @@ final class MultipartResolutionDelegate {
 
     Class<?> parameterType = parameter.getNestedParameterType();
     if (Part.class.isAssignableFrom(parameterType)) {
-      return CollectionUtils.firstElement(request.multipartRequest().multipartData(name));
+      return CollectionUtils.firstElement(request.asMultipartRequest().getParts(name));
     }
     else if (isMultipartCollection(parameter, parameterType)) {
-      return request.multipartRequest().multipartData(name);
+      return request.asMultipartRequest().getParts(name);
     }
     else if (isMultipartArray(parameterType)) {
-      List<Part> parts = request.multipartRequest().multipartData(name);
+      List<Part> parts = request.asMultipartRequest().getParts(name);
       if (parts == null) {
         return null;
       }
