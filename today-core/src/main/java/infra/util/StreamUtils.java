@@ -28,6 +28,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
 
 import infra.lang.Assert;
 import infra.lang.Constant;
@@ -171,12 +172,16 @@ public abstract class StreamUtils {
    * Copy the contents of the given InputStream to the given OutputStream.
    * <p>Leaves both streams open when done.
    *
+   * <p>
+   * The buffer size is given by {@link #BUFFER_SIZE}.
+   * </p>
+   *
    * @param in the InputStream to copy from
    * @param out the OutputStream to copy to
    * @return the number of bytes copied
    * @throws IOException in case of I/O errors
    */
-  public static int copy(InputStream in, OutputStream out) throws IOException {
+  public static long copy(InputStream in, OutputStream out) throws IOException {
     return copy(in, out, BUFFER_SIZE);
   }
 
@@ -190,19 +195,34 @@ public abstract class StreamUtils {
    * @return the number of bytes copied
    * @throws IOException in case of I/O errors
    */
-  public static int copy(InputStream in, OutputStream out, int bufferSize) throws IOException {
+  public static long copy(InputStream in, OutputStream out, int bufferSize) throws IOException {
+    return copy(in, out, new byte[bufferSize]);
+  }
+
+  /**
+   * Copy the contents of the given InputStream to the given OutputStream.
+   * <p>Leaves both streams open when done.
+   *
+   * @param in the InputStream to copy from
+   * @param out the OutputStream to copy to
+   * @param buffer the buffer to use for the copy
+   * @return the number of bytes copied
+   * @throws IOException in case of I/O errors
+   * @throws NullPointerException if the buffer is {@code null}.
+   * @since 5.0
+   */
+  public static long copy(InputStream in, OutputStream out, byte[] buffer) throws IOException {
     Assert.notNull(in, "No InputStream specified");
     Assert.notNull(out, "No OutputStream specified");
 
-    int byteCount = 0;
-    byte[] buffer = new byte[bufferSize];
-    int bytesRead;
-    while ((bytesRead = in.read(buffer)) != -1) {
-      out.write(buffer, 0, bytesRead);
-      byteCount += bytesRead;
+    long count = 0;
+    int n;
+    while ((n = in.read(buffer)) != -1) {
+      out.write(buffer, 0, n);
+      count += n;
     }
     out.flush();
-    return byteCount;
+    return count;
   }
 
   /**
@@ -297,6 +317,60 @@ public abstract class StreamUtils {
   public static OutputStream nonClosing(OutputStream out) {
     Assert.notNull(out, "No OutputStream specified");
     return new NonClosingOutputStream(out);
+  }
+
+  /**
+   * Closes an {@link AutoCloseable} unconditionally.
+   * <p>
+   * Equivalent to {@link AutoCloseable#close()}, except any exceptions will be ignored.
+   * This is typically used in finally blocks.
+   * </p>
+   * <p>
+   * Example code:
+   * </p>
+   * <pre>
+   *   byte[] data = new byte[1024];
+   *   InputStream in = null;
+   *   try {
+   *       in = new FileInputStream("foo.txt");
+   *       in.read(data);
+   *       in.close(); //close errors are handled
+   *   } catch (Exception e) {
+   *       // error handling
+   *   } finally {
+   *       StreamUtils.closeQuietly(in);
+   *   }
+   * </pre>
+   * <p>
+   * Also consider using a try-with-resources statement where appropriate.
+   * </p>
+   *
+   * @param input the InputStream to close, may be null or already closed.
+   * @see Throwable#addSuppressed(Throwable)
+   * @since 5.0
+   */
+  public static void closeQuietly(final AutoCloseable input) {
+    closeQuietly(input, null);
+  }
+
+  /**
+   * Closes the given {@link AutoCloseable} as a null-safe operation while consuming IOException by the given {@code consumer}.
+   *
+   * @param closeable The resource to close, may be null.
+   * @param consumer Consumes the Exception thrown by {@link AutoCloseable#close()}.
+   * @since 5.0
+   */
+  public static void closeQuietly(final @Nullable AutoCloseable closeable, final @Nullable Consumer<Exception> consumer) {
+    if (closeable != null) {
+      try {
+        closeable.close();
+      }
+      catch (final Exception e) {
+        if (consumer != null) {
+          consumer.accept(e);
+        }
+      }
+    }
   }
 
   private static class NonClosingInputStream extends FilterInputStream {
