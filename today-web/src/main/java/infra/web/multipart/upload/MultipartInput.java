@@ -648,23 +648,6 @@ final class MultipartInput {
   }
 
   /**
-   * Searches for a byte of specified value in the {@code buffer}, starting at the specified {@code position}.
-   *
-   * @param value The value to find.
-   * @param pos The starting position for searching.
-   * @return The position of byte found, counting from beginning of the {@code buffer}, or {@code -1} if not found.
-   */
-  private int findByte(final byte value, final int pos) {
-    for (var i = pos; i < tail; i++) {
-      if (buffer[i] == value) {
-        return i;
-      }
-    }
-
-    return -1;
-  }
-
-  /**
    * Searches for the {@code boundary} in the {@code buffer} region delimited by {@code head} and {@code tail}.
    *
    * @return The position of the boundary found, counting from the beginning of the {@code buffer}, or {@code -1} if not found.

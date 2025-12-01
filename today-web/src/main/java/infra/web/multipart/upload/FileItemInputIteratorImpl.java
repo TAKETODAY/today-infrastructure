@@ -56,11 +56,6 @@ class FileItemInputIteratorImpl implements FileItemInputIterator {
   private final FileUpload<?, ?> fileUpload;
 
   /**
-   * The request context.
-   */
-  private final RequestContext context;
-
-  /**
    * The maximum allowed size of a complete request.
    */
   private final long sizeMax;
@@ -128,7 +123,6 @@ class FileItemInputIteratorImpl implements FileItemInputIterator {
       throw new NotMultipartRequestException(String.format("the request doesn't contain a %s or %s stream, content type header is %s",
               FileUpload.MULTIPART_FORM_DATA, FileUpload.MULTIPART_MIXED, context.getContentType()), null);
     }
-    this.context = context;
     this.fileUpload = fileUpload;
     this.sizeMax = fileUpload.getMaxSize();
     this.fileSizeMax = fileUpload.getMaxFileSize();
