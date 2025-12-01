@@ -60,7 +60,7 @@ import infra.web.RequestContext;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.async.AsyncWebRequest;
 import infra.web.bind.WebDataBinder;
-import infra.web.multipart.Multipart;
+import infra.web.multipart.Part;
 import infra.web.multipart.MultipartRequest;
 import infra.web.util.UriBuilder;
 import infra.web.util.UriComponentsBuilder;
@@ -89,7 +89,7 @@ class DefaultServerRequest implements ServerRequest {
   private final ApiVersionStrategy versionStrategy;
 
   @Nullable
-  private MultiValueMap<String, Multipart> parts;
+  private MultiValueMap<String, Part> parts;
 
   public DefaultServerRequest(RequestContext servletRequest, List<HttpMessageConverter<?>> messageConverters) {
     this(servletRequest, messageConverters, null);
@@ -274,10 +274,10 @@ class DefaultServerRequest implements ServerRequest {
   }
 
   @Override
-  public MultiValueMap<String, Multipart> multipartData() throws IOException {
-    MultiValueMap<String, Multipart> result = this.parts;
+  public MultiValueMap<String, Part> multipartData() throws IOException {
+    MultiValueMap<String, Part> result = this.parts;
     if (result == null) {
-      result = requestContext.multipartRequest().multipartData();
+      result = requestContext.asMultipartRequest().getParts();
       this.parts = result;
     }
     return result;

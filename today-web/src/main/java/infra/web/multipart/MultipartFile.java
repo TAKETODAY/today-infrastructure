@@ -45,7 +45,7 @@ import infra.core.io.Resource;
  * @see MultipartRequest
  * @since 2018-07-11 13:02:52
  */
-public interface MultipartFile extends Multipart, InputStreamSource {
+public interface MultipartFile extends Part, InputStreamSource {
 
   /**
    * Return the content type of the file.
@@ -104,7 +104,7 @@ public interface MultipartFile extends Multipart, InputStreamSource {
    * @since 2.3.3
    */
   @Override
-  byte[] getBytes() throws IOException;
+  byte[] getContentAsByteArray() throws IOException;
 
   /**
    * Get original resource

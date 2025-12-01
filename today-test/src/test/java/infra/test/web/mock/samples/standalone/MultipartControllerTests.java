@@ -251,8 +251,8 @@ class MultipartControllerTests {
             @RequestPart(required = false) Map<String, String> json) throws IOException {
 
       if (file != null && file.length > 0) {
-        byte[] content = file[0].getBytes();
-        assertThat(file[1].getBytes()).isEqualTo(content);
+        byte[] content = file[0].getContentAsByteArray();
+        assertThat(file[1].getContentAsByteArray()).isEqualTo(content);
       }
       return "redirect:/index";
     }
@@ -262,8 +262,8 @@ class MultipartControllerTests {
             @RequestPart(required = false) Map<String, String> json) throws IOException {
 
       if (file != null && !file.isEmpty()) {
-        byte[] content = file.get(0).getBytes();
-        assertThat(file.get(1).getBytes()).isEqualTo(content);
+        byte[] content = file.get(0).getContentAsByteArray();
+        assertThat(file.get(1).getContentAsByteArray()).isEqualTo(content);
       }
       return "redirect:/index";
     }
@@ -281,8 +281,8 @@ class MultipartControllerTests {
             throws IOException {
 
       if (file != null) {
-        byte[] content = file[0].getBytes();
-        assertThat(file[1].getBytes()).isEqualTo(content);
+        byte[] content = file[0].getContentAsByteArray();
+        assertThat(file[1].getContentAsByteArray()).isEqualTo(content);
       }
       return "redirect:/index";
     }
@@ -293,8 +293,8 @@ class MultipartControllerTests {
             throws IOException {
 
       if (file != null) {
-        byte[] content = file.get(0).getBytes();
-        assertThat(file.get(1).getBytes()).isEqualTo(content);
+        byte[] content = file.get(0).getContentAsByteArray();
+        assertThat(file.get(1).getContentAsByteArray()).isEqualTo(content);
       }
 
       return "redirect:/index";
@@ -318,7 +318,7 @@ class MultipartControllerTests {
       if (!bindingResult.hasErrors()) {
         MultipartFile file = multipartFileBean.getFile();
         if (file != null) {
-          model.addAttribute("fileContent", file.getBytes());
+          model.addAttribute("fileContent", file.getContentAsByteArray());
         }
       }
       return "redirect:/index";

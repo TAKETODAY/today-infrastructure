@@ -355,8 +355,8 @@ class RequestContextDecoratorTests {
     decorator.isConcurrentHandlingStarted();
     verify(mockRequest).isConcurrentHandlingStarted();
 
-    decorator.multipartRequest();
-    verify(mockRequest).multipartRequest();
+    decorator.asMultipartRequest();
+    verify(mockRequest).asMultipartRequest();
 
     decorator.asyncManager();
     verify(mockRequest).asyncManager();

@@ -35,7 +35,7 @@ class AbstractMultipartTests {
 
   @Test
   void getHeadersReturnsDefaultHeadersWhenNotSet() {
-    AbstractMultipart multipart = mock(AbstractMultipart.class);
+    AbstractPart multipart = mock(AbstractPart.class);
     when(multipart.getHeaders()).thenCallRealMethod();
     when(multipart.getContentType()).thenReturn("text/plain");
     when(multipart.createHttpHeaders()).thenCallRealMethod();
@@ -48,7 +48,7 @@ class AbstractMultipartTests {
 
   @Test
   void getHeadersReturnsSetHeaders() {
-    AbstractMultipart multipart = mock(AbstractMultipart.class);
+    AbstractPart multipart = mock(AbstractPart.class);
     HttpHeaders customHeaders = new DefaultHttpHeaders();
     customHeaders.set("X-Custom", "value");
 
@@ -60,7 +60,7 @@ class AbstractMultipartTests {
 
   @Test
   void createHttpHeadersIncludesContentType() {
-    AbstractMultipart multipart = mock(AbstractMultipart.class);
+    AbstractPart multipart = mock(AbstractPart.class);
     when(multipart.createHttpHeaders()).thenCallRealMethod();
     when(multipart.getContentType()).thenReturn("application/json");
 
@@ -71,7 +71,7 @@ class AbstractMultipartTests {
 
   @Test
   void createHttpHeadersHandlesNullContentType() {
-    AbstractMultipart multipart = mock(AbstractMultipart.class);
+    AbstractPart multipart = mock(AbstractPart.class);
     when(multipart.createHttpHeaders()).thenCallRealMethod();
     when(multipart.getContentType()).thenReturn(null);
 
@@ -82,7 +82,7 @@ class AbstractMultipartTests {
 
   @Test
   void toStringReturnsFormattedString() {
-    AbstractMultipart multipart = mock(AbstractMultipart.class);
+    AbstractPart multipart = mock(AbstractPart.class);
     when(multipart.toString()).thenCallRealMethod();
     when(multipart.getName()).thenReturn("test-name");
     when(multipart.getValue()).thenReturn("test-value");

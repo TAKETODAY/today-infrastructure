@@ -556,8 +556,8 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public MultipartRequest multipartRequest() {
-    return getDelegate().multipartRequest();
+  public MultipartRequest asMultipartRequest() {
+    return getDelegate().asMultipartRequest();
   }
 
   @Override

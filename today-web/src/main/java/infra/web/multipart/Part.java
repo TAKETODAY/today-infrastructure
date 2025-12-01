@@ -27,7 +27,7 @@ import infra.http.HttpHeaders;
  * Representation for a part in a "multipart/form-data" request.
  *
  * <p>The origin of a multipart request may be a browser form in which case each
- * part is either a FormField or a {@link MultipartFile}.
+ * part is either a {@link FormField} or a {@link MultipartFile}.
  *
  * <p>Multipart requests may also be used outside of a browser for data of any
  * content type (e.g. JSON, PDF, etc).
@@ -38,7 +38,7 @@ import infra.http.HttpHeaders;
  * @see <a href="https://www.w3.org/TR/html5/forms.html#multipart-form-data">HTML5 (multipart forms)</a>
  * @since 4.0 2022/4/28 22:04
  */
-public interface Multipart {
+public interface Part {
 
   /**
    * Gets the name of this part.
@@ -64,13 +64,14 @@ public interface Multipart {
   }
 
   /**
-   * Returns the contents of the file item as an array of bytes.<br>
+   * Returns the contents of this part as an array of bytes.
+   * <p>
    * Note: this method will allocate a lot of memory,
    * if the data is currently stored on the file system.
    *
-   * @return the contents of the file item as an array of bytes.
+   * @return the contents of this part as an array of bytes.
    */
-  byte[] getBytes() throws IOException;
+  byte[] getContentAsByteArray() throws IOException;
 
   /**
    * Determines whether or not a {@code Multipart} instance represents

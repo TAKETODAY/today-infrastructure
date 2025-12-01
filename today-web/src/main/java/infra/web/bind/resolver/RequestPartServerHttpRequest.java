@@ -31,7 +31,7 @@ import infra.http.client.support.HttpRequestDecorator;
 import infra.util.CollectionUtils;
 import infra.web.RequestContext;
 import infra.web.bind.MultipartException;
-import infra.web.multipart.Multipart;
+import infra.web.multipart.Part;
 import infra.web.multipart.MultipartFile;
 import infra.web.multipart.MultipartRequest;
 
@@ -67,7 +67,7 @@ public class RequestPartServerHttpRequest extends HttpRequestDecorator implement
     super(request);
     this.request = request;
     this.requestPartName = requestPartName;
-    this.multipartRequest = request.multipartRequest();
+    this.multipartRequest = request.asMultipartRequest();
     HttpHeaders multipartHeaders = multipartRequest.getMultipartHeaders(requestPartName);
     if (multipartHeaders == null) {
       throw new MissingRequestPartException(requestPartName);
@@ -82,12 +82,12 @@ public class RequestPartServerHttpRequest extends HttpRequestDecorator implement
 
   @Override
   public InputStream getBody() throws IOException {
-    Multipart multipart = CollectionUtils.firstElement(multipartRequest.multipartData(requestPartName));
-    if (multipart instanceof MultipartFile file) {
+    Part part = CollectionUtils.firstElement(multipartRequest.getParts(requestPartName));
+    if (part instanceof MultipartFile file) {
       return file.getInputStream();
     }
-    else if (multipart != null) {
-      return new ByteArrayInputStream(multipart.getBytes());
+    else if (part != null) {
+      return new ByteArrayInputStream(part.getContentAsByteArray());
     }
 
     String paramValue = request.getParameter(requestPartName);

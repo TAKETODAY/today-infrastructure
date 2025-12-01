@@ -171,7 +171,7 @@ public class MockMultipartFile implements MultipartFile {
   }
 
   @Override
-  public byte[] getBytes() throws IOException {
+  public byte[] getContentAsByteArray() throws IOException {
     return this.content;
   }
 

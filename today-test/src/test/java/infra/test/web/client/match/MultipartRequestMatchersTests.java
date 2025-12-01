@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -136,9 +136,9 @@ public class MultipartRequestMatchersTests {
     this.input.add(f3.getName(), f3.getResource());
 
     this.expected.addAll(this.input);
-    this.expected.setOrRemove(f1.getName(), f1.getBytes());
-    this.expected.setOrRemove(f2.getName(), f2.getBytes());
-    this.expected.setOrRemove(f3.getName(), f3.getBytes());
+    this.expected.setOrRemove(f1.getName(), f1.getContentAsByteArray());
+    this.expected.setOrRemove(f2.getName(), f2.getContentAsByteArray());
+    this.expected.setOrRemove(f3.getName(), f3.getContentAsByteArray());
 
     writeAndAssert();
   }
@@ -154,7 +154,7 @@ public class MultipartRequestMatchersTests {
     this.input.add(f2.getName(), f2.getResource());
 
     this.expected.addAll(this.input);
-    this.expected.setOrRemove(f1.getName(), f2.getBytes());
+    this.expected.setOrRemove(f1.getName(), f2.getContentAsByteArray());
 
     assertThatExceptionOfType(AssertionError.class).isThrownBy(this::writeAndAssert);
   }

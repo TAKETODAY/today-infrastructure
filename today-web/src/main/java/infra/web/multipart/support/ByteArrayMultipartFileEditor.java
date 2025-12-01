@@ -38,7 +38,7 @@ public class ByteArrayMultipartFileEditor extends ByteArrayPropertyEditor {
   public void setValue(@Nullable Object value) {
     if (value instanceof MultipartFile multipartFile) {
       try {
-        super.setValue(multipartFile.getBytes());
+        super.setValue(multipartFile.getContentAsByteArray());
       }
       catch (IOException ex) {
         throw new IllegalArgumentException("Cannot read contents of multipart file", ex);
