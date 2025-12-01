@@ -399,14 +399,9 @@ public class SelectBenchmark {
   static class JOOQSelect extends PerformanceTestBase {
     ResultQuery q;
 
-    public void init() {
+    public void init() throws Exception {
       DSLContext create;
-      try {
-        create = DSL.using(DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD), JOOQ_DIALECT);
-      }
-      catch (SQLException e) {
-        throw new RuntimeException("Error initializing jOOQ DSLContext", e);
-      }
+      create = DSL.using(DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD), JOOQ_DIALECT);
 
       q = create.select()
               .from("post")
@@ -431,14 +426,9 @@ public class SelectBenchmark {
     private PreparedStatement stmt = null;
 
     @Override
-    public void init() {
-      try {
-        conn = operations.open().getJdbcConnection();
-        stmt = conn.prepareStatement(SELECT_TYPICAL + " WHERE id = ?");
-      }
-      catch (SQLException se) {
-        throw new RuntimeException("error when executing query", se);
-      }
+    public void init() throws SQLException {
+      conn = operations.open().getJdbcConnection();
+      stmt = conn.prepareStatement(SELECT_TYPICAL + " WHERE id = ?");
     }
 
     private Integer getNullableInt(ResultSet rs, String colName) throws SQLException {
@@ -447,7 +437,7 @@ public class SelectBenchmark {
     }
 
     @Override
-    public Object run(int input) {
+    public Object run(int input) throws SQLException {
       ResultSet rs = null;
 
       try {
@@ -472,9 +462,6 @@ public class SelectBenchmark {
           p.setCounter9(getNullableInt(rs, "counter9"));
           return p;
         }
-      }
-      catch (SQLException e) {
-        throw new RuntimeException("error when executing query", e);
       }
       finally {
         if (rs != null) {
@@ -568,23 +555,13 @@ public class SelectBenchmark {
     }
 
     @Override
-    public Object run(int input) {
-      try {
-        return runner.query(conn, SELECT_TYPICAL + " WHERE id = ?", rsHandler, input);
-      }
-      catch (SQLException e) {
-        throw new RuntimeException(e);
-      }
+    public Object run(int input) throws SQLException {
+      return runner.query(conn, SELECT_TYPICAL + " WHERE id = ?", rsHandler, input);
     }
 
     @Override
-    public void close() {
-      try {
-        DbUtils.close(conn);
-      }
-      catch (SQLException e) {
-        throw new RuntimeException(e);
-      }
+    public void close() throws Exception {
+      DbUtils.close(conn);
     }
   }
 
