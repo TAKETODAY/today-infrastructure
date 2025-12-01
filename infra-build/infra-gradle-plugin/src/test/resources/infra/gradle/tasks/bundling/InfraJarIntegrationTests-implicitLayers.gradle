@@ -17,7 +17,7 @@ repositories {
 dependencies {
 	implementation("com.example:library:1.0-SNAPSHOT")
 	implementation("org.apache.commons:commons-lang3:3.9")
-	implementation("cn.taketoday:today-core:5.0.0-Draft.1")
+	implementation("cn.taketoday:today-core:5.0-Draft.4")
 }
 
 task listLayers(type: JavaExec) {
