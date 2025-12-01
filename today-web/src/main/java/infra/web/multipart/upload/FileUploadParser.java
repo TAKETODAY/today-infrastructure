@@ -47,7 +47,7 @@ import infra.web.RequestContext;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-public class FileUpload<I extends FileItem<I>, F extends FileItemFactory<I>> {
+public class FileUploadParser<I extends FileItem<I>, F extends FileItemFactory<I>> {
 
   /**
    * Boundary parameter key.
@@ -142,7 +142,7 @@ public class FileUpload<I extends FileItem<I>, F extends FileItemFactory<I>> {
   /**
    * Constructs a new instance for subclasses.
    */
-  public FileUpload() {
+  public FileUploadParser() {
     // empty
   }
 
@@ -423,7 +423,7 @@ public class FileUpload<I extends FileItem<I>, F extends FileItemFactory<I>> {
         if (size == maxFileCount) {
           // The next item will exceed the limit.
           throw new FileUploadFileCountLimitException(
-                  String.format("Request '%s' failed: Maximum file count %,d exceeded.", MULTIPART_FORM_DATA, Long.valueOf(maxFileCount)),
+                  String.format("Request '%s' failed: Maximum file count %,d exceeded.", MULTIPART_FORM_DATA, maxFileCount),
                   getMaxFileCount(), size);
         }
         // Don't use getName() here to prevent an InvalidFileNameException.

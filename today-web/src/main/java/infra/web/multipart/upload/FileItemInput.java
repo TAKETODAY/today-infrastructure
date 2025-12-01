@@ -30,7 +30,7 @@ import infra.web.RequestContext;
  * The items contents are retrieved by calling {@link #getInputStream()}.
  * </p>
  * <p>
- * Instances of this class are created by accessing the iterator, returned by {@link FileUpload#getItemIterator(RequestContext)}.
+ * Instances of this class are created by accessing the iterator, returned by {@link FileUploadParser#getItemIterator(RequestContext)}.
  * </p>
  * <p>
  * <em>Note</em>: There is an interaction between the iterator and its associated instances of {@link FileItemInput}: By invoking

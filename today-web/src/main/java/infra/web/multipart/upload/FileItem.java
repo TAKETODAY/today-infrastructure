@@ -31,7 +31,7 @@ import java.nio.file.Path;
  * This class represents a file or form item that was received within a {@code multipart/form-data} POST request.
  * </p>
  * <p>
- * After retrieving an instance of this class from a {@link FileUpload FileUpload} instance, you may either request all
+ * After retrieving an instance of this class from a {@link FileUploadParser FileUploadParser} instance, you may either request all
  * contents of the file at once using {@link #getContentAsByteArray()} or request an {@link InputStream} with
  * {@link #getInputStream()} and process the file without attempting to load it into memory, which may come handy with large files.
  * </p>
