@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,18 +20,19 @@ package infra.web.server.support;
 import java.io.IOException;
 
 import infra.util.ExceptionUtils;
-import infra.web.multipart.support.AbstractMultipart;
+import infra.web.multipart.FormField;
+import infra.web.multipart.support.AbstractPart;
 import io.netty.handler.codec.http.multipart.Attribute;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/11/3 22:50
  */
-public class NettyFormData extends AbstractMultipart {
+public class NettyFormField extends AbstractPart implements FormField {
 
   private final Attribute attribute;
 
-  NettyFormData(Attribute attribute) {
+  NettyFormField(Attribute attribute) {
     this.attribute = attribute;
   }
 
@@ -46,7 +47,7 @@ public class NettyFormData extends AbstractMultipart {
   }
 
   @Override
-  public byte[] getBytes() throws IOException {
+  public byte[] getContentAsByteArray() throws IOException {
     return attribute.get();
   }
 

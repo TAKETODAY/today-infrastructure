@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/10/11 21:57
  */
-class NettyFormDataTests {
+class NettyFormFieldTests {
 
   @Test
   void shouldReturnCorrectValue() throws IOException {
@@ -40,7 +40,7 @@ class NettyFormDataTests {
     Attribute attribute = mock(Attribute.class);
     when(attribute.getValue()).thenReturn("testValue");
 
-    NettyFormData formData = new NettyFormData(attribute);
+    NettyFormField formData = new NettyFormField(attribute);
 
     // when & then
     assertThat(formData.getValue()).isEqualTo("testValue");
@@ -53,17 +53,17 @@ class NettyFormDataTests {
     byte[] expectedBytes = "testValue".getBytes();
     when(attribute.get()).thenReturn(expectedBytes);
 
-    NettyFormData formData = new NettyFormData(attribute);
+    NettyFormField formData = new NettyFormField(attribute);
 
     // when & then
-    assertThat(formData.getBytes()).isEqualTo(expectedBytes);
+    assertThat(formData.getContentAsByteArray()).isEqualTo(expectedBytes);
   }
 
   @Test
   void shouldReturnTrueForFormField() {
     // given
     Attribute attribute = mock(Attribute.class);
-    NettyFormData formData = new NettyFormData(attribute);
+    NettyFormField formData = new NettyFormField(attribute);
 
     // when & then
     assertThat(formData.isFormField()).isTrue();
@@ -75,7 +75,7 @@ class NettyFormDataTests {
     Attribute attribute = mock(Attribute.class);
     when(attribute.getName()).thenReturn("testName");
 
-    NettyFormData formData = new NettyFormData(attribute);
+    NettyFormField formData = new NettyFormField(attribute);
 
     // when & then
     assertThat(formData.getName()).isEqualTo("testName");
@@ -85,7 +85,7 @@ class NettyFormDataTests {
   void shouldCleanupAttribute() throws IOException {
     // given
     Attribute attribute = mock(Attribute.class);
-    NettyFormData formData = new NettyFormData(attribute);
+    NettyFormField formData = new NettyFormField(attribute);
 
     // when
     formData.cleanup();

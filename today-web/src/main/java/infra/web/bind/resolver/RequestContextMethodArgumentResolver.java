@@ -92,7 +92,7 @@ public class RequestContextMethodArgumentResolver implements ParameterResolvingS
               "Current request is not of type [%s]: %s".formatted(paramType.getName(), request));
     }
     if (MultipartRequest.class.isAssignableFrom(paramType)) {
-      MultipartRequest multipartRequest = request.multipartRequest();
+      MultipartRequest multipartRequest = request.asMultipartRequest();
       if (paramType.isInstance(multipartRequest)) {
         return multipartRequest;
       }

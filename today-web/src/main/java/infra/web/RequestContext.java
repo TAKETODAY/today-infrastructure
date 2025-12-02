@@ -879,17 +879,17 @@ public abstract class RequestContext extends AttributeAccessorSupport
    *
    * <pre>{@code
    *   // Assuming 'handler' is an instance of the class containing this method
-   *   MultipartRequest request = getMultipartRequest();
+   *   MultipartRequest request = multipartRequest();
    *
    *   // Use the request object to process multipart data
-   *   String fileData = request.getFileData("fileKey");
+   *   String fileData = request.get*("fileKey");
    * }</pre>
    *
    * @return the cached or newly created {@code MultipartRequest} instance
    * @see #isMultipart()
    * @since 4.0
    */
-  public MultipartRequest multipartRequest() {
+  public MultipartRequest asMultipartRequest() {
     var multipartRequest = this.multipartRequest;
     if (multipartRequest == null) {
       multipartRequest = createMultipartRequest();

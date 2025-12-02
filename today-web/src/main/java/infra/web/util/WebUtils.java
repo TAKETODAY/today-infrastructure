@@ -36,7 +36,7 @@ import infra.util.MultiValueMap;
 import infra.util.StringUtils;
 import infra.web.RequestContext;
 import infra.web.RequestContextDecorator;
-import infra.web.multipart.Multipart;
+import infra.web.multipart.Part;
 
 /**
  * Miscellaneous utilities for web applications.
@@ -301,13 +301,12 @@ public abstract class WebUtils {
     return port;
   }
 
-  public static void cleanupMultipartRequest(@Nullable MultiValueMap<String, Multipart> multipartFiles) {
-    if (CollectionUtils.isNotEmpty(multipartFiles)) {
-      for (var entry : multipartFiles.entrySet()) {
-        List<Multipart> value = entry.getValue();
-        for (Multipart multipartFile : value) {
+  public static void cleanupMultipartRequest(@Nullable MultiValueMap<String, Part> map) {
+    if (CollectionUtils.isNotEmpty(map)) {
+      for (var entry : map.entrySet()) {
+        for (Part part : entry.getValue()) {
           try {
-            multipartFile.cleanup();
+            part.cleanup();
           }
           catch (Exception e) {
             LoggerFactory.getLogger(WebUtils.class)

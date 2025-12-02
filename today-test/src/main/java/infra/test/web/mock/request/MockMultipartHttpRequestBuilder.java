@@ -154,24 +154,24 @@ public class MockMultipartHttpRequestBuilder extends MockHttpRequestBuilder {
    */
   @Override
   protected final HttpMockRequestImpl createMockRequest(MockContext mockContext) {
-    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest(mockContext);
-    Charset defaultCharset = (request.getCharacterEncoding() != null ?
-                              Charset.forName(request.getCharacterEncoding()) : StandardCharsets.UTF_8);
+    MockMultipartHttpMockRequest mockRequest = new MockMultipartHttpMockRequest(mockContext);
+    Charset defaultCharset = (mockRequest.getCharacterEncoding() != null ?
+                              Charset.forName(mockRequest.getCharacterEncoding()) : StandardCharsets.UTF_8);
 
-    this.files.forEach(request::addFile);
+    this.files.forEach(mockRequest::addFile);
     this.parts.values().stream().flatMap(Collection::stream).forEach(part -> {
-      request.addPart(part);
+      mockRequest.addPart(part);
       try {
         String name = part.getName();
         String filename = part.getSubmittedFileName();
         InputStream is = part.getInputStream();
         if (filename != null) {
-          request.addFile(new MockMultipartFile(name, filename, part.getContentType(), is));
+          mockRequest.addFile(new MockMultipartFile(name, filename, part.getContentType(), is));
         }
         else {
           InputStreamReader reader = new InputStreamReader(is, getCharsetOrDefault(part, defaultCharset));
           String value = FileCopyUtils.copyToString(reader);
-          request.addParameter(part.getName(), value);
+          mockRequest.addParameter(part.getName(), value);
         }
       }
       catch (IOException ex) {
@@ -179,7 +179,7 @@ public class MockMultipartHttpRequestBuilder extends MockHttpRequestBuilder {
       }
     });
 
-    return request;
+    return mockRequest;
   }
 
   private Charset getCharsetOrDefault(Part part, Charset defaultCharset) {

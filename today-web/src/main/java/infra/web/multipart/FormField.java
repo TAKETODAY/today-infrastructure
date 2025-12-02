@@ -17,37 +17,23 @@
 
 package infra.web.multipart;
 
-import org.jspecify.annotations.Nullable;
-
-import infra.core.NestedRuntimeException;
-
 /**
- * Exception thrown when multipart resolution fails.
+ * Represents a form field part in a multipart request.
  *
- * @author Trevor D. Cook
- * @author Juergen Hoeller
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 3.0 2021/1/17 10:41
+ * <p>This interface extends {@link Part} to provide specific functionality
+ * for handling form field data submitted as part of a multipart request.
+ *
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0 2025/12/1 16:50
  */
-public class MultipartException extends NestedRuntimeException {
+public interface FormField extends Part {
 
   /**
-   * Constructor for MultipartException.
+   * Gets the value of this form field as a String.
    *
-   * @param msg the detail message
+   * @return the form field value
    */
-  public MultipartException(@Nullable String msg) {
-    super(msg);
-  }
-
-  /**
-   * Constructor for MultipartException.
-   *
-   * @param msg the detail message
-   * @param cause the root cause from the multipart parsing API in use
-   */
-  public MultipartException(@Nullable String msg, @Nullable Throwable cause) {
-    super(msg, cause);
-  }
+  @Override
+  String getValue();
 
 }

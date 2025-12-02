@@ -42,8 +42,8 @@ public class MockMultipartMockRequestContext extends MockRequestContext {
   }
 
   @Override
-  public MultipartRequest multipartRequest() {
-    return request;
+  public MultipartRequest asMultipartRequest() {
+    return request.getMultipartRequest();
   }
 
 }

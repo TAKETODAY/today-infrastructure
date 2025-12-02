@@ -19,6 +19,7 @@ package infra.web.bind.resolver;
 
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
@@ -26,8 +27,8 @@ import infra.core.MethodParameter;
 import infra.core.ResolvableType;
 import infra.util.CollectionUtils;
 import infra.web.RequestContext;
-import infra.web.multipart.Multipart;
 import infra.web.multipart.MultipartFile;
+import infra.web.multipart.Part;
 
 /**
  * A common delegate for {@code ParameterResolvingStrategy} implementations
@@ -49,13 +50,13 @@ final class MultipartResolutionDelegate {
 
   public static boolean isMultipartArgument(MethodParameter parameter) {
     Class<?> paramType = parameter.getNestedParameterType();
-    return Multipart.class.isAssignableFrom(paramType)
+    return Part.class.isAssignableFrom(paramType)
             || isMultipartCollection(parameter, paramType)
             || isMultipartArray(paramType);
   }
 
   @Nullable
-  public static Object resolveMultipartArgument(String name, MethodParameter parameter, RequestContext request) {
+  public static Object resolveMultipartArgument(String name, MethodParameter parameter, RequestContext request) throws IOException {
     if (!request.isMultipart()) {
       if (isMultipartArgument(parameter)) {
         return null;
@@ -64,33 +65,33 @@ final class MultipartResolutionDelegate {
     }
 
     Class<?> parameterType = parameter.getNestedParameterType();
-    if (Multipart.class.isAssignableFrom(parameterType)) {
-      return CollectionUtils.firstElement(request.multipartRequest().multipartData(name));
+    if (Part.class.isAssignableFrom(parameterType)) {
+      return CollectionUtils.firstElement(request.asMultipartRequest().getParts(name));
     }
     else if (isMultipartCollection(parameter, parameterType)) {
-      return request.multipartRequest().multipartData(name);
+      return request.asMultipartRequest().getParts(name);
     }
     else if (isMultipartArray(parameterType)) {
-      List<Multipart> parts = request.multipartRequest().multipartData(name);
+      List<Part> parts = request.asMultipartRequest().getParts(name);
       if (parts == null) {
         return null;
       }
       if (parameterType.getComponentType() == MultipartFile.class) {
         return parts.toArray(new MultipartFile[parts.size()]);
       }
-      return parts.toArray(new Multipart[parts.size()]);
+      return parts.toArray(new Part[parts.size()]);
     }
     return UNRESOLVABLE;
   }
 
   private static boolean isMultipartCollection(MethodParameter methodParam, Class<?> parameterType) {
     parameterType = getCollectionParameterType(methodParam, parameterType);
-    return parameterType != null && Multipart.class.isAssignableFrom(parameterType);
+    return parameterType != null && Part.class.isAssignableFrom(parameterType);
   }
 
   private static boolean isMultipartArray(Class<?> parameterType) {
     Class<?> componentType = parameterType.getComponentType();
-    return componentType != null && Multipart.class.isAssignableFrom(componentType);
+    return componentType != null && Part.class.isAssignableFrom(componentType);
   }
 
   @Nullable

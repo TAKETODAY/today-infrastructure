@@ -49,6 +49,7 @@ import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpMockResponse;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockMultipartHttpMockRequest;
 import infra.util.CollectionUtils;
 import infra.util.ExceptionUtils;
 import infra.util.LinkedCaseInsensitiveMap;
@@ -397,8 +398,8 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
 
   @Override
   protected MultipartRequest createMultipartRequest() {
-    if (request instanceof MultipartRequest) {
-      return (MultipartRequest) request;
+    if (request instanceof MockMultipartHttpMockRequest mockRequest) {
+      return mockRequest.getMultipartRequest();
     }
     return new MockMultipartRequest(request);
   }

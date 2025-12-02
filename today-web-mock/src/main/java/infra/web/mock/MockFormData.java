@@ -27,15 +27,15 @@ import infra.mock.api.http.Part;
 import infra.util.ExceptionUtils;
 import infra.util.FileCopyUtils;
 import infra.util.StreamUtils;
-import infra.web.multipart.support.AbstractMultipart;
+import infra.web.multipart.support.AbstractPart;
 
 /**
- * Servlet based {@link AbstractMultipart}
+ * Servlet based {@link AbstractPart}
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/5/13 11:05
  */
-public final class MockFormData extends AbstractMultipart {
+public final class MockFormData extends AbstractPart {
   private final Part part;
 
   @Nullable
@@ -61,7 +61,7 @@ public final class MockFormData extends AbstractMultipart {
   }
 
   @Override
-  public byte[] getBytes() throws IOException {
+  public byte[] getContentAsByteArray() throws IOException {
     return FileCopyUtils.copyToByteArray(part.getInputStream());
   }
 

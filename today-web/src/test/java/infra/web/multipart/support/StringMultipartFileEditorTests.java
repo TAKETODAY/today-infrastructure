@@ -49,7 +49,7 @@ class StringMultipartFileEditorTests {
     StringMultipartFileEditor editor = new StringMultipartFileEditor();
     MultipartFile multipartFile = mock(MultipartFile.class);
     String content = "file content";
-    when(multipartFile.getBytes()).thenReturn(content.getBytes());
+    when(multipartFile.getContentAsByteArray()).thenReturn(content.getBytes());
 
     editor.setValue(multipartFile);
 
@@ -62,7 +62,7 @@ class StringMultipartFileEditorTests {
     StringMultipartFileEditor editor = new StringMultipartFileEditor(charsetName);
     MultipartFile multipartFile = mock(MultipartFile.class);
     String content = "file content";
-    when(multipartFile.getBytes()).thenReturn(content.getBytes());
+    when(multipartFile.getContentAsByteArray()).thenReturn(content.getBytes());
 
     editor.setValue(multipartFile);
 
@@ -73,7 +73,7 @@ class StringMultipartFileEditorTests {
   void setValueWithMultipartFileThrowsIllegalArgumentExceptionOnIoException() throws IOException {
     StringMultipartFileEditor editor = new StringMultipartFileEditor();
     MultipartFile multipartFile = mock(MultipartFile.class);
-    when(multipartFile.getBytes()).thenThrow(new IOException("test exception"));
+    when(multipartFile.getContentAsByteArray()).thenThrow(new IOException("test exception"));
 
     assertThatThrownBy(() -> editor.setValue(multipartFile))
             .isInstanceOf(IllegalArgumentException.class)
