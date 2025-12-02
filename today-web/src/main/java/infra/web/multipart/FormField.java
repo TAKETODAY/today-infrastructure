@@ -18,11 +18,21 @@
 package infra.web.multipart;
 
 /**
+ * Represents a form field part in a multipart request.
+ *
+ * <p>This interface extends {@link Part} to provide specific functionality
+ * for handling form field data submitted as part of a multipart request.
+ *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/12/1 16:50
  */
 public interface FormField extends Part {
 
+  /**
+   * Gets the value of this form field as a String.
+   *
+   * @return the form field value
+   */
   @Override
   String getValue();
 

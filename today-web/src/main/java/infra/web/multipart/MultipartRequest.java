@@ -19,14 +19,11 @@ package infra.web.multipart;
 
 import org.jspecify.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import infra.http.HttpHeaders;
 import infra.util.MultiValueMap;
-import infra.web.RequestContext;
-import infra.web.bind.NotMultipartRequestException;
 
 /**
  * This interface defines the multipart request access operations that are exposed
@@ -36,28 +33,48 @@ import infra.web.bind.NotMultipartRequestException;
  * @author Arjen Poutsma
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see NotMultipartRequestException
+ * @see MultipartException
  * @since 4.0 2022/3/17 17:26
  */
 public interface MultipartRequest {
 
   /**
-   * Retrieve the parts of a multipart request, provided the Content-Type is
-   * {@code "multipart/form-data"}, or throw an exception otherwise.
+   * Retrieve the parts of a multipart request
    *
    * @return the multipart data, mapping from name to part(s)
-   * @throws IOException if an I/O error occurred during the retrieval
    * @throws NotMultipartRequestException if this request is not multipart request
-   * @see RequestContext#asMultipartRequest()
+   * @see infra.web.RequestContext#asMultipartRequest()
    * @see MultipartRequest#getParts()
    */
-  MultiValueMap<String, Part> getParts() throws IOException;
+  MultiValueMap<String, Part> getParts();
 
+  /**
+   * Return the parts with the given name, or {@code null} if not found.
+   *
+   * @param name the name of the parts to retrieve
+   * @return the parts with the given name, or {@code null} if not found
+   * @see #getParts()
+   */
   @Nullable
-  List<Part> getParts(String name) throws IOException;
+  List<Part> getParts(String name);
 
+  /**
+   * Return the first part with the given name, or {@code null} if not found.
+   *
+   * @param name the name of the part to retrieve
+   * @return the first part with the given name, or {@code null} if not found
+   * @see #getParts()
+   */
   @Nullable
-  Part getPart(String name) throws IOException;
+  Part getPart(String name);
 
+  /**
+   * Return an {@link java.lang.Iterable} of String objects containing the
+   * parameter names of the parts contained in this request.
+   *
+   * @return the names of the parts
+   * @see #getParts()
+   */
   Iterable<String> getPartNames();
 
   /**

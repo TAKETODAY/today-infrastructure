@@ -98,4 +98,21 @@ public interface Part {
    */
   void cleanup() throws IOException;
 
+  /**
+   * Cast this part to the given type.
+   *
+   * @param type the type to cast to
+   * @param <T> the target type
+   * @return this part cast to the given type
+   * @throws IllegalArgumentException if this part cannot be cast to the given type
+   * @since 5.0
+   */
+  @SuppressWarnings("unchecked")
+  default <T> T as(Class<T> type) {
+    if (type.isInstance(this)) {
+      return (T) this;
+    }
+    throw new IllegalArgumentException("'%s' is not a %s".formatted(this, type));
+  }
+
 }

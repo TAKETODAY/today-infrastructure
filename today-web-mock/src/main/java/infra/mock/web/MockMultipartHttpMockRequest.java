@@ -35,7 +35,7 @@ import infra.mock.api.MockException;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
-import infra.web.bind.MultipartException;
+import infra.web.multipart.MultipartException;
 import infra.web.multipart.MultipartFile;
 import infra.web.multipart.MultipartRequest;
 import infra.web.multipart.Part;
@@ -110,7 +110,7 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl {
     }
 
     @Override
-    public @Nullable Part getPart(String name) throws IOException {
+    public @Nullable Part getPart(String name) {
       return null;
     }
 
