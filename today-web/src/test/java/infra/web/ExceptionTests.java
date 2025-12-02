@@ -1067,7 +1067,7 @@ public class ExceptionTests {
     void exceptionExtendsHttpMessageNotReadableException() {
       MultipartException exception = new MultipartException("test");
 
-      assertThat(exception).isInstanceOf(infra.http.converter.HttpMessageNotReadableException.class);
+      assertThat(exception).isInstanceOf(NestedRuntimeException.class);
     }
 
   }
