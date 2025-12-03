@@ -184,7 +184,7 @@ class HttpContextTests {
 
   private static NettyRequestConfig.Builder createConfigBuilder() {
     return NettyRequestConfig.forBuilder(false)
-            .httpDataFactory(new DefaultHttpDataFactory())
+            .multipartParser(mock())
             .sendErrorHandler((request, message) -> {
 
             });

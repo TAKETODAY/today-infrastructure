@@ -46,6 +46,8 @@ import infra.stereotype.Component;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
 import infra.web.DispatcherHandler;
+import infra.web.multipart.MultipartParser;
+import infra.web.multipart.upload.DefaultMultipartParser;
 import infra.web.server.ServerProperties;
 import infra.web.server.ServerProperties.Netty.Multipart;
 import infra.web.server.ServiceExecutor;
@@ -62,7 +64,6 @@ import infra.web.server.support.StandardNettyWebEnvironment;
 import infra.web.socket.server.support.WsNettyChannelHandler;
 import io.netty.channel.ChannelHandler;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
-import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 
 import static infra.annotation.config.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
 import static infra.annotation.config.task.TaskExecutionAutoConfiguration.TaskExecutorConfiguration;
@@ -148,18 +149,14 @@ public class NettyWebServerFactoryAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public static NettyRequestConfig nettyRequestConfig(ServerProperties server, SendErrorHandler sendErrorHandler) {
-    var multipart = server.netty.multipart;
-    var factory = createHttpDataFactory(multipart);
-    if (multipart.maxFieldSize != null) {
-      factory.setMaxLimit(multipart.maxFieldSize.toBytes());
+  public static NettyRequestConfig nettyRequestConfig(ServerProperties server,
+          SendErrorHandler sendErrorHandler, @Nullable MultipartParser multipartParser) {
+    if (multipartParser == null) {
+      multipartParser = createMultipartParser(server.netty.multipart);
     }
-    if (StringUtils.hasText(multipart.baseDir)) {
-      factory.setBaseDir(multipart.baseDir);
-    }
-    factory.setDeleteOnExit(multipart.deleteOnExit);
+
     return NettyRequestConfig.forBuilder(Ssl.isEnabled(server.ssl))
-            .httpDataFactory(factory)
+            .multipartParser(multipartParser)
             .headersFactory(DefaultHttpHeadersFactory.headersFactory()
                     .withValidation(server.netty.validateHeaders))
             .sendErrorHandler(sendErrorHandler)
@@ -167,16 +164,24 @@ public class NettyWebServerFactoryAutoConfiguration {
             .build();
   }
 
-  private static DefaultHttpDataFactory createHttpDataFactory(Multipart multipart) {
+  private static MultipartParser createMultipartParser(Multipart multipart) {
+    DefaultMultipartParser multipartParser = new DefaultMultipartParser();
     if (multipart.mixedMode) {
       if (multipart.fieldSizeThreshold != null) {
-        return new DefaultHttpDataFactory(multipart.fieldSizeThreshold.toBytes(), multipart.charset);
+
       }
-      return new DefaultHttpDataFactory(multipart.charset);
     }
     else {
-      return new DefaultHttpDataFactory(StringUtils.hasText(multipart.baseDir), multipart.charset);
+
     }
+    if (multipart.maxFieldSize != null) {
+      multipartParser.setMaxLimit(multipart.maxFieldSize.toBytes());
+    }
+    if (StringUtils.hasText(multipart.baseDir)) {
+      multipartParser.setBaseDir(multipart.baseDir);
+    }
+    multipartParser.setDeleteOnExit(multipart.deleteOnExit);
+    return multipartParser;
   }
 
   private static ChannelHandler createChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context,

@@ -61,7 +61,7 @@ final class MockMultipartFile extends AbstractMultipartFile implements Multipart
   }
 
   @Override
-  public long getSize() {
+  public long getContentLength() {
     return part.getSize();
   }
 

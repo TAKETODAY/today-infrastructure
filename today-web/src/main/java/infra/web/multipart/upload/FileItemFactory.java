@@ -30,11 +30,10 @@ import infra.http.HttpHeaders;
  * Factories can provide their own custom configuration, over and above that provided by the default file upload implementation.
  * </p>
  *
- * @param <I> The {@link FileItem} type this factory creates.
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-public interface FileItemFactory<I extends FileItem<I>> {
+public interface FileItemFactory {
 
   /**
    * Abstracts building for subclasses.

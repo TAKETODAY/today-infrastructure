@@ -19,8 +19,12 @@ package infra.web.multipart.support;
 
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
 import infra.http.DefaultHttpHeaders;
 import infra.http.HttpHeaders;
+import infra.util.ExceptionUtils;
 import infra.web.multipart.Part;
 
 /**
@@ -53,6 +57,8 @@ public abstract class AbstractPart implements Part {
 
   protected @Nullable HttpHeaders headers;
 
+  protected byte @Nullable [] cachedBytes;
+
   @Override
   public HttpHeaders getHeaders() {
     HttpHeaders headers = this.headers;
@@ -73,8 +79,30 @@ public abstract class AbstractPart implements Part {
   }
 
   @Override
+  public byte[] getContentAsByteArray() throws IOException {
+    byte[] cachedBytes = this.cachedBytes;
+    if (cachedBytes == null) {
+      cachedBytes = doGetBytes();
+      this.cachedBytes = cachedBytes;
+    }
+    return cachedBytes;
+  }
+
+  protected abstract byte[] doGetBytes() throws IOException;
+
+  @Override
+  public String getContentAsString() {
+    try {
+      return new String(getContentAsByteArray(), StandardCharsets.UTF_8);
+    }
+    catch (IOException e) {
+      throw ExceptionUtils.sneakyThrow(e);
+    }
+  }
+
+  @Override
   public String toString() {
-    return "%s: %s=%s".formatted(getClass().getSimpleName(), getName(), getValue());
+    return "%s: %s".formatted(getClass().getSimpleName(), getName());
   }
 
 }

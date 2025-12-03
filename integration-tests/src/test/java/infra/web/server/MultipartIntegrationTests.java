@@ -121,7 +121,7 @@ class MultipartIntegrationTests {
     @POST("/form")
     String upload(@RequestPart("form") byte[] form, @RequestPart("file") MultipartFile file) {
       System.out.println(new String(form));
-      System.out.println(file.getValue());
+      System.out.println(file.getContentAsString());
       return "ok";
     }
 

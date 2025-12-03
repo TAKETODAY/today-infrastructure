@@ -85,7 +85,7 @@ class AbstractMultipartTests {
     AbstractPart multipart = mock(AbstractPart.class);
     when(multipart.toString()).thenCallRealMethod();
     when(multipart.getName()).thenReturn("test-name");
-    when(multipart.getValue()).thenReturn("test-value");
+    when(multipart.getContentAsString()).thenReturn("test-value");
 
     String result = multipart.toString();
 

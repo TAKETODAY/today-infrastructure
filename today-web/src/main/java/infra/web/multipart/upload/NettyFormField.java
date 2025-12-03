@@ -15,12 +15,11 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.server.support;
+package infra.web.multipart.upload;
 
 import java.io.IOException;
 
 import infra.util.ExceptionUtils;
-import infra.web.multipart.FormField;
 import infra.web.multipart.support.AbstractPart;
 import io.netty.handler.codec.http.multipart.Attribute;
 
@@ -28,7 +27,7 @@ import io.netty.handler.codec.http.multipart.Attribute;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/11/3 22:50
  */
-public class NettyFormField extends AbstractPart implements FormField {
+public class NettyFormField extends AbstractPart {
 
   private final Attribute attribute;
 
@@ -37,7 +36,7 @@ public class NettyFormField extends AbstractPart implements FormField {
   }
 
   @Override
-  public String getValue() {
+  public String getContentAsString() {
     try {
       return attribute.getValue();
     }

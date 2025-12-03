@@ -60,7 +60,7 @@ import java.util.function.Supplier;
  * (For details, see
  * <a href="https://issues.apache.org/jira/browse/FILEUPLOAD-295">FILEUPLOAD-295</a>)
  */
-public class DeferrableOutputStream extends OutputStream {
+public class DeferrableStream extends OutputStream {
 
   /**
    * Interface of a listener object, that wishes to be notified about
@@ -75,12 +75,11 @@ public class DeferrableOutputStream extends OutputStream {
      * created. All in-memory data has been transferred to
      * that file, but it is still opened.
      */
-    default void persisted(final Path path) {
-    }
+    void persisted(final Path path);
   }
 
   /**
-   * This enumeration represents the possible states of the {@link DeferrableOutputStream}.
+   * This enumeration represents the possible states of the {@link DeferrableStream}.
    */
   public enum State {
     /**
@@ -108,7 +107,7 @@ public class DeferrableOutputStream extends OutputStream {
     persisted,
     /**
      * The stream has been closed, and data can no longer be written. It is
-     * now valid to invoke {@link DeferrableOutputStream#getInputStream()}.
+     * now valid to invoke {@link DeferrableStream#getInputStream()}.
      */
     closed
   }
@@ -143,17 +142,18 @@ public class DeferrableOutputStream extends OutputStream {
    * @see #pathSupplier
    */
   private Path path;
+
   /**
    * If no temporary file was created: A stream, to which the
    * incoming data is being written, until the threshold is reached.
    * Otherwise null.
    */
-  private ByteArrayOutputStream baos;
+  private @Nullable ByteArrayOutputStream baos;
   /**
    * If no temporary file was created, and the stream is closed:
    * The in-memory data, that was written to the stream. Otherwise null.
    */
-  private byte[] bytes;
+  private byte @Nullable [] bytes;
   /**
    * If a temporary file has been created: An open stream
    * for writing to that file. Otherwise null.
@@ -175,7 +175,7 @@ public class DeferrableOutputStream extends OutputStream {
   /**
    * The configured {@link Listener}, if any, or null.
    */
-  private final Listener listener;
+  private final @Nullable Listener listener;
 
   /**
    * Creates a new instance with the given threshold, and the given supplier for a
@@ -200,7 +200,7 @@ public class DeferrableOutputStream extends OutputStream {
    * @throws IOException Creating the temporary file (in the case of threshold -1)
    * has failed.
    */
-  public DeferrableOutputStream(final int threshold, final Supplier<Path> pathSupplier, final Listener listener) throws IOException {
+  public DeferrableStream(final int threshold, final Supplier<Path> pathSupplier, final Listener listener) throws IOException {
     if (threshold < 0) {
       this.threshold = -1;
     }
@@ -286,7 +286,7 @@ public class DeferrableOutputStream extends OutputStream {
    * created), returns the data, that has been written. Otherwise,
    * returns null.
    */
-  public byte[] getBytes() {
+  public byte @Nullable [] getBytes() {
     return bytes;
   }
 
@@ -322,7 +322,7 @@ public class DeferrableOutputStream extends OutputStream {
    *
    * @return The output file, that has been created, if any, or null.
    */
-  public Path getPath() {
+  public @Nullable Path getPath() {
     return path;
   }
 

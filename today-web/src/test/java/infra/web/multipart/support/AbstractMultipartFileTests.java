@@ -74,25 +74,25 @@ class AbstractMultipartFileTests {
   }
 
   @Test
-  void getValueReturnsStringRepresentationOfBytes() throws IOException {
+  void getContentAsStringReturnsStringRepresentationOfBytes() throws IOException {
     AbstractMultipartFile multipartFile = mock(AbstractMultipartFile.class);
     String content = "test content";
 
-    when(multipartFile.getValue()).thenCallRealMethod();
+    when(multipartFile.getContentAsString()).thenCallRealMethod();
     when(multipartFile.getContentAsByteArray()).thenReturn(content.getBytes(StandardCharsets.UTF_8));
 
-    assertThat(multipartFile.getValue()).isEqualTo(content);
+    assertThat(multipartFile.getContentAsString()).isEqualTo(content);
   }
 
   @Test
-  void getValueWrapsIOExceptionInRuntime() throws IOException {
+  void getContentAsStringWrapsIOExceptionInRuntime() throws IOException {
     AbstractMultipartFile multipartFile = mock(AbstractMultipartFile.class);
 
-    when(multipartFile.getValue()).thenCallRealMethod();
+    when(multipartFile.getContentAsString()).thenCallRealMethod();
     when(multipartFile.getContentAsByteArray()).thenThrow(new IOException("test exception"));
 
     assertThatExceptionOfType(IOException.class)
-            .isThrownBy(multipartFile::getValue);
+            .isThrownBy(multipartFile::getContentAsString);
   }
 
   @Test

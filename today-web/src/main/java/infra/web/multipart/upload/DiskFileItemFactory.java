@@ -61,7 +61,7 @@ import java.nio.file.Path;
  * @see Builder#get()
  * @since 5.0
  */
-public final class DiskFileItemFactory implements FileItemFactory<DiskFileItem> {
+public final class DiskFileItemFactory implements FileItemFactory {
 
   /**
    * Builds a new {@link DiskFileItemFactory} instance.

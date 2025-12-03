@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.server.support;
+package infra.web.multipart.upload;
 
 import org.jspecify.annotations.Nullable;
 
@@ -24,31 +24,32 @@ import java.util.List;
 import infra.http.HttpHeaders;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
+import infra.web.RequestContext;
 import infra.web.multipart.MaxUploadSizeExceededException;
 import infra.web.multipart.NotMultipartRequestException;
 import infra.web.multipart.Part;
 import infra.web.multipart.support.AbstractMultipartRequest;
-import io.netty.handler.codec.http.multipart.Attribute;
-import io.netty.handler.codec.http.multipart.FileUpload;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
-import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/28 21:39
  */
-final class NettyMultipartRequest extends AbstractMultipartRequest {
+final class DefaultMultipartRequest extends AbstractMultipartRequest {
 
-  private final NettyRequestContext context;
+  private final DefaultMultipartParser multipartParser;
 
-  public NettyMultipartRequest(NettyRequestContext context) {
+  private final RequestContext context;
+
+  public DefaultMultipartRequest(DefaultMultipartParser multipartParser, RequestContext context) {
+    this.multipartParser = multipartParser;
     this.context = context;
   }
 
   @Nullable
   @Override
   public HttpHeaders getMultipartHeaders(String paramOrFileName) {
-    List<Multipart> multipartData = multipartData(paramOrFileName);
+    List<Part> multipartData = getParts(paramOrFileName);
     if (CollectionUtils.isNotEmpty(multipartData)) {
       return multipartData.get(0).getHeaders();
     }
@@ -59,14 +60,9 @@ final class NettyMultipartRequest extends AbstractMultipartRequest {
   protected MultiValueMap<String, Part> parseRequest() {
     var map = MultiValueMap.<String, Part>forLinkedHashMap();
     try {
-      for (InterfaceHttpData data : context.requestDecoder().getBodyHttpDatas()) {
-        if (data instanceof FileUpload fileUpload) {
-          map.add(data.getName(), new NettyMultipartFile(fileUpload));
-        }
-        else if (data instanceof Attribute attribute) {
-          NettyFormField nettyFormField = new NettyFormField(attribute);
-          map.add(attribute.getName(), nettyFormField);
-        }
+      List<Part> parsed = multipartParser.parseRequest(context);
+      for (Part part : parsed) {
+        map.add(part.getName(), part);
       }
       return map;
     }

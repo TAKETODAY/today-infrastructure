@@ -46,7 +46,7 @@ public final class MockFormData extends AbstractPart {
   }
 
   @Override
-  public String getValue() {
+  public String getContentAsString() {
     String value = this.value;
     if (value == null) {
       try {

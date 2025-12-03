@@ -43,8 +43,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 import infra.http.HttpHeaders;
-import infra.web.multipart.upload.DeferrableOutputStream.Listener;
-import infra.web.multipart.upload.DeferrableOutputStream.State;
+import infra.web.multipart.upload.DeferrableStream.Listener;
+import infra.web.multipart.upload.DeferrableStream.State;
 import infra.web.multipart.upload.FileItemFactory.AbstractFileItemBuilder;
 
 /**
@@ -92,7 +92,7 @@ import infra.web.multipart.upload.FileItemFactory.AbstractFileItemBuilder;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-public final class DiskFileItem implements FileItem<DiskFileItem> {
+public final class DiskFileItem implements FileItem {
 
   /**
    * Builds a new {@link DiskFileItem} instance.
@@ -305,7 +305,7 @@ public final class DiskFileItem implements FileItem<DiskFileItem> {
   /**
    * Output stream for this item.
    */
-  private @Nullable DeferrableOutputStream dos;
+  private @Nullable DeferrableStream dos;
 
   /**
    * The file items headers.
@@ -346,14 +346,13 @@ public final class DiskFileItem implements FileItem<DiskFileItem> {
    * @throws IOException if an error occurs.
    */
   @Override
-  public DiskFileItem delete() throws IOException {
+  public void cleanup() throws IOException {
     if (dos != null) {
       final Path path = dos.getPath();
       if (path != null) {
         Files.deleteIfExists(path);
       }
     }
-    return this;
   }
 
   /**
@@ -485,14 +484,13 @@ public final class DiskFileItem implements FileItem<DiskFileItem> {
         final Listener persistenceListener = new Listener() {
           @Override
           public void persisted(final Path pPath) {
-            Listener.super.persisted(pPath);
             final FileCleaningTracker fct = getFileCleaningTracker();
             if (fct != null) {
               fct.track(getPath(), this);
             }
           }
         };
-        dos = new DeferrableOutputStream(threshold, pathSupplier, persistenceListener);
+        dos = new DeferrableStream(threshold, pathSupplier, persistenceListener);
       }
       catch (final IOException ioe) {
         throw new UncheckedIOException(ioe);
@@ -508,7 +506,7 @@ public final class DiskFileItem implements FileItem<DiskFileItem> {
    *
    * @return The data file, or {@code null} if the data is stored in memory.
    */
-  public Path getPath() {
+  public @Nullable Path getPath() {
     return dos == null ? null : dos.getPath();
   }
 
@@ -540,7 +538,7 @@ public final class DiskFileItem implements FileItem<DiskFileItem> {
    * @return The size of the file, in bytes.
    */
   @Override
-  public long getSize() {
+  public long getContentLength() {
     return dos == null ? 0L : dos.getSize();
   }
 
@@ -561,15 +559,14 @@ public final class DiskFileItem implements FileItem<DiskFileItem> {
     return bytes == null ? null : new String(bytes, getCharset());
   }
 
-  /**
-   * Gets the contents of the file as a String, using the specified encoding. This method uses {@link #getContentAsByteArray()} to retrieve the contents of the file.
-   *
-   * @param charset The charset to use.
-   * @return The contents of the file, as a string.
-   * @throws IOException if an I/O error occurs
-   */
   @Override
-  public String getString(final Charset charset) throws IOException {
+  public String getContentAsString() {
+    final byte[] bytes = getContentAsByteArray();
+    return bytes == null ? null : new String(bytes, getCharset());
+  }
+
+  @Override
+  public String getContentAsString(Charset charset) throws IOException {
     return new String(getContentAsByteArray(), Charsets.toCharset(charset, charsetDefault));
   }
 
@@ -591,6 +588,11 @@ public final class DiskFileItem implements FileItem<DiskFileItem> {
   @Override
   public boolean isFormField() {
     return isFormField;
+  }
+
+  @Override
+  public boolean isFile() {
+    return !isFormField;
   }
 
   /**
@@ -655,9 +657,8 @@ public final class DiskFileItem implements FileItem<DiskFileItem> {
    * @param headers The file items headers.
    */
   @Override
-  public DiskFileItem setHeaders(final HttpHeaders headers) {
+  public void setHeaders(final HttpHeaders headers) {
     this.fileItemHeaders = headers;
-    return this;
   }
 
   /**
@@ -667,7 +668,7 @@ public final class DiskFileItem implements FileItem<DiskFileItem> {
    */
   @Override
   public String toString() {
-    return String.format("name=%s, StoreLocation=%s, size=%s bytes, isFormField=%s, FieldName=%s", getName(), getPath(), getSize(), isFormField(),
+    return String.format("name=%s, StoreLocation=%s, size=%s bytes, isFormField=%s, FieldName=%s", getName(), getPath(), this.getContentLength(), isFormField(),
             getFieldName());
   }
 
@@ -690,7 +691,7 @@ public final class DiskFileItem implements FileItem<DiskFileItem> {
    * @throws IOException if an error occurs.
    */
   @Override
-  public DiskFileItem write(final Path file) throws IOException {
+  public void write(final Path file) throws IOException {
     if (isInMemory()) {
       try (var fout = Files.newOutputStream(file)) {
         fout.write(getContentAsByteArray());
@@ -707,11 +708,8 @@ public final class DiskFileItem implements FileItem<DiskFileItem> {
          */
         throw new FileUploadException("Cannot write uploaded file to disk.");
       }
-      //
       // The uploaded file is being stored on disk in a temporary location so move it to the desired file.
-      //
       Files.move(outputFile, file, StandardCopyOption.REPLACE_EXISTING);
     }
-    return this;
   }
 }

@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.server.support;
+package infra.web.multipart.upload;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -67,7 +67,7 @@ final class NettyMultipartFile extends AbstractMultipartFile implements Multipar
   }
 
   @Override
-  public long getSize() {
+  public long getContentLength() {
     return fileUpload.length();
   }
 
@@ -133,7 +133,7 @@ final class NettyMultipartFile extends AbstractMultipartFile implements Multipar
 
   @Override
   public boolean isEmpty() {
-    return getSize() == 0;
+    return getContentLength() == 0;
   }
 
   @Override

@@ -20,16 +20,20 @@ package infra.web.multipart;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
+import infra.core.io.InputStreamSource;
 import infra.http.HttpHeaders;
 
 /**
  * Representation for a part in a "multipart/form-data" request.
  *
  * <p>The origin of a multipart request may be a browser form in which case each
- * part is either a {@link FormField} or a {@link MultipartFile}.
+ * part is either a {@code FormField} or a {@code MultipartFile}.
  *
- * <p>Multipart requests may also be used outside of a browser for data of any
+ * <p>Multipart requests may also be used outside a browser for data of any
  * content type (e.g. JSON, PDF, etc).
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -38,7 +42,7 @@ import infra.http.HttpHeaders;
  * @see <a href="https://www.w3.org/TR/html5/forms.html#multipart-form-data">HTML5 (multipart forms)</a>
  * @since 4.0 2022/4/28 22:04
  */
-public interface Part {
+public interface Part extends InputStreamSource {
 
   /**
    * Gets the name of this part.
@@ -48,9 +52,12 @@ public interface Part {
   String getName();
 
   /**
-   * Return the form field value.
+   * Return the headers for the specified part of the multipart request.
+   * <p>If the underlying implementation supports access to part headers,
+   * then all headers are returned. Otherwise, e.g. for a file upload, the
+   * returned headers may expose a 'Content-Type' if available.
    */
-  String getValue();
+  HttpHeaders getHeaders();
 
   /**
    * Return the content type of the part.
@@ -64,6 +71,11 @@ public interface Part {
   }
 
   /**
+   * Determine the content length for this Part.
+   */
+  long getContentLength();
+
+  /**
    * Returns the contents of this part as an array of bytes.
    * <p>
    * Note: this method will allocate a lot of memory,
@@ -72,6 +84,29 @@ public interface Part {
    * @return the contents of this part as an array of bytes.
    */
   byte[] getContentAsByteArray() throws IOException;
+
+  /**
+   * Returns the contents of this part as a string, using the specified
+   * charset.
+   *
+   * @param charset the charset to use for decoding
+   * @return the contents of this resource as a {@code String}
+   * @throws OutOfMemoryError See {@link Files#readAllBytes(Path)}: If a string of the required size cannot be allocated,
+   * for example the file is larger than {@code 2GB}. If so, you should use {@link #getReader()}.
+   * @throws IOException if an I/O error occurs
+   * @since 5.0
+   */
+  String getContentAsString(Charset charset) throws IOException;
+
+  /**
+   * Returns the contents of this part as a string, using the UTF-8.
+   *
+   * @return the contents of this resource as a {@code String}
+   * @throws OutOfMemoryError See {@link Files#readAllBytes(Path)}: If a string of the required size cannot be allocated,
+   * for example the file is larger than {@code 2GB}. If so, you should use {@link #getReader()}.
+   * @since 5.0
+   */
+  String getContentAsString();
 
   /**
    * Determines whether or not a {@code Multipart} instance represents
@@ -83,12 +118,11 @@ public interface Part {
   boolean isFormField();
 
   /**
-   * Return the headers for the specified part of the multipart request.
-   * <p>If the underlying implementation supports access to part headers,
-   * then all headers are returned. Otherwise, e.g. for a file upload, the
-   * returned headers may expose a 'Content-Type' if available.
+   * Determine whether this part represents a file part.
+   *
+   * @since 4.0
    */
-  HttpHeaders getHeaders();
+  boolean isFile();
 
   /**
    * Deletes the underlying storage for a file item, including deleting any
@@ -97,22 +131,5 @@ public interface Part {
    * @throws IOException if an error occurs.
    */
   void cleanup() throws IOException;
-
-  /**
-   * Cast this part to the given type.
-   *
-   * @param type the type to cast to
-   * @param <T> the target type
-   * @return this part cast to the given type
-   * @throws IllegalArgumentException if this part cannot be cast to the given type
-   * @since 5.0
-   */
-  @SuppressWarnings("unchecked")
-  default <T> T as(Class<T> type) {
-    if (type.isInstance(this)) {
-      return (T) this;
-    }
-    throw new IllegalArgumentException("'%s' is not a %s".formatted(this, type));
-  }
 
 }

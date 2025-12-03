@@ -20,7 +20,7 @@ package infra.web.multipart.upload;
 import java.io.IOException;
 
 /**
- * An iterator, as returned by {@link FileUploadParser#getItemIterator(infra.web.RequestContext)}.
+ * An iterator, as returned by {@link DefaultMultipartParser#getItemIterator(infra.web.RequestContext)}.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
@@ -29,7 +29,7 @@ public interface FileItemInputIterator {
 
   /**
    * Gets the maximum size of a single file. An {@link FileUploadByteCountLimitException} will be thrown, if there is an uploaded file, which is exceeding
-   * this value. By default, this value will be copied from the {@link FileUploadParser#getMaxFileSize() FileUploadBase} object, however, the user may
+   * this value. By default, this value will be copied from the {@link DefaultMultipartParser#getMaxFileSize() FileUploadBase} object, however, the user may
    * replace the default value with a request specific value by invoking {@link #setFileSizeMax(long)} on this object.
    *
    * @return The maximum size of a single, uploaded file. The value -1 indicates "unlimited".

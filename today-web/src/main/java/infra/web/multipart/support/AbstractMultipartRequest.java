@@ -124,6 +124,8 @@ public abstract class AbstractMultipartRequest implements MultipartRequest {
   @Override
   public void cleanup() {
     WebUtils.cleanupMultipartRequest(parts);
+    parts = null;
+    multipartFiles = null;
   }
 
   /**

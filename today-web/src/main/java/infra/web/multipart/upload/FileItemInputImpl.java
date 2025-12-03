@@ -194,9 +194,8 @@ class FileItemInputImpl implements FileItemInput {
    * @param headers The items header object
    */
   @Override
-  public FileItemInputImpl setHeaders(final HttpHeaders headers) {
+  public void setHeaders(final HttpHeaders headers) {
     this.headers = headers;
-    return this;
   }
 
 }

@@ -22,16 +22,17 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+
+import infra.web.multipart.Part;
 
 /**
  * <p>
  * This class represents a file or form item that was received within a {@code multipart/form-data} POST request.
  * </p>
  * <p>
- * After retrieving an instance of this class from a {@link FileUploadParser FileUploadParser} instance, you may either request all
+ * After retrieving an instance of this class from a {@link DefaultMultipartParser FileUploadParser} instance, you may either request all
  * contents of the file at once using {@link #getContentAsByteArray()} or request an {@link InputStream} with
  * {@link #getInputStream()} and process the file without attempting to load it into memory, which may come handy with large files.
  * </p>
@@ -41,20 +42,10 @@ import java.nio.file.Path;
  * This allows an implementation of this interface to also implement {@code javax.activation.DataSource} with minimal additional work.
  * </p>
  *
- * @param <F> The FileItem type.
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-public interface FileItem<F extends FileItem<F>> extends FileItemHeadersProvider<F> {
-
-  /**
-   * Deletes the underlying storage for a file item, including deleting any associated temporary disk file. Use this method to ensure that this is done at an
-   * earlier time, to preserve resources.
-   *
-   * @return {@code this} instance.
-   * @throws IOException if an error occurs.
-   */
-  F delete() throws IOException;
+public interface FileItem extends FileItemHeadersProvider, Part {
 
   /**
    * Gets the contents of the file item as a byte array.
@@ -63,14 +54,6 @@ public interface FileItem<F extends FileItem<F>> extends FileItemHeadersProvider
    * @throws IOException if an I/O error occurs
    */
   byte @Nullable [] getContentAsByteArray() throws IOException;
-
-  /**
-   * Gets the content type passed by the browser or {@code null} if not defined.
-   *
-   * @return The content type passed by the browser or {@code null} if not defined.
-   */
-  @Nullable
-  String getContentType();
 
   /**
    * Gets the name of the field in the multipart form corresponding to this file item.
@@ -106,31 +89,6 @@ public interface FileItem<F extends FileItem<F>> extends FileItemHeadersProvider
   OutputStream getOutputStream() throws IOException;
 
   /**
-   * Gets the size of the file item.
-   *
-   * @return The size of the file item, in bytes.
-   */
-  long getSize();
-
-  /**
-   * Gets the contents of the file item as a String, using the default character encoding. This method uses {@link #getContentAsByteArray()} to retrieve the contents of the
-   * item.
-   *
-   * @return The contents of the item, as a string.
-   * @throws IOException if an I/O error occurs
-   */
-  String getString() throws IOException;
-
-  /**
-   * Gets the contents of the file item as a String, using the specified encoding. This method uses {@link #getContentAsByteArray()} to retrieve the contents of the item.
-   *
-   * @param toCharset The character encoding to use.
-   * @return The contents of the item, as a string.
-   * @throws IOException if an I/O error occurs
-   */
-  String getString(Charset toCharset) throws IOException;
-
-  /**
    * Tests whether or not a {@code FileItem} instance represents a simple form field.
    *
    * @return {@code true} if the instance represents a simple form field; {@code false} if it represents an uploaded file.
@@ -150,7 +108,7 @@ public interface FileItem<F extends FileItem<F>> extends FileItemHeadersProvider
    * @param name The name of the form field.
    * @return {@code this} instance.
    */
-  F setFieldName(String name);
+  FileItem setFieldName(String name);
 
   /**
    * Sets whether or not a {@code FileItem} instance represents a simple form field.
@@ -158,7 +116,7 @@ public interface FileItem<F extends FileItem<F>> extends FileItemHeadersProvider
    * @param state {@code true} if the instance represents a simple form field; {@code false} if it represents an uploaded file.
    * @return {@code this} instance.
    */
-  F setFormField(boolean state);
+  FileItem setFormField(boolean state);
 
   /**
    * Writes an uploaded item to disk.
@@ -172,9 +130,8 @@ public interface FileItem<F extends FileItem<F>> extends FileItemHeadersProvider
    * </p>
    *
    * @param file The {@code File} into which the uploaded item should be stored.
-   * @return {@code this} instance.
    * @throws IOException if an error occurs.
    */
-  F write(Path file) throws IOException;
+  void write(Path file) throws IOException;
 
 }

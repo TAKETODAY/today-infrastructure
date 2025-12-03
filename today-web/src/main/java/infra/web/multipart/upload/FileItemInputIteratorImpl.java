@@ -35,7 +35,7 @@ import infra.web.RequestContext;
 import infra.web.multipart.NotMultipartRequestException;
 
 /**
- * The iterator returned by {@link FileUploadParser#getItemIterator(RequestContext)}.
+ * The iterator returned by {@link DefaultMultipartParser#getItemIterator(RequestContext)}.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
@@ -51,9 +51,9 @@ class FileItemInputIteratorImpl implements FileItemInputIterator {
   /**
    * The file uploads processing utility.
    *
-   * @see FileUploadParser
+   * @see DefaultMultipartParser
    */
-  private final FileUploadParser<?, ?> fileUpload;
+  private final DefaultMultipartParser fileUpload;
 
   /**
    * The maximum allowed size of a complete request.
@@ -118,10 +118,10 @@ class FileItemInputIteratorImpl implements FileItemInputIterator {
    * @throws FileUploadException An error occurred while parsing the request.
    * @throws IOException An I/O error occurred.
    */
-  FileItemInputIteratorImpl(final FileUploadParser<?, ?> fileUpload, final RequestContext context) throws FileUploadException, IOException {
+  FileItemInputIteratorImpl(final DefaultMultipartParser fileUpload, final RequestContext context) throws FileUploadException, IOException {
     if (!context.isMultipart()) {
       throw new NotMultipartRequestException(String.format("the request doesn't contain a %s or %s stream, content type header is %s",
-              FileUploadParser.MULTIPART_FORM_DATA, FileUploadParser.MULTIPART_MIXED, context.getContentType()), null);
+              MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.MULTIPART_MIXED_VALUE, context.getContentType()), null);
     }
     this.fileUpload = fileUpload;
     this.sizeMax = fileUpload.getMaxSize();
@@ -175,7 +175,7 @@ class FileItemInputIteratorImpl implements FileItemInputIterator {
     }
     catch (IllegalArgumentException e) {
       StreamUtils.closeQuietly(inputStream); // avoid possible resource leak
-      throw new FileUploadContentTypeException(String.format("The boundary specified in the %s header is too long", FileUploadParser.CONTENT_TYPE), e);
+      throw new FileUploadContentTypeException("The boundary specified in the 'Content-type' header is too long", e);
     }
 
     findNextItem();
@@ -217,7 +217,8 @@ class FileItemInputIteratorImpl implements FileItemInputIterator {
       final var headers = fileUpload.getParsedHeaders(input.readHeaders());
       if (multipartRelated) {
         currentFieldName = "";
-        currentItem = new FileItemInputImpl(this, null, null, headers.getFirst(FileUploadParser.CONTENT_TYPE),
+        currentItem = new FileItemInputImpl(this, null, null,
+                headers.getFirst(HttpHeaders.CONTENT_TYPE),
                 false, getContentLength(headers));
         currentItem.setHeaders(headers);
         progressNotifier.noteItem();
@@ -228,8 +229,8 @@ class FileItemInputIteratorImpl implements FileItemInputIterator {
         // We're parsing the outer multipart
         final String fieldName = fileUpload.getFieldName(headers);
         if (fieldName != null) {
-          final var subContentType = headers.getFirst(FileUploadParser.CONTENT_TYPE);
-          if (subContentType != null && subContentType.toLowerCase(Locale.ROOT).startsWith(FileUploadParser.MULTIPART_MIXED)) {
+          final var subContentType = headers.getFirst(HttpHeaders.CONTENT_TYPE);
+          if (subContentType != null && subContentType.toLowerCase(Locale.ROOT).startsWith(MediaType.MULTIPART_MIXED_VALUE)) {
             currentFieldName = fieldName;
             // Multiple files associated with this field name
             final var subBoundary = fileUpload.getBoundary(subContentType);
@@ -252,8 +253,8 @@ class FileItemInputIteratorImpl implements FileItemInputIterator {
       else {
         final String fileName = fileUpload.getFileName(headers);
         if (fileName != null) {
-          currentItem = new FileItemInputImpl(this, fileName, currentFieldName, headers.getFirst(FileUploadParser.CONTENT_TYPE),
-                  false, getContentLength(headers));
+          currentItem = new FileItemInputImpl(this, fileName, currentFieldName,
+                  headers.getFirst(HttpHeaders.CONTENT_TYPE), false, getContentLength(headers));
           currentItem.setHeaders(headers);
           progressNotifier.noteItem();
           itemValid = true;

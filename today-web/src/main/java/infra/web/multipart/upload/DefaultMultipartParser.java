@@ -27,9 +27,14 @@ import java.util.List;
 import java.util.Locale;
 
 import infra.http.HttpHeaders;
+import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.util.StreamUtils;
 import infra.web.RequestContext;
+import infra.web.multipart.MultipartException;
+import infra.web.multipart.MultipartParser;
+import infra.web.multipart.MultipartRequest;
+import infra.web.multipart.Part;
 
 /**
  * High level API for processing file uploads.
@@ -42,17 +47,10 @@ import infra.web.RequestContext;
  * How the data for individual parts is stored is determined by the factory used to create them; a given part may be in memory, on disk, or somewhere else.
  * </p>
  *
- * @param <I> The FileItem type.
- * @param <F> the FileItemFactory type.
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-public class FileUploadParser<I extends FileItem<I>, F extends FileItemFactory<I>> {
-
-  /**
-   * Boundary parameter key.
-   */
-  private static final String BOUNDARY_KEY = "boundary";
+public class DefaultMultipartParser implements MultipartParser {
 
   /**
    * Name parameter key.
@@ -65,44 +63,9 @@ public class FileUploadParser<I extends FileItem<I>, F extends FileItemFactory<I
   private static final String FILENAME_KEY = "filename";
 
   /**
-   * HTTP content type header name.
-   */
-  public static final String CONTENT_TYPE = "Content-type";
-
-  /**
-   * HTTP content disposition header name.
-   */
-  public static final String CONTENT_DISPOSITION = "Content-disposition";
-
-  /**
-   * HTTP content length header name.
-   */
-  public static final String CONTENT_LENGTH = "Content-length";
-
-  /**
    * Content-disposition value for form data.
    */
   public static final String FORM_DATA = "form-data";
-
-  /**
-   * Content-disposition value for file attachment.
-   */
-  public static final String ATTACHMENT = "attachment";
-
-  /**
-   * Part of HTTP content type header.
-   */
-  public static final String MULTIPART = "multipart/";
-
-  /**
-   * HTTP content type header for multipart forms.
-   */
-  public static final String MULTIPART_FORM_DATA = "multipart/form-data";
-
-  /**
-   * HTTP content type header for multiple uploads.
-   */
-  public static final String MULTIPART_MIXED = "multipart/mixed";
 
   /**
    * The maximum size permitted for the complete request, as opposed to {@link #maxFileSize}. A value of -1 indicates no maximum.
@@ -137,13 +100,12 @@ public class FileUploadParser<I extends FileItem<I>, F extends FileItemFactory<I
   /**
    * The factory to use to create new form items.
    */
-  private @Nullable F fileItemFactory;
+  private @Nullable FileItemFactory fileItemFactory;
 
   /**
    * Constructs a new instance for subclasses.
    */
-  public FileUploadParser() {
-    // empty
+  public DefaultMultipartParser() {
   }
 
   /**
@@ -157,7 +119,7 @@ public class FileUploadParser<I extends FileItem<I>, F extends FileItemFactory<I
     parser.setLowerCaseNames(true);
     // Parameter parser can handle null input
     final var params = parser.parse(contentType, new char[] { ';', ',' });
-    final var boundaryStr = params.get(BOUNDARY_KEY);
+    final var boundaryStr = params.get(HttpHeaders.BOUNDARY);
     return boundaryStr != null ? boundaryStr.getBytes(StandardCharsets.ISO_8859_1) : null;
   }
 
@@ -168,7 +130,7 @@ public class FileUploadParser<I extends FileItem<I>, F extends FileItemFactory<I
    * @return The field name for the current {@code encapsulation}.
    */
   public @Nullable String getFieldName(final HttpHeaders headers) {
-    return getFieldName(headers.getFirst(CONTENT_DISPOSITION));
+    return getFieldName(headers.getFirst(HttpHeaders.CONTENT_DISPOSITION));
   }
 
   /**
@@ -197,7 +159,7 @@ public class FileUploadParser<I extends FileItem<I>, F extends FileItemFactory<I
    *
    * @return The factory class for new file items.
    */
-  public @Nullable F getFileItemFactory() {
+  public @Nullable FileItemFactory getFileItemFactory() {
     return fileItemFactory;
   }
 
@@ -208,7 +170,7 @@ public class FileUploadParser<I extends FileItem<I>, F extends FileItemFactory<I
    * @return The file name for the current {@code encapsulation}.
    */
   public @Nullable String getFileName(final HttpHeaders headers) {
-    return getFileName(headers.getFirst(CONTENT_DISPOSITION));
+    return getFileName(headers.getFirst(HttpHeaders.CONTENT_DISPOSITION));
   }
 
   /**
@@ -221,7 +183,7 @@ public class FileUploadParser<I extends FileItem<I>, F extends FileItemFactory<I
     String fileName = null;
     if (contentDisposition != null) {
       final var cdl = contentDisposition.toLowerCase(Locale.ROOT);
-      if (cdl.startsWith(FORM_DATA) || cdl.startsWith(ATTACHMENT)) {
+      if (cdl.startsWith(FORM_DATA) || cdl.startsWith("attachment")) {
         final var parser = new ParameterParser();
         parser.setLowerCaseNames(true);
         // Parameter parser can handle null input
@@ -402,6 +364,11 @@ public class FileUploadParser<I extends FileItem<I>, F extends FileItemFactory<I
     headers.add(headerName, headerValue);
   }
 
+  @Override
+  public MultipartRequest parse(RequestContext request) throws MultipartException {
+    return new DefaultMultipartRequest(this, request);
+  }
+
   /**
    * Parses an <a href="https://www.ietf.org/rfc/rfc1867.txt">RFC 1867</a> compliant {@code multipart/form-data} stream.
    *
@@ -409,11 +376,11 @@ public class FileUploadParser<I extends FileItem<I>, F extends FileItemFactory<I
    * @return A list of {@code FileItem} instances parsed from the request, in the order that they were transmitted.
    * @throws FileUploadException if there are problems reading/parsing the request or storing files.
    */
-  public List<I> parseRequest(final RequestContext context) throws FileUploadException {
-    final List<I> itemList = new ArrayList<>();
+  public List<Part> parseRequest(final RequestContext context) throws FileUploadException {
+    final List<Part> itemList = new ArrayList<>();
     var successful = false;
     try {
-      F fileItemFactory = getFileItemFactory();
+      FileItemFactory fileItemFactory = getFileItemFactory();
       Assert.state(fileItemFactory != null, "No FileItemFactory has been set.");
       final var buffer = new byte[StreamUtils.BUFFER_SIZE];
       FileItemInputIterator itemIterator = getItemIterator(context);
@@ -422,12 +389,11 @@ public class FileUploadParser<I extends FileItem<I>, F extends FileItemFactory<I
         final int size = itemList.size();
         if (size == maxFileCount) {
           // The next item will exceed the limit.
-          throw new FileUploadFileCountLimitException(
-                  String.format("Request '%s' failed: Maximum file count %,d exceeded.", MULTIPART_FORM_DATA, maxFileCount),
-                  getMaxFileCount(), size);
+          throw new FileUploadFileCountLimitException("Request '%s' failed: Maximum file count %,d exceeded."
+                  .formatted(MediaType.MULTIPART_FORM_DATA_VALUE, maxFileCount), getMaxFileCount(), size);
         }
         // Don't use getName() here to prevent an InvalidFileNameException.
-        final var fileItem = fileItemFactory.fileItemBuilder()
+        final FileItem fileItem = fileItemFactory.fileItemBuilder()
                 .fieldName(fileItemInput.getFieldName())
                 .contentType(fileItemInput.getContentType())
                 .formField(fileItemInput.isFormField())
@@ -440,7 +406,7 @@ public class FileUploadParser<I extends FileItem<I>, F extends FileItemFactory<I
           StreamUtils.copy(inputStream, outputStream, buffer);
         }
         catch (final IOException e) {
-          throw new FileUploadException(String.format("Request '%s' failed: %s", MULTIPART_FORM_DATA, e.getMessage()), e);
+          throw new FileUploadException(String.format("Request '%s' failed: %s", MediaType.MULTIPART_FORM_DATA_VALUE, e.getMessage()), e);
         }
       }
       successful = true;
@@ -451,12 +417,11 @@ public class FileUploadParser<I extends FileItem<I>, F extends FileItemFactory<I
     }
     finally {
       if (!successful) {
-        for (final I fileItem : itemList) {
+        for (final Part part : itemList) {
           try {
-            fileItem.delete();
+            part.cleanup();
           }
-          catch (final Exception ignored) {
-            // ignored TODO perhaps add to tracker delete failure list somehow?
+          catch (Exception ignored) {
           }
         }
       }
@@ -468,7 +433,7 @@ public class FileUploadParser<I extends FileItem<I>, F extends FileItemFactory<I
    *
    * @param factory The factory class for new file items.
    */
-  public void setFileItemFactory(final @Nullable F factory) {
+  public void setFileItemFactory(final @Nullable FileItemFactory factory) {
     this.fileItemFactory = factory;
   }
 

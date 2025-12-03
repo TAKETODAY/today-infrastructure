@@ -30,7 +30,6 @@ import java.nio.channels.NonWritableChannelException;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
-import infra.core.io.InputStreamSource;
 import infra.core.io.Resource;
 
 /**
@@ -45,32 +44,7 @@ import infra.core.io.Resource;
  * @see MultipartRequest
  * @since 2018-07-11 13:02:52
  */
-public interface MultipartFile extends Part, InputStreamSource {
-
-  /**
-   * Return the content type of the file.
-   *
-   * @return the content type, or {@code null} if not defined
-   * (or no file has been chosen in the multipart form)
-   */
-  @Nullable
-  @Override
-  String getContentType();
-
-  /**
-   * Return the size of the file in bytes.
-   *
-   * @return the size of the file, or 0 if empty
-   */
-  long getSize();
-
-  /**
-   * Return the name of the parameter in the multipart form.
-   *
-   * @return the name of the parameter (never {@code null} or empty)
-   */
-  @Override
-  String getName();
+public interface MultipartFile extends Part {
 
   /**
    * Return the original filename in the client's filesystem.
@@ -98,31 +72,12 @@ public interface MultipartFile extends Part, InputStreamSource {
   boolean isEmpty();
 
   /**
-   * Returns the contents of the file item as an array of bytes.
-   *
-   * @throws IOException If any IO exception occurred
-   * @since 2.3.3
-   */
-  @Override
-  byte[] getContentAsByteArray() throws IOException;
-
-  /**
    * Get original resource
    *
    * @return Original resource
    * @since 2.3.3
    */
   Object getOriginalResource();
-
-  /**
-   * Deletes the underlying storage for a file item, including deleting any
-   * associated temporary disk file.
-   *
-   * @throws IOException if an error occurs.
-   * @since 2.3.3
-   */
-  @Override
-  void cleanup() throws IOException;
 
   /**
    * Return a Resource representation of this MultipartFile. This can be used
@@ -177,7 +132,7 @@ public interface MultipartFile extends Part, InputStreamSource {
    */
   default long transferTo(Path dest) throws IOException, IllegalStateException {
     try (var channel = FileChannel.open(dest, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
-      return transferTo(channel, 0, getSize());
+      return transferTo(channel, 0, getContentLength());
     }
   }
 

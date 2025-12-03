@@ -30,7 +30,7 @@ import infra.web.RequestContext;
  * The items contents are retrieved by calling {@link #getInputStream()}.
  * </p>
  * <p>
- * Instances of this class are created by accessing the iterator, returned by {@link FileUploadParser#getItemIterator(RequestContext)}.
+ * Instances of this class are created by accessing the iterator, returned by {@link DefaultMultipartParser#getItemIterator(RequestContext)}.
  * </p>
  * <p>
  * <em>Note</em>: There is an interaction between the iterator and its associated instances of {@link FileItemInput}: By invoking
@@ -40,7 +40,7 @@ import infra.web.RequestContext;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-public interface FileItemInput extends FileItemHeadersProvider<FileItemInput> {
+public interface FileItemInput extends FileItemHeadersProvider {
 
   /**
    * This exception is thrown, if an attempt is made to read data from the {@link InputStream}, which has been returned by

@@ -25,7 +25,6 @@ import infra.http.HttpHeaders;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -64,9 +63,9 @@ class PartTests {
   @Test
   void testGetValue() {
     Part part = mock(Part.class);
-    when(part.getValue()).thenReturn("test-value");
+    when(part.getContentAsString()).thenReturn("test-value");
 
-    assertThat(part.getValue()).isEqualTo("test-value");
+    assertThat(part.getContentAsString()).isEqualTo("test-value");
   }
 
   @Test
@@ -94,84 +93,6 @@ class PartTests {
 
     assertThatNoException().isThrownBy(part::cleanup);
     verify(part).cleanup();
-  }
-
-  @Test
-  void testAsMethodWithCorrectType() {
-    Part part = mock(Part.class);
-    when(part.as(Part.class)).thenCallRealMethod();
-
-    Part result = part.as(Part.class);
-    assertThat(result).isEqualTo(part);
-  }
-
-  @Test
-  void testAsMethodWithIncorrectType() {
-    Part part = mock(Part.class);
-    when(part.as(String.class)).thenCallRealMethod();
-
-    assertThatThrownBy(() -> part.as(String.class))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("is not a");
-  }
-
-  @Test
-  void testAsMethodWithFormField() {
-    FormField formField = mock(FormField.class);
-    Part part = (Part) formField;
-
-    when(formField.as(FormField.class)).thenCallRealMethod();
-
-    FormField result = formField.as(FormField.class);
-    assertThat(result).isEqualTo(formField);
-  }
-
-  @Test
-  void testAsMethodWithMultipartFile() {
-    MultipartFile multipartFile = mock(MultipartFile.class);
-    Part part = (Part) multipartFile;
-
-    when(multipartFile.as(MultipartFile.class)).thenCallRealMethod();
-
-    MultipartFile result = multipartFile.as(MultipartFile.class);
-    assertThat(result).isEqualTo(multipartFile);
-  }
-
-  @Test
-  void testDefaultGetContentTypeReturnsNull() {
-    Part part = new Part() {
-      @Override
-      public String getName() {
-        return "test";
-      }
-
-      @Override
-      public String getValue() {
-        return "value";
-      }
-
-      @Override
-      public boolean isFormField() {
-        return true;
-      }
-
-      @Override
-      public HttpHeaders getHeaders() {
-        return HttpHeaders.forWritable();
-      }
-
-      @Override
-      public byte[] getContentAsByteArray() {
-        return new byte[0];
-      }
-
-      @Override
-      public void cleanup() {
-        // nothing to do
-      }
-    };
-
-    assertThat(part.getContentType()).isNull();
   }
 
   @Test

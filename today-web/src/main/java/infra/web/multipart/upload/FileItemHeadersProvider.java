@@ -22,13 +22,12 @@ import infra.http.HttpHeaders;
 /**
  * Provides access to headers.
  *
- * @param <T> The FileItemHeadersProvider type.
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see FileItem
  * @see FileItemInput
  * @since 5.0
  */
-public interface FileItemHeadersProvider<T extends FileItemHeadersProvider<T>> {
+public interface FileItemHeadersProvider {
 
   /**
    * Gets the collection of headers defined locally within this item.
@@ -42,8 +41,7 @@ public interface FileItemHeadersProvider<T extends FileItemHeadersProvider<T>> {
    * the raw headers found within the item header block.
    *
    * @param headers the instance that holds onto the headers for this instance.
-   * @return {@code this} instance.
    */
-  T setHeaders(HttpHeaders headers);
+  void setHeaders(HttpHeaders headers);
 
 }
