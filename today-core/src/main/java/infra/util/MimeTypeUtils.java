@@ -139,10 +139,11 @@ public abstract class MimeTypeUtils {
     }
 
     LinkedHashMap<String, String> parameters = null;
+    int mimeTypeLength = mimeType.length();
     do {
       int nextIndex = index + 1;
       boolean quoted = false;
-      while (nextIndex < mimeType.length()) {
+      while (nextIndex < mimeTypeLength) {
         char ch = mimeType.charAt(nextIndex);
         if (ch == ';') {
           if (!quoted) {
@@ -168,7 +169,7 @@ public abstract class MimeTypeUtils {
       }
       index = nextIndex;
     }
-    while (index < mimeType.length());
+    while (index < mimeTypeLength);
 
     try {
       return new MimeType(type, subtype, parameters);
