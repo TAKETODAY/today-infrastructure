@@ -17,6 +17,8 @@
 
 package infra.web.testfixture;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +27,6 @@ import java.io.InputStream;
 import infra.http.DefaultHttpHeaders;
 import infra.http.HttpHeaders;
 import infra.lang.Assert;
-import org.jspecify.annotations.Nullable;
 import infra.util.FileCopyUtils;
 import infra.web.multipart.MultipartFile;
 
@@ -165,11 +166,6 @@ public class MockMultipartFile implements MultipartFile {
   @Override
   public byte[] getContentAsByteArray() throws IOException {
     return this.content;
-  }
-
-  @Override
-  public Object getOriginalResource() {
-    return content;
   }
 
   @Override

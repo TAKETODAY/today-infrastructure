@@ -55,6 +55,7 @@ import infra.web.multipart.MultipartFile;
  * @see AbstractPart
  * @since 3.0 2021/4/18 20:38
  */
+@Deprecated
 public abstract class AbstractMultipartFile extends AbstractPart implements MultipartFile {
 
   @Override

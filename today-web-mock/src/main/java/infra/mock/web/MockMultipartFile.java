@@ -176,11 +176,6 @@ public class MockMultipartFile implements MultipartFile {
   }
 
   @Override
-  public Object getOriginalResource() {
-    return content;
-  }
-
-  @Override
   public void cleanup() throws IOException { }
 
   @Override

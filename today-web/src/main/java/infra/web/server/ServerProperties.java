@@ -317,7 +317,16 @@ public class ServerProperties {
        * If mixedMode is disabled and this property is not empty will be
        * using disk mode
        */
-      public @Nullable String baseDir;
+      public @Nullable String tempBaseDir;
+
+      /**
+       * Subdirectory name where temporary files will be stored.
+       * This property is used together with baseDir to create the full path
+       * for storing uploaded files and temporary data.
+       *
+       * @see ApplicationTemp
+       */
+      public @Nullable String tempSubDir;
 
       /**
        * true if temporary files should be deleted with the JVM, false otherwise.

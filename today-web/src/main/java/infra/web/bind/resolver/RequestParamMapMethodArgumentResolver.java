@@ -37,7 +37,7 @@ import infra.web.multipart.Part;
  *
  * <p>The created {@link Map} contains all request parameter name/value pairs,
  * or all multipart files for a given parameter name if specifically declared
- * with {@link MultipartFile} as the value type. If the method parameter type is
+ * with {@link Part} as the value type. If the method parameter type is
  * {@link MultiValueMap} instead, the created map contains all request parameters
  * and all their values for cases where request parameters have multiple values
  * (or multiple multipart files of the same name).

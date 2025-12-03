@@ -49,8 +49,7 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-  @Nullable
-  private final ConversionService conversionService;
+  private final @Nullable ConversionService conversionService;
 
   private final ConcurrentHashMap<MethodParameter, NamedValueInfo> namedValueInfoCache = new ConcurrentHashMap<>(256);
 
@@ -99,8 +98,7 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
     return true;
   }
 
-  @Nullable
-  private NamedValueInfo getNamedValueInfo(MethodParameter parameter, HttpRequestValues.Builder requestValues) {
+  private @Nullable NamedValueInfo getNamedValueInfo(MethodParameter parameter, HttpRequestValues.Builder requestValues) {
     NamedValueInfo info = this.namedValueInfoCache.get(parameter);
     if (info == null) {
       info = createNamedValueInfo(parameter, requestValues);
@@ -127,9 +125,7 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
    * @since 5.0
    */
   @Nullable
-  protected NamedValueInfo createNamedValueInfo(
-          MethodParameter parameter, HttpRequestValues.Metadata metadata) {
-
+  protected NamedValueInfo createNamedValueInfo(MethodParameter parameter, HttpRequestValues.Metadata metadata) {
     return createNamedValueInfo(parameter);
   }
 
@@ -143,8 +139,9 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
                         .formatted(parameter.getParameterType().getName()));
       }
     }
-    boolean required = (info.required && !parameter.isOptional());
-    String defaultValue = (Constant.DEFAULT_NONE.equals(info.defaultValue) ? null : info.defaultValue);
+
+    boolean required = info.required && !parameter.isOptional();
+    String defaultValue = Constant.DEFAULT_NONE.equals(info.defaultValue) ? null : info.defaultValue;
     return info.update(name, required, defaultValue);
   }
 
@@ -234,12 +231,11 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
 
     private final String name;
 
-    private final boolean required;
-
-    @Nullable
-    private final String defaultValue;
-
     private final String label;
+
+    private final @Nullable String defaultValue;
+
+    private final boolean required;
 
     private final boolean multiValued;
 

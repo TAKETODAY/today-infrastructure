@@ -19,7 +19,9 @@ package infra.annotation.config.web.netty;
 
 import org.jspecify.annotations.Nullable;
 
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 import infra.annotation.ConditionalOnWebApplication;
@@ -47,9 +49,8 @@ import infra.util.ClassUtils;
 import infra.util.StringUtils;
 import infra.web.DispatcherHandler;
 import infra.web.multipart.MultipartParser;
-import infra.web.multipart.upload.DefaultMultipartParser;
+import infra.web.multipart.parsing.DefaultMultipartParser;
 import infra.web.server.ServerProperties;
-import infra.web.server.ServerProperties.Netty.Multipart;
 import infra.web.server.ServiceExecutor;
 import infra.web.server.Ssl;
 import infra.web.server.WebServerFactoryCustomizerBeanPostProcessor;
@@ -150,10 +151,7 @@ public class NettyWebServerFactoryAutoConfiguration {
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public static NettyRequestConfig nettyRequestConfig(ServerProperties server,
-          SendErrorHandler sendErrorHandler, @Nullable MultipartParser multipartParser) {
-    if (multipartParser == null) {
-      multipartParser = createMultipartParser(server.netty.multipart);
-    }
+          SendErrorHandler sendErrorHandler, MultipartParser multipartParser) {
 
     return NettyRequestConfig.forBuilder(Ssl.isEnabled(server.ssl))
             .multipartParser(multipartParser)
@@ -164,7 +162,11 @@ public class NettyWebServerFactoryAutoConfiguration {
             .build();
   }
 
-  private static MultipartParser createMultipartParser(Multipart multipart) {
+  @Component
+  @ConditionalOnMissingBean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  public static DefaultMultipartParser multipartParser(ServerProperties server, @Nullable ApplicationTemp applicationTemp) {
+    var multipart = server.netty.multipart;
     DefaultMultipartParser multipartParser = new DefaultMultipartParser();
     if (multipart.mixedMode) {
       if (multipart.fieldSizeThreshold != null) {
@@ -174,11 +176,23 @@ public class NettyWebServerFactoryAutoConfiguration {
     else {
 
     }
+
     if (multipart.maxFieldSize != null) {
-      multipartParser.setMaxLimit(multipart.maxFieldSize.toBytes());
+      multipartParser.setMaxFileSize(multipart.maxFieldSize.toBytes());
     }
-    if (StringUtils.hasText(multipart.baseDir)) {
-      multipartParser.setBaseDir(multipart.baseDir);
+    if (StringUtils.hasText(multipart.tempBaseDir)) {
+      if (StringUtils.hasText(multipart.tempSubDir)) {
+        multipartParser.setTempRepository(Path.of(multipart.tempBaseDir, multipart.tempSubDir));
+      }
+      else {
+        multipartParser.setTempRepository(Path.of(multipart.tempBaseDir));
+      }
+    }
+    else {
+      if (applicationTemp == null) {
+        applicationTemp = ApplicationTemp.instance;
+      }
+      multipartParser.setTempRepository(applicationTemp.getDir(Objects.requireNonNullElse(multipart.tempSubDir, "multipart")));
     }
     multipartParser.setDeleteOnExit(multipart.deleteOnExit);
     return multipartParser;

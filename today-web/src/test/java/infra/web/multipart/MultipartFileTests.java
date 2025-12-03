@@ -91,9 +91,6 @@ class MultipartFileTests {
       }
 
       @Override
-      public Object getOriginalResource() { return new Object(); }
-
-      @Override
       public void cleanup() throws IOException { }
 
       @Override
@@ -103,7 +100,7 @@ class MultipartFileTests {
     Resource resource = realMultipartFile.getResource();
 
     assertThat(resource).isNotNull();
-    assertThat(resource).isInstanceOf(MultipartFileResource.class);
+    assertThat(resource).isInstanceOf(PartResource.class);
     assertThat(resource.getName()).isEqualTo("original.txt");
     assertThat(resource.contentLength()).isEqualTo(1024L);
   }
@@ -149,9 +146,6 @@ class MultipartFileTests {
       public HttpHeaders getHeaders() {
         return null;
       }
-
-      @Override
-      public Object getOriginalResource() { return new Object(); }
 
       @Override
       public void cleanup() throws IOException { }
@@ -211,9 +205,6 @@ class MultipartFileTests {
       public HttpHeaders getHeaders() {
         return null;
       }
-
-      @Override
-      public Object getOriginalResource() { return new Object(); }
 
       @Override
       public void cleanup() throws IOException { }

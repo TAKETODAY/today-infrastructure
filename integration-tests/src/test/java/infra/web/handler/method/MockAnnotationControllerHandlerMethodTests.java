@@ -147,7 +147,7 @@ import infra.web.handler.function.ServerResponse;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.WebApplicationContext;
 import infra.web.multipart.MultipartFile;
-import infra.web.multipart.support.StringMultipartFileEditor;
+import infra.web.multipart.support.StringPartEditor;
 import infra.web.testfixture.MockMultipartFile;
 import infra.web.testfixture.security.TestPrincipal;
 import infra.web.view.AbstractView;
@@ -3738,7 +3738,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     @InitBinder
     public void initBinder(WebDataBinder binder) {
-      binder.registerCustomEditor(String.class, new StringMultipartFileEditor());
+      binder.registerCustomEditor(String.class, new StringPartEditor());
     }
 
     @RequestMapping("/singleString")

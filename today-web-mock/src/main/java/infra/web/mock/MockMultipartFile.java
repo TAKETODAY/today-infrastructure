@@ -23,11 +23,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
 import infra.http.DefaultHttpHeaders;
+import infra.http.HttpHeaders;
 import infra.mock.api.http.Part;
 import infra.util.FileCopyUtils;
 import infra.web.multipart.MultipartFile;
@@ -65,6 +67,16 @@ final class MockMultipartFile extends AbstractMultipartFile implements Multipart
     return part.getSize();
   }
 
+  @Override
+  public String getContentAsString(Charset charset) throws IOException {
+    return new String(getContentAsByteArray(), charset);
+  }
+
+  @Override
+  public boolean isInMemory() {
+    return true;
+  }
+
   /**
    * Gets the name of this part
    *
@@ -77,7 +89,19 @@ final class MockMultipartFile extends AbstractMultipartFile implements Multipart
 
   @Override
   protected DefaultHttpHeaders createHttpHeaders() {
-    return MockFormData.createHeaders(part);
+    return createHeaders(part);
+  }
+
+  static DefaultHttpHeaders createHeaders(Part part) {
+    DefaultHttpHeaders headers = HttpHeaders.forWritable();
+    for (String headerName : part.getHeaderNames()) {
+      headers.addAll(headerName, part.getHeaders(headerName));
+    }
+
+    if (!headers.containsKey(HttpHeaders.CONTENT_TYPE)) {
+      headers.setOrRemove(HttpHeaders.CONTENT_TYPE, part.getContentType());
+    }
+    return headers;
   }
 
   /**
@@ -123,13 +147,13 @@ final class MockMultipartFile extends AbstractMultipartFile implements Multipart
   }
 
   @Override
-  protected byte[] doGetBytes() throws IOException {
-    return FileCopyUtils.copyToByteArray(part.getInputStream());
+  public boolean isFile() {
+    return false;
   }
 
   @Override
-  public Part getOriginalResource() {
-    return part;
+  protected byte[] doGetBytes() throws IOException {
+    return FileCopyUtils.copyToByteArray(part.getInputStream());
   }
 
   @Override

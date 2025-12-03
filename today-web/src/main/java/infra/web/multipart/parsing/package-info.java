@@ -15,20 +15,12 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.multipart;
-
 /**
- * A representation of an uploaded file received in a multipart request.
- *
- * <p>The file contents are either stored in memory or temporarily on disk.
- * In either case, the user is responsible for copying file contents to a
- * session-level or persistent store as and if desired. The temporary storage
- * will be cleared at the end of request processing.
- *
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see MultipartRequest
- * @since 2018-07-11 13:02:52
+ * for form data parsing
+ * <p>
+ * Modified from commons-fileupload
  */
-@Deprecated(forRemoval = true)
-public interface MultipartFile extends Part {
-}
+@NullMarked
+package infra.web.multipart.parsing;
+
+import org.jspecify.annotations.NullMarked;

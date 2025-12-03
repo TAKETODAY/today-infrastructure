@@ -15,20 +15,28 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.multipart;
+package infra.web.multipart.parsing;
 
 /**
- * A representation of an uploaded file received in a multipart request.
+ * Signals an attempt to set an invalid boundary token.
  *
- * <p>The file contents are either stored in memory or temporarily on disk.
- * In either case, the user is responsible for copying file contents to a
- * session-level or persistent store as and if desired. The temporary storage
- * will be cleared at the end of request processing.
- *
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see MultipartRequest
- * @since 2018-07-11 13:02:52
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0 2025/11/28 22:23
  */
-@Deprecated(forRemoval = true)
-public interface MultipartFile extends Part {
+public class FileUploadBoundaryException extends FileUploadException {
+
+  /**
+   * The UID to use when serializing this instance.
+   */
+  private static final long serialVersionUID = 2;
+
+  /**
+   * Constructs an instance with the specified detail message.
+   *
+   * @param message The detail message (which is saved for later retrieval by the {@link #getMessage()} method)
+   */
+  public FileUploadBoundaryException(final String message) {
+    super(message);
+  }
+
 }

@@ -28,14 +28,13 @@ import java.util.function.Function;
 import infra.lang.Constant;
 import infra.web.RequestContext;
 import infra.web.multipart.MultipartParser;
-import infra.web.multipart.upload.DefaultMultipartParser;
+import infra.web.multipart.parsing.DefaultMultipartParser;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.handler.codec.http.HttpHeadersFactory;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
-import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

@@ -450,7 +450,7 @@ public final class NettyRequestConfig {
     }
 
     /**
-     * Sets the {@link infra.web.multipart.upload.DefaultMultipartParser} to be used for parsing multipart requests.
+     * Sets the {@link infra.web.multipart.parsing.DefaultMultipartParser} to be used for parsing multipart requests.
      * <p>
      * This method allows configuring a custom multipart parser that will be used
      * to handle multipart/form-data requests. The provided parser will be responsible

@@ -48,7 +48,7 @@ import infra.web.mock.MockMultipartMockRequestContext;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.bind.MockRequestParameterPropertyValues;
 import infra.web.multipart.MultipartFile;
-import infra.web.multipart.support.StringMultipartFileEditor;
+import infra.web.multipart.support.StringPartEditor;
 import infra.web.testfixture.MockMultipartFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -286,7 +286,7 @@ class WebDataBinderTests {
   public void testMultipartFileAsString() {
     TestBean target = new TestBean();
     WebDataBinder binder = new WebDataBinder(target);
-    binder.registerCustomEditor(String.class, new StringMultipartFileEditor());
+    binder.registerCustomEditor(String.class, new StringPartEditor());
 
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     request.addFile(new MockMultipartFile("name", "Juergen".getBytes()));
@@ -298,7 +298,7 @@ class WebDataBinderTests {
   public void testMultipartFileAsStringArray() {
     TestBean target = new TestBean();
     WebDataBinder binder = new WebDataBinder(target);
-    binder.registerCustomEditor(String.class, new StringMultipartFileEditor());
+    binder.registerCustomEditor(String.class, new StringPartEditor());
 
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     request.addFile(new MockMultipartFile("stringArray", "Juergen".getBytes()));
@@ -311,7 +311,7 @@ class WebDataBinderTests {
   public void testMultipartFilesAsStringArray() {
     TestBean target = new TestBean();
     WebDataBinder binder = new WebDataBinder(target);
-    binder.registerCustomEditor(String.class, new StringMultipartFileEditor());
+    binder.registerCustomEditor(String.class, new StringPartEditor());
 
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     request.addFile(new MockMultipartFile("stringArray", "Juergen".getBytes()));
