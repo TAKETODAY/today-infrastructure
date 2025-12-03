@@ -340,11 +340,6 @@ public class ServerProperties {
       public @Nullable DataSize fieldSizeThreshold = DataSize.ofKilobytes(16); // 16kB
 
       /**
-       * Disk and memory mix mode
-       */
-      public boolean mixedMode = true;
-
-      /**
        * charset
        */
       public Charset charset = StandardCharsets.UTF_8;

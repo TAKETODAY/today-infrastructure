@@ -62,22 +62,6 @@ import java.nio.file.Path;
 final class DeferrableStream extends OutputStream {
 
   /**
-   * Interface of a listener object, that wishes to be notified about
-   * state changes.
-   */
-  public interface Listener {
-    /**
-     * Called, after {@link #persist()} has been invoked,
-     * and the temporary file has been created.
-     *
-     * @param path Path of the temporary file, that has been
-     * created. All in-memory data has been transferred to
-     * that file, but it is still opened.
-     */
-    void persisted(final Path path);
-  }
-
-  /**
    * This enumeration represents the possible states of the {@link DeferrableStream}.
    */
   public enum State {
@@ -111,26 +95,12 @@ final class DeferrableStream extends OutputStream {
     closed
   }
 
-  /**
-   * The configured threshold
-   */
-  private final long threshold;
-
-  /**
-   * The directory in which uploaded files will be stored, if stored on disk.
-   */
-  private final Path repository;
-
-  /**
-   * The configured {@link Listener}, if any, or null.
-   */
-  private final @Nullable Listener listener;
+  private final DefaultMultipartParser parser;
 
   /**
    * If a temporary file has been created: Path of the temporary
    * file. Otherwise, null.
    *
-   * @see #repository
    */
   private @Nullable Path path;
 
@@ -151,12 +121,12 @@ final class DeferrableStream extends OutputStream {
    * If a temporary file has been created: An open stream
    * for writing to that file. Otherwise null.
    */
-  private OutputStream out;
+  private @Nullable OutputStream out;
 
   /**
    * The streams current state.
    */
-  private State state;
+  private @Nullable State state;
 
   /**
    * True, if the stream has ever been in state {@link State#persisted}.
@@ -180,20 +150,11 @@ final class DeferrableStream extends OutputStream {
    * number of bytes have been written. Up to that point, data will be kept in an
    * in-memory buffer.
    *
-   * @param threshold Either of -1 (Create the temporary file immediately), 0 (Create
-   * the temporary file, as soon as data is being written for the first time), or &gt;0
-   * (Keep data in memory, as long as the given number of bytes is reached, then
-   * create a temporary file, and continue using that).
-   * @param repository The directory in which uploaded files will be stored, if stored on disk.
-   * @param listener An optional listener, which is being notified about important state
-   * changes.
    * @throws IOException Creating the temporary file (in the case of threshold -1)
    * has failed.
    */
-  public DeferrableStream(final long threshold, final Path repository, final @Nullable Listener listener) throws IOException {
-    this.threshold = threshold;
-    this.repository = repository;
-    this.listener = listener;
+  public DeferrableStream(DefaultMultipartParser parser) throws IOException {
+    this.parser = parser;
     checkThreshold(0);
   }
 
@@ -213,7 +174,7 @@ final class DeferrableStream extends OutputStream {
   private @Nullable OutputStream checkThreshold(final int incomingBytes) throws IOException {
     if (state == null) {
       // Called from the constructor, state is unspecified.
-      if (threshold == -1) {
+      if (parser.getThreshold() == 0) {
         return persist();
       }
       else {
@@ -226,8 +187,9 @@ final class DeferrableStream extends OutputStream {
     else {
       return switch (state) {
         case initialized, opened -> {
-          final int bytesWritten = baos.size();
-          if ((long) bytesWritten + (long) incomingBytes >= threshold) {
+//          final int bytesWritten = baos.size();
+//          if ((long) bytesWritten + (long) incomingBytes >= parser.getThreshold()) {
+          if (size + (long) incomingBytes >= parser.getThreshold()) {
             yield persist();
           }
           if (incomingBytes > 0) {
@@ -352,7 +314,7 @@ final class DeferrableStream extends OutputStream {
    * @throws IOException Creating the temporary file has failed.
    */
   private OutputStream persist() throws IOException {
-    final Path tempFile = Files.createTempFile(repository, null, ".tmp");
+    final Path tempFile = Files.createTempFile(parser.getTempRepository(), null, ".tmp");
     final OutputStream os = Files.newOutputStream(tempFile);
     if (baos != null) {
       baos.writeTo(os);
@@ -367,8 +329,9 @@ final class DeferrableStream extends OutputStream {
     out = os;
     baos = null;
     bytes = null;
-    if (listener != null) {
-      listener.persisted(tempFile);
+
+    if (parser.isDeleteOnExit()) {
+      tempFile.toFile().deleteOnExit();
     }
     return os;
   }

@@ -17,19 +17,10 @@
 
 package infra.web.multipart.parsing;
 
-import org.jspecify.annotations.Nullable;
-
-import java.util.List;
-
-import infra.http.HttpHeaders;
-import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.web.RequestContext;
-import infra.web.multipart.MaxUploadSizeExceededException;
-import infra.web.multipart.NotMultipartRequestException;
 import infra.web.multipart.Part;
 import infra.web.multipart.support.AbstractMultipartRequest;
-import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -46,31 +37,8 @@ final class DefaultMultipartRequest extends AbstractMultipartRequest {
     this.context = context;
   }
 
-  @Nullable
-  @Override
-  public HttpHeaders getMultipartHeaders(String paramOrFileName) {
-    List<Part> multipartData = getParts(paramOrFileName);
-    if (CollectionUtils.isNotEmpty(multipartData)) {
-      return multipartData.get(0).getHeaders();
-    }
-    return null;
-  }
-
   @Override
   protected MultiValueMap<String, Part> parseRequest() {
-    var map = MultiValueMap.<String, Part>forLinkedHashMap();
-    try {
-      List<Part> parsed = multipartParser.parseRequest(context);
-      for (Part part : parsed) {
-        map.add(part.getName(), part);
-      }
-      return map;
-    }
-    catch (HttpPostRequestDecoder.TooLongFormFieldException e) {
-      throw new MaxUploadSizeExceededException(-1, e);
-    }
-    catch (HttpPostRequestDecoder.NotEnoughDataDecoderException e) {
-      throw new NotMultipartRequestException("Not enough data", e);
-    }
+    return multipartParser.parseRequest(context);
   }
 }

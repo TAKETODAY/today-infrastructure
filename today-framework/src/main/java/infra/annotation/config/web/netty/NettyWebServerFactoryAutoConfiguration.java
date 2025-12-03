@@ -168,13 +168,9 @@ public class NettyWebServerFactoryAutoConfiguration {
   public static DefaultMultipartParser multipartParser(ServerProperties server, @Nullable ApplicationTemp applicationTemp) {
     var multipart = server.netty.multipart;
     DefaultMultipartParser multipartParser = new DefaultMultipartParser();
-    if (multipart.mixedMode) {
-      if (multipart.fieldSizeThreshold != null) {
 
-      }
-    }
-    else {
-
+    if (multipart.fieldSizeThreshold != null) {
+      multipartParser.setThreshold(multipart.fieldSizeThreshold.toBytes());
     }
 
     if (multipart.maxFieldSize != null) {
@@ -194,6 +190,7 @@ public class NettyWebServerFactoryAutoConfiguration {
       }
       multipartParser.setTempRepository(applicationTemp.getDir(Objects.requireNonNullElse(multipart.tempSubDir, "multipart")));
     }
+    multipartParser.setDefaultCharset(multipart.charset);
     multipartParser.setDeleteOnExit(multipart.deleteOnExit);
     return multipartParser;
   }

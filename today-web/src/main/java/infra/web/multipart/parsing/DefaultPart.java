@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
-import java.io.UncheckedIOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -42,7 +41,6 @@ import java.util.Objects;
 import infra.http.HttpHeaders;
 import infra.lang.Assert;
 import infra.web.multipart.Part;
-import infra.web.multipart.parsing.DeferrableStream.Listener;
 import infra.web.multipart.parsing.DeferrableStream.State;
 
 /**
@@ -238,20 +236,9 @@ public final class DefaultPart implements Part {
    *
    * @return An {@link OutputStream OutputStream} that can be used for storing the contents of the file.
    */
-  OutputStream getOutputStream() {
+  OutputStream getOutputStream() throws IOException {
     if (deferrableStream == null) {
-      try {
-        final Listener persistenceListener = new Listener() {
-          @Override
-          public void persisted(final Path path) {
-            path.toFile().deleteOnExit();
-          }
-        };
-        deferrableStream = new DeferrableStream(parser.getThreshold(), parser.getTempRepository(), persistenceListener);
-      }
-      catch (final IOException ioe) {
-        throw new UncheckedIOException(ioe);
-      }
+      deferrableStream = new DeferrableStream(parser);
     }
     return deferrableStream;
   }

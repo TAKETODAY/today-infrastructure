@@ -22,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
+import infra.http.HttpHeaders;
 import infra.util.MultiValueMap;
 import infra.web.multipart.MultipartFile;
 import infra.web.multipart.MultipartRequest;
@@ -119,6 +120,12 @@ public abstract class AbstractMultipartRequest implements MultipartRequest {
    */
   public boolean isResolved() {
     return parts != null;
+  }
+
+  @Override
+  public @Nullable HttpHeaders getMultipartHeaders(String paramOrFileName) {
+    Part part = getPart(paramOrFileName);
+    return part != null ? part.getHeaders() : null;
   }
 
   @Override

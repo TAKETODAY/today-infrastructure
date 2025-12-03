@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -31,12 +30,14 @@ import infra.core.ApplicationTemp;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Assert;
+import infra.util.MultiValueMap;
 import infra.util.StreamUtils;
 import infra.web.RequestContext;
 import infra.web.multipart.MultipartException;
 import infra.web.multipart.MultipartParser;
 import infra.web.multipart.MultipartRequest;
 import infra.web.multipart.Part;
+import infra.web.util.WebUtils;
 
 /**
  * High level API for processing file uploads.
@@ -393,8 +394,8 @@ public class DefaultMultipartParser implements MultipartParser {
    * @return A list of {@code FileItem} instances parsed from the request, in the order that they were transmitted.
    * @throws FileUploadException if there are problems reading/parsing the request or storing files.
    */
-  public List<Part> parseRequest(final RequestContext context) throws FileUploadException {
-    final List<Part> parts = new ArrayList<>();
+  public MultiValueMap<String, Part> parseRequest(final RequestContext context) throws FileUploadException {
+    MultiValueMap<String, Part> parts = MultiValueMap.forLinkedHashMap();
     var successful = false;
     try {
       final var buffer = new byte[StreamUtils.BUFFER_SIZE];
@@ -411,7 +412,7 @@ public class DefaultMultipartParser implements MultipartParser {
         DefaultPart fieldItem = new DefaultPart(field.getName(), field.getContentType(),
                 field.getHeaders(), field.isFormField(), field.getFilename(), this);
 
-        parts.add(fieldItem);
+        parts.add(fieldItem.getName(), fieldItem);
         try (var inputStream = field.getInputStream();
                 var outputStream = fieldItem.getOutputStream()) {
           StreamUtils.copy(inputStream, outputStream, buffer);
@@ -428,13 +429,7 @@ public class DefaultMultipartParser implements MultipartParser {
     }
     finally {
       if (!successful) {
-        for (final Part part : parts) {
-          try {
-            part.cleanup();
-          }
-          catch (Exception ignored) {
-          }
-        }
+        WebUtils.cleanupMultipartRequest(parts);
       }
     }
   }
