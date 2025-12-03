@@ -19,6 +19,7 @@ package infra.web.server.support;
 
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.ClosedChannelException;
 
@@ -39,8 +40,6 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
-import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
-import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 
 import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFactory;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
@@ -61,8 +60,7 @@ final class HttpContext extends NettyRequestContext implements Runnable {
 
   private volatile boolean readCompleted;
 
-  @Nullable
-  private InterfaceHttpPostRequestDecoder requestDecoder;
+  private volatile boolean continueExpected = false;
 
   public HttpContext(Channel channel, HttpRequest request, NettyRequestConfig config,
           ApplicationContext context, DispatcherHandler dispatcherHandler, NettyChannelHandler channelHandler) {
@@ -73,47 +71,38 @@ final class HttpContext extends NettyRequestContext implements Runnable {
   }
 
   public void onDataReceived(HttpContent httpContent) {
-    final long received = receivedBytes;
     final int chunkSize = httpContent.content().readableBytes();
-    if (received + chunkSize > config.maxContentLength) {
+    final long received = receivedBytes + chunkSize;
+
+    if (received > config.maxContentLength && !continueExpected) {
       httpContent.release();
       readCompleted = true;
       BodyInputStream requestBody = this.requestBody;
       if (requestBody != null) {
-        requestBody.onError(new RequestBodySizeExceededException(config.maxContentLength));
+        requestBody.onError(new IOException(new RequestBodySizeExceededException(config.maxContentLength)));
       }
       return;
     }
 
-    receivedBytes = received + chunkSize;
+    receivedBytes = received;
 
-    if (isMultipart()) {
-      requestDecoderInternal().offer(httpContent);
-      if (httpContent instanceof LastHttpContent) {
-        readCompleted = true;
-        awaiter.resume();
+    if (httpContent instanceof LastHttpContent) {
+      readCompleted = true;
+      BodyInputStream inputStream = this.requestBody;
+      if (inputStream != null) {
+        if (chunkSize > 0) {
+          inputStream.onDataReceived(httpContent.content());
+        }
+        inputStream.onComplete();
       }
-      httpContent.release();
+      else if (chunkSize > 0) {
+        inputStream = requestBody();
+        inputStream.onDataReceived(httpContent.content());
+        inputStream.onComplete();
+      }
     }
     else {
-      if (httpContent instanceof LastHttpContent) {
-        readCompleted = true;
-        BodyInputStream inputStream = this.requestBody;
-        if (inputStream != null) {
-          if (chunkSize > 0) {
-            inputStream.onDataReceived(httpContent.content());
-          }
-          inputStream.onComplete();
-        }
-        else if (chunkSize > 0) {
-          inputStream = requestBody();
-          inputStream.onDataReceived(httpContent.content());
-          inputStream.onComplete();
-        }
-      }
-      else {
-        requestBody().onDataReceived(httpContent.content());
-      }
+      requestBody().onDataReceived(httpContent.content());
     }
   }
 
@@ -148,23 +137,6 @@ final class HttpContext extends NettyRequestContext implements Runnable {
     return requestBody();
   }
 
-  private InterfaceHttpPostRequestDecoder requestDecoderInternal() {
-    InterfaceHttpPostRequestDecoder requestDecoder = this.requestDecoder;
-    if (requestDecoder == null) {
-      requestDecoder = new HttpPostMultipartRequestDecoder(config.httpDataFactory, request, config.postRequestDecoderCharset);
-      this.requestDecoder = requestDecoder;
-    }
-    return requestDecoder;
-  }
-
-  @Override
-  protected InterfaceHttpPostRequestDecoder requestDecoder() {
-    if (!readCompleted) {
-      awaiter.await();
-    }
-    return requestDecoderInternal();
-  }
-
   @Override
   protected void requestCompletedInternal(@Nullable Throwable notHandled) {
     cleanup(null);
@@ -185,6 +157,7 @@ final class HttpContext extends NettyRequestContext implements Runnable {
           return;
         }
 
+        continueExpected = true;
         channel.writeAndFlush(accept)
                 .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
         request.headers().remove(HttpHeaderNames.EXPECT);
@@ -209,7 +182,7 @@ final class HttpContext extends NettyRequestContext implements Runnable {
     }
   }
 
-  private void cleanup(@Nullable Throwable error) {
+  private void cleanup(@Nullable IOException error) {
     BodyInputStream requestBody = this.requestBody;
     if (requestBody != null) {
       if (error != null) {
@@ -219,10 +192,6 @@ final class HttpContext extends NettyRequestContext implements Runnable {
       this.requestBody = null;
     }
 
-    if (requestDecoder != null) {
-      requestDecoder.destroy();
-      requestDecoder = null;
-    }
   }
 
   public void channelInactive() {
@@ -240,6 +209,7 @@ final class HttpContext extends NettyRequestContext implements Runnable {
         return null;
       }
     }
+    // fallback to default max content-length check
     else if (contentLength > config.maxContentLength) {
       return null;
     }

@@ -19,8 +19,8 @@ package infra.web.server.support;
 
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.ConcurrentModificationException;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -29,7 +29,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
-import infra.util.ExceptionUtils;
 import infra.util.concurrent.Awaiter;
 import io.netty.buffer.ByteBuf;
 
@@ -60,7 +59,7 @@ class BodyInputStream extends InputStream {
 
   private @Nullable ByteBuf available;
 
-  private @Nullable Throwable error;
+  private @Nullable IOException error;
 
   BodyInputStream(Awaiter awaiter) {
     this(awaiter, 128);
@@ -81,7 +80,7 @@ class BodyInputStream extends InputStream {
 
     if (queue.size() >= capacity) {
       discard(buffer);
-      this.error = new RuntimeException("Buffer overflow");
+      this.error = new IOException("Buffer overflow");
       this.done = true;
       return;
     }
@@ -102,11 +101,11 @@ class BodyInputStream extends InputStream {
     }
   }
 
-  public void onError(Throwable throwable) {
+  public void onError(IOException io) {
     if (this.done) {
       return;
     }
-    this.error = throwable;
+    this.error = io;
     this.done = true;
 
     if (addWork() == 0) {
@@ -149,12 +148,12 @@ class BodyInputStream extends InputStream {
   /* InputStream implementation */
 
   @Override
-  public int read() {
+  public int read() throws IOException {
     if (!this.lock.tryLock()) {
       if (this.closed) {
         return -1;
       }
-      throw new ConcurrentModificationException("Concurrent access is not allowed");
+      throw new IOException("Concurrent access is not allowed");
     }
 
     try {
@@ -168,7 +167,7 @@ class BodyInputStream extends InputStream {
             return -1;
           }
           else {
-            throw ExceptionUtils.sneakyThrow(this.error);
+            throw this.error;
           }
         }
         else if (closed) {
@@ -183,10 +182,7 @@ class BodyInputStream extends InputStream {
       return next.readByte() & 0xFF;
     }
     catch (Throwable ex) {
-      this.closed = true;
-      cancel();
-      cleanAndFinalize();
-      throw ExceptionUtils.sneakyThrow(ex);
+      throw readFailed(ex);
     }
     finally {
       this.lock.unlock();
@@ -194,7 +190,7 @@ class BodyInputStream extends InputStream {
   }
 
   @Override
-  public int read(byte[] b, int off, int len) {
+  public int read(byte[] b, int off, int len) throws IOException {
     Objects.checkFromIndexSize(off, len, b.length);
     if (len == 0) {
       return 0;
@@ -204,7 +200,7 @@ class BodyInputStream extends InputStream {
       if (this.closed) {
         return -1;
       }
-      throw new ConcurrentModificationException("concurrent access is disallowed");
+      throw new IOException("Concurrent access is not allowed");
     }
 
     try {
@@ -221,7 +217,7 @@ class BodyInputStream extends InputStream {
             else {
               if (j == 0) {
                 this.closed = true;
-                throw ExceptionUtils.sneakyThrow(this.error);
+                throw this.error;
               }
               return j;
             }
@@ -243,14 +239,21 @@ class BodyInputStream extends InputStream {
       return len;
     }
     catch (Throwable ex) {
-      this.closed = true;
-      cancel();
-      cleanAndFinalize();
-      throw ExceptionUtils.sneakyThrow(ex);
+      throw readFailed(ex);
     }
     finally {
       this.lock.unlock();
     }
+  }
+
+  private IOException readFailed(Throwable ex) {
+    this.closed = true;
+    cancel();
+    cleanAndFinalize();
+    if (ex instanceof IOException e) {
+      return e;
+    }
+    return new IOException("Read failed", ex);
   }
 
   @Nullable

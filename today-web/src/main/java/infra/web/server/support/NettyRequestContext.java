@@ -77,7 +77,6 @@ import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.CookieHeaderNames;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
-import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 import io.netty.handler.stream.ChunkedNioFile;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.internal.PlatformDependent;
@@ -368,11 +367,6 @@ public abstract class NettyRequestContext extends RequestContext {
     }
     return parameters;
   }
-
-  /**
-   * blocking get InterfaceHttpPostRequestDecoder
-   */
-  protected abstract InterfaceHttpPostRequestDecoder requestDecoder();
 
   @Override
   public void sendRedirect(String location) {
@@ -685,7 +679,7 @@ public abstract class NettyRequestContext extends RequestContext {
 
   @Override
   protected MultipartRequest createMultipartRequest() {
-    return new NettyMultipartRequest(this);
+    return config.multipartParser.parse(this);
   }
 
   @Override

@@ -30,6 +30,7 @@ import infra.util.DataSize;
 import infra.util.concurrent.Awaiter;
 import infra.util.concurrent.SimpleSingleThreadAwaiter;
 import infra.web.RequestContext;
+import infra.web.multipart.MultipartParser;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
@@ -58,7 +59,7 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
  *     .responseBodyInitialCapacity(256)
  *     .postRequestDecoderCharset(StandardCharsets.UTF_8)
  *     .writerCharset(StandardCharsets.UTF_8)
- *     .httpDataFactory(new DefaultHttpDataFactory(false))
+ *     .multipartParser(new DefaultMultipartParser())
  *     .sendErrorHandler(error -> {
  *       // Handle send error logic
  *     })
@@ -121,8 +122,6 @@ public final class NettyRequestConfig {
    */
   public final HttpHeadersFactory httpHeadersFactory;
 
-  public final HttpDataFactory httpDataFactory;
-
   public final SendErrorHandler sendErrorHandler;
 
   /**
@@ -142,16 +141,18 @@ public final class NettyRequestConfig {
    */
   public final Function<HttpRequest, Awaiter> awaiterFactory;
 
+  public final MultipartParser multipartParser;
+
   private NettyRequestConfig(Builder builder) {
     Assert.notNull(builder.sendErrorHandler, "SendErrorHandler is required");
-    Assert.notNull(builder.httpDataFactory, "HttpDataFactory is required");
+    Assert.notNull(builder.multipartParser, "MultipartParser is required");
     Assert.isTrue(builder.responseBodyInitialCapacity > 0, "responseBodyInitialCapacity is required");
 
     this.secure = builder.secure;
     this.cookieEncoder = builder.cookieEncoder;
     this.cookieDecoder = builder.cookieDecoder;
     this.awaiterFactory = builder.awaiterFactory;
-    this.httpDataFactory = builder.httpDataFactory;
+    this.multipartParser = builder.multipartParser;
     this.maxContentLength = builder.maxContentLength;
     this.sendErrorHandler = builder.sendErrorHandler;
     this.httpHeadersFactory = builder.httpHeadersFactory;
@@ -218,9 +219,9 @@ public final class NettyRequestConfig {
 
     private HttpHeadersFactory httpHeadersFactory = DefaultHttpHeadersFactory.headersFactory();
 
-    private HttpDataFactory httpDataFactory;
+    private @Nullable SendErrorHandler sendErrorHandler;
 
-    private SendErrorHandler sendErrorHandler;
+    private @Nullable MultipartParser multipartParser;
 
     private final boolean secure;
 
@@ -256,31 +257,6 @@ public final class NettyRequestConfig {
      */
     public Builder sendErrorHandler(SendErrorHandler sendErrorHandler) {
       this.sendErrorHandler = sendErrorHandler;
-      return this;
-    }
-
-    /**
-     * Sets the {@link HttpDataFactory} to be used for creating HTTP data objects.
-     * <p>
-     * The {@code HttpDataFactory} is responsible for creating instances of HTTP data
-     * such as request bodies, response bodies, or other data structures required
-     * during HTTP processing. By providing a custom factory, you can control how
-     * these objects are created and managed.
-     * <p>
-     * Example usage:
-     * <pre>{@code
-     *   Builder builder = ...;
-     *   HttpDataFactory customFactory = new DefaultHttpDataFactory();
-     *   builder.httpDataFactory(customFactory);
-     * }</pre>
-     *
-     * @param httpDataFactory the {@link HttpDataFactory} instance to be used for
-     * creating HTTP data objects. If {@code null}, no custom
-     * factory will be applied, and the default behavior will be used.
-     * @return the current {@link Builder} instance, enabling method chaining
-     */
-    public Builder httpDataFactory(HttpDataFactory httpDataFactory) {
-      this.httpDataFactory = httpDataFactory;
       return this;
     }
 
@@ -470,6 +446,32 @@ public final class NettyRequestConfig {
     public Builder awaiterFactory(Function<HttpRequest, Awaiter> awaiterFactory) {
       Assert.notNull(awaiterFactory, "awaiterFactory is required");
       this.awaiterFactory = awaiterFactory;
+      return this;
+    }
+
+    /**
+     * Sets the {@link infra.web.multipart.upload.DefaultMultipartParser} to be used for parsing multipart requests.
+     * <p>
+     * This method allows configuring a custom multipart parser that will be used
+     * to handle multipart/form-data requests. The provided parser will be responsible
+     * for parsing the multipart content and extracting individual parts.
+     * <p>
+     * Example usage:
+     * <pre>{@code
+     *   Builder builder = ...;
+     *   MultipartParser customParser = new CustomMultipartParser();
+     *   builder.multipartParser(customParser);
+     * }</pre>
+     *
+     * @param multipartParser the {@link MultipartParser} instance to be used for
+     * parsing multipart requests. Must not be {@code null}.
+     * @return the current {@link Builder} instance, enabling method chaining
+     * @throws IllegalArgumentException if the provided multipartParser is {@code null}
+     * @since 5.0
+     */
+    public Builder multipartParser(MultipartParser multipartParser) {
+      Assert.notNull(multipartParser, "MultipartParser is required");
+      this.multipartParser = multipartParser;
       return this;
     }
 
