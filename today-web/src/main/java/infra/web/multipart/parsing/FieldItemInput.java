@@ -25,15 +25,12 @@ import java.io.InputStream;
 import java.nio.file.InvalidPathException;
 
 import infra.http.HttpHeaders;
-import infra.web.RequestContext;
+import infra.http.MediaType;
 
 /**
  * Provides access to a file or form item that was received within a {@code multipart/form-data} POST request.
  * <p>
  * The items contents are retrieved by calling {@link #getInputStream()}.
- * </p>
- * <p>
- * Instances of this class are created by accessing the iterator, returned by {@link DefaultMultipartParser#getItemIterator(RequestContext)}.
  * </p>
  * <p>
  * <em>Note</em>: There is an interaction between the iterator and its associated instances of {@link FieldItemInput}: By invoking
@@ -48,7 +45,7 @@ class FieldItemInput {
   /**
    * The file items content type.
    */
-  private final @Nullable String contentType;
+  private final @Nullable MediaType contentType;
 
   /**
    * The file items field name.
@@ -78,27 +75,28 @@ class FieldItemInput {
   /**
    * The headers, if any.
    */
-  private HttpHeaders headers;
+  private final HttpHeaders headers;
 
   /**
    * Creates a new instance.
    *
-   * @param iterator The {@link FileItemInputIterator iterator}, which returned this file item.
+   * @param iterator The {@link FieldItemInputIterator iterator}, which returned this file item.
    * @param fileName The items file name, or null.
    * @param fieldName The items field name.
    * @param contentType The items content type, or null.
    * @param formField Whether the item is a form field.
-   * @param contentLength The items content length, if known, or -1
    * @throws IOException Creating the file item failed.
    * @throws FileUploadException Parsing the incoming data stream failed.
    */
-  FieldItemInput(final FileItemInputIterator iterator, final @Nullable String fileName, final @Nullable String fieldName,
-          final @Nullable String contentType, final boolean formField, final long contentLength) throws FileUploadException, IOException {
+  FieldItemInput(final FieldItemInputIterator iterator, final @Nullable String fileName, final @Nullable String fieldName,
+          final @Nullable MediaType contentType, final boolean formField, HttpHeaders headers) throws FileUploadException, IOException {
     this.fileName = fileName;
     this.fieldName = fieldName;
     this.contentType = contentType;
     this.formField = formField;
+    this.headers = headers;
     final var fileSizeMax = iterator.getFileSizeMax();
+    long contentLength = headers.getContentLength();
     if (fileSizeMax != -1 && contentLength != -1 && contentLength > fileSizeMax) {
       throw new FileUploadByteCountLimitException(String.format("The field %s exceeds its maximum permitted size of %s bytes.", fieldName, fileSizeMax),
               contentLength, fileSizeMax, fileName, fieldName);
@@ -115,9 +113,8 @@ class FieldItemInput {
               .setMaxCount(fileSizeMax + 1)
               .setOnMaxCount((max, count) -> {
                 itemInputStream.close(true);
-                throw new FileUploadByteCountLimitException(
-                        String.format("The field %s exceeds its maximum permitted size of %s bytes.", fieldName, fileSizeMax), count, fileSizeMax, fileName,
-                        fieldName);
+                throw new FileUploadByteCountLimitException(String.format(
+                        "The field %s exceeds its maximum permitted size of %s bytes.", fieldName, fileSizeMax), count, fileSizeMax, fileName, fieldName);
               })
               .get();
     }
@@ -139,7 +136,7 @@ class FieldItemInput {
    *
    * @return Content type, if known, or null.
    */
-  public @Nullable String getContentType() {
+  public @Nullable MediaType getContentType() {
     return contentType;
   }
 
@@ -192,15 +189,6 @@ class FieldItemInput {
    */
   public boolean isFormField() {
     return formField;
-  }
-
-  /**
-   * Sets the file item headers.
-   *
-   * @param headers The items header object
-   */
-  public void setHeaders(final HttpHeaders headers) {
-    this.headers = headers;
   }
 
 }

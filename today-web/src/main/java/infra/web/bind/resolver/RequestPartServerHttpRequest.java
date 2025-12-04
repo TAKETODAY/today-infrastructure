@@ -17,22 +17,15 @@
 
 package infra.web.bind.resolver;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpInputMessage;
 import infra.http.HttpRequest;
-import infra.http.MediaType;
 import infra.http.client.support.HttpRequestDecorator;
-import infra.util.CollectionUtils;
 import infra.web.RequestContext;
 import infra.web.multipart.MultipartException;
-import infra.web.multipart.MultipartFile;
-import infra.web.multipart.MultipartRequest;
 import infra.web.multipart.Part;
 
 /**
@@ -46,13 +39,7 @@ import infra.web.multipart.Part;
  */
 public class RequestPartServerHttpRequest extends HttpRequestDecorator implements HttpInputMessage {
 
-  private final RequestContext request;
-
-  private final String requestPartName;
-
-  private final HttpHeaders multipartHeaders;
-
-  private final MultipartRequest multipartRequest;
+  private final Part part;
 
   /**
    * Create a new {@code RequestPartServerHttpRequest} instance.
@@ -62,52 +49,23 @@ public class RequestPartServerHttpRequest extends HttpRequestDecorator implement
    * @throws MissingRequestPartException if the request part cannot be found
    * @throws MultipartException if RequestPartServerHttpRequest cannot be initialized
    */
-  public RequestPartServerHttpRequest(RequestContext request, String requestPartName)
-          throws MissingRequestPartException {
+  public RequestPartServerHttpRequest(RequestContext request, String requestPartName) throws MissingRequestPartException {
     super(request);
-    this.request = request;
-    this.requestPartName = requestPartName;
-    this.multipartRequest = request.asMultipartRequest();
-    HttpHeaders multipartHeaders = multipartRequest.getMultipartHeaders(requestPartName);
-    if (multipartHeaders == null) {
+    Part part = request.asMultipartRequest().getPart(requestPartName);
+    if (part == null) {
       throw new MissingRequestPartException(requestPartName);
     }
-    this.multipartHeaders = multipartHeaders;
+    this.part = part;
   }
 
   @Override
   public HttpHeaders getHeaders() {
-    return this.multipartHeaders;
+    return part.getHeaders();
   }
 
   @Override
   public InputStream getBody() throws IOException {
-    Part part = CollectionUtils.firstElement(multipartRequest.getParts(requestPartName));
-    if (part instanceof MultipartFile file) {
-      return file.getInputStream();
-    }
-    else if (part != null) {
-      return new ByteArrayInputStream(part.getContentAsByteArray());
-    }
-
-    String paramValue = request.getParameter(requestPartName);
-    if (paramValue != null) {
-      return new ByteArrayInputStream(paramValue.getBytes(determineCharset()));
-    }
-
-    throw new MissingRequestPartException(requestPartName);
-  }
-
-  private Charset determineCharset() {
-    MediaType contentType = getHeaders().getContentType();
-    if (contentType != null) {
-      Charset charset = contentType.getCharset();
-      if (charset != null) {
-        return charset;
-      }
-    }
-
-    return StandardCharsets.UTF_8;
+    return part.getInputStream();
   }
 
 }

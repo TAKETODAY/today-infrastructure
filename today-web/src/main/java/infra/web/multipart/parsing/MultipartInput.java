@@ -32,7 +32,7 @@ import java.util.Objects;
 import infra.util.StreamUtils;
 
 /**
- * Low-level API for processing file uploads.
+ * Low-level API for processing multipart request.
  *
  * <p>
  * This class can be used to process data streams conforming to MIME 'multipart' format as defined in <a href="https://www.ietf.org/rfc/rfc1867.txt">RFC

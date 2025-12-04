@@ -334,19 +334,18 @@ public class ServerProperties {
       public boolean deleteOnExit; // false is a good default cause true leaks
 
       /**
-       * HttpData will be on Disk if the size of the file is greater than minSize, else it
-       * will be in memory. The type will be Mixed.
+       * Field data will be stored on disk if the size of the file exceeds this threshold,
+       * otherwise it will be kept in memory. Uses mixed mode storage.
        */
       public @Nullable DataSize fieldSizeThreshold = DataSize.ofKilobytes(16); // 16kB
 
       /**
-       * charset
+       * Character set used for encoding multipart data.
        */
       public Charset charset = StandardCharsets.UTF_8;
 
       /**
-       * To set a max size limitation on fields. Exceeding it will generate an ErrorDataDecoderException.
-       * A value of -1 means no limitation (default).
+       * Sets a maximum size limit on single field.
        */
       public @Nullable DataSize maxFieldSize = DataSize.ofGigabytes(1); // total size in every field
 

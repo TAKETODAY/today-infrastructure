@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.BitSet;
 import java.util.HexFormat;
-import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -252,7 +251,7 @@ public final class ContentDisposition {
    * @see #toString()
    */
   public static ContentDisposition parse(String contentDisposition) {
-    List<String> parts = tokenize(contentDisposition);
+    ArrayList<String> parts = tokenize(contentDisposition);
     String type = parts.get(0);
     String name = null;
     String filename = null;
@@ -330,13 +329,13 @@ public final class ContentDisposition {
     return new ContentDisposition(type, name, filename, charset);
   }
 
-  private static List<String> tokenize(String headerValue) {
+  private static ArrayList<String> tokenize(String headerValue) {
     int index = headerValue.indexOf(';');
     String type = (index >= 0 ? headerValue.substring(0, index) : headerValue).trim();
     if (type.isEmpty()) {
       throw new IllegalArgumentException("Content-Disposition header must not be empty");
     }
-    List<String> parts = new ArrayList<>();
+    ArrayList<String> parts = new ArrayList<>();
     parts.add(type);
     if (index >= 0) {
       do {

@@ -17,7 +17,6 @@
 
 package infra.web.multipart.parsing;
 
-import org.apache.commons.io.Charsets;
 import org.apache.logging.log4j.util.Constants;
 import org.jspecify.annotations.Nullable;
 
@@ -26,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
@@ -39,6 +37,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 
 import infra.http.HttpHeaders;
+import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.web.multipart.Part;
 import infra.web.multipart.parsing.DeferrableStream.State;
@@ -96,7 +95,7 @@ public final class DefaultPart implements Part {
   /**
    * The content type passed by the browser, or {@code null} if not defined.
    */
-  private final @Nullable String contentType;
+  private final @Nullable MediaType contentType;
 
   /**
    * The original file name in the user's file system.
@@ -111,7 +110,7 @@ public final class DefaultPart implements Part {
   /**
    * Constructs a new instance.
    */
-  DefaultPart(String fieldName, @Nullable String contentType, HttpHeaders headers,
+  DefaultPart(String fieldName, @Nullable MediaType contentType, HttpHeaders headers,
           boolean isFormField, @Nullable String filename, DefaultMultipartParser parser) {
     this.fieldName = fieldName;
     this.contentType = contentType;
@@ -163,25 +162,12 @@ public final class DefaultPart implements Part {
   }
 
   /**
-   * Gets the content charset passed by the agent or {@code null} if not defined.
-   *
-   * @return The content charset passed by the agent or {@code null} if not defined.
-   */
-  public Charset getCharset() {
-    final var parser = new ParameterParser();
-    parser.setLowerCaseNames(true);
-    // Parameter parser can handle null input
-    final var params = parser.parse(getContentType(), ';');
-    return Charsets.toCharset(params.get("charset"), this.parser.getDefaultCharset());
-  }
-
-  /**
    * Gets the content type passed by the agent or {@code null} if not defined.
    *
    * @return The content type passed by the agent or {@code null} if not defined.
    */
   @Override
-  public @Nullable String getContentType() {
+  public @Nullable MediaType getContentType() {
     return contentType;
   }
 
@@ -223,8 +209,6 @@ public final class DefaultPart implements Part {
    * Gets the original file name in the client's file system.
    *
    * @return The original file name in the client's file system.
-   * @throws InvalidPathException The file name contains a NUL character, which might be an indicator of a security attack. If you intend to use the file name
-   * anyways, catch the exception and use {@link InvalidPathException#getInput()}.
    */
   @Override
   public @Nullable String getOriginalFilename() {
@@ -244,7 +228,7 @@ public final class DefaultPart implements Part {
   }
 
   /**
-   * Gets the {@link Path} for the {@code FileItem}'s data's temporary location on the disk. Note that for {@code FileItem}s that have their data stored in
+   * Gets the {@link Path} for the {@code FieldItem}'s data's temporary location on the disk. Note that for {@code FieldItem}s that have their data stored in
    * memory, this method will return {@code null}. When handling large files, you can use {@link Files#move(Path, Path, CopyOption...)} to move the file to a
    * new location without copying the data, if the source and destination locations reside within the same logical volume.
    *
@@ -255,25 +239,34 @@ public final class DefaultPart implements Part {
   }
 
   /**
+   * Gets the content charset passed by the agent or {@code null} if not defined.
+   *
+   * @return The content charset passed by the agent or {@code null} if not defined.
+   */
+  private Charset getCharset() {
+    Charset charset = parser.getDefaultCharset();
+    if (contentType != null) {
+      charset = contentType.getCharset();
+      if (charset == null) {
+        charset = parser.getDefaultCharset();
+      }
+    }
+    return charset;
+  }
+
+  /**
    * Returns the contents of the file as a {@link Reader}, using the specified
    * {@link #getCharset()}. If the contents are not yet available, returns null.
    * This is the case, for example, if the underlying output stream has not yet
    * been closed.
    *
    * @return The contents of the file as a {@link Reader}
-   * @throws UnsupportedEncodingException The character set, which is
-   * specified in the files "content-type" header, is invalid.
    * @throws IOException An I/O error occurred, while the
    * underlying {@link #getInputStream() input stream} was created.
    */
   @Override
-  public Reader getReader() throws IOException, UnsupportedEncodingException {
-    final var parser = new ParameterParser();
-    parser.setLowerCaseNames(true);
-    // Parameter parser can handle null input
-    final var params = parser.parse(getContentType(), ';');
-    final Charset cs = Charsets.toCharset(params.get("charset"), this.parser.getDefaultCharset());
-    return getReader(cs);
+  public Reader getReader() throws IOException {
+    return getReader(getCharset());
   }
 
   /**

@@ -21,6 +21,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ClosedChannelException;
@@ -36,6 +37,8 @@ import java.nio.file.StandardOpenOption;
 import infra.core.io.InputStreamSource;
 import infra.core.io.Resource;
 import infra.http.HttpHeaders;
+import infra.http.HttpInputMessage;
+import infra.http.MediaType;
 
 /**
  * Representation for a part in a "multipart/*" request.
@@ -52,7 +55,7 @@ import infra.http.HttpHeaders;
  * @see <a href="https://www.w3.org/TR/html5/forms.html#multipart-form-data">HTML5 (multipart forms)</a>
  * @since 4.0 2022/4/28 22:04
  */
-public interface Part extends InputStreamSource {
+public interface Part extends InputStreamSource, HttpInputMessage {
 
   /**
    * Gets the name of this part.
@@ -67,7 +70,19 @@ public interface Part extends InputStreamSource {
    * then all headers are returned. Otherwise, e.g. for a file upload, the
    * returned headers may expose a 'Content-Type' if available.
    */
+  @Override
   HttpHeaders getHeaders();
+
+  /**
+   * Return the body of the message as an input stream.
+   *
+   * @return the input stream body (never {@code null})
+   * @throws IOException in case of I/O errors
+   */
+  @Override
+  default InputStream getBody() throws IOException {
+    return getInputStream();
+  }
 
   /**
    * Return the content type of the part.
@@ -76,7 +91,7 @@ public interface Part extends InputStreamSource {
    * (or no part has been chosen in the multipart form)
    */
   @Nullable
-  String getContentType();
+  MediaType getContentType();
 
   /**
    * Determine the content length for this Part.

@@ -21,10 +21,10 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
+import infra.http.ContentDisposition;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Assert;
@@ -33,18 +33,11 @@ import infra.web.RequestContext;
 import infra.web.multipart.NotMultipartRequestException;
 
 /**
- * The iterator returned by {@link DefaultMultipartParser#getItemIterator(RequestContext)}.
- *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-class FileItemInputIterator {
+class FieldItemInputIterator {
 
-  /**
-   * The file uploads processing utility.
-   *
-   * @see DefaultMultipartParser
-   */
   private final DefaultMultipartParser parser;
 
   /**
@@ -105,7 +98,7 @@ class FileItemInputIterator {
    * @throws FileUploadException An error occurred while parsing the request.
    * @throws IOException An I/O error occurred.
    */
-  FileItemInputIterator(final DefaultMultipartParser parser, final RequestContext context) throws FileUploadException, IOException {
+  FieldItemInputIterator(final DefaultMultipartParser parser, final RequestContext context) throws FileUploadException, IOException {
     if (!context.isMultipart()) {
       throw new NotMultipartRequestException(String.format("the request doesn't contain a %s or %s stream, content type header is %s",
               MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.MULTIPART_MIXED_VALUE, context.getContentType()), null);
@@ -120,8 +113,7 @@ class FileItemInputIterator {
     this.progressNotifier = new ProgressNotifier(parser.getProgressListener(), context.getContentLength());
 
     InputStream inputStream = context.getInputStream();
-    String boundary = contentType.getParameter("boundary");
-    byte[] multipartBoundary = boundary != null ? boundary.getBytes(StandardCharsets.ISO_8859_1) : null;
+    byte[] multipartBoundary = getBoundary(contentType);
     if (multipartBoundary == null) {
       StreamUtils.closeQuietly(inputStream); // avoid possible resource leak
       throw new FileUploadException("the request was rejected because no multipart boundary was found");
@@ -181,25 +173,25 @@ class FileItemInputIterator {
         currentFieldName = null;
         continue;
       }
-      final HttpHeaders headers = parser.getParsedHeaders(input.readHeaders());
+      final HttpHeaders headers = parser.parseHeaders(input.readHeaders());
+      MediaType subContentType = headers.getContentType();
       if (multipartRelated) {
         currentFieldName = "";
         currentItem = new FieldItemInput(this, null, null,
-                headers.getFirst(HttpHeaders.CONTENT_TYPE), false, headers.getContentLength());
-        currentItem.setHeaders(headers);
+                subContentType, false, headers);
         progressNotifier.onItem();
         itemValid = true;
         return true;
       }
+      ContentDisposition contentDisposition = headers.getContentDisposition();
       if (currentFieldName == null) {
         // We're parsing the outer multipart
-        final String fieldName = parser.getFieldName(headers);
+        final String fieldName = contentDisposition.getName();
         if (fieldName != null) {
-          final String subContentType = headers.getFirst(HttpHeaders.CONTENT_TYPE);
-          if (subContentType != null && subContentType.toLowerCase(Locale.ROOT).startsWith(MediaType.MULTIPART_MIXED_VALUE)) {
+          if (subContentType != null && subContentType.equalsTypeAndSubtype(MediaType.MULTIPART_MIXED)) {
             currentFieldName = fieldName;
             // Multiple files associated with this field name
-            final byte[] subBoundary = parser.getBoundary(subContentType);
+            byte[] subBoundary = getBoundary(subContentType);
             if (subBoundary == null) {
               throw new FileUploadBoundaryException("The request was rejected because no boundary token was defined for a multipart/mixed part");
             }
@@ -207,21 +199,19 @@ class FileItemInputIterator {
             skipPreamble = true;
             continue;
           }
-          final String fileName = parser.getFileName(headers);
+          final String fileName = contentDisposition.getFilename();
           currentItem = new FieldItemInput(this, fileName, fieldName, subContentType,
-                  fileName == null, headers.getContentLength());
-          currentItem.setHeaders(headers);
+                  fileName == null, headers);
           progressNotifier.onItem();
           itemValid = true;
           return true;
         }
       }
       else {
-        final String fileName = parser.getFileName(headers);
+        final String fileName = contentDisposition.getFilename();
         if (fileName != null) {
           currentItem = new FieldItemInput(this, fileName, currentFieldName,
-                  headers.getFirst(HttpHeaders.CONTENT_TYPE), false, headers.getContentLength());
-          currentItem.setHeaders(headers);
+                  subContentType, false, headers);
           progressNotifier.onItem();
           itemValid = true;
           return true;
@@ -229,6 +219,11 @@ class FileItemInputIterator {
       }
       input.discardBodyData();
     }
+  }
+
+  private static byte @Nullable [] getBoundary(MediaType subContentType) {
+    String boundary = subContentType.getParameter("boundary");
+    return boundary != null ? boundary.getBytes(StandardCharsets.ISO_8859_1) : null;
   }
 
   public long getFileSizeMax() {
@@ -254,7 +249,7 @@ class FileItemInputIterator {
   /**
    * Returns the next available {@link FieldItemInput}.
    *
-   * @return FileItemInput instance, which provides access to the next file item.
+   * @return FieldItemInput instance, which provides access to the next file item.
    * @throws NoSuchElementException No more items are available. Use {@link #hasNext()} to prevent this exception.
    * @throws FileUploadException Parsing or processing the file item failed.
    */
