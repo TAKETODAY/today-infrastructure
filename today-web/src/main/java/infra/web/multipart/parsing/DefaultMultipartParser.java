@@ -74,11 +74,6 @@ public class DefaultMultipartParser implements MultipartParser {
   private Path tempRepository = ApplicationTemp.createDirectory("upload");
 
   /**
-   * The content encoding to use when reading part headers.
-   */
-  private @Nullable Charset headerCharset;
-
-  /**
    * Default content Charset to be used when no explicit Charset parameter is provided by the sender.
    */
   private Charset defaultCharset = StandardCharsets.UTF_8;
@@ -99,16 +94,6 @@ public class DefaultMultipartParser implements MultipartParser {
    * Constructs a new instance for subclasses.
    */
   public DefaultMultipartParser() {
-  }
-
-  /**
-   * Specifies the character encoding to be used when reading the headers of individual part. When not specified, or {@code null}, the request encoding is
-   * used. If that is also not specified, or {@code null}, the platform default encoding is used.
-   *
-   * @param headerCharset The encoding used to read part headers.
-   */
-  public void setHeaderCharset(final @Nullable Charset headerCharset) {
-    this.headerCharset = headerCharset;
   }
 
   /**
@@ -133,10 +118,10 @@ public class DefaultMultipartParser implements MultipartParser {
   /**
    * Sets the progress listener.
    *
-   * @param progressListener The progress listener, if any. Defaults to null.
+   * @param listener The progress listener, if any. Defaults to null.
    */
-  public void setProgressListener(final @Nullable ProgressListener progressListener) {
-    this.progressListener = progressListener != null ? progressListener : ProgressListener.NOP;
+  public void setProgressListener(final @Nullable ProgressListener listener) {
+    this.progressListener = listener != null ? listener : ProgressListener.NOP;
   }
 
   /**
@@ -265,16 +250,6 @@ public class DefaultMultipartParser implements MultipartParser {
    */
   public @Nullable ProgressListener getProgressListener() {
     return progressListener;
-  }
-
-  /**
-   * Gets the character encoding used when reading the headers of an individual part. When not specified, or {@code null}, the request encoding is used. If
-   * that is also not specified, or {@code null}, the platform default encoding is used.
-   *
-   * @return The encoding used to read part headers.
-   */
-  public @Nullable Charset getHeaderCharset() {
-    return headerCharset;
   }
 
   @Override

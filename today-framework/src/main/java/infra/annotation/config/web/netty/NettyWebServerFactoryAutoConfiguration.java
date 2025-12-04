@@ -50,6 +50,7 @@ import infra.util.StringUtils;
 import infra.web.DispatcherHandler;
 import infra.web.multipart.MultipartParser;
 import infra.web.multipart.parsing.DefaultMultipartParser;
+import infra.web.multipart.parsing.ProgressListener;
 import infra.web.server.ServerProperties;
 import infra.web.server.ServiceExecutor;
 import infra.web.server.Ssl;
@@ -165,7 +166,8 @@ public class NettyWebServerFactoryAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public static DefaultMultipartParser multipartParser(ServerProperties properties, @Nullable ApplicationTemp applicationTemp) {
+  public static DefaultMultipartParser multipartParser(ServerProperties properties,
+          @Nullable ApplicationTemp applicationTemp, @Nullable ProgressListener progressListener) {
     var config = properties.multipart;
     DefaultMultipartParser multipartParser = new DefaultMultipartParser();
 
@@ -186,6 +188,7 @@ public class NettyWebServerFactoryAutoConfiguration {
 
     multipartParser.setMaxFields(config.maxFields);
     multipartParser.setDeleteOnExit(config.deleteOnExit);
+    multipartParser.setProgressListener(progressListener);
     multipartParser.setDefaultCharset(config.defaultCharset);
     multipartParser.setThreshold(config.fieldSizeThreshold.toBytes());
     multipartParser.setMaxHeaderSize(config.maxHeaderSize.toBytesInt());
