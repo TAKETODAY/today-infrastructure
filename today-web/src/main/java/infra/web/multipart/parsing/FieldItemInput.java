@@ -85,11 +85,10 @@ class FieldItemInput {
    * @param fieldName The items field name.
    * @param contentType The items content type, or null.
    * @param formField Whether the item is a form field.
-   * @throws IOException Creating the file item failed.
    * @throws MultipartException Parsing the incoming data stream failed.
    */
   FieldItemInput(final FieldItemInputIterator iterator, final @Nullable String fileName, final @Nullable String fieldName,
-          final @Nullable MediaType contentType, final boolean formField, HttpHeaders headers) throws MultipartException, IOException {
+          final @Nullable MediaType contentType, final boolean formField, HttpHeaders headers) throws MultipartException {
     this.fileName = fileName;
     this.fieldName = fieldName;
     this.contentType = contentType;

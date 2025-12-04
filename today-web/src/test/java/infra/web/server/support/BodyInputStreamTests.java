@@ -19,6 +19,7 @@ package infra.web.server.support;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.ConcurrentModificationException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -86,10 +87,10 @@ class BodyInputStreamTests {
   @Test
   void readAfterError() throws Exception {
     BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
-    inputStream.onError(new IllegalStateException("Stream error"));
+    inputStream.onError(new IOException("Stream error"));
 
-    assertThatThrownBy(() -> inputStream.read())
-            .isInstanceOf(IllegalStateException.class)
+    assertThatThrownBy(inputStream::read)
+            .isInstanceOf(IOException.class)
             .hasMessage("Stream error");
   }
 
@@ -277,7 +278,7 @@ class BodyInputStreamTests {
     buffer.writeByte(1);
     inputStream.onDataReceived(buffer);
 
-    inputStream.onError(new RuntimeException("Test Error"));
+    inputStream.onError(new IOException(new RuntimeException("Test Error")));
 
     byte[] result = new byte[1];
     assertThat(inputStream.read(result)).isEqualTo(1);
@@ -391,7 +392,7 @@ class BodyInputStreamTests {
   void readThrowsErrorWhenThereIsAnErrorInStream() throws Exception {
     BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
     RuntimeException error = new RuntimeException("error");
-    inputStream.onError(error);
+    inputStream.onError(new IOException(error));
 
     assertThatThrownBy(inputStream::read)
             .isSameAs(error);
@@ -404,11 +405,12 @@ class BodyInputStreamTests {
     buffer.writeByte(42);
     inputStream.onDataReceived(buffer);
     RuntimeException error = new RuntimeException("error");
-    inputStream.onError(error);
+    inputStream.onError(new IOException(error));
 
     assertThat(inputStream.read()).isEqualTo(42);
     assertThatThrownBy(inputStream::read)
-            .isSameAs(error);
+            .isInstanceOf(IOException.class)
+            .hasCause(error);
   }
 
   @Test
@@ -543,10 +545,11 @@ class BodyInputStreamTests {
   @Test
   void onErrorCausesSubsequentReadsToFail() throws Exception {
     BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
-    inputStream.onError(new IllegalStateException("Stream failure"));
+    inputStream.onError(new IOException(new IllegalStateException("Stream failure")));
 
     assertThatThrownBy(inputStream::read)
             .isInstanceOf(IllegalStateException.class)
+            .isInstanceOf(IOException.class)
             .hasMessage("Stream failure");
   }
 
@@ -627,7 +630,7 @@ class BodyInputStreamTests {
   void readAfterOnErrorThrowsTheSameError() throws Exception {
     BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
     Throwable error = new RuntimeException("test error");
-    inputStream.onError(error);
+    inputStream.onError(new IOException(error));
 
     assertThatThrownBy(() -> inputStream.read())
             .isSameAs(error);
@@ -675,8 +678,8 @@ class BodyInputStreamTests {
     Throwable error1 = new RuntimeException("first error");
     Throwable error2 = new RuntimeException("second error");
 
-    inputStream.onError(error1);
-    inputStream.onError(error2); // Should not override the first error
+    inputStream.onError(new IOException(error1));
+    inputStream.onError(new IOException(error2)); // Should not override the first error
 
     assertThat(inputStream.read()).isEqualTo(42); // Data should still be readable
     assertThatThrownBy(() -> inputStream.read())
@@ -686,7 +689,7 @@ class BodyInputStreamTests {
   @Test
   void onNextAfterOnErrorIsDiscarded() throws Exception {
     BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
-    inputStream.onError(new RuntimeException("error"));
+    inputStream.onError(new IOException(new RuntimeException("error")));
 
     ByteBuf buffer = Unpooled.buffer(1);
     buffer.writeByte(42);
@@ -898,7 +901,7 @@ class BodyInputStreamTests {
     BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
     inputStream.close();
 
-    inputStream.onError(new RuntimeException("Should not matter"));
+    inputStream.onError(new IOException("Should not matter"));
 
     assertThatThrownBy(inputStream::read).isInstanceOf(RuntimeException.class)
             .hasMessage("Should not matter");

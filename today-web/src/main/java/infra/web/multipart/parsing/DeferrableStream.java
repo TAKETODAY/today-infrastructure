@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.web.multipart.parsing;
 
 import org.jspecify.annotations.Nullable;
@@ -39,25 +40,11 @@ import java.nio.file.Path;
  *
  * More precisely, this output stream supports three modes of operation:
  * <ol>
- *   <li>{@code threshold=-1}: <em>Always</em> create a temporary file, even if
- *     the uploaded file is empty.</li>
  *   <li>{@code threshold=0}: Don't create empty, temporary files. (Create a
  *     temporary file, as soon as the first byte is written.)</li>
  *   <li>{@code threshold>0}: Create a temporary file, if the size exceeds the
  *     threshold, otherwise keep the file in memory.</li>
  * </ol>
- *
- * Technically, this is similar to
- * {@link org.apache.commons.io.output.DeferredFileOutputStream}, which has
- * been used in the past, except that this implementation observes
- * a precisely specified behaviour, and semantics, that match the needs of the
- * {@link DefaultPart}.
- *
- * Background: Over the various versions of commons-io, the
- * {@link org.apache.commons.io.output.DeferredFileOutputStream} has changed
- * semantics, and behaviour more than once.
- * (For details, see
- * <a href="https://issues.apache.org/jira/browse/FILEUPLOAD-295">FILEUPLOAD-295</a>)
  */
 final class DeferrableStream extends OutputStream {
 
@@ -98,24 +85,11 @@ final class DeferrableStream extends OutputStream {
   private final DefaultMultipartParser parser;
 
   /**
-   * If a temporary file has been created: Path of the temporary
-   * file. Otherwise, null.
-   *
-   */
-  private @Nullable Path path;
-
-  /**
    * If no temporary file was created: A stream, to which the
    * incoming data is being written, until the threshold is reached.
    * Otherwise null.
    */
   private @Nullable ByteArrayOutputStream baos;
-
-  /**
-   * If no temporary file was created, and the stream is closed:
-   * The in-memory data, that was written to the stream. Otherwise null.
-   */
-  private byte @Nullable [] bytes;
 
   /**
    * If a temporary file has been created: An open stream
@@ -124,20 +98,33 @@ final class DeferrableStream extends OutputStream {
   private @Nullable OutputStream out;
 
   /**
-   * The streams current state.
-   */
-  private @Nullable State state;
-
-  /**
    * True, if the stream has ever been in state {@link State#persisted}.
    * Or, in other words: True, if a temporary file has been created.
    */
   private boolean wasPersisted;
 
   /**
+   * If no temporary file was created, and the stream is closed:
+   * The in-memory data, that was written to the stream. Otherwise null.
+   */
+  public byte @Nullable [] bytes;
+
+  /**
+   * If a temporary file has been created: Path of the temporary
+   * file. Otherwise, null.
+   *
+   */
+  public @Nullable Path path;
+
+  /**
    * Number of bytes, that have been written to this stream so far.
    */
-  private long size;
+  public long size;
+
+  /**
+   * The streams current state.
+   */
+  public State state;
 
   /**
    * Creates a new instance with the given threshold, and the given supplier for a
@@ -155,7 +142,14 @@ final class DeferrableStream extends OutputStream {
    */
   public DeferrableStream(DefaultMultipartParser parser) throws IOException {
     this.parser = parser;
-    checkThreshold(0);
+    if (parser.getThreshold() == 0L) {
+      persistStream();
+    }
+    else {
+      baos = new ByteArrayOutputStream();
+      bytes = null;
+      state = State.initialized;
+    }
   }
 
   /**
@@ -172,38 +166,25 @@ final class DeferrableStream extends OutputStream {
    * has failed.
    */
   private @Nullable OutputStream checkThreshold(final int incomingBytes) throws IOException {
-    if (state == null) {
-      // Called from the constructor, state is unspecified.
-      if (parser.getThreshold() == 0) {
-        return persist();
-      }
-      else {
-        baos = new ByteArrayOutputStream();
-        bytes = null;
-        state = State.initialized;
-        return baos;
-      }
-    }
-    else {
-      return switch (state) {
-        case initialized, opened -> {
+    return switch (state) {
+      case initialized, opened -> {
 //          final int bytesWritten = baos.size();
 //          if ((long) bytesWritten + (long) incomingBytes >= parser.getThreshold()) {
-          if (size + (long) incomingBytes >= parser.getThreshold()) {
-            yield persist();
-          }
-          if (incomingBytes > 0) {
-            state = State.opened;
-          }
-          yield baos;
+        if ((size + (long) incomingBytes) >= parser.getThreshold()) {
+          yield persistStream();
         }
-        case persisted -> out; // Do nothing, we're staying in the current state.
-        case closed -> null; // Do nothing, we're staying in the current state.
-      };
-    }
+        if (incomingBytes > 0) {
+          state = State.opened;
+        }
+        yield baos;
+      }
+      case persisted -> out; // Do nothing, we're staying in the current state.
+      case closed -> null; // Do nothing, we're staying in the current state.
+    };
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public void close() throws IOException {
     switch (state) {
       case initialized, opened:
@@ -220,20 +201,6 @@ final class DeferrableStream extends OutputStream {
         // Already closed, do nothing.
         break;
     }
-  }
-
-  /**
-   * Returns the data, that has been written, if the stream has
-   * been closed, and the stream is still in memory
-   * ({@link #isInMemory()} returns true). Otherwise, returns null.
-   *
-   * @return If the stream is closed (no more data can be written),
-   * and the data is still in memory (no temporary file has been
-   * created), returns the data, that has been written. Otherwise,
-   * returns null.
-   */
-  public byte @Nullable [] getBytes() {
-    return bytes;
   }
 
   /**
@@ -263,34 +230,6 @@ final class DeferrableStream extends OutputStream {
   }
 
   /**
-   * Returns the output file, that has been created, if any, or null.
-   * The latter is the case, if {@link #isInMemory()} returns true.
-   *
-   * @return The output file, that has been created, if any, or null.
-   */
-  public @Nullable Path getPath() {
-    return path;
-  }
-
-  /**
-   * Returns the number of bytes, that have been written to this stream.
-   *
-   * @return The number of bytes, that have been written to this stream.
-   */
-  public long getSize() {
-    return size;
-  }
-
-  /**
-   * Returns the streams current state.
-   *
-   * @return The streams current state.
-   */
-  public State getState() {
-    return state;
-  }
-
-  /**
    * Returns true, if this stream was never persisted,
    * and no output file has been created.
    *
@@ -313,7 +252,7 @@ final class DeferrableStream extends OutputStream {
    * temporary file.
    * @throws IOException Creating the temporary file has failed.
    */
-  private OutputStream persist() throws IOException {
+  private OutputStream persistStream() throws IOException {
     final Path tempFile = Files.createTempFile(parser.getTempRepository(), null, ".tmp");
     final OutputStream os = Files.newOutputStream(tempFile);
     if (baos != null) {

@@ -106,7 +106,7 @@ dependencies {
   testImplementation(testFixtures(project(":today-core")))
   testImplementation(testFixtures(project(":today-context")))
 
-  testImplementation("commons-io:commons-io")
+//  testImplementation("commons-io:commons-io")
   testImplementation("org.mozilla:rhino")
   testImplementation("org.dom4j:dom4j") {
     exclude group: "javax.xml.bind", module: "jaxb-api"

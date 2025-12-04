@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 import infra.core.ApplicationTemp;
+import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.util.MultiValueMap;
 import infra.util.StreamUtils;
@@ -32,6 +33,7 @@ import infra.web.RequestContext;
 import infra.web.multipart.MultipartException;
 import infra.web.multipart.MultipartParser;
 import infra.web.multipart.MultipartRequest;
+import infra.web.multipart.NotMultipartRequestException;
 import infra.web.multipart.Part;
 import infra.web.util.WebUtils;
 
@@ -143,6 +145,7 @@ public class DefaultMultipartParser implements MultipartParser {
    * @param tempRepository The directory path where temporary fields should be stored.
    */
   public void setTempRepository(Path tempRepository) {
+    Assert.notNull(tempRepository, "tempRepository is required");
     this.tempRepository = tempRepository;
   }
 
@@ -253,30 +256,35 @@ public class DefaultMultipartParser implements MultipartParser {
   }
 
   @Override
-  public MultipartRequest parse(RequestContext request) throws infra.web.multipart.MultipartException {
+  public MultipartRequest parse(RequestContext request) throws MultipartException {
     return new DefaultMultipartRequest(this, request);
   }
 
   /**
    * Parses an <a href="https://www.ietf.org/rfc/rfc1867.txt">RFC 1867</a> compliant {@code multipart/form-data} stream.
    *
-   * @param context The context for the request to be parsed.
+   * @param request The context for the request to be parsed.
    * @return A Map of {@code Part} instances parsed from the request, in the order that they were transmitted.
    * @throws MultipartException if there are problems reading/parsing the request or storing files.
    */
-  public MultiValueMap<String, Part> parseRequest(final RequestContext context) throws MultipartException {
+  public MultiValueMap<String, Part> parseRequest(final RequestContext request) throws MultipartException {
+    if (!request.isMultipart()) {
+      throw new NotMultipartRequestException("the request doesn't contain a %s or %s stream, content type header is %s"
+              .formatted(MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.MULTIPART_MIXED_VALUE, request.getContentType()), null);
+    }
+
     MultiValueMap<String, Part> parts = MultiValueMap.forLinkedHashMap();
     boolean successful = false;
     try {
       final byte[] buffer = new byte[StreamUtils.BUFFER_SIZE];
-      var itemIterator = new FieldItemInputIterator(this, context);
+      var itemIterator = new FieldItemInputIterator(this, request);
       while (itemIterator.hasNext()) {
         FieldItemInput field = itemIterator.next();
         final int size = parts.size();
         if (size == maxFields) {
           // The next item will exceed the limit.
           throw new MultipartFieldCountLimitException("Request '%s' failed: Maximum file count %,d exceeded."
-                  .formatted(context.getContentType(), maxFields), maxFields, size);
+                  .formatted(request.getContentType(), maxFields), maxFields, size);
         }
 
         DefaultPart fieldItem = new DefaultPart(field.getName(), field.getContentType(),
@@ -288,7 +296,7 @@ public class DefaultMultipartParser implements MultipartParser {
           StreamUtils.copy(inputStream, outputStream, buffer);
         }
         catch (IOException e) {
-          throw new MultipartException(String.format("Request '%s' failed: %s", context.getContentType(), e.getMessage()), e);
+          throw new MultipartException(String.format("Request '%s' failed: %s", request.getContentType(), e.getMessage()), e);
         }
       }
       successful = true;

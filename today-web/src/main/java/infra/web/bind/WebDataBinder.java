@@ -39,7 +39,7 @@ import infra.validation.BindException;
 import infra.validation.DataBinder;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.RequestContext;
-import infra.web.multipart.MultipartFile;
+import infra.web.multipart.Part;
 
 /**
  * Special {@link DataBinder} for data binding from web request parameters
@@ -208,20 +208,20 @@ public class WebDataBinder extends DataBinder {
   }
 
   /**
-   * Set whether to bind empty MultipartFile parameters. Default is "true".
-   * <p>Turn this off if you want to keep an already bound MultipartFile
+   * Set whether to bind empty Multipart parameters. Default is "true".
+   * <p>Turn this off if you want to keep an already bound Multipart
    * when the user resubmits the form without choosing a different file.
-   * Else, the already bound MultipartFile will be replaced by an empty
-   * MultipartFile holder.
+   * Else, the already bound Multipart will be replaced by an empty
+   * Multipart holder.
    *
-   * @see infra.web.multipart.MultipartFile
+   * @see infra.web.multipart.Part
    */
   public void setBindEmptyMultipartFiles(boolean bindEmptyMultipartFiles) {
     this.bindEmptyMultipartFiles = bindEmptyMultipartFiles;
   }
 
   /**
-   * Return whether to bind empty MultipartFile parameters.
+   * Return whether to bind empty Multipart parameters.
    */
   public boolean isBindEmptyMultipartFiles() {
     return this.bindEmptyMultipartFiles;
@@ -437,7 +437,7 @@ public class WebDataBinder extends DataBinder {
   protected boolean shouldConstructArgument(MethodParameter param) {
     Class<?> type = param.nestedIfOptional().getNestedParameterType();
     return super.shouldConstructArgument(param)
-            && !MultipartFile.class.isAssignableFrom(type);
+            && !Part.class.isAssignableFrom(type);
   }
 
   /**
@@ -449,12 +449,12 @@ public class WebDataBinder extends DataBinder {
    * <p>Multipart files are bound via their parameter name, just like normal
    * HTTP parameters: i.e. "uploadedFile" to an "uploadedFile" bean property,
    * invoking a "setUploadedFile" setter method.
-   * <p>The type of the target property for a multipart file can be Part, MultipartFile,
+   * <p>The type of the target property for a multipart file can be Part, Multipart,
    * byte[], or String. The latter two receive the contents of the uploaded file;
    * all metadata like original file name, content type, etc are lost in those cases.
    *
    * @param request the request with parameters to bind (can be multipart)
-   * @see infra.web.multipart.MultipartFile
+   * @see infra.web.multipart.Part
    * @see #bind(PropertyValues)
    */
   public void bind(RequestContext request) {
@@ -473,7 +473,7 @@ public class WebDataBinder extends DataBinder {
   public PropertyValues getValuesToBind(RequestContext request) {
     PropertyValues pv = new PropertyValues(request.getParameters().toArrayMap(String[]::new));
     if (request.isMultipart()) {
-      var multipartFiles = request.asMultipartRequest().getFiles();
+      var multipartFiles = request.asMultipartRequest().getParts();
       if (!multipartFiles.isEmpty()) {
         bindMultipart(multipartFiles, pv);
       }
@@ -489,17 +489,17 @@ public class WebDataBinder extends DataBinder {
    * <p>Multipart files will only be added to the property values if they
    * are not empty or if we're configured to bind empty multipart files too.
    *
-   * @param multipartFiles a Map of field name String to MultipartFile object
+   * @param multipartFiles a Map of field name String to Multipart object
    * @param mpvs the property values to be bound (can be modified)
-   * @see infra.web.multipart.MultipartFile
+   * @see infra.web.multipart.Part
    * @see #setBindEmptyMultipartFiles
    */
-  protected void bindMultipart(Map<String, List<MultipartFile>> multipartFiles, PropertyValues mpvs) {
+  protected void bindMultipart(Map<String, List<Part>> multipartFiles, PropertyValues mpvs) {
     for (var entry : multipartFiles.entrySet()) {
-      List<MultipartFile> values = entry.getValue();
+      List<Part> values = entry.getValue();
       String key = entry.getKey();
       if (values.size() == 1) {
-        MultipartFile value = values.get(0);
+        Part value = values.get(0);
         if (isBindEmptyMultipartFiles() || !value.isEmpty()) {
           mpvs.add(key, value);
         }
@@ -638,7 +638,7 @@ public class WebDataBinder extends DataBinder {
 
     private @Nullable Object getMultipartValue(String name, Class<?> paramType) {
       if (request.isMultipart()) {
-        List<MultipartFile> files = request.asMultipartRequest().getFiles(name);
+        List<Part> files = request.asMultipartRequest().getParts(name);
         if (CollectionUtils.isNotEmpty(files)) {
           return files.size() == 1 ? files.get(0) : files;
         }

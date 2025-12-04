@@ -114,6 +114,17 @@ public interface Part extends InputStreamSource, HttpInputMessage {
   byte[] getContentAsByteArray() throws IOException;
 
   /**
+   * Returns the contents of this part as a string, using the UTF-8.
+   *
+   * @return the contents of this resource as a {@code String}
+   * @throws OutOfMemoryError See {@link Files#readAllBytes(Path)}:
+   * If a string of the required size cannot be allocated, for example the
+   * file is larger than {@code 2GB}. If so, you should use {@link #getReader()}.
+   * @since 5.0
+   */
+  String getContentAsString() throws IOException;
+
+  /**
    * Returns the contents of this part as a string, using the specified
    * charset.
    *
@@ -126,17 +137,6 @@ public interface Part extends InputStreamSource, HttpInputMessage {
    * @since 5.0
    */
   String getContentAsString(@Nullable Charset charset) throws IOException;
-
-  /**
-   * Returns the contents of this part as a string, using the UTF-8.
-   *
-   * @return the contents of this resource as a {@code String}
-   * @throws OutOfMemoryError See {@link Files#readAllBytes(Path)}:
-   * If a string of the required size cannot be allocated, for example the
-   * file is larger than {@code 2GB}. If so, you should use {@link #getReader()}.
-   * @since 5.0
-   */
-  String getContentAsString() throws IOException;
 
   /**
    * Tests a hint as to whether or not the part contents will be read from memory.

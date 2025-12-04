@@ -46,7 +46,7 @@ public class MockMultipartHttpRequestBuilderTests {
                     .part(new MockPart("name", "value".getBytes(UTF_8)))
                     .buildRequest(new MockContextImpl());
 
-    assertThat(mockRequest.getMultipartRequest().getFileMap()).containsOnlyKeys("file");
+    assertThat(mockRequest.getMultipartRequest().getParts()).containsOnlyKeys("file");
     assertThat(mockRequest.getParameterMap()).containsOnlyKeys("name");
     assertThat(mockRequest.getParts()).extracting(Part::getName).containsExactly("name");
   }

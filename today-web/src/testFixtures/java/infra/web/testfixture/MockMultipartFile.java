@@ -23,9 +23,12 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import infra.http.DefaultHttpHeaders;
 import infra.http.HttpHeaders;
+import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.util.FileCopyUtils;
 import infra.web.multipart.MultipartFile;
@@ -118,8 +121,18 @@ public class MockMultipartFile implements MultipartFile {
   }
 
   @Override
+  public boolean isInMemory() {
+    return true;
+  }
+
+  @Override
   public boolean isFormField() {
     return false;
+  }
+
+  @Override
+  public boolean isFile() {
+    return true;
   }
 
   public void setHeaders(HttpHeaders headers) {
@@ -138,7 +151,7 @@ public class MockMultipartFile implements MultipartFile {
 
   protected DefaultHttpHeaders createHttpHeaders() {
     DefaultHttpHeaders headers = HttpHeaders.forWritable();
-    headers.setOrRemove(HttpHeaders.CONTENT_TYPE, getContentType());
+    headers.setContentType(getContentType());
     return headers;
   }
 
@@ -149,8 +162,8 @@ public class MockMultipartFile implements MultipartFile {
 
   @Override
   @Nullable
-  public String getContentType() {
-    return this.contentType;
+  public MediaType getContentType() {
+    return MediaType.parseMediaType(contentType);
   }
 
   @Override
@@ -166,6 +179,11 @@ public class MockMultipartFile implements MultipartFile {
   @Override
   public byte[] getContentAsByteArray() throws IOException {
     return this.content;
+  }
+
+  @Override
+  public String getContentAsString(@Nullable Charset charset) throws IOException {
+    return new String(content, charset == null ? StandardCharsets.UTF_8 : charset);
   }
 
   @Override

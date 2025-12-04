@@ -61,7 +61,7 @@ class PartTests {
   }
 
   @Test
-  void testGetValue() {
+  void testGetValue() throws IOException {
     Part part = mock(Part.class);
     when(part.getContentAsString()).thenReturn("test-value");
 

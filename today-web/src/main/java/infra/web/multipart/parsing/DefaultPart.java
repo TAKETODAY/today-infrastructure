@@ -130,7 +130,7 @@ public final class DefaultPart implements Part {
   @Override
   public void cleanup() throws IOException {
     if (deferrableStream != null) {
-      final Path path = deferrableStream.getPath();
+      final Path path = deferrableStream.path;
       if (path != null) {
         Files.deleteIfExists(path);
       }
@@ -150,12 +150,12 @@ public final class DefaultPart implements Part {
   @Override
   public byte[] getContentAsByteArray() throws IOException {
     if (deferrableStream != null) {
-      final byte[] bytes = deferrableStream.getBytes();
+      final byte[] bytes = deferrableStream.bytes;
       if (bytes != null) {
         return bytes;
       }
-      final Path path = deferrableStream.getPath();
-      if (path != null && deferrableStream.getState() == State.closed) {
+      final Path path = deferrableStream.path;
+      if (path != null && deferrableStream.state == State.closed) {
         return Files.readAllBytes(path);
       }
     }
@@ -200,7 +200,7 @@ public final class DefaultPart implements Part {
    */
   @Override
   public InputStream getInputStream() throws IOException {
-    if (deferrableStream != null && deferrableStream.getState() == State.closed) {
+    if (deferrableStream != null && deferrableStream.state == State.closed) {
       return deferrableStream.getInputStream();
     }
     throw new IllegalStateException("The file item has not been fully read.");
@@ -236,7 +236,7 @@ public final class DefaultPart implements Part {
    * @return The data file, or {@code null} if the data is stored in memory.
    */
   private @Nullable Path getPath() {
-    return deferrableStream == null ? null : deferrableStream.getPath();
+    return deferrableStream == null ? null : deferrableStream.path;
   }
 
   /**
@@ -277,7 +277,7 @@ public final class DefaultPart implements Part {
    */
   @Override
   public long getContentLength() {
-    return deferrableStream == null ? 0L : deferrableStream.getSize();
+    return deferrableStream == null ? 0L : deferrableStream.size;
   }
 
   @Override

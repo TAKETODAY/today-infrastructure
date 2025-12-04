@@ -92,10 +92,6 @@ class FieldItemInputIterator {
    * @throws IOException An I/O error occurred.
    */
   FieldItemInputIterator(final DefaultMultipartParser parser, final RequestContext context) throws MultipartException, IOException {
-    if (!context.isMultipart()) {
-      throw new NotMultipartRequestException(String.format("the request doesn't contain a %s or %s stream, content type header is %s",
-              MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.MULTIPART_MIXED_VALUE, context.getContentType()), null);
-    }
     MediaType contentType = context.getHeaders().getContentType();
     Assert.state(contentType != null, "No contentType");
 
