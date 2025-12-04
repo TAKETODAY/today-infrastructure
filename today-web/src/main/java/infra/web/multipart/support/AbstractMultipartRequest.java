@@ -123,7 +123,7 @@ public abstract class AbstractMultipartRequest implements MultipartRequest {
   }
 
   @Override
-  public @Nullable HttpHeaders getMultipartHeaders(String paramOrFileName) {
+  public @Nullable HttpHeaders getHeaders(String paramOrFileName) {
     Part part = getPart(paramOrFileName);
     return part != null ? part.getHeaders() : null;
   }

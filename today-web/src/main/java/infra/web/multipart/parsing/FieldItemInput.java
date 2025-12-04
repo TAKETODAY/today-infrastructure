@@ -21,7 +21,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.InvalidPathException;
 
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
@@ -40,32 +39,27 @@ import infra.web.multipart.MultipartException;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-class FieldItemInput {
+final class FieldItemInput {
 
   /**
    * The file items content type.
    */
-  private final @Nullable MediaType contentType;
-
-  /**
-   * The file items field name.
-   */
-  private final @Nullable String fieldName;
+  public final @Nullable MediaType contentType;
 
   /**
    * The file items file name.
    */
-  private final @Nullable String fileName;
+  public final @Nullable String fileName;
+
+  /**
+   * The file items field name.
+   */
+  public final String fieldName;
 
   /**
    * Whether the file item is a form field.
    */
-  private final boolean formField;
-
-  /**
-   * The file items input stream.
-   */
-  private final InputStream inputStream;
+  public final boolean formField;
 
   /**
    * The file items input stream closed flag.
@@ -75,7 +69,12 @@ class FieldItemInput {
   /**
    * The headers, if any.
    */
-  private final HttpHeaders headers;
+  public final HttpHeaders headers;
+
+  /**
+   * The file items input stream.
+   */
+  private final InputStream inputStream;
 
   /**
    * Creates a new instance.
@@ -87,7 +86,7 @@ class FieldItemInput {
    * @param formField Whether the item is a form field.
    * @throws MultipartException Parsing the incoming data stream failed.
    */
-  FieldItemInput(final FieldItemInputIterator iterator, final @Nullable String fileName, final @Nullable String fieldName,
+  FieldItemInput(final FieldItemInputIterator iterator, final @Nullable String fileName, final String fieldName,
           final @Nullable MediaType contentType, final boolean formField, HttpHeaders headers) throws MultipartException {
     this.fileName = fileName;
     this.fieldName = fieldName;
@@ -109,33 +108,6 @@ class FieldItemInput {
   }
 
   /**
-   * Gets the content type, or null.
-   *
-   * @return Content type, if known, or null.
-   */
-  public @Nullable MediaType getContentType() {
-    return contentType;
-  }
-
-  /**
-   * Gets the items field name.
-   *
-   * @return Field name.
-   */
-  public String getName() {
-    return fieldName;
-  }
-
-  /**
-   * Gets the headers.
-   *
-   * @return The items header object
-   */
-  public HttpHeaders getHeaders() {
-    return headers;
-  }
-
-  /**
    * Gets the input stream, which may be used to read the items contents.
    *
    * @return Opened input stream.
@@ -146,26 +118,6 @@ class FieldItemInput {
       throw new ItemSkippedException("getInputStream()");
     }
     return inputStream;
-  }
-
-  /**
-   * Gets the file name.
-   *
-   * @return File name, if known, or null.
-   * @throws InvalidPathException The file name is invalid, for example it contains a NUL character, which might be an indicator of a security attack. If you
-   * intend to use the file name anyways, catch the exception and use InvalidPathException#getInput().
-   */
-  public @Nullable String getFilename() {
-    return DefaultPart.checkFileName(fileName);
-  }
-
-  /**
-   * Tests whether this is a form field.
-   *
-   * @return True, if the item is a form field, otherwise false.
-   */
-  public boolean isFormField() {
-    return formField;
   }
 
 }

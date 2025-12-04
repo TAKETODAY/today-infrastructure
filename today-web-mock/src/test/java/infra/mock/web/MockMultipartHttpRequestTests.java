@@ -75,11 +75,11 @@ class MockMultipartHttpRequestTests {
     metadataPart.getHeaders().setContentType(MediaType.APPLICATION_JSON);
     request.addPart(metadataPart);
 
-    HttpHeaders fileHttpHeaders = request.getMultipartRequest().getMultipartHeaders("file");
+    HttpHeaders fileHttpHeaders = request.getMultipartRequest().getHeaders("file");
     assertThat(fileHttpHeaders).isNotNull();
     assertThat(fileHttpHeaders.getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
 
-    HttpHeaders dataHttpHeaders = request.getMultipartRequest().getMultipartHeaders("metadata");
+    HttpHeaders dataHttpHeaders = request.getMultipartRequest().getHeaders("metadata");
     assertThat(dataHttpHeaders).isNotNull();
     assertThat(dataHttpHeaders.getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
   }

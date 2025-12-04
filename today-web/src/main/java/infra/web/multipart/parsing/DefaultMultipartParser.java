@@ -287,8 +287,8 @@ public class DefaultMultipartParser implements MultipartParser {
                   .formatted(request.getContentType(), maxFields), maxFields, size);
         }
 
-        DefaultPart fieldItem = new DefaultPart(field.getName(), field.getContentType(),
-                field.getHeaders(), field.isFormField(), field.getFilename(), this);
+        DefaultPart fieldItem = new DefaultPart(field.fieldName, field.contentType,
+                field.headers, field.formField, field.fieldName, this);
 
         parts.add(fieldItem.getName(), fieldItem);
         try (var inputStream = field.getInputStream();

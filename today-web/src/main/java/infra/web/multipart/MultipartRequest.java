@@ -85,6 +85,7 @@ public interface MultipartRequest {
    * @throws NotMultipartRequestException if this request is not multipart request
    * @see #getParts()
    */
+  @Deprecated
   MultiValueMap<String, MultipartFile> getFiles();
 
   /**
@@ -97,6 +98,7 @@ public interface MultipartRequest {
    * @see #getParts()
    */
   @Nullable
+  @Deprecated
   List<MultipartFile> getFiles(String name);
 
   /**
@@ -108,6 +110,7 @@ public interface MultipartRequest {
    * @throws NotMultipartRequestException if this request is not multipart request
    * @see #getParts()
    */
+  @Deprecated
   @Nullable
   MultipartFile getFile(String name);
 
@@ -119,6 +122,7 @@ public interface MultipartRequest {
    *
    * @return the names of the files
    */
+  @Deprecated
   Iterable<String> getFileNames();
 
   /**
@@ -127,6 +131,7 @@ public interface MultipartRequest {
    * @return a map containing the parameter names as keys, and the
    * {@link MultipartFile} objects as values
    */
+  @Deprecated
   Map<String, MultipartFile> getFileMap();
 
   /**
@@ -136,7 +141,7 @@ public interface MultipartRequest {
    * returned headers may expose a 'Content-Type' if available.
    */
   @Nullable
-  HttpHeaders getMultipartHeaders(String paramOrFileName);
+  HttpHeaders getHeaders(String paramOrFileName);
 
   /**
    * Cleanup any resources used for the multipart handling,

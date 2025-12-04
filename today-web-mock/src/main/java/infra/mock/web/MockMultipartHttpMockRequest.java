@@ -166,13 +166,13 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl {
       Enumeration<String> headerNames = getHeaderNames();
       while (headerNames.hasMoreElements()) {
         String headerName = headerNames.nextElement();
-        headers.put(headerName, Collections.list(getHeaders(headerName)));
+        headers.put(headerName, Collections.list(MultipartRequest.this.getHeaders(headerName)));
       }
       return headers;
     }
 
     @Override
-    public HttpHeaders getMultipartHeaders(String paramOrFileName) {
+    public HttpHeaders getHeaders(String paramOrFileName) {
       MultipartFile file = getFile(paramOrFileName);
       if (file != null) {
         HttpHeaders headers = HttpHeaders.forWritable();

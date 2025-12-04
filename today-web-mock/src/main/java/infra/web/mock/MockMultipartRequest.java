@@ -102,7 +102,7 @@ public class MockMultipartRequest extends AbstractMultipartRequest {
   }
 
   @Override
-  public HttpHeaders getMultipartHeaders(String paramOrFileName) {
+  public HttpHeaders getHeaders(String paramOrFileName) {
     try {
       infra.mock.api.http.Part part = request.getPart(paramOrFileName);
       if (part != null) {

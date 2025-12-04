@@ -30,7 +30,6 @@ import infra.lang.Assert;
 import infra.util.StreamUtils;
 import infra.web.RequestContext;
 import infra.web.multipart.MultipartException;
-import infra.web.multipart.NotMultipartRequestException;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -187,8 +186,7 @@ class FieldItemInputIterator {
       MediaType subContentType = headers.getContentType();
       if (multipartRelated) {
         currentFieldName = "";
-        currentItem = new FieldItemInput(this, null, null,
-                subContentType, false, headers);
+        currentItem = new FieldItemInput(this, null, "", subContentType, false, headers);
         progressNotifier.onItem();
         itemValid = true;
         return true;
