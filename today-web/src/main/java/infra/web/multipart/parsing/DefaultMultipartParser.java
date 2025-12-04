@@ -26,7 +26,6 @@ import java.nio.file.Path;
 
 import infra.core.ApplicationTemp;
 import infra.http.HttpHeaders;
-import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.util.MultiValueMap;
 import infra.util.StreamUtils;
@@ -249,7 +248,7 @@ public class DefaultMultipartParser implements MultipartParser {
         if (size == maxFieldCount) {
           // The next item will exceed the limit.
           throw new MultipartFieldCountLimitException("Request '%s' failed: Maximum file count %,d exceeded."
-                  .formatted(MediaType.MULTIPART_FORM_DATA_VALUE, maxFieldCount), maxFieldCount, size);
+                  .formatted(context.getContentType(), maxFieldCount), maxFieldCount, size);
         }
 
         DefaultPart fieldItem = new DefaultPart(field.getName(), field.getContentType(),
@@ -260,8 +259,8 @@ public class DefaultMultipartParser implements MultipartParser {
                 var outputStream = fieldItem.getOutputStream()) {
           StreamUtils.copy(inputStream, outputStream, buffer);
         }
-        catch (final IOException e) {
-          throw new MultipartException(String.format("Request '%s' failed: %s", MediaType.MULTIPART_FORM_DATA_VALUE, e.getMessage()), e);
+        catch (IOException e) {
+          throw new MultipartException(String.format("Request '%s' failed: %s", context.getContentType(), e.getMessage()), e);
         }
       }
       successful = true;
