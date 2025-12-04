@@ -21,7 +21,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -159,16 +158,6 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl {
       String method = getMethod();
       Assert.state(method != null, "Method is required");
       return HttpMethod.valueOf(method);
-    }
-
-    public HttpHeaders getRequestHeaders() {
-      HttpHeaders headers = HttpHeaders.forWritable();
-      Enumeration<String> headerNames = getHeaderNames();
-      while (headerNames.hasMoreElements()) {
-        String headerName = headerNames.nextElement();
-        headers.put(headerName, Collections.list(MultipartRequest.this.getHeaders(headerName)));
-      }
-      return headers;
     }
 
     @Override

@@ -140,6 +140,7 @@ final class DeferrableStream extends OutputStream {
    * @throws IOException Creating the temporary file (in the case of threshold -1)
    * has failed.
    */
+  @SuppressWarnings("NullAway")
   public DeferrableStream(DefaultMultipartParser parser) throws IOException {
     this.parser = parser;
     if (parser.getThreshold() == 0L) {

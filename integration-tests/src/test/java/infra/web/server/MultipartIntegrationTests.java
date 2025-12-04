@@ -21,6 +21,7 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -50,7 +51,7 @@ import infra.web.annotation.POST;
 import infra.web.annotation.RequestPart;
 import infra.web.annotation.RestController;
 import infra.web.client.RestClient;
-import infra.web.multipart.MultipartFile;
+import infra.web.multipart.Part;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -107,20 +108,13 @@ class MultipartIntegrationTests {
   static class UploadHttpHandler {
 
     @POST
-    String upload(MultipartFile file) {
+    String upload(Part file) {
       return "ok";
     }
 
-//    @POST("/form")
-//    String upload(@RequestPart("form") Form form, @RequestPart("file") MultipartFile file) {
-//      System.out.println(form);
-//      System.out.println(file.getValue());
-//      return "ok";
-//    }
-
     @POST("/form")
-    String upload(@RequestPart("form") byte[] form, @RequestPart("file") MultipartFile file) {
-      System.out.println(new String(form));
+    String upload(@RequestPart("form") Form form, @RequestPart("file") Part file) throws IOException {
+      System.out.println(form);
       System.out.println(file.getContentAsString());
       return "ok";
     }

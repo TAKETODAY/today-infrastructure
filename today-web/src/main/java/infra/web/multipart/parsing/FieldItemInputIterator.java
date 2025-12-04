@@ -38,7 +38,7 @@ import infra.web.multipart.MultipartException;
 class FieldItemInputIterator {
 
   /**
-   * The multi part stream to process.
+   * The multipart stream to process.
    */
   public final MultipartInput multiPartInput;
 
@@ -141,6 +141,7 @@ class FieldItemInputIterator {
    * @throws NoSuchElementException No more items are available. Use {@link #hasNext()} to prevent this exception.
    * @throws MultipartException Parsing or processing the file item failed.
    */
+  @SuppressWarnings("NullAway")
   public FieldItemInput next() throws IOException {
     if (eof || !itemValid && !hasNext()) {
       throw new NoSuchElementException();
