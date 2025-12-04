@@ -174,7 +174,7 @@ public class NettyWebServerFactoryAutoConfiguration {
     }
 
     if (multipart.maxFieldSize != null) {
-      multipartParser.setMaxFileSize(multipart.maxFieldSize.toBytes());
+      multipartParser.setMaxFieldSize(multipart.maxFieldSize.toBytes());
     }
     if (StringUtils.hasText(multipart.tempBaseDir)) {
       if (StringUtils.hasText(multipart.tempSubDir)) {

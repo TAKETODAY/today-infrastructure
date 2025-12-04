@@ -51,35 +51,14 @@ public class DefaultMultipartParser implements MultipartParser {
   public static final int DEFAULT_THRESHOLD = 10_240;
 
   /**
-   * Default content charset to be used when no explicit charset parameter is provided by the sender. Media subtypes of the "text" type are defined to have a
-   * default charset value of "ISO-8859-1" when received via HTTP.
+   * The maximum size permitted for a single field. A value of -1 indicates no maximum.
    */
-  public static final Charset DEFAULT_CHARSET = StandardCharsets.ISO_8859_1;
+  private long maxFieldSize = -1;
 
   /**
-   * Content-disposition value for form data.
+   * The maximum permitted number of fields in a single request. A value of -1 indicates no maximum.
    */
-  private static final String FORM_DATA = "form-data";
-
-  /**
-   * File name parameter key.
-   */
-  private static final String FILENAME_KEY = "filename";
-
-  /**
-   * The maximum size permitted for the complete request, as opposed to {@link #maxFileSize}. A value of -1 indicates no maximum.
-   */
-  private long maxSize = -1;
-
-  /**
-   * The maximum size permitted for a single uploaded file, as opposed to {@link #maxSize}. A value of -1 indicates no maximum.
-   */
-  private long maxFileSize = -1;
-
-  /**
-   * The maximum permitted number of files that may be uploaded in a single request. A value of -1 indicates no maximum.
-   */
-  private long maxFileCount = -1;
+  private long maxFieldCount = -1;
 
   /**
    * The maximum permitted size of the headers provided with a single part in bytes.
@@ -134,18 +113,18 @@ public class DefaultMultipartParser implements MultipartParser {
    *
    * @return The maximum number of files allowed in a single request.
    */
-  public long getMaxFileCount() {
-    return maxFileCount;
+  public long getMaxFieldCount() {
+    return maxFieldCount;
   }
 
   /**
-   * Gets the maximum allowed size of a single form field, as opposed to {@link #getMaxSize()}.
+   * Gets the maximum allowed size of a single form field.
    *
    * @return Maximum size of a single form field.
-   * @see #setMaxFileSize(long)
+   * @see #setMaxFieldSize(long)
    */
-  public long getMaxFileSize() {
-    return maxFileSize;
+  public long getMaxFieldSize() {
+    return maxFieldSize;
   }
 
   /**
@@ -155,16 +134,6 @@ public class DefaultMultipartParser implements MultipartParser {
    */
   public int getMaxPartHeaderSize() {
     return maxPartHeaderSize;
-  }
-
-  /**
-   * Gets the maximum allowed size of a complete request, as opposed to {@link #getMaxFileSize()}.
-   *
-   * @return The maximum allowed size, in bytes. The default value of -1 indicates, that there is no limit.
-   * @see #setMaxSize(long)
-   */
-  public long getMaxSize() {
-    return maxSize;
   }
 
   /**
@@ -257,7 +226,7 @@ public class DefaultMultipartParser implements MultipartParser {
   }
 
   @Override
-  public MultipartRequest parse(RequestContext request) throws MultipartException {
+  public MultipartRequest parse(RequestContext request) throws infra.web.multipart.MultipartException {
     return new DefaultMultipartRequest(this, request);
   }
 
@@ -266,9 +235,9 @@ public class DefaultMultipartParser implements MultipartParser {
    *
    * @param context The context for the request to be parsed.
    * @return A Map of {@code Part} instances parsed from the request, in the order that they were transmitted.
-   * @throws FileUploadException if there are problems reading/parsing the request or storing files.
+   * @throws MultipartException if there are problems reading/parsing the request or storing files.
    */
-  public MultiValueMap<String, Part> parseRequest(final RequestContext context) throws FileUploadException {
+  public MultiValueMap<String, Part> parseRequest(final RequestContext context) throws MultipartException {
     MultiValueMap<String, Part> parts = MultiValueMap.forLinkedHashMap();
     var successful = false;
     try {
@@ -277,10 +246,10 @@ public class DefaultMultipartParser implements MultipartParser {
       while (itemIterator.hasNext()) {
         FieldItemInput field = itemIterator.next();
         final int size = parts.size();
-        if (size == maxFileCount) {
+        if (size == maxFieldCount) {
           // The next item will exceed the limit.
-          throw new FileUploadFileCountLimitException("Request '%s' failed: Maximum file count %,d exceeded."
-                  .formatted(MediaType.MULTIPART_FORM_DATA_VALUE, maxFileCount), getMaxFileCount(), size);
+          throw new MultipartFieldCountLimitException("Request '%s' failed: Maximum file count %,d exceeded."
+                  .formatted(MediaType.MULTIPART_FORM_DATA_VALUE, maxFieldCount), maxFieldCount, size);
         }
 
         DefaultPart fieldItem = new DefaultPart(field.getName(), field.getContentType(),
@@ -292,14 +261,14 @@ public class DefaultMultipartParser implements MultipartParser {
           StreamUtils.copy(inputStream, outputStream, buffer);
         }
         catch (final IOException e) {
-          throw new FileUploadException(String.format("Request '%s' failed: %s", MediaType.MULTIPART_FORM_DATA_VALUE, e.getMessage()), e);
+          throw new MultipartException(String.format("Request '%s' failed: %s", MediaType.MULTIPART_FORM_DATA_VALUE, e.getMessage()), e);
         }
       }
       successful = true;
       return parts;
     }
     catch (final IOException e) {
-      throw new FileUploadException(e.getMessage(), e);
+      throw new MultipartException(e.getMessage(), e);
     }
     finally {
       if (!successful) {
@@ -319,22 +288,22 @@ public class DefaultMultipartParser implements MultipartParser {
   }
 
   /**
-   * Sets the maximum number of files allowed per request.
+   * Sets the maximum number of fields allowed per request.
    *
    * @param fileCountMax The new limit. {@code -1} means no limit.
    */
-  public void setMaxFileCount(final long fileCountMax) {
-    this.maxFileCount = fileCountMax;
+  public void setMaxFieldCount(final long fileCountMax) {
+    this.maxFieldCount = fileCountMax;
   }
 
   /**
-   * Sets the maximum allowed size of a single form field, as opposed to {@link #getMaxSize()}.
+   * Sets the maximum allowed size of a single field.
    *
-   * @param fileSizeMax Maximum size of a single form field.
-   * @see #getMaxFileSize()
+   * @param maxFieldSize Maximum size of a single field.
+   * @see #getMaxFieldSize()
    */
-  public void setMaxFileSize(final long fileSizeMax) {
-    this.maxFileSize = fileSizeMax;
+  public void setMaxFieldSize(final long maxFieldSize) {
+    this.maxFieldSize = maxFieldSize;
   }
 
   /**
@@ -344,16 +313,6 @@ public class DefaultMultipartParser implements MultipartParser {
    */
   public void setMaxPartHeaderSize(final int partHeaderSizeMax) {
     this.maxPartHeaderSize = partHeaderSizeMax;
-  }
-
-  /**
-   * Sets the maximum allowed size of a complete request, as opposed to {@link #setMaxFileSize(long)}.
-   *
-   * @param sizeMax The maximum allowed size, in bytes. The default value of -1 indicates, that there is no limit.
-   * @see #getMaxSize()
-   */
-  public void setMaxSize(final long sizeMax) {
-    this.maxSize = sizeMax;
   }
 
   /**
@@ -379,9 +338,9 @@ public class DefaultMultipartParser implements MultipartParser {
   }
 
   /**
-   * Sets the directory in which uploaded files will be stored, if stored on disk.
+   * Sets the directory in which uploaded fields will be stored, if stored on disk.
    *
-   * @param tempRepository The directory path where temporary files should be stored.
+   * @param tempRepository The directory path where temporary fields should be stored.
    */
   public void setTempRepository(Path tempRepository) {
     this.tempRepository = tempRepository;

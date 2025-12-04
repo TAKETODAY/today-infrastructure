@@ -19,17 +19,16 @@ package infra.web.multipart.parsing;
 
 import java.io.Serial;
 
+import infra.web.multipart.MultipartException;
+
 /**
  * Signals that the input stream fails to follow the required syntax.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-public class MalformedStreamException extends FileUploadException {
+public class MalformedStreamException extends MultipartException {
 
-  /**
-   * The UID to use when serializing this instance.
-   */
   @Serial
   private static final long serialVersionUID = 2;
 

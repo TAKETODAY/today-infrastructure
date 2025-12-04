@@ -17,18 +17,18 @@
 
 package infra.web.multipart.parsing;
 
+import java.io.Serial;
+
 /**
  * Signals that a file size exceeds the configured maximum.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-public class FileUploadByteCountLimitException extends FileUploadSizeException {
+public class MultipartByteCountLimitException extends MultipartSizeException {
 
-  /**
-   * The exceptions UID, for serializing an instance.
-   */
-  private static final long serialVersionUID = 2;
+  @Serial
+  private static final long serialVersionUID = 1;
 
   /**
    * File name of the item, which caused the exception.
@@ -49,7 +49,7 @@ public class FileUploadByteCountLimitException extends FileUploadSizeException {
    * @param fileName File name of the item, which caused the exception.
    * @param fieldName Field name of the item, which caused the exception.
    */
-  public FileUploadByteCountLimitException(final String message, final long actual, final long permitted, final String fileName, final String fieldName) {
+  public MultipartByteCountLimitException(final String message, final long actual, final long permitted, final String fileName, final String fieldName) {
     super(message, permitted, actual);
     this.fileName = fileName;
     this.fieldName = fieldName;

@@ -26,6 +26,7 @@ import java.nio.file.InvalidPathException;
 
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
+import infra.web.multipart.MultipartException;
 
 /**
  * Provides access to a file or form item that was received within a {@code multipart/form-data} POST request.
@@ -86,10 +87,10 @@ class FieldItemInput {
    * @param contentType The items content type, or null.
    * @param formField Whether the item is a form field.
    * @throws IOException Creating the file item failed.
-   * @throws FileUploadException Parsing the incoming data stream failed.
+   * @throws MultipartException Parsing the incoming data stream failed.
    */
   FieldItemInput(final FieldItemInputIterator iterator, final @Nullable String fileName, final @Nullable String fieldName,
-          final @Nullable MediaType contentType, final boolean formField, HttpHeaders headers) throws FileUploadException, IOException {
+          final @Nullable MediaType contentType, final boolean formField, HttpHeaders headers) throws MultipartException, IOException {
     this.fileName = fileName;
     this.fieldName = fieldName;
     this.contentType = contentType;
@@ -98,7 +99,7 @@ class FieldItemInput {
     final var fileSizeMax = iterator.getFileSizeMax();
     long contentLength = headers.getContentLength();
     if (fileSizeMax != -1 && contentLength != -1 && contentLength > fileSizeMax) {
-      throw new FileUploadByteCountLimitException(String.format("The field %s exceeds its maximum permitted size of %s bytes.", fieldName, fileSizeMax),
+      throw new MultipartByteCountLimitException(String.format("The field %s exceeds its maximum permitted size of %s bytes.", fieldName, fileSizeMax),
               contentLength, fileSizeMax, fileName, fieldName);
     }
     // OK to construct stream now
@@ -113,7 +114,7 @@ class FieldItemInput {
               .setMaxCount(fileSizeMax + 1)
               .setOnMaxCount((max, count) -> {
                 itemInputStream.close(true);
-                throw new FileUploadByteCountLimitException(String.format(
+                throw new MultipartByteCountLimitException(String.format(
                         "The field %s exceeds its maximum permitted size of %s bytes.", fieldName, fileSizeMax), count, fileSizeMax, fileName, fieldName);
               })
               .get();

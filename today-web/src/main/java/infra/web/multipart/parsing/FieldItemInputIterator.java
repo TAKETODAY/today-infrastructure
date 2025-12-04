@@ -30,6 +30,7 @@ import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.util.StreamUtils;
 import infra.web.RequestContext;
+import infra.web.multipart.MultipartException;
 import infra.web.multipart.NotMultipartRequestException;
 
 /**
@@ -95,10 +96,10 @@ class FieldItemInputIterator {
    *
    * @param parser Main processor.
    * @param context The request context.
-   * @throws FileUploadException An error occurred while parsing the request.
+   * @throws MultipartException An error occurred while parsing the request.
    * @throws IOException An I/O error occurred.
    */
-  FieldItemInputIterator(final DefaultMultipartParser parser, final RequestContext context) throws FileUploadException, IOException {
+  FieldItemInputIterator(final DefaultMultipartParser parser, final RequestContext context) throws MultipartException, IOException {
     if (!context.isMultipart()) {
       throw new NotMultipartRequestException(String.format("the request doesn't contain a %s or %s stream, content type header is %s",
               MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.MULTIPART_MIXED_VALUE, context.getContentType()), null);
@@ -108,7 +109,7 @@ class FieldItemInputIterator {
 
     this.parser = parser;
     this.skipPreamble = true;
-    this.fileSizeMax = parser.getMaxFileSize();
+    this.fileSizeMax = parser.getMaxFieldSize();
     this.multipartRelated = "related".equals(contentType.getSubtype());
     this.progressNotifier = new ProgressNotifier(parser.getProgressListener(), context.getContentLength());
 
@@ -116,7 +117,7 @@ class FieldItemInputIterator {
     byte[] multipartBoundary = getBoundary(contentType);
     if (multipartBoundary == null) {
       StreamUtils.closeQuietly(inputStream); // avoid possible resource leak
-      throw new FileUploadException("the request was rejected because no multipart boundary was found");
+      throw new MultipartException("the request was rejected because no multipart boundary was found");
     }
 
     this.multipartBoundary = multipartBoundary;
@@ -134,7 +135,7 @@ class FieldItemInputIterator {
     }
     catch (IllegalArgumentException e) {
       StreamUtils.closeQuietly(inputStream); // avoid possible resource leak
-      throw new FileUploadContentTypeException("The boundary specified in the 'Content-type' header is too long", e);
+      throw new MultipartContentTypeException("The boundary specified in the 'Content-type' header is too long", e);
     }
 
     findNextItem();
@@ -145,7 +146,7 @@ class FieldItemInputIterator {
    *
    * @return True, if a next item was found, otherwise false.
    */
-  private boolean findNextItem() throws FileUploadException, IOException {
+  private boolean findNextItem() throws MultipartException, IOException {
     if (eof) {
       return false;
     }
@@ -193,7 +194,7 @@ class FieldItemInputIterator {
             // Multiple files associated with this field name
             byte[] subBoundary = getBoundary(subContentType);
             if (subBoundary == null) {
-              throw new FileUploadBoundaryException("The request was rejected because no boundary token was defined for a multipart/mixed part");
+              throw new MultipartBoundaryException("The request was rejected because no boundary token was defined for a multipart/mixed part");
             }
             input.setBoundary(subBoundary);
             skipPreamble = true;
@@ -234,9 +235,9 @@ class FieldItemInputIterator {
    * Tests whether another instance of {@link FieldItemInput} is available.
    *
    * @return True, if one or more additional file items are available, otherwise false.
-   * @throws FileUploadException Parsing or processing the file item failed.
+   * @throws MultipartException Parsing or processing the file item failed.
    */
-  public boolean hasNext() throws FileUploadException, IOException {
+  public boolean hasNext() throws MultipartException, IOException {
     if (eof) {
       return false;
     }
@@ -251,7 +252,7 @@ class FieldItemInputIterator {
    *
    * @return FieldItemInput instance, which provides access to the next file item.
    * @throws NoSuchElementException No more items are available. Use {@link #hasNext()} to prevent this exception.
-   * @throws FileUploadException Parsing or processing the file item failed.
+   * @throws MultipartException Parsing or processing the file item failed.
    */
   public FieldItemInput next() throws IOException {
     if (eof || !itemValid && !hasNext()) {

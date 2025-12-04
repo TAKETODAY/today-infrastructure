@@ -718,10 +718,10 @@ final class MultipartInput {
    * Skips a {@code boundary} token, and checks whether more {@code encapsulations} are contained in the stream.
    *
    * @return {@code true} if there are more encapsulations in this stream; {@code false} otherwise.
-   * @throws FileUploadSizeException if the bytes read from the stream exceeded the size limits
+   * @throws MultipartSizeException if the bytes read from the stream exceeded the size limits
    * @throws MalformedStreamException if the stream ends unexpectedly or fails to follow required syntax.
    */
-  public boolean readBoundary() throws FileUploadSizeException, MalformedStreamException {
+  public boolean readBoundary() throws MultipartSizeException, MalformedStreamException {
     final var marker = new byte[2];
     final boolean nextChunk;
     head += boundaryLength;
@@ -787,10 +787,10 @@ final class MultipartInput {
    * </p>
    *
    * @return The {@code header-part} of the current encapsulation.
-   * @throws FileUploadSizeException if the bytes read from the stream exceeded the size limits.
+   * @throws MultipartSizeException if the bytes read from the stream exceeded the size limits.
    * @throws MalformedStreamException if the stream ends unexpectedly.
    */
-  public String readHeaders() throws FileUploadSizeException, MalformedStreamException {
+  public String readHeaders() throws MultipartSizeException, MalformedStreamException {
     var i = 0;
     byte b;
     // to support multi-byte characters
@@ -805,7 +805,7 @@ final class MultipartInput {
       }
       final int phsm = getMaxPartHeaderSize();
       if (phsm != -1 && ++size > phsm) {
-        throw new FileUploadSizeException(
+        throw new MultipartSizeException(
                 String.format("Header section has more than %s bytes (maybe it is not properly terminated)", Integer.valueOf(phsm)), phsm, size);
       }
       if (b == HEADER_SEPARATOR[i]) {
@@ -832,11 +832,11 @@ final class MultipartInput {
    * </p>
    *
    * @param boundary The boundary to be used for parsing of the nested stream.
-   * @throws FileUploadBoundaryException if the {@code boundary} has a different length than the one being currently parsed.
+   * @throws MultipartBoundaryException if the {@code boundary} has a different length than the one being currently parsed.
    */
-  public void setBoundary(final byte[] boundary) throws FileUploadBoundaryException {
+  public void setBoundary(final byte[] boundary) throws MultipartBoundaryException {
     if (boundary.length != boundaryLength - BOUNDARY_PREFIX.length) {
-      throw new FileUploadBoundaryException("The length of a boundary token cannot be changed");
+      throw new MultipartBoundaryException("The length of a boundary token cannot be changed");
     }
     System.arraycopy(boundary, 0, this.boundary, BOUNDARY_PREFIX.length, boundary.length);
     computeBoundaryTable();

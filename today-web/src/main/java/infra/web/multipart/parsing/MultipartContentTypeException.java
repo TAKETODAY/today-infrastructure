@@ -19,37 +19,26 @@ package infra.web.multipart.parsing;
 
 import java.io.Serial;
 
+import infra.web.multipart.MultipartException;
+
 /**
- * Signals errors encountered while processing the request.
+ * Signals that a request is not a multipart request.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-public class FileUploadException extends RuntimeException {
+public class MultipartContentTypeException extends MultipartException {
 
-  /**
-   * Serial version UID, being used, if the exception is serialized.
-   */
   @Serial
-  private static final long serialVersionUID = 2;
+  private static final long serialVersionUID = 1;
 
   /**
-   * Constructs an instance with a given detail message.
+   * Constructs an instance with the specified detail message and cause.
    *
    * @param message The detail message (which is saved for later retrieval by the {@link #getMessage()} method)
+   * @param cause the original cause
    */
-  public FileUploadException(final String message) {
-    super(message);
-  }
-
-  /**
-   * Constructs an instance with the given detail message and cause.
-   *
-   * @param message The detail message (which is saved for later retrieval by the {@link #getMessage()} method)
-   * @param cause The cause (which is saved for later retrieval by the {@link #getCause()} method). (A null value is permitted, and indicates that the cause
-   * is nonexistent or unknown.)
-   */
-  public FileUploadException(final String message, final Throwable cause) {
+  public MultipartContentTypeException(final String message, final Throwable cause) {
     super(message, cause);
   }
 

@@ -17,51 +17,60 @@
 
 package infra.web.multipart.parsing;
 
+import java.io.Serial;
+
+import infra.web.multipart.MultipartException;
+
 /**
- * Signals that a request is not a multipart request.
+ * Signals that a requests permitted size is exceeded.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-public class FileUploadContentTypeException extends FileUploadException {
+public class MultipartSizeException extends MultipartException {
+
+  @Serial
+  private static final long serialVersionUID = 1;
 
   /**
-   * The exceptions UID, for serializing an instance.
+   * The actual size of the request.
    */
-  private static final long serialVersionUID = 2;
+  private final long actual;
 
   /**
-   * The guilty content type.
+   * The maximum permitted size of the request.
    */
-  private String contentType;
+  private final long permitted;
 
   /**
-   * Constructs an instance with the specified detail message.
+   * Constructs an instance.
    *
    * @param message The detail message (which is saved for later retrieval by the {@link #getMessage()} method)
-   * @param contentType The guilty content type.
+   * @param permitted The requests size limit.
+   * @param actual The actual values for the request.
    */
-  public FileUploadContentTypeException(final String message, final String contentType) {
+  public MultipartSizeException(final String message, final long permitted, final long actual) {
     super(message);
-    this.contentType = contentType;
+    this.permitted = permitted;
+    this.actual = actual;
   }
 
   /**
-   * Constructs an instance with the specified detail message and cause.
+   * Gets the actual size of the request.
    *
-   * @param message The detail message (which is saved for later retrieval by the {@link #getMessage()} method)
-   * @param cause the original cause
+   * @return The actual size of the request.
    */
-  public FileUploadContentTypeException(final String message, final Throwable cause) {
-    super(message, cause);
+  public long getActualSize() {
+    return actual;
   }
 
   /**
-   * Gets the content type.
+   * Gets the limit size of the request.
    *
-   * @return the content type.
+   * @return The limit size of the request.
    */
-  public String getContentType() {
-    return contentType;
+  public long getPermitted() {
+    return permitted;
   }
+
 }

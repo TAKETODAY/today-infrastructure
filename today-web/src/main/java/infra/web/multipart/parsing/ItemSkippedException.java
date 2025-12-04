@@ -20,12 +20,14 @@ package infra.web.multipart.parsing;
 import java.io.InputStream;
 import java.io.Serial;
 
+import infra.web.multipart.MultipartException;
+
 /**
  * This exception is thrown, if an attempt is made to read data from the {@link InputStream}, which has been returned by
  * {@link FieldItemInput#getInputStream()}, after {@link java.util.Iterator#hasNext()} has been invoked on the iterator, which created the
  * {@link FieldItemInput}.
  */
-public class ItemSkippedException extends FileUploadException {
+public class ItemSkippedException extends MultipartException {
 
   @Serial
   private static final long serialVersionUID = 1;

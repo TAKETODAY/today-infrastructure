@@ -17,26 +17,28 @@
 
 package infra.web.multipart.parsing;
 
+import java.io.Serial;
+
 /**
- * Signals an attempt to set an invalid boundary token.
+ * Signals that a request contains more fields than the specified limit.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @since 5.0 2025/11/28 22:23
+ * @since 5.0
  */
-public class FileUploadBoundaryException extends FileUploadException {
+public class MultipartFieldCountLimitException extends MultipartSizeException {
+
+  @Serial
+  private static final long serialVersionUID = 1;
 
   /**
-   * The UID to use when serializing this instance.
-   */
-  private static final long serialVersionUID = 2;
-
-  /**
-   * Constructs an instance with the specified detail message.
+   * Constructs an instance.
    *
    * @param message The detail message (which is saved for later retrieval by the {@link #getMessage()} method)
+   * @param limit The limit that was exceeded.
+   * @param actual The actual value.
    */
-  public FileUploadBoundaryException(final String message) {
-    super(message);
+  public MultipartFieldCountLimitException(final String message, final long limit, final long actual) {
+    super(message, limit, actual);
   }
 
 }

@@ -346,7 +346,7 @@ public final class DefaultPart implements Part {
       final Path outputFile = getPath();
       if (outputFile == null) {
         // For whatever reason we cannot write the file to disk.
-        throw new FileUploadException("Cannot write uploaded file to disk.");
+        throw new MultipartException("Cannot write uploaded file to disk.");
       }
       // The uploaded file is being stored on disk in a temporary location so move it to the desired file.
       Files.move(outputFile, file, StandardCopyOption.REPLACE_EXISTING);

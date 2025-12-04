@@ -17,25 +17,28 @@
 
 package infra.web.multipart.parsing;
 
+import java.io.Serial;
+
+import infra.web.multipart.MultipartException;
+
 /**
- * Signals that a request contains more files than the specified limit.
+ * Signals an attempt to set an invalid boundary token.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @since 5.0
+ * @since 5.0 2025/11/28 22:23
  */
-public class FileUploadFileCountLimitException extends FileUploadSizeException {
+public class MultipartBoundaryException extends MultipartException {
 
-  private static final long serialVersionUID = 2;
+  @Serial
+  private static final long serialVersionUID = 1;
 
   /**
-   * Constructs an instance.
+   * Constructs an instance with the specified detail message.
    *
    * @param message The detail message (which is saved for later retrieval by the {@link #getMessage()} method)
-   * @param limit The limit that was exceeded.
-   * @param actual The actual value.
    */
-  public FileUploadFileCountLimitException(final String message, final long limit, final long actual) {
-    super(message, limit, actual);
+  public MultipartBoundaryException(final String message) {
+    super(message);
   }
 
 }
