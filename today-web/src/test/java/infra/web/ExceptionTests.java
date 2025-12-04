@@ -49,8 +49,6 @@ import infra.web.bind.MissingMatrixVariableException;
 import infra.web.bind.MissingPathVariableException;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.MissingRequestValueException;
-import infra.web.multipart.MultipartException;
-import infra.web.multipart.NotMultipartRequestException;
 import infra.web.bind.RequestBindingException;
 import infra.web.bind.UnsatisfiedRequestParameterException;
 import infra.web.bind.resolver.MissingRequestCookieException;
@@ -61,6 +59,8 @@ import infra.web.handler.HandlerNotFoundException;
 import infra.web.handler.ReturnValueHandlerNotFoundException;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.multipart.MaxUploadSizeExceededException;
+import infra.web.multipart.MultipartException;
+import infra.web.multipart.NotMultipartRequestException;
 import infra.web.reactive.function.UnsupportedMediaTypeException;
 import infra.web.server.PortInUseException;
 import infra.web.server.WebServerException;
@@ -1991,6 +1991,11 @@ public class ExceptionTests {
 
       assertThat(exception).isInstanceOf(WebServerException.class);
     }
+
+  }
+
+  @Nested
+  class MultipartSizeExceptionTests {
 
   }
 

@@ -37,14 +37,6 @@ import static org.mockito.Mockito.when;
 class PartTests {
 
   @Test
-  void testGetContentTypeDefaultImplementation() {
-    Part part = mock(Part.class);
-    when(part.getContentType()).thenCallRealMethod();
-
-    assertThat(part.getContentType()).isNull();
-  }
-
-  @Test
   void testIsFormField() {
     Part part = mock(Part.class);
     when(part.isFormField()).thenReturn(true);

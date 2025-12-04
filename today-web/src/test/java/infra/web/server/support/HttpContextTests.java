@@ -24,7 +24,6 @@ import infra.http.MediaType;
 import infra.util.concurrent.Awaiter;
 import infra.web.DispatcherHandler;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.DecoderResult;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
@@ -33,7 +32,6 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.LastHttpContent;
-import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
@@ -85,36 +83,6 @@ class HttpContextTests {
     // Then
     assertThat(contextUnderTest.getContentLength()).isEqualTo(150L);
     verify(request, never()).setDecoderResult(any(DecoderResult.class));
-  }
-
-  @Test
-  void lastHttpContentForMultipartShouldResumeAwaiter() {
-    // Given
-    Awaiter awaiter = mock(Awaiter.class);
-    Channel channel = mock(Channel.class);
-    HttpRequest request = mock(HttpRequest.class);
-    NettyRequestConfig config = createConfigBuilder().maxContentLength(149)
-            .awaiterFactory(req -> awaiter).build();
-
-    ApplicationContext context = mock(ApplicationContext.class);
-    DispatcherHandler dispatcherHandler = mock(DispatcherHandler.class);
-    NettyChannelHandler channelHandler = mock(NettyChannelHandler.class);
-
-    ByteBuf byteBuf = Unpooled.buffer(10);
-    LastHttpContent lastHttpContent = mock(LastHttpContent.class);
-
-    when(lastHttpContent.content()).thenReturn(byteBuf);
-    when(request.method()).thenReturn(HttpMethod.POST);
-    when(request.headers()).thenReturn(new DefaultHttpHeaders()
-            .set(HttpHeaderNames.CONTENT_TYPE, "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW"));
-
-    HttpContext contextUnderTest = new HttpContext(channel, request, config, context, dispatcherHandler, channelHandler);
-
-    // When
-    contextUnderTest.onDataReceived(lastHttpContent);
-
-    // Then
-    verify(awaiter).resume();
   }
 
   @Test

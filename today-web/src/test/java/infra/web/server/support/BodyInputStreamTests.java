@@ -395,7 +395,8 @@ class BodyInputStreamTests {
     inputStream.onError(new IOException(error));
 
     assertThatThrownBy(inputStream::read)
-            .isSameAs(error);
+            .isInstanceOf(IOException.class)
+            .hasCause(error);
   }
 
   @Test
@@ -548,9 +549,8 @@ class BodyInputStreamTests {
     inputStream.onError(new IOException(new IllegalStateException("Stream failure")));
 
     assertThatThrownBy(inputStream::read)
-            .isInstanceOf(IllegalStateException.class)
             .isInstanceOf(IOException.class)
-            .hasMessage("Stream failure");
+            .hasRootCauseMessage("Stream failure");
   }
 
   @Test
@@ -632,8 +632,9 @@ class BodyInputStreamTests {
     Throwable error = new RuntimeException("test error");
     inputStream.onError(new IOException(error));
 
-    assertThatThrownBy(() -> inputStream.read())
-            .isSameAs(error);
+    assertThatThrownBy(inputStream::read)
+            .isInstanceOf(IOException.class)
+            .hasCause(error);
   }
 
   @Test
@@ -682,8 +683,9 @@ class BodyInputStreamTests {
     inputStream.onError(new IOException(error2)); // Should not override the first error
 
     assertThat(inputStream.read()).isEqualTo(42); // Data should still be readable
-    assertThatThrownBy(() -> inputStream.read())
-            .isSameAs(error1); // First error should be thrown
+    assertThatThrownBy(inputStream::read)
+            .isInstanceOf(IOException.class)
+            .hasCause(error1);
   }
 
   @Test
@@ -695,9 +697,9 @@ class BodyInputStreamTests {
     buffer.writeByte(42);
     inputStream.onDataReceived(buffer); // Should be discarded
 
-    assertThatThrownBy(() -> inputStream.read())
-            .isInstanceOf(RuntimeException.class)
-            .hasMessage("error");
+    assertThatThrownBy(inputStream::read)
+            .isInstanceOf(IOException.class)
+            .hasRootCauseMessage("error");
   }
 
   @Test
@@ -903,7 +905,7 @@ class BodyInputStreamTests {
 
     inputStream.onError(new IOException("Should not matter"));
 
-    assertThatThrownBy(inputStream::read).isInstanceOf(RuntimeException.class)
+    assertThatThrownBy(inputStream::read).isInstanceOf(IOException.class)
             .hasMessage("Should not matter");
   }
 

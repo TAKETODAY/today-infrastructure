@@ -90,7 +90,7 @@ class PartResourceTests {
     when(multipartFile.getName()).thenReturn("test-file");
     PartResource resource = new PartResource(multipartFile);
 
-    assertThat(resource.toString()).isEqualTo("MultipartFile resource [test-file]");
+    assertThat(resource.toString()).isEqualTo("Part resource [test-file]");
   }
 
   @Test

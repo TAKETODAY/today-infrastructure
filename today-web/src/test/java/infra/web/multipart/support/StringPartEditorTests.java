@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import infra.web.multipart.MultipartFile;
+import infra.web.multipart.Part;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -48,11 +48,13 @@ class StringPartEditorTests {
   @Test
   void setValueWithMultipartFileConvertsToByteArray() throws IOException {
     StringPartEditor editor = new StringPartEditor();
-    MultipartFile multipartFile = mock(MultipartFile.class);
+    Part part = mock(Part.class);
     String content = "file content";
-    when(multipartFile.getContentAsByteArray()).thenReturn(content.getBytes());
+    when(part.getContentAsByteArray()).thenReturn(content.getBytes());
+    when(part.getContentAsString(StandardCharsets.UTF_8)).thenReturn(content);
+    when(part.getContentAsString()).thenReturn(content);
 
-    editor.setValue(multipartFile);
+    editor.setValue(part);
 
     assertThat(editor.getValue()).isEqualTo(content);
   }
@@ -60,11 +62,12 @@ class StringPartEditorTests {
   @Test
   void setValueWithMultipartFileAndCharsetConvertsUsingSpecifiedCharset() throws IOException {
     StringPartEditor editor = new StringPartEditor(StandardCharsets.UTF_8);
-    MultipartFile multipartFile = mock(MultipartFile.class);
+    Part part = mock(Part.class);
     String content = "file content";
-    when(multipartFile.getContentAsByteArray()).thenReturn(content.getBytes());
+    when(part.getContentAsString()).thenReturn(content);
+    when(part.getContentAsString(StandardCharsets.UTF_8)).thenReturn(content);
 
-    editor.setValue(multipartFile);
+    editor.setValue(part);
 
     assertThat(editor.getValue()).isEqualTo(content);
   }
@@ -72,8 +75,9 @@ class StringPartEditorTests {
   @Test
   void setValueWithMultipartFileThrowsIllegalArgumentExceptionOnIoException() throws IOException {
     StringPartEditor editor = new StringPartEditor();
-    MultipartFile multipartFile = mock(MultipartFile.class);
-    when(multipartFile.getContentAsByteArray()).thenThrow(new IOException("test exception"));
+    Part multipartFile = mock(Part.class);
+    when(multipartFile.getContentAsString()).thenThrow(new IOException("test exception"));
+    when(multipartFile.getContentAsString(StandardCharsets.UTF_8)).thenThrow(new IOException("test exception"));
 
     assertThatThrownBy(() -> editor.setValue(multipartFile))
             .isInstanceOf(IllegalArgumentException.class)

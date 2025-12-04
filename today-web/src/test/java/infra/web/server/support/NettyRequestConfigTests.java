@@ -55,7 +55,7 @@ class NettyRequestConfigTests {
     assertThatThrownBy(() -> NettyRequestConfig.forBuilder(false)
             .sendErrorHandler(new SendErrorHandler0())
             .build()).isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("HttpDataFactory is required");
+            .hasMessage("MultipartParser is required");
 
     assertThat(NettyRequestConfig.forBuilder(false)
             .sendErrorHandler(new SendErrorHandler0())
@@ -247,7 +247,7 @@ class NettyRequestConfigTests {
             .sendErrorHandler(sendErrorHandler)
             .build())
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("HttpDataFactory is required");
+            .hasMessage("MultipartParser is required");
   }
 
   @Test
