@@ -20,6 +20,7 @@ package infra.web;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Collection;
@@ -61,6 +62,7 @@ import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.multipart.MaxUploadSizeExceededException;
 import infra.web.multipart.MultipartException;
 import infra.web.multipart.NotMultipartRequestException;
+import infra.web.multipart.parsing.MultipartSizeException;
 import infra.web.reactive.function.UnsupportedMediaTypeException;
 import infra.web.server.PortInUseException;
 import infra.web.server.WebServerException;
@@ -77,7 +79,7 @@ import static org.mockito.Mockito.when;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/10/6 15:35
  */
-public class ExceptionTests {
+class ExceptionTests {
 
   @Nested
   class HandlerAdapterNotFoundExceptionTests {
@@ -1996,6 +1998,74 @@ public class ExceptionTests {
 
   @Nested
   class MultipartSizeExceptionTests {
+
+    @Test
+    void constructorWithMessagePermittedAndActual() {
+      String message = "Request size exceeds limit";
+      long permitted = 1024L;
+      long actual = 2048L;
+
+      MultipartSizeException exception = new MultipartSizeException(message, permitted, actual);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getPermitted()).isEqualTo(permitted);
+      assertThat(exception.getActualSize()).isEqualTo(actual);
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void constructorWithNullMessage() {
+      long permitted = 1024L;
+      long actual = 2048L;
+
+      MultipartSizeException exception = new MultipartSizeException(null, permitted, actual);
+
+      assertThat(exception.getMessage()).isNull();
+      assertThat(exception.getPermitted()).isEqualTo(permitted);
+      assertThat(exception.getActualSize()).isEqualTo(actual);
+    }
+
+    @Test
+    void constructorWithZeroValues() {
+      String message = "Zero values test";
+      long permitted = 0L;
+      long actual = 0L;
+
+      MultipartSizeException exception = new MultipartSizeException(message, permitted, actual);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getPermitted()).isEqualTo(permitted);
+      assertThat(exception.getActualSize()).isEqualTo(actual);
+    }
+
+    @Test
+    void constructorWithNegativeValues() {
+      String message = "Negative values test";
+      long permitted = -1L;
+      long actual = -2L;
+
+      MultipartSizeException exception = new MultipartSizeException(message, permitted, actual);
+
+      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getPermitted()).isEqualTo(permitted);
+      assertThat(exception.getActualSize()).isEqualTo(actual);
+    }
+
+    @Test
+    void exceptionExtendsMultipartException() {
+      MultipartSizeException exception = new MultipartSizeException("test", 100L, 200L);
+
+      assertThat(exception).isInstanceOf(MultipartException.class);
+    }
+
+    @Test
+    void serialVersionUidIsSet() throws NoSuchFieldException, IllegalAccessException {
+      Field field = MultipartSizeException.class.getDeclaredField("serialVersionUID");
+      field.setAccessible(true);
+      long serialVersionUID = field.getLong(null);
+
+      assertThat(serialVersionUID).isEqualTo(1L);
+    }
 
   }
 
