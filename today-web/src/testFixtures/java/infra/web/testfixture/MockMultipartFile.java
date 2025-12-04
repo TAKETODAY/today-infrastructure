@@ -158,7 +158,7 @@ public class MockMultipartFile implements MultipartFile {
   }
 
   @Override
-  public long getSize() {
+  public long getContentLength() {
     return this.content.length;
   }
 

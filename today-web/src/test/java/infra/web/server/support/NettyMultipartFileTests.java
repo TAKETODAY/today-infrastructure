@@ -65,7 +65,7 @@ class NettyMultipartFileTests {
     NettyMultipartFile multipartFile = new NettyMultipartFile(fileUpload);
 
     // when & then
-    assertThat(multipartFile.getSize()).isEqualTo(1024L);
+    assertThat(multipartFile.getContentLength()).isEqualTo(1024L);
   }
 
   @Test

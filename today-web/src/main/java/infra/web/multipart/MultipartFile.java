@@ -62,7 +62,7 @@ public interface MultipartFile extends Part, InputStreamSource {
    *
    * @return the size of the file, or 0 if empty
    */
-  long getSize();
+  long getContentLength();
 
   /**
    * Return the name of the parameter in the multipart form.
@@ -177,7 +177,7 @@ public interface MultipartFile extends Part, InputStreamSource {
    */
   default long transferTo(Path dest) throws IOException, IllegalStateException {
     try (var channel = FileChannel.open(dest, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
-      return transferTo(channel, 0, getSize());
+      return transferTo(channel, 0, getContentLength());
     }
   }
 

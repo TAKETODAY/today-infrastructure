@@ -63,7 +63,7 @@ class MultipartFileResource extends AbstractResource {
 
   @Override
   public long contentLength() {
-    return this.multipartFile.getSize();
+    return this.multipartFile.getContentLength();
   }
 
   @Nullable

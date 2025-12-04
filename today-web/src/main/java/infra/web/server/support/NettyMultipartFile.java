@@ -67,7 +67,7 @@ final class NettyMultipartFile extends AbstractMultipartFile implements Multipar
   }
 
   @Override
-  public long getSize() {
+  public long getContentLength() {
     return fileUpload.length();
   }
 
@@ -133,7 +133,7 @@ final class NettyMultipartFile extends AbstractMultipartFile implements Multipar
 
   @Override
   public boolean isEmpty() {
-    return getSize() == 0;
+    return getContentLength() == 0;
   }
 
   @Override

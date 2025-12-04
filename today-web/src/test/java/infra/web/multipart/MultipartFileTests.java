@@ -47,7 +47,7 @@ class MultipartFileTests {
   void testGetResourceReturnsMultipartFileResource() throws IOException {
     MultipartFile multipartFile = mock(MultipartFile.class);
     when(multipartFile.getName()).thenReturn("test-file");
-    when(multipartFile.getSize()).thenReturn(1024L);
+    when(multipartFile.getContentLength()).thenReturn(1024L);
     when(multipartFile.getOriginalFilename()).thenReturn("original.txt");
 
     // Create a real instance to test default method
@@ -61,7 +61,7 @@ class MultipartFileTests {
       public String getContentType() { return "text/plain"; }
 
       @Override
-      public long getSize() { return 1024L; }
+      public long getContentLength() { return 1024L; }
 
       @Override
       public String getName() { return "test-file"; }
@@ -121,7 +121,7 @@ class MultipartFileTests {
       public String getContentType() { return "text/plain"; }
 
       @Override
-      public long getSize() { return 5L; }
+      public long getContentLength() { return 5L; }
 
       @Override
       public String getName() { return "test-file"; }
@@ -183,7 +183,7 @@ class MultipartFileTests {
       public String getContentType() { return "text/plain"; }
 
       @Override
-      public long getSize() { return 100L; }
+      public long getContentLength() { return 100L; }
 
       @Override
       public String getName() { return "test-file"; }

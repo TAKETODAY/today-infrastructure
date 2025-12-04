@@ -59,7 +59,7 @@ class MultipartFileResourceTests {
   @Test
   void testContentLength() {
     MultipartFile multipartFile = mock(MultipartFile.class);
-    when(multipartFile.getSize()).thenReturn(1024L);
+    when(multipartFile.getContentLength()).thenReturn(1024L);
     MultipartFileResource resource = new MultipartFileResource(multipartFile);
 
     assertThat(resource.contentLength()).isEqualTo(1024L);
