@@ -23,8 +23,13 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
+import infra.web.RequestContext;
+import infra.web.multipart.NotMultipartRequestException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -146,7 +151,16 @@ class DefaultMultipartParserTests {
             .isInstanceOf(IllegalArgumentException.class);
   }
 
+  @Test
+  void parseWithNonMultipartRequest() {
+    DefaultMultipartParser parser = new DefaultMultipartParser();
+    RequestContext request = mock(RequestContext.class);
+    when(request.isMultipart()).thenReturn(false);
+    when(request.getContentType()).thenReturn("application/json");
 
-
+    assertThatThrownBy(() -> parser.parseRequest(request))
+            .isInstanceOf(NotMultipartRequestException.class)
+            .hasMessageContaining("the request doesn't contain a multipart/form-data or multipart/mixed stream");
+  }
 
 }
