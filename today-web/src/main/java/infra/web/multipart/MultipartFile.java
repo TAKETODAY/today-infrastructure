@@ -29,6 +29,6 @@ package infra.web.multipart;
  * @see MultipartRequest
  * @since 2018-07-11 13:02:52
  */
-@Deprecated(forRemoval = true)
+@Deprecated
 public interface MultipartFile extends Part {
 }

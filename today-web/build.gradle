@@ -66,8 +66,6 @@ dependencies {
   optional("org.apache.poi:poi-ooxml")
   optional("org.reactivestreams:reactive-streams")
 
-  optional 'commons-io:commons-io'
-
   testImplementation('com.google.code.findbugs:findbugs')
   testImplementation("io.projectreactor:reactor-test")
   testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")

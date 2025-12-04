@@ -149,7 +149,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
       else if (ex instanceof ErrorResponseException subEx) {
         return handleErrorResponseException(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
-      else if (ex instanceof MultipartException subEx) {
+      else if (ex instanceof MaxUploadSizeExceededException subEx) {
         return handleMaxUploadSizeExceededException(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
       else {
