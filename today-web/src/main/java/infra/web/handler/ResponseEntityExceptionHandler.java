@@ -78,21 +78,11 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   @Nullable
-  private MessageSource messageSource;
+  protected MessageSource messageSource;
 
   @Override
   public void setMessageSource(MessageSource messageSource) {
     this.messageSource = messageSource;
-  }
-
-  /**
-   * Get the {@link MessageSource} that this exception handler uses.
-   *
-   * @since 5.0
-   */
-  @Nullable
-  protected MessageSource getMessageSource() {
-    return this.messageSource;
   }
 
   /**
