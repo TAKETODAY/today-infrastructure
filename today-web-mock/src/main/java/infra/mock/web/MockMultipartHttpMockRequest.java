@@ -80,12 +80,12 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl {
 
   /**
    * Add a file to this request. The parameter name from the multipart
-   * form is taken from the {@link MultipartFile#getName()}.
+   * form is taken from the {@link Part#getName()}.
    *
    * @param file multipart file to be added
    */
-  public void addFile(MultipartFile file) {
-    Assert.notNull(file, "MultipartFile is required");
+  public void addPart(Part file) {
+    Assert.notNull(file, "Part is required");
     multipartRequest.multipartData.add(file.getName(), file);
   }
 

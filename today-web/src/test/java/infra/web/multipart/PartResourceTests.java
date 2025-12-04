@@ -34,70 +34,70 @@ class PartResourceTests {
 
   @Test
   void testConstructor() {
-    MultipartFile multipartFile = mock(MultipartFile.class);
-    PartResource resource = new PartResource(multipartFile);
+    Part Part = mock(Part.class);
+    PartResource resource = new PartResource(Part);
 
     assertThat(resource).isNotNull();
   }
 
   @Test
   void testExists() {
-    MultipartFile multipartFile = mock(MultipartFile.class);
-    PartResource resource = new PartResource(multipartFile);
+    Part Part = mock(Part.class);
+    PartResource resource = new PartResource(Part);
 
     assertThat(resource.exists()).isTrue();
   }
 
   @Test
   void testIsOpen() {
-    MultipartFile multipartFile = mock(MultipartFile.class);
-    PartResource resource = new PartResource(multipartFile);
+    Part Part = mock(Part.class);
+    PartResource resource = new PartResource(Part);
 
     assertThat(resource.isOpen()).isTrue();
   }
 
   @Test
   void testContentLength() {
-    MultipartFile multipartFile = mock(MultipartFile.class);
-    when(multipartFile.getContentLength()).thenReturn(1024L);
-    PartResource resource = new PartResource(multipartFile);
+    Part Part = mock(Part.class);
+    when(Part.getContentLength()).thenReturn(1024L);
+    PartResource resource = new PartResource(Part);
 
     assertThat(resource.contentLength()).isEqualTo(1024L);
   }
 
   @Test
   void testGetName() {
-    MultipartFile multipartFile = mock(MultipartFile.class);
-    when(multipartFile.getOriginalFilename()).thenReturn("test.txt");
-    PartResource resource = new PartResource(multipartFile);
+    Part Part = mock(Part.class);
+    when(Part.getOriginalFilename()).thenReturn("test.txt");
+    PartResource resource = new PartResource(Part);
 
     assertThat(resource.getName()).isEqualTo("test.txt");
   }
 
   @Test
   void testGetInputStream() throws IOException, IllegalStateException {
-    MultipartFile multipartFile = mock(MultipartFile.class);
+    Part Part = mock(Part.class);
     InputStream inputStream = mock(InputStream.class);
-    when(multipartFile.getInputStream()).thenReturn(inputStream);
-    PartResource resource = new PartResource(multipartFile);
+    when(Part.getInputStream()).thenReturn(inputStream);
+    PartResource resource = new PartResource(Part);
 
     assertThat(resource.getInputStream()).isEqualTo(inputStream);
   }
 
   @Test
   void testToString() {
-    MultipartFile multipartFile = mock(MultipartFile.class);
-    when(multipartFile.getName()).thenReturn("test-file");
-    PartResource resource = new PartResource(multipartFile);
+    Part Part = mock(Part.class);
+    when(Part.getName()).thenReturn("test-file");
+    PartResource resource = new PartResource(Part);
 
     assertThat(resource.toString()).isEqualTo("Part resource [test-file]");
   }
 
   @Test
   void testEquals() {
-    MultipartFile multipartFile = mock(MultipartFile.class);
-    PartResource resource1 = new PartResource(multipartFile);
-    PartResource resource2 = new PartResource(multipartFile);
+    Part Part = mock(Part.class);
+    PartResource resource1 = new PartResource(Part);
+    PartResource resource2 = new PartResource(Part);
 
     assertThat(resource1).isEqualTo(resource2);
     assertThat(resource1).isEqualTo(resource1);
@@ -106,10 +106,10 @@ class PartResourceTests {
 
   @Test
   void testHashCode() {
-    MultipartFile multipartFile = mock(MultipartFile.class);
-    PartResource resource = new PartResource(multipartFile);
+    Part Part = mock(Part.class);
+    PartResource resource = new PartResource(Part);
 
-    assertThat(resource.hashCode()).isEqualTo(multipartFile.hashCode());
+    assertThat(resource.hashCode()).isEqualTo(Part.hashCode());
   }
 
 }

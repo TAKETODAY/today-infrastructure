@@ -17,6 +17,7 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +31,6 @@ import infra.beans.testfixture.beans.TestBean;
 import infra.core.ResolvableType;
 import infra.core.annotation.SynthesizingMethodParameter;
 import infra.format.support.DefaultFormattingConversionService;
-import org.jspecify.annotations.Nullable;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.validation.BindingResult;
 import infra.validation.Errors;
@@ -40,7 +40,7 @@ import infra.web.bind.MethodArgumentNotValidException;
 import infra.web.bind.WebDataBinder;
 import infra.web.bind.annotation.ModelAttribute;
 import infra.web.mock.MockRequestContext;
-import infra.web.multipart.MultipartFile;
+import infra.web.multipart.Part;
 
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
 import static java.lang.annotation.ElementType.FIELD;
@@ -394,9 +394,9 @@ class ModelAttributeMethodProcessorTests {
   static class TestBeanWithConstructorArgs {
 
     final List<String> listOfStrings;
-    final MultipartFile file;
+    final Part file;
 
-    public TestBeanWithConstructorArgs(List<String> listOfStrings, MultipartFile file) {
+    public TestBeanWithConstructorArgs(List<String> listOfStrings, Part file) {
       this.listOfStrings = listOfStrings;
       this.file = file;
     }

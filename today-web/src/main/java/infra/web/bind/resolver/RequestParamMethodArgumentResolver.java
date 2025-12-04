@@ -114,8 +114,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
    * <li>@RequestParam-annotated method arguments.
    * This excludes {@link Map} params where the annotation does not specify a name.
    * See {@link RequestParamMapMethodArgumentResolver} instead for such params.
-   * <li>Arguments of type {@link MultipartFile} unless annotated with @{@link RequestPart}.
-   * <li>Arguments of type {@code Part} unless annotated with @{@link RequestPart}.
+   * <li>Arguments of type {@link Part} unless annotated with @{@link RequestPart}.
    * <li>In default resolution mode, simple type arguments even if not with @{@link RequestParam}.
    * </ul>
    */

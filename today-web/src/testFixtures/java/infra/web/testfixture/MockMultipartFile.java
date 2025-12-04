@@ -32,6 +32,7 @@ import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.util.FileCopyUtils;
 import infra.web.multipart.MultipartFile;
+import infra.web.multipart.Part;
 
 /**
  * Mock implementation of the {@link MultipartFile}
@@ -43,7 +44,7 @@ import infra.web.multipart.MultipartFile;
  * @since 4.0 2022/3/2 17:04
  */
 @SuppressWarnings("serial")
-public class MockMultipartFile implements MultipartFile {
+public class MockMultipartFile implements Part {
 
   private final String name;
 

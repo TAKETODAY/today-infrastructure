@@ -158,7 +158,7 @@ public class MockMultipartHttpRequestBuilder extends MockHttpRequestBuilder {
     Charset defaultCharset = (mockRequest.getCharacterEncoding() != null ?
                               Charset.forName(mockRequest.getCharacterEncoding()) : StandardCharsets.UTF_8);
 
-    this.files.forEach(mockRequest::addFile);
+    this.files.forEach(mockRequest::addPart);
     this.parts.values().stream().flatMap(Collection::stream).forEach(part -> {
       mockRequest.addPart(part);
       try {
@@ -166,7 +166,7 @@ public class MockMultipartHttpRequestBuilder extends MockHttpRequestBuilder {
         String filename = part.getSubmittedFileName();
         InputStream is = part.getInputStream();
         if (filename != null) {
-          mockRequest.addFile(new MockMultipartFile(name, filename, part.getContentType(), is));
+          mockRequest.addPart(new MockMultipartFile(name, filename, part.getContentType(), is));
         }
         else {
           InputStreamReader reader = new InputStreamReader(is, getCharsetOrDefault(part, defaultCharset));

@@ -289,7 +289,7 @@ class WebDataBinderTests {
     binder.registerCustomEditor(String.class, new StringPartEditor());
 
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
-    request.addFile(new MockMultipartFile("name", "Juergen".getBytes()));
+    request.addPart(new MockMultipartFile("name", "Juergen".getBytes()));
     binder.bind(new MockMultipartMockRequestContext(request, null));
     assertThat(target.getName()).isEqualTo("Juergen");
   }
@@ -301,7 +301,7 @@ class WebDataBinderTests {
     binder.registerCustomEditor(String.class, new StringPartEditor());
 
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
-    request.addFile(new MockMultipartFile("stringArray", "Juergen".getBytes()));
+    request.addPart(new MockMultipartFile("stringArray", "Juergen".getBytes()));
     binder.bind(new MockMultipartMockRequestContext(request, null));
     assertThat(target.getStringArray().length).isEqualTo(1);
     assertThat(target.getStringArray()[0]).isEqualTo("Juergen");
@@ -314,8 +314,8 @@ class WebDataBinderTests {
     binder.registerCustomEditor(String.class, new StringPartEditor());
 
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
-    request.addFile(new MockMultipartFile("stringArray", "Juergen".getBytes()));
-    request.addFile(new MockMultipartFile("stringArray", "Eva".getBytes()));
+    request.addPart(new MockMultipartFile("stringArray", "Juergen".getBytes()));
+    request.addPart(new MockMultipartFile("stringArray", "Eva".getBytes()));
     binder.bind(new MockMultipartMockRequestContext(request, null));
     assertThat(target.getStringArray().length).isEqualTo(2);
     assertThat(target.getStringArray()[0]).isEqualTo("Juergen");

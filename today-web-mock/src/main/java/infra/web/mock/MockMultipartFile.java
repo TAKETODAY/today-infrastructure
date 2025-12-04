@@ -31,9 +31,8 @@ import java.util.Objects;
 import infra.http.DefaultHttpHeaders;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
-import infra.mock.api.http.Part;
 import infra.util.FileCopyUtils;
-import infra.web.multipart.MultipartFile;
+import infra.web.multipart.Part;
 import infra.web.multipart.support.AbstractMultipartFile;
 
 /**
@@ -42,13 +41,13 @@ import infra.web.multipart.support.AbstractMultipartFile;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2018-06-28 22:40:32
  */
-final class MockMultipartFile extends AbstractMultipartFile implements MultipartFile {
+final class MockMultipartFile extends AbstractMultipartFile implements Part {
 
-  private final Part part;
+  private final infra.mock.api.http.Part part;
 
   private final String filename;
 
-  public MockMultipartFile(Part part, @Nullable String filename) {
+  public MockMultipartFile(infra.mock.api.http.Part part, @Nullable String filename) {
     this.part = part;
     this.filename = filename == null ? part.getSubmittedFileName() : filename;
   }
@@ -93,7 +92,7 @@ final class MockMultipartFile extends AbstractMultipartFile implements Multipart
     return createHeaders(part);
   }
 
-  static DefaultHttpHeaders createHeaders(Part part) {
+  static DefaultHttpHeaders createHeaders(infra.mock.api.http.Part part) {
     DefaultHttpHeaders headers = HttpHeaders.forWritable();
     for (String headerName : part.getHeaderNames()) {
       headers.addAll(headerName, part.getHeaders(headerName));

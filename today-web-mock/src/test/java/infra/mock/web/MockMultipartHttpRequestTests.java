@@ -31,8 +31,8 @@ import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.util.FileCopyUtils;
 import infra.util.ObjectUtils;
-import infra.web.multipart.MultipartFile;
 import infra.web.multipart.MultipartRequest;
+import infra.web.multipart.Part;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -50,8 +50,8 @@ class MockMultipartHttpRequestTests {
     assertThat(multipartRequest.getFile("file2")).isNull();
     assertThat(multipartRequest.getFileMap().isEmpty()).isTrue();
 
-    request.addFile(new MockMultipartFile("file1", "myContent1".getBytes()));
-    request.addFile(new MockMultipartFile("file2", "myOrigFilename", "text/plain", "myContent2".getBytes()));
+    request.addPart(new MockMultipartFile("file1", "myContent1".getBytes()));
+    request.addPart(new MockMultipartFile("file2", "myOrigFilename", "text/plain", "myContent2".getBytes()));
     doTestMultipartHttpRequest(multipartRequest);
   }
 
@@ -60,8 +60,8 @@ class MockMultipartHttpRequestTests {
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     MultipartRequest multipartRequest = request.getMultipartRequest();
 
-    request.addFile(new MockMultipartFile("file1", new ByteArrayInputStream("myContent1".getBytes())));
-    request.addFile(new MockMultipartFile("file2", "myOrigFilename", "text/plain", new ByteArrayInputStream(
+    request.addPart(new MockMultipartFile("file1", new ByteArrayInputStream("myContent1".getBytes())));
+    request.addPart(new MockMultipartFile("file2", "myOrigFilename", "text/plain", new ByteArrayInputStream(
             "myContent2".getBytes())));
     doTestMultipartHttpRequest(multipartRequest);
   }
@@ -69,7 +69,7 @@ class MockMultipartHttpRequestTests {
   @Test
   void mockMultiPartHttpMockRequestWithMixedData() {
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
-    request.addFile(new MockMultipartFile("file", "myOrigFilename", MediaType.TEXT_PLAIN_VALUE, "myContent2".getBytes()));
+    request.addPart(new MockMultipartFile("file", "myOrigFilename", MediaType.TEXT_PLAIN_VALUE, "myContent2".getBytes()));
 
     MockPart metadataPart = new MockPart("metadata", "{\"foo\": \"bar\"}".getBytes());
     metadataPart.getHeaders().setContentType(MediaType.APPLICATION_JSON);
@@ -92,9 +92,9 @@ class MockMultipartHttpRequestTests {
     assertThat(fileNames.size()).isEqualTo(2);
     assertThat(fileNames.contains("file1")).isTrue();
     assertThat(fileNames.contains("file2")).isTrue();
-    MultipartFile file1 = request.getFile("file1");
-    MultipartFile file2 = request.getFile("file2");
-    Map<String, MultipartFile> fileMap = request.getFileMap();
+    Part file1 = request.getFile("file1");
+    Part file2 = request.getFile("file2");
+    Map<String, Part> fileMap = request.getParts().toSingleValueMap();
     List<String> fileMapKeys = new ArrayList<>(fileMap.keySet());
     assertThat(fileMapKeys.size()).isEqualTo(2);
     assertThat(fileMap.get("file1")).isEqualTo(file1);

@@ -77,13 +77,13 @@ public class RequestPartArgumentResolver extends AbstractNamedValueArgumentResol
   @Override
   protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
     RequestPart annot = parameter.getParameterAnnotation(RequestPart.class);
-    boolean isMultiPartFile = parameter.getParameterType().equals(MultipartFile.class);
-    String label = isMultiPartFile ? "MultipartFile" : "request part";
+    boolean isMultipart = parameter.getParameterType().equals(Part.class);
+    String label = "request part";
 
     if (annot != null) {
       return new NamedValueInfo(annot.name(), annot.required(), null, label, true);
     }
-    else if (isMultiPartFile) {
+    else if (isMultipart) {
       return new NamedValueInfo("", true, null, label, true);
     }
 

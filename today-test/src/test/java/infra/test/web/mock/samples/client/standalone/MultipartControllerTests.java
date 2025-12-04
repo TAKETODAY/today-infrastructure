@@ -28,7 +28,6 @@ import java.util.Map;
 
 import infra.http.MediaType;
 import infra.http.client.MultipartBodyBuilder;
-import infra.mock.api.http.Part;
 import infra.stereotype.Controller;
 import infra.test.web.mock.client.MockMvcWebTestClient;
 import infra.test.web.reactive.server.WebTestClient;
@@ -36,7 +35,7 @@ import infra.web.annotation.PostMapping;
 import infra.web.annotation.PutMapping;
 import infra.web.annotation.RequestParam;
 import infra.web.annotation.RequestPart;
-import infra.web.multipart.MultipartFile;
+import infra.web.multipart.Part;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Rossen Stoyanchev
  */
-public class MultipartControllerTests {
+class MultipartControllerTests {
 
   private final WebTestClient testClient = MockMvcWebTestClient.bindToController(new MultipartController()).build();
 
@@ -60,14 +59,14 @@ public class MultipartControllerTests {
     bodyBuilder.part("file", fileContent).filename("orig");
     bodyBuilder.part("json", json, MediaType.APPLICATION_JSON);
 
-    testClient.post().uri("/multipartfile")
+    testClient.post().uri("/Part")
             .bodyValue(bodyBuilder.build())
             .exchange()
             .expectStatus().isFound()
             .expectBody().isEmpty();
 
     // Now try the same with HTTP PUT
-    testClient.put().uri("/multipartfile-via-put")
+    testClient.put().uri("/Part-via-put")
             .bodyValue(bodyBuilder.build())
             .exchange()
             .expectStatus().isFound()
@@ -76,7 +75,7 @@ public class MultipartControllerTests {
 
   @Test
   public void multipartRequestWithSingleFileNotPresent() {
-    testClient.post().uri("/multipartfile")
+    testClient.post().uri("/Part")
             .exchange()
             .expectStatus().isFound();
   }
@@ -206,7 +205,7 @@ public class MultipartControllerTests {
     bodyBuilder.part("file", fileContent).filename("orig");
     bodyBuilder.part("json", json, MediaType.APPLICATION_JSON);
 
-    testClient.post().uri("/multipartfile")
+    testClient.post().uri("/Part")
             .bodyValue(bodyBuilder.build())
             .exchange()
             .expectStatus().isFound()
@@ -224,7 +223,7 @@ public class MultipartControllerTests {
 //            .filter(new RequestWrappingFilter())
             .build();
 
-    client.post().uri("/multipartfile")
+    client.post().uri("/Part")
             .bodyValue(bodyBuilder.build())
             .exchange()
             .expectStatus().isFound()
@@ -235,22 +234,22 @@ public class MultipartControllerTests {
   @Controller
   private static class MultipartController {
 
-    @PostMapping("/multipartfile")
-    public String processMultipartFile(@RequestParam(required = false) MultipartFile file,
+    @PostMapping("/Part")
+    public String processMultipartFile(@RequestParam(required = false) Part file,
             @RequestPart(required = false) Map<String, String> json) {
 
       return "redirect:/index";
     }
 
-    @PutMapping("/multipartfile-via-put")
-    public String processMultipartFileViaHttpPut(@RequestParam(required = false) MultipartFile file,
+    @PutMapping("/Part-via-put")
+    public String processMultipartFileViaHttpPut(@RequestParam(required = false) Part file,
             @RequestPart(required = false) Map<String, String> json) {
 
       return processMultipartFile(file, json);
     }
 
     @PostMapping("/multipartfilearray")
-    public String processMultipartFileArray(@RequestParam(required = false) MultipartFile[] file,
+    public String processMultipartFileArray(@RequestParam(required = false) Part[] file,
             @RequestPart(required = false) Map<String, String> json) throws IOException {
 
       if (file != null && file.length > 0) {
@@ -261,7 +260,7 @@ public class MultipartControllerTests {
     }
 
     @PostMapping("/multipartfilelist")
-    public String processMultipartFileList(@RequestParam(required = false) List<MultipartFile> file,
+    public String processMultipartFileList(@RequestParam(required = false) List<Part> file,
             @RequestPart(required = false) Map<String, String> json) throws IOException {
 
       if (file != null && !file.isEmpty()) {
@@ -273,14 +272,14 @@ public class MultipartControllerTests {
 
     @PostMapping("/optionalfile")
     public String processOptionalFile(
-            @RequestParam @Nullable MultipartFile file, @RequestPart Map<String, String> json) {
+            @RequestParam @Nullable Part file, @RequestPart Map<String, String> json) {
 
       return "redirect:/index";
     }
 
     @PostMapping("/optionalfilearray")
     public String processOptionalFileArray(
-            @RequestParam MultipartFile @Nullable [] file, @RequestPart Map<String, String> json) throws IOException {
+            @RequestParam Part @Nullable [] file, @RequestPart Map<String, String> json) throws IOException {
 
       if (file != null) {
         byte[] content = file[0].getContentAsByteArray();
@@ -291,7 +290,7 @@ public class MultipartControllerTests {
 
     @PostMapping("/optionalfilelist")
     public String processOptionalFileList(
-            @RequestParam @Nullable List<MultipartFile> file, @RequestPart Map<String, String> json)
+            @RequestParam @Nullable List<Part> file, @RequestPart Map<String, String> json)
             throws IOException {
 
       if (file != null) {

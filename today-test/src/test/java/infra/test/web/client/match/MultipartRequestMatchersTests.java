@@ -32,7 +32,7 @@ import infra.mock.http.client.MockClientHttpRequest;
 import infra.mock.web.MockMultipartFile;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
-import infra.web.multipart.MultipartFile;
+import infra.web.multipart.Part;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Valentin Spac
  * @author Rossen Stoyanchev
  */
-public class MultipartRequestMatchersTests {
+class MultipartRequestMatchersTests {
 
   private final MockClientHttpRequest request = new MockClientHttpRequest();
 
@@ -92,9 +92,9 @@ public class MultipartRequestMatchersTests {
 
   @Test
   public void testResourceMatch() throws Exception {
-    MultipartFile f1 = new MockMultipartFile("f1", "foo.txt", "text/plain", "Foo Lorem ipsum".getBytes());
-    MultipartFile f2 = new MockMultipartFile("f2", "bar.txt", "text/plain", "Bar Lorem ipsum".getBytes());
-    MultipartFile f3 = new MockMultipartFile("f3", "foobar.txt", "text/plain", "Foobar Lorem ipsum".getBytes());
+    Part f1 = new MockMultipartFile("f1", "foo.txt", "text/plain", "Foo Lorem ipsum".getBytes());
+    Part f2 = new MockMultipartFile("f2", "bar.txt", "text/plain", "Bar Lorem ipsum".getBytes());
+    Part f3 = new MockMultipartFile("f3", "foobar.txt", "text/plain", "Foobar Lorem ipsum".getBytes());
 
     this.input.add("fooParam", "foo value");
     this.input.add("barParam", "bar value");
@@ -125,9 +125,9 @@ public class MultipartRequestMatchersTests {
 
   @Test
   public void testByteArrayMatch() throws Exception {
-    MultipartFile f1 = new MockMultipartFile("f1", "foo.txt", "text/plain", "Foo Lorem ipsum".getBytes());
-    MultipartFile f2 = new MockMultipartFile("f2", "bar.txt", "text/plain", "Bar Lorem ipsum".getBytes());
-    MultipartFile f3 = new MockMultipartFile("f3", "foobar.txt", "text/plain", "Foobar Lorem ipsum".getBytes());
+    Part f1 = new MockMultipartFile("f1", "foo.txt", "text/plain", "Foo Lorem ipsum".getBytes());
+    Part f2 = new MockMultipartFile("f2", "bar.txt", "text/plain", "Bar Lorem ipsum".getBytes());
+    Part f3 = new MockMultipartFile("f3", "foobar.txt", "text/plain", "Foobar Lorem ipsum".getBytes());
 
     this.input.add("fooParam", "foo value");
     this.input.add("barParam", "bar value");
@@ -145,8 +145,8 @@ public class MultipartRequestMatchersTests {
 
   @Test
   public void testByteArrayNoMatch() throws Exception {
-    MultipartFile f1 = new MockMultipartFile("f1", "foo.txt", "text/plain", "Foo Lorem ipsum".getBytes());
-    MultipartFile f2 = new MockMultipartFile("f2", "bar.txt", "text/plain", "Bar Lorem ipsum".getBytes());
+    Part f1 = new MockMultipartFile("f1", "foo.txt", "text/plain", "Foo Lorem ipsum".getBytes());
+    Part f2 = new MockMultipartFile("f2", "bar.txt", "text/plain", "Bar Lorem ipsum".getBytes());
 
     this.input.add("fooParam", "foo value");
     this.input.add("barParam", "bar value");

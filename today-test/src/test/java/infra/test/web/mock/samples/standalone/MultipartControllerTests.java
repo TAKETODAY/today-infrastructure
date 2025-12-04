@@ -39,7 +39,7 @@ import infra.web.annotation.PostMapping;
 import infra.web.annotation.PutMapping;
 import infra.web.annotation.RequestParam;
 import infra.web.annotation.RequestPart;
-import infra.web.multipart.MultipartFile;
+import infra.web.multipart.Part;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.multipart;
 import static infra.test.web.mock.request.MockMvcRequestBuilders.post;
@@ -56,7 +56,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MultipartControllerTests {
 
   @ParameterizedTest
-  @ValueSource(strings = { "/multipartfile", "/multipartfile-via-put", "/part" })
+  @ValueSource(strings = { "/Part", "/Part-via-put", "/part" })
   void multipartRequestWithSingleFileOrPart(String url) throws Exception {
     byte[] fileContent = "bar".getBytes(StandardCharsets.UTF_8);
 
@@ -64,8 +64,8 @@ class MultipartControllerTests {
     MockMultipartFile jsonPart = new MockMultipartFile("json", "json", "application/json", json);
 
     MockMultipartHttpRequestBuilder requestBuilder = switch (url) {
-      case "/multipartfile" -> multipart(url).file(new MockMultipartFile("file", "orig", null, fileContent));
-      case "/multipartfile-via-put" -> multipart(HttpMethod.PUT, url).file(new MockMultipartFile("file", "orig", null, fileContent));
+      case "/Part" -> multipart(url).file(new MockMultipartFile("file", "orig", null, fileContent));
+      case "/Part-via-put" -> multipart(HttpMethod.PUT, url).file(new MockMultipartFile("file", "orig", null, fileContent));
       default -> multipart(url).part(new MockPart("part", "orig", fileContent));
     };
 
@@ -77,7 +77,7 @@ class MultipartControllerTests {
   @Test
   void multipartRequestWithSingleFileNotPresent() throws Exception {
     standaloneSetup(new MultipartController()).build()
-            .perform(multipart("/multipartfile"))
+            .perform(multipart("/Part"))
             .andExpect(status().isFound());
   }
 
@@ -232,22 +232,22 @@ class MultipartControllerTests {
   @Controller
   private static class MultipartController {
 
-    @PostMapping("/multipartfile")
-    public String processMultipartFile(@RequestParam(required = false) MultipartFile file,
+    @PostMapping("/Part")
+    public String processMultipartFile(@RequestParam(required = false) Part file,
             @RequestPart(required = false) Map<String, String> json) throws IOException {
 
       return "redirect:/index";
     }
 
-    @PutMapping("/multipartfile-via-put")
-    public String processMultipartFileViaHttpPut(@RequestParam(required = false) MultipartFile file,
+    @PutMapping("/Part-via-put")
+    public String processMultipartFileViaHttpPut(@RequestParam(required = false) Part file,
             @RequestPart(required = false) Map<String, String> json) throws IOException {
 
       return processMultipartFile(file, json);
     }
 
     @PostMapping("/multipartfilearray")
-    public String processMultipartFileArray(@RequestParam(required = false) MultipartFile[] file,
+    public String processMultipartFileArray(@RequestParam(required = false) Part[] file,
             @RequestPart(required = false) Map<String, String> json) throws IOException {
 
       if (file != null && file.length > 0) {
@@ -258,7 +258,7 @@ class MultipartControllerTests {
     }
 
     @PostMapping("/multipartfilelist")
-    public String processMultipartFileList(@RequestParam(required = false) List<MultipartFile> file,
+    public String processMultipartFileList(@RequestParam(required = false) List<Part> file,
             @RequestPart(required = false) Map<String, String> json) throws IOException {
 
       if (file != null && !file.isEmpty()) {
@@ -270,14 +270,14 @@ class MultipartControllerTests {
 
     @PostMapping("/optionalfile")
     public String processOptionalFile(
-            @RequestParam @Nullable MultipartFile file, @RequestPart Map<String, String> json) {
+            @RequestParam @Nullable Part file, @RequestPart Map<String, String> json) {
 
       return "redirect:/index";
     }
 
     @PostMapping("/optionalfilearray")
     public String processOptionalFileArray(
-            @RequestParam MultipartFile @Nullable [] file, @RequestPart Map<String, String> json)
+            @RequestParam Part @Nullable [] file, @RequestPart Map<String, String> json)
             throws IOException {
 
       if (file != null) {
@@ -289,7 +289,7 @@ class MultipartControllerTests {
 
     @PostMapping("/optionalfilelist")
     public String processOptionalFileList(
-            @RequestParam @Nullable List<MultipartFile> file, @RequestPart Map<String, String> json)
+            @RequestParam @Nullable List<Part> file, @RequestPart Map<String, String> json)
             throws IOException {
 
       if (file != null) {
@@ -301,7 +301,7 @@ class MultipartControllerTests {
     }
 
     @PostMapping("/part")
-    public String processPart(@RequestPart MultipartFile part, @RequestPart Map<String, String> json) {
+    public String processPart(@RequestPart Part part, @RequestPart Map<String, String> json) {
       return "redirect:/index";
     }
 
@@ -316,7 +316,7 @@ class MultipartControllerTests {
             throws IOException {
 
       if (!bindingResult.hasErrors()) {
-        MultipartFile file = multipartFileBean.getFile();
+        Part file = multipartFileBean.getFile();
         if (file != null) {
           model.addAttribute("fileContent", file.getContentAsByteArray());
         }
@@ -327,14 +327,14 @@ class MultipartControllerTests {
 
   private static class MultipartFileBean {
 
-    private MultipartFile file;
+    private Part file;
 
-    public MultipartFile getFile() {
+    public Part getFile() {
       return file;
     }
 
     @SuppressWarnings("unused")
-    public void setFile(MultipartFile file) {
+    public void setFile(Part file) {
       this.file = file;
     }
   }
