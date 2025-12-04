@@ -20,7 +20,6 @@ package infra.web.multipart;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.Map;
 
 import infra.http.HttpHeaders;
 import infra.util.MultiValueMap;
@@ -76,63 +75,6 @@ public interface MultipartRequest {
    * @see #getParts()
    */
   Iterable<String> getPartNames();
-
-  /**
-   * Return a {@link MultiValueMap} of the multipart files contained in this request.
-   *
-   * @return a map containing the parameter names as keys, and a list of
-   * {@link MultipartFile} objects as values
-   * @throws NotMultipartRequestException if this request is not multipart request
-   * @see #getParts()
-   */
-  @Deprecated
-  MultiValueMap<String, MultipartFile> getFiles();
-
-  /**
-   * Return the contents plus description of uploaded files in this request,
-   * or an empty list if it does not exist.
-   *
-   * @param name a String specifying the parameter name of the multipart file
-   * @return the uploaded content in the form of a {@link MultipartFile} list
-   * @throws NotMultipartRequestException if this request is not multipart request
-   * @see #getParts()
-   */
-  @Nullable
-  @Deprecated
-  List<MultipartFile> getFiles(String name);
-
-  /**
-   * Return the contents plus description of an uploaded file in this request,
-   * or {@code null} if it does not exist.
-   *
-   * @param name a String specifying the parameter name of the multipart file
-   * @return the uploaded content in the form of a {@link MultipartFile} object
-   * @throws NotMultipartRequestException if this request is not multipart request
-   * @see #getParts()
-   */
-  @Deprecated
-  @Nullable
-  MultipartFile getFile(String name);
-
-  /**
-   * Return an {@link java.lang.Iterable} of String objects containing the
-   * parameter names of the multipart files contained in this request. These
-   * are the field names of the form (like with normal parameters), not the
-   * original file names.
-   *
-   * @return the names of the files
-   */
-  @Deprecated
-  Iterable<String> getFileNames();
-
-  /**
-   * Return a {@link java.util.Map} of the multipart files contained in this request.
-   *
-   * @return a map containing the parameter names as keys, and the
-   * {@link MultipartFile} objects as values
-   */
-  @Deprecated
-  Map<String, MultipartFile> getFileMap();
 
   /**
    * Return the headers for the specified part of the multipart request.
