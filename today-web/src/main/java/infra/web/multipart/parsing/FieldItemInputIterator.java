@@ -208,8 +208,7 @@ class FieldItemInputIterator {
             continue;
           }
           final String fileName = contentDisposition.getFilename();
-          currentItem = new FieldItemInput(this, fileName, fieldName, subContentType,
-                  fileName == null, headers);
+          currentItem = new FieldItemInput(this, fileName, fieldName, subContentType, fileName == null, headers);
           progressNotifier.onItem();
           itemValid = true;
           return true;
@@ -218,8 +217,7 @@ class FieldItemInputIterator {
       else {
         final String fileName = contentDisposition.getFilename();
         if (fileName != null) {
-          currentItem = new FieldItemInput(this, fileName, currentFieldName,
-                  subContentType, false, headers);
+          currentItem = new FieldItemInput(this, fileName, currentFieldName, subContentType, false, headers);
           progressNotifier.onItem();
           itemValid = true;
           return true;

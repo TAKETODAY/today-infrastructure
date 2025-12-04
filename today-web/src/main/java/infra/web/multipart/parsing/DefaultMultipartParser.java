@@ -296,7 +296,7 @@ public class DefaultMultipartParser implements MultipartParser {
           StreamUtils.copy(inputStream, outputStream, buffer);
         }
         catch (IOException e) {
-          throw new MultipartException(String.format("Request '%s' failed: %s", request.getContentType(), e.getMessage()), e);
+          throw new MultipartException("Request '%s' failed: %s".formatted(request.getContentType(), e.getMessage()), e);
         }
       }
       successful = true;
