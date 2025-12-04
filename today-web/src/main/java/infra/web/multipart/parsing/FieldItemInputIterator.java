@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 
 import infra.http.ContentDisposition;
 import infra.http.HttpHeaders;
@@ -38,13 +37,6 @@ import infra.web.multipart.NotMultipartRequestException;
  * @since 5.0
  */
 class FieldItemInputIterator {
-
-  private final DefaultMultipartParser parser;
-
-  /**
-   * The maximum allowed size of a single uploaded file.
-   */
-  private final long fileSizeMax;
 
   /**
    * The multi part stream to process.
@@ -107,9 +99,7 @@ class FieldItemInputIterator {
     MediaType contentType = context.getHeaders().getContentType();
     Assert.state(contentType != null, "No contentType");
 
-    this.parser = parser;
     this.skipPreamble = true;
-    this.fileSizeMax = parser.getMaxFieldSize();
     this.multipartRelated = "related".equals(contentType.getSubtype());
     this.progressNotifier = new ProgressNotifier(parser.getProgressListener(), context.getContentLength());
 
@@ -123,15 +113,7 @@ class FieldItemInputIterator {
     this.multipartBoundary = multipartBoundary;
 
     try {
-      MultipartInput multiPartInput = MultipartInput.builder()
-              .setInputStream(inputStream)
-              .boundary(multipartBoundary)
-              .progressNotifier(progressNotifier)
-              .maxPartHeaderSize(parser.getMaxPartHeaderSize())
-              .get();
-
-      multiPartInput.setHeaderCharset(Objects.requireNonNullElse(parser.getHeaderCharset(), contentType.getCharset()));
-      this.multiPartInput = multiPartInput;
+      this.multiPartInput = new MultipartInput(inputStream, multipartBoundary, progressNotifier, parser);
     }
     catch (IllegalArgumentException e) {
       StreamUtils.closeQuietly(inputStream); // avoid possible resource leak
@@ -139,6 +121,37 @@ class FieldItemInputIterator {
     }
 
     findNextItem();
+  }
+
+  /**
+   * Tests whether another instance of {@link FieldItemInput} is available.
+   *
+   * @return True, if one or more additional file items are available, otherwise false.
+   * @throws MultipartException Parsing or processing the file item failed.
+   */
+  public boolean hasNext() throws MultipartException, IOException {
+    if (eof) {
+      return false;
+    }
+    if (itemValid) {
+      return true;
+    }
+    return findNextItem();
+  }
+
+  /**
+   * Returns the next available {@link FieldItemInput}.
+   *
+   * @return FieldItemInput instance, which provides access to the next file item.
+   * @throws NoSuchElementException No more items are available. Use {@link #hasNext()} to prevent this exception.
+   * @throws MultipartException Parsing or processing the file item failed.
+   */
+  public FieldItemInput next() throws IOException {
+    if (eof || !itemValid && !hasNext()) {
+      throw new NoSuchElementException();
+    }
+    itemValid = false;
+    return currentItem;
   }
 
   /**
@@ -174,7 +187,7 @@ class FieldItemInputIterator {
         currentFieldName = null;
         continue;
       }
-      final HttpHeaders headers = parser.parseHeaders(input.readHeaders());
+      final HttpHeaders headers = parseHeaders(input.readHeaders());
       MediaType subContentType = headers.getContentType();
       if (multipartRelated) {
         currentFieldName = "";
@@ -227,39 +240,84 @@ class FieldItemInputIterator {
     return boundary != null ? boundary.getBytes(StandardCharsets.ISO_8859_1) : null;
   }
 
-  public long getFileSizeMax() {
-    return fileSizeMax;
+  /**
+   * Parses the {@code header-part} and returns as key/value pairs.
+   * <p>
+   * If there are multiple headers of the same names, the name will map to a comma-separated list containing the values.
+   * </p>
+   *
+   * @param headerPart The {@code header-part} of the current {@code encapsulation}.
+   * @return A {@code Map} containing the parsed HTTP request headers.
+   */
+  private HttpHeaders parseHeaders(final String headerPart) {
+    final int len = headerPart.length();
+    final HttpHeaders headers = HttpHeaders.forWritable();
+    int start = 0;
+    for (; ; ) {
+      var end = parseEndOfLine(headerPart, start);
+      if (start == end) {
+        break;
+      }
+      final StringBuilder header = new StringBuilder(headerPart.substring(start, end));
+      start = end + 2;
+      while (start < len) {
+        var nonWs = start;
+        while (nonWs < len) {
+          final var c = headerPart.charAt(nonWs);
+          if (c != ' ' && c != '\t') {
+            break;
+          }
+          ++nonWs;
+        }
+        if (nonWs == start) {
+          break;
+        }
+        // Continuation line found
+        end = parseEndOfLine(headerPart, nonWs);
+        header.append(' ').append(headerPart, nonWs, end);
+        start = end + 2;
+      }
+      parseHeaderLine(headers, header.toString());
+    }
+    return headers;
   }
 
   /**
-   * Tests whether another instance of {@link FieldItemInput} is available.
+   * Skips bytes until the end of the current line.
    *
-   * @return True, if one or more additional file items are available, otherwise false.
-   * @throws MultipartException Parsing or processing the file item failed.
+   * @param headerPart The headers, which are being parsed.
+   * @param end Index of the last byte, which has yet been processed.
+   * @return Index of the \r\n sequence, which indicates end of line.
    */
-  public boolean hasNext() throws MultipartException, IOException {
-    if (eof) {
-      return false;
+  private int parseEndOfLine(final String headerPart, final int end) {
+    var index = end;
+    for (; ; ) {
+      final var offset = headerPart.indexOf('\r', index);
+      if (offset == -1 || offset + 1 >= headerPart.length()) {
+        throw new IllegalStateException("Expected headers to be terminated by an empty line.");
+      }
+      if (headerPart.charAt(offset + 1) == '\n') {
+        return offset;
+      }
+      index = offset + 1;
     }
-    if (itemValid) {
-      return true;
-    }
-    return findNextItem();
   }
 
   /**
-   * Returns the next available {@link FieldItemInput}.
+   * Parses the next header line.
    *
-   * @return FieldItemInput instance, which provides access to the next file item.
-   * @throws NoSuchElementException No more items are available. Use {@link #hasNext()} to prevent this exception.
-   * @throws MultipartException Parsing or processing the file item failed.
+   * @param headers String with all headers.
+   * @param header Map where to store the current header.
    */
-  public FieldItemInput next() throws IOException {
-    if (eof || !itemValid && !hasNext()) {
-      throw new NoSuchElementException();
+  private void parseHeaderLine(final HttpHeaders headers, final String header) {
+    final var colonOffset = header.indexOf(':');
+    if (colonOffset == -1) {
+      // This header line is malformed, skip it.
+      return;
     }
-    itemValid = false;
-    return currentItem;
+    final var headerName = header.substring(0, colonOffset).trim();
+    final var headerValue = header.substring(colonOffset + 1).trim();
+    headers.add(headerName, headerValue);
   }
 
 }

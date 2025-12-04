@@ -17,7 +17,6 @@
 
 package infra.web.multipart.parsing;
 
-import org.apache.commons.io.input.BoundedInputStream;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
@@ -96,30 +95,8 @@ class FieldItemInput {
     this.contentType = contentType;
     this.formField = formField;
     this.headers = headers;
-    final var fileSizeMax = iterator.getFileSizeMax();
-    long contentLength = headers.getContentLength();
-    if (fileSizeMax != -1 && contentLength != -1 && contentLength > fileSizeMax) {
-      throw new MultipartByteCountLimitException(String.format("The field %s exceeds its maximum permitted size of %s bytes.", fieldName, fileSizeMax),
-              contentLength, fileSizeMax, fileName, fieldName);
-    }
     // OK to construct stream now
-    final var itemInputStream = iterator.multiPartInput.newInputStream();
-    InputStream istream = itemInputStream;
-    if (fileSizeMax != -1) {
-      // onMaxLength will be called when the length is greater than _or equal to_ the supplied maxLength.
-      // Because we only want to throw an exception when the length is greater than fileSizeMax, we
-      // increment fileSizeMax by 1.
-      istream = BoundedInputStream.builder()
-              .setInputStream(istream)
-              .setMaxCount(fileSizeMax + 1)
-              .setOnMaxCount((max, count) -> {
-                itemInputStream.close(true);
-                throw new MultipartByteCountLimitException(String.format(
-                        "The field %s exceeds its maximum permitted size of %s bytes.", fieldName, fileSizeMax), count, fileSizeMax, fileName, fieldName);
-              })
-              .get();
-    }
-    this.inputStream = istream;
+    this.inputStream = iterator.multiPartInput.newInputStream();
   }
 
   /**

@@ -50,6 +50,7 @@ import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.RequestBindingException;
 import infra.web.bind.resolver.MissingRequestPartException;
 import infra.web.multipart.MaxUploadSizeExceededException;
+import infra.web.multipart.MultipartException;
 import infra.web.util.WebUtils;
 
 /**
@@ -103,7 +104,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
           HandlerNotFoundException.class,
           AsyncRequestTimeoutException.class,
           ErrorResponseException.class,
-          MaxUploadSizeExceededException.class,
+          MultipartException.class,
           ConversionNotSupportedException.class,
           TypeMismatchException.class,
           HttpMessageNotReadableException.class,
@@ -148,7 +149,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
       else if (ex instanceof ErrorResponseException subEx) {
         return handleErrorResponseException(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
-      else if (ex instanceof MaxUploadSizeExceededException subEx) {
+      else if (ex instanceof MultipartException subEx) {
         return handleMaxUploadSizeExceededException(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
       else {

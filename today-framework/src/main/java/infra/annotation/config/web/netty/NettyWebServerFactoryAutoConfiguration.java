@@ -165,33 +165,31 @@ public class NettyWebServerFactoryAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public static DefaultMultipartParser multipartParser(ServerProperties server, @Nullable ApplicationTemp applicationTemp) {
-    var multipart = server.netty.multipart;
+  public static DefaultMultipartParser multipartParser(ServerProperties properties, @Nullable ApplicationTemp applicationTemp) {
+    var config = properties.multipart;
     DefaultMultipartParser multipartParser = new DefaultMultipartParser();
 
-    if (multipart.fieldSizeThreshold != null) {
-      multipartParser.setThreshold(multipart.fieldSizeThreshold.toBytes());
-    }
-
-    if (multipart.maxFieldSize != null) {
-      multipartParser.setMaxFieldSize(multipart.maxFieldSize.toBytes());
-    }
-    if (StringUtils.hasText(multipart.tempBaseDir)) {
-      if (StringUtils.hasText(multipart.tempSubDir)) {
-        multipartParser.setTempRepository(Path.of(multipart.tempBaseDir, multipart.tempSubDir));
+    if (StringUtils.hasText(config.tempBaseDir)) {
+      if (StringUtils.hasText(config.tempSubDir)) {
+        multipartParser.setTempRepository(Path.of(config.tempBaseDir, config.tempSubDir));
       }
       else {
-        multipartParser.setTempRepository(Path.of(multipart.tempBaseDir));
+        multipartParser.setTempRepository(Path.of(config.tempBaseDir));
       }
     }
     else {
       if (applicationTemp == null) {
         applicationTemp = ApplicationTemp.instance;
       }
-      multipartParser.setTempRepository(applicationTemp.getDir(Objects.requireNonNullElse(multipart.tempSubDir, "multipart")));
+      multipartParser.setTempRepository(applicationTemp.getDir(Objects.requireNonNullElse(config.tempSubDir, "multipart")));
     }
-    multipartParser.setDefaultCharset(multipart.charset);
-    multipartParser.setDeleteOnExit(multipart.deleteOnExit);
+
+    multipartParser.setMaxFields(config.maxFields);
+    multipartParser.setDeleteOnExit(config.deleteOnExit);
+    multipartParser.setDefaultCharset(config.defaultCharset);
+    multipartParser.setThreshold(config.fieldSizeThreshold.toBytes());
+    multipartParser.setMaxHeaderSize(config.maxHeaderSize.toBytesInt());
+    multipartParser.setParsingBufferSize(config.parsingBufferSize.toBytesInt());
     return multipartParser;
   }
 

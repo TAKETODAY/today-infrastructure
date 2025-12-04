@@ -25,7 +25,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 import infra.core.ApplicationTemp;
-import infra.http.HttpHeaders;
 import infra.lang.Assert;
 import infra.util.MultiValueMap;
 import infra.util.StreamUtils;
@@ -50,19 +49,19 @@ public class DefaultMultipartParser implements MultipartParser {
   public static final int DEFAULT_THRESHOLD = 10_240;
 
   /**
-   * The maximum size permitted for a single field. A value of -1 indicates no maximum.
+   * The default length of the buffer used for processing a request.
    */
-  private long maxFieldSize = -1;
+  static final int DEFAULT_BUF_SIZE = 4096;
 
   /**
-   * The maximum permitted number of fields in a single request. A value of -1 indicates no maximum.
+   * The maximum permitted number of fields in a single request.
    */
-  private long maxFieldCount = -1;
+  private int maxFields = 128;
 
   /**
    * The maximum permitted size of the headers provided with a single part in bytes.
    */
-  private int maxPartHeaderSize = MultipartInput.DEFAULT_PART_HEADER_SIZE_MAX;
+  private int maxHeaderSize = MultipartInput.DEFAULT_PART_HEADER_SIZE_MAX;
 
   /**
    * The threshold above which field will be stored on disk.
@@ -92,188 +91,14 @@ public class DefaultMultipartParser implements MultipartParser {
   private boolean deleteOnExit;
 
   /**
+   * The length of the buffer used for processing the request.
+   */
+  private int parsingBufferSize = DEFAULT_BUF_SIZE;
+
+  /**
    * Constructs a new instance for subclasses.
    */
   public DefaultMultipartParser() {
-  }
-
-  /**
-   * Gets the character encoding used when reading the headers of an individual part. When not specified, or {@code null}, the request encoding is used. If
-   * that is also not specified, or {@code null}, the platform default encoding is used.
-   *
-   * @return The encoding used to read part headers.
-   */
-  public @Nullable Charset getHeaderCharset() {
-    return headerCharset;
-  }
-
-  /**
-   * Gets the maximum number of files allowed in a single request.
-   *
-   * @return The maximum number of files allowed in a single request.
-   */
-  public long getMaxFieldCount() {
-    return maxFieldCount;
-  }
-
-  /**
-   * Gets the maximum allowed size of a single form field.
-   *
-   * @return Maximum size of a single form field.
-   * @see #setMaxFieldSize(long)
-   */
-  public long getMaxFieldSize() {
-    return maxFieldSize;
-  }
-
-  /**
-   * Gets the per part size limit for headers.
-   *
-   * @return The maximum size of the headers for a single part in bytes.
-   */
-  public int getMaxPartHeaderSize() {
-    return maxPartHeaderSize;
-  }
-
-  /**
-   * Parses the {@code header-part} and returns as key/value pairs.
-   * <p>
-   * If there are multiple headers of the same names, the name will map to a comma-separated list containing the values.
-   * </p>
-   *
-   * @param headerPart The {@code header-part} of the current {@code encapsulation}.
-   * @return A {@code Map} containing the parsed HTTP request headers.
-   */
-  public HttpHeaders parseHeaders(final String headerPart) {
-    final int len = headerPart.length();
-    final HttpHeaders headers = HttpHeaders.forWritable();
-    int start = 0;
-    for (; ; ) {
-      var end = parseEndOfLine(headerPart, start);
-      if (start == end) {
-        break;
-      }
-      final StringBuilder header = new StringBuilder(headerPart.substring(start, end));
-      start = end + 2;
-      while (start < len) {
-        var nonWs = start;
-        while (nonWs < len) {
-          final var c = headerPart.charAt(nonWs);
-          if (c != ' ' && c != '\t') {
-            break;
-          }
-          ++nonWs;
-        }
-        if (nonWs == start) {
-          break;
-        }
-        // Continuation line found
-        end = parseEndOfLine(headerPart, nonWs);
-        header.append(' ').append(headerPart, nonWs, end);
-        start = end + 2;
-      }
-      parseHeaderLine(headers, header.toString());
-    }
-    return headers;
-  }
-
-  /**
-   * Gets the progress listener.
-   *
-   * @return The progress listener, if any, or null.
-   */
-  public @Nullable ProgressListener getProgressListener() {
-    return progressListener;
-  }
-
-  /**
-   * Skips bytes until the end of the current line.
-   *
-   * @param headerPart The headers, which are being parsed.
-   * @param end Index of the last byte, which has yet been processed.
-   * @return Index of the \r\n sequence, which indicates end of line.
-   */
-  private int parseEndOfLine(final String headerPart, final int end) {
-    var index = end;
-    for (; ; ) {
-      final var offset = headerPart.indexOf('\r', index);
-      if (offset == -1 || offset + 1 >= headerPart.length()) {
-        throw new IllegalStateException("Expected headers to be terminated by an empty line.");
-      }
-      if (headerPart.charAt(offset + 1) == '\n') {
-        return offset;
-      }
-      index = offset + 1;
-    }
-  }
-
-  /**
-   * Parses the next header line.
-   *
-   * @param headers String with all headers.
-   * @param header Map where to store the current header.
-   */
-  private void parseHeaderLine(final HttpHeaders headers, final String header) {
-    final var colonOffset = header.indexOf(':');
-    if (colonOffset == -1) {
-      // This header line is malformed, skip it.
-      return;
-    }
-    final var headerName = header.substring(0, colonOffset).trim();
-    final var headerValue = header.substring(colonOffset + 1).trim();
-    headers.add(headerName, headerValue);
-  }
-
-  @Override
-  public MultipartRequest parse(RequestContext request) throws infra.web.multipart.MultipartException {
-    return new DefaultMultipartRequest(this, request);
-  }
-
-  /**
-   * Parses an <a href="https://www.ietf.org/rfc/rfc1867.txt">RFC 1867</a> compliant {@code multipart/form-data} stream.
-   *
-   * @param context The context for the request to be parsed.
-   * @return A Map of {@code Part} instances parsed from the request, in the order that they were transmitted.
-   * @throws MultipartException if there are problems reading/parsing the request or storing files.
-   */
-  public MultiValueMap<String, Part> parseRequest(final RequestContext context) throws MultipartException {
-    MultiValueMap<String, Part> parts = MultiValueMap.forLinkedHashMap();
-    var successful = false;
-    try {
-      final var buffer = new byte[StreamUtils.BUFFER_SIZE];
-      FieldItemInputIterator itemIterator = new FieldItemInputIterator(this, context);
-      while (itemIterator.hasNext()) {
-        FieldItemInput field = itemIterator.next();
-        final int size = parts.size();
-        if (size == maxFieldCount) {
-          // The next item will exceed the limit.
-          throw new MultipartFieldCountLimitException("Request '%s' failed: Maximum file count %,d exceeded."
-                  .formatted(context.getContentType(), maxFieldCount), maxFieldCount, size);
-        }
-
-        DefaultPart fieldItem = new DefaultPart(field.getName(), field.getContentType(),
-                field.getHeaders(), field.isFormField(), field.getFilename(), this);
-
-        parts.add(fieldItem.getName(), fieldItem);
-        try (var inputStream = field.getInputStream();
-                var outputStream = fieldItem.getOutputStream()) {
-          StreamUtils.copy(inputStream, outputStream, buffer);
-        }
-        catch (IOException e) {
-          throw new MultipartException(String.format("Request '%s' failed: %s", context.getContentType(), e.getMessage()), e);
-        }
-      }
-      successful = true;
-      return parts;
-    }
-    catch (final IOException e) {
-      throw new MultipartException(e.getMessage(), e);
-    }
-    finally {
-      if (!successful) {
-        WebUtils.cleanupMultipartRequest(parts);
-      }
-    }
   }
 
   /**
@@ -289,29 +114,20 @@ public class DefaultMultipartParser implements MultipartParser {
   /**
    * Sets the maximum number of fields allowed per request.
    *
-   * @param fileCountMax The new limit. {@code -1} means no limit.
+   * @param maxFields the maximum number of fields allowed per request.
    */
-  public void setMaxFieldCount(final long fileCountMax) {
-    this.maxFieldCount = fileCountMax;
-  }
-
-  /**
-   * Sets the maximum allowed size of a single field.
-   *
-   * @param maxFieldSize Maximum size of a single field.
-   * @see #getMaxFieldSize()
-   */
-  public void setMaxFieldSize(final long maxFieldSize) {
-    this.maxFieldSize = maxFieldSize;
+  public void setMaxFields(final int maxFields) {
+    Assert.isTrue(maxFields > 0, "Maximum number of fields must be greater than 0");
+    this.maxFields = maxFields;
   }
 
   /**
    * Sets the per part size limit for headers.
    *
-   * @param partHeaderSizeMax The maximum size of the headers in bytes.
+   * @param maxHeaderSize The maximum size of the headers in bytes.
    */
-  public void setMaxPartHeaderSize(final int partHeaderSizeMax) {
-    this.maxPartHeaderSize = partHeaderSizeMax;
+  public void setMaxHeaderSize(final int maxHeaderSize) {
+    this.maxHeaderSize = maxHeaderSize;
   }
 
   /**
@@ -366,6 +182,17 @@ public class DefaultMultipartParser implements MultipartParser {
   }
 
   /**
+   * Sets the size of the buffer used for parsing multipart requests.
+   *
+   * @param parsingBufferSize The size of the buffer in bytes
+   * @see MultipartInput
+   */
+  public void setParsingBufferSize(int parsingBufferSize) {
+    Assert.isTrue(parsingBufferSize > 0, "parsingBufferSize must be greater than 0");
+    this.parsingBufferSize = parsingBufferSize;
+  }
+
+  /**
    * Gets the size threshold beyond which files are written directly to disk.
    * The default value is {@value #DEFAULT_THRESHOLD} bytes.
    *
@@ -402,6 +229,104 @@ public class DefaultMultipartParser implements MultipartParser {
    */
   public Charset getDefaultCharset() {
     return defaultCharset;
+  }
+
+  /**
+   * Gets the size of the buffer used for parsing multipart requests.
+   *
+   * @return The size of the buffer in bytes
+   */
+  public int getParsingBufferSize() {
+    return parsingBufferSize;
+  }
+
+  /**
+   * Gets the maximum number of files allowed in a single request.
+   *
+   * @return The maximum number of files allowed in a single request.
+   */
+  public int getMaxFields() {
+    return maxFields;
+  }
+
+  /**
+   * Gets the per part size limit for headers.
+   *
+   * @return The maximum size of the headers for a single part in bytes.
+   */
+  public int getMaxHeaderSize() {
+    return maxHeaderSize;
+  }
+
+  /**
+   * Gets the progress listener.
+   *
+   * @return The progress listener, if any, or null.
+   */
+  public @Nullable ProgressListener getProgressListener() {
+    return progressListener;
+  }
+
+  /**
+   * Gets the character encoding used when reading the headers of an individual part. When not specified, or {@code null}, the request encoding is used. If
+   * that is also not specified, or {@code null}, the platform default encoding is used.
+   *
+   * @return The encoding used to read part headers.
+   */
+  public @Nullable Charset getHeaderCharset() {
+    return headerCharset;
+  }
+
+  @Override
+  public MultipartRequest parse(RequestContext request) throws infra.web.multipart.MultipartException {
+    return new DefaultMultipartRequest(this, request);
+  }
+
+  /**
+   * Parses an <a href="https://www.ietf.org/rfc/rfc1867.txt">RFC 1867</a> compliant {@code multipart/form-data} stream.
+   *
+   * @param context The context for the request to be parsed.
+   * @return A Map of {@code Part} instances parsed from the request, in the order that they were transmitted.
+   * @throws MultipartException if there are problems reading/parsing the request or storing files.
+   */
+  public MultiValueMap<String, Part> parseRequest(final RequestContext context) throws MultipartException {
+    MultiValueMap<String, Part> parts = MultiValueMap.forLinkedHashMap();
+    boolean successful = false;
+    try {
+      final byte[] buffer = new byte[StreamUtils.BUFFER_SIZE];
+      var itemIterator = new FieldItemInputIterator(this, context);
+      while (itemIterator.hasNext()) {
+        FieldItemInput field = itemIterator.next();
+        final int size = parts.size();
+        if (size == maxFields) {
+          // The next item will exceed the limit.
+          throw new MultipartFieldCountLimitException("Request '%s' failed: Maximum file count %,d exceeded."
+                  .formatted(context.getContentType(), maxFields), maxFields, size);
+        }
+
+        DefaultPart fieldItem = new DefaultPart(field.getName(), field.getContentType(),
+                field.getHeaders(), field.isFormField(), field.getFilename(), this);
+
+        parts.add(fieldItem.getName(), fieldItem);
+        try (var inputStream = field.getInputStream();
+                var outputStream = fieldItem.getOutputStream()) {
+          StreamUtils.copy(inputStream, outputStream, buffer);
+        }
+        catch (IOException e) {
+          throw new MultipartException(String.format("Request '%s' failed: %s", context.getContentType(), e.getMessage()), e);
+        }
+      }
+      successful = true;
+      return parts;
+    }
+    catch (final IOException e) {
+      throw new MultipartException(e.getMessage(), e);
+    }
+    finally {
+      if (!successful) {
+        WebUtils.cleanupMultipartRequest(parts);
+      }
+    }
   }
 
 }

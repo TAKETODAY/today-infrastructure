@@ -30,10 +30,11 @@ import infra.context.properties.NestedConfigurationProperty;
 import infra.core.ApplicationTemp;
 import infra.core.ssl.SslBundles;
 import infra.util.DataSize;
+import infra.web.multipart.MultipartParser;
+import infra.web.multipart.parsing.DefaultMultipartParser;
 import infra.web.server.error.ErrorProperties;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.ServerSocketChannel;
-import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.logging.LogLevel;
 
 /**
@@ -83,6 +84,9 @@ public class ServerProperties {
 
   @NestedConfigurationProperty
   public final ErrorProperties error = new ErrorProperties();
+
+  @NestedConfigurationProperty
+  public final Multipart multipart = new Multipart();
 
   /**
    * Strategy for handling X-Forwarded-* headers.
@@ -137,6 +141,76 @@ public class ServerProperties {
     }
 
     factory.setCompression(compression);
+  }
+
+  /**
+   * Properties to be used in configuring a {@link MultipartParser}.
+   *
+   * @see DefaultMultipartParser
+   * @since 5.0
+   */
+  public static class Multipart {
+
+    /**
+     * directory path where to store disk attributes and file uploads.
+     * If mixedMode is disabled and this property is not empty will be
+     * using disk mode
+     */
+    public @Nullable String tempBaseDir;
+
+    /**
+     * Subdirectory name where temporary files will be stored.
+     * This property is used together with baseDir to create the full path
+     * for storing uploaded files and temporary data.
+     *
+     * @see ApplicationTemp
+     */
+    public @Nullable String tempSubDir;
+
+    /**
+     * true if temporary files should be deleted with the JVM, false otherwise.
+     */
+    public boolean deleteOnExit; // false is a good default cause true leaks
+
+    /**
+     * Maximum number of fields allowed in a single multipart request.
+     * This limits the number of individual form fields that can be submitted
+     * to prevent excessive memory consumption from malformed or malicious requests.
+     */
+    public int maxFields = 128;
+
+    /**
+     * Default character set used for encoding multipart data.
+     * <p>
+     * This charset is used when decoding multipart form data when no specific
+     * charset is specified in the request. UTF-8 is recommended as it provides
+     * comprehensive Unicode support.
+     */
+    public Charset defaultCharset = StandardCharsets.UTF_8;
+
+    /**
+     * Threshold for field size in multipart requests.
+     * Fields larger than this threshold will be stored on disk rather than in memory.
+     */
+    public DataSize fieldSizeThreshold = DataSize.ofKilobytes(16); // 16kB
+
+    /**
+     * Buffer size used for parsing multipart data.
+     * <p>
+     * This setting determines the size of the internal buffer used when parsing
+     * multipart form data. Larger values may improve parsing performance for
+     * larger files but will consume more memory per request.
+     */
+    public DataSize parsingBufferSize = DataSize.ofKilobytes(4); // 4KB
+
+    /**
+     * Maximum size of the HTTP message header for multipart requests.
+     * <p>
+     * This setting controls the maximum amount of bytes that can be used
+     * for parsing HTTP headers in multipart form data. Headers exceeding
+     * this limit will cause the request to be rejected.
+     */
+    public DataSize maxHeaderSize = DataSize.ofBytes(512); // 512 B
   }
 
   /**
@@ -279,9 +353,6 @@ public class ServerProperties {
     @NestedConfigurationProperty
     public final Shutdown shutdown = new Shutdown();
 
-    @NestedConfigurationProperty
-    public final Multipart multipart = new Multipart();
-
     public static class Shutdown {
 
       /**
@@ -302,52 +373,6 @@ public class ServerProperties {
        * The unit of quietPeriod and timeout
        */
       public TimeUnit unit = TimeUnit.SECONDS;
-
-    }
-
-    /**
-     * Properties to be used in configuring a {@link DefaultHttpDataFactory}.
-     *
-     * @since 5.0
-     */
-    public static class Multipart {
-
-      /**
-       * directory path where to store disk attributes and file uploads.
-       * If mixedMode is disabled and this property is not empty will be
-       * using disk mode
-       */
-      public @Nullable String tempBaseDir;
-
-      /**
-       * Subdirectory name where temporary files will be stored.
-       * This property is used together with baseDir to create the full path
-       * for storing uploaded files and temporary data.
-       *
-       * @see ApplicationTemp
-       */
-      public @Nullable String tempSubDir;
-
-      /**
-       * true if temporary files should be deleted with the JVM, false otherwise.
-       */
-      public boolean deleteOnExit; // false is a good default cause true leaks
-
-      /**
-       * Field data will be stored on disk if the size of the file exceeds this threshold,
-       * otherwise it will be kept in memory. Uses mixed mode storage.
-       */
-      public @Nullable DataSize fieldSizeThreshold = DataSize.ofKilobytes(16); // 16kB
-
-      /**
-       * Character set used for encoding multipart data.
-       */
-      public Charset charset = StandardCharsets.UTF_8;
-
-      /**
-       * Sets a maximum size limit on single field.
-       */
-      public @Nullable DataSize maxFieldSize = DataSize.ofGigabytes(1); // total size in every field
 
     }
 

@@ -39,6 +39,7 @@ import java.util.Objects;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Assert;
+import infra.web.multipart.MultipartException;
 import infra.web.multipart.Part;
 import infra.web.multipart.parsing.DeferrableStream.State;
 
