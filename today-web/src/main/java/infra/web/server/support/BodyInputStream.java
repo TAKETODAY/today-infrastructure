@@ -65,6 +65,12 @@ class BodyInputStream extends InputStream {
     this(awaiter, 128);
   }
 
+  /**
+   * Create a new {@code BodyInputStream} with the given {@link Awaiter} and capacity.
+   *
+   * @param awaiter the {@link Awaiter} to use for suspending and resuming the stream
+   * @param capacity the maximum number of buffers that can be queued
+   */
   BodyInputStream(Awaiter awaiter, int capacity) {
     this.awaiter = awaiter;
     this.capacity = capacity;

@@ -117,7 +117,7 @@ final class HttpContext extends NettyRequestContext implements Runnable {
       synchronized(this) {
         requestBody = this.requestBody;
         if (requestBody == null) {
-          requestBody = new BodyInputStream(awaiter);
+          requestBody = new BodyInputStream(awaiter, config.dataReceivedQueueCapacity);
         }
         this.requestBody = requestBody;
       }

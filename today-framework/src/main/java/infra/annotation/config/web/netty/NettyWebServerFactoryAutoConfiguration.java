@@ -160,6 +160,7 @@ public class NettyWebServerFactoryAutoConfiguration {
                     .withValidation(server.netty.validateHeaders))
             .sendErrorHandler(sendErrorHandler)
             .maxContentLength(server.netty.maxContentLength.toBytes())
+            .dataReceivedQueueCapacity(server.netty.dataReceivedQueueCapacity)
             .build();
   }
 

@@ -348,6 +348,15 @@ public class ServerProperties {
     public boolean allowDuplicateContentLengths = false;
 
     /**
+     * The capacity of the queue used to store received data chunks.
+     * <p>
+     * This setting controls how many data chunks can be queued for processing
+     * before backpressure is applied to the data source. A larger queue can
+     * help smooth out bursts of data but will consume more memory.
+     */
+    public int dataReceivedQueueCapacity = 256;
+
+    /**
      * shutdown details
      */
     @NestedConfigurationProperty

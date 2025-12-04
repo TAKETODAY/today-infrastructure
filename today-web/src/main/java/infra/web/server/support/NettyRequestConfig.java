@@ -141,7 +141,15 @@ public final class NettyRequestConfig {
    */
   public final Function<HttpRequest, Awaiter> awaiterFactory;
 
+  /**
+   * @since 5.0
+   */
   public final MultipartParser multipartParser;
+
+  /**
+   * @since 5.0
+   */
+  public final int dataReceivedQueueCapacity;
 
   private NettyRequestConfig(Builder builder) {
     Assert.notNull(builder.sendErrorHandler, "SendErrorHandler is required");
@@ -158,6 +166,7 @@ public final class NettyRequestConfig {
     this.httpHeadersFactory = builder.httpHeadersFactory;
     this.responseBodyFactory = builder.responseBodyFactory;
     this.trailerHeadersConsumer = builder.trailerHeadersConsumer;
+    this.dataReceivedQueueCapacity = builder.dataReceivedQueueCapacity;
     this.responseBodyInitialCapacity = builder.responseBodyInitialCapacity;
     this.postRequestDecoderCharset = builder.postRequestDecoderCharset == null
             ? Constant.DEFAULT_CHARSET : builder.postRequestDecoderCharset;
@@ -222,6 +231,8 @@ public final class NettyRequestConfig {
     private @Nullable SendErrorHandler sendErrorHandler;
 
     private @Nullable MultipartParser multipartParser;
+
+    private int dataReceivedQueueCapacity;
 
     private final boolean secure;
 
@@ -472,6 +483,32 @@ public final class NettyRequestConfig {
     public Builder multipartParser(MultipartParser multipartParser) {
       Assert.notNull(multipartParser, "MultipartParser is required");
       this.multipartParser = multipartParser;
+      return this;
+    }
+
+    /**
+     * Sets the capacity of the queue used for receiving data.
+     * <p>
+     * This method configures the maximum number of data items that can be queued
+     * for processing before the queue starts blocking or rejecting new items.
+     * Adjusting this value can help balance between memory usage and throughput
+     * based on the application's requirements.
+     * <p>
+     * Example usage:
+     * <pre>{@code
+     *   Builder builder = ...;
+     *   builder.dataReceivedQueueCapacity(1000); // Set queue capacity to 1000 items
+     * }</pre>
+     *
+     * @param dataReceivedQueueCapacity the capacity of the data received queue.
+     * Must be a non-negative integer.
+     * @return the current {@link Builder} instance, enabling method chaining
+     * @see BodyInputStream#BodyInputStream(Awaiter, int)
+     * @since 5.0
+     */
+    public Builder dataReceivedQueueCapacity(int dataReceivedQueueCapacity) {
+      Assert.isTrue(dataReceivedQueueCapacity > 0, "dataReceivedQueueCapacity must be great than 0");
+      this.dataReceivedQueueCapacity = dataReceivedQueueCapacity;
       return this;
     }
 
