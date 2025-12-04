@@ -30,6 +30,7 @@ import java.util.Objects;
 
 import infra.http.DefaultHttpHeaders;
 import infra.http.HttpHeaders;
+import infra.http.MediaType;
 import infra.mock.api.http.Part;
 import infra.util.FileCopyUtils;
 import infra.web.multipart.MultipartFile;
@@ -58,8 +59,8 @@ final class MockMultipartFile extends AbstractMultipartFile implements Multipart
   }
 
   @Override
-  public String getContentType() {
-    return part.getContentType();
+  public MediaType getContentType() {
+    return MediaType.parseMediaType(part.getContentType());
   }
 
   @Override
