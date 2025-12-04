@@ -46,7 +46,7 @@ import infra.http.MediaType;
 import infra.http.ResponseEntity;
 import infra.lang.Assert;
 import infra.stereotype.Component;
-import infra.util.LinkedMultiValueMap;
+import infra.util.MultiValueMap;
 import infra.web.annotation.POST;
 import infra.web.annotation.RequestPart;
 import infra.web.annotation.RestController;
@@ -79,9 +79,9 @@ class MultipartIntegrationTests {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.setContentType(MediaType.APPLICATION_JSON);
 
-    var parts = new LinkedMultiValueMap<String, Object>();
+    var parts = MultiValueMap.forLinkedHashMap();
 
-    parts.add("form", new HttpEntity<>(new Form(), headers));
+    parts.add("form", new HttpEntity<>(new Form("desc"), headers));
     parts.add("file", new HttpEntity<>(new ClassPathResource("infra/web/function/foo.txt"), fooHeaders));
 
     ResponseEntity<String> response = RestClient.create().post()
@@ -114,8 +114,8 @@ class MultipartIntegrationTests {
 
     @POST("/form")
     String upload(@RequestPart("form") Form form, @RequestPart("file") Part file) throws IOException {
-      System.out.println(form);
-      System.out.println(file.getContentAsString());
+      assertThat(form.desc).isEqualTo("desc");
+      assertThat(file.getContentAsString()).isEqualTo("Lorem Ipsum.");
       return "ok";
     }
 
@@ -124,6 +124,13 @@ class MultipartIntegrationTests {
   static class Form {
 
     public String desc;
+
+    public Form() {
+    }
+
+    public Form(String desc) {
+      this.desc = desc;
+    }
 
     @Override
     public String toString() {
