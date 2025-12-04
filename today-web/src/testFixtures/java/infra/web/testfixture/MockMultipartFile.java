@@ -31,11 +31,10 @@ import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.util.FileCopyUtils;
-import infra.web.multipart.MultipartFile;
 import infra.web.multipart.Part;
 
 /**
- * Mock implementation of the {@link MultipartFile}
+ * Mock implementation of the {@link Part}
  * interface.
  *
  * @author Juergen Hoeller

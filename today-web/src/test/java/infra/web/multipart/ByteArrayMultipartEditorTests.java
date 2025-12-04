@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import infra.web.multipart.support.ByteArrayMultipartFileEditor;
+import infra.web.multipart.support.ByteArrayMultipartEditor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -32,9 +32,9 @@ import static org.mockito.Mockito.mock;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/2 16:36
  */
-class ByteArrayMultipartFileEditorTests {
+class ByteArrayMultipartEditorTests {
 
-  private final ByteArrayMultipartFileEditor editor = new ByteArrayMultipartFileEditor();
+  private final ByteArrayMultipartEditor editor = new ByteArrayMultipartEditor();
 
   @Test
   public void setValueAsByteArray() throws Exception {
@@ -73,7 +73,7 @@ class ByteArrayMultipartFileEditorTests {
   @Test
   public void setValueAsMultipartFile() throws Exception {
     String expectedValue = "That is comforting to know";
-    MultipartFile file = mock(MultipartFile.class);
+    Part file = mock(Part.class);
     given(file.getContentAsByteArray()).willReturn(expectedValue.getBytes());
     editor.setValue(file);
     assertThat(editor.getAsText()).isEqualTo(expectedValue);
@@ -81,7 +81,7 @@ class ByteArrayMultipartFileEditorTests {
 
   @Test
   public void setValueAsMultipartFileWithBadBytes() throws Exception {
-    MultipartFile file = mock(MultipartFile.class);
+    Part file = mock(Part.class);
     given(file.getContentAsByteArray()).willThrow(new IOException());
     assertThatIllegalArgumentException().isThrownBy(() ->
             editor.setValue(file));

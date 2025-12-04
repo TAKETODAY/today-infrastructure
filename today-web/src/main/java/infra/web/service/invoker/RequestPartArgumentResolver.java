@@ -30,7 +30,6 @@ import infra.http.HttpEntity;
 import infra.http.HttpHeaders;
 import infra.lang.Assert;
 import infra.web.annotation.RequestPart;
-import infra.web.multipart.MultipartFile;
 import infra.web.multipart.Part;
 
 /**
@@ -41,7 +40,7 @@ import infra.web.multipart.Part;
  * <ul>
  * <li>String -- form field
  * <li>{@link Resource Resource} -- file part
- * <li>{@link MultipartFile} -- uploaded file
+ * <li>{@link Part} -- uploaded file
  * <li>Object -- content to be encoded (e.g. to JSON)
  * <li>{@link HttpEntity} -- part content and headers although generally it's
  * easier to add headers through the returned builder

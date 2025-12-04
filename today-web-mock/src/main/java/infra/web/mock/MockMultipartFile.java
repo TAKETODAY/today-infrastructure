@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -33,7 +34,6 @@ import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.util.FileCopyUtils;
 import infra.web.multipart.Part;
-import infra.web.multipart.support.AbstractMultipartFile;
 
 /**
  * MultipartFile adapter, wrapping a Servlet Part object.
@@ -41,7 +41,7 @@ import infra.web.multipart.support.AbstractMultipartFile;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2018-06-28 22:40:32
  */
-final class MockMultipartFile extends AbstractMultipartFile implements Part {
+final class MockMultipartFile implements Part {
 
   private final infra.mock.api.http.Part part;
 
@@ -88,7 +88,7 @@ final class MockMultipartFile extends AbstractMultipartFile implements Part {
   }
 
   @Override
-  protected DefaultHttpHeaders createHttpHeaders() {
+  public HttpHeaders getHeaders() {
     return createHeaders(part);
   }
 
@@ -113,7 +113,37 @@ final class MockMultipartFile extends AbstractMultipartFile implements Part {
   }
 
   @Override
-  protected void saveInternal(File dest) throws IOException {
+  public void transferTo(File dest) throws IOException {
+    // fix #3 Upload file not found exception
+    File parentFile = dest.getParentFile();
+    if (!parentFile.exists()) {
+      parentFile.mkdirs();
+    }
+    /*
+     * The uploaded file is being stored on disk
+     * in a temporary location so move it to the
+     * desired file.
+     */
+    if (dest.exists()) {
+      Files.delete(dest.toPath());
+    }
+    saveInternal(dest);
+  }
+
+  /**
+   * Saves the internal representation of this multipart file to the specified destination.
+   * This method is intended to be implemented by subclasses to provide specific
+   * behavior for saving the file data to a given location. It may involve writing
+   * cached bytes or transferring data from a temporary storage to the target file.
+   *
+   * <p>This method is typically invoked by higher-level operations such as
+   * {@link #transferTo(File)} to handle the actual file-saving logic.
+   *
+   * @param dest the target file where the internal data should be saved. Must not be null.
+   * @throws IOException if an I/O error occurs during the save operation, such as issues
+   * with writing to the file or accessing the internal data.
+   */
+  void saveInternal(File dest) throws IOException {
     part.write(dest.getPath());
     if (dest.isAbsolute() && !dest.exists()) {
       // Servlet Part.write is not guaranteed to support absolute file paths:
@@ -152,12 +182,22 @@ final class MockMultipartFile extends AbstractMultipartFile implements Part {
   }
 
   @Override
-  protected byte[] doGetBytes() throws IOException {
+  public byte[] getContentAsByteArray() throws IOException {
     return FileCopyUtils.copyToByteArray(part.getInputStream());
   }
 
   @Override
-  protected void deleteInternal() throws IOException {
+  public String getContentAsString() throws IOException {
+    return new String(getContentAsByteArray(), StandardCharsets.UTF_8);
+  }
+
+  @Override
+  public boolean isFormField() {
+    return false;
+  }
+
+  @Override
+  public void cleanup() throws IOException {
     part.delete();
   }
 

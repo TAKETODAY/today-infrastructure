@@ -32,7 +32,6 @@ import infra.web.RequestContext;
 import infra.web.annotation.RequestPart;
 import infra.web.handler.method.NamedValueInfo;
 import infra.web.handler.method.ResolvableMethodParameter;
-import infra.web.multipart.MultipartFile;
 import infra.web.multipart.Part;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -35,7 +35,7 @@ import infra.util.FileCopyUtils;
 import infra.web.multipart.Part;
 
 /**
- * Mock implementation of the {@link infra.web.multipart.MultipartFile}
+ * Mock implementation of the {@link infra.web.multipart.Part}
  * interface.
  *
  * <p>Useful in conjunction with a {@link MockMultipartHttpMockRequest}

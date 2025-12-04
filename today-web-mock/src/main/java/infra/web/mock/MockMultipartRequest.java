@@ -82,7 +82,7 @@ public class MockMultipartRequest extends AbstractMultipartRequest {
       return files;
     }
     catch (IOException e) {
-      throw new MultipartException("MultipartFile parsing failed.", e);
+      throw new MultipartException("Part parsing failed.", e);
     }
     catch (MockException e) {
       throw new NotMultipartRequestException("This is not a multipart request", e);

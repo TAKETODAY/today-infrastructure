@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,13 +27,13 @@ import java.lang.annotation.Target;
 import infra.core.annotation.AliasFor;
 import infra.core.conversion.Converter;
 import infra.http.converter.HttpMessageConverter;
-import infra.web.multipart.MultipartFile;
+import infra.web.multipart.Part;
 
 /**
  * Annotation that can be used to associate the part of a "multipart/form-data" request
  * with a method argument.
  *
- * <p>Supported method argument types include {@link MultipartFile} in
+ * <p>Supported method argument types include {@link Part} in
  * conjunction with multipart requests, or otherwise for any other method
  * argument, the content of the part is passed through an {@link HttpMessageConverter}
  * taking into consideration the 'Content-Type' header of the request part. This is

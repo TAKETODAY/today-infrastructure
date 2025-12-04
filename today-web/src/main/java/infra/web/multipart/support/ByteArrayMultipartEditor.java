@@ -22,23 +22,23 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 
 import infra.beans.propertyeditors.ByteArrayPropertyEditor;
-import infra.web.multipart.MultipartFile;
+import infra.web.multipart.Part;
 
 /**
  * Custom {@link java.beans.PropertyEditor} for converting
- * {@link MultipartFile MultipartFiles} to byte arrays.
+ * {@link Part Parts} to byte arrays.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/2 16:35
  */
-public class ByteArrayMultipartFileEditor extends ByteArrayPropertyEditor {
+public class ByteArrayMultipartEditor extends ByteArrayPropertyEditor {
 
   @Override
   public void setValue(@Nullable Object value) {
-    if (value instanceof MultipartFile multipartFile) {
+    if (value instanceof Part part) {
       try {
-        super.setValue(multipartFile.getContentAsByteArray());
+        super.setValue(part.getContentAsByteArray());
       }
       catch (IOException ex) {
         throw new IllegalArgumentException("Cannot read contents of multipart file", ex);
@@ -50,12 +50,6 @@ public class ByteArrayMultipartFileEditor extends ByteArrayPropertyEditor {
     else {
       super.setValue(value != null ? value.toString().getBytes() : null);
     }
-  }
-
-  @Override
-  public String getAsText() {
-    byte[] value = (byte[]) getValue();
-    return (value != null ? new String(value) : "");
   }
 
 }
