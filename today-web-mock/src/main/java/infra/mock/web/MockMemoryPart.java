@@ -23,8 +23,11 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
@@ -140,6 +143,16 @@ public class MockMemoryPart implements Part {
   @Override
   public InputStream getInputStream() throws IOException {
     return new ByteArrayInputStream(this.content);
+  }
+
+  public long transferTo(Path dest) throws IOException, IllegalStateException {
+    try (var channel = FileChannel.open(dest, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
+      return transferTo(channel, 0, getContentLength());
+    }
+  }
+
+  public long transferTo(FileChannel out, long position, long count) throws IOException {
+    return out.transferFrom(readableChannel(), position, count);
   }
 
   @Override

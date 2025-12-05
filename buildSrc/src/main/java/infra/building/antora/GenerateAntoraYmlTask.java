@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
+@SuppressWarnings("unchecked")
 public abstract class GenerateAntoraYmlTask extends DefaultTask {
 
   @OutputFile
@@ -114,6 +115,7 @@ public abstract class GenerateAntoraYmlTask extends DefaultTask {
     return map;
   }
 
+  @SafeVarargs
   private static Map<String, Object> mergeMaps(Map<String, Object>... maps) {
     Map<String, Object> result = new LinkedHashMap<>();
     for (Map<String, Object> map : maps) {
@@ -168,6 +170,7 @@ public abstract class GenerateAntoraYmlTask extends DefaultTask {
     return result;
   }
 
+  @SuppressWarnings("unchecked")
   private Map<String, Object> loadBaseAntoraYmlFile() throws FileNotFoundException {
     RegularFile baseAntoraYmlRegularFile = getBaseAntoraYmlFile().getOrNull();
     File antoraYmlFile = baseAntoraYmlRegularFile == null ? null : baseAntoraYmlRegularFile.getAsFile();

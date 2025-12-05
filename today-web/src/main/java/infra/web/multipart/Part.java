@@ -32,7 +32,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -301,11 +300,7 @@ public interface Part extends InputStreamSource, HttpInputMessage {
    * @see #transferTo(File)
    * @since 4.0
    */
-  default long transferTo(Path dest) throws IOException, IllegalStateException {
-    try (var channel = FileChannel.open(dest, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
-      return transferTo(channel, 0, getContentLength());
-    }
-  }
+  long transferTo(Path dest) throws IOException, IllegalStateException;
 
   /**
    * Transfers this file into this channel's file from the given readable byte
@@ -327,9 +322,7 @@ public interface Part extends InputStreamSource, HttpInputMessage {
    * @throws IOException If some other I/ O error occurs
    * @since 5.0
    */
-  default long transferTo(FileChannel out, long position, long count) throws IOException {
-    return out.transferFrom(readableChannel(), position, count);
-  }
+  long transferTo(FileChannel out, long position, long count) throws IOException;
 
   /**
    * Deletes the underlying storage for a file item, including deleting any

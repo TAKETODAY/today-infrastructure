@@ -474,10 +474,10 @@ final class MultipartInput {
      */
     private static final int BYTE_POSITIVE_OFFSET = 256;
 
-    /**
+    /*
      * The number of bytes, which have been read so far.
      */
-    private long total;
+    //private long total;
 
     /**
      * The number of bytes, which must be hold, because they might be a part of the boundary.
@@ -584,7 +584,7 @@ final class MultipartInput {
       }
 
       // Move the data to the beginning of the buffer.
-      total += tail - head - pad;
+      //total += tail - head - pad;
       System.arraycopy(buffer, tail - pad, buffer, 0, pad);
 
       // Refill buffer with new data.
@@ -623,7 +623,7 @@ final class MultipartInput {
       if (available() == 0 && makeAvailable() == 0) {
         return -1;
       }
-      ++total;
+      //++total;
       final int b = buffer[head++];
       if (b >= 0) {
         return b;
@@ -656,7 +656,7 @@ final class MultipartInput {
       res = Math.min(res, len);
       System.arraycopy(buffer, head, b, off, res);
       head += res;
-      total += res;
+      //total += res;
       return res;
     }
 
