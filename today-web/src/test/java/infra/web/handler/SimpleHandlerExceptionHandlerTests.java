@@ -219,10 +219,10 @@ class SimpleHandlerExceptionHandlerTests {
 
   @Test
   void handleMultipartException() throws Exception {
-    MultipartException ex = new MultipartException("");
+    MultipartException ex = new MultipartException("Maximum upload size exceeded");
     Object mav = exceptionResolver.handleException(context, ex, null);
     assertThat(mav).as("No ModelAndView returned").isNotNull().isEqualTo(HandlerExceptionHandler.NONE_RETURN_VALUE);
-    assertThat(response.getStatus()).as("Invalid status code").isEqualTo(413);
+    assertThat(response.getStatus()).as("Invalid status code").isEqualTo(400);
     assertThat(response.getErrorMessage()).isEqualTo("Maximum upload size exceeded");
   }
 
