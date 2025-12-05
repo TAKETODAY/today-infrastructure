@@ -356,15 +356,28 @@ public final class DefaultPart implements Part {
   }
 
   @Override
-  public long transferTo(FileChannel out, long position, long count) throws IOException {
+  public long transferTo(FileChannel dest, long position) throws IOException {
     if (isInMemory()) {
-      return out.write(ByteBuffer.wrap(getContentAsByteArray(), 0, Math.toIntExact(count)), position);
+      return dest.write(ByteBuffer.wrap(getContentAsByteArray()), position);
     }
 
     Path path = getPath();
     Assert.state(path != null, "The temp file not found.");
     try (var src = FileChannel.open(path)) {
-      return out.transferFrom(src, position, count);
+      return dest.transferFrom(src, position, getContentLength());
+    }
+  }
+
+  @Override
+  public long transferTo(FileChannel dest, long position, long count) throws IOException {
+    if (isInMemory()) {
+      return dest.write(ByteBuffer.wrap(getContentAsByteArray(), 0, Math.toIntExact(count)), position);
+    }
+
+    Path path = getPath();
+    Assert.state(path != null, "The temp file not found.");
+    try (var src = FileChannel.open(path)) {
+      return dest.transferFrom(src, position, count);
     }
   }
 

@@ -209,8 +209,13 @@ public class MockMultipartFile implements Part {
     }
   }
 
-  public long transferTo(FileChannel out, long position, long count) throws IOException {
-    return out.transferFrom(readableChannel(), position, count);
+  @Override
+  public long transferTo(FileChannel dest, long position) throws IOException {
+    return dest.transferFrom(readableChannel(), position, getContentLength());
+  }
+
+  public long transferTo(FileChannel dest, long position, long count) throws IOException {
+    return dest.transferFrom(readableChannel(), position, count);
   }
 
 }

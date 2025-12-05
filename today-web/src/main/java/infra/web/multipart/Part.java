@@ -304,9 +304,31 @@ public interface Part extends InputStreamSource, HttpInputMessage {
 
   /**
    * Transfers this file into this channel's file from the given readable byte
+   * channel, starting at the given position.
+   *
+   * @param dest FileChannel to transfer to
+   * @param position The position within the file at which the transfer is to begin; must be non-negative
+   * @return The number of bytes, possibly zero, that were actually transferred
+   * @throws IllegalArgumentException If the preconditions on the parameters do not hold
+   * @throws NonReadableChannelException If the source channel was not opened for reading
+   * @throws NonWritableChannelException If this channel was not opened for writing
+   * @throws ClosedChannelException If either this channel or the source channel is closed
+   * @throws AsynchronousCloseException If another thread closes either channel
+   * while the transfer is in progress
+   * @throws ClosedByInterruptException If another thread interrupts the current thread while the
+   * transfer is in progress, thereby closing both channels and
+   * setting the current thread's interrupt status
+   * @throws IOException If some other I/O error occurs
+   * @see #transferTo(FileChannel, long, long)
+   * @since 5.0
+   */
+  long transferTo(FileChannel dest, long position) throws IOException;
+
+  /**
+   * Transfers this file into this channel's file from the given readable byte
    * channel.
    *
-   * @param out FileChannel
+   * @param dest FileChannel
    * @param position The position within the file at which the transfer is to begin; must be non-negative
    * @param count The maximum number of bytes to be transferred; must be non-negative
    * @return The number of bytes, possibly zero, that were actually transferred
@@ -322,7 +344,7 @@ public interface Part extends InputStreamSource, HttpInputMessage {
    * @throws IOException If some other I/ O error occurs
    * @since 5.0
    */
-  long transferTo(FileChannel out, long position, long count) throws IOException;
+  long transferTo(FileChannel dest, long position, long count) throws IOException;
 
   /**
    * Deletes the underlying storage for a file item, including deleting any
