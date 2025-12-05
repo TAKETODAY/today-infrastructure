@@ -37,7 +37,7 @@ public class ItemSkippedException extends MultipartException {
    *
    * @param message The detail message (which is saved for later retrieval by the {@link #getMessage()} method)
    */
-  ItemSkippedException(final String message) {
+  public ItemSkippedException(final String message) {
     super(message);
   }
 

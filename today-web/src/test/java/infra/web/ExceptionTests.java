@@ -61,6 +61,7 @@ import infra.web.handler.ReturnValueHandlerNotFoundException;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.multipart.MultipartException;
 import infra.web.multipart.NotMultipartRequestException;
+import infra.web.multipart.parsing.ItemSkippedException;
 import infra.web.multipart.parsing.MalformedStreamException;
 import infra.web.multipart.parsing.MultipartBoundaryException;
 import infra.web.multipart.parsing.MultipartFieldCountLimitException;
@@ -2176,6 +2177,37 @@ class ExceptionTests {
     @Test
     void serialVersionUidIsSet() throws Exception {
       Field field = MultipartBoundaryException.class.getDeclaredField("serialVersionUID");
+      field.setAccessible(true);
+      long serialVersionUID = field.getLong(null);
+
+      assertThat(serialVersionUID).isEqualTo(1L);
+    }
+
+  }
+
+  @Nested
+  class ItemSkippedExceptionTests {
+
+    @Test
+    void constructorWithMessageOnly() {
+      String message = "Item skipped due to hasNext() call";
+
+      ItemSkippedException exception = new ItemSkippedException(message);
+
+      assertThat(exception.getMessage()).contains(message);
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void exceptionExtendsMultipartException() {
+      ItemSkippedException exception = new ItemSkippedException("test");
+
+      assertThat(exception).isInstanceOf(MultipartException.class);
+    }
+
+    @Test
+    void serialVersionUidIsSet() throws Exception {
+      Field field = ItemSkippedException.class.getDeclaredField("serialVersionUID");
       field.setAccessible(true);
       long serialVersionUID = field.getLong(null);
 
