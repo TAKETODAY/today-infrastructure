@@ -20,13 +20,16 @@ package infra.web.server;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.nio.file.Path;
 
 import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
@@ -71,7 +74,7 @@ class MultipartIntegrationTests {
   }
 
   @Test
-  void upload() {
+  void upload(@TempDir Path path) {
     load();
     HttpHeaders fooHeaders = HttpHeaders.forWritable();
     fooHeaders.setContentType(MediaType.TEXT_PLAIN);
@@ -80,8 +83,7 @@ class MultipartIntegrationTests {
     headers.setContentType(MediaType.APPLICATION_JSON);
 
     var parts = MultiValueMap.forLinkedHashMap();
-
-    parts.add("form", new HttpEntity<>(new Form("desc"), headers));
+    parts.add("form", new HttpEntity<>(new Form("desc", path.resolve("temp.tmp").toAbsolutePath().toString()), headers));
     parts.add("file", new HttpEntity<>(new ClassPathResource("infra/web/function/foo.txt"), fooHeaders));
 
     ResponseEntity<String> response = RestClient.create().post()
@@ -116,6 +118,7 @@ class MultipartIntegrationTests {
     String upload(@RequestPart("form") Form form, @RequestPart("file") Part file) throws IOException {
       assertThat(form.desc).isEqualTo("desc");
       assertThat(file.getContentAsString()).isEqualTo("Lorem Ipsum.");
+      assertThat(file.transferTo(new File(form.path))).isEqualTo(file.getContentLength());
       return "ok";
     }
 
@@ -125,11 +128,14 @@ class MultipartIntegrationTests {
 
     public String desc;
 
+    public String path;
+
     public Form() {
     }
 
-    public Form(String desc) {
+    public Form(String desc, String path) {
       this.desc = desc;
+      this.path = path;
     }
 
     @Override

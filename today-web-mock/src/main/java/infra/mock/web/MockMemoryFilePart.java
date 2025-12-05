@@ -203,8 +203,9 @@ public class MockMemoryFilePart implements Part {
   }
 
   @Override
-  public void transferTo(File dest) throws IOException, IllegalStateException {
+  public long transferTo(File dest) throws IOException, IllegalStateException {
     FileCopyUtils.copy(this.content, dest);
+    return content.length;
   }
 
   public long transferTo(Path dest) throws IOException, IllegalStateException {

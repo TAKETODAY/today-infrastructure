@@ -311,8 +311,8 @@ public final class DefaultPart implements Part {
   }
 
   @Override
-  public void transferTo(File dest) throws IOException, IllegalStateException {
-    transferTo(dest.toPath());
+  public long transferTo(File dest) throws IOException, IllegalStateException {
+    return transferTo(dest.toPath());
   }
 
   /**

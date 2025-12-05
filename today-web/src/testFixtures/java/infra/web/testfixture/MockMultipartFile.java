@@ -198,8 +198,9 @@ public class MockMultipartFile implements Part {
   }
 
   @Override
-  public void transferTo(File dest) throws IOException, IllegalStateException {
+  public long transferTo(File dest) throws IOException, IllegalStateException {
     FileCopyUtils.copy(this.content, dest);
+    return getContentLength();
   }
 
   public long transferTo(Path dest) throws IOException, IllegalStateException {

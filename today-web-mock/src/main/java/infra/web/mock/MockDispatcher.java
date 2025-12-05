@@ -50,6 +50,7 @@ import infra.web.mock.support.WebApplicationContextUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2.0 2018-06-25 19:47:14
  */
+@SuppressWarnings("NullAway")
 public class MockDispatcher extends DispatcherHandler implements MockApi, Serializable {
 
   /**

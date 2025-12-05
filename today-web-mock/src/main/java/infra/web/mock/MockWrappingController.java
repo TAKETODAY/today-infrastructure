@@ -94,6 +94,7 @@ public class MockWrappingController extends AbstractController
 
   private MockContext mockContext;
 
+  @SuppressWarnings("NullAway")
   public MockWrappingController() {
     super(false);
   }

@@ -278,7 +278,7 @@ public interface Part extends InputStreamSource, HttpInputMessage {
    * @throws IllegalStateException if the file has already been moved
    * in the filesystem and is not available anymore for another transfer
    */
-  void transferTo(File dest) throws IOException, IllegalStateException;
+  long transferTo(File dest) throws IOException, IllegalStateException;
 
   /**
    * Transfer the received file to the given destination file.
