@@ -30,7 +30,7 @@ import infra.util.MultiValueMap;
 import infra.web.multipart.MultipartException;
 import infra.web.multipart.NotMultipartRequestException;
 import infra.web.multipart.Part;
-import infra.web.multipart.support.AbstractMultipartRequest;
+import infra.web.multipart.AbstractMultipartRequest;
 
 /**
  * For Servlet Multipart

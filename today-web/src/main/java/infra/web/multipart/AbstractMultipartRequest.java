@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.multipart.support;
+package infra.web.multipart;
 
 import org.jspecify.annotations.Nullable;
 
@@ -23,8 +23,6 @@ import java.util.List;
 
 import infra.http.HttpHeaders;
 import infra.util.MultiValueMap;
-import infra.web.multipart.MultipartRequest;
-import infra.web.multipart.Part;
 import infra.web.util.WebUtils;
 
 /**
