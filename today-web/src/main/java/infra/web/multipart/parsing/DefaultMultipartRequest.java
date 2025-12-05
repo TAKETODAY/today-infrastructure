@@ -23,6 +23,8 @@ import infra.web.multipart.Part;
 import infra.web.multipart.support.AbstractMultipartRequest;
 
 /**
+ * Default implementation of {@link infra.web.multipart.MultipartRequest}.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/28 21:39
  */

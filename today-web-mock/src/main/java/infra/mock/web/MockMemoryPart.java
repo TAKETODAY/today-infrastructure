@@ -20,28 +20,30 @@ package infra.mock.web;
 import org.jspecify.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.Collections;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.mock.api.http.Part;
+import infra.util.FileCopyUtils;
+import infra.web.multipart.Part;
 
 /**
- * Mock implementation of {@code infra.mock.api.http.Part}.
+ * Mock implementation of {@link Part}.
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see HttpMockRequestImpl#addPart
- * @see MockMultipartFile
+ * @see MockMemoryFilePart
  * @since 4.0
  */
-public class MockPart implements Part {
+public class MockMemoryPart implements Part {
 
   private final String name;
 
@@ -57,7 +59,7 @@ public class MockPart implements Part {
    *
    * @see #getHeaders()
    */
-  public MockPart(String name, byte @Nullable [] content) {
+  public MockMemoryPart(String name, byte @Nullable [] content) {
     this(name, null, content);
   }
 
@@ -66,7 +68,7 @@ public class MockPart implements Part {
    *
    * @see #getHeaders()
    */
-  public MockPart(String name, @Nullable String filename, byte @Nullable [] content) {
+  public MockMemoryPart(String name, @Nullable String filename, byte @Nullable [] content) {
     Assert.hasLength(name, "'name' must not be empty");
     this.name = name;
     this.filename = filename;
@@ -81,20 +83,58 @@ public class MockPart implements Part {
 
   @Override
   @Nullable
-  public String getSubmittedFileName() {
+  public String getOriginalFilename() {
     return this.filename;
   }
 
   @Override
-  @Nullable
-  public String getContentType() {
-    MediaType contentType = this.headers.getContentType();
-    return (contentType != null ? contentType.toString() : null);
+  public void transferTo(File dest) throws IllegalStateException, IOException {
+    FileCopyUtils.copy(content, dest);
   }
 
   @Override
-  public long getSize() {
+  public @Nullable MediaType getContentType() {
+    return headers.getContentType();
+  }
+
+  @Override
+  public long getContentLength() {
     return this.content.length;
+  }
+
+  @Override
+  public byte[] getContentAsByteArray() throws IOException {
+    return content;
+  }
+
+  @Override
+  public String getContentAsString() throws IOException {
+    return getContentAsString(StandardCharsets.UTF_8);
+  }
+
+  @Override
+  public String getContentAsString(@Nullable Charset charset) throws IOException {
+    return new String(content, charset == null ? StandardCharsets.UTF_8 : charset);
+  }
+
+  @Override
+  public boolean isInMemory() {
+    return true;
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return content.length == 0;
+  }
+
+  @Override
+  public boolean isFormField() {
+    return filename == null;
+  }
+
+  @Override
+  public boolean isFile() {
+    return !isFormField();
   }
 
   @Override
@@ -103,36 +143,14 @@ public class MockPart implements Part {
   }
 
   @Override
-  public void write(String fileName) throws IOException {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void delete() throws IOException {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  @Nullable
-  public String getHeader(String name) {
-    return this.headers.getFirst(name);
-  }
-
-  @Override
-  public Collection<String> getHeaders(String name) {
-    Collection<String> headerValues = this.headers.get(name);
-    return (headerValues != null ? headerValues : Collections.emptyList());
-  }
-
-  @Override
-  public Collection<String> getHeaderNames() {
-    return this.headers.keySet();
+  public void cleanup() throws IOException {
   }
 
   /**
    * Return the {@link HttpHeaders} backing header related accessor methods,
    * allowing for populating selected header entries.
    */
+  @Override
   public final HttpHeaders getHeaders() {
     return this.headers;
   }

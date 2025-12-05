@@ -50,8 +50,8 @@ class MockMultipartHttpRequestTests {
     assertThat(multipartRequest.getFile("file2")).isNull();
     assertThat(multipartRequest.getFileMap().isEmpty()).isTrue();
 
-    request.addPart(new MockMultipartFile("file1", "myContent1".getBytes()));
-    request.addPart(new MockMultipartFile("file2", "myOrigFilename", "text/plain", "myContent2".getBytes()));
+    request.addPart(new MockMemoryFilePart("file1", "myContent1".getBytes()));
+    request.addPart(new MockMemoryFilePart("file2", "myOrigFilename", "text/plain", "myContent2".getBytes()));
     doTestMultipartHttpRequest(multipartRequest);
   }
 
@@ -60,8 +60,8 @@ class MockMultipartHttpRequestTests {
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     MultipartRequest multipartRequest = request.getMultipartRequest();
 
-    request.addPart(new MockMultipartFile("file1", new ByteArrayInputStream("myContent1".getBytes())));
-    request.addPart(new MockMultipartFile("file2", "myOrigFilename", "text/plain", new ByteArrayInputStream(
+    request.addPart(new MockMemoryFilePart("file1", new ByteArrayInputStream("myContent1".getBytes())));
+    request.addPart(new MockMemoryFilePart("file2", "myOrigFilename", "text/plain", new ByteArrayInputStream(
             "myContent2".getBytes())));
     doTestMultipartHttpRequest(multipartRequest);
   }
@@ -69,9 +69,9 @@ class MockMultipartHttpRequestTests {
   @Test
   void mockMultiPartHttpMockRequestWithMixedData() {
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
-    request.addPart(new MockMultipartFile("file", "myOrigFilename", MediaType.TEXT_PLAIN_VALUE, "myContent2".getBytes()));
+    request.addPart(new MockMemoryFilePart("file", "myOrigFilename", MediaType.TEXT_PLAIN_VALUE, "myContent2".getBytes()));
 
-    MockPart metadataPart = new MockPart("metadata", "{\"foo\": \"bar\"}".getBytes());
+    MockMemoryPart metadataPart = new MockMemoryPart("metadata", "{\"foo\": \"bar\"}".getBytes());
     metadataPart.getHeaders().setContentType(MediaType.APPLICATION_JSON);
     request.addPart(metadataPart);
 

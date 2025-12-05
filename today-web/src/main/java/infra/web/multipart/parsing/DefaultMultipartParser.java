@@ -287,12 +287,12 @@ public class DefaultMultipartParser implements MultipartParser {
                   .formatted(request.getContentType(), maxFields), maxFields, size);
         }
 
-        DefaultPart fieldItem = new DefaultPart(field.fieldName, field.contentType,
+        DefaultPart part = new DefaultPart(field.fieldName, field.contentType,
                 field.headers, field.formField, field.fieldName, this);
 
-        parts.add(fieldItem.getName(), fieldItem);
+        parts.add(part.getName(), part);
         try (var inputStream = field.getInputStream();
-                var outputStream = fieldItem.getOutputStream()) {
+                var outputStream = part.getOutputStream()) {
           StreamUtils.copy(inputStream, outputStream, buffer);
         }
         catch (IOException e) {

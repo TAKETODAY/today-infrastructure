@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Map;
 
 import infra.http.HttpMethod;
-import infra.mock.web.MockMultipartFile;
-import infra.mock.web.MockPart;
+import infra.mock.web.MockMemoryFilePart;
+import infra.mock.web.MockMemoryPart;
 import infra.stereotype.Controller;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.request.MockMultipartHttpRequestBuilder;
@@ -61,12 +61,12 @@ class MultipartControllerTests {
     byte[] fileContent = "bar".getBytes(StandardCharsets.UTF_8);
 
     byte[] json = "{\"name\":\"yeeeah\"}".getBytes(StandardCharsets.UTF_8);
-    MockMultipartFile jsonPart = new MockMultipartFile("json", "json", "application/json", json);
+    MockMemoryFilePart jsonPart = new MockMemoryFilePart("json", "json", "application/json", json);
 
     MockMultipartHttpRequestBuilder requestBuilder = switch (url) {
-      case "/Part" -> multipart(url).file(new MockMultipartFile("file", "orig", null, fileContent));
-      case "/Part-via-put" -> multipart(HttpMethod.PUT, url).file(new MockMultipartFile("file", "orig", null, fileContent));
-      default -> multipart(url).part(new MockPart("part", "orig", fileContent));
+      case "/Part" -> multipart(url).file(new MockMemoryFilePart("file", "orig", null, fileContent));
+      case "/Part-via-put" -> multipart(HttpMethod.PUT, url).file(new MockMemoryFilePart("file", "orig", null, fileContent));
+      default -> multipart(url).part(new MockMemoryPart("part", "orig", fileContent));
     };
 
     standaloneSetup(new MultipartController()).build()
@@ -84,11 +84,11 @@ class MultipartControllerTests {
   @Test
   void multipartRequestWithFileArray() throws Exception {
     byte[] fileContent = "bar".getBytes(StandardCharsets.UTF_8);
-    MockMultipartFile filePart1 = new MockMultipartFile("file", "orig", null, fileContent);
-    MockMultipartFile filePart2 = new MockMultipartFile("file", "orig", null, fileContent);
+    MockMemoryFilePart filePart1 = new MockMemoryFilePart("file", "orig", null, fileContent);
+    MockMemoryFilePart filePart2 = new MockMemoryFilePart("file", "orig", null, fileContent);
 
     byte[] json = "{\"name\":\"yeeeah\"}".getBytes(StandardCharsets.UTF_8);
-    MockMultipartFile jsonPart = new MockMultipartFile("json", "json", "application/json", json);
+    MockMemoryFilePart jsonPart = new MockMemoryFilePart("json", "json", "application/json", json);
 
     standaloneSetup(new MultipartController()).build()
             .perform(multipart("/multipartfilearray").file(filePart1).file(filePart2).file(jsonPart))
@@ -112,11 +112,11 @@ class MultipartControllerTests {
   @Test
   void multipartRequestWithFileList() throws Exception {
     byte[] fileContent = "bar".getBytes(StandardCharsets.UTF_8);
-    MockMultipartFile filePart1 = new MockMultipartFile("file", "orig", null, fileContent);
-    MockMultipartFile filePart2 = new MockMultipartFile("file", "orig", null, fileContent);
+    MockMemoryFilePart filePart1 = new MockMemoryFilePart("file", "orig", null, fileContent);
+    MockMemoryFilePart filePart2 = new MockMemoryFilePart("file", "orig", null, fileContent);
 
     byte[] json = "{\"name\":\"yeeeah\"}".getBytes(StandardCharsets.UTF_8);
-    MockMultipartFile jsonPart = new MockMultipartFile("json", "json", "application/json", json);
+    MockMemoryFilePart jsonPart = new MockMemoryFilePart("json", "json", "application/json", json);
 
     standaloneSetup(new MultipartController()).build()
             .perform(multipart("/multipartfilelist").file(filePart1).file(filePart2).file(jsonPart))
@@ -140,10 +140,10 @@ class MultipartControllerTests {
   @Test
   void multipartRequestWithOptionalFile() throws Exception {
     byte[] fileContent = "bar".getBytes(StandardCharsets.UTF_8);
-    MockMultipartFile filePart = new MockMultipartFile("file", "orig", null, fileContent);
+    MockMemoryFilePart filePart = new MockMemoryFilePart("file", "orig", null, fileContent);
 
     byte[] json = "{\"name\":\"yeeeah\"}".getBytes(StandardCharsets.UTF_8);
-    MockMultipartFile jsonPart = new MockMultipartFile("json", "json", "application/json", json);
+    MockMemoryFilePart jsonPart = new MockMemoryFilePart("json", "json", "application/json", json);
 
     standaloneSetup(new MultipartController()).build()
             .perform(multipart("/optionalfile").file(filePart).file(jsonPart))
@@ -153,7 +153,7 @@ class MultipartControllerTests {
   @Test
   void multipartRequestWithOptionalFileNotPresent() throws Exception {
     byte[] json = "{\"name\":\"yeeeah\"}".getBytes(StandardCharsets.UTF_8);
-    MockMultipartFile jsonPart = new MockMultipartFile("json", "json", "application/json", json);
+    MockMemoryFilePart jsonPart = new MockMemoryFilePart("json", "json", "application/json", json);
 
     standaloneSetup(new MultipartController()).build()
             .perform(multipart("/optionalfile").file(jsonPart))
@@ -163,11 +163,11 @@ class MultipartControllerTests {
   @Test
   void multipartRequestWithOptionalFileArray() throws Exception {
     byte[] fileContent = "bar".getBytes(StandardCharsets.UTF_8);
-    MockMultipartFile filePart1 = new MockMultipartFile("file", "orig", null, fileContent);
-    MockMultipartFile filePart2 = new MockMultipartFile("file", "orig", null, fileContent);
+    MockMemoryFilePart filePart1 = new MockMemoryFilePart("file", "orig", null, fileContent);
+    MockMemoryFilePart filePart2 = new MockMemoryFilePart("file", "orig", null, fileContent);
 
     byte[] json = "{\"name\":\"yeeeah\"}".getBytes(StandardCharsets.UTF_8);
-    MockMultipartFile jsonPart = new MockMultipartFile("json", "json", "application/json", json);
+    MockMemoryFilePart jsonPart = new MockMemoryFilePart("json", "json", "application/json", json);
 
     standaloneSetup(new MultipartController()).build()
             .perform(multipart("/optionalfilearray").file(filePart1).file(filePart2).file(jsonPart))
@@ -177,7 +177,7 @@ class MultipartControllerTests {
   @Test
   void multipartRequestWithOptionalFileArrayNotPresent() throws Exception {
     byte[] json = "{\"name\":\"yeeeah\"}".getBytes(StandardCharsets.UTF_8);
-    MockMultipartFile jsonPart = new MockMultipartFile("json", "json", "application/json", json);
+    MockMemoryFilePart jsonPart = new MockMemoryFilePart("json", "json", "application/json", json);
 
     standaloneSetup(new MultipartController()).build()
             .perform(multipart("/optionalfilearray").file(jsonPart))
@@ -187,11 +187,11 @@ class MultipartControllerTests {
   @Test
   void multipartRequestWithOptionalFileList() throws Exception {
     byte[] fileContent = "bar".getBytes(StandardCharsets.UTF_8);
-    MockMultipartFile filePart1 = new MockMultipartFile("file", "orig", null, fileContent);
-    MockMultipartFile filePart2 = new MockMultipartFile("file", "orig", null, fileContent);
+    MockMemoryFilePart filePart1 = new MockMemoryFilePart("file", "orig", null, fileContent);
+    MockMemoryFilePart filePart2 = new MockMemoryFilePart("file", "orig", null, fileContent);
 
     byte[] json = "{\"name\":\"yeeeah\"}".getBytes(StandardCharsets.UTF_8);
-    MockMultipartFile jsonPart = new MockMultipartFile("json", "json", "application/json", json);
+    MockMemoryFilePart jsonPart = new MockMemoryFilePart("json", "json", "application/json", json);
 
     standaloneSetup(new MultipartController()).build()
             .perform(multipart("/optionalfilelist").file(filePart1).file(filePart2).file(jsonPart))
@@ -201,7 +201,7 @@ class MultipartControllerTests {
   @Test
   void multipartRequestWithOptionalFileListNotPresent() throws Exception {
     byte[] json = "{\"name\":\"yeeeah\"}".getBytes(StandardCharsets.UTF_8);
-    MockMultipartFile jsonPart = new MockMultipartFile("json", "json", "application/json", json);
+    MockMemoryFilePart jsonPart = new MockMemoryFilePart("json", "json", "application/json", json);
 
     standaloneSetup(new MultipartController()).build()
             .perform(multipart("/optionalfilelist").file(jsonPart))
@@ -211,7 +211,7 @@ class MultipartControllerTests {
   @Test
   void multipartRequestWithDataBindingToFile() throws Exception {
     byte[] fileContent = "bar".getBytes(StandardCharsets.UTF_8);
-    MockPart filePart = new MockPart("file", "orig", fileContent);
+    MockMemoryPart filePart = new MockMemoryPart("file", "orig", fileContent);
 
     standaloneSetup(new MultipartController()).build()
             .perform(multipart("/multipartfilebinding").part(filePart))
@@ -221,7 +221,7 @@ class MultipartControllerTests {
   @Test
   void multipartRequestWrapped() throws Exception {
     byte[] json = "{\"name\":\"yeeeah\"}".getBytes(StandardCharsets.UTF_8);
-    MockMultipartFile jsonPart = new MockMultipartFile("json", "json", "application/json", json);
+    MockMemoryFilePart jsonPart = new MockMemoryFilePart("json", "json", "application/json", json);
 
 //    Filter filter = new RequestWrappingFilter();
     MockMvc mockMvc = standaloneSetup(new MultipartController())./*addFilter(filter).*/build();

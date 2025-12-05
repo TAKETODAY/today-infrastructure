@@ -81,9 +81,12 @@ public interface MultipartRequest {
    * <p>If the underlying implementation supports access to part headers,
    * then all headers are returned. Otherwise, e.g. for a file upload, the
    * returned headers may expose a 'Content-Type' if available.
+   *
+   * @param name the name of the part to retrieve headers for
+   * @return the headers for the specified part, or {@code null} if not found
    */
   @Nullable
-  HttpHeaders getHeaders(String paramOrFileName);
+  HttpHeaders getHeaders(String name);
 
   /**
    * Cleanup any resources used for the multipart handling,

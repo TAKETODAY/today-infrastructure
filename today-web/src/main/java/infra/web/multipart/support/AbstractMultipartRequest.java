@@ -75,8 +75,8 @@ public abstract class AbstractMultipartRequest implements MultipartRequest {
   }
 
   @Override
-  public @Nullable HttpHeaders getHeaders(String paramOrFileName) {
-    Part part = getPart(paramOrFileName);
+  public @Nullable HttpHeaders getHeaders(String name) {
+    Part part = getPart(name);
     return part != null ? part.getHeaders() : null;
   }
 

@@ -47,11 +47,11 @@ import infra.web.multipart.Part;
  * @see MockMultipartHttpMockRequest
  * @since 4.0
  */
-public class MockMultipartFile implements Part {
+public class MockMemoryFilePart implements Part {
 
   private final String name;
 
-  private final String originalFilename;
+  private final @Nullable String filename;
 
   @Nullable
   private final String contentType;
@@ -66,7 +66,7 @@ public class MockMultipartFile implements Part {
    * @param name the name of the file
    * @param content the content of the file
    */
-  public MockMultipartFile(String name, byte @Nullable [] content) {
+  public MockMemoryFilePart(String name, byte @Nullable [] content) {
     this(name, "", null, content);
   }
 
@@ -77,7 +77,7 @@ public class MockMultipartFile implements Part {
    * @param contentStream the content of the file as stream
    * @throws IOException if reading from the stream failed
    */
-  public MockMultipartFile(String name, InputStream contentStream) throws IOException {
+  public MockMemoryFilePart(String name, InputStream contentStream) throws IOException {
     this(name, "", null, FileCopyUtils.copyToByteArray(contentStream));
   }
 
@@ -85,16 +85,16 @@ public class MockMultipartFile implements Part {
    * Create a new MockMultipartFile with the given content.
    *
    * @param name the name of the file
-   * @param originalFilename the original filename (as on the client's machine)
+   * @param filename the original filename (as on the client's machine)
    * @param contentType the content type (if known)
    * @param content the content of the file
    */
-  public MockMultipartFile(
-          String name, @Nullable String originalFilename, @Nullable String contentType, byte @Nullable [] content) {
+  public MockMemoryFilePart(
+          String name, @Nullable String filename, @Nullable String contentType, byte @Nullable [] content) {
 
     Assert.hasLength(name, "Name must not be empty");
     this.name = name;
-    this.originalFilename = (originalFilename != null ? originalFilename : "");
+    this.filename = (filename != null ? filename : "");
     this.contentType = contentType;
     this.content = (content != null ? content : Constant.EMPTY_BYTES);
   }
@@ -103,16 +103,16 @@ public class MockMultipartFile implements Part {
    * Create a new MockMultipartFile with the given content.
    *
    * @param name the name of the file
-   * @param originalFilename the original filename (as on the client's machine)
+   * @param filename the original filename (as on the client's machine)
    * @param contentType the content type (if known)
    * @param contentStream the content of the file as stream
    * @throws IOException if reading from the stream failed
    */
-  public MockMultipartFile(
-          String name, @Nullable String originalFilename, @Nullable String contentType, InputStream contentStream)
+  public MockMemoryFilePart(
+          String name, @Nullable String filename, @Nullable String contentType, InputStream contentStream)
           throws IOException {
 
-    this(name, originalFilename, contentType, FileCopyUtils.copyToByteArray(contentStream));
+    this(name, filename, contentType, FileCopyUtils.copyToByteArray(contentStream));
   }
 
   @Override
@@ -121,8 +121,18 @@ public class MockMultipartFile implements Part {
   }
 
   @Override
-  public String getContentAsString() {
-    return new String(content);
+  public byte[] getContentAsByteArray() throws IOException {
+    return content;
+  }
+
+  @Override
+  public String getContentAsString() throws IOException {
+    return getContentAsString(StandardCharsets.UTF_8);
+  }
+
+  @Override
+  public String getContentAsString(@Nullable Charset charset) throws IOException {
+    return new String(content, charset == null ? StandardCharsets.UTF_8 : charset);
   }
 
   @Override
@@ -132,12 +142,12 @@ public class MockMultipartFile implements Part {
 
   @Override
   public boolean isFormField() {
-    return false;
+    return filename == null;
   }
 
   @Override
   public boolean isFile() {
-    return true;
+    return !isFormField();
   }
 
   public void setHeaders(HttpHeaders headers) {
@@ -162,7 +172,7 @@ public class MockMultipartFile implements Part {
 
   @Override
   public String getOriginalFilename() {
-    return originalFilename;
+    return filename;
   }
 
   @Override
@@ -179,16 +189,6 @@ public class MockMultipartFile implements Part {
   @Override
   public long getContentLength() {
     return this.content.length;
-  }
-
-  @Override
-  public byte[] getContentAsByteArray() throws IOException {
-    return this.content;
-  }
-
-  @Override
-  public String getContentAsString(@Nullable Charset charset) throws IOException {
-    return new String(content, charset == null ? StandardCharsets.UTF_8 : charset);
   }
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
 import infra.mock.api.RequestDispatcher;
 import infra.mock.api.annotation.MultipartConfig;
+import infra.web.multipart.Part;
 
 /**
  * Extends the {@link MockRequest} interface to provide request information for HTTP servlets.

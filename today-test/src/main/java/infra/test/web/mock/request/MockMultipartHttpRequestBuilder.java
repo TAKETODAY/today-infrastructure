@@ -33,13 +33,13 @@ import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.mock.api.MockContext;
-import infra.mock.api.http.Part;
 import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockMultipartFile;
+import infra.mock.web.MockMemoryFilePart;
 import infra.mock.web.MockMultipartHttpMockRequest;
 import infra.util.FileCopyUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
+import infra.web.multipart.Part;
 
 /**
  * Default builder for {@link MockMultipartHttpMockRequest}.
@@ -50,7 +50,7 @@ import infra.util.MultiValueMap;
  */
 public class MockMultipartHttpRequestBuilder extends MockHttpRequestBuilder {
 
-  private final List<MockMultipartFile> files = new ArrayList<>();
+  private final List<MockMemoryFilePart> files = new ArrayList<>();
 
   private final MultiValueMap<String, Part> parts = new LinkedMultiValueMap<>();
 
@@ -95,22 +95,22 @@ public class MockMultipartHttpRequestBuilder extends MockHttpRequestBuilder {
   }
 
   /**
-   * Add a new {@link MockMultipartFile} with the given content.
+   * Add a new {@link MockMemoryFilePart} with the given content.
    *
    * @param name the name of the file
    * @param content the content of the file
    */
   public MockMultipartHttpRequestBuilder file(String name, byte[] content) {
-    this.files.add(new MockMultipartFile(name, content));
+    this.files.add(new MockMemoryFilePart(name, content));
     return this;
   }
 
   /**
-   * Add the given {@link MockMultipartFile}.
+   * Add the given {@link MockMemoryFilePart}.
    *
    * @param file the multipart file
    */
-  public MockMultipartHttpRequestBuilder file(MockMultipartFile file) {
+  public MockMultipartHttpRequestBuilder file(MockMemoryFilePart file) {
     this.files.add(file);
     return this;
   }
@@ -156,17 +156,17 @@ public class MockMultipartHttpRequestBuilder extends MockHttpRequestBuilder {
   protected final HttpMockRequestImpl createMockRequest(MockContext mockContext) {
     MockMultipartHttpMockRequest mockRequest = new MockMultipartHttpMockRequest(mockContext);
     Charset defaultCharset = (mockRequest.getCharacterEncoding() != null ?
-                              Charset.forName(mockRequest.getCharacterEncoding()) : StandardCharsets.UTF_8);
+            Charset.forName(mockRequest.getCharacterEncoding()) : StandardCharsets.UTF_8);
 
     this.files.forEach(mockRequest::addPart);
     this.parts.values().stream().flatMap(Collection::stream).forEach(part -> {
       mockRequest.addPart(part);
       try {
         String name = part.getName();
-        String filename = part.getSubmittedFileName();
+        String filename = part.getOriginalFilename();
         InputStream is = part.getInputStream();
         if (filename != null) {
-          mockRequest.addPart(new MockMultipartFile(name, filename, part.getContentType(), is));
+          mockRequest.addPart(new MockMemoryFilePart(name, filename, part.getContentTypeString(), is));
         }
         else {
           InputStreamReader reader = new InputStreamReader(is, getCharsetOrDefault(part, defaultCharset));
@@ -183,8 +183,8 @@ public class MockMultipartHttpRequestBuilder extends MockHttpRequestBuilder {
   }
 
   private Charset getCharsetOrDefault(Part part, Charset defaultCharset) {
-    if (part.getContentType() != null) {
-      MediaType mediaType = MediaType.parseMediaType(part.getContentType());
+    if (part.getContentTypeString() != null) {
+      MediaType mediaType = MediaType.parseMediaType(part.getContentTypeString());
       if (mediaType.getCharset() != null) {
         return mediaType.getCharset();
       }

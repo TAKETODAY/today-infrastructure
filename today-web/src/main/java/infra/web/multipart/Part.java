@@ -33,6 +33,8 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Collection;
+import java.util.Collections;
 
 import infra.core.io.InputStreamSource;
 import infra.core.io.Resource;
@@ -74,10 +76,54 @@ public interface Part extends InputStreamSource, HttpInputMessage {
   HttpHeaders getHeaders();
 
   /**
+   * Returns the value of the specified mime header as a <code>String</code>. If the Part did not include a header of the
+   * specified name, this method returns <code>null</code>. If there are multiple headers with the same name, this method
+   * returns the first header in the part. The header name is case insensitive. You can use this method with any request
+   * header.
+   *
+   * @param name a <code>String</code> specifying the header name
+   * @return a <code>String</code> containing the value of the requested header, or <code>null</code> if the part does not
+   * have a header of that name
+   * @since 5.0
+   */
+  default @Nullable String getHeader(String name) {
+    return getHeaders().getFirst(name);
+  }
+
+  /**
+   * Gets the values of the Part header with the given name.
+   *
+   * <p>
+   * Any changes to the returned <code>Collection</code> must not affect this <code>Part</code>.
+   *
+   * <p>
+   * Part header names are case-insensitive.
+   *
+   * @param name the header name whose values to return
+   * @return a (possibly empty) <code>Collection</code> of the values of the header with the given name
+   * @since 5.0
+   */
+  default Collection<String> getHeaders(String name) {
+    Collection<String> headerValues = getHeaders().get(name);
+    return headerValues != null ? headerValues : Collections.emptyList();
+  }
+
+  /**
+   * Get the header names provided for this part.
+   *
+   * @return a Collection of all the header names provided for this part.
+   * @since 5.0
+   */
+  default Collection<String> getHeaderNames() {
+    return getHeaders().keySet();
+  }
+
+  /**
    * Return the body of the message as an input stream.
    *
    * @return the input stream body (never {@code null})
    * @throws IOException in case of I/O errors
+   * @since 5.0
    */
   @Override
   default InputStream getBody() throws IOException {
@@ -92,6 +138,18 @@ public interface Part extends InputStreamSource, HttpInputMessage {
    */
   @Nullable
   MediaType getContentType();
+
+  /**
+   * Get the content type of this part.
+   *
+   * @return the content type of this part, or {@code null} if not defined
+   * @since 5.0
+   */
+  @Nullable
+  default String getContentTypeString() {
+    MediaType contentType = getContentType();
+    return contentType != null ? contentType.toString() : null;
+  }
 
   /**
    * Determine the content length for this Part.
@@ -142,12 +200,15 @@ public interface Part extends InputStreamSource, HttpInputMessage {
    * Tests a hint as to whether or not the part contents will be read from memory.
    *
    * @return {@code true} if the part contents will be read from memory; {@code false} otherwise.
+   * @since 5.0
    */
   boolean isInMemory();
 
   /**
    * Return whether the part content is empty, that is, either no file has
    * been chosen in the multipart form or the chosen file has no content.
+   *
+   * @since 5.0
    */
   boolean isEmpty();
 
