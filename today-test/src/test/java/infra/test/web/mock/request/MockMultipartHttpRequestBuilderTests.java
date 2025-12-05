@@ -24,8 +24,8 @@ import infra.http.MediaType;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockMemoryFilePart;
-import infra.mock.web.MockMultipartHttpMockRequest;
 import infra.mock.web.MockMemoryPart;
+import infra.mock.web.MockMultipartHttpMockRequest;
 import infra.web.multipart.Part;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Rossen Stoyanchev
  */
-public class MockMultipartHttpRequestBuilderTests {
+class MockMultipartHttpRequestBuilderTests {
 
   @Test
   void addFileAndParts() throws Exception {
@@ -46,9 +46,9 @@ public class MockMultipartHttpRequestBuilderTests {
                     .part(new MockMemoryPart("name", "value".getBytes(UTF_8)))
                     .buildRequest(new MockContextImpl());
 
-    assertThat(mockRequest.getMultipartRequest().getParts()).containsOnlyKeys("file");
+    assertThat(mockRequest.getMultipartRequest().getParts()).containsOnlyKeys("file", "name");
     assertThat(mockRequest.getParameterMap()).containsOnlyKeys("name");
-    assertThat(mockRequest.getParts()).extracting(Part::getName).containsExactly("name");
+    assertThat(mockRequest.getParts()).extracting(Part::getName).containsExactly();
   }
 
   @Test
@@ -62,10 +62,10 @@ public class MockMultipartHttpRequestBuilderTests {
                     .part(jsonPart)
                     .buildRequest(new MockContextImpl());
 
-    assertThat(mockRequest.getMultipartRequest().getParts().toSingleValueMap()).containsOnlyKeys("file");
+    assertThat(mockRequest.getMultipartRequest().getParts().toSingleValueMap()).containsOnlyKeys("file", "data");
     assertThat(mockRequest.getParameterMap()).hasSize(1);
     assertThat(mockRequest.getParameter("data")).isEqualTo("{\"node\":\"node\"}");
-    assertThat(mockRequest.getParts()).extracting(Part::getName).containsExactly("data");
+    assertThat(mockRequest.getParts()).extracting(Part::getName).containsExactly();
   }
 
   @Test
