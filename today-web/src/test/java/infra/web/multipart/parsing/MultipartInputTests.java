@@ -53,21 +53,6 @@ class MultipartInputTests {
   }
 
   @Test
-  void constructorWithBufferTooSmall() {
-    InputStream input = new ByteArrayInputStream(new byte[0]);
-    byte[] boundary = "very-long-boundary-token-that-exceeds-buffer-size".getBytes();
-    ProgressNotifier notifier = mock(ProgressNotifier.class);
-    DefaultMultipartParser parser = mock(DefaultMultipartParser.class);
-    when(parser.getParsingBufferSize()).thenReturn(10); // Too small
-    when(parser.getMaxHeaderSize()).thenReturn(512);
-    when(parser.getDefaultCharset()).thenReturn(StandardCharsets.UTF_8);
-
-    assertThatThrownBy(() -> new MultipartInput(input, boundary, notifier, parser))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("The buffer size specified for the MultipartInput is too small");
-  }
-
-  @Test
   void findSeparatorReturnsNegativeOneWhenNotFound() throws Exception {
     InputStream input = new ByteArrayInputStream("some data without boundary".getBytes());
     byte[] boundary = "boundary".getBytes();

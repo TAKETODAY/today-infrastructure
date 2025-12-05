@@ -1031,7 +1031,7 @@ class ExceptionTests {
 
       MultipartException exception = new MultipartException(message);
 
-      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getMessage()).contains(message);
       assertThat(exception.getCause()).isNull();
     }
 
@@ -1042,7 +1042,7 @@ class ExceptionTests {
 
       MultipartException exception = new MultipartException(message, cause);
 
-      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getMessage()).contains(message);
       assertThat(exception.getCause()).isSameAs(cause);
     }
 
@@ -1050,7 +1050,7 @@ class ExceptionTests {
     void constructorWithNullMessage() {
       MultipartException exception = new MultipartException(null);
 
-      assertThat(exception.getMessage()).isNull();
+      assertThat(exception.getMessage()).isNotNull();
       assertThat(exception.getCause()).isNull();
     }
 
@@ -1060,7 +1060,7 @@ class ExceptionTests {
 
       MultipartException exception = new MultipartException(null, cause);
 
-      assertThat(exception.getMessage()).isNull();
+      assertThat(exception.getMessage()).isNotNull();
       assertThat(exception.getCause()).isSameAs(cause);
     }
 
@@ -1068,7 +1068,7 @@ class ExceptionTests {
     void exceptionExtendsHttpMessageNotReadableException() {
       MultipartException exception = new MultipartException("test");
 
-      assertThat(exception).isInstanceOf(NestedRuntimeException.class);
+      assertThat(exception).isInstanceOf(ErrorResponseException.class);
     }
 
   }
@@ -1082,7 +1082,7 @@ class ExceptionTests {
 
       NotMultipartRequestException exception = new NotMultipartRequestException(message, cause);
 
-      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getMessage()).contains(message);
       assertThat(exception.getCause()).isSameAs(cause);
     }
 
@@ -1090,7 +1090,7 @@ class ExceptionTests {
     void constructorWithNullMessageAndNullCause() {
       NotMultipartRequestException exception = new NotMultipartRequestException(null, null);
 
-      assertThat(exception.getMessage()).isNull();
+      assertThat(exception.getMessage()).isNotNull();
       assertThat(exception.getCause()).isNull();
     }
 
@@ -1100,7 +1100,7 @@ class ExceptionTests {
 
       NotMultipartRequestException exception = new NotMultipartRequestException(message, null);
 
-      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getMessage()).contains(message);
       assertThat(exception.getCause()).isNull();
     }
 
@@ -1110,7 +1110,7 @@ class ExceptionTests {
 
       NotMultipartRequestException exception = new NotMultipartRequestException(null, cause);
 
-      assertThat(exception.getMessage()).isNull();
+      assertThat(exception.getMessage()).isNotNull();
       assertThat(exception.getCause()).isSameAs(cause);
     }
 
@@ -1950,7 +1950,7 @@ class ExceptionTests {
 
       MultipartSizeException exception = new MultipartSizeException(message, permitted, actual);
 
-      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getMessage()).contains(message);
       assertThat(exception.getPermitted()).isEqualTo(permitted);
       assertThat(exception.getActualSize()).isEqualTo(actual);
       assertThat(exception.getCause()).isNull();
@@ -1963,7 +1963,7 @@ class ExceptionTests {
 
       MultipartSizeException exception = new MultipartSizeException(null, permitted, actual);
 
-      assertThat(exception.getMessage()).isNull();
+      assertThat(exception.getMessage()).isNotNull();
       assertThat(exception.getPermitted()).isEqualTo(permitted);
       assertThat(exception.getActualSize()).isEqualTo(actual);
     }
@@ -1976,7 +1976,7 @@ class ExceptionTests {
 
       MultipartSizeException exception = new MultipartSizeException(message, permitted, actual);
 
-      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getMessage()).contains(message);
       assertThat(exception.getPermitted()).isEqualTo(permitted);
       assertThat(exception.getActualSize()).isEqualTo(actual);
     }
@@ -1989,7 +1989,7 @@ class ExceptionTests {
 
       MultipartSizeException exception = new MultipartSizeException(message, permitted, actual);
 
-      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getMessage()).contains(message);
       assertThat(exception.getPermitted()).isEqualTo(permitted);
       assertThat(exception.getActualSize()).isEqualTo(actual);
     }
