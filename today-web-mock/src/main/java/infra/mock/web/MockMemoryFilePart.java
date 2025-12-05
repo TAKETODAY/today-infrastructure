@@ -178,7 +178,7 @@ public class MockMemoryFilePart implements Part {
   @Override
   @Nullable
   public MediaType getContentType() {
-    return MediaType.parseMediaType(contentType);
+    return contentType == null ? null : MediaType.parseMediaType(contentType);
   }
 
   @Override
