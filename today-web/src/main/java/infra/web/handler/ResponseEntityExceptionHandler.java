@@ -49,7 +49,6 @@ import infra.web.bind.MissingPathVariableException;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.RequestBindingException;
 import infra.web.bind.resolver.MissingRequestPartException;
-import infra.web.multipart.MaxUploadSizeExceededException;
 import infra.web.multipart.MultipartException;
 import infra.web.util.WebUtils;
 
@@ -146,11 +145,11 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
       else if (ex instanceof AsyncRequestTimeoutException subEx) {
         return handleAsyncRequestTimeoutException(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
+      else if (ex instanceof MultipartException subEx) {
+        return handleMultipartException(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
+      }
       else if (ex instanceof ErrorResponseException subEx) {
         return handleErrorResponseException(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
-      }
-      else if (ex instanceof MaxUploadSizeExceededException subEx) {
-        return handleMaxUploadSizeExceededException(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
       else {
         // Another ErrorResponse
@@ -385,7 +384,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
   }
 
   /**
-   * Customize the handling of any {@link MaxUploadSizeExceededException}.
+   * Customize the handling of any {@link MultipartException}.
    * <p>This method delegates to {@link #handleExceptionInternal}.
    *
    * @param ex the exception to handle
@@ -396,7 +395,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    * {@code null} when the response is already committed
    */
   @Nullable
-  protected ResponseEntity<Object> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex,
+  protected ResponseEntity<Object> handleMultipartException(MultipartException ex,
           HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);

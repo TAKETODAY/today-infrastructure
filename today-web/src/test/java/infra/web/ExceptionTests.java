@@ -59,7 +59,6 @@ import infra.web.bind.resolver.ParameterResolverNotFoundException;
 import infra.web.handler.HandlerNotFoundException;
 import infra.web.handler.ReturnValueHandlerNotFoundException;
 import infra.web.handler.method.ResolvableMethodParameter;
-import infra.web.multipart.MaxUploadSizeExceededException;
 import infra.web.multipart.MultipartException;
 import infra.web.multipart.NotMultipartRequestException;
 import infra.web.multipart.parsing.MultipartSizeException;
@@ -1773,62 +1772,6 @@ class ExceptionTests {
       HandlerNotFoundException exception = new HandlerNotFoundException("GET", "/test", HttpHeaders.forWritable());
 
       assertThat(exception).isInstanceOf(InfraConfigurationException.class);
-    }
-
-  }
-
-  @Nested
-  class MaxUploadSizeExceededExceptionTests {
-
-    @Test
-    void testConstructorWithMaxUploadSize() {
-      long maxUploadSize = 1024L;
-      MaxUploadSizeExceededException exception = new MaxUploadSizeExceededException(maxUploadSize);
-
-      assertThat(exception.getMaxUploadSize()).isEqualTo(maxUploadSize);
-      assertThat(exception.getMessage()).contains("Maximum upload size of 1024 bytes exceeded");
-      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
-    }
-
-    @Test
-    void testConstructorWithNegativeMaxUploadSize() {
-      long maxUploadSize = -1L;
-      MaxUploadSizeExceededException exception = new MaxUploadSizeExceededException(maxUploadSize);
-
-      assertThat(exception.getMaxUploadSize()).isEqualTo(maxUploadSize);
-      assertThat(exception.getMessage()).contains("Maximum upload size exceeded");
-      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
-    }
-
-    @Test
-    void testConstructorWithMaxUploadSizeAndCause() {
-      long maxUploadSize = 2048L;
-      Throwable cause = new RuntimeException("test cause");
-      MaxUploadSizeExceededException exception = new MaxUploadSizeExceededException(maxUploadSize, cause);
-
-      assertThat(exception.getMaxUploadSize()).isEqualTo(maxUploadSize);
-      assertThat(exception.getMessage()).contains("Maximum upload size of 2048 bytes exceeded");
-      assertThat(exception.getCause()).isEqualTo(cause);
-      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
-    }
-
-    @Test
-    void testGetBody() {
-      long maxUploadSize = 1024L;
-      MaxUploadSizeExceededException exception = new MaxUploadSizeExceededException(maxUploadSize);
-      ProblemDetail body = exception.getBody();
-
-      assertThat(body).isNotNull();
-      assertThat(body.getStatus()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE.value());
-      assertThat(body.getDetail()).isEqualTo("Maximum upload size exceeded");
-    }
-
-    @Test
-    void testGetStatusCode() {
-      long maxUploadSize = 1024L;
-      MaxUploadSizeExceededException exception = new MaxUploadSizeExceededException(maxUploadSize);
-
-      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
     }
 
   }

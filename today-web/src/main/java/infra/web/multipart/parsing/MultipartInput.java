@@ -175,13 +175,10 @@ final class MultipartInput {
    * @param notifier The notifier, which is used for calling the progress listener, if any.
    */
   public MultipartInput(InputStream input, byte[] boundary, ProgressNotifier notifier, DefaultMultipartParser parser) {
-    int bufferSize = parser.getParsingBufferSize();
+    int bufferSize = parser.getParsingBufferSize(); // bufferSize > 512B
     // We prepend CR/LF to the boundary to chop trailing CR/LF from
     // body-data tokens.
     this.boundaryLength = boundary.length + BOUNDARY_PREFIX.length;
-    if (bufferSize < this.boundaryLength + 1) {
-      throw new IllegalArgumentException("The buffer size specified for the MultipartInput is too small");
-    }
     this.input = input;
     this.parser = parser;
     this.notifier = notifier;

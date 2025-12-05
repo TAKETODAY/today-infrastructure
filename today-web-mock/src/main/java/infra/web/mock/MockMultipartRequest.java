@@ -27,7 +27,6 @@ import infra.mock.api.MockException;
 import infra.mock.api.http.HttpMockRequest;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
-import infra.web.multipart.MaxUploadSizeExceededException;
 import infra.web.multipart.MultipartException;
 import infra.web.multipart.NotMultipartRequestException;
 import infra.web.multipart.Part;
@@ -86,11 +85,7 @@ public class MockMultipartRequest extends AbstractMultipartRequest {
       throw new NotMultipartRequestException("This is not a multipart request", e);
     }
     catch (Throwable ex) {
-      String msg = ex.getMessage();
-      if (msg != null && msg.contains("size") && msg.contains("exceed")) {
-        throw new MaxUploadSizeExceededException(-1, ex);
-      }
-      throw new MultipartException("Failed to parse multipart servlet request", ex);
+      throw new MultipartException("Failed to parse multipart request", ex);
     }
   }
 

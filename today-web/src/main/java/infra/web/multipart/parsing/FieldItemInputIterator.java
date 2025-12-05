@@ -106,14 +106,7 @@ class FieldItemInputIterator {
     }
 
     this.multipartBoundary = multipartBoundary;
-
-    try {
-      this.multiPartInput = new MultipartInput(inputStream, multipartBoundary, progressNotifier, parser);
-    }
-    catch (IllegalArgumentException e) {
-      StreamUtils.closeQuietly(inputStream); // avoid possible resource leak
-      throw new MultipartContentTypeException("The boundary specified in the 'Content-type' header is too long", e);
-    }
+    this.multiPartInput = new MultipartInput(inputStream, multipartBoundary, progressNotifier, parser);
 
     findNextItem();
   }

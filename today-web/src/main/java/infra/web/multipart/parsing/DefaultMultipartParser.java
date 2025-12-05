@@ -172,11 +172,13 @@ public class DefaultMultipartParser implements MultipartParser {
   /**
    * Sets the size of the buffer used for parsing multipart requests.
    *
+   * <p>'parsingBufferSize' must be greater than 512 bytes
+   *
    * @param parsingBufferSize The size of the buffer in bytes
    * @see MultipartInput
    */
   public void setParsingBufferSize(int parsingBufferSize) {
-    Assert.isTrue(parsingBufferSize > 0, "parsingBufferSize must be greater than 0");
+    Assert.isTrue(parsingBufferSize > 512, "parsingBufferSize must be greater than 512 bytes");
     this.parsingBufferSize = parsingBufferSize;
   }
 
