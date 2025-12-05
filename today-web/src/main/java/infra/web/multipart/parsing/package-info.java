@@ -16,7 +16,7 @@
  */
 
 /**
- * for form data parsing
+ * Provides classes for parsing multipart requests.
  * <p>
  * Modified from commons-fileupload
  */
