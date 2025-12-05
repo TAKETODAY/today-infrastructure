@@ -274,7 +274,7 @@ final class MultipartInput {
    * writes its contents into the output {@code Stream}.
    * <p>
    * Arbitrary large amounts of data can be processed by this method
-   * using a constant size buffer. (see {@link MultipartInput()}).
+   * using a constant size buffer. (see {@link MultipartInput#MultipartInput}).
    * </p>
    *
    * @param output The {@code Stream} to write data into. May be null, in which case this method is equivalent to {@link #discardBodyData()}.
