@@ -45,10 +45,10 @@ class MockMultipartHttpRequestTests {
   void mockMultipartHttpMockRequestWithByteArray() throws IOException {
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     MultipartRequest multipartRequest = request.getMultipartRequest();
-    assertThat(multipartRequest.getFileNames().iterator().hasNext()).isFalse();
-    assertThat(multipartRequest.getFile("file1")).isNull();
-    assertThat(multipartRequest.getFile("file2")).isNull();
-    assertThat(multipartRequest.getFileMap().isEmpty()).isTrue();
+    assertThat(multipartRequest.getPartNames().iterator().hasNext()).isFalse();
+    assertThat(multipartRequest.getPart("file1")).isNull();
+    assertThat(multipartRequest.getPart("file2")).isNull();
+    assertThat(multipartRequest.getParts().isEmpty()).isTrue();
 
     request.addPart(new MockMemoryFilePart("file1", "myContent1".getBytes()));
     request.addPart(new MockMemoryFilePart("file2", "myOrigFilename", "text/plain", "myContent2".getBytes()));
@@ -86,14 +86,14 @@ class MockMultipartHttpRequestTests {
 
   private void doTestMultipartHttpRequest(MultipartRequest request) throws IOException {
     Set<String> fileNames = new HashSet<>();
-    for (String string : request.getFileNames()) {
+    for (String string : request.getPartNames()) {
       fileNames.add(string);
     }
     assertThat(fileNames.size()).isEqualTo(2);
     assertThat(fileNames.contains("file1")).isTrue();
     assertThat(fileNames.contains("file2")).isTrue();
-    Part file1 = request.getFile("file1");
-    Part file2 = request.getFile("file2");
+    Part file1 = request.getPart("file1");
+    Part file2 = request.getPart("file2");
     Map<String, Part> fileMap = request.getParts().toSingleValueMap();
     List<String> fileMapKeys = new ArrayList<>(fileMap.keySet());
     assertThat(fileMapKeys.size()).isEqualTo(2);
