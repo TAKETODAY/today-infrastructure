@@ -183,8 +183,8 @@ public class MockMultipartHttpRequestBuilder extends MockHttpRequestBuilder {
   }
 
   private Charset getCharsetOrDefault(Part part, Charset defaultCharset) {
-    if (part.getContentTypeString() != null) {
-      MediaType mediaType = MediaType.parseMediaType(part.getContentTypeString());
+    if (part.getContentType() != null) {
+      MediaType mediaType = part.getContentType();
       if (mediaType.getCharset() != null) {
         return mediaType.getCharset();
       }
