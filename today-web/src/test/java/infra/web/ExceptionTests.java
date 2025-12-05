@@ -61,9 +61,13 @@ import infra.web.handler.ReturnValueHandlerNotFoundException;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.multipart.MultipartException;
 import infra.web.multipart.NotMultipartRequestException;
+import infra.web.multipart.parsing.MalformedStreamException;
+import infra.web.multipart.parsing.MultipartBoundaryException;
+import infra.web.multipart.parsing.MultipartFieldCountLimitException;
 import infra.web.multipart.parsing.MultipartSizeException;
 import infra.web.reactive.function.UnsupportedMediaTypeException;
 import infra.web.server.PortInUseException;
+import infra.web.server.RequestBodySizeExceededException;
 import infra.web.server.WebServerException;
 import jakarta.validation.Valid;
 
@@ -2004,6 +2008,174 @@ class ExceptionTests {
     @Test
     void serialVersionUidIsSet() throws NoSuchFieldException, IllegalAccessException {
       Field field = MultipartSizeException.class.getDeclaredField("serialVersionUID");
+      field.setAccessible(true);
+      long serialVersionUID = field.getLong(null);
+
+      assertThat(serialVersionUID).isEqualTo(1L);
+    }
+
+  }
+
+  @Nested
+  class RequestBodySizeExceededExceptionTests {
+    @Test
+    void constructorWithPositiveMaxContentLength() {
+      long maxContentLength = 1024L;
+      RequestBodySizeExceededException exception = new RequestBodySizeExceededException(maxContentLength);
+
+      assertThat(exception.getMaxContentLength()).isEqualTo(maxContentLength);
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
+      assertThat(exception.getMessage()).contains("Maximum request body size of 1024 bytes exceeded");
+    }
+
+    @Test
+    void constructorWithZeroMaxContentLength() {
+      long maxContentLength = 0L;
+      RequestBodySizeExceededException exception = new RequestBodySizeExceededException(maxContentLength);
+
+      assertThat(exception.getMaxContentLength()).isEqualTo(maxContentLength);
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
+      assertThat(exception.getMessage()).contains("Maximum request body size of 0 bytes exceeded");
+    }
+
+    @Test
+    void constructorWithNegativeMaxContentLength() {
+      long maxContentLength = -1L;
+      RequestBodySizeExceededException exception = new RequestBodySizeExceededException(maxContentLength);
+
+      assertThat(exception.getMaxContentLength()).isEqualTo(maxContentLength);
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
+      assertThat(exception.getMessage()).contains("Maximum request body size exceeded");
+    }
+
+    @Test
+    void exceptionExtendsResponseStatusException() {
+      RequestBodySizeExceededException exception = new RequestBodySizeExceededException(1024L);
+
+      assertThat(exception).isInstanceOf(ResponseStatusException.class);
+    }
+
+    @Test
+    void getMaxContentLengthReturnsCorrectValue() {
+      long maxContentLength = 2048L;
+      RequestBodySizeExceededException exception = new RequestBodySizeExceededException(maxContentLength);
+
+      assertThat(exception.getMaxContentLength()).isEqualTo(2048L);
+    }
+
+  }
+
+  @Nested
+  class MultipartFieldCountLimitExceptionTests {
+    @Test
+    void constructorInitializesFieldsCorrectly() {
+      String message = "Field count limit exceeded";
+      long limit = 100L;
+      long actual = 150L;
+
+      MultipartFieldCountLimitException exception = new MultipartFieldCountLimitException(message, limit, actual);
+
+      assertThat(exception.getMessage()).contains(message);
+      assertThat(exception.getPermitted()).isEqualTo(limit);
+      assertThat(exception.getActualSize()).isEqualTo(actual);
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void exceptionExtendsMultipartSizeException() {
+      MultipartFieldCountLimitException exception = new MultipartFieldCountLimitException("test", 10L, 20L);
+
+      assertThat(exception).isInstanceOf(MultipartSizeException.class);
+    }
+
+    @Test
+    void serialVersionUidIsSet() throws Exception {
+      Field field = MultipartFieldCountLimitException.class.getDeclaredField("serialVersionUID");
+      field.setAccessible(true);
+      long serialVersionUID = field.getLong(null);
+
+      assertThat(serialVersionUID).isEqualTo(1L);
+    }
+
+    @Test
+    void constructorWithNullMessage() {
+      long limit = 50L;
+      long actual = 75L;
+
+      MultipartFieldCountLimitException exception = new MultipartFieldCountLimitException(null, limit, actual);
+
+      assertThat(exception.getMessage()).isNotNull();
+      assertThat(exception.getPermitted()).isEqualTo(limit);
+      assertThat(exception.getActualSize()).isEqualTo(actual);
+    }
+
+  }
+
+  @Nested
+  class MalformedStreamExceptionTests {
+
+    @Test
+    void constructorWithMessageOnly() {
+      String message = "Stream is malformed";
+
+      MalformedStreamException exception = new MalformedStreamException(message);
+
+      assertThat(exception.getMessage()).contains(message);
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void constructorWithMessageAndCause() {
+      String message = "Stream is malformed";
+      Throwable cause = new RuntimeException("IO error");
+
+      MalformedStreamException exception = new MalformedStreamException(message, cause);
+
+      assertThat(exception.getMessage()).contains(message);
+      assertThat(exception.getCause()).isSameAs(cause);
+    }
+
+    @Test
+    void exceptionExtendsMultipartException() {
+      MalformedStreamException exception = new MalformedStreamException("test");
+
+      assertThat(exception).isInstanceOf(MultipartException.class);
+    }
+
+    @Test
+    void serialVersionUidIsSet() throws Exception {
+      Field field = MalformedStreamException.class.getDeclaredField("serialVersionUID");
+      field.setAccessible(true);
+      long serialVersionUID = field.getLong(null);
+
+      assertThat(serialVersionUID).isEqualTo(2L);
+    }
+
+  }
+
+  @Nested
+  class MultipartBoundaryExceptionTests {
+
+    @Test
+    void constructorWithMessageOnly() {
+      String message = "Invalid boundary token";
+
+      MultipartBoundaryException exception = new MultipartBoundaryException(message);
+
+      assertThat(exception.getMessage()).contains(message);
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void exceptionExtendsMultipartException() {
+      MultipartBoundaryException exception = new MultipartBoundaryException("test");
+
+      assertThat(exception).isInstanceOf(MultipartException.class);
+    }
+
+    @Test
+    void serialVersionUidIsSet() throws Exception {
+      Field field = MultipartBoundaryException.class.getDeclaredField("serialVersionUID");
       field.setAccessible(true);
       long serialVersionUID = field.getLong(null);
 

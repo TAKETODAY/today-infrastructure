@@ -24,7 +24,6 @@ import infra.web.ResponseStatusException;
  * Exception for errors that fit response status 413 (Content too large) for use in
  * Web applications.
  *
- * @author Brian Clozel
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
