@@ -17,6 +17,7 @@
 
 package infra.util.concurrent;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CountDownLatch;
@@ -340,6 +341,38 @@ class SpinSingleThreadAwaiterTests {
     awaiter.resume();
     waiter.join(1000);
     assertThat(completed).isTrue();
+  }
+
+  @Test
+  @Disabled
+  void testAtomicIntegerBehaviorInMultithreadedEnvironment() throws InterruptedException {
+    SpinSingleThreadAwaiter awaiter = new SpinSingleThreadAwaiter();
+    int threads = 10;
+    CountDownLatch latch = new CountDownLatch(threads);
+
+    // Multiple threads using the same awaiter sequentially
+    for (int i = 0; i < threads; i++) {
+      final int index = i;
+      Thread t = new Thread(() -> {
+        try {
+          if (index % 2 == 0) {
+            awaiter.resume();
+          }
+          else {
+            awaiter.await();
+          }
+        }
+        finally {
+          latch.countDown();
+        }
+      });
+      t.start();
+    }
+
+    // Resume any remaining threads
+    awaiter.resume();
+
+    assertThat(latch.await(2, TimeUnit.SECONDS)).isTrue();
   }
 
 }
