@@ -631,8 +631,8 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public String getMethodValue() {
-    return getDelegate().getMethodValue();
+  public String getMethodAsString() {
+    return getDelegate().getMethodAsString();
   }
 
   @Override

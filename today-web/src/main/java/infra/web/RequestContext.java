@@ -753,7 +753,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * this request was made
    */
   @Override
-  public String getMethodValue() {
+  public String getMethodAsString() {
     return getMethod().name();
   }
 
@@ -1398,7 +1398,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   private boolean validateIfMatch(@Nullable String eTag) {
-    if (SAFE_METHODS.contains(getMethodValue())) {
+    if (SAFE_METHODS.contains(getMethodAsString())) {
       return false;
     }
 
@@ -1422,7 +1422,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   private boolean matchRequestedETags(List<String> requestedETags, @Nullable String tag, boolean weakCompare) {
     if (StringUtils.isNotEmpty(tag)) {
       ETag eTag = ETag.create(tag);
-      boolean isNotSafeMethod = !SAFE_METHODS.contains(getMethodValue());
+      boolean isNotSafeMethod = !SAFE_METHODS.contains(getMethodAsString());
       for (String requestedETagString : requestedETags) {
         // Compare weak/strong ETags as per https://datatracker.ietf.org/doc/html/rfc9110#section-8.8.3
         for (ETag requestedETag : ETag.parse(requestedETagString)) {
@@ -1472,7 +1472,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   private void updateResponseIdempotent(@Nullable String eTag, long lastModifiedTimestamp) {
-    boolean isHttpGetOrHead = SAFE_METHODS.contains(getMethodValue());
+    boolean isHttpGetOrHead = SAFE_METHODS.contains(getMethodAsString());
     if (this.notModified) {
       setStatus(isHttpGetOrHead ?
               HttpStatus.NOT_MODIFIED.value() : HttpStatus.PRECONDITION_FAILED.value());
@@ -1489,7 +1489,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   private void addCachingResponseHeaders(@Nullable String eTag, long lastModifiedTimestamp) {
-    if (SAFE_METHODS.contains(getMethodValue())) {
+    if (SAFE_METHODS.contains(getMethodAsString())) {
       HttpHeaders httpHeaders = responseHeaders();
       if (lastModifiedTimestamp > 0 && parseDateValue(httpHeaders.getFirst(HttpHeaders.LAST_MODIFIED)) == -1) {
         httpHeaders.setLastModified(lastModifiedTimestamp);
@@ -2238,7 +2238,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   @Override
   public String toString() {
     String url = URLDecoder.decode(getRequestURL(), StandardCharsets.UTF_8);
-    return getMethodValue() + " " + url;
+    return getMethodAsString() + " " + url;
   }
 
   final class RequestContextHttpOutputMessage implements ServerHttpResponse {

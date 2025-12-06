@@ -63,11 +63,11 @@ class HttpRequestDecoratorTests {
   }
 
   @Test
-  void getMethodValueDelegatesToWrappedRequest() {
+  void getMethodAsStringDelegatesToWrappedRequest() {
     HttpRequest request = mock(HttpRequest.class);
-    when(request.getMethodValue()).thenReturn("POST");
+    when(request.getMethodAsString()).thenReturn("POST");
     HttpRequestDecorator decorator = new HttpRequestDecorator(request);
-    assertThat(decorator.getMethodValue()).isEqualTo("POST");
+    assertThat(decorator.getMethodAsString()).isEqualTo("POST");
   }
 
   @Test

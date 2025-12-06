@@ -135,7 +135,7 @@ class WebContentGeneratorTests {
   void checkRequestWithUnsupportedMethod() {
     WebContentGenerator generator = new TestWebContentGenerator("GET");
     RequestContext request = mock(RequestContext.class);
-    when(request.getMethodValue()).thenReturn("POST");
+    when(request.getMethodAsString()).thenReturn("POST");
 
     assertThatExceptionOfType(HttpRequestMethodNotSupportedException.class)
             .isThrownBy(() -> generator.checkRequest(request))
@@ -146,7 +146,7 @@ class WebContentGeneratorTests {
   void checkRequestWithSupportedMethod() {
     WebContentGenerator generator = new TestWebContentGenerator("GET", "POST");
     RequestContext request = mock(RequestContext.class);
-    when(request.getMethodValue()).thenReturn("POST");
+    when(request.getMethodAsString()).thenReturn("POST");
 
     assertThatCode(() -> generator.checkRequest(request)).doesNotThrowAnyException();
   }
@@ -157,7 +157,7 @@ class WebContentGeneratorTests {
     generator.setRequireSession(true);
 
     RequestContext request = mock(RequestContext.class);
-    when(request.getMethodValue()).thenReturn("GET");
+    when(request.getMethodAsString()).thenReturn("GET");
 
     assertThatExceptionOfType(SessionRequiredException.class)
             .isThrownBy(() -> generator.checkRequest(request));
@@ -169,7 +169,7 @@ class WebContentGeneratorTests {
     generator.setRequireSession(true);
 
     RequestContext request = mock(RequestContext.class);
-    when(request.getMethodValue()).thenReturn("GET");
+    when(request.getMethodAsString()).thenReturn("GET");
 
     Session session = mock(Session.class);
     try (MockedStatic<RequestContextUtils> mocked = mockStatic(RequestContextUtils.class)) {
@@ -344,7 +344,7 @@ class WebContentGeneratorTests {
   void checkRequestWithNullSupportedMethodsAllowsAll() {
     WebContentGenerator generator = new TestWebContentGenerator(false);
     RequestContext request = mock(RequestContext.class);
-    when(request.getMethodValue()).thenReturn("DELETE");
+    when(request.getMethodAsString()).thenReturn("DELETE");
 
     assertThatCode(() -> generator.checkRequest(request)).doesNotThrowAnyException();
   }
@@ -355,7 +355,7 @@ class WebContentGeneratorTests {
     generator.setRequireSession(true);
 
     RequestContext request = mock(RequestContext.class);
-    when(request.getMethodValue()).thenReturn("GET");
+    when(request.getMethodAsString()).thenReturn("GET");
     try (MockedStatic<RequestContextUtils> mocked = mockStatic(RequestContextUtils.class)) {
       when(RequestContextUtils.getSession(request, false)).thenReturn(null);
 

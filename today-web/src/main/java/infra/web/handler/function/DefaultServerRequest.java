@@ -113,7 +113,7 @@ class DefaultServerRequest implements ServerRequest {
 
   @Override
   public String methodName() {
-    return requestContext.getMethodValue();
+    return requestContext.getMethodAsString();
   }
 
   @Override
@@ -407,8 +407,8 @@ class DefaultServerRequest implements ServerRequest {
     }
 
     @Override
-    public String getMethodValue() {
-      return context.getMethodValue();
+    public String getMethodAsString() {
+      return context.getMethodAsString();
     }
 
     @Nullable

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ public class SimpleNotFoundHandler implements NotFoundHandler {
 
   public static void logNotFound(RequestContext context) {
     if (pageNotFoundLogger.isWarnEnabled()) {
-      pageNotFoundLogger.warn("No mapping for {} {}", context.getMethodValue(), context.getRequestURI());
+      pageNotFoundLogger.warn("No mapping for {} {}", context.getMethodAsString(), context.getRequestURI());
     }
   }
 

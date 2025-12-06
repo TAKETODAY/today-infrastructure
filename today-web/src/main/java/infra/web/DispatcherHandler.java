@@ -586,7 +586,7 @@ public class DispatcherHandler extends InfraHandler {
   protected Object handlerNotFound(RequestContext request) throws Throwable {
     if (throwExceptionIfNoHandlerFound) {
       throw new HandlerNotFoundException(
-              request.getMethodValue(), request.getRequestURI(), request.requestHeaders());
+              request.getMethodAsString(), request.getRequestURI(), request.requestHeaders());
     }
     else {
       return notFoundHandler.handleNotFound(request);
