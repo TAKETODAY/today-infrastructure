@@ -219,7 +219,7 @@ class DefaultServerHttpRequestBuilder implements ServerHttpRequest.Builder {
     }
 
     @Override
-    public String getMethodValue() {
+    public String getMethodAsString() {
       return this.methodValue;
     }
 

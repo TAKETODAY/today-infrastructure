@@ -144,7 +144,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
         HttpOptionsHandler handler = new HttpOptionsHandler(methods, mediaTypes);
         return new HandlerMethod(handler, HTTP_OPTIONS_HANDLE_METHOD);
       }
-      throw new HttpRequestMethodNotSupportedException(request.getMethodValue(), methods);
+      throw new HttpRequestMethodNotSupportedException(request.getMethodAsString(), methods);
     }
 
     if (helper.hasConsumesMismatch()) {

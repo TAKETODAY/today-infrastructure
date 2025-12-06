@@ -158,7 +158,7 @@ class ReactorServerHttpRequestTests {
 
     ReactorServerHttpRequest request = new ReactorServerHttpRequest(mockRequest, bufferFactory);
 
-    assertThat(request.getMethodValue()).isEqualTo("POST");
+    assertThat(request.getMethodAsString()).isEqualTo("POST");
   }
 
   @Test

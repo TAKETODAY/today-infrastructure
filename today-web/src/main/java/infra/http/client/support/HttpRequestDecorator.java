@@ -72,8 +72,8 @@ public class HttpRequestDecorator implements HttpRequest {
    * Return the method value of the wrapped request.
    */
   @Override
-  public String getMethodValue() {
-    return this.request.getMethodValue();
+  public String getMethodAsString() {
+    return this.request.getMethodAsString();
   }
 
   /**

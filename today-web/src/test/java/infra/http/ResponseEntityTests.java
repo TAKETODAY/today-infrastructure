@@ -22,11 +22,16 @@ import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import infra.util.DataSize;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author Arjen Poutsma
@@ -35,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author TODAY 2021/4/15 14:21
  * @since 3.0
  */
-public class ResponseEntityTests {
+class ResponseEntityTests {
 
   @Test
   public void normal() {
@@ -312,4 +317,482 @@ public class ResponseEntityTests {
             .build();
     assertThat(response.getBody()).isEqualTo(body);
   }
+
+  @Test
+  void equalsAndHashCode_withSameStatusBodyAndHeaders_shouldBeEqual() {
+    HttpHeaders headers1 = HttpHeaders.forWritable();
+    headers1.add("Custom-Header", "value1");
+    ResponseEntity<String> entity1 = new ResponseEntity<>("body", headers1, HttpStatus.OK);
+
+    HttpHeaders headers2 = HttpHeaders.forWritable();
+    headers2.add("Custom-Header", "value1");
+    ResponseEntity<String> entity2 = new ResponseEntity<>("body", headers2, HttpStatus.OK);
+
+    assertThat(entity1).isEqualTo(entity2);
+    assertThat(entity1.hashCode()).isEqualTo(entity2.hashCode());
+  }
+
+  @Test
+  void equalsAndHashCode_withDifferentStatus_shouldNotBeEqual() {
+    ResponseEntity<String> entity1 = new ResponseEntity<>("body", HttpStatus.OK);
+    ResponseEntity<String> entity2 = new ResponseEntity<>("body", HttpStatus.NOT_FOUND);
+
+    assertThat(entity1).isNotEqualTo(entity2);
+  }
+
+  @Test
+  void equalsAndHashCode_withDifferentBody_shouldNotBeEqual() {
+    ResponseEntity<String> entity1 = new ResponseEntity<>("body1", HttpStatus.OK);
+    ResponseEntity<String> entity2 = new ResponseEntity<>("body2", HttpStatus.OK);
+
+    assertThat(entity1).isNotEqualTo(entity2);
+  }
+
+  @Test
+  void equalsAndHashCode_withDifferentHeaders_shouldNotBeEqual() {
+    HttpHeaders headers1 = HttpHeaders.forWritable();
+    headers1.add("Custom-Header", "value1");
+    ResponseEntity<String> entity1 = new ResponseEntity<>("body", headers1, HttpStatus.OK);
+
+    HttpHeaders headers2 = HttpHeaders.forWritable();
+    headers2.add("Custom-Header", "value2");
+    ResponseEntity<String> entity2 = new ResponseEntity<>("body", headers2, HttpStatus.OK);
+
+    assertThat(entity1).isNotEqualTo(entity2);
+  }
+
+  @Test
+  void equals_withNull_shouldNotBeEqual() {
+    ResponseEntity<String> entity = new ResponseEntity<>("body", HttpStatus.OK);
+    assertThat(entity).isNotEqualTo(null);
+  }
+
+  @Test
+  void equals_withSameReference_shouldBeEqual() {
+    ResponseEntity<String> entity = new ResponseEntity<>("body", HttpStatus.OK);
+    assertThat(entity).isEqualTo(entity);
+  }
+
+  @Test
+  void equals_withDifferentClass_shouldNotBeEqual() {
+    ResponseEntity<String> entity = new ResponseEntity<>("body", HttpStatus.OK);
+    assertThat(entity).isNotEqualTo("different type");
+  }
+
+  @Test
+  void toString_withBodyAndHeaders_shouldReturnFormattedString() {
+    HttpHeaders headers = HttpHeaders.forWritable();
+    headers.add("Custom-Header", "value");
+    ResponseEntity<String> entity = new ResponseEntity<>("test body", headers, HttpStatus.OK);
+
+    String result = entity.toString();
+    assertThat(result).contains("200");
+    assertThat(result).contains("OK");
+    assertThat(result).contains("test body");
+    assertThat(result).contains("Custom-Header");
+  }
+
+  @Test
+  void toString_withoutBody_shouldReturnFormattedString() {
+    ResponseEntity<Void> entity = new ResponseEntity<>(null, null, HttpStatus.NO_CONTENT);
+
+    String result = entity.toString();
+    assertThat(result).contains("204");
+    assertThat(result).contains("No Content");
+  }
+
+  @Test
+  void getStatusCode_withRawStatusCode_shouldReturnCorrectEnum() {
+    ResponseEntity<String> entity = new ResponseEntity<>("body", null, 200);
+    assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
+  }
+
+  @Test
+  void getStatusCodeValue_withEnumStatus_shouldReturnIntValue() {
+    ResponseEntity<String> entity = new ResponseEntity<>("body", HttpStatus.CREATED);
+    assertThat(entity.getStatusCodeValue()).isEqualTo(201);
+  }
+
+  @Test
+  void getStatusCodeValue_withRawStatus_shouldReturnSameValue() {
+    ResponseEntity<String> entity = new ResponseEntity<>("body", null, 418);
+    assertThat(entity.getStatusCodeValue()).isEqualTo(418);
+  }
+
+  @Test
+  void status_withHttpStatusCode_shouldCreateBuilder() {
+    ResponseEntity.BodyBuilder builder = ResponseEntity.status(HttpStatus.CONFLICT);
+    ResponseEntity<String> entity = builder.body("conflict");
+
+    assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+  }
+
+  @Test
+  void status_withIntValue_shouldCreateBuilder() {
+    ResponseEntity.BodyBuilder builder = ResponseEntity.status(418);
+    ResponseEntity<String> entity = builder.body("I'm a teapot");
+
+    assertThat(entity.getStatusCodeValue()).isEqualTo(418);
+  }
+
+  @Test
+  void ok_withBody_shouldCreateOkResponse() {
+    ResponseEntity<String> entity = ResponseEntity.ok("success");
+
+    assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(entity.getBody()).isEqualTo("success");
+  }
+
+  @Test
+  void created_withUri_shouldSetLocationHeader() throws Exception {
+    URI location = new URI("http://example.com/resource");
+    ResponseEntity.BodyBuilder builder = ResponseEntity.created(location);
+
+    ResponseEntity<String> entity = builder.body("created");
+
+    assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    assertThat(entity.headers().getLocation()).isEqualTo(location);
+  }
+
+  @Test
+  void accepted_shouldCreateAcceptedResponse() {
+    ResponseEntity.BodyBuilder builder = ResponseEntity.accepted();
+    ResponseEntity<String> entity = builder.body("accepted");
+
+    assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+  }
+
+  @Test
+  void noContent_shouldCreateNoContentResponse() {
+    ResponseEntity.HeadersBuilder<?> builder = ResponseEntity.noContent();
+    ResponseEntity<Void> entity = builder.build();
+
+    assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+    assertThat(entity.getBody()).isNull();
+  }
+
+  @Test
+  void badRequest_shouldCreateBadRequestResponse() {
+    ResponseEntity.BodyBuilder builder = ResponseEntity.badRequest();
+    ResponseEntity<String> entity = builder.body("bad request");
+
+    assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+  }
+
+  @Test
+  void notFound_shouldCreateNotFoundResponse() {
+    ResponseEntity.BodyBuilder builder = ResponseEntity.notFound();
+    ResponseEntity<String> entity = builder.body("not found");
+
+    assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+  }
+
+  @Test
+  void unprocessableEntity_shouldCreateUnprocessableEntityResponse() {
+    ResponseEntity.BodyBuilder builder = ResponseEntity.unprocessableEntity();
+    ResponseEntity<String> entity = builder.body("unprocessable");
+
+    assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+  }
+
+  @Test
+  void header_shouldAddSingleHeader() {
+    ResponseEntity<String> entity = ResponseEntity.ok()
+            .header("X-Custom", "custom-value")
+            .body("test");
+
+    assertThat(entity.headers().getFirst("X-Custom")).isEqualTo("custom-value");
+  }
+
+  @Test
+  void headers_withConsumer_shouldModifyHeaders() {
+    ResponseEntity<String> entity = ResponseEntity.ok()
+            .headers(headers -> headers.add("X-Custom", "value"))
+            .body("test");
+
+    assertThat(entity.headers().getFirst("X-Custom")).isEqualTo("value");
+  }
+
+  @Test
+  void allow_shouldSetAllowHeader() {
+    ResponseEntity<String> entity = ResponseEntity.ok()
+            .allow(HttpMethod.GET, HttpMethod.POST)
+            .body("test");
+
+    assertThat(entity.headers().getAllow()).containsExactlyInAnyOrder(HttpMethod.GET, HttpMethod.POST);
+  }
+
+  @Test
+  void contentLength_withLong_shouldSetContentLengthHeader() {
+    ResponseEntity<String> entity = ResponseEntity.ok()
+            .contentLength(1024L)
+            .body("test");
+
+    assertThat(entity.headers().getContentLength()).isEqualTo(1024L);
+  }
+
+  @Test
+  void contentType_withMediaType_shouldSetContentTypeHeader() {
+    ResponseEntity<String> entity = ResponseEntity.ok()
+            .contentType(MediaType.APPLICATION_JSON)
+            .body("{\"key\":\"value\"}");
+
+    assertThat(entity.headers().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+  }
+
+  @Test
+  void location_shouldSetLocationHeader() throws Exception {
+    URI uri = new URI("http://example.com");
+    ResponseEntity<String> entity = ResponseEntity.ok()
+            .location(uri)
+            .body("test");
+
+    assertThat(entity.headers().getLocation()).isEqualTo(uri);
+  }
+
+  @Test
+  void eTag_shouldSetETagHeader() {
+    ResponseEntity<String> entity = ResponseEntity.ok()
+            .eTag("\"v1\"")
+            .body("test");
+
+    assertThat(entity.headers().getETag()).isEqualTo("\"v1\"");
+  }
+
+  @Test
+  void lastModified_withZonedDateTime_shouldSetLastModifiedHeader() {
+    ZonedDateTime dateTime = ZonedDateTime.now();
+    ResponseEntity<String> entity = ResponseEntity.ok()
+            .lastModified(dateTime)
+            .body("test");
+
+    assertThat(entity.headers().getLastModified()).isNotNull();
+  }
+
+  @Test
+  void cacheControl_shouldSetCacheControlHeader() {
+    CacheControl cacheControl = CacheControl.maxAge(30, TimeUnit.SECONDS);
+    ResponseEntity<String> entity = ResponseEntity.ok()
+            .cacheControl(cacheControl)
+            .body("test");
+
+    assertThat(entity.headers().getCacheControl()).isEqualTo("max-age=30");
+  }
+
+  @Test
+  void varyBy_shouldSetVaryHeader() {
+    ResponseEntity<String> entity = ResponseEntity.ok()
+            .varyBy("Accept-Encoding", "User-Agent")
+            .body("test");
+
+    assertThat(entity.headers().getVary()).containsExactlyInAnyOrder("Accept-Encoding", "User-Agent");
+  }
+
+  @Test
+  void of_withPresentOptional_shouldReturnOkResponse() {
+    ResponseEntity<String> entity = ResponseEntity.of(Optional.of("present"));
+
+    assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(entity.getBody()).isEqualTo("present");
+  }
+
+  @Test
+  void of_withEmptyOptional_shouldReturnNotFoundResponse() {
+    ResponseEntity<String> entity = ResponseEntity.of(Optional.empty());
+
+    assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    assertThat(entity.getBody()).isNull();
+  }
+
+  @Test
+  void constructor_withStatusCodeOnly_shouldCreateInstance() {
+    ResponseEntity<Void> responseEntity = new ResponseEntity<>(HttpStatus.OK);
+
+    assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(responseEntity.getBody()).isNull();
+    assertThat(responseEntity.headers().isEmpty()).isTrue();
+  }
+
+  @Test
+  void constructor_withBodyAndStatusCode_shouldCreateInstance() {
+    String body = "response body";
+    ResponseEntity<String> responseEntity = new ResponseEntity<>(body, HttpStatus.CREATED);
+
+    assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    assertThat(responseEntity.getBody()).isEqualTo(body);
+    assertThat(responseEntity.headers().isEmpty()).isTrue();
+  }
+
+  @Test
+  void constructor_withHeadersAndStatusCode_shouldCreateInstance() {
+    HttpHeaders headers = HttpHeaders.forWritable();
+    headers.add("Custom-Header", "custom-value");
+    ResponseEntity<Void> responseEntity = new ResponseEntity<>(headers, HttpStatus.ACCEPTED);
+
+    assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+    assertThat(responseEntity.getBody()).isNull();
+    assertThat(responseEntity.headers().getFirst("Custom-Header")).isEqualTo("custom-value");
+  }
+
+  @Test
+  void constructor_withBodyHeadersAndStatusCode_shouldCreateInstance() {
+    String body = "response body";
+    HttpHeaders headers = HttpHeaders.forWritable();
+    headers.add("Custom-Header", "custom-value");
+    ResponseEntity<String> responseEntity = new ResponseEntity<>(body, headers, HttpStatus.OK);
+
+    assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(responseEntity.getBody()).isEqualTo(body);
+    assertThat(responseEntity.headers().getFirst("Custom-Header")).isEqualTo("custom-value");
+  }
+
+  @Test
+  void constructor_withBodyHeadersAndRawStatusCode_shouldCreateInstance() {
+    String body = "response body";
+    HttpHeaders headers = HttpHeaders.forWritable();
+    headers.add("Custom-Header", "custom-value");
+    ResponseEntity<String> responseEntity = new ResponseEntity<>(body, headers, 200);
+
+    assertThat(responseEntity.getStatusCodeValue()).isEqualTo(200);
+    assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(responseEntity.getBody()).isEqualTo(body);
+    assertThat(responseEntity.headers().getFirst("Custom-Header")).isEqualTo("custom-value");
+  }
+
+  @Test
+  void constructor_withNullStatusCode_shouldThrowException() {
+    assertThatThrownBy(() -> new ResponseEntity<>((HttpStatusCode) null))
+            .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void getStatusCode_withEnum_shouldReturnSameEnum() {
+    ResponseEntity<String> responseEntity = new ResponseEntity<>("body", HttpStatus.OK);
+    assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+  }
+
+  @Test
+  void getStatusCode_withRawValue_shouldReturnEnum() {
+    ResponseEntity<String> responseEntity = new ResponseEntity<>("body", null, 418);
+    assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.I_AM_A_TEAPOT);
+  }
+
+  @Test
+  void getStatusCodeValue_withEnum_shouldReturnValue() {
+    ResponseEntity<String> responseEntity = new ResponseEntity<>("body", HttpStatus.CREATED);
+    assertThat(responseEntity.getStatusCodeValue()).isEqualTo(201);
+  }
+
+  @Test
+  void getStatusCodeValue_withRawValue_shouldReturnSameValue() {
+    ResponseEntity<String> responseEntity = new ResponseEntity<>("body", null, 299);
+    assertThat(responseEntity.getStatusCodeValue()).isEqualTo(299);
+  }
+
+  @Test
+  void status_withNull_shouldThrowException() {
+    assertThatThrownBy(() -> ResponseEntity.status((HttpStatusCode) null))
+            .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void ok_shouldCreateBuilder() {
+    ResponseEntity.BodyBuilder builder = ResponseEntity.ok();
+    ResponseEntity<String> entity = builder.body("test");
+
+    assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
+  }
+
+  @Test
+  void of_withNullOptional_shouldThrowException() {
+    assertThatThrownBy(() -> ResponseEntity.of((Optional<String>) null))
+            .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void of_withProblemDetail_shouldCreateBuilder() {
+    ProblemDetail problemDetail = ProblemDetail.forRawStatusCode(400);
+    ResponseEntity.HeadersBuilder<?> builder = ResponseEntity.of(problemDetail);
+    ResponseEntity<ProblemDetail> entity = builder.build();
+
+    assertThat(entity.getStatusCodeValue()).isEqualTo(400);
+    assertThat(entity.getBody()).isEqualTo(problemDetail);
+  }
+
+  @Test
+  void lastModified_withInstant_shouldSetHeader() {
+    Instant instant = Instant.now();
+    ResponseEntity<String> entity = ResponseEntity.ok()
+            .lastModified(instant)
+            .body("test");
+
+    assertThat(entity.headers().getLastModified()).isNotNull();
+  }
+
+  @Test
+  void lastModified_withLong_shouldSetHeader() {
+    long timestamp = System.currentTimeMillis();
+    ResponseEntity<String> entity = ResponseEntity.ok()
+            .lastModified(timestamp)
+            .body("test");
+
+    assertThat(entity.headers().getLastModified()).isNotNull();
+  }
+
+  @Test
+  void contentLength_withDataSize_shouldSetHeader() {
+    DataSize dataSize = DataSize.ofKilobytes(1);
+    ResponseEntity<String> entity = ResponseEntity.ok()
+            .contentLength(dataSize)
+            .body("test");
+
+    assertThat(entity.headers().getContentLength()).isEqualTo(1024L);
+  }
+
+  @Test
+  void contentType_withString_shouldSetHeader() {
+    ResponseEntity<String> entity = ResponseEntity.ok()
+            .contentType("application/json")
+            .body("test");
+
+    assertThat(entity.headers().getContentType().toString()).isEqualTo("application/json");
+  }
+
+  @Test
+  void headers_withNull_shouldNotThrowException() {
+    ResponseEntity<String> entity = ResponseEntity.ok()
+            .headers((HttpHeaders) null)
+            .body("test");
+
+    assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(entity.getBody()).isEqualTo("test");
+  }
+
+  @Test
+  void varyBy_withMultipleHeaders_shouldSetHeader() {
+    ResponseEntity<String> entity = ResponseEntity.ok()
+            .varyBy("Accept", "Accept-Language", "Accept-Encoding")
+            .body("test");
+
+    assertThat(entity.headers().getVary()).containsExactlyInAnyOrder("Accept", "Accept-Language", "Accept-Encoding");
+  }
+
+  @Test
+  void toString_withHttpStatus_shouldIncludeReasonPhrase() {
+    ResponseEntity<String> entity = new ResponseEntity<>("body", HttpStatus.OK);
+    String result = entity.toString();
+
+    assertThat(result).contains("200");
+    assertThat(result).contains("OK");
+  }
+
+  @Test
+  void toString_withCustomStatusCode_shouldNotIncludeReasonPhrase() {
+    ResponseEntity<String> entity = new ResponseEntity<>("body", null, 299);
+    String result = entity.toString();
+
+    assertThat(result).contains("299");
+    assertThat(result).doesNotContain("Unknown");
+  }
+
 }

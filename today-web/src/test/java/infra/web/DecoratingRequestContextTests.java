@@ -1880,9 +1880,9 @@ class DecoratingRequestContextTests {
   }
 
   @Test
-  void getMethodValue_ShouldDelegateToDelegate() {
+  void getMethodAsString_ShouldDelegateToDelegate() {
     RequestContext delegate = mock(RequestContext.class);
-    when(delegate.getMethodValue()).thenReturn("GET");
+    when(delegate.getMethodAsString()).thenReturn("GET");
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
@@ -1891,10 +1891,10 @@ class DecoratingRequestContextTests {
       }
     };
 
-    String result = wrapper.getMethodValue();
+    String result = wrapper.getMethodAsString();
 
     assertThat(result).isEqualTo("GET");
-    verify(delegate).getMethodValue();
+    verify(delegate).getMethodAsString();
   }
 
   @Test
