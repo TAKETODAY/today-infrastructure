@@ -35,7 +35,7 @@ import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
 
 /**
- * Default HttpHeaders
+ * Default implementation of {@link HttpHeaders}.
  *
  * <p>Note that {@code HttpHeaders} instances created by the default constructor
  * treat header names in a case-insensitive manner. Instances created with the
@@ -68,7 +68,8 @@ public class DefaultHttpHeaders extends HttpHeaders {
    * Construct with a user input header map
    */
   public DefaultHttpHeaders(Map<String, List<String>> headers) {
-    this.headers = MultiValueMap.forSmartListAdaption(headers);
+    this.headers = MultiValueMap.forSmartListAdaption(new LinkedCaseInsensitiveMap<>(headers.size(), Locale.ROOT));
+    addAll(headers);
   }
 
   /**
