@@ -745,18 +745,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return null;
   }
 
-  /**
-   * Returns the name of the HTTP method with which this request was made, for
-   * example, GET, POST, or PUT.
-   *
-   * @return a <code>String</code> specifying the name of the method with which
-   * this request was made
-   */
-  @Override
-  public String getMethodAsString() {
-    return getMethod().name();
-  }
-
   @Override
   public HttpMethod getMethod() {
     HttpMethod httpMethod = this.httpMethod;
