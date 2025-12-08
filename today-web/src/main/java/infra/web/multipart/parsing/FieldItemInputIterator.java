@@ -221,8 +221,8 @@ class FieldItemInputIterator {
     }
   }
 
-  private static byte @Nullable [] getBoundary(MediaType subContentType) {
-    String boundary = subContentType.getParameter("boundary");
+  private static byte @Nullable [] getBoundary(MediaType contentType) {
+    String boundary = contentType.getParameter("boundary");
     return boundary != null ? boundary.getBytes(StandardCharsets.ISO_8859_1) : null;
   }
 
