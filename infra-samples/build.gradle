@@ -12,8 +12,10 @@ configure(subprojects) {
 //  apply plugin: "infra.application.aot"
   apply plugin: 'org.graalvm.buildtools.native'
 
-  sourceCompatibility = JavaVersion.VERSION_17
-  targetCompatibility = JavaVersion.VERSION_17
+  java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+  }
 
   graalvmNative {
     toolchainDetection = true
