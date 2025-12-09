@@ -53,7 +53,7 @@ class NettyMultipartFileTests {
     NettyMultipartFile multipartFile = new NettyMultipartFile(fileUpload);
 
     // when & then
-    assertThat(multipartFile.getContentType()).isEqualTo("text/plain");
+    assertThat(multipartFile.getContentType().toString()).isEqualTo("text/plain");
   }
 
   @Test
