@@ -17,6 +17,8 @@
 
 package infra.web.server.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 
 import infra.util.ExceptionUtils;
@@ -47,6 +49,11 @@ public class NettyFormField extends AbstractPart implements FormField {
   }
 
   @Override
+  public long getContentLength() {
+    return attribute.length();
+  }
+
+  @Override
   public byte[] getContentAsByteArray() throws IOException {
     return attribute.get();
   }
@@ -54,6 +61,11 @@ public class NettyFormField extends AbstractPart implements FormField {
   @Override
   public boolean isFormField() {
     return true;
+  }
+
+  @Override
+  public @Nullable String getOriginalFilename() {
+    return null;
   }
 
   @Override

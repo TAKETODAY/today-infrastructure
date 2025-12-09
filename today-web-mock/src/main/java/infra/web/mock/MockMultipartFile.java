@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 import infra.http.DefaultHttpHeaders;
+import infra.http.HttpHeaders;
 import infra.mock.api.http.Part;
 import infra.util.FileCopyUtils;
 import infra.web.multipart.MultipartFile;
@@ -77,7 +78,19 @@ final class MockMultipartFile extends AbstractMultipartFile implements Multipart
 
   @Override
   protected DefaultHttpHeaders createHttpHeaders() {
-    return MockFormData.createHeaders(part);
+    return createHeaders(part);
+  }
+
+  static DefaultHttpHeaders createHeaders(Part part) {
+    DefaultHttpHeaders headers = HttpHeaders.forWritable();
+    for (String headerName : part.getHeaderNames()) {
+      headers.addAll(headerName, part.getHeaders(headerName));
+    }
+
+    if (!headers.containsKey(HttpHeaders.CONTENT_TYPE)) {
+      headers.setOrRemove(HttpHeaders.CONTENT_TYPE, part.getContentType());
+    }
+    return headers;
   }
 
   /**
