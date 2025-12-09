@@ -19,9 +19,11 @@ package infra.web.server.support;
 
 import org.jspecify.annotations.Nullable;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -102,12 +104,12 @@ public class NettyFormField extends AbstractPart {
 
   @Override
   public long transferTo(FileChannel dest, long position) throws IOException {
-    return 0;
+    return dest.write(ByteBuffer.wrap(getContentAsByteArray()), position);
   }
 
   @Override
   public long transferTo(FileChannel dest, long position, long count) throws IOException {
-    return 0;
+    return dest.write(ByteBuffer.wrap(getContentAsByteArray(), 0, Math.toIntExact(count)), position);
   }
 
   @Override
@@ -127,6 +129,6 @@ public class NettyFormField extends AbstractPart {
 
   @Override
   public InputStream getInputStream() throws IOException {
-    return null;
+    return new ByteArrayInputStream(getContentAsByteArray());
   }
 }
