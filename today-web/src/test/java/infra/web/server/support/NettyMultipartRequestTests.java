@@ -24,8 +24,8 @@ import java.util.List;
 
 import infra.http.HttpHeaders;
 import infra.util.MultiValueMap;
-import infra.web.multipart.NotMultipartRequestException;
 import infra.web.multipart.MaxUploadSizeExceededException;
+import infra.web.multipart.NotMultipartRequestException;
 import infra.web.multipart.Part;
 import io.netty.handler.codec.http.multipart.Attribute;
 import io.netty.handler.codec.http.multipart.FileUpload;
@@ -74,7 +74,6 @@ class NettyMultipartRequestTests {
 
     assertThat(filePart).isInstanceOf(NettyMultipartFile.class);
     assertThat(formPart).isInstanceOf(NettyFormField.class);
-    assertThat(formPart.getValue()).isEqualTo("formValue");
   }
 
   @Test

@@ -21,10 +21,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doCallRealMethod;
@@ -71,28 +69,6 @@ class AbstractMultipartFileTests {
     when(multipartFile.isFormField()).thenCallRealMethod();
 
     assertThat(multipartFile.isFormField()).isFalse();
-  }
-
-  @Test
-  void getValueReturnsStringRepresentationOfBytes() throws IOException {
-    AbstractMultipartFile multipartFile = mock(AbstractMultipartFile.class);
-    String content = "test content";
-
-    when(multipartFile.getValue()).thenCallRealMethod();
-    when(multipartFile.getContentAsByteArray()).thenReturn(content.getBytes(StandardCharsets.UTF_8));
-
-    assertThat(multipartFile.getValue()).isEqualTo(content);
-  }
-
-  @Test
-  void getValueWrapsIOExceptionInRuntime() throws IOException {
-    AbstractMultipartFile multipartFile = mock(AbstractMultipartFile.class);
-
-    when(multipartFile.getValue()).thenCallRealMethod();
-    when(multipartFile.getContentAsByteArray()).thenThrow(new IOException("test exception"));
-
-    assertThatExceptionOfType(IOException.class)
-            .isThrownBy(multipartFile::getValue);
   }
 
   @Test

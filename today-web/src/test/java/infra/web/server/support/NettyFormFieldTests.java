@@ -35,18 +35,6 @@ import static org.mockito.Mockito.when;
 class NettyFormFieldTests {
 
   @Test
-  void shouldReturnCorrectValue() throws IOException {
-    // given
-    Attribute attribute = mock(Attribute.class);
-    when(attribute.getValue()).thenReturn("testValue");
-
-    NettyFormField formData = new NettyFormField(attribute);
-
-    // when & then
-    assertThat(formData.getValue()).isEqualTo("testValue");
-  }
-
-  @Test
   void shouldReturnCorrectBytes() throws IOException {
     // given
     Attribute attribute = mock(Attribute.class);
