@@ -19,7 +19,6 @@ package infra.mock.web;
 
 import org.jspecify.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -31,7 +30,6 @@ import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.lang.Assert;
 import infra.mock.api.MockContext;
-import infra.mock.api.MockException;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
@@ -157,24 +155,6 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl {
       return multipartData;
     }
 
-    public String getMultipartContentType(String paramOrFileName) {
-      MultipartFile file = getFile(paramOrFileName);
-      if (file != null) {
-        return file.getContentType();
-      }
-      try {
-        var part = MockMultipartHttpMockRequest.this.getPart(paramOrFileName);
-        if (part != null) {
-          return part.getContentType();
-        }
-      }
-      catch (MockException | IOException ex) {
-        // Should never happen (we're not actually parsing)
-        throw new IllegalStateException(ex);
-      }
-      return null;
-    }
-
     public HttpMethod getRequestMethod() {
       String method = getMethod();
       Assert.state(method != null, "Method is required");
@@ -197,7 +177,7 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl {
       if (file != null) {
         HttpHeaders headers = HttpHeaders.forWritable();
         if (file.getContentType() != null) {
-          headers.add(HttpHeaders.CONTENT_TYPE, file.getContentType());
+          headers.setContentType(file.getContentType());
         }
         return headers;
       }

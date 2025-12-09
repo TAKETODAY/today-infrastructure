@@ -65,16 +65,11 @@ public abstract class AbstractPart implements Part {
 
   protected HttpHeaders createHttpHeaders() {
     DefaultHttpHeaders headers = HttpHeaders.forWritable();
-    String contentType = getContentType();
+    var contentType = getContentType();
     if (contentType != null) {
-      headers.setOrRemove(HttpHeaders.CONTENT_TYPE, contentType);
+      headers.setContentType(contentType);
     }
     return headers;
-  }
-
-  @Override
-  public String toString() {
-    return "%s: %s=%s".formatted(getClass().getSimpleName(), getName(), getValue());
   }
 
 }

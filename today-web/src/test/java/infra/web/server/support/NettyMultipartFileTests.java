@@ -117,16 +117,6 @@ class NettyMultipartFileTests {
   }
 
   @Test
-  void shouldReturnOriginalResource() {
-    // given
-    FileUpload fileUpload = mock(FileUpload.class);
-    NettyMultipartFile multipartFile = new NettyMultipartFile(fileUpload);
-
-    // when & then
-    assertThat(multipartFile.getOriginalResource()).isSameAs(fileUpload);
-  }
-
-  @Test
   void shouldReturnInputStreamForInMemoryFile() throws IOException {
     // given
     FileUpload fileUpload = mock(FileUpload.class);

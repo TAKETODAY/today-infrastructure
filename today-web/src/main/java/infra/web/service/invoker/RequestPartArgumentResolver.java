@@ -133,7 +133,7 @@ public class RequestPartArgumentResolver extends AbstractNamedValueArgumentResol
       headers.setContentDispositionFormData(name, multipartFile.getOriginalFilename());
     }
     if (multipartFile.getContentType() != null) {
-      headers.add(HttpHeaders.CONTENT_TYPE, multipartFile.getContentType());
+      headers.setContentType(multipartFile.getContentType());
     }
     return new HttpEntity<>(multipartFile.getResource(), headers);
   }

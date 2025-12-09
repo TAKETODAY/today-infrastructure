@@ -21,10 +21,8 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
-import infra.util.ExceptionUtils;
 import infra.web.multipart.MultipartFile;
 
 /**
@@ -64,7 +62,7 @@ public abstract class AbstractMultipartFile extends AbstractPart implements Mult
   protected byte @Nullable [] cachedBytes;
 
   @Override
-  public void transferTo(File dest) throws IOException {
+  public long transferTo(File dest) throws IOException {
     // fix #3 Upload file not found exception
     File parentFile = dest.getParentFile();
     if (!parentFile.exists()) {
@@ -79,6 +77,7 @@ public abstract class AbstractMultipartFile extends AbstractPart implements Mult
       Files.delete(dest.toPath());
     }
     saveInternal(dest);
+    return getContentLength();
   }
 
   /**
@@ -111,16 +110,6 @@ public abstract class AbstractMultipartFile extends AbstractPart implements Mult
   @Override
   public final boolean isFormField() {
     return false;
-  }
-
-  @Override
-  public String getValue() {
-    try {
-      return new String(getContentAsByteArray(), StandardCharsets.UTF_8);
-    }
-    catch (IOException e) {
-      throw ExceptionUtils.sneakyThrow(e);
-    }
   }
 
   @Override

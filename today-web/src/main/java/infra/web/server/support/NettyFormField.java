@@ -19,10 +19,16 @@ package infra.web.server.support;
 
 import org.jspecify.annotations.Nullable;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 
-import infra.util.ExceptionUtils;
-import infra.web.multipart.FormField;
+import infra.http.MediaType;
+import infra.util.FileCopyUtils;
 import infra.web.multipart.support.AbstractPart;
 import io.netty.handler.codec.http.multipart.Attribute;
 
@@ -30,22 +36,12 @@ import io.netty.handler.codec.http.multipart.Attribute;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/11/3 22:50
  */
-public class NettyFormField extends AbstractPart implements FormField {
+public class NettyFormField extends AbstractPart {
 
   private final Attribute attribute;
 
   NettyFormField(Attribute attribute) {
     this.attribute = attribute;
-  }
-
-  @Override
-  public String getValue() {
-    try {
-      return attribute.getValue();
-    }
-    catch (IOException e) {
-      throw ExceptionUtils.sneakyThrow(e);
-    }
   }
 
   @Override
@@ -59,8 +55,33 @@ public class NettyFormField extends AbstractPart implements FormField {
   }
 
   @Override
+  public String getContentAsString() throws IOException {
+    return getContentAsString(StandardCharsets.UTF_8);
+  }
+
+  @Override
+  public String getContentAsString(@Nullable Charset charset) throws IOException {
+    return new String(getContentAsByteArray(), charset == null ? StandardCharsets.UTF_8 : charset);
+  }
+
+  @Override
+  public boolean isInMemory() {
+    return attribute.isInMemory();
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return attribute.length() == 0L;
+  }
+
+  @Override
   public boolean isFormField() {
     return true;
+  }
+
+  @Override
+  public boolean isFile() {
+    return false;
   }
 
   @Override
@@ -69,8 +90,34 @@ public class NettyFormField extends AbstractPart implements FormField {
   }
 
   @Override
+  public long transferTo(File dest) throws IOException, IllegalStateException {
+    FileCopyUtils.copy(getContentAsByteArray(), dest);
+    return getContentLength();
+  }
+
+  @Override
+  public long transferTo(Path dest) throws IOException, IllegalStateException {
+    return transferTo(dest.toFile());
+  }
+
+  @Override
+  public long transferTo(FileChannel dest, long position) throws IOException {
+    return 0;
+  }
+
+  @Override
+  public long transferTo(FileChannel dest, long position, long count) throws IOException {
+    return 0;
+  }
+
+  @Override
   public String getName() {
     return attribute.getName();
+  }
+
+  @Override
+  public @Nullable MediaType getContentType() {
+    return null;
   }
 
   @Override
@@ -78,4 +125,8 @@ public class NettyFormField extends AbstractPart implements FormField {
     attribute.delete();
   }
 
+  @Override
+  public InputStream getInputStream() throws IOException {
+    return null;
+  }
 }

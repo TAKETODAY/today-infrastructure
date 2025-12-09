@@ -23,12 +23,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
 import infra.http.DefaultHttpHeaders;
 import infra.http.HttpHeaders;
+import infra.http.MediaType;
 import infra.mock.api.http.Part;
 import infra.util.FileCopyUtils;
 import infra.web.multipart.MultipartFile;
@@ -57,13 +62,28 @@ final class MockMultipartFile extends AbstractMultipartFile implements Multipart
   }
 
   @Override
-  public String getContentType() {
-    return part.getContentType();
+  public MediaType getContentType() {
+    return MediaType.parseMediaType(part.getContentType());
   }
 
   @Override
   public long getContentLength() {
     return part.getSize();
+  }
+
+  @Override
+  public String getContentAsString() throws IOException {
+    return getContentAsString(StandardCharsets.UTF_8);
+  }
+
+  @Override
+  public String getContentAsString(@Nullable Charset charset) throws IOException {
+    return new String(getContentAsByteArray(), charset == null ? StandardCharsets.UTF_8 : charset);
+  }
+
+  @Override
+  public boolean isInMemory() {
+    return false;
   }
 
   /**
@@ -121,6 +141,16 @@ final class MockMultipartFile extends AbstractMultipartFile implements Multipart
   }
 
   @Override
+  public long transferTo(FileChannel dest, long position) throws IOException {
+    return dest.write(ByteBuffer.wrap(getContentAsByteArray()), position);
+  }
+
+  @Override
+  public long transferTo(FileChannel dest, long position, long count) throws IOException {
+    return dest.write(ByteBuffer.wrap(getContentAsByteArray(), 0, Math.toIntExact(count)), position);
+  }
+
+  @Override
   public long transferTo(OutputStream out) throws IOException {
     return part.getInputStream().transferTo(out);
   }
@@ -136,13 +166,13 @@ final class MockMultipartFile extends AbstractMultipartFile implements Multipart
   }
 
   @Override
-  protected byte[] doGetBytes() throws IOException {
-    return FileCopyUtils.copyToByteArray(part.getInputStream());
+  public boolean isFile() {
+    return false;
   }
 
   @Override
-  public Part getOriginalResource() {
-    return part;
+  protected byte[] doGetBytes() throws IOException {
+    return FileCopyUtils.copyToByteArray(part.getInputStream());
   }
 
   @Override
