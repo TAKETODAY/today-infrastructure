@@ -469,7 +469,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return A URL
    */
   public String getRequestURL() {
-    String host = requestHeaders().getFirst(HttpHeaders.HOST);
+    String host = getHeader(HttpHeaders.HOST);
     if (host == null) {
       host = "localhost";
     }
@@ -849,7 +849,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
         multipartFlag = false;
       }
       else {
-        multipartFlag = StringUtils.startsWithIgnoreCase(getContentType(), "multipart/");
+        multipartFlag = StringUtils.startsWithIgnoreCase(getContentTypeAsString(), "multipart/");
       }
       this.multipartFlag = multipartFlag;
     }
@@ -1154,7 +1154,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * request, or null if the type is not known
    */
   @Nullable
-  public abstract String getContentType();
+  public abstract String getContentTypeAsString();
 
   /**
    * Returns the HTTP headers associated with the current request. If the headers
@@ -1232,8 +1232,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @since 5.0
    */
   public Collection<String> getHeaders(String name) {
-    Collection<String> headerValues = requestHeaders().get(name);
-    return headerValues != null ? headerValues : Collections.emptyList();
+    return requestHeaders().getOrEmpty(name);
   }
 
   /**
@@ -2084,7 +2083,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return a <code>String</code> specifying the content type, for example,
    * <code>text/html; charset=UTF-8</code>, or
    * null
-   * @see #getContentType()
+   * @see #getContentTypeAsString()
    */
   @Nullable
   public String getResponseContentType() {

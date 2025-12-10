@@ -33,7 +33,6 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.Collections;
 
 import infra.core.io.InputStreamSource;
 import infra.core.io.Resource;
@@ -103,8 +102,7 @@ public interface Part extends InputStreamSource, HttpInputMessage {
    * @since 5.0
    */
   default Collection<String> getHeaders(String name) {
-    Collection<String> headerValues = getHeaders().get(name);
-    return headerValues != null ? headerValues : Collections.emptyList();
+    return getHeaders().getOrEmpty(name);
   }
 
   /**
@@ -145,7 +143,7 @@ public interface Part extends InputStreamSource, HttpInputMessage {
    * @since 5.0
    */
   @Nullable
-  default String getContentTypeString() {
+  default String getContentTypeAsString() {
     MediaType contentType = getContentType();
     return contentType != null ? contentType.toString() : null;
   }

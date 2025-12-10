@@ -309,7 +309,7 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  public String getContentType() {
+  public String getContentTypeAsString() {
     return request.headers().get(DefaultHttpHeaders.CONTENT_TYPE);
   }
 
@@ -376,7 +376,7 @@ public class NettyRequestContext extends RequestContext {
 
     HttpMethod method = getMethod();
     if (method != HttpMethod.GET && method != HttpMethod.HEAD
-            && StringUtils.startsWithIgnoreCase(getContentType(), MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
+            && StringUtils.startsWithIgnoreCase(getContentTypeAsString(), MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
       for (InterfaceHttpData data : requestDecoder().getBodyHttpDatas()) {
         if (data instanceof Attribute) {
           try {

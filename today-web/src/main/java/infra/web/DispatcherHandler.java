@@ -620,7 +620,7 @@ public class DispatcherHandler extends InfraHandler {
   private void logRequest(RequestContext request) {
     if (log.isDebugEnabled()) {
       String params;
-      String contentType = request.getContentType();
+      String contentType = request.getContentTypeAsString();
       if (StringUtils.startsWithIgnoreCase(contentType, "multipart/")) {
         params = "multipart";
       }

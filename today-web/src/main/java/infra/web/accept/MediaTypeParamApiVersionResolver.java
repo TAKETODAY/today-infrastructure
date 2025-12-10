@@ -52,15 +52,14 @@ public class MediaTypeParamApiVersionResolver implements ApiVersionResolver {
   @Nullable
   @Override
   public String resolveVersion(RequestContext request) {
-    var headers = request.requestHeaders().getOrEmpty(HttpHeaders.ACCEPT);
-    for (String header : headers) {
+    for (String header : request.getHeaders(HttpHeaders.ACCEPT)) {
       for (MediaType mediaType : MediaType.parseMediaTypes(header)) {
         if (compatibleMediaType.isCompatibleWith(mediaType)) {
           return mediaType.getParameter(parameterName);
         }
       }
     }
-    String header = request.getContentType();
+    String header = request.getContentTypeAsString();
     for (MediaType mediaType : MediaType.parseMediaTypes(header)) {
       if (compatibleMediaType.isCompatibleWith(mediaType)) {
         return mediaType.getParameter(parameterName);

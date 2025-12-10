@@ -840,7 +840,7 @@ class DecoratingRequestContextTests {
   @Test
   void getContentType_ShouldDelegateToDelegate() {
     RequestContext delegate = mock(RequestContext.class);
-    when(delegate.getContentType()).thenReturn("application/json");
+    when(delegate.getContentTypeAsString()).thenReturn("application/json");
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
@@ -849,10 +849,10 @@ class DecoratingRequestContextTests {
       }
     };
 
-    String result = wrapper.getContentType();
+    String result = wrapper.getContentTypeAsString();
 
     assertThat(result).isEqualTo("application/json");
-    verify(delegate).getContentType();
+    verify(delegate).getContentTypeAsString();
   }
 
   @Test

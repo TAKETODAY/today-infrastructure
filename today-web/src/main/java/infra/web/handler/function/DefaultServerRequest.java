@@ -543,7 +543,7 @@ class DefaultServerRequest implements ServerRequest {
     }
 
     @Override
-    public String getContentType() {
+    public String getContentTypeAsString() {
       throw new UnsupportedOperationException();
     }
 

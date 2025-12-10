@@ -293,8 +293,8 @@ public abstract class DecoratingRequestContext extends RequestContext {
 
   @Nullable
   @Override
-  public String getContentType() {
-    return getDelegate().getContentType();
+  public String getContentTypeAsString() {
+    return getDelegate().getContentTypeAsString();
   }
 
   @Override
