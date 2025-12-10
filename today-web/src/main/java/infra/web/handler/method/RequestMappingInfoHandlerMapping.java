@@ -32,7 +32,6 @@ import infra.http.HttpMethod;
 import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
 import infra.util.CollectionUtils;
-import infra.util.StringUtils;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.HttpMediaTypeNotSupportedException;
@@ -149,16 +148,12 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 
     if (helper.hasConsumesMismatch()) {
       Set<MediaType> mediaTypes = helper.getConsumableMediaTypes();
-      MediaType contentType = null;
-      if (StringUtils.isNotEmpty(request.getContentTypeAsString())) {
-        try {
-          contentType = MediaType.parseMediaType(request.getContentTypeAsString());
-        }
-        catch (InvalidMediaTypeException ex) {
-          throw new HttpMediaTypeNotSupportedException(ex.getMessage(), mediaTypes);
-        }
+      try {
+        throw new HttpMediaTypeNotSupportedException(request.getContentType(), mediaTypes, request.getMethod());
       }
-      throw new HttpMediaTypeNotSupportedException(contentType, mediaTypes, request.getMethod());
+      catch (InvalidMediaTypeException ex) {
+        throw new HttpMediaTypeNotSupportedException(ex.getMessage(), mediaTypes);
+      }
     }
 
     if (helper.hasProducesMismatch()) {

@@ -291,10 +291,14 @@ public abstract class DecoratingRequestContext extends RequestContext {
     return getDelegate().isMultipart();
   }
 
-  @Nullable
   @Override
-  public String getContentTypeAsString() {
+  public @Nullable String getContentTypeAsString() {
     return getDelegate().getContentTypeAsString();
+  }
+
+  @Override
+  public @Nullable MediaType getContentType() {
+    return getDelegate().getContentType();
   }
 
   @Override

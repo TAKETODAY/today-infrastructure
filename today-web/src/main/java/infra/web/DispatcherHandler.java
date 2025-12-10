@@ -620,8 +620,7 @@ public class DispatcherHandler extends InfraHandler {
   private void logRequest(RequestContext request) {
     if (log.isDebugEnabled()) {
       String params;
-      String contentType = request.getContentTypeAsString();
-      if (StringUtils.startsWithIgnoreCase(contentType, "multipart/")) {
+      if (request.isMultipart()) {
         params = "multipart";
       }
       else if (isEnableLoggingRequestDetails()) {
@@ -631,7 +630,7 @@ public class DispatcherHandler extends InfraHandler {
       }
       else {
         // Avoid request body parsing for form data
-        params = StringUtils.startsWithIgnoreCase(contentType, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+        params = StringUtils.startsWithIgnoreCase(request.getContentTypeAsString(), MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 || !request.getParameters().isEmpty() ? "masked" : "";
       }
 

@@ -309,7 +309,7 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  public String getContentTypeAsString() {
+  public @Nullable String getContentTypeAsString() {
     return request.headers().get(DefaultHttpHeaders.CONTENT_TYPE);
   }
 
