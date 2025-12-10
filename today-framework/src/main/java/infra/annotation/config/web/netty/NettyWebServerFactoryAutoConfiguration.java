@@ -19,9 +19,7 @@ package infra.annotation.config.web.netty;
 
 import org.jspecify.annotations.Nullable;
 
-import java.nio.file.Path;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.Executor;
 
 import infra.annotation.ConditionalOnWebApplication;
@@ -46,7 +44,6 @@ import infra.core.ssl.SslBundles;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
-import infra.util.StringUtils;
 import infra.web.DispatcherHandler;
 import infra.web.multipart.MultipartParser;
 import infra.web.multipart.parsing.DefaultMultipartParser;
@@ -167,26 +164,12 @@ public class NettyWebServerFactoryAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public static DefaultMultipartParser multipartParser(ServerProperties properties,
+  public static MultipartParser multipartParser(ServerProperties properties,
           @Nullable ApplicationTemp applicationTemp, @Nullable ProgressListener progressListener) {
     var config = properties.multipart;
     DefaultMultipartParser multipartParser = new DefaultMultipartParser();
 
-    if (StringUtils.hasText(config.tempBaseDir)) {
-      if (StringUtils.hasText(config.tempSubDir)) {
-        multipartParser.setTempRepository(Path.of(config.tempBaseDir, config.tempSubDir));
-      }
-      else {
-        multipartParser.setTempRepository(Path.of(config.tempBaseDir));
-      }
-    }
-    else {
-      if (applicationTemp == null) {
-        applicationTemp = ApplicationTemp.instance;
-      }
-      multipartParser.setTempRepository(applicationTemp.getDir(Objects.requireNonNullElse(config.tempSubDir, "multipart")));
-    }
-
+    multipartParser.setTempRepository(config.computeTempRepository(applicationTemp));
     multipartParser.setMaxFields(config.maxFields);
     multipartParser.setDeleteOnExit(config.deleteOnExit);
     multipartParser.setProgressListener(progressListener);

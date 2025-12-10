@@ -22,7 +22,9 @@ import org.jspecify.annotations.Nullable;
 import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.time.Duration;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import infra.context.properties.ConfigurationProperties;
@@ -30,6 +32,7 @@ import infra.context.properties.NestedConfigurationProperty;
 import infra.core.ApplicationTemp;
 import infra.core.ssl.SslBundles;
 import infra.util.DataSize;
+import infra.util.StringUtils;
 import infra.web.multipart.MultipartParser;
 import infra.web.multipart.parsing.DefaultMultipartParser;
 import infra.web.server.error.ErrorProperties;
@@ -211,6 +214,24 @@ public class ServerProperties {
      * this limit will cause the request to be rejected.
      */
     public DataSize maxHeaderSize = DataSize.ofBytes(512); // 512 B
+
+    public Path computeTempRepository(@Nullable ApplicationTemp applicationTemp) {
+      if (StringUtils.hasText(tempBaseDir)) {
+        if (StringUtils.hasText(tempSubDir)) {
+          return Path.of(tempBaseDir, tempSubDir);
+        }
+        else {
+          return Path.of(tempBaseDir);
+        }
+      }
+      else {
+        if (applicationTemp == null) {
+          applicationTemp = ApplicationTemp.instance;
+        }
+        return applicationTemp.getDir(Objects.requireNonNullElse(tempSubDir, "multipart"));
+      }
+    }
+
   }
 
   /**
