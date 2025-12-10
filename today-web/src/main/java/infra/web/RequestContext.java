@@ -1222,16 +1222,16 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   /**
-   * Returns the values of the specified request header as a {@code Collection<String>}.
+   * Returns the values of the specified request header as a {@code List<String>}.
    * If the request does not have a header with the specified name,
-   * this method returns an empty collection.
+   * this method returns an empty list.
    *
    * @param name the name of the request header
    * @return the values of the specified request header, or an empty
-   * collection if the header does not exist
+   * list if the header does not exist
    * @since 5.0
    */
-  public Collection<String> getHeaders(String name) {
+  public List<String> getHeaders(String name) {
     return requestHeaders().getOrEmpty(name);
   }
 

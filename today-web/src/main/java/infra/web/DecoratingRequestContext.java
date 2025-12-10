@@ -313,7 +313,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public Collection<String> getHeaders(String name) {
+  public List<String> getHeaders(String name) {
     return getDelegate().getHeaders(name);
   }
 
