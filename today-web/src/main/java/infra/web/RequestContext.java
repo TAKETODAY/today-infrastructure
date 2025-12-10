@@ -1150,12 +1150,12 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   /**
-   * Returns the media type of the request body, or {@code null} if the
+   * Return the media type of the request body, or {@code null} if the
    * media type is not known or cannot be parsed from the Content-Type header.
-   *
    * <p>This method retrieves the Content-Type header from the request headers
    * and attempts to parse it into a {@link MediaType} object. If the header
    * is not present or cannot be parsed, this method returns {@code null}.
+   * <p>Cache parsed content type in {@link #contentType}.
    *
    * @return the {@link MediaType} of the request body, or {@code null} if
    * the media type is unknown or unparseable
@@ -1279,7 +1279,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @since 5.0
    */
   public Collection<String> getHeaderNames() {
-    return getHeaders().keySet();
+    return requestHeaders().keySet();
   }
 
   /**

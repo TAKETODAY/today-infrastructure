@@ -119,7 +119,7 @@ public class NettyFormField extends AbstractPart {
 
   @Override
   public @Nullable MediaType getContentType() {
-    return null;
+    return null; // no Content-Type provider from netty
   }
 
   @Override

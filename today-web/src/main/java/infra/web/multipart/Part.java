@@ -32,8 +32,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.List;
 
 import infra.core.io.InputStreamSource;
 import infra.core.io.Resource;
@@ -75,45 +73,6 @@ public interface Part extends InputStreamSource, HttpInputMessage {
   HttpHeaders getHeaders();
 
   /**
-   * Returns the value of the specified mime header as a <code>String</code>. If the Part did not include a header of the
-   * specified name, this method returns <code>null</code>. If there are multiple headers with the same name, this method
-   * returns the first header in the part. The header name is case insensitive. You can use this method with any request
-   * header.
-   *
-   * @param name a <code>String</code> specifying the header name
-   * @return a <code>String</code> containing the value of the requested header, or <code>null</code> if the part does not
-   * have a header of that name
-   * @since 5.0
-   */
-  default @Nullable String getHeader(String name) {
-    return getHeaders().getFirst(name);
-  }
-
-  /**
-   * Get the values of the specified mime header as a <code>List</code> of <code>String</code> objects.
-   * If the Part did not include a header of the specified name, this method returns an empty list.
-   * The header name is case-insensitive. You can use this method with any request header.
-   *
-   * @param name a <code>String</code> specifying the header name
-   * @return a <code>List</code> containing the values of the requested header,
-   * or an empty list if the part does not have a header of that name
-   * @since 5.0
-   */
-  default List<String> getHeaders(String name) {
-    return getHeaders().getOrEmpty(name);
-  }
-
-  /**
-   * Get the header names provided for this part.
-   *
-   * @return a Collection of all the header names provided for this part.
-   * @since 5.0
-   */
-  default Collection<String> getHeaderNames() {
-    return getHeaders().keySet();
-  }
-
-  /**
    * Return the body of the message as an input stream.
    *
    * @return the input stream body (never {@code null})
@@ -133,18 +92,6 @@ public interface Part extends InputStreamSource, HttpInputMessage {
    */
   @Nullable
   MediaType getContentType();
-
-  /**
-   * Get the content type of this part.
-   *
-   * @return the content type of this part, or {@code null} if not defined
-   * @since 5.0
-   */
-  @Nullable
-  default String getContentTypeAsString() {
-    MediaType contentType = getContentType();
-    return contentType != null ? contentType.toString() : null;
-  }
 
   /**
    * Determine the content length for this Part.
