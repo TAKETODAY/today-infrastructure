@@ -145,7 +145,7 @@ public abstract class WebUtils {
         return (T) request;
       }
       else if (request instanceof RequestContextDecorator wrapper) {
-        return getNativeContext(wrapper.getDelegate(), requiredType);
+        return getNativeContext(wrapper.delegate(), requiredType);
       }
     }
     return null;

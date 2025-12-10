@@ -193,27 +193,27 @@ public class RootUriRequestExpectationManager implements RequestExpectationManag
 
     @Override
     public OutputStream getBody() throws IOException {
-      return getRequest().getBody();
+      return delegate().getBody();
     }
 
     @Override
     public ClientHttpResponse execute() throws IOException {
-      return getRequest().execute();
+      return delegate().execute();
     }
 
     @Override
     public Future<ClientHttpResponse> async() {
-      return getRequest().async();
+      return delegate().async();
     }
 
     @Override
     public Future<ClientHttpResponse> async(@Nullable Executor executor) {
-      return getRequest().async(executor);
+      return delegate().async(executor);
     }
 
     @Override
-    public ClientHttpRequest getRequest() {
-      return (ClientHttpRequest) super.getRequest();
+    public ClientHttpRequest delegate() {
+      return (ClientHttpRequest) super.delegate();
     }
 
   }

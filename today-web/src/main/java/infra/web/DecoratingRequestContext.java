@@ -75,607 +75,607 @@ public abstract class DecoratingRequestContext extends RequestContext {
 
   @Override
   public long getRequestTimeMillis() {
-    return getDelegate().getRequestTimeMillis();
+    return delegate().getRequestTimeMillis();
   }
 
   @Override
   public ApplicationContext getApplicationContext() {
-    return getDelegate().getApplicationContext();
+    return delegate().getApplicationContext();
   }
 
   @Override
   public Reader getReader(Charset encoding) throws IOException {
-    return getDelegate().getReader(encoding);
+    return delegate().getReader(encoding);
   }
 
   @Override
   public ReadableByteChannel readableChannel() throws IOException {
-    return getDelegate().readableChannel();
+    return delegate().readableChannel();
   }
 
   @Override
   public WritableByteChannel writableChannel() throws IOException {
-    return getDelegate().writableChannel();
+    return delegate().writableChannel();
   }
 
   @Override
   public String getScheme() {
-    return getDelegate().getScheme();
+    return delegate().getScheme();
   }
 
   @Override
   public int getServerPort() {
-    return getDelegate().getServerPort();
+    return delegate().getServerPort();
   }
 
   @Override
   public String getServerName() {
-    return getDelegate().getServerName();
+    return delegate().getServerName();
   }
 
   @Override
   public URI getURI() {
-    return getDelegate().getURI();
+    return delegate().getURI();
   }
 
   @Override
   public String getRequestURI() {
-    return getDelegate().getRequestURI();
+    return delegate().getRequestURI();
   }
 
   @Override
   public boolean isPreFlightRequest() {
-    return getDelegate().isPreFlightRequest();
+    return delegate().isPreFlightRequest();
   }
 
   @Override
   public boolean isCorsRequest() {
-    return getDelegate().isCorsRequest();
+    return delegate().isCorsRequest();
   }
 
   @Override
   public RequestPath getRequestPath() {
-    return getDelegate().getRequestPath();
+    return delegate().getRequestPath();
   }
 
   @Override
   protected String readRequestURI() {
-    return getDelegate().readRequestURI();
+    return delegate().readRequestURI();
   }
 
   @Override
   public String getRequestURL() {
-    return getDelegate().getRequestURL();
+    return delegate().getRequestURL();
   }
 
   @Override
   public String getQueryString() {
-    return getDelegate().getQueryString();
+    return delegate().getQueryString();
   }
 
   @Override
   protected String readQueryString() {
-    return getDelegate().readQueryString();
+    return delegate().readQueryString();
   }
 
   @Override
   public HttpCookie[] getCookies() {
-    return getDelegate().getCookies();
+    return delegate().getCookies();
   }
 
   @Override
   protected HttpCookie[] readCookies() {
-    return getDelegate().readCookies();
+    return delegate().readCookies();
   }
 
   @Override
   @Nullable
   public HttpCookie getCookie(String name) {
-    return getDelegate().getCookie(name);
+    return delegate().getCookie(name);
   }
 
   @Override
   public void addCookie(ResponseCookie cookie) {
-    getDelegate().addCookie(cookie);
+    delegate().addCookie(cookie);
   }
 
   @Override
   public void addCookie(String name, @Nullable String value) {
-    getDelegate().addCookie(name, value);
+    delegate().addCookie(name, value);
   }
 
   @Nullable
   @Override
   public List<ResponseCookie> removeCookie(String name) {
-    return getDelegate().removeCookie(name);
+    return delegate().removeCookie(name);
   }
 
   @Override
   public boolean hasResponseCookie() {
-    return getDelegate().hasResponseCookie();
+    return delegate().hasResponseCookie();
   }
 
   @Override
   public ArrayList<ResponseCookie> responseCookies() {
-    return getDelegate().responseCookies();
+    return delegate().responseCookies();
   }
 
   @Override
   public MultiValueMap<String, String> getParameters() {
-    return getDelegate().getParameters();
+    return delegate().getParameters();
   }
 
   @Override
   protected MultiValueMap<String, String> readParameters() {
-    return getDelegate().readParameters();
+    return delegate().readParameters();
   }
 
   @Override
   public Set<String> getParameterNames() {
-    return getDelegate().getParameterNames();
+    return delegate().getParameterNames();
   }
 
   @Override
   public String @Nullable [] getParameters(String name) {
-    return getDelegate().getParameters(name);
+    return delegate().getParameters(name);
   }
 
   @Override
   @Nullable
   public String getParameter(String name) {
-    return getDelegate().getParameter(name);
+    return delegate().getParameter(name);
   }
 
   @Override
   protected String readMethod() {
-    return getDelegate().readMethod();
+    return delegate().readMethod();
   }
 
   @Override
   public String getRemoteAddress() {
-    return getDelegate().getRemoteAddress();
+    return delegate().getRemoteAddress();
   }
 
   @Override
   public int getRemotePort() {
-    return getDelegate().getRemotePort();
+    return delegate().getRemotePort();
   }
 
   @Override
   public SocketAddress localAddress() {
-    return getDelegate().localAddress();
+    return delegate().localAddress();
   }
 
   @Override
   public InetSocketAddress remoteAddress() {
-    return getDelegate().remoteAddress();
+    return delegate().remoteAddress();
   }
 
   @Override
   public long getContentLength() {
-    return getDelegate().getContentLength();
+    return delegate().getContentLength();
   }
 
   @Override
   public InputStream getBody() throws IOException {
-    return getDelegate().getBody();
+    return delegate().getBody();
   }
 
   @Override
   public HttpHeaders getHeaders() {
-    return getDelegate().getHeaders();
+    return delegate().getHeaders();
   }
 
   @Override
   public InputStream getInputStream() throws IOException {
-    return getDelegate().getInputStream();
+    return delegate().getInputStream();
   }
 
   @Override
   protected InputStream createInputStream() throws IOException {
-    return getDelegate().createInputStream();
+    return delegate().createInputStream();
   }
 
   @Override
   public BufferedReader getReader() throws IOException {
-    return getDelegate().getReader();
+    return delegate().getReader();
   }
 
   @Override
   protected BufferedReader createReader() throws IOException {
-    return getDelegate().createReader();
+    return delegate().createReader();
   }
 
   @Override
   public boolean isMultipart() {
-    return getDelegate().isMultipart();
+    return delegate().isMultipart();
   }
 
   @Override
   public @Nullable String getContentTypeAsString() {
-    return getDelegate().getContentTypeAsString();
+    return delegate().getContentTypeAsString();
   }
 
   @Override
   public @Nullable MediaType getContentType() {
-    return getDelegate().getContentType();
+    return delegate().getContentType();
   }
 
   @Override
   public HttpHeaders requestHeaders() {
-    return getDelegate().requestHeaders();
+    return delegate().requestHeaders();
   }
 
   @Override
   public HttpHeaders createRequestHeaders() {
-    return getDelegate().createRequestHeaders();
+    return delegate().createRequestHeaders();
   }
 
   @Override
   public @Nullable String getHeader(String name) {
-    return getDelegate().getHeader(name);
+    return delegate().getHeader(name);
   }
 
   @Override
   public List<String> getHeaders(String name) {
-    return getDelegate().getHeaders(name);
+    return delegate().getHeaders(name);
   }
 
   @Override
   public Collection<String> getHeaderNames() {
-    return getDelegate().getHeaderNames();
+    return delegate().getHeaderNames();
   }
 
   @Override
   public Locale getLocale() {
-    return getDelegate().getLocale();
+    return delegate().getLocale();
   }
 
   @Override
   protected Locale readLocale() {
-    return getDelegate().readLocale();
+    return delegate().readLocale();
   }
 
   @Override
   public boolean checkNotModified(long lastModifiedTimestamp) {
-    return getDelegate().checkNotModified(lastModifiedTimestamp);
+    return delegate().checkNotModified(lastModifiedTimestamp);
   }
 
   @Override
   public boolean checkNotModified(String etag) {
-    return getDelegate().checkNotModified(etag);
+    return delegate().checkNotModified(etag);
   }
 
   @Override
   public boolean checkNotModified(@Nullable String etag, long lastModifiedTimestamp) {
-    return getDelegate().checkNotModified(etag, lastModifiedTimestamp);
+    return delegate().checkNotModified(etag, lastModifiedTimestamp);
   }
 
   @Override
   public boolean isNotModified() {
-    return getDelegate().isNotModified();
+    return delegate().isNotModified();
   }
 
   @Override
   public void setContentLength(long length) {
-    getDelegate().setContentLength(length);
+    delegate().setContentLength(length);
   }
 
   @Override
   public boolean isCommitted() {
-    return getDelegate().isCommitted();
+    return delegate().isCommitted();
   }
 
   @Override
   public void reset() {
-    getDelegate().reset();
+    delegate().reset();
   }
 
   @Override
   public void sendRedirect(String location) throws IOException {
-    getDelegate().sendRedirect(location);
+    delegate().sendRedirect(location);
   }
 
   @Override
   public void setStatus(int sc) {
-    getDelegate().setStatus(sc);
+    delegate().setStatus(sc);
   }
 
   @Override
   public void setStatus(HttpStatusCode status) {
-    getDelegate().setStatus(status);
+    delegate().setStatus(status);
   }
 
   @Override
   public int getStatus() {
-    return getDelegate().getStatus();
+    return delegate().getStatus();
   }
 
   @Override
   public void sendError(HttpStatusCode code) throws IOException {
-    getDelegate().sendError(code);
+    delegate().sendError(code);
   }
 
   @Override
   public void sendError(HttpStatusCode code, @Nullable String msg) throws IOException {
-    getDelegate().sendError(code, msg);
+    delegate().sendError(code, msg);
   }
 
   @Override
   public void sendError(int sc) throws IOException {
-    getDelegate().sendError(sc);
+    delegate().sendError(sc);
   }
 
   @Override
   public void sendError(int sc, @Nullable String msg) throws IOException {
-    getDelegate().sendError(sc, msg);
+    delegate().sendError(sc, msg);
   }
 
   @Override
   public OutputStream getOutputStream() throws IOException {
-    return getDelegate().getOutputStream();
+    return delegate().getOutputStream();
   }
 
   @Override
   protected OutputStream createOutputStream() throws IOException {
-    return getDelegate().createOutputStream();
+    return delegate().createOutputStream();
   }
 
   @Override
   public PrintWriter getWriter() throws IOException {
-    return getDelegate().getWriter();
+    return delegate().getWriter();
   }
 
   @Override
   protected PrintWriter createWriter() throws IOException {
-    return getDelegate().createWriter();
+    return delegate().createWriter();
   }
 
   @Override
   public void setContentType(@Nullable String contentType) {
-    getDelegate().setContentType(contentType);
+    delegate().setContentType(contentType);
   }
 
   @Override
   public void setContentType(@Nullable MediaType contentType) {
-    getDelegate().setContentType(contentType);
+    delegate().setContentType(contentType);
   }
 
   @Nullable
   @Override
   public String getResponseContentType() {
-    return getDelegate().getResponseContentType();
+    return delegate().getResponseContentType();
   }
 
   @Override
   public void setHeader(String name, @Nullable String value) {
-    getDelegate().setHeader(name, value);
+    delegate().setHeader(name, value);
   }
 
   @Override
   public void addHeader(String name, @Nullable String value) {
-    getDelegate().addHeader(name, value);
+    delegate().addHeader(name, value);
   }
 
   @Override
   public void removeHeader(String name) {
-    getDelegate().removeHeader(name);
+    delegate().removeHeader(name);
   }
 
   @Override
   public boolean containsResponseHeader(String name) {
-    return getDelegate().containsResponseHeader(name);
+    return delegate().containsResponseHeader(name);
   }
 
   @Override
   public HttpHeaders responseHeaders() {
-    return getDelegate().responseHeaders();
+    return delegate().responseHeaders();
   }
 
   @Override
   public void addHeaders(@Nullable HttpHeaders headers) {
-    getDelegate().addHeaders(headers);
+    delegate().addHeaders(headers);
   }
 
   @Override
   public HttpHeaders createResponseHeaders() {
-    return getDelegate().createResponseHeaders();
+    return delegate().createResponseHeaders();
   }
 
   @Override
   public ServerHttpResponse asHttpOutputMessage() {
-    return getDelegate().asHttpOutputMessage();
+    return delegate().asHttpOutputMessage();
   }
 
   @Override
   public <T> T nativeRequest() {
-    return getDelegate().nativeRequest();
+    return delegate().nativeRequest();
   }
 
   @Nullable
   @Override
   public HandlerMatchingMetadata getMatchingMetadata() {
-    return getDelegate().getMatchingMetadata();
+    return delegate().getMatchingMetadata();
   }
 
   @Override
   public void setMatchingMetadata(@Nullable HandlerMatchingMetadata handlerMatchingMetadata) {
-    getDelegate().setMatchingMetadata(handlerMatchingMetadata);
+    delegate().setMatchingMetadata(handlerMatchingMetadata);
   }
 
   @Override
   public boolean hasMatchingMetadata() {
-    return getDelegate().hasMatchingMetadata();
+    return delegate().hasMatchingMetadata();
   }
 
   @Nullable
   @Override
   public Object getAttribute(String name) {
-    return getDelegate().getAttribute(name);
+    return delegate().getAttribute(name);
   }
 
   @Override
   public void setAttribute(String name, @Nullable Object value) {
-    getDelegate().setAttribute(name, value);
+    delegate().setAttribute(name, value);
   }
 
   @Nullable
   @Override
   public Object removeAttribute(String name) {
-    return getDelegate().removeAttribute(name);
+    return delegate().removeAttribute(name);
   }
 
   @Override
   public void clearAttributes() {
-    getDelegate().clearAttributes();
+    delegate().clearAttributes();
   }
 
   @Override
   public String[] getAttributeNames() {
-    return getDelegate().getAttributeNames();
+    return delegate().getAttributeNames();
   }
 
   @Override
   protected void writeHeaders() {
-    getDelegate().writeHeaders();
+    delegate().writeHeaders();
   }
 
   @Override
   public void flush() throws IOException {
-    getDelegate().flush();
+    delegate().flush();
   }
 
   @Override
   public void requestCompleted() {
-    getDelegate().requestCompleted();
+    delegate().requestCompleted();
   }
 
   @Override
   public void requestCompleted(@Nullable Throwable notHandled) {
-    getDelegate().requestCompleted(notHandled);
+    delegate().requestCompleted(notHandled);
   }
 
   @Override
   protected MultipartRequest createMultipartRequest() {
-    return getDelegate().createMultipartRequest();
+    return delegate().createMultipartRequest();
   }
 
   @Override
   protected AsyncWebRequest createAsyncWebRequest() {
-    return getDelegate().createAsyncWebRequest();
+    return delegate().createAsyncWebRequest();
   }
 
   @Override
   public AsyncWebRequest asyncWebRequest() {
-    return getDelegate().asyncWebRequest();
+    return delegate().asyncWebRequest();
   }
 
   @Override
   public boolean isConcurrentHandlingStarted() {
-    return getDelegate().isConcurrentHandlingStarted();
+    return delegate().isConcurrentHandlingStarted();
   }
 
   @Override
   public MultipartRequest asMultipartRequest() {
-    return getDelegate().asMultipartRequest();
+    return delegate().asMultipartRequest();
   }
 
   @Override
   public void setBinding(@Nullable BindingContext bindingContext) {
-    getDelegate().setBinding(bindingContext);
+    delegate().setBinding(bindingContext);
   }
 
   @Nullable
   @Override
   public BindingContext getBinding() {
-    return getDelegate().getBinding();
+    return delegate().getBinding();
   }
 
   @Override
   public BindingContext binding() {
-    return getDelegate().binding();
+    return delegate().binding();
   }
 
   @Override
   public boolean hasBinding() {
-    return getDelegate().hasBinding();
+    return delegate().hasBinding();
   }
 
   @Nullable
   @Override
   public RedirectModel getInputRedirectModel() {
-    return getDelegate().getInputRedirectModel();
+    return delegate().getInputRedirectModel();
   }
 
   @Nullable
   @Override
   public RedirectModel getInputRedirectModel(@Nullable RedirectModelManager manager) {
-    return getDelegate().getInputRedirectModel(manager);
+    return delegate().getInputRedirectModel(manager);
   }
 
   // AttributeAccessorSupport
 
   @Override
   public <T> T computeAttribute(String name, Function<String, @Nullable T> computeFunction) {
-    return getDelegate().computeAttribute(name, computeFunction);
+    return delegate().computeAttribute(name, computeFunction);
   }
 
   @Override
   public boolean hasAttribute(String name) {
-    return getDelegate().hasAttribute(name);
+    return delegate().hasAttribute(name);
   }
 
   @Override
   public Iterable<String> attributeNames() {
-    return getDelegate().attributeNames();
+    return delegate().attributeNames();
   }
 
   @Override
   public void copyFrom(AttributeAccessor source) {
-    getDelegate().copyFrom(source);
+    delegate().copyFrom(source);
   }
 
   @Override
   public boolean hasAttributes() {
-    return getDelegate().hasAttributes();
+    return delegate().hasAttributes();
   }
 
   @Override
   public Map<String, Object> getAttributes() {
-    return getDelegate().getAttributes();
+    return delegate().getAttributes();
   }
 
   @Override
   public HttpMethod getMethod() {
-    return getDelegate().getMethod();
+    return delegate().getMethod();
   }
 
   @Override
   public String getMethodAsString() {
-    return getDelegate().getMethodAsString();
+    return delegate().getMethodAsString();
   }
 
   @Override
   public HandlerMatchingMetadata matchingMetadata() {
-    return getDelegate().matchingMetadata();
+    return delegate().matchingMetadata();
   }
 
   @Override
   public WebAsyncManager asyncManager() {
-    return getDelegate().asyncManager();
+    return delegate().asyncManager();
   }
 
   @Override
   public void requestCompletedInternal(@Nullable Throwable notHandled) {
-    getDelegate().requestCompletedInternal(notHandled);
+    delegate().requestCompletedInternal(notHandled);
   }
 
   @Override
   protected RequestPath readRequestPath() {
-    return getDelegate().readRequestPath();
+    return delegate().readRequestPath();
   }
 
-  public abstract RequestContext getDelegate();
+  public abstract RequestContext delegate();
 
   @Override
   public boolean equals(Object o) {
@@ -683,7 +683,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
       return true;
     if (!(o instanceof DecoratingRequestContext that))
       return false;
-    return Objects.equals(getDelegate(), that.getDelegate());
+    return Objects.equals(delegate(), that.delegate());
   }
 
   @Override
@@ -693,7 +693,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
 
   @Override
   public String toString() {
-    return "Wrapper for " + getDelegate();
+    return "Wrapper for " + delegate();
   }
 
 }

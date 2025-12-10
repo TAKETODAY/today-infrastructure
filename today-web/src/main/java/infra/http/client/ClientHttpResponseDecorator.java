@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import infra.http.HttpHeaders;
+import infra.http.HttpMessageDecorator;
 import infra.http.HttpStatusCode;
 import infra.lang.Assert;
 
@@ -30,10 +31,12 @@ import infra.lang.Assert;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/9 14:57
  */
-public class ClientHttpResponseDecorator implements ClientHttpResponse {
+public class ClientHttpResponseDecorator extends HttpMessageDecorator implements ClientHttpResponse {
+
   protected final ClientHttpResponse delegate;
 
   public ClientHttpResponseDecorator(ClientHttpResponse delegate) {
+    super(delegate);
     Assert.notNull(delegate, "ClientHttpResponse delegate is required");
     this.delegate = delegate;
   }
@@ -68,7 +71,8 @@ public class ClientHttpResponseDecorator implements ClientHttpResponse {
     delegate.close();
   }
 
-  public ClientHttpResponse getDelegate() {
+  @Override
+  public ClientHttpResponse delegate() {
     return delegate;
   }
 
