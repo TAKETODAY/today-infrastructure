@@ -32,6 +32,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -304,6 +305,21 @@ public abstract class DecoratingRequestContext extends RequestContext {
   @Override
   public HttpHeaders createRequestHeaders() {
     return getDelegate().createRequestHeaders();
+  }
+
+  @Override
+  public @Nullable String getHeader(String name) {
+    return getDelegate().getHeader(name);
+  }
+
+  @Override
+  public Collection<String> getHeaders(String name) {
+    return getDelegate().getHeaders(name);
+  }
+
+  @Override
+  public Collection<String> getHeaderNames() {
+    return getDelegate().getHeaderNames();
   }
 
   @Override
