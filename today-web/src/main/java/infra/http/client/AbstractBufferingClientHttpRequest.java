@@ -76,7 +76,7 @@ public abstract class AbstractBufferingClientHttpRequest extends AbstractClientH
           throws IOException //
   {
     if (bufferedOutput.length > 0) {
-      long contentLength = request.getHeaders().getContentLength();
+      long contentLength = request.getContentLength();
       if (contentLength > -1 && contentLength != bufferedOutput.length) {
         request.getHeaders().setContentLength(bufferedOutput.length);
       }

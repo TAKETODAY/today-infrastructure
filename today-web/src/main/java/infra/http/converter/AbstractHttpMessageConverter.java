@@ -64,7 +64,8 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
    *
    * @see #setSupportedMediaTypes
    */
-  protected AbstractHttpMessageConverter() { }
+  protected AbstractHttpMessageConverter() {
+  }
 
   /**
    * Construct an {@code AbstractHttpMessageConverter} with multiple supported media types.

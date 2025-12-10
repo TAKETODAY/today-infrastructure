@@ -942,7 +942,12 @@ public abstract class NettyRequestContext extends RequestContext {
 
   }
 
-  final class NettyHttpOutputMessage implements ServerHttpResponse {
+  private final class NettyHttpOutputMessage implements ServerHttpResponse {
+
+    @Override
+    public void setContentType(@Nullable MediaType mediaType) {
+      NettyRequestContext.this.setContentType(mediaType);
+    }
 
     @Override
     public void setStatusCode(HttpStatusCode status) {
@@ -967,6 +972,11 @@ public abstract class NettyRequestContext extends RequestContext {
     @Override
     public infra.http.HttpHeaders getHeaders() {
       return responseHeaders();
+    }
+
+    @Override
+    public @Nullable String getContentTypeAsString() {
+      return NettyRequestContext.this.getResponseContentType();
     }
 
     @Override
