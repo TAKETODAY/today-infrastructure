@@ -61,6 +61,7 @@ import infra.http.HttpMethod;
 import infra.http.HttpRequest;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
+import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
 import infra.http.server.RequestPath;
@@ -248,6 +249,8 @@ public abstract class RequestContext extends AttributeAccessorSupport
   /** Map from attribute name String to destruction callback Runnable.  @since 5.0 */
   @Nullable
   protected LinkedHashMap<String, Runnable> destructionCallbacks;
+
+  protected @Nullable MediaType contentType;
 
   private long requestCompletedTimeMillis;
 
@@ -469,7 +472,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return A URL
    */
   public String getRequestURL() {
-    String host = requestHeaders().getFirst(HttpHeaders.HOST);
+    String host = getHeader(HttpHeaders.HOST);
     if (host == null) {
       host = "localhost";
     }
@@ -849,7 +852,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
         multipartFlag = Boolean.FALSE;
       }
       else {
-        multipartFlag = StringUtils.startsWithIgnoreCase(getContentType(), "multipart/");
+        multipartFlag = StringUtils.startsWithIgnoreCase(getContentTypeAsString(), "multipart/");
       }
       this.multipartFlag = multipartFlag;
     }
@@ -1147,6 +1150,40 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   /**
+   * Returns the media type of the request body, or {@code null} if the
+   * media type is not known or cannot be parsed from the Content-Type header.
+   *
+   * <p>This method retrieves the Content-Type header from the request headers
+   * and attempts to parse it into a {@link MediaType} object. If the header
+   * is not present or cannot be parsed, this method returns {@code null}.
+   *
+   * @return the {@link MediaType} of the request body, or {@code null} if
+   * the media type is unknown or unparseable
+   * @throws InvalidMediaTypeException if the media type value cannot be parsed
+   * @see HttpHeaders#getContentType()
+   * @since 5.0
+   */
+  @Nullable
+  public MediaType getContentType() {
+    MediaType contentType = this.contentType;
+    if (contentType == null) {
+      String string = getContentTypeAsString();
+      if (string != null) {
+        contentType = MediaType.parseMediaType(string);
+        this.contentType = contentType;
+      }
+      else {
+        this.contentType = MediaType.ALL;
+        return null;
+      }
+    }
+    else if (contentType == MediaType.ALL) {
+      return null;
+    }
+    return contentType;
+  }
+
+  /**
    * Returns the MIME type of the body of the request, or <code>null</code> if the
    * type is not known.
    *
@@ -1154,7 +1191,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * request, or null if the type is not known
    */
   @Nullable
-  public abstract String getContentType();
+  public abstract String getContentTypeAsString();
 
   /**
    * Returns the HTTP headers associated with the current request. If the headers
@@ -1222,18 +1259,17 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   /**
-   * Returns the values of the specified request header as a {@code Collection<String>}.
+   * Returns the values of the specified request header as a {@code List<String>}.
    * If the request does not have a header with the specified name,
-   * this method returns an empty collection.
+   * this method returns an empty list.
    *
    * @param name the name of the request header
    * @return the values of the specified request header, or an empty
-   * collection if the header does not exist
+   * list if the header does not exist
    * @since 5.0
    */
-  public Collection<String> getHeaders(String name) {
-    Collection<String> headerValues = requestHeaders().get(name);
-    return headerValues != null ? headerValues : Collections.emptyList();
+  public List<String> getHeaders(String name) {
+    return requestHeaders().getOrEmpty(name);
   }
 
   /**
@@ -2084,7 +2120,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return a <code>String</code> specifying the content type, for example,
    * <code>text/html; charset=UTF-8</code>, or
    * null
-   * @see #getContentType()
+   * @see #getContentTypeAsString()
    */
   @Nullable
   public String getResponseContentType() {

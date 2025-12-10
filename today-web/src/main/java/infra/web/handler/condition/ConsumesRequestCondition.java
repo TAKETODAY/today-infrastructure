@@ -188,7 +188,7 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
 
     MediaType contentType;
     try {
-      String contentType1 = request.getContentType();
+      String contentType1 = request.getContentTypeAsString();
       contentType = StringUtils.isNotEmpty(contentType1)
               ? MediaType.parseMediaType(contentType1)
               : MediaType.APPLICATION_OCTET_STREAM;

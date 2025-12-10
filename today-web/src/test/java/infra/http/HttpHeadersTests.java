@@ -128,6 +128,12 @@ public class HttpHeadersTests {
     headers.setAccept(mediaTypes);
     assertThat(headers.getAccept()).as("Invalid Accept header").isEqualTo(mediaTypes);
     assertThat(headers.getFirst("Accept")).as("Invalid Accept header").isEqualTo("text/html, text/plain");
+
+    headers.clear();
+
+    headers.setAccept(mediaType1);
+    assertThat(headers.getAccept()).as("Invalid Accept header").isEqualTo(List.of(mediaType1));
+    assertThat(headers.getFirst("Accept")).as("Invalid Accept header").isEqualTo("text/html");
   }
 
   @Test

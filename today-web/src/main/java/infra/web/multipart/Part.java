@@ -33,7 +33,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 
 import infra.core.io.InputStreamSource;
 import infra.core.io.Resource;
@@ -90,21 +90,17 @@ public interface Part extends InputStreamSource, HttpInputMessage {
   }
 
   /**
-   * Gets the values of the Part header with the given name.
+   * Get the values of the specified mime header as a <code>List</code> of <code>String</code> objects.
+   * If the Part did not include a header of the specified name, this method returns an empty list.
+   * The header name is case-insensitive. You can use this method with any request header.
    *
-   * <p>
-   * Any changes to the returned <code>Collection</code> must not affect this <code>Part</code>.
-   *
-   * <p>
-   * Part header names are case-insensitive.
-   *
-   * @param name the header name whose values to return
-   * @return a (possibly empty) <code>Collection</code> of the values of the header with the given name
+   * @param name a <code>String</code> specifying the header name
+   * @return a <code>List</code> containing the values of the requested header,
+   * or an empty list if the part does not have a header of that name
    * @since 5.0
    */
-  default Collection<String> getHeaders(String name) {
-    Collection<String> headerValues = getHeaders().get(name);
-    return headerValues != null ? headerValues : Collections.emptyList();
+  default List<String> getHeaders(String name) {
+    return getHeaders().getOrEmpty(name);
   }
 
   /**
@@ -145,7 +141,7 @@ public interface Part extends InputStreamSource, HttpInputMessage {
    * @since 5.0
    */
   @Nullable
-  default String getContentTypeString() {
+  default String getContentTypeAsString() {
     MediaType contentType = getContentType();
     return contentType != null ? contentType.toString() : null;
   }

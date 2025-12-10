@@ -291,9 +291,13 @@ public abstract class DecoratingRequestContext extends RequestContext {
     return getDelegate().isMultipart();
   }
 
-  @Nullable
   @Override
-  public String getContentType() {
+  public @Nullable String getContentTypeAsString() {
+    return getDelegate().getContentTypeAsString();
+  }
+
+  @Override
+  public @Nullable MediaType getContentType() {
     return getDelegate().getContentType();
   }
 
@@ -313,7 +317,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public Collection<String> getHeaders(String name) {
+  public List<String> getHeaders(String name) {
     return getDelegate().getHeaders(name);
   }
 

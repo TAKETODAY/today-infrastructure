@@ -555,7 +555,30 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * by the {@code Accept} header.
    */
   public void setAccept(Collection<MediaType> acceptableMediaTypes) {
-    setHeader(ACCEPT, MediaType.toString(acceptableMediaTypes));
+    setAccept(MediaType.toString(acceptableMediaTypes));
+  }
+
+  /**
+   * Set the acceptable {@linkplain MediaType media type}, as specified
+   * by the {@code Accept} header.
+   *
+   * @param acceptableMediaType the acceptable media type
+   * @throws NullPointerException if acceptableMediaType is {@code null}
+   * @since 5.0
+   */
+  public void setAccept(MediaType acceptableMediaType) {
+    setAccept(acceptableMediaType.toString());
+  }
+
+  /**
+   * Set the acceptable media type as a string value, as specified
+   * by the {@code Accept} header.
+   *
+   * @param acceptableMediaType the acceptable media type as a string
+   * @since 5.0
+   */
+  public void setAccept(String acceptableMediaType) {
+    setHeader(ACCEPT, acceptableMediaType);
   }
 
   /**

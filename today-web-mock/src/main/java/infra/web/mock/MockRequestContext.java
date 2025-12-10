@@ -255,7 +255,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   }
 
   @Override
-  public String getContentType() {
+  public String getContentTypeAsString() {
     return request.getContentType();
   }
 
