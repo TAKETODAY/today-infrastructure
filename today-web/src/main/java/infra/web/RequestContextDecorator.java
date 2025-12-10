@@ -40,7 +40,7 @@ public class RequestContextDecorator extends DecoratingRequestContext {
   }
 
   @Override
-  public RequestContext getDelegate() {
+  public RequestContext delegate() {
     return delegate;
   }
 

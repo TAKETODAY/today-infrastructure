@@ -46,7 +46,7 @@ class RequestContextDecoratorTests {
     RequestContext mockRequest = mock(RequestContext.class);
     RequestContextDecorator decorator = new RequestContextDecorator(mockRequest);
 
-    assertThat(decorator.getDelegate()).isSameAs(mockRequest);
+    assertThat(decorator.delegate()).isSameAs(mockRequest);
   }
 
   @Test
@@ -146,7 +146,7 @@ class RequestContextDecoratorTests {
     RequestContext mockRequest = mock(RequestContext.class);
     RequestContextDecorator decorator = new RequestContextDecorator(mockRequest);
 
-    assertThat(decorator.getDelegate()).isSameAs(mockRequest);
+    assertThat(decorator.delegate()).isSameAs(mockRequest);
   }
 
   @Test

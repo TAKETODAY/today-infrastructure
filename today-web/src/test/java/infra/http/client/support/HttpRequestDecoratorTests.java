@@ -44,7 +44,7 @@ class HttpRequestDecoratorTests {
   void constructorWithValidRequest() {
     HttpRequest request = mock(HttpRequest.class);
     HttpRequestDecorator decorator = new HttpRequestDecorator(request);
-    assertThat(decorator.getRequest()).isSameAs(request);
+    assertThat(decorator.delegate()).isSameAs(request);
   }
 
   @Test

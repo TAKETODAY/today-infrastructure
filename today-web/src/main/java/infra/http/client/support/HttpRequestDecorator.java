@@ -25,6 +25,7 @@ import java.util.function.Function;
 
 import infra.core.AttributeAccessor;
 import infra.http.HttpHeaders;
+import infra.http.HttpMessageDecorator;
 import infra.http.HttpMethod;
 import infra.http.HttpRequest;
 import infra.lang.Assert;
@@ -39,25 +40,27 @@ import infra.lang.Assert;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class HttpRequestDecorator implements HttpRequest {
+public class HttpRequestDecorator extends HttpMessageDecorator implements HttpRequest {
 
-  private final HttpRequest request;
+  protected final HttpRequest delegate;
 
   /**
    * Create a new {@code HttpRequest} wrapping the given request object.
    *
-   * @param request the request object to be wrapped
+   * @param delegate the request object to be wrapped
    */
-  public HttpRequestDecorator(HttpRequest request) {
-    Assert.notNull(request, "HttpRequest is required");
-    this.request = request;
+  public HttpRequestDecorator(HttpRequest delegate) {
+    super(delegate);
+    Assert.notNull(delegate, "delegate is required");
+    this.delegate = delegate;
   }
 
   /**
    * Return the wrapped request.
    */
-  public HttpRequest getRequest() {
-    return this.request;
+  @Override
+  public HttpRequest delegate() {
+    return this.delegate;
   }
 
   /**
@@ -65,7 +68,7 @@ public class HttpRequestDecorator implements HttpRequest {
    */
   @Override
   public HttpMethod getMethod() {
-    return this.request.getMethod();
+    return this.delegate.getMethod();
   }
 
   /**
@@ -73,7 +76,7 @@ public class HttpRequestDecorator implements HttpRequest {
    */
   @Override
   public String getMethodAsString() {
-    return this.request.getMethodAsString();
+    return this.delegate.getMethodAsString();
   }
 
   /**
@@ -81,7 +84,7 @@ public class HttpRequestDecorator implements HttpRequest {
    */
   @Override
   public URI getURI() {
-    return this.request.getURI();
+    return this.delegate.getURI();
   }
 
   /**
@@ -89,71 +92,71 @@ public class HttpRequestDecorator implements HttpRequest {
    */
   @Override
   public HttpHeaders getHeaders() {
-    return this.request.getHeaders();
+    return this.delegate.getHeaders();
   }
 
   // AttributeAccessor
 
   @Override
   public Map<String, Object> getAttributes() {
-    return request.getAttributes();
+    return delegate.getAttributes();
   }
 
   @Override
   public void setAttributes(@Nullable Map<String, Object> attributes) {
-    request.setAttributes(attributes);
+    delegate.setAttributes(attributes);
   }
 
   @Override
   public Iterable<String> attributeNames() {
-    return request.attributeNames();
+    return delegate.attributeNames();
   }
 
   @Override
   public void clearAttributes() {
-    request.clearAttributes();
+    delegate.clearAttributes();
   }
 
   @Override
   public <T> T computeAttribute(String name, Function<String, @Nullable T> computeFunction) {
-    return request.computeAttribute(name, computeFunction);
+    return delegate.computeAttribute(name, computeFunction);
   }
 
   @Override
   public void copyFrom(AttributeAccessor source) {
-    request.copyFrom(source);
+    delegate.copyFrom(source);
   }
 
   @Override
   @Nullable
   public Object getAttribute(String name) {
-    return request.getAttribute(name);
+    return delegate.getAttribute(name);
   }
 
   @Override
   public String[] getAttributeNames() {
-    return request.getAttributeNames();
+    return delegate.getAttributeNames();
   }
 
   @Override
   public boolean hasAttribute(String name) {
-    return request.hasAttribute(name);
+    return delegate.hasAttribute(name);
   }
 
   @Override
   public boolean hasAttributes() {
-    return request.hasAttributes();
+    return delegate.hasAttributes();
   }
 
   @Override
   @Nullable
   public Object removeAttribute(String name) {
-    return request.removeAttribute(name);
+    return delegate.removeAttribute(name);
   }
 
   @Override
   public void setAttribute(String name, @Nullable Object value) {
-    request.setAttribute(name, value);
+    delegate.setAttribute(name, value);
   }
 
 }

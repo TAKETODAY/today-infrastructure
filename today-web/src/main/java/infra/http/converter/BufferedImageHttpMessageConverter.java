@@ -172,7 +172,7 @@ public class BufferedImageHttpMessageConverter implements HttpMessageConverter<B
   {
     ImageReader imageReader = null;
     try (ImageInputStream imageInputStream = createImageInputStream(inputMessage.getBody())) {
-      MediaType contentType = inputMessage.getHeaders().getContentType();
+      MediaType contentType = inputMessage.getContentType();
       if (contentType == null) {
         throw new HttpMessageNotReadableException("No Content-Type header", inputMessage);
       }
@@ -186,7 +186,7 @@ public class BufferedImageHttpMessageConverter implements HttpMessageConverter<B
       }
       else {
         throw new HttpMessageNotReadableException(
-                "Could not find javax.imageio.ImageReader for Content-Type [" + contentType + "]",
+                "Could not find javax.imageio.ImageReader for Content-Type [%s]".formatted(contentType),
                 inputMessage);
       }
     }
@@ -258,7 +258,7 @@ public class BufferedImageHttpMessageConverter implements HttpMessageConverter<B
       }
       else {
         throw new HttpMessageNotWritableException(
-                "Could not find javax.imageio.ImageWriter for Content-Type [" + contentType + "]");
+                "Could not find javax.imageio.ImageWriter for Content-Type [%s]".formatted(contentType));
       }
     }
     finally {
@@ -290,13 +290,15 @@ public class BufferedImageHttpMessageConverter implements HttpMessageConverter<B
    * before it is used to read an image.
    * <p>The default implementation is empty.
    */
-  protected void process(ImageReadParam irp) { }
+  protected void process(ImageReadParam irp) {
+  }
 
   /**
    * Template method that allows for manipulating the {@link ImageWriteParam}
    * before it is used to write an image.
    * <p>The default implementation is empty.
    */
-  protected void process(ImageWriteParam iwp) { }
+  protected void process(ImageWriteParam iwp) {
+  }
 
 }

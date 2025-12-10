@@ -225,7 +225,7 @@ public class DefaultPartHttpMessageReader extends LoggingCodecSupport implements
       byte[] boundary = MultipartUtils.boundary(message, this.headersCharset);
       if (boundary == null) {
         return Flux.error(new DecodingException("No multipart boundary found in Content-Type: \"" +
-                message.getHeaders().getContentType() + "\""));
+                message.getContentType() + "\""));
       }
 
       AtomicInteger partCount = new AtomicInteger();

@@ -53,7 +53,7 @@ class ClientHttpRequestDecoratorTests {
   void constructorWithValidDelegate() {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
     ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
-    assertThat(decorator.getDelegate()).isSameAs(delegate);
+    assertThat(decorator.delegate()).isSameAs(delegate);
   }
 
   @Test

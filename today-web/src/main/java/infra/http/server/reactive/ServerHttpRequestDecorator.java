@@ -28,6 +28,7 @@ import infra.core.AttributeAccessor;
 import infra.core.io.buffer.DataBuffer;
 import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
+import infra.http.HttpMessageDecorator;
 import infra.http.HttpMethod;
 import infra.http.server.RequestPath;
 import infra.lang.Assert;
@@ -42,11 +43,12 @@ import reactor.core.publisher.Flux;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ServerHttpRequestDecorator implements ServerHttpRequest {
+public class ServerHttpRequestDecorator extends HttpMessageDecorator implements ServerHttpRequest {
 
   private final ServerHttpRequest delegate;
 
   public ServerHttpRequestDecorator(ServerHttpRequest delegate) {
+    super(delegate);
     Assert.notNull(delegate, "Delegate is required");
     this.delegate = delegate;
   }
