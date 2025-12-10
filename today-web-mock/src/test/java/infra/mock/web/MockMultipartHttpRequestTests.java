@@ -108,7 +108,7 @@ class MockMultipartHttpRequestTests {
             FileCopyUtils.copyToByteArray(file1.getInputStream()))).isTrue();
     assertThat(file2.getName()).isEqualTo("file2");
     assertThat(file2.getOriginalFilename()).isEqualTo("myOrigFilename");
-    assertThat(file2.getContentTypeString()).isEqualTo("text/plain");
+    assertThat(file2.getContentTypeAsString()).isEqualTo("text/plain");
     assertThat(ObjectUtils.nullSafeEquals("myContent2".getBytes(), file2.getContentAsByteArray())).isTrue();
     assertThat(ObjectUtils.nullSafeEquals("myContent2".getBytes(),
             FileCopyUtils.copyToByteArray(file2.getInputStream()))).isTrue();

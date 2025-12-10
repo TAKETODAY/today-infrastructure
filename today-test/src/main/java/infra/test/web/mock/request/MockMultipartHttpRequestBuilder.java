@@ -166,7 +166,7 @@ public class MockMultipartHttpRequestBuilder extends MockHttpRequestBuilder {
         String filename = part.getOriginalFilename();
         InputStream is = part.getInputStream();
         if (filename != null) {
-          mockRequest.addPart(new MockMemoryFilePart(name, filename, part.getContentTypeString(), is));
+          mockRequest.addPart(new MockMemoryFilePart(name, filename, part.getContentTypeAsString(), is));
         }
         else {
           InputStreamReader reader = new InputStreamReader(is, getCharsetOrDefault(part, defaultCharset));
