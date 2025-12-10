@@ -163,7 +163,7 @@ public class MockMultipartFile implements MultipartFile {
   @Override
   @Nullable
   public MediaType getContentType() {
-    return MediaType.parseMediaType(contentType);
+    return contentType != null ? MediaType.parseMediaType(contentType) : null;
   }
 
   @Override
