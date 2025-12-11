@@ -17,13 +17,21 @@
 
 package infra.samples;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import infra.web.annotation.GET;
 import infra.web.annotation.POST;
 import infra.web.annotation.RequestMapping;
+import infra.web.annotation.RequestPart;
 import infra.web.annotation.RestController;
+import infra.web.bind.WebDataBinder;
+import infra.web.bind.annotation.InitBinder;
 import infra.web.multipart.Part;
+import infra.web.multipart.support.StringPartEditor;
 import infra.web.view.ViewRef;
 
 /**
@@ -34,14 +42,28 @@ import infra.web.view.ViewRef;
 @RequestMapping("/upload")
 class UploadHttpHandler {
 
+  private static final Logger log = LoggerFactory.getLogger(UploadHttpHandler.class);
+
+  // for annotation-request-param
+  @InitBinder("data")
+  void init(WebDataBinder binder) {
+    log.info("binder: {}", binder);
+    binder.registerCustomEditor(String.class, new StringPartEditor(StandardCharsets.UTF_8));
+  }
+
   @GET
   public ViewRef upload() {
     return ViewRef.forViewName("upload");
   }
 
-  @POST
-  public String upload(String data, Part file) throws IOException {
+  @POST("/annotation-request-part")
+  public String upload(@RequestPart String data, Part file) throws IOException {
     return data + " -> " + file.getContentAsString();
+  }
+
+  @POST("/annotation-request-param")
+  public String up(String data, Part file) throws IOException {
+    return "param: " + data + " -> " + file.getContentAsString();
   }
 
 }

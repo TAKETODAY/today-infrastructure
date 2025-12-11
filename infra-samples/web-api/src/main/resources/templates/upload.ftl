@@ -2,7 +2,7 @@
 
 <body><h1>Upload</h1>
 
-<form action="/upload" method="post" enctype="multipart/form-data">
+<form action="/upload/annotation-request-param" method="post" enctype="multipart/form-data">
   <label for="file">Choose a file:</label>
   <input type="file" id="file" name="file">
   <br/>
