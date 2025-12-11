@@ -380,8 +380,7 @@ public class ServerProperties {
      * Defaults to {@code false}, meaning manual flushing is required via
      * {@link java.io.PrintWriter#flush()} or closing the writer.
      *
-     * @see java.io.PrintWriter
-     * @see RequestContext#getWriter()
+     * @since 5.0
      */
     public boolean writerAutoFlush = false;
 
@@ -391,6 +390,8 @@ public class ServerProperties {
      * This setting controls how many data chunks can be queued for processing
      * before backpressure is applied to the data source. A larger queue can
      * help smooth out bursts of data but will consume more memory.
+     *
+     * @since 5.0
      */
     public int dataReceivedQueueCapacity = 256;
 

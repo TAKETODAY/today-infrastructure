@@ -448,6 +448,7 @@ public final class NettyRequestConfig {
      * {@code false} to disable it (default behavior)
      * @return the current {@link Builder} instance, enabling method chaining
      * @see java.io.PrintWriter
+     * @see RequestContext#getWriter()
      * @since 5.0
      */
     public Builder writerAutoFlush(boolean writerAutoFlush) {
