@@ -51,7 +51,7 @@ class HttpRequestDecoratorTests {
   void constructorWithNullRequestThrowsException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> new HttpRequestDecorator(null))
-            .withMessage("HttpRequest is required");
+            .withMessage("delegate is required");
   }
 
   @Test
