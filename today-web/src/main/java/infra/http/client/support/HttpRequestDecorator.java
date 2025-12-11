@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.function.Function;
 
 import infra.core.AttributeAccessor;
-import infra.http.HttpHeaders;
 import infra.http.HttpMessageDecorator;
 import infra.http.HttpMethod;
 import infra.http.HttpRequest;
@@ -85,14 +84,6 @@ public class HttpRequestDecorator extends HttpMessageDecorator implements HttpRe
   @Override
   public URI getURI() {
     return this.delegate.getURI();
-  }
-
-  /**
-   * Return the headers of the wrapped request.
-   */
-  @Override
-  public HttpHeaders getHeaders() {
-    return this.delegate.getHeaders();
   }
 
   // AttributeAccessor

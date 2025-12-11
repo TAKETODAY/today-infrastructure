@@ -104,7 +104,6 @@ public class BasicErrorController extends AbstractErrorController implements Sen
     Map<String, Object> model = getErrorAttributes(request, acceptsTextHtml ? MediaType.TEXT_HTML : MediaType.ALL);
     request.setStatus(status);
     if (acceptsTextHtml) {
-      request.setContentType(MediaType.TEXT_HTML);
       return resolveErrorView(request, status, model);
     }
     return model;

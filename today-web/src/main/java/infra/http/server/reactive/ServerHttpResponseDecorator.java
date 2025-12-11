@@ -24,7 +24,6 @@ import java.util.function.Supplier;
 
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
-import infra.http.HttpHeaders;
 import infra.http.HttpMessageDecorator;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
@@ -60,69 +59,64 @@ public class ServerHttpResponseDecorator extends HttpMessageDecorator implements
 
   @Override
   public boolean setStatusCode(@Nullable HttpStatus status) {
-    return delegate().setStatusCode(status);
+    return delegate.setStatusCode(status);
   }
 
   @Nullable
   @Override
   public HttpStatusCode getStatusCode() {
-    return delegate().getStatusCode();
+    return delegate.getStatusCode();
   }
 
   @Override
   public boolean setRawStatusCode(@Nullable Integer value) {
-    return delegate().setRawStatusCode(value);
+    return delegate.setRawStatusCode(value);
   }
 
   @Nullable
   @Override
   public Integer getRawStatusCode() {
-    return delegate().getRawStatusCode();
-  }
-
-  @Override
-  public HttpHeaders getHeaders() {
-    return delegate().getHeaders();
+    return delegate.getRawStatusCode();
   }
 
   @Override
   public MultiValueMap<String, ResponseCookie> getCookies() {
-    return delegate().getCookies();
+    return delegate.getCookies();
   }
 
   @Override
   public void addCookie(ResponseCookie cookie) {
-    delegate().addCookie(cookie);
+    delegate.addCookie(cookie);
   }
 
   @Override
   public DataBufferFactory bufferFactory() {
-    return delegate().bufferFactory();
+    return delegate.bufferFactory();
   }
 
   @Override
   public void beforeCommit(Supplier<? extends Mono<Void>> action) {
-    delegate().beforeCommit(action);
+    delegate.beforeCommit(action);
   }
 
   @Override
   public boolean isCommitted() {
-    return delegate().isCommitted();
+    return delegate.isCommitted();
   }
 
   @Override
   public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
-    return delegate().writeWith(body);
+    return delegate.writeWith(body);
   }
 
   @Override
   public Mono<Void> writeAndFlushWith(Publisher<? extends Publisher<? extends DataBuffer>> body) {
-    return delegate().writeAndFlushWith(body);
+    return delegate.writeAndFlushWith(body);
   }
 
   @Override
   public Mono<Void> setComplete() {
-    return delegate().setComplete();
+    return delegate.setComplete();
   }
 
   /**
@@ -144,11 +138,6 @@ public class ServerHttpResponseDecorator extends HttpMessageDecorator implements
       throw new IllegalArgumentException(
               "Can't find native response in " + response.getClass().getName());
     }
-  }
-
-  @Override
-  public String toString() {
-    return "%s [delegate=%s]".formatted(getClass().getSimpleName(), delegate());
   }
 
 }

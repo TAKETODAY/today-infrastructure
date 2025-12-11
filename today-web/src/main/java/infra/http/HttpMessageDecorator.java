@@ -78,4 +78,9 @@ public class HttpMessageDecorator implements HttpMessage {
     return delegate.getContentLength();
   }
 
+  @Override
+  public String toString() {
+    return "%s [delegate=%s]".formatted(getClass().getSimpleName(), delegate);
+  }
+
 }

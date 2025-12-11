@@ -572,8 +572,8 @@ public abstract class NettyRequestContext extends RequestContext {
     ByteBuf responseBody = this.responseBody;
     if (responseBody != null) {
       responseBody.clear();
-      writer = null;
     }
+    writer = null;
     status = HttpResponseStatus.OK;
   }
 
