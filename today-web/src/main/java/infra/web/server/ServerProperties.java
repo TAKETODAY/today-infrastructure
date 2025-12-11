@@ -30,6 +30,7 @@ import infra.context.properties.NestedConfigurationProperty;
 import infra.core.ApplicationTemp;
 import infra.core.ssl.SslBundles;
 import infra.util.DataSize;
+import infra.web.RequestContext;
 import infra.web.server.error.ErrorProperties;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.ServerSocketChannel;
@@ -284,6 +285,22 @@ public class ServerProperties {
      * if set to {@code true} to allow multiple content length headers.
      */
     public boolean allowDuplicateContentLengths = false;
+
+    /**
+     * Whether the PrintWriter should auto-flush after each write operation.
+     * <p>
+     * When set to {@code true}, the PrintWriter returned by
+     * {@link RequestContext#getWriter()} will automatically flush its output
+     * buffer after each write operation. This ensures that data is immediately
+     * sent to the client, which can be important for streaming responses.
+     * <p>
+     * Defaults to {@code false}, meaning manual flushing is required via
+     * {@link java.io.PrintWriter#flush()} or closing the writer.
+     *
+     * @see java.io.PrintWriter
+     * @see RequestContext#getWriter()
+     */
+    public boolean writerAutoFlush = false;
 
     /**
      * shutdown details

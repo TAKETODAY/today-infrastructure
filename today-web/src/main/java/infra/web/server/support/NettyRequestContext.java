@@ -290,7 +290,7 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   protected PrintWriter createWriter() throws IOException {
-    return new PrintWriter(getOutputStream(), true, config.writerCharset);
+    return new PrintWriter(getOutputStream(), config.writerAutoFlush, config.writerCharset);
   }
 
   @Override

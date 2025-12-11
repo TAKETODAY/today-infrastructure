@@ -126,6 +126,7 @@ public class NettyWebServerFactoryAutoConfiguration {
     factory.setDeleteOnExit(multipart.deleteOnExit);
     return NettyRequestConfig.forBuilder(Ssl.isEnabled(server.ssl))
             .httpDataFactory(factory)
+            .writerAutoFlush(server.netty.writerAutoFlush)
             .headersFactory(DefaultHttpHeadersFactory.headersFactory()
                     .withValidation(server.netty.validateHeaders))
             .sendErrorHandler(sendErrorHandler)
