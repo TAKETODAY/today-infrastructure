@@ -181,7 +181,7 @@ class PartTests {
     Part part = mock(Part.class);
     when(part.getContentType()).thenReturn(null);
 
-    String contentTypeString = part.getContentTypeString();
+    String contentTypeString = part.getContentTypeAsString();
 
     assertThat(contentTypeString).isNull();
   }
@@ -191,9 +191,9 @@ class PartTests {
     Part part = mock(Part.class);
     infra.http.MediaType mediaType = infra.http.MediaType.TEXT_PLAIN;
     when(part.getContentType()).thenReturn(mediaType);
-    when(part.getContentTypeString()).thenCallRealMethod();
+    when(part.getContentTypeAsString()).thenCallRealMethod();
 
-    String contentTypeString = part.getContentTypeString();
+    String contentTypeString = part.getContentTypeAsString();
 
     assertThat(contentTypeString).isEqualTo("text/plain");
   }
