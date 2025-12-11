@@ -29,7 +29,6 @@ import infra.core.AttributeAccessor;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
 import infra.http.HttpCookie;
-import infra.http.HttpHeaders;
 import infra.http.HttpMessageDecorator;
 import infra.http.HttpMethod;
 import infra.lang.Assert;
@@ -69,11 +68,6 @@ public class ClientHttpRequestDecorator extends HttpMessageDecorator implements 
   @Override
   public URI getURI() {
     return this.delegate.getURI();
-  }
-
-  @Override
-  public HttpHeaders getHeaders() {
-    return this.delegate.getHeaders();
   }
 
   @Override
@@ -176,11 +170,6 @@ public class ClientHttpRequestDecorator extends HttpMessageDecorator implements 
   @Override
   public void setAttribute(String name, @Nullable Object value) {
     delegate.setAttribute(name, value);
-  }
-
-  @Override
-  public String toString() {
-    return getClass().getSimpleName() + " [delegate=" + delegate() + "]";
   }
 
 }

@@ -20,7 +20,6 @@ package infra.http.client;
 import java.io.IOException;
 import java.io.InputStream;
 
-import infra.http.HttpHeaders;
 import infra.http.HttpMessageDecorator;
 import infra.http.HttpStatusCode;
 import infra.lang.Assert;
@@ -44,11 +43,6 @@ public class ClientHttpResponseDecorator extends HttpMessageDecorator implements
   @Override
   public InputStream getBody() throws IOException {
     return delegate.getBody();
-  }
-
-  @Override
-  public HttpHeaders getHeaders() {
-    return delegate.getHeaders();
   }
 
   @Override

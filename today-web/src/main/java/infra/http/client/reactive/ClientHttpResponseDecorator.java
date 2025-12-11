@@ -18,7 +18,6 @@
 package infra.http.client.reactive;
 
 import infra.core.io.buffer.DataBuffer;
-import infra.http.HttpHeaders;
 import infra.http.HttpMessageDecorator;
 import infra.http.HttpStatusCode;
 import infra.http.ResponseCookie;
@@ -67,11 +66,6 @@ public class ClientHttpResponseDecorator extends HttpMessageDecorator implements
   }
 
   @Override
-  public HttpHeaders getHeaders() {
-    return this.delegate.getHeaders();
-  }
-
-  @Override
   public MultiValueMap<String, ResponseCookie> getCookies() {
     return this.delegate.getCookies();
   }
@@ -79,11 +73,6 @@ public class ClientHttpResponseDecorator extends HttpMessageDecorator implements
   @Override
   public Flux<DataBuffer> getBody() {
     return this.delegate.getBody();
-  }
-
-  @Override
-  public String toString() {
-    return getClass().getSimpleName() + " [delegate=" + delegate() + "]";
   }
 
 }
