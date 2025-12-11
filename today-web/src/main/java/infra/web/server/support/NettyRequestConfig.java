@@ -117,6 +117,8 @@ public final class NettyRequestConfig {
    */
   public final Charset writerCharset;
 
+  public final boolean writerAutoFlush;
+
   /**
    * Response headers factory
    */
@@ -162,6 +164,7 @@ public final class NettyRequestConfig {
     this.awaiterFactory = builder.awaiterFactory;
     this.multipartParser = builder.multipartParser;
     this.maxContentLength = builder.maxContentLength;
+    this.writerAutoFlush = builder.writerAutoFlush;
     this.sendErrorHandler = builder.sendErrorHandler;
     this.httpHeadersFactory = builder.httpHeadersFactory;
     this.responseBodyFactory = builder.responseBodyFactory;
@@ -223,6 +226,8 @@ public final class NettyRequestConfig {
 
     @Nullable
     private Charset writerCharset = Constant.DEFAULT_CHARSET;
+
+    private boolean writerAutoFlush = false;
 
     private long maxContentLength = DataSize.BYTES_PER_GB;
 
@@ -422,6 +427,31 @@ public final class NettyRequestConfig {
      */
     public Builder writerCharset(@Nullable Charset charset) {
       this.writerCharset = charset == null ? Constant.DEFAULT_CHARSET : charset;
+      return this;
+    }
+
+    /**
+     * Sets whether the writer should automatically flush the response buffer.
+     * <p>
+     * When auto-flush is enabled, the writer will automatically flush the response buffer
+     * after each write operation, ensuring that data is sent to the client immediately.
+     * When disabled (default), buffering may occur for better performance.
+     * <p>
+     * Example usage:
+     * <pre>{@code
+     *   Builder builder = ...;
+     *   builder.writerAutoFlush(true);  // Enable auto-flush
+     *   builder.writerAutoFlush(false); // Disable auto-flush (default)
+     * }</pre>
+     *
+     * @param writerAutoFlush {@code true} to enable automatic flushing of the response buffer,
+     * {@code false} to disable it (default behavior)
+     * @return the current {@link Builder} instance, enabling method chaining
+     * @see java.io.PrintWriter
+     * @since 5.0
+     */
+    public Builder writerAutoFlush(boolean writerAutoFlush) {
+      this.writerAutoFlush = writerAutoFlush;
       return this;
     }
 

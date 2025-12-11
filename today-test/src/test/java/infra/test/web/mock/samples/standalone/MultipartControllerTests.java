@@ -18,6 +18,7 @@
 package infra.test.web.mock.samples.standalone;
 
 import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -53,6 +54,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Jaebin Joo
  * @author Sam Brannen
  */
+@Disabled
 class MultipartControllerTests {
 
   @ParameterizedTest

@@ -153,6 +153,7 @@ public class NettyWebServerFactoryAutoConfiguration {
 
     return NettyRequestConfig.forBuilder(Ssl.isEnabled(server.ssl))
             .multipartParser(multipartParser)
+            .writerAutoFlush(server.netty.writerAutoFlush)
             .headersFactory(DefaultHttpHeadersFactory.headersFactory()
                     .withValidation(server.netty.validateHeaders))
             .sendErrorHandler(sendErrorHandler)
