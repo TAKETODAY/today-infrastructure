@@ -44,31 +44,31 @@ import infra.web.multipart.Part;
 import infra.web.multipart.parsing.DeferrableStream.State;
 
 /**
- * The default implementation of the {@link infra.web.multipart.Part} interface.
+ * Default implementation of the {@link infra.web.multipart.Part} interface.
  *
- * <p>After retrieving an instance of this class from a {@link DefaultMultipartParser} instance
- * you may either request all contents of file at once using {@link #getContentAsByteArray()} or request an
- * {@link InputStream InputStream} with {@link #getInputStream()} and process the file without attempting to load it into memory, which may come handy
- * with large files.</p>
+ * <p>After obtaining an instance from a {@link DefaultMultipartParser}, you can either
+ * retrieve the complete file contents using {@link #getContentAsByteArray()} or obtain an
+ * {@link InputStream} via {@link #getInputStream()} to process the file without loading it
+ * entirely into memory - particularly useful for large files.</p>
  *
- * <p><em>State model</em>: Instances of {@link DefaultPart} are subject to a carefully designed state model.
- * Depending on the so-called {@link DefaultMultipartParser#getThreshold() threshold}, either of the three models are possible:</p>
+ * <p><strong>State model:</strong> {@link DefaultPart} instances follow a carefully designed state model.
+ * Based on the {@link DefaultMultipartParser#getThreshold() threshold} setting, one of the following models applies:</p>
  * <ol>
- *   <li><em>threshold = 0</em>
- *     Uploaded data is never kept in memory. (Same as threshold=-1.) However, the temporary file is
- *     only created, if data was uploaded. Or, in other words: The uploaded file will never be
+ *   <li><strong>{@code threshold = 0}</strong>
+ *     Uploaded data is never stored in memory (equivalent to threshold=-1). However, a temporary file is
+ *     only created if data was actually uploaded. In other words, the uploaded file will never be
  *     empty.
- *     {@link #isInMemory()} will return true, if no data was uploaded, otherwise it will be false.
- *     In the former case {@link #getPath()} will return null, but in the latter case it returns
- *     the path of an existing, non-empty file.</li>
- *   <li><em>threshold &gt; 0</em>
- *     Uploaded data will be kept in memory, if the size is below the threshold. If the size
- *     is equal to, or above the threshold, then a temporary file has been created, and all
- *     uploaded data has been transferred to that file.
- *     {@link #isInMemory()} returns true, if the size of the uploaded data is below the threshold.
- *     If so, {@link #getPath()} returns null. Otherwise, {@link #isInMemory()} returns false,
- *     and {@link #getPath()} returns the path of an existing, temporary file. The size
- *     of the temporary file is equal to, or above the threshold.</li>
+ *     {@link #isInMemory()} returns {@code true} if no data was uploaded, otherwise {@code false}.
+ *     In the former case {@link #getPath()} returns {@code null}, while in the latter it returns
+ *     the path to an existing, non-empty file.</li>
+ *   <li><strong>{@code threshold > 0}</strong>
+ *     Uploaded data is kept in memory if its size is below the threshold. If the size
+ *     equals or exceeds the threshold, a temporary file is created and all uploaded data
+ *     is transferred to that file.
+ *     {@link #isInMemory()} returns {@code true} if the uploaded data size is below the threshold.
+ *     If so, {@link #getPath()} returns {@code null}. Otherwise, {@link #isInMemory()} returns {@code false},
+ *     and {@link #getPath()} returns the path to an existing temporary file. The size
+ *     of this temporary file equals or exceeds the threshold.</li>
  * </ol>
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
