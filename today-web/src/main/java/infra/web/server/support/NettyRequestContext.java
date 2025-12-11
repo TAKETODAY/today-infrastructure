@@ -623,8 +623,8 @@ public class NettyRequestContext extends RequestContext {
     if (responseBody != null) {
       responseBody.resetWriterIndex();
       responseBody.resetReaderIndex();
-      writer = null;
     }
+    writer = null;
     status = HttpResponseStatus.OK;
   }
 
