@@ -156,7 +156,7 @@ class DefaultMultipartParserTests {
     DefaultMultipartParser parser = new DefaultMultipartParser();
     RequestContext request = mock(RequestContext.class);
     when(request.isMultipart()).thenReturn(false);
-    when(request.getContentType()).thenReturn("application/json");
+    when(request.getContentTypeAsString()).thenReturn("application/json");
 
     assertThatThrownBy(() -> parser.parseRequest(request))
             .isInstanceOf(NotMultipartRequestException.class)
