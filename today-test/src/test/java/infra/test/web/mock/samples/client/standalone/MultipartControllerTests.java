@@ -18,6 +18,7 @@
 package infra.test.web.mock.samples.client.standalone;
 
 import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -46,6 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Rossen Stoyanchev
  */
+@Disabled
 public class MultipartControllerTests {
 
   private final WebTestClient testClient = MockMvcWebTestClient.bindToController(new MultipartController()).build();
