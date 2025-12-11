@@ -149,7 +149,7 @@ class DefaultPartTests {
     DefaultMultipartParser parser = mock(DefaultMultipartParser.class);
     DefaultPart part = new DefaultPart("field", null, HttpHeaders.forWritable(), true, null, parser);
 
-    String contentTypeString = part.getContentTypeString();
+    String contentTypeString = part.getContentTypeAsString();
 
     assertThat(contentTypeString).isNull();
   }
