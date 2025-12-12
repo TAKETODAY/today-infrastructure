@@ -2036,12 +2036,9 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return a <code>PrintWriter</code> object that can return character data to
    * the client
    * @throws IOException if an input or output exception occurred
-   * @throws IllegalStateException if the <code>getOutputStream</code>
-   * method has already been called for this response object
-   * @see #getOutputStream
    * @see #reset
-   * @see #getOutputStream()
    * @see PrintWriter#PrintWriter(OutputStream, boolean, Charset)
+   * @see PrintWriter#flush()
    */
   @Override
   public PrintWriter getWriter() throws IOException {
