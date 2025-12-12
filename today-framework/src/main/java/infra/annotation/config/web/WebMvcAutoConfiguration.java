@@ -179,10 +179,9 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     return conversionService;
   }
 
-  @Nullable
   @Component
   @ConditionalOnMissingBean
-  static RequestHandledEventPublisher requestHandledEventPublisher(
+  static @Nullable RequestHandledEventPublisher requestHandledEventPublisher(
           WebMvcProperties webMvcProperties, ApplicationEventPublisher eventPublisher) {
     if (webMvcProperties.publishRequestHandledEvents) {
       return new RequestHandledEventPublisher(eventPublisher);
@@ -241,6 +240,9 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
   @Override
   protected void addViewControllers(ViewControllerRegistry registry) {
+    if (mvcProperties.registerWebViewXml) {
+      registry.registerWebViewXml();
+    }
     webMvcConfigurers.addViewControllers(registry);
   }
 
@@ -262,15 +264,13 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     webMvcConfigurers.extendExceptionHandlers(handlers);
   }
 
-  @Nullable
   @Override
-  protected Validator getValidator() {
+  protected @Nullable Validator getValidator() {
     return webMvcConfigurers.getValidator();
   }
 
-  @Nullable
   @Override
-  protected MessageCodesResolver getMessageCodesResolver() {
+  protected @Nullable MessageCodesResolver getMessageCodesResolver() {
     if (mvcProperties.messageCodesResolverFormat != null) {
       DefaultMessageCodesResolver resolver = new DefaultMessageCodesResolver();
       resolver.setMessageCodeFormatter(mvcProperties.messageCodesResolverFormat);

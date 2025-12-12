@@ -173,15 +173,13 @@ public class ViewControllerRegistry extends ApplicationObjectSupport {
   }
 
   /**
-   * Map a URL path or pattern to a view controller to render a response with
-   * the configured status code and view.
-   * <p>Patterns such as {@code "/admin/**"} or {@code "/articles/{articlename:\\w+}"}
-   * are supported.
+   * Register web view configurations from default XML configuration file.
+   * <p>This method attempts to load the default web MVC configuration file
+   * specified by {@link #webMvcConfigLocation} from the classpath.
+   * <p>If the configuration file exists, it will be processed and registered.
+   * Otherwise, a warning message will be logged.
    *
-   * <p><strong>Note:</strong> If an {@code @RequestMapping} method is mapped
-   * to a URL for any HTTP method then a view controller cannot handle the
-   * same URL. For this reason it is recommended to avoid splitting URL
-   * handling across an annotated controller and a view controller.
+   * @see #registerWebViewXml(Resource)
    */
   public void registerWebViewXml() {
     ClassPathResource resource = new ClassPathResource(webMvcConfigLocation);
@@ -194,6 +192,17 @@ public class ViewControllerRegistry extends ApplicationObjectSupport {
     }
   }
 
+  /**
+   * Register web view configurations from a specified XML configuration resource.
+   * <p>This method processes the provided XML configuration resource and registers
+   * the view controllers defined within it.
+   * <p>If the resource does not exist, an {@link InfraConfigurationException} will be thrown.
+   * If there is an error during XML parsing, an {@link InfraConfigurationException} will also be thrown.
+   *
+   * @param resource the XML configuration resource to process
+   * @throws InfraConfigurationException if the resource does not exist or if there is an error parsing the XML
+   * @see #configure(Resource)
+   */
   public void registerWebViewXml(Resource resource) {
     if (!resource.exists()) {
       throw new InfraConfigurationException(
