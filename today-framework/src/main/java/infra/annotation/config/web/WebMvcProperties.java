@@ -75,16 +75,6 @@ public class WebMvcProperties {
   public boolean logResolvedException = false;
 
   /**
-   * Path pattern used for static resources.
-   */
-  public String staticPathPattern = "/**";
-
-  /**
-   * Path pattern used for WebJar assets.
-   */
-  public String webjarsPathPattern = "/webjars/**";
-
-  /**
    * Whether to register the WebView XML configuration.
    *
    * @see infra.web.config.annotation.ViewControllerRegistry#registerWebViewXml()

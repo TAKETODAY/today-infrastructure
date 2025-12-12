@@ -169,7 +169,7 @@ public class WebMvcAutoConfigurationTests {
 
   @Test
   void customResourceHandlerMapping() {
-    this.contextRunner.withPropertyValues("web.mvc.static-path-pattern:/static/**").run((context) -> {
+    this.contextRunner.withPropertyValues("web.resources.static-path-pattern:/static/**").run((context) -> {
       Map<String, List<Resource>> locations = getResourceMappingLocations(context);
       assertThat(locations.get("/static/**")).hasSize(4);
       assertThat(getResourceResolvers(context, "/static/**")).hasSize(1);
@@ -178,7 +178,7 @@ public class WebMvcAutoConfigurationTests {
 
   @Test
   void customWebjarsHandlerMapping() {
-    this.contextRunner.withPropertyValues("web.mvc.webjars-path-pattern:/assets/**").run((context) -> {
+    this.contextRunner.withPropertyValues("web.resources.webjars-path-pattern:/assets/**").run((context) -> {
       Map<String, List<Resource>> locations = getResourceMappingLocations(context);
       assertThat(locations.get("/assets/**")).hasSize(1);
       assertThat(locations.get("/assets/**").get(0))
