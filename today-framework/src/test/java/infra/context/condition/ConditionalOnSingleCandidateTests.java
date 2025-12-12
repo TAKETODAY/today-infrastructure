@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -194,6 +194,16 @@ class ConditionalOnSingleCandidateTests {
               assertThat(context).hasBean("consumer");
               assertThat(context.getBean("consumer")).isEqualTo("alpha");
             });
+  }
+
+  @Test
+  void singleCandidateDoesNotMatchWhenMultipleRegisteredAsSingletonCandidates() {
+    this.contextRunner.withInitializer((context) -> {
+              context.getBeanFactory().registerSingleton("alpha", "alpha");
+              context.getBeanFactory().registerSingleton("bravo", "bravo");
+            })
+            .withUserConfiguration(OnBeanSingleCandidateConfiguration.class)
+            .run((context) -> assertThat(context).doesNotHaveBean("consumer"));
   }
 
   @Configuration(proxyBeanMethods = false)

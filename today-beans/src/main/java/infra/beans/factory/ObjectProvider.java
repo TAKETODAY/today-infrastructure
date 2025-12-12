@@ -137,8 +137,7 @@ public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
    * @throws BeansException in case of creation errors
    * @see #get()
    */
-  @Nullable
-  default T getIfAvailable() throws BeansException {
+  default @Nullable T getIfAvailable() throws BeansException {
     try {
       return get();
     }
@@ -194,8 +193,7 @@ public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
    * @throws BeansException in case of creation errors
    * @see #get()
    */
-  @Nullable
-  default T getIfUnique() throws BeansException {
+  default @Nullable T getIfUnique() throws BeansException {
     try {
       return get();
     }
