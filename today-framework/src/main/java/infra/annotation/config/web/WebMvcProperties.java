@@ -21,9 +21,11 @@ import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import infra.context.properties.ConfigurationProperties;
+import infra.context.properties.bind.Name;
 import infra.http.MediaType;
 import infra.validation.DefaultMessageCodesResolver;
 import infra.web.view.UrlBasedViewResolver;
@@ -95,6 +97,8 @@ public class WebMvcProperties {
 
   public final Contentnegotiation contentnegotiation = new Contentnegotiation();
 
+  public final ApiVersion apiVersion = new ApiVersion();
+
   public static class Async {
 
     /**
@@ -156,8 +160,65 @@ public class WebMvcProperties {
     /**
      * Query parameter name to use when "favor-parameter" is enabled.
      */
-    @Nullable
-    public String parameterName;
+
+    public @Nullable String parameterName;
+
+  }
+
+  /**
+   * API Version.
+   */
+  public static class ApiVersion {
+
+    /**
+     * Whether the API version is required with each request.
+     */
+    public @Nullable Boolean required;
+
+    /**
+     * Default version that should be used for each request.
+     */
+    @Name("default")
+    public @Nullable String defaultVersion;
+
+    /**
+     * Supported versions.
+     */
+    public @Nullable List<String> supported;
+
+    /**
+     * Whether supported versions should be detected from controllers.
+     */
+    public @Nullable Boolean detectSupported;
+
+    /**
+     * How version details should be inserted into requests.
+     */
+    public final Use use = new Use();
+
+    public static class Use {
+
+      /**
+       * Use the HTTP header with the given name to obtain the version.
+       */
+      public @Nullable String header;
+
+      /**
+       * Use the request parameter with the given name to obtain the version.
+       */
+      public @Nullable String requestParameter;
+
+      /**
+       * Use the path segment at the given index to obtain the version.
+       */
+      public @Nullable Integer pathSegment;
+
+      /**
+       * Use the media type parameter with the given name to obtain the version.
+       */
+      public Map<MediaType, String> mediaTypeParameter = new LinkedHashMap<>();
+
+    }
 
   }
 

@@ -26,6 +26,7 @@ import java.util.List;
 import infra.annotation.ConditionalOnWebApplication;
 import infra.annotation.config.task.TaskExecutionAutoConfiguration;
 import infra.annotation.config.validation.ValidationAutoConfiguration;
+import infra.annotation.config.web.WebMvcProperties.ApiVersion.Use;
 import infra.annotation.config.web.WebMvcProperties.Format;
 import infra.annotation.config.web.WebProperties.Resources;
 import infra.annotation.config.web.WebProperties.Resources.Chain.Strategy;
@@ -57,7 +58,11 @@ import infra.validation.MessageCodesResolver;
 import infra.validation.Validator;
 import infra.web.HandlerExceptionHandler;
 import infra.web.LocaleResolver;
+import infra.web.accept.ApiVersionDeprecationHandler;
+import infra.web.accept.ApiVersionParser;
+import infra.web.accept.ApiVersionResolver;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
+import infra.web.config.annotation.ApiVersionConfigurer;
 import infra.web.config.annotation.AsyncSupportConfigurer;
 import infra.web.config.annotation.CompositeWebMvcConfigurer;
 import infra.web.config.annotation.ContentNegotiationConfigurer;
@@ -90,10 +95,17 @@ import infra.web.view.View;
 import static infra.annotation.config.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
 
 /**
- * Web MVC configuration
+ * {@link infra.context.annotation.config.EnableAutoConfiguration Auto-configuration} for {@link WebMvcConfigurationSupport}.
  * <p>
- * config framework
- * </p>
+ * Provides various auto-configured {@link WebMvcConfigurer} beans that enhance
+ * the default MVC setup. This includes configuration for resource handling,
+ * view resolution, message conversion, exception handling, and other MVC features.
+ * <p>
+ * The configuration is applied only when a web application context is detected
+ * and can be customized via the {@link WebMvcProperties} and {@link WebProperties}
+ * configuration properties.
+ *
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
 @DisableDIAutoConfiguration(after = {
         TaskExecutionAutoConfiguration.class,
@@ -107,28 +119,40 @@ import static infra.annotation.config.task.TaskExecutionAutoConfiguration.APPLIC
 public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
   private final BeanFactory beanFactory;
+
   private final WebProperties webProperties;
+
   private final WebMvcProperties mvcProperties;
 
-  @Nullable
-  private final WebMvcRegistrations mvcRegistrations;
+  private final CompositeWebMvcConfigurer configurers;
 
-  private final CompositeWebMvcConfigurer webMvcConfigurers;
-  private final ObjectProvider<HttpMessageConverters> messageConvertersProvider;
-  private final ObjectProvider<ResourceHandlerRegistrationCustomizer> registrationCustomizersProvider;
+  private final @Nullable WebMvcRegistrations mvcRegistrations;
+
+  private final @Nullable ResourceHandlerRegistrationCustomizer registrationCustomizer;
+
+  private final @Nullable HttpMessageConverters messageConverters;
+
+  private final @Nullable ApiVersionParser<?> apiVersionParser;
+
+  private final @Nullable ApiVersionDeprecationHandler apiVersionDeprecationHandler;
+
+  private final ObjectProvider<ApiVersionResolver> apiVersionResolvers;
 
   public WebMvcAutoConfiguration(BeanFactory beanFactory, WebProperties webProperties,
           WebMvcProperties mvcProperties, List<WebMvcConfigurer> mvcConfigurers,
-          ObjectProvider<WebMvcRegistrations> mvcRegistrations,
-          ObjectProvider<ResourceHandlerRegistrationCustomizer> customizers,
-          ObjectProvider<HttpMessageConverters> messageConvertersProvider) {
+          @Nullable HttpMessageConverters messageConverters, ObjectProvider<ApiVersionResolver> apiVersionResolvers,
+          @Nullable ApiVersionParser<?> apiVersionParser, @Nullable ApiVersionDeprecationHandler apiVersionDeprecationHandler,
+          ObjectProvider<WebMvcRegistrations> mvcRegistrations, @Nullable ResourceHandlerRegistrationCustomizer registrationCustomizer) {
     this.beanFactory = beanFactory;
     this.mvcProperties = mvcProperties;
     this.webProperties = webProperties;
     this.mvcRegistrations = mvcRegistrations.getIfUnique();
-    this.webMvcConfigurers = new CompositeWebMvcConfigurer(mvcConfigurers);
-    this.messageConvertersProvider = messageConvertersProvider;
-    this.registrationCustomizersProvider = customizers;
+    this.messageConverters = messageConverters;
+    this.apiVersionParser = apiVersionParser;
+    this.apiVersionResolvers = apiVersionResolvers;
+    this.registrationCustomizer = registrationCustomizer;
+    this.apiVersionDeprecationHandler = apiVersionDeprecationHandler;
+    this.configurers = new CompositeWebMvcConfigurer(mvcConfigurers);
   }
 
   @Override
@@ -212,30 +236,31 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
   @Override
   public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-    messageConvertersProvider.ifAvailable(
-            customConverters -> converters.addAll(customConverters.getConverters()));
-    webMvcConfigurers.configureMessageConverters(converters);
+    if (messageConverters != null) {
+      converters.addAll(messageConverters.getConverters());
+    }
+    configurers.configureMessageConverters(converters);
   }
 
   @Override
   protected void addFormatters(FormatterRegistry registry) {
     ApplicationConversionService.addBeans(registry, this.beanFactory);
-    webMvcConfigurers.addFormatters(registry);
+    configurers.addFormatters(registry);
   }
 
   @Override
   protected void addInterceptors(InterceptorRegistry registry) {
-    webMvcConfigurers.addInterceptors(registry);
+    configurers.addInterceptors(registry);
   }
 
   @Override
   protected void addCorsMappings(CorsRegistry registry) {
-    webMvcConfigurers.addCorsMappings(registry);
+    configurers.addCorsMappings(registry);
   }
 
   @Override
   protected void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
-    webMvcConfigurers.extendMessageConverters(converters);
+    configurers.extendMessageConverters(converters);
   }
 
   @Override
@@ -243,12 +268,12 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     if (mvcProperties.registerWebViewXml) {
       registry.registerWebViewXml();
     }
-    webMvcConfigurers.addViewControllers(registry);
+    configurers.addViewControllers(registry);
   }
 
   @Override
   protected void configureExceptionHandlers(List<HandlerExceptionHandler> handlers) {
-    webMvcConfigurers.configureExceptionHandlers(handlers);
+    configurers.configureExceptionHandlers(handlers);
   }
 
   @Override
@@ -261,12 +286,12 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
       }
     }
 
-    webMvcConfigurers.extendExceptionHandlers(handlers);
+    configurers.extendExceptionHandlers(handlers);
   }
 
   @Override
   protected @Nullable Validator getValidator() {
-    return webMvcConfigurers.getValidator();
+    return configurers.getValidator();
   }
 
   @Override
@@ -308,7 +333,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     }
 
     // user config can override default config 'applicationTaskExecutor' and 'timeout'
-    webMvcConfigurers.configureAsyncSupport(configurer);
+    configurers.configureAsyncSupport(configurer);
   }
 
   @Override
@@ -320,27 +345,77 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     }
     configurer.mediaTypes(mvcProperties.contentnegotiation.mediaTypes);
 
-    webMvcConfigurers.configureContentNegotiation(configurer);
+    configurers.configureContentNegotiation(configurer);
   }
 
   @Override
   protected void configurePathMatch(PathMatchConfigurer configurer) {
-    webMvcConfigurers.configurePathMatch(configurer);
+    configurers.configurePathMatch(configurer);
   }
 
   @Override
   protected void configureViewResolvers(ViewResolverRegistry registry) {
-    webMvcConfigurers.configureViewResolvers(registry);
+    configurers.configureViewResolvers(registry);
   }
 
   @Override
   protected void modifyParameterResolvingRegistry(ParameterResolvingRegistry registry) {
-    webMvcConfigurers.configureParameterResolving(registry, registry.getCustomizedStrategies());
+    configurers.configureParameterResolving(registry, registry.getCustomizedStrategies());
   }
 
   @Override
   protected void modifyReturnValueHandlerManager(ReturnValueHandlerManager manager) {
-    webMvcConfigurers.modifyReturnValueHandlerManager(manager);
+    configurers.modifyReturnValueHandlerManager(manager);
+  }
+
+  @Override
+  public void configureApiVersioning(ApiVersionConfigurer configurer) {
+    var properties = mvcProperties.apiVersion;
+    if (properties.required != null) {
+      configurer.setVersionRequired(properties.required);
+    }
+    if (properties.defaultVersion != null) {
+      configurer.setDefaultVersion(properties.defaultVersion);
+    }
+
+    if (properties.supported != null) {
+      for (String v : properties.supported) {
+        configurer.addSupportedVersions(v);
+      }
+    }
+
+    if (properties.detectSupported != null) {
+      configurer.detectSupportedVersions(properties.detectSupported);
+    }
+
+    configureApiVersioningUse(configurer, properties.use);
+    for (ApiVersionResolver resolver : apiVersionResolvers) {
+      configurer.useVersionResolver(resolver);
+    }
+
+    if (apiVersionParser != null) {
+      configurer.setVersionParser(apiVersionParser);
+    }
+
+    if (apiVersionDeprecationHandler != null) {
+      configurer.setDeprecationHandler(apiVersionDeprecationHandler);
+    }
+    configurers.configureApiVersioning(configurer);
+  }
+
+  private void configureApiVersioningUse(ApiVersionConfigurer configurer, Use use) {
+    if (use.header != null) {
+      configurer.useRequestHeader(use.header);
+    }
+    if (use.requestParameter != null) {
+      configurer.useRequestParam(use.requestParameter);
+    }
+    if (use.pathSegment != null) {
+      configurer.usePathSegment(use.pathSegment);
+    }
+    for (var entry : use.mediaTypeParameter.entrySet()) {
+      configurer.useMediaTypeParameter(entry.getKey(), entry.getValue());
+    }
   }
 
   @Override
@@ -354,7 +429,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
       logger.debug("Default resource handling disabled");
     }
     // User maybe override
-    webMvcConfigurers.addResourceHandlers(registry);
+    configurers.addResourceHandlers(registry);
   }
 
   private void addResourceHandler(ResourceHandlerRegistry registry, String pattern, String... locations) {
@@ -371,13 +446,14 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     customizeResourceHandlerRegistration(registration);
   }
 
-  @Nullable
-  private Integer getSeconds(@Nullable Duration cachePeriod) {
+  private @Nullable Integer getSeconds(@Nullable Duration cachePeriod) {
     return cachePeriod != null ? (int) cachePeriod.getSeconds() : null;
   }
 
   private void customizeResourceHandlerRegistration(ResourceHandlerRegistration registration) {
-    registrationCustomizersProvider.ifAvailable(customizer -> customizer.customize(registration));
+    if (registrationCustomizer != null) {
+      registrationCustomizer.customize(registration);
+    }
   }
 
   @Lazy

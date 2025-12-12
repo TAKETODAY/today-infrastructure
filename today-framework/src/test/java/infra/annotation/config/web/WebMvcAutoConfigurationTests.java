@@ -17,6 +17,7 @@
 
 package infra.annotation.config.web;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
@@ -75,7 +76,15 @@ import infra.web.LocaleResolver;
 import infra.web.RedirectModel;
 import infra.web.RedirectModelManager;
 import infra.web.RequestContext;
+import infra.web.accept.ApiVersionDeprecationHandler;
+import infra.web.accept.ApiVersionParser;
+import infra.web.accept.ApiVersionResolver;
+import infra.web.accept.ApiVersionStrategy;
 import infra.web.accept.ContentNegotiationManager;
+import infra.web.accept.DefaultApiVersionStrategy;
+import infra.web.accept.InvalidApiVersionException;
+import infra.web.accept.MissingApiVersionException;
+import infra.web.accept.StandardApiVersionDeprecationHandler;
 import infra.web.async.WebAsyncManagerFactory;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.config.annotation.AsyncSupportConfigurer;
@@ -114,6 +123,7 @@ import infra.web.view.ViewResolver;
 import jakarta.validation.ValidatorFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -734,6 +744,91 @@ public class WebMvcAutoConfigurationTests {
                     (handler) -> assertThat(handler.isUseLastModified()).isFalse()));
   }
 
+  @Test
+  void apiVersionPropertiesAreApplied() {
+    this.contextRunner
+            .withPropertyValues("web.mvc.apiVersion.use.header=version", "web.mvc.apiVersion.required=true",
+                    "web.mvc.apiVersion.supported=123,456", "web.mvc.apiVersion.detect-supported=false")
+            .run((context) -> {
+              DefaultApiVersionStrategy versionStrategy = context.getBean("mvcApiVersionStrategy",
+                      DefaultApiVersionStrategy.class);
+              assertThatExceptionOfType(MissingApiVersionException.class)
+                      .isThrownBy(() -> versionStrategy.validateVersion(null, new MockRequestContext(new HttpMockRequestImpl())));
+              assertThatExceptionOfType(InvalidApiVersionException.class).isThrownBy(() -> versionStrategy
+                      .validateVersion(versionStrategy.parseVersion("789"), new MockRequestContext(new HttpMockRequestImpl())));
+              assertThat(versionStrategy.detectSupportedVersions()).isFalse();
+            });
+  }
+
+  @Test
+  void apiVersionDefaultVersionPropertyIsApplied() {
+    this.contextRunner
+            .withPropertyValues("web.mvc.apiVersion.use.header=version", "web.mvc.apiVersion.default=1.0.0")
+            .run((context) -> {
+              DefaultApiVersionStrategy versionStrategy = context.getBean("mvcApiVersionStrategy",
+                      DefaultApiVersionStrategy.class);
+              versionStrategy.addSupportedVersion("1.0.0");
+              Comparable<?> version = versionStrategy.parseVersion("1.0.0");
+              assertThat(versionStrategy.getDefaultVersion()).isEqualTo(version);
+              versionStrategy.validateVersion(version, new MockRequestContext(new HttpMockRequestImpl()));
+              versionStrategy.validateVersion(null, new MockRequestContext(new HttpMockRequestImpl()));
+            });
+  }
+
+  @Test
+  void apiVersionUseHeaderPropertyIsApplied() {
+    this.contextRunner.withPropertyValues("web.mvc.apiVersion.use.header=hv").run((context) -> {
+      ApiVersionStrategy versionStrategy = context.getBean("mvcApiVersionStrategy", ApiVersionStrategy.class);
+      HttpMockRequestImpl request = new HttpMockRequestImpl();
+      request.addHeader("hv", "123");
+      assertThat(versionStrategy.resolveVersion(new MockRequestContext(request))).isEqualTo("123");
+    });
+  }
+
+  @Test
+  void apiVersionUseQueryParameterPropertyIsApplied() {
+    this.contextRunner.withPropertyValues("web.mvc.apiVersion.use.request-parameter=rpv").run((context) -> {
+      ApiVersionStrategy versionStrategy = context.getBean("mvcApiVersionStrategy", ApiVersionStrategy.class);
+      HttpMockRequestImpl request = new HttpMockRequestImpl();
+      request.setParameter("rpv", "123");
+      assertThat(versionStrategy.resolveVersion(new MockRequestContext(request))).isEqualTo("123");
+    });
+  }
+
+  @Test
+  void apiVersionUsePathSegmentPropertyIsApplied() {
+    this.contextRunner.withPropertyValues("web.mvc.apiVersion.use.path-segment=1").run((context) -> {
+      ApiVersionStrategy versionStrategy = context.getBean("mvcApiVersionStrategy", ApiVersionStrategy.class);
+      HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/test/123");
+      assertThat(versionStrategy.resolveVersion(new MockRequestContext(request))).isEqualTo("123");
+    });
+  }
+
+  @Test
+  void apiVersionUseMediaTypeParameterPropertyIsApplied() {
+    this.contextRunner.withPropertyValues("web.mvc.apiVersion.use.media-type-parameter[application/json]=mtpv")
+            .run((context) -> {
+              ApiVersionStrategy versionStrategy = context.getBean("mvcApiVersionStrategy", ApiVersionStrategy.class);
+              HttpMockRequestImpl request = new HttpMockRequestImpl();
+              request.addHeader(HttpHeaders.CONTENT_TYPE, "application/json;mtpv=123");
+              assertThat(versionStrategy.resolveVersion(new MockRequestContext(request))).isEqualTo("123");
+            });
+  }
+
+  @Test
+  void apiVersionBeansAreInjected() {
+    this.contextRunner.withUserConfiguration(ApiVersionConfiguration.class).run((context) -> {
+      DefaultApiVersionStrategy versionStrategy = context.getBean("mvcApiVersionStrategy",
+              DefaultApiVersionStrategy.class);
+      assertThat(versionStrategy).extracting("versionResolvers")
+              .asInstanceOf(InstanceOfAssertFactories.LIST)
+              .containsExactly(context.getBean(ApiVersionResolver.class));
+      assertThat(versionStrategy).extracting("deprecationHandler")
+              .isEqualTo(context.getBean(ApiVersionDeprecationHandler.class));
+      assertThat(versionStrategy).extracting("versionParser").isEqualTo(context.getBean(ApiVersionParser.class));
+    });
+  }
+
   private void assertResourceHttpRequestHandler(AssertableApplicationContext context,
           Consumer<ResourceHttpRequestHandler> handlerConsumer) {
     Map<String, Object> handlerMap = getHandlerMap(context.getBean("resourceHandlerMapping", HandlerMapping.class));
@@ -1156,4 +1251,23 @@ public class WebMvcAutoConfigurationTests {
 
   }
 
+  @Configuration(proxyBeanMethods = false)
+  static class ApiVersionConfiguration {
+
+    @Bean
+    ApiVersionResolver apiVersionResolver() {
+      return (request) -> "latest";
+    }
+
+    @Bean
+    ApiVersionDeprecationHandler apiVersionDeprecationHandler(ApiVersionParser<?> apiVersionParser) {
+      return new StandardApiVersionDeprecationHandler(apiVersionParser);
+    }
+
+    @Bean
+    ApiVersionParser<String> apiVersionParser() {
+      return (version) -> String.valueOf(version);
+    }
+
+  }
 }
