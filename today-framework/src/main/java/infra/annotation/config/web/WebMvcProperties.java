@@ -82,6 +82,13 @@ public class WebMvcProperties {
    */
   public String webjarsPathPattern = "/webjars/**";
 
+  /**
+   * Whether to register the WebView XML configuration.
+   *
+   * @see infra.web.config.annotation.ViewControllerRegistry#registerWebViewXml()
+   */
+  public boolean registerWebViewXml = false;
+
   public final Async async = new Async();
 
   public final View view = new View();
