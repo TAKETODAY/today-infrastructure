@@ -441,8 +441,9 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     }
   }
 
-  private Map<String, BeanDefinition> getBeanDefinitions(ConfigurableBeanFactory beanFactory, Set<String> beanNames, boolean considerHierarchy) {
-    HashMap<String, BeanDefinition> definitions = new HashMap<>(beanNames.size());
+  private Map<String, @Nullable BeanDefinition> getBeanDefinitions(ConfigurableBeanFactory beanFactory,
+          Set<String> beanNames, boolean considerHierarchy) {
+    Map<String, @Nullable BeanDefinition> definitions = new HashMap<>(beanNames.size());
     for (String beanName : beanNames) {
       BeanDefinition beanDefinition = findBeanDefinition(beanFactory, beanName, considerHierarchy);
       definitions.put(beanName, beanDefinition);
@@ -450,17 +451,25 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     return definitions;
   }
 
-  private List<String> getPrimaryBeans(Map<String, BeanDefinition> beanDefinitions) {
-    return getMatchingBeans(beanDefinitions, BeanDefinition::isPrimary);
+  private List<String> getPrimaryBeans(Map<String, @Nullable BeanDefinition> beanDefinitions) {
+    return getMatchingBeans(beanDefinitions, this::isPrimary);
   }
 
-  private List<String> getNonFallbackBeans(Map<String, BeanDefinition> beanDefinitions) {
-    return getMatchingBeans(beanDefinitions, Predicate.not(BeanDefinition::isFallback));
+  private boolean isPrimary(@Nullable BeanDefinition beanDefinition) {
+    return beanDefinition != null && beanDefinition.isPrimary();
   }
 
-  private List<String> getMatchingBeans(Map<String, BeanDefinition> beanDefinitions, Predicate<BeanDefinition> test) {
+  private List<String> getNonFallbackBeans(Map<String, @Nullable BeanDefinition> beanDefinitions) {
+    return getMatchingBeans(beanDefinitions, this::isNotFallback);
+  }
+
+  private boolean isNotFallback(@Nullable BeanDefinition beanDefinition) {
+    return beanDefinition == null || !beanDefinition.isFallback();
+  }
+
+  private List<String> getMatchingBeans(Map<String, @Nullable BeanDefinition> beanDefinitions, Predicate<@Nullable BeanDefinition> test) {
     ArrayList<String> matches = new ArrayList<>();
-    for (Map.Entry<String, BeanDefinition> namedBeanDefinition : beanDefinitions.entrySet()) {
+    for (Map.Entry<String, @Nullable BeanDefinition> namedBeanDefinition : beanDefinitions.entrySet()) {
       if (test.test(namedBeanDefinition.getValue())) {
         matches.add(namedBeanDefinition.getKey());
       }
