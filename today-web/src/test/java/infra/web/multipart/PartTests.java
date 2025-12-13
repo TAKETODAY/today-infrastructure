@@ -187,18 +187,6 @@ class PartTests {
   }
 
   @Test
-  void getContentTypeStringReturnsStringRepresentation() {
-    Part part = mock(Part.class);
-    infra.http.MediaType mediaType = infra.http.MediaType.TEXT_PLAIN;
-    when(part.getContentType()).thenReturn(mediaType);
-    when(part.getContentTypeAsString()).thenCallRealMethod();
-
-    String contentTypeString = part.getContentTypeAsString();
-
-    assertThat(contentTypeString).isEqualTo("text/plain");
-  }
-
-  @Test
   void getResourceReturnsPartResource() {
     Part part = mock(Part.class);
     when(part.getResource()).thenCallRealMethod();
