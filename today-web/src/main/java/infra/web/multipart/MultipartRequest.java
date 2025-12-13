@@ -89,6 +89,17 @@ public interface MultipartRequest {
   HttpHeaders getHeaders(String name);
 
   /**
+   * Check if a part with the given name exists.
+   *
+   * @param name the name of the part to check
+   * @return {@code true} if a part with the given name exists, {@code false} otherwise
+   * @see #getParts()
+   */
+  default boolean contains(String name) {
+    return getParts().containsKey(name);
+  }
+
+  /**
    * Cleanup any resources used for the multipart handling,
    * like a storage for the uploaded files.
    */

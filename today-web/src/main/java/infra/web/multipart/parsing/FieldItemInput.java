@@ -49,7 +49,7 @@ final class FieldItemInput {
   /**
    * The file items file name.
    */
-  public final @Nullable String fileName;
+  public final @Nullable String filename;
 
   /**
    * The file items field name.
@@ -80,15 +80,15 @@ final class FieldItemInput {
    * Creates a new instance.
    *
    * @param iterator The {@link FieldItemInputIterator iterator}, which returned this file item.
-   * @param fileName The items file name, or null.
+   * @param filename The items file name, or null.
    * @param fieldName The items field name.
    * @param contentType The items content type, or null.
    * @param formField Whether the item is a form field.
    * @throws MultipartException Parsing the incoming data stream failed.
    */
-  FieldItemInput(final FieldItemInputIterator iterator, final @Nullable String fileName, final String fieldName,
+  FieldItemInput(final FieldItemInputIterator iterator, final @Nullable String filename, final String fieldName,
           final @Nullable MediaType contentType, final boolean formField, HttpHeaders headers) throws MultipartException {
-    this.fileName = fileName;
+    this.filename = filename;
     this.fieldName = fieldName;
     this.contentType = contentType;
     this.formField = formField;

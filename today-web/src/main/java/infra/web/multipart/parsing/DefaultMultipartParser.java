@@ -290,7 +290,7 @@ public class DefaultMultipartParser implements MultipartParser {
         }
 
         DefaultPart part = new DefaultPart(field.fieldName, field.contentType,
-                field.headers, field.formField, field.fieldName, this);
+                field.headers, field.formField, field.filename, this);
 
         parts.add(part.getName(), part);
         try (var inputStream = field.getInputStream();
