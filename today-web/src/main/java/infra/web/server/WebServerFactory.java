@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ package infra.web.server;
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see WebServer
- * @see ChannelWebServerFactory
+ * @see GenericWebServerFactory
  * @see infra.web.server.reactive.ReactiveWebServerFactory
  * @since 4.0
  */

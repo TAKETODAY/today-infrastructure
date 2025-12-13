@@ -68,7 +68,7 @@ import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import infra.web.mock.MockDispatcher;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.support.StaticWebApplicationContext;
-import infra.web.multipart.MaxUploadSizeExceededException;
+import infra.web.multipart.MultipartException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -297,7 +297,7 @@ class ResponseEntityExceptionHandlerTests {
 
   @Test
   void maxUploadSizeExceededException() {
-    testException(new MaxUploadSizeExceededException(1000));
+    testException(new MultipartException(""));
   }
 
   @Test

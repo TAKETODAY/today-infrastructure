@@ -94,6 +94,7 @@ public class MockWrappingController extends AbstractController
 
   private MockContext mockContext;
 
+  @SuppressWarnings("NullAway")
   public MockWrappingController() {
     super(false);
   }
@@ -152,7 +153,7 @@ public class MockWrappingController extends AbstractController
    * @see MockApi#service(MockRequest, MockResponse)
    */
   @Override
-  protected ModelAndView handleRequestInternal(RequestContext request) throws Exception {
+  protected @Nullable ModelAndView handleRequestInternal(RequestContext request) throws Exception {
     MockRequestContext nativeContext = WebUtils.getNativeContext(request, MockRequestContext.class);
     Assert.state(nativeContext != null, "Not run in servlet");
     Assert.state(this.mockApiInstance != null, "No Servlet instance");
@@ -163,7 +164,6 @@ public class MockWrappingController extends AbstractController
   /**
    * Destroy the wrapped Servlet instance.
    *
-   * @see MockApi#destroy()
    */
   @Override
   public void destroy() {

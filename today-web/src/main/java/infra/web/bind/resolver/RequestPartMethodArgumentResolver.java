@@ -34,13 +34,14 @@ import infra.web.bind.MethodArgumentNotValidException;
 import infra.web.handler.method.NamedValueInfo;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.multipart.MultipartException;
-import infra.web.multipart.MultipartFile;
+import infra.web.multipart.NotMultipartRequestException;
+import infra.web.multipart.Part;
 
 /**
  * Resolves the following method arguments:
  * <ul>
  * <li>Annotated with @{@link RequestPart}
- * <li>Of type {@link MultipartFile}
+ * <li>Of type {@link Part}
  * </ul>
  *
  * <p>When a parameter is annotated with {@code @RequestPart}, the content of the part is
@@ -89,7 +90,7 @@ public class RequestPartMethodArgumentResolver extends AbstractMessageConverterM
    * supported as multi-part. Supports the following method parameters:
    * <ul>
    * <li>annotated with {@code @RequestPart}
-   * <li>of type {@link MultipartFile} unless annotated with {@code @RequestParam}
+   * <li>of type {@link Part} unless annotated with {@code @RequestParam}
    * {@code @RequestParam}
    * </ul>
    */
@@ -121,8 +122,11 @@ public class RequestPartMethodArgumentResolver extends AbstractMessageConverterM
     }
     else {
       try {
-        var inputMessage = new RequestPartServerHttpRequest(context, name);
-        arg = readWithMessageConverters(inputMessage, parameter, parameter.getNestedGenericParameterType());
+        Part part = context.asMultipartRequest().getPart(name);
+        if (part == null) {
+          throw new MissingRequestPartException(name);
+        }
+        arg = readWithMessageConverters(part, parameter, parameter.getNestedGenericParameterType());
         validateIfApplicable(context, parameter, arg);
       }
       catch (MissingRequestPartException | MultipartException ex) {
@@ -134,7 +138,7 @@ public class RequestPartMethodArgumentResolver extends AbstractMessageConverterM
 
     if (arg == null && namedValueInfo.required) {
       if (!context.isMultipart()) {
-        throw new MultipartException("Current request is not a multipart request");
+        throw new NotMultipartRequestException("Current request is not a multipart request", null);
       }
       else {
         throw new MissingRequestPartException(name);

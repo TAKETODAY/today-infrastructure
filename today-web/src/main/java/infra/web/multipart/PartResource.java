@@ -27,13 +27,13 @@ import infra.core.io.Resource;
 import infra.lang.Assert;
 
 /**
- * Adapt {@link MultipartFile} to {@link Resource},
+ * Adapt {@link Part} to {@link Resource},
  * exposing the content as {@code InputStream} and also overriding
  * {@link #contentLength()} as well as {@link #getName()}.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see MultipartFile#getResource()
+ * @see Part#getResource()
  * @since 4.0 2022/4/2 11:58
  */
 class PartResource extends AbstractResource {
@@ -41,7 +41,7 @@ class PartResource extends AbstractResource {
   private final Part part;
 
   public PartResource(Part part) {
-    Assert.notNull(part, "MultipartFile is required");
+    Assert.notNull(part, "Part is required");
     this.part = part;
   }
 
@@ -82,17 +82,16 @@ class PartResource extends AbstractResource {
   }
 
   /**
-   * This implementation returns a description that has the Multipart name.
+   * This implementation returns a description that has the Part name.
    */
   @Override
   public String toString() {
-    return "MultipartFile resource [%s]".formatted(this.part.getName());
+    return "Part resource [%s]".formatted(this.part.getName());
   }
 
   @Override
   public boolean equals(@Nullable Object other) {
-    return (this == other || (other instanceof PartResource &&
-            ((PartResource) other).part.equals(this.part)));
+    return this == other || (other instanceof PartResource && ((PartResource) other).part.equals(this.part));
   }
 
   @Override

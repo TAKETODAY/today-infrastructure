@@ -21,7 +21,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
@@ -34,7 +33,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -61,7 +59,6 @@ import infra.web.async.WebAsyncManager;
 import infra.web.multipart.MultipartRequest;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelPipeline;
@@ -69,9 +66,9 @@ import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.DefaultHeaders;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
-import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
+import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
@@ -80,14 +77,8 @@ import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.CookieHeaderNames;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
-import io.netty.handler.codec.http.multipart.Attribute;
-import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
-import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
-import io.netty.handler.codec.http.multipart.InterfaceHttpData;
-import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 import io.netty.handler.stream.ChunkedNioFile;
 import io.netty.handler.stream.ChunkedWriteHandler;
-import io.netty.util.ReferenceCountUtil;
 import io.netty.util.internal.PlatformDependent;
 
 import static io.netty.util.internal.StringUtil.decodeHexByte;
@@ -98,7 +89,7 @@ import static io.netty.util.internal.StringUtil.decodeHexByte;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-07-04 21:24
  */
-public class NettyRequestContext extends RequestContext {
+public abstract class NettyRequestContext extends RequestContext {
 
   /**
    * System property to configure the nio file chunk size when ssl is enabled.
@@ -155,7 +146,7 @@ public class NettyRequestContext extends RequestContext {
   public final HttpHeaders nettyResponseHeaders;
   // UNSAFE fields END
 
-  private final FullHttpRequest request;
+  protected final HttpRequest request;
 
   // headers and status-code is written? default = false
   private final AtomicBoolean committed = new AtomicBoolean();
@@ -164,9 +155,6 @@ public class NettyRequestContext extends RequestContext {
 
   @Nullable
   private String remoteAddress;
-
-  @Nullable
-  private InterfaceHttpPostRequestDecoder requestDecoder;
 
   // response
   @Nullable
@@ -187,7 +175,7 @@ public class NettyRequestContext extends RequestContext {
   private ServerHttpResponse httpOutputMessage;
 
   protected NettyRequestContext(ApplicationContext context, Channel channel,
-          FullHttpRequest request, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
+          HttpRequest request, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
     super(context, dispatcherHandler);
     this.config = config;
     this.request = request;
@@ -294,18 +282,8 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  protected InputStream createInputStream() {
-    return new ByteBufInputStream(request.content());
-  }
-
-  @Override
   protected infra.http.HttpHeaders createRequestHeaders() {
-    HttpHeaders headers = request.headers();
-    DefaultHttpHeaders ret = new DefaultHttpHeaders();
-    for (Map.Entry<String, String> header : headers) {
-      ret.add(header.getKey(), header.getValue());
-    }
-    return ret;
+    return new Netty4HttpHeaders(request.headers());
   }
 
   @Override
@@ -374,41 +352,20 @@ public class NettyRequestContext extends RequestContext {
       parseParameters(parameters, queryString);
     }
 
-    HttpMethod method = getMethod();
-    if (method != HttpMethod.GET && method != HttpMethod.HEAD
+    if (getContentLength() > 0 && getMethod() != HttpMethod.GET && getMethod() != HttpMethod.HEAD
             && StringUtils.startsWithIgnoreCase(getContentTypeAsString(), MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
-      for (InterfaceHttpData data : requestDecoder().getBodyHttpDatas()) {
-        if (data instanceof Attribute) {
-          try {
-            parameters.add(data.getName(), ((Attribute) data).getValue());
-          }
-          catch (IOException e) {
-            throw new HttpMessageNotReadableException("'application/x-www-form-urlencoded' content read failed", e, this);
-          }
+
+      try {
+        String s = new String(getInputStream().readAllBytes(), StandardCharsets.ISO_8859_1);
+        if (StringUtils.isNotEmpty(s)) {
+          parseParameters(parameters, s);
         }
+      }
+      catch (IOException e) {
+        throw new HttpMessageNotReadableException("'application/x-www-form-urlencoded' content read failed", e, this);
       }
     }
     return parameters;
-  }
-
-  InterfaceHttpPostRequestDecoder requestDecoder() {
-    InterfaceHttpPostRequestDecoder requestDecoder = this.requestDecoder;
-    if (requestDecoder == null) {
-      if (isMultipart()) {
-        requestDecoder = new HttpPostMultipartRequestDecoder(config.httpDataFactory, request, config.postRequestDecoderCharset);
-      }
-      else {
-        requestDecoder = new HttpPostStandardRequestDecoder(config.httpDataFactory, request, config.postRequestDecoderCharset);
-      }
-      requestDecoder.setDiscardThreshold(0);
-      this.requestDecoder = requestDecoder;
-    }
-    return requestDecoder;
-  }
-
-  @Override
-  public long getContentLength() {
-    return request.content().readableBytes();
   }
 
   @Override
@@ -432,7 +389,7 @@ public class NettyRequestContext extends RequestContext {
    *
    * @return HTTP response body
    */
-  public final ByteBuf responseBody() {
+  private ByteBuf responseBody() {
     ByteBuf responseBody = this.responseBody;
     if (responseBody == null) {
       var bodyFactory = config.responseBodyFactory;
@@ -484,13 +441,6 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   protected void requestCompletedInternal(@Nullable Throwable notHandled) {
-    int cnt = request.refCnt();
-    if (cnt != 0) {
-      ReferenceCountUtil.safeRelease(request);
-    }
-    if (requestDecoder != null) {
-      requestDecoder.destroy();
-    }
     if (notHandled != null) {
       return;
     }
@@ -621,8 +571,7 @@ public class NettyRequestContext extends RequestContext {
 
     ByteBuf responseBody = this.responseBody;
     if (responseBody != null) {
-      responseBody.resetWriterIndex();
-      responseBody.resetReaderIndex();
+      responseBody.clear();
     }
     writer = null;
     status = HttpResponseStatus.OK;
@@ -723,13 +672,13 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   @SuppressWarnings("unchecked")
-  public final FullHttpRequest nativeRequest() {
+  public final HttpRequest nativeRequest() {
     return request;
   }
 
   @Override
   protected MultipartRequest createMultipartRequest() {
-    return new NettyMultipartRequest(this);
+    return config.multipartParser.parse(this);
   }
 
   @Override

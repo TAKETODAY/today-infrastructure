@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,6 @@
 
 package infra.samples;
 
-import java.io.PrintWriter;
-
 import infra.web.annotation.ExceptionHandler;
 import infra.web.annotation.RestControllerAdvice;
 import infra.web.async.AsyncRequestTimeoutException;
@@ -31,8 +29,8 @@ import infra.web.async.AsyncRequestTimeoutException;
 public class ApplicationControllerAdvice {
 
   @ExceptionHandler(Throwable.class)
-  public void throwable(Throwable throwable, PrintWriter writer) {
-    throwable.printStackTrace(writer);
+  public void throwable(Throwable throwable) {
+    throwable.printStackTrace();
   }
 
   @ExceptionHandler(AsyncRequestTimeoutException.class)

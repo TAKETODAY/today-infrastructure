@@ -17,6 +17,7 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -87,23 +88,21 @@ import infra.http.converter.json.MappingJackson2HttpMessageConverter;
 import infra.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
 import infra.http.converter.xml.MarshallingHttpMessageConverter;
 import infra.lang.Assert;
-import org.jspecify.annotations.Nullable;
 import infra.mock.api.MockConfig;
 import infra.mock.api.MockContext;
 import infra.mock.api.MockException;
 import infra.mock.api.http.Cookie;
 import infra.mock.api.http.HttpMockResponse;
 import infra.mock.api.http.HttpSession;
-import infra.mock.api.http.Part;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.mock.web.MockMockConfig;
 import infra.mock.web.MockMultipartHttpMockRequest;
 import infra.oxm.jaxb.Jaxb2Marshaller;
+import infra.session.Session;
 import infra.session.SessionManager;
 import infra.session.SessionManagerOperations;
-import infra.session.Session;
 import infra.session.config.EnableSession;
 import infra.stereotype.Controller;
 import infra.ui.Model;
@@ -146,8 +145,8 @@ import infra.web.handler.function.RouterFunctions;
 import infra.web.handler.function.ServerResponse;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.WebApplicationContext;
-import infra.web.multipart.MultipartFile;
-import infra.web.multipart.support.StringMultipartFileEditor;
+import infra.web.multipart.Part;
+import infra.web.multipart.support.StringPartEditor;
 import infra.web.testfixture.MockMultipartFile;
 import infra.web.testfixture.security.TestPrincipal;
 import infra.web.view.AbstractView;
@@ -1403,7 +1402,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     request.setRequestURI("/singleString");
-    request.addFile(new MockMultipartFile("content", "Juergen".getBytes()));
+    request.addPart(new MockMultipartFile("content", "Juergen".getBytes()));
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockApi().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("Juergen");
@@ -1428,7 +1427,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     request.setRequestURI("/stringArray");
-    request.addFile(new MockMultipartFile("content", "Juergen".getBytes()));
+    request.addPart(new MockMultipartFile("content", "Juergen".getBytes()));
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockApi().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("Juergen");
@@ -1453,8 +1452,8 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     request.setRequestURI("/stringArray");
-    request.addFile(new MockMultipartFile("content", "Juergen".getBytes()));
-    request.addFile(new MockMultipartFile("content", "Eva".getBytes()));
+    request.addPart(new MockMultipartFile("content", "Juergen".getBytes()));
+    request.addPart(new MockMultipartFile("content", "Eva".getBytes()));
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockApi().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("Juergen-Eva");
@@ -1856,7 +1855,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     request.setRequestURI("/bind");
-    request.addFile(new MockMultipartFile("param1", "value1".getBytes(StandardCharsets.UTF_8)));
+    request.addPart(new MockMultipartFile("param1", "value1".getBytes(StandardCharsets.UTF_8)));
     request.addParameter("param2", "true");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockApi().service(request, response);
@@ -3738,7 +3737,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     @InitBinder
     public void initBinder(WebDataBinder binder) {
-      binder.registerCustomEditor(String.class, new StringMultipartFileEditor());
+      binder.registerCustomEditor(String.class, new StringPartEditor());
     }
 
     @RequestMapping("/singleString")
@@ -4034,13 +4033,13 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class MultipartFileDataClass {
 
     @NotNull
-    public final MultipartFile param1;
+    public final Part param1;
 
     public final boolean param2;
 
     public int param3;
 
-    public MultipartFileDataClass(MultipartFile param1,
+    public MultipartFileDataClass(Part param1,
             @BindParam("param2") boolean p2, Optional<Integer> optionalParam) {
       this.param1 = param1;
       this.param2 = p2;

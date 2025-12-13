@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.Map;
 
-import infra.mock.api.http.Part;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.mock.web.MockMultipartHttpMockRequest;
@@ -32,7 +31,7 @@ import infra.web.ResolvableMethod;
 import infra.web.annotation.RequestParam;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.mock.MockRequestContext;
-import infra.web.multipart.MultipartFile;
+import infra.web.multipart.Part;
 import infra.web.testfixture.MockMultipartFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -104,18 +103,18 @@ class RequestParamMapMethodArgumentResolverTests {
   @SuppressWarnings("unchecked")
   public void resolveMapOfMultipartFile() throws Throwable {
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
-    MultipartFile expected1 = new MockMultipartFile("mfile", "Hello World".getBytes());
-    MultipartFile expected2 = new MockMultipartFile("other", "Hello World 3".getBytes());
-    request.addFile(expected1);
-    request.addFile(expected2);
+    Part expected1 = new MockMultipartFile("mfile", "Hello World".getBytes());
+    Part expected2 = new MockMultipartFile("other", "Hello World 3".getBytes());
+    request.addPart(expected1);
+    request.addPart(expected2);
     webRequest = new MockRequestContext(null, request, null);
 
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().noName()).arg(Map.class, String.class, MultipartFile.class);
+    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().noName()).arg(Map.class, String.class, Part.class);
     Object result = resolver.resolveArgument(webRequest, param);
 
     boolean condition = result instanceof Map;
     assertThat(condition).isTrue();
-    Map<String, MultipartFile> resultMap = (Map<String, MultipartFile>) result;
+    Map<String, Part> resultMap = (Map<String, Part>) result;
     assertThat(resultMap.size()).isEqualTo(2);
     assertThat(resultMap.get("mfile")).isEqualTo(expected1);
     assertThat(resultMap.get("other")).isEqualTo(expected2);
@@ -125,20 +124,20 @@ class RequestParamMapMethodArgumentResolverTests {
   @SuppressWarnings("unchecked")
   public void resolveMultiValueMapOfMultipartFile() throws Throwable {
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
-    MultipartFile expected1 = new MockMultipartFile("mfilelist", "Hello World 1".getBytes());
-    MultipartFile expected2 = new MockMultipartFile("mfilelist", "Hello World 2".getBytes());
-    MultipartFile expected3 = new MockMultipartFile("other", "Hello World 3".getBytes());
-    request.addFile(expected1);
-    request.addFile(expected2);
-    request.addFile(expected3);
+    Part expected1 = new MockMultipartFile("mfilelist", "Hello World 1".getBytes());
+    Part expected2 = new MockMultipartFile("mfilelist", "Hello World 2".getBytes());
+    Part expected3 = new MockMultipartFile("other", "Hello World 3".getBytes());
+    request.addPart(expected1);
+    request.addPart(expected2);
+    request.addPart(expected3);
     webRequest = new MockRequestContext(null, request, null);
 
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().noName()).arg(MultiValueMap.class, String.class, MultipartFile.class);
+    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().noName()).arg(MultiValueMap.class, String.class, Part.class);
     Object result = resolver.resolveArgument(webRequest, param);
 
     boolean condition = result instanceof MultiValueMap;
     assertThat(condition).isTrue();
-    MultiValueMap<String, MultipartFile> resultMap = (MultiValueMap<String, MultipartFile>) result;
+    MultiValueMap<String, Part> resultMap = (MultiValueMap<String, Part>) result;
     assertThat(resultMap.size()).isEqualTo(2);
     assertThat(resultMap.get("mfilelist").size()).isEqualTo(2);
     assertThat(resultMap.get("mfilelist").get(0)).isEqualTo(expected1);
@@ -150,10 +149,8 @@ class RequestParamMapMethodArgumentResolverTests {
   public void handle(
           @RequestParam Map<String, String> param1,
           @RequestParam MultiValueMap<String, String> param2,
-          @RequestParam Map<String, MultipartFile> param3,
-          @RequestParam MultiValueMap<String, MultipartFile> param4,
-          @RequestParam Map<String, Part> param5,
-          @RequestParam MultiValueMap<String, Part> param6,
+          @RequestParam Map<String, Part> param3,
+          @RequestParam MultiValueMap<String, Part> param4,
           @RequestParam("name") Map<String, String> param7,
           Map<String, String> param8) {
   }

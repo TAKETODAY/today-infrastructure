@@ -47,6 +47,7 @@ import infra.web.util.WebUtils;
  * @author TODAY 2020/12/8 23:07
  * @since 3.0
  */
+@SuppressWarnings("NullAway")
 public abstract class MockUtils {
 
   /**

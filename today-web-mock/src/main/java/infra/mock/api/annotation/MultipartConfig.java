@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 
 import infra.mock.api.MockApi;
 import infra.mock.api.http.HttpMockRequest;
-import infra.mock.api.http.Part;
+import infra.web.multipart.Part;
 
 /**
  * Annotation that may be specified on a {@link MockApi} class, indicating that instances of the

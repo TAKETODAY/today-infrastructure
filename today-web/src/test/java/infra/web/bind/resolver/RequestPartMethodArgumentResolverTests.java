@@ -32,7 +32,7 @@ import infra.web.RequestContext;
 import infra.web.annotation.RequestPart;
 import infra.web.handler.method.NamedValueInfo;
 import infra.web.handler.method.ResolvableMethodParameter;
-import infra.web.multipart.MultipartFile;
+import infra.web.multipart.Part;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -110,7 +110,7 @@ class RequestPartMethodArgumentResolverTests {
   @Test
   void resolveArgumentWithMultipartFile() throws Throwable {
     String partName = "testPart";
-    MultipartFile multipartFile = mock(MultipartFile.class);
+    Part part = mock(Part.class);
 
     MethodParameter methodParameter = mock(MethodParameter.class);
     when(methodParameter.hasParameterAnnotation(RequestPart.class)).thenReturn(true);
@@ -120,10 +120,10 @@ class RequestPartMethodArgumentResolverTests {
 
     try (var delegate = mockStatic(MultipartResolutionDelegate.class)) {
       delegate.when(() -> MultipartResolutionDelegate.resolveMultipartArgument(partName, methodParameter, context))
-              .thenReturn(multipartFile);
+              .thenReturn(part);
 
       Object result = resolver.resolveArgument(context, resolvable);
-      assertThat(result).isEqualTo(multipartFile);
+      assertThat(result).isEqualTo(part);
     }
   }
 

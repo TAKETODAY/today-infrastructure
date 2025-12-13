@@ -47,7 +47,7 @@ import infra.web.bind.MissingPathVariableException;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.RequestBindingException;
 import infra.web.bind.resolver.MissingRequestPartException;
-import infra.web.multipart.MultipartFile;
+import infra.web.multipart.Part;
 import infra.web.util.DisconnectedClientHelper;
 import infra.web.util.WebUtils;
 
@@ -337,7 +337,7 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
   }
 
   /**
-   * Handle the case where an {@linkplain RequestPart @RequestPart}, a {@link MultipartFile}
+   * Handle the case where an {@linkplain RequestPart @RequestPart}, a {@link Part}
    * argument is required but is missing.
    * <p>By default, an HTTP 400 error is sent back to the client.
    *

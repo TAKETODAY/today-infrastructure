@@ -30,7 +30,7 @@ import io.netty.util.AttributeMap;
  */
 final class WebSocketAttribute {
 
-  private static final AttributeKey<WebSocketAttribute> KEY = AttributeKey.valueOf(WebSocketAttribute.class, "KEY");
+  private static final AttributeKey<@Nullable WebSocketAttribute> KEY = AttributeKey.valueOf(WebSocketAttribute.class, "KEY");
 
   public final WebSocketHandler wsHandler;
 

@@ -65,12 +65,12 @@ import infra.mock.api.http.HttpMockResponse;
 import infra.mock.api.http.HttpSession;
 import infra.mock.api.http.HttpUpgradeHandler;
 import infra.mock.api.http.MappingMatch;
-import infra.mock.api.http.Part;
 import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
+import infra.web.multipart.Part;
 
 /**
  * Mock implementation of the {@link HttpMockRequest} interface.
@@ -260,7 +260,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
 
   private boolean requestedSessionIdFromURL = false;
 
-  private final MultiValueMap<String, Part> parts = new LinkedMultiValueMap<>();
+  protected final MultiValueMap<String, Part> parts = new LinkedMultiValueMap<>();
 
   @Nullable
   private HttpMockMapping httpMockMapping;
@@ -1380,12 +1380,12 @@ public class HttpMockRequestImpl implements HttpMockRequest {
 
   @Override
   @Nullable
-  public Part getPart(String name) throws IOException, MockException {
+  public Part getPart(String name) {
     return this.parts.getFirst(name);
   }
 
   @Override
-  public Collection<Part> getParts() throws IOException, MockException {
+  public Collection<Part> getParts() {
     List<Part> result = new LinkedList<>();
     for (List<Part> list : this.parts.values()) {
       result.addAll(list);
