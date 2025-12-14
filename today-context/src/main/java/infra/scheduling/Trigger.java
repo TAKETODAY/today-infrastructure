@@ -20,6 +20,7 @@ package infra.scheduling;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Instant;
+import java.util.Date;
 
 import infra.scheduling.support.CronTrigger;
 
@@ -46,4 +47,17 @@ public interface Trigger {
   @Nullable
   Instant nextExecution(TriggerContext triggerContext);
 
+  /**
+   * Determine the next execution time according to the given trigger context.
+   * <p>The default implementation delegates to {@link #nextExecution(TriggerContext)}.
+   *
+   * @param triggerContext context object encapsulating last execution times
+   * and last completion time
+   * @return the next execution time as defined by the trigger,
+   * or {@code null} if the trigger won't fire anymore
+   */
+  default @Nullable Date nextExecutionTime(TriggerContext triggerContext) {
+    Instant instant = nextExecution(triggerContext);
+    return instant != null ? Date.from(instant) : null;
+  }
 }
