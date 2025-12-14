@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.core.conversion;
 
 import org.jspecify.annotations.Nullable;
@@ -25,12 +26,18 @@ import infra.lang.Assert;
  *
  * <p>Implementations of this interface are thread-safe and can be shared.
  *
+ * <p>Implementations may additionally implement {@link ConditionalConverter}.
+ *
  * @param <S> the source type
- * @param <T> the target type
- * @author TODAY 2018-07-07 21:33:52
+ * @param <T> the target type (potentially {@code null})
+ * @author Keith Donald
+ * @author Josh Cummings
+ * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 2018-07-07 21:33:52
  */
 @FunctionalInterface
-public interface Converter<S, T> {
+public interface Converter<S, T extends @Nullable Object> {
 
   /**
    * Convert the source object of type {@code S} to target type {@code T}.
@@ -39,7 +46,6 @@ public interface Converter<S, T> {
    * @return the converted object, which must be an instance of {@code T} (potentially {@code null})
    * @throws IllegalArgumentException if the source cannot be converted to the desired target type
    */
-  @Nullable
   T convert(S source);
 
   /**
