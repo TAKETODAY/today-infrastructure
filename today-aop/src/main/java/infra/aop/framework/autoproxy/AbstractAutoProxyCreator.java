@@ -44,7 +44,6 @@ import infra.aop.target.SingletonTargetSource;
 import infra.beans.BeansException;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
-import infra.beans.factory.FactoryBean;
 import infra.beans.factory.InitializationBeanPostProcessor;
 import infra.beans.factory.config.AutowireCapableBeanFactory;
 import infra.beans.factory.config.BeanPostProcessor;
@@ -324,10 +323,8 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
 
   /**
    * Build a cache key for the given bean class and bean name.
-   * <p>Note: this implementation does not return a concatenated
-   * class/name String anymore but rather the most efficient cache key possible:
-   * a plain bean name, prepended with {@link BeanFactory#FACTORY_BEAN_PREFIX}
-   * in case of a {@code FactoryBean}; or if no bean name specified, then the
+   * <p>Note: As of 5.0, this implementation returns a composed cache key
+   * for bean class plus bean name; or if no bean name specified, then the
    * given bean {@code Class} as-is.
    *
    * @param beanClass the bean class
@@ -337,8 +334,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
    */
   protected Object getCacheKey(Class<?> beanClass, @Nullable String beanName) {
     if (StringUtils.isNotEmpty(beanName)) {
-      return FactoryBean.class.isAssignableFrom(beanClass)
-              ? BeanFactory.FACTORY_BEAN_PREFIX + beanName : beanName;
+      return new ComposedCacheKey(beanClass, beanName);
     }
     else {
       return beanClass;
@@ -631,5 +627,13 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
    */
   protected abstract Object @Nullable [] getAdvicesAndAdvisorsForBean(
           Class<?> beanClass, String beanName, @Nullable TargetSource targetSource);
+
+  /**
+   * Composed cache key for bean class plus bean name.
+   *
+   * @see #getCacheKey(Class, String)
+   */
+  private record ComposedCacheKey(Class<?> beanClass, String beanName) {
+  }
 
 }
