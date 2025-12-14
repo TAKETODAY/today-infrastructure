@@ -21,10 +21,10 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import infra.core.Ordered;
 import infra.core.annotation.AnnotationAwareOrderComparator;
@@ -201,7 +201,7 @@ public class TransactionSynchronizationManager {
     if (isSynchronizationActive()) {
       throw new IllegalStateException("Cannot activate transaction synchronization - already active");
     }
-    this.transactionContext.setSynchronizations(new LinkedHashSet<>());
+    transactionContext.setSynchronizations(new CopyOnWriteArraySet<>());
   }
 
   /**
