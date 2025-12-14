@@ -63,6 +63,7 @@ import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
 import infra.core.io.DefaultPropertySourceFactory;
 import infra.core.io.ResourceLoader;
+import infra.core.test.tools.CompileWithForkedClassLoader;
 import infra.core.test.tools.Compiled;
 import infra.core.test.tools.TestCompiler;
 import infra.core.type.AnnotationMetadata;
@@ -107,8 +108,8 @@ public class ConfigurationClassPostProcessorAotContributionTests {
         initializer.accept(freshBeanFactory);
         freshContext.refresh();
         assertThat(freshBeanFactory.getBeanPostProcessors()).filteredOn(ImportAwareAotBeanPostProcessor.class::isInstance)
-                .singleElement().satisfies(postProcessor -> assertPostProcessorEntry(postProcessor, ImportAwareConfiguration.class,
-                        ImportConfiguration.class));
+                .singleElement().satisfies(postProcessor ->
+                        assertPostProcessorEntry(postProcessor, ImportAwareConfiguration.class, ImportConfiguration.class));
         freshContext.close();
       });
     }
@@ -125,8 +126,8 @@ public class ConfigurationClassPostProcessorAotContributionTests {
         freshContext.refresh();
         TestAwareCallbackBean bean = freshContext.getBean(TestAwareCallbackBean.class);
         assertThat(bean.instances).hasSize(2);
-        assertThat(bean.instances.get(0)).isEqualTo(freshContext);
-        assertThat(bean.instances.get(1)).isInstanceOfSatisfying(AnnotationMetadata.class, metadata ->
+        assertThat(bean.instances).element(0).isEqualTo(freshContext);
+        assertThat(bean.instances).element(1).isInstanceOfSatisfying(AnnotationMetadata.class, metadata ->
                 assertThat(metadata.getClassName()).isEqualTo(TestAwareCallbackConfiguration.class.getName()));
         freshContext.close();
       });
@@ -228,9 +229,8 @@ public class ConfigurationClassPostProcessorAotContributionTests {
         this.metadata = importMetadata;
       }
 
-      @Nullable
       @Override
-      public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+      public @Nullable Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         if (beanName.equals("testProcessing")) {
           return this.metadata;
         }
@@ -243,7 +243,7 @@ public class ConfigurationClassPostProcessorAotContributionTests {
       }
 
       @Override
-      public void afterPropertiesSet() throws Exception {
+      public void afterPropertiesSet() {
         Assert.notNull(this.metadata, "Metadata was not injected");
       }
 
@@ -440,7 +440,6 @@ public class ConfigurationClassPostProcessorAotContributionTests {
       this.processor.postProcessBeanFactory(this.beanFactory);
       return RegisteredBean.of(this.beanFactory, "test");
     }
-
   }
 
   @Nested
@@ -500,7 +499,7 @@ public class ConfigurationClassPostProcessorAotContributionTests {
     @Test
     void applyToWhenIsImportAware() {
       BeanFactoryInitializationAotContribution contribution = getContribution(CommonAnnotationBeanPostProcessor.class,
-              ImportAwareBeanRegistrarConfiguration.class);
+              ImportAwareConfiguration.class);
       assertThat(contribution).isNotNull();
       contribution.applyTo(generationContext, beanFactoryInitializationCode);
       compile((initializer, compiled) -> {
@@ -508,11 +507,47 @@ public class ConfigurationClassPostProcessorAotContributionTests {
         initializer.accept(freshContext);
         freshContext.refresh();
         assertThat(freshContext.getBean(ClassNameHolder.class).className())
-                .isEqualTo(ImportAwareBeanRegistrarConfiguration.class.getName());
+                .isEqualTo(ImportAwareConfiguration.class.getName());
         freshContext.close();
       });
     }
 
+    @Test
+    @CompileWithForkedClassLoader
+    void applyToWhenIsPackagePrivate() throws NoSuchMethodException {
+      BeanFactoryInitializationAotContribution contribution = getContribution(PackagePrivateConfiguration.class);
+      assertThat(contribution).isNotNull();
+      contribution.applyTo(generationContext, beanFactoryInitializationCode);
+      Constructor<Foo> fooConstructor = Foo.class.getDeclaredConstructor();
+      compile((initializer, compiled) -> {
+        GenericApplicationContext freshContext = new GenericApplicationContext();
+        initializer.accept(freshContext);
+        freshContext.refresh();
+        assertThat(freshContext.getBean(Foo.class)).isNotNull();
+        assertThat(RuntimeHintsPredicates.reflection().onConstructorInvocation(fooConstructor))
+                .accepts(generationContext.getRuntimeHints());
+        freshContext.close();
+      });
+    }
+
+    @Test
+    @CompileWithForkedClassLoader
+    void applyToWhenIsPackagePrivateAndImportAware() {
+      BeanFactoryInitializationAotContribution contribution = getContribution(CommonAnnotationBeanPostProcessor.class,
+              PackagePrivateAndImportAwareConfiguration.class);
+      assertThat(contribution).isNotNull();
+      contribution.applyTo(generationContext, beanFactoryInitializationCode);
+      compile((initializer, compiled) -> {
+        GenericApplicationContext freshContext = new GenericApplicationContext();
+        initializer.accept(freshContext);
+        freshContext.refresh();
+        assertThat(freshContext.getBean(ClassNameHolder.class).className())
+                .isEqualTo(PackagePrivateAndImportAwareConfiguration.class.getName());
+        freshContext.close();
+      });
+    }
+
+    @SuppressWarnings("unchecked")
     private void compile(BiConsumer<Consumer<GenericApplicationContext>, Compiled> result) {
       MethodReference methodReference = beanFactoryInitializationCode.getInitializers().get(0);
       beanFactoryInitializationCode.getTypeBuilder().set(type -> {
@@ -573,7 +608,7 @@ public class ConfigurationClassPostProcessorAotContributionTests {
     }
 
     @Import(ImportAwareBeanRegistrar.class)
-    public static class ImportAwareBeanRegistrarConfiguration {
+    public static class ImportAwareConfiguration {
     }
 
     public static class ImportAwareBeanRegistrar implements BeanRegistrar, ImportAware {
@@ -591,9 +626,39 @@ public class ConfigurationClassPostProcessorAotContributionTests {
       public void setImportMetadata(AnnotationMetadata importMetadata) {
         this.importMetadata = importMetadata;
       }
+    }
 
-      public @Nullable AnnotationMetadata getImportMetadata() {
-        return this.importMetadata;
+    @Configuration
+    @Import(PackagePrivateBeanRegistrar.class)
+    static class PackagePrivateConfiguration {
+    }
+
+    static class PackagePrivateBeanRegistrar implements BeanRegistrar {
+
+      @Override
+      public void register(BeanRegistry registry, Environment env) {
+        registry.registerBean(Foo.class);
+      }
+    }
+
+    @Import(PackagePrivateAndImportAwareBeanRegistrar.class)
+    static class PackagePrivateAndImportAwareConfiguration {
+    }
+
+    static class PackagePrivateAndImportAwareBeanRegistrar implements BeanRegistrar, ImportAware {
+
+      @Nullable
+      private AnnotationMetadata importMetadata;
+
+      @Override
+      public void register(BeanRegistry registry, Environment env) {
+        registry.registerBean(ClassNameHolder.class, spec -> spec.supplier(context ->
+                new ClassNameHolder(this.importMetadata == null ? null : this.importMetadata.getClassName())));
+      }
+
+      @Override
+      public void setImportMetadata(AnnotationMetadata importMetadata) {
+        this.importMetadata = importMetadata;
       }
     }
 
@@ -612,8 +677,7 @@ public class ConfigurationClassPostProcessorAotContributionTests {
 
   }
 
-  @Nullable
-  private BeanFactoryInitializationAotContribution getContribution(Class<?>... types) {
+  private @Nullable BeanFactoryInitializationAotContribution getContribution(Class<?>... types) {
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     for (Class<?> type : types) {
       beanFactory.registerBeanDefinition(type.getName(), new RootBeanDefinition(type));
@@ -632,7 +696,6 @@ public class ConfigurationClassPostProcessorAotContributionTests {
   public record ClassNameHolder(@Nullable String className) { }
 
   static class CustomPropertySourcesFactory extends DefaultPropertySourceFactory {
-
   }
 
 }
