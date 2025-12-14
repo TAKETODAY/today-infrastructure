@@ -2017,7 +2017,7 @@ class MergedAnnotationsTests {
             .startsWith("@infra.core.annotation.MergedAnnotationsTests.RequestMapping(")
             .contains(
                     // Strings
-                    "value=[/test]", "path=[/test]", "name=bar",
+                    "value=['/test']", "path=['/test']", "name='bar'",
                     // Characters
                     "ch='X'", "chars=['X']",
                     // Enums
