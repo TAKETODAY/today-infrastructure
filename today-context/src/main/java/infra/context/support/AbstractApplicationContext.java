@@ -578,6 +578,16 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
         logger.warn("Exception encountered during context initialization - cancelling refresh attempt: {}",
                 ex.toString());
 
+        // Stop already started Lifecycle beans to avoid dangling resources.
+        if (this.lifecycleProcessor != null && this.lifecycleProcessor.isRunning()) {
+          try {
+            this.lifecycleProcessor.stop();
+          }
+          catch (Throwable ex2) {
+            logger.warn("Exception thrown from LifecycleProcessor on cancelled refresh", ex2);
+          }
+        }
+
         // Destroy already created singletons to avoid dangling resources.
         destroyBeans();
 
