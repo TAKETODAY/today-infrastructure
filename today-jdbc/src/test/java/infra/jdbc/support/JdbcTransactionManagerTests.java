@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,9 +26,7 @@ import javax.sql.DataSource;
 
 import infra.dao.ConcurrencyFailureException;
 import infra.jdbc.datasource.DataSourceTransactionManagerTests;
-import infra.transaction.TransactionExecution;
 import infra.transaction.TransactionSystemException;
-import infra.transaction.support.TransactionCallbackWithoutResult;
 import infra.transaction.support.TransactionSynchronizationManager;
 import infra.transaction.support.TransactionTemplate;
 
@@ -52,13 +50,13 @@ public class JdbcTransactionManagerTests extends DataSourceTransactionManagerTes
 
   @Override
   @Test
-  public void testTransactionWithExceptionOnCommit() throws Exception {
+  protected void transactionWithExceptionOnCommit() throws Exception {
     willThrow(new SQLException("Cannot commit")).given(con).commit();
     TransactionTemplate tt = new TransactionTemplate(tm);
 
     // plain TransactionSystemException
     assertThatExceptionOfType(TransactionSystemException.class).isThrownBy(() ->
-            tt.execute((TransactionCallbackWithoutResult) status -> {
+            tt.executeWithoutResult(status -> {
               // something transactional
             }));
 
@@ -67,14 +65,14 @@ public class JdbcTransactionManagerTests extends DataSourceTransactionManagerTes
   }
 
   @Test
-  public void testTransactionWithDataAccessExceptionOnCommit() throws Exception {
+  void transactionWithDataAccessExceptionOnCommit() throws Exception {
     willThrow(new SQLException("Cannot commit")).given(con).commit();
     ((JdbcTransactionManager) tm).setExceptionTranslator((task, sql, ex) -> new ConcurrencyFailureException(task));
     TransactionTemplate tt = new TransactionTemplate(tm);
 
     // specific ConcurrencyFailureException
     assertThatExceptionOfType(ConcurrencyFailureException.class).isThrownBy(() ->
-            tt.execute((TransactionCallbackWithoutResult) status -> {
+            tt.executeWithoutResult(status -> {
               // something transactional
             }));
 
@@ -83,13 +81,13 @@ public class JdbcTransactionManagerTests extends DataSourceTransactionManagerTes
   }
 
   @Test
-  public void testTransactionWithDataAccessExceptionOnCommitFromLazyExceptionTranslator() throws Exception {
+  void transactionWithDataAccessExceptionOnCommitFromLazyExceptionTranslator() throws Exception {
     willThrow(new SQLException("Cannot commit", "40")).given(con).commit();
     TransactionTemplate tt = new TransactionTemplate(tm);
 
     // specific ConcurrencyFailureException
     assertThatExceptionOfType(ConcurrencyFailureException.class).isThrownBy(() ->
-            tt.execute((TransactionCallbackWithoutResult) status -> {
+            tt.executeWithoutResult(status -> {
               // something transactional
             }));
 
@@ -99,7 +97,7 @@ public class JdbcTransactionManagerTests extends DataSourceTransactionManagerTes
 
   @Override
   @Test
-  public void testTransactionWithExceptionOnCommitAndRollbackOnCommitFailure() throws Exception {
+  protected void transactionWithExceptionOnCommitAndRollbackOnCommitFailure() throws Exception {
     willThrow(new SQLException("Cannot commit")).given(con).commit();
 
     tm.setRollbackOnCommitFailure(true);
@@ -107,7 +105,7 @@ public class JdbcTransactionManagerTests extends DataSourceTransactionManagerTes
 
     // plain TransactionSystemException
     assertThatExceptionOfType(TransactionSystemException.class).isThrownBy(() ->
-            tt.execute((TransactionCallbackWithoutResult) status -> {
+            tt.executeWithoutResult(status -> {
               // something transactional
             }));
 
@@ -118,14 +116,14 @@ public class JdbcTransactionManagerTests extends DataSourceTransactionManagerTes
 
   @Override
   @Test
-  public void testTransactionWithExceptionOnRollback() throws Exception {
+  protected void transactionWithExceptionOnRollback() throws Exception {
     given(con.getAutoCommit()).willReturn(true);
     willThrow(new SQLException("Cannot rollback")).given(con).rollback();
     TransactionTemplate tt = new TransactionTemplate(tm);
 
     // plain TransactionSystemException
     assertThatExceptionOfType(TransactionSystemException.class).isThrownBy(() ->
-            tt.execute((TransactionCallbackWithoutResult) status -> {
+            tt.executeWithoutResult(status -> {
               assertThat(status.getTransactionName()).isEmpty();
               assertThat(status.hasTransaction()).isTrue();
               assertThat(status.isNewTransaction()).isTrue();
@@ -147,7 +145,7 @@ public class JdbcTransactionManagerTests extends DataSourceTransactionManagerTes
   }
 
   @Test
-  public void testTransactionWithDataAccessExceptionOnRollback() throws Exception {
+  void transactionWithDataAccessExceptionOnRollback() throws Exception {
     given(con.getAutoCommit()).willReturn(true);
     willThrow(new SQLException("Cannot rollback")).given(con).rollback();
     ((JdbcTransactionManager) tm).setExceptionTranslator((task, sql, ex) -> new ConcurrencyFailureException(task));
@@ -155,7 +153,7 @@ public class JdbcTransactionManagerTests extends DataSourceTransactionManagerTes
 
     // specific ConcurrencyFailureException
     assertThatExceptionOfType(ConcurrencyFailureException.class).isThrownBy(() ->
-            tt.execute((TransactionCallbackWithoutResult) TransactionExecution::setRollbackOnly));
+            tt.executeWithoutResult(status -> status.setRollbackOnly()));
 
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
     InOrder ordered = inOrder(con);
@@ -166,14 +164,14 @@ public class JdbcTransactionManagerTests extends DataSourceTransactionManagerTes
   }
 
   @Test
-  public void testTransactionWithDataAccessExceptionOnRollbackFromLazyExceptionTranslator() throws Exception {
+  void transactionWithDataAccessExceptionOnRollbackFromLazyExceptionTranslator() throws Exception {
     given(con.getAutoCommit()).willReturn(true);
     willThrow(new SQLException("Cannot rollback", "40")).given(con).rollback();
     TransactionTemplate tt = new TransactionTemplate(tm);
 
     // specific ConcurrencyFailureException
     assertThatExceptionOfType(ConcurrencyFailureException.class).isThrownBy(() ->
-            tt.execute((TransactionCallbackWithoutResult) status -> {
+            tt.executeWithoutResult(status -> {
               assertThat(status.getTransactionName()).isEmpty();
               assertThat(status.hasTransaction()).isTrue();
               assertThat(status.isNewTransaction()).isTrue();

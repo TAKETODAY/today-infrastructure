@@ -1725,7 +1725,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
     Class<?> dependencyType = descriptor.getDependencyType();
     if (Optional.class == dependencyType) {
-      return createOptionalDependency(descriptor, requestingBeanName);
+      return createOptionalDependency(descriptor, requestingBeanName, autowiredBeanNames, null);
     }
     else if (Supplier.class == dependencyType
             || ObjectProvider.class == dependencyType) {
@@ -2443,7 +2443,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   /**
    * Create an {@link Optional} wrapper for the specified dependency.
    */
-  private Optional<?> createOptionalDependency(DependencyDescriptor descriptor, @Nullable String beanName, final @Nullable Object @Nullable ... args) {
+  private Optional<?> createOptionalDependency(DependencyDescriptor descriptor, @Nullable String beanName,
+          @Nullable Set<String> autowiredBeanNames, final @Nullable Object @Nullable [] args) {
     DependencyDescriptor descriptorToUse = new NestedDependencyDescriptor(descriptor) {
 
       @Override
@@ -2468,7 +2469,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
     };
 
-    Object result = doResolveDependency(descriptorToUse, beanName, null, null);
+    Object result = doResolveDependency(descriptorToUse, beanName, autowiredBeanNames, null);
     return result instanceof Optional ? (Optional<?>) result : Optional.ofNullable(result);
   }
 
@@ -2687,50 +2688,43 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    */
   private class DependencyObjectProvider extends BeanObjectProvider<Object> {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+    private static final Object NOT_CACHEABLE = new Object();
 
-    @Nullable
-    private final String beanName;
+    private static final Object NULL_VALUE = new Object();
+
+    private final DependencyDescriptor descriptor;
 
     private final boolean optional;
 
-    private final DependencyDescriptor descriptor;
+    private final @Nullable String beanName;
+
+    private transient volatile @Nullable Object cachedValue;
 
     public DependencyObjectProvider(DependencyDescriptor descriptor, @Nullable String beanName) {
       super(true);
       this.beanName = beanName;
-      descriptor = new NestedDependencyDescriptor(descriptor);
-      this.optional = descriptor.getDependencyType() == Optional.class;
-      this.descriptor = descriptor;
+      this.descriptor = new NestedDependencyDescriptor(descriptor);
+      this.optional = this.descriptor.getDependencyType() == Optional.class;
     }
 
     @Override
     public Object get() throws BeansException {
-      if (this.optional) {
-        return createOptionalDependency(this.descriptor, this.beanName);
+      Object result = getValue();
+      if (result == null) {
+        throw new NoSuchBeanDefinitionException(this.descriptor.getResolvableType());
       }
-      else {
-        Object result = doResolveDependency(this.descriptor, this.beanName, null, null);
-        if (result == null) {
-          throw new NoSuchBeanDefinitionException(this.descriptor.getResolvableType());
-        }
-        return result;
-      }
+      return result;
     }
 
     @Override
-    public Object get(@Nullable Object... args) throws BeansException {
+    public Object get(final @Nullable Object... args) throws BeansException {
       if (this.optional) {
-        return createOptionalDependency(this.descriptor, this.beanName, args);
+        return createOptionalDependency(this.descriptor, this.beanName, null, args);
       }
       else {
         DependencyDescriptor descriptorToUse = new DependencyDescriptor(this.descriptor) {
-
           @Override
-          @Nullable
-          @SuppressWarnings("NullAway")
-          public Object resolveCandidate(String beanName, Class<?> requiredType, BeanFactory beanFactory) {
+          public @Nullable Object resolveCandidate(String beanName, Class<?> requiredType, BeanFactory beanFactory) {
             return beanFactory.getBean(beanName, args);
           }
         };
@@ -2743,11 +2737,10 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     }
 
     @Override
-    @Nullable
-    public Object getIfAvailable() throws BeansException {
+    public @Nullable Object getIfAvailable() throws BeansException {
       try {
         if (this.optional) {
-          return createOptionalDependency(this.descriptor, this.beanName);
+          return createOptionalDependency(this.descriptor, this.beanName, null, null);
         }
         else {
           DependencyDescriptor descriptorToUse = new DependencyDescriptor(this.descriptor) {
@@ -2787,8 +2780,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     }
 
     @Override
-    @Nullable
-    public Object getIfUnique() throws BeansException {
+    public @Nullable Object getIfUnique() throws BeansException {
       DependencyDescriptor descriptorToUse = new DependencyDescriptor(this.descriptor) {
         @Override
         public boolean isRequired() {
@@ -2796,8 +2788,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         }
 
         @Override
-        @Nullable
-        public Object resolveNotUnique(ResolvableType type, Map<String, Object> matchingBeans) {
+        public @Nullable Object resolveNotUnique(ResolvableType type, Map<String, Object> matchingBeans) {
           return null;
         }
 
@@ -2809,7 +2800,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       };
       try {
         if (this.optional) {
-          return createOptionalDependency(descriptorToUse, this.beanName);
+          return createOptionalDependency(descriptorToUse, this.beanName, null, null);
         }
         else {
           return doResolveDependency(descriptorToUse, this.beanName, null, null);
@@ -2836,13 +2827,42 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       return false;
     }
 
-    @Nullable
-    protected Object getValue() throws BeansException {
+    protected @Nullable Object getValue() throws BeansException {
+      Object value = this.cachedValue;
+      if (value == null) {
+        if (isConfigurationFrozen()) {
+          var autowiredBeanNames = new LinkedHashSet<String>(2);
+          value = resolveValue(autowiredBeanNames);
+          boolean cacheable = false;
+          if (!autowiredBeanNames.isEmpty()) {
+            cacheable = true;
+            for (String autowiredBeanName : autowiredBeanNames) {
+              if (!containsBean(autowiredBeanName) || !isSingleton(autowiredBeanName)) {
+                cacheable = false;
+              }
+            }
+          }
+          this.cachedValue = cacheable ? (value != null ? value : NULL_VALUE) : NOT_CACHEABLE;
+          return value;
+        }
+      }
+      else if (value == NULL_VALUE) {
+        return null;
+      }
+      else if (value != NOT_CACHEABLE) {
+        return value;
+      }
+
+      // Not cacheable -> fresh resolution.
+      return resolveValue(null);
+    }
+
+    private @Nullable Object resolveValue(@Nullable Set<String> autowiredBeanNames) {
       if (this.optional) {
-        return createOptionalDependency(this.descriptor, this.beanName);
+        return createOptionalDependency(this.descriptor, this.beanName, autowiredBeanNames, null);
       }
       else {
-        return doResolveDependency(this.descriptor, this.beanName, null, null);
+        return doResolveDependency(this.descriptor, this.beanName, autowiredBeanNames, null);
       }
     }
 
@@ -2856,7 +2876,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       return resolveStream(true);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private Stream<Object> resolveStream(boolean ordered) {
       DependencyDescriptor descriptorToUse = new StreamDependencyDescriptor(descriptor, ordered);
       Object result = doResolveDependency(descriptorToUse, this.beanName, null, null);
@@ -2899,9 +2919,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       }
 
       @Override
-      @Nullable
-      @SuppressWarnings("NullAway")
-      public Object get() throws BeansException {
+      public @Nullable Object get() throws BeansException {
         return getValue();
       }
     }

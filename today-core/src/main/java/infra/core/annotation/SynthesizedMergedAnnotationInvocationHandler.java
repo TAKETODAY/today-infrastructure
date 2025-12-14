@@ -31,6 +31,8 @@ import java.util.NoSuchElementException;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 
+import static infra.core.annotation.AttributeMethods.getName;
+
 /**
  * {@link InvocationHandler} for an {@link Annotation} that has
  * <em>synthesized</em> (i.e. wrapped in a dynamic proxy) with additional
@@ -140,7 +142,7 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
       synchronized(this) {
         string = this.string;
         if (string == null) {
-          StringBuilder builder = new StringBuilder("@").append(AttributeMethods.getName(type)).append('(');
+          StringBuilder builder = new StringBuilder("@").append(getName(type)).append('(');
           Method[] attributes = attributeMethods.attributes;
           for (int i = 0; i < attributes.length; i++) {
             Method attribute = attributes[i];
@@ -175,28 +177,8 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
    * @return the formatted string representation
    */
   private String toString(Object value) {
-    if (value instanceof Character) {
-      return '\'' + value.toString() + '\'';
-    }
-    if (value instanceof Byte) {
-      return String.format("(byte) 0x%02X", value);
-    }
-    if (value instanceof Long longValue) {
-      return Long.toString(longValue) + 'L';
-    }
-    if (value instanceof Float floatValue) {
-      return Float.toString(floatValue) + 'f';
-    }
-    if (value instanceof Double doubleValue) {
-      return Double.toString(doubleValue) + 'd';
-    }
-    if (value instanceof Enum<?> e) {
-      return e.name();
-    }
-    if (value instanceof Class<?> clazz) {
-      return AttributeMethods.getName(clazz) + ".class";
-    }
-    if (value.getClass().isArray()) {
+    Class<?> type = value.getClass();
+    if (type.isArray()) {
       StringBuilder builder = new StringBuilder("[");
       int length = Array.getLength(value);
       for (int i = 0; i < length; i++) {
@@ -207,6 +189,30 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
       }
       builder.append(']');
       return builder.toString();
+    }
+    if (type == String.class) {
+      return '\'' + ((String) value) + '\'';
+    }
+    if (type == Character.class) {
+      return '\'' + value.toString() + '\'';
+    }
+    if (type == Byte.class) {
+      return String.format("(byte) 0x%02X", value);
+    }
+    if (type == Long.class) {
+      return Long.toString((Long) value) + 'L';
+    }
+    if (type == Float.class) {
+      return Float.toString((Float) value) + 'f';
+    }
+    if (type == Double.class) {
+      return Double.toString((Double) value) + 'd';
+    }
+    if (value instanceof Enum<?> e) {
+      return e.name();
+    }
+    if (type == Class.class) {
+      return getName((Class<?>) value) + ".class";
     }
     return String.valueOf(value);
   }
@@ -221,7 +227,7 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
           value = annotation.getAttributeValue(method.getName(), type);
           if (value == null) {
             throw new NoSuchElementException("No value found for attribute named '%s' in merged annotation %s"
-                    .formatted(method.getName(), AttributeMethods.getName(this.annotation.getType())));
+                    .formatted(method.getName(), getName(this.annotation.getType())));
           }
           valueCache.put(method.getName(), value);
         }

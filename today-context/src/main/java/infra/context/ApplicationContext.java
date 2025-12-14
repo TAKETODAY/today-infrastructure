@@ -121,10 +121,9 @@ public interface ApplicationContext extends HierarchicalBeanFactory, MessageSour
   /**
    * Return the unique id of this application context.
    *
-   * @return the unique id of the context, or {@code null} if none
+   * @return the unique id of the context
    * @since 4.0
    */
-  @Nullable
   String getId();
 
   /**

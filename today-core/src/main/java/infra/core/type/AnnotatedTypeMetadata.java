@@ -45,6 +45,14 @@ import infra.util.MultiValueMap;
  * class loading of the types being inspected. Note, however, that classes for
  * encountered annotations will be loaded.
  *
+ * <p><strong>WARNING</strong>: If an annotation cannot be loaded because one of
+ * its attributes references a {@link Class} or {@link Enum}
+ * {@linkplain TypeNotPresentException that is not present in the classpath}, that
+ * annotation will not be accessible via the {@code AnnotatedTypeMetadata} API.
+ * To assist with diagnosing such scenarios, you can set the log level for
+ * {@code "infra.core.annotation.MergedAnnotation"} to {@code DEBUG},
+ * {@code INFO}, or {@code WARN}.
+ *
  * @author Juergen Hoeller
  * @author Mark Fisher
  * @author Mark Pollack

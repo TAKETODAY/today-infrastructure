@@ -51,4 +51,9 @@ public class NoOpCacheManager implements CacheManager {
     return Collections.unmodifiableSet(this.cacheMap.keySet());
   }
 
+  @Override
+  public void resetCaches() {
+    this.cacheMap.clear();
+  }
+
 }

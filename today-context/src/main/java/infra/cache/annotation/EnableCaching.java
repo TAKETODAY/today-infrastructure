@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -182,11 +182,17 @@ public @interface EnableCaching {
    * to standard Java interface-based proxies. The default is {@code false}. <strong>
    * Applicable only if {@link #mode()} is set to {@link AdviceMode#PROXY}</strong>.
    * <p>Note that setting this attribute to {@code true} will affect <em>all</em>
-   * Framework-managed beans requiring proxying, not just those marked with {@code @Cacheable}.
-   * For example, other beans marked with Framework's {@code @Transactional} annotation will
+   * Infra-managed beans requiring proxying, not just those marked with {@code @Cacheable}.
+   * For example, other beans marked with Infra {@code @Transactional} annotation will
    * be upgraded to subclass proxying at the same time. This approach has no negative
    * impact in practice unless one is explicitly expecting one type of proxy vs another,
-   * e.g. in tests.
+   * for example, in tests.
+   * <p>It is usually recommendable to rely on a global default proxy configuration
+   * instead, with specific proxy requirements for certain beans expressed through
+   * a {@link infra.context.annotation.Proxyable} annotation on
+   * the affected bean classes.
+   *
+   * @see infra.aop.config.AopConfigUtils#forceAutoProxyCreatorToUseClassProxying
    */
   boolean proxyTargetClass() default false;
 

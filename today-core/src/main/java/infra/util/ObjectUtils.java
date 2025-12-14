@@ -500,31 +500,33 @@ public abstract class ObjectUtils {
    * @see java.util.Arrays#equals
    */
   private static boolean arrayEquals(Object o1, Object o2) {
-    if (o1 instanceof Object[] && o2 instanceof Object[]) {
-      return Arrays.equals((Object[]) o1, (Object[]) o2);
+    if (o1 instanceof Object[] objects1 && o2 instanceof Object[] objects2) {
+      return Arrays.equals(objects1, objects2);
     }
-    if (o1 instanceof boolean[] && o2 instanceof boolean[]) {
+    Class<?> type1 = o1.getClass();
+    Class<?> type2 = o2.getClass();
+    if (type1 == boolean[].class && type2 == boolean[].class) {
       return Arrays.equals((boolean[]) o1, (boolean[]) o2);
     }
-    if (o1 instanceof byte[] && o2 instanceof byte[]) {
+    if (type1 == byte[].class && type2 == byte[].class) {
       return Arrays.equals((byte[]) o1, (byte[]) o2);
     }
-    if (o1 instanceof char[] && o2 instanceof char[]) {
+    if (type1 == char[].class && type2 == char[].class) {
       return Arrays.equals((char[]) o1, (char[]) o2);
     }
-    if (o1 instanceof double[] && o2 instanceof double[]) {
+    if (type1 == double[].class && type2 == double[].class) {
       return Arrays.equals((double[]) o1, (double[]) o2);
     }
-    if (o1 instanceof float[] && o2 instanceof float[]) {
+    if (type1 == float[].class && type2 == float[].class) {
       return Arrays.equals((float[]) o1, (float[]) o2);
     }
-    if (o1 instanceof int[] && o2 instanceof int[]) {
+    if (type1 == int[].class && type2 == int[].class) {
       return Arrays.equals((int[]) o1, (int[]) o2);
     }
-    if (o1 instanceof long[] && o2 instanceof long[]) {
+    if (type1 == long[].class && type2 == long[].class) {
       return Arrays.equals((long[]) o1, (long[]) o2);
     }
-    if (o1 instanceof short[] && o2 instanceof short[]) {
+    if (type1 == short[].class && type2 == short[].class) {
       return Arrays.equals((short[]) o1, (short[]) o2);
     }
     return false;

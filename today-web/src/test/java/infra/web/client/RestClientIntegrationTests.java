@@ -1306,6 +1306,28 @@ class RestClientIntegrationTests {
             .isInstanceOf(HttpClientErrorException.BadRequest.class);
   }
 
+  @ParameterizedRestClientTest
+  void sendNullHeaderValue(ClientHttpRequestFactory requestFactory) throws IOException {
+    startServer(requestFactory);
+
+    prepareResponse(builder -> builder
+            .setHeader("Content-Type", "text/plain").setBody("Hello!"));
+
+    String result = this.restClient.get()
+            .uri("/greeting")
+            .httpRequest(request -> request.getHeaders().add("X-Test-Header", null))
+            .retrieve()
+            .body(String.class);
+
+    assertThat(result).isEqualTo("Hello!");
+
+    expectRequestCount(1);
+    expectRequest(request -> {
+      assertThat(request.getHeaders().get("X-Test-Header")).isNullOrEmpty();
+      assertThat(request.getPath()).isEqualTo("/greeting");
+    });
+  }
+
   private void prepareResponse(Consumer<MockResponse> consumer) {
     MockResponse response = new MockResponse();
     consumer.accept(response);

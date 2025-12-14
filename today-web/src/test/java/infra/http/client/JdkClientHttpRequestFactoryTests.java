@@ -21,6 +21,10 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.net.URI;
@@ -39,17 +43,16 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class JdkClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryTests {
 
-  @Nullable
-  private static String originalPropertyValue;
+  private static @Nullable String originalPropertyValue;
 
   @BeforeAll
-  public static void setProperty() {
+  static void setProperty() {
     originalPropertyValue = System.getProperty("jdk.httpclient.allowRestrictedHeaders");
     System.setProperty("jdk.httpclient.allowRestrictedHeaders", "expect");
   }
 
   @AfterAll
-  public static void restoreProperty() {
+  static void restoreProperty() {
     if (originalPropertyValue != null) {
       System.setProperty("jdk.httpclient.allowRestrictedHeaders", originalPropertyValue);
     }
@@ -65,15 +68,16 @@ class JdkClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryTests {
 
   @Override
   @Test
-  public void httpMethods() throws Exception {
+  void httpMethods() throws Exception {
     super.httpMethods();
     assertHttpMethod("patch", HttpMethod.PATCH);
   }
 
   @Test
-  public void customizeDisallowedHeaders() throws IOException {
-    ClientHttpRequest request = this.factory.createRequest(URI.create(this.baseUrl + "/status/299"), HttpMethod.PUT);
-    request.getHeaders().setOrRemove("Expect", "299");
+  void customizeDisallowedHeaders() throws IOException {
+    URI uri = URI.create(this.baseUrl + "/status/299");
+    ClientHttpRequest request = this.factory.createRequest(uri, HttpMethod.PUT);
+    request.getHeaders().set("Expect", "299");
 
     try (ClientHttpResponse response = request.execute()) {
       assertThat(response.getStatusCode()).as("Invalid status code").isEqualTo(HttpStatusCode.valueOf(299));
@@ -82,11 +86,23 @@ class JdkClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryTests {
 
   @Test
   public void contentLength0() throws IOException {
-    BufferingClientHttpRequestFactory bufferingFactory = new BufferingClientHttpRequestFactory(this.factory);
-    ClientHttpRequest request = bufferingFactory.createRequest(URI.create(this.baseUrl + "/methods/get"), HttpMethod.GET);
+    URI uri = URI.create(this.baseUrl + "/methods/get");
+    ClientHttpRequest request =
+            new BufferingClientHttpRequestFactory(this.factory).createRequest(uri, HttpMethod.GET);
 
     try (ClientHttpResponse response = request.execute()) {
       assertThat(response.getStatusCode()).as("Invalid response status").isEqualTo(HttpStatus.OK);
+    }
+  }
+
+  @Test
+  void deleteRequestWithBody() throws Exception {
+    URI uri = URI.create(baseUrl + "/echo");
+    ClientHttpRequest request = this.factory.createRequest(uri, HttpMethod.DELETE);
+    StreamUtils.copy("body", StandardCharsets.UTF_8, request.getBody());
+    try (ClientHttpResponse response = request.execute()) {
+      assertThat(response.getStatusCode()).as("Invalid response status").isEqualTo(HttpStatus.OK);
+      assertThat(response.getBody()).as("Invalid request body").hasContent("body");
     }
   }
 
@@ -118,7 +134,9 @@ class JdkClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryTests {
     try (ClientHttpResponse response = request.execute()) {
       assertThat(response.getStatusCode()).as("Invalid response status").isEqualTo(HttpStatus.OK);
       assertThat(response.getHeaders().getFirst("Content-Encoding"))
-              .as("Invalid content encoding").isEqualTo("gzip");
+              .as("Content Encoding should be removed").isNull();
+      assertThat(response.getHeaders().getFirst("Content-Length"))
+              .as("Content-Length should be removed").isNull();
       assertThat(response.getBody()).as("Invalid request body").hasContent("Payload to compress");
     }
   }
@@ -133,8 +151,44 @@ class JdkClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryTests {
     try (ClientHttpResponse response = request.execute()) {
       assertThat(response.getStatusCode()).as("Invalid response status").isEqualTo(HttpStatus.OK);
       assertThat(response.getHeaders().getFirst("Content-Encoding"))
-              .as("Invalid content encoding").isEqualTo("deflate");
+              .as("Content Encoding should be removed").isNull();
+      assertThat(response.getHeaders().getFirst("Content-Length"))
+              .as("Content-Length should be removed").isNull();
       assertThat(response.getBody()).as("Invalid request body").hasContent("Payload to compress");
+    }
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = { "gzip", "deflate" })
+  void gzipCompressionWithHeadRequest(String compression) throws IOException {
+    URI uri = URI.create(baseUrl + "/headforcompress/" + compression);
+    JdkClientHttpRequestFactory requestFactory = (JdkClientHttpRequestFactory) this.factory;
+    requestFactory.enableCompression(true);
+    ClientHttpRequest request = requestFactory.createRequest(uri, HttpMethod.HEAD);
+    try (ClientHttpResponse response = request.execute()) {
+      assertThat(response.getStatusCode()).as("Invalid response status").isEqualTo(HttpStatus.OK);
+      assertThat(response.getHeaders().getFirst("Content-Encoding"))
+              .as("Content Encoding should be removed").isNull();
+      assertThat(response.getHeaders().getFirst("Content-Length"))
+              .as("Content-Length should be removed").isNull();
+      assertThat(response.getBody()).as("Invalid response body").isEmpty();
+    }
+  }
+
+  @Test
+  @EnabledForJreRange(min = JRE.JAVA_19)
+  void requestContentLengthHeaderWhenNoBody() throws Exception {
+    URI uri = URI.create(baseUrl + "/header/Content-Length");
+    assertNoContentLength(uri, HttpMethod.GET);
+    assertNoContentLength(uri, HttpMethod.DELETE);
+  }
+
+  protected void assertNoContentLength(URI uri, HttpMethod method) throws Exception {
+    ClientHttpRequest request = factory.createRequest(uri, method);
+    try (ClientHttpResponse response = request.execute()) {
+      assertThat(response.getStatusCode()).as("Invalid response status").isEqualTo(HttpStatus.OK);
+      assertThat(StreamUtils.copyToString(response.getBody(), StandardCharsets.ISO_8859_1))
+              .as("Invalid Content-Length request header").isEqualTo("Content-Length:null");
     }
   }
 
