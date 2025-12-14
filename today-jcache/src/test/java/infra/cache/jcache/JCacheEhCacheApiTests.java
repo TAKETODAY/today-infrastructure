@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.cache.jcache;
@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Stephane Nicoll
  */
-public class JCacheEhCacheApiTests extends AbstractValueAdaptingCacheTests<JCacheCache> {
+class JCacheEhCacheApiTests extends AbstractValueAdaptingCacheTests<JCacheCache> {
 
   private CacheManager cacheManager;
 
@@ -45,14 +45,13 @@ public class JCacheEhCacheApiTests extends AbstractValueAdaptingCacheTests<JCach
   private JCacheCache cacheNoNull;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     this.cacheManager = getCachingProvider().getCacheManager();
     this.cacheManager.createCache(CACHE_NAME, new MutableConfiguration<>());
     this.cacheManager.createCache(CACHE_NAME_NO_NULL, new MutableConfiguration<>());
     this.nativeCache = this.cacheManager.getCache(CACHE_NAME);
     this.cache = new JCacheCache(this.nativeCache);
-    Cache<Object, Object> nativeCacheNoNull =
-            this.cacheManager.getCache(CACHE_NAME_NO_NULL);
+    Cache<Object, Object> nativeCacheNoNull = this.cacheManager.getCache(CACHE_NAME_NO_NULL);
     this.cacheNoNull = new JCacheCache(nativeCacheNoNull, false);
   }
 
@@ -61,7 +60,7 @@ public class JCacheEhCacheApiTests extends AbstractValueAdaptingCacheTests<JCach
   }
 
   @AfterEach
-  public void shutdown() {
+  void shutdown() {
     if (this.cacheManager != null) {
       this.cacheManager.close();
     }
@@ -98,6 +97,20 @@ public class JCacheEhCacheApiTests extends AbstractValueAdaptingCacheTests<JCach
     assertThat(wrapper.get()).isNull();
     // not changed
     assertThat(cache.get(key).get()).isEqualTo(value);
+  }
+
+  @Test
+  void resetCaches() {
+    JCacheCacheManager cm = new JCacheCacheManager(cacheManager);
+    var cache = cm.getCache(CACHE_NAME);
+    cache.put("key", "value");
+    assertThat(cm.getCacheNames()).contains(CACHE_NAME);
+    assertThat(cm.getCache(CACHE_NAME)).isNotNull().isSameAs(cache);
+    assertThat(cacheManager.getCache(CACHE_NAME).iterator()).hasNext();
+    cm.resetCaches();
+    assertThat(cm.getCacheNames()).contains(CACHE_NAME);
+    assertThat(cm.getCache(CACHE_NAME)).isNotNull().isSameAs(cache);
+    assertThat(cacheManager.getCache(CACHE_NAME).iterator()).isExhausted();
   }
 
 }
