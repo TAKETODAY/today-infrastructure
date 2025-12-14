@@ -47,7 +47,7 @@ class JdkClientHttpResponse extends AbstractClientHttpResponse {
           DataBufferFactory bufferFactory, MultiValueMap<String, ResponseCookie> cookies) {
 
     super(HttpStatusCode.valueOf(response.statusCode()),
-            HttpHeaders.fromResponse(response), cookies, adaptBody(response, bufferFactory));
+            HttpHeaders.copyOf(response.headers().map()).asReadOnly(), cookies, adaptBody(response, bufferFactory));
   }
 
   private static Flux<DataBuffer> adaptBody(HttpResponse<Flow.Publisher<List<ByteBuffer>>> response, DataBufferFactory bufferFactory) {

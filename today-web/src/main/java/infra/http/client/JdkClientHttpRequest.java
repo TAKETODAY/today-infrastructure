@@ -22,13 +22,16 @@ import org.jspecify.annotations.Nullable;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PushbackInputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.net.http.HttpResponse.BodySubscriber;
 import java.net.http.HttpResponse.BodySubscribers;
+import java.net.http.HttpResponse.ResponseInfo;
 import java.net.http.HttpTimeoutException;
 import java.nio.ByteBuffer;
 import java.time.Duration;
@@ -59,6 +62,7 @@ import infra.util.concurrent.Future;
  *
  * @author Marten Deinum
  * @author Arjen Poutsma
+ * @author Brian Clozel
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
@@ -118,11 +122,11 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
         timeoutHandler = new TimeoutHandler(responseFuture, this.timeout);
         HttpResponse<InputStream> response = responseFuture.get();
         InputStream inputStream = timeoutHandler.wrapInputStream(response);
-        return new JdkClientHttpResponse(response, inputStream);
+        return createHttpResponse(response, inputStream);
       }
       else {
         HttpResponse<InputStream> response = responseFuture.get();
-        return new JdkClientHttpResponse(response, response.body());
+        return createHttpResponse(response, response.body());
       }
     }
     catch (InterruptedException ex) {
@@ -168,7 +172,7 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
     if (timeout != null) {
       responseFuture = responseFuture.timeout(timeout);
     }
-    return responseFuture.map(JdkClientHttpResponse::new);
+    return responseFuture.map(response -> createHttpResponse(response, response.body()));
   }
 
   private HttpRequest buildRequest(HttpHeaders headers, @Nullable Body body) {
@@ -185,7 +189,7 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
       String headerName = entry.getKey();
       if (!DISALLOWED_HEADERS.contains(headerName.toLowerCase(Locale.ROOT))) {
         for (String headerValue : entry.getValue()) {
-          builder.header(headerName, headerValue);
+          builder.header(headerName, (headerValue != null) ? headerValue : "");
         }
       }
     }
@@ -244,6 +248,20 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
     return Collections.unmodifiableSet(headers);
   }
 
+  private JdkClientHttpResponse createHttpResponse(HttpResponse<InputStream> response, @Nullable InputStream body) {
+    HttpHeaders headers = HttpHeaders.copyOf(response.headers().map());
+
+    if (this.compression) {
+      String encoding = headers.getFirst(HttpHeaders.CONTENT_ENCODING);
+      if (encoding != null && SUPPORTED_ENCODINGS.contains(encoding)) {
+        headers.remove(HttpHeaders.CONTENT_ENCODING);
+        headers.remove(HttpHeaders.CONTENT_LENGTH);
+      }
+    }
+
+    return new JdkClientHttpResponse(response, headers.asReadOnly(), body);
+  }
+
   private static final class ByteBufferMapper implements OutputStreamPublisher.ByteMapper<ByteBuffer> {
 
     @Override
@@ -296,8 +314,7 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
       });
     }
 
-    @Nullable
-    public InputStream wrapInputStream(HttpResponse<InputStream> response) {
+    public @Nullable InputStream wrapInputStream(HttpResponse<@Nullable InputStream> response) {
       InputStream body = response.body();
       if (body == null) {
         return null;
@@ -327,26 +344,55 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
   private static final class DecompressingBodyHandler implements HttpResponse.BodyHandler<InputStream> {
 
     @Override
-    public HttpResponse.BodySubscriber<InputStream> apply(HttpResponse.ResponseInfo responseInfo) {
-      String contentEncoding = responseInfo.headers().firstValue(HttpHeaders.CONTENT_ENCODING).orElse(null);
-      if (contentEncoding != null) {
-        if (contentEncoding.equalsIgnoreCase("gzip")) {
-          return BodySubscribers.mapping(BodySubscribers.ofInputStream(),
-                  (InputStream is) -> {
-                    try {
-                      return new GZIPInputStream(is);
-                    }
-                    catch (IOException ex) {
-                      throw new UncheckedIOException(ex);
-                    }
-                  });
+    public BodySubscriber<InputStream> apply(ResponseInfo responseInfo) {
+      String contentEncoding = responseInfo.headers()
+              .firstValue(HttpHeaders.CONTENT_ENCODING)
+              .orElse("")
+              .toLowerCase(Locale.ROOT);
+
+      return switch (contentEncoding) {
+        case "gzip", "deflate" -> BodySubscribers.mapping(
+                BodySubscribers.ofInputStream(),
+                (InputStream is) -> decompressStream(is, contentEncoding));
+        default -> BodySubscribers.ofInputStream();
+      };
+    }
+
+    private static InputStream decompressStream(InputStream original, String contentEncoding) {
+      PushbackInputStream wrapped = new PushbackInputStream(original);
+      try {
+        if (hasResponseBody(wrapped)) {
+          if (contentEncoding.equals("gzip")) {
+            return new GZIPInputStream(wrapped);
+          }
+          else if (contentEncoding.equals("deflate")) {
+            return new InflaterInputStream(wrapped);
+          }
         }
-        else if (contentEncoding.equalsIgnoreCase("deflate")) {
-          return BodySubscribers.mapping(BodySubscribers.ofInputStream(), InflaterInputStream::new);
+        else {
+          return wrapped;
         }
       }
+      catch (IOException ex) {
+        throw new UncheckedIOException(ex);
+      }
+      return wrapped;
+    }
 
-      return BodySubscribers.ofInputStream();
+    private static boolean hasResponseBody(PushbackInputStream inputStream) {
+      try {
+        int b = inputStream.read();
+        if (b == -1) {
+          return false;
+        }
+        else {
+          inputStream.unread(b);
+          return true;
+        }
+      }
+      catch (IOException exc) {
+        return false;
+      }
     }
   }
 

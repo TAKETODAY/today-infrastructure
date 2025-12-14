@@ -23,7 +23,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
@@ -51,7 +50,6 @@ import infra.lang.Assert;
 import infra.lang.Modifiable;
 import infra.lang.Unmodifiable;
 import infra.util.CollectionUtils;
-import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
@@ -2124,22 +2122,6 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
     HttpHeaders result = HttpHeaders.forWritable();
     result.addAll(targetMap);
     return result;
-  }
-
-  /**
-   * Adapt {@link java.net.http.HttpHeaders}
-   *
-   * @param response JDK {@link HttpResponse}
-   * @return HttpHeaders
-   * @since 5.0
-   */
-  @Unmodifiable
-  public static HttpHeaders fromResponse(HttpResponse<?> response) {
-    Map<String, List<String>> rawHeaders = response.headers().map();
-    Map<String, List<String>> map = new LinkedCaseInsensitiveMap<>(rawHeaders.size(), Locale.ROOT);
-    MultiValueMap<String, String> multiValueMap = MultiValueMap.forAdaption(map);
-    multiValueMap.putAll(rawHeaders);
-    return HttpHeaders.readOnlyHttpHeaders(multiValueMap);
   }
 
   // Package-private: used in ResponseCookie

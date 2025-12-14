@@ -111,7 +111,7 @@ public abstract class AbstractMockWebServerTests {
           String headerName = request.getPath().replace("/header/", "");
           return new MockResponse().setBody(headerName + ":" + request.getHeader(headerName)).setResponseCode(200);
         }
-        else if (request.getPath().startsWith("/compress/") && request.getBody() != null) {
+        else if (request.getMethod().equals("POST") && request.getPath().startsWith("/compress/") && request.getBody() != null) {
           String encoding = request.getPath().replace("/compress/", "");
           String requestBody = request.getBody().readUtf8();
           ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -137,7 +137,14 @@ public abstract class AbstractMockWebServerTests {
           response.setHeader(HttpHeaders.CONTENT_ENCODING, encoding);
           return response;
         }
-
+        else if (request.getMethod().equals("HEAD") && request.getPath().startsWith("/headforcompress/")) {
+          String encoding = request.getPath().replace("/headforcompress/", "");
+          MockResponse response = new MockResponse();
+          response.setHeader(HttpHeaders.CONTENT_LENGTH, 500);
+          response.setHeader(HttpHeaders.CONTENT_ENCODING, encoding);
+          response.setResponseCode(200);
+          return response;
+        }
         return new MockResponse().setResponseCode(404);
       }
       catch (Throwable exc) {
