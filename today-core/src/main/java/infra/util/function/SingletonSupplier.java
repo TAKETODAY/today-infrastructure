@@ -46,13 +46,14 @@ public class SingletonSupplier<T extends @Nullable Object> implements Supplier<T
   private final @Nullable Supplier<? extends @Nullable T> instanceSupplier;
 
   /**
-   * Guards access to write operations on the {@code singletonInstance} field.
+   * Guards access to write operations on the {@code singletonInstance} and
+   * {@code initialized} fields.
    */
-  private final ReentrantLock writeLock = new ReentrantLock();
+  private final ReentrantLock initializationLock = new ReentrantLock();
 
   private volatile @Nullable T singletonInstance;
 
-  private volatile boolean initialized;
+  private boolean initialized;
 
   /**
    * Build a {@code SingletonSupplier} with the given singleton instance
@@ -100,8 +101,12 @@ public class SingletonSupplier<T extends @Nullable Object> implements Supplier<T
   @Override
   public @Nullable T get() {
     T instance = this.singletonInstance;
-    if (!this.initialized) {
-      this.writeLock.lock();
+    if (instance == null) {
+      // Either not initialized yet, or a pre-initialized null value ->
+      // specific determination follows within full initialization lock.
+      // Pre-initialized null values are rare, so we accept the locking
+      // overhead in favor of a defensive fast path for non-null values.
+      this.initializationLock.lock();
       try {
         instance = this.singletonInstance;
         if (!this.initialized) {
@@ -116,7 +121,7 @@ public class SingletonSupplier<T extends @Nullable Object> implements Supplier<T
         }
       }
       finally {
-        this.writeLock.unlock();
+        this.initializationLock.unlock();
       }
     }
     return instance;
