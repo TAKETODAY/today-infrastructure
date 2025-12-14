@@ -442,7 +442,7 @@ abstract class AnnotationsScanner {
           Annotation annotation = annotations[i];
           //noinspection DataFlowIssue
           if (isIgnorable(annotation.annotationType()) ||
-                  !AttributeMethods.forAnnotationType(annotation.annotationType()).isValid(annotation)) {
+                  !AttributeMethods.forAnnotationType(annotation.annotationType()).isValid(annotation, source)) {
             annotations[i] = null;
           }
           else {

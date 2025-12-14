@@ -56,12 +56,24 @@ enum IntrospectionFailureLogger {
     public void log(String message) {
       getLogger().info(message);
     }
+  },
+
+  WARN {
+    @Override
+    public boolean isEnabled() {
+      return getLogger().isWarnEnabled();
+    }
+
+    @Override
+    public void log(String message) {
+      getLogger().warn(message);
+    }
   };
 
   @Nullable
   private static Logger logger;
 
-  void log(String message, @Nullable Object source, Exception ex) {
+  void log(String message, @Nullable Object source, Throwable ex) {
     String on = (source != null ? " on " + source : "");
     log(message + on + ": " + ex);
   }

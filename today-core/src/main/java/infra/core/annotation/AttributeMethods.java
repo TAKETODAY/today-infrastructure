@@ -20,6 +20,7 @@ package infra.core.annotation;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -38,6 +39,9 @@ import infra.util.ReflectionUtils;
  * @since 4.0
  */
 final class AttributeMethods {
+
+  private static final IntrospectionFailureLogger failureLogger = IntrospectionFailureLogger.WARN;
+
   static final AttributeMethods NONE = new AttributeMethods(null, Constant.EMPTY_METHODS);
 
   static final ConcurrentReferenceHashMap<Class<? extends Annotation>, AttributeMethods>
@@ -102,10 +106,11 @@ final class AttributeMethods {
    * {@code Class.getAnnotations() failure} on a regular JVM).
    *
    * @param annotation the annotation to check
+   * @param source the element that the supplied annotation is declared on
    * @return {@code true} if all values are present
    * @see #validate(Annotation)
    */
-  boolean isValid(Annotation annotation) {
+  boolean isValid(Annotation annotation, AnnotatedElement source) {
     assertAnnotation(annotation);
     Method[] attributes = this.attributes;
     for (int i = 0; i < attributes.length; i++) {
@@ -118,6 +123,10 @@ final class AttributeMethods {
         }
         catch (Throwable ex) {
           // TypeNotPresentException etc. -> annotation type not actually loadable.
+          if (failureLogger.isEnabled()) {
+            failureLogger.log("Failed to introspect meta-annotation @" +
+                    annotation.annotationType().getSimpleName(), source, ex);
+          }
           return false;
         }
       }
@@ -134,7 +143,7 @@ final class AttributeMethods {
    *
    * @param annotation the annotation to validate
    * @throws IllegalStateException if a declared {@code Class} attribute could not be read
-   * @see #isValid(Annotation)
+   * @see #isValid(Annotation, AnnotatedElement)
    */
   void validate(Annotation annotation) {
     assertAnnotation(annotation);

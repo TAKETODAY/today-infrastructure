@@ -115,7 +115,7 @@ class AttributeMethodsTests {
     ClassValue annotation = mockAnnotation(ClassValue.class);
     given(annotation.value()).willThrow(TypeNotPresentException.class);
     AttributeMethods attributes = AttributeMethods.forAnnotationType(annotation.annotationType());
-    assertThat(attributes.isValid(annotation)).isFalse();
+    assertThat(attributes.isValid(annotation, getClass())).isFalse();
   }
 
   @Test
@@ -124,7 +124,7 @@ class AttributeMethodsTests {
     ClassValue annotation = mock(ClassValue.class);
     given(annotation.value()).willReturn((Class) InputStream.class);
     AttributeMethods attributes = AttributeMethods.forAnnotationType(annotation.annotationType());
-    assertThat(attributes.isValid(annotation)).isTrue();
+    assertThat(attributes.isValid(annotation, getClass())).isTrue();
   }
 
   @Test
