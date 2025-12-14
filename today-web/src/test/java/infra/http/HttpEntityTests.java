@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Arjen Poutsma
  * @author TODAY 2021/4/15 14:24
  */
-public class HttpEntityTests {
+class HttpEntityTests {
 
   @Test
   public void noHeaders() {
@@ -101,6 +101,16 @@ public class HttpEntityTests {
     assertThat(responseEntity.equals(httpEntity)).isFalse();
     assertThat(responseEntity.equals(responseEntity2)).isTrue();
     assertThat(responseEntity2.equals(responseEntity)).isTrue();
+  }
+
+  @Test
+  void headerAreMutable() {
+    HttpHeaders headers = HttpHeaders.forWritable();
+    headers.setContentType(MediaType.TEXT_PLAIN);
+    String body = "foo";
+    HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
+    httpEntity.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+
   }
 
 }
