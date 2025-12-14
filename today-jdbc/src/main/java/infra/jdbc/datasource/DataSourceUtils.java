@@ -205,36 +205,55 @@ public abstract class DataSourceUtils {
    * @see #resetConnectionAfterTransaction
    * @see Connection#setTransactionIsolation
    * @see Connection#setReadOnly
+   * @see #prepareConnectionForTransaction(Connection, int, boolean)
    */
-  @Nullable
-  @SuppressWarnings("MagicConstant")
-  public static Integer prepareConnectionForTransaction(Connection con, @Nullable TransactionDefinition definition) throws SQLException {
-    if (definition != null) {
-      Assert.notNull(con, "No Connection specified");
-      // Set read-only flag.
-      if (definition.isReadOnly()) {
-        if (log.isDebugEnabled()) {
-          log.debug("Setting JDBC Connection [{}] read-only", con);
-        }
-        setReadOnlyIfPossible(con);
-      }
+  public static @Nullable Integer prepareConnectionForTransaction(Connection con, @Nullable TransactionDefinition definition)
+          throws SQLException {
 
-      // Apply specific isolation level, if any.
-      Integer previousIsolationLevel = null;
-      int isolationLevel = definition.getIsolationLevel();
-      if (isolationLevel != TransactionDefinition.ISOLATION_DEFAULT) {
-        if (log.isDebugEnabled()) {
-          log.debug("Changing isolation level of JDBC Connection [{}] to {}", con, isolationLevel);
-        }
-        int currentIsolation = con.getTransactionIsolation();
-        if (currentIsolation != isolationLevel) {
-          previousIsolationLevel = currentIsolation;
-          con.setTransactionIsolation(isolationLevel);
-        }
+    return prepareConnectionForTransaction(con,
+            definition != null ? definition.getIsolationLevel() : TransactionDefinition.ISOLATION_DEFAULT,
+            definition != null && definition.isReadOnly());
+  }
+
+  /**
+   * Prepare the given Connection with the given transaction semantics.
+   *
+   * @param con the Connection to prepare
+   * @param isolationLevel the isolation level to apply
+   * @param setReadOnly whether to set the read-only flag
+   * @return the previous isolation level, if any
+   * @throws SQLException if thrown by JDBC methods
+   * @see #resetConnectionAfterTransaction(Connection, Integer, boolean)
+   * @see Connection#setTransactionIsolation
+   * @see Connection#setReadOnly
+   */
+  static @Nullable Integer prepareConnectionForTransaction(Connection con, int isolationLevel, boolean setReadOnly)
+          throws SQLException {
+    Assert.notNull(con, "No Connection specified");
+
+    boolean debugEnabled = log.isDebugEnabled();
+    // Set read-only flag.
+    if (setReadOnly) {
+      if (debugEnabled) {
+        log.debug("Setting JDBC Connection [{}] read-only", con);
       }
-      return previousIsolationLevel;
+      setReadOnlyIfPossible(con);
     }
-    return null;
+
+    // Apply specific isolation level, if any.
+    Integer previousIsolationLevel = null;
+    if (isolationLevel != TransactionDefinition.ISOLATION_DEFAULT) {
+      if (debugEnabled) {
+        log.debug("Changing isolation level of JDBC Connection [{}] to {}", con, isolationLevel);
+      }
+      int currentIsolation = con.getTransactionIsolation();
+      if (currentIsolation != isolationLevel) {
+        previousIsolationLevel = currentIsolation;
+        con.setTransactionIsolation(isolationLevel);
+      }
+    }
+
+    return previousIsolationLevel;
   }
 
   /**
