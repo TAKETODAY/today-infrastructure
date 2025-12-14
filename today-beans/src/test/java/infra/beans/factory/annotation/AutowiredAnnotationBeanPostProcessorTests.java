@@ -91,7 +91,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/20 21:28
  */
-class AutowiredAnnotationBeanPostProcessorTests {
+public class AutowiredAnnotationBeanPostProcessorTests {
 
   private StandardBeanFactory bf = new StandardBeanFactory();
 
@@ -1584,6 +1584,18 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
     ObjectFactoryFieldInjectionBean bean = bf.getBean("annotatedBean", ObjectFactoryFieldInjectionBean.class);
     assertThat(bean.getTestBean()).isSameAs(bf.getBean("testBean"));
+    assertThat(bean.getTestBean()).isSameAs(bf.getBean("testBean"));
+  }
+
+  @Test
+  void objectFactoryFieldInjectionAgainstFrozen() {
+    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(ObjectFactoryFieldInjectionBean.class));
+    bf.registerBeanDefinition("testBean", new RootBeanDefinition(TestBean.class));
+    bf.freezeConfiguration();
+
+    ObjectFactoryFieldInjectionBean bean = bf.getBean("annotatedBean", ObjectFactoryFieldInjectionBean.class);
+    assertThat(bean.getTestBean()).isSameAs(bf.getBean("testBean"));
+    assertThat(bean.getTestBean()).isSameAs(bf.getBean("testBean"));
   }
 
   @Test
@@ -1592,6 +1604,18 @@ class AutowiredAnnotationBeanPostProcessorTests {
     bf.registerBeanDefinition("testBean", new RootBeanDefinition(TestBean.class));
 
     ObjectFactoryConstructorInjectionBean bean = bf.getBean("annotatedBean", ObjectFactoryConstructorInjectionBean.class);
+    assertThat(bean.getTestBean()).isSameAs(bf.getBean("testBean"));
+    assertThat(bean.getTestBean()).isSameAs(bf.getBean("testBean"));
+  }
+
+  @Test
+  void objectFactoryConstructorInjectionAgainstFrozen() {
+    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(ObjectFactoryConstructorInjectionBean.class));
+    bf.registerBeanDefinition("testBean", new RootBeanDefinition(TestBean.class));
+    bf.freezeConfiguration();
+
+    ObjectFactoryConstructorInjectionBean bean = bf.getBean("annotatedBean", ObjectFactoryConstructorInjectionBean.class);
+    assertThat(bean.getTestBean()).isSameAs(bf.getBean("testBean"));
     assertThat(bean.getTestBean()).isSameAs(bf.getBean("testBean"));
   }
 
@@ -2638,7 +2662,7 @@ class AutowiredAnnotationBeanPostProcessorTests {
   }
 
   @Test
-  @Disabled  // SPR-11521
+  @Disabled
   @SuppressWarnings("rawtypes")
   void genericsBasedInjectionIntoTypeVariableSelectingBestMatchAgainstFactoryMethodSignature() {
     RootBeanDefinition bd = new RootBeanDefinition(GenericInterface1Impl.class);
@@ -2727,9 +2751,11 @@ class AutowiredAnnotationBeanPostProcessorTests {
     bf.registerSingleton("nonNullBean", "Test");
     bf.registerBeanDefinition("mixedNullableInjectionBean",
             new RootBeanDefinition(MixedNullableInjectionBean.class));
+
     MixedNullableInjectionBean mixedNullableInjectionBean = bf.getBean(MixedNullableInjectionBean.class);
     assertThat(mixedNullableInjectionBean.nonNullBean).isNotNull();
     assertThat(mixedNullableInjectionBean.nullableBean).isNull();
+    assertThat(bf.getDependentBeans("nonNullBean")).contains("mixedNullableInjectionBean");
   }
 
   @Test
@@ -2737,9 +2763,11 @@ class AutowiredAnnotationBeanPostProcessorTests {
     bf.registerSingleton("nonNullBean", "Test");
     bf.registerBeanDefinition("mixedOptionalInjectionBean",
             new RootBeanDefinition(MixedOptionalInjectionBean.class));
+
     MixedOptionalInjectionBean mixedOptionalInjectionBean = bf.getBean(MixedOptionalInjectionBean.class);
     assertThat(mixedOptionalInjectionBean.nonNullBean).isNotNull();
     assertThat(mixedOptionalInjectionBean.nullableBean).isNull();
+    assertThat(bf.getDependentBeans("nonNullBean")).contains("mixedOptionalInjectionBean");
   }
 
   private <E extends UnsatisfiedDependencyException> Consumer<E> methodParameterDeclaredOn(Class<?> expected) {

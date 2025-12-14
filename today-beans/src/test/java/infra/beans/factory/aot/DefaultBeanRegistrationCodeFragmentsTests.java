@@ -28,7 +28,7 @@ import java.util.function.UnaryOperator;
 import infra.aot.generate.GenerationContext;
 import infra.aot.test.generate.TestGenerationContext;
 import infra.beans.factory.FactoryBean;
-import infra.beans.factory.annotation.InjectAnnotationBeanPostProcessorTests;
+import infra.beans.factory.annotation.AutowiredAnnotationBeanPostProcessorTests.StringFactoryBean;
 import infra.beans.factory.support.RegisteredBean;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
@@ -193,8 +193,8 @@ class DefaultBeanRegistrationCodeFragmentsTests {
   void getTargetOnConstructorWithInnerBeanOnTypeInJavaPackage() {
     RegisteredBean registeredBean = registerTestBean(SimpleBean.class);
     RootBeanDefinition innerBeanDefinition = applyConstructorOrFactoryMethod(
-            new RootBeanDefinition(InjectAnnotationBeanPostProcessorTests.StringFactoryBean.class),
-            InjectAnnotationBeanPostProcessorTests.StringFactoryBean.class.getDeclaredConstructors()[0]);
+            new RootBeanDefinition(StringFactoryBean.class),
+            StringFactoryBean.class.getDeclaredConstructors()[0]);
     RegisteredBean innerBean = RegisteredBean.ofInnerBean(registeredBean, "innerTestBean",
             innerBeanDefinition);
     assertTarget(createInstance(innerBean).getTarget(innerBean), SimpleBean.class);
