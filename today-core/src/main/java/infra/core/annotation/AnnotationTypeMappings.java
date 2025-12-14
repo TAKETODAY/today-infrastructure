@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.function.Consumer;
@@ -268,9 +269,12 @@ final class AnnotationTypeMappings implements Iterable<AnnotationTypeMapping> {
    * Cache created per {@link AnnotationFilter}.
    */
   private static class Cache {
+
     private final AnnotationFilter filter;
+
     private final RepeatableContainers repeatableContainers;
-    private final ConcurrentReferenceHashMap<Class<? extends Annotation>, AnnotationTypeMappings> mappings;
+
+    private final Map<Class<? extends Annotation>, AnnotationTypeMappings> mappings;
 
     /**
      * Create a cache instance with the specified filter.
@@ -292,13 +296,22 @@ final class AnnotationTypeMappings implements Iterable<AnnotationTypeMapping> {
      * some JVM languages support (such as Kotlin)
      * @return a new or existing {@link AnnotationTypeMappings} instance
      */
-    @SuppressWarnings("NullAway")
-    AnnotationTypeMappings get(Class<? extends Annotation> annotationType,
-            Set<Class<? extends Annotation>> visitedAnnotationTypes) {
-      return mappings.computeIfAbsent(annotationType, key -> new AnnotationTypeMappings(
-              repeatableContainers, filter, annotationType, visitedAnnotationTypes));
+    AnnotationTypeMappings get(Class<? extends Annotation> annotationType, Set<Class<? extends Annotation>> visitedAnnotationTypes) {
+      AnnotationTypeMappings result = this.mappings.get(annotationType);
+      if (result != null) {
+        return result;
+      }
+      result = createMappings(annotationType, visitedAnnotationTypes);
+      AnnotationTypeMappings existing = this.mappings.putIfAbsent(annotationType, result);
+      return (existing != null ? existing : result);
     }
 
+    private AnnotationTypeMappings createMappings(Class<? extends Annotation> annotationType,
+            Set<Class<? extends Annotation>> visitedAnnotationTypes) {
+
+      return new AnnotationTypeMappings(this.repeatableContainers, this.filter, annotationType,
+              visitedAnnotationTypes);
+    }
   }
 
 }
