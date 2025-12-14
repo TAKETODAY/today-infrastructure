@@ -65,7 +65,7 @@ class ApplicationContextInitializationCodeGenerator implements BeanFactoryInitia
 
   private final GenericApplicationContext applicationContext;
 
-  public final GeneratedClass generatedClass;
+  private final GeneratedClass generatedClass;
 
   private final List<MethodReference> initializers = new ArrayList<>();
 
@@ -126,6 +126,11 @@ class ApplicationContextInitializationCodeGenerator implements BeanFactoryInitia
   @Override
   public GeneratedMethods getMethods() {
     return this.generatedClass.getMethods();
+  }
+
+  @Override
+  public ClassName getClassName() {
+    return this.generatedClass.getName();
   }
 
   @Override
