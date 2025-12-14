@@ -1633,7 +1633,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * {@link #setOrRemove(String, String)} but for date headers.
    */
   public void setInstant(String headerName, Instant date) {
-    setZonedDateTime(headerName, ZonedDateTime.ofInstant(date, GMT));
+    setZonedDateTime(headerName, date.atZone(GMT));
   }
 
   /**
@@ -2144,9 +2144,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
 
   // Package-private: used in ResponseCookie
   static String formatDate(long date) {
-    Instant instant = Instant.ofEpochMilli(date);
-    ZonedDateTime time = ZonedDateTime.ofInstant(instant, GMT);
-    return DATE_FORMATTER.format(time);
+    return DATE_FORMATTER.format(Instant.ofEpochMilli(date).atZone(GMT));
   }
 
 }
