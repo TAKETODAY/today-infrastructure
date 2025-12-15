@@ -110,6 +110,10 @@ public abstract class MimeTypeUtils {
     if (StringUtils.isEmpty(mimeType)) {
       throw new InvalidMimeTypeException(mimeType, "'mimeType' must not be empty");
     }
+    // do not cache multipart mime types with random boundaries
+    if (mimeType.startsWith("multipart")) {
+      return parseMimeTypeInternal(mimeType);
+    }
     return cachedMimeTypes.get(mimeType);
   }
 

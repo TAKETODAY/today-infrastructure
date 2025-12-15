@@ -224,11 +224,9 @@ public class MimeType implements Comparable<MimeType>, Serializable {
 
   protected final Map<String, String> parameters;
 
-  @Nullable
-  private transient Charset resolvedCharset;
+  private volatile @Nullable String toStringValue;
 
-  @Nullable
-  private volatile String toStringValue;
+  private transient @Nullable Charset resolvedCharset;
 
   /**
    * Create a new {@code MimeType} for the given primary type.
@@ -391,7 +389,15 @@ public class MimeType implements Comparable<MimeType>, Serializable {
     return ((s.startsWith("\"") && s.endsWith("\"")) || (s.startsWith("'") && s.endsWith("'")));
   }
 
-  protected String unquote(String s) {
+  /**
+   * Unquote the given string if it is quoted.
+   * <p>This method checks if the string starts and ends with the same quote character
+   * (either single or double quotes) and removes them if so.
+   *
+   * @param s the string to unquote
+   * @return the unquoted string, or the original string if it wasn't quoted
+   */
+  protected final String unquote(String s) {
     return isQuotedString(s) ? s.substring(1, s.length() - 1) : s;
   }
 
@@ -444,8 +450,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    *
    * @since 4.0
    */
-  @Nullable
-  public String getSubtypeSuffix() {
+  public @Nullable String getSubtypeSuffix() {
     int suffixIndex = subtype.lastIndexOf('+');
     if (suffixIndex != -1) {
       return subtype.substring(suffixIndex + 1);
@@ -459,8 +464,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    *
    * @return the character set, or {@code null} if not available
    */
-  @Nullable
-  public Charset getCharset() {
+  public @Nullable Charset getCharset() {
     return resolvedCharset;
   }
 
@@ -470,9 +474,22 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * @param name the parameter name
    * @return the parameter value, or {@code null} if not present
    */
-  @Nullable
-  public String getParameter(String name) {
+  public @Nullable String getParameter(String name) {
     return this.parameters.get(name);
+  }
+
+  /**
+   * Return a generic parameter value, given a parameter name, unquoting
+   * the value if necessary.
+   *
+   * @param name the parameter name
+   * @return the parameter value, or {@code null} if not present
+   * @see #unquote(String)
+   * @since 5.0
+   */
+  public @Nullable String getUnquotedParameter(String name) {
+    String val = parameters.get(name);
+    return val != null ? unquote(val) : null;
   }
 
   /**

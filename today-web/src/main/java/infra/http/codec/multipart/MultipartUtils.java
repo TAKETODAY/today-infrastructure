@@ -42,14 +42,7 @@ abstract class MultipartUtils {
   public static byte @Nullable [] boundary(HttpMessage message, Charset headersCharset) {
     MediaType contentType = message.getContentType();
     if (contentType != null) {
-      String boundary = contentType.getParameter("boundary");
-      if (boundary != null) {
-        int len = boundary.length();
-        if (len > 2 && boundary.charAt(0) == '"' && boundary.charAt(len - 1) == '"') {
-          boundary = boundary.substring(1, len - 1);
-        }
-        return boundary.getBytes(headersCharset);
-      }
+      return contentType.getBoundary(headersCharset);
     }
     return null;
   }
