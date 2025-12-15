@@ -355,7 +355,22 @@ public class MediaType extends MimeType implements Serializable {
    */
   public double getQualityValue() {
     String qualityFactor = getParameter(PARAM_QUALITY_FACTOR);
-    return (qualityFactor != null ? Double.parseDouble(unquote(qualityFactor)) : 1D);
+    return qualityFactor != null ? Double.parseDouble(unquote(qualityFactor)) : 1D;
+  }
+
+  /**
+   * Return the boundary parameter value as a byte array.
+   *
+   * @param charset the charset to use for encoding the boundary bytes
+   * @return the boundary parameter value as a byte array, or {@code null} if not present
+   * @since 5.0
+   */
+  public byte @Nullable [] getBoundary(Charset charset) {
+    String boundary = getUnquotedParameter("boundary");
+    if (boundary != null) {
+      return boundary.getBytes(charset);
+    }
+    return null;
   }
 
   /**
