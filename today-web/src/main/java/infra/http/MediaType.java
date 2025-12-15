@@ -363,6 +363,7 @@ public class MediaType extends MimeType implements Serializable {
    *
    * @param charset the charset to use for encoding the boundary bytes
    * @return the boundary parameter value as a byte array, or {@code null} if not present
+   * @throws NullPointerException if charset is {@code null}
    * @since 5.0
    */
   public byte @Nullable [] getBoundary(Charset charset) {
