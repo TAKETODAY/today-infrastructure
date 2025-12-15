@@ -29,7 +29,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.function.BiPredicate;
 
@@ -126,7 +125,8 @@ public abstract class MimeTypeUtils {
     }
 
     // java.net.HttpURLConnection returns a *; q=.2 Accept header
-    if (MimeType.WILDCARD_TYPE.equals(fullType)) {
+    final String wildcardType = MimeType.WILDCARD_TYPE;
+    if (wildcardType.equals(fullType)) {
       fullType = "*/*";
     }
     int subIndex = fullType.indexOf('/');
@@ -138,15 +138,16 @@ public abstract class MimeTypeUtils {
     }
     String type = fullType.substring(0, subIndex);
     String subtype = fullType.substring(subIndex + 1);
-    if (MimeType.WILDCARD_TYPE.equals(type) && !MimeType.WILDCARD_TYPE.equals(subtype)) {
+    if (wildcardType.equals(type) && !wildcardType.equals(subtype)) {
       throw new InvalidMimeTypeException(mimeType, "wildcard type is legal only in '*/*' (all mime types)");
     }
 
-    Map<String, String> parameters = null;
+    LinkedHashMap<String, String> parameters = null;
+    int mimeTypeLength = mimeType.length();
     do {
       int nextIndex = index + 1;
       boolean quoted = false;
-      while (nextIndex < mimeType.length()) {
+      while (nextIndex < mimeTypeLength) {
         char ch = mimeType.charAt(nextIndex);
         if (ch == ';') {
           if (!quoted) {
@@ -159,7 +160,7 @@ public abstract class MimeTypeUtils {
         nextIndex++;
       }
       String parameter = mimeType.substring(index + 1, nextIndex).trim();
-      if (parameter.length() > 0) {
+      if (!parameter.isEmpty()) {
         if (parameters == null) {
           parameters = new LinkedHashMap<>(4);
         }
@@ -172,7 +173,7 @@ public abstract class MimeTypeUtils {
       }
       index = nextIndex;
     }
-    while (index < mimeType.length());
+    while (index < mimeTypeLength);
 
     try {
       return new MimeType(type, subtype, parameters);
