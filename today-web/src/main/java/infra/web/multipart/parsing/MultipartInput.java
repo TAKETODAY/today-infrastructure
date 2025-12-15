@@ -245,9 +245,15 @@ final class MultipartInput {
    * @return The position of the boundary found, counting from the beginning of the {@code buffer}, or {@code -1} if not found.
    */
   private int findSeparator() {
-    var bufferPos = this.head;
-    var tablePos = 0;
-    while (bufferPos < this.tail) {
+    int bufferPos = this.head;
+    int tablePos = 0;
+    final int tail = this.tail;
+    final byte[] buffer = this.buffer;
+    final byte[] boundary = this.boundary;
+    final int[] boundaryTable = this.boundaryTable;
+    final int boundaryLength = this.boundaryLength;
+
+    while (bufferPos < tail) {
       while (tablePos >= 0 && buffer[bufferPos] != boundary[tablePos]) {
         tablePos = boundaryTable[tablePos];
       }
@@ -585,12 +591,14 @@ final class MultipartInput {
 
       // Move the data to the beginning of the buffer.
       //total += tail - head - pad;
+      final byte[] buffer = MultipartInput.this.buffer;
       System.arraycopy(buffer, tail - pad, buffer, 0, pad);
 
       // Refill buffer with new data.
       head = 0;
       tail = pad;
 
+      final InputStream input = MultipartInput.this.input;
       for (; ; ) {
         final int bytesRead = input.read(buffer, tail, bufSize - tail);
         if (bytesRead == -1) {
