@@ -122,9 +122,9 @@ class DefaultPartTests {
 
     String stringRepresentation = part.toString();
 
-    assertThat(stringRepresentation).contains("name=testField");
-    assertThat(stringRepresentation).contains("size=0 bytes");
-    assertThat(stringRepresentation).contains("isFormField=true");
+    assertThat(stringRepresentation).contains("name = 'testField'");
+    assertThat(stringRepresentation).contains("size = 0");
+    assertThat(stringRepresentation).contains("isFormField = true");
   }
 
   @Test

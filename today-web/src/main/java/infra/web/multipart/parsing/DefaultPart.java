@@ -36,6 +36,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 
+import infra.core.style.ToStringBuilder;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Assert;
@@ -82,7 +83,7 @@ public final class DefaultPart implements Part {
   private final String fieldName;
 
   /**
-   * Whether or not this item is a simple form field.
+   * Whether this item is a simple form field.
    */
   private final boolean isFormField;
 
@@ -318,7 +319,7 @@ public final class DefaultPart implements Part {
   /**
    * Writes an uploaded item to disk.
    * <p>
-   * The client code is not concerned with whether or not the item is stored in memory, or on disk in a temporary location. They just want to write the
+   * The client code is not concerned with whether the item is stored in memory, or on disk in a temporary location. They just want to write the
    * uploaded item to a file.
    * </p>
    * <p>
@@ -336,8 +337,8 @@ public final class DefaultPart implements Part {
   @Override
   public long transferTo(final Path file) throws IOException {
     if (isInMemory()) {
-      try (var fout = Files.newOutputStream(file)) {
-        fout.write(getContentAsByteArray());
+      try (var out = Files.newOutputStream(file)) {
+        out.write(getContentAsByteArray());
       }
       catch (final IOException e) {
         throw new IOException("Unexpected output data", e);
@@ -388,8 +389,13 @@ public final class DefaultPart implements Part {
    */
   @Override
   public String toString() {
-    return String.format("name=%s, StoreLocation=%s, size=%s bytes, isFormField=%s, FieldName=%s",
-            getName(), getPath(), this.getContentLength(), isFormField(), this.getName());
+    return ToStringBuilder.forInstance(this)
+            .append("name", fieldName)
+            .append("isFormField", isFormField)
+            .append("size", getContentLength())
+            .append("filename", getOriginalFilename())
+            .append("location", getPath())
+            .toString();
   }
 
   /**
