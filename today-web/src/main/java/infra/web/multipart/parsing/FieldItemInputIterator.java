@@ -99,7 +99,7 @@ class FieldItemInputIterator {
     this.progressNotifier = new ProgressNotifier(parser.getProgressListener(), context.getContentLength());
 
     InputStream inputStream = context.getInputStream();
-    byte[] multipartBoundary = getBoundary(contentType);
+    byte[] multipartBoundary = contentType.getBoundary(StandardCharsets.ISO_8859_1);
     if (multipartBoundary == null) {
       StreamUtils.closeQuietly(inputStream); // avoid possible resource leak
       throw new MultipartException("the request was rejected because no multipart boundary was found");
@@ -193,7 +193,7 @@ class FieldItemInputIterator {
           if (subContentType != null && subContentType.equalsTypeAndSubtype(MediaType.MULTIPART_MIXED)) {
             currentFieldName = fieldName;
             // Multiple files associated with this field name
-            byte[] subBoundary = getBoundary(subContentType);
+            byte[] subBoundary = subContentType.getBoundary(StandardCharsets.ISO_8859_1);
             if (subBoundary == null) {
               throw new MultipartBoundaryException("The request was rejected because no boundary token was defined for a multipart/mixed part");
             }
@@ -219,11 +219,6 @@ class FieldItemInputIterator {
       }
       input.discardBodyData();
     }
-  }
-
-  private static byte @Nullable [] getBoundary(MediaType contentType) {
-    String boundary = contentType.getParameter("boundary");
-    return boundary != null ? boundary.getBytes(StandardCharsets.ISO_8859_1) : null;
   }
 
   /**
