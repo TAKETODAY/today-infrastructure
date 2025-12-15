@@ -117,7 +117,9 @@ class BridgeMethodResolverTests {
   void findBridgedMethodForCovariantReturnType() throws Exception {
     Method originalMethod = OuterSubclass.class.getDeclaredMethod("getInner");
     for (Method method : OuterSubclass.class.getDeclaredMethods()) {
-      assertThat(BridgeMethodResolver.findBridgedMethod(method)).isEqualTo(originalMethod);
+      if (!method.getName().contains("jacocoInit")) {
+        assertThat(BridgeMethodResolver.findBridgedMethod(method)).isEqualTo(originalMethod);
+      }
     }
   }
 
