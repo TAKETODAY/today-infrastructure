@@ -341,7 +341,7 @@ class BodyInputStream extends InputStream {
     cancelled.set(true);
   }
 
-  private void requestNext() {
+  protected void requestNext() {
 //    channel.read();
   }
 

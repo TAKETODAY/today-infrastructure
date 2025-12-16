@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.nio.channels.ClosedChannelException;
 
 import infra.context.ApplicationContext;
-import infra.util.concurrent.Awaiter;
 import infra.web.DispatcherHandler;
 import infra.web.RequestContextHolder;
 import infra.web.server.RequestBodySizeExceededException;
@@ -49,8 +48,6 @@ final class HttpContext extends NettyRequestContext implements Runnable {
 
   private final NettyChannelHandler channelHandler;
 
-  private final Awaiter awaiter;
-
   private final long contentLength;
 
   private long receivedBytes = 0;
@@ -67,7 +64,6 @@ final class HttpContext extends NettyRequestContext implements Runnable {
     super(context, channel, request, config, dispatcherHandler);
     this.channelHandler = channelHandler;
     this.contentLength = HttpUtil.getContentLength(request, -1L);
-    this.awaiter = config.awaiterFactory.apply(this);
   }
 
   public void onDataReceived(HttpContent httpContent) {
@@ -117,7 +113,7 @@ final class HttpContext extends NettyRequestContext implements Runnable {
       synchronized(this) {
         requestBody = this.requestBody;
         if (requestBody == null) {
-          requestBody = new BodyInputStream(awaiter, config.dataReceivedQueueCapacity);
+          requestBody = new BodyInputStream(config.awaiterFactory.apply(this), config.dataReceivedQueueCapacity);
         }
         this.requestBody = requestBody;
       }

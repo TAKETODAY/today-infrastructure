@@ -116,8 +116,7 @@ public class NettyChannelHandler extends ChannelInboundHandlerAdapter {
     }
   }
 
-  @Nullable
-  protected HttpResponse createErrorResponse(Throwable cause) {
+  protected @Nullable HttpResponse createErrorResponse(Throwable cause) {
     var statusCode = HttpStatusProvider.getStatusCode(cause);
     return new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(statusCode.first.value()),
             Unpooled.EMPTY_BUFFER, requestConfig.httpHeadersFactory, trailersFactory());
