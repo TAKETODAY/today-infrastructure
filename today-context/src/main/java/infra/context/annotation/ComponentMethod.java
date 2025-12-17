@@ -19,8 +19,6 @@ package infra.context.annotation;
 
 import org.jspecify.annotations.Nullable;
 
-import java.util.Map;
-
 import infra.beans.factory.annotation.Autowired;
 import infra.beans.factory.parsing.Location;
 import infra.beans.factory.parsing.Problem;
@@ -58,7 +56,7 @@ final class ComponentMethod {
 
   @SuppressWarnings("NullAway")
   public void validate(ProblemReporter problemReporter) {
-    if (metadata.getAnnotationAttributes(Autowired.class.getName()) != null) {
+    if (metadata.isAnnotated(Autowired.class)) {
       // declared as @Autowired: semantic mismatch since @Component method arguments are autowired
       // in any case whereas @Autowired methods are setter-like methods on the containing class
       problemReporter.error(new AutowiredDeclaredMethodError());
@@ -74,8 +72,8 @@ final class ComponentMethod {
       return;
     }
 
-    Map<String, Object> attributes = configurationClass.metadata.getAnnotationAttributes(Configuration.class);
-    if (attributes != null && (Boolean) attributes.get("proxyBeanMethods") && !metadata.isOverridable()) {
+    var annotation = configurationClass.metadata.getAnnotation(Configuration.class);
+    if (annotation.isPresent() && annotation.getBoolean("proxyBeanMethods") && !metadata.isOverridable()) {
       // instance @Bean methods within @Configuration classes must be overridable to accommodate CGLIB
       problemReporter.error(new NonOverridableMethodError());
     }
