@@ -17,36 +17,27 @@
 
 package infra.web.server.support;
 
-import java.io.IOException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.RejectedExecutionException;
-
-import infra.http.HttpStatus;
-import infra.lang.Assert;
 import infra.web.RequestContext;
 import infra.web.server.ServiceExecutor;
 
 /**
+ * {@link ServiceExecutor} implementation that executes service methods
+ * using virtual threads.
+ *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @since 5.0 2025/9/18 15:59
+ * @since 5.0 2025/12/17 15:59
  */
-public class JUCServiceExecutor implements ServiceExecutor {
-  private final Executor executor;
+public class VirtualThreadServiceExecutor implements ServiceExecutor {
 
-  public JUCServiceExecutor(Executor executor) {
-    Assert.notNull(executor, "Executor is required");
-    this.executor = executor;
-  }
-
+  /**
+   * Execute the given command using a virtual thread.
+   *
+   * @param ctx the request context
+   * @param command the command to execute
+   */
   @Override
-  public void execute(RequestContext ctx, Runnable command) throws IOException {
-    try {
-      executor.execute(command);
-    }
-    catch (RejectedExecutionException e) {
-      ctx.setStatus(HttpStatus.SERVICE_UNAVAILABLE);
-      ctx.flush();
-    }
+  public void execute(RequestContext ctx, Runnable command) {
+    Thread.startVirtualThread(command);
   }
 
 }

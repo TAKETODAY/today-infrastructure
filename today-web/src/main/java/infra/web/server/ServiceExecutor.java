@@ -41,11 +41,13 @@ import infra.web.RequestContext;
 public interface ServiceExecutor {
 
   /**
-   * Executes the given command at some time in the future.  The command
+   * Executes the given command at some time in the future. The command
    * may execute in a new thread, in a pooled thread, or in the calling
    * thread, at the discretion of the {@code Executor} implementation.
    *
+   * @param ctx the request context
    * @param command the runnable task
+   * @throws IOException if an I/O error occurs during execution
    */
   void execute(RequestContext ctx, Runnable command) throws IOException;
 

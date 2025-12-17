@@ -1,6 +1,15 @@
 description = "Web infrastructure API, provides default netty implementation"
 
+apply plugin: "infra.building.multiReleaseJar"
+
+multiRelease {
+  releaseVersions 21
+}
+
 configurations {
+  java21Api.extendsFrom(api)
+  java21Implementation.extendsFrom(implementation)
+
   testFixturesAnnotationProcessor.extendsFrom(dependencyManagement)
 }
 

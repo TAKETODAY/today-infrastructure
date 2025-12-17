@@ -83,6 +83,19 @@ public class ServerProperties {
    */
   public @Nullable InetAddress address;
 
+  /**
+   * Whether to use virtual threads for the service executor.
+   * <p>
+   * When set to {@code true}, the server will use virtual threads instead of
+   * platform threads for handling requests. This can significantly improve
+   * scalability for I/O-intensive applications running on Java 21+.
+   * <p>
+   * Defaults to {@code false}, meaning platform threads are used by default.
+   *
+   * @since 5.0
+   */
+  public boolean useVirtualThreadServiceExecutor = false;
+
   @NestedConfigurationProperty
   public final EncodingProperties encoding = new EncodingProperties();
 

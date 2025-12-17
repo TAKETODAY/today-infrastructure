@@ -28,6 +28,7 @@ import infra.annotation.config.task.TaskExecutionAutoConfiguration;
 import infra.annotation.config.task.TaskExecutionProperties;
 import infra.annotation.config.web.ErrorMvcAutoConfiguration;
 import infra.annotation.config.web.WebMvcProperties;
+import infra.beans.BeanUtils;
 import infra.beans.factory.annotation.Qualifier;
 import infra.beans.factory.config.BeanDefinition;
 import infra.context.ApplicationContext;
@@ -54,11 +55,11 @@ import infra.web.server.Ssl;
 import infra.web.server.WebServerFactoryCustomizerBeanPostProcessor;
 import infra.web.server.error.SendErrorHandler;
 import infra.web.server.support.ChannelConfigurer;
-import infra.web.server.support.JUCServiceExecutor;
 import infra.web.server.support.NettyChannelHandler;
 import infra.web.server.support.NettyRequestConfig;
 import infra.web.server.support.NettyWebServerFactory;
 import infra.web.server.support.ServerBootstrapCustomizer;
+import infra.web.server.support.SimpleServiceExecutor;
 import infra.web.server.support.StandardNettyWebEnvironment;
 import infra.web.socket.server.support.WsNettyChannelHandler;
 import io.netty.channel.ChannelHandler;
@@ -113,7 +114,12 @@ public class NettyWebServerFactoryAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public static ServiceExecutor serviceExecutor(@Qualifier(APPLICATION_TASK_EXECUTOR_BEAN_NAME) @Nullable Executor executor) {
+  public static ServiceExecutor serviceExecutor(ServerProperties serverProperties,
+          @Qualifier(APPLICATION_TASK_EXECUTOR_BEAN_NAME) @Nullable Executor executor) {
+    if (serverProperties.useVirtualThreadServiceExecutor) {
+      return BeanUtils.newInstance("infra.web.server.support.VirtualThreadServiceExecutor",
+              ClassUtils.getDefaultClassLoader());
+    }
     if (executor == null) {
       ThreadPoolTaskExecutor taskExecutor = TaskExecutorConfiguration.applicationTaskExecutor(
               threadPoolTaskExecutorBuilder(new TaskExecutionProperties(), List.of(), null));
@@ -121,7 +127,7 @@ public class NettyWebServerFactoryAutoConfiguration {
       taskExecutor.start();
       executor = taskExecutor;
     }
-    return new JUCServiceExecutor(executor);
+    return new SimpleServiceExecutor(executor);
   }
 
   /**
