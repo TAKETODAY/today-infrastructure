@@ -125,7 +125,7 @@ import infra.util.ClassUtils;
  * // get all ExampleAnnotation declarations (including any meta-annotations) and
  * // print the merged "value" attributes
  * mergedAnnotations.stream(ExampleAnnotation.class)
- *     .map(mergedAnnotation -&gt; mergedAnnotation.getString("value"))
+ *     .map(mergedAnnotation -> mergedAnnotation.getString("value"))
  *     .forEach(System.out::println);
  * }</pre>
  *
@@ -311,6 +311,13 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    */
   Stream<MergedAnnotation<Annotation>> stream();
 
+  /**
+   * Get the {@linkplain AnnotationAttributes attributes} of all merged annotations
+   * of the specified type, or an empty array if none are present.
+   *
+   * @param annotationType the annotation type to get attributes for
+   * @return an array of {@link AnnotationAttributes} instances
+   */
   <A extends Annotation> AnnotationAttributes[] getAttributes(Class<A> annotationType);
 
   // Static Factory Methods

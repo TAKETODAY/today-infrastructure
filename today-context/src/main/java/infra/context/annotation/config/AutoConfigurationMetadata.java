@@ -64,8 +64,7 @@ public class AutoConfigurationMetadata {
    * @param key the meta-data key
    * @return the meta-data value or {@code null}
    */
-  @Nullable
-  public Integer getInteger(String className, String key) {
+  public @Nullable Integer getInteger(String className, String key) {
     return getInteger(className, key, null);
   }
 
@@ -77,8 +76,7 @@ public class AutoConfigurationMetadata {
    * @param defaultValue the default value
    * @return the meta-data value or {@code defaultValue}
    */
-  @Nullable
-  public Integer getInteger(String className, String key, @Nullable Integer defaultValue) {
+  public @Nullable Integer getInteger(String className, String key, @Nullable Integer defaultValue) {
     String value = get(className, key);
     return value != null ? Integer.valueOf(value) : defaultValue;
   }
@@ -90,8 +88,7 @@ public class AutoConfigurationMetadata {
    * @param key the meta-data key
    * @return the meta-data value or {@code null}
    */
-  @Nullable
-  public Set<String> getSet(String className, String key) {
+  public @Nullable Set<String> getSet(String className, String key) {
     return getSet(className, key, null);
   }
 
@@ -103,8 +100,7 @@ public class AutoConfigurationMetadata {
    * @param defaultValue the default value
    * @return the meta-data value or {@code defaultValue}
    */
-  @Nullable
-  public Set<String> getSet(String className, String key, @Nullable Set<String> defaultValue) {
+  public @Nullable Set<String> getSet(String className, String key, @Nullable Set<String> defaultValue) {
     String value = get(className, key);
     return value != null ? StringUtils.commaDelimitedListToSet(value) : defaultValue;
   }
@@ -116,8 +112,7 @@ public class AutoConfigurationMetadata {
    * @param key the meta-data key
    * @return the meta-data value or {@code null}
    */
-  @Nullable
-  public String get(String className, String key) {
+  public @Nullable String get(String className, String key) {
     return get(className, key, null);
   }
 
@@ -129,8 +124,7 @@ public class AutoConfigurationMetadata {
    * @param defaultValue the default value
    * @return the meta-data value or {@code defaultValue}
    */
-  @Nullable
-  public String get(String className, String key, @Nullable String defaultValue) {
+  public @Nullable String get(String className, String key, @Nullable String defaultValue) {
     String value = this.properties.getProperty(className + "." + key);
     return value != null ? value : defaultValue;
   }

@@ -17,12 +17,12 @@
 
 package infra.context.condition;
 
-import java.util.Map;
-
 import infra.context.annotation.Condition;
 import infra.context.annotation.ConditionContext;
+import infra.context.condition.ConditionalOnJava.Range;
 import infra.core.JavaVersion;
 import infra.core.Ordered;
+import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.Order;
 import infra.core.type.AnnotatedTypeMetadata;
 
@@ -43,15 +43,15 @@ class OnJavaCondition extends InfraCondition {
   @Override
   @SuppressWarnings("NullAway")
   public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
-    Map<String, Object> attributes = metadata.getAnnotationAttributes(ConditionalOnJava.class);
-    ConditionalOnJava.Range range = (ConditionalOnJava.Range) attributes.get("range");
-    JavaVersion version = (JavaVersion) attributes.get("value");
+    MergedAnnotation<ConditionalOnJava> annotation = metadata.getAnnotation(ConditionalOnJava.class);
+    Range range = annotation.getEnum("range", Range.class);
+    JavaVersion version = annotation.getEnum("value", JavaVersion.class);
     return getMatchOutcome(range, JVM_VERSION, version);
   }
 
-  protected ConditionOutcome getMatchOutcome(ConditionalOnJava.Range range, JavaVersion runningVersion, JavaVersion version) {
+  protected ConditionOutcome getMatchOutcome(Range range, JavaVersion runningVersion, JavaVersion version) {
     boolean match = isWithin(runningVersion, range, version);
-    String expected = String.format((range != ConditionalOnJava.Range.EQUAL_OR_NEWER) ? "(older than %s)" : "(%s or newer)", version);
+    String expected = String.format((range != Range.EQUAL_OR_NEWER) ? "(older than %s)" : "(%s or newer)", version);
     ConditionMessage message = ConditionMessage.forCondition(ConditionalOnJava.class, expected)
             .foundExactly(runningVersion);
     return new ConditionOutcome(match, message);
@@ -65,11 +65,11 @@ class OnJavaCondition extends InfraCondition {
    * @param version the bounds of the range
    * @return if this version is within the specified range
    */
-  private boolean isWithin(JavaVersion runningVersion, ConditionalOnJava.Range range, JavaVersion version) {
-    if (range == ConditionalOnJava.Range.EQUAL_OR_NEWER) {
+  private boolean isWithin(JavaVersion runningVersion, Range range, JavaVersion version) {
+    if (range == Range.EQUAL_OR_NEWER) {
       return runningVersion.isEqualOrNewerThan(version);
     }
-    if (range == ConditionalOnJava.Range.OLDER_THAN) {
+    if (range == Range.OLDER_THAN) {
       return runningVersion.isOlderThan(version);
     }
     throw new IllegalStateException("Unknown range " + range);
