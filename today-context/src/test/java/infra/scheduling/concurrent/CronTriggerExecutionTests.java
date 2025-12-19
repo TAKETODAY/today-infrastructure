@@ -20,17 +20,20 @@ package infra.scheduling.concurrent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.OS;
 
 import java.time.Clock;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.scheduling.support.CronTrigger;
+import infra.test.junit.DisabledOnOs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Juergen Hoeller
  */
+@DisabledOnOs(OS.MAC)
 class CronTriggerExecutionTests {
 
   ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
