@@ -102,9 +102,8 @@ public class UrlBasedCorsConfigurationSource implements CorsConfigurationSource 
     return this.corsConfigurations;
   }
 
-  @Nullable
   @Override
-  public CorsConfiguration getCorsConfiguration(final RequestContext request) {
+  public @Nullable CorsConfiguration getCorsConfiguration(final RequestContext request) {
     PathContainer lookupPath = request.getRequestPath();
     for (Map.Entry<PathPattern, CorsConfiguration> entry : corsConfigurations.entrySet()) {
       if (entry.getKey().matches(lookupPath)) {
