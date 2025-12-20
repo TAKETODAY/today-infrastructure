@@ -25,12 +25,15 @@ import infra.lang.Assert;
 import infra.util.ClassUtils;
 
 /**
- * Expression Evaluator
+ * Utility class for evaluating expressions within the context of a bean factory.
+ * Provides methods to resolve and evaluate expressions, typically used for
+ * processing placeholder values and other expression-based configurations.
  *
  * @author TODAY 2021/4/8 19:42
  * @since 3.0
  */
 public class ExpressionEvaluator {
+
   public static final String BEAN_NAME = "expressionEvaluator";
 
   // @since 4.0
@@ -44,8 +47,7 @@ public class ExpressionEvaluator {
     this.beanFactory = beanFactory;
   }
 
-  @Nullable
-  public Object evaluate(@Nullable String expression) {
+  public @Nullable Object evaluate(@Nullable String expression) {
     expression = beanFactory.resolveEmbeddedValue(expression);
     if (expression != null) {
       BeanExpressionResolver exprResolver = beanFactory.getBeanExpressionResolver();
@@ -56,9 +58,8 @@ public class ExpressionEvaluator {
     return expression;
   }
 
-  @Nullable
   @SuppressWarnings("unchecked")
-  public <T> T evaluate(@Nullable String expression, Class<T> expectedType) {
+  public <T> @Nullable T evaluate(@Nullable String expression, Class<T> expectedType) {
     expression = beanFactory.resolveEmbeddedValue(expression);
     Object evaluated;
     if (expression != null) {
