@@ -276,6 +276,7 @@ public class LocalValidatorFactoryBean extends InfraValidatorAdapter
     if (this.applicationContext != null) {
       try {
         Method eclMethod = configuration.getClass().getMethod("externalClassLoader", ClassLoader.class);
+        eclMethod = ReflectionUtils.getPubliclyAccessibleMethodIfPossible(eclMethod, configuration.getClass());
         ReflectionUtils.invokeMethod(eclMethod, configuration, this.applicationContext.getClassLoader());
       }
       catch (NoSuchMethodException ex) {
