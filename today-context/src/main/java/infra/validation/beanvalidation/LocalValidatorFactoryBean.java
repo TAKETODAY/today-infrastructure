@@ -182,7 +182,7 @@ public class LocalValidatorFactoryBean extends InfraValidatorAdapter
 
   /**
    * Specify a custom ConstraintValidatorFactory to use for this ValidatorFactory.
-   * <p>Default is a {@link ContextConstraintValidatorFactory}, delegating to the
+   * <p>Default is a {@link InfraConstraintValidatorFactory}, delegating to the
    * containing ApplicationContext for creating autowired ConstraintValidator instances.
    */
   public void setConstraintValidatorFactory(@Nullable ConstraintValidatorFactory constraintValidatorFactory) {
@@ -276,6 +276,7 @@ public class LocalValidatorFactoryBean extends InfraValidatorAdapter
     if (this.applicationContext != null) {
       try {
         Method eclMethod = configuration.getClass().getMethod("externalClassLoader", ClassLoader.class);
+        eclMethod = ReflectionUtils.getPubliclyAccessibleMethodIfPossible(eclMethod, configuration.getClass());
         ReflectionUtils.invokeMethod(eclMethod, configuration, this.applicationContext.getClassLoader());
       }
       catch (NoSuchMethodException ex) {
@@ -295,8 +296,8 @@ public class LocalValidatorFactoryBean extends InfraValidatorAdapter
 
     ConstraintValidatorFactory targetConstraintValidatorFactory = this.constraintValidatorFactory;
     if (targetConstraintValidatorFactory == null && this.applicationContext != null) {
-      targetConstraintValidatorFactory =
-              new ContextConstraintValidatorFactory(this.applicationContext.getAutowireCapableBeanFactory());
+      targetConstraintValidatorFactory = new InfraConstraintValidatorFactory(this.applicationContext.getAutowireCapableBeanFactory(),
+              configuration.getDefaultConstraintValidatorFactory());
     }
     if (targetConstraintValidatorFactory != null) {
       configuration.constraintValidatorFactory(targetConstraintValidatorFactory);

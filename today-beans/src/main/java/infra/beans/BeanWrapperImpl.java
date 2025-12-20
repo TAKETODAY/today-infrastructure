@@ -57,8 +57,7 @@ import infra.core.TypeDescriptor;
  */
 public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements BeanWrapper {
 
-  @Nullable
-  private BeanMetadata beanMetadata;
+  private @Nullable BeanMetadata beanMetadata;
 
   /**
    * Create a new empty BeanWrapperImpl. Wrapped instance needs to be set afterwards.
@@ -191,8 +190,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
    * @return the new value, possibly the result of type conversion
    * @throws TypeMismatchException if type conversion failed
    */
-  @Nullable
-  public Object convertForProperty(@Nullable Object value, String propertyName) throws TypeMismatchException {
+  public @Nullable Object convertForProperty(@Nullable Object value, String propertyName) throws TypeMismatchException {
     BeanProperty beanProperty = getMetadata().getBeanProperty(propertyName);
     if (beanProperty == null) {
       throw new InvalidPropertyException(getRootClass(), getNestedPath() + propertyName,
@@ -203,8 +201,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
   }
 
   @Override
-  @Nullable
-  protected BeanPropertyHandler getLocalPropertyHandler(String propertyName) {
+  protected @Nullable BeanPropertyHandler getLocalPropertyHandler(String propertyName) {
     BeanProperty beanProperty = getMetadata().getBeanProperty(propertyName);
     return beanProperty != null ? new BeanPropertyHandler(beanProperty) : null;
   }
@@ -273,19 +270,17 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
     }
 
     @Override
-    @Nullable
-    public TypeDescriptor nested(int level) {
+    public @Nullable TypeDescriptor nested(int level) {
       return property.getTypeDescriptor().nested(level);
     }
 
     @Override
-    @Nullable
-    public Object getValue() throws Exception {
+    public @Nullable Object getValue() {
       return property.getValue(getWrappedInstance());
     }
 
     @Override
-    public void setValue(@Nullable Object value) throws Exception {
+    public void setValue(@Nullable Object value) {
       property.setDirectly(getWrappedInstance(), value);
     }
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 
@@ -55,57 +56,57 @@ class TestCompilerTests {
 
   private static final String HELLO_WORLD = """
           package com.example;
-
+          
           import java.util.function.Supplier;
-
+          
           @Deprecated
           public class Hello implements Supplier<String> {
-
+          
           	public String get() {
           		return "Hello World!";
           	}
-
+          
           }
           """;
 
   private static final String HELLO_SPRING = """
           package com.example;
-
+          
           import java.util.function.Supplier;
-
+          
           public class Hello implements Supplier<String> {
-
+          
           	public String get() {
           		return "Hello Spring!"; // !!
           	}
-
+          
           }
           """;
 
   private static final String HELLO_BAD = """
           package com.example;
-
+          
           public class Hello implements Supplier<String> {
-
+          
           	public String get() {
           		return "Missing Import!";
           	}
-
+          
           }
           """;
 
   private static final String HELLO_DEPRECATED = """
           package com.example;
-
+          
           import java.util.function.Supplier;
-
+          
           public class Hello implements Supplier<String> {
-
+          
           	@Deprecated
           	public String get() {
           		return "Hello Deprecated";
           	}
-
+          
           }
           """;
 
@@ -137,7 +138,8 @@ class TestCompilerTests {
     assertThatExceptionOfType(CompilationException.class).isThrownBy(
             () -> TestCompiler.forSystem().withSources(
                     SourceFile.of(HELLO_BAD)).compile(compiled -> {
-            }));
+            })).satisfies(ex -> assertThat(ex.getProblems()).singleElement()
+            .satisfies(problem -> assertThat(problem.message()).contains("Supplier")));
   }
 
   @Test
@@ -145,13 +147,13 @@ class TestCompilerTests {
   void compileWhenSourceUseDeprecateCodeAndNoOptionSet() {
     SourceFile main = SourceFile.of("""
             package com.example;
-
+            
             public class Main {
-
+            
             	public static void main(String[] args) {
             		new Hello().get();
             	}
-
+            
             }
             """);
     TestCompiler.forSystem().withSources(
@@ -166,19 +168,26 @@ class TestCompilerTests {
   void compileWhenSourceUseDeprecateCodeAndFailOnWarningIsSet() {
     SourceFile main = SourceFile.of("""
             package com.example;
-
+            
             public class Main {
-
+            
             	public static void main(String[] args) {
             		new Hello().get();
             	}
-
+            
             }
             """);
     assertThatExceptionOfType(CompilationException.class).isThrownBy(
             () -> TestCompiler.forSystem().failOnWarning().withSources(
                     SourceFile.of(HELLO_DEPRECATED), main).compile(compiled -> {
-            }));
+            })).satisfies(compilationException -> {
+      assertThat(compilationException.getProblems(Diagnostic.Kind.ERROR)).singleElement()
+              .satisfies(error -> assertThat(error.message())
+                      .contains("-Werror"));
+      assertThat(compilationException.getProblems(Diagnostic.Kind.MANDATORY_WARNING)).singleElement()
+              .satisfies(warning -> assertThat(warning.message())
+                      .contains("get()", "com.example.Hello"));
+    });
   }
 
   @Test
@@ -186,14 +195,14 @@ class TestCompilerTests {
   void compileWhenSourceUseDeprecateCodeAndFailOnWarningWithSuppressWarnings() {
     SourceFile main = SourceFile.of("""
             package com.example;
-
+            
             public class Main {
-
+            
             	@SuppressWarnings("deprecation")
             	public static void main(String[] args) {
             		new Hello().get();
             	}
-
+            
             }
             """);
     TestCompiler.forSystem().failOnWarning().withSources(
@@ -290,13 +299,13 @@ class TestCompilerTests {
   void compiledCodeCanAccessExistingPackagePrivateClassIfAnnotated() throws LinkageError {
     SourceFiles sourceFiles = SourceFiles.of(SourceFile.of("""
             package com.example;
-
+            
             public class Test implements PublicInterface {
-
+            
             	public String perform() {
             		return new PackagePrivate().perform();
             	}
-
+            
             }
             """));
     TestCompiler.forSystem().compile(sourceFiles, compiled -> assertThat(
@@ -308,13 +317,13 @@ class TestCompilerTests {
   void compiledCodeCannotAccessExistingPackagePrivateClassIfNotAnnotated() {
     SourceFiles sourceFiles = SourceFiles.of(SourceFile.of("""
             package com.example;
-
+            
             public class Test implements PublicInterface {
-
+            
             	public String perform() {
             		return new PackagePrivate().perform();
             	}
-
+            
             }
             """));
     assertThatExceptionOfType(IllegalAccessError.class)
@@ -327,13 +336,13 @@ class TestCompilerTests {
   void compiledCodeCanReferenceAdditionalClassInSamePackage() {
     SourceFiles sourceFiles = SourceFiles.of(SourceFile.of("""
             package com.example;
-
+            
             public class Test implements PublicInterface {
-
+            
             	public String perform() {
             		return Messages.HELLO;
             	}
-
+            
             }
             """));
     ClassFile messagesClass = ClassFile.of("com.example.Messages",
@@ -347,15 +356,15 @@ class TestCompilerTests {
   void compiledCodeCanReferenceAdditionalClassInDifferentPackage() {
     SourceFiles sourceFiles = SourceFiles.of(SourceFile.of("""
             package com.example;
-
+            
             import com.example.subpackage.Messages;
-
+            
             public class Test implements PublicInterface {
-
+            
             	public String perform() {
             		return Messages.HELLO;
             	}
-
+            
             }
             """));
     ClassFile messagesClass = ClassFile.of("com.example.subpackage.Messages",

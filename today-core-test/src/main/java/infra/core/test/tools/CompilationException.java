@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,36 +17,107 @@
 
 package infra.core.test.tools;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.tools.Diagnostic;
+
 /**
- * Exception thrown when code cannot compile.
+ * Exception thrown when code cannot compile. Expose the {@linkplain Problem
+ * problems} for further inspection.
  *
  * @author Phillip Webb
+ * @author Stephane Nicoll
  * @since 4.0
  */
 @SuppressWarnings("serial")
 public class CompilationException extends RuntimeException {
 
-  CompilationException(String errors, SourceFiles sourceFiles, ResourceFiles resourceFiles) {
-    super(buildMessage(errors, sourceFiles, resourceFiles));
+  private final List<Problem> problems;
+
+  CompilationException(List<Problem> problems, SourceFiles sourceFiles, ResourceFiles resourceFiles) {
+    super(buildMessage(problems, sourceFiles, resourceFiles));
+    this.problems = problems;
   }
 
-  private static String buildMessage(String errors, SourceFiles sourceFiles,
-          ResourceFiles resourceFiles) {
-    StringBuilder message = new StringBuilder();
-    message.append("Unable to compile source\n\n");
-    message.append(errors);
-    message.append("\n\n");
-    for (SourceFile sourceFile : sourceFiles) {
-      message.append("---- source:   ").append(sourceFile.getPath()).append("\n\n");
-      message.append(sourceFile.getContent());
-      message.append("\n\n");
+  private static String buildMessage(List<Problem> problems, SourceFiles sourceFiles, ResourceFiles resourceFiles) {
+    StringWriter out = new StringWriter();
+    PrintWriter writer = new PrintWriter(out);
+    writer.println("Unable to compile source");
+    Function<List<Problem>, String> createBulletList = elements -> elements.stream()
+            .map(warning -> "- %s".formatted(warning.message()))
+            .collect(Collectors.joining("\n"));
+
+    List<Problem> errors = problems.stream()
+            .filter(problem -> problem.kind == Diagnostic.Kind.ERROR).toList();
+    if (!errors.isEmpty()) {
+      writer.println();
+      writer.println("Errors:");
+      writer.println(createBulletList.apply(errors));
     }
-    for (ResourceFile resourceFile : resourceFiles) {
-      message.append("---- resource: ").append(resourceFile.getPath()).append("\n\n");
-      message.append(resourceFile.getContent());
-      message.append("\n\n");
+    List<Problem> warnings = problems.stream()
+            .filter(problem -> problem.kind == Diagnostic.Kind.WARNING ||
+                    problem.kind == Diagnostic.Kind.MANDATORY_WARNING).toList();
+    if (!warnings.isEmpty()) {
+      writer.println();
+      writer.println("Warnings:");
+      writer.println(createBulletList.apply(warnings));
     }
-    return message.toString();
+    if (!sourceFiles.isEmpty()) {
+      for (SourceFile sourceFile : sourceFiles) {
+        writer.println();
+        writer.printf("---- source: %s%n".formatted(sourceFile.getPath()));
+        writer.println(sourceFile.getContent());
+      }
+    }
+    if (!resourceFiles.isEmpty()) {
+      for (ResourceFile resourceFile : resourceFiles) {
+        writer.println();
+        writer.printf("---- resource: %s%n".formatted(resourceFile.getPath()));
+        writer.println(resourceFile.getContent());
+      }
+    }
+    return out.toString();
+  }
+
+  /**
+   * Return the {@linkplain Problem problems} that lead to this exception.
+   *
+   * @return the problems
+   * @since 5.0
+   */
+  public List<Problem> getProblems() {
+    return this.problems;
+  }
+
+  /**
+   * Return the {@linkplain Problem problems} of the given {@code kinds}.
+   *
+   * @param kinds the {@linkplain Diagnostic.Kind kinds} to filter on
+   * @return the problems with the given kinds, or an empty list
+   * @since 5.0
+   */
+  public List<Problem> getProblems(Diagnostic.Kind... kinds) {
+    List<Diagnostic.Kind> toMatch = Arrays.asList(kinds);
+    return this.problems.stream().filter(problem -> toMatch.contains(problem.kind())).toList();
+  }
+
+  /**
+   * Description of a problem that lead to a compilation failure.
+   * <p>{@linkplain Diagnostic.Kind#ERROR errors} are the most important, but
+   * they might not be enough in case an error is triggered by the presence
+   * of a warning, see {@link Diagnostic.Kind#MANDATORY_WARNING}.
+   *
+   * @param kind the kind of problem
+   * @param message the description of the problem
+   * @since 5.0
+   */
+  public record Problem(Diagnostic.Kind kind, String message) {
+
   }
 
 }
