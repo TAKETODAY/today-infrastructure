@@ -71,6 +71,7 @@ import infra.util.StringUtils;
  * @since 4.0 2022/2/17 17:42
  */
 public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyAccessor {
+
   /**
    * We'll create a lot of these objects, so we don't want a new logger every time.
    */
@@ -78,17 +79,14 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 
   private int autoGrowCollectionLimit = Integer.MAX_VALUE;
 
-  @Nullable
-  protected Object wrappedObject;
+  protected @Nullable Object wrappedObject;
 
-  private String nestedPath = "";
-
-  @Nullable
-  protected Object rootObject;
+  protected @Nullable Object rootObject;
 
   /** Map with cached nested Accessors: nested path -> Accessor instance. */
-  @Nullable
-  private HashMap<String, AbstractNestablePropertyAccessor> nestedPropertyAccessors;
+  private @Nullable HashMap<String, AbstractNestablePropertyAccessor> nestedPropertyAccessors;
+
+  private String nestedPath = "";
 
   /**
    * Create a new empty accessor. Wrapped instance needs to be set afterwards.
@@ -507,8 +505,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
   }
 
   @Override
-  @Nullable
-  public TypeDescriptor getPropertyTypeDescriptor(String propertyName) throws BeansException {
+  public @Nullable TypeDescriptor getPropertyTypeDescriptor(String propertyName) throws BeansException {
     try {
       AbstractNestablePropertyAccessor nestedPa = getPropertyAccessorForPropertyPath(propertyName);
       String finalPath = getFinalPath(nestedPa, propertyName);
@@ -571,8 +568,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     return false;
   }
 
-  @Nullable
-  private Object convertIfNecessary(@Nullable String propertyName, @Nullable Object oldValue,
+  private @Nullable Object convertIfNecessary(@Nullable String propertyName, @Nullable Object oldValue,
           @Nullable Object newValue, @Nullable Class<?> requiredType, @Nullable TypeDescriptor td) throws TypeMismatchException {
 
     try {
@@ -590,24 +586,21 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     }
   }
 
-  @Nullable
-  protected Object convertForProperty(String propertyName, @Nullable Object oldValue,
+  protected @Nullable Object convertForProperty(String propertyName, @Nullable Object oldValue,
           @Nullable Object newValue, TypeDescriptor td) throws TypeMismatchException {
 
     return convertIfNecessary(propertyName, oldValue, newValue, td.getType(), td);
   }
 
   @Override
-  @Nullable
-  public Object getPropertyValue(String propertyName) throws BeansException {
+  public @Nullable Object getPropertyValue(String propertyName) throws BeansException {
     AbstractNestablePropertyAccessor nestedPa = getPropertyAccessorForPropertyPath(propertyName);
     PropertyTokenHolder tokens = getPropertyNameTokens(getFinalPath(nestedPa, propertyName));
     return nestedPa.getPropertyValue(tokens);
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  @Nullable
-  protected Object getPropertyValue(PropertyTokenHolder tokens) throws BeansException {
+  protected @Nullable Object getPropertyValue(PropertyTokenHolder tokens) throws BeansException {
     String actualName = tokens.actualName;
     String propertyName = tokens.canonicalName;
     PropertyHandler handler = getLocalPropertyHandler(actualName);
@@ -722,8 +715,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
    * or {@code null} if not found
    * @throws BeansException in case of introspection failure
    */
-  @Nullable
-  protected PropertyHandler getPropertyHandler(String propertyName) throws BeansException {
+  protected @Nullable PropertyHandler getPropertyHandler(String propertyName) throws BeansException {
     Assert.notNull(propertyName, "Property name is required");
     AbstractNestablePropertyAccessor nestedPa = getPropertyAccessorForPropertyPath(propertyName);
     return nestedPa.getLocalPropertyHandler(getFinalPath(nestedPa, propertyName));
@@ -736,8 +728,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
    * @param propertyName the name of a local property
    * @return the handler for that property, or {@code null} if it has not been found
    */
-  @Nullable
-  protected abstract PropertyHandler getLocalPropertyHandler(String propertyName);
+  protected abstract @Nullable PropertyHandler getLocalPropertyHandler(String propertyName);
 
   /**
    * Create a new nested property accessor instance.
@@ -1044,11 +1035,9 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
       return TypeDescriptor.valueOf(getResolvableType().getNested(nestingLevel).asCollection().resolveGeneric());
     }
 
-    @Nullable
-    public abstract TypeDescriptor nested(int level);
+    public abstract @Nullable TypeDescriptor nested(int level);
 
-    @Nullable
-    public abstract Object getValue() throws Exception;
+    public abstract @Nullable Object getValue() throws Exception;
 
     public abstract void setValue(@Nullable Object value) throws Exception;
   }
