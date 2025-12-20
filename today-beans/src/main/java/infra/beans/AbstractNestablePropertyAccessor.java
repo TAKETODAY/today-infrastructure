@@ -477,8 +477,10 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
   }
 
   @Override
-  @Nullable
-  public Class<?> getPropertyType(String propertyName) throws BeansException {
+  public @Nullable Class<?> getPropertyType(String propertyName) throws BeansException {
+    if (this.wrappedObject == null) {
+      return null;
+    }
     try {
       PropertyHandler ph = getPropertyHandler(propertyName);
       if (ph != null) {
