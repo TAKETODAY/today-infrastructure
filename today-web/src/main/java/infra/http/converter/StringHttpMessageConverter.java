@@ -31,7 +31,6 @@ import infra.http.HttpOutputMessage;
 import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.util.StreamUtils;
 
 /**
  * Implementation of {@link HttpMessageConverter} that can read and write strings.
