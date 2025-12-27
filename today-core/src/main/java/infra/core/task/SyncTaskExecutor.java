@@ -16,6 +16,8 @@
  */
 package infra.core.task;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serializable;
 
 import infra.lang.Assert;
@@ -73,7 +75,7 @@ public class SyncTaskExecutor extends ConcurrencyThrottleSupport implements Task
    * @throws E if propagated from the given {@code TaskCallback}
    * @since 5.0
    */
-  public <V, E extends Exception> V execute(TaskCallback<V, E> task) throws E {
+  public <V extends @Nullable Object, E extends Exception> V execute(TaskCallback<V, E> task) throws E {
     Assert.notNull(task, "Task is required");
     if (isThrottleActive()) {
       beforeAccess();

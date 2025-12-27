@@ -274,7 +274,9 @@ class TransactionInterceptorTests extends AbstractTransactionAspectTests {
     PlatformTransactionManager transactionManager = mock();
     TransactionAttributeSource attributeSource = mock();
 
-    TransactionInterceptor interceptor = new TransactionInterceptor(transactionManager, attributeSource);
+    TransactionInterceptor interceptor = new TransactionInterceptor();
+    interceptor.setTransactionManager(transactionManager);
+    interceptor.setTransactionAttributeSource(attributeSource);
 
     assertThat(interceptor.getTransactionManager()).isEqualTo(transactionManager);
     assertThat(interceptor.getTransactionAttributeSource()).isEqualTo(attributeSource);
@@ -286,7 +288,9 @@ class TransactionInterceptorTests extends AbstractTransactionAspectTests {
     Properties properties = new Properties();
     properties.setProperty("testMethod", "PROPAGATION_REQUIRED");
 
-    TransactionInterceptor interceptor = new TransactionInterceptor(transactionManager, properties);
+    TransactionInterceptor interceptor = new TransactionInterceptor();
+    interceptor.setTransactionManager(transactionManager);
+    interceptor.setTransactionAttributes(properties);
 
     assertThat(interceptor.getTransactionManager()).isEqualTo(transactionManager);
     assertThat(interceptor.getTransactionAttributeSource()).isNotNull();
