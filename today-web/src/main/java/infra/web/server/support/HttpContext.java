@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.nio.channels.ClosedChannelException;
 
 import infra.context.ApplicationContext;
+import infra.util.concurrent.Awaiter;
 import infra.web.DispatcherHandler;
 import infra.web.RequestContextHolder;
 import infra.web.server.RequestBodySizeExceededException;
@@ -113,7 +114,13 @@ final class HttpContext extends NettyRequestContext implements Runnable {
       synchronized(this) {
         requestBody = this.requestBody;
         if (requestBody == null) {
-          requestBody = new BodyInputStream(config.awaiterFactory.apply(this), config.dataReceivedQueueCapacity);
+          if (config.autoRead) {
+            requestBody = new BodyInputStream(config.awaiterFactory.apply(this), config.dataReceivedQueueCapacity);
+          }
+          else {
+            channel.config().setAutoRead(false);
+            requestBody = new ManualReadingBodyInputStream(config.awaiterFactory.apply(this), config.dataReceivedQueueCapacity);
+          }
         }
         this.requestBody = requestBody;
       }
@@ -135,6 +142,9 @@ final class HttpContext extends NettyRequestContext implements Runnable {
 
   @Override
   protected void requestCompletedInternal(@Nullable Throwable notHandled) {
+    if (config.autoRead) {
+      channel.config().setAutoRead(true);
+    }
     cleanup(null);
     super.requestCompletedInternal(notHandled);
   }
@@ -222,6 +232,19 @@ final class HttpContext extends NettyRequestContext implements Runnable {
             config.httpHeadersFactory, trailersFactory());
     response.headers().set(CONTENT_LENGTH, 0);
     return response;
+  }
+
+  private final class ManualReadingBodyInputStream extends BodyInputStream {
+
+    private ManualReadingBodyInputStream(Awaiter awaiter, int capacity) {
+      super(awaiter, capacity);
+    }
+
+    @Override
+    protected void requestNext() {
+      channel.read();
+    }
+
   }
 
 }

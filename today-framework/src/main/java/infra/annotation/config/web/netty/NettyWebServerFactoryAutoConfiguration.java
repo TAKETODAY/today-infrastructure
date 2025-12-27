@@ -165,6 +165,7 @@ public class NettyWebServerFactoryAutoConfiguration {
             .sendErrorHandler(sendErrorHandler)
             .maxContentLength(server.netty.maxContentLength.toBytes())
             .dataReceivedQueueCapacity(server.netty.dataReceivedQueueCapacity)
+            .autoRead(server.netty.autoRead)
             .build();
   }
 

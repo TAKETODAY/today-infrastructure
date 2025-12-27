@@ -153,12 +153,18 @@ public final class NettyRequestConfig {
    */
   public final int dataReceivedQueueCapacity;
 
+  /**
+   * @since 5.0
+   */
+  public final boolean autoRead;
+
   private NettyRequestConfig(Builder builder) {
     Assert.notNull(builder.sendErrorHandler, "SendErrorHandler is required");
     Assert.notNull(builder.multipartParser, "MultipartParser is required");
     Assert.isTrue(builder.responseBodyInitialCapacity > 0, "responseBodyInitialCapacity is required");
 
     this.secure = builder.secure;
+    this.autoRead = builder.autoRead;
     this.cookieEncoder = builder.cookieEncoder;
     this.cookieDecoder = builder.cookieDecoder;
     this.awaiterFactory = builder.awaiterFactory;
@@ -238,6 +244,8 @@ public final class NettyRequestConfig {
     private @Nullable MultipartParser multipartParser;
 
     private int dataReceivedQueueCapacity;
+
+    private boolean autoRead = true;
 
     private final boolean secure;
 
@@ -540,6 +548,32 @@ public final class NettyRequestConfig {
     public Builder dataReceivedQueueCapacity(int dataReceivedQueueCapacity) {
       Assert.isTrue(dataReceivedQueueCapacity > 0, "dataReceivedQueueCapacity must be great than 0");
       this.dataReceivedQueueCapacity = dataReceivedQueueCapacity;
+      return this;
+    }
+
+    /**
+     * Sets whether the channel should read messages automatically.
+     * <p>
+     * When auto-read is enabled, the channel will continuously read messages from the remote peer
+     * without requiring explicit calls to {@code read()}. When disabled, the channel will only
+     * read messages when explicitly requested, allowing for more fine-grained control over
+     * the reading process.
+     * <p>
+     * Example usage:
+     * <pre>{@code
+     *   Builder builder = ...;
+     *   builder.autoRead(true);  // Enable auto-read (default)
+     *   builder.autoRead(false); // Disable auto-read for manual control
+     * }</pre>
+     *
+     * @param autoRead {@code true} to enable automatic reading of messages,
+     * {@code false} to disable auto-reading (requires manual read calls)
+     * @return the current {@link Builder} instance, enabling method chaining
+     * @see io.netty.channel.ChannelConfig#setAutoRead(boolean)
+     * @since 5.0
+     */
+    public Builder autoRead(boolean autoRead) {
+      this.autoRead = autoRead;
       return this;
     }
 
