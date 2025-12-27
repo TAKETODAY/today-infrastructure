@@ -17,6 +17,8 @@
 
 package infra.core.task;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.Callable;
 
 /**
@@ -36,7 +38,7 @@ import java.util.concurrent.Callable;
  * @see SyncTaskExecutor#execute(TaskCallback)
  * @since 5.0
  */
-public interface TaskCallback<V, E extends Exception> extends Callable<V> {
+public interface TaskCallback<V extends @Nullable Object, E extends Exception> extends Callable<V> {
 
   @Override
   V call() throws E;
