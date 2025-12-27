@@ -20,7 +20,6 @@ package infra.web.multipart;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.Map;
 
 import infra.http.HttpHeaders;
 import infra.util.MultiValueMap;
@@ -78,65 +77,27 @@ public interface MultipartRequest {
   Iterable<String> getPartNames();
 
   /**
-   * Return a {@link MultiValueMap} of the multipart files contained in this request.
-   *
-   * @return a map containing the parameter names as keys, and a list of
-   * {@link MultipartFile} objects as values
-   * @throws NotMultipartRequestException if this request is not multipart request
-   * @see #getParts()
-   */
-  MultiValueMap<String, MultipartFile> getFiles();
-
-  /**
-   * Return the contents plus description of uploaded files in this request,
-   * or an empty list if it does not exist.
-   *
-   * @param name a String specifying the parameter name of the multipart file
-   * @return the uploaded content in the form of a {@link MultipartFile} list
-   * @throws NotMultipartRequestException if this request is not multipart request
-   * @see #getParts()
-   */
-  @Nullable
-  List<MultipartFile> getFiles(String name);
-
-  /**
-   * Return the contents plus description of an uploaded file in this request,
-   * or {@code null} if it does not exist.
-   *
-   * @param name a String specifying the parameter name of the multipart file
-   * @return the uploaded content in the form of a {@link MultipartFile} object
-   * @throws NotMultipartRequestException if this request is not multipart request
-   * @see #getParts()
-   */
-  @Nullable
-  MultipartFile getFile(String name);
-
-  /**
-   * Return an {@link java.lang.Iterable} of String objects containing the
-   * parameter names of the multipart files contained in this request. These
-   * are the field names of the form (like with normal parameters), not the
-   * original file names.
-   *
-   * @return the names of the files
-   */
-  Iterable<String> getFileNames();
-
-  /**
-   * Return a {@link java.util.Map} of the multipart files contained in this request.
-   *
-   * @return a map containing the parameter names as keys, and the
-   * {@link MultipartFile} objects as values
-   */
-  Map<String, MultipartFile> getFileMap();
-
-  /**
    * Return the headers for the specified part of the multipart request.
    * <p>If the underlying implementation supports access to part headers,
    * then all headers are returned. Otherwise, e.g. for a file upload, the
    * returned headers may expose a 'Content-Type' if available.
+   *
+   * @param name the name of the part to retrieve headers for
+   * @return the headers for the specified part, or {@code null} if not found
    */
   @Nullable
-  HttpHeaders getMultipartHeaders(String paramOrFileName);
+  HttpHeaders getHeaders(String name);
+
+  /**
+   * Check if a part with the given name exists.
+   *
+   * @param name the name of the part to check
+   * @return {@code true} if a part with the given name exists, {@code false} otherwise
+   * @see #getParts()
+   */
+  default boolean contains(String name) {
+    return getParts().containsKey(name);
+  }
 
   /**
    * Cleanup any resources used for the multipart handling,

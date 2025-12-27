@@ -25,14 +25,12 @@ import java.util.List;
 
 import infra.core.MethodParameter;
 import infra.core.ResolvableType;
-import infra.util.CollectionUtils;
 import infra.web.RequestContext;
-import infra.web.multipart.MultipartFile;
 import infra.web.multipart.Part;
 
 /**
  * A common delegate for {@code ParameterResolvingStrategy} implementations
- * which need to resolve {@link MultipartFile} arguments.
+ * which need to resolve {@link Part} arguments.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -66,7 +64,7 @@ final class MultipartResolutionDelegate {
 
     Class<?> parameterType = parameter.getNestedParameterType();
     if (Part.class.isAssignableFrom(parameterType)) {
-      return CollectionUtils.firstElement(request.asMultipartRequest().getParts(name));
+      return request.asMultipartRequest().getPart(name);
     }
     else if (isMultipartCollection(parameter, parameterType)) {
       return request.asMultipartRequest().getParts(name);
@@ -75,9 +73,6 @@ final class MultipartResolutionDelegate {
       List<Part> parts = request.asMultipartRequest().getParts(name);
       if (parts == null) {
         return null;
-      }
-      if (parameterType.getComponentType() == MultipartFile.class) {
-        return parts.toArray(new MultipartFile[parts.size()]);
       }
       return parts.toArray(new Part[parts.size()]);
     }

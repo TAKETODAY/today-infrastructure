@@ -35,6 +35,7 @@ import infra.util.ObjectUtils;
 import infra.web.server.Ssl;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
+import io.netty.handler.codec.http.HttpDecoderConfig;
 import io.netty.handler.codec.http2.Http2SecurityUtil;
 import io.netty.handler.ssl.ApplicationProtocolConfig;
 import io.netty.handler.ssl.ApplicationProtocolNames;
@@ -63,8 +64,7 @@ final class SSLNettyChannelInitializer extends NettyChannelInitializer {
 
   private static final Logger logger = LoggerFactory.getLogger(SSLNettyChannelInitializer.class);
 
-  @Nullable
-  private final HashMap<String, SslContext> serverNameSslContexts;
+  private final @Nullable HashMap<String, SslContext> serverNameSslContexts;
 
   private final long handshakeTimeout;
 
@@ -74,9 +74,9 @@ final class SSLNettyChannelInitializer extends NettyChannelInitializer {
 
   private volatile SslContext sslContext;
 
-  public SSLNettyChannelInitializer(ChannelHandler channelHandler, @Nullable ChannelConfigurer channelConfigurer,
+  public SSLNettyChannelInitializer(ChannelHandler handler, HttpDecoderConfig config, @Nullable ChannelConfigurer configurer,
           boolean http2Enabled, Ssl ssl, SslBundle sslBundle, Map<String, SslBundle> serverNameSslBundles) {
-    super(channelHandler, channelConfigurer);
+    super(handler, configurer, config);
     this.http2Enabled = http2Enabled;
     this.handshakeTimeout = ssl.handshakeTimeout.toMillis();
     this.clientAuth = Ssl.ClientAuth.map(ssl.clientAuth, ClientAuth.NONE, ClientAuth.OPTIONAL, ClientAuth.REQUIRE);
@@ -118,8 +118,7 @@ final class SSLNettyChannelInitializer extends NettyChannelInitializer {
     return sslContext.newHandler(ch.alloc());
   }
 
-  @Nullable
-  private HashMap<String, SslContext> createServerNameSSLContexts(Map<String, SslBundle> serverNameSslBundles) {
+  private @Nullable HashMap<String, SslContext> createServerNameSSLContexts(Map<String, SslBundle> serverNameSslBundles) {
     if (serverNameSslBundles.isEmpty()) {
       return null;
     }
@@ -153,8 +152,7 @@ final class SSLNettyChannelInitializer extends NettyChannelInitializer {
     }
   }
 
-  @Nullable
-  private List<String> getCiphers(SslOptions options) {
+  private @Nullable List<String> getCiphers(SslOptions options) {
     if (ObjectUtils.isNotEmpty(options.getCiphers())) {
       return Arrays.asList(options.getCiphers());
     }

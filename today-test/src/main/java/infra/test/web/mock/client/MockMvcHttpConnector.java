@@ -50,7 +50,7 @@ import infra.mock.http.client.reactive.MockClientHttpResponse;
 import infra.mock.http.server.reactive.MockServerHttpRequest;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
-import infra.mock.web.MockPart;
+import infra.mock.web.MockMemoryPart;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.RequestBuilder;
@@ -176,9 +176,9 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
                               buffer.release();
 
                               // Adapt to infra.mock.api.http.Part...
-                              MockPart mockPart = (part instanceof FilePart filePart ?
-                                      new MockPart(part.name(), filePart.filename(), partBytes) :
-                                      new MockPart(part.name(), partBytes));
+                              MockMemoryPart mockPart = (part instanceof FilePart filePart ?
+                                      new MockMemoryPart(part.name(), filePart.filename(), partBytes) :
+                                      new MockMemoryPart(part.name(), partBytes));
                               mockPart.getHeaders().putAll(part.headers());
                               requestBuilder.part(mockPart);
                             }))

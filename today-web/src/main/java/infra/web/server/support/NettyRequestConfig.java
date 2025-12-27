@@ -23,9 +23,14 @@ import java.nio.charset.Charset;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import infra.http.HttpRequest;
 import infra.lang.Assert;
 import infra.lang.Constant;
+import infra.util.DataSize;
+import infra.util.concurrent.Awaiter;
+import infra.util.concurrent.SimpleSingleThreadAwaiter;
 import infra.web.RequestContext;
+import infra.web.multipart.MultipartParser;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
@@ -54,7 +59,7 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
  *     .responseBodyInitialCapacity(256)
  *     .postRequestDecoderCharset(StandardCharsets.UTF_8)
  *     .writerCharset(StandardCharsets.UTF_8)
- *     .httpDataFactory(new DefaultHttpDataFactory(false))
+ *     .multipartParser(new DefaultMultipartParser())
  *     .sendErrorHandler(error -> {
  *       // Handle send error logic
  *     })
@@ -119,8 +124,6 @@ public final class NettyRequestConfig {
    */
   public final HttpHeadersFactory httpHeadersFactory;
 
-  public final HttpDataFactory httpDataFactory;
-
   public final SendErrorHandler sendErrorHandler;
 
   /**
@@ -128,20 +131,51 @@ public final class NettyRequestConfig {
    */
   public final boolean secure;
 
+  /**
+   * The maximum length of the http content.
+   *
+   * @since 5.0
+   */
+  public final long maxContentLength;
+
+  /**
+   * @since 5.0
+   */
+  public final Function<HttpRequest, Awaiter> awaiterFactory;
+
+  /**
+   * @since 5.0
+   */
+  public final MultipartParser multipartParser;
+
+  /**
+   * @since 5.0
+   */
+  public final int dataReceivedQueueCapacity;
+
+  /**
+   * @since 5.0
+   */
+  public final boolean autoRead;
+
   private NettyRequestConfig(Builder builder) {
     Assert.notNull(builder.sendErrorHandler, "SendErrorHandler is required");
-    Assert.notNull(builder.httpDataFactory, "HttpDataFactory is required");
+    Assert.notNull(builder.multipartParser, "MultipartParser is required");
     Assert.isTrue(builder.responseBodyInitialCapacity > 0, "responseBodyInitialCapacity is required");
 
     this.secure = builder.secure;
+    this.autoRead = builder.autoRead;
     this.cookieEncoder = builder.cookieEncoder;
     this.cookieDecoder = builder.cookieDecoder;
-    this.httpDataFactory = builder.httpDataFactory;
+    this.awaiterFactory = builder.awaiterFactory;
+    this.multipartParser = builder.multipartParser;
+    this.maxContentLength = builder.maxContentLength;
     this.writerAutoFlush = builder.writerAutoFlush;
     this.sendErrorHandler = builder.sendErrorHandler;
     this.httpHeadersFactory = builder.httpHeadersFactory;
     this.responseBodyFactory = builder.responseBodyFactory;
     this.trailerHeadersConsumer = builder.trailerHeadersConsumer;
+    this.dataReceivedQueueCapacity = builder.dataReceivedQueueCapacity;
     this.responseBodyInitialCapacity = builder.responseBodyInitialCapacity;
     this.postRequestDecoderCharset = builder.postRequestDecoderCharset == null
             ? Constant.DEFAULT_CHARSET : builder.postRequestDecoderCharset;
@@ -201,13 +235,21 @@ public final class NettyRequestConfig {
 
     private boolean writerAutoFlush = false;
 
+    private long maxContentLength = DataSize.BYTES_PER_GB;
+
     private HttpHeadersFactory httpHeadersFactory = DefaultHttpHeadersFactory.headersFactory();
 
-    private HttpDataFactory httpDataFactory;
+    private @Nullable SendErrorHandler sendErrorHandler;
 
-    private SendErrorHandler sendErrorHandler;
+    private @Nullable MultipartParser multipartParser;
+
+    private int dataReceivedQueueCapacity;
+
+    private boolean autoRead = true;
 
     private final boolean secure;
+
+    private Function<HttpRequest, Awaiter> awaiterFactory = ctx -> new SimpleSingleThreadAwaiter();
 
     Builder(boolean secure) {
       this.secure = secure;
@@ -239,31 +281,6 @@ public final class NettyRequestConfig {
      */
     public Builder sendErrorHandler(SendErrorHandler sendErrorHandler) {
       this.sendErrorHandler = sendErrorHandler;
-      return this;
-    }
-
-    /**
-     * Sets the {@link HttpDataFactory} to be used for creating HTTP data objects.
-     * <p>
-     * The {@code HttpDataFactory} is responsible for creating instances of HTTP data
-     * such as request bodies, response bodies, or other data structures required
-     * during HTTP processing. By providing a custom factory, you can control how
-     * these objects are created and managed.
-     * <p>
-     * Example usage:
-     * <pre>{@code
-     *   Builder builder = ...;
-     *   HttpDataFactory customFactory = new DefaultHttpDataFactory();
-     *   builder.httpDataFactory(customFactory);
-     * }</pre>
-     *
-     * @param httpDataFactory the {@link HttpDataFactory} instance to be used for
-     * creating HTTP data objects. If {@code null}, no custom
-     * factory will be applied, and the default behavior will be used.
-     * @return the current {@link Builder} instance, enabling method chaining
-     */
-    public Builder httpDataFactory(HttpDataFactory httpDataFactory) {
-      this.httpDataFactory = httpDataFactory;
       return this;
     }
 
@@ -439,6 +456,7 @@ public final class NettyRequestConfig {
      * {@code false} to disable it (default behavior)
      * @return the current {@link Builder} instance, enabling method chaining
      * @see java.io.PrintWriter
+     * @see RequestContext#getWriter()
      * @since 5.0
      */
     public Builder writerAutoFlush(boolean writerAutoFlush) {
@@ -455,6 +473,107 @@ public final class NettyRequestConfig {
     public Builder headersFactory(@Nullable HttpHeadersFactory headersFactory) {
       this.httpHeadersFactory = headersFactory == null ? DefaultHttpHeadersFactory.headersFactory()
               : headersFactory;
+      return this;
+    }
+
+    /**
+     * Set the maximum length of the http content.
+     *
+     * @param maxContentLength the maximum length of the http content.
+     * If the length of the http content exceeds this value,
+     * @since 5.0
+     */
+    public Builder maxContentLength(long maxContentLength) {
+      this.maxContentLength = maxContentLength;
+      return this;
+    }
+
+    /**
+     * Set {@link Awaiter} factory.
+     *
+     * @since 5.0
+     */
+    public Builder awaiterFactory(Function<HttpRequest, Awaiter> awaiterFactory) {
+      Assert.notNull(awaiterFactory, "awaiterFactory is required");
+      this.awaiterFactory = awaiterFactory;
+      return this;
+    }
+
+    /**
+     * Sets the {@link infra.web.multipart.parsing.DefaultMultipartParser} to be used for parsing multipart requests.
+     * <p>
+     * This method allows configuring a custom multipart parser that will be used
+     * to handle multipart/form-data requests. The provided parser will be responsible
+     * for parsing the multipart content and extracting individual parts.
+     * <p>
+     * Example usage:
+     * <pre>{@code
+     *   Builder builder = ...;
+     *   MultipartParser customParser = new CustomMultipartParser();
+     *   builder.multipartParser(customParser);
+     * }</pre>
+     *
+     * @param multipartParser the {@link MultipartParser} instance to be used for
+     * parsing multipart requests. Must not be {@code null}.
+     * @return the current {@link Builder} instance, enabling method chaining
+     * @throws IllegalArgumentException if the provided multipartParser is {@code null}
+     * @since 5.0
+     */
+    public Builder multipartParser(MultipartParser multipartParser) {
+      Assert.notNull(multipartParser, "MultipartParser is required");
+      this.multipartParser = multipartParser;
+      return this;
+    }
+
+    /**
+     * Sets the capacity of the queue used for receiving data.
+     * <p>
+     * This method configures the maximum number of data items that can be queued
+     * for processing before the queue starts blocking or rejecting new items.
+     * Adjusting this value can help balance between memory usage and throughput
+     * based on the application's requirements.
+     * <p>
+     * Example usage:
+     * <pre>{@code
+     *   Builder builder = ...;
+     *   builder.dataReceivedQueueCapacity(1000); // Set queue capacity to 1000 items
+     * }</pre>
+     *
+     * @param dataReceivedQueueCapacity the capacity of the data received queue.
+     * Must be a non-negative integer.
+     * @return the current {@link Builder} instance, enabling method chaining
+     * @see BodyInputStream#BodyInputStream(Awaiter, int)
+     * @since 5.0
+     */
+    public Builder dataReceivedQueueCapacity(int dataReceivedQueueCapacity) {
+      Assert.isTrue(dataReceivedQueueCapacity > 0, "dataReceivedQueueCapacity must be great than 0");
+      this.dataReceivedQueueCapacity = dataReceivedQueueCapacity;
+      return this;
+    }
+
+    /**
+     * Sets whether the channel should read messages automatically.
+     * <p>
+     * When auto-read is enabled, the channel will continuously read messages from the remote peer
+     * without requiring explicit calls to {@code read()}. When disabled, the channel will only
+     * read messages when explicitly requested, allowing for more fine-grained control over
+     * the reading process.
+     * <p>
+     * Example usage:
+     * <pre>{@code
+     *   Builder builder = ...;
+     *   builder.autoRead(true);  // Enable auto-read (default)
+     *   builder.autoRead(false); // Disable auto-read for manual control
+     * }</pre>
+     *
+     * @param autoRead {@code true} to enable automatic reading of messages,
+     * {@code false} to disable auto-reading (requires manual read calls)
+     * @return the current {@link Builder} instance, enabling method chaining
+     * @see io.netty.channel.ChannelConfig#setAutoRead(boolean)
+     * @since 5.0
+     */
+    public Builder autoRead(boolean autoRead) {
+      this.autoRead = autoRead;
       return this;
     }
 

@@ -48,20 +48,15 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
 
   private int port = 8080;
 
-  @Nullable
-  private InetAddress address;
+  private @Nullable InetAddress address;
 
-  @Nullable
-  private Ssl ssl;
+  private @Nullable Ssl ssl;
 
-  @Nullable
-  private SslBundles sslBundles;
+  private @Nullable SslBundles sslBundles;
 
-  @Nullable
-  private Http2 http2;
+  private @Nullable Http2 http2;
 
-  @Nullable
-  private Compression compression;
+  private @Nullable Compression compression;
 
   private Shutdown shutdown = Shutdown.IMMEDIATE;
 
@@ -71,7 +66,6 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
    * Create a new {@link AbstractConfigurableWebServerFactory} instance.
    */
   public AbstractConfigurableWebServerFactory() {
-
   }
 
   /**
@@ -103,8 +97,7 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
    *
    * @return the address
    */
-  @Nullable
-  public InetAddress getAddress() {
+  public @Nullable InetAddress getAddress() {
     return this.address;
   }
 
@@ -113,8 +106,7 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
     this.address = address;
   }
 
-  @Nullable
-  public Ssl getSsl() {
+  public @Nullable Ssl getSsl() {
     return this.ssl;
   }
 
@@ -128,8 +120,7 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
    *
    * @return the {@link SslBundles} or {@code null}
    */
-  @Nullable
-  public SslBundles getSslBundles() {
+  public @Nullable SslBundles getSslBundles() {
     return this.sslBundles;
   }
 
@@ -138,8 +129,7 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
     this.sslBundles = sslBundles;
   }
 
-  @Nullable
-  public Http2 getHttp2() {
+  public @Nullable Http2 getHttp2() {
     return this.http2;
   }
 
@@ -148,8 +138,7 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
     this.http2 = http2;
   }
 
-  @Nullable
-  public Compression getCompression() {
+  public @Nullable Compression getCompression() {
     return this.compression;
   }
 
@@ -210,7 +199,7 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
   /**
    * @since 5.0
    */
-  protected final void addBundleUpdateHandler(Ssl ssl, BiConsumer<String, SslBundle> updateHandler) {
+  protected final void addBundleUpdateHandler(Ssl ssl, BiConsumer<@Nullable String, SslBundle> updateHandler) {
     if (sslBundles != null) {
       addBundleUpdateHandler(sslBundles, null, ssl.bundle, updateHandler);
       for (var pair : ssl.serverNameBundles) {
@@ -220,7 +209,7 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
   }
 
   private void addBundleUpdateHandler(SslBundles sslBundles, @Nullable String serverName,
-          @Nullable String bundleName, BiConsumer<String, SslBundle> updateHandler) {
+          @Nullable String bundleName, BiConsumer<@Nullable String, SslBundle> updateHandler) {
     if (StringUtils.hasText(bundleName)) {
       sslBundles.addBundleUpdateHandler(bundleName, sslBundle ->
               updateHandler.accept(serverName, sslBundle));

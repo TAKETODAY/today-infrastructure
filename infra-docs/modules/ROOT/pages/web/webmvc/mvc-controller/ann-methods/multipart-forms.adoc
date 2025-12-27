@@ -39,7 +39,7 @@ When the `@RequestParam` annotation is declared as a `Map<String, MultipartFile>
 then the map is populated with the multipart files for each given parameter name.
 
 NOTE: With Servlet multipart parsing, you may also declare `jakarta.mockApi.http.Part`
-instead of Infra `MultipartFile`, as a method argument or collection value type.
+instead of Infra Web `Part`, as a method argument or collection value type.
 
 You can also use multipart content as part of data binding to a
 xref:web/webmvc/mvc-controller/ann-methods/modelattrib-method-args.adoc[command object]. For example, the form field

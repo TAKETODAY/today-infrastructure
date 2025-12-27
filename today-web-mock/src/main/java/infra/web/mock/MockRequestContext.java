@@ -67,6 +67,7 @@ import infra.web.multipart.MultipartRequest;
  * @author TODAY 2019-07-07 22:27
  * @since 2.3.7
  */
+@SuppressWarnings("NullAway")
 public class MockRequestContext extends RequestContext implements MockIndicator {
 
   public final HttpMockRequest request;

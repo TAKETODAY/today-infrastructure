@@ -27,14 +27,14 @@ import java.util.function.Function;
 
 import infra.lang.Constant;
 import infra.web.RequestContext;
+import infra.web.multipart.MultipartParser;
+import infra.web.multipart.parsing.DefaultMultipartParser;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.handler.codec.http.HttpHeadersFactory;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
-import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
-import io.netty.handler.codec.http.multipart.HttpDataFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -55,17 +55,17 @@ class NettyRequestConfigTests {
     assertThatThrownBy(() -> NettyRequestConfig.forBuilder(false)
             .sendErrorHandler(new SendErrorHandler0())
             .build()).isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("HttpDataFactory is required");
+            .hasMessage("MultipartParser is required");
 
     assertThat(NettyRequestConfig.forBuilder(false)
             .sendErrorHandler(new SendErrorHandler0())
-            .httpDataFactory(new DefaultHttpDataFactory())
+            .multipartParser(new DefaultMultipartParser())
             .build().writerCharset).isSameAs(Constant.DEFAULT_CHARSET);
 
     NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
             .writerCharset(StandardCharsets.US_ASCII)
             .sendErrorHandler(new SendErrorHandler0())
-            .httpDataFactory(new DefaultHttpDataFactory())
+            .multipartParser(new DefaultMultipartParser())
             .build();
     assertThat(config.writerCharset).isEqualTo(StandardCharsets.US_ASCII);
     assertThat(config.postRequestDecoderCharset).isSameAs(Constant.DEFAULT_CHARSET);
@@ -73,7 +73,7 @@ class NettyRequestConfigTests {
     assertThat(NettyRequestConfig.forBuilder(false)
             .postRequestDecoderCharset(StandardCharsets.US_ASCII)
             .sendErrorHandler(new SendErrorHandler0())
-            .httpDataFactory(new DefaultHttpDataFactory())
+            .multipartParser(new DefaultMultipartParser())
             .build().postRequestDecoderCharset).isEqualTo(StandardCharsets.US_ASCII);
   }
 
@@ -81,18 +81,18 @@ class NettyRequestConfigTests {
   void shouldBuildWithAllRequiredFields() {
     // given
     SendErrorHandler sendErrorHandler = new NettyRequestConfigTests.SendErrorHandler0();
-    HttpDataFactory httpDataFactory = new DefaultHttpDataFactory();
+    MultipartParser multipartParser = mock(MultipartParser.class);
 
     // when
     NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
             .sendErrorHandler(sendErrorHandler)
-            .httpDataFactory(httpDataFactory)
+            .multipartParser(multipartParser)
             .build();
 
     // then
     assertThat(config).isNotNull();
     assertThat(config.sendErrorHandler).isEqualTo(sendErrorHandler);
-    assertThat(config.httpDataFactory).isEqualTo(httpDataFactory);
+    assertThat(config.multipartParser).isEqualTo(multipartParser);
     assertThat(config.responseBodyInitialCapacity).isEqualTo(128);
   }
 
@@ -100,12 +100,12 @@ class NettyRequestConfigTests {
   void shouldSetCookieEncoderAndDecoder() {
     // given
     SendErrorHandler sendErrorHandler = new NettyRequestConfigTests.SendErrorHandler0();
-    HttpDataFactory httpDataFactory = new DefaultHttpDataFactory();
+    MultipartParser multipartParser = mock(MultipartParser.class);
 
     // when
     NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
             .sendErrorHandler(sendErrorHandler)
-            .httpDataFactory(httpDataFactory)
+            .multipartParser(multipartParser)
             .cookieEncoder(ServerCookieEncoder.LAX)
             .cookieDecoder(ServerCookieDecoder.LAX)
             .build();
@@ -119,12 +119,12 @@ class NettyRequestConfigTests {
   void shouldSetResponseBodyInitialCapacity() {
     // given
     SendErrorHandler sendErrorHandler = new NettyRequestConfigTests.SendErrorHandler0();
-    HttpDataFactory httpDataFactory = new DefaultHttpDataFactory();
+    MultipartParser multipartParser = mock(MultipartParser.class);
 
     // when
     NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
             .sendErrorHandler(sendErrorHandler)
-            .httpDataFactory(httpDataFactory)
+            .multipartParser(multipartParser)
             .responseBodyInitialCapacity(256)
             .build();
 
@@ -136,13 +136,13 @@ class NettyRequestConfigTests {
   void shouldSetResponseBodyFactory() {
     // given
     SendErrorHandler sendErrorHandler = new NettyRequestConfigTests.SendErrorHandler0();
-    HttpDataFactory httpDataFactory = new DefaultHttpDataFactory();
+    MultipartParser multipartParser = mock(MultipartParser.class);
     Function<RequestContext, ByteBuf> factory = mock(Function.class);
 
     // when
     NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
             .sendErrorHandler(sendErrorHandler)
-            .httpDataFactory(httpDataFactory)
+            .multipartParser(multipartParser)
             .responseBodyFactory(factory)
             .build();
 
@@ -154,13 +154,13 @@ class NettyRequestConfigTests {
   void shouldSetTrailerHeadersConsumer() {
     // given
     SendErrorHandler sendErrorHandler = new NettyRequestConfigTests.SendErrorHandler0();
-    HttpDataFactory httpDataFactory = new DefaultHttpDataFactory();
+    MultipartParser multipartParser = mock(MultipartParser.class);
     Consumer consumer = mock(Consumer.class);
 
     // when
     NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
             .sendErrorHandler(sendErrorHandler)
-            .httpDataFactory(httpDataFactory)
+            .multipartParser(multipartParser)
             .trailerHeadersConsumer(consumer)
             .build();
 
@@ -172,13 +172,13 @@ class NettyRequestConfigTests {
   void shouldSetHeadersFactory() {
     // given
     SendErrorHandler sendErrorHandler = new NettyRequestConfigTests.SendErrorHandler0();
-    HttpDataFactory httpDataFactory = new DefaultHttpDataFactory();
+    MultipartParser multipartParser = mock(MultipartParser.class);
     HttpHeadersFactory headersFactory = mock(HttpHeadersFactory.class);
 
     // when
     NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
             .sendErrorHandler(sendErrorHandler)
-            .httpDataFactory(httpDataFactory)
+            .multipartParser(multipartParser)
             .headersFactory(headersFactory)
             .build();
 
@@ -190,12 +190,12 @@ class NettyRequestConfigTests {
   void shouldSetSecureFlag() {
     // given
     SendErrorHandler sendErrorHandler = new NettyRequestConfigTests.SendErrorHandler0();
-    HttpDataFactory httpDataFactory = new DefaultHttpDataFactory();
+    MultipartParser multipartParser = mock(MultipartParser.class);
 
     // when
     NettyRequestConfig config = NettyRequestConfig.forBuilder(true)
             .sendErrorHandler(sendErrorHandler)
-            .httpDataFactory(httpDataFactory)
+            .multipartParser(multipartParser)
             .build();
 
     // then
@@ -206,12 +206,12 @@ class NettyRequestConfigTests {
   void shouldUseDefaultValuesWhenNotSet() {
     // given
     SendErrorHandler sendErrorHandler = new NettyRequestConfigTests.SendErrorHandler0();
-    HttpDataFactory httpDataFactory = new DefaultHttpDataFactory();
+    MultipartParser multipartParser = mock(MultipartParser.class);
 
     // when
     NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
             .sendErrorHandler(sendErrorHandler)
-            .httpDataFactory(httpDataFactory)
+            .multipartParser(multipartParser)
             .build();
 
     // then
@@ -227,11 +227,11 @@ class NettyRequestConfigTests {
   @Test
   void shouldThrowExceptionWhenSendErrorHandlerIsNull() {
     // given
-    HttpDataFactory httpDataFactory = new DefaultHttpDataFactory();
+    MultipartParser multipartParser = mock(MultipartParser.class);
 
     // when & then
     assertThatThrownBy(() -> NettyRequestConfig.forBuilder(false)
-            .httpDataFactory(httpDataFactory)
+            .multipartParser(multipartParser)
             .build())
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("SendErrorHandler is required");
@@ -247,19 +247,19 @@ class NettyRequestConfigTests {
             .sendErrorHandler(sendErrorHandler)
             .build())
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("HttpDataFactory is required");
+            .hasMessage("MultipartParser is required");
   }
 
   @Test
   void shouldThrowExceptionWhenResponseBodyInitialCapacityIsNotPositive() {
     // given
     SendErrorHandler sendErrorHandler = new NettyRequestConfigTests.SendErrorHandler0();
-    HttpDataFactory httpDataFactory = new DefaultHttpDataFactory();
+    MultipartParser multipartParser = mock(MultipartParser.class);
 
     // when & then
     assertThatThrownBy(() -> NettyRequestConfig.forBuilder(false)
             .sendErrorHandler(sendErrorHandler)
-            .httpDataFactory(httpDataFactory)
+            .multipartParser(multipartParser)
             .responseBodyInitialCapacity(0)
             .build())
             .isInstanceOf(IllegalArgumentException.class)
@@ -270,12 +270,12 @@ class NettyRequestConfigTests {
   void shouldUseProvidedCharsetsWhenSet() {
     // given
     SendErrorHandler sendErrorHandler = new NettyRequestConfigTests.SendErrorHandler0();
-    HttpDataFactory httpDataFactory = new DefaultHttpDataFactory();
+    MultipartParser multipartParser = mock(MultipartParser.class);
 
     // when
     NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
             .sendErrorHandler(sendErrorHandler)
-            .httpDataFactory(httpDataFactory)
+            .multipartParser(multipartParser)
             .postRequestDecoderCharset(StandardCharsets.UTF_16)
             .writerCharset(StandardCharsets.ISO_8859_1)
             .build();
@@ -289,12 +289,12 @@ class NettyRequestConfigTests {
   void shouldUseDefaultCharsetsWhenNullProvided() {
     // given
     SendErrorHandler sendErrorHandler = new NettyRequestConfigTests.SendErrorHandler0();
-    HttpDataFactory httpDataFactory = new DefaultHttpDataFactory();
+    MultipartParser multipartParser = mock(MultipartParser.class);
 
     // when
     NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
             .sendErrorHandler(sendErrorHandler)
-            .httpDataFactory(httpDataFactory)
+            .multipartParser(multipartParser)
             .postRequestDecoderCharset(null)
             .writerCharset(null)
             .build();
@@ -308,12 +308,12 @@ class NettyRequestConfigTests {
   void shouldUseDefaultCookieEncoderAndDecoderWhenNullProvided() {
     // given
     SendErrorHandler sendErrorHandler = new NettyRequestConfigTests.SendErrorHandler0();
-    HttpDataFactory httpDataFactory = new DefaultHttpDataFactory();
+    MultipartParser multipartParser = mock(MultipartParser.class);
 
     // when
     NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
             .sendErrorHandler(sendErrorHandler)
-            .httpDataFactory(httpDataFactory)
+            .multipartParser(multipartParser)
             .cookieEncoder(null)
             .cookieDecoder(null)
             .build();
@@ -327,12 +327,12 @@ class NettyRequestConfigTests {
   void shouldUseDefaultHeadersFactoryWhenNullProvided() {
     // given
     SendErrorHandler sendErrorHandler = new NettyRequestConfigTests.SendErrorHandler0();
-    HttpDataFactory httpDataFactory = new DefaultHttpDataFactory();
+    MultipartParser multipartParser = mock(MultipartParser.class);
 
     // when
     NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
             .sendErrorHandler(sendErrorHandler)
-            .httpDataFactory(httpDataFactory)
+            .multipartParser(multipartParser)
             .headersFactory(null)
             .build();
 

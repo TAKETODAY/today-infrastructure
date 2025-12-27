@@ -1,0 +1,68 @@
+/*
+ * Copyright 2017 - 2025 the original author or authors.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
+ */
+
+package infra.web.server.support;
+
+import java.io.IOException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
+
+import infra.http.HttpStatus;
+import infra.lang.Assert;
+import infra.web.RequestContext;
+import infra.web.server.ServiceExecutor;
+
+/**
+ * Simple {@link ServiceExecutor} implementation that delegates to an {@link Executor}.
+ *
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0 2025/9/18 15:59
+ */
+public class SimpleServiceExecutor implements ServiceExecutor {
+
+  private final Executor executor;
+
+  /**
+   * Create a new SimpleServiceExecutor instance.
+   *
+   * @param executor the executor to delegate to
+   */
+  public SimpleServiceExecutor(Executor executor) {
+    Assert.notNull(executor, "Executor is required");
+    this.executor = executor;
+  }
+
+  /**
+   * Execute the given command using the configured executor.
+   * If the executor rejects the task, set status to 503 SERVICE UNAVAILABLE.
+   *
+   * @param ctx the request context
+   * @param command the command to execute
+   * @throws IOException if an I/O error occurs
+   */
+  @Override
+  public void execute(RequestContext ctx, Runnable command) throws IOException {
+    try {
+      executor.execute(command);
+    }
+    catch (RejectedExecutionException e) {
+      ctx.setStatus(HttpStatus.SERVICE_UNAVAILABLE);
+      ctx.flush();
+    }
+  }
+
+}

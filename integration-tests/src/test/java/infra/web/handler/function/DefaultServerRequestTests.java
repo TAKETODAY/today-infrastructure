@@ -51,7 +51,7 @@ import infra.http.converter.json.MappingJackson2HttpMessageConverter;
 import infra.mock.api.http.Cookie;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
-import infra.mock.web.MockPart;
+import infra.mock.web.MockMemoryPart;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.validation.BindException;
@@ -180,8 +180,8 @@ class DefaultServerRequestTests {
 
   @Test
   void multipartData() throws Exception {
-    MockPart formPart = new MockPart("form", "foo".getBytes(UTF_8));
-    MockPart filePart = new MockPart("file", "foo.txt", "foo".getBytes(UTF_8));
+    MockMemoryPart formPart = new MockMemoryPart("form", "foo".getBytes(UTF_8));
+    MockMemoryPart filePart = new MockMemoryPart("file", "foo.txt", "foo".getBytes(UTF_8));
 
     HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("POST", "/", true);
     servletRequest.addPart(formPart);

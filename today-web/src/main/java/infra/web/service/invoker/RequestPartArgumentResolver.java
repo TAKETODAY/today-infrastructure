@@ -28,10 +28,9 @@ import infra.core.ReactiveStreams;
 import infra.core.io.Resource;
 import infra.http.HttpEntity;
 import infra.http.HttpHeaders;
-import infra.http.codec.multipart.Part;
 import infra.lang.Assert;
 import infra.web.annotation.RequestPart;
-import infra.web.multipart.MultipartFile;
+import infra.web.multipart.Part;
 
 /**
  * {@link HttpServiceArgumentResolver} for {@link RequestPart @RequestPart}
@@ -41,7 +40,7 @@ import infra.web.multipart.MultipartFile;
  * <ul>
  * <li>String -- form field
  * <li>{@link Resource Resource} -- file part
- * <li>{@link MultipartFile} -- uploaded file
+ * <li>{@link Part} -- uploaded file
  * <li>Object -- content to be encoded (e.g. to JSON)
  * <li>{@link HttpEntity} -- part content and headers although generally it's
  * easier to add headers through the returned builder
@@ -77,13 +76,13 @@ public class RequestPartArgumentResolver extends AbstractNamedValueArgumentResol
   @Override
   protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
     RequestPart annot = parameter.getParameterAnnotation(RequestPart.class);
-    boolean isMultiPartFile = parameter.getParameterType().equals(MultipartFile.class);
-    String label = isMultiPartFile ? "MultipartFile" : "request part";
+    boolean isMultipart = parameter.getParameterType().equals(Part.class);
+    String label = "request part";
 
     if (annot != null) {
       return new NamedValueInfo(annot.name(), annot.required(), null, label, true);
     }
-    else if (isMultiPartFile) {
+    else if (isMultipart) {
       return new NamedValueInfo("", true, null, label, true);
     }
 
@@ -91,17 +90,14 @@ public class RequestPartArgumentResolver extends AbstractNamedValueArgumentResol
   }
 
   @Override
-  protected void addRequestValue(
-          String name, Object value, MethodParameter parameter, HttpRequestValues.Builder requestValues) {
-
+  protected void addRequestValue(String name, Object value, MethodParameter parameter, HttpRequestValues.Builder requestValues) {
     if (reactiveAdapterRegistry != null) {
-      Class<?> type = parameter.getParameterType();
-      ReactiveAdapter adapter = reactiveAdapterRegistry.getAdapter(type);
+      ReactiveAdapter adapter = reactiveAdapterRegistry.getAdapter(parameter.getParameterType());
       if (adapter != null) {
-        MethodParameter nestedParameter = parameter.nested();
-
         String message = "Async type for @RequestPart should produce value(s)";
         Assert.isTrue(!adapter.isNoValue(), message);
+
+        MethodParameter nestedParameter = parameter.nested();
         Assert.isTrue(nestedParameter.getNestedParameterType() != Void.class, message);
 
         if (requestValues instanceof ReactiveHttpRequestValues.Builder reactiveValues) {
@@ -116,8 +112,8 @@ public class RequestPartArgumentResolver extends AbstractNamedValueArgumentResol
       }
     }
 
-    if (value instanceof MultipartFile multipartFile) {
-      value = toHttpEntity(name, multipartFile);
+    if (value instanceof Part part) {
+      value = toHttpEntity(name, part);
     }
 
     requestValues.addRequestPart(name, value);
@@ -127,15 +123,15 @@ public class RequestPartArgumentResolver extends AbstractNamedValueArgumentResol
     return ParameterizedTypeReference.forType(nestedParam.getNestedGenericParameterType());
   }
 
-  private static Object toHttpEntity(String name, MultipartFile multipartFile) {
+  private static Object toHttpEntity(String name, Part part) {
     HttpHeaders headers = HttpHeaders.forWritable();
-    if (multipartFile.getOriginalFilename() != null) {
-      headers.setContentDispositionFormData(name, multipartFile.getOriginalFilename());
+    if (part.getOriginalFilename() != null) {
+      headers.setContentDispositionFormData(name, part.getOriginalFilename());
     }
-    if (multipartFile.getContentType() != null) {
-      headers.setContentType(multipartFile.getContentType());
+    if (part.getContentType() != null) {
+      headers.setContentType(part.getContentType());
     }
-    return new HttpEntity<>(multipartFile.getResource(), headers);
+    return new HttpEntity<>(part.getResource(), headers);
   }
 
 }
