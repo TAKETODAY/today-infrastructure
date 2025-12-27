@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.context.event;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import infra.aop.framework.ProxyFactory;
@@ -39,32 +40,33 @@ import static org.mockito.Mockito.mock;
  * @author Juergen Hoeller
  * @author Rick Evans
  */
-public class EventPublicationInterceptorTests {
+class EventPublicationInterceptorTests {
 
-  private final ApplicationEventPublisher publisher = mock(ApplicationEventPublisher.class);
+  private final EventPublicationInterceptor interceptor = new EventPublicationInterceptor();
 
-  @Test
-  public void testWithNoApplicationEventClassSupplied() {
-    EventPublicationInterceptor interceptor = new EventPublicationInterceptor();
-    interceptor.setApplicationEventPublisher(this.publisher);
-    assertThatIllegalArgumentException().isThrownBy(
-            interceptor::afterPropertiesSet);
+  @BeforeEach
+  void setup() {
+    ApplicationEventPublisher publisher = mock();
+    this.interceptor.setApplicationEventPublisher(publisher);
   }
 
   @Test
-  public void testWithNonApplicationEventClassSupplied() {
-    EventPublicationInterceptor interceptor = new EventPublicationInterceptor();
-    interceptor.setApplicationEventPublisher(this.publisher);
+  void withNoApplicationEventPublisherSupplied() {
+    this.interceptor.setApplicationEventPublisher(null);
+    assertThatIllegalArgumentException().isThrownBy(interceptor::afterPropertiesSet);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  void withNonApplicationEventClassSupplied() {
     assertThatIllegalArgumentException().isThrownBy(() -> {
-      interceptor.setApplicationEventClass(getClass());
+      interceptor.setApplicationEventClass((Class) getClass());
       interceptor.afterPropertiesSet();
     });
   }
 
   @Test
-  public void testWithAbstractStraightApplicationEventClassSupplied() {
-    EventPublicationInterceptor interceptor = new EventPublicationInterceptor();
-    interceptor.setApplicationEventPublisher(this.publisher);
+  void withAbstractStraightApplicationEventClassSupplied() {
     assertThatIllegalArgumentException().isThrownBy(() -> {
       interceptor.setApplicationEventClass(ApplicationEvent.class);
       interceptor.afterPropertiesSet();
@@ -72,9 +74,7 @@ public class EventPublicationInterceptorTests {
   }
 
   @Test
-  public void testWithApplicationEventClassThatDoesntExposeAValidCtor() {
-    EventPublicationInterceptor interceptor = new EventPublicationInterceptor();
-    interceptor.setApplicationEventPublisher(this.publisher);
+  void withApplicationEventClassThatDoesntExposeAValidCtor() {
     assertThatIllegalArgumentException().isThrownBy(() -> {
       interceptor.setApplicationEventClass(TestEventWithNoValidOneArgObjectCtor.class);
       interceptor.afterPropertiesSet();
@@ -82,7 +82,7 @@ public class EventPublicationInterceptorTests {
   }
 
   @Test
-  public void testExpectedBehavior() {
+  void expectedBehavior() {
     TestBean target = new TestBean();
     final TestApplicationListener listener = new TestApplicationListener();
 
@@ -112,20 +112,21 @@ public class EventPublicationInterceptorTests {
     testBean.getAge();
 
     // two events: ContextRefreshedEvent and TestEvent
-    assertThat(listener.getEventCount() == 2).as("Interceptor must have published 2 events").isTrue();
+    assertThat(listener.getEventCount()).as("Interceptor must have published 2 events").isEqualTo(2);
     TestApplicationListener otherListener = (TestApplicationListener) ctx.getBean("&otherListener");
-    assertThat(otherListener.getEventCount() == 2).as("Interceptor must have published 2 events").isTrue();
+    assertThat(otherListener.getEventCount()).as("Interceptor must have published 2 events").isEqualTo(2);
+    ctx.close();
   }
 
   @SuppressWarnings("serial")
-  public static final class TestEventWithNoValidOneArgObjectCtor extends ApplicationEvent {
+  static final class TestEventWithNoValidOneArgObjectCtor extends ApplicationEvent {
 
     public TestEventWithNoValidOneArgObjectCtor() {
       super("");
     }
   }
 
-  public static class FactoryBeanTestListener extends TestApplicationListener implements FactoryBean<Object> {
+  static class FactoryBeanTestListener extends TestApplicationListener implements FactoryBean<Object> {
 
     @Override
     public Object getObject() {

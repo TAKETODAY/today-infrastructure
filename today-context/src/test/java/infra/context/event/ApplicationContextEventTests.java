@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.context.event;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -61,6 +62,7 @@ import infra.util.ReflectionUtils;
 
 import static infra.context.support.AbstractApplicationContext.APPLICATION_EVENT_MULTICASTER_BEAN_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatRuntimeException;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
@@ -79,10 +81,10 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  * @author Stephane Nicoll
  * @author Juergen Hoeller
  */
-public class ApplicationContextEventTests extends AbstractApplicationEventListenerTests {
+class ApplicationContextEventTests extends AbstractApplicationEventListenerTests {
 
   @Test
-  public void multicastSimpleEvent() {
+  void multicastSimpleEvent() {
     multicastEvent(true, ApplicationListener.class,
             new ContextRefreshedEvent(new StaticApplicationContext()), null);
     multicastEvent(true, ApplicationListener.class,
@@ -90,40 +92,40 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
   }
 
   @Test
-  public void multicastGenericEvent() {
+  void multicastGenericEvent() {
     multicastEvent(true, StringEventListener.class, createGenericTestEvent("test"),
             ResolvableType.forClassWithGenerics(GenericTestEvent.class, String.class));
   }
 
   @Test
-  public void multicastGenericEventWrongType() {
+  void multicastGenericEventWrongType() {
     multicastEvent(false, StringEventListener.class, createGenericTestEvent(123L),
             ResolvableType.forClassWithGenerics(GenericTestEvent.class, Long.class));
   }
 
   @Test
-  public void multicastGenericEventWildcardSubType() {
+  void multicastGenericEventWildcardSubType() {
     multicastEvent(false, StringEventListener.class, createGenericTestEvent("test"),
             getGenericApplicationEventType("wildcardEvent"));
   }
 
   @Test
-  public void multicastConcreteTypeGenericListener() {
+  void multicastConcreteTypeGenericListener() {
     multicastEvent(true, StringEventListener.class, new StringEvent(this, "test"), null);
   }
 
   @Test
-  public void multicastConcreteWrongTypeGenericListener() {
+  void multicastConcreteWrongTypeGenericListener() {
     multicastEvent(false, StringEventListener.class, new LongEvent(this, 123L), null);
   }
 
   @Test
-  public void multicastSmartGenericTypeGenericListener() {
+  void multicastSmartGenericTypeGenericListener() {
     multicastEvent(true, StringEventListener.class, new SmartGenericTestEvent<>(this, "test"), null);
   }
 
   @Test
-  public void multicastSmartGenericWrongTypeGenericListener() {
+  void multicastSmartGenericWrongTypeGenericListener() {
     multicastEvent(false, StringEventListener.class, new SmartGenericTestEvent<>(this, 123L), null);
   }
 
@@ -140,12 +142,13 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
     else {
       smc.multicastEvent(event);
     }
-    int invocation = match ? 1 : 0;
+    int invocation = (match ? 1 : 0);
     verify(listener, times(invocation)).onApplicationEvent(event);
   }
 
   @Test
-  public void simpleApplicationEventMulticasterWithTaskExecutor() {
+  void simpleApplicationEventMulticasterWithTaskExecutor() {
+    @SuppressWarnings("unchecked")
     ApplicationListener<ApplicationEvent> listener = mock();
     willReturn(true).given(listener).supportsAsyncExecution();
     ApplicationEvent evt = new ContextClosedEvent(new StaticApplicationContext());
@@ -165,7 +168,8 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
   }
 
   @Test
-  public void simpleApplicationEventMulticasterWithTaskExecutorAndNonAsyncListener() {
+  void simpleApplicationEventMulticasterWithTaskExecutorAndNonAsyncListener() {
+    @SuppressWarnings("unchecked")
     ApplicationListener<ApplicationEvent> listener = mock();
     willReturn(false).given(listener).supportsAsyncExecution();
     ApplicationEvent evt = new ContextClosedEvent(new StaticApplicationContext());
@@ -185,7 +189,8 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
   }
 
   @Test
-  public void simpleApplicationEventMulticasterWithException() {
+  void simpleApplicationEventMulticasterWithException() {
+    @SuppressWarnings("unchecked")
     ApplicationListener<ApplicationEvent> listener = mock();
     ApplicationEvent evt = new ContextClosedEvent(new StaticApplicationContext());
 
@@ -200,7 +205,8 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
   }
 
   @Test
-  public void simpleApplicationEventMulticasterWithErrorHandler() {
+  void simpleApplicationEventMulticasterWithErrorHandler() {
+    @SuppressWarnings("unchecked")
     ApplicationListener<ApplicationEvent> listener = mock();
     ApplicationEvent evt = new ContextClosedEvent(new StaticApplicationContext());
 
@@ -213,7 +219,7 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
   }
 
   @Test
-  public void orderedListeners() {
+  void orderedListeners() {
     MyOrderedListener1 listener1 = new MyOrderedListener1();
     MyOrderedListener2 listener2 = new MyOrderedListener2(listener1);
 
@@ -227,7 +233,7 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
   }
 
   @Test
-  public void orderedListenersWithAnnotation() {
+  void orderedListenersWithAnnotation() {
     MyOrderedListener3 listener1 = new MyOrderedListener3();
     MyOrderedListener4 listener2 = new MyOrderedListener4(listener1);
 
@@ -278,7 +284,7 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
 
   /**
    * Regression test for <a href="https://github.com/spring-projects/spring-framework/issues/28283">issue 28283</a>,
-   * where event listeners proxied due to e.g.
+   * where event listeners proxied due to, for example,
    * <ul>
    * <li>{@code @Transactional} annotations in their methods or</li>
    * <li>being targeted by aspects</li>
@@ -286,7 +292,7 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
    * were added to the list of application listener beans twice (both proxy and unwrapped target).
    */
   @Test
-  public void eventForSelfInjectedProxiedListenerFiredOnlyOnce() {
+  void eventForSelfInjectedProxiedListenerFiredOnlyOnce() {
     AbstractApplicationContext context = new AnnotationConfigApplicationContext(
             MyAspect.class, MyEventListener.class, MyEventPublisher.class);
     context.getBean(MyEventPublisher.class).publishMyEvent("hello");
@@ -295,7 +301,7 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
   }
 
   @Test
-  public void testEventPublicationInterceptor() throws Throwable {
+  void testEventPublicationInterceptorWithEventClass() throws Throwable {
     MethodInvocation invocation = mock();
     ApplicationContext ctx = mock();
 
@@ -307,11 +313,66 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
     given(invocation.proceed()).willReturn(new Object());
     given(invocation.getThis()).willReturn(new Object());
     interceptor.invoke(invocation);
-    verify(ctx).publishEvent(isA(Object.class));
+    verify(ctx).publishEvent(isA(MyEvent.class));
   }
 
   @Test
-  public void listenersInApplicationContext() {
+  void testEventPublicationInterceptorWithEventFactory() throws Throwable {
+    MethodInvocation invocation = mock();
+    ApplicationContext ctx = mock();
+
+    EventPublicationInterceptor interceptor = new EventPublicationInterceptor();
+    interceptor.setApplicationEventFactory((inv, retVal) -> new MyEvent(inv.getThis()));
+    interceptor.setApplicationEventPublisher(ctx);
+    interceptor.afterPropertiesSet();
+
+    given(invocation.proceed()).willReturn(new Object());
+    given(invocation.getThis()).willReturn(new Object());
+    interceptor.invoke(invocation);
+    verify(ctx).publishEvent(isA(MyEvent.class));
+  }
+
+  @Test
+  void testEventPublicationInterceptorWithMethodFailure() throws Throwable {
+    MethodInvocation invocation = mock();
+    ApplicationContext ctx = mock();
+
+    EventPublicationInterceptor interceptor = new EventPublicationInterceptor();
+    interceptor.setApplicationEventPublisher(ctx);
+    interceptor.afterPropertiesSet();
+
+    given(invocation.proceed()).willThrow(new IllegalStateException());
+    assertThatIllegalStateException().isThrownBy(() -> interceptor.invoke(invocation));
+    verify(ctx).publishEvent(isA(MethodFailureEvent.class));
+  }
+
+  @Test
+  void testEventPublicationInterceptorWithCustomFailure() throws Throwable {
+    MethodInvocation invocation = mock();
+    ApplicationContext ctx = mock();
+
+    EventPublicationInterceptor interceptor = new EventPublicationInterceptor();
+    interceptor.setApplicationEventFactory(new EventPublicationInterceptor.ApplicationEventFactory() {
+      @Override
+      public ApplicationEvent onSuccess(MethodInvocation invocation, @Nullable Object returnValue) {
+        return new MyEvent(returnValue);
+      }
+
+      @Override
+      public ApplicationEvent onFailure(MethodInvocation invocation, Throwable failure) {
+        return new MyOtherEvent(failure);
+      }
+    });
+    interceptor.setApplicationEventPublisher(ctx);
+    interceptor.afterPropertiesSet();
+
+    given(invocation.proceed()).willThrow(new IllegalStateException());
+    assertThatIllegalStateException().isThrownBy(() -> interceptor.invoke(invocation));
+    verify(ctx).publishEvent(isA(MyOtherEvent.class));
+  }
+
+  @Test
+  void listenersInApplicationContext() {
     StaticApplicationContext context = new StaticApplicationContext();
     context.registerBeanDefinition("listener1", new RootBeanDefinition(MyOrderedListener1.class));
     RootBeanDefinition listener2 = new RootBeanDefinition(MyOrderedListener2.class);
@@ -348,7 +409,7 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
   }
 
   @Test
-  public void listenersInApplicationContextWithPayloadEvents() {
+  void listenersInApplicationContextWithPayloadEvents() {
     StaticApplicationContext context = new StaticApplicationContext();
     context.registerBeanDefinition("listener", new RootBeanDefinition(MyPayloadListener.class));
     context.refresh();
@@ -367,7 +428,7 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
   }
 
   @Test
-  public void listenersInApplicationContextWithNestedChild() {
+  void listenersInApplicationContextWithNestedChild() {
     StaticApplicationContext context = new StaticApplicationContext();
     RootBeanDefinition nestedChild = new RootBeanDefinition(StaticApplicationContext.class);
     nestedChild.getPropertyValues().add("parent", context);
@@ -391,7 +452,7 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
   }
 
   @Test
-  public void nonSingletonListenerInApplicationContext() {
+  void nonSingletonListenerInApplicationContext() {
     StaticApplicationContext context = new StaticApplicationContext();
     RootBeanDefinition listener = new RootBeanDefinition(MyNonSingletonListener.class);
     listener.setScope(BeanDefinition.SCOPE_PROTOTYPE);
@@ -423,7 +484,7 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
   }
 
   @Test
-  public void listenerAndBroadcasterWithCircularReference() {
+  void listenerAndBroadcasterWithCircularReference() {
     StaticApplicationContext context = new StaticApplicationContext();
     context.registerBeanDefinition("broadcaster", new RootBeanDefinition(BeanThatBroadcasts.class));
     RootBeanDefinition listenerDef = new RootBeanDefinition(BeanThatListens.class);
@@ -439,7 +500,7 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
   }
 
   @Test
-  public void innerBeanAsListener() {
+  void innerBeanAsListener() {
     StaticApplicationContext context = new StaticApplicationContext();
     RootBeanDefinition listenerDef = new RootBeanDefinition(TestBean.class);
     listenerDef.getPropertyValues().add("friends", new RootBeanDefinition(BeanThatListens.class));
@@ -455,7 +516,7 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
   }
 
   @Test
-  public void anonymousClassAsListener() {
+  void anonymousClassAsListener() {
     final Set<MyEvent> seenEvents = new HashSet<>();
     StaticApplicationContext context = new StaticApplicationContext();
     context.addApplicationListener((MyEvent event) -> seenEvents.add(event));
@@ -472,7 +533,7 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
   }
 
   @Test
-  public void lambdaAsListener() {
+  void lambdaAsListener() {
     final Set<MyEvent> seenEvents = new HashSet<>();
     StaticApplicationContext context = new StaticApplicationContext();
     ApplicationListener<MyEvent> listener = seenEvents::add;
@@ -490,7 +551,7 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
   }
 
   @Test
-  public void lambdaAsListenerWithErrorHandler() {
+  void lambdaAsListenerWithErrorHandler() {
     final Set<MyEvent> seenEvents = new HashSet<>();
     StaticApplicationContext context = new StaticApplicationContext();
     SimpleApplicationEventMulticaster multicaster = new SimpleApplicationEventMulticaster();
@@ -511,7 +572,7 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
   }
 
   @Test
-  public void lambdaAsListenerWithJava8StyleClassCastMessage() {
+  void lambdaAsListenerWithJava8StyleClassCastMessage() {
     StaticApplicationContext context = new StaticApplicationContext();
     ApplicationListener<ApplicationEvent> listener =
             event -> { throw new ClassCastException(event.getClass().getName()); };
@@ -523,7 +584,7 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
   }
 
   @Test
-  public void lambdaAsListenerWithJava9StyleClassCastMessage() {
+  void lambdaAsListenerWithJava9StyleClassCastMessage() {
     StaticApplicationContext context = new StaticApplicationContext();
     ApplicationListener<ApplicationEvent> listener =
             event -> { throw new ClassCastException("spring.context/" + event.getClass().getName()); };
@@ -549,7 +610,7 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
   }
 
   @Test
-  public void beanPostProcessorPublishesEvents() {
+  void beanPostProcessorPublishesEvents() {
     GenericApplicationContext context = new GenericApplicationContext();
     context.registerBeanDefinition("listener", new RootBeanDefinition(BeanThatListens.class));
     context.registerBeanDefinition("messageSource", new RootBeanDefinition(StaticMessageSource.class));
@@ -564,7 +625,7 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
   }
 
   @Test
-  public void initMethodPublishesEvent() {
+  void initMethodPublishesEvent() {  // gh-25799
     GenericApplicationContext context = new GenericApplicationContext();
     context.registerBeanDefinition("listener", new RootBeanDefinition(BeanThatListens.class));
     context.registerBeanDefinition("messageSource", new RootBeanDefinition(StaticMessageSource.class));
@@ -642,7 +703,7 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
   public interface MyOrderedListenerIfc<E extends ApplicationEvent> extends ApplicationListener<E>, Ordered {
   }
 
-  public static abstract class MyOrderedListenerBase implements MyOrderedListenerIfc<MyEvent> {
+  public abstract static class MyOrderedListenerBase implements MyOrderedListenerIfc<MyEvent> {
 
     @Override
     public int getOrder() {
@@ -660,7 +721,7 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
 
     @Override
     public void onApplicationEvent(MyEvent event) {
-      assertThat(this.otherListener.seenEvents.contains(event)).isTrue();
+      assertThat(this.otherListener.seenEvents).contains(event);
     }
   }
 
@@ -708,7 +769,7 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
 
     @Override
     public void onApplicationEvent(MyEvent event) {
-      assertThat(this.otherListener.seenEvents.contains(event)).isTrue();
+      assertThat(this.otherListener.seenEvents).contains(event);
     }
   }
 
@@ -743,7 +804,7 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
       this.publisher.publishEvent(new MyEvent(this));
     }
   }
