@@ -17,9 +17,13 @@
 
 package infra.transaction.annotation;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -27,6 +31,7 @@ import infra.aop.support.AopUtils;
 import infra.beans.factory.NoUniqueBeanDefinitionException;
 import infra.beans.factory.annotation.Autowired;
 import infra.beans.factory.annotation.Qualifier;
+import infra.context.ApplicationListener;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AdviceMode;
 import infra.context.annotation.AnnotationConfigApplicationContext;
@@ -44,8 +49,10 @@ import infra.transaction.PlatformTransactionManager;
 import infra.transaction.TransactionManager;
 import infra.transaction.config.TransactionManagementConfigUtils;
 import infra.transaction.event.TransactionalEventListenerFactory;
+import infra.transaction.interceptor.MethodRollbackEvent;
 import infra.transaction.interceptor.TransactionAttribute;
 import infra.transaction.testfixture.CallCountingTransactionManager;
+import infra.util.ClassUtils;
 
 import static infra.transaction.annotation.RollbackOn.ALL_EXCEPTIONS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -259,7 +266,7 @@ class EnableTransactionManagementTests {
     assertThat(txManager.commits).isEqualTo(2);
     assertThat(txManager.rollbacks).isEqualTo(0);
 
-    assertThatExceptionOfType(NoUniqueBeanDefinitionException.class).isThrownBy(bean::findAllFoos);
+    Assertions.assertThatExceptionOfType(NoUniqueBeanDefinitionException.class).isThrownBy(bean::findAllFoos);
 
     ctx.close();
   }
@@ -358,31 +365,55 @@ class EnableTransactionManagementTests {
   }
 
   @Test
-  void appliesToRuntimeExceptionOnly() {
-    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Gh23473ConfigA.class);
+  void gh23473AppliesToRuntimeExceptionOnly() throws Exception {
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+    ctx.register(Gh23473ConfigA.class);
+    MethodRollbackEventListener listener = new MethodRollbackEventListener();
+    ctx.addApplicationListener(listener);
+    ctx.refresh();
     TestServiceWithRollback bean = ctx.getBean("testBean", TestServiceWithRollback.class);
     CallCountingTransactionManager txManager = ctx.getBean(CallCountingTransactionManager.class);
 
+    Method method1 = TestServiceWithRollback.class.getMethod("methodOne");
+    Method method2 = TestServiceWithRollback.class.getMethod("methodTwo");
     assertThatException().isThrownBy(bean::methodOne);
     assertThatException().isThrownBy(bean::methodTwo);
     assertThat(txManager.begun).isEqualTo(2);
     assertThat(txManager.commits).isEqualTo(2);
     assertThat(txManager.rollbacks).isEqualTo(0);
+    assertThat(listener.events).isEmpty();
 
     ctx.close();
   }
 
   @Test
-  void appliesRollbackOnAnyException() {
-    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Gh23473ConfigB.class);
+  void gh23473AppliesRollbackOnAnyException() throws Exception {
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+    ctx.register(Gh23473ConfigB.class);
+    MethodRollbackEventListener listener = new MethodRollbackEventListener();
+    ctx.addApplicationListener(listener);
+    ctx.refresh();
     TestServiceWithRollback bean = ctx.getBean("testBean", TestServiceWithRollback.class);
     CallCountingTransactionManager txManager = ctx.getBean(CallCountingTransactionManager.class);
 
+    Method method1 = TestServiceWithRollback.class.getMethod("methodOne");
+    Method method2 = TestServiceWithRollback.class.getMethod("methodTwo");
     assertThatException().isThrownBy(bean::methodOne);
     assertThatException().isThrownBy(bean::methodTwo);
     assertThat(txManager.begun).isEqualTo(2);
     assertThat(txManager.commits).isEqualTo(0);
     assertThat(txManager.rollbacks).isEqualTo(2);
+    assertThat(listener.events).hasSize(2);
+    assertThat(listener.events.get(0))
+            .satisfies(event -> assertThat(event.getMethod()).isEqualTo(method1))
+            .satisfies(event -> assertThat(event.getFailure()).isExactlyInstanceOf(Exception.class))
+            .satisfies(event -> assertThat(event.getTransaction().getTransactionName())
+                    .isEqualTo(ClassUtils.getQualifiedMethodName(method1)));
+    assertThat(listener.events.get(1))
+            .satisfies(event -> assertThat(event.getMethod()).isEqualTo(method2))
+            .satisfies(event -> assertThat(event.getFailure()).isExactlyInstanceOf(Exception.class))
+            .satisfies(event -> assertThat(event.getTransaction().getTransactionName())
+                    .isEqualTo(ClassUtils.getQualifiedMethodName(method2)));
 
     ctx.close();
   }
@@ -578,28 +609,6 @@ class EnableTransactionManagementTests {
   @Configuration
   @EnableTransactionManagement
   @Import(PlaceholderConfig.class)
-  static class Spr11915Config {
-
-    @Autowired
-    public void initializeApp(ConfigurableApplicationContext applicationContext) {
-      applicationContext.getBeanFactory().registerSingleton(
-              "qualifiedTransactionManager", new CallCountingTransactionManager());
-    }
-
-    @Bean
-    public TransactionalTestBean testBean() {
-      return new TransactionalTestBean();
-    }
-
-    @Bean
-    public CallCountingTransactionManager otherTxManager() {
-      return new CallCountingTransactionManager();
-    }
-  }
-
-  @Configuration
-  @EnableTransactionManagement
-  @Import(PlaceholderConfig.class)
   static class ManualSingletonConfig {
 
     @Autowired
@@ -751,6 +760,16 @@ class EnableTransactionManagementTests {
     @Transactional
     public void methodTwo() throws Exception {
       throw new Exception();
+    }
+  }
+
+  static class MethodRollbackEventListener implements ApplicationListener<MethodRollbackEvent> {
+
+    public final List<MethodRollbackEvent> events = new ArrayList<>();
+
+    @Override
+    public void onApplicationEvent(MethodRollbackEvent event) {
+      this.events.add(event);
     }
   }
 

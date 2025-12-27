@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.transaction.annotation;
@@ -26,7 +23,8 @@ import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 import infra.aop.framework.ProxyFactory;
-import infra.transaction.PlatformTransactionManager;
+import infra.transaction.TransactionManager;
+import infra.transaction.interceptor.TransactionAttributeSource;
 import infra.transaction.interceptor.TransactionInterceptor;
 import infra.transaction.support.TransactionSynchronizationManager;
 import infra.transaction.testfixture.CallCountingTransactionManager;
@@ -53,7 +51,14 @@ public class AnnotationTransactionInterceptorTests {
 
   private final AnnotationTransactionAttributeSource source = new AnnotationTransactionAttributeSource();
 
-  private final TransactionInterceptor ti = new TransactionInterceptor((PlatformTransactionManager) this.ptm, this.source);
+  private final TransactionInterceptor ti = createTransactionInterceptor(this.ptm, this.source);
+
+  private TransactionInterceptor createTransactionInterceptor(TransactionManager ptm, TransactionAttributeSource source) {
+    TransactionInterceptor interceptor = new TransactionInterceptor();
+    interceptor.setTransactionManager(ptm);
+    interceptor.setTransactionAttributeSource(source);
+    return interceptor;
+  }
 
   @Test
   public void classLevelOnly() {

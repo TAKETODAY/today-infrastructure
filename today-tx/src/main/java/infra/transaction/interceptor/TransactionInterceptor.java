@@ -26,13 +26,15 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Properties;
 
 import infra.aop.framework.ProxyFactory;
 import infra.aop.framework.ProxyFactoryBean;
 import infra.aop.support.AopUtils;
 import infra.beans.factory.BeanFactory;
+import infra.context.ApplicationEventPublisher;
+import infra.context.ApplicationEventPublisherAware;
 import infra.transaction.PlatformTransactionManager;
+import infra.transaction.TransactionExecution;
 import infra.transaction.TransactionManager;
 
 /**
@@ -57,7 +59,9 @@ import infra.transaction.TransactionManager;
  * @see ProxyFactory
  */
 @SuppressWarnings("serial")
-public class TransactionInterceptor extends TransactionAspectSupport implements MethodInterceptor, Serializable {
+public class TransactionInterceptor extends TransactionAspectSupport implements MethodInterceptor, ApplicationEventPublisherAware, Serializable {
+
+  private @Nullable ApplicationEventPublisher applicationEventPublisher;
 
   /**
    * Create a new TransactionInterceptor.
@@ -83,30 +87,9 @@ public class TransactionInterceptor extends TransactionAspectSupport implements 
     setTransactionAttributeSource(tas);
   }
 
-  /**
-   * Create a new TransactionInterceptor.
-   *
-   * @param ptm the default transaction manager to perform the actual transaction management
-   * @param tas the attribute source to be used to find transaction attributes
-   * @see #setTransactionManager
-   * @see #setTransactionAttributeSource
-   */
-  public TransactionInterceptor(PlatformTransactionManager ptm, TransactionAttributeSource tas) {
-    setTransactionManager(ptm);
-    setTransactionAttributeSource(tas);
-  }
-
-  /**
-   * Create a new TransactionInterceptor.
-   *
-   * @param ptm the default transaction manager to perform the actual transaction management
-   * @param attributes the transaction attributes in properties format
-   * @see #setTransactionManager
-   * @see #setTransactionAttributes(java.util.Properties)
-   */
-  public TransactionInterceptor(PlatformTransactionManager ptm, Properties attributes) {
-    setTransactionManager(ptm);
-    setTransactionAttributes(attributes);
+  @Override
+  public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+    this.applicationEventPublisher = applicationEventPublisher;
   }
 
   @Override
@@ -118,7 +101,29 @@ public class TransactionInterceptor extends TransactionAspectSupport implements 
     Class<?> targetClass = invocation.getThis() != null ? AopUtils.getTargetClass(invocation.getThis()) : null;
 
     // Adapt to TransactionAspectSupport's invokeWithinTransaction...
-    return invokeWithinTransaction(invocation.getMethod(), targetClass, invocation::proceed);
+    return invokeWithinTransaction(invocation.getMethod(), targetClass, new InvocationCallback() {
+
+      @Override
+      public @Nullable Object proceedWithInvocation() throws Throwable {
+        return invocation.proceed();
+      }
+
+      @Override
+      public void onRollback(Throwable failure, TransactionExecution execution) {
+        MethodRollbackEvent event = new MethodRollbackEvent(invocation, failure, execution);
+        logger.trace(event, failure);
+        if (applicationEventPublisher != null) {
+          try {
+            applicationEventPublisher.publishEvent(event);
+          }
+          catch (Throwable ex) {
+            if (logger.isWarnEnabled()) {
+              logger.warn("Failed to publish " + event, ex);
+            }
+          }
+        }
+      }
+    });
   }
 
   //---------------------------------------------------------------------
