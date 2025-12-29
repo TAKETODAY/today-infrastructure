@@ -142,7 +142,7 @@ final class HttpContext extends NettyRequestContext implements Runnable {
 
   @Override
   protected void requestCompletedInternal(@Nullable Throwable notHandled) {
-    if (config.autoRead) {
+    if (!config.autoRead) {
       channel.config().setAutoRead(true);
     }
     cleanup(null);
