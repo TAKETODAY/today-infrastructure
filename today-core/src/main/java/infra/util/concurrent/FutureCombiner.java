@@ -147,7 +147,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
    * passed to {@code combine}, if that is the method you used to create this {@code
    * FutureCombiner}).
    */
-  public <C> Future<C> call(Callable<C> combiner) {
+  public <C extends @Nullable Object> Future<C> call(Callable<C> combiner) {
     return call(combiner, Future.defaultScheduler);
   }
 
@@ -167,7 +167,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
    * @see #call(ThrowingFunction, Executor)
    * @since 5.0
    */
-  public <C> Future<C> call(ThrowingFunction<Collection<Future<?>>, C> mapper) {
+  public <C extends @Nullable Object> Future<C> call(ThrowingFunction<Collection<Future<?>>, C> mapper) {
     return call(mapper, Future.defaultScheduler);
   }
 
@@ -186,7 +186,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
    * @throws IllegalArgumentException if mapper is null
    * @since 5.0
    */
-  public <C> Future<C> call(ThrowingFunction<Collection<Future<?>>, C> mapper, @Nullable Executor executor) {
+  public <C extends @Nullable Object> Future<C> call(ThrowingFunction<Collection<Future<?>>, C> mapper, @Nullable Executor executor) {
     return call(() -> mapper.apply(futures), executor);
   }
 
@@ -205,7 +205,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
    * @throws ClassCastException if any future result cannot be cast to type T
    * @since 5.0
    */
-  public <T> Future<List<T>> asList() {
+  public <T extends @Nullable Object> Future<List<T>> asList() {
     return asList(Future.defaultScheduler);
   }
 
@@ -227,7 +227,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
    * @since 5.0
    */
   @SuppressWarnings("unchecked")
-  public <T> Future<List<T>> asList(@Nullable Executor executor) {
+  public <T extends @Nullable Object> Future<List<T>> asList(@Nullable Executor executor) {
     return call(() -> (List<T>) futures.stream().map(Future::getNow).collect(Collectors.toList()), executor);
   }
 
@@ -252,7 +252,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
    * FutureCombiner}).
    */
   @SuppressWarnings("unchecked")
-  public <C> Future<C> call(Callable<C> combiner, @Nullable Executor executor) {
+  public <C extends @Nullable Object> Future<C> call(Callable<C> combiner, @Nullable Executor executor) {
     var task = new ListenableFutureTask<>(executor, combiner);
     if (expectedCount == 0) {
       safeExecute(executor, task);
@@ -270,7 +270,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
    * when all Futures complete. {@code combiner} will run using {@code executor}.
    *
    * <p>If the combiner throws a {@code CancellationException}, the returned future will be
-   * cancelled.
+   * canceled.
    *
    * <p>Canceling this Future will attempt to cancel all the component futures.
    *
@@ -278,7 +278,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
    * passed to {@code combine}, if that is the method you used to create this {@code
    * FutureCombiner}).
    */
-  public Future<Void> run(Runnable combiner) {
+  public Future<@Nullable Void> run(Runnable combiner) {
     return run(combiner, Future.defaultScheduler);
   }
 
@@ -287,7 +287,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
    * when all Futures complete. {@code combiner} will run using {@code executor}.
    *
    * <p>If the combiner throws a {@code CancellationException}, the returned future will be
-   * cancelled.
+   * canceled.
    *
    * <p>Canceling this Future will attempt to cancel all the component futures.
    *
@@ -298,7 +298,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
    * FutureCombiner}).
    * @throws NullPointerException if task null
    */
-  public Future<Void> run(Runnable combiner, @Nullable Executor executor) {
+  public Future<@Nullable Void> run(Runnable combiner, @Nullable Executor executor) {
     return call(Executors.callable(combiner, null), executor);
   }
 
@@ -309,7 +309,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
    *
    * @return a future whose result is Void
    */
-  public Future<Void> asVoid() {
+  public Future<@Nullable Void> asVoid() {
     return asVoid(Future.defaultScheduler);
   }
 
@@ -323,7 +323,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
    * @return a future whose result is Void
    */
   @SuppressWarnings("unchecked")
-  public Future<Void> asVoid(@Nullable Executor executor) {
+  public Future<@Nullable Void> asVoid(@Nullable Executor executor) {
     if (expectedCount == 0) {
       return Future.ok();
     }

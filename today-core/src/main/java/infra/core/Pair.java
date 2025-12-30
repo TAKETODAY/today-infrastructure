@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 
+import infra.lang.Contract;
 import infra.util.ObjectUtils;
 
 /**
@@ -40,7 +41,7 @@ import infra.util.ObjectUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/8/24 14:45
  */
-public class Pair<A, B> implements Map.Entry<A, B>, Serializable {
+public class Pair<A extends @Nullable Object, B extends @Nullable Object> implements Map.Entry<A, B>, Serializable {
 
   @SuppressWarnings({ "rawtypes" })
   public static final Pair EMPTY = of(null, null);
@@ -80,6 +81,12 @@ public class Pair<A, B> implements Map.Entry<A, B>, Serializable {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Returns a new {@code Pair} with the specified first value and the same second value.
+   *
+   * @param first the first value for the new pair
+   * @return a new pair with the given first value and the same second value
+   */
   public Pair<A, B> withFirst(A first) {
     if (first == this.first) {
       return this;
@@ -87,6 +94,12 @@ public class Pair<A, B> implements Map.Entry<A, B>, Serializable {
     return new Pair<>(first, second);
   }
 
+  /**
+   * Returns a new {@code Pair} with the specified second value and the same first value.
+   *
+   * @param second the second value for the new pair
+   * @return a new pair with the given second value and the same first value
+   */
   public Pair<A, B> withSecond(B second) {
     if (second == this.second) {
       return this;
@@ -94,10 +107,20 @@ public class Pair<A, B> implements Map.Entry<A, B>, Serializable {
     return new Pair<>(first, second);
   }
 
+  /**
+   * Returns an {@code Optional} containing the first value, or empty if the first value is null.
+   *
+   * @return an optional containing the first value
+   */
   public Optional<A> first() {
     return Optional.ofNullable(first);
   }
 
+  /**
+   * Returns an {@code Optional} containing the second value, or empty if the second value is null.
+   *
+   * @return an optional containing the second value
+   */
   public Optional<B> second() {
     return Optional.ofNullable(second);
   }
@@ -128,41 +151,65 @@ public class Pair<A, B> implements Map.Entry<A, B>, Serializable {
 
   // Static
 
+  /**
+   * Returns an empty {@code Pair} instance with both values being {@code null}.
+   *
+   * @param <A> the type of the first value
+   * @param <B> the type of the second value
+   * @return an empty pair with {@code null} values
+   */
   @SuppressWarnings("unchecked")
-  public static <A, B> Pair<A, B> empty() {
+  public static <A extends @Nullable Object, B extends @Nullable Object> Pair<A, B> empty() {
     return EMPTY;
   }
 
-  @SuppressWarnings("NullAway")
-  public static <A, B> Pair<A, B> of(@Nullable A first, @Nullable B second) {
+  public static <A extends @Nullable Object, B extends @Nullable Object> Pair<A, B> of(@Nullable A first, @Nullable B second) {
     return new Pair<>(first, second);
   }
 
-  @Nullable
-  public static <T> T first(@Nullable Pair<T, ?> pair) {
+  /**
+   * Returns the first value from the given pair, or {@code null} if the pair is {@code null}.
+   *
+   * @param pair the pair to get the first value from
+   * @param <T> the type of the first value
+   * @return the first value of the pair, or {@code null} if the pair is {@code null}
+   */
+  @Contract("null -> null")
+  public static <T extends @Nullable Object> @Nullable T first(@Nullable Pair<T, ?> pair) {
     return pair != null ? pair.first : null;
   }
 
-  @Nullable
-  public static <T> T second(@Nullable Pair<?, T> pair) {
+  /**
+   * Returns the second value from the given pair, or {@code null} if the pair is {@code null}.
+   *
+   * @param pair the pair to get the second value from
+   * @param <T> the type of the second value
+   * @return the second value of the pair, or {@code null} if the pair is {@code null}
+   */
+  @Contract("null -> null")
+  public static <T extends @Nullable Object> @Nullable T second(@Nullable Pair<?, T> pair) {
     return pair != null ? pair.second : null;
   }
 
   /**
-   * @param <A> first value type (Comparable)
-   * @param <B> second value type
-   * @return a comparator that compares pair values by first value
+   * Returns a comparator that compares {@code Pair} values by their first value.
+   *
+   * @param <A> the first value type (must be {@code Comparable})
+   * @param <B> the second value type
+   * @return a comparator that compares pairs by first value
    */
-  public static <A extends Comparable<? super A>, B> Comparator<Pair<A, B>> comparingFirst() {
+  public static <A extends Comparable<? super A>, B extends @Nullable Object> Comparator<Pair<A, B>> comparingFirst() {
     return Comparator.comparing(o -> o.first);
   }
 
   /**
-   * @param <A> first value type
-   * @param <B> second value type (Comparable)
-   * @return a comparator that compares pair values by second value
+   * Returns a comparator that compares {@code Pair} values by their second value.
+   *
+   * @param <A> the first value type
+   * @param <B> the second value type (must be {@code Comparable})
+   * @return a comparator that compares pairs by second value
    */
-  public static <A, B extends Comparable<? super B>> Comparator<Pair<A, B>> comparingSecond() {
+  public static <A extends @Nullable Object, B extends Comparable<? super B>> Comparator<Pair<A, B>> comparingSecond() {
     return Comparator.comparing(o -> o.second);
   }
 

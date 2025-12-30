@@ -17,6 +17,7 @@
 
 package infra.util.concurrent;
 
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
@@ -45,6 +46,7 @@ import java.util.stream.Stream;
 import infra.core.Pair;
 import infra.core.Triple;
 import infra.lang.Assert;
+import infra.lang.Contract;
 import infra.logging.LoggerFactory;
 import infra.util.ExceptionUtils;
 import infra.util.function.ThrowingBiFunction;
@@ -196,7 +198,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
-public abstract class Future<V> implements java.util.concurrent.Future<@Nullable V> {
+public abstract class Future<V extends @Nullable Object> implements java.util.concurrent.Future<V> {
 
   /**
    * The default executor is {@link ForkJoinPool#commonPool()}.
@@ -230,8 +232,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
   /**
    * One or more listeners.
    */
-  @Nullable
-  private Object listeners;
+  private @Nullable Object listeners;
 
   protected final Executor executor;
 
@@ -635,8 +636,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * if the future is really done with {@link #isDone()} and not
    * rely on the returned {@code null} value.
    */
-  @Nullable
-  public abstract V getNow();
+  public abstract @Nullable V getNow();
 
   /**
    * Returns the result value, if not completed returns the given valueIfAbsent.
@@ -645,7 +645,8 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @return the result value, if completed, else the given valueIfAbsent
    * @since 5.0
    */
-  public V getNow(V valueIfAbsent) {
+  @Contract("null -> null")
+  public @Nullable V getNow(@Nullable V valueIfAbsent) {
     V v = getNow();
     return v == null ? valueIfAbsent : v;
   }
@@ -660,7 +661,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @see #getNow()
    * @see Promise#setSuccess(Object)
    */
-  public final V obtain() throws IllegalStateException {
+  public final @NonNull V obtain() throws IllegalStateException {
     V v = getNow();
     if (v == null) {
       throw new IllegalStateException("Result is required");
@@ -679,7 +680,6 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @throws InterruptedException if the current thread was interrupted
    * while waiting
    */
-  @Nullable
   @Override
   public abstract V get() throws InterruptedException, ExecutionException;
 
@@ -697,7 +697,6 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * while waiting
    * @throws TimeoutException if the wait timed out
    */
-  @Nullable
   @Override
   public abstract V get(long timeout, TimeUnit unit)
           throws InterruptedException, ExecutionException, TimeoutException;
@@ -821,7 +820,6 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * result of this future.
    * @since 5.0
    */
-  @SuppressWarnings("NullAway")
   public final Future<Void> mapNull() {
     return map(v -> null);
   }
@@ -838,7 +836,6 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * result of this future.
    * @since 5.0
    */
-  @SuppressWarnings("NullAway")
   public final Future<Void> mapNull(ThrowingConsumer<V> consumer) {
     return map(v -> {
       consumer.acceptWithException(v);
@@ -1039,7 +1036,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @return A new future instance that will complete with the mapped result
    * of this future.
    */
-  public final <R> Future<R> flatMap(ThrowingFunction<V, Future<R>> mapper) {
+  public final <R extends @Nullable Object> Future<R> flatMap(ThrowingFunction<V, Future<R>> mapper) {
     Assert.notNull(mapper, "mapper is required");
     return Futures.flatMap(this, mapper);
   }
@@ -1347,7 +1344,6 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @see #onErrorComplete(Predicate)
    * @since 5.0
    */
-  @SuppressWarnings("NullAway")
   public final Future<V> onErrorReturn(@Nullable Predicate<Throwable> predicate, @Nullable V fallbackValue) {
     return errorHandling(param -> {
       if (predicate == null || predicate.test(param)) {
@@ -1368,7 +1364,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @return A new Future that returns both Future results.
    * @throws IllegalArgumentException if {@code that} is null
    */
-  public final <U> Future<Pair<V, U>> zip(Future<U> that) {
+  public final <U extends @Nullable Object> Future<Pair<V, U>> zip(Future<U> that) {
     return zipWith(that, Pair::of);
   }
 
@@ -1383,7 +1379,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @return A new Future that returns both Future results.
    * @since 5.0
    */
-  public final <U> Future<Pair<V, U>> zip(U that) {
+  public final <U extends @Nullable Object> Future<Pair<V, U>> zip(U that) {
     return map(first -> Pair.of(first, that));
   }
 
@@ -1397,7 +1393,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @throws IllegalArgumentException if {@code that} is null
    * @throws NullPointerException if {@code thatA} is null
    */
-  public final <A, B> Future<Triple<V, A, B>> zip(Future<A> thatA, Future<B> thatB) {
+  public final <A extends @Nullable Object, B extends @Nullable Object> Future<Triple<V, A, B>> zip(Future<A> thatA, Future<B> thatB) {
     return zipWith(thatA.zip(thatB), (v, ab) -> Triple.of(v, ab.first, ab.second));
   }
 
@@ -1410,7 +1406,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @return A new Future that returns both Future results.
    * @since 5.0
    */
-  public final <A, B> Future<Triple<V, A, B>> zip(A thatA, B thatB) {
+  public final <A extends @Nullable Object, B extends @Nullable Object> Future<Triple<V, A, B>> zip(A thatA, B thatB) {
     return map(first -> Triple.of(first, thatA, thatB));
   }
 
@@ -1427,7 +1423,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @return A new Future that returns both Future results.
    * @throws IllegalArgumentException if {@code that} is null
    */
-  public final <U, R> Future<R> zipWith(Future<U> that, ThrowingBiFunction<V, U, R> combinator) {
+  public final <U extends @Nullable Object, R extends @Nullable Object> Future<R> zipWith(Future<U> that, ThrowingBiFunction<V, U, R> combinator) {
     Assert.notNull(that, "Future is required");
     Assert.notNull(combinator, "combinator is required");
     return Futures.zipWith(this, that, combinator);
@@ -1469,7 +1465,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
   /**
    * Returns a future that delegates to this future but will finish early (via a {@link
    * TimeoutException}) if the specified duration expires.
-   * <p>This future is interrupted and cancelled if it times out.
+   * <p>This future is interrupted and canceled if it times out.
    *
    * @param duration timeout duration
    * @return a timeout future
@@ -1603,8 +1599,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @throws InterruptedException if the thread is interrupted while waiting for
    * the future to complete.
    */
-  @SuppressWarnings("NullAway")
-  public final <T> T join(ThrowingBiFunction<V, Throwable, T> resultHandler) throws Throwable {
+  public final <T extends @Nullable Object> T join(ThrowingBiFunction<V, @Nullable Throwable, T> resultHandler) throws Throwable {
     Assert.notNull(resultHandler, "resultHandler is required");
     await();
     if (isSuccess()) {
@@ -1626,7 +1621,6 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @see ExceptionUtils#sneakyThrow(Throwable)
    * @since 5.0
    */
-  @Nullable
   public final V join() {
     syncUninterruptibly();
     return getNow();
@@ -1645,7 +1639,6 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @see ExceptionUtils#sneakyThrow(Throwable)
    * @since 5.0
    */
-  @Nullable
   public final V join(Duration timeout) throws TimeoutException {
     return join(timeout, false);
   }
@@ -1663,7 +1656,6 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @throws TimeoutException timeout
    * @since 5.0
    */
-  @Nullable
   public final V join(Duration timeout, boolean cancelOnTimeout) throws TimeoutException {
     if (!isDone()) {
       try {
@@ -1875,7 +1867,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @since 5.0
    */
   @SuppressWarnings({ "unchecked" })
-  public static <V> Future<V> ok() {
+  public static <V extends @Nullable Object> Future<V> ok() {
     return Futures.okFuture;
   }
 
@@ -1886,7 +1878,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @param result the value to expose
    * @see Future#get()
    */
-  public static <V> Future<V> ok(@Nullable V result) {
+  public static <V extends @Nullable Object> Future<V> ok(@Nullable V result) {
     return new CompleteFuture<>(defaultScheduler, result, null);
   }
 
@@ -1899,7 +1891,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * the Future once it is complete.
    * @see Future#get()
    */
-  public static <V> Future<V> ok(@Nullable V result, @Nullable Executor executor) {
+  public static <V extends @Nullable Object> Future<V> ok(@Nullable V result, @Nullable Executor executor) {
     return new CompleteFuture<>(executor, result, null);
   }
 
@@ -1912,7 +1904,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @see Future#get()
    * @since 5.0
    */
-  public static <V> Future<V> forExecutor(@Nullable Executor executor) {
+  public static <V extends @Nullable Object> Future<V> forExecutor(@Nullable Executor executor) {
     return new CompleteFuture<>(executor, null, null);
   }
 
@@ -1928,7 +1920,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @throws NullPointerException if cause is null
    * @see ExecutionException
    */
-  public static <V> Future<V> failed(Throwable cause) {
+  public static <V extends @Nullable Object> Future<V> failed(Throwable cause) {
     return failed(cause, defaultScheduler);
   }
 
@@ -1946,7 +1938,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @throws NullPointerException if cause is null
    * @see ExecutionException
    */
-  public static <V> Future<V> failed(Throwable cause, @Nullable Executor executor) {
+  public static <V extends @Nullable Object> Future<V> failed(Throwable cause, @Nullable Executor executor) {
     Assert.notNull(cause, "cause is required");
     return new CompleteFuture<>(executor, null, cause);
   }
@@ -1954,7 +1946,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
   /**
    * Adapts {@code CompletionStage} to a new Promise instance.
    */
-  public static <V> Future<V> forAdaption(CompletionStage<V> stage) {
+  public static <V extends @Nullable Object> Future<V> forAdaption(CompletionStage<V> stage) {
     return forAdaption(stage, defaultScheduler);
   }
 
@@ -1965,7 +1957,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * {@code Future} once it is complete.
    */
   @SuppressWarnings({ "unchecked" })
-  public static <V> Future<V> forAdaption(CompletionStage<V> stage, @Nullable Executor executor) {
+  public static <V extends @Nullable Object> Future<V> forAdaption(CompletionStage<V> stage, @Nullable Executor executor) {
     return create(promise -> {
       stage.whenCompleteAsync((v, failure) -> {
         if (failure != null) {
@@ -1985,7 +1977,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    *
    * @throws NullPointerException consumer is null
    */
-  public static <V> Promise<V> create(Consumer<Promise<V>> consumer) {
+  public static <V extends @Nullable Object> Promise<V> create(Consumer<Promise<V>> consumer) {
     return create(consumer, defaultScheduler);
   }
 
@@ -1996,7 +1988,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * the Promise once it is complete.
    * @throws NullPointerException consumer is null
    */
-  public static <V> Promise<V> create(Consumer<Promise<V>> consumer, @Nullable Executor executor) {
+  public static <V extends @Nullable Object> Promise<V> create(Consumer<Promise<V>> consumer, @Nullable Executor executor) {
     Promise<V> promise = new Promise<>(executor);
     consumer.accept(promise);
     return promise;
@@ -2005,7 +1997,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
   /**
    * Creates a new Promise instance.
    */
-  public static <V> Promise<V> forPromise() {
+  public static <V extends @Nullable Object> Promise<V> forPromise() {
     return new Promise<>(defaultScheduler);
   }
 
@@ -2015,7 +2007,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @param executor the {@link Executor} which is used to notify
    * the Promise once it is complete.
    */
-  public static <V> Promise<V> forPromise(@Nullable Executor executor) {
+  public static <V extends @Nullable Object> Promise<V> forPromise(@Nullable Executor executor) {
     return new Promise<>(executor);
   }
 
@@ -2027,7 +2019,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @throws NullPointerException if computation Callable is null
    * @see java.util.concurrent.FutureTask
    */
-  public static <V> ListenableFutureTask<V> forFutureTask(Callable<V> task) {
+  public static <V extends @Nullable Object> ListenableFutureTask<V> forFutureTask(Callable<V> task) {
     return new ListenableFutureTask<>(defaultScheduler, task);
   }
 
@@ -2041,7 +2033,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @throws NullPointerException if computation Callable is null
    * @see java.util.concurrent.FutureTask
    */
-  public static <V> ListenableFutureTask<V> forFutureTask(Callable<V> task, @Nullable Executor executor) {
+  public static <V extends @Nullable Object> ListenableFutureTask<V> forFutureTask(Callable<V> task, @Nullable Executor executor) {
     return new ListenableFutureTask<>(executor, task);
   }
 
@@ -2052,7 +2044,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @throws NullPointerException if task Runnable is null
    * @see java.util.concurrent.FutureTask
    */
-  public static <V> ListenableFutureTask<V> forFutureTask(Runnable task) {
+  public static ListenableFutureTask<Void> forFutureTask(Runnable task) {
     return new ListenableFutureTask<>(defaultScheduler, Executors.callable(task, null));
   }
 
@@ -2065,7 +2057,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @throws NullPointerException if task Runnable is null
    * @see java.util.concurrent.FutureTask
    */
-  public static <V> ListenableFutureTask<V> forFutureTask(Runnable task, @Nullable Executor executor) {
+  public static ListenableFutureTask<Void> forFutureTask(Runnable task, @Nullable Executor executor) {
     return new ListenableFutureTask<>(executor, Executors.callable(task, null));
   }
 
@@ -2076,7 +2068,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @throws NullPointerException if task Runnable is null
    * @see java.util.concurrent.FutureTask
    */
-  public static <V> ListenableFutureTask<V> forFutureTask(Runnable task, @Nullable V result) {
+  public static <V extends @Nullable Object> ListenableFutureTask<V> forFutureTask(Runnable task, @Nullable V result) {
     return new ListenableFutureTask<>(defaultScheduler, Executors.callable(task, result));
   }
 
@@ -2089,7 +2081,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @throws NullPointerException if task Runnable is null
    * @see java.util.concurrent.FutureTask
    */
-  public static <V> ListenableFutureTask<V> forFutureTask(Runnable task, @Nullable V result, @Nullable Executor executor) {
+  public static <V extends @Nullable Object> ListenableFutureTask<V> forFutureTask(Runnable task, @Nullable V result, @Nullable Executor executor) {
     return new ListenableFutureTask<>(executor, Executors.callable(task, result));
   }
 
@@ -2103,7 +2095,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @throws RejectedExecutionException if this task cannot be
    * accepted for execution
    */
-  public static <V> ListenableFutureTask<V> run(Callable<V> task) {
+  public static <V extends @Nullable Object> ListenableFutureTask<V> run(Callable<V> task) {
     return run(task, defaultScheduler);
   }
 
@@ -2119,7 +2111,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @throws RejectedExecutionException if this task cannot be
    * accepted for execution
    */
-  public static <V> ListenableFutureTask<V> run(Callable<V> task, @Nullable Executor executor) {
+  public static <V extends @Nullable Object> ListenableFutureTask<V> run(Callable<V> task, @Nullable Executor executor) {
     return new ListenableFutureTask<>(executor, task).execute();
   }
 
@@ -2132,7 +2124,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @throws RejectedExecutionException if this task cannot be
    * accepted for execution
    */
-  public static ListenableFutureTask<Void> run(Runnable task) {
+  public static ListenableFutureTask<@Nullable Void> run(Runnable task) {
     return run(task, defaultScheduler);
   }
 
@@ -2146,7 +2138,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @throws RejectedExecutionException if this task cannot be
    * accepted for execution
    */
-  public static ListenableFutureTask<Void> run(Runnable task, @Nullable Executor executor) {
+  public static ListenableFutureTask<@Nullable Void> run(Runnable task, @Nullable Executor executor) {
     return run(task, null, executor);
   }
 
@@ -2159,7 +2151,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @throws RejectedExecutionException if this task cannot be
    * accepted for execution
    */
-  public static <V> ListenableFutureTask<V> run(Runnable task, @Nullable V result) {
+  public static <V extends @Nullable Object> ListenableFutureTask<V> run(Runnable task, @Nullable V result) {
     return run(task, result, defaultScheduler);
   }
 
@@ -2173,7 +2165,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<@Nullable
    * @throws RejectedExecutionException if this task cannot be
    * accepted for execution
    */
-  public static <V> ListenableFutureTask<V> run(Runnable task, @Nullable V result, @Nullable Executor executor) {
+  public static <V extends @Nullable Object> ListenableFutureTask<V> run(Runnable task, @Nullable V result, @Nullable Executor executor) {
     Assert.notNull(task, "task is required");
     return forFutureTask(task, result, executor).execute();
   }

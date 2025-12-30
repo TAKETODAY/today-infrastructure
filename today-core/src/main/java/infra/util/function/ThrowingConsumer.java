@@ -17,6 +17,8 @@
 
 package infra.util.function;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
@@ -31,7 +33,7 @@ import java.util.function.Consumer;
  * @since 4.0
  */
 @FunctionalInterface
-public interface ThrowingConsumer<T> extends Consumer<T> {
+public interface ThrowingConsumer<T extends @Nullable Object> extends Consumer<T> {
 
   /**
    * Performs this operation on the given argument, possibly throwing a

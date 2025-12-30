@@ -38,7 +38,7 @@ import infra.util.ExceptionUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/3/26 22:10
  */
-public abstract class AbstractFuture<V> extends Future<V> {
+public abstract class AbstractFuture<V extends @Nullable Object> extends Future<V> {
 
   protected static final int NEW = 0;
   protected static final int COMPLETING = 1;
@@ -69,12 +69,10 @@ public abstract class AbstractFuture<V> extends Future<V> {
   protected volatile int state;
 
   /** Treiber stack of waiting threads */
-  @Nullable
-  private volatile Waiter waiters;
+  private volatile @Nullable Waiter waiters;
 
   /** The result to return or exception to throw from get() */
-  @Nullable
-  private Object result; // non-volatile, protected by state reads/writes
+  private @Nullable Object result; // non-volatile, protected by state reads/writes
 
   /**
    * @param executor The {@link Executor} which is used to notify
@@ -154,10 +152,9 @@ public abstract class AbstractFuture<V> extends Future<V> {
     return null;
   }
 
-  @Nullable
   @Override
   @SuppressWarnings("unchecked")
-  public V getNow() {
+  public @Nullable V getNow() {
     return state == NORMAL ? (V) result : null;
   }
 

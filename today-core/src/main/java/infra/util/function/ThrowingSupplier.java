@@ -17,6 +17,8 @@
 
 package infra.util.function;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
@@ -30,7 +32,7 @@ import java.util.function.Supplier;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public interface ThrowingSupplier<T> extends Supplier<T> {
+public interface ThrowingSupplier<T extends @Nullable Object> extends Supplier<T> {
 
   /**
    * Gets a result, possibly throwing a checked exception.
