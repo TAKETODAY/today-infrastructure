@@ -33,7 +33,7 @@ import java.util.concurrent.Executor;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/26 15:57
  */
-public class Promise<V> extends AbstractFuture<V> {
+public class Promise<V extends @Nullable Object> extends AbstractFuture<V> {
 
   /**
    * Creates a new instance.

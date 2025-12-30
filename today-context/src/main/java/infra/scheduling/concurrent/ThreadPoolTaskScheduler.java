@@ -335,7 +335,7 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport implem
   public Future<Void> submit(Runnable task) {
     ExecutorService executor = getScheduledExecutor();
     try {
-      var future = Future.<Void>forFutureTask(errorHandlingTask(task, false), executor);
+      var future = Future.forFutureTask(errorHandlingTask(task, false), executor);
       executeAndTrack(executor, future);
       return future;
     }

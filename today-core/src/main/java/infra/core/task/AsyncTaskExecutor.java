@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.core.task;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -77,7 +79,7 @@ public interface AsyncTaskExecutor extends TaskExecutor {
    * @return a Future representing pending completion of the task
    * @throws TaskRejectedException if the given task was not accepted
    */
-  default Future<Void> submit(Runnable task) {
+  default Future<@Nullable Void> submit(Runnable task) {
     return Future.run(task, this);
   }
 
@@ -91,7 +93,7 @@ public interface AsyncTaskExecutor extends TaskExecutor {
    * @return a Future representing pending completion of the task
    * @throws TaskRejectedException if the given task was not accepted
    */
-  default <T> Future<T> submit(Callable<T> task) {
+  default <T extends @Nullable Object> Future<T> submit(Callable<T> task) {
     return Future.run(task, this);
   }
 
@@ -103,7 +105,7 @@ public interface AsyncTaskExecutor extends TaskExecutor {
    * @return a {@code CompletableFuture} representing pending completion of the task
    * @throws TaskRejectedException if the given task was not accepted
    */
-  default CompletableFuture<Void> submitCompletable(Runnable task) {
+  default CompletableFuture<@Nullable Void> submitCompletable(Runnable task) {
     return CompletableFuture.runAsync(task, this);
   }
 
@@ -116,7 +118,7 @@ public interface AsyncTaskExecutor extends TaskExecutor {
    * @return a {@code CompletableFuture} representing pending completion of the task
    * @throws TaskRejectedException if the given task was not accepted
    */
-  default <T> CompletableFuture<T> submitCompletable(Callable<T> task) {
+  default <T extends @Nullable Object> CompletableFuture<T> submitCompletable(Callable<T> task) {
     return FutureUtils.callAsync(task, this);
   }
 

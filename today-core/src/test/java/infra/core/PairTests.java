@@ -17,6 +17,7 @@
 
 package infra.core;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -159,7 +160,7 @@ class PairTests {
             .sorted(Pair.comparingFirst())
             .toList();
 
-    assertThat(sorted).extracting(p -> p.getFirst())
+    assertThat(sorted).extracting(Pair::getFirst)
             .containsExactly("a", "b", "c");
   }
 
@@ -175,7 +176,7 @@ class PairTests {
             .sorted(Pair.comparingSecond())
             .toList();
 
-    assertThat(sorted).extracting(p -> p.getSecond())
+    assertThat(sorted).extracting(Pair::getSecond)
             .containsExactly(1, 2, 3);
   }
 
@@ -214,7 +215,7 @@ class PairTests {
 
   @Test
   void withFirstHandlesNullValues() {
-    var pair = Pair.of("a", "b");
+    var pair = Pair.<String, @Nullable String>of("a", "b");
     var newPair = pair.withFirst(null);
     assertThat(newPair.getFirst()).isNull();
     assertThat(newPair.getSecond()).isEqualTo("b");
@@ -222,7 +223,7 @@ class PairTests {
 
   @Test
   void withSecondHandlesNullValues() {
-    var pair = Pair.of("a", "b");
+    var pair = Pair.<String, @Nullable String>of("a", "b");
     var newPair = pair.withSecond(null);
     assertThat(newPair.getFirst()).isEqualTo("a");
     assertThat(newPair.getSecond()).isNull();

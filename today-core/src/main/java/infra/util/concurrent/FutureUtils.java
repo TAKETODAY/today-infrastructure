@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.util.concurrent;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -46,7 +48,7 @@ public abstract class FutureUtils {
    * @return the new CompletableFuture
    * @see CompletableFuture#supplyAsync(Supplier)
    */
-  public static <T> CompletableFuture<T> callAsync(Callable<T> callable) {
+  public static <T extends @Nullable Object> CompletableFuture<T> callAsync(Callable<T> callable) {
     Assert.notNull(callable, "Callable is required");
 
     CompletableFuture<T> result = new CompletableFuture<>();
@@ -64,7 +66,7 @@ public abstract class FutureUtils {
    * @return the new CompletableFuture
    * @see CompletableFuture#supplyAsync(Supplier, Executor)
    */
-  public static <T> CompletableFuture<T> callAsync(Callable<T> callable, Executor executor) {
+  public static <T extends @Nullable Object> CompletableFuture<T> callAsync(Callable<T> callable, Executor executor) {
     Assert.notNull(callable, "Callable is required");
     Assert.notNull(executor, "Executor is required");
 
@@ -72,7 +74,7 @@ public abstract class FutureUtils {
     return result.completeAsync(toSupplier(callable, result), executor);
   }
 
-  private static <T> Supplier<T> toSupplier(Callable<T> callable, CompletableFuture<T> result) {
+  private static <T extends @Nullable Object> Supplier<T> toSupplier(Callable<T> callable, CompletableFuture<T> result) {
     return () -> {
       try {
         return callable.call();

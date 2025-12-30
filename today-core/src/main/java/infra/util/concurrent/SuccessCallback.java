@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.util.concurrent;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Success callback for a {@link Future}.
  *
@@ -26,7 +28,7 @@ package infra.util.concurrent;
  * @since 4.0
  */
 @FunctionalInterface
-public interface SuccessCallback<T> {
+public interface SuccessCallback<T extends @Nullable Object> {
 
   /**
    * Called when the {@link Future} completes with success.

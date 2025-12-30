@@ -96,8 +96,8 @@ public class TaskExecutorAdapter implements AsyncTaskExecutor {
   }
 
   @Override
-  public Future<Void> submit(Runnable task) {
-    var future = Future.<Void>forFutureTask(task, this);
+  public Future<@Nullable Void> submit(Runnable task) {
+    var future = Future.forFutureTask(task, this);
     execute(future, TIMEOUT_INDEFINITE);
     return future;
   }
