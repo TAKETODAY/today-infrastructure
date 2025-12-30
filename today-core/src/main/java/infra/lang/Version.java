@@ -27,10 +27,10 @@ import java.util.Objects;
  * "Implementation-Version" manifest attribute from the jar file.
  *
  * @param major major version
- * @param micro micro version
  * @param minor minor version
- * @param step step
+ * @param micro micro version
  * @param type type
+ * @param step step
  * @param extension version extension
  * @param implementationVersion "Implementation-Version" manifest attribute
  * @author TODAY 2021/10/11 23:28
@@ -63,10 +63,12 @@ public record Version(int major, int minor, int micro, String type, int step,
   }
 
   /**
-   * parse {@link Version},
-   * version format: {major}.{minor}.{micro}-{type}.{step}-{extension}
+   * Parses a {@link Version} from a version string.
+   * <p>
+   * Version format: {major}.{minor}.{micro}-{type}.{step}-{extension}
    *
-   * @param implementationVersion 'implementationVersion' in manifest
+   * @param implementationVersion the 'Implementation-Version' manifest attribute
+   * @return the parsed Version object
    */
   static Version parse(String implementationVersion) {
     String type;
@@ -170,6 +172,9 @@ public record Version(int major, int minor, int micro, String type, int step,
   }
 
   /**
+   * Returns the version instance.
+   *
+   * @return the version instance
    * @see Package#getImplementationVersion()
    */
   public static Version get() {
