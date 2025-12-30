@@ -44,7 +44,7 @@ class RequestHandledEventPublisherTests {
 
     when(request.getRequestURI()).thenReturn("/test");
     when(request.getRemoteAddress()).thenReturn("127.0.0.1");
-    when(request.getMethodValue()).thenReturn("GET");
+    when(request.getMethodAsString()).thenReturn("GET");
     when(request.getRequestProcessingTime()).thenReturn(100L);
     when(request.getStatus()).thenReturn(200);
 
@@ -62,7 +62,7 @@ class RequestHandledEventPublisherTests {
 
     when(request.getRequestURI()).thenReturn("/test");
     when(request.getRemoteAddress()).thenReturn("127.0.0.1");
-    when(request.getMethodValue()).thenReturn("POST");
+    when(request.getMethodAsString()).thenReturn("POST");
     when(request.getRequestProcessingTime()).thenReturn(200L);
     when(request.getStatus()).thenReturn(500);
 
@@ -87,7 +87,7 @@ class RequestHandledEventPublisherTests {
 
     when(request.getRequestURI()).thenReturn("/test");
     when(request.getRemoteAddress()).thenReturn("127.0.0.1");
-    when(request.getMethodValue()).thenReturn("GET");
+    when(request.getMethodAsString()).thenReturn("GET");
     when(request.getRequestProcessingTime()).thenReturn(100L);
     when(request.getStatus()).thenReturn(200);
     when(RequestContextUtils.getSessionId(request)).thenReturn(null);

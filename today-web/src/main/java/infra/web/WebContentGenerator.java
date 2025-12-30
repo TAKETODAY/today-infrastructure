@@ -251,8 +251,8 @@ public abstract class WebContentGenerator extends ApplicationObjectSupport {
    */
   protected final void checkRequest(RequestContext request) {
     // Check whether we should support the request method.
-    if (supportedMethods != null && !supportedMethods.contains(request.getMethodValue())) {
-      throw new HttpRequestMethodNotSupportedException(request.getMethodValue(), this.supportedMethods);
+    if (supportedMethods != null && !supportedMethods.contains(request.getMethodAsString())) {
+      throw new HttpRequestMethodNotSupportedException(request.getMethodAsString(), this.supportedMethods);
     }
 
     // Check whether a session is required.

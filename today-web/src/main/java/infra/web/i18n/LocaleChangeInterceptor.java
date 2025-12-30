@@ -123,7 +123,7 @@ public class LocaleChangeInterceptor implements HandlerInterceptor {
   public boolean beforeProcess(RequestContext request, Object handler) {
     String newLocale = request.getParameter(getParamName());
     if (newLocale != null) {
-      if (checkHttpMethod(request.getMethodValue())) {
+      if (checkHttpMethod(request.getMethodAsString())) {
         LocaleResolver localeResolver = getLocaleResolver();
         if (localeResolver == null) {
           localeResolver = RequestContextUtils.getLocaleResolver(request);

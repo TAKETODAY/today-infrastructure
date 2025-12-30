@@ -45,6 +45,14 @@ import infra.util.MultiValueMap;
  * class loading of the types being inspected. Note, however, that classes for
  * encountered annotations will be loaded.
  *
+ * <p><strong>WARNING</strong>: If an annotation cannot be loaded because one of
+ * its attributes references a {@link Class} or {@link Enum}
+ * {@linkplain TypeNotPresentException that is not present in the classpath}, that
+ * annotation will not be accessible via the {@code AnnotatedTypeMetadata} API.
+ * To assist with diagnosing such scenarios, you can set the log level for
+ * {@code "infra.core.annotation.MergedAnnotation"} to {@code DEBUG},
+ * {@code INFO}, or {@code WARN}.
+ *
  * @author Juergen Hoeller
  * @author Mark Fisher
  * @author Mark Pollack
@@ -222,8 +230,7 @@ public interface AnnotatedTypeMetadata {
    * as map key (e.g. "location") and the attribute's value as map value; or
    * {@code null} if no matching annotation is found
    */
-  @Nullable
-  default Map<String, Object> getAnnotationAttributes(Class<? extends Annotation> annotationType) {
+  default @Nullable Map<String, Object> getAnnotationAttributes(Class<? extends Annotation> annotationType) {
     return getAnnotationAttributes(annotationType.getName(), false);
   }
 
@@ -240,8 +247,7 @@ public interface AnnotatedTypeMetadata {
    * as map key (e.g. "location") and the attribute's value as map value; or
    * {@code null} if no matching annotation is found
    */
-  @Nullable
-  default Map<String, Object> getAnnotationAttributes(String annotationName) {
+  default @Nullable Map<String, Object> getAnnotationAttributes(String annotationName) {
     return getAnnotationAttributes(annotationName, false);
   }
 
@@ -261,8 +267,7 @@ public interface AnnotatedTypeMetadata {
    * as map key (e.g. "location") and the attribute's value as map value; or
    * {@code null} if no matching annotation is found
    */
-  @Nullable
-  default Map<String, Object> getAnnotationAttributes(Class<? extends Annotation> annotationType, boolean classValuesAsString) {
+  default @Nullable Map<String, Object> getAnnotationAttributes(Class<? extends Annotation> annotationType, boolean classValuesAsString) {
     return getAnnotationAttributes(annotationType.getName(), classValuesAsString);
   }
 
@@ -282,8 +287,7 @@ public interface AnnotatedTypeMetadata {
    * as map key (e.g. "location") and the attribute's value as map value; or
    * {@code null} if no matching annotation is found
    */
-  @Nullable
-  default Map<String, Object> getAnnotationAttributes(String annotationName, boolean classValuesAsString) {
+  default @Nullable Map<String, Object> getAnnotationAttributes(String annotationName, boolean classValuesAsString) {
     MergedAnnotation<Annotation> annotation = getAnnotations().get(
             annotationName, null, MergedAnnotationSelectors.firstDirectlyDeclared());
     if (!annotation.isPresent()) {
@@ -303,8 +307,7 @@ public interface AnnotatedTypeMetadata {
    * be {@code null} if no matching annotation is defined.
    * @see #getAllAnnotationAttributes(String, boolean)
    */
-  @Nullable
-  default MultiValueMap<String, @Nullable Object> getAllAnnotationAttributes(Class<? extends Annotation> annotationType) {
+  default @Nullable MultiValueMap<String, @Nullable Object> getAllAnnotationAttributes(Class<? extends Annotation> annotationType) {
     return getAllAnnotationAttributes(annotationType.getName());
   }
 
@@ -320,8 +323,7 @@ public interface AnnotatedTypeMetadata {
    * be {@code null} if no matching annotation is defined.
    * @see #getAllAnnotationAttributes(String, boolean)
    */
-  @Nullable
-  default MultiValueMap<String, @Nullable Object> getAllAnnotationAttributes(String annotationName) {
+  default @Nullable MultiValueMap<String, @Nullable Object> getAllAnnotationAttributes(String annotationName) {
     return getAllAnnotationAttributes(annotationName, false);
   }
 
@@ -337,8 +339,7 @@ public interface AnnotatedTypeMetadata {
    * be {@code null} if no matching annotation is defined.
    * @see #getAllAnnotationAttributes(String)
    */
-  @Nullable
-  default MultiValueMap<String, @Nullable Object> getAllAnnotationAttributes(Class<? extends Annotation> annotationType, boolean classValuesAsString) {
+  default @Nullable MultiValueMap<String, @Nullable Object> getAllAnnotationAttributes(Class<? extends Annotation> annotationType, boolean classValuesAsString) {
     return getAllAnnotationAttributes(annotationType.getName(), classValuesAsString);
   }
 
@@ -355,8 +356,7 @@ public interface AnnotatedTypeMetadata {
    * be {@code null} if no matching annotation is defined.
    * @see #getAllAnnotationAttributes(String)
    */
-  @Nullable
-  default MultiValueMap<String, @Nullable Object> getAllAnnotationAttributes(String annotationName, boolean classValuesAsString) {
+  default @Nullable MultiValueMap<String, @Nullable Object> getAllAnnotationAttributes(String annotationName, boolean classValuesAsString) {
     Adapt[] adaptations = Adapt.values(classValuesAsString, true);
     return getAnnotations().stream(annotationName)
             .filter(MergedAnnotationPredicates.unique(MergedAnnotation::getMetaTypes))

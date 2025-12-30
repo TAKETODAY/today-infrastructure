@@ -35,6 +35,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -60,6 +61,7 @@ import infra.http.HttpMethod;
 import infra.http.HttpRequest;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
+import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
 import infra.http.server.RequestPath;
@@ -247,6 +249,8 @@ public abstract class RequestContext extends AttributeAccessorSupport
   /** Map from attribute name String to destruction callback Runnable.  @since 5.0 */
   @Nullable
   protected LinkedHashMap<String, Runnable> destructionCallbacks;
+
+  protected @Nullable MediaType contentType;
 
   private long requestCompletedTimeMillis;
 
@@ -468,7 +472,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return A URL
    */
   public String getRequestURL() {
-    String host = requestHeaders().getFirst(HttpHeaders.HOST);
+    String host = getHeader(HttpHeaders.HOST);
     if (host == null) {
       host = "localhost";
     }
@@ -745,18 +749,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return null;
   }
 
-  /**
-   * Returns the name of the HTTP method with which this request was made, for
-   * example, GET, POST, or PUT.
-   *
-   * @return a <code>String</code> specifying the name of the method with which
-   * this request was made
-   */
-  @Override
-  public String getMethodValue() {
-    return getMethod().name();
-  }
-
   @Override
   public HttpMethod getMethod() {
     HttpMethod httpMethod = this.httpMethod;
@@ -860,7 +852,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
         multipartFlag = false;
       }
       else {
-        multipartFlag = StringUtils.startsWithIgnoreCase(getContentType(), "multipart/");
+        multipartFlag = StringUtils.startsWithIgnoreCase(getContentTypeAsString(), "multipart/");
       }
       this.multipartFlag = multipartFlag;
     }
@@ -879,17 +871,17 @@ public abstract class RequestContext extends AttributeAccessorSupport
    *
    * <pre>{@code
    *   // Assuming 'handler' is an instance of the class containing this method
-   *   MultipartRequest request = getMultipartRequest();
+   *   MultipartRequest request = multipartRequest();
    *
    *   // Use the request object to process multipart data
-   *   String fileData = request.getFileData("fileKey");
+   *   String fileData = request.get*("fileKey");
    * }</pre>
    *
    * @return the cached or newly created {@code MultipartRequest} instance
    * @see #isMultipart()
    * @since 4.0
    */
-  public MultipartRequest multipartRequest() {
+  public MultipartRequest asMultipartRequest() {
     var multipartRequest = this.multipartRequest;
     if (multipartRequest == null) {
       multipartRequest = createMultipartRequest();
@@ -1158,6 +1150,40 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   /**
+   * Return the media type of the request body, or {@code null} if the
+   * media type is not known or cannot be parsed from the Content-Type header.
+   * <p>This method retrieves the Content-Type header from the request headers
+   * and attempts to parse it into a {@link MediaType} object. If the header
+   * is not present or cannot be parsed, this method returns {@code null}.
+   * <p>Cache parsed content type in {@link #contentType}.
+   *
+   * @return the {@link MediaType} of the request body, or {@code null} if
+   * the media type is unknown or unparseable
+   * @throws InvalidMediaTypeException if the media type value cannot be parsed
+   * @see HttpHeaders#getContentType()
+   * @since 5.0
+   */
+  @Nullable
+  public MediaType getContentType() {
+    MediaType contentType = this.contentType;
+    if (contentType == null) {
+      String string = getContentTypeAsString();
+      if (string != null) {
+        contentType = MediaType.parseMediaType(string);
+        this.contentType = contentType;
+      }
+      else {
+        this.contentType = MediaType.ALL;
+        return null;
+      }
+    }
+    else if (contentType == MediaType.ALL) {
+      return null;
+    }
+    return contentType;
+  }
+
+  /**
    * Returns the MIME type of the body of the request, or <code>null</code> if the
    * type is not known.
    *
@@ -1165,7 +1191,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * request, or null if the type is not known
    */
   @Nullable
-  public abstract String getContentType();
+  public abstract String getContentTypeAsString();
 
   /**
    * Returns the HTTP headers associated with the current request. If the headers
@@ -1217,6 +1243,44 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * headers for the request
    */
   protected abstract HttpHeaders createRequestHeaders();
+
+  /**
+   * Returns the value of the specified request header as a {@code String}.
+   * If the request does not have a header with the specified name,
+   * this method returns {@code null}.
+   *
+   * @param name the name of the request header
+   * @return the value of the specified request header, or {@code null}
+   * if the header does not exist
+   * @since 5.0
+   */
+  public @Nullable String getHeader(String name) {
+    return requestHeaders().getFirst(name);
+  }
+
+  /**
+   * Returns the values of the specified request header as a {@code List<String>}.
+   * If the request does not have a header with the specified name,
+   * this method returns an empty list.
+   *
+   * @param name the name of the request header
+   * @return the values of the specified request header, or an empty
+   * list if the header does not exist
+   * @since 5.0
+   */
+  public List<String> getHeaders(String name) {
+    return requestHeaders().getOrEmpty(name);
+  }
+
+  /**
+   * Get the header names provided for this request.
+   *
+   * @return a Collection of all the header names provided for this request.
+   * @since 5.0
+   */
+  public Collection<String> getHeaderNames() {
+    return requestHeaders().keySet();
+  }
 
   /**
    * Returns the preferred <code>Locale</code> that the client will
@@ -1398,7 +1462,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   private boolean validateIfMatch(@Nullable String eTag) {
-    if (SAFE_METHODS.contains(getMethodValue())) {
+    if (SAFE_METHODS.contains(getMethodAsString())) {
       return false;
     }
 
@@ -1422,7 +1486,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   private boolean matchRequestedETags(List<String> requestedETags, @Nullable String tag, boolean weakCompare) {
     if (StringUtils.isNotEmpty(tag)) {
       ETag eTag = ETag.create(tag);
-      boolean isNotSafeMethod = !SAFE_METHODS.contains(getMethodValue());
+      boolean isNotSafeMethod = !SAFE_METHODS.contains(getMethodAsString());
       for (String requestedETagString : requestedETags) {
         // Compare weak/strong ETags as per https://datatracker.ietf.org/doc/html/rfc9110#section-8.8.3
         for (ETag requestedETag : ETag.parse(requestedETagString)) {
@@ -1472,7 +1536,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   private void updateResponseIdempotent(@Nullable String eTag, long lastModifiedTimestamp) {
-    boolean isHttpGetOrHead = SAFE_METHODS.contains(getMethodValue());
+    boolean isHttpGetOrHead = SAFE_METHODS.contains(getMethodAsString());
     if (this.notModified) {
       setStatus(isHttpGetOrHead ?
               HttpStatus.NOT_MODIFIED.value() : HttpStatus.PRECONDITION_FAILED.value());
@@ -1489,7 +1553,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   private void addCachingResponseHeaders(@Nullable String eTag, long lastModifiedTimestamp) {
-    if (SAFE_METHODS.contains(getMethodValue())) {
+    if (SAFE_METHODS.contains(getMethodAsString())) {
       HttpHeaders httpHeaders = responseHeaders();
       if (lastModifiedTimestamp > 0 && parseDateValue(httpHeaders.getFirst(HttpHeaders.LAST_MODIFIED)) == -1) {
         httpHeaders.setLastModified(lastModifiedTimestamp);
@@ -1972,12 +2036,9 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return a <code>PrintWriter</code> object that can return character data to
    * the client
    * @throws IOException if an input or output exception occurred
-   * @throws IllegalStateException if the <code>getOutputStream</code>
-   * method has already been called for this response object
-   * @see #getOutputStream
    * @see #reset
-   * @see #getOutputStream()
    * @see PrintWriter#PrintWriter(OutputStream, boolean, Charset)
+   * @see PrintWriter#flush()
    */
   @Override
   public PrintWriter getWriter() throws IOException {
@@ -2056,7 +2117,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return a <code>String</code> specifying the content type, for example,
    * <code>text/html; charset=UTF-8</code>, or
    * null
-   * @see #getContentType()
+   * @see #getContentTypeAsString()
    */
   @Nullable
   public String getResponseContentType() {
@@ -2238,7 +2299,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   @Override
   public String toString() {
     String url = URLDecoder.decode(getRequestURL(), StandardCharsets.UTF_8);
-    return getMethodValue() + " " + url;
+    return getMethodAsString() + " " + url;
   }
 
   final class RequestContextHttpOutputMessage implements ServerHttpResponse {

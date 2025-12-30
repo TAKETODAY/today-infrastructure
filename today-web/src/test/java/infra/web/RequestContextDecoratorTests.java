@@ -46,7 +46,7 @@ class RequestContextDecoratorTests {
     RequestContext mockRequest = mock(RequestContext.class);
     RequestContextDecorator decorator = new RequestContextDecorator(mockRequest);
 
-    assertThat(decorator.getDelegate()).isSameAs(mockRequest);
+    assertThat(decorator.delegate()).isSameAs(mockRequest);
   }
 
   @Test
@@ -146,7 +146,7 @@ class RequestContextDecoratorTests {
     RequestContext mockRequest = mock(RequestContext.class);
     RequestContextDecorator decorator = new RequestContextDecorator(mockRequest);
 
-    assertThat(decorator.getDelegate()).isSameAs(mockRequest);
+    assertThat(decorator.delegate()).isSameAs(mockRequest);
   }
 
   @Test
@@ -355,8 +355,8 @@ class RequestContextDecoratorTests {
     decorator.isConcurrentHandlingStarted();
     verify(mockRequest).isConcurrentHandlingStarted();
 
-    decorator.multipartRequest();
-    verify(mockRequest).multipartRequest();
+    decorator.asMultipartRequest();
+    verify(mockRequest).asMultipartRequest();
 
     decorator.asyncManager();
     verify(mockRequest).asyncManager();

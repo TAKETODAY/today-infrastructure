@@ -64,7 +64,8 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
    *
    * @see #setSupportedMediaTypes
    */
-  protected AbstractHttpMessageConverter() { }
+  protected AbstractHttpMessageConverter() {
+  }
 
   /**
    * Construct an {@code AbstractHttpMessageConverter} with multiple supported media types.
@@ -242,7 +243,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
       if (contentType == null || !contentType.isConcrete()) {
         contentTypeToUse = getDefaultContentType(t);
       }
-      else if (MediaType.APPLICATION_OCTET_STREAM.equals(contentType)) {
+      else if (MediaType.APPLICATION_OCTET_STREAM.equalsTypeAndSubtype(contentType)) {
         MediaType mediaType = getDefaultContentType(t);
         if (mediaType != null) {
           contentTypeToUse = mediaType;

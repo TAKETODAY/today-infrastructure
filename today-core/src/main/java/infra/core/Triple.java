@@ -38,8 +38,7 @@ import infra.util.ObjectUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/8/24 14:52
  */
-@SuppressWarnings("NullAway")
-public final class Triple<A, B, C> implements Serializable {
+public final class Triple<A extends @Nullable Object, B extends @Nullable Object, C extends @Nullable Object> implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
@@ -112,7 +111,7 @@ public final class Triple<A, B, C> implements Serializable {
     return "<" + first + "," + second + "," + third + ">";
   }
 
-  public static <A, B, C> Triple<A, B, C> of(@Nullable A first, @Nullable B second, @Nullable C third) {
+  public static <A extends @Nullable Object, B extends @Nullable Object, C extends @Nullable Object> Triple<A, B, C> of(@Nullable A first, @Nullable B second, @Nullable C third) {
     return new Triple<>(first, second, third);
   }
 

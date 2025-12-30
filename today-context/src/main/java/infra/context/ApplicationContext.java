@@ -82,9 +82,9 @@ public interface ApplicationContext extends HierarchicalBeanFactory, MessageSour
   Environment getEnvironment();
 
   /**
-   * Get AbstractBeanFactory
+   * Get the bean factory associated with this context.
    *
-   * @return A bean factory
+   * @return the bean factory for this context
    * @since 3.0
    */
   BeanFactory getBeanFactory();
@@ -121,10 +121,9 @@ public interface ApplicationContext extends HierarchicalBeanFactory, MessageSour
   /**
    * Return the unique id of this application context.
    *
-   * @return the unique id of the context, or {@code null} if none
+   * @return the unique id of the context
    * @since 4.0
    */
-  @Nullable
   String getId();
 
   /**
@@ -178,7 +177,9 @@ public interface ApplicationContext extends HierarchicalBeanFactory, MessageSour
   AutowireCapableBeanFactory getAutowireCapableBeanFactory() throws IllegalStateException;
 
   /**
-   * @return ExpressionEvaluator of this context
+   * Return the ExpressionEvaluator of this context.
+   *
+   * @return the ExpressionEvaluator associated with this context
    * @since 4.0
    */
   ExpressionEvaluator getExpressionEvaluator();

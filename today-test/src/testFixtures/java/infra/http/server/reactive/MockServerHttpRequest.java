@@ -153,7 +153,7 @@ class MockServerHttpRequest extends AbstractServerHttpRequest {
   }
 
   @Override
-  public String getMethodValue() {
+  public String getMethodAsString() {
     return this.request.getMethod();
   }
 

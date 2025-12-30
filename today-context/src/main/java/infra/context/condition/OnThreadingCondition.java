@@ -17,8 +17,6 @@
 
 package infra.context.condition;
 
-import java.util.Map;
-
 import infra.context.annotation.Condition;
 import infra.context.annotation.ConditionContext;
 import infra.core.env.Environment;
@@ -37,8 +35,8 @@ class OnThreadingCondition extends InfraCondition {
   @SuppressWarnings("NullAway")
   @Override
   public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
-    Map<String, Object> attributes = metadata.getAnnotationAttributes(ConditionalOnThreading.class);
-    Threading threading = (Threading) attributes.get("value");
+    Threading threading = metadata.getAnnotation(ConditionalOnThreading.class)
+            .getEnum("value", Threading.class);
     return getMatchOutcome(context.getEnvironment(), threading);
   }
 

@@ -17,8 +17,6 @@
 
 package infra.annotation;
 
-import java.util.Map;
-
 import infra.app.cloud.CloudPlatform;
 import infra.context.annotation.Condition;
 import infra.context.annotation.ConditionContext;
@@ -41,8 +39,8 @@ class OnCloudPlatformCondition extends InfraCondition {
 
   @Override
   public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
-    Map<String, Object> attributes = metadata.getAnnotationAttributes(ConditionalOnCloudPlatform.class);
-    CloudPlatform cloudPlatform = (CloudPlatform) attributes.get("value");
+    CloudPlatform cloudPlatform = metadata.getAnnotation(ConditionalOnCloudPlatform.class)
+            .getEnum("value", CloudPlatform.class);
     return getMatchOutcome(context.getEnvironment(), cloudPlatform);
   }
 

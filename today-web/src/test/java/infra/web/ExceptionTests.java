@@ -49,8 +49,8 @@ import infra.web.bind.MissingMatrixVariableException;
 import infra.web.bind.MissingPathVariableException;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.MissingRequestValueException;
-import infra.web.bind.MultipartException;
-import infra.web.bind.NotMultipartRequestException;
+import infra.web.multipart.MultipartException;
+import infra.web.multipart.NotMultipartRequestException;
 import infra.web.bind.RequestBindingException;
 import infra.web.bind.UnsatisfiedRequestParameterException;
 import infra.web.bind.resolver.MissingRequestCookieException;
@@ -1067,7 +1067,7 @@ public class ExceptionTests {
     void exceptionExtendsHttpMessageNotReadableException() {
       MultipartException exception = new MultipartException("test");
 
-      assertThat(exception).isInstanceOf(infra.http.converter.HttpMessageNotReadableException.class);
+      assertThat(exception).isInstanceOf(NestedRuntimeException.class);
     }
 
   }

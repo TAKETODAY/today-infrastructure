@@ -36,13 +36,13 @@ import infra.lang.Assert;
  * @see MultipartFile#getResource()
  * @since 4.0 2022/4/2 11:58
  */
-class MultipartFileResource extends AbstractResource {
+class PartResource extends AbstractResource {
 
-  private final MultipartFile multipartFile;
+  private final Part part;
 
-  public MultipartFileResource(MultipartFile multipartFile) {
-    Assert.notNull(multipartFile, "MultipartFile is required");
-    this.multipartFile = multipartFile;
+  public PartResource(Part part) {
+    Assert.notNull(part, "MultipartFile is required");
+    this.part = part;
   }
 
   /**
@@ -63,13 +63,13 @@ class MultipartFileResource extends AbstractResource {
 
   @Override
   public long contentLength() {
-    return this.multipartFile.getSize();
+    return this.part.getContentLength();
   }
 
   @Nullable
   @Override
   public String getName() {
-    return this.multipartFile.getOriginalFilename();
+    return this.part.getOriginalFilename();
   }
 
   /**
@@ -78,7 +78,7 @@ class MultipartFileResource extends AbstractResource {
    */
   @Override
   public InputStream getInputStream() throws IOException, IllegalStateException {
-    return this.multipartFile.getInputStream();
+    return this.part.getInputStream();
   }
 
   /**
@@ -86,18 +86,18 @@ class MultipartFileResource extends AbstractResource {
    */
   @Override
   public String toString() {
-    return "MultipartFile resource [%s]".formatted(this.multipartFile.getName());
+    return "MultipartFile resource [%s]".formatted(this.part.getName());
   }
 
   @Override
   public boolean equals(@Nullable Object other) {
-    return (this == other || (other instanceof MultipartFileResource &&
-            ((MultipartFileResource) other).multipartFile.equals(this.multipartFile)));
+    return (this == other || (other instanceof PartResource &&
+            ((PartResource) other).part.equals(this.part)));
   }
 
   @Override
   public int hashCode() {
-    return this.multipartFile.hashCode();
+    return this.part.hashCode();
   }
 
 }

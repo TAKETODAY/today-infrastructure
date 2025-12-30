@@ -19,6 +19,7 @@ package infra.util;
 
 import org.jspecify.annotations.Nullable;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ import infra.core.ArraySizeTrimmer;
  * @since 4.0 2022/9/4 19:53
  */
 @SuppressWarnings("NullAway")
-public class SmartList<E> extends AbstractList<E> implements RandomAccess, ArraySizeTrimmer {
+public class SmartList<E> extends AbstractList<E> implements RandomAccess, ArraySizeTrimmer, Serializable {
 
   private int size;
 

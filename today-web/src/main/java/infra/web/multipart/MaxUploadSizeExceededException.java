@@ -23,7 +23,6 @@ import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.ProblemDetail;
 import infra.web.ErrorResponse;
-import infra.web.bind.MultipartException;
 
 /**
  * MultipartException subclass thrown when an upload exceeds the

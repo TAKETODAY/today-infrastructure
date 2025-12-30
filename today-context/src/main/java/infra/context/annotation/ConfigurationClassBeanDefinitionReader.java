@@ -346,8 +346,8 @@ class ConfigurationClassBeanDefinitionReader {
         ccbd.setNonUniqueFactoryMethodName(ccbd.getFactoryMethodMetadata().getMethodName());
         return true;
       }
-      Map<String, Object> attributes = configClass.metadata.getAnnotationAttributes(Configuration.class);
-      if ((attributes != null && (Boolean) attributes.get("enforceUniqueMethods"))
+      var annotation = configClass.metadata.getAnnotation(Configuration.class);
+      if ((annotation.isPresent() && annotation.getBoolean("enforceUniqueMethods"))
               || !bootstrapContext.getRegistry().isBeanDefinitionOverridable(beanName)) {
         throw new BeanDefinitionOverrideException(beanName, newBeanDef, existingBeanDef,
                 "@Bean method override with same bean name but different method name: " + existingBeanDef);

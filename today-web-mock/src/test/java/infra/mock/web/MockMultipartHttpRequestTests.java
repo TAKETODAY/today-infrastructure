@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,23 +44,26 @@ class MockMultipartHttpRequestTests {
   @Test
   void mockMultipartHttpMockRequestWithByteArray() throws IOException {
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
-    assertThat(request.getFileNames().hasNext()).isFalse();
-    assertThat(request.getFile("file1")).isNull();
-    assertThat(request.getFile("file2")).isNull();
-    assertThat(request.getFileMap().isEmpty()).isTrue();
+    MultipartRequest multipartRequest = request.getMultipartRequest();
+    assertThat(multipartRequest.getFileNames().iterator().hasNext()).isFalse();
+    assertThat(multipartRequest.getFile("file1")).isNull();
+    assertThat(multipartRequest.getFile("file2")).isNull();
+    assertThat(multipartRequest.getFileMap().isEmpty()).isTrue();
 
     request.addFile(new MockMultipartFile("file1", "myContent1".getBytes()));
     request.addFile(new MockMultipartFile("file2", "myOrigFilename", "text/plain", "myContent2".getBytes()));
-    doTestMultipartHttpRequest(request);
+    doTestMultipartHttpRequest(multipartRequest);
   }
 
   @Test
   void mockMultipartHttpMockRequestWithInputStream() throws IOException {
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
+    MultipartRequest multipartRequest = request.getMultipartRequest();
+
     request.addFile(new MockMultipartFile("file1", new ByteArrayInputStream("myContent1".getBytes())));
     request.addFile(new MockMultipartFile("file2", "myOrigFilename", "text/plain", new ByteArrayInputStream(
             "myContent2".getBytes())));
-    doTestMultipartHttpRequest(request);
+    doTestMultipartHttpRequest(multipartRequest);
   }
 
   @Test
@@ -73,20 +75,19 @@ class MockMultipartHttpRequestTests {
     metadataPart.getHeaders().setContentType(MediaType.APPLICATION_JSON);
     request.addPart(metadataPart);
 
-    HttpHeaders fileHttpHeaders = request.getMultipartHeaders("file");
+    HttpHeaders fileHttpHeaders = request.getMultipartRequest().getMultipartHeaders("file");
     assertThat(fileHttpHeaders).isNotNull();
     assertThat(fileHttpHeaders.getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
 
-    HttpHeaders dataHttpHeaders = request.getMultipartHeaders("metadata");
+    HttpHeaders dataHttpHeaders = request.getMultipartRequest().getMultipartHeaders("metadata");
     assertThat(dataHttpHeaders).isNotNull();
     assertThat(dataHttpHeaders.getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
   }
 
   private void doTestMultipartHttpRequest(MultipartRequest request) throws IOException {
     Set<String> fileNames = new HashSet<>();
-    Iterator<String> fileIter = request.getFileNames();
-    while (fileIter.hasNext()) {
-      fileNames.add(fileIter.next());
+    for (String string : request.getFileNames()) {
+      fileNames.add(string);
     }
     assertThat(fileNames.size()).isEqualTo(2);
     assertThat(fileNames.contains("file1")).isTrue();
@@ -102,13 +103,13 @@ class MockMultipartHttpRequestTests {
     assertThat(file1.getName()).isEqualTo("file1");
     assertThat(file1.getOriginalFilename()).isEqualTo("");
     assertThat(file1.getContentType()).isNull();
-    assertThat(ObjectUtils.nullSafeEquals("myContent1".getBytes(), file1.getBytes())).isTrue();
+    assertThat(ObjectUtils.nullSafeEquals("myContent1".getBytes(), file1.getContentAsByteArray())).isTrue();
     assertThat(ObjectUtils.nullSafeEquals("myContent1".getBytes(),
             FileCopyUtils.copyToByteArray(file1.getInputStream()))).isTrue();
     assertThat(file2.getName()).isEqualTo("file2");
     assertThat(file2.getOriginalFilename()).isEqualTo("myOrigFilename");
-    assertThat(file2.getContentType()).isEqualTo("text/plain");
-    assertThat(ObjectUtils.nullSafeEquals("myContent2".getBytes(), file2.getBytes())).isTrue();
+    assertThat(file2.getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(ObjectUtils.nullSafeEquals("myContent2".getBytes(), file2.getContentAsByteArray())).isTrue();
     assertThat(ObjectUtils.nullSafeEquals("myContent2".getBytes(),
             FileCopyUtils.copyToByteArray(file2.getInputStream()))).isTrue();
   }

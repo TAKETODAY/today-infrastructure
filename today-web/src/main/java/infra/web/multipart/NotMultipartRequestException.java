@@ -15,26 +15,19 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.bind;
+package infra.web.multipart;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.http.converter.HttpMessageNotReadableException;
-
 /**
- * Multipart cannot be parsed include
- * {@link infra.web.multipart.MultipartFile} and normal part
+ * Not A Multipart Request Exception
  *
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 3.0 2021/1/17 10:41
+ * @author TODAY 2021/3/21 21:08
+ * @since 3.0
  */
-public class MultipartException extends HttpMessageNotReadableException {
+public class NotMultipartRequestException extends MultipartException {
 
-  public MultipartException(@Nullable String message) {
-    super(message, null, null);
-  }
-
-  public MultipartException(@Nullable String message, @Nullable Throwable cause) {
-    super(message, cause, null);
+  public NotMultipartRequestException(@Nullable String message, @Nullable Throwable cause) {
+    super(message, cause);
   }
 }

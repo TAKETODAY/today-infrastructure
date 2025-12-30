@@ -55,7 +55,9 @@ public class ProxyAsyncConfiguration extends AbstractAsyncConfiguration {
     if (customAsyncAnnotation != enableAsync.getDefaultValue("annotation")) {
       bpp.setAsyncAnnotationType(customAsyncAnnotation);
     }
-    bpp.setProxyTargetClass(this.enableAsync.getBoolean("proxyTargetClass"));
+    if (this.enableAsync.getBoolean("proxyTargetClass")) {
+      bpp.setProxyTargetClass(true);
+    }
     bpp.setOrder(this.enableAsync.getInt("order"));
     return bpp;
   }

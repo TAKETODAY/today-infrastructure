@@ -21,10 +21,8 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
-import infra.util.ExceptionUtils;
 import infra.web.multipart.MultipartFile;
 
 /**
@@ -34,7 +32,7 @@ import infra.web.multipart.MultipartFile;
  *
  * <p>This class is designed to be extended by concrete implementations that provide
  * the actual logic for interacting with multipart files. It implements the {@link MultipartFile}
- * interface and extends {@link AbstractMultipart}, offering a foundation for file handling
+ * interface and extends {@link AbstractPart}, offering a foundation for file handling
  * in web applications or frameworks.
  *
  * <p><strong>Key Features:</strong>
@@ -56,15 +54,15 @@ import infra.web.multipart.MultipartFile;
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see MultipartFile
- * @see AbstractMultipart
+ * @see AbstractPart
  * @since 3.0 2021/4/18 20:38
  */
-public abstract class AbstractMultipartFile extends AbstractMultipart implements MultipartFile {
+public abstract class AbstractMultipartFile extends AbstractPart implements MultipartFile {
 
   protected byte @Nullable [] cachedBytes;
 
   @Override
-  public void transferTo(File dest) throws IOException {
+  public long transferTo(File dest) throws IOException {
     // fix #3 Upload file not found exception
     File parentFile = dest.getParentFile();
     if (!parentFile.exists()) {
@@ -79,6 +77,7 @@ public abstract class AbstractMultipartFile extends AbstractMultipart implements
       Files.delete(dest.toPath());
     }
     saveInternal(dest);
+    return getContentLength();
   }
 
   /**
@@ -97,7 +96,7 @@ public abstract class AbstractMultipartFile extends AbstractMultipart implements
   protected abstract void saveInternal(File dest) throws IOException;
 
   @Override
-  public byte[] getBytes() throws IOException {
+  public byte[] getContentAsByteArray() throws IOException {
     byte[] cachedBytes = this.cachedBytes;
     if (cachedBytes == null) {
       cachedBytes = doGetBytes();
@@ -111,16 +110,6 @@ public abstract class AbstractMultipartFile extends AbstractMultipart implements
   @Override
   public final boolean isFormField() {
     return false;
-  }
-
-  @Override
-  public String getValue() {
-    try {
-      return new String(getBytes(), StandardCharsets.UTF_8);
-    }
-    catch (IOException e) {
-      throw ExceptionUtils.sneakyThrow(e);
-    }
   }
 
   @Override

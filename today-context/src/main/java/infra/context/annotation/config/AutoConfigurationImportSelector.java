@@ -218,7 +218,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
 
   private void checkExcludedClasses(List<String> configurations, Set<String> exclusions) {
     ArrayList<String> invalidExcludes = new ArrayList<>(exclusions.size());
-    ClassLoader classLoader = getClass().getClassLoader();
+    ClassLoader classLoader = beanClassLoader != null ? this.beanClassLoader : getClass().getClassLoader();
     for (String exclusion : exclusions) {
       if (ClassUtils.isPresent(exclusion, classLoader)
               && !configurations.contains(exclusion)) {

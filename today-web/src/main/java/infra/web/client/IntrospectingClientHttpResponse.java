@@ -69,7 +69,7 @@ class IntrospectingClientHttpResponse extends ClientHttpResponseDecorator implem
             || statusCode == HttpStatus.NOT_MODIFIED) {
       return false;
     }
-    return getHeaders().getContentLength() != 0;
+    return getContentLength() != 0;
   }
 
   /**

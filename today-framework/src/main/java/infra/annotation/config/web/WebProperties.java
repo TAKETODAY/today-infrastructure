@@ -81,6 +81,16 @@ public class WebProperties {
     public String[] staticLocations = CLASSPATH_RESOURCE_LOCATIONS;
 
     /**
+     * Path pattern used for static resources.
+     */
+    public String staticPathPattern = "/**";
+
+    /**
+     * Path pattern used for WebJar assets.
+     */
+    public String webjarsPathPattern = "/webjars/**";
+
+    /**
      * Whether to enable default resource handling.
      */
     public boolean addDefaultMappings = true;

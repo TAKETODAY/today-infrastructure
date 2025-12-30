@@ -23,6 +23,7 @@ package infra.web.util;
  *
  * @author Juergen Hoeller
  * @author Martin Kersten
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 class HtmlCharacterEntityDecoder {
@@ -68,18 +69,14 @@ class HtmlCharacterEntityDecoder {
         this.nextSemicolonPosition = this.originalMessage.indexOf(';', this.nextPotentialReferencePosition + 1);
       }
 
-      boolean isPotentialReference = (this.nextPotentialReferencePosition != -1 &&
-              this.nextSemicolonPosition != -1 &&
-              this.nextSemicolonPosition - this.nextPotentialReferencePosition < MAX_REFERENCE_SIZE);
-
-      if (isPotentialReference) {
-        break;
-      }
       if (this.nextPotentialReferencePosition == -1) {
         break;
       }
       if (this.nextSemicolonPosition == -1) {
         this.nextPotentialReferencePosition = -1;
+        break;
+      }
+      if (this.nextSemicolonPosition - this.nextPotentialReferencePosition < MAX_REFERENCE_SIZE) {
         break;
       }
 
@@ -126,7 +123,10 @@ class HtmlCharacterEntityDecoder {
       int value = (!isHexNumberedReference ?
               Integer.parseInt(getReferenceSubstring(2)) :
               Integer.parseInt(getReferenceSubstring(3), 16));
-      this.decodedMessage.append((char) value);
+      if (value > Character.MAX_CODE_POINT) {
+        return false;
+      }
+      this.decodedMessage.appendCodePoint(value);
       return true;
     }
     catch (NumberFormatException ex) {

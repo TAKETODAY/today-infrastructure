@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -249,6 +249,13 @@ class MimeTypeTests {
   public void parseMimeTypeWithSpacesAroundEquals() {
     MimeType mimeType = MimeTypeUtils.parseMimeType("multipart/x-mixed-replace;boundary = --myboundary");
     assertThat(mimeType.getParameter("boundary")).isEqualTo("--myboundary");
+  }
+
+  @Test
+  public void getUnquotedParameter() {
+    MimeType mimeType = MimeTypeUtils.parseMimeType("multipart/x-mixed-replace;boundary =\"--myboundary\"");
+    assertThat(mimeType.getUnquotedParameter("boundary")).isEqualTo("--myboundary");
+    assertThat(mimeType.getUnquotedParameter("boundary1")).isNull();
   }
 
   @Test

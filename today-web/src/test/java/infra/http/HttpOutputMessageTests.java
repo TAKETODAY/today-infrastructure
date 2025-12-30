@@ -20,6 +20,7 @@ package infra.http;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -182,6 +183,41 @@ class HttpOutputMessageTests {
 
     assertThatCode(() -> outputMessage.sendFile(tempFile, 0, largeContent.length))
             .doesNotThrowAnyException();
+  }
+
+  @Test
+  void sendFile_withNullFile_shouldThrowNullPointerException() throws IOException {
+    HttpOutputMessage outputMessage = mock(HttpOutputMessage.class);
+    doCallRealMethod().when(outputMessage).sendFile((File) any());
+
+    assertThatThrownBy(() -> outputMessage.sendFile((File) null))
+            .isInstanceOf(NullPointerException.class);
+  }
+
+  @Test
+  void setContentType_withNullMediaType_shouldClearHeader() {
+    HttpOutputMessage outputMessage = mock(HttpOutputMessage.class);
+    HttpHeaders headers = HttpHeaders.forWritable();
+    headers.setContentType(MediaType.TEXT_PLAIN);
+
+    when(outputMessage.getHeaders()).thenReturn(headers);
+    doCallRealMethod().when(outputMessage).setContentType(any());
+
+    outputMessage.setContentType(null);
+
+    verify(outputMessage).getHeaders();
+    assertThat(headers.getContentType()).isNull();
+  }
+
+  @Test
+  void getBody_whenThrowsIOException_shouldPropagateException() throws IOException {
+    HttpOutputMessage outputMessage = mock(HttpOutputMessage.class);
+
+    when(outputMessage.getBody()).thenThrow(new IOException("Stream error"));
+
+    assertThatThrownBy(outputMessage::getBody)
+            .isInstanceOf(IOException.class)
+            .hasMessage("Stream error");
   }
 
 }

@@ -31,10 +31,11 @@ import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestParam;
 import infra.web.annotation.RequestPart;
 import infra.web.bind.MethodArgumentNotValidException;
-import infra.web.bind.MultipartException;
 import infra.web.handler.method.NamedValueInfo;
 import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.multipart.MultipartException;
 import infra.web.multipart.MultipartFile;
+import infra.web.multipart.Part;
 
 /**
  * Resolves the following method arguments:
@@ -121,8 +122,12 @@ public class RequestPartMethodArgumentResolver extends AbstractMessageConverterM
     }
     else {
       try {
-        var inputMessage = new RequestPartServerHttpRequest(context, name);
-        arg = readWithMessageConverters(inputMessage, parameter, parameter.getNestedGenericParameterType());
+        // todo getParts ?
+        Part part = context.asMultipartRequest().getPart(name);
+        if (part == null) {
+          throw new MissingRequestPartException(name);
+        }
+        arg = readWithMessageConverters(part, parameter, parameter.getNestedGenericParameterType());
         validateIfApplicable(context, parameter, arg);
       }
       catch (MissingRequestPartException | MultipartException ex) {

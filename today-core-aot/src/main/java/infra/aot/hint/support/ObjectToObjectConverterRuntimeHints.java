@@ -24,6 +24,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
+import infra.aot.hint.BindingReflectionHintsRegistrar;
 import infra.aot.hint.ExecutableMode;
 import infra.aot.hint.MemberCategory;
 import infra.aot.hint.ReflectionHints;
@@ -34,6 +35,7 @@ import infra.aot.hint.TypeReference;
 /**
  * {@link RuntimeHintsRegistrar} to register hints for popular conventions in
  * {@code infra.core.conversion.support.ObjectToObjectConverter}.
+ * Some dynamic hints registered by {@link BindingReflectionHintsRegistrar}.
  *
  * @author Sebastien Deleuze
  * @since 4.0

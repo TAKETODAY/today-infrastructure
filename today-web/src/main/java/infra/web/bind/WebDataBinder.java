@@ -120,11 +120,9 @@ public class WebDataBinder extends DataBinder {
   // @since 5.0
   private Predicate<String> headerPredicate = name -> !FILTERED_HEADER_NAMES.contains(name.toLowerCase(Locale.ROOT));
 
-  @Nullable
-  private String fieldMarkerPrefix = DEFAULT_FIELD_MARKER_PREFIX;
+  private @Nullable String fieldMarkerPrefix = DEFAULT_FIELD_MARKER_PREFIX;
 
-  @Nullable
-  private String fieldDefaultPrefix = DEFAULT_FIELD_DEFAULT_PREFIX;
+  private @Nullable String fieldDefaultPrefix = DEFAULT_FIELD_DEFAULT_PREFIX;
 
   private boolean bindEmptyMultipartFiles = true;
 
@@ -179,8 +177,7 @@ public class WebDataBinder extends DataBinder {
   /**
    * Return the prefix for parameters that mark potentially empty fields.
    */
-  @Nullable
-  public String getFieldMarkerPrefix() {
+  public @Nullable String getFieldMarkerPrefix() {
     return this.fieldMarkerPrefix;
   }
 
@@ -206,8 +203,7 @@ public class WebDataBinder extends DataBinder {
   /**
    * Return the prefix for parameters that mark default fields.
    */
-  @Nullable
-  public String getFieldDefaultPrefix() {
+  public @Nullable String getFieldDefaultPrefix() {
     return this.fieldDefaultPrefix;
   }
 
@@ -265,8 +261,7 @@ public class WebDataBinder extends DataBinder {
    * @param resolver delegate resolver to use for the checks
    * @return the resolved value, or {@code null}
    */
-  @Nullable
-  protected Object resolvePrefixValue(String name, Class<?> type, BiFunction<String, Class<?>, Object> resolver) {
+  protected @Nullable Object resolvePrefixValue(String name, Class<?> type, BiFunction<String, Class<?>, @Nullable Object> resolver) {
     Object value = resolver.apply(name, type);
     if (value == null) {
       String prefix = getFieldDefaultPrefix();
@@ -383,8 +378,7 @@ public class WebDataBinder extends DataBinder {
    * @param fieldType the type of the field
    * @return the empty value (for most fields: {@code null})
    */
-  @Nullable
-  protected Object getEmptyValue(String field, @Nullable Class<?> fieldType) {
+  protected @Nullable Object getEmptyValue(String field, @Nullable Class<?> fieldType) {
     return fieldType != null ? getEmptyValue(fieldType) : null;
   }
 
@@ -402,8 +396,7 @@ public class WebDataBinder extends DataBinder {
    * @param fieldType the type of the field
    * @return the empty value (for most fields: {@code null})
    */
-  @Nullable
-  public Object getEmptyValue(Class<?> fieldType) {
+  public @Nullable Object getEmptyValue(Class<?> fieldType) {
     try {
       if (boolean.class == fieldType || Boolean.class == fieldType) {
         // Special handling of boolean property.
@@ -480,7 +473,7 @@ public class WebDataBinder extends DataBinder {
   public PropertyValues getValuesToBind(RequestContext request) {
     PropertyValues pv = new PropertyValues(request.getParameters().toArrayMap(String[]::new));
     if (request.isMultipart()) {
-      var multipartFiles = request.multipartRequest().getMultipartFiles();
+      var multipartFiles = request.asMultipartRequest().getFiles();
       if (!multipartFiles.isEmpty()) {
         bindMultipart(multipartFiles, pv);
       }
@@ -502,7 +495,7 @@ public class WebDataBinder extends DataBinder {
    * @see #setBindEmptyMultipartFiles
    */
   protected void bindMultipart(Map<String, List<MultipartFile>> multipartFiles, PropertyValues mpvs) {
-    for (Map.Entry<String, List<MultipartFile>> entry : multipartFiles.entrySet()) {
+    for (var entry : multipartFiles.entrySet()) {
       List<MultipartFile> values = entry.getValue();
       String key = entry.getKey();
       if (values.size() == 1) {
@@ -554,8 +547,7 @@ public class WebDataBinder extends DataBinder {
     return StringUtils.uncapitalize(name.replace("-", ""));
   }
 
-  @Nullable
-  private static Map<String, String> getUriVars(RequestContext request) {
+  private static @Nullable Map<String, String> getUriVars(RequestContext request) {
     HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
     if (matchingMetadata != null) {
       return matchingMetadata.getUriVariables();
@@ -574,8 +566,7 @@ public class WebDataBinder extends DataBinder {
     }
   }
 
-  @Nullable
-  private Object getHeaderValue(RequestContext request, String name) {
+  private @Nullable Object getHeaderValue(RequestContext request, String name) {
     if (!this.headerPredicate.test(name)) {
       return null;
     }
@@ -601,8 +592,7 @@ public class WebDataBinder extends DataBinder {
 
     private final WebDataBinder dataBinder;
 
-    @Nullable
-    private Set<String> parameterNames;
+    private @Nullable Set<String> parameterNames;
 
     protected RequestValueResolver(RequestContext request, WebDataBinder dataBinder) {
       this.request = request;
@@ -613,9 +603,8 @@ public class WebDataBinder extends DataBinder {
       return this.request;
     }
 
-    @Nullable
     @Override
-    public final Object resolveValue(String name, Class<?> paramType) {
+    public final @Nullable Object resolveValue(String name, Class<?> paramType) {
       Object value = getRequestParameter(name, paramType);
       if (value == null) {
         value = this.dataBinder.resolvePrefixValue(name, paramType, this::getRequestParameter);
@@ -626,8 +615,7 @@ public class WebDataBinder extends DataBinder {
       return value;
     }
 
-    @Nullable
-    protected Object getRequestParameter(String name, Class<?> type) {
+    protected @Nullable Object getRequestParameter(String name, Class<?> type) {
       Object value = request.getParameters(name);
 
       if (value == null && !name.endsWith("[]") && (List.class.isAssignableFrom(type) || type.isArray())) {
@@ -648,10 +636,9 @@ public class WebDataBinder extends DataBinder {
       return value;
     }
 
-    @Nullable
-    private Object getMultipartValue(String name, Class<?> paramType) {
+    private @Nullable Object getMultipartValue(String name, Class<?> paramType) {
       if (request.isMultipart()) {
-        List<MultipartFile> files = request.multipartRequest().getFiles(name);
+        List<MultipartFile> files = request.asMultipartRequest().getFiles(name);
         if (CollectionUtils.isNotEmpty(files)) {
           return files.size() == 1 ? files.get(0) : files;
         }

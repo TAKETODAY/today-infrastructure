@@ -290,7 +290,7 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   protected PrintWriter createWriter() throws IOException {
-    return new PrintWriter(getOutputStream(), true, config.writerCharset);
+    return new PrintWriter(getOutputStream(), config.writerAutoFlush, config.writerCharset);
   }
 
   @Override
@@ -309,7 +309,7 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  public String getContentType() {
+  public @Nullable String getContentTypeAsString() {
     return request.headers().get(DefaultHttpHeaders.CONTENT_TYPE);
   }
 
@@ -376,7 +376,7 @@ public class NettyRequestContext extends RequestContext {
 
     HttpMethod method = getMethod();
     if (method != HttpMethod.GET && method != HttpMethod.HEAD
-            && StringUtils.startsWithIgnoreCase(getContentType(), MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
+            && StringUtils.startsWithIgnoreCase(getContentTypeAsString(), MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
       for (InterfaceHttpData data : requestDecoder().getBodyHttpDatas()) {
         if (data instanceof Attribute) {
           try {
@@ -623,8 +623,8 @@ public class NettyRequestContext extends RequestContext {
     if (responseBody != null) {
       responseBody.resetWriterIndex();
       responseBody.resetReaderIndex();
-      writer = null;
     }
+    writer = null;
     status = HttpResponseStatus.OK;
   }
 
@@ -992,7 +992,12 @@ public class NettyRequestContext extends RequestContext {
 
   }
 
-  final class NettyHttpOutputMessage implements ServerHttpResponse {
+  private final class NettyHttpOutputMessage implements ServerHttpResponse {
+
+    @Override
+    public void setContentType(@Nullable MediaType mediaType) {
+      NettyRequestContext.this.setContentType(mediaType);
+    }
 
     @Override
     public void setStatusCode(HttpStatusCode status) {
@@ -1017,6 +1022,11 @@ public class NettyRequestContext extends RequestContext {
     @Override
     public infra.http.HttpHeaders getHeaders() {
       return responseHeaders();
+    }
+
+    @Override
+    public @Nullable String getContentTypeAsString() {
+      return NettyRequestContext.this.getResponseContentType();
     }
 
     @Override

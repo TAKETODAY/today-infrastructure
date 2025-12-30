@@ -17,17 +17,22 @@
 
 package infra.web.server.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 import infra.core.io.FileSystemResource;
 import infra.core.io.Resource;
+import infra.http.MediaType;
 import infra.util.ExceptionUtils;
 import infra.web.multipart.MultipartFile;
 import infra.web.multipart.support.AbstractMultipartFile;
@@ -62,13 +67,28 @@ final class NettyMultipartFile extends AbstractMultipartFile implements Multipar
   }
 
   @Override
-  public String getContentType() {
-    return fileUpload.getContentType();
+  public MediaType getContentType() {
+    return MediaType.parseMediaType(fileUpload.getContentType());
   }
 
   @Override
-  public long getSize() {
+  public long getContentLength() {
     return fileUpload.length();
+  }
+
+  @Override
+  public String getContentAsString() throws IOException {
+    return getContentAsString(StandardCharsets.UTF_8);
+  }
+
+  @Override
+  public String getContentAsString(@Nullable Charset charset) throws IOException {
+    return new String(getContentAsByteArray(), charset == null ? StandardCharsets.UTF_8 : charset);
+  }
+
+  @Override
+  public boolean isInMemory() {
+    return fileUpload.isInMemory();
   }
 
   @Override
@@ -120,6 +140,18 @@ final class NettyMultipartFile extends AbstractMultipartFile implements Multipar
   }
 
   @Override
+  public long transferTo(FileChannel dest, long position) throws IOException {
+    if (fileUpload.isInMemory()) {
+      // int is ok, you cannot save more than 4GB data in memory
+      return fileUpload.getByteBuf().readBytes(dest, position, Math.toIntExact(getContentLength()));
+    }
+
+    try (var src = FileChannel.open(fileUpload.getFile().toPath())) {
+      return dest.transferFrom(src, position, getContentLength());
+    }
+  }
+
+  @Override
   public Resource getResource() {
     try {
       return fileUpload.isInMemory()
@@ -133,17 +165,17 @@ final class NettyMultipartFile extends AbstractMultipartFile implements Multipar
 
   @Override
   public boolean isEmpty() {
-    return getSize() == 0;
+    return getContentLength() == 0;
+  }
+
+  @Override
+  public boolean isFile() {
+    return true;
   }
 
   @Override
   protected byte[] doGetBytes() throws IOException {
     return fileUpload.get();
-  }
-
-  @Override
-  public Object getOriginalResource() {
-    return fileUpload;
   }
 
   @Override

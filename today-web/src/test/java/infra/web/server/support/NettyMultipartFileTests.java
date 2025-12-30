@@ -53,7 +53,7 @@ class NettyMultipartFileTests {
     NettyMultipartFile multipartFile = new NettyMultipartFile(fileUpload);
 
     // when & then
-    assertThat(multipartFile.getContentType()).isEqualTo("text/plain");
+    assertThat(multipartFile.getContentType().toString()).isEqualTo("text/plain");
   }
 
   @Test
@@ -65,7 +65,7 @@ class NettyMultipartFileTests {
     NettyMultipartFile multipartFile = new NettyMultipartFile(fileUpload);
 
     // when & then
-    assertThat(multipartFile.getSize()).isEqualTo(1024L);
+    assertThat(multipartFile.getContentLength()).isEqualTo(1024L);
   }
 
   @Test
@@ -114,16 +114,6 @@ class NettyMultipartFileTests {
 
     // when & then
     assertThat(multipartFile.isEmpty()).isFalse();
-  }
-
-  @Test
-  void shouldReturnOriginalResource() {
-    // given
-    FileUpload fileUpload = mock(FileUpload.class);
-    NettyMultipartFile multipartFile = new NettyMultipartFile(fileUpload);
-
-    // when & then
-    assertThat(multipartFile.getOriginalResource()).isSameAs(fileUpload);
   }
 
   @Test
@@ -280,7 +270,7 @@ class NettyMultipartFileTests {
     NettyMultipartFile multipartFile = new NettyMultipartFile(fileUpload);
 
     // when
-    byte[] bytes = multipartFile.getBytes();
+    byte[] bytes = multipartFile.getContentAsByteArray();
 
     // then
     assertThat(bytes).isEqualTo(expectedBytes);

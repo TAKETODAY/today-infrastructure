@@ -31,7 +31,6 @@ import infra.http.HttpOutputMessage;
 import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.util.StreamUtils;
 
 /**
  * Implementation of {@link HttpMessageConverter} that can read and write strings.
@@ -87,8 +86,8 @@ public class StringHttpMessageConverter extends AbstractHttpMessageConverter<Str
 
   @Override
   protected String readInternal(Class<? extends String> clazz, HttpInputMessage inputMessage) throws IOException {
-    Charset charset = getContentTypeCharset(inputMessage.getHeaders().getContentType());
-    long length = inputMessage.getHeaders().getContentLength();
+    Charset charset = getContentTypeCharset(inputMessage.getContentType());
+    long length = inputMessage.getContentLength();
     byte[] bytes = (length >= 0 && length <= Integer.MAX_VALUE ?
             inputMessage.getBody().readNBytes((int) length) :
             inputMessage.getBody().readAllBytes());
@@ -122,7 +121,7 @@ public class StringHttpMessageConverter extends AbstractHttpMessageConverter<Str
       headers.setAcceptCharset(getAcceptedCharsets());
     }
     Charset charset = getContentTypeCharset(headers.getContentType());
-    StreamUtils.copy(str, charset, outputMessage.getBody());
+    outputMessage.getBody().write(str.getBytes(charset));
   }
 
   /**

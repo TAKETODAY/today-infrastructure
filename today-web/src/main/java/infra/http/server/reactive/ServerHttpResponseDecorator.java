@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
-import infra.http.HttpHeaders;
+import infra.http.HttpMessageDecorator;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.ResponseCookie;
@@ -40,15 +40,18 @@ import reactor.core.publisher.Mono;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ServerHttpResponseDecorator implements ServerHttpResponse {
+public class ServerHttpResponseDecorator extends HttpMessageDecorator implements ServerHttpResponse {
+
   private final ServerHttpResponse delegate;
 
   public ServerHttpResponseDecorator(ServerHttpResponse delegate) {
+    super(delegate);
     Assert.notNull(delegate, "Delegate is required");
     this.delegate = delegate;
   }
 
-  public ServerHttpResponse getDelegate() {
+  @Override
+  public ServerHttpResponse delegate() {
     return this.delegate;
   }
 
@@ -56,69 +59,64 @@ public class ServerHttpResponseDecorator implements ServerHttpResponse {
 
   @Override
   public boolean setStatusCode(@Nullable HttpStatus status) {
-    return getDelegate().setStatusCode(status);
+    return delegate.setStatusCode(status);
   }
 
   @Nullable
   @Override
   public HttpStatusCode getStatusCode() {
-    return getDelegate().getStatusCode();
+    return delegate.getStatusCode();
   }
 
   @Override
   public boolean setRawStatusCode(@Nullable Integer value) {
-    return getDelegate().setRawStatusCode(value);
+    return delegate.setRawStatusCode(value);
   }
 
   @Nullable
   @Override
   public Integer getRawStatusCode() {
-    return getDelegate().getRawStatusCode();
-  }
-
-  @Override
-  public HttpHeaders getHeaders() {
-    return getDelegate().getHeaders();
+    return delegate.getRawStatusCode();
   }
 
   @Override
   public MultiValueMap<String, ResponseCookie> getCookies() {
-    return getDelegate().getCookies();
+    return delegate.getCookies();
   }
 
   @Override
   public void addCookie(ResponseCookie cookie) {
-    getDelegate().addCookie(cookie);
+    delegate.addCookie(cookie);
   }
 
   @Override
   public DataBufferFactory bufferFactory() {
-    return getDelegate().bufferFactory();
+    return delegate.bufferFactory();
   }
 
   @Override
   public void beforeCommit(Supplier<? extends Mono<Void>> action) {
-    getDelegate().beforeCommit(action);
+    delegate.beforeCommit(action);
   }
 
   @Override
   public boolean isCommitted() {
-    return getDelegate().isCommitted();
+    return delegate.isCommitted();
   }
 
   @Override
   public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
-    return getDelegate().writeWith(body);
+    return delegate.writeWith(body);
   }
 
   @Override
   public Mono<Void> writeAndFlushWith(Publisher<? extends Publisher<? extends DataBuffer>> body) {
-    return getDelegate().writeAndFlushWith(body);
+    return delegate.writeAndFlushWith(body);
   }
 
   @Override
   public Mono<Void> setComplete() {
-    return getDelegate().setComplete();
+    return delegate.setComplete();
   }
 
   /**
@@ -134,17 +132,12 @@ public class ServerHttpResponseDecorator implements ServerHttpResponse {
       return ((AbstractServerHttpResponse) response).getNativeResponse();
     }
     else if (response instanceof ServerHttpResponseDecorator) {
-      return getNativeResponse(((ServerHttpResponseDecorator) response).getDelegate());
+      return getNativeResponse(((ServerHttpResponseDecorator) response).delegate());
     }
     else {
       throw new IllegalArgumentException(
               "Can't find native response in " + response.getClass().getName());
     }
-  }
-
-  @Override
-  public String toString() {
-    return getClass().getSimpleName() + " [delegate=" + getDelegate() + "]";
   }
 
 }

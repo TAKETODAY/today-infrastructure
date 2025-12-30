@@ -38,7 +38,7 @@ import infra.lang.Assert;
  * retrieved when the computation has completed; the {@code get}
  * methods will block if the computation has not yet completed.  Once
  * the computation has completed, the computation cannot be restarted
- * or cancelled.
+ * or canceled.
  *
  * <p>A {@code FutureTask} can be used to wrap a {@link Callable} or
  * {@link Runnable} object. Because {@code FutureTask} implements
@@ -55,16 +55,13 @@ import infra.lang.Assert;
  * @see FutureTask
  * @since 4.0
  */
-public class ListenableFutureTask<V> extends AbstractFuture<V> implements RunnableFuture<V> {
+public class ListenableFutureTask<V extends @Nullable Object> extends AbstractFuture<V> implements RunnableFuture<V> {
 
   /** The underlying callable; nulled out after running */
-
-  @Nullable
-  private Callable<V> task;
+  private @Nullable Callable<V> task;
 
   /** The thread running the callable; CASed during run() */
-  @Nullable
-  private volatile Thread runner;
+  private volatile @Nullable Thread runner;
 
   /**
    * Create a new {@code ListenableFutureTask} that will, upon running,

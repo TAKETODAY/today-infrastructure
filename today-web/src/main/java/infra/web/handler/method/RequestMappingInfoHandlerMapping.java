@@ -32,7 +32,6 @@ import infra.http.HttpMethod;
 import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
 import infra.util.CollectionUtils;
-import infra.util.StringUtils;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.HttpMediaTypeNotSupportedException;
@@ -144,21 +143,17 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
         HttpOptionsHandler handler = new HttpOptionsHandler(methods, mediaTypes);
         return new HandlerMethod(handler, HTTP_OPTIONS_HANDLE_METHOD);
       }
-      throw new HttpRequestMethodNotSupportedException(request.getMethodValue(), methods);
+      throw new HttpRequestMethodNotSupportedException(request.getMethodAsString(), methods);
     }
 
     if (helper.hasConsumesMismatch()) {
       Set<MediaType> mediaTypes = helper.getConsumableMediaTypes();
-      MediaType contentType = null;
-      if (StringUtils.isNotEmpty(request.getContentType())) {
-        try {
-          contentType = MediaType.parseMediaType(request.getContentType());
-        }
-        catch (InvalidMediaTypeException ex) {
-          throw new HttpMediaTypeNotSupportedException(ex.getMessage(), mediaTypes);
-        }
+      try {
+        throw new HttpMediaTypeNotSupportedException(request.getContentType(), mediaTypes, request.getMethod());
       }
-      throw new HttpMediaTypeNotSupportedException(contentType, mediaTypes, request.getMethod());
+      catch (InvalidMediaTypeException ex) {
+        throw new HttpMediaTypeNotSupportedException(ex.getMessage(), mediaTypes);
+      }
     }
 
     if (helper.hasProducesMismatch()) {

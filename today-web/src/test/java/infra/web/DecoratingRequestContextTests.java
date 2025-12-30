@@ -65,12 +65,12 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
 
-    assertThat(wrapper.getDelegate()).isSameAs(delegate);
+    assertThat(wrapper.delegate()).isSameAs(delegate);
   }
 
   @Test
@@ -78,14 +78,14 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     DecoratingRequestContext wrapper1 = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
 
     DecoratingRequestContext wrapper2 = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -99,14 +99,14 @@ class DecoratingRequestContextTests {
     RequestContext delegate2 = mock(RequestContext.class);
     DecoratingRequestContext wrapper1 = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate1;
       }
     };
 
     DecoratingRequestContext wrapper2 = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate2;
       }
     };
@@ -119,7 +119,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -131,7 +131,7 @@ class DecoratingRequestContextTests {
   void equals_ShouldReturnTrue_ForSameInstance() {
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return mock(RequestContext.class);
       }
     };
@@ -143,7 +143,7 @@ class DecoratingRequestContextTests {
   void hashCode_ShouldReturnIdentityHashCode() {
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return mock(RequestContext.class);
       }
     };
@@ -158,7 +158,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -171,7 +171,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -197,7 +197,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -216,7 +216,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -236,7 +236,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -255,7 +255,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -274,7 +274,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -292,7 +292,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -310,7 +310,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -328,7 +328,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -347,7 +347,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -365,7 +365,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -383,7 +383,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -402,7 +402,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -420,7 +420,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -438,7 +438,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -457,7 +457,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -476,7 +476,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -494,7 +494,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -510,7 +510,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -528,7 +528,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -546,7 +546,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -565,7 +565,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -584,7 +584,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -603,7 +603,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -622,7 +622,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -640,7 +640,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -658,7 +658,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -676,7 +676,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -695,7 +695,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -714,7 +714,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -732,7 +732,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -751,7 +751,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -770,7 +770,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -789,7 +789,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -808,7 +808,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -826,7 +826,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -840,19 +840,19 @@ class DecoratingRequestContextTests {
   @Test
   void getContentType_ShouldDelegateToDelegate() {
     RequestContext delegate = mock(RequestContext.class);
-    when(delegate.getContentType()).thenReturn("application/json");
+    when(delegate.getContentTypeAsString()).thenReturn("application/json");
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
 
-    String result = wrapper.getContentType();
+    String result = wrapper.getContentTypeAsString();
 
     assertThat(result).isEqualTo("application/json");
-    verify(delegate).getContentType();
+    verify(delegate).getContentTypeAsString();
   }
 
   @Test
@@ -863,7 +863,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -882,7 +882,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -901,7 +901,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -919,7 +919,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -937,7 +937,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -955,7 +955,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -973,7 +973,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -990,7 +990,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1007,7 +1007,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1024,7 +1024,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1040,7 +1040,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1056,7 +1056,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1072,7 +1072,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1089,7 +1089,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1106,7 +1106,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1122,7 +1122,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1138,7 +1138,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1154,7 +1154,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1172,7 +1172,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1191,7 +1191,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1208,7 +1208,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1224,7 +1224,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1241,7 +1241,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1258,7 +1258,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1274,7 +1274,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1290,7 +1290,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1307,7 +1307,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1326,7 +1326,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1344,7 +1344,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1362,7 +1362,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1381,7 +1381,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1400,7 +1400,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1419,7 +1419,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1437,7 +1437,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1454,7 +1454,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1472,7 +1472,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1489,7 +1489,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1506,7 +1506,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1523,7 +1523,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1541,7 +1541,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1558,7 +1558,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1574,7 +1574,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1591,7 +1591,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1609,7 +1609,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1627,7 +1627,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1642,19 +1642,19 @@ class DecoratingRequestContextTests {
   void multipartRequest_ShouldDelegateToDelegate() {
     RequestContext delegate = mock(RequestContext.class);
     MultipartRequest multipartRequest = mock(MultipartRequest.class);
-    when(delegate.multipartRequest()).thenReturn(multipartRequest);
+    when(delegate.asMultipartRequest()).thenReturn(multipartRequest);
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
 
-    MultipartRequest result = wrapper.multipartRequest();
+    MultipartRequest result = wrapper.asMultipartRequest();
 
     assertThat(result).isSameAs(multipartRequest);
-    verify(delegate).multipartRequest();
+    verify(delegate).asMultipartRequest();
   }
 
   @Test
@@ -1664,7 +1664,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1682,7 +1682,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1701,7 +1701,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1719,7 +1719,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1738,7 +1738,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1758,7 +1758,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1776,7 +1776,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1795,7 +1795,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1813,7 +1813,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1830,7 +1830,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1850,7 +1850,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1868,7 +1868,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1880,21 +1880,21 @@ class DecoratingRequestContextTests {
   }
 
   @Test
-  void getMethodValue_ShouldDelegateToDelegate() {
+  void getMethodAsString_ShouldDelegateToDelegate() {
     RequestContext delegate = mock(RequestContext.class);
-    when(delegate.getMethodValue()).thenReturn("GET");
+    when(delegate.getMethodAsString()).thenReturn("GET");
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
 
-    String result = wrapper.getMethodValue();
+    String result = wrapper.getMethodAsString();
 
     assertThat(result).isEqualTo("GET");
-    verify(delegate).getMethodValue();
+    verify(delegate).getMethodAsString();
   }
 
   @Test
@@ -1905,7 +1905,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };
@@ -1924,7 +1924,7 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext() {
       @Override
-      public RequestContext getDelegate() {
+      public RequestContext delegate() {
         return delegate;
       }
     };

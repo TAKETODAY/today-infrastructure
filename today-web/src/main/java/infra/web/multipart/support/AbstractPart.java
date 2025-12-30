@@ -21,12 +21,12 @@ import org.jspecify.annotations.Nullable;
 
 import infra.http.DefaultHttpHeaders;
 import infra.http.HttpHeaders;
-import infra.web.multipart.Multipart;
+import infra.web.multipart.Part;
 
 /**
  * Abstract base class for handling multipart data in "multipart/form-data" requests.
  * This class provides a foundation for implementing parts of a multipart request,
- * such as form fields or file uploads. It implements the {@link Multipart} interface
+ * such as form fields or file uploads. It implements the {@link Part} interface
  * and provides default behavior for common operations like header management and
  * string representation.
  *
@@ -46,10 +46,10 @@ import infra.web.multipart.Multipart;
  * shared state, such as headers.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see Multipart
+ * @see Part
  * @since 4.0 2022/5/13 11:06
  */
-public abstract class AbstractMultipart implements Multipart {
+public abstract class AbstractPart implements Part {
 
   protected @Nullable HttpHeaders headers;
 
@@ -65,16 +65,11 @@ public abstract class AbstractMultipart implements Multipart {
 
   protected HttpHeaders createHttpHeaders() {
     DefaultHttpHeaders headers = HttpHeaders.forWritable();
-    String contentType = getContentType();
+    var contentType = getContentType();
     if (contentType != null) {
-      headers.setOrRemove(HttpHeaders.CONTENT_TYPE, contentType);
+      headers.setContentType(contentType);
     }
     return headers;
-  }
-
-  @Override
-  public String toString() {
-    return "%s: %s=%s".formatted(getClass().getSimpleName(), getName(), getValue());
   }
 
 }

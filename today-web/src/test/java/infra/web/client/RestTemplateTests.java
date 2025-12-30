@@ -677,7 +677,10 @@ class RestTemplateTests {
     responseHeaders.setContentType(MediaType.TEXT_PLAIN);
     responseHeaders.setContentLength(10);
     mockResponseStatus(HttpStatus.OK);
+    given(response.getContentType()).willReturn(MediaType.TEXT_PLAIN);
+    given(response.getContentTypeAsString()).willReturn(MediaType.TEXT_PLAIN.toString());
     given(response.getHeaders()).willReturn(responseHeaders);
+    given(response.getContentLength()).willReturn(10L);
     given(response.getBody()).willReturn(new ByteArrayInputStream(Integer.toString(42).getBytes()));
     given(converter.canRead(intList.getType(), null, MediaType.TEXT_PLAIN)).willReturn(true);
     given(converter.read(eq(intList.getType()), eq(null), any(HttpInputMessage.class))).willReturn(expected);
@@ -845,6 +848,10 @@ class RestTemplateTests {
     HttpHeaders responseHeaders = HttpHeaders.forWritable();
     responseHeaders.setContentType(mediaType);
     responseHeaders.setContentLength(expectedBody.length());
+
+    given(response.getContentLength()).willReturn((long) expectedBody.getBytes(UTF_8).length);
+    given(response.getContentType()).willReturn(mediaType);
+    given(response.getContentTypeAsString()).willReturn(mediaType.toString());
     given(response.getHeaders()).willReturn(responseHeaders);
     given(response.getBody()).willReturn(new ByteArrayInputStream(expectedBody.getBytes()));
     given(converter.read(eq(String.class), any(HttpInputMessage.class))).willReturn(expectedBody);

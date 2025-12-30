@@ -10,6 +10,8 @@ dependencies {
   api 'com.fasterxml.jackson.core:jackson-databind'
   api 'org.yaml:snakeyaml'
 
+  compileOnly 'org.projectlombok:lombok'
+  annotationProcessor 'org.projectlombok:lombok'
 }
 
 infraJar {

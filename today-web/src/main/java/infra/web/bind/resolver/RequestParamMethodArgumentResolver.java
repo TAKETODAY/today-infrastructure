@@ -39,13 +39,13 @@ import infra.web.RequestContext;
 import infra.web.annotation.RequestParam;
 import infra.web.annotation.RequestPart;
 import infra.web.bind.MissingRequestParameterException;
-import infra.web.bind.MultipartException;
 import infra.web.bind.WebDataBinder;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.handler.method.support.UriComponentsContributor;
-import infra.web.multipart.Multipart;
+import infra.web.multipart.MultipartException;
 import infra.web.multipart.MultipartFile;
 import infra.web.multipart.MultipartRequest;
+import infra.web.multipart.Part;
 import infra.web.util.UriComponentsBuilder;
 
 /**
@@ -178,7 +178,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
 
     if (arg == null) {
       if (request.isMultipart()) {
-        List<Multipart> parts = request.multipartRequest().multipartData(name);
+        List<Part> parts = request.asMultipartRequest().getParts(name);
         if (parts != null) {
           arg = parts.size() == 1 ? parts.get(0) : parts;
         }

@@ -249,8 +249,8 @@ class AutoConfigurationSorter {
         return this.autoConfigurationMetadata.getInteger(this.className, "AutoConfigureOrder",
                 AutoConfigureOrder.DEFAULT_ORDER);
       }
-      Map<String, Object> attributes = getAnnotationMetadata().getAnnotationAttributes(AutoConfigureOrder.class);
-      return (attributes != null) ? (Integer) attributes.get("value") : AutoConfigureOrder.DEFAULT_ORDER;
+      var annotation = getAnnotationMetadata().getAnnotation(AutoConfigureOrder.class);
+      return annotation.isPresent() ? annotation.getIntValue() : AutoConfigureOrder.DEFAULT_ORDER;
     }
 
     private boolean wasProcessed() {

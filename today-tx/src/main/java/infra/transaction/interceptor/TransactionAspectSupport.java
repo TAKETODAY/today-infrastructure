@@ -42,6 +42,7 @@ import infra.transaction.PlatformTransactionManager;
 import infra.transaction.ReactiveTransaction;
 import infra.transaction.ReactiveTransactionManager;
 import infra.transaction.TransactionException;
+import infra.transaction.TransactionExecution;
 import infra.transaction.TransactionManager;
 import infra.transaction.TransactionStatus;
 import infra.transaction.TransactionSystemException;
@@ -132,8 +133,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
    * @see infra.transaction.support.TransactionSynchronizationManager#isSynchronizationActive()
    * @see infra.transaction.support.TransactionSynchronizationManager#isActualTransactionActive()
    */
-  @Nullable
-  protected static TransactionInfo currentTransactionInfo() throws NoTransactionException {
+  protected static @Nullable TransactionInfo currentTransactionInfo() throws NoTransactionException {
     return transactionInfoHolder.get();
   }
 
@@ -352,7 +352,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
       }
       catch (Throwable ex) {
         // target invocation exception
-        completeTransactionAfterThrowing(txInfo, ex);
+        completeTransactionAfterThrowing(txInfo, invocation, ex);
         throw ex;
       }
       finally {
@@ -369,6 +369,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
               Throwable cause = ex.getCause();
               Assert.state(cause != null, "Cause is required");
               if (txAttr.rollbackOn(cause)) {
+                invocation.onRollback(cause, txInfo.transactionStatus);
                 txInfo.transactionStatus.setRollbackOnly();
               }
             }
@@ -395,6 +396,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
           }
           catch (Throwable ex) {
             if (txAttr.rollbackOn(ex)) {
+              invocation.onRollback(ex, status);
               // A RuntimeException: will lead to a rollback.
               if (ex instanceof RuntimeException) {
                 throw (RuntimeException) ex;
@@ -644,12 +646,13 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
    * @param txInfo information about the current transaction
    * @param ex throwable encountered
    */
-  protected void completeTransactionAfterThrowing(@Nullable TransactionInfo txInfo, Throwable ex) {
-    if (txInfo != null && txInfo.hasTransaction()) {
+  protected void completeTransactionAfterThrowing(@Nullable TransactionInfo txInfo, InvocationCallback invocation, Throwable ex) {
+    if (txInfo != null && txInfo.transactionStatus != null) {
       if (logger.isDebugEnabled()) {
         logger.trace("Completing transaction for [{}] after exception: {}", txInfo.joinpointIdentification, ex);
       }
       if (txInfo.transactionAttribute != null && txInfo.transactionAttribute.rollbackOn(ex)) {
+        invocation.onRollback(ex, txInfo.transactionStatus);
         try {
           txInfo.rollback();
         }
@@ -700,11 +703,9 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
    */
   protected static final class TransactionInfo {
 
-    @Nullable
-    public final PlatformTransactionManager transactionManager;
+    public final @Nullable PlatformTransactionManager transactionManager;
 
-    @Nullable
-    public final TransactionAttribute transactionAttribute;
+    public final @Nullable TransactionAttribute transactionAttribute;
 
     /**
      * a String representation of this joinpoint (usually a Method call)
@@ -712,11 +713,9 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
      */
     public final String joinpointIdentification;
 
-    @Nullable
-    public TransactionStatus transactionStatus;
+    public @Nullable TransactionStatus transactionStatus;
 
-    @Nullable
-    public TransactionInfo oldTransactionInfo;
+    public @Nullable TransactionInfo oldTransactionInfo;
 
     public TransactionInfo(@Nullable PlatformTransactionManager transactionManager,
             @Nullable TransactionAttribute transactionAttribute, String joinpointIdentification) {
@@ -726,8 +725,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
       this.joinpointIdentification = joinpointIdentification;
     }
 
-    @Nullable
-    public TransactionAttribute getTransactionAttribute() {
+    public @Nullable TransactionAttribute getTransactionAttribute() {
       return this.transactionAttribute;
     }
 
@@ -781,8 +779,25 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
   @FunctionalInterface
   public interface InvocationCallback {
 
+    /**
+     * Invocation adaptation method.
+     *
+     * @see org.aopalliance.intercept.MethodInvocation#proceed()
+     */
     @Nullable
     Object proceedWithInvocation() throws Throwable;
+
+    /**
+     * Callback method for rollback-triggering exceptions.
+     *
+     * @param failure the application exception that triggered the rollback
+     * @param execution the current transaction status
+     * @see TransactionAttribute#rollbackOn(Throwable)
+     * @since 5.0
+     */
+    default void onRollback(Throwable failure, TransactionExecution execution) {
+    }
+
   }
 
   /**
@@ -840,7 +855,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
                                   }
                                 },
                                 this::commitTransactionAfterReturning,
-                                this::completeTransactionAfterThrowing,
+                                (txInfo, ex) -> completeTransactionAfterThrowing(txInfo, invocation, ex),
                                 this::rollbackTransactionOnCancel)
                         .onErrorMap(this::unwrapIfResourceCleanupFailure))
                 .contextWrite(TransactionContextManager.getOrCreateContext())
@@ -859,7 +874,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
                                 }
                               },
                               this::commitTransactionAfterReturning,
-                              this::completeTransactionAfterThrowing,
+                              (txInfo, ex) -> completeTransactionAfterThrowing(txInfo, invocation, ex),
                               this::rollbackTransactionOnCancel)
                       .onErrorMap(this::unwrapIfResourceCleanupFailure))
               .contextWrite(TransactionContextManager.getOrCreateContext())
@@ -923,13 +938,14 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
       return Mono.empty();
     }
 
-    private Mono<Void> completeTransactionAfterThrowing(@Nullable ReactiveTransactionInfo txInfo, Throwable ex) {
+    private Mono<Void> completeTransactionAfterThrowing(@Nullable ReactiveTransactionInfo txInfo, InvocationCallback invocation, Throwable ex) {
       if (txInfo != null && txInfo.reactiveTransaction != null) {
         if (logger.isDebugEnabled()) {
           logger.trace("Completing transaction for [{}] after exception: {}",
                   txInfo.joinpointIdentification, ex.toString());
         }
         if (txInfo.transactionAttribute != null && txInfo.transactionAttribute.rollbackOn(ex)) {
+          invocation.onRollback(ex, txInfo.reactiveTransaction);
           return txInfo.rollback().onErrorMap(ex2 -> {
                     logger.error("Application exception overridden by rollback exception", ex);
                     if (ex2 instanceof TransactionSystemException) {

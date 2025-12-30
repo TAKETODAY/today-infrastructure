@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.client;
@@ -44,6 +41,8 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -139,11 +138,11 @@ class HttpMessageConverterExtractorTests {
     String expected = "Foo";
     given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
     given(response.getStatusCode()).willReturn(HttpStatus.OK);
-
+    given(response.getContentLength()).willReturn((long) expected.getBytes().length);
     given(response.getHeaders()).willReturn(responseHeaders);
     given(response.getBody()).willReturn(new ByteArrayInputStream(expected.getBytes()));
     given(converter.canRead(String.class, contentType)).willReturn(true);
-    given(converter.read(ArgumentMatchers.eq(String.class), ArgumentMatchers.any(HttpInputMessage.class))).willReturn(expected);
+    given(converter.read(eq(String.class), any(HttpInputMessage.class))).willReturn(expected);
 
     Object result = extractor.extractData(response);
     assertThat(result).isEqualTo(expected);
@@ -151,7 +150,9 @@ class HttpMessageConverterExtractorTests {
 
   @Test
   void cannotRead() throws IOException {
-    responseHeaders.setContentType(contentType);
+    given(response.getContentType()).willReturn(contentType);
+    given(response.getContentLength()).willReturn(-1L);
+    given(response.getContentTypeAsString()).willReturn(contentType.toString());
     given(response.getStatusCode()).willReturn(HttpStatus.OK);
     given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
     given(response.getHeaders()).willReturn(responseHeaders);
@@ -172,12 +173,15 @@ class HttpMessageConverterExtractorTests {
     GenericHttpMessageConverter<String> converter = mock(GenericHttpMessageConverter.class);
     HttpMessageConverterExtractor<?> extractor = new HttpMessageConverterExtractor<List<String>>(type, asList(converter));
 
+    given(response.getContentType()).willReturn(contentType);
+    given(response.getContentTypeAsString()).willReturn(contentType.toString());
     given(response.getStatusCode()).willReturn(HttpStatus.OK);
+    given(response.getContentLength()).willReturn(3L);
     given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
     given(response.getHeaders()).willReturn(responseHeaders);
     given(response.getBody()).willReturn(new ByteArrayInputStream(expected.getBytes()));
     given(converter.canRead(type, null, contentType)).willReturn(true);
-    given(converter.read(ArgumentMatchers.eq(type), ArgumentMatchers.eq(null), ArgumentMatchers.any(HttpInputMessage.class))).willReturn(expected);
+    given(converter.read(eq(type), eq(null), any(HttpInputMessage.class))).willReturn(expected);
 
     Object result = extractor.extractData(response);
     assertThat(result).isEqualTo(expected);
@@ -189,21 +193,21 @@ class HttpMessageConverterExtractorTests {
     responseHeaders.setContentType(contentType);
     given(response.getStatusCode()).willReturn(HttpStatus.OK);
     given(response.getHeaders()).willReturn(responseHeaders);
+    given(response.getContentLength()).willReturn(-1L);
     given(response.getBody()).willReturn(new ByteArrayInputStream("Foobar".getBytes()));
     given(converter.canRead(String.class, contentType)).willReturn(true);
-    given(converter.read(ArgumentMatchers.eq(String.class), ArgumentMatchers.any(HttpInputMessage.class))).willThrow(IOException.class);
+    given(converter.read(eq(String.class), any(HttpInputMessage.class))).willThrow(IOException.class);
     assertThatExceptionOfType(RestClientException.class).isThrownBy(() -> extractor.extractData(response))
             .withMessageContaining("Error while extracting response for type [class java.lang.String] and content type [text/plain]")
             .withCauseInstanceOf(IOException.class);
   }
 
   @Test
-    //
   void converterThrowsHttpMessageNotReadableException() throws IOException {
     responseHeaders.setContentType(contentType);
     given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
     given(response.getStatusCode()).willReturn(HttpStatus.OK);
-
+    given(response.getContentLength()).willReturn(-1L);
     given(response.getHeaders()).willReturn(responseHeaders);
     given(response.getBody()).willReturn(new ByteArrayInputStream("Foobar".getBytes()));
     given(converter.canRead(String.class, contentType)).willThrow(HttpMessageNotReadableException.class);
@@ -216,6 +220,7 @@ class HttpMessageConverterExtractorTests {
   void unknownContentTypeExceptionContainsCorrectResponseBody() throws IOException {
     responseHeaders.setContentType(contentType);
     given(response.getStatusCode()).willReturn(HttpStatus.OK);
+    given(response.getContentLength()).willReturn(6L);
     given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
     given(response.getHeaders()).willReturn(responseHeaders);
     given(response.getBody()).willReturn(new ByteArrayInputStream("Foobar".getBytes()) {

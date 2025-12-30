@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.multipart;
@@ -77,7 +74,7 @@ class ByteArrayMultipartFileEditorTests {
   public void setValueAsMultipartFile() throws Exception {
     String expectedValue = "That is comforting to know";
     MultipartFile file = mock(MultipartFile.class);
-    given(file.getBytes()).willReturn(expectedValue.getBytes());
+    given(file.getContentAsByteArray()).willReturn(expectedValue.getBytes());
     editor.setValue(file);
     assertThat(editor.getAsText()).isEqualTo(expectedValue);
   }
@@ -85,7 +82,7 @@ class ByteArrayMultipartFileEditorTests {
   @Test
   public void setValueAsMultipartFileWithBadBytes() throws Exception {
     MultipartFile file = mock(MultipartFile.class);
-    given(file.getBytes()).willThrow(new IOException());
+    given(file.getContentAsByteArray()).willThrow(new IOException());
     assertThatIllegalArgumentException().isThrownBy(() ->
             editor.setValue(file));
   }

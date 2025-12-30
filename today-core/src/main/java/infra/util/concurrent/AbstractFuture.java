@@ -38,7 +38,7 @@ import infra.util.ExceptionUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/3/26 22:10
  */
-public abstract class AbstractFuture<V> extends Future<V> {
+public abstract class AbstractFuture<V extends @Nullable Object> extends Future<V> {
 
   protected static final int NEW = 0;
   protected static final int COMPLETING = 1;
@@ -69,12 +69,10 @@ public abstract class AbstractFuture<V> extends Future<V> {
   protected volatile int state;
 
   /** Treiber stack of waiting threads */
-  @Nullable
-  private volatile Waiter waiters;
+  private volatile @Nullable Waiter waiters;
 
   /** The result to return or exception to throw from get() */
-  @Nullable
-  private Object result; // non-volatile, protected by state reads/writes
+  private @Nullable Object result; // non-volatile, protected by state reads/writes
 
   /**
    * @param executor The {@link Executor} which is used to notify
@@ -138,9 +136,8 @@ public abstract class AbstractFuture<V> extends Future<V> {
     STATE.setRelease(this, INTERRUPTED);
   }
 
-  @Nullable
   @Override
-  public Throwable getCause() {
+  public @Nullable Throwable getCause() {
     int s = state;
     if (s == EXCEPTIONAL) {
       return (Throwable) result;
@@ -154,17 +151,15 @@ public abstract class AbstractFuture<V> extends Future<V> {
     return null;
   }
 
-  @Nullable
   @Override
   @SuppressWarnings("unchecked")
-  public V getNow() {
+  public @Nullable V getNow() {
     return state == NORMAL ? (V) result : null;
   }
 
   /**
    * @throws CancellationException {@inheritDoc}
    */
-  @Nullable
   @Override
   public V get() throws InterruptedException, ExecutionException {
     int s = state;
@@ -176,7 +171,6 @@ public abstract class AbstractFuture<V> extends Future<V> {
   /**
    * @throws CancellationException {@inheritDoc}
    */
-  @Nullable
   @Override
   public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
     int s = state;
@@ -280,9 +274,8 @@ public abstract class AbstractFuture<V> extends Future<V> {
    *
    * @param s completed state value
    */
-  @Nullable
   @SuppressWarnings("unchecked")
-  private V report(int s) throws ExecutionException {
+  private @Nullable V report(int s) throws ExecutionException {
     if (s == NORMAL) {
       return (V) result;
     }
@@ -303,7 +296,7 @@ public abstract class AbstractFuture<V> extends Future<V> {
     // assert state > COMPLETING;
     for (Waiter q; (q = waiters) != null; ) {
       if (WAITERS.weakCompareAndSet(this, q, null)) {
-        while (true) {
+        for (; ; ) {
           Thread t = q.thread;
           if (t != null) {
             q.thread = null;
@@ -339,7 +332,7 @@ public abstract class AbstractFuture<V> extends Future<V> {
     long startTime = 0L;    // Special value 0L means not yet parked
     Waiter q = null;
     boolean queued = false;
-    while (true) {
+    for (; ; ) {
       int s = state;
       if (s > COMPLETING) {
         if (q != null) {
@@ -498,11 +491,9 @@ public abstract class AbstractFuture<V> extends Future<V> {
    */
   static final class Waiter {
 
-    @Nullable
-    public volatile Thread thread = Thread.currentThread();
+    public volatile @Nullable Thread thread = Thread.currentThread();
 
-    @Nullable
-    public volatile Waiter next;
+    public volatile @Nullable Waiter next;
   }
 
 }

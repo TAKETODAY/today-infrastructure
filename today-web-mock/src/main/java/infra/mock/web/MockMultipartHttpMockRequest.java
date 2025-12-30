@@ -19,11 +19,9 @@ package infra.mock.web;
 
 import org.jspecify.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -32,14 +30,13 @@ import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.lang.Assert;
 import infra.mock.api.MockContext;
-import infra.mock.api.MockException;
-import infra.mock.api.http.Part;
+import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
-import infra.web.bind.MultipartException;
-import infra.web.multipart.Multipart;
+import infra.web.multipart.MultipartException;
 import infra.web.multipart.MultipartFile;
 import infra.web.multipart.MultipartRequest;
+import infra.web.multipart.Part;
 import infra.web.util.WebUtils;
 
 /**
@@ -55,9 +52,9 @@ import infra.web.util.WebUtils;
  * @see MockMultipartFile
  * @since 4.0
  */
-public class MockMultipartHttpMockRequest extends HttpMockRequestImpl implements MultipartRequest {
+public class MockMultipartHttpMockRequest extends HttpMockRequestImpl {
 
-  private final MultiValueMap<String, Multipart> multipartData = new LinkedMultiValueMap<>();
+  private final MapMultipartRequest multipartRequest;
 
   /**
    * Create a new {@code MockMultipartHttpServletRequest} with a default
@@ -77,6 +74,7 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl implements
    */
   public MockMultipartHttpMockRequest(@Nullable MockContext mockContext) {
     super(mockContext);
+    this.multipartRequest = new MapMultipartRequest();
     setMethod("POST");
     setContentType("multipart/form-data");
   }
@@ -89,120 +87,119 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl implements
    */
   public void addFile(MultipartFile file) {
     Assert.notNull(file, "MultipartFile is required");
-    this.multipartData.add(file.getName(), file);
+    multipartRequest.multipartData.add(file.getName(), file);
   }
 
-  @Override
-  public Iterator<String> getFileNames() {
-    return this.multipartData.keySet().iterator();
+  public MultipartRequest getMultipartRequest() {
+    return multipartRequest;
   }
 
-  @Override
-  public MultipartFile getFile(String name) {
-    return getMultipartFiles().getFirst(name);
-  }
+  class MapMultipartRequest implements MultipartRequest {
+    private final MultiValueMap<String, Part> multipartData = new LinkedMultiValueMap<>();
 
-  @Override
-  public List<MultipartFile> getFiles(String name) {
-    List<MultipartFile> multipartFiles = getMultipartFiles().get(name);
-    return Objects.requireNonNullElse(multipartFiles, Collections.emptyList());
-  }
+    @Override
+    public Iterable<String> getFileNames() {
+      return this.multipartData.keySet();
+    }
 
-  @Override
-  public List<Multipart> multipartData(String name) {
-    return multipartData().get(name);
-  }
+    @Override
+    public @Nullable MultipartFile getFile(String name) {
+      return CollectionUtils.firstElement(getFiles(name));
+    }
 
-  @Override
-  public Map<String, MultipartFile> getFileMap() {
-    return getMultipartFiles().toSingleValueMap();
-  }
+    @Override
+    public @Nullable Part getPart(String name) {
+      return null;
+    }
 
-  /**
-   * Obtain the MultipartFile Map for retrieval,
-   * lazily initializing it if necessary.
-   */
-  @Override
-  public MultiValueMap<String, MultipartFile> getMultipartFiles() {
-    MultiValueMap<String, MultipartFile> ret = new LinkedMultiValueMap<>();
-    for (Map.Entry<String, List<Multipart>> entry : multipartData().entrySet()) {
-      for (Multipart multipart : entry.getValue()) {
-        if (multipart instanceof MultipartFile file) {
-          ret.add(entry.getKey(), file);
+    @Override
+    public Iterable<String> getPartNames() {
+      return null;
+    }
+
+    @Override
+    public List<MultipartFile> getFiles(String name) {
+      List<MultipartFile> multipartFiles = getFiles().get(name);
+      return Objects.requireNonNullElse(multipartFiles, Collections.emptyList());
+    }
+
+    @Override
+    public List<Part> getParts(String name) {
+      return multipartData.get(name);
+    }
+
+    @Override
+    public Map<String, MultipartFile> getFileMap() {
+      return getFiles().toSingleValueMap();
+    }
+
+    /**
+     * Obtain the MultipartFile Map for retrieval,
+     * lazily initializing it if necessary.
+     */
+    @Override
+    public MultiValueMap<String, MultipartFile> getFiles() {
+      MultiValueMap<String, MultipartFile> ret = new LinkedMultiValueMap<>();
+      for (Map.Entry<String, List<Part>> entry : multipartData.entrySet()) {
+        for (Part part : entry.getValue()) {
+          if (part instanceof MultipartFile file) {
+            ret.add(entry.getKey(), file);
+          }
         }
       }
+      return ret;
     }
-    return ret;
-  }
 
-  @Override
-  public MultiValueMap<String, Multipart> multipartData() {
-    return multipartData;
-  }
-
-  public String getMultipartContentType(String paramOrFileName) {
-    MultipartFile file = getFile(paramOrFileName);
-    if (file != null) {
-      return file.getContentType();
+    @Override
+    public MultiValueMap<String, Part> getParts() {
+      return multipartData;
     }
-    try {
-      Part part = getPart(paramOrFileName);
-      if (part != null) {
-        return part.getContentType();
-      }
-    }
-    catch (MockException | IOException ex) {
-      // Should never happen (we're not actually parsing)
-      throw new IllegalStateException(ex);
-    }
-    return null;
-  }
 
-  public HttpMethod getRequestMethod() {
-    String method = getMethod();
-    Assert.state(method != null, "Method is required");
-    return HttpMethod.valueOf(method);
-  }
-
-  public HttpHeaders getRequestHeaders() {
-    HttpHeaders headers = HttpHeaders.forWritable();
-    Enumeration<String> headerNames = getHeaderNames();
-    while (headerNames.hasMoreElements()) {
-      String headerName = headerNames.nextElement();
-      headers.put(headerName, Collections.list(getHeaders(headerName)));
+    public HttpMethod getRequestMethod() {
+      String method = getMethod();
+      Assert.state(method != null, "Method is required");
+      return HttpMethod.valueOf(method);
     }
-    return headers;
-  }
 
-  @Override
-  public HttpHeaders getMultipartHeaders(String paramOrFileName) {
-    MultipartFile file = getFile(paramOrFileName);
-    if (file != null) {
+    public HttpHeaders getRequestHeaders() {
       HttpHeaders headers = HttpHeaders.forWritable();
-      if (file.getContentType() != null) {
-        headers.add(HttpHeaders.CONTENT_TYPE, file.getContentType());
+      Enumeration<String> headerNames = getHeaderNames();
+      while (headerNames.hasMoreElements()) {
+        String headerName = headerNames.nextElement();
+        headers.put(headerName, Collections.list(getHeaders(headerName)));
       }
       return headers;
     }
-    try {
-      Part part = getPart(paramOrFileName);
-      if (part != null) {
+
+    @Override
+    public HttpHeaders getMultipartHeaders(String paramOrFileName) {
+      MultipartFile file = getFile(paramOrFileName);
+      if (file != null) {
         HttpHeaders headers = HttpHeaders.forWritable();
-        for (String headerName : part.getHeaderNames()) {
-          headers.put(headerName, new ArrayList<>(part.getHeaders(headerName)));
+        if (file.getContentType() != null) {
+          headers.setContentType(file.getContentType());
         }
         return headers;
       }
+      try {
+        var part = MockMultipartHttpMockRequest.this.getPart(paramOrFileName);
+        if (part != null) {
+          HttpHeaders headers = HttpHeaders.forWritable();
+          for (String headerName : part.getHeaderNames()) {
+            headers.put(headerName, new ArrayList<>(part.getHeaders(headerName)));
+          }
+          return headers;
+        }
+      }
+      catch (Throwable ex) {
+        throw new MultipartException("Could not access multipart servlet request", ex);
+      }
+      return null;
     }
-    catch (Throwable ex) {
-      throw new MultipartException("Could not access multipart servlet request", ex);
+
+    @Override
+    public void cleanup() {
+      WebUtils.cleanupMultipartRequest(multipartData);
     }
-    return null;
   }
-
-  @Override
-  public void cleanup() {
-    WebUtils.cleanupMultipartRequest(multipartData);
-  }
-
 }

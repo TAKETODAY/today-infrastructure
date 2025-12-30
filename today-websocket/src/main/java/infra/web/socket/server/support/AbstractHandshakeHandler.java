@@ -140,8 +140,8 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
       if (HttpMethod.GET != method && method != HttpMethod.CONNECT) {
         request.setStatus(HttpStatus.METHOD_NOT_ALLOWED);
         request.responseHeaders().setAllow(Set.of(HttpMethod.GET, HttpMethod.CONNECT));
-        if (logger.isErrorEnabled()) {
-          logger.error("Handshake failed due to unexpected HTTP method: {}", method);
+        if (logger.isDebugEnabled()) {
+          logger.debug("Handshake failed due to unexpected HTTP method: {}", method);
         }
         return null;
       }

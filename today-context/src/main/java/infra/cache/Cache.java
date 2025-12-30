@@ -121,7 +121,7 @@ public interface Cache {
    * but is allowed to return a completed {@link CompletableFuture} if the
    * corresponding value is immediately available.
    * <p>Can return {@code null} if the cache can immediately determine that
-   * it contains no mapping for this key (e.g. through an in-memory key map).
+   * it contains no mapping for this key (for example, through an in-memory key map).
    * Otherwise, the cached value will be returned in the {@link CompletableFuture},
    * with {@code null} indicating a late-determined cache miss. A nested
    * {@link ValueWrapper} potentially indicates a nullable cached value;

@@ -72,7 +72,7 @@ final class Futures {
           new FutureContextListener<Future<Object>, CompletableFuture<Object>>() {
 
             @Override
-            public void operationComplete(Future<Object> completed, CompletableFuture<Object> context) {
+            public void operationComplete(Future<Object> completed, CompletableFuture<@Nullable Object> context) {
               Throwable cause = completed.getCause();
               if (cause != null) {
                 context.completeExceptionally(cause);
@@ -120,7 +120,6 @@ final class Futures {
   };
 
   private Futures() {
-
   }
 
   /**
@@ -236,7 +235,7 @@ final class Futures {
    *
    * @return A new Future.
    */
-  public static <V, T> Future<V> errorHandling(Future<V> future, @Nullable Class<T> exType,
+  public static <V extends @Nullable Object, T extends @Nullable Object> Future<V> errorHandling(Future<V> future, @Nullable Class<T> exType,
           ThrowingFunction<T, V> errorHandler, BiFunction<Throwable, Class<T>, T> causeFunction) {
     if (future.isSuccess() || future.isCancelled()) {
       // already success or cancelled
@@ -467,7 +466,7 @@ final class Futures {
     }
   }
 
-  private static final class MapCallable<R, T> implements Callable<R> {
+  private static final class MapCallable<R extends @Nullable Object, T extends @Nullable Object> implements Callable<R> {
 
     private final T input;
 
@@ -518,7 +517,7 @@ final class Futures {
     }
   }
 
-  private static final class FlatMapper<R, T> implements FutureListener<Future<T>> {
+  private static final class FlatMapper<R extends @Nullable Object, T> implements FutureListener<Future<T>> {
 
     private final Promise<R> recipient;
 
@@ -556,7 +555,7 @@ final class Futures {
     }
   }
 
-  static final class ErrorHandling<V, T> implements FutureListener<Future<V>> {
+  static final class ErrorHandling<V, T extends @Nullable Object> implements FutureListener<Future<V>> {
 
     @Nullable
     private final Class<T> exType;

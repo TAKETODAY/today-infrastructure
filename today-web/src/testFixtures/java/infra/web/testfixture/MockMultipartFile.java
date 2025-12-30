@@ -17,15 +17,21 @@
 
 package infra.web.testfixture;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.nio.file.Path;
 
 import infra.http.DefaultHttpHeaders;
 import infra.http.HttpHeaders;
+import infra.http.MediaType;
 import infra.lang.Assert;
-import org.jspecify.annotations.Nullable;
 import infra.util.FileCopyUtils;
 import infra.web.multipart.MultipartFile;
 
@@ -112,12 +118,12 @@ public class MockMultipartFile implements MultipartFile {
   }
 
   @Override
-  public String getValue() {
-    return new String(content);
+  public boolean isFormField() {
+    return false;
   }
 
   @Override
-  public boolean isFormField() {
+  public boolean isFile() {
     return false;
   }
 
@@ -137,7 +143,7 @@ public class MockMultipartFile implements MultipartFile {
 
   protected DefaultHttpHeaders createHttpHeaders() {
     DefaultHttpHeaders headers = HttpHeaders.forWritable();
-    headers.setOrRemove(HttpHeaders.CONTENT_TYPE, getContentType());
+    headers.setContentType(getContentType());
     return headers;
   }
 
@@ -148,8 +154,8 @@ public class MockMultipartFile implements MultipartFile {
 
   @Override
   @Nullable
-  public String getContentType() {
-    return this.contentType;
+  public MediaType getContentType() {
+    return MediaType.parseMediaType(contentType);
   }
 
   @Override
@@ -158,18 +164,28 @@ public class MockMultipartFile implements MultipartFile {
   }
 
   @Override
-  public long getSize() {
+  public long getContentLength() {
     return this.content.length;
   }
 
   @Override
-  public byte[] getBytes() throws IOException {
+  public byte[] getContentAsByteArray() throws IOException {
     return this.content;
   }
 
   @Override
-  public Object getOriginalResource() {
-    return content;
+  public String getContentAsString() throws IOException {
+    return "";
+  }
+
+  @Override
+  public String getContentAsString(@Nullable Charset charset) throws IOException {
+    return "";
+  }
+
+  @Override
+  public boolean isInMemory() {
+    return true;
   }
 
   @Override
@@ -181,8 +197,24 @@ public class MockMultipartFile implements MultipartFile {
   }
 
   @Override
-  public void transferTo(File dest) throws IOException, IllegalStateException {
+  public long transferTo(File dest) throws IOException, IllegalStateException {
     FileCopyUtils.copy(this.content, dest);
+    return getContentLength();
+  }
+
+  @Override
+  public long transferTo(Path dest) throws IOException, IllegalStateException {
+    return transferTo(dest.toFile());
+  }
+
+  @Override
+  public long transferTo(FileChannel dest, long position) throws IOException {
+    return dest.write(ByteBuffer.wrap(content), position);
+  }
+
+  @Override
+  public long transferTo(FileChannel dest, long position, long count) throws IOException {
+    return dest.write(ByteBuffer.wrap(content, 0, Math.toIntExact(count)), position);
   }
 
 }

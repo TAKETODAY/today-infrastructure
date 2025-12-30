@@ -17,6 +17,8 @@
 
 package infra.util.function;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.BiFunction;
 
 /**
@@ -31,7 +33,8 @@ import java.util.function.BiFunction;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public interface ThrowingBiFunction<T, U, R> extends BiFunction<T, U, R> {
+public interface ThrowingBiFunction<T extends @Nullable Object, U extends @Nullable Object, R extends @Nullable Object>
+        extends BiFunction<T, U, R> {
 
   /**
    * Applies this function to the given argument, possibly throwing a checked

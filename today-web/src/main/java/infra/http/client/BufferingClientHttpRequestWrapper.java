@@ -44,8 +44,8 @@ final class BufferingClientHttpRequestWrapper extends AbstractBufferingClientHtt
   }
 
   @Override
-  public String getMethodValue() {
-    return this.request.getMethodValue();
+  public String getMethodAsString() {
+    return this.request.getMethodAsString();
   }
 
   @Override

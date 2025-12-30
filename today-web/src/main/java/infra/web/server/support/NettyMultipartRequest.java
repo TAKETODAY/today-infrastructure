@@ -23,9 +23,9 @@ import java.util.List;
 
 import infra.http.HttpHeaders;
 import infra.util.MultiValueMap;
-import infra.web.bind.NotMultipartRequestException;
 import infra.web.multipart.MaxUploadSizeExceededException;
-import infra.web.multipart.Multipart;
+import infra.web.multipart.NotMultipartRequestException;
+import infra.web.multipart.Part;
 import infra.web.multipart.support.AbstractMultipartRequest;
 import io.netty.handler.codec.http.multipart.Attribute;
 import io.netty.handler.codec.http.multipart.FileUpload;
@@ -63,16 +63,16 @@ final class NettyMultipartRequest extends AbstractMultipartRequest {
   }
 
   @Override
-  protected MultiValueMap<String, Multipart> parseRequest() {
-    var map = MultiValueMap.<String, Multipart>forLinkedHashMap();
+  protected MultiValueMap<String, Part> parseRequest() {
+    var map = MultiValueMap.<String, Part>forLinkedHashMap();
     try {
       for (InterfaceHttpData data : context.requestDecoder().getBodyHttpDatas()) {
         if (data instanceof FileUpload fileUpload) {
           map.add(data.getName(), new NettyMultipartFile(fileUpload));
         }
         else if (data instanceof Attribute attribute) {
-          NettyFormData nettyFormData = new NettyFormData(attribute);
-          map.add(attribute.getName(), nettyFormData);
+          NettyFormField nettyFormField = new NettyFormField(attribute);
+          map.add(attribute.getName(), nettyFormField);
         }
       }
       return map;

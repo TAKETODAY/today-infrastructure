@@ -44,8 +44,8 @@ import java.util.stream.Stream;
 import infra.core.Pair;
 import infra.core.Triple;
 import infra.logging.LoggerFactory;
-import infra.util.function.ThrowingRunnable;
 import infra.util.ExceptionUtils;
+import infra.util.function.ThrowingRunnable;
 import infra.util.function.ThrowingSupplier;
 
 import static infra.util.concurrent.Future.combine;
@@ -1169,7 +1169,7 @@ class FutureTests {
 
   @Test
   void futureTaskToString() {
-    var futureTask = Future.<Void>forFutureTask(() -> { });
+    var futureTask = Future.forFutureTask(() -> { });
     assertThat(futureTask.toString()).containsSequence("[Not completed, task = ");
   }
 

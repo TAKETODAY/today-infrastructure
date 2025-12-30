@@ -109,7 +109,7 @@ public class ConvertingComparator<S, T> implements Comparator<S> {
   /**
    * Adapts a {@link ConversionService} and <tt>targetType</tt> to a {@link Converter}.
    */
-  private static class ConversionServiceConverter<S, T> implements Converter<S, T> {
+  private static class ConversionServiceConverter<S, T> implements Converter<S, @Nullable T> {
 
     private final ConversionService conversionService;
 
@@ -123,8 +123,7 @@ public class ConvertingComparator<S, T> implements Comparator<S> {
     }
 
     @Override
-    @Nullable
-    public T convert(S source) {
+    public @Nullable T convert(S source) {
       return this.conversionService.convert(source, this.targetType);
     }
   }

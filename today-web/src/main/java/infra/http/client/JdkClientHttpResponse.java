@@ -45,16 +45,12 @@ class JdkClientHttpResponse implements ClientHttpResponse {
 
   private final InputStream body;
 
-  public JdkClientHttpResponse(HttpResponse<InputStream> response) {
-    this(response, response.body());
-  }
-
   /**
    * @since 5.0
    */
-  public JdkClientHttpResponse(HttpResponse<InputStream> response, @Nullable InputStream body) {
+  public JdkClientHttpResponse(HttpResponse<InputStream> response, HttpHeaders httpHeaders, @Nullable InputStream body) {
     this.response = response;
-    this.headers = HttpHeaders.fromResponse(response);
+    this.headers = httpHeaders;
     this.body = body != null ? body : InputStream.nullInputStream();
   }
 

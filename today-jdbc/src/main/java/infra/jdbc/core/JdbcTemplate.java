@@ -58,7 +58,6 @@ import infra.lang.Assert;
 import infra.logging.LogMessage;
 import infra.util.CollectionUtils;
 import infra.util.LinkedCaseInsensitiveMap;
-import infra.util.StringUtils;
 
 /**
  * <b>This is the central class in the JDBC core package.</b>
@@ -620,36 +619,34 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
      */
     final class BatchUpdateStatementCallback implements StatementCallback<int[]>, SqlProvider {
 
-      @Nullable
-      private String currSql;
+      private final StringBuilder currSql = new StringBuilder();
 
       @Override
       public int[] doInStatement(Statement stmt) throws SQLException, DataAccessException {
         int[] rowsAffected = new int[sql.length];
         if (JdbcUtils.supportsBatchUpdates(stmt.getConnection())) {
           for (String sqlStmt : sql) {
-            this.currSql = appendSql(this.currSql, sqlStmt);
+            appendSql(sqlStmt);
             stmt.addBatch(sqlStmt);
           }
           try {
             rowsAffected = stmt.executeBatch();
           }
           catch (BatchUpdateException ex) {
-            String batchExceptionSql = null;
-            for (int i = 0; i < ex.getUpdateCounts().length; i++) {
-              if (ex.getUpdateCounts()[i] == Statement.EXECUTE_FAILED) {
-                batchExceptionSql = appendSql(batchExceptionSql, sql[i]);
+            this.currSql.setLength(0);
+            int[] updateCounts = ex.getUpdateCounts();
+            for (int i = 0; i < updateCounts.length; i++) {
+              if (updateCounts[i] == Statement.EXECUTE_FAILED) {
+                appendSql(sql[i]);
               }
-            }
-            if (StringUtils.isNotEmpty(batchExceptionSql)) {
-              this.currSql = batchExceptionSql;
             }
             throw ex;
           }
         }
         else {
           for (int i = 0; i < sql.length; i++) {
-            this.currSql = sql[i];
+            this.currSql.setLength(0);
+            this.currSql.append(sql[i]);
             if (!stmt.execute(sql[i])) {
               rowsAffected[i] = stmt.getUpdateCount();
             }
@@ -661,14 +658,16 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
         return rowsAffected;
       }
 
-      private String appendSql(@Nullable String sql, String statement) {
-        return (StringUtils.isNotEmpty(sql) ? sql + "; " + statement : statement);
+      private void appendSql(String statement) {
+        if (!this.currSql.isEmpty()) {
+          this.currSql.append("; ");
+        }
+        this.currSql.append(statement);
       }
 
       @Override
-      @Nullable
       public String getSql() {
-        return this.currSql;
+        return this.currSql.toString();
       }
     }
 

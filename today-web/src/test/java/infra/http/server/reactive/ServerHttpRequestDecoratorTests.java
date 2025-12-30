@@ -47,8 +47,8 @@ class ServerHttpRequestDecoratorTests {
     decorator.getMethod();
     verify(delegate).getMethod();
 
-    decorator.getMethodValue();
-    verify(delegate).getMethodValue();
+    decorator.getMethodAsString();
+    verify(delegate).getMethodAsString();
 
     decorator.getURI();
     verify(delegate).getURI();

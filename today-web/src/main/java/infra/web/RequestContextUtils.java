@@ -1056,7 +1056,7 @@ public final class RequestContextUtils {
   private static final class InjectableRequestContext extends DecoratingRequestContext {
 
     @Override
-    public RequestContext getDelegate() {
+    public RequestContext delegate() {
       return RequestContextHolder.getRequired();
     }
 

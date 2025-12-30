@@ -29,7 +29,7 @@ import infra.core.AttributeAccessor;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
 import infra.http.HttpCookie;
-import infra.http.HttpHeaders;
+import infra.http.HttpMessageDecorator;
 import infra.http.HttpMethod;
 import infra.lang.Assert;
 import infra.util.MultiValueMap;
@@ -43,16 +43,18 @@ import reactor.core.publisher.Mono;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ClientHttpRequestDecorator implements ClientHttpRequest {
+public class ClientHttpRequestDecorator extends HttpMessageDecorator implements ClientHttpRequest {
 
-  private final ClientHttpRequest delegate;
+  protected final ClientHttpRequest delegate;
 
   public ClientHttpRequestDecorator(ClientHttpRequest delegate) {
+    super(delegate);
     Assert.notNull(delegate, "Delegate is required");
     this.delegate = delegate;
   }
 
-  public ClientHttpRequest getDelegate() {
+  @Override
+  public ClientHttpRequest delegate() {
     return this.delegate;
   }
 
@@ -66,11 +68,6 @@ public class ClientHttpRequestDecorator implements ClientHttpRequest {
   @Override
   public URI getURI() {
     return this.delegate.getURI();
-  }
-
-  @Override
-  public HttpHeaders getHeaders() {
-    return this.delegate.getHeaders();
   }
 
   @Override
@@ -173,11 +170,6 @@ public class ClientHttpRequestDecorator implements ClientHttpRequest {
   @Override
   public void setAttribute(String name, @Nullable Object value) {
     delegate.setAttribute(name, value);
-  }
-
-  @Override
-  public String toString() {
-    return getClass().getSimpleName() + " [delegate=" + getDelegate() + "]";
   }
 
 }

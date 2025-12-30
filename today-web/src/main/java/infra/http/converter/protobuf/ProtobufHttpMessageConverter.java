@@ -123,7 +123,7 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
     this(null, extensionRegistry);
   }
 
-  ProtobufHttpMessageConverter(@Nullable ProtobufFormatSupport formatSupport, @Nullable ExtensionRegistry extensionRegistry) {
+  protected ProtobufHttpMessageConverter(@Nullable ProtobufFormatSupport formatSupport, @Nullable ExtensionRegistry extensionRegistry) {
     if (formatSupport != null) {
       this.protobufFormatSupport = formatSupport;
     }
@@ -142,9 +142,9 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
   }
 
   /**
-   * Flag populate protobuf headers to response
+   * Flag to indicate whether to populate protobuf headers in the response.
    *
-   * @param populateProtoHeader populate protobuf headers to response
+   * @param populateProtoHeader whether to populate protobuf headers in the response
    * @see #X_PROTOBUF_SCHEMA_HEADER
    * @see #X_PROTOBUF_MESSAGE_HEADER
    * @see #setProtoHeader(HttpOutputMessage, MessageOrBuilder)
@@ -164,33 +164,43 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
   }
 
   @Override
-  protected MediaType getDefaultContentType(MessageOrBuilder message) {
+  protected @Nullable MediaType getDefaultContentType(MessageOrBuilder message) {
     return PROTOBUF;
   }
 
   @Override
   protected Message readInternal(Class<? extends MessageOrBuilder> clazz, HttpInputMessage inputMessage)
-          throws IOException, HttpMessageNotReadableException {
-
-    MediaType contentType = inputMessage.getHeaders().getContentType();
+          throws IOException, HttpMessageNotReadableException //
+  {
+    MediaType contentType = inputMessage.getContentType();
     if (contentType == null) {
       contentType = PROTOBUF;
     }
 
-    Message.Builder builder = getMessageBuilder(clazz);
-    if (PROTOBUF.isCompatibleWith(contentType)
-            || PLUS_PROTOBUF.isCompatibleWith(contentType)) {
+    var builder = createMessageBuilder(clazz);
+    if (PROTOBUF.isCompatibleWith(contentType) || PLUS_PROTOBUF.isCompatibleWith(contentType)) {
       builder.mergeFrom(inputMessage.getBody(), this.extensionRegistry);
+      return builder.build();
     }
-    else if (TEXT_PLAIN.isCompatibleWith(contentType)) {
+    if (TEXT_PLAIN.isCompatibleWith(contentType)) {
       Charset charset = getCharset(contentType);
       InputStreamReader reader = new InputStreamReader(inputMessage.getBody(), charset);
       TextFormat.merge(reader, this.extensionRegistry, builder);
+      return builder.build();
     }
-    else if (protobufFormatSupport != null) {
-      Charset charset = getCharset(contentType);
-      protobufFormatSupport.merge(inputMessage, charset, contentType, this.extensionRegistry, builder);
+
+    if (protobufFormatSupport != null) {
+      for (MediaType supportedMediaType : protobufFormatSupport.supportedMediaTypes()) {
+        if (supportedMediaType.includes(contentType)) {
+          Charset charset = getCharset(contentType);
+          protobufFormatSupport.merge(inputMessage, charset, contentType, this.extensionRegistry, builder);
+          return builder.build();
+        }
+      }
     }
+
+    // fallback to defaults, canRead is returns true
+    builder.mergeFrom(inputMessage.getBody(), this.extensionRegistry);
     return builder.build();
   }
 
@@ -198,7 +208,7 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
    * Create a new {@code Message.Builder} instance for the given class.
    * <p>This method uses a ConcurrentReferenceHashMap for caching method lookups.
    */
-  private Message.Builder getMessageBuilder(Class<?> clazz) {
+  private Message.Builder createMessageBuilder(Class<?> clazz) {
     try {
       Method method = methodCache.get(clazz);
       if (method == null) {
@@ -224,14 +234,13 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
           throws IOException, HttpMessageNotWritableException //
   {
 
-    MediaType contentType = outputMessage.getHeaders().getContentType();
+    MediaType contentType = outputMessage.getContentType();
     if (contentType == null) {
       contentType = getDefaultContentType(message);
       Assert.state(contentType != null, "No content type");
     }
 
-    if (PROTOBUF.isCompatibleWith(contentType)
-            || PLUS_PROTOBUF.isCompatibleWith(contentType)) {
+    if (PROTOBUF.isCompatibleWith(contentType) || PLUS_PROTOBUF.isCompatibleWith(contentType)) {
       if (populateProtoHeader) {
         setProtoHeader(outputMessage, message);
       }
@@ -281,7 +290,7 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
   /**
    * Protobuf format support.
    */
-  interface ProtobufFormatSupport {
+  protected interface ProtobufFormatSupport {
 
     MediaType[] supportedMediaTypes();
 

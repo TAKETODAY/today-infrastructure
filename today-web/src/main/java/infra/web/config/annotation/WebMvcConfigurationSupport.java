@@ -1081,9 +1081,9 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    *
    * @since 5.0
    */
-  @Nullable
   @Component
-  public ApiVersionStrategy mvcApiVersionStrategy() {
+  @ConditionalOnMissingBean(name = "mvcApiVersionStrategy")
+  public @Nullable ApiVersionStrategy mvcApiVersionStrategy() {
     if (this.apiVersionStrategy == null) {
       ApiVersionConfigurer configurer = new ApiVersionConfigurer();
       configureApiVersioning(configurer);

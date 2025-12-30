@@ -57,6 +57,13 @@ public interface HttpOutputMessage extends HttpMessage {
     getHeaders().setContentType(mediaType);
   }
 
+  /**
+   * Whether this message supports zero-copy file transfers.
+   * <p>Default implementation returns {@code false}.
+   *
+   * @return {@code true} if this message supports zero-copy
+   * file transfers, {@code false} otherwise
+   */
   default boolean supportsZeroCopy() {
     return false;
   }
@@ -66,6 +73,7 @@ public interface HttpOutputMessage extends HttpMessage {
    * HTTP layer.
    *
    * @param file the file to transfer
+   * @throws IOException in case of I/O errors
    */
   default void sendFile(File file) throws IOException {
     sendFile(file, 0, file.length());

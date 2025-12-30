@@ -34,64 +34,59 @@ import static org.mockito.Mockito.when;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/10/11 10:37
  */
-class MultipartTests {
-
-  @Test
-  void testGetContentTypeDefaultImplementation() {
-    Multipart multipart = mock(Multipart.class);
-    when(multipart.getContentType()).thenCallRealMethod();
-
-    assertThat(multipart.getContentType()).isNull();
-  }
+class PartTests {
 
   @Test
   void testIsFormField() {
-    Multipart multipart = mock(Multipart.class);
-    when(multipart.isFormField()).thenReturn(true);
+    Part part = mock(Part.class);
+    when(part.isFormField()).thenReturn(true);
 
-    assertThat(multipart.isFormField()).isTrue();
+    assertThat(part.isFormField()).isTrue();
   }
 
   @Test
   void testGetName() {
-    Multipart multipart = mock(Multipart.class);
-    when(multipart.getName()).thenReturn("test-part");
+    Part part = mock(Part.class);
+    when(part.getName()).thenReturn("test-part");
 
-    assertThat(multipart.getName()).isEqualTo("test-part");
-  }
-
-  @Test
-  void testGetValue() {
-    Multipart multipart = mock(Multipart.class);
-    when(multipart.getValue()).thenReturn("test-value");
-
-    assertThat(multipart.getValue()).isEqualTo("test-value");
+    assertThat(part.getName()).isEqualTo("test-part");
   }
 
   @Test
   void testGetHeaders() {
-    Multipart multipart = mock(Multipart.class);
+    Part part = mock(Part.class);
     HttpHeaders headers = mock(HttpHeaders.class);
-    when(multipart.getHeaders()).thenReturn(headers);
+    when(part.getHeaders()).thenReturn(headers);
 
-    assertThat(multipart.getHeaders()).isEqualTo(headers);
+    assertThat(part.getHeaders()).isEqualTo(headers);
   }
 
   @Test
   void testGetBytes() throws IOException {
-    Multipart multipart = mock(Multipart.class);
+    Part part = mock(Part.class);
     byte[] content = "test content".getBytes();
-    when(multipart.getBytes()).thenReturn(content);
+    when(part.getContentAsByteArray()).thenReturn(content);
 
-    assertThat(multipart.getBytes()).isEqualTo(content);
+    assertThat(part.getContentAsByteArray()).isEqualTo(content);
   }
 
   @Test
   void testCleanup() throws IOException {
-    Multipart multipart = mock(Multipart.class);
-    doNothing().when(multipart).cleanup();
+    Part part = mock(Part.class);
+    doNothing().when(part).cleanup();
 
-    assertThatNoException().isThrownBy(multipart::cleanup);
-    verify(multipart).cleanup();
+    assertThatNoException().isThrownBy(part::cleanup);
+    verify(part).cleanup();
   }
+
+  @Test
+  void testToStringMethod() {
+    Part part = mock(Part.class);
+
+    when(part.toString()).thenReturn("MockPart");
+    when(part.getName()).thenReturn("test-name");
+
+    assertThat(part.toString()).isEqualTo("MockPart");
+  }
+
 }

@@ -44,14 +44,14 @@ class HttpRequestDecoratorTests {
   void constructorWithValidRequest() {
     HttpRequest request = mock(HttpRequest.class);
     HttpRequestDecorator decorator = new HttpRequestDecorator(request);
-    assertThat(decorator.getRequest()).isSameAs(request);
+    assertThat(decorator.delegate()).isSameAs(request);
   }
 
   @Test
   void constructorWithNullRequestThrowsException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> new HttpRequestDecorator(null))
-            .withMessage("HttpRequest is required");
+            .withMessage("delegate is required");
   }
 
   @Test
@@ -63,11 +63,11 @@ class HttpRequestDecoratorTests {
   }
 
   @Test
-  void getMethodValueDelegatesToWrappedRequest() {
+  void getMethodAsStringDelegatesToWrappedRequest() {
     HttpRequest request = mock(HttpRequest.class);
-    when(request.getMethodValue()).thenReturn("POST");
+    when(request.getMethodAsString()).thenReturn("POST");
     HttpRequestDecorator decorator = new HttpRequestDecorator(request);
-    assertThat(decorator.getMethodValue()).isEqualTo("POST");
+    assertThat(decorator.getMethodAsString()).isEqualTo("POST");
   }
 
   @Test

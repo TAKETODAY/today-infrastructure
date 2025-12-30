@@ -42,8 +42,7 @@ import infra.core.type.AnnotationMetadata;
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class ResilientMethodsConfiguration implements ImportAware {
 
-  @Nullable
-  private AnnotationAttributes enableResilientMethods;
+  private @Nullable AnnotationAttributes enableResilientMethods;
 
   @Override
   public void setImportMetadata(AnnotationMetadata importMetadata) {
@@ -61,7 +60,9 @@ public class ResilientMethodsConfiguration implements ImportAware {
 
   private void configureProxySupport(ProxyProcessorSupport proxySupport) {
     if (this.enableResilientMethods != null) {
-      proxySupport.setProxyTargetClass(this.enableResilientMethods.getBoolean("proxyTargetClass"));
+      if (this.enableResilientMethods.getBoolean("proxyTargetClass")) {
+        proxySupport.setProxyTargetClass(true);
+      }
       proxySupport.setOrder(this.enableResilientMethods.getNumber("order"));
     }
   }

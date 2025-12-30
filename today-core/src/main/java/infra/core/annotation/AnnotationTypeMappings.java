@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.function.Consumer;
@@ -78,7 +79,7 @@ final class AnnotationTypeMappings implements Iterable<AnnotationTypeMapping> {
           Set<Class<? extends Annotation>> visitedAnnotationTypes) {
 
     ArrayDeque<AnnotationTypeMapping> queue = new ArrayDeque<>();
-    addIfPossible(queue, null, annotationType, null, visitedAnnotationTypes);
+    addIfPossible(queue, null, annotationType, null, false, visitedAnnotationTypes);
     while (!queue.isEmpty()) {
       AnnotationTypeMapping mapping = queue.removeFirst();
       this.mappings.add(mapping);
@@ -108,20 +109,21 @@ final class AnnotationTypeMappings implements Iterable<AnnotationTypeMapping> {
   }
 
   private void addIfPossible(Deque<AnnotationTypeMapping> queue, AnnotationTypeMapping source, Annotation ann) {
-    addIfPossible(queue, source, ann.annotationType(), ann, new HashSet<>());
+    addIfPossible(queue, source, ann.annotationType(), ann, true, new HashSet<>());
   }
 
   private void addIfPossible(Deque<AnnotationTypeMapping> queue, @Nullable AnnotationTypeMapping source,
           Class<? extends Annotation> annotationType, @Nullable Annotation ann,
-          Set<Class<? extends Annotation>> visitedAnnotationTypes) {
+          boolean meta, Set<Class<? extends Annotation>> visitedAnnotationTypes) {
+
     try {
       queue.addLast(new AnnotationTypeMapping(source, annotationType, ann, visitedAnnotationTypes));
     }
     catch (Exception ex) {
       AnnotationUtils.rethrowAnnotationConfigurationException(ex);
       if (failureLogger.isEnabled()) {
-        failureLogger.log("Failed to introspect meta-annotation " + annotationType.getName(),
-                (source != null ? source.annotationType : null), ex);
+        failureLogger.log("Failed to introspect " + (meta ? "meta-annotation @" : "annotation @") +
+                annotationType.getName(), (source != null ? source.getAnnotationType() : null), ex);
       }
     }
   }
@@ -267,9 +269,12 @@ final class AnnotationTypeMappings implements Iterable<AnnotationTypeMapping> {
    * Cache created per {@link AnnotationFilter}.
    */
   private static class Cache {
+
     private final AnnotationFilter filter;
+
     private final RepeatableContainers repeatableContainers;
-    private final ConcurrentReferenceHashMap<Class<? extends Annotation>, AnnotationTypeMappings> mappings;
+
+    private final Map<Class<? extends Annotation>, AnnotationTypeMappings> mappings;
 
     /**
      * Create a cache instance with the specified filter.
@@ -291,13 +296,22 @@ final class AnnotationTypeMappings implements Iterable<AnnotationTypeMapping> {
      * some JVM languages support (such as Kotlin)
      * @return a new or existing {@link AnnotationTypeMappings} instance
      */
-    @SuppressWarnings("NullAway")
-    AnnotationTypeMappings get(Class<? extends Annotation> annotationType,
-            Set<Class<? extends Annotation>> visitedAnnotationTypes) {
-      return mappings.computeIfAbsent(annotationType, key -> new AnnotationTypeMappings(
-              repeatableContainers, filter, annotationType, visitedAnnotationTypes));
+    AnnotationTypeMappings get(Class<? extends Annotation> annotationType, Set<Class<? extends Annotation>> visitedAnnotationTypes) {
+      AnnotationTypeMappings result = this.mappings.get(annotationType);
+      if (result != null) {
+        return result;
+      }
+      result = createMappings(annotationType, visitedAnnotationTypes);
+      AnnotationTypeMappings existing = this.mappings.putIfAbsent(annotationType, result);
+      return (existing != null ? existing : result);
     }
 
+    private AnnotationTypeMappings createMappings(Class<? extends Annotation> annotationType,
+            Set<Class<? extends Annotation>> visitedAnnotationTypes) {
+
+      return new AnnotationTypeMappings(this.repeatableContainers, this.filter, annotationType,
+              visitedAnnotationTypes);
+    }
   }
 
 }

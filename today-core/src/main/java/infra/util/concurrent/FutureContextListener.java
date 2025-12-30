@@ -17,6 +17,8 @@
 
 package infra.util.concurrent;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.EventListener;
 
 /**
@@ -35,7 +37,7 @@ import java.util.EventListener;
  * @since 4.0 2024/3/21 16:36
  */
 @FunctionalInterface
-public interface FutureContextListener<F extends Future<?>, C> extends EventListener {
+public interface FutureContextListener<F extends Future<?>, C extends @Nullable Object> extends EventListener {
 
   /**
    * Invoked when the operation associated with the {@link Future} has been completed.

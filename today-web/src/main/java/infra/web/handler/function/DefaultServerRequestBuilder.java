@@ -53,7 +53,7 @@ import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.RequestContext;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.bind.WebDataBinder;
-import infra.web.multipart.Multipart;
+import infra.web.multipart.Part;
 import infra.web.util.UriBuilder;
 import infra.web.util.UriComponentsBuilder;
 import infra.web.util.pattern.PathMatchInfo;
@@ -255,8 +255,8 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
     }
 
     @Override
-    public MultiValueMap<String, Multipart> multipartData() throws IOException {
-      return requestContext.multipartRequest().multipartData();
+    public MultiValueMap<String, Part> multipartData() throws IOException {
+      return requestContext.asMultipartRequest().getParts();
     }
 
     @Override

@@ -112,10 +112,8 @@ public class FormHttpMessageReader extends LoggingCodecSupport implements HttpMe
   }
 
   @Override
-  public Mono<MultiValueMap<String, String>> readMono(ResolvableType elementType,
-          ReactiveHttpInputMessage message, Map<String, Object> hints) {
-
-    MediaType contentType = message.getHeaders().getContentType();
+  public Mono<MultiValueMap<String, String>> readMono(ResolvableType elementType, ReactiveHttpInputMessage message, Map<String, Object> hints) {
+    MediaType contentType = message.getContentType();
     Charset charset = getMediaTypeCharset(contentType);
 
     return DataBufferUtils.join(message.getBody(), this.maxInMemorySize)

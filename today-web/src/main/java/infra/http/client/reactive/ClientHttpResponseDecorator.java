@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 package infra.http.client.reactive;
 
 import infra.core.io.buffer.DataBuffer;
-import infra.http.HttpHeaders;
+import infra.http.HttpMessageDecorator;
 import infra.http.HttpStatusCode;
 import infra.http.ResponseCookie;
 import infra.lang.Assert;
@@ -33,16 +33,18 @@ import reactor.core.publisher.Flux;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ClientHttpResponseDecorator implements ClientHttpResponse {
+public class ClientHttpResponseDecorator extends HttpMessageDecorator implements ClientHttpResponse {
 
   private final ClientHttpResponse delegate;
 
   public ClientHttpResponseDecorator(ClientHttpResponse delegate) {
+    super(delegate);
     Assert.notNull(delegate, "Delegate is required");
     this.delegate = delegate;
   }
 
-  public ClientHttpResponse getDelegate() {
+  @Override
+  public ClientHttpResponse delegate() {
     return this.delegate;
   }
 
@@ -64,11 +66,6 @@ public class ClientHttpResponseDecorator implements ClientHttpResponse {
   }
 
   @Override
-  public HttpHeaders getHeaders() {
-    return this.delegate.getHeaders();
-  }
-
-  @Override
   public MultiValueMap<String, ResponseCookie> getCookies() {
     return this.delegate.getCookies();
   }
@@ -76,11 +73,6 @@ public class ClientHttpResponseDecorator implements ClientHttpResponse {
   @Override
   public Flux<DataBuffer> getBody() {
     return this.delegate.getBody();
-  }
-
-  @Override
-  public String toString() {
-    return getClass().getSimpleName() + " [delegate=" + getDelegate() + "]";
   }
 
 }

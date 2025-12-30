@@ -27,7 +27,7 @@ import java.util.function.Function;
 import infra.core.AttributeAccessor;
 import infra.core.io.buffer.DataBuffer;
 import infra.http.HttpCookie;
-import infra.http.HttpHeaders;
+import infra.http.HttpMessageDecorator;
 import infra.http.HttpMethod;
 import infra.http.server.RequestPath;
 import infra.lang.Assert;
@@ -42,16 +42,18 @@ import reactor.core.publisher.Flux;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ServerHttpRequestDecorator implements ServerHttpRequest {
+public class ServerHttpRequestDecorator extends HttpMessageDecorator implements ServerHttpRequest {
 
   private final ServerHttpRequest delegate;
 
   public ServerHttpRequestDecorator(ServerHttpRequest delegate) {
+    super(delegate);
     Assert.notNull(delegate, "Delegate is required");
     this.delegate = delegate;
   }
 
-  public ServerHttpRequest getDelegate() {
+  @Override
+  public ServerHttpRequest delegate() {
     return this.delegate;
   }
 
@@ -59,127 +61,122 @@ public class ServerHttpRequestDecorator implements ServerHttpRequest {
 
   @Override
   public String getId() {
-    return getDelegate().getId();
+    return delegate.getId();
   }
 
   @Override
   public HttpMethod getMethod() {
-    return getDelegate().getMethod();
+    return delegate.getMethod();
   }
 
   @Override
-  public String getMethodValue() {
-    return getDelegate().getMethodValue();
+  public String getMethodAsString() {
+    return delegate.getMethodAsString();
   }
 
   @Override
   public URI getURI() {
-    return getDelegate().getURI();
+    return delegate.getURI();
   }
 
   @Override
   public RequestPath getPath() {
-    return getDelegate().getPath();
+    return delegate.getPath();
   }
 
   @Override
   public MultiValueMap<String, String> getQueryParams() {
-    return getDelegate().getQueryParams();
-  }
-
-  @Override
-  public HttpHeaders getHeaders() {
-    return getDelegate().getHeaders();
+    return delegate.getQueryParams();
   }
 
   @Override
   public MultiValueMap<String, HttpCookie> getCookies() {
-    return getDelegate().getCookies();
+    return delegate.getCookies();
   }
 
   @Override
   @Nullable
   public InetSocketAddress getLocalAddress() {
-    return getDelegate().getLocalAddress();
+    return delegate.getLocalAddress();
   }
 
   @Override
   @Nullable
   public InetSocketAddress getRemoteAddress() {
-    return getDelegate().getRemoteAddress();
+    return delegate.getRemoteAddress();
   }
 
   @Override
   @Nullable
   public SslInfo getSslInfo() {
-    return getDelegate().getSslInfo();
+    return delegate.getSslInfo();
   }
 
   @Override
   public Flux<DataBuffer> getBody() {
-    return getDelegate().getBody();
+    return delegate.getBody();
   }
 
   @Override
   public Map<String, Object> getAttributes() {
-    return getDelegate().getAttributes();
+    return delegate.getAttributes();
   }
 
   @Override
   public void setAttributes(@Nullable Map<String, Object> attributes) {
-    getDelegate().setAttributes(attributes);
+    delegate.setAttributes(attributes);
   }
 
   @Override
   public Iterable<String> attributeNames() {
-    return getDelegate().attributeNames();
+    return delegate.attributeNames();
   }
 
   @Override
   public void clearAttributes() {
-    getDelegate().clearAttributes();
+    delegate.clearAttributes();
   }
 
   @Override
   public <T> T computeAttribute(String name, Function<String, @Nullable T> computeFunction) {
-    return getDelegate().computeAttribute(name, computeFunction);
+    return delegate.computeAttribute(name, computeFunction);
   }
 
   @Override
   public void copyFrom(AttributeAccessor source) {
-    getDelegate().copyFrom(source);
+    delegate.copyFrom(source);
   }
 
   @Override
   @Nullable
   public Object getAttribute(String name) {
-    return getDelegate().getAttribute(name);
+    return delegate.getAttribute(name);
   }
 
   @Override
   public String[] getAttributeNames() {
-    return getDelegate().getAttributeNames();
+    return delegate.getAttributeNames();
   }
 
   @Override
   public boolean hasAttribute(String name) {
-    return getDelegate().hasAttribute(name);
+    return delegate.hasAttribute(name);
   }
 
   @Override
   public boolean hasAttributes() {
-    return getDelegate().hasAttributes();
+    return delegate.hasAttributes();
   }
 
   @Override
   @Nullable
   public Object removeAttribute(String name) {
-    return getDelegate().removeAttribute(name);
+    return delegate.removeAttribute(name);
   }
 
   @Override
   public void setAttribute(String name, @Nullable Object value) {
-    getDelegate().setAttribute(name, value);
+    delegate.setAttribute(name, value);
   }
 
   /**
@@ -195,17 +192,12 @@ public class ServerHttpRequestDecorator implements ServerHttpRequest {
       return ((AbstractServerHttpRequest) request).getNativeRequest();
     }
     else if (request instanceof ServerHttpRequestDecorator) {
-      return getNativeRequest(((ServerHttpRequestDecorator) request).getDelegate());
+      return getNativeRequest(((ServerHttpRequestDecorator) request).delegate());
     }
     else {
       throw new IllegalArgumentException(
               "Can't find native request in " + request.getClass().getName());
     }
-  }
-
-  @Override
-  public String toString() {
-    return getClass().getSimpleName() + " [delegate=" + getDelegate() + "]";
   }
 
 }

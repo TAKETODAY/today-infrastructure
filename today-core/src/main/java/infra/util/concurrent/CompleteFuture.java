@@ -34,13 +34,11 @@ import infra.lang.Assert;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/26 21:28
  */
-final class CompleteFuture<V> extends Future<V> {
+final class CompleteFuture<V extends @Nullable Object> extends Future<V> {
 
-  @Nullable
-  private final V value;
+  private final @Nullable V value;
 
-  @Nullable
-  private final Throwable executionException;
+  private final @Nullable Throwable executionException;
 
   /**
    * Creates a new instance.
@@ -65,7 +63,6 @@ final class CompleteFuture<V> extends Future<V> {
   }
 
   @Override
-  @Nullable
   public V get() throws ExecutionException {
     if (this.executionException != null) {
       throw (this.executionException instanceof ExecutionException ?
@@ -76,7 +73,6 @@ final class CompleteFuture<V> extends Future<V> {
   }
 
   @Override
-  @Nullable
   public V get(long timeout, TimeUnit unit) throws ExecutionException {
     return get();
   }

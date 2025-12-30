@@ -931,4 +931,13 @@ class UriComponentsBuilderTests {
     assertThat(result.getQueryParams()).containsExactly(Map.entry("k1", List.of("v1", "v2")));
   }
 
+  @ParameterizedTest
+  @EnumSource
+  void singleCharFragment(ParserType parserType) {
+    URI uri = UriComponentsBuilder
+            .forURIString("https://localhost/resource#a", parserType)
+            .build().toURI();
+    assertThat(uri.toString()).isEqualTo("https://localhost/resource#a");
+  }
+
 }

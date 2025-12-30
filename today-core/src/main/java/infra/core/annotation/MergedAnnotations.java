@@ -125,7 +125,7 @@ import infra.util.ClassUtils;
  * // get all ExampleAnnotation declarations (including any meta-annotations) and
  * // print the merged "value" attributes
  * mergedAnnotations.stream(ExampleAnnotation.class)
- *     .map(mergedAnnotation -&gt; mergedAnnotation.getString("value"))
+ *     .map(mergedAnnotation -> mergedAnnotation.getString("value"))
  *     .forEach(System.out::println);
  * }</pre>
  *
@@ -135,6 +135,14 @@ import infra.util.ClassUtils;
  * There is no support for retrieving plain Java annotations with this API;
  * please use standard Java reflection or {@link AnnotationUtils}
  * for simple annotation retrieval purposes.
+ *
+ * <p><strong>WARNING</strong>: If an annotation cannot be loaded because one of
+ * its attributes references a {@link Class} or {@link Enum}
+ * {@linkplain TypeNotPresentException that is not present in the classpath}, that
+ * annotation will not be accessible via the {@code MergedAnnotations} API.
+ * To assist with diagnosing such scenarios, you can set the log level for
+ * {@code "infra.core.annotation.MergedAnnotation"} to {@code DEBUG},
+ * {@code INFO}, or {@code WARN}.
  *
  * @author Phillip Webb
  * @author Sam Brannen
@@ -303,6 +311,13 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    */
   Stream<MergedAnnotation<Annotation>> stream();
 
+  /**
+   * Get the {@linkplain AnnotationAttributes attributes} of all merged annotations
+   * of the specified type, or an empty array if none are present.
+   *
+   * @param annotationType the annotation type to get attributes for
+   * @return an array of {@link AnnotationAttributes} instances
+   */
   <A extends Annotation> AnnotationAttributes[] getAttributes(Class<A> annotationType);
 
   // Static Factory Methods

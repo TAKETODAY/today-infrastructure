@@ -121,9 +121,8 @@ public class JCacheCacheManager extends AbstractTransactionSupportingCacheManage
     return caches;
   }
 
-  @Nullable
   @Override
-  protected Cache getMissingCache(String name) {
+  protected @Nullable Cache getMissingCache(String name) {
     CacheManager cacheManager = getCacheManager();
     Assert.state(cacheManager != null, "No CacheManager set");
 
@@ -133,6 +132,19 @@ public class JCacheCacheManager extends AbstractTransactionSupportingCacheManage
       return new JCacheCache(jcache, isAllowNullValues());
     }
     return null;
+  }
+
+  @Override
+  public void resetCaches() {
+    CacheManager cacheManager = getCacheManager();
+    if (cacheManager != null && !cacheManager.isClosed()) {
+      for (String cacheName : cacheManager.getCacheNames()) {
+        javax.cache.Cache<Object, Object> jcache = cacheManager.getCache(cacheName);
+        if (jcache != null && !jcache.isClosed()) {
+          jcache.clear();
+        }
+      }
+    }
   }
 
 }

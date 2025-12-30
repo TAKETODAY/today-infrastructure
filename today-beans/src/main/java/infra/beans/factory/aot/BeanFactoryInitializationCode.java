@@ -19,6 +19,7 @@ package infra.beans.factory.aot;
 
 import infra.aot.generate.GeneratedMethods;
 import infra.aot.generate.MethodReference;
+import infra.javapoet.ClassName;
 
 /**
  * Interface that can be used to configure the code that will be generated to
@@ -43,6 +44,14 @@ public interface BeanFactoryInitializationCode {
    * @return the generated methods
    */
   GeneratedMethods getMethods();
+
+  /**
+   * Return the name of the class used by the initializing code.
+   *
+   * @return the generated class name
+   * @since 5.0
+   */
+  ClassName getClassName();
 
   /**
    * Add an initializer method call. An initializer can use a flexible signature,

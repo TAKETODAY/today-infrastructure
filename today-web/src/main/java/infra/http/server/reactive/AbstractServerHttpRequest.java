@@ -142,7 +142,7 @@ public abstract class AbstractServerHttpRequest extends AttributeAccessorSupport
   public HttpMethod getMethod() {
     HttpMethod method = this.method;
     if (method == null) {
-      method = HttpMethod.valueOf(getMethodValue());
+      method = HttpMethod.valueOf(getMethodAsString());
       this.method = method;
     }
     return method;

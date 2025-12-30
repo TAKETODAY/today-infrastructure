@@ -23,7 +23,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
@@ -51,7 +50,6 @@ import infra.lang.Assert;
 import infra.lang.Modifiable;
 import infra.lang.Unmodifiable;
 import infra.util.CollectionUtils;
-import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
@@ -555,7 +553,30 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * by the {@code Accept} header.
    */
   public void setAccept(Collection<MediaType> acceptableMediaTypes) {
-    setHeader(ACCEPT, MediaType.toString(acceptableMediaTypes));
+    setAccept(MediaType.toString(acceptableMediaTypes));
+  }
+
+  /**
+   * Set the acceptable {@linkplain MediaType media type}, as specified
+   * by the {@code Accept} header.
+   *
+   * @param acceptableMediaType the acceptable media type
+   * @throws NullPointerException if acceptableMediaType is {@code null}
+   * @since 5.0
+   */
+  public void setAccept(MediaType acceptableMediaType) {
+    setAccept(acceptableMediaType.toString());
+  }
+
+  /**
+   * Set the acceptable media type as a string value, as specified
+   * by the {@code Accept} header.
+   *
+   * @param acceptableMediaType the acceptable media type as a string
+   * @since 5.0
+   */
+  public void setAccept(String acceptableMediaType) {
+    setHeader(ACCEPT, acceptableMediaType);
   }
 
   /**
@@ -1610,7 +1631,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * {@link #setOrRemove(String, String)} but for date headers.
    */
   public void setInstant(String headerName, Instant date) {
-    setZonedDateTime(headerName, ZonedDateTime.ofInstant(date, GMT));
+    setZonedDateTime(headerName, date.atZone(GMT));
   }
 
   /**
@@ -2103,27 +2124,9 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
     return result;
   }
 
-  /**
-   * Adapt {@link java.net.http.HttpHeaders}
-   *
-   * @param response JDK {@link HttpResponse}
-   * @return HttpHeaders
-   * @since 5.0
-   */
-  @Unmodifiable
-  public static HttpHeaders fromResponse(HttpResponse<?> response) {
-    Map<String, List<String>> rawHeaders = response.headers().map();
-    Map<String, List<String>> map = new LinkedCaseInsensitiveMap<>(rawHeaders.size(), Locale.ROOT);
-    MultiValueMap<String, String> multiValueMap = MultiValueMap.forAdaption(map);
-    multiValueMap.putAll(rawHeaders);
-    return HttpHeaders.readOnlyHttpHeaders(multiValueMap);
-  }
-
   // Package-private: used in ResponseCookie
   static String formatDate(long date) {
-    Instant instant = Instant.ofEpochMilli(date);
-    ZonedDateTime time = ZonedDateTime.ofInstant(instant, GMT);
-    return DATE_FORMATTER.format(time);
+    return DATE_FORMATTER.format(Instant.ofEpochMilli(date).atZone(GMT));
   }
 
 }

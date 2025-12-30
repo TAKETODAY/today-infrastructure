@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import infra.http.DefaultHttpHeaders;
 import infra.http.HttpHeaders;
-import infra.http.MediaType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -34,21 +33,8 @@ import static org.mockito.Mockito.when;
 class AbstractMultipartTests {
 
   @Test
-  void getHeadersReturnsDefaultHeadersWhenNotSet() {
-    AbstractMultipart multipart = mock(AbstractMultipart.class);
-    when(multipart.getHeaders()).thenCallRealMethod();
-    when(multipart.getContentType()).thenReturn("text/plain");
-    when(multipart.createHttpHeaders()).thenCallRealMethod();
-
-    HttpHeaders headers = multipart.getHeaders();
-
-    assertThat(headers).isNotNull();
-    assertThat(headers.getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
-  }
-
-  @Test
   void getHeadersReturnsSetHeaders() {
-    AbstractMultipart multipart = mock(AbstractMultipart.class);
+    AbstractPart multipart = mock(AbstractPart.class);
     HttpHeaders customHeaders = new DefaultHttpHeaders();
     customHeaders.set("X-Custom", "value");
 
@@ -59,37 +45,14 @@ class AbstractMultipartTests {
   }
 
   @Test
-  void createHttpHeadersIncludesContentType() {
-    AbstractMultipart multipart = mock(AbstractMultipart.class);
-    when(multipart.createHttpHeaders()).thenCallRealMethod();
-    when(multipart.getContentType()).thenReturn("application/json");
-
-    HttpHeaders headers = multipart.createHttpHeaders();
-
-    assertThat(headers.getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-  }
-
-  @Test
   void createHttpHeadersHandlesNullContentType() {
-    AbstractMultipart multipart = mock(AbstractMultipart.class);
+    AbstractPart multipart = mock(AbstractPart.class);
     when(multipart.createHttpHeaders()).thenCallRealMethod();
     when(multipart.getContentType()).thenReturn(null);
 
     HttpHeaders headers = multipart.createHttpHeaders();
 
     assertThat(headers.getContentType()).isNull();
-  }
-
-  @Test
-  void toStringReturnsFormattedString() {
-    AbstractMultipart multipart = mock(AbstractMultipart.class);
-    when(multipart.toString()).thenCallRealMethod();
-    when(multipart.getName()).thenReturn("test-name");
-    when(multipart.getValue()).thenReturn("test-value");
-
-    String result = multipart.toString();
-
-    assertThat(result).endsWith("test-name=test-value");
   }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -101,6 +101,8 @@ public class ExtractingResponseErrorHandlerTests {
 
     byte[] body = "{\"foo\":\"bar\"}".getBytes(StandardCharsets.UTF_8);
     responseHeaders.setContentLength(body.length);
+    given(response.getContentType()).willReturn(MediaType.APPLICATION_JSON);
+    given(response.getContentLength()).willReturn((long) body.length);
     given(response.getBody()).willReturn(new ByteArrayInputStream(body));
 
     assertThatExceptionOfType(MyRestClientException.class)
@@ -115,9 +117,11 @@ public class ExtractingResponseErrorHandlerTests {
     HttpHeaders responseHeaders = HttpHeaders.forWritable();
     responseHeaders.setContentType(MediaType.APPLICATION_JSON);
     given(response.getHeaders()).willReturn(responseHeaders);
+    given(response.getContentType()).willReturn(MediaType.APPLICATION_JSON);
 
     byte[] body = "{\"foo\":\"bar\"}".getBytes(StandardCharsets.UTF_8);
     responseHeaders.setContentLength(body.length);
+    given(response.getContentLength()).willReturn((long) body.length);
     given(response.getBody()).willReturn(new ByteArrayInputStream(body));
 
     assertThatExceptionOfType(MyRestClientException.class)

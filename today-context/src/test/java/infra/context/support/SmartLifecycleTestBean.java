@@ -15,19 +15,13 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.bind;
+package infra.context.support;
 
-import org.jspecify.annotations.Nullable;
+import infra.context.SmartLifecycle;
 
 /**
- * Not A Multipart Request Exception
- *
- * @author TODAY 2021/3/21 21:08
- * @since 3.0
+ * @author Juergen Hoeller
  */
-public class NotMultipartRequestException extends MultipartException {
+public class SmartLifecycleTestBean extends LifecycleTestBean implements SmartLifecycle {
 
-  public NotMultipartRequestException(@Nullable String message, @Nullable Throwable cause) {
-    super(message, cause);
-  }
 }

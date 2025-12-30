@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,7 +57,7 @@ import infra.util.MultiValueMap;
 import infra.validation.BindException;
 import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.mock.MockRequestContext;
-import infra.web.multipart.Multipart;
+import infra.web.multipart.Part;
 import infra.web.view.PathPatternsTestUtils;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -190,7 +190,7 @@ class DefaultServerRequestTests {
     DefaultServerRequest request =
             getRequest(servletRequest);
 
-    MultiValueMap<String, Multipart> result = request.multipartData();
+    MultiValueMap<String, Part> result = request.multipartData();
 
     assertThat(result).hasSize(2);
 //    assertThat(result.get("form")).hasSize(1).containsExactly(formPart);

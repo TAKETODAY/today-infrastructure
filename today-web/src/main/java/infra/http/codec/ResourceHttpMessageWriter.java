@@ -124,7 +124,7 @@ public class ResourceHttpMessageWriter implements HttpMessageWriter<Resource> {
               else {
                 Mono<Resource> input = Mono.just(resource);
                 DataBufferFactory factory = message.bufferFactory();
-                Flux<DataBuffer> body = this.encoder.encode(input, factory, type, message.getHeaders().getContentType(), hints)
+                Flux<DataBuffer> body = this.encoder.encode(input, factory, type, message.getContentType(), hints)
                         .subscribeOn(Schedulers.boundedElastic());
                 if (logger.isDebugEnabled()) {
                   body = body.doOnNext(buffer -> Hints.touchDataBuffer(buffer, hints, logger));

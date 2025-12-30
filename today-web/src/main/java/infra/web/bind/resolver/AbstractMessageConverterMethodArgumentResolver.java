@@ -144,7 +144,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
   {
 
     Class<?> contextClass = parameter.getContainingClass();
-    Class<T> targetClass = (targetType instanceof Class ? (Class<T>) targetType : null);
+    Class<T> targetClass = targetType instanceof Class ? (Class<T>) targetType : null;
     if (targetClass == null) {
       ResolvableType resolvableType = ResolvableType.forMethodParameter(parameter);
       targetClass = (Class<T>) resolvableType.resolve();
@@ -153,7 +153,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
     MediaType contentType;
     boolean noContentType = false;
     try {
-      contentType = inputMessage.getHeaders().getContentType();
+      contentType = inputMessage.getContentType();
     }
     catch (InvalidMediaTypeException ex) {
       throw new HttpMediaTypeNotSupportedException(
