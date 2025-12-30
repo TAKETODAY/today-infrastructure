@@ -136,9 +136,8 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
     STATE.setRelease(this, INTERRUPTED);
   }
 
-  @Nullable
   @Override
-  public Throwable getCause() {
+  public @Nullable Throwable getCause() {
     int s = state;
     if (s == EXCEPTIONAL) {
       return (Throwable) result;
@@ -161,7 +160,6 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
   /**
    * @throws CancellationException {@inheritDoc}
    */
-  @Nullable
   @Override
   public V get() throws InterruptedException, ExecutionException {
     int s = state;
@@ -173,7 +171,6 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
   /**
    * @throws CancellationException {@inheritDoc}
    */
-  @Nullable
   @Override
   public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
     int s = state;
@@ -277,9 +274,8 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
    *
    * @param s completed state value
    */
-  @Nullable
   @SuppressWarnings("unchecked")
-  private V report(int s) throws ExecutionException {
+  private @Nullable V report(int s) throws ExecutionException {
     if (s == NORMAL) {
       return (V) result;
     }
@@ -495,11 +491,9 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
    */
   static final class Waiter {
 
-    @Nullable
-    public volatile Thread thread = Thread.currentThread();
+    public volatile @Nullable Thread thread = Thread.currentThread();
 
-    @Nullable
-    public volatile Waiter next;
+    public volatile @Nullable Waiter next;
   }
 
 }

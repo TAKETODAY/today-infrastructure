@@ -199,7 +199,7 @@ public class Pair<A extends @Nullable Object, B extends @Nullable Object> implem
    * @return a comparator that compares pairs by first value
    */
   public static <A extends Comparable<? super A>, B extends @Nullable Object> Comparator<Pair<A, B>> comparingFirst() {
-    return Comparator.comparing(o -> o.first);
+    return Comparator.comparing(Pair::getFirst);
   }
 
   /**
@@ -210,7 +210,7 @@ public class Pair<A extends @Nullable Object, B extends @Nullable Object> implem
    * @return a comparator that compares pairs by second value
    */
   public static <A extends @Nullable Object, B extends Comparable<? super B>> Comparator<Pair<A, B>> comparingSecond() {
-    return Comparator.comparing(o -> o.second);
+    return Comparator.comparing(Pair::getSecond);
   }
 
 }

@@ -47,7 +47,7 @@ public interface FutureListener<F extends Future<?>> extends EventListener {
   // Static Factory Methods
 
   @SuppressWarnings("NullAway")
-  static <V, F extends Future<V>, C> FutureListener<F> forAdaption(FutureContextListener<F, C> listener, @Nullable C context) {
+  static <V extends @Nullable Object, F extends Future<V>, C extends @Nullable Object> FutureListener<F> forAdaption(FutureContextListener<F, C> listener, @Nullable C context) {
     Assert.notNull(listener, "listener is required");
     return future -> listener.operationComplete(future, context);
   }

@@ -17,6 +17,7 @@
 
 package infra.util.concurrent;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -32,9 +33,9 @@ import infra.lang.Assert;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/8/13 21:13
  */
-public final class PublisherFuture<T> extends AbstractFuture<T> implements Subscriber<T> {
+public final class PublisherFuture<T extends @Nullable Object> extends AbstractFuture<T> implements Subscriber<T> {
 
-  private final AtomicReference<Subscription> ref = new AtomicReference<>();
+  private final AtomicReference<@Nullable Subscription> ref = new AtomicReference<>();
 
   PublisherFuture(Publisher<T> publisher) {
     super(null);

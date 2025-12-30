@@ -319,8 +319,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * @see #isCancelled()
    * @see CancellationException
    */
-  @Nullable
-  public abstract Throwable getCause();
+  public abstract @Nullable Throwable getCause();
 
   /**
    * Java 8 lambda-friendly alternative with success and failure callbacks.
@@ -498,7 +497,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * when this future completes.
    * @return this future object.
    */
-  public <C> Future<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
+  public <C extends @Nullable Object> Future<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
     return onCompleted(FutureListener.forAdaption(listener, context));
   }
 
@@ -803,7 +802,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * @return A new future instance that will complete with the mapped
    * result of this future.
    */
-  public final <R> Future<R> map(ThrowingFunction<V, R> mapper) {
+  public final <R extends @Nullable Object> Future<R> map(ThrowingFunction<V, R> mapper) {
     Assert.notNull(mapper, "mapper is required");
     return Futures.map(this, mapper);
   }
@@ -1072,7 +1071,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * of this future.
    * @since 5.0
    */
-  public final <R> Future<R> flatMap(ThrowingSupplier<Future<R>> futureSupplier) {
+  public final <R extends @Nullable Object> Future<R> flatMap(ThrowingSupplier<Future<R>> futureSupplier) {
     Assert.notNull(futureSupplier, "futureSupplier is required");
     return Futures.flatMap(this, v -> futureSupplier.get());
   }
