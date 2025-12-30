@@ -53,7 +53,7 @@ public class Pair<A extends @Nullable Object, B extends @Nullable Object> implem
 
   public final B second;
 
-  public Pair(A first, B second) {
+  public Pair(@Nullable A first, @Nullable B second) {
     this.first = first;
     this.second = second;
   }
