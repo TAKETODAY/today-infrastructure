@@ -629,7 +629,9 @@ public class DispatcherHandler extends InfraHandler {
         request.sendError(httpStatus.first, httpStatus.second);
       }
       catch (Throwable e) {
-        notHandled.addSuppressed(e);
+        if (notHandled != e) {
+          notHandled.addSuppressed(e);
+        }
         request.requestCompleted(notHandled);
         throw notHandled;
       }
