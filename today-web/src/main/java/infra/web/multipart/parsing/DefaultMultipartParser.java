@@ -20,6 +20,8 @@ package infra.web.multipart.parsing;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -291,20 +293,27 @@ public class DefaultMultipartParser implements MultipartParser {
 
         DefaultPart part = new DefaultPart(field.fieldName, field.contentType,
                 field.headers, field.formField, field.filename, this);
-
         parts.add(part.getName(), part);
-        try (var inputStream = field.getInputStream();
-                var outputStream = part.getOutputStream()) {
-          StreamUtils.copy(inputStream, outputStream, buffer);
+
+        InputStream in = null;
+        OutputStream out = null;
+        try {
+          in = field.getInputStream();
+          out = part.getOutputStream();
+          StreamUtils.copy(in, out, buffer);
         }
         catch (IOException e) {
           throw new MultipartException("Request '%s' failed: %s".formatted(request.getContentType(), e.getMessage()), e);
+        }
+        finally {
+          StreamUtils.closeQuietly(out);
+          StreamUtils.closeQuietly(in);
         }
       }
       successful = true;
       return parts;
     }
-    catch (final IOException e) {
+    catch (IOException e) {
       throw new MultipartException(e.getMessage(), e);
     }
     finally {
