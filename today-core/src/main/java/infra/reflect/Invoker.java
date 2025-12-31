@@ -20,6 +20,8 @@ package infra.reflect;
 import org.jspecify.annotations.Nullable;
 
 /**
+ * An invoker interface for method invocation.
+ *
  * @author TODAY 2019-10-18 22:35
  */
 @FunctionalInterface

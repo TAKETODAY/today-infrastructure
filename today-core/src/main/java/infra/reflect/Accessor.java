@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,11 @@
 package infra.reflect;
 
 /**
+ * Interface for accessing object properties or fields.
+ * <p>
+ * Provides a contract for implementations to access and manipulate
+ * object attributes through reflection or other means.
+ *
  * @author TODAY 2021/3/10 17:50
  * @since 3.0
  */

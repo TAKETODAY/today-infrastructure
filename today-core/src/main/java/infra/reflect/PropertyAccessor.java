@@ -35,6 +35,11 @@ import infra.lang.Assert;
 import infra.util.ReflectionUtils;
 
 /**
+ * An abstract class for accessing object properties.
+ * <p>
+ * Provides unified interfaces for getting and setting property values,
+ * supporting both field-based and method-based access.
+ *
  * @author TODAY 2020/9/11 11:06
  */
 public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Accessor {
@@ -47,8 +52,9 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
   public abstract void set(Object obj, @Nullable Object value) throws ReflectionException;
 
   /**
-   * can write
+   * Indicates whether the property can be written to.
    *
+   * @return {@code true} if the property is writable, {@code false} otherwise
    * @since 4.0
    */
   public boolean isWriteable() {
@@ -58,7 +64,14 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
   // static
 
   /**
-   * @throws ReflectionException No property in target class
+   * Creates a PropertyAccessor for the specified property name in the given class.
+   * This method looks up the field in the target class and returns a PropertyAccessor
+   * that can be used to get and set the field's value.
+   *
+   * @param targetClass the class to search for the property
+   * @param name the name of the property (field)
+   * @return a PropertyAccessor instance for accessing the specified property
+   * @throws ReflectionException if the property does not exist in the target class
    */
   public static PropertyAccessor from(Class<?> targetClass, String name) {
     Field field = ReflectionUtils.findField(targetClass, name);
@@ -69,10 +82,11 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
   }
 
   /**
-   * getter setter is exists in a bean or pojo, use fast invoke tech {@link MethodInvoker}
+   * Creates a PropertyAccessor for getter and setter methods that exist in a bean or pojo,
+   * using fast invocation technology {@link MethodInvoker}.
    *
-   * @param writeMethod setter method
    * @param readMethod getter method
+   * @param writeMethod setter method
    * @return PropertyAccessor
    */
   public static PropertyAccessor forMethod(@Nullable Method readMethod, @Nullable Method writeMethod) {
@@ -104,10 +118,10 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
   }
 
   /**
-   * use GetterMethod and SetterMethod tech to access property
+   * Creates a PropertyAccessor using GetterMethod and SetterMethod technologies to access properties.
    *
-   * @param writeMethod setter method
    * @param readMethod getter method
+   * @param writeMethod setter method
    * @return PropertyAccessor
    */
   public static PropertyAccessor forMethod(GetterMethod readMethod, @Nullable SetterMethod writeMethod) {
@@ -119,19 +133,23 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
   }
 
   /**
-   * PropertyAccessor
+   * Creates a PropertyAccessor for the given field using reflective access.
    *
-   * @param field Field
-   * @return PropertyAccessor
+   * @param field the field to create accessor for
+   * @return a PropertyAccessor instance for accessing the specified field
    */
   public static PropertyAccessor forField(Field field) {
     return forField(field, null, null);
   }
 
   /**
-   * @param field Field
-   * @return PropertyAccessor
-   * @throws NullPointerException field is null
+   * Creates a PropertyAccessor for the given field with optional read and write methods.
+   *
+   * @param field the field to create accessor for
+   * @param readMethod optional getter method to use for reading the property value
+   * @param writeMethod optional setter method to use for writing the property value
+   * @return a PropertyAccessor instance for accessing the specified field
+   * @throws NullPointerException if field is null
    */
   public static PropertyAccessor forField(Field field, @Nullable Method readMethod, @Nullable Method writeMethod) {
     boolean isReadOnly = Modifier.isFinal(field.getModifiers()) && writeMethod == null;
@@ -207,10 +225,10 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
   }
 
   /**
-   * use java reflect {@link Field} tech
+   * Creates a PropertyAccessor using Java reflection {@link Field} technology.
    *
-   * @param field Field
-   * @return Reflective PropertyAccessor
+   * @param field the field to create accessor for
+   * @return a reflective PropertyAccessor instance
    * @see Field#get(Object)
    * @see Field#set(Object, Object)
    * @see ReflectionUtils#getField(Field, Object)
@@ -221,10 +239,13 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
   }
 
   /**
-   * use java reflect {@link Field} tech
+   * Creates a PropertyAccessor using Java reflection {@link Field}
+   * technology with optional read and write methods.
    *
-   * @param field Field
-   * @return Reflective PropertyAccessor
+   * @param field the field to create accessor for
+   * @param readMethod optional getter method to use for reading the property value
+   * @param writeMethod optional setter method to use for writing the property value
+   * @return a reflective PropertyAccessor instance
    * @see Field#get(Object)
    * @see Field#set(Object, Object)
    * @see ReflectionUtils#getField(Field, Object)
