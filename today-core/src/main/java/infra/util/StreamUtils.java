@@ -349,7 +349,7 @@ public abstract class StreamUtils {
    * @see Throwable#addSuppressed(Throwable)
    * @since 5.0
    */
-  public static void closeQuietly(final AutoCloseable input) {
+  public static void closeQuietly(final @Nullable AutoCloseable input) {
     closeQuietly(input, null);
   }
 

@@ -20,8 +20,8 @@ package infra.web.client.config;
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.ssl.DefaultClientTlsStrategy;
 import org.apache.hc.client5.http.ssl.DefaultHostnameVerifier;
-import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.jspecify.annotations.Nullable;
 
@@ -31,6 +31,7 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 
 import infra.core.ssl.SslBundle;
@@ -175,9 +176,11 @@ public abstract class ClientHttpRequestFactories {
       }
       if (sslBundle != null) {
         SslOptions options = sslBundle.getOptions();
-        var socketFactory = new SSLConnectionSocketFactory(sslBundle.createSslContext(),
-                options.getEnabledProtocols(), options.getCiphers(), new DefaultHostnameVerifier());
-        connectionManagerBuilder.setSSLSocketFactory(socketFactory);
+        SSLContext sslContext = sslBundle.createSslContext();
+        DefaultClientTlsStrategy tlsStrategy = new DefaultClientTlsStrategy(sslContext,
+                options.getEnabledProtocols(), options.getCiphers(), null, new DefaultHostnameVerifier());
+
+        connectionManagerBuilder.setTlsSocketStrategy(tlsStrategy);
       }
 
       var connectionManager = connectionManagerBuilder.useSystemProperties().build();

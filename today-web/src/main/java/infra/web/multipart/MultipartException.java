@@ -19,7 +19,9 @@ package infra.web.multipart;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.core.NestedRuntimeException;
+import infra.http.HttpStatus;
+import infra.http.HttpStatusCode;
+import infra.web.ErrorResponseException;
 
 /**
  * Exception thrown when multipart resolution fails.
@@ -29,25 +31,37 @@ import infra.core.NestedRuntimeException;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0 2021/1/17 10:41
  */
-public class MultipartException extends NestedRuntimeException {
+public class MultipartException extends ErrorResponseException {
 
   /**
    * Constructor for MultipartException.
    *
-   * @param msg the detail message
+   * @param detail the detail message
    */
-  public MultipartException(@Nullable String msg) {
-    super(msg);
+  public MultipartException(@Nullable String detail) {
+    this(HttpStatus.BAD_REQUEST, detail, null);
   }
 
   /**
    * Constructor for MultipartException.
    *
-   * @param msg the detail message
+   * @param detail the detail message
    * @param cause the root cause from the multipart parsing API in use
    */
-  public MultipartException(@Nullable String msg, @Nullable Throwable cause) {
-    super(msg, cause);
+  public MultipartException(@Nullable String detail, @Nullable Throwable cause) {
+    this(HttpStatus.BAD_REQUEST, detail, cause);
+  }
+
+  /**
+   * Constructor with an {@link HttpStatusCode} and an optional cause.
+   *
+   * @param status the HTTP status code
+   * @param detail the detail message
+   * @param cause the root cause from the multipart parsing API in use
+   */
+  protected MultipartException(HttpStatusCode status, @Nullable String detail, @Nullable Throwable cause) {
+    super(status, cause);
+    setDetail(detail);
   }
 
 }

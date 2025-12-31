@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
 import infra.util.ReflectionUtils;
 
 /**
- * Fast call bean's getter Method {@link java.lang.reflect.Method Method}
+ * Fast invocation of bean's getter method {@link java.lang.reflect.Method Method}
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2020-08-13 19:46
@@ -33,17 +33,20 @@ import infra.util.ReflectionUtils;
 public interface GetterMethod {
 
   /**
-   * Get property from <code>obj</code>
+   * Get property value from the specified object
    *
-   * @param obj Target object
-   * @return Property
-   * @throws ReflectionException reflective
+   * @param obj Target object to get the property from
+   * @return Property value, may be null if the property doesn't exist or is null
+   * @throws ReflectionException when there's an error during reflection operation
    */
   @Nullable
   Object get(Object obj);
 
   /**
-   * @throws ReflectionException reflective
+   * Returns the underlying {@link Method} used for reading the property value.
+   *
+   * @return the read method, or {@code null} if not available
+   * @throws ReflectionException if there's an error accessing the method
    * @since 3.0
    */
   @Nullable
@@ -52,10 +55,10 @@ public interface GetterMethod {
   }
 
   /**
-   * new GetterMethod from java reflect property
-   * if the setter method not exist use Reflective tech
+   * Create a GetterMethod from a Java reflection field.
+   * If the getter method does not exist, use reflective technology.
    *
-   * @param field given java reflect property
+   * @param field given Java reflection field
    * @return GetterMethod
    */
   static GetterMethod forField(final Field field) {
@@ -67,9 +70,9 @@ public interface GetterMethod {
   }
 
   /**
-   * use fast invoke tech {@link MethodInvoker}
+   * Use fast invocation technology {@link MethodInvoker}
    *
-   * @param method java reflect {@link Method}
+   * @param method Java reflection {@link Method}
    * @return GetterMethod
    * @see MethodInvoker#forMethod(Method)
    */
@@ -79,7 +82,7 @@ public interface GetterMethod {
   }
 
   /**
-   * use fast invoke tech {@link MethodInvoker}
+   * Use fast invocation technology {@link MethodInvoker}
    *
    * @param invoker fast MethodInvoker
    * @return GetterMethod
@@ -90,7 +93,7 @@ public interface GetterMethod {
   }
 
   /**
-   * use java reflect {@link Field} tech
+   * Use Java reflection {@link Field} technology
    *
    * @param field Field
    * @return Reflective GetterMethod

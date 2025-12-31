@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import java.util.Map;
 
 import infra.mock.api.MockException;
 import infra.mock.api.MockRequestWrapper;
+import infra.web.multipart.Part;
 
 /**
  * Provides a convenient implementation of the HttpServletRequest interface that can be subclassed by developers wishing

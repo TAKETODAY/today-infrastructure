@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
 import infra.util.ReflectionUtils;
 
 /**
- * Fast call bean's setter Method {@link java.lang.reflect.Method Method}
+ * Fast invocation of bean's setter method {@link java.lang.reflect.Method Method}
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2020-08-14 00:29
@@ -33,19 +33,19 @@ import infra.util.ReflectionUtils;
 public interface SetterMethod {
 
   /**
-   * set property
-   * <p>
-   * If value is null and target property type is primitive this method will do
-   * nothing.
+   * Sets the property value.
    *
-   * @param obj Target obj
-   * @param value property value
-   * @throws ReflectionException If this property is read only
+   * @param obj the target object
+   * @param value the property value to set
+   * @throws ReflectionException if the property is read-only
    */
   void set(Object obj, @Nullable Object value);
 
   /**
-   * @throws ReflectionException If this property is read only
+   * Returns the write method for this property.
+   *
+   * @return the write method, or {@code null} if this property is read-only
+   * @throws ReflectionException if the property is read-only
    * @since 3.0
    */
   @Nullable
@@ -56,10 +56,10 @@ public interface SetterMethod {
   // static factory
 
   /**
-   * new SetterMethod from java reflect property
+   * Create a new SetterMethod from a Java reflection Field.
    *
-   * @param field given java reflect property
-   * @return SetterMethod
+   * @param field the given Java reflection Field
+   * @return a SetterMethod instance
    */
   static SetterMethod forField(final Field field) {
     final Method writeMethod = ReflectionUtils.getWriteMethod(field);
@@ -70,10 +70,10 @@ public interface SetterMethod {
   }
 
   /**
-   * use fast invoke tech {@link MethodInvoker}
+   * Create a SetterMethod using fast invocation technology {@link MethodInvoker}.
    *
-   * @param method java reflect {@link Method}
-   * @return SetterMethod
+   * @param method the Java reflection {@link Method}
+   * @return a SetterMethod instance
    * @see MethodInvoker#forMethod(Method)
    */
   static SetterMethod forMethod(final Method method) {
@@ -82,9 +82,9 @@ public interface SetterMethod {
   }
 
   /**
-   * use fast invoke tech {@link MethodInvoker}
+   * Uses fast invocation technology {@link MethodInvoker}
    *
-   * @param invoker fast MethodInvoker
+   * @param invoker Fast MethodInvoker
    * @return SetterMethod
    * @see MethodInvoker#forMethod(Method)
    */
@@ -93,7 +93,7 @@ public interface SetterMethod {
   }
 
   /**
-   * use java reflect {@link Field} tech
+   * Uses Java reflection {@link Field} technology
    *
    * @param field Field
    * @return Reflective SetterMethod

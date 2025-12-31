@@ -54,7 +54,7 @@ import infra.web.util.WebUtils;
  * @see ErrorProperties
  * @since 4.0
  */
-@Controller
+@RequestMapping
 public class BasicErrorController extends AbstractErrorController implements SendErrorHandler {
 
   private final ReturnValueHandlerManager returnValueHandler;

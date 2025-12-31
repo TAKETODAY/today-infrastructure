@@ -23,20 +23,21 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 import infra.http.DefaultHttpHeaders;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.util.FileCopyUtils;
-import infra.web.multipart.MultipartFile;
+import infra.web.multipart.Part;
 
 /**
- * Mock implementation of the {@link MultipartFile}
+ * Mock implementation of the {@link Part}
  * interface.
  *
  * @author Juergen Hoeller
@@ -45,7 +46,7 @@ import infra.web.multipart.MultipartFile;
  * @since 4.0 2022/3/2 17:04
  */
 @SuppressWarnings("serial")
-public class MockMultipartFile implements MultipartFile {
+public class MockMultipartFile implements Part {
 
   private final String name;
 
@@ -118,13 +119,23 @@ public class MockMultipartFile implements MultipartFile {
   }
 
   @Override
+  public String getContentAsString() {
+    return new String(content);
+  }
+
+  @Override
+  public boolean isInMemory() {
+    return true;
+  }
+
+  @Override
   public boolean isFormField() {
     return false;
   }
 
   @Override
   public boolean isFile() {
-    return false;
+    return true;
   }
 
   public void setHeaders(HttpHeaders headers) {
@@ -174,18 +185,8 @@ public class MockMultipartFile implements MultipartFile {
   }
 
   @Override
-  public String getContentAsString() throws IOException {
-    return "";
-  }
-
-  @Override
   public String getContentAsString(@Nullable Charset charset) throws IOException {
-    return "";
-  }
-
-  @Override
-  public boolean isInMemory() {
-    return true;
+    return new String(content, charset == null ? StandardCharsets.UTF_8 : charset);
   }
 
   @Override
@@ -202,19 +203,19 @@ public class MockMultipartFile implements MultipartFile {
     return getContentLength();
   }
 
-  @Override
   public long transferTo(Path dest) throws IOException, IllegalStateException {
-    return transferTo(dest.toFile());
+    try (var channel = FileChannel.open(dest, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
+      return transferTo(channel, 0, getContentLength());
+    }
   }
 
   @Override
   public long transferTo(FileChannel dest, long position) throws IOException {
-    return dest.write(ByteBuffer.wrap(content), position);
+    return dest.transferFrom(readableChannel(), position, getContentLength());
   }
 
-  @Override
   public long transferTo(FileChannel dest, long position, long count) throws IOException {
-    return dest.write(ByteBuffer.wrap(content, 0, Math.toIntExact(count)), position);
+    return dest.transferFrom(readableChannel(), position, count);
   }
 
 }

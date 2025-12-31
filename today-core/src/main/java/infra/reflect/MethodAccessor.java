@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,10 +20,20 @@ package infra.reflect;
 import java.lang.reflect.Method;
 
 /**
+ * Interface for accessing and invoking methods through reflection.
+ * <p>
+ * Provides a unified way to handle method invocation with additional capabilities.
+ *
  * @author TODAY
- * 2020/9/11 10:39
+ * @since 2020/9/11 10:39
  */
 public interface MethodAccessor extends Invoker, Accessor {
 
+  /**
+   * Returns the method object that this accessor is associated with.
+   *
+   * @return the method object
+   */
   Method getMethod();
+
 }

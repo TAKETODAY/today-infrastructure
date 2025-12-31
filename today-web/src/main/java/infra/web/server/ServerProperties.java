@@ -22,7 +22,9 @@ import org.jspecify.annotations.Nullable;
 import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.time.Duration;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import infra.context.properties.ConfigurationProperties;
@@ -30,12 +32,13 @@ import infra.context.properties.NestedConfigurationProperty;
 import infra.core.ApplicationTemp;
 import infra.core.ssl.SslBundles;
 import infra.util.DataSize;
+import infra.util.StringUtils;
 import infra.web.RequestContext;
+import infra.web.multipart.MultipartParser;
+import infra.web.multipart.parsing.DefaultMultipartParser;
 import infra.web.server.error.ErrorProperties;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.ServerSocketChannel;
-import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.logging.LogLevel;
 
 /**
@@ -73,14 +76,25 @@ public class ServerProperties {
   /**
    * Server HTTP port.
    */
-  @Nullable
-  public Integer port;
+  public @Nullable Integer port;
 
   /**
    * Network address to which the server should bind.
    */
-  @Nullable
-  public InetAddress address;
+  public @Nullable InetAddress address;
+
+  /**
+   * Whether to use virtual threads for the service executor.
+   * <p>
+   * When set to {@code true}, the server will use virtual threads instead of
+   * platform threads for handling requests. This can significantly improve
+   * scalability for I/O-intensive applications running on Java 21+.
+   * <p>
+   * Defaults to {@code false}, meaning platform threads are used by default.
+   *
+   * @since 5.0
+   */
+  public boolean useVirtualThreadServiceExecutor = false;
 
   @NestedConfigurationProperty
   public final EncodingProperties encoding = new EncodingProperties();
@@ -88,29 +102,27 @@ public class ServerProperties {
   @NestedConfigurationProperty
   public final ErrorProperties error = new ErrorProperties();
 
+  @NestedConfigurationProperty
+  public final Multipart multipart = new Multipart();
+
   /**
    * Strategy for handling X-Forwarded-* headers.
    */
-  @Nullable
-  public ForwardHeadersStrategy forwardHeadersStrategy;
+  public @Nullable ForwardHeadersStrategy forwardHeadersStrategy;
 
   /**
    * Type of shutdown that the server will support.
    */
-  @Nullable
-  public Shutdown shutdown = Shutdown.GRACEFUL;
+  public @Nullable Shutdown shutdown = Shutdown.GRACEFUL;
 
-  @Nullable
   @NestedConfigurationProperty
-  public Ssl ssl;
+  public @Nullable Ssl ssl;
 
-  @Nullable
   @NestedConfigurationProperty
-  public Compression compression;
+  public @Nullable Compression compression;
 
-  @Nullable
   @NestedConfigurationProperty
-  public Http2 http2;
+  public @Nullable Http2 http2;
 
   @NestedConfigurationProperty
   public final Netty netty = new Netty();
@@ -149,6 +161,94 @@ public class ServerProperties {
   }
 
   /**
+   * Properties to be used in configuring a {@link MultipartParser}.
+   *
+   * @see DefaultMultipartParser
+   * @since 5.0
+   */
+  public static class Multipart {
+
+    /**
+     * directory path where to store disk attributes and file uploads.
+     * If mixedMode is disabled and this property is not empty will be
+     * using disk mode
+     */
+    public @Nullable String tempBaseDir;
+
+    /**
+     * Subdirectory name where temporary files will be stored.
+     * This property is used together with baseDir to create the full path
+     * for storing uploaded files and temporary data.
+     *
+     * @see ApplicationTemp
+     */
+    public @Nullable String tempSubDir;
+
+    /**
+     * true if temporary files should be deleted with the JVM, false otherwise.
+     */
+    public boolean deleteOnExit; // false is a good default cause true leaks
+
+    /**
+     * Maximum number of fields allowed in a single multipart request.
+     * This limits the number of individual form fields that can be submitted
+     * to prevent excessive memory consumption from malformed or malicious requests.
+     */
+    public int maxFields = 128;
+
+    /**
+     * Default character set used for encoding multipart data.
+     * <p>
+     * This charset is used when decoding multipart form data when no specific
+     * charset is specified in the request. UTF-8 is recommended as it provides
+     * comprehensive Unicode support.
+     */
+    public Charset defaultCharset = StandardCharsets.UTF_8;
+
+    /**
+     * Threshold for field size in multipart requests.
+     * Fields larger than this threshold will be stored on disk rather than in memory.
+     */
+    public DataSize fieldSizeThreshold = DataSize.ofKilobytes(16); // 16kB
+
+    /**
+     * Buffer size used for parsing multipart data.
+     * <p>
+     * This setting determines the size of the internal buffer used when parsing
+     * multipart form data. Larger values may improve parsing performance for
+     * larger files but will consume more memory per request.
+     */
+    public DataSize parsingBufferSize = DataSize.ofKilobytes(4); // 4KB
+
+    /**
+     * Maximum size of the HTTP message header for multipart requests.
+     * <p>
+     * This setting controls the maximum amount of bytes that can be used
+     * for parsing HTTP headers in multipart form data. Headers exceeding
+     * this limit will cause the request to be rejected.
+     */
+    public DataSize maxHeaderSize = DataSize.ofBytes(512); // 512 B
+
+    public Path computeTempRepository(@Nullable ApplicationTemp applicationTemp) {
+      if (StringUtils.hasText(tempBaseDir)) {
+        if (StringUtils.hasText(tempSubDir)) {
+          return Path.of(tempBaseDir, tempSubDir);
+        }
+        else {
+          return Path.of(tempBaseDir);
+        }
+      }
+      else {
+        if (applicationTemp == null) {
+          applicationTemp = ApplicationTemp.instance;
+        }
+        return applicationTemp.getDir(Objects.requireNonNullElse(tempSubDir, "multipart"));
+      }
+    }
+
+  }
+
+  /**
    * Netty properties.
    */
   public static class Netty {
@@ -161,8 +261,7 @@ public class ServerProperties {
      *
      * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
      */
-    @Nullable
-    public Integer workerThreads;
+    public @Nullable Integer workerThreads;
 
     /**
      * the number of threads that will be used by
@@ -172,45 +271,48 @@ public class ServerProperties {
      *
      * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
      */
-    @Nullable
-    public Integer acceptorThreads;
+    public @Nullable Integer acceptorThreads;
 
     /**
      * The worker thread pool name
      *
      * @since 5.0
      */
-    @Nullable
-    public String workerPoolName;
+    public @Nullable String workerPoolName;
 
     /**
-     * The acceptor thread pool name @since 5.0
+     * The acceptor thread pool name
+     *
+     * @since 5.0
      */
-    @Nullable
-    public String acceptorPoolName;
+    public @Nullable String acceptorPoolName;
 
     /**
      * The SOMAXCONN value of the current machine. If failed to get the value, {@code 200} is used as a
      * default value for Windows and {@code 128} for others.
      */
-    @Nullable
-    public Integer maxConnection;
+    public @Nullable Integer maxConnection;
 
-    @Nullable
-    public Class<? extends ServerSocketChannel> socketChannel;
+    /**
+     * The ServerSocketChannel class to be used by the Netty server.
+     * <p>
+     * This allows customization of the underlying socket channel implementation
+     * that Netty will use for accepting incoming connections.
+     */
+    public @Nullable Class<? extends ServerSocketChannel> socketChannel;
 
     /**
      * Set netty LoggingHandler logging Level. If that loggingLevel
      * is null will not register logging handler
      */
-    @Nullable
-    public LogLevel loggingLevel;
+    public @Nullable LogLevel loggingLevel;
 
     /**
-     * the maximum length of the aggregated content.
-     * If the length of the aggregated content exceeds this value,
-     *
-     * @see HttpObjectAggregator#maxContentLength
+     * The maximum length of the request body content.
+     * <p>
+     * This setting controls the maximum amount of data that can be received
+     * in a single HTTP request body. Requests exceeding this limit will
+     * typically result in an error being returned to the client.
      */
     public DataSize maxContentLength = DataSize.ofMegabytes(100);
 
@@ -225,8 +327,12 @@ public class ServerProperties {
     public DataSize maxChunkSize = DataSize.ofBytes(8192);
 
     /**
-     * Set the initial size of the temporary buffer used when parsing the lines of the HTTP headers.
-     * (The buffer size in bytes.)
+     * Initial buffer size for HTTP request decoding.
+     * <p>
+     * This setting determines the initial capacity of the buffer used when
+     * decoding incoming HTTP requests. A larger buffer may improve performance
+     * for requests with large headers or bodies, while a smaller buffer may
+     * reduce memory usage for applications handling many concurrent requests.
      */
     public DataSize initialBufferSize = DataSize.ofBytes(128);
 
@@ -253,16 +359,6 @@ public class ServerProperties {
      * in order to prevent request-/response-splitting attacks.
      */
     public boolean validateHeaders = true;
-
-    /**
-     * If a 100-continue response is detected but the content
-     * length is too large then true means close the connection.
-     * otherwise the connection will remain open and data will be
-     * consumed and discarded until the next request is received.
-     *
-     * @see HttpObjectAggregator#closeOnExpectationFailed
-     */
-    public boolean closeOnExpectationFailed = false;
 
     /**
      * Set whether {@code Transfer-Encoding: Chunked} should be supported.
@@ -297,19 +393,40 @@ public class ServerProperties {
      * Defaults to {@code false}, meaning manual flushing is required via
      * {@link java.io.PrintWriter#flush()} or closing the writer.
      *
-     * @see java.io.PrintWriter
-     * @see RequestContext#getWriter()
+     * @since 5.0
      */
     public boolean writerAutoFlush = false;
+
+    /**
+     * The capacity of the queue used to store received data chunks.
+     * <p>
+     * This setting controls how many data chunks can be queued for processing
+     * before backpressure is applied to the data source. A larger queue can
+     * help smooth out bursts of data but will consume more memory.
+     *
+     * @since 5.0
+     */
+    public int dataReceivedQueueCapacity = 256;
+
+    /**
+     * Whether to read data automatically from the channel.
+     * <p>
+     * When set to {@code true}, the channel will automatically read data when available.
+     * When set to {@code false}, data will only be read when explicitly requested,
+     * allowing for more fine-grained control over the reading process and potentially
+     * enabling better flow control in high-throughput scenarios.
+     * <p>
+     * Defaults to {@code true}, meaning the channel will automatically read data.
+     *
+     * @since 5.0
+     */
+    public boolean autoRead = true;
 
     /**
      * shutdown details
      */
     @NestedConfigurationProperty
     public final Shutdown shutdown = new Shutdown();
-
-    @NestedConfigurationProperty
-    public final Multipart multipart = new Multipart();
 
     public static class Shutdown {
 
@@ -334,52 +451,6 @@ public class ServerProperties {
 
     }
 
-    /**
-     * Properties to be used in configuring a {@link DefaultHttpDataFactory}.
-     *
-     * @since 5.0
-     */
-    public static class Multipart {
-
-      /**
-       * directory path where to store disk attributes and file uploads.
-       * If mixedMode is disabled and this property is not empty will be
-       * using disk mode
-       */
-      @Nullable
-      public String baseDir;
-
-      /**
-       * true if temporary files should be deleted with the JVM, false otherwise.
-       */
-      public boolean deleteOnExit; // false is a good default cause true leaks
-
-      /**
-       * HttpData will be on Disk if the size of the file is greater than minSize, else it
-       * will be in memory. The type will be Mixed.
-       */
-      @Nullable
-      public DataSize fieldSizeThreshold = DataSize.ofKilobytes(16); // 16kB
-
-      /**
-       * Disk and memory mix mode
-       */
-      public boolean mixedMode = true;
-
-      /**
-       * charset
-       */
-      public Charset charset = StandardCharsets.UTF_8;
-
-      /**
-       * To set a max size limitation on fields. Exceeding it will generate an ErrorDataDecoderException.
-       * A value of -1 means no limitation (default).
-       */
-      @Nullable
-      public DataSize maxFieldSize = DataSize.ofGigabytes(1); // total size in every field
-
-    }
-
   }
 
   /**
@@ -390,8 +461,7 @@ public class ServerProperties {
     /**
      * Connection timeout of the Netty channel.
      */
-    @Nullable
-    public Duration connectionTimeout;
+    public @Nullable Duration connectionTimeout;
 
     /**
      * Maximum content length of an H2C upgrade request.
@@ -422,8 +492,7 @@ public class ServerProperties {
      * Maximum number of requests that can be made per connection. By default, a
      * connection serves unlimited number of requests.
      */
-    @Nullable
-    public Integer maxKeepAliveRequests;
+    public @Nullable Integer maxKeepAliveRequests;
 
     /**
      * Whether to validate headers when decoding requests.
@@ -434,8 +503,7 @@ public class ServerProperties {
      * Idle timeout of the Netty channel. When not specified, an infinite timeout is
      * used.
      */
-    @Nullable
-    public Duration idleTimeout;
+    public @Nullable Duration idleTimeout;
 
   }
 

@@ -17,10 +17,11 @@
 
 package infra.web.mock;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.util.Collection;
 
-import infra.http.ContentDisposition;
 import infra.http.HttpHeaders;
 import infra.mock.api.MockException;
 import infra.mock.api.http.HttpMockRequest;
@@ -28,9 +29,8 @@ import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.multipart.MultipartException;
 import infra.web.multipart.NotMultipartRequestException;
-import infra.web.multipart.MaxUploadSizeExceededException;
 import infra.web.multipart.Part;
-import infra.web.multipart.support.AbstractMultipartRequest;
+import infra.web.multipart.AbstractMultipartRequest;
 
 /**
  * For Servlet Multipart
@@ -70,29 +70,22 @@ public class MockMultipartRequest extends AbstractMultipartRequest {
 
   private MultiValueMap<String, Part> parseRequest(HttpMockRequest request) {
     try {
-      Collection<infra.mock.api.http.Part> parts = request.getParts();
+      Collection<Part> parts = request.getParts();
       LinkedMultiValueMap<String, Part> files = new LinkedMultiValueMap<>(parts.size());
 
-      for (infra.mock.api.http.Part part : parts) {
-        String headerValue = part.getHeader(HttpHeaders.CONTENT_DISPOSITION);
-        ContentDisposition disposition = ContentDisposition.parse(headerValue);
-        String filename = disposition.getFilename();
-        files.add(part.getName(), new MockMultipartFile(part, filename));
+      for (var part : parts) {
+        files.add(part.getName(), part);
       }
       return files;
     }
     catch (IOException e) {
-      throw new MultipartException("MultipartFile parsing failed.", e);
+      throw new MultipartException("Part parsing failed.", e);
     }
     catch (MockException e) {
       throw new NotMultipartRequestException("This is not a multipart request", e);
     }
     catch (Throwable ex) {
-      String msg = ex.getMessage();
-      if (msg != null && msg.contains("size") && msg.contains("exceed")) {
-        throw new MaxUploadSizeExceededException(-1, ex);
-      }
-      throw new MultipartException("Failed to parse multipart servlet request", ex);
+      throw new MultipartException("Failed to parse multipart request", ex);
     }
   }
 
@@ -102,9 +95,9 @@ public class MockMultipartRequest extends AbstractMultipartRequest {
   }
 
   @Override
-  public HttpHeaders getMultipartHeaders(String paramOrFileName) {
+  public @Nullable HttpHeaders getHeaders(String name) {
     try {
-      infra.mock.api.http.Part part = request.getPart(paramOrFileName);
+      var part = request.getPart(name);
       if (part != null) {
         HttpHeaders headers = HttpHeaders.forWritable();
         for (String headerName : part.getHeaderNames()) {

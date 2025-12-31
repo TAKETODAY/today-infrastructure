@@ -115,6 +115,7 @@ public abstract class GenerateAntoraYmlTask extends DefaultTask {
     return map;
   }
 
+  @SafeVarargs
   private static Map<String, Object> mergeMaps(Map<String, Object>... maps) {
     Map<String, Object> result = new LinkedHashMap<>();
     for (Map<String, Object> map : maps) {
@@ -169,6 +170,7 @@ public abstract class GenerateAntoraYmlTask extends DefaultTask {
     return result;
   }
 
+  @SuppressWarnings("unchecked")
   private Map<String, Object> loadBaseAntoraYmlFile() throws FileNotFoundException {
     RegularFile baseAntoraYmlRegularFile = getBaseAntoraYmlFile().getOrNull();
     File antoraYmlFile = baseAntoraYmlRegularFile == null ? null : baseAntoraYmlRegularFile.getAsFile();

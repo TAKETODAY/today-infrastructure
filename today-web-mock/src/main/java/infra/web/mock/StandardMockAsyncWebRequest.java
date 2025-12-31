@@ -43,6 +43,7 @@ import infra.web.async.WebAsyncManager;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@SuppressWarnings("NullAway")
 public class StandardMockAsyncWebRequest extends AsyncWebRequest implements AsyncListener {
 
   @Nullable

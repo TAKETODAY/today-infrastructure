@@ -30,8 +30,7 @@ import infra.context.ConfigurableApplicationContext;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public interface ConfigurableWebServerApplicationContext
-        extends ConfigurableApplicationContext, WebServerApplicationContext {
+public interface ConfigurableWebServerApplicationContext extends ConfigurableApplicationContext, WebServerApplicationContext {
 
   /**
    * Set the server namespace of the context.
