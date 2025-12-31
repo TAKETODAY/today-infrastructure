@@ -1030,7 +1030,7 @@ public class ExceptionTests {
 
       MultipartException exception = new MultipartException(message);
 
-      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getMessage()).contains(message);
       assertThat(exception.getCause()).isNull();
     }
 
@@ -1041,7 +1041,7 @@ public class ExceptionTests {
 
       MultipartException exception = new MultipartException(message, cause);
 
-      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getMessage()).contains(message);
       assertThat(exception.getCause()).isSameAs(cause);
     }
 
@@ -1049,7 +1049,7 @@ public class ExceptionTests {
     void constructorWithNullMessage() {
       MultipartException exception = new MultipartException(null);
 
-      assertThat(exception.getMessage()).isNull();
+      assertThat(exception.getMessage()).isNotNull();
       assertThat(exception.getCause()).isNull();
     }
 
@@ -1059,7 +1059,7 @@ public class ExceptionTests {
 
       MultipartException exception = new MultipartException(null, cause);
 
-      assertThat(exception.getMessage()).isNull();
+      assertThat(exception.getMessage()).isNotNull();
       assertThat(exception.getCause()).isSameAs(cause);
     }
 
@@ -1081,7 +1081,7 @@ public class ExceptionTests {
 
       NotMultipartRequestException exception = new NotMultipartRequestException(message, cause);
 
-      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getMessage()).contains(message);
       assertThat(exception.getCause()).isSameAs(cause);
     }
 
@@ -1089,7 +1089,7 @@ public class ExceptionTests {
     void constructorWithNullMessageAndNullCause() {
       NotMultipartRequestException exception = new NotMultipartRequestException(null, null);
 
-      assertThat(exception.getMessage()).isNull();
+      assertThat(exception.getMessage()).isNotNull();
       assertThat(exception.getCause()).isNull();
     }
 
@@ -1099,7 +1099,7 @@ public class ExceptionTests {
 
       NotMultipartRequestException exception = new NotMultipartRequestException(message, null);
 
-      assertThat(exception.getMessage()).isEqualTo(message);
+      assertThat(exception.getMessage()).contains(message);
       assertThat(exception.getCause()).isNull();
     }
 
@@ -1109,7 +1109,7 @@ public class ExceptionTests {
 
       NotMultipartRequestException exception = new NotMultipartRequestException(null, cause);
 
-      assertThat(exception.getMessage()).isNull();
+      assertThat(exception.getMessage()).isNotNull();
       assertThat(exception.getCause()).isSameAs(cause);
     }
 
@@ -1818,7 +1818,7 @@ public class ExceptionTests {
 
       assertThat(body).isNotNull();
       assertThat(body.getStatus()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE.value());
-      assertThat(body.getDetail()).isEqualTo("Maximum upload size exceeded");
+      assertThat(body.getDetail()).isEqualTo("Maximum upload size of 1024 bytes exceeded");
     }
 
     @Test

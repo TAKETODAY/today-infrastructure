@@ -20,8 +20,6 @@ package infra.web.multipart;
 import org.jspecify.annotations.Nullable;
 
 import infra.http.HttpStatus;
-import infra.http.HttpStatusCode;
-import infra.http.ProblemDetail;
 import infra.web.ErrorResponse;
 
 /**
@@ -33,9 +31,6 @@ import infra.web.ErrorResponse;
  * @since 4.0 2022/4/28 21:49
  */
 public class MaxUploadSizeExceededException extends MultipartException implements ErrorResponse {
-
-  private final ProblemDetail body =
-          ProblemDetail.forStatusAndDetail(HttpStatus.PAYLOAD_TOO_LARGE, "Maximum upload size exceeded");
 
   private final long maxUploadSize;
 
@@ -57,7 +52,7 @@ public class MaxUploadSizeExceededException extends MultipartException implement
    * @param ex root cause from multipart parsing API in use
    */
   public MaxUploadSizeExceededException(long maxUploadSize, @Nullable Throwable ex) {
-    super("Maximum upload size %sexceeded".formatted(maxUploadSize >= 0 ? "of %d bytes ".formatted(maxUploadSize) : ""), ex);
+    super(HttpStatus.PAYLOAD_TOO_LARGE, "Maximum upload size %sexceeded".formatted(maxUploadSize >= 0 ? "of %d bytes ".formatted(maxUploadSize) : ""), ex);
     this.maxUploadSize = maxUploadSize;
   }
 
@@ -67,16 +62,6 @@ public class MaxUploadSizeExceededException extends MultipartException implement
    */
   public long getMaxUploadSize() {
     return this.maxUploadSize;
-  }
-
-  @Override
-  public HttpStatusCode getStatusCode() {
-    return HttpStatus.PAYLOAD_TOO_LARGE;
-  }
-
-  @Override
-  public ProblemDetail getBody() {
-    return body;
   }
 
 }
