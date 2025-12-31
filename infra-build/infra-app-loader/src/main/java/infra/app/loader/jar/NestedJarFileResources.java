@@ -248,7 +248,9 @@ class NestedJarFileResources implements Runnable {
 
   private IOException addToExceptionChain(@Nullable IOException exceptionChain, IOException ex) {
     if (exceptionChain != null) {
-      exceptionChain.addSuppressed(ex);
+      if (exceptionChain != ex) {
+        exceptionChain.addSuppressed(ex);
+      }
       return exceptionChain;
     }
     return ex;
