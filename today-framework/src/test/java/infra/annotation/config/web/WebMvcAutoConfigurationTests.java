@@ -62,7 +62,7 @@ import infra.format.support.FormattingConversionService;
 import infra.http.CacheControl;
 import infra.http.HttpHeaders;
 import infra.http.converter.HttpMessageConverter;
-import infra.http.converter.HttpMessageConverters;
+import infra.web.config.HttpMessageConverters;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.test.util.ReflectionTestUtils;
 import infra.util.StringUtils;

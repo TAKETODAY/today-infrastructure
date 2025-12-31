@@ -28,12 +28,7 @@ import infra.core.annotation.AliasFor;
 import infra.http.HttpEntity;
 import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageConverter;
-import infra.session.Session;
 import infra.ui.Model;
-import infra.web.LocaleResolver;
-import infra.web.RequestToViewNameTranslator;
-import infra.web.handler.method.RequestMappingHandlerAdapter;
-import infra.web.view.View;
 
 /**
  * Annotation for handling exceptions in specific handler classes and/or
@@ -51,12 +46,12 @@ import infra.web.view.View;
  * exposed, whereas previously only an immediate cause was considered.
  * <li>Request and/or response objects You may choose any specific request
  * type, e.g. {@link infra.web.RequestContext}.
- * <li>Session object: typically {@link Session}.
+ * <li>Session object: typically {@link infra.session.Session}.
  * An argument of this type will enforce the presence of a corresponding session.
  * As a consequence, such an argument will never be {@code null}.
  * <i>Note that session access may not be thread-safe, in particular in a
  * Web environment: Consider switching the
- * {@link RequestMappingHandlerAdapter#setSynchronizeOnSession
+ * {@link infra.web.handler.method.RequestMappingHandlerAdapter#setSynchronizeOnSession
  * "synchronizeOnSession"} flag to "true" if multiple requests are allowed to
  * access a session concurrently.</i>
  *
@@ -66,7 +61,7 @@ import infra.web.view.View;
  *
  * <li>{@link java.util.Locale} for the current request locale
  * (determined by the most specific locale resolver available,
- * i.e. the configured {@link LocaleResolver} in a Web environment).
+ * i.e. the configured {@link infra.web.LocaleResolver} in a Web environment).
  * <li>{@link java.io.InputStream} / {@link java.io.Reader} for access
  * to the request's content. This will be the raw InputStream/Reader as
  * exposed by the Web API.
@@ -83,11 +78,11 @@ import infra.web.view.View;
  * <ul>
  * <li>A {@code ModelAndView} object (from Web MVC).
  * <li>A {@link Model} object, with the view name implicitly
- * determined through a {@link RequestToViewNameTranslator}.
+ * determined through a {@link infra.web.RequestToViewNameTranslator}.
  * <li>A {@link java.util.Map} object for exposing a model,
  * with the view name implicitly determined through a
- * {@link RequestToViewNameTranslator}.
- * <li>A {@link View} object.
+ * {@link infra.web.RequestToViewNameTranslator}.
+ * <li>A {@link infra.web.view.View} object.
  * <li>A {@link String} value which is interpreted as view name.
  * <li>{@link ResponseBody @ResponseBody} annotated methods
  * to set the response content. The return value will be converted to the
@@ -100,7 +95,7 @@ import infra.web.view.View;
  * <li>{@code void} if the method handles the response itself (by
  * writing the response content directly, declaring an argument of type
  * {@link infra.web.RequestContext} for that purpose) or if the
- * view name is supposed to be implicitly determined through a {@link RequestToViewNameTranslator}
+ * view name is supposed to be implicitly determined through a {@link infra.web.RequestToViewNameTranslator}
  * (not declaring a response argument in the handler method signature).
  * </ul>
  *

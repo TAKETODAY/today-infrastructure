@@ -1,15 +1,6 @@
 description = "Web infrastructure API"
 
-apply plugin: "infra.building.multiReleaseJar"
-
-multiRelease {
-  releaseVersions 21
-}
-
 configurations {
-  java21Api.extendsFrom(api)
-  java21Implementation.extendsFrom(implementation)
-
   testFixturesAnnotationProcessor.extendsFrom(dependencyManagement)
 }
 

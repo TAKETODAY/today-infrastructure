@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ import infra.context.annotation.config.AutoConfigurations;
 import infra.core.ssl.SslBundles;
 import infra.http.codec.CodecCustomizer;
 import infra.http.converter.HttpMessageConverter;
-import infra.http.converter.HttpMessageConverters;
+import infra.web.config.HttpMessageConverters;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.test.util.ReflectionTestUtils;
 import infra.web.client.RestClient;

@@ -41,7 +41,7 @@ import infra.web.bind.annotation.ModelAttribute;
  *
  * <ul>
  *     <li>Return types annotated with {@link ResponseBody}</li>
- *     <li>Parameters annotated with {@link RequestBody}, {@link ModelAttribute} and {@link RequestPart}</li>
+ *     <li>Parameters annotated with {@link RequestBody}, {@link infra.web.bind.annotation.ModelAttribute} and {@link RequestPart}</li>
  *     <li>{@link HttpEntity} return types and parameters</li>
  * </ul>
  *

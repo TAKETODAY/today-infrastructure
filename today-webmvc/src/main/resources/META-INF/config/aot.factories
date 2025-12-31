@@ -1,0 +1,5 @@
+infra.aot.hint.RuntimeHintsRegistrar= \
+infra.web.util.WebUtilRuntimeHints
+
+infra.beans.factory.aot.BeanRegistrationAotProcessor=\
+infra.web.service.annotation.HttpExchangeBeanRegistrationAotProcessor

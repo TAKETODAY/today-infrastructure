@@ -40,7 +40,6 @@ import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
-import infra.web.RequestContextHolder;
 import infra.web.util.HierarchicalUriComponents.PathComponent;
 import infra.web.util.UriComponents.UriTemplateVariables;
 
@@ -231,11 +230,6 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
    */
   public static UriComponentsBuilder forHttpRequest(HttpRequest request) {
     return ForwardedHeaderUtils.adaptFromForwardedHeaders(request.getURI(), request.getHeaders());
-  }
-
-  @SuppressWarnings("NullAway")
-  public static UriComponentsBuilder forCurrentRequest() {
-    return forHttpRequest(RequestContextHolder.get());
   }
 
   /**

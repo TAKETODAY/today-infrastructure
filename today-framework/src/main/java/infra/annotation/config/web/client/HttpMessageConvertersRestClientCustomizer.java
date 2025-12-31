@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import infra.http.converter.HttpMessageConverter;
-import infra.http.converter.HttpMessageConverters;
+import infra.web.config.HttpMessageConverters;
 import infra.lang.Assert;
 import infra.web.client.RestClient;
 import infra.web.client.config.RestClientCustomizer;

@@ -36,7 +36,7 @@ import infra.validation.BindingResult;
 import infra.validation.MapBindingResult;
 import infra.validation.ObjectError;
 import infra.web.RequestContext;
-import infra.web.ResponseStatusException;
+import infra.web.server.ResponseStatusException;
 import infra.web.bind.MethodArgumentNotValidException;
 import infra.web.mock.MockRequestContext;
 import infra.web.server.error.ErrorAttributeOptions.Include;

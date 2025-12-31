@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.context.annotation;
@@ -31,7 +28,6 @@ import infra.context.annotation.Scope;
 import infra.context.annotation.ScopedProxyMode;
 import infra.core.annotation.AliasFor;
 import infra.stereotype.Component;
-import infra.web.RequestContext;
 
 /**
  * {@code @SessionScope} is a specialization of {@link Scope @Scope} for a
@@ -44,7 +40,6 @@ import infra.web.RequestContext;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see RequestScope
  * @see Scope
- * @see RequestContext#SCOPE_SESSION
  * @see Component
  * @see infra.web.context.support.SessionScope
  * @see Bean
@@ -53,8 +48,14 @@ import infra.web.RequestContext;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
-@Scope(RequestContext.SCOPE_SESSION)
+@Scope(SessionScope.NAME)
 public @interface SessionScope {
+
+  /**
+   * Scope identifier for session scope: "session".
+   * Supported in addition to the standard scopes "singleton" and "prototype".
+   */
+  String NAME = "session";
 
   /**
    * Alias for {@link Scope#proxyMode}.

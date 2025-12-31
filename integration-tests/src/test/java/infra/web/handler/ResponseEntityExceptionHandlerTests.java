@@ -53,7 +53,7 @@ import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.HttpRequestMethodNotSupportedException;
 import infra.web.RequestContext;
-import infra.web.ResponseStatusException;
+import infra.web.server.ResponseStatusException;
 import infra.web.annotation.ControllerAdvice;
 import infra.web.annotation.ExceptionHandler;
 import infra.web.annotation.RequestMapping;

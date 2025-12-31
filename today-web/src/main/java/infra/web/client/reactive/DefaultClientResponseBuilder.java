@@ -155,7 +155,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
       this.headers.addAll(other.headers().asHttpHeaders());
     }
     this.originalResponse = other;
-    this.request = (other instanceof DefaultClientResponse defaultClientResponse ?
+    this.request = (other instanceof infra.web.client.reactive.DefaultClientResponse defaultClientResponse ?
             defaultClientResponse.request() : EMPTY_REQUEST);
   }
 

@@ -21,7 +21,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-import infra.http.converter.HttpMessageConverters;
+import infra.web.config.HttpMessageConverters;
 import infra.util.CollectionUtils;
 import infra.web.client.config.RestTemplateBuilder;
 import infra.web.client.config.RestTemplateCustomizer;

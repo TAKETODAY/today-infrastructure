@@ -48,11 +48,11 @@ import infra.util.CollectionUtils;
 import infra.util.MapCache;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
-import infra.web.HandlerWrapper;
 import infra.web.annotation.ResponseBody;
 import infra.web.annotation.ResponseStatus;
 import infra.web.cors.CorsConfiguration;
 import infra.web.handler.AsyncHandler;
+import infra.web.handler.HandlerWrapper;
 import infra.web.handler.result.CollectedValuesList;
 
 /**

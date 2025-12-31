@@ -20,7 +20,7 @@ package infra.web.accept;
 import org.jspecify.annotations.Nullable;
 
 import infra.http.HttpStatus;
-import infra.web.ResponseStatusException;
+import infra.web.server.ResponseStatusException;
 
 /**
  * Exception raised when an API version cannot be parsed, or is not in the

@@ -29,7 +29,7 @@ import infra.beans.support.BeanInstantiator;
 import infra.core.MethodParameter;
 import infra.core.annotation.SynthesizingMethodParameter;
 import infra.mock.web.MockContextImpl;
-import infra.web.InternalServerException;
+import infra.web.server.InternalServerException;
 import infra.web.MockMethodParameter;
 import infra.web.handler.method.ModelAttributeMethodProcessor;
 import infra.web.handler.method.ResolvableMethodParameter;

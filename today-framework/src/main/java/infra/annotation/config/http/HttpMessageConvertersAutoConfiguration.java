@@ -40,7 +40,7 @@ import infra.context.condition.NoneNestedConditions;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.context.properties.bind.BindableRuntimeHintsRegistrar;
 import infra.http.converter.HttpMessageConverter;
-import infra.http.converter.HttpMessageConverters;
+import infra.web.config.HttpMessageConverters;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.Jackson2ObjectMapperBuilder;
 import infra.http.converter.json.MappingJackson2HttpMessageConverter;
