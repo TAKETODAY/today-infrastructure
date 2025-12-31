@@ -31,6 +31,7 @@ import java.util.Map;
 import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.annotation.config.freemarker.FreeMarkerAutoConfiguration;
 import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
+import infra.annotation.config.task.TaskExecutionAutoConfiguration;
 import infra.annotation.config.web.ErrorMvcAutoConfiguration;
 import infra.annotation.config.web.RandomPortWebServerConfig;
 import infra.annotation.config.web.WebMvcAutoConfiguration;
@@ -359,7 +360,7 @@ class BasicErrorControllerIntegrationTests {
   @Retention(RetentionPolicy.RUNTIME)
   @Documented
   @ImportAutoConfiguration({
-          RandomPortWebServerConfig.class,
+          RandomPortWebServerConfig.class, TaskExecutionAutoConfiguration.class,
           WebMvcAutoConfiguration.class, HttpMessageConvertersAutoConfiguration.class,
           ErrorMvcAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class })
   private @interface MinimalWebConfiguration {

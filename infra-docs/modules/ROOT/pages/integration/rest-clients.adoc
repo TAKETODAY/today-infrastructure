@@ -866,8 +866,8 @@ an individual value. Type conversion is supported for non-String values.
 Object (entity to be encoded, e.g. as JSON), `HttpEntity` (part content and headers),
 a Infra `Part`, or Reactive Streams `Publisher` of any of the above.
 
-| `MultipartFile`
-| Add a request part from a `MultipartFile`, typically used in a Web MVC controller
+| `Part`
+| Add a request part from a `Part`, typically used in a Web MVC controller
 where it represents an uploaded file.
 
 | `@CookieValue`

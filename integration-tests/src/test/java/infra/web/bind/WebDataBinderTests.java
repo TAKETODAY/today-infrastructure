@@ -47,8 +47,8 @@ import infra.web.bind.support.BindParamNameResolver;
 import infra.web.mock.MockMultipartMockRequestContext;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.bind.MockRequestParameterPropertyValues;
-import infra.web.multipart.MultipartFile;
-import infra.web.multipart.support.StringMultipartFileEditor;
+import infra.web.multipart.Part;
+import infra.web.multipart.support.StringPartEditor;
 import infra.web.testfixture.MockMultipartFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -286,10 +286,10 @@ class WebDataBinderTests {
   public void testMultipartFileAsString() {
     TestBean target = new TestBean();
     WebDataBinder binder = new WebDataBinder(target);
-    binder.registerCustomEditor(String.class, new StringMultipartFileEditor());
+    binder.registerCustomEditor(String.class, new StringPartEditor());
 
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
-    request.addFile(new MockMultipartFile("name", "Juergen".getBytes()));
+    request.addPart(new MockMultipartFile("name", "Juergen".getBytes()));
     binder.bind(new MockMultipartMockRequestContext(request, null));
     assertThat(target.getName()).isEqualTo("Juergen");
   }
@@ -298,10 +298,10 @@ class WebDataBinderTests {
   public void testMultipartFileAsStringArray() {
     TestBean target = new TestBean();
     WebDataBinder binder = new WebDataBinder(target);
-    binder.registerCustomEditor(String.class, new StringMultipartFileEditor());
+    binder.registerCustomEditor(String.class, new StringPartEditor());
 
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
-    request.addFile(new MockMultipartFile("stringArray", "Juergen".getBytes()));
+    request.addPart(new MockMultipartFile("stringArray", "Juergen".getBytes()));
     binder.bind(new MockMultipartMockRequestContext(request, null));
     assertThat(target.getStringArray().length).isEqualTo(1);
     assertThat(target.getStringArray()[0]).isEqualTo("Juergen");
@@ -311,11 +311,11 @@ class WebDataBinderTests {
   public void testMultipartFilesAsStringArray() {
     TestBean target = new TestBean();
     WebDataBinder binder = new WebDataBinder(target);
-    binder.registerCustomEditor(String.class, new StringMultipartFileEditor());
+    binder.registerCustomEditor(String.class, new StringPartEditor());
 
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
-    request.addFile(new MockMultipartFile("stringArray", "Juergen".getBytes()));
-    request.addFile(new MockMultipartFile("stringArray", "Eva".getBytes()));
+    request.addPart(new MockMultipartFile("stringArray", "Juergen".getBytes()));
+    request.addPart(new MockMultipartFile("stringArray", "Eva".getBytes()));
     binder.bind(new MockMultipartMockRequestContext(request, null));
     assertThat(target.getStringArray().length).isEqualTo(2);
     assertThat(target.getStringArray()[0]).isEqualTo("Juergen");
@@ -724,7 +724,7 @@ class WebDataBinderTests {
     WebDataBinder binder = new WebDataBinder(new TestBean());
 
     MockMultipartFile file = new MockMultipartFile("file", "test.txt", "text/plain", "content".getBytes());
-    Map<String, List<MultipartFile>> multipartFiles = Map.of("file", List.of(file));
+    Map<String, List<Part>> multipartFiles = Map.of("file", List.of(file));
 
     PropertyValues values = new PropertyValues();
     binder.bindMultipart(multipartFiles, values);
@@ -739,7 +739,7 @@ class WebDataBinderTests {
 
     MockMultipartFile file1 = new MockMultipartFile("files", "test1.txt", "text/plain", "content1".getBytes());
     MockMultipartFile file2 = new MockMultipartFile("files", "test2.txt", "text/plain", "content2".getBytes());
-    Map<String, List<MultipartFile>> multipartFiles = Map.of("files", List.of(file1, file2));
+    Map<String, List<Part>> multipartFiles = Map.of("files", List.of(file1, file2));
 
     PropertyValues values = new PropertyValues();
     binder.bindMultipart(multipartFiles, values);
@@ -754,7 +754,7 @@ class WebDataBinderTests {
     binder.setBindEmptyMultipartFiles(false);
 
     MockMultipartFile emptyFile = new MockMultipartFile("file", "empty.txt", "text/plain", new byte[0]);
-    Map<String, List<MultipartFile>> multipartFiles = Map.of("file", List.of(emptyFile));
+    Map<String, List<Part>> multipartFiles = Map.of("file", List.of(emptyFile));
 
     PropertyValues values = new PropertyValues();
     binder.bindMultipart(multipartFiles, values);

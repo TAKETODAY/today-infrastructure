@@ -44,6 +44,7 @@ import infra.web.handler.ReturnValueHandlerNotFoundException;
 import infra.web.handler.SimpleNotFoundHandler;
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import infra.web.handler.result.AsyncReturnValueHandler;
+import infra.web.server.RequestContinueExpectedResolver;
 import infra.web.util.WebUtils;
 
 /**
@@ -55,6 +56,8 @@ import infra.web.util.WebUtils;
 public class DispatcherHandler extends InfraHandler {
 
   private final ArrayList<RequestCompletedListener> requestCompletedActions = new ArrayList<>();
+
+  private final ArrayList<RequestContinueExpectedResolver> requestContinueExpectedResolvers = new ArrayList<>();
 
   /** Action mapping registry */
   private HandlerMapping handlerMapping;
@@ -251,6 +254,7 @@ public class DispatcherHandler extends InfraHandler {
     initNotFoundHandler(context);
     initWebAsyncManagerFactory(context);
     initRequestCompletedListeners(context);
+    initRequestContinueExpectedResolvers(context);
   }
 
   /**
@@ -358,6 +362,23 @@ public class DispatcherHandler extends InfraHandler {
     AnnotationAwareOrderComparator.sort(handlers);
 
     addRequestCompletedActions(handlers);
+  }
+
+  /**
+   * Initialize the RequestContinueExpectedResolvers used by this class.
+   * <p>Collects all RequestContinueExpectedResolver beans from the application context
+   * and sorts them according to their order.
+   *
+   * @param context the ApplicationContext to search for resolvers
+   * @see RequestContinueExpectedResolver
+   */
+  private void initRequestContinueExpectedResolvers(ApplicationContext context) {
+    var matchingBeans = BeanFactoryUtils.beansOfTypeIncludingAncestors(
+            context, RequestContinueExpectedResolver.class, true, false);
+
+    requestContinueExpectedResolvers.addAll(matchingBeans.values());
+    AnnotationAwareOrderComparator.sort(requestContinueExpectedResolvers);
+    requestContinueExpectedResolvers.trimToSize();
   }
 
   // ------------------------------------------------------------------------
@@ -616,6 +637,24 @@ public class DispatcherHandler extends InfraHandler {
       }
     }
     request.requestCompleted(null);
+  }
+
+  /**
+   * Determine whether the request expects a 100 Continue response.
+   *
+   * @param request current request
+   * @return {@code true} if the request expects a 100 Continue response,
+   * {@code false} if it does not, or {@code null} if uncertain
+   * @since 5.0
+   */
+  public @Nullable Boolean requestContinueExpected(RequestContext request) {
+    for (RequestContinueExpectedResolver resolver : requestContinueExpectedResolvers) {
+      Boolean resolved = resolver.shouldContinue(request);
+      if (resolved != null) {
+        return resolved;
+      }
+    }
+    return null;
   }
 
   // @since 4.0

@@ -27,7 +27,6 @@ import infra.util.StringUtils;
 import infra.web.RequestContext;
 import infra.web.annotation.RequestParam;
 import infra.web.handler.method.ResolvableMethodParameter;
-import infra.web.multipart.MultipartFile;
 import infra.web.multipart.MultipartRequest;
 import infra.web.multipart.Part;
 
@@ -37,7 +36,7 @@ import infra.web.multipart.Part;
  *
  * <p>The created {@link Map} contains all request parameter name/value pairs,
  * or all multipart files for a given parameter name if specifically declared
- * with {@link MultipartFile} as the value type. If the method parameter type is
+ * with {@link Part} as the value type. If the method parameter type is
  * {@link MultiValueMap} instead, the created map contains all request parameters
  * and all their values for cases where request parameters have multiple values
  * (or multiple multipart files of the same name).
@@ -48,7 +47,6 @@ import infra.web.multipart.Part;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see RequestParamMethodArgumentResolver
  * @see RequestContext#getParameters()
- * @see MultipartRequest#getFiles()
  * @see MultipartRequest#getParts()
  * @since 4.0 2022/4/28 15:26
  */
@@ -72,10 +70,7 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
     if (MultiValueMap.class.isAssignableFrom(resolvable.getParameterType())) {
       // MultiValueMap
       Class<?> valueType = resolvableType.as(MultiValueMap.class).getGeneric(1).resolve();
-      if (valueType == MultipartFile.class) {
-        return context.asMultipartRequest().getFiles();
-      }
-      else if (valueType == Part.class) {
+      if (valueType == Part.class) {
         return context.asMultipartRequest().getParts();
       }
       else {
@@ -86,10 +81,7 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
     else {
       // Regular Map
       Class<?> valueType = resolvableType.asMap().getGeneric(1).resolve();
-      if (valueType == MultipartFile.class) {
-        return context.asMultipartRequest().getFiles().toSingleValueMap();
-      }
-      else if (valueType == Part.class) {
+      if (valueType == Part.class) {
         return context.asMultipartRequest().getParts().toSingleValueMap();
       }
       else {

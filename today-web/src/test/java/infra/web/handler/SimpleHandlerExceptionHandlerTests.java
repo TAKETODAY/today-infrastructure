@@ -50,7 +50,7 @@ import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.RequestBindingException;
 import infra.web.bind.resolver.MissingRequestPartException;
 import infra.web.mock.MockRequestContext;
-import infra.web.multipart.MaxUploadSizeExceededException;
+import infra.web.multipart.MultipartException;
 import infra.web.view.ModelAndView;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -218,12 +218,12 @@ class SimpleHandlerExceptionHandlerTests {
   }
 
   @Test
-  void handleMaxUploadSizeExceededException() throws Exception {
-    MaxUploadSizeExceededException ex = new MaxUploadSizeExceededException(1000);
+  void handleMultipartException() throws Exception {
+    MultipartException ex = new MultipartException("Maximum upload size exceeded");
     Object mav = exceptionResolver.handleException(context, ex, null);
     assertThat(mav).as("No ModelAndView returned").isNotNull().isEqualTo(HandlerExceptionHandler.NONE_RETURN_VALUE);
-    assertThat(response.getStatus()).as("Invalid status code").isEqualTo(413);
-    assertThat(response.getErrorMessage()).isEqualTo("Maximum upload size of 1000 bytes exceeded");
+    assertThat(response.getStatus()).as("Invalid status code").isEqualTo(400);
+    assertThat(response.getErrorMessage()).isEqualTo("Maximum upload size exceeded");
   }
 
   @Test

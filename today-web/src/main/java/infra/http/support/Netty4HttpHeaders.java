@@ -49,8 +49,7 @@ public final class Netty4HttpHeaders extends infra.http.HttpHeaders {
   }
 
   @Override
-  @Nullable
-  public String getFirst(String name) {
+  public @Nullable String getFirst(String name) {
     return this.headers.get(name);
   }
 

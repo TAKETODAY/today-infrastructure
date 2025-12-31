@@ -42,15 +42,14 @@ import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.WebDataBinder;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.handler.method.support.UriComponentsContributor;
-import infra.web.multipart.MultipartException;
-import infra.web.multipart.MultipartFile;
 import infra.web.multipart.MultipartRequest;
+import infra.web.multipart.NotMultipartRequestException;
 import infra.web.multipart.Part;
 import infra.web.util.UriComponentsBuilder;
 
 /**
  * Resolves method arguments annotated with @{@link RequestParam}, arguments of
- * type {@link MultipartFile} in conjunction with {@link MultipartRequest}
+ * type {@link Part} in conjunction with {@link MultipartRequest}
  * abstraction. This resolver can also be created in default
  * resolution mode in which simple types (int, long, etc.) not annotated with
  * {@link RequestParam @RequestParam} are also treated as request parameters with
@@ -114,8 +113,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
    * <li>@RequestParam-annotated method arguments.
    * This excludes {@link Map} params where the annotation does not specify a name.
    * See {@link RequestParamMapMethodArgumentResolver} instead for such params.
-   * <li>Arguments of type {@link MultipartFile} unless annotated with @{@link RequestPart}.
-   * <li>Arguments of type {@code Part} unless annotated with @{@link RequestPart}.
+   * <li>Arguments of type {@link Part} unless annotated with @{@link RequestPart}.
    * <li>In default resolution mode, simple type arguments even if not with @{@link RequestParam}.
    * </ul>
    */
@@ -203,7 +201,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
 
     if (MultipartResolutionDelegate.isMultipartArgument(parameter)) {
       if (!request.isMultipart()) {
-        throw new MultipartException("Current request is not a multipart request");
+        throw new NotMultipartRequestException("Current request is not a multipart request", null);
       }
       else {
         throw new MissingRequestPartException(name);

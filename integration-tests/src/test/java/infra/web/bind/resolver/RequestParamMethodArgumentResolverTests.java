@@ -35,12 +35,12 @@ import infra.web.ResolvableMethod;
 import infra.web.annotation.RequestParam;
 import infra.web.annotation.RequestPart;
 import infra.web.bind.MissingRequestParameterException;
-import infra.web.multipart.MultipartException;
 import infra.web.bind.WebDataBinder;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.mock.MockRequestContext;
-import infra.web.multipart.MultipartFile;
+import infra.web.multipart.MultipartException;
+import infra.web.multipart.Part;
 import infra.web.testfixture.MockMultipartFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,13 +77,13 @@ class RequestParamMethodArgumentResolverTests {
     param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().name("name")).arg(Map.class);
     assertThat(resolver.supportsParameter(param)).isTrue();
 
-    param = this.testMethod.annotPresent(RequestParam.class).isNotNullable().arg(MultipartFile.class);
+    param = this.testMethod.annotPresent(RequestParam.class).isNotNullable().arg(Part.class);
     assertThat(resolver.supportsParameter(param)).isTrue();
 
-    param = this.testMethod.annotPresent(RequestParam.class).arg(List.class, MultipartFile.class);
+    param = this.testMethod.annotPresent(RequestParam.class).arg(List.class, Part.class);
     assertThat(resolver.supportsParameter(param)).isTrue();
 
-    param = this.testMethod.annotPresent(RequestParam.class).arg(MultipartFile[].class);
+    param = this.testMethod.annotPresent(RequestParam.class).arg(Part[].class);
     assertThat(resolver.supportsParameter(param)).isTrue();
 
     param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().noName()).arg(Map.class);
@@ -92,13 +92,13 @@ class RequestParamMethodArgumentResolverTests {
     param = this.testMethod.annotNotPresent(RequestParam.class).arg(String.class);
     assertThat(resolver.supportsParameter(param)).isTrue();
 
-    param = this.testMethod.annotNotPresent().arg(MultipartFile.class);
+    param = this.testMethod.annotNotPresent().arg(Part.class);
     assertThat(resolver.supportsParameter(param)).isTrue();
 
-    param = this.testMethod.annotNotPresent(RequestParam.class).arg(List.class, MultipartFile.class);
+    param = this.testMethod.annotNotPresent(RequestParam.class).arg(List.class, Part.class);
     assertThat(resolver.supportsParameter(param)).isTrue();
 
-    param = this.testMethod.annot(MvcAnnotationPredicates.requestPart()).arg(MultipartFile.class);
+    param = this.testMethod.annot(MvcAnnotationPredicates.requestPart()).arg(Part.class);
     assertThat(resolver.supportsParameter(param)).isFalse();
 
     param = this.testMethod.annot(MvcAnnotationPredicates.requestParam()).arg(String.class);
@@ -110,7 +110,7 @@ class RequestParamMethodArgumentResolverTests {
     param = this.testMethod.annotPresent(RequestParam.class).isNullable().arg(Integer.class);
     assertThat(resolver.supportsParameter(param)).isTrue();
 
-    param = this.testMethod.annotPresent(RequestParam.class).isNullable().arg(MultipartFile.class);
+    param = this.testMethod.annotPresent(RequestParam.class).isNullable().arg(Part.class);
     assertThat(resolver.supportsParameter(param)).isTrue();
 
     resolver = new RequestParamMethodArgumentResolver(null, false);
@@ -118,7 +118,7 @@ class RequestParamMethodArgumentResolverTests {
     param = this.testMethod.annotNotPresent(RequestParam.class).arg(String.class);
     assertThat(resolver.supportsParameter(param)).isFalse();
 
-    param = this.testMethod.annotPresent(RequestPart.class).arg(MultipartFile.class);
+    param = this.testMethod.annotPresent(RequestPart.class).arg(Part.class);
     assertThat(resolver.supportsParameter(param)).isFalse();
   }
 
@@ -160,15 +160,15 @@ class RequestParamMethodArgumentResolverTests {
   @Test
   public void resolveMultipartFile() throws Throwable {
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
-    MultipartFile expected = new MockMultipartFile("mfile", "Hello World".getBytes());
-    request.addFile(expected);
+    Part expected = new MockMultipartFile("mfile", "Hello World".getBytes());
+    request.addPart(expected);
     webRequest = new MockRequestContext(null, request, null);
     webRequest.setBinding(new BindingContext());
 
     ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class)
-            .isNotNullable().arg(MultipartFile.class);
+            .isNotNullable().arg(Part.class);
     Object result = resolver.resolveArgument(webRequest, param);
-    boolean condition = result instanceof MultipartFile;
+    boolean condition = result instanceof Part;
     assertThat(condition).isTrue();
     assertThat(result).as("Invalid result").isEqualTo(expected);
   }
@@ -176,15 +176,15 @@ class RequestParamMethodArgumentResolverTests {
   @Test
   public void resolveMultipartFileList() throws Throwable {
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
-    MultipartFile expected1 = new MockMultipartFile("mfilelist", "Hello World 1".getBytes());
-    MultipartFile expected2 = new MockMultipartFile("mfilelist", "Hello World 2".getBytes());
-    request.addFile(expected1);
-    request.addFile(expected2);
-    request.addFile(new MockMultipartFile("other", "Hello World 3".getBytes()));
+    Part expected1 = new MockMultipartFile("mfilelist", "Hello World 1".getBytes());
+    Part expected2 = new MockMultipartFile("mfilelist", "Hello World 2".getBytes());
+    request.addPart(expected1);
+    request.addPart(expected2);
+    request.addPart(new MockMultipartFile("other", "Hello World 3".getBytes()));
     webRequest = new MockRequestContext(null, request, null);
     webRequest.setBinding(new BindingContext());
 
-    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(List.class, MultipartFile.class);
+    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(List.class, Part.class);
     Object result = resolver.resolveArgument(webRequest, param);
 
     boolean condition = result instanceof List;
@@ -195,11 +195,11 @@ class RequestParamMethodArgumentResolverTests {
   @Test
   public void resolveMultipartFileListMissing() throws Throwable {
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
-    request.addFile(new MockMultipartFile("other", "Hello World 3".getBytes()));
+    request.addPart(new MockMultipartFile("other", "Hello World 3".getBytes()));
     webRequest = new MockRequestContext(null, request, null);
     webRequest.setBinding(new BindingContext());
 
-    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(List.class, MultipartFile.class);
+    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(List.class, Part.class);
     assertThatExceptionOfType(MissingRequestPartException.class).isThrownBy(() ->
             resolver.resolveArgument(webRequest, param));
   }
@@ -207,20 +207,20 @@ class RequestParamMethodArgumentResolverTests {
   @Test
   public void resolveMultipartFileArray() throws Throwable {
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
-    MultipartFile expected1 = new MockMultipartFile("mfilearray", "Hello World 1".getBytes());
-    MultipartFile expected2 = new MockMultipartFile("mfilearray", "Hello World 2".getBytes());
-    request.addFile(expected1);
-    request.addFile(expected2);
-    request.addFile(new MockMultipartFile("other", "Hello World 3".getBytes()));
+    Part expected1 = new MockMultipartFile("mfilearray", "Hello World 1".getBytes());
+    Part expected2 = new MockMultipartFile("mfilearray", "Hello World 2".getBytes());
+    request.addPart(expected1);
+    request.addPart(expected2);
+    request.addPart(new MockMultipartFile("other", "Hello World 3".getBytes()));
     MockRequestContext webRequest = new MockRequestContext(null, request, null);
     webRequest.setBinding(new BindingContext());
 
-    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(MultipartFile[].class);
+    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(Part[].class);
     Object result = resolver.resolveArgument(webRequest, param);
 
-    boolean condition = result instanceof MultipartFile[];
+    boolean condition = result instanceof Part[];
     assertThat(condition).isTrue();
-    MultipartFile[] parts = (MultipartFile[]) result;
+    Part[] parts = (Part[]) result;
     assertThat(parts.length).isEqualTo(2);
     assertThat(expected1).isEqualTo(parts[0]);
     assertThat(expected2).isEqualTo(parts[1]);
@@ -229,11 +229,11 @@ class RequestParamMethodArgumentResolverTests {
   @Test
   public void resolveMultipartFileArrayMissing() throws Throwable {
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
-    request.addFile(new MockMultipartFile("other", "Hello World 3".getBytes()));
+    request.addPart(new MockMultipartFile("other", "Hello World 3".getBytes()));
     webRequest = new MockRequestContext(null, request, null);
     webRequest.setBinding(new BindingContext());
 
-    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(MultipartFile[].class);
+    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(Part[].class);
     assertThatExceptionOfType(MissingRequestPartException.class).isThrownBy(() ->
             resolver.resolveArgument(webRequest, param));
   }
@@ -241,15 +241,15 @@ class RequestParamMethodArgumentResolverTests {
   @Test
   public void resolveMultipartFileNotAnnot() throws Throwable {
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
-    MultipartFile expected = new MockMultipartFile("multipartFileNotAnnot", "Hello World".getBytes());
-    request.addFile(expected);
+    Part expected = new MockMultipartFile("multipartFileNotAnnot", "Hello World".getBytes());
+    request.addPart(expected);
     MockRequestContext webRequest = new MockRequestContext(null, request, null);
     webRequest.setBinding(new BindingContext());
 
-    ResolvableMethodParameter param = this.testMethod.annotNotPresent().arg(MultipartFile.class);
+    ResolvableMethodParameter param = this.testMethod.annotNotPresent().arg(Part.class);
     Object result = resolver.resolveArgument(webRequest, param);
 
-    boolean condition = result instanceof MultipartFile;
+    boolean condition = result instanceof Part;
     assertThat(condition).isTrue();
     assertThat(result).as("Invalid result").isEqualTo(expected);
   }
@@ -257,15 +257,15 @@ class RequestParamMethodArgumentResolverTests {
   @Test
   public void resolveMultipartFileListNotannot() throws Throwable {
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
-    MultipartFile expected1 = new MockMultipartFile("multipartFileList", "Hello World 1".getBytes());
-    MultipartFile expected2 = new MockMultipartFile("multipartFileList", "Hello World 2".getBytes());
-    request.addFile(expected1);
-    request.addFile(expected2);
+    Part expected1 = new MockMultipartFile("multipartFileList", "Hello World 1".getBytes());
+    Part expected2 = new MockMultipartFile("multipartFileList", "Hello World 2".getBytes());
+    request.addPart(expected1);
+    request.addPart(expected2);
     webRequest = new MockRequestContext(null, request, null);
     webRequest.setBinding(new BindingContext());
 
     ResolvableMethodParameter param = this.testMethod
-            .annotNotPresent(RequestParam.class).arg(List.class, MultipartFile.class);
+            .annotNotPresent(RequestParam.class).arg(List.class, Part.class);
 
     Object result = resolver.resolveArgument(webRequest, param);
     boolean condition = result instanceof List;
@@ -277,7 +277,7 @@ class RequestParamMethodArgumentResolverTests {
   public void isMultipartRequest() {
     ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class)
             .isNotNullable()
-            .arg(MultipartFile.class);
+            .arg(Part.class);
     assertThatExceptionOfType(MultipartException.class).isThrownBy(() ->
             resolver.resolveArgument(webRequest, param));
   }
@@ -285,14 +285,14 @@ class RequestParamMethodArgumentResolverTests {
   @Test
   public void isMultipartRequestHttpPut() throws Throwable {
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
-    MultipartFile expected = new MockMultipartFile("multipartFileList", "Hello World".getBytes());
-    request.addFile(expected);
+    Part expected = new MockMultipartFile("multipartFileList", "Hello World".getBytes());
+    request.addPart(expected);
     request.setMethod("PUT");
     webRequest = new MockRequestContext(null, request, null);
     webRequest.setBinding(new BindingContext());
 
     ResolvableMethodParameter param = testMethod.annotNotPresent(
-            RequestParam.class).arg(List.class, MultipartFile.class);
+            RequestParam.class).arg(List.class, Part.class);
 
     Object actual = resolver.resolveArgument(webRequest, param);
     boolean condition = actual instanceof List;
@@ -304,7 +304,7 @@ class RequestParamMethodArgumentResolverTests {
   public void noMultipartContent() throws Throwable {
     request.setMethod("POST");
     ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class)
-            .isNotNullable().arg(MultipartFile.class);
+            .isNotNullable().arg(Part.class);
     assertThatExceptionOfType(MultipartException.class).isThrownBy(() ->
             resolver.resolveArgument(webRequest, param));
   }
@@ -314,7 +314,7 @@ class RequestParamMethodArgumentResolverTests {
     request.setMethod("POST");
     request.setContentType("multipart/form-data");
     ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class)
-            .isNotNullable().arg(MultipartFile.class);
+            .isNotNullable().arg(Part.class);
     assertThatExceptionOfType(MissingRequestPartException.class).isThrownBy(() ->
             resolver.resolveArgument(webRequest, param));
   }
@@ -581,13 +581,13 @@ class RequestParamMethodArgumentResolverTests {
     webRequest.setBinding(binderFactory);
 
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
-    MultipartFile expected = new MockMultipartFile("mfile", "Hello World".getBytes());
-    request.addFile(expected);
+    Part expected = new MockMultipartFile("mfile", "Hello World".getBytes());
+    request.addPart(expected);
     webRequest = new MockRequestContext(null, request, null);
     webRequest.setBinding(new BindingContext(initializer));
 
     ResolvableMethodParameter param = testMethod.annotPresent(
-            RequestParam.class).isNullable().arg(MultipartFile.class);
+            RequestParam.class).isNullable().arg(Part.class);
     Object result = resolver.resolveArgument(webRequest, param);
 
     assertThat(result).isEqualTo(expected);
@@ -606,7 +606,7 @@ class RequestParamMethodArgumentResolverTests {
     request.setMethod("POST");
     request.setContentType("multipart/form-data");
 
-    var param = this.testMethod.annotPresent(RequestParam.class).isNullable().arg(MultipartFile.class);
+    var param = this.testMethod.annotPresent(RequestParam.class).isNullable().arg(Part.class);
     Object actual = resolver.resolveArgument(webRequest, param);
 
     assertThat(actual).isEqualTo(null);
@@ -623,7 +623,7 @@ class RequestParamMethodArgumentResolverTests {
     webRequest.setBinding(binderFactory);
 
     ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).isNullable()
-            .arg(MultipartFile.class);
+            .arg(Part.class);
     Object actual = resolver.resolveArgument(webRequest, param);
 
     assertThat(actual).isNull();
@@ -634,20 +634,20 @@ class RequestParamMethodArgumentResolverTests {
           @RequestParam(name = "name", defaultValue = "bar") String param1,
           @RequestParam("name") String[] param2,
           @RequestParam("name") Map<?, ?> param3,
-          @RequestParam("mfile") MultipartFile param4,
-          @RequestParam("mfilelist") List<MultipartFile> param5,
-          @RequestParam("mfilearray") MultipartFile[] param6,
+          @RequestParam("mfile") Part param4,
+          @RequestParam("mfilelist") List<Part> param5,
+          @RequestParam("mfilearray") Part[] param6,
           @RequestParam Map<?, ?> param10,
           String stringNotAnnot,
-          MultipartFile multipartFileNotAnnot,
-          List<MultipartFile> multipartFileList,
-          @RequestPart MultipartFile requestPartAnnot,
+          Part multipartFileNotAnnot,
+          List<Part> multipartFileList,
+          @RequestPart Part requestPartAnnot,
           @RequestParam("name") String paramRequired,
           @RequestParam(name = "name", required = false) String paramNotRequired,
           @RequestParam("name") @Nullable Integer paramOptional,
           @RequestParam("name") @Nullable Integer @Nullable [] paramOptionalArray,
           @RequestParam("name") @Nullable List<?> paramOptionalList,
-          @RequestParam("mfile") @Nullable MultipartFile multipartFileOptional,
+          @RequestParam("mfile") @Nullable Part multipartFileOptional,
           @RequestParam(defaultValue = "false") Boolean booleanParam) {
   }
 

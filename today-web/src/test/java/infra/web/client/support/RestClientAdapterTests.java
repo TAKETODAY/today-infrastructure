@@ -51,7 +51,7 @@ import infra.web.annotation.RequestPart;
 import infra.web.client.ApiVersionInserter;
 import infra.web.client.RestClient;
 import infra.web.client.RestTemplate;
-import infra.web.multipart.MultipartFile;
+import infra.web.multipart.Part;
 import infra.web.service.annotation.GetExchange;
 import infra.web.service.annotation.PostExchange;
 import infra.web.service.annotation.PutExchange;
@@ -172,7 +172,7 @@ class RestClientAdapterTests {
 
   @ParameterizedAdapterTest
   void multipart(MockWebServer server, Service service) throws Exception {
-    MultipartFile file = new MockMultipartFile(
+    Part file = new MockMultipartFile(
             "testFileName", "originalTestFileName", MediaType.APPLICATION_JSON_VALUE, "test".getBytes());
 
     service.postMultipart(file, "test2");
@@ -324,7 +324,7 @@ class RestClientAdapterTests {
     void postForm(@RequestParam MultiValueMap<String, String> params);
 
     @PostExchange
-    void postMultipart(MultipartFile file, @RequestPart String anotherPart);
+    void postMultipart(Part file, @RequestPart String anotherPart);
 
     @PutExchange
     void putWithCookies(@CookieValue String firstCookie, @CookieValue String secondCookie);

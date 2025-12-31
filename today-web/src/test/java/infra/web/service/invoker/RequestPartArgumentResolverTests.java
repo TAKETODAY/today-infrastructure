@@ -26,7 +26,7 @@ import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.util.MultiValueMap;
 import infra.web.annotation.RequestPart;
-import infra.web.multipart.MultipartFile;
+import infra.web.multipart.Part;
 import infra.web.service.annotation.PostExchange;
 import infra.web.testfixture.MockMultipartFile;
 import reactor.core.publisher.Mono;
@@ -75,7 +75,7 @@ class RequestPartArgumentResolverTests {
   }
 
   @Test
-  void multipartFile() {
+  void part() {
     this.service.postMultipartFile(mockMultipartFile);
     testMultipartFile(mockMultipartFile, "file");
   }
@@ -98,7 +98,7 @@ class RequestPartArgumentResolverTests {
     assertThat(map).hasSize(1).containsKey("anotherPart");
   }
 
-  private void testMultipartFile(MultipartFile testFile, String partName) {
+  private void testMultipartFile(Part testFile, String partName) {
     Object value = this.client.getRequestValues().getBodyValue();
 
     assertThat(value).isInstanceOf(MultiValueMap.class);
@@ -127,13 +127,13 @@ class RequestPartArgumentResolverTests {
             @RequestPart Optional<String> optionalPart);
 
     @PostExchange
-    void postMultipartFile(MultipartFile file);
+    void postMultipartFile(Part file);
 
     @PostExchange
-    void postRequestPartMultipartFile(@RequestPart(name = "myFile") MultipartFile file);
+    void postRequestPartMultipartFile(@RequestPart(name = "myFile") Part file);
 
     @PostExchange
-    void postOptionalMultipartFile(@RequestPart Optional<MultipartFile> file, @RequestPart String anotherPart);
+    void postOptionalMultipartFile(@RequestPart Optional<Part> file, @RequestPart String anotherPart);
   }
 
 }

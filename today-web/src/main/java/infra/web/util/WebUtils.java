@@ -304,9 +304,9 @@ public abstract class WebUtils {
   public static void cleanupMultipartRequest(@Nullable MultiValueMap<String, Part> map) {
     if (CollectionUtils.isNotEmpty(map)) {
       for (var entry : map.entrySet()) {
-        for (Part partFile : entry.getValue()) {
+        for (Part part : entry.getValue()) {
           try {
-            partFile.cleanup();
+            part.cleanup();
           }
           catch (Exception e) {
             LoggerFactory.getLogger(WebUtils.class)

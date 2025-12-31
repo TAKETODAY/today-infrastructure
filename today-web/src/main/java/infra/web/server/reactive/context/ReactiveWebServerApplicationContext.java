@@ -153,7 +153,7 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
   @Override
   public WebServer getWebServer() {
     WebServerManager serverManager = this.serverManager;
-    return (serverManager != null) ? serverManager.webServer : null;
+    return serverManager != null ? serverManager.webServer : null;
   }
 
   @Nullable

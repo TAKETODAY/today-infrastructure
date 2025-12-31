@@ -26,6 +26,7 @@ import java.beans.PropertyEditorSupport;
  * their corresponding byte representations.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see String#getBytes
  * @since 4.0
  */

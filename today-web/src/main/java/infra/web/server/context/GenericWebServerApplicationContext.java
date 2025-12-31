@@ -20,20 +20,18 @@ package infra.web.server.context;
 import org.jspecify.annotations.Nullable;
 
 import infra.beans.BeansException;
-import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.ApplicationContextException;
 import infra.context.support.GenericApplicationContext;
 import infra.util.StringUtils;
 import infra.web.RequestContextUtils;
-import infra.web.server.ChannelWebServerFactory;
+import infra.web.server.GenericWebServerFactory;
 import infra.web.server.WebServer;
-import io.netty.channel.ChannelHandler;
 
 /**
  * A {@link GenericWebServerApplicationContext} that can be used to bootstrap itself
- * from a contained {@link ChannelWebServerFactory} bean.
+ * from a contained {@link GenericWebServerFactory} bean.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/2/3 16:52
@@ -49,7 +47,8 @@ public class GenericWebServerApplicationContext extends GenericApplicationContex
   /**
    * Create a new {@link GenericWebServerApplicationContext}.
    */
-  public GenericWebServerApplicationContext() { }
+  public GenericWebServerApplicationContext() {
+  }
 
   /**
    * Create a new {@link GenericWebServerApplicationContext} with the given
@@ -89,10 +88,9 @@ public class GenericWebServerApplicationContext extends GenericApplicationContex
   }
 
   protected WebServer createWebServer() {
-    ChannelHandler channelHandler = getChannelHandler();
-    ChannelWebServerFactory factory = getWebServerFactory();
+    GenericWebServerFactory factory = getWebServerFactory();
 
-    WebServer webServer = factory.getWebServer(channelHandler);
+    WebServer webServer = factory.getWebServer();
 
     beanFactory.registerSingleton("webServerStartStop", new WebServerStartStopLifecycle(this, webServer));
     beanFactory.registerSingleton("webServerGracefulShutdown", new WebServerGracefulShutdownLifecycle(webServer));
@@ -100,39 +98,23 @@ public class GenericWebServerApplicationContext extends GenericApplicationContex
   }
 
   /**
-   * Returns the {@link ChannelWebServerFactory} that should be used to create the
+   * Returns the {@link GenericWebServerFactory} that should be used to create the
    * embedded {@link WebServer}. By default this method searches for a suitable bean in
    * the context itself.
    *
-   * @return a {@link ChannelWebServerFactory} (never {@code null})
+   * @return a {@link GenericWebServerFactory} (never {@code null})
    */
-  private ChannelWebServerFactory getWebServerFactory() {
+  private GenericWebServerFactory getWebServerFactory() {
     // Use bean names so that we don't consider the hierarchy
-    var beanNames = beanFactory.getBeanNamesForType(ChannelWebServerFactory.class);
+    var beanNames = beanFactory.getBeanNamesForType(GenericWebServerFactory.class);
     if (beanNames.length == 0) {
-      throw new MissingWebServerFactoryBeanException(getClass(), ChannelWebServerFactory.class);
+      throw new MissingWebServerFactoryBeanException(getClass(), GenericWebServerFactory.class);
     }
     if (beanNames.length > 1) {
       throw new ApplicationContextException("Unable to start WebServerApplicationContext due to multiple WebServerFactory beans : "
               + StringUtils.arrayToCommaDelimitedString(beanNames));
     }
-    return beanFactory.getBean(beanNames[0], ChannelWebServerFactory.class);
-  }
-
-  /**
-   * Return the {@link infra.web.server.support.NettyChannelHandler} that should be used to process the web
-   * server. By default, this method searches for a suitable bean in the context itself.
-   *
-   * @return a {@link infra.web.server.support.NettyChannelHandler} (never {@code null}
-   */
-  protected ChannelHandler getChannelHandler() {
-    try {
-      return beanFactory.getBean(ChannelWebServerFactory.CHANNEL_HANDLER_BEAN_NAME, ChannelHandler.class);
-    }
-    catch (NoSuchBeanDefinitionException e) {
-      throw new ApplicationContextException(
-              "Unable to start WebServerApplicationContext due to missing ChannelHandler bean.");
-    }
+    return beanFactory.getBean(beanNames[0], GenericWebServerFactory.class);
   }
 
   /**

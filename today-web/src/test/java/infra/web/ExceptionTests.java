@@ -20,6 +20,7 @@ package infra.web;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Collection;
@@ -49,8 +50,6 @@ import infra.web.bind.MissingMatrixVariableException;
 import infra.web.bind.MissingPathVariableException;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.MissingRequestValueException;
-import infra.web.multipart.MultipartException;
-import infra.web.multipart.NotMultipartRequestException;
 import infra.web.bind.RequestBindingException;
 import infra.web.bind.UnsatisfiedRequestParameterException;
 import infra.web.bind.resolver.MissingRequestCookieException;
@@ -60,9 +59,16 @@ import infra.web.bind.resolver.ParameterResolverNotFoundException;
 import infra.web.handler.HandlerNotFoundException;
 import infra.web.handler.ReturnValueHandlerNotFoundException;
 import infra.web.handler.method.ResolvableMethodParameter;
-import infra.web.multipart.MaxUploadSizeExceededException;
+import infra.web.multipart.MultipartException;
+import infra.web.multipart.NotMultipartRequestException;
+import infra.web.multipart.parsing.ItemSkippedException;
+import infra.web.multipart.parsing.MalformedStreamException;
+import infra.web.multipart.parsing.MultipartBoundaryException;
+import infra.web.multipart.parsing.MultipartFieldCountLimitException;
+import infra.web.multipart.parsing.MultipartSizeException;
 import infra.web.reactive.function.UnsupportedMediaTypeException;
 import infra.web.server.PortInUseException;
+import infra.web.server.RequestBodySizeExceededException;
 import infra.web.server.WebServerException;
 import jakarta.validation.Valid;
 
@@ -77,7 +83,7 @@ import static org.mockito.Mockito.when;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/10/6 15:35
  */
-public class ExceptionTests {
+class ExceptionTests {
 
   @Nested
   class HandlerAdapterNotFoundExceptionTests {
@@ -1067,7 +1073,7 @@ public class ExceptionTests {
     void exceptionExtendsHttpMessageNotReadableException() {
       MultipartException exception = new MultipartException("test");
 
-      assertThat(exception).isInstanceOf(NestedRuntimeException.class);
+      assertThat(exception).isInstanceOf(ErrorResponseException.class);
     }
 
   }
@@ -1776,62 +1782,6 @@ public class ExceptionTests {
   }
 
   @Nested
-  class MaxUploadSizeExceededExceptionTests {
-
-    @Test
-    void testConstructorWithMaxUploadSize() {
-      long maxUploadSize = 1024L;
-      MaxUploadSizeExceededException exception = new MaxUploadSizeExceededException(maxUploadSize);
-
-      assertThat(exception.getMaxUploadSize()).isEqualTo(maxUploadSize);
-      assertThat(exception.getMessage()).contains("Maximum upload size of 1024 bytes exceeded");
-      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
-    }
-
-    @Test
-    void testConstructorWithNegativeMaxUploadSize() {
-      long maxUploadSize = -1L;
-      MaxUploadSizeExceededException exception = new MaxUploadSizeExceededException(maxUploadSize);
-
-      assertThat(exception.getMaxUploadSize()).isEqualTo(maxUploadSize);
-      assertThat(exception.getMessage()).contains("Maximum upload size exceeded");
-      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
-    }
-
-    @Test
-    void testConstructorWithMaxUploadSizeAndCause() {
-      long maxUploadSize = 2048L;
-      Throwable cause = new RuntimeException("test cause");
-      MaxUploadSizeExceededException exception = new MaxUploadSizeExceededException(maxUploadSize, cause);
-
-      assertThat(exception.getMaxUploadSize()).isEqualTo(maxUploadSize);
-      assertThat(exception.getMessage()).contains("Maximum upload size of 2048 bytes exceeded");
-      assertThat(exception.getCause()).isEqualTo(cause);
-      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
-    }
-
-    @Test
-    void testGetBody() {
-      long maxUploadSize = 1024L;
-      MaxUploadSizeExceededException exception = new MaxUploadSizeExceededException(maxUploadSize);
-      ProblemDetail body = exception.getBody();
-
-      assertThat(body).isNotNull();
-      assertThat(body.getStatus()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE.value());
-      assertThat(body.getDetail()).isEqualTo("Maximum upload size of 1024 bytes exceeded");
-    }
-
-    @Test
-    void testGetStatusCode() {
-      long maxUploadSize = 1024L;
-      MaxUploadSizeExceededException exception = new MaxUploadSizeExceededException(maxUploadSize);
-
-      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
-    }
-
-  }
-
-  @Nested
   class UnsupportedMediaTypeExceptionTests {
 
     @Test
@@ -1990,6 +1940,278 @@ public class ExceptionTests {
       PortInUseException exception = new PortInUseException(8080);
 
       assertThat(exception).isInstanceOf(WebServerException.class);
+    }
+
+  }
+
+  @Nested
+  class MultipartSizeExceptionTests {
+
+    @Test
+    void constructorWithMessagePermittedAndActual() {
+      String message = "Request size exceeds limit";
+      long permitted = 1024L;
+      long actual = 2048L;
+
+      MultipartSizeException exception = new MultipartSizeException(message, permitted, actual);
+
+      assertThat(exception.getMessage()).contains(message);
+      assertThat(exception.getPermitted()).isEqualTo(permitted);
+      assertThat(exception.getActualSize()).isEqualTo(actual);
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void constructorWithNullMessage() {
+      long permitted = 1024L;
+      long actual = 2048L;
+
+      MultipartSizeException exception = new MultipartSizeException(null, permitted, actual);
+
+      assertThat(exception.getMessage()).isNotNull();
+      assertThat(exception.getPermitted()).isEqualTo(permitted);
+      assertThat(exception.getActualSize()).isEqualTo(actual);
+    }
+
+    @Test
+    void constructorWithZeroValues() {
+      String message = "Zero values test";
+      long permitted = 0L;
+      long actual = 0L;
+
+      MultipartSizeException exception = new MultipartSizeException(message, permitted, actual);
+
+      assertThat(exception.getMessage()).contains(message);
+      assertThat(exception.getPermitted()).isEqualTo(permitted);
+      assertThat(exception.getActualSize()).isEqualTo(actual);
+    }
+
+    @Test
+    void constructorWithNegativeValues() {
+      String message = "Negative values test";
+      long permitted = -1L;
+      long actual = -2L;
+
+      MultipartSizeException exception = new MultipartSizeException(message, permitted, actual);
+
+      assertThat(exception.getMessage()).contains(message);
+      assertThat(exception.getPermitted()).isEqualTo(permitted);
+      assertThat(exception.getActualSize()).isEqualTo(actual);
+    }
+
+    @Test
+    void exceptionExtendsMultipartException() {
+      MultipartSizeException exception = new MultipartSizeException("test", 100L, 200L);
+
+      assertThat(exception).isInstanceOf(MultipartException.class);
+    }
+
+    @Test
+    void serialVersionUidIsSet() throws NoSuchFieldException, IllegalAccessException {
+      Field field = MultipartSizeException.class.getDeclaredField("serialVersionUID");
+      field.setAccessible(true);
+      long serialVersionUID = field.getLong(null);
+
+      assertThat(serialVersionUID).isEqualTo(1L);
+    }
+
+  }
+
+  @Nested
+  class RequestBodySizeExceededExceptionTests {
+    @Test
+    void constructorWithPositiveMaxContentLength() {
+      long maxContentLength = 1024L;
+      RequestBodySizeExceededException exception = new RequestBodySizeExceededException(maxContentLength);
+
+      assertThat(exception.getMaxContentLength()).isEqualTo(maxContentLength);
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
+      assertThat(exception.getMessage()).contains("Maximum request body size of 1024 bytes exceeded");
+    }
+
+    @Test
+    void constructorWithZeroMaxContentLength() {
+      long maxContentLength = 0L;
+      RequestBodySizeExceededException exception = new RequestBodySizeExceededException(maxContentLength);
+
+      assertThat(exception.getMaxContentLength()).isEqualTo(maxContentLength);
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
+      assertThat(exception.getMessage()).contains("Maximum request body size of 0 bytes exceeded");
+    }
+
+    @Test
+    void constructorWithNegativeMaxContentLength() {
+      long maxContentLength = -1L;
+      RequestBodySizeExceededException exception = new RequestBodySizeExceededException(maxContentLength);
+
+      assertThat(exception.getMaxContentLength()).isEqualTo(maxContentLength);
+      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
+      assertThat(exception.getMessage()).contains("Maximum request body size exceeded");
+    }
+
+    @Test
+    void exceptionExtendsResponseStatusException() {
+      RequestBodySizeExceededException exception = new RequestBodySizeExceededException(1024L);
+
+      assertThat(exception).isInstanceOf(ResponseStatusException.class);
+    }
+
+    @Test
+    void getMaxContentLengthReturnsCorrectValue() {
+      long maxContentLength = 2048L;
+      RequestBodySizeExceededException exception = new RequestBodySizeExceededException(maxContentLength);
+
+      assertThat(exception.getMaxContentLength()).isEqualTo(2048L);
+    }
+
+  }
+
+  @Nested
+  class MultipartFieldCountLimitExceptionTests {
+    @Test
+    void constructorInitializesFieldsCorrectly() {
+      String message = "Field count limit exceeded";
+      long limit = 100L;
+      long actual = 150L;
+
+      MultipartFieldCountLimitException exception = new MultipartFieldCountLimitException(message, limit, actual);
+
+      assertThat(exception.getMessage()).contains(message);
+      assertThat(exception.getPermitted()).isEqualTo(limit);
+      assertThat(exception.getActualSize()).isEqualTo(actual);
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void exceptionExtendsMultipartSizeException() {
+      MultipartFieldCountLimitException exception = new MultipartFieldCountLimitException("test", 10L, 20L);
+
+      assertThat(exception).isInstanceOf(MultipartSizeException.class);
+    }
+
+    @Test
+    void serialVersionUidIsSet() throws Exception {
+      Field field = MultipartFieldCountLimitException.class.getDeclaredField("serialVersionUID");
+      field.setAccessible(true);
+      long serialVersionUID = field.getLong(null);
+
+      assertThat(serialVersionUID).isEqualTo(1L);
+    }
+
+    @Test
+    void constructorWithNullMessage() {
+      long limit = 50L;
+      long actual = 75L;
+
+      MultipartFieldCountLimitException exception = new MultipartFieldCountLimitException(null, limit, actual);
+
+      assertThat(exception.getMessage()).isNotNull();
+      assertThat(exception.getPermitted()).isEqualTo(limit);
+      assertThat(exception.getActualSize()).isEqualTo(actual);
+    }
+
+  }
+
+  @Nested
+  class MalformedStreamExceptionTests {
+
+    @Test
+    void constructorWithMessageOnly() {
+      String message = "Stream is malformed";
+
+      MalformedStreamException exception = new MalformedStreamException(message);
+
+      assertThat(exception.getMessage()).contains(message);
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void constructorWithMessageAndCause() {
+      String message = "Stream is malformed";
+      Throwable cause = new RuntimeException("IO error");
+
+      MalformedStreamException exception = new MalformedStreamException(message, cause);
+
+      assertThat(exception.getMessage()).contains(message);
+      assertThat(exception.getCause()).isSameAs(cause);
+    }
+
+    @Test
+    void exceptionExtendsMultipartException() {
+      MalformedStreamException exception = new MalformedStreamException("test");
+
+      assertThat(exception).isInstanceOf(MultipartException.class);
+    }
+
+    @Test
+    void serialVersionUidIsSet() throws Exception {
+      Field field = MalformedStreamException.class.getDeclaredField("serialVersionUID");
+      field.setAccessible(true);
+      long serialVersionUID = field.getLong(null);
+
+      assertThat(serialVersionUID).isEqualTo(2L);
+    }
+
+  }
+
+  @Nested
+  class MultipartBoundaryExceptionTests {
+
+    @Test
+    void constructorWithMessageOnly() {
+      String message = "Invalid boundary token";
+
+      MultipartBoundaryException exception = new MultipartBoundaryException(message);
+
+      assertThat(exception.getMessage()).contains(message);
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void exceptionExtendsMultipartException() {
+      MultipartBoundaryException exception = new MultipartBoundaryException("test");
+
+      assertThat(exception).isInstanceOf(MultipartException.class);
+    }
+
+    @Test
+    void serialVersionUidIsSet() throws Exception {
+      Field field = MultipartBoundaryException.class.getDeclaredField("serialVersionUID");
+      field.setAccessible(true);
+      long serialVersionUID = field.getLong(null);
+
+      assertThat(serialVersionUID).isEqualTo(1L);
+    }
+
+  }
+
+  @Nested
+  class ItemSkippedExceptionTests {
+
+    @Test
+    void constructorWithMessageOnly() {
+      String message = "Item skipped due to hasNext() call";
+
+      ItemSkippedException exception = new ItemSkippedException(message);
+
+      assertThat(exception.getMessage()).contains(message);
+      assertThat(exception.getCause()).isNull();
+    }
+
+    @Test
+    void exceptionExtendsMultipartException() {
+      ItemSkippedException exception = new ItemSkippedException("test");
+
+      assertThat(exception).isInstanceOf(MultipartException.class);
+    }
+
+    @Test
+    void serialVersionUidIsSet() throws Exception {
+      Field field = ItemSkippedException.class.getDeclaredField("serialVersionUID");
+      field.setAccessible(true);
+      long serialVersionUID = field.getLong(null);
+
+      assertThat(serialVersionUID).isEqualTo(1L);
     }
 
   }

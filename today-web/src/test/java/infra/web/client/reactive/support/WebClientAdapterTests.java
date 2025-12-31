@@ -40,7 +40,7 @@ import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestParam;
 import infra.web.annotation.RequestPart;
 import infra.web.client.reactive.WebClient;
-import infra.web.multipart.MultipartFile;
+import infra.web.multipart.Part;
 import infra.web.service.annotation.GetExchange;
 import infra.web.service.annotation.PostExchange;
 import infra.web.service.invoker.HttpServiceProxyFactory;
@@ -152,7 +152,7 @@ class WebClientAdapterTests {
     prepareResponse(response -> response.setResponseCode(201));
     String fileName = "testFileName";
     String originalFileName = "originalTestFileName";
-    MultipartFile file = new MockMultipartFile(fileName, originalFileName,
+    Part file = new MockMultipartFile(fileName, originalFileName,
             MediaType.APPLICATION_JSON_VALUE, "test".getBytes());
 
     initService().postMultipart(file, "test2");
@@ -261,7 +261,7 @@ class WebClientAdapterTests {
     void postForm(@RequestParam MultiValueMap<String, String> params);
 
     @PostExchange
-    void postMultipart(MultipartFile file, @RequestPart String anotherPart);
+    void postMultipart(Part file, @RequestPart String anotherPart);
 
     @GetExchange("/greeting")
     String getWithUriBuilderFactory(UriBuilderFactory uriBuilderFactory);
