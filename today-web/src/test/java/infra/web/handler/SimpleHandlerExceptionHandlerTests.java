@@ -223,7 +223,7 @@ class SimpleHandlerExceptionHandlerTests {
     Object mav = exceptionResolver.handleException(context, ex, null);
     assertThat(mav).as("No ModelAndView returned").isNotNull().isEqualTo(HandlerExceptionHandler.NONE_RETURN_VALUE);
     assertThat(response.getStatus()).as("Invalid status code").isEqualTo(413);
-    assertThat(response.getErrorMessage()).isEqualTo("Maximum upload size exceeded");
+    assertThat(response.getErrorMessage()).isEqualTo("Maximum upload size of 1000 bytes exceeded");
   }
 
   @Test
