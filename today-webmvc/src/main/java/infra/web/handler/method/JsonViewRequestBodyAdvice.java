@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,9 +51,9 @@ import infra.lang.Assert;
 public class JsonViewRequestBodyAdvice implements RequestBodyAdvice {
 
   @Override
-  public boolean supports(MethodParameter methodParameter, Type targetType, HttpMessageConverter<?> converter) {
+  public boolean supports(MethodParameter parameter, Type targetType, HttpMessageConverter<?> converter) {
     return converter instanceof AbstractJackson2HttpMessageConverter
-            && methodParameter.getParameterAnnotation(JsonView.class) != null;
+            && parameter.getParameterAnnotation(JsonView.class) != null;
   }
 
   @Override

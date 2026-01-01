@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -552,7 +552,7 @@ class DefaultRestClientTests {
   void defaultClientResponseConstructor() {
     ClientHttpResponse delegate = mock(ClientHttpResponse.class);
     DefaultRestClient client = createBasicClient();
-    DefaultClientResponse response = client.new DefaultClientResponse(delegate);
+    DefaultClientResponse response = client.new DefaultClientResponse(delegate, hints);
 
     assertThat(response.delegate).isSameAs(delegate);
   }
@@ -565,7 +565,7 @@ class DefaultRestClientTests {
     when(delegate.getHeaders()).thenReturn(headers);
 
     DefaultRestClient client = createBasicClient();
-    DefaultClientResponse response = client.new DefaultClientResponse(delegate);
+    DefaultClientResponse response = client.new DefaultClientResponse(delegate, hints);
 
     HttpHeaders result = response.getHeaders();
 
@@ -579,7 +579,7 @@ class DefaultRestClientTests {
     when(delegate.getStatusCode()).thenReturn(HttpStatusCode.valueOf(200));
 
     DefaultRestClient client = createBasicClient();
-    DefaultClientResponse response = client.new DefaultClientResponse(delegate);
+    DefaultClientResponse response = client.new DefaultClientResponse(delegate, hints);
 
     HttpStatusCode result = response.getStatusCode();
 
@@ -592,7 +592,7 @@ class DefaultRestClientTests {
     when(delegate.getRawStatusCode()).thenReturn(200);
 
     DefaultRestClient client = createBasicClient();
-    DefaultClientResponse response = client.new DefaultClientResponse(delegate);
+    DefaultClientResponse response = client.new DefaultClientResponse(delegate, hints);
 
     int result = response.getRawStatusCode();
 
@@ -605,7 +605,7 @@ class DefaultRestClientTests {
     when(delegate.getStatusText()).thenReturn("OK");
 
     DefaultRestClient client = createBasicClient();
-    DefaultClientResponse response = client.new DefaultClientResponse(delegate);
+    DefaultClientResponse response = client.new DefaultClientResponse(delegate, hints);
 
     String result = response.getStatusText();
 
@@ -617,7 +617,7 @@ class DefaultRestClientTests {
     ClientHttpResponse delegate = mock(ClientHttpResponse.class);
 
     DefaultRestClient client = createBasicClient();
-    DefaultClientResponse response = client.new DefaultClientResponse(delegate);
+    DefaultClientResponse response = client.new DefaultClientResponse(delegate, hints);
 
     response.close();
 

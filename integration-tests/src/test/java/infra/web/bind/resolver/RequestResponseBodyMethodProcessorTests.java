@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1120,7 +1120,7 @@ class RequestResponseBodyMethodProcessorTests {
   private static class EmptyRequestBodyAdvice implements RequestBodyAdvice {
 
     @Override
-    public boolean supports(MethodParameter methodParameter,
+    public boolean supports(MethodParameter parameter,
             Type targetType, HttpMessageConverter<?> converterType) {
       return converterType instanceof StringHttpMessageConverter;
     }

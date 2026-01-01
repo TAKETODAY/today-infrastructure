@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,10 +21,12 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Map;
 
 import infra.core.MethodParameter;
 import infra.http.HttpInputMessage;
 import infra.http.converter.HttpMessageConverter;
+import infra.http.converter.SmartHttpMessageConverter;
 
 /**
  * Allows customizing the request before its body is read and converted into an
@@ -45,14 +47,13 @@ public interface RequestBodyAdvice {
   /**
    * Invoked first to determine if this interceptor applies.
    *
-   * @param methodParameter the method parameter
+   * @param parameter the method parameter
    * @param targetType the target type, not necessarily the same as the method
    * parameter type, e.g. for {@code HttpEntity<String>}.
    * @param converter the selected converter
    * @return whether this interceptor should be invoked or not
    */
-  boolean supports(MethodParameter methodParameter,
-          Type targetType, HttpMessageConverter<?> converter);
+  boolean supports(MethodParameter parameter, Type targetType, HttpMessageConverter<?> converter);
 
   /**
    * Invoked second before the inputMessage body is read and converted.
@@ -66,6 +67,22 @@ public interface RequestBodyAdvice {
    */
   HttpInputMessage beforeBodyRead(HttpInputMessage inputMessage, MethodParameter parameter,
           Type targetType, HttpMessageConverter<?> converter) throws IOException;
+
+  /**
+   * Invoked to determine read hints if the converter is a {@link SmartHttpMessageConverter}.
+   *
+   * @param parameter the target method parameter
+   * @param targetType the target type, not necessarily the same as the method
+   * parameter type, for example, for {@code HttpEntity<String>}.
+   * @param selected the selected converter type
+   * @return the hints determined otherwise {@code null}
+   * @since 5.0
+   */
+  default @Nullable Map<String, Object> determineReadHints(MethodParameter parameter,
+          Type targetType, SmartHttpMessageConverter<?> selected) {
+
+    return null;
+  }
 
   /**
    * Invoked third (and last) after the request body is converted to an Object.
@@ -99,6 +116,7 @@ public interface RequestBodyAdvice {
   @Nullable
   default Object handleEmptyBody(@Nullable Object body, HttpInputMessage inputMessage,
           MethodParameter parameter, Type targetType, HttpMessageConverter<?> converter) {
+
     return body;
   }
 

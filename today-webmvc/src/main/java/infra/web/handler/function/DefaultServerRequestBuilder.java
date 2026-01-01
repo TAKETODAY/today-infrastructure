@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,6 +42,7 @@ import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
+import infra.http.converter.SmartHttpMessageConverter;
 import infra.http.server.RequestPath;
 import infra.lang.Assert;
 import infra.util.LinkedMultiValueMap;
@@ -306,21 +307,30 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
       return bodyInternal(type, DefaultServerRequest.bodyClass(type));
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> T bodyInternal(Type bodyType, Class<?> bodyClass) throws IOException {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private <T> T bodyInternal(Type bodyType, Class bodyClass) throws IOException {
       HttpInputMessage inputMessage = new BuiltInputMessage();
       MediaType contentType = headers().contentType().orElse(MediaType.APPLICATION_OCTET_STREAM);
 
-      for (HttpMessageConverter<?> messageConverter : this.messageConverters) {
-        if (messageConverter instanceof GenericHttpMessageConverter<?> converter) {
-          if (converter.canRead(bodyType, bodyClass, contentType)) {
-            return (T) converter.read(bodyType, bodyClass, inputMessage);
+      ResolvableType resolvableType = null;
+      for (HttpMessageConverter<?> converter : this.messageConverters) {
+        if (converter instanceof GenericHttpMessageConverter<?> generic) {
+          if (generic.canRead(bodyType, bodyClass, contentType)) {
+            return (T) generic.read(bodyType, bodyClass, inputMessage);
           }
         }
-        if (messageConverter.canRead(bodyClass, contentType)) {
-          var theConverter = (HttpMessageConverter<T>) messageConverter;
-          Class<? extends T> clazz = (Class<? extends T>) bodyClass;
-          return theConverter.read(clazz, inputMessage);
+
+        if (converter instanceof SmartHttpMessageConverter<?> smart) {
+          if (resolvableType == null) {
+            resolvableType = ResolvableType.forType(bodyType);
+          }
+          if (smart.canRead(resolvableType, contentType)) {
+            return (T) smart.read(resolvableType, inputMessage, null);
+          }
+        }
+
+        if (converter.canRead(bodyClass, contentType)) {
+          return (T) converter.read(bodyClass, inputMessage);
         }
       }
       throw new HttpMediaTypeNotSupportedException(contentType, Collections.emptyList(), method());

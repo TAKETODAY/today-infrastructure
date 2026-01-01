@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -56,6 +57,7 @@ import infra.http.client.InterceptingClientHttpRequestFactory;
 import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotReadableException;
+import infra.http.converter.SmartHttpMessageConverter;
 import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
@@ -207,7 +209,8 @@ final class DefaultRestClient implements RestClient {
 
   @Nullable
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  private <T> T readWithMessageConverters(ClientHttpResponse clientResponse, @Nullable ResponseConsumer callback, Type bodyType, Class<T> bodyClass) {
+  private <T> T readWithMessageConverters(ClientHttpResponse clientResponse, @Nullable ResponseConsumer callback,
+          Type bodyType, Class<T> bodyClass, @Nullable Map<String, Object> hints) {
     MediaType contentType = getContentType(clientResponse);
 
     try {
@@ -222,7 +225,7 @@ final class DefaultRestClient implements RestClient {
         }
         clientResponse = responseWrapper;
       }
-
+      ResolvableType resolvableType = null;
       for (HttpMessageConverter<?> hmc : this.messageConverters) {
         if (hmc instanceof GenericHttpMessageConverter ghmc) {
           if (ghmc.canRead(bodyType, null, contentType)) {
@@ -230,6 +233,17 @@ final class DefaultRestClient implements RestClient {
               logger.debug("Reading to [{}]", ResolvableType.forType(bodyType));
             }
             return (T) ghmc.read(bodyType, null, clientResponse);
+          }
+        }
+        else if (hmc instanceof SmartHttpMessageConverter shmc) {
+          if (resolvableType == null) {
+            resolvableType = ResolvableType.forType(bodyType);
+          }
+          if (shmc.canRead(resolvableType, contentType)) {
+            if (logger.isDebugEnabled()) {
+              logger.debug("Reading to [{}]", resolvableType);
+            }
+            return (T) shmc.read(resolvableType, clientResponse, hints);
           }
         }
         else if (hmc.canRead(bodyClass, contentType)) {
@@ -319,6 +333,8 @@ final class DefaultRestClient implements RestClient {
     public @Nullable Map<String, Object> attributes;
 
     public @Nullable Object apiVersion;
+
+    public @Nullable Map<String, Object> hints;
 
     public DefaultRequestBodyUriSpec(HttpMethod httpMethod) {
       this.httpMethod = httpMethod;
@@ -509,18 +525,39 @@ final class DefaultRestClient implements RestClient {
       return this;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private void writeWithMessageConverters(Object body, Type bodyType, ClientHttpRequest clientRequest)
-            throws IOException {
+    @Override
+    public DefaultRequestBodyUriSpec hint(String key, Object value) {
+      Map<String, Object> hints = this.hints;
+      if (hints == null) {
+        hints = new ConcurrentHashMap<>(1);
+        this.hints = hints;
+      }
 
+      hints.put(key, value);
+      return this;
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private void writeWithMessageConverters(Object body, Type bodyType, ClientHttpRequest clientRequest) throws IOException {
       MediaType contentType = clientRequest.getHeaders().getContentType();
       Class<?> bodyClass = body.getClass();
 
+      ResolvableType resolvableType = null;
       for (HttpMessageConverter hmc : DefaultRestClient.this.messageConverters) {
         if (hmc instanceof GenericHttpMessageConverter ghmc) {
           if (ghmc.canWrite(bodyType, bodyClass, contentType)) {
             logBody(body, contentType, ghmc);
             ghmc.write(body, bodyType, contentType, clientRequest);
+            return;
+          }
+        }
+        else if (hmc instanceof SmartHttpMessageConverter shmc) {
+          if (resolvableType == null) {
+            resolvableType = ResolvableType.forType(bodyType);
+          }
+          if (shmc.canWrite(resolvableType, bodyClass, contentType)) {
+            logBody(body, contentType, shmc);
+            shmc.write(body, resolvableType, contentType, clientRequest, this.hints);
             return;
           }
         }
@@ -566,8 +603,7 @@ final class DefaultRestClient implements RestClient {
 
     @Override
     public Future<ClientResponse> send(@Nullable Executor executor) {
-      return asyncInternal(executor).second
-              .map(DefaultClientResponse::new);
+      return asyncInternal(executor).second.map(delegate -> new DefaultClientResponse(delegate, hints));
     }
 
     private Pair<ClientHttpRequest, Future<ClientHttpResponse>> asyncInternal(@Nullable Executor executor) {
@@ -606,8 +642,8 @@ final class DefaultRestClient implements RestClient {
       ClientHttpResponse clientResponse = null;
       try {
         clientResponse = clientRequest.execute();
-        var convertibleWrapper = new DefaultClientResponse(clientResponse);
-        return exchangeFunction.exchange(clientRequest, convertibleWrapper);
+        var response = new DefaultClientResponse(clientResponse, hints);
+        return exchangeFunction.exchange(clientRequest, response);
       }
       catch (IOException ex) {
         throw createResourceAccessException(uri, this.httpMethod, ex);
@@ -756,6 +792,8 @@ final class DefaultRestClient implements RestClient {
 
     protected boolean ignoreStatus;
 
+    private @Nullable Map<String, Object> hints;
+
     public AbstractResponseSpec(HttpRequest clientRequest) {
       this.clientRequest = clientRequest;
       this.ignoreStatus = DefaultRestClient.this.ignoreStatusHandlers;
@@ -773,6 +811,21 @@ final class DefaultRestClient implements RestClient {
     public T ignoreStatus(boolean ignoreStatus) {
       this.ignoreStatus = ignoreStatus;
       return (T) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public T hint(String key, Object value) {
+      getHints().put(key, value);
+      return (T) this;
+    }
+
+    private Map<String, Object> getHints() {
+      Map<String, Object> hints = this.hints;
+      if (hints == null) {
+        hints = new ConcurrentHashMap<>(1);
+        this.hints = hints;
+      }
+      return hints;
     }
 
     @SuppressWarnings("unchecked")
@@ -810,7 +863,7 @@ final class DefaultRestClient implements RestClient {
     @Nullable
     final <R> R readBody(ClientHttpResponse clientResponse, Type bodyType, Class<R> bodyClass) {
       return readWithMessageConverters(clientResponse, ignoreStatus ? null : response ->
-              DefaultRestClient.this.applyStatusHandlers(clientRequest, response, statusHandlers), bodyType, bodyClass);
+              DefaultRestClient.this.applyStatusHandlers(clientRequest, response, statusHandlers), bodyType, bodyClass, hints);
     }
 
   }
@@ -919,14 +972,17 @@ final class DefaultRestClient implements RestClient {
 
     public final ClientHttpResponse delegate;
 
-    public DefaultClientResponse(ClientHttpResponse delegate) {
+    private final @Nullable Map<String, Object> hints;
+
+    public DefaultClientResponse(ClientHttpResponse delegate, @Nullable Map<String, Object> hints) {
       this.delegate = delegate;
+      this.hints = hints;
     }
 
     @Nullable
     @Override
     public <T> T bodyTo(Class<T> bodyType) {
-      return readWithMessageConverters(this.delegate, null, bodyType, bodyType);
+      return readWithMessageConverters(this.delegate, null, bodyType, bodyType, hints);
     }
 
     @Nullable
@@ -934,7 +990,7 @@ final class DefaultRestClient implements RestClient {
     public <T> T bodyTo(ParameterizedTypeReference<T> bodyType) {
       Type type = bodyType.getType();
       Class<T> bodyClass = bodyClass(type);
-      return readWithMessageConverters(this.delegate, null, type, bodyClass);
+      return readWithMessageConverters(this.delegate, null, type, bodyClass, hints);
     }
 
     @Override

@@ -506,7 +506,6 @@ bom {
 }
 
 dependencies {
-  api(platform("com.fasterxml.jackson:jackson-bom:2.19.2"))
   api(platform("io.micrometer:micrometer-bom:1.12.3"))
   api(platform("io.netty:netty-bom:4.2.7.Final"))
   api(platform("io.projectreactor:reactor-bom:2025.0.0"))
@@ -517,6 +516,8 @@ dependencies {
   api(platform("org.assertj:assertj-bom:3.27.3"))
   api(platform("org.mockito:mockito-bom:5.19.0"))
   api(platform("org.testcontainers:testcontainers-bom:1.18.3"))
+  api(platform("tools.jackson:jackson-bom:3.0.3"))
+  api(platform("com.fasterxml.jackson:jackson-bom:2.20.1"))
   api(platform(project(":infra-bom")))
 
   constraints {

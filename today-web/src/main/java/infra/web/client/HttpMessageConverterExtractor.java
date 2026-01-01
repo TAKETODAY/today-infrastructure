@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ import infra.http.client.ClientHttpResponse;
 import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotReadableException;
+import infra.http.converter.SmartHttpMessageConverter;
 import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
@@ -117,20 +118,32 @@ public class HttpMessageConverterExtractor<T> implements ResponseExtractor<T> {
 
     MediaType contentType = getContentType(response);
     try {
-      for (HttpMessageConverter<?> messageConverter : messageConverters) {
-        if (messageConverter instanceof GenericHttpMessageConverter<?> genericConverter) {
-          if (genericConverter.canRead(responseType, null, contentType)) {
+      ResolvableType resolvableType = null;
+      for (HttpMessageConverter<?> converter : messageConverters) {
+        if (converter instanceof GenericHttpMessageConverter<?> generic) {
+          if (generic.canRead(responseType, null, contentType)) {
             if (logger.isDebugEnabled()) {
               logger.debug("Reading to [{}]", ResolvableType.forType(responseType));
             }
-            return (T) genericConverter.read(responseType, null, response);
+            return (T) generic.read(responseType, null, response);
           }
         }
-        else if (responseClass != null && messageConverter.canRead(responseClass, contentType)) {
+        else if (converter instanceof SmartHttpMessageConverter smart) {
+          if (resolvableType == null) {
+            resolvableType = ResolvableType.forType(responseType);
+          }
+          if (smart.canRead(resolvableType, contentType)) {
+            if (logger.isDebugEnabled()) {
+              logger.debug("Reading to [" + resolvableType + "]");
+            }
+            return (T) smart.read(resolvableType, response, null);
+          }
+        }
+        else if (responseClass != null && converter.canRead(responseClass, contentType)) {
           if (logger.isDebugEnabled()) {
             logger.debug("Reading to [{}] as \"{}\"", responseClass.getName(), contentType);
           }
-          return (T) messageConverter.read((Class) responseClass, response);
+          return (T) converter.read((Class) responseClass, response);
         }
       }
     }

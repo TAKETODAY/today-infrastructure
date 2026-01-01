@@ -49,6 +49,13 @@ dependencies {
   optional("org.apache.poi:poi-ooxml")
   optional("org.reactivestreams:reactive-streams")
 
+  optional("tools.jackson.core:jackson-databind")
+  optional("tools.jackson.dataformat:jackson-dataformat-smile")
+  optional("tools.jackson.dataformat:jackson-dataformat-cbor")
+  optional("tools.jackson.dataformat:jackson-dataformat-smile")
+  optional("tools.jackson.dataformat:jackson-dataformat-xml")
+  optional("tools.jackson.dataformat:jackson-dataformat-yaml")
+
   testImplementation('com.google.code.findbugs:findbugs')
   testImplementation("io.projectreactor:reactor-test")
   testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")

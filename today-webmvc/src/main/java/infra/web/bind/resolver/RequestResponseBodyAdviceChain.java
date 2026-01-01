@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,12 +23,15 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import infra.core.MethodParameter;
 import infra.http.HttpInputMessage;
 import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverter;
+import infra.http.converter.SmartHttpMessageConverter;
 import infra.util.CollectionUtils;
 import infra.web.RequestContext;
 import infra.web.handler.method.ControllerAdviceBean;
@@ -76,7 +79,7 @@ public class RequestResponseBodyAdviceChain implements RequestBodyAdvice, Respon
   }
 
   @Override
-  public boolean supports(MethodParameter param, Type type, HttpMessageConverter<?> converter) {
+  public boolean supports(MethodParameter parameter, Type type, HttpMessageConverter<?> converter) {
     throw new UnsupportedOperationException("Not implemented");
   }
 
@@ -95,6 +98,23 @@ public class RequestResponseBodyAdviceChain implements RequestBodyAdvice, Respon
       }
     }
     return inputMessage;
+  }
+
+  @Override
+  public @Nullable Map<String, Object> determineReadHints(MethodParameter parameter, Type targetType, SmartHttpMessageConverter<?> selected) {
+    Map<String, Object> hints = null;
+    for (RequestBodyAdvice advice : getMatchingAdvice(parameter, RequestBodyAdvice.class, requestBodyAdvice)) {
+      if (advice.supports(parameter, targetType, selected)) {
+        Map<String, Object> adviceHints = advice.determineReadHints(parameter, targetType, selected);
+        if (adviceHints != null) {
+          if (hints == null) {
+            hints = new HashMap<>(adviceHints.size());
+          }
+          hints.putAll(adviceHints);
+        }
+      }
+    }
+    return hints;
   }
 
   @Override
@@ -124,6 +144,25 @@ public class RequestResponseBodyAdviceChain implements RequestBodyAdvice, Respon
   }
 
   @Override
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public @Nullable Map<String, Object> determineWriteHints(@Nullable Object body, @Nullable MethodParameter returnType,
+          MediaType selectedContentType, SmartHttpMessageConverter<?> selected) {
+    Map<String, Object> hints = null;
+    for (ResponseBodyAdvice advice : getMatchingAdvice(returnType, ResponseBodyAdvice.class, responseBodyAdvice)) {
+      if (advice.supports(body, returnType, selected)) {
+        Map<String, Object> adviceHints = advice.determineWriteHints(body, returnType, selectedContentType, selected);
+        if (adviceHints != null) {
+          if (hints == null) {
+            hints = new HashMap<>(adviceHints.size());
+          }
+          hints.putAll(adviceHints);
+        }
+      }
+    }
+    return hints;
+  }
+
+  @Override
   @Nullable
   public Object handleEmptyBody(@Nullable Object body, HttpInputMessage inputMessage,
           MethodParameter parameter, Type targetType, HttpMessageConverter<?> converter) {
@@ -147,7 +186,6 @@ public class RequestResponseBodyAdviceChain implements RequestBodyAdvice, Respon
     ArrayList result = new ArrayList<>(availableAdvice.size());
     for (Object advice : availableAdvice) {
       if (advice instanceof ControllerAdviceBean adviceBean) {
-        // TODO containingClass maybe null
         if (containingClass == null && parameter != null) {
           containingClass = parameter.getContainingClass();
         }

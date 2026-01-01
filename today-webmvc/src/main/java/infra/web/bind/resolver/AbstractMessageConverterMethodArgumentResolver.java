@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,10 +29,12 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 
 import infra.core.Conventions;
 import infra.core.MethodParameter;
 import infra.core.ResolvableType;
+import infra.http.HttpEntity;
 import infra.http.HttpHeaders;
 import infra.http.HttpInputMessage;
 import infra.http.HttpMethod;
@@ -43,6 +45,7 @@ import infra.http.MediaType;
 import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotReadableException;
+import infra.http.converter.SmartHttpMessageConverter;
 import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
@@ -82,7 +85,12 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-  private final RequestResponseBodyAdviceChain advice;
+  /**
+   * The configured {@link RequestBodyAdvice} and
+   * {@link RequestBodyAdvice} where each instance may be wrapped as a
+   * {@link ControllerAdviceBean ControllerAdviceBean}.
+   */
+  protected final RequestResponseBodyAdviceChain advice;
 
   /**
    * Basic constructor with converters only.
@@ -98,15 +106,6 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
     Assert.notEmpty(converters, "'messageConverters' must not be empty");
     this.messageConverters = converters;
     this.advice = new RequestResponseBodyAdviceChain(requestResponseBodyAdvice);
-  }
-
-  /**
-   * Return the configured {@link RequestBodyAdvice} and
-   * {@link RequestBodyAdvice} where each instance may be wrapped as a
-   * {@link ControllerAdviceBean ControllerAdviceBean}.
-   */
-  RequestResponseBodyAdviceChain getAdvice() {
-    return this.advice;
   }
 
   /**
@@ -146,8 +145,9 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 
     Class<?> contextClass = parameter.getContainingClass();
     Class<T> targetClass = targetType instanceof Class ? (Class<T>) targetType : null;
+    ResolvableType resolvableType = null;
     if (targetClass == null) {
-      ResolvableType resolvableType = ResolvableType.forMethodParameter(parameter);
+      resolvableType = ResolvableType.forMethodParameter(parameter);
       targetClass = (Class<T>) resolvableType.resolve();
     }
 
@@ -169,21 +169,41 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 
     EmptyBodyCheckingHttpInputMessage message = null;
     try {
+      ResolvableType targetResolvableType = null;
       message = new EmptyBodyCheckingHttpInputMessage(inputMessage);
-      RequestResponseBodyAdviceChain adviceChain = getAdvice();
       for (HttpMessageConverter converter : messageConverters) {
-        if (converter instanceof GenericHttpMessageConverter genericConverter) {
-          if (genericConverter.canRead(targetType, contextClass, contentType)) {
+        if (converter instanceof GenericHttpMessageConverter generic) {
+          if (generic.canRead(targetType, contextClass, contentType)) {
             if (message.hasBody()) {
               // beforeBodyRead
-              var msgToUse = adviceChain.beforeBodyRead(message, parameter, targetType, converter);
+              var msgToUse = advice.beforeBodyRead(message, parameter, targetType, converter);
               // read
-              body = genericConverter.read(targetType, contextClass, msgToUse);
+              body = generic.read(targetType, contextClass, msgToUse);
               // afterBodyRead
-              body = adviceChain.afterBodyRead(body, msgToUse, parameter, targetType, converter);
+              body = advice.afterBodyRead(body, msgToUse, parameter, targetType, converter);
             }
             else {
-              body = adviceChain.handleEmptyBody(null, message, parameter, targetType, converter);
+              body = advice.handleEmptyBody(null, message, parameter, targetType, converter);
+            }
+            break;
+          }
+        }
+        else if (converter instanceof SmartHttpMessageConverter<?> smart) {
+          if (targetResolvableType == null) {
+            targetResolvableType = getNestedTypeIfNeeded(resolvableType == null ? ResolvableType.forMethodParameter(parameter) : resolvableType);
+          }
+          if (smart.canRead(targetResolvableType, contentType)) {
+            if (message.hasBody()) {
+              var advice = this.advice;
+              // beforeBodyRead
+              var msgToUse = advice.beforeBodyRead(message, parameter, targetType, converter);
+              // read
+              body = smart.read(targetResolvableType, msgToUse, advice.determineReadHints(parameter, targetType, smart));
+              // afterBodyRead
+              body = advice.afterBodyRead(body, msgToUse, parameter, targetType, converter);
+            }
+            else {
+              body = advice.handleEmptyBody(null, message, parameter, targetType, converter);
             }
             break;
           }
@@ -191,20 +211,20 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
         else if (targetClass != null && converter.canRead(targetClass, contentType)) {
           if (message.hasBody()) {
             // beforeBodyRead
-            var msgToUse = adviceChain.beforeBodyRead(message, parameter, targetType, converter);
+            var msgToUse = advice.beforeBodyRead(message, parameter, targetType, converter);
             // read
             body = converter.read(targetClass, msgToUse);
             // afterBodyRead
-            body = adviceChain.afterBodyRead(body, msgToUse, parameter, targetType, converter);
+            body = advice.afterBodyRead(body, msgToUse, parameter, targetType, converter);
           }
           else {
-            body = adviceChain.handleEmptyBody(null, message, parameter, targetType, converter);
+            body = advice.handleEmptyBody(null, message, parameter, targetType, converter);
           }
           break;
         }
       }
       if (body == NO_VALUE && noContentType && !message.hasBody()) {
-        body = adviceChain.handleEmptyBody(
+        body = advice.handleEmptyBody(
                 null, message, parameter, targetType, new NoContentTypeHttpMessageConverter());
       }
     }
@@ -234,6 +254,21 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
     }
 
     return body;
+  }
+
+  /**
+   * Return the generic type of the {@code returnType} (or of the nested type
+   * if it is an {@link HttpEntity} or/and an {@link Optional}).
+   */
+  protected ResolvableType getNestedTypeIfNeeded(ResolvableType type) {
+    ResolvableType genericType = type;
+    if (Optional.class.isAssignableFrom(genericType.toClass())) {
+      genericType = genericType.getNested(2);
+    }
+    if (HttpEntity.class.isAssignableFrom(genericType.toClass())) {
+      genericType = genericType.getNested(2);
+    }
+    return genericType;
   }
 
   protected void validateIfApplicable(RequestContext context, MethodParameter parameter, @Nullable Object arg) throws Throwable {

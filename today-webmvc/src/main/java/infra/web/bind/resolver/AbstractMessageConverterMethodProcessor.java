@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,6 +48,7 @@ import infra.http.ProblemDetail;
 import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotWritableException;
+import infra.http.converter.SmartHttpMessageConverter;
 import infra.lang.TodayStrategies;
 import infra.util.CollectionUtils;
 import infra.util.LogFormatUtils;
@@ -294,11 +295,14 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
     }
 
     if (selectedMediaType != null) {
-      RequestResponseBodyAdviceChain advice = getAdvice();
+      ResolvableType resolvable = null;
       selectedMediaType = selectedMediaType.removeQualityValue();
       for (HttpMessageConverter converter : messageConverters) {
+        var smart = converter instanceof SmartHttpMessageConverter ? (SmartHttpMessageConverter) converter : null;
         var generic = converter instanceof GenericHttpMessageConverter ? (GenericHttpMessageConverter) converter : null;
-        if (generic != null ? generic.canWrite(targetType, valueType, selectedMediaType) : converter.canWrite(valueType, selectedMediaType)) {
+        if (generic != null ? generic.canWrite(targetType, valueType, selectedMediaType) : (smart != null ?
+                smart.canWrite((resolvable == null ? resolvable = getNestedTypeIfNeeded(ResolvableType.forType(targetType)) : resolvable), valueType, selectedMediaType)
+                : converter.canWrite(valueType, selectedMediaType))) {
 
           body = advice.beforeBodyWrite(body, returnType, selectedMediaType, converter, context);
           if (body != null) {
@@ -312,6 +316,10 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
             }
             if (generic != null) {
               generic.write(body, targetType, selectedMediaType, context.asHttpOutputMessage());
+            }
+            else if (smart != null) {
+              smart.write(body, resolvable, selectedMediaType, context.asHttpOutputMessage(),
+                      advice.determineWriteHints(body, returnType, selectedMediaType, smart));
             }
             else {
               converter.write(body, selectedMediaType, context.asHttpOutputMessage());
@@ -391,10 +399,19 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
       }
     }
 
+    ResolvableType resolvable = null;
     LinkedHashSet<MediaType> result = new LinkedHashSet<>();
     for (HttpMessageConverter<?> converter : messageConverters) {
       if (converter instanceof GenericHttpMessageConverter<?> generic && targetType != null) {
         if (generic.canWrite(targetType, valueClass, null)) {
+          result.addAll(converter.getSupportedMediaTypes(valueClass));
+        }
+      }
+      else if (converter instanceof SmartHttpMessageConverter<?> smart && targetType != null) {
+        if (resolvable == null) {
+          resolvable = ResolvableType.forType(targetType);
+        }
+        if (smart.canWrite(resolvable, valueClass, null)) {
           result.addAll(converter.getSupportedMediaTypes(valueClass));
         }
       }

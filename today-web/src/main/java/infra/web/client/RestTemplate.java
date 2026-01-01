@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 import infra.core.ParameterizedTypeReference;
+import infra.core.ResolvableType;
 import infra.http.HttpEntity;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
@@ -47,6 +48,7 @@ import infra.http.converter.ByteArrayHttpMessageConverter;
 import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.ResourceHttpMessageConverter;
+import infra.http.converter.SmartHttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.cbor.MappingJackson2CborHttpMessageConverter;
 import infra.http.converter.feed.AtomFeedHttpMessageConverter;
@@ -842,6 +844,9 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
       if (responseClass != null) {
         return converter.canRead(responseClass, null);
       }
+      else if (converter instanceof SmartHttpMessageConverter<?> smart) {
+        return smart.canRead(ResolvableType.forType(responseType), null);
+      }
       else if (converter instanceof GenericHttpMessageConverter<?> genericConverter) {
         return genericConverter.canRead(responseType, null, null);
       }
@@ -900,6 +905,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
         }
       }
       else {
+        ResolvableType resolvableType = null;
         Class<?> requestBodyClass = requestBody.getClass();
         Type requestBodyType = requestEntity instanceof RequestEntity entity ? entity.getType() : requestBodyClass;
         MediaType requestContentType = requestEntity.getContentType();
@@ -911,6 +917,17 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
                 logBody(requestBody, requestContentType, gc);
               }
               gc.write(requestBody, requestBodyType, requestContentType, httpRequest);
+              return;
+            }
+          }
+          else if (converter instanceof SmartHttpMessageConverter smart) {
+            if (resolvableType == null) {
+              resolvableType = ResolvableType.forType(requestBodyType);
+            }
+            if (smart.canWrite(resolvableType, requestBodyClass, requestContentType)) {
+              httpRequest.getHeaders().setAll(requestEntity.getHeaders());
+              logBody(requestBody, requestContentType, smart);
+              smart.write(requestBody, resolvableType, requestContentType, httpRequest, null);
               return;
             }
           }

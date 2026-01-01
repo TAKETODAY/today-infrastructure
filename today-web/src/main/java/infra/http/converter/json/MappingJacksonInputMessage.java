@@ -30,6 +30,7 @@ import infra.http.HttpInputMessage;
  * to deserialize the message.
  *
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class MappingJacksonInputMessage implements HttpInputMessage {
@@ -39,15 +40,11 @@ public class MappingJacksonInputMessage implements HttpInputMessage {
   private final HttpHeaders headers;
 
   @Nullable
-  private Class<?> deserializationView;
+  private final Class<?> deserializationView;
 
-  public MappingJacksonInputMessage(InputStream body, HttpHeaders headers) {
+  public MappingJacksonInputMessage(InputStream body, HttpHeaders headers, @Nullable Class<?> deserializationView) {
     this.body = body;
     this.headers = headers;
-  }
-
-  public MappingJacksonInputMessage(InputStream body, HttpHeaders headers, Class<?> deserializationView) {
-    this(body, headers);
     this.deserializationView = deserializationView;
   }
 
@@ -59,10 +56,6 @@ public class MappingJacksonInputMessage implements HttpInputMessage {
   @Override
   public HttpHeaders getHeaders() {
     return this.headers;
-  }
-
-  public void setDeserializationView(@Nullable Class<?> deserializationView) {
-    this.deserializationView = deserializationView;
   }
 
   @Nullable

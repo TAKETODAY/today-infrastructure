@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@ import infra.core.ParameterizedTypeReference;
 import infra.core.ReactiveAdapter;
 import infra.core.ReactiveAdapterRegistry;
 import infra.core.ReactiveStreams;
+import infra.core.ResolvableType;
 import infra.core.io.InputStreamResource;
 import infra.core.io.Resource;
 import infra.core.io.ResourceRegion;
@@ -54,6 +55,7 @@ import infra.http.MediaType;
 import infra.http.ResponseCookie;
 import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
+import infra.http.converter.SmartHttpMessageConverter;
 import infra.lang.Assert;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
@@ -290,17 +292,26 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
         }
       }
 
-      for (HttpMessageConverter<?> messageConverter : context.messageConverters()) {
-        if (messageConverter instanceof GenericHttpMessageConverter genericMessageConverter) {
-          if (genericMessageConverter.canWrite(entityType, entityClass, contentType)) {
-            genericMessageConverter.write(
-                    entity, entityType, contentType, request.asHttpOutputMessage());
+      ResolvableType resolvableType = null;
+
+      for (HttpMessageConverter converter : context.messageConverters()) {
+        if (converter instanceof GenericHttpMessageConverter generic) {
+          if (generic.canWrite(entityType, entityClass, contentType)) {
+            generic.write(entity, entityType, contentType, request.asHttpOutputMessage());
             return;
           }
         }
-        if (messageConverter.canWrite(entityClass, contentType)) {
-          ((HttpMessageConverter<Object>) messageConverter).write(
-                  entity, contentType, request.asHttpOutputMessage());
+        if (converter instanceof SmartHttpMessageConverter smart) {
+          if (resolvableType == null) {
+            resolvableType = ResolvableType.forType(entityType);
+          }
+          if (smart.canWrite(resolvableType, entityClass, contentType)) {
+            smart.write(entity, resolvableType, contentType, request.asHttpOutputMessage(), null);
+            return;
+          }
+        }
+        if (converter.canWrite(entityClass, contentType)) {
+          converter.write(entity, contentType, request.asHttpOutputMessage());
           return;
         }
       }

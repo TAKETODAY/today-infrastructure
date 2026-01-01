@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,6 +47,7 @@ import infra.http.HttpRange;
 import infra.http.MediaType;
 import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
+import infra.http.converter.SmartHttpMessageConverter;
 import infra.http.server.RequestPath;
 import infra.lang.Assert;
 import infra.util.CollectionUtils;
@@ -192,14 +193,25 @@ class DefaultServerRequest implements ServerRequest {
   private <T> T bodyInternal(Type bodyType, Class bodyClass) throws IOException {
     MediaType contentType = headers.contentType().orElse(MediaType.APPLICATION_OCTET_STREAM);
 
-    for (HttpMessageConverter<?> messageConverter : messageConverters) {
-      if (messageConverter instanceof GenericHttpMessageConverter<?> genericMessageConverter) {
-        if (genericMessageConverter.canRead(bodyType, bodyClass, contentType)) {
-          return (T) genericMessageConverter.read(bodyType, bodyClass, requestContext);
+    ResolvableType resolvableType = null;
+    for (HttpMessageConverter converter : messageConverters) {
+      if (converter instanceof GenericHttpMessageConverter generic) {
+        if (generic.canRead(bodyType, bodyClass, contentType)) {
+          return (T) generic.read(bodyType, bodyClass, requestContext);
         }
       }
-      if (messageConverter.canRead(bodyClass, contentType)) {
-        return (T) messageConverter.read(bodyClass, requestContext);
+
+      if (converter instanceof SmartHttpMessageConverter smart) {
+        if (resolvableType == null) {
+          resolvableType = ResolvableType.forType(bodyType);
+        }
+        if (smart.canRead(resolvableType, contentType)) {
+          return (T) smart.read(resolvableType, requestContext, null);
+        }
+      }
+
+      if (converter.canRead(bodyClass, contentType)) {
+        return (T) converter.read(bodyClass, requestContext);
       }
     }
     throw new HttpMediaTypeNotSupportedException(contentType, getSupportedMediaTypes(bodyClass), method());

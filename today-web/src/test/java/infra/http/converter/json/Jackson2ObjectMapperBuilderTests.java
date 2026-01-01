@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -349,7 +350,7 @@ class Jackson2ObjectMapperBuilderTests {
 
   @Test
   void propertyNamingStrategy() {
-    PropertyNamingStrategy strategy = new PropertyNamingStrategy.SnakeCaseStrategy();
+    PropertyNamingStrategy strategy = new PropertyNamingStrategies.SnakeCaseStrategy();
     ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().propertyNamingStrategy(strategy).build();
     assertThat(objectMapper.getSerializationConfig().getPropertyNamingStrategy()).isSameAs(strategy);
     assertThat(objectMapper.getDeserializationConfig().getPropertyNamingStrategy()).isSameAs(strategy);

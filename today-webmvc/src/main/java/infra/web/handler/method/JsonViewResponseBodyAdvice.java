@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,9 +21,13 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.Collections;
+import java.util.Map;
+
 import infra.core.MethodParameter;
 import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverter;
+import infra.http.converter.SmartHttpMessageConverter;
 import infra.http.converter.json.MappingJacksonValue;
 import infra.lang.Assert;
 import infra.web.RequestContext;
@@ -56,11 +60,27 @@ public class JsonViewResponseBodyAdvice extends AbstractMappingJacksonResponseBo
             && returnType.hasMethodAnnotation(JsonView.class);
   }
 
-  @SuppressWarnings("NullAway")
+  @Override
+  public @Nullable Map<String, Object> determineWriteHints(@Nullable Object body, @Nullable MethodParameter returnType,
+          MediaType selectedContentType, SmartHttpMessageConverter<?> selected) {
+    Class<?> jsonView = getJsonView(returnType);
+    if (jsonView != null) {
+      return Collections.singletonMap(JsonView.class.getName(), jsonView);
+    }
+    return null;
+  }
+
   @Override
   protected void beforeBodyWriteInternal(MappingJacksonValue value,
           MediaType contentType, @Nullable MethodParameter returnType, RequestContext request) {
 
+    value.setSerializationView(getJsonView(returnType));
+  }
+
+  private static @Nullable Class<?> getJsonView(@Nullable MethodParameter returnType) {
+    if (returnType == null) {
+      return null;
+    }
     JsonView ann = returnType.getMethodAnnotation(JsonView.class);
     Assert.state(ann != null, "No JsonView annotation");
 
@@ -69,8 +89,7 @@ public class JsonViewResponseBodyAdvice extends AbstractMappingJacksonResponseBo
       throw new IllegalArgumentException(
               "@JsonView only supported for response body advice with exactly 1 class argument: " + returnType);
     }
-
-    value.setSerializationView(classes[0]);
+    return classes[0];
   }
 
 }

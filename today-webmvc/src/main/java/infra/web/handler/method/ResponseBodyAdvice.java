@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +19,12 @@ package infra.web.handler.method;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.Map;
+
 import infra.core.MethodParameter;
 import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverter;
+import infra.http.converter.SmartHttpMessageConverter;
 import infra.web.RequestContext;
 
 /**
@@ -66,6 +69,22 @@ public interface ResponseBodyAdvice<T> {
   @Nullable
   T beforeBodyWrite(@Nullable Object body, @Nullable MethodParameter returnType, MediaType contentType,
           HttpMessageConverter<?> converter, RequestContext context);
+
+  /**
+   * Invoked to determine write hints if the converter is a {@link SmartHttpMessageConverter}.
+   *
+   * @param body the body to be written
+   * @param returnType the return type of the controller method
+   * @param selectedContentType the content type selected through content negotiation
+   * @param selected the converter type selected to write to the response
+   * @return the hints determined otherwise {@code null}
+   * @since 5.0
+   */
+  default @Nullable Map<String, Object> determineWriteHints(@Nullable T body, @Nullable MethodParameter returnType,
+          MediaType selectedContentType, SmartHttpMessageConverter<?> selected) {
+
+    return null;
+  }
 
 }
 

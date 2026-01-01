@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1138,6 +1138,17 @@ public interface RestClient {
      */
     RequestBodySpec body(StreamingHttpOutputMessage.Body body);
 
+    /**
+     * Set the hint with the given name to the given value for
+     * {@link infra.http.converter.SmartHttpMessageConverter}s
+     * supporting them.
+     *
+     * @param key the key of the hint to add
+     * @param value the value of the hint to add
+     * @return this builder
+     * @since 5.0
+     */
+    RequestBodySpec hint(String key, Object value);
   }
 
   /**
@@ -1207,6 +1218,18 @@ public interface RestClient {
      * @since 5.0
      */
     ResponseSpec ignoreStatus(boolean ignoreStatus);
+
+    /**
+     * Set the hint with the given name to the given value for
+     * {@link infra.http.converter.SmartHttpMessageConverter}s
+     * supporting them.
+     *
+     * @param key the key of the hint to add
+     * @param value the value of the hint to add
+     * @return this builder
+     * @since 5.0
+     */
+    ResponseSpec hint(String key, Object value);
 
     /**
      * Extract the body as an object of the given type.
@@ -1357,6 +1380,18 @@ public interface RestClient {
      * @since 5.0
      */
     AsyncSpec ignoreStatus(boolean ignoreStatus);
+
+    /**
+     * Set the hint with the given name to the given value for
+     * {@link infra.http.converter.SmartHttpMessageConverter}s
+     * supporting them.
+     *
+     * @param key the key of the hint to add
+     * @param value the value of the hint to add
+     * @return this builder
+     * @since 5.0
+     */
+    AsyncSpec hint(String key, Object value);
 
     /**
      * Extract the body as an object of the given type.
