@@ -25,6 +25,7 @@ dependencies {
   jacocoAggregation project(':today-test-support')
   jacocoAggregation project(':today-tx')
   jacocoAggregation project(':today-web')
+  jacocoAggregation project(':today-webmvc')
   jacocoAggregation project(':today-websocket')
   jacocoAggregation project(':integration-tests')
 
