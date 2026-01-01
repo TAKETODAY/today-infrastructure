@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ import infra.http.client.ClientHttpRequestInitializer;
 import infra.http.client.ClientHttpRequestInterceptor;
 import infra.http.client.JdkClientHttpRequestFactory;
 import infra.http.client.support.BasicAuthenticationInterceptor;
+import infra.http.converter.AllEncompassingFormHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.web.util.DefaultUriBuilderFactory;
@@ -137,6 +138,19 @@ class RestClientBuilderTests {
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(null);
     assertThatIllegalArgumentException().isThrownBy(() -> builder.messageConverters(converters));
+  }
+
+  @Test
+  void configureMessageConverters() {
+    StringHttpMessageConverter stringConverter = new StringHttpMessageConverter();
+    RestClient.Builder builder = RestClient.builder();
+    builder.configureMessageConverters(clientBuilder -> clientBuilder.addCustomConverter(stringConverter));
+    assertThat(builder).isInstanceOf(DefaultRestClientBuilder.class);
+    DefaultRestClient restClient = (DefaultRestClient) builder.build();
+
+    assertThat(fieldValue("messageConverters", restClient))
+            .asInstanceOf(InstanceOfAssertFactories.LIST)
+            .hasExactlyElementsOfTypes(StringHttpMessageConverter.class, AllEncompassingFormHttpMessageConverter.class);
   }
 
   @Test

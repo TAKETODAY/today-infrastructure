@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,21 +38,8 @@ import infra.http.client.HttpComponentsClientHttpRequestFactory;
 import infra.http.client.InterceptingClientHttpRequestFactory;
 import infra.http.client.JdkClientHttpRequestFactory;
 import infra.http.client.ReactorClientHttpRequestFactory;
-import infra.http.converter.AllEncompassingFormHttpMessageConverter;
-import infra.http.converter.ByteArrayHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
-import infra.http.converter.ResourceHttpMessageConverter;
-import infra.http.converter.StringHttpMessageConverter;
-import infra.http.converter.cbor.MappingJackson2CborHttpMessageConverter;
-import infra.http.converter.feed.AtomFeedHttpMessageConverter;
-import infra.http.converter.feed.RssChannelHttpMessageConverter;
-import infra.http.converter.json.GsonHttpMessageConverter;
-import infra.http.converter.json.JsonbHttpMessageConverter;
-import infra.http.converter.json.MappingJackson2HttpMessageConverter;
-import infra.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
-import infra.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
-import infra.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
-import infra.http.converter.yaml.MappingJackson2YamlHttpMessageConverter;
+import infra.http.converter.HttpMessageConverters;
 import infra.lang.Assert;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
@@ -78,42 +65,11 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
 
   private static final boolean reactorNettyClientPresent;
 
-  // message factories
-
-  private static final boolean jackson2Present;
-
-  private static final boolean gsonPresent;
-
-  private static final boolean jsonbPresent;
-
-  private static final boolean jackson2SmilePresent;
-
-  private static final boolean jackson2CborPresent;
-
-  private static final boolean jackson2YamlPresent;
-
-  private static final boolean romePresent;
-
-  private static final boolean jaxb2Present;
-
-  private static final boolean jackson2XmlPresent;
-
   static {
     ClassLoader loader = DefaultRestClientBuilder.class.getClassLoader();
 
     httpComponentsClientPresent = ClassUtils.isPresent("org.apache.hc.client5.http.classic.HttpClient", loader);
     reactorNettyClientPresent = ClassUtils.isPresent("reactor.netty.http.client.HttpClient", loader);
-
-    romePresent = ClassUtils.isPresent("com.rometools.rome.feed.WireFeed", loader);
-    jaxb2Present = ClassUtils.isPresent("jakarta.xml.bind.Binder", loader);
-    jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", loader) &&
-            ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", loader);
-    jackson2XmlPresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.xml.XmlMapper", loader);
-    jackson2SmilePresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory", loader);
-    jackson2CborPresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.cbor.CBORFactory", loader);
-    jackson2YamlPresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.yaml.YAMLFactory", loader);
-    gsonPresent = ClassUtils.isPresent("com.google.gson.Gson", loader);
-    jsonbPresent = ClassUtils.isPresent("jakarta.json.bind.Jsonb", loader);
   }
 
   public @Nullable URI baseURI;
@@ -148,6 +104,8 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   public @Nullable Object defaultApiVersion;
 
   public @Nullable ApiVersionInserter apiVersionInserter;
+
+  private @Nullable Consumer<HttpMessageConverters.ClientBuilder> convertersConfigurer;
 
   public DefaultRestClientBuilder() {
   }
@@ -412,9 +370,20 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   }
 
   @Override
+  public RestClient.Builder configureMessageConverters(Consumer<HttpMessageConverters.ClientBuilder> configurer) {
+    this.convertersConfigurer = (this.convertersConfigurer != null ?
+            this.convertersConfigurer.andThen(configurer) : configurer);
+    return this;
+  }
+
+  @Override
   public RestClient.Builder messageConverters(Consumer<List<HttpMessageConverter<?>>> configurer) {
-    configurer.accept(initMessageConverters());
-    validateConverters(this.messageConverters);
+    if (this.messageConverters == null) {
+      this.messageConverters = new ArrayList<>();
+      this.messageConverters.addAll(HttpMessageConverters.forClient().registerDefaults().asList());
+    }
+    configurer.accept(messageConverters);
+    validateConverters(messageConverters);
     return this;
   }
 
@@ -432,46 +401,20 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   }
 
   List<HttpMessageConverter<?>> initMessageConverters() {
-    if (this.messageConverters == null) {
-      this.messageConverters = new ArrayList<>();
+    HttpMessageConverters.ClientBuilder builder = HttpMessageConverters.forClient();
+    if (this.messageConverters == null && this.convertersConfigurer == null) {
+      builder.registerDefaults();
+    }
+    else {
+      builder.addCustomConverters(messageConverters);
 
-      this.messageConverters.add(new ByteArrayHttpMessageConverter());
-      this.messageConverters.add(new StringHttpMessageConverter());
-      this.messageConverters.add(new ResourceHttpMessageConverter(false));
-      this.messageConverters.add(new AllEncompassingFormHttpMessageConverter());
-
-      if (romePresent) {
-        this.messageConverters.add(new AtomFeedHttpMessageConverter());
-        this.messageConverters.add(new RssChannelHttpMessageConverter());
-      }
-
-      if (jackson2XmlPresent) {
-        this.messageConverters.add(new MappingJackson2XmlHttpMessageConverter());
-      }
-      else if (jaxb2Present) {
-        this.messageConverters.add(new Jaxb2RootElementHttpMessageConverter());
-      }
-
-      if (jackson2Present) {
-        this.messageConverters.add(new MappingJackson2HttpMessageConverter());
-      }
-      else if (gsonPresent) {
-        this.messageConverters.add(new GsonHttpMessageConverter());
-      }
-      else if (jsonbPresent) {
-        this.messageConverters.add(new JsonbHttpMessageConverter());
-      }
-      if (jackson2SmilePresent) {
-        this.messageConverters.add(new MappingJackson2SmileHttpMessageConverter());
-      }
-      if (jackson2CborPresent) {
-        this.messageConverters.add(new MappingJackson2CborHttpMessageConverter());
-      }
-      if (jackson2YamlPresent) {
-        this.messageConverters.add(new MappingJackson2YamlHttpMessageConverter());
+      if (this.convertersConfigurer != null) {
+        this.convertersConfigurer.accept(builder);
       }
     }
-    return this.messageConverters;
+    List<HttpMessageConverter<?>> result = new ArrayList<>();
+    builder.build().forEach(result::add);
+    return result;
   }
 
   @Override
@@ -492,8 +435,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     var defaultHeaders = this.defaultHeaders != null ? HttpHeaders.copyOf(this.defaultHeaders).asReadOnly() : null;
     var defaultCookies = this.defaultCookies != null ? MultiValueMap.copyOf(this.defaultCookies).asReadOnly() : null;
 
-    List<HttpMessageConverter<?>> messageConverters =
-            this.messageConverters != null ? this.messageConverters : initMessageConverters();
+    List<HttpMessageConverter<?>> messageConverters = initMessageConverters();
 
     return new DefaultRestClient(requestFactory, this.interceptors, this.initializers, uriBuilderFactory,
             defaultHeaders, defaultCookies, this.defaultRequest, this.statusHandlers, bufferingPredicate,

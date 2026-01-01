@@ -363,8 +363,18 @@ class DefaultHttpMessageConverters implements HttpMessageConverters {
     }
 
     @Override
-    public ClientBuilder addCustomConverter(HttpMessageConverter<?> customConverter) {
-      addCustomMessageConverter(customConverter);
+    public ClientBuilder addCustomConverter(HttpMessageConverter<?> converter) {
+      addCustomMessageConverter(converter);
+      return this;
+    }
+
+    @Override
+    public ClientBuilder addCustomConverters(@Nullable List<HttpMessageConverter<?>> converters) {
+      if (converters != null) {
+        for (HttpMessageConverter<?> converter : converters) {
+          addCustomMessageConverter(converter);
+        }
+      }
       return this;
     }
 
@@ -447,8 +457,18 @@ class DefaultHttpMessageConverters implements HttpMessageConverters {
     }
 
     @Override
-    public ServerBuilder addCustomConverter(HttpMessageConverter<?> customConverter) {
-      addCustomMessageConverter(customConverter);
+    public ServerBuilder addCustomConverter(HttpMessageConverter<?> converter) {
+      addCustomMessageConverter(converter);
+      return this;
+    }
+
+    @Override
+    public ServerBuilder addCustomConverters(@Nullable List<HttpMessageConverter<?>> converters) {
+      if (converters != null) {
+        for (HttpMessageConverter<?> converter : converters) {
+          addCustomMessageConverter(converter);
+        }
+      }
       return this;
     }
 

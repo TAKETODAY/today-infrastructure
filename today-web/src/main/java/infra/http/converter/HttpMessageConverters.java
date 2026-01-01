@@ -17,6 +17,8 @@
 
 package infra.http.converter;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -160,9 +162,16 @@ public interface HttpMessageConverters extends Iterable<HttpMessageConverter<?>>
     /**
      * Add a custom {@code HttpMessageConverter} to the list of converters, ahead of the default converters.
      *
-     * @param customConverter the converter instance to add
+     * @param converter the converter instance to add
      */
-    T addCustomConverter(HttpMessageConverter<?> customConverter);
+    T addCustomConverter(HttpMessageConverter<?> converter);
+
+    /**
+     * Add multiple custom {@code HttpMessageConverter}s to the list of converters, ahead of the default converters.
+     *
+     * @param converters the list of converter instances to add
+     */
+    T addCustomConverters(@Nullable List<HttpMessageConverter<?>> converters);
 
     /**
      * Add a consumer for configuring the selected message converters.
@@ -175,6 +184,16 @@ public interface HttpMessageConverters extends Iterable<HttpMessageConverter<?>>
      * Build and return the {@link HttpMessageConverters} instance configured by this builder.
      */
     HttpMessageConverters build();
+
+    /**
+     * Returns the list of HTTP message converters.
+     *
+     * @return the list of {@link HttpMessageConverter} instances
+     */
+    default List<HttpMessageConverter<?>> asList() {
+      return build().asList();
+    }
+
   }
 
   /**

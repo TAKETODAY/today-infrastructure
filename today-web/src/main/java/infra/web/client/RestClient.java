@@ -45,6 +45,7 @@ import infra.http.client.ClientHttpRequestInitializer;
 import infra.http.client.ClientHttpRequestInterceptor;
 import infra.http.client.ClientHttpResponse;
 import infra.http.converter.HttpMessageConverter;
+import infra.http.converter.HttpMessageConverters;
 import infra.lang.CheckReturnValue;
 import infra.util.MultiValueMap;
 import infra.util.concurrent.Future;
@@ -559,6 +560,17 @@ public interface RestClient {
      * @return this builder
      */
     Builder requestFactory(ClientHttpRequestFactory requestFactory);
+
+    /**
+     * Configure the message converters for the {@code RestClient} to use.
+     * Multiple consumers are composed together and applied to a single
+     * {@link HttpMessageConverters.ClientBuilder} instance.
+     *
+     * @param configurer the configurer to apply on an empty {@link HttpMessageConverters.ClientBuilder}.
+     * @return this builder
+     * @since 5.0
+     */
+    Builder configureMessageConverters(Consumer<HttpMessageConverters.ClientBuilder> configurer);
 
     /**
      * Configure the message converters for the {@code RestClient} to use.
