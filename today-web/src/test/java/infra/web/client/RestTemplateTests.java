@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import infra.core.ParameterizedTypeReference;
+import infra.core.ResolvableType;
 import infra.http.HttpEntity;
 import infra.http.HttpHeaders;
 import infra.http.HttpInputMessage;
@@ -52,6 +53,7 @@ import infra.http.client.ClientHttpResponse;
 import infra.http.client.JdkClientHttpRequestFactory;
 import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
+import infra.http.converter.SmartHttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.util.FileCopyUtils;
 import infra.web.util.DefaultUriBuilderFactory;
@@ -663,9 +665,9 @@ class RestTemplateTests {
   @Test
   @SuppressWarnings("rawtypes")
   void exchangeParameterizedType() throws Exception {
-    GenericHttpMessageConverter converter = mock(GenericHttpMessageConverter.class);
-    template.setMessageConverters(Collections.<HttpMessageConverter<?>>singletonList(converter));
-    ParameterizedTypeReference<List<Integer>> intList = new ParameterizedTypeReference<List<Integer>>() { };
+    GenericHttpMessageConverter converter = mock();
+    template.setMessageConverters(Collections.singletonList(converter));
+    ParameterizedTypeReference<List<Integer>> intList = new ParameterizedTypeReference<>() { };
     given(converter.canRead(intList.getType(), null, null)).willReturn(true);
     given(converter.getSupportedMediaTypes(any())).willReturn(Collections.singletonList(MediaType.TEXT_PLAIN));
     given(converter.canWrite(String.class, String.class, null)).willReturn(true);
@@ -686,7 +688,7 @@ class RestTemplateTests {
     given(converter.read(eq(intList.getType()), eq(null), any(HttpInputMessage.class))).willReturn(expected);
 
     HttpHeaders entityHeaders = HttpHeaders.forWritable();
-    entityHeaders.setOrRemove("MyHeader", "MyValue");
+    entityHeaders.set("MyHeader", "MyValue");
     HttpEntity<String> requestEntity = new HttpEntity<>("Hello World", entityHeaders);
     ResponseEntity<List<Integer>> result = template.exchange("https://example.com", POST, requestEntity, intList);
     assertThat(result.getBody()).as("Invalid POST result").isEqualTo(expected);
@@ -699,7 +701,42 @@ class RestTemplateTests {
   }
 
   @Test
-    //
+  @SuppressWarnings("rawtypes")
+  void exchangeParameterizedTypeWithSmartConverter() throws Exception {
+    SmartHttpMessageConverter converter = mock();
+    template.setMessageConverters(Collections.singletonList(converter));
+    ParameterizedTypeReference<List<Integer>> intList = new ParameterizedTypeReference<>() { };
+    given(converter.canRead(ResolvableType.forType(intList.getType()), null)).willReturn(true);
+    given(converter.getSupportedMediaTypes(any())).willReturn(Collections.singletonList(MediaType.TEXT_PLAIN));
+    given(converter.canWrite(ResolvableType.forClass(String.class), String.class, null)).willReturn(true);
+
+    HttpHeaders requestHeaders = HttpHeaders.forWritable();
+    mockSentRequest(POST, "https://example.com", requestHeaders);
+    List<Integer> expected = Collections.singletonList(42);
+    HttpHeaders responseHeaders = HttpHeaders.forWritable();
+    responseHeaders.setContentType(MediaType.TEXT_PLAIN);
+    responseHeaders.setContentLength(10);
+    mockResponseStatus(HttpStatus.OK);
+    given(response.getHeaders()).willReturn(responseHeaders);
+    given(response.getContentLength()).willReturn(10L);
+    given(response.getBody()).willReturn(new ByteArrayInputStream(Integer.toString(42).getBytes()));
+    given(converter.canRead(ResolvableType.forType(intList.getType()), MediaType.TEXT_PLAIN)).willReturn(true);
+    given(converter.read(eq(ResolvableType.forType(intList.getType())), any(HttpInputMessage.class), eq(null))).willReturn(expected);
+
+    HttpHeaders entityHeaders = HttpHeaders.forWritable();
+    entityHeaders.set("MyHeader", "MyValue");
+    HttpEntity<String> requestEntity = new HttpEntity<>("Hello World", entityHeaders);
+    ResponseEntity<List<Integer>> result = template.exchange("https://example.com", POST, requestEntity, intList);
+    assertThat(result.getBody()).as("Invalid POST result").isEqualTo(expected);
+    assertThat(result.headers().getContentType()).as("Invalid Content-Type").isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(requestHeaders.getFirst("Accept")).as("Invalid Accept header").isEqualTo(MediaType.TEXT_PLAIN_VALUE);
+    assertThat(requestHeaders.getFirst("MyHeader")).as("Invalid custom header").isEqualTo("MyValue");
+    assertThat(result.getStatusCode()).as("Invalid status code").isEqualTo(HttpStatus.OK);
+
+    verify(response).close();
+  }
+
+  @Test
   void requestInterceptorCanAddExistingHeaderValueWithoutBody() throws Exception {
     ClientHttpRequestInterceptor interceptor = (request, body, execution) -> {
       request.getHeaders().add("MyHeader", "MyInterceptorValue");

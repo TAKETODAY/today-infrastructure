@@ -134,7 +134,7 @@ public class HttpMessageConverterExtractor<T> implements ResponseExtractor<T> {
           }
           if (smart.canRead(resolvableType, contentType)) {
             if (logger.isDebugEnabled()) {
-              logger.debug("Reading to [" + resolvableType + "]");
+              logger.debug("Reading to [{}]", resolvableType);
             }
             return (T) smart.read(resolvableType, response, null);
           }

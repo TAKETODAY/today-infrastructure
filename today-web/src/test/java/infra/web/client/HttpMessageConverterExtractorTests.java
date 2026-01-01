@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@ package infra.web.client;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -28,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import infra.core.ParameterizedTypeReference;
+import infra.core.ResolvableType;
 import infra.http.HttpHeaders;
 import infra.http.HttpInputMessage;
 import infra.http.HttpStatus;
@@ -36,6 +36,7 @@ import infra.http.client.ClientHttpResponse;
 import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotReadableException;
+import infra.http.converter.SmartHttpMessageConverter;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -163,15 +165,14 @@ class HttpMessageConverterExtractorTests {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   void generics() throws IOException {
     responseHeaders.setContentType(contentType);
     String expected = "Foo";
-    ParameterizedTypeReference<List<String>> reference = new ParameterizedTypeReference<List<String>>() { };
+    ParameterizedTypeReference<List<String>> reference = new ParameterizedTypeReference<>() { };
     Type type = reference.getType();
 
-    GenericHttpMessageConverter<String> converter = mock(GenericHttpMessageConverter.class);
-    HttpMessageConverterExtractor<?> extractor = new HttpMessageConverterExtractor<List<String>>(type, asList(converter));
+    GenericHttpMessageConverter<String> converter = mock();
+    HttpMessageConverterExtractor<?> extractor = new HttpMessageConverterExtractor<List<String>>(type, List.of(converter));
 
     given(response.getContentType()).willReturn(contentType);
     given(response.getContentTypeAsString()).willReturn(contentType.toString());
@@ -188,7 +189,27 @@ class HttpMessageConverterExtractorTests {
   }
 
   @Test
-    //
+  void smartConverter() throws IOException {
+    responseHeaders.setContentType(contentType);
+    String expected = "Foo";
+    ParameterizedTypeReference<List<String>> reference = new ParameterizedTypeReference<>() { };
+    ResolvableType resolvableType = ResolvableType.forType(reference.getType());
+
+    SmartHttpMessageConverter<String> converter = mock();
+    HttpMessageConverterExtractor<?> extractor = new HttpMessageConverterExtractor<List<String>>(resolvableType.getType(), List.of(converter));
+
+    given(response.getStatusCode()).willReturn(HttpStatus.OK);
+    given(response.getHeaders()).willReturn(responseHeaders);
+    given(response.getContentLength()).willReturn(10L);
+    given(response.getBody()).willReturn(new ByteArrayInputStream(expected.getBytes()));
+    given(converter.canRead(resolvableType, contentType)).willReturn(true);
+    given(converter.read(eq(resolvableType), any(HttpInputMessage.class), isNull())).willReturn(expected);
+
+    Object result = extractor.extractData(response);
+    assertThat(result).isEqualTo(expected);
+  }
+
+  @Test
   void converterThrowsIOException() throws IOException {
     responseHeaders.setContentType(contentType);
     given(response.getStatusCode()).willReturn(HttpStatus.OK);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.http.converter;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -38,6 +39,13 @@ public interface HttpMessageConverters extends Iterable<HttpMessageConverter<?>>
    * Return true if this instance does not contain any message converters.
    */
   boolean isEmpty();
+
+  /**
+   * Returns the list of HTTP message converters.
+   *
+   * @return the list of {@link HttpMessageConverter} instances
+   */
+  List<HttpMessageConverter<?>> asList();
 
   /**
    * Create a builder instance, tailored for HTTP client usage.

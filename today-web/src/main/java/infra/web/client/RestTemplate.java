@@ -43,24 +43,11 @@ import infra.http.client.ClientHttpRequest;
 import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.ClientHttpResponse;
 import infra.http.client.support.InterceptingHttpAccessor;
-import infra.http.converter.AllEncompassingFormHttpMessageConverter;
-import infra.http.converter.ByteArrayHttpMessageConverter;
 import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
-import infra.http.converter.ResourceHttpMessageConverter;
+import infra.http.converter.HttpMessageConverters;
 import infra.http.converter.SmartHttpMessageConverter;
-import infra.http.converter.StringHttpMessageConverter;
-import infra.http.converter.cbor.MappingJackson2CborHttpMessageConverter;
-import infra.http.converter.feed.AtomFeedHttpMessageConverter;
-import infra.http.converter.feed.RssChannelHttpMessageConverter;
-import infra.http.converter.json.GsonHttpMessageConverter;
-import infra.http.converter.json.JsonbHttpMessageConverter;
-import infra.http.converter.json.MappingJackson2HttpMessageConverter;
-import infra.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
-import infra.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
-import infra.http.converter.yaml.MappingJackson2YamlHttpMessageConverter;
 import infra.lang.Assert;
-import infra.util.ClassUtils;
 import infra.util.MimeTypeUtils;
 import infra.web.util.AbstractUriTemplateHandler;
 import infra.web.util.DefaultUriBuilderFactory;
@@ -102,18 +89,6 @@ import infra.web.util.UriTemplateHandler;
  */
 public class RestTemplate extends InterceptingHttpAccessor implements RestOperations {
 
-  private static final boolean gsonPresent = isPresent("com.google.gson.Gson");
-  private static final boolean jsonbPresent = isPresent("jakarta.json.bind.Jsonb");
-  private static final boolean romePresent = isPresent("com.rometools.rome.feed.WireFeed");
-
-  private static final boolean jackson2Present = isPresent("com.fasterxml.jackson.databind.ObjectMapper")
-          && isPresent("com.fasterxml.jackson.core.JsonGenerator");
-
-  private static final boolean jackson2SmilePresent = isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory");
-  private static final boolean jackson2CborPresent = isPresent("com.fasterxml.jackson.dataformat.cbor.CBORFactory");
-  private static final boolean jackson2XmlPresent = isPresent("com.fasterxml.jackson.dataformat.xml.XmlMapper");
-  private static final boolean jackson2YamlPresent = isPresent("com.fasterxml.jackson.dataformat.yaml.YAMLFactory");
-
   private final List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
 
   private ResponseErrorHandler errorHandler = new DefaultResponseErrorHandler();
@@ -127,43 +102,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
    * Default {@link HttpMessageConverter HttpMessageConverters} are initialized.
    */
   public RestTemplate() {
-    this.messageConverters.add(new ByteArrayHttpMessageConverter());
-    this.messageConverters.add(new StringHttpMessageConverter());
-    this.messageConverters.add(new ResourceHttpMessageConverter(false));
-
-    this.messageConverters.add(new AllEncompassingFormHttpMessageConverter());
-
-    if (romePresent) {
-      this.messageConverters.add(new AtomFeedHttpMessageConverter());
-      this.messageConverters.add(new RssChannelHttpMessageConverter());
-    }
-
-    if (jackson2XmlPresent) {
-      this.messageConverters.add(new MappingJackson2XmlHttpMessageConverter());
-    }
-
-    if (jackson2Present) {
-      this.messageConverters.add(new MappingJackson2HttpMessageConverter());
-    }
-    else if (gsonPresent) {
-      this.messageConverters.add(new GsonHttpMessageConverter());
-    }
-    else if (jsonbPresent) {
-      this.messageConverters.add(new JsonbHttpMessageConverter());
-    }
-
-    if (jackson2SmilePresent) {
-      this.messageConverters.add(new MappingJackson2SmileHttpMessageConverter());
-    }
-    if (jackson2CborPresent) {
-      this.messageConverters.add(new MappingJackson2CborHttpMessageConverter());
-    }
-    if (jackson2YamlPresent) {
-      this.messageConverters.add(new MappingJackson2YamlHttpMessageConverter());
-    }
-
-    updateErrorHandlerConverters();
-    this.uriTemplateHandler = initUriTemplateHandler();
+    this(HttpMessageConverters.forClient().registerDefaults().build().asList());
   }
 
   /**
@@ -801,11 +740,6 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
   private static <T> T nonNull(@Nullable T result) {
     Assert.state(result != null, "No result");
     return result;
-  }
-
-  static boolean isPresent(String name) {
-    ClassLoader classLoader = RestTemplate.class.getClassLoader();
-    return ClassUtils.isPresent(name, classLoader);
   }
 
   /**

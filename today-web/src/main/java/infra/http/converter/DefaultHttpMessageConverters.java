@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ package infra.http.converter;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
@@ -62,6 +63,11 @@ class DefaultHttpMessageConverters implements HttpMessageConverters {
   @Override
   public boolean isEmpty() {
     return this.messageConverters.isEmpty();
+  }
+
+  @Override
+  public List<HttpMessageConverter<?>> asList() {
+    return Collections.unmodifiableList(messageConverters);
   }
 
   @Override
