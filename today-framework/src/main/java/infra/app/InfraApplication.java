@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,6 +60,12 @@ public @interface InfraApplication {
 
   /**
    * Exclude specific auto-configuration classes such that they will never be applied.
+   * <p>
+   * Since this annotation is parsed by loading class bytecode, it is safe to specify
+   * classes here that may ultimately not be on the classpath, but only if this
+   * annotation is directly on the affected component and <b>not</b> if this annotation
+   * is used as a composed, meta-annotation. In order to use this annotation as a
+   * meta-annotation, only use the {@link #excludeName} attribute.
    *
    * @return the classes to exclude
    */

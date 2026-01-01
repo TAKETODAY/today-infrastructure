@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,12 +64,12 @@ import infra.lang.TodayStrategies;
 public @interface AutoConfiguration {
 
   /**
-   * Explicitly specify the name of the Framework bean definition associated with the
+   * Explicitly specify the name of the Infra bean definition associated with the
    * {@code @AutoConfiguration} class. If left unspecified (the common case), a bean
    * name will be automatically generated.
    * <p>
    * The custom name applies only if the {@code @AutoConfiguration} class is picked up
-   * via component scanning or supplied directly to an
+   * through component scanning or supplied directly to an
    * {@link AnnotationConfigApplicationContext}. If the {@code @AutoConfiguration} class
    * is registered as a traditional XML bean definition, the name/id of the bean element
    * will take precedence.
@@ -81,7 +81,13 @@ public @interface AutoConfiguration {
   String value() default "";
 
   /**
-   * The auto-configure classes that should have not yet been applied.
+   * The auto-configuration classes that should have not yet been applied.
+   * <p>
+   * Since this annotation is parsed by loading class bytecode, it is safe to specify
+   * classes here that may ultimately not be on the classpath, but only if this
+   * annotation is directly on the affected component and <b>not</b> if this annotation
+   * is used as a composed, meta-annotation. In order to use this annotation as a
+   * meta-annotation, only use the {@link #beforeName} attribute.
    *
    * @return the classes
    */
@@ -89,7 +95,10 @@ public @interface AutoConfiguration {
   Class<?>[] before() default {};
 
   /**
-   * The names of the auto-configure classes that should have not yet been applied.
+   * The names of the auto-configuration classes that should have not yet been applied.
+   * In the unusual case that an auto-configuration class is not a top-level class, its
+   * name should use {@code $} to separate it from its containing class, for example
+   * {@code com.example.Outer$NestedAutoConfiguration}.
    *
    * @return the class names
    */
@@ -97,7 +106,13 @@ public @interface AutoConfiguration {
   String[] beforeName() default {};
 
   /**
-   * The auto-configure classes that should have already been applied.
+   * The auto-configuration classes that should have already been applied.
+   * <p>
+   * Since this annotation is parsed by loading class bytecode, it is safe to specify
+   * classes here that may ultimately not be on the classpath, but only if this
+   * annotation is directly on the affected component and <b>not</b> if this annotation
+   * is used as a composed, meta-annotation. In order to use this annotation as a
+   * meta-annotation, only use the {@link #afterName} attribute.
    *
    * @return the classes
    */
@@ -105,7 +120,10 @@ public @interface AutoConfiguration {
   Class<?>[] after() default {};
 
   /**
-   * The names of the auto-configure classes that should have already been applied.
+   * The names of the auto-configuration classes that should have already been applied.
+   * In the unusual case that an auto-configuration class is not a top-level class, its
+   * class name should use {@code $} to separate it from its containing class, for
+   * example {@code com.example.Outer$NestedAutoConfiguration}.
    *
    * @return the class names
    */

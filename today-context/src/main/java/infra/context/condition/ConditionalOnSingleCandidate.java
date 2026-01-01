@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,8 +56,14 @@ public @interface ConditionalOnSingleCandidate {
   /**
    * The class type of bean that should be checked. The condition matches if a bean of
    * the class specified is contained in the {@link BeanFactory} and a primary candidate
-   * exists in case of multiple instances. Beans that are not autowire candidates or
-   * that are not default candidates are ignored.
+   * exists in case of multiple instances. Beans that are not autowire candidates, that
+   * are not default candidates, or that are fallback candidates are ignored.
+   * <p>
+   * Since this annotation is parsed by loading class bytecode, it is safe to specify
+   * classes here that may ultimately not be on the classpath, but only if this
+   * annotation is directly on the affected component and <b>not</b> if this annotation
+   * is used as a composed, meta-annotation. In order to use this annotation as a
+   * meta-annotation, only use the {@link #type} attribute.
    * <p>
    * This attribute may <strong>not</strong> be used in conjunction with
    * {@link #type()}, but it may be used instead of {@link #type()}.
@@ -74,7 +80,8 @@ public @interface ConditionalOnSingleCandidate {
    * The class type name of bean that should be checked. The condition matches if a bean
    * of the class specified is contained in the {@link BeanFactory} and a primary
    * candidate exists in case of multiple instances. Beans that are not autowire
-   * candidates or that are not default candidates are ignored.
+   * candidates, that are not default candidates, or that are fallback candidates are
+   * ignored.
    * <p>
    * This attribute may <strong>not</strong> be used in conjunction with
    * {@link #value()}, but it may be used instead of {@link #value()}.

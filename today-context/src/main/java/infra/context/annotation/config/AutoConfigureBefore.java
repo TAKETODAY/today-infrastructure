@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,14 +46,23 @@ import infra.context.annotation.DependsOn;
 public @interface AutoConfigureBefore {
 
   /**
-   * The auto-configure classes that should have not yet been applied.
+   * The auto-configuration classes that should have not yet been applied.
+   * <p>
+   * Since this annotation is parsed by loading class bytecode, it is safe to specify
+   * classes here that may ultimately not be on the classpath, but only if this
+   * annotation is directly on the affected component and <b>not</b> if this annotation
+   * is used as a composed, meta-annotation. In order to use this annotation as a
+   * meta-annotation, only use the {@link #name} attribute.
    *
    * @return the classes
    */
   Class<?>[] value() default {};
 
   /**
-   * The names of the auto-configure classes that should have not yet been applied.
+   * The names of the auto-configuration classes that should have not yet been applied.
+   * In the unusual case that an auto-configuration class is not a top-level class, its
+   * class name should use {@code $} to separate it from its containing class, for
+   * example {@code com.example.Outer$NestedAutoConfiguration}.
    *
    * @return the class names
    */
