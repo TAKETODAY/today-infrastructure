@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,10 @@
 
 package infra.core.conversion;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
+
+import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -29,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 class ConverterTests {
 
   private final Converter<Integer, Integer> moduloTwo = number -> number % 2;
+
   private final Converter<Integer, Integer> addOne = number -> number + 1;
 
   @Test
@@ -47,6 +51,8 @@ class ConverterTests {
     Converter<String, Integer> length = String::length;
     assertThat(length.andThen(this.moduloTwo).convert("example")).isEqualTo(1);
     assertThat(length.andThen(this.addOne).convert("example")).isEqualTo(8);
+    assertThat(length.<@Nullable Instant>andThen(source -> null).convert("example")).isNull();
+    assertThat(length.andThen(source -> null).convert("example")).isNull();
   }
 
   @Test

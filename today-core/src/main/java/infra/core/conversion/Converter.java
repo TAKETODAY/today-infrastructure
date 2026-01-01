@@ -61,7 +61,7 @@ public interface Converter<S, T extends @Nullable Object> {
    * and then applies the {@code after} {@link Converter}
    * @since 4.0
    */
-  default <U> Converter<S, U> andThen(Converter<? super T, ? extends U> after) {
+  default <U extends @Nullable Object> Converter<S, @Nullable U> andThen(Converter<? super T, ? extends @Nullable U> after) {
     Assert.notNull(after, "After Converter is required");
     return (S s) -> {
       T initialResult = convert(s);
