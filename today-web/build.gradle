@@ -83,7 +83,7 @@ dependencies {
 
   testImplementation(project(":today-core-test"))
   testImplementation(project(":today-test-support"))
-  testImplementation(project(":today-web-mock"))
+  testImplementation(project(":today-webmvc-mock"))
 
   testImplementation(testFixtures(project(":today-beans")))
   testImplementation(testFixtures(project(":today-core")))

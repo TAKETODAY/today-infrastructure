@@ -28,7 +28,7 @@ dependencies {
   optional(project(":today-tx"))
   optional(project(":today-web"))
   optional(project(":today-webmvc"))
-  optional(project(":today-web-mock"))
+  optional(project(":today-webmvc-mock"))
   optional(project(":today-websocket"))
   optional(project(":today-framework"))
 

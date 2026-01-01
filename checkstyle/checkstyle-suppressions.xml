@@ -103,7 +103,7 @@
   <suppress files="MultipartStream" checks="InnerTypeLast" />
   <suppress files="FileItemStream" checks="InnerTypeLast" />
   <suppress files="infra.test.context.junit4.statements.RepeatTest" checks="TypeName" />
-  <suppress files="today-web-mock[\\/]" checks=".*" />
+  <suppress files="today-webmvc-mock[\\/]" checks=".*" />
 
   <!-- today-test-support -->
   <suppress files="today-test-support[\\/]" checks="IllegalImport" id="bannedJUnitJupiterImports" />
