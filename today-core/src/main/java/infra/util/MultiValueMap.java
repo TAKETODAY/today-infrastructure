@@ -227,6 +227,20 @@ public interface MultiValueMap<K, V extends @Nullable Object> extends Map<K, Lis
   }
 
   /**
+   * Return this map as a {@code Map} with the first values contained in this
+   * {@code MultiValueMap}.
+   * <p>The difference between this method and {@link #toSingleValueMap()} is
+   * that this method returns a view of the entries of this map, whereas
+   * the latter returns a copy.
+   *
+   * @return a single value representation of this map
+   * @since 5.0
+   */
+  default Map<K, V> asSingleValueMap() {
+    return new MultiToSingleValueMapAdapter<>(this);
+  }
+
+  /**
    * Return a {@code Map} with the first values contained in this
    * {@code MultiValueMap}.
    *

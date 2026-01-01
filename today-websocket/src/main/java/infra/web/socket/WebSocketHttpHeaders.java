@@ -255,6 +255,11 @@ public class WebSocketHttpHeaders extends HttpHeaders {
     return this.headers.toSingleValueMap();
   }
 
+  @Override
+  public Map<String, String> asSingleValueMap() {
+    return headers.asSingleValueMap();
+  }
+
   // Map implementation
 
   @Override

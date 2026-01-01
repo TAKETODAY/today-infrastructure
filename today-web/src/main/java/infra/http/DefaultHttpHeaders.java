@@ -206,9 +206,25 @@ public class DefaultHttpHeaders extends HttpHeaders {
     return headers.entrySet();
   }
 
+  /**
+   * Return this HttpHeaders as a {@code Map} with the first values for each
+   * header name. This method is susceptible to include multiple
+   * casing variants of a given header name, see {@link MultiValueMap}
+   * javadoc.
+   * <p>The difference between this method and {@link #asSingleValueMap()} is
+   * that this method returns a copy of the headers, whereas the latter
+   * returns a view.
+   *
+   * @return a single value representation of these headers
+   */
   @Override
   public Map<String, String> toSingleValueMap() {
     return headers.toSingleValueMap();
+  }
+
+  @Override
+  public Map<String, String> asSingleValueMap() {
+    return headers.asSingleValueMap();
   }
 
   @Override

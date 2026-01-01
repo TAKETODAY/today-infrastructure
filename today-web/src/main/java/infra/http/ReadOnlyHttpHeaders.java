@@ -135,6 +135,16 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
   }
 
   @Override
+  public Map<String, String> toSingleValueMap() {
+    return Collections.unmodifiableMap(this.headers.toSingleValueMap());
+  }
+
+  @Override
+  public Map<String, String> asSingleValueMap() {
+    return Collections.unmodifiableMap(this.headers.asSingleValueMap());
+  }
+
+  @Override
   public void clear() {
     throw new UnsupportedOperationException();
   }

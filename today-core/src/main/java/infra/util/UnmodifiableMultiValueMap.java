@@ -126,6 +126,11 @@ final class UnmodifiableMultiValueMap<K, V> implements MultiValueMap<K, V>, Seri
   }
 
   @Override
+  public Map<K, V> asSingleValueMap() {
+    return this.delegate.asSingleValueMap();
+  }
+
+  @Override
   public int hashCode() {
     return this.delegate.hashCode();
   }
