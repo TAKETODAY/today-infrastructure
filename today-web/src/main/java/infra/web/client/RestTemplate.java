@@ -102,7 +102,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
    * Default {@link HttpMessageConverter HttpMessageConverters} are initialized.
    */
   public RestTemplate() {
-    this(HttpMessageConverters.forClient().registerDefaults().build().asList());
+    this(HttpMessageConverters.forClient().registerDefaults().asList());
   }
 
   /**
