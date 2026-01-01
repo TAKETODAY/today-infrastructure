@@ -19,10 +19,13 @@ package infra.app;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
+
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.aot.hint.TypeReference;
 import infra.core.ReactiveStreams;
+import infra.lang.TodayStrategies;
 import infra.util.ClassUtils;
 
 /**
@@ -57,13 +60,48 @@ public enum ApplicationType {
 
   public static final String NETTY_WEB_INDICATOR_CLASS = "io.netty.handler.codec.http.HttpRequest";
 
+  /**
+   * Determines the application type by checking for the presence of indicator classes.
+   * If both the web indicator class ({@link #WEB_INDICATOR_CLASS}) and Netty web indicator class
+   * ({@link #NETTY_WEB_INDICATOR_CLASS}) are present, returns {@link ApplicationType#NETTY_WEB}.
+   * Otherwise, returns {@link ApplicationType#NORMAL}.
+   *
+   * @return the application type
+   */
   public static ApplicationType forDefaults() {
+    List<Resolver> resolvers = TodayStrategies.find(Resolver.class);
+    for (Resolver resolver : resolvers) {
+      ApplicationType resolved = resolver.resolve();
+      if (resolved != null) {
+        return resolved;
+      }
+    }
+
     ClassLoader classLoader = ApplicationType.class.getClassLoader();
     if (ClassUtils.isPresent(WEB_INDICATOR_CLASS, classLoader)
             && ClassUtils.isPresent(NETTY_WEB_INDICATOR_CLASS, classLoader)) {
       return ApplicationType.NETTY_WEB;
     }
     return ApplicationType.NORMAL;
+  }
+
+  /**
+   * Strategy that may be implemented by a module that can deduce the
+   * {@link ApplicationType}.
+   *
+   * @since 5.0
+   */
+  @FunctionalInterface
+  public interface Resolver {
+
+    /**
+     * Deduce the application type.
+     *
+     * @return the application type or {@code null}
+     */
+    @Nullable
+    ApplicationType resolve();
+
   }
 
   static class Hints implements RuntimeHintsRegistrar {
