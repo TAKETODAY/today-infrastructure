@@ -27,7 +27,7 @@ import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
-import infra.http.converter.HttpMessageConverters;
+import infra.web.config.HttpMessageConverters;
 import infra.stereotype.Component;
 import infra.web.client.RestTemplate;
 import infra.web.client.config.RestTemplateBuilder;

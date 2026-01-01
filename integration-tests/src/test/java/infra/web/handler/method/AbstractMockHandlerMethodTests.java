@@ -30,7 +30,7 @@ import infra.context.annotation.AnnotationConfigUtils;
 import infra.context.annotation.Configuration;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.http.converter.HttpMessageConverter;
-import infra.http.converter.HttpMessageConverters;
+import infra.web.config.HttpMessageConverters;
 import org.jspecify.annotations.Nullable;
 import infra.mock.web.MockMockConfig;
 import infra.stereotype.Component;

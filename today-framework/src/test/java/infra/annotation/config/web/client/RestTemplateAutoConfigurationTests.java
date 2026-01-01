@@ -33,7 +33,7 @@ import infra.http.HttpStatus;
 import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.HttpComponentsClientHttpRequestFactory;
 import infra.http.converter.HttpMessageConverter;
-import infra.http.converter.HttpMessageConverters;
+import infra.web.config.HttpMessageConverters;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.mock.http.client.MockClientHttpRequest;
 import infra.mock.http.client.MockClientHttpResponse;

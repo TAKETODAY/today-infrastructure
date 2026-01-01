@@ -37,8 +37,8 @@ import org.jspecify.annotations.Nullable;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.HandlerExceptionHandler;
-import infra.web.MethodNotAllowedException;
-import infra.web.ResponseStatusException;
+import infra.web.server.MethodNotAllowedException;
+import infra.web.server.ResponseStatusException;
 import infra.web.annotation.ResponseStatus;
 import infra.web.mock.MockRequestContext;
 

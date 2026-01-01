@@ -18,7 +18,6 @@
 package infra.web.server;
 
 import infra.http.HttpStatus;
-import infra.web.ResponseStatusException;
 
 /**
  * Exception for errors that fit response status 413 (Content too large) for use in

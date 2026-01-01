@@ -1,15 +1,6 @@
-description = "Web infrastructure API, provides default netty implementation"
-
-apply plugin: "infra.building.multiReleaseJar"
-
-multiRelease {
-  releaseVersions 21
-}
+description = "Web infrastructure API"
 
 configurations {
-  java21Api.extendsFrom(api)
-  java21Implementation.extendsFrom(implementation)
-
   testFixturesAnnotationProcessor.extendsFrom(dependencyManagement)
 }
 
@@ -98,7 +89,6 @@ dependencies {
   testImplementation(testFixtures(project(":today-core")))
   testImplementation(testFixtures(project(":today-context")))
 
-//  testImplementation("commons-io:commons-io")
   testImplementation("org.mozilla:rhino")
   testImplementation("org.dom4j:dom4j") {
     exclude group: "javax.xml.bind", module: "jaxb-api"

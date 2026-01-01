@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,6 @@ import infra.context.annotation.Scope;
 import infra.context.annotation.ScopedProxyMode;
 import infra.core.annotation.AliasFor;
 import infra.stereotype.Component;
-import infra.web.RequestContext;
 
 /**
  * {@code @RequestScope} is a specialization of {@link Scope @Scope} for a
@@ -41,7 +40,6 @@ import infra.web.RequestContext;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see SessionScope
  * @see Scope
- * @see RequestContext#SCOPE_REQUEST
  * @see Component
  * @see Bean
  * @since 4.0
@@ -49,8 +47,14 @@ import infra.web.RequestContext;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Scope(RequestContext.SCOPE_REQUEST)
+@Scope(RequestScope.NAME)
 public @interface RequestScope {
+
+  /**
+   * Scope identifier for request scope: "request".
+   * Supported in addition to the standard scopes "singleton" and "prototype".
+   */
+  String NAME = "request";
 
   /**
    * Alias for {@link Scope#proxyMode}.

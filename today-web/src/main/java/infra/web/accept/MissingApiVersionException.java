@@ -18,7 +18,7 @@
 package infra.web.accept;
 
 import infra.http.HttpStatus;
-import infra.web.ResponseStatusException;
+import infra.web.server.ResponseStatusException;
 
 /**
  * Exception raised when an API version is required, but is not present.

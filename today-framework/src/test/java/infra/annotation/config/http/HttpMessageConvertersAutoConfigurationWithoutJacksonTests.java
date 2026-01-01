@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.config.AutoConfigurations;
-import infra.http.converter.HttpMessageConverters;
+import infra.web.config.HttpMessageConverters;
 import infra.test.classpath.ClassPathExclusions;
 
 import static org.assertj.core.api.Assertions.assertThat;

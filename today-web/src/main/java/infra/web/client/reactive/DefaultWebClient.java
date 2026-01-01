@@ -88,7 +88,7 @@ class DefaultWebClient implements WebClient {
   @Nullable
   private final Consumer<RequestHeadersSpec<?>> defaultRequest;
 
-  private final DefaultWebClientBuilder builder;
+  private final infra.web.client.reactive.DefaultWebClientBuilder builder;
 
   private final List<DefaultResponseSpec.StatusHandler> defaultStatusHandlers;
 

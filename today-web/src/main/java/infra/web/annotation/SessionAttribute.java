@@ -24,7 +24,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.core.annotation.AliasFor;
-import infra.session.Session;
 
 /**
  * Annotation to bind a method parameter to a session attribute.
@@ -34,7 +33,7 @@ import infra.session.Session;
  * check and a cast to the target method parameter type.
  *
  * <p>For use cases that require adding or removing session attributes consider
- * injecting {@link Session} into the controller method.
+ * injecting {@link infra.session.Session} into the controller method.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see RequestMapping

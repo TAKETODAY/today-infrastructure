@@ -80,7 +80,7 @@ import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageConverter;
-import infra.http.converter.HttpMessageConverters;
+import infra.web.config.HttpMessageConverters;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.converter.HttpMessageNotWritableException;
 import infra.http.converter.StringHttpMessageConverter;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.aot.hint.annotation.Reflective;
-import infra.web.RequestContext;
 import infra.web.annotation.RequestMapping;
 
 /**
@@ -47,7 +46,7 @@ import infra.web.annotation.RequestMapping;
  * must not have a return value; they are usually declared as {@code void}.
  *
  * <p>Typical arguments are {@link infra.web.bind.WebDataBinder}
- * in combination with {@link RequestContext}
+ * in combination with {@link infra.web.RequestContext}
  * or {@link java.util.Locale}, allowing to register context-specific editors.
  *
  * @author Juergen Hoeller

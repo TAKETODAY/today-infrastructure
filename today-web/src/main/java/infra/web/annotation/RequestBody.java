@@ -25,7 +25,6 @@ import java.lang.annotation.Target;
 
 import infra.core.annotation.AliasFor;
 import infra.http.converter.HttpMessageConverter;
-import infra.web.handler.method.RequestMappingHandlerAdapter;
 
 /**
  * Annotation indicating a method parameter should be bound to the body of the web request.
@@ -39,7 +38,7 @@ import infra.web.handler.method.RequestMappingHandlerAdapter;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see RequestHeader
  * @see ResponseBody
- * @see RequestMappingHandlerAdapter
+ * @see infra.web.handler.method.RequestMappingHandlerAdapter
  * @since 2018-07-01 14:06:43
  */
 @Documented

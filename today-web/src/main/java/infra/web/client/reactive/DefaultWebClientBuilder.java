@@ -335,7 +335,7 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
     var defaultHeaders = this.defaultHeaders != null ? HttpHeaders.copyOf(this.defaultHeaders).asReadOnly() : null;
     var defaultCookies = this.defaultCookies != null ? MultiValueMap.copyOf(this.defaultCookies).asReadOnly() : null;
 
-    return new DefaultWebClient(exchange, initUriBuilderFactory(), defaultHeaders, defaultCookies,
+    return new infra.web.client.reactive.DefaultWebClient(exchange, initUriBuilderFactory(), defaultHeaders, defaultCookies,
             this.defaultRequest, this.statusHandlers, new DefaultWebClientBuilder(this),
             apiVersionInserter, defaultApiVersion);
   }

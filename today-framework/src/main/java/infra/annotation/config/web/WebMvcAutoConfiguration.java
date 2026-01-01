@@ -49,7 +49,7 @@ import infra.format.FormatterRegistry;
 import infra.format.support.ApplicationConversionService;
 import infra.format.support.FormattingConversionService;
 import infra.http.converter.HttpMessageConverter;
-import infra.http.converter.HttpMessageConverters;
+import infra.web.config.HttpMessageConverters;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;

@@ -27,7 +27,6 @@ import infra.aot.hint.annotation.Reflective;
 import infra.core.annotation.AliasFor;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
-import infra.web.handler.HandlerMethodMappingNamingStrategy;
 
 /**
  * Annotation for mapping web requests onto methods in request-handling classes
@@ -60,7 +59,7 @@ public @interface RequestMapping {
    * When used on both levels, a combined name is derived by concatenation
    * with "#" as separator.
    *
-   * @see HandlerMethodMappingNamingStrategy
+   * @see infra.web.handler.HandlerMethodMappingNamingStrategy
    * @since 4.0
    */
   String name() default "";

@@ -42,7 +42,7 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.context.support.GenericApplicationContext;
 import infra.http.converter.HttpMessageConverter;
-import infra.http.converter.HttpMessageConverters;
+import infra.web.config.HttpMessageConverters;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.GsonHttpMessageConverter;
 import infra.http.converter.json.Jackson2ObjectMapperBuilder;

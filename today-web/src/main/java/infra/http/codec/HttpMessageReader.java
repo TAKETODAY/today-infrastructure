@@ -23,12 +23,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import infra.core.MethodParameter;
 import infra.core.ResolvableType;
 import infra.http.MediaType;
 import infra.http.ReactiveHttpInputMessage;
 import infra.http.server.reactive.ServerHttpRequest;
 import infra.http.server.reactive.ServerHttpResponse;
-import infra.web.handler.method.ResolvableMethodParameter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -107,7 +107,7 @@ public interface HttpMessageReader<T> {
    * with additional context available.
    *
    * @param actualType the actual type of the target method parameter;
-   * for annotated controllers, the {@link ResolvableMethodParameter} can be accessed
+   * for annotated controllers, the {@link MethodParameter} can be accessed
    * via {@link ResolvableType#getSource()}.
    * @param elementType the type of Objects in the output stream
    * @param request the current request
@@ -127,7 +127,7 @@ public interface HttpMessageReader<T> {
    * with additional, context available.
    *
    * @param actualType the actual type of the target method parameter;
-   * for annotated controllers, the {@link ResolvableMethodParameter} can be accessed
+   * for annotated controllers, the {@link MethodParameter} can be accessed
    * via {@link ResolvableType#getSource()}.
    * @param elementType the type of Objects in the output stream
    * @param request the current request

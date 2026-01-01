@@ -1,16 +1,22 @@
+/*
+ * Copyright 2017 - 2025 the original author or authors.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
+ */
+
 /**
  * This package contains classes used to determine the requested the media types in a request.
- *
- * <p>{@link infra.web.accept.ContentNegotiationStrategy} is the main
- * abstraction for determining requested {@linkplain infra.http.MediaType media types}
- * with implementations based on
- * {@linkplain infra.web.accept.PathExtensionContentNegotiationStrategy path extensions}, a
- * {@linkplain infra.web.accept.ParameterContentNegotiationStrategy a request parameter}, the
- * {@linkplain infra.web.accept.HeaderContentNegotiationStrategy 'Accept' header}, or a
- * {@linkplain infra.web.accept.FixedContentNegotiationStrategy default content type}.
- *
- * <p>{@link infra.web.accept.ContentNegotiationManager} is used to delegate to one
- * ore more of the above strategies in a specific order.
  */
 @NullMarked
 package infra.web.accept;

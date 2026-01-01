@@ -2,6 +2,7 @@ description = "Mock test fixtures for web"
 
 dependencies {
   implementation(project(":today-web"))
+  implementation(project(":today-webmvc"))
 
   optional 'org.reactivestreams:reactive-streams'
   optional 'io.projectreactor:reactor-core'
