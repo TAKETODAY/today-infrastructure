@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ import infra.core.io.FileSystemResourceLoader;
 import infra.format.FormatterRegistry;
 import infra.http.HttpStatus;
 import infra.http.converter.HttpMessageConverter;
+import infra.http.converter.HttpMessageConverters;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.MappingJackson2HttpMessageConverter;
 import infra.mock.web.HttpMockRequestImpl;
@@ -356,6 +357,10 @@ class WebMvcConfigurationSupportTests {
     @Override
     public void configurePathMatch(PathMatchConfigurer configurer) {
       configurer.addPathPrefix("/api", HandlerTypePredicate.forAnnotation(RestController.class));
+    }
+
+    @Override
+    public void configureMessageConverters(HttpMessageConverters.ServerBuilder builder) {
     }
 
     @Override

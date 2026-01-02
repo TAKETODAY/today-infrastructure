@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,18 +19,20 @@ package infra.web.config.annotation;
 
 import org.jspecify.annotations.Nullable;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.BeanInitializationException;
 import infra.beans.factory.annotation.DisableAllDependencyInjection;
 import infra.beans.factory.annotation.Qualifier;
 import infra.beans.factory.config.BeanDefinition;
-import infra.context.ApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Role;
@@ -43,23 +45,8 @@ import infra.format.FormatterRegistry;
 import infra.format.support.DefaultFormattingConversionService;
 import infra.format.support.FormattingConversionService;
 import infra.http.MediaType;
-import infra.http.converter.AllEncompassingFormHttpMessageConverter;
-import infra.http.converter.ByteArrayHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
-import infra.http.converter.ResourceHttpMessageConverter;
-import infra.http.converter.ResourceRegionHttpMessageConverter;
-import infra.http.converter.StringHttpMessageConverter;
-import infra.http.converter.cbor.MappingJackson2CborHttpMessageConverter;
-import infra.http.converter.feed.AtomFeedHttpMessageConverter;
-import infra.http.converter.feed.RssChannelHttpMessageConverter;
-import infra.http.converter.json.GsonHttpMessageConverter;
-import infra.http.converter.json.Jackson2ObjectMapperBuilder;
-import infra.http.converter.json.JsonbHttpMessageConverter;
-import infra.http.converter.json.MappingJackson2HttpMessageConverter;
-import infra.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
-import infra.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
-import infra.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
-import infra.http.converter.yaml.MappingJackson2YamlHttpMessageConverter;
+import infra.http.converter.HttpMessageConverters;
 import infra.lang.Assert;
 import infra.session.SessionManager;
 import infra.stereotype.Component;
@@ -265,6 +252,31 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   }
 
   /**
+   * Override this method to create a custom {@link HttpMessageConverters}.
+   * Converters will be used with the
+   * {@link RequestMappingHandlerAdapter} and the {@link HandlerExceptionHandler}.
+   * <p>By default, this will create an instance with default message converters registered,
+   * if present on the classpath.
+   *
+   * @since 5.0
+   */
+  protected HttpMessageConverters createDefaultMessageConverters() {
+    HttpMessageConverters.ServerBuilder serverBuilder = HttpMessageConverters.forServer().registerDefaults();
+    configureMessageConverters(serverBuilder);
+    return serverBuilder.build();
+  }
+
+  /**
+   * Override this method to configure the message converters on the given
+   * {@link HttpMessageConverters.Builder builder}.
+   *
+   * @param builder the {@code HttpMessageConverters} builder to configure
+   * @since 5.0
+   */
+  protected void configureMessageConverters(HttpMessageConverters.ServerBuilder builder) {
+  }
+
+  /**
    * Override this method to add custom {@link HttpMessageConverter HttpMessageConverters}
    * to use with the {@link ParameterResolvingStrategy} and the
    * {@link ReturnValueHandlerManager}.
@@ -297,66 +309,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    * @since 4.0
    */
   protected final void addDefaultHttpMessageConverters(List<HttpMessageConverter<?>> messageConverters) {
-    messageConverters.add(new ByteArrayHttpMessageConverter());
-    messageConverters.add(new StringHttpMessageConverter());
-    messageConverters.add(new ResourceHttpMessageConverter());
-    messageConverters.add(new ResourceRegionHttpMessageConverter());
-
-    messageConverters.add(new AllEncompassingFormHttpMessageConverter());
-
-    if (romePresent) {
-      messageConverters.add(new AtomFeedHttpMessageConverter());
-      messageConverters.add(new RssChannelHttpMessageConverter());
-    }
-    ApplicationContext applicationContext = getApplicationContext();
-
-    if (jackson2XmlPresent) {
-      Jackson2ObjectMapperBuilder builder = Jackson2ObjectMapperBuilder.xml();
-      if (applicationContext != null) {
-        builder.applicationContext(applicationContext);
-      }
-      messageConverters.add(new MappingJackson2XmlHttpMessageConverter(builder.build()));
-    }
-    else if (jaxb2Present) {
-      messageConverters.add(new Jaxb2RootElementHttpMessageConverter());
-    }
-
-    if (jackson2Present) {
-      Jackson2ObjectMapperBuilder builder = Jackson2ObjectMapperBuilder.json();
-      if (applicationContext != null) {
-        builder.applicationContext(applicationContext);
-      }
-      messageConverters.add(new MappingJackson2HttpMessageConverter(builder.build()));
-    }
-    else if (gsonPresent) {
-      messageConverters.add(new GsonHttpMessageConverter());
-    }
-    else if (jsonbPresent) {
-      messageConverters.add(new JsonbHttpMessageConverter());
-    }
-
-    if (jackson2SmilePresent) {
-      Jackson2ObjectMapperBuilder builder = Jackson2ObjectMapperBuilder.smile();
-      if (applicationContext != null) {
-        builder.applicationContext(applicationContext);
-      }
-      messageConverters.add(new MappingJackson2SmileHttpMessageConverter(builder.build()));
-    }
-    if (jackson2CborPresent) {
-      Jackson2ObjectMapperBuilder builder = Jackson2ObjectMapperBuilder.cbor();
-      if (applicationContext != null) {
-        builder.applicationContext(applicationContext);
-      }
-      messageConverters.add(new MappingJackson2CborHttpMessageConverter(builder.build()));
-    }
-
-    if (jackson2YamlPresent) {
-      Jackson2ObjectMapperBuilder builder = Jackson2ObjectMapperBuilder.yaml();
-      if (this.applicationContext != null) {
-        builder.applicationContext(this.applicationContext);
-      }
-      messageConverters.add(new MappingJackson2YamlHttpMessageConverter(builder.build()));
-    }
+    HttpMessageConverters converters = createDefaultMessageConverters();
+    messageConverters.addAll(converters.asList());
   }
 
   // Async
@@ -407,24 +361,32 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   }
 
   protected Map<String, MediaType> getDefaultMediaTypes() {
-    Map<String, MediaType> map = new HashMap<>(4);
-    if (romePresent) {
+    HashMap<String, MediaType> map = new HashMap<>(4);
+    Set<MediaType> supportedMediaTypes = getMessageConverters().stream()
+            .flatMap(converter -> converter.getSupportedMediaTypes().stream())
+            .collect(Collectors.toSet());
+    if (supportedMediaTypes.contains(MediaType.APPLICATION_ATOM_XML)) {
       map.put("atom", MediaType.APPLICATION_ATOM_XML);
+    }
+    if (supportedMediaTypes.contains(MediaType.APPLICATION_RSS_XML)) {
       map.put("rss", MediaType.APPLICATION_RSS_XML);
     }
-    if (jaxb2Present || jackson2XmlPresent) {
+    MediaType xmlUtf8MediaType = new MediaType("application", "xml", StandardCharsets.UTF_8);
+    if (supportedMediaTypes.contains(MediaType.APPLICATION_XML)
+            || supportedMediaTypes.contains(xmlUtf8MediaType)) {
       map.put("xml", MediaType.APPLICATION_XML);
     }
-    if (jackson2Present || gsonPresent || jsonbPresent) {
+    if (supportedMediaTypes.contains(MediaType.APPLICATION_JSON)) {
       map.put("json", MediaType.APPLICATION_JSON);
     }
-    if (jackson2SmilePresent) {
-      map.put("smile", MediaType.valueOf("application/x-jackson-smile"));
+    MediaType smileMediaType = new MediaType("application", "x-jackson-smile");
+    if (supportedMediaTypes.contains(smileMediaType)) {
+      map.put("smile", smileMediaType);
     }
-    if (jackson2CborPresent) {
+    if (supportedMediaTypes.contains(MediaType.APPLICATION_CBOR)) {
       map.put("cbor", MediaType.APPLICATION_CBOR);
     }
-    if (jackson2YamlPresent) {
+    if (supportedMediaTypes.contains(MediaType.APPLICATION_ATOM_XML)) {
       map.put("yaml", MediaType.APPLICATION_YAML);
     }
     return map;

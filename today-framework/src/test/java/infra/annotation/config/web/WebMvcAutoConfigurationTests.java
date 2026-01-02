@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,7 +62,6 @@ import infra.format.support.FormattingConversionService;
 import infra.http.CacheControl;
 import infra.http.HttpHeaders;
 import infra.http.converter.HttpMessageConverter;
-import infra.web.config.HttpMessageConverters;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.test.util.ReflectionTestUtils;
 import infra.util.StringUtils;
@@ -130,7 +129,7 @@ import static org.mockito.Mockito.mock;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/9/23 15:07
  */
-public class WebMvcAutoConfigurationTests {
+class WebMvcAutoConfigurationTests {
 
   private final ApplicationContextRunner contextRunner =
           ApplicationContextRunner.forProvider(AnnotationConfigWebServerApplicationContext::new)
@@ -142,8 +141,7 @@ public class WebMvcAutoConfigurationTests {
   void handlerAdaptersCreated() {
     this.contextRunner.run((context) -> {
       assertThat(context).getBeans(HandlerAdapter.class).hasSize(2);
-      assertThat(context.getBean(ReturnValueHandlerManager.class).getMessageConverters()).isNotEmpty()
-              .isEqualTo(context.getBean(HttpMessageConverters.class).getConverters());
+      assertThat(context.getBean(ReturnValueHandlerManager.class).getMessageConverters()).isNotEmpty();
     });
   }
 

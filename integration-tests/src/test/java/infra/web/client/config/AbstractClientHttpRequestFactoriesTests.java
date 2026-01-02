@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,21 +45,21 @@ abstract class AbstractClientHttpRequestFactoriesTests<T extends ClientHttpReque
   @Test
   void getReturnsRequestFactoryOfExpectedType() {
     ClientHttpRequestFactory requestFactory = ClientHttpRequestFactories
-            .get(ClientHttpRequestFactorySettings.DEFAULTS);
+            .get(HttpClientSettings.DEFAULTS);
     assertThat(requestFactory).isInstanceOf(this.requestFactoryType);
   }
 
   @Test
   void getOfGeneralTypeReturnsRequestFactoryOfExpectedType() {
     ClientHttpRequestFactory requestFactory = ClientHttpRequestFactories.get(ClientHttpRequestFactory.class,
-            ClientHttpRequestFactorySettings.DEFAULTS);
+            HttpClientSettings.DEFAULTS);
     assertThat(requestFactory).isInstanceOf(this.requestFactoryType);
   }
 
   @Test
   void getOfSpecificTypeReturnsRequestFactoryOfExpectedType() {
     ClientHttpRequestFactory requestFactory = ClientHttpRequestFactories.get(this.requestFactoryType,
-            ClientHttpRequestFactorySettings.DEFAULTS);
+            HttpClientSettings.DEFAULTS);
     assertThat(requestFactory).isInstanceOf(this.requestFactoryType);
   }
 
@@ -67,7 +67,7 @@ abstract class AbstractClientHttpRequestFactoriesTests<T extends ClientHttpReque
   @SuppressWarnings("unchecked")
   void getReturnsRequestFactoryWithConfiguredConnectTimeout() {
     ClientHttpRequestFactory requestFactory = ClientHttpRequestFactories
-            .get(ClientHttpRequestFactorySettings.DEFAULTS.withConnectTimeout(Duration.ofSeconds(60)));
+            .get(HttpClientSettings.DEFAULTS.withConnectTimeout(Duration.ofSeconds(60)));
     assertThat(connectTimeout((T) requestFactory)).isEqualTo(Duration.ofSeconds(60).toMillis());
   }
 
@@ -75,7 +75,7 @@ abstract class AbstractClientHttpRequestFactoriesTests<T extends ClientHttpReque
   @SuppressWarnings("unchecked")
   void getReturnsRequestFactoryWithConfiguredReadTimeout() {
     ClientHttpRequestFactory requestFactory = ClientHttpRequestFactories
-            .get(ClientHttpRequestFactorySettings.DEFAULTS.withReadTimeout(Duration.ofSeconds(120)));
+            .get(HttpClientSettings.DEFAULTS.withReadTimeout(Duration.ofSeconds(120)));
     assertThat(readTimeout((T) requestFactory)).isEqualTo(Duration.ofSeconds(120).toMillis());
   }
 

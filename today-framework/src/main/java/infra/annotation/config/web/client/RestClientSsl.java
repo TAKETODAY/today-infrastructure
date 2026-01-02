@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ import infra.core.ssl.SslBundle;
 import infra.http.client.ClientHttpRequestFactory;
 import infra.web.client.RestClient;
 import infra.web.client.config.ClientHttpRequestFactories;
-import infra.web.client.config.ClientHttpRequestFactorySettings;
+import infra.web.client.config.HttpClientSettings;
 
 /**
  * Interface that can be used to {@link RestClient.Builder#apply apply} SSL configuration
@@ -39,7 +39,7 @@ import infra.web.client.config.ClientHttpRequestFactorySettings;
  * </pre> NOTE: Apply SSL configuration will replace any previously
  * {@link RestClient.Builder#requestFactory configured} {@link ClientHttpRequestFactory}.
  * If you need to configure {@link ClientHttpRequestFactory} with more than just SSL
- * consider using a {@link ClientHttpRequestFactorySettings} with
+ * consider using a {@link HttpClientSettings} with
  * {@link ClientHttpRequestFactories}.
  *
  * @author Phillip Webb

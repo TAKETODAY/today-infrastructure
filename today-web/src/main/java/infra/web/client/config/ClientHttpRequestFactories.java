@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ import reactor.netty.tcp.SslProvider;
 
 /**
  * Utility class that can be used to create {@link ClientHttpRequestFactory} instances
- * configured using given {@link ClientHttpRequestFactorySettings}.
+ * configured using given {@link HttpClientSettings}.
  *
  * @author Andy Wilkinson
  * @author Phillip Webb
@@ -80,7 +80,7 @@ public abstract class ClientHttpRequestFactories {
    * @param settings the settings to apply
    * @return a new {@link ClientHttpRequestFactory}
    */
-  public static ClientHttpRequestFactory get(ClientHttpRequestFactorySettings settings) {
+  public static ClientHttpRequestFactory get(HttpClientSettings settings) {
     Assert.notNull(settings, "Settings is required");
     if (APACHE_HTTP_CLIENT_PRESENT) {
       return HttpComponents.get(settings);
@@ -93,7 +93,7 @@ public abstract class ClientHttpRequestFactories {
 
   /**
    * Return a new {@link ClientHttpRequestFactory} of the given
-   * {@code requestFactoryType}, applying {@link ClientHttpRequestFactorySettings} using
+   * {@code requestFactoryType}, applying {@link HttpClientSettings} using
    * reflection if necessary. The following implementations are supported without the
    * use of reflection:
    * <ul>
@@ -101,7 +101,7 @@ public abstract class ClientHttpRequestFactories {
    * <li>{@link JdkClientHttpRequestFactory}</li>
    * </ul>
    * A {@code requestFactoryType} of {@link ClientHttpRequestFactory} is equivalent to
-   * calling {@link #get(ClientHttpRequestFactorySettings)}.
+   * calling {@link #get(HttpClientSettings)}.
    *
    * @param <T> the {@link ClientHttpRequestFactory} type
    * @param requestFactoryType the {@link ClientHttpRequestFactory} type
@@ -109,7 +109,7 @@ public abstract class ClientHttpRequestFactories {
    * @return a new {@link ClientHttpRequestFactory} instance
    */
   @SuppressWarnings("unchecked")
-  public static <T extends ClientHttpRequestFactory> T get(Class<T> requestFactoryType, ClientHttpRequestFactorySettings settings) {
+  public static <T extends ClientHttpRequestFactory> T get(Class<T> requestFactoryType, HttpClientSettings settings) {
     Assert.notNull(settings, "Settings is required");
     if (requestFactoryType == ClientHttpRequestFactory.class) {
       return (T) get(settings);
@@ -125,7 +125,7 @@ public abstract class ClientHttpRequestFactories {
 
   /**
    * Return a new {@link ClientHttpRequestFactory} from the given supplier, applying
-   * {@link ClientHttpRequestFactorySettings} using reflection.
+   * {@link HttpClientSettings} using reflection.
    *
    * @param <T> the {@link ClientHttpRequestFactory} type
    * @param requestFactorySupplier the {@link ClientHttpRequestFactory} supplier
@@ -133,7 +133,7 @@ public abstract class ClientHttpRequestFactories {
    * @return a new {@link ClientHttpRequestFactory} instance
    */
   public static <T extends ClientHttpRequestFactory> T get(
-          Supplier<T> requestFactorySupplier, ClientHttpRequestFactorySettings settings) {
+          Supplier<T> requestFactorySupplier, HttpClientSettings settings) {
     return Reflective.get(requestFactorySupplier, settings);
   }
 
@@ -153,7 +153,7 @@ public abstract class ClientHttpRequestFactories {
    */
   static class HttpComponents {
 
-    static HttpComponentsClientHttpRequestFactory get(ClientHttpRequestFactorySettings settings) {
+    static HttpComponentsClientHttpRequestFactory get(HttpClientSettings settings) {
       var requestFactory = createRequestFactory(settings.readTimeout(), settings.sslBundle());
       if (settings.connectTimeout() != null) {
         requestFactory.setConnectTimeout((int) settings.connectTimeout().toMillis());
@@ -197,7 +197,7 @@ public abstract class ClientHttpRequestFactories {
   @SuppressWarnings("NullAway")
   static class Jdk {
 
-    static JdkClientHttpRequestFactory get(ClientHttpRequestFactorySettings settings) {
+    static JdkClientHttpRequestFactory get(HttpClientSettings settings) {
       java.net.http.HttpClient httpClient = createHttpClient(settings.connectTimeout(), settings.sslBundle());
       JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory(httpClient);
       PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
@@ -225,7 +225,7 @@ public abstract class ClientHttpRequestFactories {
   @SuppressWarnings("NullAway")
   static class Reactor {
 
-    static ReactorClientHttpRequestFactory get(ClientHttpRequestFactorySettings settings) {
+    static ReactorClientHttpRequestFactory get(HttpClientSettings settings) {
       ReactorClientHttpRequestFactory requestFactory = createRequestFactory(settings.sslBundle());
       PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
       map.from(settings::connectTimeout).asInt(Duration::toMillis).to(requestFactory::setConnectTimeout);
@@ -262,13 +262,13 @@ public abstract class ClientHttpRequestFactories {
   @SuppressWarnings("NullAway")
   static class Reflective {
 
-    static <T extends ClientHttpRequestFactory> T get(Supplier<T> supplier, ClientHttpRequestFactorySettings settings) {
+    static <T extends ClientHttpRequestFactory> T get(Supplier<T> supplier, HttpClientSettings settings) {
       T requestFactory = supplier.get();
       configure(requestFactory, settings);
       return requestFactory;
     }
 
-    private static void configure(ClientHttpRequestFactory requestFactory, ClientHttpRequestFactorySettings settings) {
+    private static void configure(ClientHttpRequestFactory requestFactory, HttpClientSettings settings) {
       ClientHttpRequestFactory unwrapped = unwrapIfNecessary(requestFactory);
       PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
       map.from(settings::readTimeout).to(readTimeout -> setReadTimeout(unwrapped, readTimeout));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ import infra.core.ssl.SslBundles;
 import infra.http.client.ClientHttpRequestFactory;
 import infra.web.client.RestClient;
 import infra.web.client.config.ClientHttpRequestFactories;
-import infra.web.client.config.ClientHttpRequestFactorySettings;
+import infra.web.client.config.HttpClientSettings;
 
 /**
  * An auto-configured {@link RestClientSsl} implementation.
@@ -49,7 +49,7 @@ class AutoConfiguredRestClientSsl implements RestClientSsl {
   @Override
   public Consumer<RestClient.Builder> fromBundle(SslBundle bundle) {
     return (builder) -> {
-      ClientHttpRequestFactorySettings settings = ClientHttpRequestFactorySettings.DEFAULTS.withSslBundle(bundle);
+      HttpClientSettings settings = HttpClientSettings.DEFAULTS.withSslBundle(bundle);
       ClientHttpRequestFactory requestFactory = ClientHttpRequestFactories.get(settings);
       builder.requestFactory(requestFactory);
     };

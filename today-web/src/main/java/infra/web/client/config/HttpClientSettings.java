@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ import infra.http.client.ClientHttpRequestFactory;
  * @see ClientHttpRequestFactories
  * @since 4.0
  */
-public record ClientHttpRequestFactorySettings(
+public record HttpClientSettings(
         @Nullable Duration connectTimeout, @Nullable Duration readTimeout,
         @Nullable Boolean bufferRequestBody, @Nullable SslBundle sslBundle) {
 
@@ -46,68 +46,69 @@ public record ClientHttpRequestFactorySettings(
    * Use defaults for the {@link ClientHttpRequestFactory} which can differ depending on
    * the implementation.
    */
-  public static final ClientHttpRequestFactorySettings DEFAULTS = new ClientHttpRequestFactorySettings(
+  public static final HttpClientSettings DEFAULTS = new HttpClientSettings(
           null, null, null, null);
 
   /**
-   * Create a new {@link ClientHttpRequestFactorySettings} instance.
+   * Create a new {@link HttpClientSettings} instance.
    *
    * @param connectTimeout the connection timeout
    * @param readTimeout the read timeout
    * @param bufferRequestBody the bugger request body
    * @param sslBundle the ssl bundle
    */
-  public ClientHttpRequestFactorySettings { }
+  public HttpClientSettings {
+  }
 
-  public ClientHttpRequestFactorySettings(Duration connectTimeout, Duration readTimeout, Boolean bufferRequestBody) {
+  public HttpClientSettings(Duration connectTimeout, Duration readTimeout, Boolean bufferRequestBody) {
     this(connectTimeout, readTimeout, bufferRequestBody, null);
   }
 
   /**
-   * Return a new {@link ClientHttpRequestFactorySettings} instance with an updated
+   * Return a new {@link HttpClientSettings} instance with an updated
    * connect timeout setting .
    *
    * @param connectTimeout the new connect timeout setting
-   * @return a new {@link ClientHttpRequestFactorySettings} instance
+   * @return a new {@link HttpClientSettings} instance
    */
-  public ClientHttpRequestFactorySettings withConnectTimeout(Duration connectTimeout) {
-    return new ClientHttpRequestFactorySettings(connectTimeout, this.readTimeout, this.bufferRequestBody,
+  public HttpClientSettings withConnectTimeout(Duration connectTimeout) {
+    return new HttpClientSettings(connectTimeout, this.readTimeout, this.bufferRequestBody,
             this.sslBundle);
   }
 
   /**
-   * Return a new {@link ClientHttpRequestFactorySettings} instance with an updated read
+   * Return a new {@link HttpClientSettings} instance with an updated read
    * timeout setting.
    *
    * @param readTimeout the new read timeout setting
-   * @return a new {@link ClientHttpRequestFactorySettings} instance
+   * @return a new {@link HttpClientSettings} instance
    */
-  public ClientHttpRequestFactorySettings withReadTimeout(Duration readTimeout) {
-    return new ClientHttpRequestFactorySettings(
+  public HttpClientSettings withReadTimeout(Duration readTimeout) {
+    return new HttpClientSettings(
             connectTimeout, readTimeout, bufferRequestBody, sslBundle);
   }
 
   /**
-   * Return a new {@link ClientHttpRequestFactorySettings} instance with an updated
+   * Return a new {@link HttpClientSettings} instance with an updated
    * buffer request body setting.
    *
    * @param bufferRequestBody the new buffer request body setting
-   * @return a new {@link ClientHttpRequestFactorySettings} instance
+   * @return a new {@link HttpClientSettings} instance
    */
-  public ClientHttpRequestFactorySettings withBufferRequestBody(Boolean bufferRequestBody) {
-    return new ClientHttpRequestFactorySettings(
+  public HttpClientSettings withBufferRequestBody(Boolean bufferRequestBody) {
+    return new HttpClientSettings(
             connectTimeout, readTimeout, bufferRequestBody, sslBundle);
   }
 
   /**
-   * Return a new {@link ClientHttpRequestFactorySettings} instance with an updated SSL
+   * Return a new {@link HttpClientSettings} instance with an updated SSL
    * bundle setting.
    *
    * @param sslBundle the new SSL bundle setting
-   * @return a new {@link ClientHttpRequestFactorySettings} instance
+   * @return a new {@link HttpClientSettings} instance
    */
-  public ClientHttpRequestFactorySettings withSslBundle(SslBundle sslBundle) {
-    return new ClientHttpRequestFactorySettings(
+  public HttpClientSettings withSslBundle(SslBundle sslBundle) {
+    return new HttpClientSettings(
             connectTimeout, readTimeout, bufferRequestBody, sslBundle);
   }
 

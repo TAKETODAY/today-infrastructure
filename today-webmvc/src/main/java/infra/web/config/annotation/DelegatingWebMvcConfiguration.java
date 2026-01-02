@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ import infra.beans.factory.annotation.DisableDependencyInjection;
 import infra.context.annotation.Configuration;
 import infra.format.FormatterRegistry;
 import infra.http.converter.HttpMessageConverter;
+import infra.http.converter.HttpMessageConverters;
 import infra.util.CollectionUtils;
 import infra.validation.Validator;
 import infra.web.ErrorResponse;
@@ -109,6 +110,11 @@ public class DelegatingWebMvcConfiguration extends WebMvcConfigurationSupport {
   @Override
   protected void modifyReturnValueHandlerManager(ReturnValueHandlerManager manager) {
     configurers.modifyReturnValueHandlerManager(manager);
+  }
+
+  @Override
+  protected void configureMessageConverters(HttpMessageConverters.ServerBuilder builder) {
+    this.configurers.configureMessageConverters(builder);
   }
 
   @Override

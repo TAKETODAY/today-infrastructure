@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ import infra.core.io.Resource;
 import infra.format.Formatter;
 import infra.format.FormatterRegistry;
 import infra.http.converter.HttpMessageConverter;
-import infra.web.config.HttpMessageConverters;
+import infra.http.converter.HttpMessageConverters;
 import infra.validation.Validator;
 import infra.validation.beanvalidation.OptionalValidatorFactoryBean;
 import infra.web.ErrorResponse;
@@ -60,7 +60,6 @@ public interface WebMvcConfigurer {
    * @param customizedStrategies {@link ParameterResolvingStrategy} registry
    */
   default void configureParameterResolving(ParameterResolvingStrategies customizedStrategies) {
-
   }
 
   /**
@@ -87,7 +86,6 @@ public interface WebMvcConfigurer {
    * @see ReturnValueHandlerManager
    */
   default void modifyReturnValueHandlerManager(ReturnValueHandlerManager manager) {
-
   }
 
   /**
@@ -96,7 +94,6 @@ public interface WebMvcConfigurer {
    * @param registry {@link ResourceHandlerRegistry}
    */
   default void addResourceHandlers(ResourceHandlerRegistry registry) {
-
   }
 
   /**
@@ -106,7 +103,6 @@ public interface WebMvcConfigurer {
    * @since 2.3.7
    */
   default void configureHandlerRegistry(List<HandlerMapping> handlerRegistries) {
-
   }
 
   /**
@@ -121,7 +117,6 @@ public interface WebMvcConfigurer {
    * @since 3.0
    */
   default void configureExceptionHandlers(List<HandlerExceptionHandler> handlers) {
-
   }
 
   /**
@@ -134,7 +129,6 @@ public interface WebMvcConfigurer {
    * @since 4.0
    */
   default void extendExceptionHandlers(List<HandlerExceptionHandler> handlers) {
-
   }
 
   /**
@@ -143,7 +137,6 @@ public interface WebMvcConfigurer {
    * @since 4.0
    */
   default void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
-
   }
 
   /**
@@ -153,7 +146,6 @@ public interface WebMvcConfigurer {
    * @since 4.0
    */
   default void configureViewResolvers(ViewResolverRegistry registry) {
-
   }
 
   /**
@@ -165,7 +157,15 @@ public interface WebMvcConfigurer {
    * @since 4.0
    */
   default void configurePathMatch(PathMatchConfigurer configurer) {
+  }
 
+  /**
+   * Configure the {@link HttpMessageConverters} instance being built.
+   *
+   * @param builder the builder to configure
+   * @since 5.0
+   */
+  default void configureMessageConverters(HttpMessageConverters.ServerBuilder builder) {
   }
 
   /**
@@ -186,7 +186,6 @@ public interface WebMvcConfigurer {
    * @since 4.0
    */
   default void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-
   }
 
   /**
@@ -201,7 +200,6 @@ public interface WebMvcConfigurer {
    * @since 4.0
    */
   default void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
-
   }
 
   /**
@@ -211,7 +209,6 @@ public interface WebMvcConfigurer {
    * @since 4.0
    */
   default void addFormatters(FormatterRegistry registry) {
-
   }
 
   /**
@@ -223,7 +220,6 @@ public interface WebMvcConfigurer {
    * @since 4.0
    */
   default void addInterceptors(InterceptorRegistry registry) {
-
   }
 
   /**
@@ -240,7 +236,6 @@ public interface WebMvcConfigurer {
    * @since 4.0
    */
   default void addCorsMappings(CorsRegistry registry) {
-
   }
 
   /**
@@ -254,7 +249,6 @@ public interface WebMvcConfigurer {
    * @since 4.0
    */
   default void addViewControllers(ViewControllerRegistry registry) {
-
   }
 
   /**
@@ -266,7 +260,6 @@ public interface WebMvcConfigurer {
    * @since 5.0
    */
   default void addErrorResponseInterceptors(List<ErrorResponse.Interceptor> interceptors) {
-
   }
 
   /**
@@ -275,7 +268,6 @@ public interface WebMvcConfigurer {
    * @since 4.0
    */
   default void configureAsyncSupport(AsyncSupportConfigurer configurer) {
-
   }
 
   /**
@@ -286,7 +278,6 @@ public interface WebMvcConfigurer {
    * @since 5.0
    */
   default void configureApiVersioning(ApiVersionConfigurer configurer) {
-
   }
 
   /**

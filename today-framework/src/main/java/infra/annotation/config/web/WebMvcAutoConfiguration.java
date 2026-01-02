@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import java.time.Duration;
 import java.util.List;
 
 import infra.annotation.ConditionalOnWebApplication;
+import infra.annotation.config.http.ServerHttpMessageConvertersCustomizer;
 import infra.annotation.config.task.TaskExecutionAutoConfiguration;
 import infra.annotation.config.validation.ValidationAutoConfiguration;
 import infra.annotation.config.web.WebMvcProperties.ApiVersion.Use;
@@ -40,6 +41,7 @@ import infra.context.annotation.Lazy;
 import infra.context.annotation.Role;
 import infra.context.annotation.config.AutoConfigureOrder;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
+import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnBean;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.properties.EnableConfigurationProperties;
@@ -49,7 +51,7 @@ import infra.format.FormatterRegistry;
 import infra.format.support.ApplicationConversionService;
 import infra.format.support.FormattingConversionService;
 import infra.http.converter.HttpMessageConverter;
-import infra.web.config.HttpMessageConverters;
+import infra.http.converter.HttpMessageConverters.ServerBuilder;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
@@ -95,7 +97,7 @@ import infra.web.view.View;
 import static infra.annotation.config.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
 
 /**
- * {@link infra.context.annotation.config.EnableAutoConfiguration Auto-configuration} for {@link WebMvcConfigurationSupport}.
+ * {@link EnableAutoConfiguration Auto-configuration} for {@link WebMvcConfigurationSupport}.
  * <p>
  * Provides various auto-configured {@link WebMvcConfigurer} beans that enhance
  * the default MVC setup. This includes configuration for resource handling,
@@ -130,28 +132,29 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
   private final @Nullable ResourceHandlerRegistrationCustomizer registrationCustomizer;
 
-  private final @Nullable HttpMessageConverters messageConverters;
-
   private final @Nullable ApiVersionParser<?> apiVersionParser;
 
   private final @Nullable ApiVersionDeprecationHandler apiVersionDeprecationHandler;
 
   private final ObjectProvider<ApiVersionResolver> apiVersionResolvers;
 
+  private final ObjectProvider<ServerHttpMessageConvertersCustomizer> httpMessageConvertersCustomizerProvider;
+
   public WebMvcAutoConfiguration(BeanFactory beanFactory, WebProperties webProperties,
           WebMvcProperties mvcProperties, List<WebMvcConfigurer> mvcConfigurers,
-          @Nullable HttpMessageConverters messageConverters, ObjectProvider<ApiVersionResolver> apiVersionResolvers,
-          @Nullable ApiVersionParser<?> apiVersionParser, @Nullable ApiVersionDeprecationHandler apiVersionDeprecationHandler,
-          ObjectProvider<WebMvcRegistrations> mvcRegistrations, @Nullable ResourceHandlerRegistrationCustomizer registrationCustomizer) {
+          ObjectProvider<ApiVersionResolver> apiVersionResolvers, @Nullable ApiVersionParser<?> apiVersionParser,
+          @Nullable ApiVersionDeprecationHandler apiVersionDeprecationHandler, ObjectProvider<WebMvcRegistrations> mvcRegistrations,
+          @Nullable ResourceHandlerRegistrationCustomizer registrationCustomizer,
+          ObjectProvider<ServerHttpMessageConvertersCustomizer> httpMessageConvertersCustomizerProvider) {
     this.beanFactory = beanFactory;
     this.mvcProperties = mvcProperties;
     this.webProperties = webProperties;
     this.mvcRegistrations = mvcRegistrations.getIfUnique();
-    this.messageConverters = messageConverters;
     this.apiVersionParser = apiVersionParser;
     this.apiVersionResolvers = apiVersionResolvers;
     this.registrationCustomizer = registrationCustomizer;
     this.apiVersionDeprecationHandler = apiVersionDeprecationHandler;
+    this.httpMessageConvertersCustomizerProvider = httpMessageConvertersCustomizerProvider;
     this.configurers = new CompositeWebMvcConfigurer(mvcConfigurers);
   }
 
@@ -235,11 +238,21 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   }
 
   @Override
-  public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-    if (messageConverters != null) {
-      converters.addAll(messageConverters.getConverters());
+  public void configureMessageConverters(ServerBuilder builder) {
+    for (ServerHttpMessageConvertersCustomizer customizer : httpMessageConvertersCustomizerProvider) {
+      customizer.customize(builder);
     }
+    configurers.configureMessageConverters(builder);
+  }
+
+  @Override
+  public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
     configurers.configureMessageConverters(converters);
+  }
+
+  @Override
+  protected void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+    configurers.extendMessageConverters(converters);
   }
 
   @Override
@@ -256,11 +269,6 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Override
   protected void addCorsMappings(CorsRegistry registry) {
     configurers.addCorsMappings(registry);
-  }
-
-  @Override
-  protected void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
-    configurers.extendMessageConverters(converters);
   }
 
   @Override

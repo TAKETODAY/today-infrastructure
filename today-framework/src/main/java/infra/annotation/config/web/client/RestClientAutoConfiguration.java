@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ import infra.stereotype.Component;
 import infra.stereotype.Prototype;
 import infra.web.client.RestClient;
 import infra.web.client.config.ClientHttpRequestFactories;
-import infra.web.client.config.ClientHttpRequestFactorySettings;
+import infra.web.client.config.HttpClientSettings;
 import infra.web.client.config.RestClientCustomizer;
 
 /**
@@ -79,7 +79,7 @@ public class RestClientAutoConfiguration {
   @ConditionalOnMissingBean
   public static RestClient.Builder restClientBuilder(List<RestClientCustomizer> customizerProvider) {
     RestClient.Builder builder = RestClient.builder()
-            .requestFactory(ClientHttpRequestFactories.get(ClientHttpRequestFactorySettings.DEFAULTS));
+            .requestFactory(ClientHttpRequestFactories.get(HttpClientSettings.DEFAULTS));
 
     for (RestClientCustomizer customizer : customizerProvider) {
       customizer.customize(builder);

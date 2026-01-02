@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,6 +52,7 @@ import infra.web.config.annotation.WebMvcConfigurationSupport;
  * @see #getConverters()
  * @since 4.0 2022/1/16 15:26
  */
+@Deprecated
 public class HttpMessageConverters implements Iterable<HttpMessageConverter<?>> {
 
   private static final Map<Class<?>, Class<?>> EQUIVALENT_CONVERTERS;

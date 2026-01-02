@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ import infra.web.client.NoOpResponseErrorHandler;
 import infra.web.client.RequestCallback;
 import infra.web.client.ResponseExtractor;
 import infra.web.client.RestTemplate;
-import infra.web.client.config.ClientHttpRequestFactorySettings;
+import infra.web.client.config.HttpClientSettings;
 import infra.web.client.config.RestTemplateBuilder;
 import infra.web.client.config.RootUriTemplateHandler;
 import infra.web.util.DefaultUriBuilderFactory;
@@ -1052,7 +1052,7 @@ public class TestRestTemplate {
     private final boolean enableRedirects;
 
     public CustomHttpComponentsClientHttpRequestFactory(
-            HttpClientOption[] httpClientOptions, ClientHttpRequestFactorySettings settings) {
+            HttpClientOption[] httpClientOptions, HttpClientSettings settings) {
       Set<HttpClientOption> options = new HashSet<>(Arrays.asList(httpClientOptions));
       this.cookieSpec = options.contains(HttpClientOption.ENABLE_COOKIES)
               ? StandardCookieSpec.STRICT

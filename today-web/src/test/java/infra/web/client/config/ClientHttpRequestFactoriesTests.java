@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,42 +42,42 @@ class ClientHttpRequestFactoriesTests {
   @Test
   void getReturnsRequestFactoryOfExpectedType() {
     ClientHttpRequestFactory requestFactory = ClientHttpRequestFactories
-            .get(ClientHttpRequestFactorySettings.DEFAULTS);
+            .get(HttpClientSettings.DEFAULTS);
     assertThat(requestFactory).isInstanceOf(HttpComponentsClientHttpRequestFactory.class);
   }
 
   @Test
   void getOfGeneralTypeReturnsRequestFactoryOfExpectedType() {
     ClientHttpRequestFactory requestFactory = ClientHttpRequestFactories.get(ClientHttpRequestFactory.class,
-            ClientHttpRequestFactorySettings.DEFAULTS);
+            HttpClientSettings.DEFAULTS);
     assertThat(requestFactory).isInstanceOf(HttpComponentsClientHttpRequestFactory.class);
   }
 
   @Test
   void getOfHttpComponentsFactoryReturnsHttpComponentsFactory() {
     ClientHttpRequestFactory requestFactory = ClientHttpRequestFactories
-            .get(HttpComponentsClientHttpRequestFactory.class, ClientHttpRequestFactorySettings.DEFAULTS);
+            .get(HttpComponentsClientHttpRequestFactory.class, HttpClientSettings.DEFAULTS);
     assertThat(requestFactory).isInstanceOf(HttpComponentsClientHttpRequestFactory.class);
   }
 
   @Test
   void getOfJdkFactoryReturnsJdkFactory() {
     ClientHttpRequestFactory requestFactory = ClientHttpRequestFactories.get(JdkClientHttpRequestFactory.class,
-            ClientHttpRequestFactorySettings.DEFAULTS);
+            HttpClientSettings.DEFAULTS);
     assertThat(requestFactory).isInstanceOf(JdkClientHttpRequestFactory.class);
   }
 
   @Test
   void getOfUnknownTypeCreatesFactory() {
     ClientHttpRequestFactory requestFactory = ClientHttpRequestFactories.get(TestClientHttpRequestFactory.class,
-            ClientHttpRequestFactorySettings.DEFAULTS);
+            HttpClientSettings.DEFAULTS);
     assertThat(requestFactory).isInstanceOf(TestClientHttpRequestFactory.class);
   }
 
   @Test
   void getOfUnknownTypeWithConnectTimeoutCreatesFactoryAndConfiguresConnectTimeout() {
     ClientHttpRequestFactory requestFactory = ClientHttpRequestFactories.get(TestClientHttpRequestFactory.class,
-            ClientHttpRequestFactorySettings.DEFAULTS.withConnectTimeout(Duration.ofSeconds(60)));
+            HttpClientSettings.DEFAULTS.withConnectTimeout(Duration.ofSeconds(60)));
     assertThat(requestFactory).isInstanceOf(TestClientHttpRequestFactory.class);
     assertThat(((TestClientHttpRequestFactory) requestFactory).connectTimeout)
             .isEqualTo(Duration.ofSeconds(60).toMillis());
@@ -86,7 +86,7 @@ class ClientHttpRequestFactoriesTests {
   @Test
   void getOfUnknownTypeWithReadTimeoutCreatesFactoryAndConfiguresReadTimeout() {
     ClientHttpRequestFactory requestFactory = ClientHttpRequestFactories.get(TestClientHttpRequestFactory.class,
-            ClientHttpRequestFactorySettings.DEFAULTS.withReadTimeout(Duration.ofSeconds(90)));
+            HttpClientSettings.DEFAULTS.withReadTimeout(Duration.ofSeconds(90)));
     assertThat(requestFactory).isInstanceOf(TestClientHttpRequestFactory.class);
     assertThat(((TestClientHttpRequestFactory) requestFactory).readTimeout)
             .isEqualTo(Duration.ofSeconds(90).toMillis());
@@ -96,7 +96,7 @@ class ClientHttpRequestFactoriesTests {
   void getOfUnconfigurableTypeWithConnectTimeoutThrows() {
     assertThatIllegalStateException()
             .isThrownBy(() -> ClientHttpRequestFactories.get(UnconfigurableClientHttpRequestFactory.class,
-                    ClientHttpRequestFactorySettings.DEFAULTS.withConnectTimeout(Duration.ofSeconds(60))))
+                    HttpClientSettings.DEFAULTS.withConnectTimeout(Duration.ofSeconds(60))))
             .withMessageContaining("suitable setConnectTimeout method");
   }
 
@@ -104,7 +104,7 @@ class ClientHttpRequestFactoriesTests {
   void getOfUnconfigurableTypeWithReadTimeoutThrows() {
     assertThatIllegalStateException()
             .isThrownBy(() -> ClientHttpRequestFactories.get(UnconfigurableClientHttpRequestFactory.class,
-                    ClientHttpRequestFactorySettings.DEFAULTS.withReadTimeout(Duration.ofSeconds(60))))
+                    HttpClientSettings.DEFAULTS.withReadTimeout(Duration.ofSeconds(60))))
             .withMessageContaining("suitable setReadTimeout method");
   }
 
@@ -112,7 +112,7 @@ class ClientHttpRequestFactoriesTests {
   void getOfTypeWithDeprecatedConnectTimeoutThrowsWithConnectTimeout() {
     assertThatIllegalStateException()
             .isThrownBy(() -> ClientHttpRequestFactories.get(DeprecatedMethodsClientHttpRequestFactory.class,
-                    ClientHttpRequestFactorySettings.DEFAULTS.withConnectTimeout(Duration.ofSeconds(60))))
+                    HttpClientSettings.DEFAULTS.withConnectTimeout(Duration.ofSeconds(60))))
             .withMessageContaining("setConnectTimeout method marked as deprecated");
   }
 
@@ -120,7 +120,7 @@ class ClientHttpRequestFactoriesTests {
   void getOfTypeWithDeprecatedReadTimeoutThrowsWithReadTimeout() {
     assertThatIllegalStateException()
             .isThrownBy(() -> ClientHttpRequestFactories.get(DeprecatedMethodsClientHttpRequestFactory.class,
-                    ClientHttpRequestFactorySettings.DEFAULTS.withReadTimeout(Duration.ofSeconds(60))))
+                    HttpClientSettings.DEFAULTS.withReadTimeout(Duration.ofSeconds(60))))
             .withMessageContaining("setReadTimeout method marked as deprecated");
   }
 
@@ -129,7 +129,7 @@ class ClientHttpRequestFactoriesTests {
     HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
     BufferingClientHttpRequestFactory result = ClientHttpRequestFactories.get(
             () -> new BufferingClientHttpRequestFactory(requestFactory),
-            ClientHttpRequestFactorySettings.DEFAULTS.withConnectTimeout(Duration.ofMillis(1234)));
+            HttpClientSettings.DEFAULTS.withConnectTimeout(Duration.ofMillis(1234)));
     assertThat(result).extracting("requestFactory").isSameAs(requestFactory);
     assertThat(requestFactory).hasFieldOrPropertyWithValue("connectTimeout", 1234L);
   }
@@ -139,7 +139,7 @@ class ClientHttpRequestFactoriesTests {
     JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory();
     BufferingClientHttpRequestFactory result = ClientHttpRequestFactories.get(
             () -> new BufferingClientHttpRequestFactory(requestFactory),
-            ClientHttpRequestFactorySettings.DEFAULTS.withReadTimeout(Duration.ofMillis(1234)));
+            HttpClientSettings.DEFAULTS.withReadTimeout(Duration.ofMillis(1234)));
     assertThat(result).extracting("requestFactory").isSameAs(requestFactory);
     assertThat(requestFactory).hasFieldOrPropertyWithValue("readTimeout", Duration.ofMillis(1234));
   }

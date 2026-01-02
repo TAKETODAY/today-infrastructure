@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.client.config;
@@ -33,13 +30,13 @@ import static org.mockito.Mockito.mock;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/11/1 23:10
  */
-class ClientHttpRequestFactorySettingsTests {
+class HttpClientSettingsTests {
 
   private static final Duration ONE_SECOND = Duration.ofSeconds(1);
 
   @Test
   void defaultsHasNullValues() {
-    ClientHttpRequestFactorySettings settings = ClientHttpRequestFactorySettings.DEFAULTS;
+    HttpClientSettings settings = HttpClientSettings.DEFAULTS;
     assertThat(settings.connectTimeout()).isNull();
     assertThat(settings.readTimeout()).isNull();
     assertThat(settings.bufferRequestBody()).isNull();
@@ -48,7 +45,7 @@ class ClientHttpRequestFactorySettingsTests {
 
   @Test
   void withConnectTimeoutReturnsInstanceWithUpdatedConnectionTimeout() {
-    ClientHttpRequestFactorySettings settings = ClientHttpRequestFactorySettings.DEFAULTS
+    HttpClientSettings settings = HttpClientSettings.DEFAULTS
             .withConnectTimeout(ONE_SECOND);
     assertThat(settings.connectTimeout()).isEqualTo(ONE_SECOND);
     assertThat(settings.readTimeout()).isNull();
@@ -58,7 +55,7 @@ class ClientHttpRequestFactorySettingsTests {
 
   @Test
   void withReadTimeoutReturnsInstanceWithUpdatedReadTimeout() {
-    ClientHttpRequestFactorySettings settings = ClientHttpRequestFactorySettings.DEFAULTS
+    HttpClientSettings settings = HttpClientSettings.DEFAULTS
             .withReadTimeout(ONE_SECOND);
     assertThat(settings.connectTimeout()).isNull();
     assertThat(settings.readTimeout()).isEqualTo(ONE_SECOND);
@@ -68,7 +65,7 @@ class ClientHttpRequestFactorySettingsTests {
 
   @Test
   void withBufferRequestBodyReturnsInstanceWithUpdatedBufferRequestBody() {
-    ClientHttpRequestFactorySettings settings = ClientHttpRequestFactorySettings.DEFAULTS
+    HttpClientSettings settings = HttpClientSettings.DEFAULTS
             .withBufferRequestBody(true);
     assertThat(settings.connectTimeout()).isNull();
     assertThat(settings.readTimeout()).isNull();
@@ -79,7 +76,7 @@ class ClientHttpRequestFactorySettingsTests {
   @Test
   void withSslBundleReturnsInstanceWithUpdatedSslBundle() {
     SslBundle sslBundle = mock(SslBundle.class);
-    ClientHttpRequestFactorySettings settings = ClientHttpRequestFactorySettings.DEFAULTS.withSslBundle(sslBundle);
+    HttpClientSettings settings = HttpClientSettings.DEFAULTS.withSslBundle(sslBundle);
     assertThat(settings.connectTimeout()).isNull();
     assertThat(settings.readTimeout()).isNull();
     assertThat(settings.bufferRequestBody()).isNull();
