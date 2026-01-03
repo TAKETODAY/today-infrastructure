@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -281,8 +281,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
     List<MediaTypeExpression> expressionsToCompare = getExpressionsToCompare();
     for (int i = 0; i < expressionsToCompare.size(); i++) {
       MediaType currentMediaType = expressionsToCompare.get(i).mediaType;
-      if (mediaType.getType().equalsIgnoreCase(currentMediaType.getType())
-              && mediaType.getSubtype().equalsIgnoreCase(currentMediaType.getSubtype())) {
+      if (mediaType.equalsTypeAndSubtype(currentMediaType)) {
         return i;
       }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -620,7 +620,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
     if (other == null) {
       return false;
     }
-    return this.type.equalsIgnoreCase(other.type) && this.subtype.equalsIgnoreCase(other.subtype);
+    return this.type.equals(other.type) && this.subtype.equals(other.subtype);
   }
 
   /**
