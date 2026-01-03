@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,8 +28,8 @@ import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 
 import infra.core.GenericTypeResolver;
-import infra.http.HttpHeaders;
 import infra.http.HttpInputMessage;
+import infra.http.HttpMessage;
 import infra.http.HttpOutputMessage;
 import infra.http.MediaType;
 import infra.http.converter.AbstractGenericHttpMessageConverter;
@@ -148,15 +148,15 @@ public abstract class AbstractJsonHttpMessageConverter extends AbstractGenericHt
   protected abstract void writeInternal(Object object, @Nullable Type type, Writer writer) throws Exception;
 
   private static Reader getReader(HttpInputMessage inputMessage) throws IOException {
-    return new InputStreamReader(inputMessage.getBody(), getCharset(inputMessage.getHeaders()));
+    return new InputStreamReader(inputMessage.getBody(), getCharset(inputMessage));
   }
 
   private static Writer getWriter(HttpOutputMessage outputMessage) throws IOException {
-    return new OutputStreamWriter(outputMessage.getBody(), getCharset(outputMessage.getHeaders()));
+    return new OutputStreamWriter(outputMessage.getBody(), getCharset(outputMessage));
   }
 
-  private static Charset getCharset(HttpHeaders headers) {
-    MediaType contentType = headers.getContentType();
+  private static Charset getCharset(HttpMessage message) {
+    MediaType contentType = message.getContentType();
     if (contentType != null) {
       Charset charset = contentType.getCharset();
       if (charset != null) {

@@ -27,6 +27,7 @@ import infra.format.Formatter;
 import infra.format.FormatterRegistry;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters;
+import infra.http.converter.HttpMessageConverters.ServerBuilder;
 import infra.validation.Validator;
 import infra.validation.beanvalidation.OptionalValidatorFactoryBean;
 import infra.web.ErrorResponse;
@@ -165,7 +166,7 @@ public interface WebMvcConfigurer {
    * @param builder the builder to configure
    * @since 5.0
    */
-  default void configureMessageConverters(HttpMessageConverters.ServerBuilder builder) {
+  default void configureMessageConverters(ServerBuilder builder) {
   }
 
   /**

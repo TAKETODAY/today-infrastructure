@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -300,7 +300,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
       return true;
     }
     for (MediaType supportedMediaType : getSupportedMediaTypes()) {
-      if (supportedMediaType.getType().equalsIgnoreCase("multipart")) {
+      if (supportedMediaType.isMultipartType()) {
         // We can't read multipart, so skip this supported media type.
         continue;
       }
@@ -332,7 +332,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
           throws IOException, HttpMessageNotReadableException //
   {
 
-    MediaType contentType = inputMessage.getHeaders().getContentType();
+    MediaType contentType = inputMessage.getContentType();
 
     Charset charset = null;
     if (contentType != null) {
@@ -381,7 +381,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 
   private boolean isMultipart(MultiValueMap<String, ?> map, @Nullable MediaType contentType) {
     if (contentType != null) {
-      return contentType.getType().equalsIgnoreCase("multipart");
+      return contentType.getType().equals("multipart");
     }
     for (List<?> values : map.values()) {
       for (Object value : values) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-import infra.http.HttpHeaders;
 import infra.http.HttpInputMessage;
 import infra.http.HttpMessage;
 import infra.http.MediaType;
@@ -49,8 +48,7 @@ abstract class RestClientUtils {
 
   @Nullable
   public static Charset getCharset(HttpMessage response) {
-    HttpHeaders headers = response.getHeaders();
-    MediaType contentType = headers.getContentType();
+    MediaType contentType = response.getContentType();
     return contentType != null ? contentType.getCharset() : null;
   }
 }
