@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -244,6 +244,7 @@ public class Ssl {
      * @param need the value for {@link ClientAuth#NEED}
      * @return the mapped value
      */
+    @Contract("_, !null, _, _ -> !null")
     public static <R> R map(@Nullable ClientAuth clientAuth, R none, R want, R need) {
       return switch (clientAuth != null ? clientAuth : NONE) {
         case NONE -> none;

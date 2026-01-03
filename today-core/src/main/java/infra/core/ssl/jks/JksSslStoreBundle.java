@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,9 +50,9 @@ public class JksSslStoreBundle implements SslStoreBundle {
 
   private final ResourceLoader resourceLoader;
 
-  private final SingletonSupplier<KeyStore> keyStore;
+  private final SingletonSupplier<@Nullable KeyStore> keyStore;
 
-  private final SingletonSupplier<KeyStore> trustStore;
+  private final SingletonSupplier<@Nullable KeyStore> trustStore;
 
   /**
    * Create a new {@link JksSslStoreBundle} instance.

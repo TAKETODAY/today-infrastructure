@@ -193,7 +193,7 @@ abstract class AbstractClientHttpRequestFactoryBuilderTests<T extends ClientHttp
   private Ssl ssl(String... ciphers) {
     Ssl ssl = new Ssl();
     ssl.enabled = true;
-    ssl.clientAuth = ClientAuth.NEED;
+    ssl.clientAuth = ClientAuth.WANT;
     ssl.keyPassword = "password";
     ssl.keyStore = "classpath:test.jks";
     ssl.trustStore = "classpath:test.jks";
