@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -457,7 +457,7 @@ public abstract class AbstractApplicationContextRunner<
     this.runnerConfiguration.environmentProperties.applyTo(context);
     this.runnerConfiguration.beanRegistrations.forEach((registration) -> registration.apply(context));
     this.runnerConfiguration.initializers.forEach((initializer) -> initializer.initialize(context));
-    if (!CollectionUtils.isEmpty(this.runnerConfiguration.configurations)) {
+    if (CollectionUtils.isNotEmpty(this.runnerConfiguration.configurations)) {
       BiConsumer<Class<?>, String> registrar = getRegistrar(context);
       for (Configurations configurations : Configurations.collate(this.runnerConfiguration.configurations)) {
         for (Class<?> beanClass : Configurations.getClasses(configurations)) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,25 +17,18 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 
-import java.util.List;
 import java.util.function.Consumer;
 
-import infra.beans.factory.annotation.Autowired;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.context.ApplicationContext;
 import infra.context.annotation.AnnotationConfigUtils;
 import infra.context.annotation.Configuration;
-import infra.context.condition.ConditionalOnMissingBean;
-import infra.http.converter.HttpMessageConverter;
-import infra.web.config.HttpMessageConverters;
-import org.jspecify.annotations.Nullable;
 import infra.mock.web.MockMockConfig;
-import infra.stereotype.Component;
 import infra.web.config.annotation.EnableWebMvc;
-import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.mock.MockDispatcher;
 import infra.web.mock.WebApplicationContext;
 import infra.web.mock.support.GenericWebApplicationContext;
@@ -142,21 +135,7 @@ public abstract class AbstractMockHandlerMethodTests {
 
   @EnableWebMvc
   @Configuration(proxyBeanMethods = false)
-  static class TestConfig implements WebMvcConfigurer {
-
-    @Autowired
-    private HttpMessageConverters messageConverters;
-
-    @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-      converters.addAll(messageConverters.getConverters());
-    }
-
-    @Component
-    @ConditionalOnMissingBean
-    static HttpMessageConverters messageConverters(List<HttpMessageConverter<?>> converters) {
-      return new HttpMessageConverters(converters);
-    }
+  static class TestConfig {
 
   }
 

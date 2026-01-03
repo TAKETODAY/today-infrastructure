@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,11 @@
 
 package infra.annotation.config.web.client;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.Arrays;
 import java.util.List;
 
 import infra.http.converter.HttpMessageConverter;
-import infra.web.config.HttpMessageConverters;
+import infra.annotation.config.http.ClientHttpMessageConvertersCustomizer;
 import infra.lang.Assert;
 import infra.web.client.RestClient;
 import infra.web.client.config.RestClientCustomizer;
@@ -38,28 +36,24 @@ import infra.web.client.config.RestClientCustomizer;
  */
 public class HttpMessageConvertersRestClientCustomizer implements RestClientCustomizer {
 
-  @Nullable
-  private final Iterable<? extends HttpMessageConverter<?>> messageConverters;
+  private final List<ClientHttpMessageConvertersCustomizer> customizers;
 
-  public HttpMessageConvertersRestClientCustomizer(HttpMessageConverter<?>... messageConverters) {
-    Assert.notNull(messageConverters, "MessageConverters is required");
-    this.messageConverters = Arrays.asList(messageConverters);
+  public HttpMessageConvertersRestClientCustomizer(ClientHttpMessageConvertersCustomizer... customizers) {
+    this(Arrays.asList(customizers));
   }
 
-  HttpMessageConvertersRestClientCustomizer(@Nullable HttpMessageConverters messageConverters) {
-    this.messageConverters = messageConverters;
+  public HttpMessageConvertersRestClientCustomizer(List<ClientHttpMessageConvertersCustomizer> customizers) {
+    Assert.notNull(customizers, "customizers is required");
+    this.customizers = customizers;
   }
 
   @Override
   public void customize(RestClient.Builder restClientBuilder) {
-    restClientBuilder.messageConverters(this::configureMessageConverters);
-  }
-
-  private void configureMessageConverters(List<HttpMessageConverter<?>> messageConverters) {
-    if (this.messageConverters != null) {
-      messageConverters.clear();
-      this.messageConverters.forEach(messageConverters::add);
-    }
+    restClientBuilder.configureMessageConverters(builder -> {
+      for (var customizer : customizers) {
+        customizer.customize(builder);
+      }
+    });
   }
 
 }

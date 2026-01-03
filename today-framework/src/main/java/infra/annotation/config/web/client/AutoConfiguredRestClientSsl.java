@@ -23,8 +23,8 @@ import infra.core.ssl.SslBundle;
 import infra.core.ssl.SslBundles;
 import infra.http.client.ClientHttpRequestFactory;
 import infra.web.client.RestClient;
-import infra.web.client.config.ClientHttpRequestFactories;
-import infra.web.client.config.HttpClientSettings;
+import infra.http.client.config.ClientHttpRequestFactoryBuilder;
+import infra.http.client.config.HttpClientSettings;
 
 /**
  * An auto-configured {@link RestClientSsl} implementation.
@@ -35,24 +35,31 @@ import infra.web.client.config.HttpClientSettings;
  */
 class AutoConfiguredRestClientSsl implements RestClientSsl {
 
+  private final ClientHttpRequestFactoryBuilder<?> builder;
+
+  private final HttpClientSettings settings;
+
   private final SslBundles sslBundles;
 
-  AutoConfiguredRestClientSsl(SslBundles sslBundles) {
+  AutoConfiguredRestClientSsl(ClientHttpRequestFactoryBuilder<?> clientHttpRequestFactoryBuilder,
+          HttpClientSettings settings, SslBundles sslBundles) {
+    this.builder = clientHttpRequestFactoryBuilder;
+    this.settings = settings;
     this.sslBundles = sslBundles;
   }
 
   @Override
   public Consumer<RestClient.Builder> fromBundle(String bundleName) {
-    return fromBundle(this.sslBundles.getBundle(bundleName));
+    return fromBundle(sslBundles.getBundle(bundleName));
   }
 
   @Override
   public Consumer<RestClient.Builder> fromBundle(SslBundle bundle) {
-    return (builder) -> {
-      HttpClientSettings settings = HttpClientSettings.DEFAULTS.withSslBundle(bundle);
-      ClientHttpRequestFactory requestFactory = ClientHttpRequestFactories.get(settings);
-      builder.requestFactory(requestFactory);
-    };
+    return builder -> builder.requestFactory(requestFactory(bundle));
+  }
+
+  private ClientHttpRequestFactory requestFactory(SslBundle bundle) {
+    return builder.build(settings.withSslBundle(bundle));
   }
 
 }

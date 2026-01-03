@@ -171,7 +171,7 @@ public interface HttpMessageConverters extends Iterable<HttpMessageConverter<?>>
      *
      * @param converters the list of converter instances to add
      */
-    T addCustomConverters(@Nullable List<HttpMessageConverter<?>> converters);
+    T addCustomConverters(@Nullable Iterable<HttpMessageConverter<?>> converters);
 
     /**
      * Add a consumer for configuring the selected message converters.

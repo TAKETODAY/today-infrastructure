@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,12 +50,9 @@ import infra.web.client.reactive.WebClient;
 @DisableDIAutoConfiguration
 @ConditionalOnClass({ CodecConfigurer.class, WebClient.class })
 @EnableConfigurationProperties(CodecProperties.class)
-public class CodecsAutoConfiguration {
+public final class CodecsAutoConfiguration {
 
   private static final MimeType[] EMPTY_MIME_TYPES = {};
-
-  private CodecsAutoConfiguration() {
-  }
 
   @Component
   @Order(0)

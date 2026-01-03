@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,9 +24,11 @@ import org.apache.hc.core5.reactive.ReactiveResponseConsumer;
 import infra.beans.factory.ObjectProvider;
 import infra.beans.factory.annotation.DisableAllDependencyInjection;
 import infra.context.annotation.Configuration;
+import infra.context.annotation.Import;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.http.client.ReactorResourceFactory;
+import infra.http.config.annotation.ReactorNettyConfigurations;
 import infra.stereotype.Component;
 
 /**
@@ -44,14 +46,8 @@ class ClientHttpConnectorFactoryConfiguration {
 
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnClass(reactor.netty.http.client.HttpClient.class)
-  @ConditionalOnMissingBean(ClientHttpConnectorFactory.class)
+  @Import(ReactorNettyConfigurations.ReactorResourceFactoryConfiguration.class)
   static class ReactorNetty {
-
-    @Component
-    @ConditionalOnMissingBean
-    static ReactorResourceFactory reactorServerResourceFactory() {
-      return new ReactorResourceFactory();
-    }
 
     @Component
     static ReactorClientHttpConnectorFactory reactorClientHttpConnectorFactory(

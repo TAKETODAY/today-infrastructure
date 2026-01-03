@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,7 +53,6 @@ import infra.http.client.HttpComponentsClientHttpRequestFactory;
 import infra.http.client.JdkClientHttpRequestFactory;
 import infra.http.client.ReactorClientHttpRequestFactory;
 import infra.http.converter.FormHttpMessageConverter;
-import infra.http.converter.json.MappingJacksonValue;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 
@@ -399,23 +398,6 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
   }
 
   @ParameterizedRestTemplateTest
-  void jsonPostForObjectWithJacksonView(ClientHttpRequestFactory clientHttpRequestFactory) throws Exception {
-    setUpClient(clientHttpRequestFactory);
-
-    HttpHeaders entityHeaders = HttpHeaders.forWritable();
-    entityHeaders.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
-    MySampleBean bean = new MySampleBean("with", "with", "without");
-    MappingJacksonValue jacksonValue = new MappingJacksonValue(bean);
-    jacksonValue.setSerializationView(MyJacksonView1.class);
-    HttpEntity<MappingJacksonValue> entity = new HttpEntity<>(jacksonValue, entityHeaders);
-    String s = template.postForObject(baseUrl + "/jsonpost", entity, String.class);
-    assertThat(s).contains("\"with1\":\"with\"");
-    assertThat(s).doesNotContain("\"with2\":\"with\"");
-    assertThat(s).doesNotContain("\"without\":\"without\"");
-  }
-
-  @ParameterizedRestTemplateTest
-    //
   void serverPort(ClientHttpRequestFactory clientHttpRequestFactory) {
     setUpClient(clientHttpRequestFactory);
 

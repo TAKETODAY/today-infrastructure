@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,19 +17,18 @@
 
 package infra.annotation.config.web.client;
 
-import org.jspecify.annotations.Nullable;
-
-import java.util.List;
-
+import infra.annotation.config.http.ClientHttpMessageConvertersCustomizer;
 import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
+import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.Conditional;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
-import infra.web.config.HttpMessageConverters;
 import infra.stereotype.Component;
 import infra.web.client.RestTemplate;
+import infra.http.client.config.ClientHttpRequestFactoryBuilder;
+import infra.http.client.config.HttpClientSettings;
 import infra.web.client.config.RestTemplateBuilder;
 import infra.web.client.config.RestTemplateCustomizer;
 import infra.web.client.config.RestTemplateRequestCustomizer;
@@ -44,30 +43,29 @@ import infra.web.client.config.RestTemplateRequestCustomizer;
 @Conditional(NotReactiveWebApplicationCondition.class)
 public class RestTemplateAutoConfiguration {
 
-  private RestTemplateAutoConfiguration() {
-  }
-
   @Lazy
   @Component
   @ConditionalOnMissingBean
   public static RestTemplateBuilderConfigurer restTemplateBuilderConfigurer(
-          @Nullable HttpMessageConverters messageConverters,
-          @Nullable List<RestTemplateCustomizer> restTemplateCustomizers,
-          @Nullable List<RestTemplateRequestCustomizer<?>> restTemplateRequestCustomizers) {
-
+          ObjectProvider<ClientHttpRequestFactoryBuilder<?>> clientHttpRequestFactoryBuilder,
+          ObjectProvider<HttpClientSettings> httpClientSettings,
+          ObjectProvider<ClientHttpMessageConvertersCustomizer> convertersCustomizers,
+          ObjectProvider<RestTemplateCustomizer> restTemplateCustomizers,
+          ObjectProvider<RestTemplateRequestCustomizer<?>> restTemplateRequestCustomizers) {
     RestTemplateBuilderConfigurer configurer = new RestTemplateBuilderConfigurer();
-    configurer.setHttpMessageConverters(messageConverters);
-    configurer.setRestTemplateCustomizers(restTemplateCustomizers);
-    configurer.setRestTemplateRequestCustomizers(restTemplateRequestCustomizers);
+    configurer.setRequestFactoryBuilder(clientHttpRequestFactoryBuilder.getIfAvailable());
+    configurer.setClientSettings(httpClientSettings.getIfAvailable());
+    configurer.setHttpMessageConvertersCustomizers(convertersCustomizers.orderedStream().toList());
+    configurer.setRestTemplateCustomizers(restTemplateCustomizers.orderedStream().toList());
+    configurer.setRestTemplateRequestCustomizers(restTemplateRequestCustomizers.orderedStream().toList());
     return configurer;
   }
 
   @Lazy
   @Component
   @ConditionalOnMissingBean
-  public static RestTemplateBuilder restTemplateBuilder(RestTemplateBuilderConfigurer restTemplateBuilderConfigurer) {
-    RestTemplateBuilder builder = new RestTemplateBuilder();
-    return restTemplateBuilderConfigurer.configure(builder);
+  public static RestTemplateBuilder restTemplateBuilder(RestTemplateBuilderConfigurer configurer) {
+    return configurer.configure(new RestTemplateBuilder());
   }
 
 }

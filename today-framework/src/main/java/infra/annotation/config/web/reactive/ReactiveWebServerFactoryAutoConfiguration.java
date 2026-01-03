@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ package infra.annotation.config.web.reactive;
 import org.jspecify.annotations.Nullable;
 
 import infra.annotation.ConditionalOnWebApplication;
+import infra.beans.factory.ObjectProvider;
 import infra.beans.factory.annotation.DisableDependencyInjection;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.RootBeanDefinition;
@@ -39,11 +40,18 @@ import infra.core.Ordered;
 import infra.core.ssl.SslBundles;
 import infra.core.type.AnnotationMetadata;
 import infra.http.ReactiveHttpInputMessage;
+import infra.http.client.ReactorResourceFactory;
+import infra.http.config.annotation.ReactorNettyConfigurations.ReactorResourceFactoryConfiguration;
 import infra.http.server.reactive.ForwardedHeaderTransformer;
 import infra.stereotype.Component;
 import infra.util.ObjectUtils;
 import infra.web.server.ServerProperties;
 import infra.web.server.WebServerFactoryCustomizerBeanPostProcessor;
+import infra.web.server.reactive.ReactiveWebServerFactory;
+import infra.web.server.reactive.support.NettyRouteProvider;
+import infra.web.server.reactive.support.ReactorNettyReactiveWebServerFactory;
+import infra.web.server.reactive.support.ReactorNettyServerCustomizer;
+import reactor.netty.http.server.HttpServer;
 
 import static infra.annotation.ConditionalOnWebApplication.Type;
 import static infra.annotation.config.web.reactive.ReactiveWebServerFactoryAutoConfiguration.BeanPostProcessorsRegistrar;
@@ -61,11 +69,22 @@ import static infra.annotation.config.web.reactive.ReactiveWebServerFactoryAutoC
 @ConditionalOnClass(ReactiveHttpInputMessage.class)
 @ConditionalOnWebApplication(type = Type.REACTIVE)
 @EnableConfigurationProperties(ServerProperties.class)
-@Import({ BeanPostProcessorsRegistrar.class,
-        ReactiveWebServerFactoryConfiguration.EmbeddedNetty.class })
+@Import({ BeanPostProcessorsRegistrar.class, ReactorResourceFactoryConfiguration.class })
 public class ReactiveWebServerFactoryAutoConfiguration {
 
-  private ReactiveWebServerFactoryAutoConfiguration() {
+  @Component
+  @ConditionalOnClass({ HttpServer.class })
+  @ConditionalOnMissingBean(ReactiveWebServerFactory.class)
+  static ReactorNettyReactiveWebServerFactory reactorNettyReactiveWebServerFactory(ReactorResourceFactory resourceFactory,
+          ObjectProvider<NettyRouteProvider> routes, ObjectProvider<ReactorNettyServerCustomizer> serverCustomizers) {
+
+    ReactorNettyReactiveWebServerFactory serverFactory = new ReactorNettyReactiveWebServerFactory();
+    serverFactory.setResourceFactory(resourceFactory);
+    for (NettyRouteProvider route : routes) {
+      serverFactory.addRouteProviders(route);
+    }
+    serverCustomizers.addOrderedTo(serverFactory.getServerCustomizers());
+    return serverFactory;
   }
 
   @Component

@@ -3,7 +3,7 @@ infra.http.HttpMimeTypesRuntimeHints,\
 infra.http.codec.CodecConfigurerRuntimeHints,\
 infra.http.converter.json.JacksonModulesRuntimeHints,\
 infra.http.converter.json.ProblemDetailRuntimeHints,\
-infra.web.client.config.ClientHttpRequestFactoriesRuntimeHints,\
+infra.http.client.config.ClientHttpRequestFactoryRuntimeHints,\
 infra.web.util.WebUtilRuntimeHints
 
 infra.beans.factory.aot.BeanRegistrationAotProcessor=\

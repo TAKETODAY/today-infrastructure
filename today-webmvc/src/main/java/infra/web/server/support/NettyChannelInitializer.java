@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ sealed class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
   private final @Nullable ChannelConfigurer channelConfigurer;
 
   /**
-   * A configuration object for specifying the behaviour
+   * A configuration object for specifying the behavior
    * of {@link HttpObjectDecoder} and its subclasses.
    */
   private final HttpDecoderConfig httpDecoderConfig;
@@ -58,11 +58,19 @@ sealed class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
             .addLast("HttpServerCodec", new HttpServerCodec(httpDecoderConfig))
             .addLast("NettyChannelHandler", channelHandler)
             .remove(this);
+
+    postInitChannel(channelConfigurer, ch);
   }
 
   protected void preInitChannel(@Nullable ChannelConfigurer configurer, Channel ch) {
     if (configurer != null) {
       configurer.initChannel(ch);
+    }
+  }
+
+  protected void postInitChannel(@Nullable ChannelConfigurer configurer, Channel ch) {
+    if (configurer != null) {
+      configurer.postInitChannel(ch);
     }
   }
 

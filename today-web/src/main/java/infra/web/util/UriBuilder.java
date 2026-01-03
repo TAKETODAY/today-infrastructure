@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -280,7 +280,7 @@ public interface UriBuilder {
    * @param uriVariables the map of URI variables
    * @return the URI
    */
-  URI build(Object... uriVariables);
+  URI build(@Nullable Object... uriVariables);
 
   /**
    * Build a {@link URI} instance and replaces URI template variables
@@ -289,7 +289,7 @@ public interface UriBuilder {
    * @param uriVariables the map of URI variables
    * @return the URI
    */
-  URI build(Map<String, ?> uriVariables);
+  URI build(Map<String, ? extends @Nullable Object> uriVariables);
 
   /**
    * Return a String representation of the URI by concatenating all URI

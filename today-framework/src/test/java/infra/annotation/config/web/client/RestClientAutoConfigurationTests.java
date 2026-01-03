@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,19 +18,31 @@
 package infra.annotation.config.web.client;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 
+import java.time.Duration;
 import java.util.List;
 
+import infra.annotation.config.http.ClientHttpMessageConvertersCustomizer;
+import infra.annotation.config.http.client.HttpClientAutoConfiguration;
 import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
+import infra.annotation.config.http.client.ImperativeHttpClientAutoConfiguration;
+import infra.annotation.config.http.client.reactive.ReactiveHttpClientAutoConfiguration;
 import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.app.test.context.runner.WebApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
+import infra.core.annotation.Order;
+import infra.core.ssl.SslBundle;
 import infra.core.ssl.SslBundles;
-import infra.http.codec.CodecCustomizer;
+import infra.http.client.JdkClientHttpRequestFactory;
+import infra.http.client.config.ClientHttpRequestFactoryBuilder;
+import infra.http.client.config.HttpClientSettings;
+import infra.http.client.config.HttpRedirects;
+import infra.http.converter.ByteArrayHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
-import infra.web.config.HttpMessageConverters;
-import infra.http.converter.StringHttpMessageConverter;
+import infra.http.converter.HttpMessageConverters.ClientBuilder;
 import infra.test.util.ReflectionTestUtils;
 import infra.web.client.RestClient;
 import infra.web.client.config.RestClientCustomizer;
@@ -38,6 +50,7 @@ import infra.web.client.config.RestClientCustomizer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -47,20 +60,53 @@ import static org.mockito.Mockito.mock;
 class RestClientAutoConfigurationTests {
 
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-          .withConfiguration(AutoConfigurations.of(RestClientAutoConfiguration.class));
+          .withConfiguration(AutoConfigurations.of(RestClientAutoConfiguration.class, HttpClientAutoConfiguration.class,
+                  ImperativeHttpClientAutoConfiguration.class, ReactiveHttpClientAutoConfiguration.class));
 
   @Test
   void shouldSupplyBeans() {
     this.contextRunner.run((context) -> {
-      assertThat(context).hasSingleBean(HttpMessageConvertersRestClientCustomizer.class);
+      assertThat(context).hasSingleBean(RestClientBuilderConfigurer.class);
       assertThat(context).hasSingleBean(RestClient.Builder.class);
     });
   }
 
   @Test
-  void shouldSupplyRestClientSslIfSslBundlesIsThere() {
-    this.contextRunner.withBean(SslBundles.class, () -> mock(SslBundles.class))
-            .run((context) -> assertThat(context).hasSingleBean(RestClientSsl.class));
+  void shouldSupplyRestClientSslIfSslBundlesIsThereWithCustomHttpSettingsAndBuilder() {
+    SslBundles sslBundles = mock(SslBundles.class);
+    HttpClientSettings clientSettings = HttpClientSettings.defaults()
+            .withRedirects(HttpRedirects.DONT_FOLLOW)
+            .withConnectTimeout(Duration.ofHours(1))
+            .withReadTimeout(Duration.ofDays(1))
+            .withSslBundle(mock(SslBundle.class));
+    ClientHttpRequestFactoryBuilder<?> clientHttpRequestFactoryBuilder = mock(
+            ClientHttpRequestFactoryBuilder.class);
+    this.contextRunner.withBean(SslBundles.class, () -> sslBundles)
+            .withBean(HttpClientSettings.class, () -> clientSettings)
+            .withBean(ClientHttpRequestFactoryBuilder.class, () -> clientHttpRequestFactoryBuilder)
+            .run((context) -> {
+              assertThat(context).hasSingleBean(RestClientSsl.class);
+              RestClientSsl restClientSsl = context.getBean(RestClientSsl.class);
+              assertThat(restClientSsl).hasFieldOrPropertyWithValue("sslBundles", sslBundles);
+              assertThat(restClientSsl).hasFieldOrPropertyWithValue("builder", clientHttpRequestFactoryBuilder);
+              assertThat(restClientSsl).hasFieldOrPropertyWithValue("settings", clientSettings);
+            });
+  }
+
+  @Test
+  void shouldSupplyRestClientSslIfSslBundlesIsThereWithAutoConfiguredHttpSettingsAndBuilder() {
+    SslBundles sslBundles = mock(SslBundles.class);
+    this.contextRunner.withBean(SslBundles.class, () -> sslBundles).run((context) -> {
+      assertThat(context).hasSingleBean(RestClientSsl.class)
+              .hasSingleBean(HttpClientSettings.class)
+              .hasSingleBean(ClientHttpRequestFactoryBuilder.class);
+      RestClientSsl restClientSsl = context.getBean(RestClientSsl.class);
+      assertThat(restClientSsl).hasFieldOrPropertyWithValue("sslBundles", sslBundles);
+      assertThat(restClientSsl).hasFieldOrPropertyWithValue("builder",
+              context.getBean(ClientHttpRequestFactoryBuilder.class));
+      assertThat(restClientSsl).hasFieldOrPropertyWithValue("settings",
+              context.getBean(HttpClientSettings.class));
+    });
   }
 
   @Test
@@ -69,6 +115,17 @@ class RestClientAutoConfigurationTests {
       RestClient.Builder builder = context.getBean(RestClient.Builder.class);
       RestClient restClient = builder.build();
       assertThat(restClient).isNotNull();
+    });
+  }
+
+  @Test
+  void configurerShouldCallCustomizers() {
+    this.contextRunner.withUserConfiguration(RestClientCustomizerConfig.class).run((context) -> {
+      RestClientBuilderConfigurer configurer = context.getBean(RestClientBuilderConfigurer.class);
+      RestClientCustomizer customizer = context.getBean("restClientCustomizer", RestClientCustomizer.class);
+      RestClient.Builder builder = RestClient.builder();
+      configurer.configure(builder);
+      then(customizer).should().customize(builder);
     });
   }
 
@@ -101,21 +158,6 @@ class RestClientAutoConfigurationTests {
 
   @Test
   @SuppressWarnings("unchecked")
-  void restClientWhenMessageConvertersDefinedShouldHaveMessageConverters() {
-    this.contextRunner.withConfiguration(AutoConfigurations.of(HttpMessageConvertersAutoConfiguration.class))
-            .withUserConfiguration(RestClientConfig.class)
-            .run((context) -> {
-              RestClient restClient = context.getBean(RestClient.class);
-              List<HttpMessageConverter<?>> expectedConverters = context.getBean(HttpMessageConverters.class)
-                      .getConverters();
-              List<HttpMessageConverter<?>> actualConverters = (List<HttpMessageConverter<?>>) ReflectionTestUtils
-                      .getField(restClient, "messageConverters");
-              assertThat(actualConverters).containsExactlyElementsOf(expectedConverters);
-            });
-  }
-
-  @Test
-  @SuppressWarnings("unchecked")
   void restClientWhenNoMessageConvertersDefinedShouldHaveDefaultMessageConverters() {
     this.contextRunner.withUserConfiguration(RestClientConfig.class).run((context) -> {
       RestClient restClient = context.getBean(RestClient.class);
@@ -142,14 +184,91 @@ class RestClientAutoConfigurationTests {
             });
   }
 
-  @Configuration(proxyBeanMethods = false)
-  static class CodecConfiguration {
+  @Test
+  void whenHasFactoryProperty() {
+    this.contextRunner.withConfiguration(AutoConfigurations.of(HttpMessageConvertersAutoConfiguration.class))
+            .withUserConfiguration(RestClientConfig.class)
+            .withPropertyValues("http.clients.imperative.factory=jdk")
+            .run((context) -> {
+              assertThat(context).hasSingleBean(RestClient.class);
+              RestClient restClient = context.getBean(RestClient.class);
+              assertThat(restClient).extracting("clientRequestFactory")
+                      .isInstanceOf(JdkClientHttpRequestFactory.class);
+            });
+  }
 
-    @Bean
-    CodecCustomizer myCodecCustomizer() {
-      return mock(CodecCustomizer.class);
-    }
+  @Test
+  void shouldSupplyRestClientBuilderConfigurerWithCustomSettings() {
+    HttpClientSettings clientSettings = HttpClientSettings.defaults().withRedirects(HttpRedirects.DONT_FOLLOW);
+    ClientHttpRequestFactoryBuilder<?> clientHttpRequestFactoryBuilder = mock(
+            ClientHttpRequestFactoryBuilder.class);
+    RestClientCustomizer customizer1 = mock(RestClientCustomizer.class);
+    RestClientCustomizer customizer2 = mock(RestClientCustomizer.class);
+    HttpMessageConvertersRestClientCustomizer httpMessageConverterCustomizer = mock(
+            HttpMessageConvertersRestClientCustomizer.class);
+    this.contextRunner.withBean(HttpClientSettings.class, () -> clientSettings)
+            .withBean(ClientHttpRequestFactoryBuilder.class, () -> clientHttpRequestFactoryBuilder)
+            .withBean("customizer1", RestClientCustomizer.class, () -> customizer1)
+            .withBean("customizer2", RestClientCustomizer.class, () -> customizer2)
+            .withBean("httpMessageConverterCustomizer", HttpMessageConvertersRestClientCustomizer.class,
+                    () -> httpMessageConverterCustomizer)
+            .run((context) -> {
+              assertThat(context).hasSingleBean(RestClientBuilderConfigurer.class)
+                      .hasSingleBean(HttpClientSettings.class)
+                      .hasSingleBean(ClientHttpRequestFactoryBuilder.class);
+              RestClientBuilderConfigurer configurer = context.getBean(RestClientBuilderConfigurer.class);
+              assertThat(configurer).hasFieldOrPropertyWithValue("requestFactoryBuilder",
+                      clientHttpRequestFactoryBuilder);
+              assertThat(configurer).hasFieldOrPropertyWithValue("clientSettings", clientSettings);
+              assertThat(configurer).hasFieldOrPropertyWithValue("customizers",
+                      List.of(customizer1, customizer2, httpMessageConverterCustomizer));
+            });
+  }
 
+  @Test
+  void shouldSupplyRestClientBuilderConfigurerWithAutoConfiguredHttpSettings() {
+    RestClientCustomizer customizer1 = mock(RestClientCustomizer.class);
+    RestClientCustomizer customizer2 = mock(RestClientCustomizer.class);
+    this.contextRunner.withBean("customizer1", RestClientCustomizer.class, () -> customizer1)
+            .withBean("customizer2", RestClientCustomizer.class, () -> customizer2)
+            .run((context) -> {
+              assertThat(context).hasSingleBean(RestClientBuilderConfigurer.class)
+                      .hasSingleBean(HttpClientSettings.class)
+                      .hasSingleBean(ClientHttpRequestFactoryBuilder.class);
+              RestClientBuilderConfigurer configurer = context.getBean(RestClientBuilderConfigurer.class);
+              assertThat(configurer).hasFieldOrPropertyWithValue("requestFactoryBuilder",
+                      context.getBean(ClientHttpRequestFactoryBuilder.class));
+              assertThat(configurer).hasFieldOrPropertyWithValue("clientSettings",
+                      context.getBean(HttpClientSettings.class));
+              assertThat(configurer).hasFieldOrPropertyWithValue("customizers", List.of(customizer1, customizer2));
+            });
+  }
+
+  @Test
+  void whenServletWebApplicationRestClientIsConfigured() {
+    new WebApplicationContextRunner().withConfiguration(AutoConfigurations.of(RestClientAutoConfiguration.class))
+            .run((context) -> {
+              assertThat(context).hasSingleBean(RestClientBuilderConfigurer.class);
+              assertThat(context).hasSingleBean(RestClient.Builder.class);
+            });
+  }
+
+  @Test
+  void clientHttpMessageConverterCustomizersAreAppliedInOrder() {
+    this.contextRunner.withUserConfiguration(ClientHttpMessageConverterCustomizersConfiguration.class)
+            .run((context) -> {
+              context.getBean(RestClient.Builder.class).build();
+              ClientHttpMessageConvertersCustomizer customizer1 = context.getBean("customizer1",
+                      ClientHttpMessageConvertersCustomizer.class);
+              ClientHttpMessageConvertersCustomizer customizer2 = context.getBean("customizer2",
+                      ClientHttpMessageConvertersCustomizer.class);
+              ClientHttpMessageConvertersCustomizer customizer3 = context.getBean("customizer3",
+                      ClientHttpMessageConvertersCustomizer.class);
+              InOrder inOrder = inOrder(customizer1, customizer2, customizer3);
+              inOrder.verify(customizer3).customize(any(ClientBuilder.class));
+              inOrder.verify(customizer1).customize(any(ClientBuilder.class));
+              inOrder.verify(customizer2).customize(any(ClientBuilder.class));
+            });
   }
 
   @Configuration(proxyBeanMethods = false)
@@ -186,7 +305,30 @@ class RestClientAutoConfigurationTests {
 
   }
 
-  static class CustomHttpMessageConverter extends StringHttpMessageConverter {
+  static class CustomHttpMessageConverter extends ByteArrayHttpMessageConverter {
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class ClientHttpMessageConverterCustomizersConfiguration {
+
+    @Bean
+    @Order(-5)
+    ClientHttpMessageConvertersCustomizer customizer1() {
+      return mock(ClientHttpMessageConvertersCustomizer.class);
+    }
+
+    @Bean
+    @Order(5)
+    ClientHttpMessageConvertersCustomizer customizer2() {
+      return mock(ClientHttpMessageConvertersCustomizer.class);
+    }
+
+    @Bean
+    @Order(-10)
+    ClientHttpMessageConvertersCustomizer customizer3() {
+      return mock(ClientHttpMessageConvertersCustomizer.class);
+    }
 
   }
 

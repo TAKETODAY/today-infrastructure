@@ -17,51 +17,47 @@
 
 package infra.app.test.web.client;
 
-import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.cookie.StandardCookieSpec;
-import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
-import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
-import org.apache.hc.client5.http.protocol.HttpClientContext;
-import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
-import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
-import org.apache.hc.client5.http.ssl.TrustSelfSignedStrategy;
-import org.apache.hc.core5.http.io.SocketConfig;
-import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.client5.http.ssl.DefaultClientTlsStrategy;
+import org.apache.hc.client5.http.ssl.TlsSocketStrategy;
 import org.apache.hc.core5.http.ssl.TLS;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
+import org.apache.hc.core5.ssl.TrustStrategy;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.security.cert.X509Certificate;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
 import javax.net.ssl.SSLContext;
 
 import infra.app.test.context.InfraTest;
 import infra.core.ParameterizedTypeReference;
+import infra.core.ssl.SslBundle;
 import infra.http.HttpEntity;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.RequestEntity;
 import infra.http.RequestEntity.UriTemplateRequestEntity;
 import infra.http.ResponseEntity;
-import infra.http.client.ClientHttpRequestFactory;
-import infra.http.client.HttpComponentsClientHttpRequestFactory;
+import infra.http.client.config.ClientHttpRequestFactoryBuilder;
+import infra.http.client.config.HttpClientSettings;
+import infra.http.client.config.HttpComponentsClientHttpRequestFactoryBuilder;
+import infra.http.client.config.HttpComponentsHttpClientBuilder;
+import infra.http.client.config.HttpRedirects;
 import infra.lang.Assert;
+import infra.util.ObjectUtils;
 import infra.web.client.NoOpResponseErrorHandler;
 import infra.web.client.RequestCallback;
 import infra.web.client.ResponseExtractor;
 import infra.web.client.RestTemplate;
-import infra.web.client.config.HttpClientSettings;
 import infra.web.client.config.RestTemplateBuilder;
 import infra.web.client.config.RootUriTemplateHandler;
 import infra.web.util.DefaultUriBuilderFactory;
@@ -98,8 +94,6 @@ public class TestRestTemplate {
 
   private final RestTemplateBuilder builder;
 
-  private final HttpClientOption[] httpClientOptions;
-
   private final RestTemplate restTemplate;
 
   /**
@@ -128,7 +122,7 @@ public class TestRestTemplate {
    * @param password the password (or {@code null})
    * @param httpClientOptions client options to use if the Apache HTTP Client is used
    */
-  public TestRestTemplate(String username, String password, HttpClientOption... httpClientOptions) {
+  public TestRestTemplate(@Nullable String username, @Nullable String password, HttpClientOption... httpClientOptions) {
     this(new RestTemplateBuilder(), username, password, httpClientOptions);
   }
 
@@ -140,23 +134,42 @@ public class TestRestTemplate {
    * @param password the password (or {@code null})
    * @param httpClientOptions client options to use if the Apache HTTP Client is used
    */
-  public TestRestTemplate(RestTemplateBuilder builder, String username, String password,
+  public TestRestTemplate(RestTemplateBuilder builder, @Nullable String username, @Nullable String password,
           HttpClientOption... httpClientOptions) {
-    Assert.notNull(builder, "Builder is required");
+    this(createInitialBuilder(builder, username, password, httpClientOptions), null);
+  }
+
+  private TestRestTemplate(RestTemplateBuilder builder, @Nullable UriTemplateHandler uriTemplateHandler) {
     this.builder = builder;
-    this.httpClientOptions = httpClientOptions;
-    if (httpClientOptions != null) {
-      ClientHttpRequestFactory requestFactory = builder.buildRequestFactory();
-      if (requestFactory instanceof HttpComponentsClientHttpRequestFactory) {
-        builder = builder.requestFactory(
-                settings -> new CustomHttpComponentsClientHttpRequestFactory(httpClientOptions, settings));
-      }
+    this.restTemplate = builder.build();
+    if (uriTemplateHandler != null) {
+      this.restTemplate.setUriTemplateHandler(uriTemplateHandler);
     }
-    if (username != null || password != null) {
+    this.restTemplate.setErrorHandler(new NoOpResponseErrorHandler());
+  }
+
+  private static RestTemplateBuilder createInitialBuilder(RestTemplateBuilder builder, @Nullable String username,
+          @Nullable String password, HttpClientOption... httpClientOptions) {
+    Assert.notNull(builder, "'builder' must not be null");
+    ClientHttpRequestFactoryBuilder<?> requestFactoryBuilder = builder.requestFactoryBuilder();
+    if (requestFactoryBuilder instanceof HttpComponentsClientHttpRequestFactoryBuilder) {
+      builder = builder.requestFactoryBuilder(applyHttpClientOptions(
+              (HttpComponentsClientHttpRequestFactoryBuilder) requestFactoryBuilder, httpClientOptions));
+    }
+    if (username != null && password != null) {
       builder = builder.basicAuthentication(username, password);
     }
-    this.restTemplate = builder.build();
-    this.restTemplate.setErrorHandler(new NoOpResponseErrorHandler());
+    return builder;
+  }
+
+  private static HttpComponentsClientHttpRequestFactoryBuilder applyHttpClientOptions(
+          HttpComponentsClientHttpRequestFactoryBuilder builder, HttpClientOption[] httpClientOptions) {
+    builder = builder.withDefaultRequestConfigCustomizer(
+            new CookieSpecCustomizer(HttpClientOption.ENABLE_COOKIES.isPresent(httpClientOptions)));
+    if (HttpClientOption.SSL.isPresent(httpClientOptions)) {
+      builder = builder.withTlsSocketStrategyFactory(new SelfSignedTlsSocketStrategyFactory());
+    }
+    return builder;
   }
 
   /**
@@ -178,12 +191,12 @@ public class TestRestTemplate {
    *
    * @return the root URI
    */
-  public String getRootUri() {
+  public @Nullable String getRootUri() {
     UriTemplateHandler uriTemplateHandler = this.restTemplate.getUriTemplateHandler();
-    if (uriTemplateHandler instanceof RootUriTemplateHandler) {
-      return ((RootUriTemplateHandler) uriTemplateHandler).getRootUri();
+    if (uriTemplateHandler instanceof RootUriTemplateHandler rootHandler) {
+      return rootHandler.getRootUri();
     }
-    return "";
+    return uriTemplateHandler.expand("").toString();
   }
 
   /**
@@ -199,7 +212,7 @@ public class TestRestTemplate {
    * @return the converted object
    * @see RestTemplate#getForObject(String, Class, Object...)
    */
-  public <T> T getForObject(String url, Class<T> responseType, Object... urlVariables) {
+  public <T> @Nullable T getForObject(String url, Class<T> responseType, Object... urlVariables) {
     return this.restTemplate.getForObject(url, responseType, urlVariables);
   }
 
@@ -216,7 +229,7 @@ public class TestRestTemplate {
    * @return the converted object
    * @see RestTemplate#getForObject(String, Class, Object...)
    */
-  public <T> T getForObject(String url, Class<T> responseType, Map<String, ?> urlVariables) {
+  public <T> @Nullable T getForObject(String url, Class<T> responseType, Map<String, ?> urlVariables) {
     return this.restTemplate.getForObject(url, responseType, urlVariables);
   }
 
@@ -228,9 +241,9 @@ public class TestRestTemplate {
    * @param responseType the type of the return value
    * @param <T> the type of the return value
    * @return the converted object
-   * @see RestTemplate#getForObject(URI, Class)
+   * @see RestTemplate#getForObject(java.net.URI, java.lang.Class)
    */
-  public <T> T getForObject(URI url, Class<T> responseType) {
+  public <T> @Nullable T getForObject(URI url, Class<T> responseType) {
     return this.restTemplate.getForObject(applyRootUriIfNecessary(url), responseType);
   }
 
@@ -245,8 +258,8 @@ public class TestRestTemplate {
    * @param urlVariables the variables to expand the template
    * @param <T> the type of the return value
    * @return the entity
-   * @see RestTemplate#getForEntity(String, Class,
-   * Object[])
+   * @see RestTemplate#getForEntity(java.lang.String, java.lang.Class,
+   * java.lang.Object[])
    */
   public <T> ResponseEntity<T> getForEntity(String url, Class<T> responseType, Object... urlVariables) {
     return this.restTemplate.getForEntity(url, responseType, urlVariables);
@@ -263,7 +276,7 @@ public class TestRestTemplate {
    * @param urlVariables the map containing variables for the URI template
    * @param <T> the type of the return value
    * @return the converted object
-   * @see RestTemplate#getForEntity(String, Class, Map)
+   * @see RestTemplate#getForEntity(java.lang.String, java.lang.Class, java.util.Map)
    */
   public <T> ResponseEntity<T> getForEntity(String url, Class<T> responseType, Map<String, ?> urlVariables) {
     return this.restTemplate.getForEntity(url, responseType, urlVariables);
@@ -277,7 +290,7 @@ public class TestRestTemplate {
    * @param responseType the type of the return value
    * @param <T> the type of the return value
    * @return the converted object
-   * @see RestTemplate#getForEntity(URI, Class)
+   * @see RestTemplate#getForEntity(java.net.URI, java.lang.Class)
    */
   public <T> ResponseEntity<T> getForEntity(URI url, Class<T> responseType) {
     return this.restTemplate.getForEntity(applyRootUriIfNecessary(url), responseType);
@@ -291,7 +304,7 @@ public class TestRestTemplate {
    * @param url the URL
    * @param urlVariables the variables to expand the template
    * @return all HTTP headers of that resource
-   * @see RestTemplate#headForHeaders(String, Object[])
+   * @see RestTemplate#headForHeaders(java.lang.String, java.lang.Object[])
    */
   public HttpHeaders headForHeaders(String url, Object... urlVariables) {
     return this.restTemplate.headForHeaders(url, urlVariables);
@@ -305,7 +318,7 @@ public class TestRestTemplate {
    * @param url the URL
    * @param urlVariables the map containing variables for the URI template
    * @return all HTTP headers of that resource
-   * @see RestTemplate#headForHeaders(String, Map)
+   * @see RestTemplate#headForHeaders(java.lang.String, java.util.Map)
    */
   public HttpHeaders headForHeaders(String url, Map<String, ?> urlVariables) {
     return this.restTemplate.headForHeaders(url, urlVariables);
@@ -316,7 +329,7 @@ public class TestRestTemplate {
    *
    * @param url the URL
    * @return all HTTP headers of that resource
-   * @see RestTemplate#headForHeaders(URI)
+   * @see RestTemplate#headForHeaders(java.net.URI)
    */
   public HttpHeaders headForHeaders(URI url) {
     return this.restTemplate.headForHeaders(applyRootUriIfNecessary(url));
@@ -337,10 +350,10 @@ public class TestRestTemplate {
    * @param urlVariables the variables to expand the template
    * @return the value for the {@code Location} header
    * @see HttpEntity
-   * @see RestTemplate#postForLocation(String, Object,
-   * Object[])
+   * @see RestTemplate#postForLocation(java.lang.String, java.lang.Object,
+   * java.lang.Object[])
    */
-  public URI postForLocation(String url, Object request, Object... urlVariables) {
+  public @Nullable URI postForLocation(String url, @Nullable Object request, Object... urlVariables) {
     return this.restTemplate.postForLocation(url, request, urlVariables);
   }
 
@@ -359,10 +372,10 @@ public class TestRestTemplate {
    * @param urlVariables the variables to expand the template
    * @return the value for the {@code Location} header
    * @see HttpEntity
-   * @see RestTemplate#postForLocation(String, Object,
-   * Map)
+   * @see RestTemplate#postForLocation(java.lang.String, java.lang.Object,
+   * java.util.Map)
    */
-  public URI postForLocation(String url, Object request, Map<String, ?> urlVariables) {
+  public @Nullable URI postForLocation(String url, @Nullable Object request, Map<String, ?> urlVariables) {
     return this.restTemplate.postForLocation(url, request, urlVariables);
   }
 
@@ -378,9 +391,9 @@ public class TestRestTemplate {
    * @param request the Object to be POSTed, may be {@code null}
    * @return the value for the {@code Location} header
    * @see HttpEntity
-   * @see RestTemplate#postForLocation(URI, Object)
+   * @see RestTemplate#postForLocation(java.net.URI, java.lang.Object)
    */
-  public URI postForLocation(URI url, Object request) {
+  public @Nullable URI postForLocation(URI url, @Nullable Object request) {
     return this.restTemplate.postForLocation(applyRootUriIfNecessary(url), request);
   }
 
@@ -400,10 +413,11 @@ public class TestRestTemplate {
    * @param <T> the type of the return value
    * @return the converted object
    * @see HttpEntity
-   * @see RestTemplate#postForObject(String, Object,
-   * Class, Object[])
+   * @see RestTemplate#postForObject(java.lang.String, java.lang.Object,
+   * java.lang.Class, java.lang.Object[])
    */
-  public <T> T postForObject(String url, Object request, Class<T> responseType, Object... urlVariables) {
+  public <T> @Nullable T postForObject(String url, @Nullable Object request, Class<T> responseType,
+          Object... urlVariables) {
     return this.restTemplate.postForObject(url, request, responseType, urlVariables);
   }
 
@@ -423,10 +437,11 @@ public class TestRestTemplate {
    * @param <T> the type of the return value
    * @return the converted object
    * @see HttpEntity
-   * @see RestTemplate#postForObject(String, Object,
-   * Class, Map)
+   * @see RestTemplate#postForObject(java.lang.String, java.lang.Object,
+   * java.lang.Class, java.util.Map)
    */
-  public <T> T postForObject(String url, Object request, Class<T> responseType, Map<String, ?> urlVariables) {
+  public <T> @Nullable T postForObject(String url, @Nullable Object request, Class<T> responseType,
+          Map<String, ?> urlVariables) {
     return this.restTemplate.postForObject(url, request, responseType, urlVariables);
   }
 
@@ -443,9 +458,9 @@ public class TestRestTemplate {
    * @param <T> the type of the return value
    * @return the converted object
    * @see HttpEntity
-   * @see RestTemplate#postForObject(URI, Object, Class)
+   * @see RestTemplate#postForObject(java.net.URI, java.lang.Object, java.lang.Class)
    */
-  public <T> T postForObject(URI url, Object request, Class<T> responseType) {
+  public <T> @Nullable T postForObject(URI url, @Nullable Object request, Class<T> responseType) {
     return this.restTemplate.postForObject(applyRootUriIfNecessary(url), request, responseType);
   }
 
@@ -465,10 +480,10 @@ public class TestRestTemplate {
    * @param <T> the type of the return value
    * @return the converted object
    * @see HttpEntity
-   * @see RestTemplate#postForEntity(String, Object,
-   * Class, Object[])
+   * @see RestTemplate#postForEntity(java.lang.String, java.lang.Object,
+   * java.lang.Class, java.lang.Object[])
    */
-  public <T> ResponseEntity<T> postForEntity(String url, Object request, Class<T> responseType,
+  public <T> ResponseEntity<T> postForEntity(String url, @Nullable Object request, Class<T> responseType,
           Object... urlVariables) {
     return this.restTemplate.postForEntity(url, request, responseType, urlVariables);
   }
@@ -489,10 +504,10 @@ public class TestRestTemplate {
    * @param <T> the type of the return value
    * @return the converted object
    * @see HttpEntity
-   * @see RestTemplate#postForEntity(String, Object,
-   * Class, Map)
+   * @see RestTemplate#postForEntity(java.lang.String, java.lang.Object,
+   * java.lang.Class, java.util.Map)
    */
-  public <T> ResponseEntity<T> postForEntity(String url, Object request, Class<T> responseType,
+  public <T> ResponseEntity<T> postForEntity(String url, @Nullable Object request, Class<T> responseType,
           Map<String, ?> urlVariables) {
     return this.restTemplate.postForEntity(url, request, responseType, urlVariables);
   }
@@ -510,9 +525,9 @@ public class TestRestTemplate {
    * @param <T> the type of the return value
    * @return the converted object
    * @see HttpEntity
-   * @see RestTemplate#postForEntity(URI, Object, Class)
+   * @see RestTemplate#postForEntity(java.net.URI, java.lang.Object, java.lang.Class)
    */
-  public <T> ResponseEntity<T> postForEntity(URI url, Object request, Class<T> responseType) {
+  public <T> ResponseEntity<T> postForEntity(URI url, @Nullable Object request, Class<T> responseType) {
     return this.restTemplate.postForEntity(applyRootUriIfNecessary(url), request, responseType);
   }
 
@@ -531,9 +546,9 @@ public class TestRestTemplate {
    * @param request the Object to be PUT, may be {@code null}
    * @param urlVariables the variables to expand the template
    * @see HttpEntity
-   * @see RestTemplate#put(String, Object, Object[])
+   * @see RestTemplate#put(java.lang.String, java.lang.Object, java.lang.Object[])
    */
-  public void put(String url, Object request, Object... urlVariables) {
+  public void put(String url, @Nullable Object request, Object... urlVariables) {
     this.restTemplate.put(url, request, urlVariables);
   }
 
@@ -552,9 +567,9 @@ public class TestRestTemplate {
    * @param request the Object to be PUT, may be {@code null}
    * @param urlVariables the variables to expand the template
    * @see HttpEntity
-   * @see RestTemplate#put(String, Object, Map)
+   * @see RestTemplate#put(java.lang.String, java.lang.Object, java.util.Map)
    */
-  public void put(String url, Object request, Map<String, ?> urlVariables) {
+  public void put(String url, @Nullable Object request, Map<String, ?> urlVariables) {
     this.restTemplate.put(url, request, urlVariables);
   }
 
@@ -570,9 +585,9 @@ public class TestRestTemplate {
    * @param url the URL
    * @param request the Object to be PUT, may be {@code null}
    * @see HttpEntity
-   * @see RestTemplate#put(URI, Object)
+   * @see RestTemplate#put(java.net.URI, java.lang.Object)
    */
-  public void put(URI url, Object request) {
+  public void put(URI url, @Nullable Object request) {
     this.restTemplate.put(applyRootUriIfNecessary(url), request);
   }
 
@@ -593,7 +608,8 @@ public class TestRestTemplate {
    * @return the converted object
    * @see HttpEntity
    */
-  public <T> T patchForObject(String url, Object request, Class<T> responseType, Object... uriVariables) {
+  public <T> @Nullable T patchForObject(String url, @Nullable Object request, Class<T> responseType,
+          Object... uriVariables) {
     return this.restTemplate.patchForObject(url, request, responseType, uriVariables);
   }
 
@@ -614,7 +630,8 @@ public class TestRestTemplate {
    * @return the converted object
    * @see HttpEntity
    */
-  public <T> T patchForObject(String url, Object request, Class<T> responseType, Map<String, ?> uriVariables) {
+  public <T> @Nullable T patchForObject(String url, @Nullable Object request, Class<T> responseType,
+          Map<String, ?> uriVariables) {
     return this.restTemplate.patchForObject(url, request, responseType, uriVariables);
   }
 
@@ -632,7 +649,7 @@ public class TestRestTemplate {
    * @return the converted object
    * @see HttpEntity
    */
-  public <T> T patchForObject(URI url, Object request, Class<T> responseType) {
+  public <T> @Nullable T patchForObject(URI url, @Nullable Object request, Class<T> responseType) {
     return this.restTemplate.patchForObject(applyRootUriIfNecessary(url), request, responseType);
   }
 
@@ -646,7 +663,7 @@ public class TestRestTemplate {
    *
    * @param url the URL
    * @param urlVariables the variables to expand in the template
-   * @see RestTemplate#delete(String, Object[])
+   * @see RestTemplate#delete(java.lang.String, java.lang.Object[])
    */
   public void delete(String url, Object... urlVariables) {
     this.restTemplate.delete(url, urlVariables);
@@ -662,7 +679,7 @@ public class TestRestTemplate {
    *
    * @param url the URL
    * @param urlVariables the variables to expand the template
-   * @see RestTemplate#delete(String, Map)
+   * @see RestTemplate#delete(java.lang.String, java.util.Map)
    */
   public void delete(String url, Map<String, ?> urlVariables) {
     this.restTemplate.delete(url, urlVariables);
@@ -675,46 +692,46 @@ public class TestRestTemplate {
    * {@link TestRestTemplate#exchange exchange} method.
    *
    * @param url the URL
-   * @see RestTemplate#delete(URI)
+   * @see RestTemplate#delete(java.net.URI)
    */
   public void delete(URI url) {
     this.restTemplate.delete(applyRootUriIfNecessary(url));
   }
 
   /**
-   * Return the value of the Allow header for the given URI.
+   * Return the value of the {@code Allow} header for the given URI.
    * <p>
    * URI Template variables are expanded using the given URI variables, if any.
    *
    * @param url the URL
    * @param urlVariables the variables to expand in the template
-   * @return the value of the allow header
-   * @see RestTemplate#optionsForAllow(String, Object[])
+   * @return the value of the {@code Allow} header
+   * @see RestTemplate#optionsForAllow(java.lang.String, java.lang.Object[])
    */
   public Set<HttpMethod> optionsForAllow(String url, Object... urlVariables) {
     return this.restTemplate.optionsForAllow(url, urlVariables);
   }
 
   /**
-   * Return the value of the Allow header for the given URI.
+   * Return the value of the {@code Allow} header for the given URI.
    * <p>
    * URI Template variables are expanded using the given map.
    *
    * @param url the URL
    * @param urlVariables the variables to expand in the template
-   * @return the value of the allow header
-   * @see RestTemplate#optionsForAllow(String, Map)
+   * @return the value of the {@code Allow} header
+   * @see RestTemplate#optionsForAllow(java.lang.String, java.util.Map)
    */
   public Set<HttpMethod> optionsForAllow(String url, Map<String, ?> urlVariables) {
     return this.restTemplate.optionsForAllow(url, urlVariables);
   }
 
   /**
-   * Return the value of the Allow header for the given URL.
+   * Return the value of the {@code Allow} header for the given URL.
    *
    * @param url the URL
-   * @return the value of the allow header
-   * @see RestTemplate#optionsForAllow(URI)
+   * @return the value of the {@code Allow} header
+   * @see RestTemplate#optionsForAllow(java.net.URI)
    */
   public Set<HttpMethod> optionsForAllow(URI url) {
     return this.restTemplate.optionsForAllow(applyRootUriIfNecessary(url));
@@ -734,10 +751,10 @@ public class TestRestTemplate {
    * @param urlVariables the variables to expand in the template
    * @param <T> the type of the return value
    * @return the response as entity
-   * @see RestTemplate#exchange(String, infra.http.HttpMethod,
-   * infra.http.HttpEntity, Class, Object[])
+   * @see RestTemplate#exchange(java.lang.String, infra.http.HttpMethod,
+   * infra.http.HttpEntity, java.lang.Class, java.lang.Object[])
    */
-  public <T> ResponseEntity<T> exchange(String url, HttpMethod method, HttpEntity<?> requestEntity,
+  public <T> ResponseEntity<T> exchange(String url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
           Class<T> responseType, Object... urlVariables) {
     return this.restTemplate.exchange(url, method, requestEntity, responseType, urlVariables);
   }
@@ -756,10 +773,10 @@ public class TestRestTemplate {
    * @param urlVariables the variables to expand in the template
    * @param <T> the type of the return value
    * @return the response as entity
-   * @see RestTemplate#exchange(String, infra.http.HttpMethod,
-   * infra.http.HttpEntity, Class, Map)
+   * @see RestTemplate#exchange(java.lang.String, infra.http.HttpMethod,
+   * infra.http.HttpEntity, java.lang.Class, java.util.Map)
    */
-  public <T> ResponseEntity<T> exchange(String url, HttpMethod method, HttpEntity<?> requestEntity,
+  public <T> ResponseEntity<T> exchange(String url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
           Class<T> responseType, Map<String, ?> urlVariables) {
     return this.restTemplate.exchange(url, method, requestEntity, responseType, urlVariables);
   }
@@ -775,10 +792,10 @@ public class TestRestTemplate {
    * @param responseType the type of the return value
    * @param <T> the type of the return value
    * @return the response as entity
-   * @see RestTemplate#exchange(URI, infra.http.HttpMethod,
-   * infra.http.HttpEntity, Class)
+   * @see RestTemplate#exchange(java.net.URI, infra.http.HttpMethod,
+   * infra.http.HttpEntity, java.lang.Class)
    */
-  public <T> ResponseEntity<T> exchange(URI url, HttpMethod method, HttpEntity<?> requestEntity,
+  public <T> ResponseEntity<T> exchange(URI url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
           Class<T> responseType) {
     return this.restTemplate.exchange(applyRootUriIfNecessary(url), method, requestEntity, responseType);
   }
@@ -788,7 +805,7 @@ public class TestRestTemplate {
    * to the request, and returns the response as {@link ResponseEntity}. The given
    * {@link ParameterizedTypeReference} is used to pass generic type information:
    * <pre class="code">
-   * TypeReference&lt;List&lt;MyBean&gt;&gt; myBean = new TypeReference&lt;List&lt;MyBean&gt;&gt;() {};
+   * ParameterizedTypeReference&lt;List&lt;MyBean&gt;&gt; myBean = new ParameterizedTypeReference&lt;List&lt;MyBean&gt;&gt;() {};
    * ResponseEntity&lt;List&lt;MyBean&gt;&gt; response = template.exchange(&quot;https://example.com&quot;,HttpMethod.GET, null, myBean);
    * </pre>
    *
@@ -800,11 +817,11 @@ public class TestRestTemplate {
    * @param urlVariables the variables to expand in the template
    * @param <T> the type of the return value
    * @return the response as entity
-   * @see RestTemplate#exchange(String, infra.http.HttpMethod,
+   * @see RestTemplate#exchange(java.lang.String, infra.http.HttpMethod,
    * infra.http.HttpEntity,
-   * ParameterizedTypeReference, Object[])
+   * infra.core.ParameterizedTypeReference, java.lang.Object[])
    */
-  public <T> ResponseEntity<T> exchange(String url, HttpMethod method, HttpEntity<?> requestEntity,
+  public <T> ResponseEntity<T> exchange(String url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
           ParameterizedTypeReference<T> responseType, Object... urlVariables) {
     return this.restTemplate.exchange(url, method, requestEntity, responseType, urlVariables);
   }
@@ -814,7 +831,7 @@ public class TestRestTemplate {
    * to the request, and returns the response as {@link ResponseEntity}. The given
    * {@link ParameterizedTypeReference} is used to pass generic type information:
    * <pre class="code">
-   * TypeReference&lt;List&lt;MyBean&gt;&gt; myBean = new TypeReference&lt;List&lt;MyBean&gt;&gt;() {};
+   * ParameterizedTypeReference&lt;List&lt;MyBean&gt;&gt; myBean = new ParameterizedTypeReference&lt;List&lt;MyBean&gt;&gt;() {};
    * ResponseEntity&lt;List&lt;MyBean&gt;&gt; response = template.exchange(&quot;https://example.com&quot;,HttpMethod.GET, null, myBean);
    * </pre>
    *
@@ -826,11 +843,11 @@ public class TestRestTemplate {
    * @param urlVariables the variables to expand in the template
    * @param <T> the type of the return value
    * @return the response as entity
-   * @see RestTemplate#exchange(String, infra.http.HttpMethod,
+   * @see RestTemplate#exchange(java.lang.String, infra.http.HttpMethod,
    * infra.http.HttpEntity,
-   * ParameterizedTypeReference, Map)
+   * infra.core.ParameterizedTypeReference, java.util.Map)
    */
-  public <T> ResponseEntity<T> exchange(String url, HttpMethod method, HttpEntity<?> requestEntity,
+  public <T> ResponseEntity<T> exchange(String url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
           ParameterizedTypeReference<T> responseType, Map<String, ?> urlVariables) {
     return this.restTemplate.exchange(url, method, requestEntity, responseType, urlVariables);
   }
@@ -840,7 +857,7 @@ public class TestRestTemplate {
    * to the request, and returns the response as {@link ResponseEntity}. The given
    * {@link ParameterizedTypeReference} is used to pass generic type information:
    * <pre class="code">
-   * TypeReference&lt;List&lt;MyBean&gt;&gt; myBean = new TypeReference&lt;List&lt;MyBean&gt;&gt;() {};
+   * ParameterizedTypeReference&lt;List&lt;MyBean&gt;&gt; myBean = new ParameterizedTypeReference&lt;List&lt;MyBean&gt;&gt;() {};
    * ResponseEntity&lt;List&lt;MyBean&gt;&gt; response = template.exchange(&quot;https://example.com&quot;,HttpMethod.GET, null, myBean);
    * </pre>
    *
@@ -851,11 +868,11 @@ public class TestRestTemplate {
    * @param responseType the type of the return value
    * @param <T> the type of the return value
    * @return the response as entity
-   * @see RestTemplate#exchange(URI, infra.http.HttpMethod,
+   * @see RestTemplate#exchange(java.net.URI, infra.http.HttpMethod,
    * infra.http.HttpEntity,
-   * ParameterizedTypeReference)
+   * infra.core.ParameterizedTypeReference)
    */
-  public <T> ResponseEntity<T> exchange(URI url, HttpMethod method, HttpEntity<?> requestEntity,
+  public <T> ResponseEntity<T> exchange(URI url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
           ParameterizedTypeReference<T> responseType) {
     return this.restTemplate.exchange(applyRootUriIfNecessary(url), method, requestEntity, responseType);
   }
@@ -873,7 +890,7 @@ public class TestRestTemplate {
    * @param responseType the type of the return value
    * @param <T> the type of the return value
    * @return the response as entity
-   * @see RestTemplate#exchange(infra.http.RequestEntity, Class)
+   * @see RestTemplate#exchange(infra.http.RequestEntity, java.lang.Class)
    */
   public <T> ResponseEntity<T> exchange(RequestEntity<?> requestEntity, Class<T> responseType) {
     return this.restTemplate.exchange(createRequestEntityWithRootAppliedUri(requestEntity), responseType);
@@ -885,7 +902,7 @@ public class TestRestTemplate {
    * used to pass generic type information: <pre class="code">
    * MyRequest body = ...
    * RequestEntity request = RequestEntity.post(new URI(&quot;https://example.com/foo&quot;)).accept(MediaType.APPLICATION_JSON).body(body);
-   * TypeReference&lt;List&lt;MyResponse&gt;&gt; myBean = new TypeReference&lt;List&lt;MyResponse&gt;&gt;() {};
+   * ParameterizedTypeReference&lt;List&lt;MyResponse&gt;&gt; myBean = new ParameterizedTypeReference&lt;List&lt;MyResponse&gt;&gt;() {};
    * ResponseEntity&lt;List&lt;MyResponse&gt;&gt; response = template.exchange(request, myBean);
    * </pre>
    *
@@ -894,7 +911,7 @@ public class TestRestTemplate {
    * @param <T> the type of the return value
    * @return the response as entity
    * @see RestTemplate#exchange(infra.http.RequestEntity,
-   * ParameterizedTypeReference)
+   * infra.core.ParameterizedTypeReference)
    */
   public <T> ResponseEntity<T> exchange(RequestEntity<?> requestEntity, ParameterizedTypeReference<T> responseType) {
     return this.restTemplate.exchange(createRequestEntityWithRootAppliedUri(requestEntity), responseType);
@@ -913,11 +930,11 @@ public class TestRestTemplate {
    * @param urlVariables the variables to expand in the template
    * @param <T> the type of the return value
    * @return an arbitrary object, as returned by the {@link ResponseExtractor}
-   * @see RestTemplate#execute(String, infra.http.HttpMethod,
+   * @see RestTemplate#execute(java.lang.String, infra.http.HttpMethod,
    * infra.web.client.RequestCallback,
-   * infra.web.client.ResponseExtractor, Object[])
+   * infra.web.client.ResponseExtractor, java.lang.Object[])
    */
-  public <T> T execute(String url, HttpMethod method, RequestCallback requestCallback,
+  public <T> @Nullable T execute(String url, HttpMethod method, RequestCallback requestCallback,
           ResponseExtractor<T> responseExtractor, Object... urlVariables) {
     return this.restTemplate.execute(url, method, requestCallback, responseExtractor, urlVariables);
   }
@@ -935,11 +952,11 @@ public class TestRestTemplate {
    * @param urlVariables the variables to expand in the template
    * @param <T> the type of the return value
    * @return an arbitrary object, as returned by the {@link ResponseExtractor}
-   * @see RestTemplate#execute(String, infra.http.HttpMethod,
+   * @see RestTemplate#execute(java.lang.String, infra.http.HttpMethod,
    * infra.web.client.RequestCallback,
-   * infra.web.client.ResponseExtractor, Map)
+   * infra.web.client.ResponseExtractor, java.util.Map)
    */
-  public <T> T execute(String url, HttpMethod method, RequestCallback requestCallback,
+  public <T> @Nullable T execute(String url, HttpMethod method, RequestCallback requestCallback,
           ResponseExtractor<T> responseExtractor, Map<String, ?> urlVariables) {
     return this.restTemplate.execute(url, method, requestCallback, responseExtractor, urlVariables);
   }
@@ -954,12 +971,12 @@ public class TestRestTemplate {
    * @param responseExtractor object that extracts the return value from the response
    * @param <T> the type of the return value
    * @return an arbitrary object, as returned by the {@link ResponseExtractor}
-   * @see RestTemplate#execute(URI, infra.http.HttpMethod,
+   * @see RestTemplate#execute(java.net.URI, infra.http.HttpMethod,
    * infra.web.client.RequestCallback,
    * infra.web.client.ResponseExtractor)
    */
-  public <T> T execute(URI url, HttpMethod method, RequestCallback requestCallback,
-          ResponseExtractor<T> responseExtractor) {
+  public <T> @Nullable T execute(URI url, HttpMethod method, @Nullable RequestCallback requestCallback,
+          @Nullable ResponseExtractor<T> responseExtractor) {
     return this.restTemplate.execute(applyRootUriIfNecessary(url), method, requestCallback, responseExtractor);
   }
 
@@ -983,10 +1000,53 @@ public class TestRestTemplate {
    * @param password the password
    * @return the new template
    */
-  public TestRestTemplate withBasicAuth(String username, String password) {
-    TestRestTemplate template = new TestRestTemplate(this.builder, username, password, this.httpClientOptions);
-    template.setUriTemplateHandler(getRestTemplate().getUriTemplateHandler());
-    return template;
+  public TestRestTemplate withBasicAuth(@Nullable String username, @Nullable String password) {
+    if (username == null || password == null) {
+      return this;
+    }
+    return new TestRestTemplate(this.builder.basicAuthentication(username, password),
+            this.restTemplate.getUriTemplateHandler());
+  }
+
+  /**
+   * Creates a new {@code TestRestTemplate} with the same configuration as this one,
+   * except that it will apply the given {@link HttpRedirects}. The request factory used
+   * is a new instance of the underlying {@link RestTemplate}'s request factory type
+   * (when possible).
+   *
+   * @param redirects the new redirect settings
+   * @return the new template
+   */
+  public TestRestTemplate withRedirects(HttpRedirects redirects) {
+    return withClientSettings((settings) -> settings.withRedirects(redirects));
+  }
+
+  /**
+   * Creates a new {@code TestRestTemplate} with the same configuration as this one,
+   * except that it will apply the given {@link HttpClientSettings}. The request factory
+   * used is a new instance of the underlying {@link RestTemplate}'s request factory
+   * type (when possible).
+   *
+   * @param clientSettings the new client settings
+   * @return the new template
+   */
+  public TestRestTemplate withClientSettings(HttpClientSettings clientSettings) {
+    return new TestRestTemplate(this.builder.clientSettings(clientSettings),
+            this.restTemplate.getUriTemplateHandler());
+  }
+
+  /**
+   * Creates a new {@code TestRestTemplate} with the same configuration as this one,
+   * except that it will customize the {@link HttpClientSettings}. The request factory
+   * used is a new instance of the underlying {@link RestTemplate}'s request factory
+   * type (when possible).
+   *
+   * @param clientSettingsCustomizer a {@link UnaryOperator} to update the settings
+   * @return the new template
+   */
+  public TestRestTemplate withClientSettings(UnaryOperator<HttpClientSettings> clientSettingsCustomizer) {
+    return new TestRestTemplate(this.builder.clientSettings(clientSettingsCustomizer),
+            this.restTemplate.getUriTemplateHandler());
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -996,22 +1056,21 @@ public class TestRestTemplate {
   }
 
   private URI applyRootUriIfNecessary(URI uri) {
-    UriTemplateHandler uriTemplateHandler = this.restTemplate.getUriTemplateHandler();
-    if ((uriTemplateHandler instanceof RootUriTemplateHandler handler) && uri.toString().startsWith("/")) {
-      return URI.create(handler.getRootUri() + uri);
+    if (!uri.toString().startsWith("/")) {
+      return uri;
     }
-    return uri;
+    return URI.create(this.restTemplate.getUriTemplateHandler().expand("/") + uri.toString().substring(1));
   }
 
   private URI resolveUri(RequestEntity<?> entity) {
     if (entity instanceof UriTemplateRequestEntity<?> templatedUriEntity) {
       if (templatedUriEntity.getVars() != null) {
-        return this.restTemplate.getUriTemplateHandler().expand(templatedUriEntity.getUriTemplate(),
-                templatedUriEntity.getVars());
+        return this.restTemplate.getUriTemplateHandler()
+                .expand(templatedUriEntity.getUriTemplate(), templatedUriEntity.getVars());
       }
       else if (templatedUriEntity.getVarsMap() != null) {
-        return this.restTemplate.getUriTemplateHandler().expand(templatedUriEntity.getUriTemplate(),
-                templatedUriEntity.getVarsMap());
+        return this.restTemplate.getUriTemplateHandler()
+                .expand(templatedUriEntity.getUriTemplate(), templatedUriEntity.getVarsMap());
       }
       throw new IllegalStateException(
               "No variables specified for URI template: " + templatedUriEntity.getUriTemplate());
@@ -1030,94 +1089,61 @@ public class TestRestTemplate {
     ENABLE_COOKIES,
 
     /**
-     * Enable redirects.
+     * Use a {@link TlsSocketStrategy} that trusts self-signed certificates.
      */
-    ENABLE_REDIRECTS,
+    SSL;
 
-    /**
-     * Use a {@link SSLConnectionSocketFactory} with {@link TrustSelfSignedStrategy}.
-     */
-    SSL
+    boolean isPresent(HttpClientOption[] options) {
+      return ObjectUtils.containsElement(options, this);
+    }
 
   }
 
   /**
-   * {@link HttpComponentsClientHttpRequestFactory} to apply customizations.
+   * Factory used to create a {@link TlsSocketStrategy} supporting self-signed
+   * certificates.
    */
-  protected static class CustomHttpComponentsClientHttpRequestFactory
-          extends HttpComponentsClientHttpRequestFactory {
+  private static final class SelfSignedTlsSocketStrategyFactory implements HttpComponentsHttpClientBuilder.TlsSocketStrategyFactory {
 
-    private final String cookieSpec;
+    private static final String[] SUPPORTED_PROTOCOLS = { TLS.V_1_3.getId(), TLS.V_1_2.getId() };
 
-    private final boolean enableRedirects;
-
-    public CustomHttpComponentsClientHttpRequestFactory(
-            HttpClientOption[] httpClientOptions, HttpClientSettings settings) {
-      Set<HttpClientOption> options = new HashSet<>(Arrays.asList(httpClientOptions));
-      this.cookieSpec = options.contains(HttpClientOption.ENABLE_COOKIES)
-              ? StandardCookieSpec.STRICT
-              : StandardCookieSpec.IGNORE;
-      this.enableRedirects = options.contains(HttpClientOption.ENABLE_REDIRECTS);
-      boolean ssl = options.contains(HttpClientOption.SSL);
-      if (settings.readTimeout() != null || ssl) {
-        setHttpClient(createHttpClient(settings.readTimeout(), ssl));
-      }
-      if (settings.connectTimeout() != null) {
-        setConnectTimeout((int) settings.connectTimeout().toMillis());
-      }
-    }
-
-    private HttpClient createHttpClient(Duration readTimeout, boolean ssl) {
+    @Override
+    public TlsSocketStrategy getTlsSocketStrategy(@Nullable SslBundle sslBundle) {
       try {
-        HttpClientBuilder builder = HttpClients.custom();
-        builder.setConnectionManager(createConnectionManager(readTimeout, ssl));
-        builder.setDefaultRequestConfig(createRequestConfig());
-        return builder.build();
+        TrustSelfSignedStrategy trustStrategy = new TrustSelfSignedStrategy();
+        SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, trustStrategy).build();
+        return new DefaultClientTlsStrategy(sslContext, SUPPORTED_PROTOCOLS, null, null, null);
       }
-      catch (Exception ex) {
-        throw new IllegalStateException("Unable to create customized HttpClient", ex);
+      catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException ex) {
+        throw new IllegalStateException(ex);
       }
     }
 
-    private PoolingHttpClientConnectionManager createConnectionManager(Duration readTimeout, boolean ssl)
-            throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException {
-      var builder = PoolingHttpClientConnectionManagerBuilder.create();
-      if (ssl) {
-        builder.setSSLSocketFactory(createSocketFactory());
-      }
-      if (readTimeout != null) {
-        SocketConfig socketConfig = SocketConfig.custom()
-                .setSoTimeout((int) readTimeout.toMillis(), TimeUnit.MILLISECONDS)
-                .build();
-        builder.setDefaultSocketConfig(socketConfig);
-      }
-      return builder.build();
+  }
+
+  /**
+   * {@link TrustStrategy} supporting self-signed certificates.
+   */
+  private static final class TrustSelfSignedStrategy implements TrustStrategy {
+
+    @Override
+    public boolean isTrusted(X509Certificate[] chain, String authType) {
+      return chain.length == 1;
     }
 
-    private SSLConnectionSocketFactory createSocketFactory()
-            throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException {
-      SSLContext sslContext = new SSLContextBuilder()
-              .loadTrustMaterial(null, new TrustSelfSignedStrategy())
-              .build();
-      return SSLConnectionSocketFactoryBuilder.create()
-              .setSslContext(sslContext)
-              .setTlsVersions(TLS.V_1_3, TLS.V_1_2)
-              .build();
+  }
+
+  private static class CookieSpecCustomizer implements Consumer<RequestConfig.Builder> {
+
+    private final boolean enableCookies;
+
+    CookieSpecCustomizer(boolean enableCookies) {
+      this.enableCookies = enableCookies;
     }
 
     @Override
-    protected HttpContext createHttpContext(HttpMethod httpMethod, URI uri) {
-      HttpClientContext context = HttpClientContext.create();
-      context.setRequestConfig(createRequestConfig());
-      return context;
-    }
-
-    protected RequestConfig createRequestConfig() {
-      RequestConfig.Builder builder = RequestConfig.custom();
-      builder.setCookieSpec(this.cookieSpec);
-      builder.setAuthenticationEnabled(false);
-      builder.setRedirectsEnabled(this.enableRedirects);
-      return builder.build();
+    public void accept(RequestConfig.Builder builder) {
+      builder.setCookieSpec(this.enableCookies ? StandardCookieSpec.STRICT : StandardCookieSpec.IGNORE);
     }
 
   }

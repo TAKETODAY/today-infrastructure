@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -276,7 +276,7 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
     return socketChannel;
   }
 
-  public @Nullable ChannelHandler getChannelHandlerFactory() {
+  public @Nullable ChannelHandler getChannelHandler() {
     return channelHandler;
   }
 
@@ -334,9 +334,9 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
       bootstrap.handler(new LoggingHandler(loggingLevel));
     }
 
-    ChannelHandler channelHandlerFactory = getChannelHandlerFactory();
-    Assert.state(channelHandlerFactory != null, "No 'channelHandlerFactory' set");
-    bootstrap.childHandler(createChannelInitializer(nettyConfig, channelHandlerFactory));
+    ChannelHandler channelHandler = getChannelHandler();
+    Assert.state(channelHandler != null, "No 'channelHandler' set");
+    bootstrap.childHandler(createChannelInitializer(nettyConfig, channelHandler));
     bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
 
     if (bootstrapCustomizers != null) {

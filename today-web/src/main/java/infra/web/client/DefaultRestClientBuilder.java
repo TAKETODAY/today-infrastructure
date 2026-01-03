@@ -121,6 +121,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     this.detectEmptyMessageBody = other.detectEmptyMessageBody;
     this.apiVersionInserter = other.apiVersionInserter;
     this.defaultApiVersion = other.defaultApiVersion;
+    this.convertersConfigurer = other.convertersConfigurer;
 
     this.interceptors = other.interceptors != null ? new ArrayList<>(other.interceptors) : null;
     this.initializers = other.initializers != null ? new ArrayList<>(other.initializers) : null;

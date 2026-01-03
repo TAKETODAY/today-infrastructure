@@ -369,7 +369,7 @@ class DefaultHttpMessageConverters implements HttpMessageConverters {
     }
 
     @Override
-    public ClientBuilder addCustomConverters(@Nullable List<HttpMessageConverter<?>> converters) {
+    public ClientBuilder addCustomConverters(@Nullable Iterable<HttpMessageConverter<?>> converters) {
       if (converters != null) {
         for (HttpMessageConverter<?> converter : converters) {
           addCustomMessageConverter(converter);
@@ -463,7 +463,7 @@ class DefaultHttpMessageConverters implements HttpMessageConverters {
     }
 
     @Override
-    public ServerBuilder addCustomConverters(@Nullable List<HttpMessageConverter<?>> converters) {
+    public ServerBuilder addCustomConverters(@Nullable Iterable<HttpMessageConverter<?>> converters) {
       if (converters != null) {
         for (HttpMessageConverter<?> converter : converters) {
           addCustomMessageConverter(converter);

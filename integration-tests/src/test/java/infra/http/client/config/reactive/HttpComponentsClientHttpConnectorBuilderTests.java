@@ -1,0 +1,130 @@
+/*
+ * Copyright 2017 - 2026 the original author or authors.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
+ */
+
+package infra.http.client.config.reactive;
+
+import org.apache.hc.client5.http.HttpRoute;
+import org.apache.hc.client5.http.async.HttpAsyncClient;
+import org.apache.hc.client5.http.config.ConnectionConfig;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.async.HttpAsyncClientBuilder;
+import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManagerBuilder;
+import org.apache.hc.core5.function.Resolver;
+import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
+import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+
+import infra.core.ssl.SslBundle;
+import infra.http.client.config.HttpClientSettings;
+import infra.http.client.config.HttpComponentsHttpAsyncClientBuilder;
+import infra.http.client.reactive.HttpComponentsClientHttpConnector;
+import infra.test.classpath.resources.WithPackageResources;
+import infra.test.util.ReflectionTestUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * Tests for {@link HttpComponentsClientHttpConnectorBuilder} and
+ * {@link HttpComponentsHttpAsyncClientBuilder}.
+ *
+ * @author Phillip Webb
+ */
+class HttpComponentsClientHttpConnectorBuilderTests
+        extends AbstractClientHttpConnectorBuilderTests<HttpComponentsClientHttpConnector> {
+
+  HttpComponentsClientHttpConnectorBuilderTests() {
+    super(HttpComponentsClientHttpConnector.class, ClientHttpConnectorBuilder.httpComponents());
+  }
+
+  @Test
+  void withCustomizers() {
+    TestCustomizer<HttpAsyncClientBuilder> httpClientCustomizer1 = new TestCustomizer<>();
+    TestCustomizer<HttpAsyncClientBuilder> httpClientCustomizer2 = new TestCustomizer<>();
+    TestCustomizer<PoolingAsyncClientConnectionManagerBuilder> connectionManagerCustomizer = new TestCustomizer<>();
+    TestCustomizer<ConnectionConfig.Builder> connectionConfigCustomizer1 = new TestCustomizer<>();
+    TestCustomizer<ConnectionConfig.Builder> connectionConfigCustomizer2 = new TestCustomizer<>();
+    TestCustomizer<RequestConfig.Builder> defaultRequestConfigCustomizer = new TestCustomizer<>();
+    TestCustomizer<RequestConfig.Builder> defaultRequestConfigCustomizer1 = new TestCustomizer<>();
+    ClientHttpConnectorBuilder.httpComponents()
+            .withHttpClientCustomizer(httpClientCustomizer1)
+            .withHttpClientCustomizer(httpClientCustomizer2)
+            .withConnectionManagerCustomizer(connectionManagerCustomizer)
+            .withConnectionConfigCustomizer(connectionConfigCustomizer1)
+            .withConnectionConfigCustomizer(connectionConfigCustomizer2)
+            .withDefaultRequestConfigCustomizer(defaultRequestConfigCustomizer)
+            .withDefaultRequestConfigCustomizer(defaultRequestConfigCustomizer1)
+            .build();
+    httpClientCustomizer1.assertCalled();
+    httpClientCustomizer2.assertCalled();
+    connectionManagerCustomizer.assertCalled();
+    connectionConfigCustomizer1.assertCalled();
+    connectionConfigCustomizer2.assertCalled();
+    defaultRequestConfigCustomizer.assertCalled();
+    defaultRequestConfigCustomizer1.assertCalled();
+  }
+
+  @Test
+  @WithPackageResources("test.jks")
+  void withTlsSocketStrategyFactory() {
+    HttpClientSettings settings = HttpClientSettings.ofSslBundle(sslBundle());
+    List<SslBundle> bundles = new ArrayList<>();
+    Function<@Nullable SslBundle, @Nullable TlsStrategy> tlsSocketStrategyFactory = (bundle) -> {
+      bundles.add(bundle);
+      return (sessionLayer, host, localAddress, remoteAddress, attachment, handshakeTimeout) -> false;
+    };
+    ClientHttpConnectorBuilder.httpComponents()
+            .withTlsSocketStrategyFactory(tlsSocketStrategyFactory)
+            .build(settings);
+    assertThat(bundles).contains(settings.sslBundle());
+  }
+
+  @Test
+  void with() {
+    TestCustomizer<HttpAsyncClientBuilder> customizer = new TestCustomizer<>();
+    ClientHttpConnectorBuilder.httpComponents()
+            .with((builder) -> builder.withHttpClientCustomizer(customizer))
+            .build();
+    customizer.assertCalled();
+  }
+
+  @Override
+  protected long connectTimeout(HttpComponentsClientHttpConnector connector) {
+    return getConnectorConfig(connector).getConnectTimeout().toMilliseconds();
+  }
+
+  @Override
+  protected long readTimeout(HttpComponentsClientHttpConnector connector) {
+    return getConnectorConfig(connector).getSocketTimeout().toMilliseconds();
+  }
+
+  @SuppressWarnings("unchecked")
+  private ConnectionConfig getConnectorConfig(HttpComponentsClientHttpConnector connector) {
+    HttpAsyncClient httpClient = (HttpAsyncClient) ReflectionTestUtils.getField(connector, "client");
+    assertThat(httpClient).isNotNull();
+    Object manager = ReflectionTestUtils.getField(httpClient, "manager");
+    assertThat(manager).isNotNull();
+    Resolver<HttpRoute, ConnectionConfig> connectionConfigResolver = (Resolver<HttpRoute, ConnectionConfig>) ReflectionTestUtils
+            .getField(manager, "connectionConfigResolver");
+    assertThat(connectionConfigResolver).isNotNull();
+    return connectionConfigResolver.resolve(null);
+  }
+
+}

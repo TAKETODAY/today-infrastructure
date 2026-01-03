@@ -17,11 +17,11 @@
 
 package infra.annotation.config.web.client;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.List;
 
+import infra.annotation.config.http.ClientHttpMessageConvertersCustomizer;
 import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
+import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.Conditional;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
@@ -31,13 +31,13 @@ import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.core.Ordered;
 import infra.core.annotation.Order;
+import infra.core.io.ResourceLoader;
 import infra.core.ssl.SslBundles;
-import infra.web.config.HttpMessageConverters;
 import infra.stereotype.Component;
 import infra.stereotype.Prototype;
 import infra.web.client.RestClient;
-import infra.web.client.config.ClientHttpRequestFactories;
-import infra.web.client.config.HttpClientSettings;
+import infra.http.client.config.ClientHttpRequestFactoryBuilder;
+import infra.http.client.config.HttpClientSettings;
 import infra.web.client.config.RestClientCustomizer;
 
 /**
@@ -57,34 +57,40 @@ import infra.web.client.config.RestClientCustomizer;
 @Conditional(NotReactiveWebApplicationCondition.class)
 public class RestClientAutoConfiguration {
 
-  private RestClientAutoConfiguration() {
+  @Component
+  @ConditionalOnBean(SslBundles.class)
+  @ConditionalOnMissingBean(RestClientSsl.class)
+  static AutoConfiguredRestClientSsl restClientSsl(ResourceLoader resourceLoader,
+          ObjectProvider<ClientHttpRequestFactoryBuilder<?>> clientHttpRequestFactoryBuilder,
+          ObjectProvider<HttpClientSettings> httpClientSettings, SslBundles sslBundles) {
+    ClassLoader classLoader = resourceLoader.getClassLoader();
+    return new AutoConfiguredRestClientSsl(
+            clientHttpRequestFactoryBuilder.getIfAvailable(() -> ClientHttpRequestFactoryBuilder.detect(classLoader)),
+            httpClientSettings.getIfAvailable(HttpClientSettings::defaults), sslBundles);
   }
 
   @Component
   @ConditionalOnMissingBean
-  @Order(Ordered.LOWEST_PRECEDENCE)
-  public static HttpMessageConvertersRestClientCustomizer httpMessageConvertersRestClientCustomizer(
-          @Nullable HttpMessageConverters messageConverters) {
-    return new HttpMessageConvertersRestClientCustomizer(messageConverters);
-  }
-
-  @Component
-  @ConditionalOnBean(SslBundles.class)
-  @ConditionalOnMissingBean(RestClientSsl.class)
-  public static AutoConfiguredRestClientSsl restClientSsl(SslBundles sslBundles) {
-    return new AutoConfiguredRestClientSsl(sslBundles);
+  static RestClientBuilderConfigurer restClientBuilderConfigurer(ResourceLoader resourceLoader,
+          ObjectProvider<ClientHttpRequestFactoryBuilder<?>> clientHttpRequestFactoryBuilder,
+          ObjectProvider<HttpClientSettings> httpClientSettings, List<RestClientCustomizer> customizers) {
+    return new RestClientBuilderConfigurer(clientHttpRequestFactoryBuilder
+            .getIfAvailable(() -> ClientHttpRequestFactoryBuilder.detect(resourceLoader.getClassLoader())),
+            httpClientSettings.getIfAvailable(HttpClientSettings::defaults), customizers);
   }
 
   @Prototype
   @ConditionalOnMissingBean
-  public static RestClient.Builder restClientBuilder(List<RestClientCustomizer> customizerProvider) {
-    RestClient.Builder builder = RestClient.builder()
-            .requestFactory(ClientHttpRequestFactories.get(HttpClientSettings.DEFAULTS));
+  static RestClient.Builder restClientBuilder(RestClientBuilderConfigurer restClientBuilderConfigurer) {
+    return restClientBuilderConfigurer.configure(RestClient.builder());
+  }
 
-    for (RestClientCustomizer customizer : customizerProvider) {
-      customizer.customize(builder);
-    }
-    return builder;
+  @Component
+  @ConditionalOnBean(ClientHttpMessageConvertersCustomizer.class)
+  @Order(Ordered.LOWEST_PRECEDENCE)
+  static HttpMessageConvertersRestClientCustomizer httpMessageConvertersRestClientCustomizer(
+          List<ClientHttpMessageConvertersCustomizer> customizerProvider) {
+    return new HttpMessageConvertersRestClientCustomizer(customizerProvider);
   }
 
 }

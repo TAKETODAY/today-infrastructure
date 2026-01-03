@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,9 +81,7 @@ public class JdkClientHttpConnector implements ClientHttpConnector {
    * be further initialized with the shared resources to use
    * @param resourceFactory the {@link JdkHttpClientResourceFactory} to use
    */
-  public JdkClientHttpConnector(
-          HttpClient.Builder clientBuilder, @Nullable JdkHttpClientResourceFactory resourceFactory) {
-
+  public JdkClientHttpConnector(HttpClient.Builder clientBuilder, @Nullable JdkHttpClientResourceFactory resourceFactory) {
     if (resourceFactory != null) {
       Executor executor = resourceFactory.getExecutor();
       clientBuilder.executor(executor);
@@ -126,10 +124,8 @@ public class JdkClientHttpConnector implements ClientHttpConnector {
   }
 
   @Override
-  public Mono<ClientHttpResponse> connect(HttpMethod method,
-          URI uri, Function<? super ClientHttpRequest, Mono<Void>> requestCallback) {
+  public Mono<ClientHttpResponse> connect(HttpMethod method, URI uri, Function<? super ClientHttpRequest, Mono<Void>> requestCallback) {
     JdkClientHttpRequest jdkClientHttpRequest = new JdkClientHttpRequest(method, uri, this.bufferFactory, this.readTimeout);
-
     return requestCallback.apply(jdkClientHttpRequest).then(Mono.defer(() -> {
       HttpRequest httpRequest = jdkClientHttpRequest.getNativeRequest();
 

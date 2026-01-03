@@ -1,0 +1,224 @@
+/*
+ * Copyright 2017 - 2026 the original author or authors.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
+ */
+
+package infra.app.test.http.server;
+
+import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.api.Test;
+
+import java.net.URI;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import infra.app.test.http.server.LocalTestWebServer.BaseUriDetails;
+import infra.app.test.http.server.LocalTestWebServer.Scheme;
+import infra.context.ApplicationContext;
+import infra.context.support.GenericApplicationContext;
+import infra.test.classpath.resources.WithResource;
+import infra.web.util.UriBuilder;
+import infra.web.util.UriBuilderFactory;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+
+/**
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0 2026/1/2 16:08
+ */
+class LocalTestWebServerTests {
+
+  private final LocalTestWebServer server = LocalTestWebServer.of(Scheme.HTTPS, 8080, "");
+
+  @Test
+  void schemeWhenHttpsSchemeReturnsHttpsScheme() {
+    assertThat(LocalTestWebServer.of(Scheme.HTTPS, 8080, "").scheme()).isEqualTo(Scheme.HTTPS);
+  }
+
+  @Test
+  void schemeWhenHttpSchemeReturnsHttpScheme() {
+    assertThat(LocalTestWebServer.of(Scheme.HTTP, 8080, "").scheme()).isEqualTo(Scheme.HTTP);
+  }
+
+  @Test
+  void uriBuilderWhenHasSlashUriUsesLocalServer() {
+    UriBuilder builder = this.server.uriBuilder("/");
+    assertThat(builder.toUriString()).isEqualTo("https://localhost:8080/");
+  }
+
+  @Test
+  void uriBuilderWhenHasEmptyUriUsesLocalServer() {
+    UriBuilder builder = this.server.uriBuilder("");
+    assertThat(builder.toUriString()).isEqualTo("https://localhost:8080");
+  }
+
+  @Test
+  void uriBuilderWhenHasNestedPathUsesLocalServer() {
+    UriBuilder builder = this.server.uriBuilder("/foo/bar");
+    assertThat(builder.toUriString()).isEqualTo("https://localhost:8080/foo/bar");
+  }
+
+  @Test
+  void uriBuilderWhenHasPathNoStartingWithSlashUsesLocalServer() {
+    UriBuilder builder = this.server.uriBuilder("foo/bar");
+    assertThat(builder.toUriString()).isEqualTo("https://localhost:8080/foo/bar");
+  }
+
+  @Test
+  void uriBuilderWhenHasFullUriDoesNotUseLocalServer() {
+    UriBuilder builder = this.server.uriBuilder("https://sub.example.com");
+    assertThat(builder.toUriString()).isEqualTo("https://sub.example.com");
+  }
+
+  @Test
+  void uriBuilderFactoryExpandWithMap() {
+    UriBuilderFactory factory = this.server.uriBuilderFactory();
+    assertThat(factory.expand("/test/{name}", Map.of("name", "value")))
+            .isEqualTo(URI.create("https://localhost:8080/test/value"));
+  }
+
+  @Test
+  void uriBuilderFactoryExpandsWithMap() {
+    UriBuilderFactory factory = this.server.uriBuilderFactory();
+    assertThat(factory.expand("/test/{name}", "value")).isEqualTo(URI.create("https://localhost:8080/test/value"));
+  }
+
+  @Test
+  void uriBuilderFactoryExpandsWithVariables() {
+    UriBuilderFactory factory = this.server.uriBuilderFactory();
+    assertThat(factory.uriString("https://example.com").build()).isEqualTo(URI.create("https://example.com"));
+  }
+
+  @Test
+  void uriWhenHttp() {
+    assertThat(LocalTestWebServer.of(Scheme.HTTP, 8080, "").uri()).isEqualTo("http://localhost:8080");
+  }
+
+  @Test
+  void uriWhenHttps() {
+    assertThat(LocalTestWebServer.of(Scheme.HTTPS, 4343, "").uri()).isEqualTo("https://localhost:4343");
+  }
+
+  @Test
+  void uriWhenHasPath() {
+    assertThat(LocalTestWebServer.of(Scheme.HTTPS, 8080, "/path").uri()).isEqualTo("https://localhost:8080/path");
+  }
+
+  @Test
+  void uriWithUri() {
+    assertThat(this.server.uri(null)).isEqualTo("https://localhost:8080");
+    assertThat(this.server.uri("")).isEqualTo("https://localhost:8080");
+    assertThat(this.server.uri("/")).isEqualTo("https://localhost:8080/");
+    assertThat(this.server.uri("/foo")).isEqualTo("https://localhost:8080/foo");
+    assertThat(this.server.uri("https://example.com/foo")).isEqualTo("https://example.com/foo");
+  }
+
+  @Test
+  void uriUsesSingletonBaseUriDetails() {
+    AtomicInteger counter = new AtomicInteger();
+    LocalTestWebServer server = LocalTestWebServer.of(Scheme.HTTPS,
+            () -> new BaseUriDetails(8080, "/" + counter.incrementAndGet()));
+    assertThat(server.uri()).isEqualTo("https://localhost:8080/1");
+    assertThat(server.uri()).isEqualTo("https://localhost:8080/1");
+  }
+
+  @Test
+  void uriBuilderFactoryUsesSingletonUriBuilderFactory() {
+    LocalTestWebServer server = LocalTestWebServer.of(Scheme.HTTPS, () -> new BaseUriDetails(8080, "/"));
+    UriBuilderFactory uriBuilderFactory = server.uriBuilderFactory();
+    assertThat(server.uriBuilderFactory()).isSameAs(uriBuilderFactory);
+  }
+
+  @Test
+  void withPathCreatedNewInstance() {
+    assertThat(LocalTestWebServer.of(Scheme.HTTPS, 8080, "/path").withPath("/other").uri())
+            .isEqualTo("https://localhost:8080/path/other");
+  }
+
+  @Test
+  void ofWhenBaseUriDetailsSupplierIsNull() {
+    assertThatIllegalArgumentException().isThrownBy(() -> LocalTestWebServer.of(Scheme.HTTPS, null))
+            .withMessage("'baseUriDetailsSupplier' is required");
+  }
+
+  @Test
+  @WithResource(name = "META-INF/today.strategies", content = """
+          infra.app.test.http.server.LocalTestWebServer$Provider=\
+          infra.app.test.http.server.LocalTestWebServerTests$Provider1,\
+          infra.app.test.http.server.LocalTestWebServerTests$Provider2,\
+          infra.app.test.http.server.LocalTestWebServerTests$Provider3
+          """)
+  void getReturnsFirstProvided() {
+    ApplicationContext applicationContext = new GenericApplicationContext();
+    LocalTestWebServer provided = LocalTestWebServer.get(applicationContext);
+    assertThat(provided).isNotNull();
+    assertThat(provided.uri()).isEqualTo("https://localhost:7070/p2");
+  }
+
+  @Test
+  @WithResource(name = "META-INF/today.strategies", content = """
+          infra.app.test.http.server.LocalTestWebServer$Provider=\
+          infra.app.test.http.server.LocalTestWebServerTests$Provider1
+          """)
+  void getWhenNoneReturnsNull() {
+    ApplicationContext applicationContext = new GenericApplicationContext();
+    LocalTestWebServer provided = LocalTestWebServer.get(applicationContext);
+    assertThat(provided).isNull();
+  }
+
+  @Test
+  @WithResource(name = "META-INF/spring.factories", content = """
+          infra.app.test.http.server.LocalTestWebServer$Provider=\
+          infra.app.test.http.server.LocalTestWebServerTests$Provider1
+          """)
+  void obtainWhenNoneProvidedThrowsException() {
+    ApplicationContext applicationContext = new GenericApplicationContext();
+    assertThatIllegalStateException().isThrownBy(() -> LocalTestWebServer.obtain(applicationContext))
+            .withMessage("No local test web server available");
+  }
+
+  @SuppressWarnings("unused")
+  static class Provider1 implements LocalTestWebServer.Provider {
+
+    @Override
+    public @Nullable LocalTestWebServer getLocalTestWebServer() {
+      return null;
+    }
+
+  }
+
+  @SuppressWarnings("unused")
+  static class Provider2 implements LocalTestWebServer.Provider {
+
+    @Override
+    public @Nullable LocalTestWebServer getLocalTestWebServer() {
+      return LocalTestWebServer.of(Scheme.HTTPS, 7070, "/p2");
+    }
+
+  }
+
+  @SuppressWarnings("unused")
+  static class Provider3 implements LocalTestWebServer.Provider {
+
+    @Override
+    public @Nullable LocalTestWebServer getLocalTestWebServer() {
+      throw new IllegalStateException();
+    }
+
+  }
+
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -116,7 +116,7 @@ final class SslServerCustomizer implements ReactorNettyServerCustomizer {
    * @param sslBundle the {@link SslBundle} to use
    * @return an {@link AbstractProtocolSslContextSpec} instance
    */
-  private AbstractProtocolSslContextSpec<?> createSslContextSpec(SslBundle sslBundle) {
+  private SslProvider.GenericSslContextSpec<?> createSslContextSpec(SslBundle sslBundle) {
     AbstractProtocolSslContextSpec<?> sslContextSpec = http2Enabled
             ? Http2SslContextSpec.forServer(sslBundle.getManagers().getKeyManagerFactory())
             : Http11SslContextSpec.forServer(sslBundle.getManagers().getKeyManagerFactory());

@@ -23,6 +23,9 @@ infra.annotation.config.transaction.jta.JtaAutoConfiguration
 infra.annotation.config.transaction.TransactionAutoConfiguration
 infra.annotation.config.http.HttpMessageConvertersAutoConfiguration
 infra.annotation.config.http.CodecsAutoConfiguration
+infra.annotation.config.http.client.HttpClientAutoConfiguration
+infra.annotation.config.http.client.ImperativeHttpClientAutoConfiguration
+infra.annotation.config.http.client.reactive.ReactiveHttpClientAutoConfiguration
 infra.annotation.config.gson.GsonAutoConfiguration
 infra.annotation.config.jsonb.JsonbAutoConfiguration
 infra.annotation.config.jackson.JacksonAutoConfiguration

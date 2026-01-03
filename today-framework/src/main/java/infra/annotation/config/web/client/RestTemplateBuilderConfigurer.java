@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,10 +19,16 @@ package infra.annotation.config.web.client;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.function.BiFunction;
 
-import infra.web.config.HttpMessageConverters;
-import infra.util.CollectionUtils;
+import infra.annotation.config.http.ClientHttpMessageConvertersCustomizer;
+import infra.http.client.config.ClientHttpRequestFactoryBuilder;
+import infra.http.client.config.HttpClientSettings;
+import infra.http.converter.HttpMessageConverters;
+import infra.http.converter.HttpMessageConverters.ClientBuilder;
+import infra.util.ObjectUtils;
 import infra.web.client.config.RestTemplateBuilder;
 import infra.web.client.config.RestTemplateCustomizer;
 import infra.web.client.config.RestTemplateRequestCustomizer;
@@ -36,24 +42,35 @@ import infra.web.client.config.RestTemplateRequestCustomizer;
  */
 public final class RestTemplateBuilderConfigurer {
 
-  @Nullable
-  private HttpMessageConverters httpMessageConverters;
+  private @Nullable ClientHttpRequestFactoryBuilder<?> requestFactoryBuilder;
 
-  @Nullable
-  private List<RestTemplateCustomizer> restTemplateCustomizers;
+  private @Nullable HttpClientSettings clientSettings;
 
-  @Nullable
-  private List<RestTemplateRequestCustomizer<?>> restTemplateRequestCustomizers;
+  private @Nullable List<ClientHttpMessageConvertersCustomizer> httpMessageConvertersCustomizers;
 
-  void setHttpMessageConverters(@Nullable HttpMessageConverters httpMessageConverters) {
-    this.httpMessageConverters = httpMessageConverters;
+  private @Nullable List<RestTemplateCustomizer> restTemplateCustomizers;
+
+  private @Nullable List<RestTemplateRequestCustomizer<?>> restTemplateRequestCustomizers;
+
+  void setRequestFactoryBuilder(@Nullable ClientHttpRequestFactoryBuilder<?> requestFactoryBuilder) {
+    this.requestFactoryBuilder = requestFactoryBuilder;
+  }
+
+  void setClientSettings(@Nullable HttpClientSettings clientSettings) {
+    this.clientSettings = clientSettings;
+  }
+
+  void setHttpMessageConvertersCustomizers(
+          @Nullable List<ClientHttpMessageConvertersCustomizer> httpMessageConvertersCustomizers) {
+    this.httpMessageConvertersCustomizers = httpMessageConvertersCustomizers;
   }
 
   void setRestTemplateCustomizers(@Nullable List<RestTemplateCustomizer> restTemplateCustomizers) {
     this.restTemplateCustomizers = restTemplateCustomizers;
   }
 
-  void setRestTemplateRequestCustomizers(@Nullable List<RestTemplateRequestCustomizer<?>> restTemplateRequestCustomizers) {
+  void setRestTemplateRequestCustomizers(
+          @Nullable List<RestTemplateRequestCustomizer<?>> restTemplateRequestCustomizers) {
     this.restTemplateRequestCustomizers = restTemplateRequestCustomizers;
   }
 
@@ -65,18 +82,29 @@ public final class RestTemplateBuilderConfigurer {
    * @return the configured builder
    */
   public RestTemplateBuilder configure(RestTemplateBuilder builder) {
-    if (httpMessageConverters != null) {
-      builder = builder.messageConverters(httpMessageConverters.getConverters());
+    if (this.requestFactoryBuilder != null) {
+      builder = builder.requestFactoryBuilder(this.requestFactoryBuilder);
     }
-
-    if (CollectionUtils.isNotEmpty(restTemplateCustomizers)) {
-      builder = builder.customizers(restTemplateCustomizers);
+    if (this.clientSettings != null) {
+      builder = builder.clientSettings(this.clientSettings);
     }
-
-    if (CollectionUtils.isNotEmpty(restTemplateRequestCustomizers)) {
-      builder = builder.requestCustomizers(restTemplateRequestCustomizers);
+    if (this.httpMessageConvertersCustomizers != null) {
+      ClientBuilder clientBuilder = HttpMessageConverters.forClient();
+      for (ClientHttpMessageConvertersCustomizer customizer : httpMessageConvertersCustomizers) {
+        customizer.customize(clientBuilder);
+      }
+      builder = builder.messageConverters(clientBuilder.asList());
     }
+    builder = addCustomizers(builder, this.restTemplateCustomizers, RestTemplateBuilder::customizers);
+    builder = addCustomizers(builder, this.restTemplateRequestCustomizers, RestTemplateBuilder::requestCustomizers);
+    return builder;
+  }
 
+  private <T> RestTemplateBuilder addCustomizers(RestTemplateBuilder builder, @Nullable List<T> customizers,
+          BiFunction<RestTemplateBuilder, Collection<T>, RestTemplateBuilder> method) {
+    if (!ObjectUtils.isEmpty(customizers)) {
+      return method.apply(builder, customizers);
+    }
     return builder;
   }
 

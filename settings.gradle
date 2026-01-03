@@ -55,6 +55,11 @@ file("${rootDir}/today-starter").eachDirMatch(~/today-starter.*/) {
   include "today-starter:${it.name}"
 }
 
+// Config
+//file("${rootDir}/today-config").eachDirMatch(~/today-config.*/) {
+//  include "today-config:${it.name}"
+//}
+
 // Build helper
 file("${rootDir}/infra-build").eachDirMatch(~/infra-.*/) {
   include "infra-build:${it.name}"

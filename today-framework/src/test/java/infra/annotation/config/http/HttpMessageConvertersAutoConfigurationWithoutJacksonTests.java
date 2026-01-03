@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,13 +21,12 @@ import org.junit.jupiter.api.Test;
 
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.config.AutoConfigurations;
-import infra.web.config.HttpMessageConverters;
 import infra.test.classpath.ClassPathExclusions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link HttpMessageConvertersAutoConfiguration} without Jackson on the
+ * Tests for {@link infra.annotation.config.http.HttpMessageConvertersAutoConfiguration} without Jackson on the
  * classpath.
  *
  * @author Andy Wilkinson
@@ -36,11 +35,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 class HttpMessageConvertersAutoConfigurationWithoutJacksonTests {
 
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-          .withConfiguration(AutoConfigurations.of(HttpMessageConvertersAutoConfiguration.class));
+          .withConfiguration(AutoConfigurations.of(infra.annotation.config.http.HttpMessageConvertersAutoConfiguration.class));
 
   @Test
   void autoConfigurationWorksWithSpringHateoasButWithoutJackson() {
-    this.contextRunner.run((context) -> assertThat(context).hasSingleBean(HttpMessageConverters.class));
+    this.contextRunner.run((context) -> assertThat(context).hasBean("clientConvertersCustomizer")
+            .hasBean("serverConvertersCustomizer"));
   }
 
 }
+

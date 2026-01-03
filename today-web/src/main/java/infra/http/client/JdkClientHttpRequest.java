@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -167,7 +167,7 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
   @Override
   protected Future<ClientHttpResponse> asyncInternal(HttpHeaders headers, @Nullable Body body, @Nullable Executor executor) {
     HttpRequest request = buildRequest(headers, body);
-    var responseFuture = Future.forAdaption(httpClient.sendAsync(request,
+    Future<HttpResponse<InputStream>> responseFuture = Future.forAdaption(httpClient.sendAsync(request,
             this.compression ? new DecompressingBodyHandler() : BodyHandlers.ofInputStream()), executor);
     if (timeout != null) {
       responseFuture = responseFuture.timeout(timeout);

@@ -220,7 +220,13 @@ bom {
       ]
     }
   }
-  library("HttpClient5", "5.5") {
+  library("HttpClient5", "5.5.1") {
+    prohibit {
+      contains "-alpha"
+      contains "-beta"
+      contains "-rc"
+      because "we don't want preview releases"
+    }
     group("org.apache.httpcomponents.client5") {
       modules = [
           "httpclient5",
@@ -230,7 +236,7 @@ bom {
       ]
     }
   }
-  library("HttpCore5", "5.3.4") {
+  library("HttpCore5", "5.3.6") {
     group("org.apache.httpcomponents.core5") {
       modules = [
           "httpcore5",

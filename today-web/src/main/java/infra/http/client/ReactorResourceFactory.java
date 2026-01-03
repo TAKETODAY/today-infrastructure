@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ import reactor.netty.resources.LoopResources;
  * <p>Note that after a {@link SmartLifecycle} stop/restart, new instances of
  * the configured {@link LoopResources} and {@link ConnectionProvider} are
  * created, so any references to those should be updated. However, this factory
- * does not participate in {@linkplain #isPauseable() pause} scenarios.
+ * does not participate in {@linkplain #isPausable() pause} scenarios.
  *
  * @author Rossen Stoyanchev
  * @author Brian Clozel

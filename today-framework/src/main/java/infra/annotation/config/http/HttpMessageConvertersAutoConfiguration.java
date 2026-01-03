@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,6 @@ import infra.annotation.config.jsonb.JsonbAutoConfiguration;
 import infra.context.annotation.Conditional;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
-import infra.context.annotation.ImportRuntimeHints;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.condition.ConditionalOnBean;
 import infra.context.condition.ConditionalOnClass;
@@ -38,16 +37,15 @@ import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.condition.ConditionalOnProperty;
 import infra.context.condition.NoneNestedConditions;
 import infra.context.properties.EnableConfigurationProperties;
-import infra.context.properties.bind.BindableRuntimeHintsRegistrar;
+import infra.core.annotation.Order;
 import infra.http.converter.HttpMessageConverter;
-import infra.web.config.HttpMessageConverters;
+import infra.http.converter.HttpMessageConverters.ClientBuilder;
+import infra.http.converter.HttpMessageConverters.ServerBuilder;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.Jackson2ObjectMapperBuilder;
 import infra.http.converter.json.MappingJackson2HttpMessageConverter;
 import infra.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import infra.stereotype.Component;
-import infra.web.server.EncodingProperties;
-import infra.web.server.ServerProperties;
 
 /**
  * Auto-configuration for {@link HttpMessageConverter}s.
@@ -70,35 +68,23 @@ import infra.web.server.ServerProperties;
         JsonbAutoConfiguration.class
 })
 @ConditionalOnClass(HttpMessageConverter.class)
+@EnableConfigurationProperties(HttpMessageConvertersProperties.class)
 @Conditional(HttpMessageConvertersAutoConfiguration.NotReactiveWebApplicationCondition.class)
 @Import({ GsonHttpMessageConvertersConfiguration.class, JsonbHttpMessageConvertersConfiguration.class })
-@ImportRuntimeHints(HttpMessageConvertersAutoConfiguration.Hints.class)
-public class HttpMessageConvertersAutoConfiguration {
+public final class HttpMessageConvertersAutoConfiguration {
 
   static final String PREFERRED_MAPPER_PROPERTY = "web.mvc.converters.preferred-json-mapper";
 
-  private HttpMessageConvertersAutoConfiguration() {
+  @Order(0)
+  @Component
+  static DefaultHttpMessageConvertersCustomizer clientConvertersCustomizer(List<HttpMessageConverter<?>> converters) {
+    return new DefaultHttpMessageConvertersCustomizer(converters);
   }
 
   @Component
-  @ConditionalOnMissingBean
-  public static HttpMessageConverters messageConverters(List<HttpMessageConverter<?>> converters) {
-    return new HttpMessageConverters(converters);
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  @EnableConfigurationProperties(ServerProperties.class)
-  @ConditionalOnClass(StringHttpMessageConverter.class)
-  protected static class StringHttpMessageConverterConfiguration {
-
-    @Component
-    @ConditionalOnMissingBean
-    static StringHttpMessageConverter stringHttpMessageConverter(ServerProperties serverProperties) {
-      StringHttpMessageConverter converter = new StringHttpMessageConverter(serverProperties.encoding.getCharset());
-      converter.setWriteAcceptCharset(false);
-      return converter;
-    }
-
+  @ConditionalOnMissingBean(StringHttpMessageConverter.class)
+  static StringHttpMessageConvertersCustomizer stringHttpMessageConvertersCustomizer(HttpMessageConvertersProperties properties) {
+    return new StringHttpMessageConvertersCustomizer(properties);
   }
 
   @Configuration(proxyBeanMethods = false)
@@ -129,6 +115,27 @@ public class HttpMessageConvertersAutoConfiguration {
 
   }
 
+  static class StringHttpMessageConvertersCustomizer implements ClientHttpMessageConvertersCustomizer, ServerHttpMessageConvertersCustomizer {
+
+    private final StringHttpMessageConverter converter;
+
+    StringHttpMessageConvertersCustomizer(HttpMessageConvertersProperties properties) {
+      this.converter = new StringHttpMessageConverter(properties.stringEncodingCharset);
+      this.converter.setWriteAcceptCharset(false);
+    }
+
+    @Override
+    public void customize(ClientBuilder builder) {
+      builder.withStringConverter(this.converter);
+    }
+
+    @Override
+    public void customize(ServerBuilder builder) {
+      builder.withStringConverter(this.converter);
+    }
+
+  }
+
   static class NotReactiveWebApplicationCondition extends NoneNestedConditions {
 
     NotReactiveWebApplicationCondition() {
@@ -142,12 +149,5 @@ public class HttpMessageConvertersAutoConfiguration {
 
   }
 
-  static class Hints extends BindableRuntimeHintsRegistrar {
-
-    Hints() {
-      super(EncodingProperties.class);
-    }
-
-  }
 }
 

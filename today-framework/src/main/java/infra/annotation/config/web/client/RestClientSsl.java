@@ -22,9 +22,9 @@ import java.util.function.Consumer;
 import infra.core.ssl.NoSuchSslBundleException;
 import infra.core.ssl.SslBundle;
 import infra.http.client.ClientHttpRequestFactory;
+import infra.http.client.config.ClientHttpRequestFactoryBuilder;
+import infra.http.client.config.HttpClientSettings;
 import infra.web.client.RestClient;
-import infra.web.client.config.ClientHttpRequestFactories;
-import infra.web.client.config.HttpClientSettings;
 
 /**
  * Interface that can be used to {@link RestClient.Builder#apply apply} SSL configuration
@@ -36,11 +36,13 @@ import infra.web.client.config.HttpClientSettings;
  *     RestClient restClientrestClient= restClientBuilder.apply(ssl.forBundle("mybundle")).build();
  *     return new MyBean(webClient);
  * }
- * </pre> NOTE: Apply SSL configuration will replace any previously
+ * </pre> NOTE: Applying SSL configuration will replace any previously
  * {@link RestClient.Builder#requestFactory configured} {@link ClientHttpRequestFactory}.
+ * The replacement {@link ClientHttpRequestFactory} will apply only configured
+ * {@link HttpClientSettings} and the appropriate {@link SslBundle}.
+ * <p>
  * If you need to configure {@link ClientHttpRequestFactory} with more than just SSL
- * consider using a {@link HttpClientSettings} with
- * {@link ClientHttpRequestFactories}.
+ * consider using a {@link ClientHttpRequestFactoryBuilder}.
  *
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
