@@ -149,9 +149,9 @@ public abstract class AbstractMockHandlerMethodTests {
     @Override
     public void configureMessageConverters(HttpMessageConverters.ServerBuilder builder) {
       if (!converters.isEmpty()) {
-        builder.unregisterDefaults();
+        builder.unregisterDefaults()
+                .addCustomConverters(converters);
       }
-      builder.addCustomConverters(converters);
     }
 
   }
