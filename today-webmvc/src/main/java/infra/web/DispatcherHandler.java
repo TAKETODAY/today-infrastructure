@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@ import infra.web.async.WebAsyncManagerFactory;
 import infra.web.handler.AsyncHandler;
 import infra.web.handler.HandlerAdapterAware;
 import infra.web.handler.HandlerNotFoundException;
+import infra.web.handler.HandlerWrapper;
 import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.handler.ReturnValueHandlerNotFoundException;
 import infra.web.handler.SimpleNotFoundHandler;
@@ -511,7 +512,7 @@ public class DispatcherHandler extends InfraHandler {
   protected void processDispatchResult(RequestContext request, @Nullable Object handler,
           @Nullable Object returnValue, @Nullable Throwable exception) throws Throwable {
 
-    if (handler instanceof infra.web.handler.HandlerWrapper wrapper) {
+    if (handler instanceof HandlerWrapper wrapper) {
       handler = wrapper.getRawHandler();
     }
     if (exception != null) {

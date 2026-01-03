@@ -47,6 +47,7 @@ import infra.http.HttpEntity;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.http.ResponseEntity;
+import infra.http.converter.HttpMessageConverters.ServerBuilder;
 import infra.lang.Assert;
 import infra.stereotype.Component;
 import infra.util.MultiValueMap;
@@ -54,6 +55,7 @@ import infra.web.annotation.POST;
 import infra.web.annotation.RequestPart;
 import infra.web.annotation.RestController;
 import infra.web.client.RestClient;
+import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.multipart.Part;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -86,9 +88,12 @@ class MultipartIntegrationTests {
     parts.add("form", new HttpEntity<>(new Form("desc", path.resolve("temp.tmp").toAbsolutePath().toString()), headers));
     parts.add("file", new HttpEntity<>(new ClassPathResource("infra/web/function/foo.txt"), fooHeaders));
 
-    ResponseEntity<String> response = RestClient.create().post()
+    ResponseEntity<String> response = RestClient.builder()
+            .build()
+            .post()
             .uri(createURL("/form"))
             .contentType(MediaType.MULTIPART_FORM_DATA)
+            .accept(MediaType.TEXT_PLAIN)
             .body(parts)
             .retrieve().toEntity(String.class);
 
@@ -147,15 +152,19 @@ class MultipartIntegrationTests {
   }
 
   @InfraApplication
-//  @MinimalWebConfiguration
+  @MinimalWebConfiguration
   @Configuration(proxyBeanMethods = false)
-  static class TestConfiguration {
+  static class TestConfiguration implements WebMvcConfigurer {
 
     @Component
     public static UploadHttpHandler uploadHttpHandler() {
       return new UploadHttpHandler();
     }
 
+    @Override
+    public void configureMessageConverters(ServerBuilder builder) {
+//      builder.withStringConverter(new StringHttpMessageConverter());
+    }
   }
 
   @Target(ElementType.TYPE)

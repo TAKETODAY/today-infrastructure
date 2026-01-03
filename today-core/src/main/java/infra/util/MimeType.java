@@ -432,6 +432,15 @@ public class MimeType implements Comparable<MimeType>, Serializable {
   }
 
   /**
+   * Indicates whether the {@linkplain #getType() type} is the multipart or not.
+   *
+   * @since 5.0
+   */
+  public boolean isMultipartType() {
+    return "multipart".equals(getType());
+  }
+
+  /**
    * Return the primary type.
    */
   public String getType() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -854,7 +854,8 @@ public abstract class RequestContext extends AttributeAccessorSupport
         multipartFlag = Boolean.FALSE;
       }
       else {
-        multipartFlag = StringUtils.startsWithIgnoreCase(getContentTypeAsString(), "multipart/");
+        final MediaType contentType = getContentType();
+        multipartFlag = contentType != null && contentType.isMultipartType();
       }
       this.multipartFlag = multipartFlag;
     }
@@ -1165,8 +1166,8 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @see HttpHeaders#getContentType()
    * @since 5.0
    */
-  @Nullable
-  public MediaType getContentType() {
+  @Override
+  public @Nullable MediaType getContentType() {
     MediaType contentType = this.contentType;
     if (contentType == null) {
       String string = getContentTypeAsString();

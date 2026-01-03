@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -188,7 +188,7 @@ public class MultipartHttpMessageWriter extends MultipartWriterSupport implement
 
   private boolean isMultipart(MultiValueMap<String, ?> map, @Nullable MediaType contentType) {
     if (contentType != null) {
-      return contentType.getType().equalsIgnoreCase("multipart");
+      return contentType.isMultipartType();
     }
     for (List<?> values : map.values()) {
       for (Object value : values) {

@@ -381,7 +381,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 
   private boolean isMultipart(MultiValueMap<String, ?> map, @Nullable MediaType contentType) {
     if (contentType != null) {
-      return contentType.getType().equals("multipart");
+      return contentType.isMultipartType();
     }
     for (List<?> values : map.values()) {
       for (Object value : values) {

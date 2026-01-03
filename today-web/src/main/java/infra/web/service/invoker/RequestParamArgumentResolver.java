@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -153,7 +153,7 @@ public class RequestParamArgumentResolver extends AbstractNamedValueArgumentReso
    */
   protected boolean isFormOrMultipartContent(HttpRequestValues.Metadata metadata) {
     MediaType mediaType = metadata.getContentType();
-    return (mediaType != null && (mediaType.getType().equals("multipart") ||
+    return (mediaType != null && (mediaType.isMultipartType() ||
             mediaType.isCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED)));
   }
 

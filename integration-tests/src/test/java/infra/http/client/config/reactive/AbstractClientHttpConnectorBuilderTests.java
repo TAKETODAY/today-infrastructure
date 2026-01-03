@@ -203,7 +203,7 @@ abstract class AbstractClientHttpConnectorBuilderTests<T extends ClientHttpConne
 
   private Ssl ssl(String... ciphers) {
     Ssl ssl = new Ssl();
-    ssl.clientAuth = (Ssl.ClientAuth.NEED);
+    ssl.clientAuth = (Ssl.ClientAuth.WANT);
     ssl.keyPassword = ("password");
     ssl.keyStore = ("classpath:test.jks");
     ssl.trustStore = ("classpath:test.jks");

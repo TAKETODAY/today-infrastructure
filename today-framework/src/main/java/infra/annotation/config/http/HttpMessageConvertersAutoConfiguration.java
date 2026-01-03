@@ -87,33 +87,33 @@ public final class HttpMessageConvertersAutoConfiguration {
     return new StringHttpMessageConvertersCustomizer(properties);
   }
 
-  @Configuration(proxyBeanMethods = false)
-  @ConditionalOnClass(ObjectMapper.class)
-  @ConditionalOnBean(ObjectMapper.class)
-  @ConditionalOnProperty(name = PREFERRED_MAPPER_PROPERTY, havingValue = "jackson", matchIfMissing = true)
-  static class MappingJackson2HttpMessageConverterConfiguration {
-
-    @Component
-    @ConditionalOnMissingBean(MappingJackson2HttpMessageConverter.class)
-    static MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter(ObjectMapper objectMapper) {
-      return new MappingJackson2HttpMessageConverter(objectMapper);
-    }
-
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  @ConditionalOnClass(XmlMapper.class)
-  @ConditionalOnBean(Jackson2ObjectMapperBuilder.class)
-  protected static class MappingJackson2XmlHttpMessageConverterConfiguration {
-
-    @Component
-    @ConditionalOnMissingBean
-    static MappingJackson2XmlHttpMessageConverter mappingJackson2XmlHttpMessageConverter(
-            Jackson2ObjectMapperBuilder builder) {
-      return new MappingJackson2XmlHttpMessageConverter(builder.createXmlMapper(true).build());
-    }
-
-  }
+//  @Configuration(proxyBeanMethods = false)
+//  @ConditionalOnClass(ObjectMapper.class)
+//  @ConditionalOnBean(ObjectMapper.class)
+//  @ConditionalOnProperty(name = PREFERRED_MAPPER_PROPERTY, havingValue = "jackson", matchIfMissing = true)
+//  static class MappingJackson2HttpMessageConverterConfiguration {
+//
+//    @Component
+//    @ConditionalOnMissingBean(MappingJackson2HttpMessageConverter.class)
+//    static MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter(ObjectMapper objectMapper) {
+//      return new MappingJackson2HttpMessageConverter(objectMapper);
+//    }
+//
+//  }
+//
+//  @Configuration(proxyBeanMethods = false)
+//  @ConditionalOnClass(XmlMapper.class)
+//  @ConditionalOnBean(Jackson2ObjectMapperBuilder.class)
+//  protected static class MappingJackson2XmlHttpMessageConverterConfiguration {
+//
+//    @Component
+//    @ConditionalOnMissingBean
+//    static MappingJackson2XmlHttpMessageConverter mappingJackson2XmlHttpMessageConverter(
+//            Jackson2ObjectMapperBuilder builder) {
+//      return new MappingJackson2XmlHttpMessageConverter(builder.createXmlMapper(true).build());
+//    }
+//
+//  }
 
   static class StringHttpMessageConvertersCustomizer implements ClientHttpMessageConvertersCustomizer, ServerHttpMessageConvertersCustomizer {
 
