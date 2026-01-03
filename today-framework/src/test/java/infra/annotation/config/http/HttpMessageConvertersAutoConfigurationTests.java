@@ -143,35 +143,28 @@ class HttpMessageConvertersAutoConfigurationTests {
   }
 
   @Test
-  @Deprecated(since = "4.0.0", forRemoval = true)
-  @SuppressWarnings("removal")
   void jackson2DefaultConverter() {
     this.contextRunner.withUserConfiguration(Jackson2ObjectMapperConfig.class)
             .withInitializer(ConditionEvaluationReportLoggingListener.forLogLevel(LogLevel.INFO))
             .run((context) -> assertConverterIsRegistered(context,
-                    org.springframework.http.converter.json.MappingJackson2HttpMessageConverter.class));
+                    infra.http.converter.json.MappingJackson2HttpMessageConverter.class));
   }
 
   @Test
-  @Deprecated(since = "4.0.0", forRemoval = true)
-  @SuppressWarnings("removal")
   void jackson2ConverterWithBuilder() {
     this.contextRunner.withUserConfiguration(Jackson2ObjectMapperBuilderConfig.class)
             .run((context) -> assertConverterIsRegistered(context,
-                    org.springframework.http.converter.json.MappingJackson2HttpMessageConverter.class));
+                    infra.http.converter.json.MappingJackson2HttpMessageConverter.class));
   }
 
   @Test
-  @Deprecated(since = "4.0.0", forRemoval = true)
-  @SuppressWarnings("removal")
   void jackson2CustomConverter() {
     this.contextRunner.withUserConfiguration(Jackson2ObjectMapperConfig.class, Jackson2ConverterConfig.class)
             .run((context) -> assertConverterIsRegistered(context,
-                    org.springframework.http.converter.json.MappingJackson2HttpMessageConverter.class));
+                    infra.http.converter.json.MappingJackson2HttpMessageConverter.class));
   }
 
   @Test
-  @Deprecated(since = "4.0.0", forRemoval = true)
   @SuppressWarnings("removal")
   void jackson2ServerAndClientConvertersShouldBeDifferent() {
     this.contextRunner.withUserConfiguration(Jackson2ObjectMapperConfig.class)
@@ -180,9 +173,9 @@ class HttpMessageConvertersAutoConfigurationTests {
               assertThat(context).hasSingleBean(
                       Jackson2HttpMessageConvertersConfiguration.Jackson2JsonMessageConvertersCustomizer.class);
               HttpMessageConverter<?> serverConverter = findConverter(getServerConverters(context),
-                      org.springframework.http.converter.json.MappingJackson2HttpMessageConverter.class);
+                      infra.http.converter.json.MappingJackson2HttpMessageConverter.class);
               HttpMessageConverter<?> clientConverter = findConverter(getClientConverters(context),
-                      org.springframework.http.converter.json.MappingJackson2HttpMessageConverter.class);
+                      infra.http.converter.json.MappingJackson2HttpMessageConverter.class);
               assertThat(serverConverter).isNotEqualTo(clientConverter);
             });
   }
@@ -585,8 +578,8 @@ class HttpMessageConvertersAutoConfigurationTests {
     }
 
     @Bean
-    org.springframework.http.converter.json.Jackson2ObjectMapperBuilder builder() {
-      return new org.springframework.http.converter.json.Jackson2ObjectMapperBuilder();
+    infra.http.converter.json.Jackson2ObjectMapperBuilder builder() {
+      return new infra.http.converter.json.Jackson2ObjectMapperBuilder();
     }
 
   }
@@ -597,9 +590,9 @@ class HttpMessageConvertersAutoConfigurationTests {
   static class Jackson2ConverterConfig {
 
     @Bean
-    org.springframework.http.converter.json.MappingJackson2HttpMessageConverter customJacksonMessageConverter(
+    infra.http.converter.json.MappingJackson2HttpMessageConverter customJacksonMessageConverter(
             ObjectMapper objectMapper) {
-      org.springframework.http.converter.json.MappingJackson2HttpMessageConverter converter = new org.springframework.http.converter.json.MappingJackson2HttpMessageConverter();
+      infra.http.converter.json.MappingJackson2HttpMessageConverter converter = new infra.http.converter.json.MappingJackson2HttpMessageConverter();
       converter.setObjectMapper(objectMapper);
       return converter;
     }

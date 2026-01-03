@@ -70,7 +70,7 @@ import infra.web.util.UriTemplateHandler;
  * @author Scott Frederick
  * @author Yanming Zhou
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @since 4.0.0
+ * @since 4.0
  */
 public class RestTemplateBuilder {
 

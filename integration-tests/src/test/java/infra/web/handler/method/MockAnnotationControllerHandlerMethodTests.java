@@ -138,7 +138,6 @@ import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.bind.support.WebBindingInitializer;
-import infra.web.config.HttpMessageConverters;
 import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.handler.function.RouterFunction;
 import infra.web.handler.function.RouterFunctions;
@@ -1007,12 +1006,8 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   @Test
   void overlappingMessageConvertersRequestBody() throws Exception {
     initDispatcher(RequestResponseBodyController.class, wac -> {
-      List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
-      messageConverters.add(new StringHttpMessageConverter());
-      messageConverters.add(new SimpleMessageConverter(new MediaType("application", "json"), MediaType.ALL));
-
-      HttpMessageConverters converters = new HttpMessageConverters(messageConverters);
-      wac.registerSingleton("messageConverters", converters);
+      wac.registerSingleton(new StringHttpMessageConverter());
+      wac.registerSingleton(new SimpleMessageConverter(new MediaType("application", "json"), MediaType.ALL));
     });
 
     HttpMockRequestImpl request = new HttpMockRequestImpl("PUT", "/something");
