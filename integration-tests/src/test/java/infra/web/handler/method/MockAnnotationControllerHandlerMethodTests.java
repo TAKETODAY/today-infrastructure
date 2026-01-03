@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,7 +80,6 @@ import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageConverter;
-import infra.web.config.HttpMessageConverters;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.converter.HttpMessageNotWritableException;
 import infra.http.converter.StringHttpMessageConverter;
@@ -139,6 +138,7 @@ import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.bind.support.WebBindingInitializer;
+import infra.web.config.HttpMessageConverters;
 import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.handler.function.RouterFunction;
 import infra.web.handler.function.RouterFunctions;
@@ -897,8 +897,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     initDispatcher(RequestResponseBodyController.class, wac -> {
       StringHttpMessageConverter converter = new StringHttpMessageConverter();
       converter.setSupportedMediaTypes(Collections.singletonList(MediaType.TEXT_PLAIN));
-
-      wac.registerSingleton(new HttpMessageConverters(false, List.of(converter)));
+      wac.registerSingleton(converter);
     });
 
     HttpMockRequestImpl request = new HttpMockRequestImpl("PUT", "/something");
@@ -916,7 +915,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     initDispatcher(RequestResponseBodyController.class, wac -> {
       StringHttpMessageConverter converter = new StringHttpMessageConverter();
       converter.setSupportedMediaTypes(Collections.singletonList(MediaType.TEXT_PLAIN));
-      wac.registerSingleton(new HttpMessageConverters(false, List.of(converter)));
+      wac.registerSingleton(converter);
     });
 
     HttpMockRequestImpl request = new HttpMockRequestImpl("PATCH", "/something");
@@ -991,11 +990,8 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   @Test
   void httpEntityWithContentType() throws Exception {
     initDispatcher(ResponseEntityController.class, wac -> {
-      List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
-      messageConverters.add(new MappingJackson2HttpMessageConverter());
-      messageConverters.add(new Jaxb2RootElementHttpMessageConverter());
-      HttpMessageConverters converters = new HttpMessageConverters(messageConverters);
-      wac.registerSingleton("messageConverters", converters);
+      wac.registerSingleton(new MappingJackson2HttpMessageConverter());
+      wac.registerSingleton(new Jaxb2RootElementHttpMessageConverter());
     });
 
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/test-entity");

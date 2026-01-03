@@ -20,6 +20,7 @@ package infra.web.handler.method;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 import infra.beans.factory.config.BeanDefinition;
@@ -27,8 +28,11 @@ import infra.beans.factory.support.RootBeanDefinition;
 import infra.context.ApplicationContext;
 import infra.context.annotation.AnnotationConfigUtils;
 import infra.context.annotation.Configuration;
+import infra.http.converter.HttpMessageConverter;
+import infra.http.converter.HttpMessageConverters;
 import infra.mock.web.MockMockConfig;
 import infra.web.config.annotation.EnableWebMvc;
+import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.mock.MockDispatcher;
 import infra.web.mock.WebApplicationContext;
 import infra.web.mock.support.GenericWebApplicationContext;
@@ -135,7 +139,20 @@ public abstract class AbstractMockHandlerMethodTests {
 
   @EnableWebMvc
   @Configuration(proxyBeanMethods = false)
-  static class TestConfig {
+  static class TestConfig implements WebMvcConfigurer {
+    private final List<HttpMessageConverter<?>> converters;
+
+    TestConfig(List<HttpMessageConverter<?>> converters) {
+      this.converters = converters;
+    }
+
+    @Override
+    public void configureMessageConverters(HttpMessageConverters.ServerBuilder builder) {
+      if (!converters.isEmpty()) {
+        builder.unregisterDefaults();
+      }
+      builder.addCustomConverters(converters);
+    }
 
   }
 

@@ -106,6 +106,13 @@ public interface HttpMessageConverters extends Iterable<HttpMessageConverter<?>>
     T registerDefaults();
 
     /**
+     * un-register default converters
+     *
+     * @see #registerDefaults
+     */
+    T unregisterDefaults();
+
+    /**
      * Override the default String {@code HttpMessageConverter}
      * with any converter supporting String conversion.
      *

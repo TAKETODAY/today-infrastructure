@@ -327,6 +327,12 @@ class DefaultHttpMessageConverters implements HttpMessageConverters {
     }
 
     @Override
+    public ClientBuilder unregisterDefaults() {
+      this.registerDefaults = false;
+      return this;
+    }
+
+    @Override
     public ClientBuilder withStringConverter(HttpMessageConverter<?> stringConverter) {
       setStringConverter(stringConverter);
       return this;
@@ -417,6 +423,12 @@ class DefaultHttpMessageConverters implements HttpMessageConverters {
     @Override
     public ServerBuilder registerDefaults() {
       this.registerDefaults = true;
+      return this;
+    }
+
+    @Override
+    public ServerBuilder unregisterDefaults() {
+      this.registerDefaults = false;
       return this;
     }
 
