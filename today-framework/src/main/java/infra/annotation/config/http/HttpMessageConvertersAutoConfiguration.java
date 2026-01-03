@@ -73,7 +73,7 @@ import infra.stereotype.Component;
 @Import({ GsonHttpMessageConvertersConfiguration.class, JsonbHttpMessageConvertersConfiguration.class })
 public final class HttpMessageConvertersAutoConfiguration {
 
-  static final String PREFERRED_MAPPER_PROPERTY = "web.mvc.converters.preferred-json-mapper";
+  static final String PREFERRED_MAPPER_PROPERTY = "http.converters.preferred-json-mapper";
 
   @Order(0)
   @Component

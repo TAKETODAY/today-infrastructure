@@ -45,6 +45,7 @@ import infra.http.HttpOutputMessage;
 import infra.http.MediaType;
 import infra.http.converter.AbstractHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
+import infra.http.converter.HttpMessageConverters;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.converter.HttpMessageNotWritableException;
 import infra.http.converter.StringHttpMessageConverter;
@@ -53,7 +54,6 @@ import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.http.converter.json.JsonbHttpMessageConverter;
 import infra.http.converter.json.MappingJackson2HttpMessageConverter;
 import infra.http.converter.xml.JacksonXmlHttpMessageConverter;
-import infra.web.config.HttpMessageConverters;
 import jakarta.json.Json;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
@@ -204,7 +204,7 @@ class HttpMessageConvertersAutoConfigurationTests {
 
   @Test
   void gsonCanBePreferred() {
-    allOptionsRunner().withPropertyValues("spring.http.converters.preferred-json-mapper:gson").run((context) -> {
+    allOptionsRunner().withPropertyValues("http.converters.preferred-json-mapper:gson").run((context) -> {
       assertConverterIsRegistered(context, GsonHttpMessageConverter.class);
       assertConverterIsNotRegistered(context, JsonbHttpMessageConverter.class);
       assertConverterIsNotRegistered(context, JacksonJsonHttpMessageConverter.class);
@@ -235,43 +235,10 @@ class HttpMessageConvertersAutoConfigurationTests {
 
   @Test
   void jsonbCanBePreferred() {
-    allOptionsRunner().withPropertyValues("spring.http.converters.preferred-json-mapper:jsonb").run((context) -> {
+    allOptionsRunner().withPropertyValues("http.converters.preferred-json-mapper:jsonb").run((context) -> {
       assertConverterIsRegistered(context, JsonbHttpMessageConverter.class);
       assertConverterIsNotRegistered(context, GsonHttpMessageConverter.class);
       assertConverterIsNotRegistered(context, JacksonJsonHttpMessageConverter.class);
-    });
-  }
-
-  @Test
-  void kotlinSerializationNotAvailable() {
-    this.contextRunner.run((context) -> {
-      assertThat(context).doesNotHaveBean(Json.class);
-      assertThat(context).doesNotHaveBean(KotlinSerializationJsonConvertersCustomizer.class);
-    });
-  }
-
-  @Test
-  void kotlinSerializationCustomConverter() {
-    this.contextRunner.withUserConfiguration(KotlinSerializationConverterConfig.class)
-            .withBean(Json.class, () -> Json.Default)
-            .run((context) -> assertConverterIsRegistered(context, KotlinSerializationJsonHttpMessageConverter.class));
-  }
-
-  @Test
-  void kotlinSerializationOrderedAheadOfJsonConverter() {
-    allOptionsRunner().run((context) -> {
-      assertConverterIsRegistered(context, KotlinSerializationJsonHttpMessageConverter.class);
-      assertConvertersRegisteredWithHttpMessageConverters(context,
-              List.of(KotlinSerializationJsonHttpMessageConverter.class, JacksonJsonHttpMessageConverter.class));
-    });
-  }
-
-  @Test
-  void kotlinSerializationUsesLimitedPredicateWhenOtherJsonConverterIsAvailable() {
-    allOptionsRunner().run((context) -> {
-      KotlinSerializationJsonHttpMessageConverter converter = findConverter(getServerConverters(context),
-              KotlinSerializationJsonHttpMessageConverter.class);
-      assertThat(converter.canWrite(Map.class, MediaType.APPLICATION_JSON)).isFalse();
     });
   }
 
@@ -388,7 +355,7 @@ class HttpMessageConvertersAutoConfigurationTests {
   void whenEncodingCharsetIsConfiguredThenStringMessageConverterUsesSpecificCharset() {
     new WebApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(infra.annotation.config.http.HttpMessageConvertersAutoConfiguration.class))
-            .withPropertyValues("spring.http.converters.string-encoding-charset=UTF-16")
+            .withPropertyValues("http.converters.string-encoding-charset=UTF-16")
             .run((context) -> {
               StringHttpMessageConverter serverConverter = findConverter(getServerConverters(context),
                       StringHttpMessageConverter.class);
@@ -619,16 +586,6 @@ class HttpMessageConvertersAutoConfigurationTests {
       JsonbHttpMessageConverter converter = new JsonbHttpMessageConverter();
       converter.setJsonb(jsonb);
       return converter;
-    }
-
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  static class KotlinSerializationConverterConfig {
-
-    @Bean
-    KotlinSerializationJsonHttpMessageConverter customKotlinSerializationJsonHttpMessageConverter(Json json) {
-      return new KotlinSerializationJsonHttpMessageConverter(json);
     }
 
   }

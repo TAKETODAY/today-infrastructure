@@ -19,6 +19,7 @@ package infra.annotation.config.web.client;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,6 +27,7 @@ import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.app.test.context.runner.ReactiveWebApplicationContextRunner;
 import infra.app.test.context.runner.WebApplicationContextRunner;
+import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
@@ -33,7 +35,6 @@ import infra.http.HttpStatus;
 import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.HttpComponentsClientHttpRequestFactory;
 import infra.http.converter.HttpMessageConverter;
-import infra.web.config.HttpMessageConverters;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.mock.http.client.MockClientHttpRequest;
 import infra.mock.http.client.MockClientHttpResponse;
@@ -78,9 +79,10 @@ class RestTemplateAutoConfigurationTests {
             .withUserConfiguration(RestTemplateConfig.class).run((context) -> {
               assertThat(context).hasSingleBean(RestTemplate.class);
               RestTemplate restTemplate = context.getBean(RestTemplate.class);
-              List<HttpMessageConverter<?>> converters = context.getBean(HttpMessageConverters.class)
-                      .getConverters();
-              assertThat(restTemplate.getMessageConverters()).containsExactlyElementsOf(converters);
+              List<HttpMessageConverter> converters = new ArrayList<>();
+              ObjectProvider<HttpMessageConverter> messageConverters = context.getBeanProvider(HttpMessageConverter.class);
+              messageConverters.addOrderedTo(converters);
+              assertThat(restTemplate.getMessageConverters()).containsExactlyElementsOf((Iterable<? extends HttpMessageConverter<?>>) converters);
               assertThat(restTemplate.getRequestFactory())
                       .isInstanceOf(HttpComponentsClientHttpRequestFactory.class);
             });
