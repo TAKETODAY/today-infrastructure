@@ -468,7 +468,7 @@ public class AspectJExpressionPointcutTests {
 
   @Test
   void testAnnotationOnMethodArgumentsWithFQN() throws Exception {
-    String expression = "@args(*, test.annotation.EmptySpringAnnotation))";
+    String expression = "@args(*, test.annotation.EmptyInfraAnnotation))";
     AspectJExpressionPointcut takesSpringAnnotatedArgument2 = new AspectJExpressionPointcut();
     takesSpringAnnotatedArgument2.setExpression(expression);
 
