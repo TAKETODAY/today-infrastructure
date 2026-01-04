@@ -31,9 +31,12 @@ import infra.app.test.web.client.TestRestTemplate;
 import infra.app.test.web.server.LocalServerPort;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
+import infra.http.converter.HttpMessageConverters.ServerBuilder;
+import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.stereotype.Controller;
 import infra.test.annotation.DirtiesContext;
 import infra.web.annotation.RequestMapping;
+import infra.web.config.annotation.WebMvcConfigurer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -63,13 +66,18 @@ class RemappedErrorViewIntegrationTests {
           PropertyPlaceholderAutoConfiguration.class, WebMvcAutoConfiguration.class,
           HttpMessageConvertersAutoConfiguration.class, ErrorMvcAutoConfiguration.class })
   @Controller
-  static class TestConfiguration {
+  static class TestConfiguration implements WebMvcConfigurer {
 
     @RequestMapping("/")
     String home() {
       throw new RuntimeException("Planned!");
     }
 
+    @Override
+    public void configureMessageConverters(ServerBuilder builder) {
+      builder.unregisterDefaults()
+              .addCustomConverter(new JacksonJsonHttpMessageConverter());
+    }
   }
 
 }
