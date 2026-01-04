@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import infra.annotation.config.logging.ConditionEvaluationReportLoggingListener;
+import infra.app.logging.LogLevel;
 import infra.app.test.context.FilteredClassLoader;
 import infra.app.test.context.assertj.AssertableApplicationContext;
 import infra.app.test.context.runner.ApplicationContextRunner;
@@ -165,10 +166,9 @@ class HttpMessageConvertersAutoConfigurationTests {
   }
 
   @Test
-  @SuppressWarnings("removal")
   void jackson2ServerAndClientConvertersShouldBeDifferent() {
     this.contextRunner.withUserConfiguration(Jackson2ObjectMapperConfig.class)
-            .withInitializer(ConditionEvaluationReportLoggingListener.forLogLevel(LogLevel.INFO))
+            .withInitializer(ConditionEvaluationReportLoggingListener.forLoggingLevel(LogLevel.INFO))
             .run((context) -> {
               assertThat(context).hasSingleBean(
                       Jackson2HttpMessageConvertersConfiguration.Jackson2JsonMessageConvertersCustomizer.class);
