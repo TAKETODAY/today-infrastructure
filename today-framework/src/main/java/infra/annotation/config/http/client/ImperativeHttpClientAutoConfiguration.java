@@ -50,15 +50,14 @@ import infra.util.LambdaSafe;
 @DisableDIAutoConfiguration(after = HttpClientAutoConfiguration.class)
 @ConditionalOnClass(ClientHttpRequestFactory.class)
 @EnableConfigurationProperties(ImperativeHttpClientsProperties.class)
-public class ImperativeHttpClientAutoConfiguration {
+public final class ImperativeHttpClientAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean
   static ClientHttpRequestFactoryBuilder<?> clientHttpRequestFactoryBuilder(ResourceLoader resourceLoader,
           ImperativeHttpClientsProperties properties, Environment environment,
           List<ClientHttpRequestFactoryBuilderCustomizer<?>> clientHttpRequestFactoryBuilderCustomizers) {
-    ClientHttpRequestFactoryBuilder<?> builder = (properties.factory != null)
-            ? properties.factory.builder()
+    var builder = properties.factory != null ? properties.factory.builder()
             : ClientHttpRequestFactoryBuilder.detect(resourceLoader.getClassLoader());
 
     if (builder instanceof JdkClientHttpRequestFactoryBuilder jdk && Threading.VIRTUAL.isActive(environment)) {

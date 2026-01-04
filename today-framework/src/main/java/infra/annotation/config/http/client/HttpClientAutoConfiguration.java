@@ -37,7 +37,7 @@ import infra.stereotype.Component;
  */
 @DisableDIAutoConfiguration(after = SslAutoConfiguration.class)
 @EnableConfigurationProperties(HttpClientsProperties.class)
-public class HttpClientAutoConfiguration {
+public final class HttpClientAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean

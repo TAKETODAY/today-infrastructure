@@ -60,8 +60,7 @@ public final class RestTemplateBuilderConfigurer {
     this.clientSettings = clientSettings;
   }
 
-  void setHttpMessageConvertersCustomizers(
-          @Nullable List<ClientHttpMessageConvertersCustomizer> httpMessageConvertersCustomizers) {
+  void setHttpMessageConvertersCustomizers(@Nullable List<ClientHttpMessageConvertersCustomizer> httpMessageConvertersCustomizers) {
     this.httpMessageConvertersCustomizers = httpMessageConvertersCustomizers;
   }
 
@@ -69,8 +68,7 @@ public final class RestTemplateBuilderConfigurer {
     this.restTemplateCustomizers = restTemplateCustomizers;
   }
 
-  void setRestTemplateRequestCustomizers(
-          @Nullable List<RestTemplateRequestCustomizer<?>> restTemplateRequestCustomizers) {
+  void setRestTemplateRequestCustomizers(@Nullable List<RestTemplateRequestCustomizer<?>> restTemplateRequestCustomizers) {
     this.restTemplateRequestCustomizers = restTemplateRequestCustomizers;
   }
 
@@ -102,7 +100,7 @@ public final class RestTemplateBuilderConfigurer {
 
   private <T> RestTemplateBuilder addCustomizers(RestTemplateBuilder builder, @Nullable List<T> customizers,
           BiFunction<RestTemplateBuilder, Collection<T>, RestTemplateBuilder> method) {
-    if (!ObjectUtils.isEmpty(customizers)) {
+    if (ObjectUtils.isNotEmpty(customizers)) {
       return method.apply(builder, customizers);
     }
     return builder;

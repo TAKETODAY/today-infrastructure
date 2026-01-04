@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,8 +45,9 @@ public class BeanDefinitionOverrideException extends BeanDefinitionStoreExceptio
    * @param existingDefinition the existing bean definition for the same name
    */
   public BeanDefinitionOverrideException(String beanName, BeanDefinition beanDefinition, BeanDefinition existingDefinition) {
-    super((Throwable) null, beanName, "Cannot register bean definition [%s] for bean '%s' since there is already [%s] bound."
-            .formatted(beanDefinition, beanName, existingDefinition));
+    super(beanDefinition.getResourceDescription(), beanName,
+            "Cannot register bean definition [%s] for bean '%s' since there is already [%s] bound."
+                    .formatted(beanDefinition, beanName, existingDefinition));
     this.beanDefinition = beanDefinition;
     this.existingDefinition = existingDefinition;
   }
