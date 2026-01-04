@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ import infra.context.ApplicationContext;
 import infra.test.context.ContextConfiguration;
 import infra.test.context.TestContextManager;
 import infra.test.context.TestExecutionListeners;
-import infra.test.context.junit4.rules.ParameterizedSpringRuleTests;
+import infra.test.context.junit4.rules.ParameterizedInfraRuleTests;
 import infra.test.context.support.DependencyInjectionTestExecutionListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,7 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * <em>parameterized test instance</em>.
  *
  * @author Sam Brannen
- * @see ParameterizedSpringRuleTests
+ * @see ParameterizedInfraRuleTests
  * @since 4.0
  */
 @RunWith(Parameterized.class)

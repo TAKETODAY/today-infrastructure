@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import infra.test.context.ContextConfiguration;
 import infra.test.context.TestExecutionListeners;
-import infra.test.context.junit4.FailingBeforeAndAfterMethodsSpringRunnerTests;
+import infra.test.context.junit4.FailingBeforeAndAfterMethodsInfraRunnerTests;
 import infra.test.context.transaction.AfterTransaction;
 import infra.test.context.transaction.BeforeTransaction;
 import infra.transaction.annotation.Transactional;
@@ -36,14 +36,14 @@ import infra.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.fail;
 
 /**
- * This class is an extension of {@link FailingBeforeAndAfterMethodsSpringRunnerTests}
+ * This class is an extension of {@link FailingBeforeAndAfterMethodsInfraRunnerTests}
  * that has been modified to use {@link InfraClassRule} and
  * {@link InfraMethodRule}.
  *
  * @author Sam Brannen
  * @since 4.0
  */
-public class FailingBeforeAndAfterMethodsSpringRuleTests extends FailingBeforeAndAfterMethodsSpringRunnerTests {
+public class FailingBeforeAndAfterMethodsInfraRuleTests extends FailingBeforeAndAfterMethodsInfraRunnerTests {
 
   @Parameters(name = "{0}")
   public static Object[] testData() {
@@ -53,12 +53,12 @@ public class FailingBeforeAndAfterMethodsSpringRuleTests extends FailingBeforeAn
             AlwaysFailingPrepareTestInstanceInfraRuleTestCase.class.getSimpleName(),//
             AlwaysFailingBeforeTestMethodInfraRuleTestCase.class.getSimpleName(),//
             AlwaysFailingAfterTestMethodInfraRuleTestCase.class.getSimpleName(),//
-            FailingBeforeTransactionSpringRuleTestCase.class.getSimpleName(),//
-            FailingAfterTransactionSpringRuleTestCase.class.getSimpleName() //
+            FailingBeforeTransactionInfraRuleTestCase.class.getSimpleName(),//
+            FailingAfterTransactionInfraRuleTestCase.class.getSimpleName() //
     };
   }
 
-  public FailingBeforeAndAfterMethodsSpringRuleTests(String testClassName) throws Exception {
+  public FailingBeforeAndAfterMethodsInfraRuleTests(String testClassName) throws Exception {
     super(testClassName);
   }
 
@@ -112,7 +112,7 @@ public class FailingBeforeAndAfterMethodsSpringRuleTests extends FailingBeforeAn
   @RunWith(JUnit4.class)
   @ContextConfiguration("../FailingBeforeAndAfterMethodsTests-context.xml")
   @Transactional
-  public static class FailingBeforeTransactionSpringRuleTestCase {
+  public static class FailingBeforeTransactionInfraRuleTestCase {
 
     @ClassRule
     public static final InfraClassRule applicationClassRule = new InfraClassRule();
@@ -134,7 +134,7 @@ public class FailingBeforeAndAfterMethodsSpringRuleTests extends FailingBeforeAn
   @RunWith(JUnit4.class)
   @ContextConfiguration("../FailingBeforeAndAfterMethodsTests-context.xml")
   @Transactional
-  public static class FailingAfterTransactionSpringRuleTestCase {
+  public static class FailingAfterTransactionInfraRuleTestCase {
 
     @ClassRule
     public static final InfraClassRule applicationClassRule = new InfraClassRule();

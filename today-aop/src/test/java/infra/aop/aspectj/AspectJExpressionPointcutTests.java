@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ import infra.beans.testfixture.beans.IOther;
 import infra.beans.testfixture.beans.ITestBean;
 import infra.beans.testfixture.beans.TestBean;
 import infra.beans.testfixture.beans.subpkg.DeepBean;
-import test.annotation.EmptySpringAnnotation;
+import test.annotation.EmptyInfraAnnotation;
 import test.annotation.transaction.Tx;
 
 import static infra.aop.InterceptorChainFactory.EMPTY_INTERCEPTOR;
@@ -363,11 +363,11 @@ public class AspectJExpressionPointcutTests {
     String expression = "within(@(test.annotation..*) *)";
     AspectJExpressionPointcut springAnnotatedPc = testMatchAnnotationOnClass(expression);
     assertThat(springAnnotatedPc.matches(TestBean.class.getMethod("setName", String.class), TestBean.class)).isFalse();
-    assertThat(springAnnotatedPc.matches(SpringAnnotated.class.getMethod("foo"), SpringAnnotated.class)).isTrue();
+    assertThat(springAnnotatedPc.matches(InfraAnnotated.class.getMethod("foo"), InfraAnnotated.class)).isTrue();
 
     expression = "within(@(test.annotation.transaction..*) *)";
     AspectJExpressionPointcut springTxAnnotatedPc = testMatchAnnotationOnClass(expression);
-    assertThat(springTxAnnotatedPc.matches(SpringAnnotated.class.getMethod("foo"), SpringAnnotated.class)).isFalse();
+    assertThat(springTxAnnotatedPc.matches(InfraAnnotated.class.getMethod("foo"), InfraAnnotated.class)).isFalse();
   }
 
   @Test
@@ -482,17 +482,17 @@ public class AspectJExpressionPointcutTests {
     assertThat(takesSpringAnnotatedArgument2.matches(BeanA.class.getMethod("setName", String.class), BeanA.class)).isFalse();
 
     assertThat(takesSpringAnnotatedArgument2.matches(
-            ProcessesSpringAnnotatedParameters.class.getMethod("takesAnnotatedParameters", TestBean.class, SpringAnnotated.class),
-            ProcessesSpringAnnotatedParameters.class)).isTrue();
+            ProcessesInfraAnnotatedParameters.class.getMethod("takesAnnotatedParameters", TestBean.class, InfraAnnotated.class),
+            ProcessesInfraAnnotatedParameters.class)).isTrue();
 
     // True because it maybeMatches with potential argument subtypes
     assertThat(takesSpringAnnotatedArgument2.matches(
-            ProcessesSpringAnnotatedParameters.class.getMethod("takesNoAnnotatedParameters", TestBean.class, BeanA.class),
-            ProcessesSpringAnnotatedParameters.class)).isTrue();
+            ProcessesInfraAnnotatedParameters.class.getMethod("takesNoAnnotatedParameters", TestBean.class, BeanA.class),
+            ProcessesInfraAnnotatedParameters.class)).isTrue();
 
-    Method method = ProcessesSpringAnnotatedParameters.class.getMethod("takesNoAnnotatedParameters", TestBean.class, BeanA.class);
+    Method method = ProcessesInfraAnnotatedParameters.class.getMethod("takesNoAnnotatedParameters", TestBean.class, BeanA.class);
     DefaultMethodInvocation invocation = new DefaultMethodInvocation(null, new TestBean(),
-            method, ProcessesSpringAnnotatedParameters.class,
+            method, ProcessesInfraAnnotatedParameters.class,
             new Object[] { new TestBean(), new BeanA() }, EMPTY_INTERCEPTOR);
 
     assertThat(takesSpringAnnotatedArgument2.matches(invocation)).isFalse();
@@ -515,11 +515,11 @@ public class AspectJExpressionPointcutTests {
     assertThat(takesSpringAnnotatedArgument2.matches(BeanA.class.getMethod("setName", String.class), BeanA.class)).isFalse();
 
     assertThat(takesSpringAnnotatedArgument2.matches(
-            ProcessesSpringAnnotatedParameters.class.getMethod("takesAnnotatedParameters", TestBean.class, SpringAnnotated.class),
-            ProcessesSpringAnnotatedParameters.class)).isTrue();
+            ProcessesInfraAnnotatedParameters.class.getMethod("takesAnnotatedParameters", TestBean.class, InfraAnnotated.class),
+            ProcessesInfraAnnotatedParameters.class)).isTrue();
     assertThat(takesSpringAnnotatedArgument2.matches(
-            ProcessesSpringAnnotatedParameters.class.getMethod("takesNoAnnotatedParameters", TestBean.class, BeanA.class),
-            ProcessesSpringAnnotatedParameters.class)).isFalse();
+            ProcessesInfraAnnotatedParameters.class.getMethod("takesNoAnnotatedParameters", TestBean.class, BeanA.class),
+            ProcessesInfraAnnotatedParameters.class)).isFalse();
   }
 
   public static class OtherIOther implements IOther {
@@ -545,9 +545,9 @@ public class AspectJExpressionPointcutTests {
     }
   }
 
-  public static class ProcessesSpringAnnotatedParameters {
+  public static class ProcessesInfraAnnotatedParameters {
 
-    public void takesAnnotatedParameters(TestBean tb, SpringAnnotated sa) {
+    public void takesAnnotatedParameters(TestBean tb, InfraAnnotated sa) {
     }
 
     public void takesNoAnnotatedParameters(TestBean tb, BeanA tb3) {
@@ -565,8 +565,8 @@ public class AspectJExpressionPointcutTests {
     }
   }
 
-  @EmptySpringAnnotation
-  public static class SpringAnnotated {
+  @EmptyInfraAnnotation
+  public static class InfraAnnotated {
 
     public void foo() {
     }

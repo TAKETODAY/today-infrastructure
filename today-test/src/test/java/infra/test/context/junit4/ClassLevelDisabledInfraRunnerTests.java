@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,12 +33,12 @@ import static org.assertj.core.api.Assertions.fail;
  * @author Sam Brannen
  */
 @RunWith(InfraRunner.class)
-@TestExecutionListeners(ClassLevelDisabledSpringRunnerTests.CustomTestExecutionListener.class)
+@TestExecutionListeners(ClassLevelDisabledInfraRunnerTests.CustomTestExecutionListener.class)
 @IfProfileValue(name = "ClassLevelDisabledSpringRunnerTests.profile_value.name", value = "enigmaX")
 // Since Infra test's AOT processing support does not evaluate @IfProfileValue,
 // this test class simply is not supported for AOT processing.
 @DisabledInAotMode
-public class ClassLevelDisabledSpringRunnerTests {
+public class ClassLevelDisabledInfraRunnerTests {
 
   @Test
   public void testIfProfileValueDisabled() {

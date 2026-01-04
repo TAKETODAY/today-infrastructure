@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,11 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration.StringHttpMessageConvertersCustomizer;
 import infra.annotation.config.http.JacksonHttpMessageConvertersConfiguration.JacksonJsonHttpMessageConvertersCustomizer;
 import infra.annotation.config.http.JacksonHttpMessageConvertersConfiguration.JacksonXmlHttpMessageConvertersCustomizer;
-import infra.annotation.config.logging.ConditionEvaluationReportLoggingListener;
-import infra.app.logging.LogLevel;
 import infra.app.test.context.FilteredClassLoader;
 import infra.app.test.context.assertj.AssertableApplicationContext;
 import infra.app.test.context.runner.ApplicationContextRunner;
@@ -56,7 +53,6 @@ import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.GsonHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.http.converter.json.JsonbHttpMessageConverter;
-import infra.http.converter.json.MappingJackson2HttpMessageConverter;
 import infra.http.converter.xml.JacksonXmlHttpMessageConverter;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
@@ -241,18 +237,6 @@ class HttpMessageConvertersAutoConfigurationTests {
   }
 
   @Test
-  void jackson2IsPreferredIfJacksonIsNotAvailable() {
-    allOptionsRunner().withClassLoader(new FilteredClassLoader(JsonMapper.class.getPackage().getName()))
-            .withInitializer(ConditionEvaluationReportLoggingListener.forLoggingLevel(LogLevel.INFO))
-            .run((context) -> {
-              assertConverterIsRegistered(context,
-                      MappingJackson2HttpMessageConverter.class);
-              assertConverterIsNotRegistered(context, GsonHttpMessageConverter.class);
-              assertConverterIsNotRegistered(context, JsonbHttpMessageConverter.class);
-            });
-  }
-
-  @Test
   void gsonIsPreferredIfJacksonAndJackson2AreNotAvailable() {
     allOptionsRunner()
             .withClassLoader(new FilteredClassLoader(JsonMapper.class.getPackage().getName(),
@@ -311,8 +295,8 @@ class HttpMessageConvertersAutoConfigurationTests {
   }
 
   @Test
-  void defaultServerConvertersCustomizerHasOrderZero() {
-    defaultConvertersCustomizerHasOrderZero(StringHttpMessageConvertersCustomizer.class);
+  void defaultConvertersCustomizerHasOrderZero() {
+    defaultConvertersCustomizerHasOrderZero(DefaultHttpMessageConvertersCustomizer.class);
   }
 
   private <T> void defaultConvertersCustomizerHasOrderZero(Class<T> customizerType) {

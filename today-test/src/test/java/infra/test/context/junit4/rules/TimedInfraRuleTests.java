@@ -42,7 +42,7 @@ public class TimedInfraRuleTests extends TimedInfraRunnerTests {
 
   @Override
   protected Class<?> getTestCase() {
-    return TimedSpringRuleTestCase.class;
+    return TimedInfraRuleTestCase.class;
   }
 
   @Override
@@ -52,7 +52,7 @@ public class TimedInfraRuleTests extends TimedInfraRunnerTests {
 
   @Ignore("TestCase classes are run manually by the enclosing test class")
   @TestExecutionListeners({})
-  public static final class TimedSpringRuleTestCase extends TimedInfraRunnerTestCase {
+  public static final class TimedInfraRuleTestCase extends TimedInfraRunnerTestCase {
 
     @ClassRule
     public static final InfraClassRule applicationClassRule = new InfraClassRule();

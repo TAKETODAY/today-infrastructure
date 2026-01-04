@@ -18,17 +18,17 @@
 package infra.annotation.config.web.client;
 
 import infra.annotation.config.http.ClientHttpMessageConvertersCustomizer;
-import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
+import infra.annotation.config.http.client.HttpClientAutoConfiguration;
 import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.Conditional;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
-import infra.stereotype.Component;
-import infra.web.client.RestTemplate;
 import infra.http.client.config.ClientHttpRequestFactoryBuilder;
 import infra.http.client.config.HttpClientSettings;
+import infra.stereotype.Component;
+import infra.web.client.RestTemplate;
 import infra.web.client.config.RestTemplateBuilder;
 import infra.web.client.config.RestTemplateCustomizer;
 import infra.web.client.config.RestTemplateRequestCustomizer;
@@ -39,7 +39,7 @@ import infra.web.client.config.RestTemplateRequestCustomizer;
  */
 @Lazy
 @ConditionalOnClass(RestTemplate.class)
-@DisableDIAutoConfiguration(after = HttpMessageConvertersAutoConfiguration.class)
+@DisableDIAutoConfiguration(after = HttpClientAutoConfiguration.class)
 @Conditional(NotReactiveWebApplicationCondition.class)
 public class RestTemplateAutoConfiguration {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,10 +22,10 @@ import org.junit.Rule;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import infra.test.context.junit4.ClassLevelDisabledSpringRunnerTests;
+import infra.test.context.web.BasicAnnotationConfigWacTests;
 
 /**
- * This class is an extension of {@link ClassLevelDisabledSpringRunnerTests}
+ * This class is an extension of {@link BasicAnnotationConfigWacTests}
  * that has been modified to use {@link InfraClassRule} and
  * {@link InfraMethodRule}.
  *
@@ -33,14 +33,14 @@ import infra.test.context.junit4.ClassLevelDisabledSpringRunnerTests;
  * @since 4.0
  */
 @RunWith(JUnit4.class)
-public class ClassLevelDisabledSpringRuleTests extends ClassLevelDisabledSpringRunnerTests {
+public class BasicAnnotationConfigWacRuleTests extends BasicAnnotationConfigWacTests {
+
+  // All tests are in superclass.
 
   @ClassRule
   public static final InfraClassRule applicationClassRule = new InfraClassRule();
 
   @Rule
   public final InfraMethodRule infraMethodRule = new InfraMethodRule();
-
-  // All tests are in superclass.
 
 }

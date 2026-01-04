@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ import infra.test.context.junit4.JUnitTestingUtils;
 import infra.test.context.junit4.MethodLevelTransactionalInfraRunnerTests;
 import infra.test.context.junit4.TimedTransactionalRunnerTests;
 import infra.test.context.junit4.rules.BaseAppCtxRuleTests;
-import infra.test.context.junit4.rules.BasicAnnotationConfigWacSpringRuleTests;
+import infra.test.context.junit4.rules.BasicAnnotationConfigWacRuleTests;
 import infra.test.context.junit4.rules.InfraClassRule;
 import infra.test.context.junit4.rules.InfraMethodRule;
 import infra.util.ReflectionUtils;
@@ -78,7 +78,7 @@ public class JUnit4ConcurrencyTests {
           MethodLevelTransactionalInfraRunnerTests.class,
           TimedTransactionalRunnerTests.class,
           // Web and Scopes
-          BasicAnnotationConfigWacSpringRuleTests.class,
+          BasicAnnotationConfigWacRuleTests.class,
           // Web MVC Test
   };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,7 +60,7 @@ class GsonHttpMessageConvertersConfiguration {
     @Bean
     @Order(0)
     @ConditionalOnMissingBean(GsonHttpMessageConverter.class)
-    GsonHttpConvertersCustomizer gsonHttpMessageConvertersCustomizer(Gson gson) {
+    static GsonHttpConvertersCustomizer gsonHttpMessageConvertersCustomizer(Gson gson) {
       return new GsonHttpConvertersCustomizer(gson);
     }
 

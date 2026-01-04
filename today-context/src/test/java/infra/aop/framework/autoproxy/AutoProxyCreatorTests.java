@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -225,7 +225,7 @@ public class AutoProxyCreatorTests {
     sac.registerSingleton("containerCallbackInterfacesOnly", ContainerCallbackInterfacesOnly.class);
     sac.registerSingleton("singletonNoInterceptor", CustomProxyFactoryBean.class);
     sac.registerSingleton("singletonToBeProxied", CustomProxyFactoryBean.class);
-    sac.registerPrototype("prototypeToBeProxied", SpringProxyFactoryBean.class);
+    sac.registerPrototype("prototypeToBeProxied", InfraProxyFactoryBean.class);
 
     sac.refresh();
 
@@ -498,7 +498,7 @@ public class AutoProxyCreatorTests {
     }
   }
 
-  public static class SpringProxyFactoryBean implements FactoryBean<ITestBean> {
+  public static class InfraProxyFactoryBean implements FactoryBean<ITestBean> {
 
     private final TestBean tb = new TestBean();
 

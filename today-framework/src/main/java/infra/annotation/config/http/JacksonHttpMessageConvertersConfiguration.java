@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ import infra.http.converter.HttpMessageConverters.ClientBuilder;
 import infra.http.converter.HttpMessageConverters.ServerBuilder;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.http.converter.xml.JacksonXmlHttpMessageConverter;
+import infra.stereotype.Component;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.dataformat.xml.XmlMapper;
 
@@ -50,10 +51,8 @@ class JacksonHttpMessageConvertersConfiguration {
 
     @Bean
     @Order(0)
-    @ConditionalOnMissingBean(value = JacksonJsonHttpMessageConverter.class,
-            ignoredType = { "org.springframework.hateoas.server.mvc.TypeConstrainedJacksonJsonHttpMessageConverter",
-                    "org.springframework.data.rest.webmvc.alps.AlpsJacksonJsonHttpMessageConverter" })
-    JacksonJsonHttpMessageConvertersCustomizer jacksonJsonHttpMessageConvertersCustomizer(JsonMapper jsonMapper) {
+    @ConditionalOnMissingBean(JacksonJsonHttpMessageConverter.class)
+    static JacksonJsonHttpMessageConvertersCustomizer jacksonJsonHttpMessageConvertersCustomizer(JsonMapper jsonMapper) {
       return new JacksonJsonHttpMessageConvertersCustomizer(jsonMapper);
     }
 
@@ -64,10 +63,10 @@ class JacksonHttpMessageConvertersConfiguration {
   @ConditionalOnBean(XmlMapper.class)
   protected static class JacksonXmlHttpMessageConverterConfiguration {
 
-    @Bean
+    @Component
     @Order(0)
     @ConditionalOnMissingBean(JacksonXmlHttpMessageConverter.class)
-    JacksonXmlHttpMessageConvertersCustomizer jacksonXmlHttpMessageConvertersCustomizer(XmlMapper xmlMapper) {
+    static JacksonXmlHttpMessageConvertersCustomizer jacksonXmlHttpMessageConvertersCustomizer(XmlMapper xmlMapper) {
       return new JacksonXmlHttpMessageConvertersCustomizer(xmlMapper);
     }
 

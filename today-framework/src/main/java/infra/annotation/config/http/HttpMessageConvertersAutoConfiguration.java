@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,8 @@ import infra.http.converter.HttpMessageConverters.ServerBuilder;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.stereotype.Component;
 
+import static infra.annotation.config.http.HttpMessageConvertersAutoConfiguration.NotReactiveWebApplicationCondition;
+
 /**
  * Auto-configuration for {@link HttpMessageConverter}s.
  *
@@ -59,9 +61,10 @@ import infra.stereotype.Component;
         JsonbAutoConfiguration.class
 })
 @ConditionalOnClass(HttpMessageConverter.class)
+@Conditional(NotReactiveWebApplicationCondition.class)
 @EnableConfigurationProperties(HttpMessageConvertersProperties.class)
-@Conditional(HttpMessageConvertersAutoConfiguration.NotReactiveWebApplicationCondition.class)
-@Import({ GsonHttpMessageConvertersConfiguration.class, JsonbHttpMessageConvertersConfiguration.class })
+@Import({ JacksonHttpMessageConvertersConfiguration.class,
+        GsonHttpMessageConvertersConfiguration.class, JsonbHttpMessageConvertersConfiguration.class })
 public final class HttpMessageConvertersAutoConfiguration {
 
   static final String PREFERRED_MAPPER_PROPERTY = "http.converters.preferred-json-mapper";

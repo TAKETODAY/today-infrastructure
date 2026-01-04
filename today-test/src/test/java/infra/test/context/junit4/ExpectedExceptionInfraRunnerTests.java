@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,12 +38,12 @@ public class ExpectedExceptionInfraRunnerTests {
 
   @Test
   public void expectedExceptions() throws Exception {
-    JUnitTestingUtils.runTestsAndAssertCounters(InfraRunner.class, ExpectedExceptionSpringRunnerTestCase.class, 1, 0, 1, 0, 0);
+    JUnitTestingUtils.runTestsAndAssertCounters(InfraRunner.class, ExpectedExceptionInfraRunnerTestCase.class, 1, 0, 1, 0, 0);
   }
 
   @Ignore("TestCase classes are run manually by the enclosing test class")
   @TestExecutionListeners({})
-  public static final class ExpectedExceptionSpringRunnerTestCase {
+  public static final class ExpectedExceptionInfraRunnerTestCase {
 
     // Should Pass.
     @Test(expected = IndexOutOfBoundsException.class)

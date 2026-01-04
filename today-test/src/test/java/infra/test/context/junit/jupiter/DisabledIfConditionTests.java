@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -109,7 +109,7 @@ class DisabledIfConditionTests {
   // -------------------------------------------------------------------------
 
   private ExtensionContext buildExtensionContext(String methodName) {
-    Class<?> testClass = SpringTestCase.class;
+    Class<?> testClass = InfraTestCase.class;
     Method method = ReflectionUtils.findMethod(getClass(), methodName);
     Store store = mock(Store.class);
     given(store.getOrComputeIfAbsent(any(), any(), any())).willReturn(new TestContextManager(testClass));
@@ -157,7 +157,7 @@ class DisabledIfConditionTests {
   private void neverDisabledWithDefaultReason() {
   }
 
-  private static class SpringTestCase {
+  private static class InfraTestCase {
 
     @Configuration
     static class Config {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,9 +38,9 @@ public class AspectAndAdvicePrecedenceTests {
 
   private PrecedenceTestAspect lowPrecedenceAspect;
 
-  private SimpleSpringBeforeAdvice highPrecedenceSpringAdvice;
+  private SimpleInfraBeforeAdvice highPrecedenceAdvice;
 
-  private SimpleSpringBeforeAdvice lowPrecedenceSpringAdvice;
+  private SimpleInfraBeforeAdvice lowPrecedenceAdvice;
 
   private ITestBean testBean;
 
@@ -50,8 +50,8 @@ public class AspectAndAdvicePrecedenceTests {
             new ClassPathXmlApplicationContext(getClass().getSimpleName() + ".xml", getClass());
     highPrecedenceAspect = (PrecedenceTestAspect) ctx.getBean("highPrecedenceAspect");
     lowPrecedenceAspect = (PrecedenceTestAspect) ctx.getBean("lowPrecedenceAspect");
-    highPrecedenceSpringAdvice = (SimpleSpringBeforeAdvice) ctx.getBean("highPrecedenceSpringAdvice");
-    lowPrecedenceSpringAdvice = (SimpleSpringBeforeAdvice) ctx.getBean("lowPrecedenceSpringAdvice");
+    highPrecedenceAdvice = (SimpleInfraBeforeAdvice) ctx.getBean("highPrecedenceAdvice");
+    lowPrecedenceAdvice = (SimpleInfraBeforeAdvice) ctx.getBean("lowPrecedenceSpringAdvice");
     testBean = (ITestBean) ctx.getBean("testBean");
   }
 
@@ -60,8 +60,8 @@ public class AspectAndAdvicePrecedenceTests {
     PrecedenceTestAspect.Collaborator collaborator = new PrecedenceVerifyingCollaborator();
     this.highPrecedenceAspect.setCollaborator(collaborator);
     this.lowPrecedenceAspect.setCollaborator(collaborator);
-    this.highPrecedenceSpringAdvice.setCollaborator(collaborator);
-    this.lowPrecedenceSpringAdvice.setCollaborator(collaborator);
+    this.highPrecedenceAdvice.setCollaborator(collaborator);
+    this.lowPrecedenceAdvice.setCollaborator(collaborator);
     this.testBean.getAge();
   }
 
@@ -223,7 +223,7 @@ class PrecedenceTestAspect implements BeanNameAware, Ordered {
 
 }
 
-class SimpleSpringBeforeAdvice implements MethodBeforeAdvice, BeanNameAware {
+class SimpleInfraBeforeAdvice implements MethodBeforeAdvice, BeanNameAware {
 
   private PrecedenceTestAspect.Collaborator collaborator;
   private String name;

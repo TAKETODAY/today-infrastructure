@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,7 +63,7 @@ class ComposedInfraExtensionTests {
 
   @Test
   @DisplayName("@Beans injected into fields")
-  void springBeansInjected() {
+  void infraBeansInjected() {
     assertThat(dilbert).as("Person should have been @Autowired by Spring").isNotNull();
     assertThat(dilbert.getName()).as("Person's name").isEqualTo("Dilbert");
     assertThat(people).as("Number of Person objects in context").hasSize(2);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,14 +38,10 @@ import infra.expression.spel.support.StandardEvaluationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-///CLOVER:OFF
-
 /**
- * Spring Security scenarios from https://wiki.springsource.com/display/SECURITY/Spring+Security+Expression-based+Authorization
- *
  * @author Andy Clement
  */
-public class ScenariosForSpringSecurityExpressionTests extends AbstractExpressionTests {
+public class ScenariosForInfraSecurityExpressionTests extends AbstractExpressionTests {
 
   @Test
   public void testScenario01_Roles() throws Exception {

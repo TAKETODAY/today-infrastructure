@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -98,14 +98,14 @@ class NoneNestedConditionsTests {
 
     }
 
-    @Conditional(NonSpringBootCondition.class)
+    @Conditional(NonInfraCondition.class)
     static class SubClassC {
 
     }
 
   }
 
-  static class NonSpringBootCondition implements Condition {
+  static class NonInfraCondition implements Condition {
 
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {

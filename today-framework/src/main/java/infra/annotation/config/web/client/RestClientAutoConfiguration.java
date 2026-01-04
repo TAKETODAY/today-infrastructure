@@ -20,9 +20,10 @@ package infra.annotation.config.web.client;
 import java.util.List;
 
 import infra.annotation.config.http.ClientHttpMessageConvertersCustomizer;
-import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
+import infra.annotation.config.http.client.ImperativeHttpClientAutoConfiguration;
+import infra.annotation.config.ssl.SslAutoConfiguration;
+import infra.annotation.config.task.TaskExecutionAutoConfiguration;
 import infra.beans.factory.ObjectProvider;
-import infra.context.annotation.Conditional;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
@@ -33,11 +34,11 @@ import infra.core.Ordered;
 import infra.core.annotation.Order;
 import infra.core.io.ResourceLoader;
 import infra.core.ssl.SslBundles;
+import infra.http.client.config.ClientHttpRequestFactoryBuilder;
+import infra.http.client.config.HttpClientSettings;
 import infra.stereotype.Component;
 import infra.stereotype.Prototype;
 import infra.web.client.RestClient;
-import infra.http.client.config.ClientHttpRequestFactoryBuilder;
-import infra.http.client.config.HttpClientSettings;
 import infra.web.client.config.RestClientCustomizer;
 
 /**
@@ -52,10 +53,13 @@ import infra.web.client.config.RestClientCustomizer;
  * @since 4.0
  */
 @Lazy
-@DisableDIAutoConfiguration(after = HttpMessageConvertersAutoConfiguration.class)
+@DisableDIAutoConfiguration(after = {
+        SslAutoConfiguration.class,
+        ImperativeHttpClientAutoConfiguration.class,
+        TaskExecutionAutoConfiguration.class
+})
 @ConditionalOnClass(RestClient.class)
-@Conditional(NotReactiveWebApplicationCondition.class)
-public class RestClientAutoConfiguration {
+public final class RestClientAutoConfiguration {
 
   @Component
   @ConditionalOnBean(SslBundles.class)
@@ -88,9 +92,8 @@ public class RestClientAutoConfiguration {
   @Component
   @ConditionalOnBean(ClientHttpMessageConvertersCustomizer.class)
   @Order(Ordered.LOWEST_PRECEDENCE)
-  static HttpMessageConvertersRestClientCustomizer httpMessageConvertersRestClientCustomizer(
-          List<ClientHttpMessageConvertersCustomizer> customizerProvider) {
-    return new HttpMessageConvertersRestClientCustomizer(customizerProvider);
+  static HttpMessageConvertersRestClientCustomizer httpMessageConvertersRestClientCustomizer(List<ClientHttpMessageConvertersCustomizer> customizers) {
+    return new HttpMessageConvertersRestClientCustomizer(customizers);
   }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 
 import infra.aot.generate.InMemoryGeneratedFiles;
 import infra.aot.hint.RuntimeHints;
-import infra.test.context.aot.samples.hints.DeclarativeRuntimeHintsSpringJupiterTests;
+import infra.test.context.aot.samples.hints.DeclarativeRuntimeHintsJupiterTests;
 
 import static infra.aot.hint.predicate.RuntimeHintsPredicates.reflection;
 import static infra.aot.hint.predicate.RuntimeHintsPredicates.resource;
@@ -45,7 +45,7 @@ class DeclarativeRuntimeHintsTests extends AbstractAotTests {
 
   @Test
   void declarativeRuntimeHints() {
-    Class<?> testClass = DeclarativeRuntimeHintsSpringJupiterTests.class;
+    Class<?> testClass = DeclarativeRuntimeHintsJupiterTests.class;
 
     this.generator.processAheadOfTime(Stream.of(testClass));
 
@@ -53,9 +53,9 @@ class DeclarativeRuntimeHintsTests extends AbstractAotTests {
     assertReflectionRegistered(testClass);
 
     // @RegisterReflectionForBinding
-    assertReflectionRegistered(DeclarativeRuntimeHintsSpringJupiterTests.SampleClassWithGetter.class);
+    assertReflectionRegistered(DeclarativeRuntimeHintsJupiterTests.SampleClassWithGetter.class);
     assertReflectionRegistered(String.class);
-    assertThat(reflection().onMethodInvocation(DeclarativeRuntimeHintsSpringJupiterTests.SampleClassWithGetter.class, "getName")).accepts(this.runtimeHints);
+    assertThat(reflection().onMethodInvocation(DeclarativeRuntimeHintsJupiterTests.SampleClassWithGetter.class, "getName")).accepts(this.runtimeHints);
 
     // @ImportRuntimeHints
     assertThat(resource().forResource("org/example/config/enigma.txt")).accepts(this.runtimeHints);
