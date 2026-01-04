@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@ class FilteredIterableConfigurationPropertiesSourceTests extends FilteredConfigu
   }
 
   @Test
-  void iteratorWhenSpringPropertySourceFiltersNames() {
+  void iteratorWhenInfraPropertySourceFiltersNames() {
     IterableConfigurationPropertySource testSource = (IterableConfigurationPropertySource) createTestSource();
     Map<String, Object> map = new LinkedHashMap<>();
     for (ConfigurationPropertyName name : testSource) {
@@ -76,7 +76,7 @@ class FilteredIterableConfigurationPropertiesSourceTests extends FilteredConfigu
   }
 
   @Test
-  void iteratorWhenSpringPropertySourceAndAnotherFilterFiltersNames() {
+  void iteratorWhenInfraPropertySourceAndAnotherFilterFiltersNames() {
     IterableConfigurationPropertySource testSource = (IterableConfigurationPropertySource) createTestSource();
     Map<String, Object> map = new LinkedHashMap<>();
     for (ConfigurationPropertyName name : testSource) {
@@ -94,7 +94,7 @@ class FilteredIterableConfigurationPropertiesSourceTests extends FilteredConfigu
   }
 
   @Test
-  void containsDescendantOfWhenSpringPropertySourceUsesContents() {
+  void containsDescendantOfWhenInfraPropertySourceUsesContents() {
     Map<String, Object> map = new LinkedHashMap<>();
     map.put("foo.bar.baz", "1");
     map.put("foo.bar[0]", "1");

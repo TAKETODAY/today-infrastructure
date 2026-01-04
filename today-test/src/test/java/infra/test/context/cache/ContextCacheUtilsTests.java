@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,13 +55,13 @@ class ContextCacheUtilsTests {
   }
 
   @Test
-  void retrieveMaxCacheSizeFromBogusSpringProperty() {
+  void retrieveMaxCacheSizeFromBogusInfraProperty() {
     TodayStrategies.setProperty(MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME, "bogus");
     assertDefaultValue();
   }
 
   @Test
-  void retrieveMaxCacheSizeFromDecimalSpringProperty() {
+  void retrieveMaxCacheSizeFromDecimalInfraProperty() {
     TodayStrategies.setProperty(MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME, "3.14");
     assertDefaultValue();
   }
@@ -79,7 +79,7 @@ class ContextCacheUtilsTests {
   }
 
   @Test
-  void retrieveMaxCacheSizeFromSpringProperty() {
+  void retrieveMaxCacheSizeFromInfraProperty() {
     TodayStrategies.setProperty(MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME, "99");
     assertThat(retrieveMaxCacheSize()).isEqualTo(99);
   }

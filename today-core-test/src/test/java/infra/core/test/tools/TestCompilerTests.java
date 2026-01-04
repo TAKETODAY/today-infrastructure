@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,7 +69,7 @@ class TestCompilerTests {
           }
           """;
 
-  private static final String HELLO_SPRING = """
+  private static final String HELLO_INFRA = """
           package com.example;
           
           import java.util.function.Supplier;
@@ -119,7 +119,7 @@ class TestCompilerTests {
                       "com.example.Hello");
               assertThat(supplier.get()).isEqualTo("Hello World!");
             });
-    TestCompiler.forSystem().withSources(SourceFile.of(HELLO_SPRING)).compile(
+    TestCompiler.forSystem().withSources(SourceFile.of(HELLO_INFRA)).compile(
             compiled -> {
               Supplier<String> supplier = compiled.getInstance(Supplier.class,
                       "com.example.Hello");
@@ -129,7 +129,7 @@ class TestCompilerTests {
 
   @Test
   void compileAndGetSourceFile() {
-    TestCompiler.forSystem().withSources(SourceFile.of(HELLO_SPRING)).compile(
+    TestCompiler.forSystem().withSources(SourceFile.of(HELLO_INFRA)).compile(
             compiled -> assertThat(compiled.getSourceFile()).contains("// !!"));
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -123,7 +123,7 @@ public class ValidatorFactoryTests {
   }
 
   @Test
-  public void testSpringValidationFieldType() {
+  public void testInfraValidationFieldType() {
     LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
     validator.afterPropertiesSet();
 
@@ -139,7 +139,7 @@ public class ValidatorFactoryTests {
   }
 
   @Test
-  public void testSpringValidation() {
+  public void testInfraValidation() {
     LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
     validator.afterPropertiesSet();
 
@@ -167,7 +167,7 @@ public class ValidatorFactoryTests {
   }
 
   @Test
-  public void testSpringValidationWithClassLevel() {
+  public void testInfraValidationWithClassLevel() {
     LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
     validator.afterPropertiesSet();
 
@@ -185,7 +185,7 @@ public class ValidatorFactoryTests {
   }
 
   @Test
-  public void testSpringValidationWithAutowiredValidator() {
+  public void testInfraValidationWithAutowiredValidator() {
     ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(LocalValidatorFactoryBean.class);
     LocalValidatorFactoryBean validator = ctx.getBean(LocalValidatorFactoryBean.class);
 
@@ -205,7 +205,7 @@ public class ValidatorFactoryTests {
   }
 
   @Test
-  public void testSpringValidationWithErrorInListElement() {
+  public void testInfraValidationWithErrorInListElement() {
     LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
     validator.afterPropertiesSet();
 
@@ -223,7 +223,7 @@ public class ValidatorFactoryTests {
   }
 
   @Test
-  public void testSpringValidationWithErrorInSetElement() {
+  public void testInfraValidationWithErrorInSetElement() {
     LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
     validator.afterPropertiesSet();
 

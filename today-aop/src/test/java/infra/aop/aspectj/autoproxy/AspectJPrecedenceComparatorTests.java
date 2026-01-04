@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -115,7 +115,7 @@ public class AspectJPrecedenceComparatorTests {
 
   @Test
   public void testHigherAdvisorPrecedenceNoAfterAdvice() {
-    Advisor advisor1 = createSpringAOPBeforeAdvice(HIGH_PRECEDENCE_ADVISOR_ORDER);
+    Advisor advisor1 = createInfraAOPBeforeAdvice(HIGH_PRECEDENCE_ADVISOR_ORDER);
     Advisor advisor2 = createAspectJBeforeAdvice(LOW_PRECEDENCE_ADVISOR_ORDER, EARLY_ADVICE_DECLARATION_ORDER, "someOtherAspect");
     assertThat(this.comparator.compare(advisor1, advisor2)).as("advisor1 sorted before advisor2").isEqualTo(-1);
 
@@ -152,7 +152,7 @@ public class AspectJPrecedenceComparatorTests {
     Advisor advisor2 = createAspectJAroundAdvice(HIGH_PRECEDENCE_ADVISOR_ORDER, LATE_ADVICE_DECLARATION_ORDER, "someOtherAspect");
     assertThat(this.comparator.compare(advisor1, advisor2)).as("advisor1 sorted after advisor2").isEqualTo(1);
 
-    advisor1 = createSpringAOPAfterAdvice(LOW_PRECEDENCE_ADVISOR_ORDER);
+    advisor1 = createInfraAOPAfterAdvice(LOW_PRECEDENCE_ADVISOR_ORDER);
     advisor2 = createAspectJAfterThrowingAdvice(HIGH_PRECEDENCE_ADVISOR_ORDER, EARLY_ADVICE_DECLARATION_ORDER, "someOtherAspect");
     assertThat(this.comparator.compare(advisor1, advisor2)).as("advisor1 sorted after advisor2").isEqualTo(1);
   }
@@ -190,7 +190,7 @@ public class AspectJPrecedenceComparatorTests {
     return advisor;
   }
 
-  private Advisor createSpringAOPAfterAdvice(int order) {
+  private Advisor createInfraAOPAfterAdvice(int order) {
     AfterReturningAdvice advice = (returnValue, method) -> {
     };
     DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor(this.anyOldPointcut, advice);
@@ -198,7 +198,7 @@ public class AspectJPrecedenceComparatorTests {
     return advisor;
   }
 
-  private Advisor createSpringAOPBeforeAdvice(int order) {
+  private Advisor createInfraAOPBeforeAdvice(int order) {
     BeforeAdvice advice = new BeforeAdvice() {
     };
     DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor(this.anyOldPointcut, advice);

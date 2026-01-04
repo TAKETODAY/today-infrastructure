@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -71,7 +71,7 @@ public class InfraValidatorAdapterTests {
   private final StaticMessageSource messageSource = new StaticMessageSource();
 
   @BeforeEach
-  public void setupSpringValidatorAdapter() {
+  public void setupInfraValidatorAdapter() {
     messageSource.addMessage("Size", Locale.ENGLISH, "Size of {0} must be between {2} and {1}");
     messageSource.addMessage("Same", Locale.ENGLISH, "{2} must be same value as {1}");
     messageSource.addMessage("password", Locale.ENGLISH, "Password");

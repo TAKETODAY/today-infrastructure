@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -636,7 +636,7 @@ class ReflectiveAspectJAdvisorFactoryTests {
   static class NamedPointcutAspectWithFQN {
 
     @SuppressWarnings("unused")
-    private final ITestBean fieldThatShouldBeIgnoredBySpringAtAspectJProcessing = new TestBean();
+    private final ITestBean fieldThatShouldBeIgnoredByInfraAtAspectJProcessing = new TestBean();
 
     @Pointcut("execution(* getAge())")
     void getAge() {
@@ -1060,7 +1060,7 @@ class PerThisAspect {
 
   // Just to check that this doesn't cause problems with introduction processing
   @SuppressWarnings("unused")
-  private ITestBean fieldThatShouldBeIgnoredBySpringAtAspectJProcessing = new TestBean();
+  private ITestBean fieldThatShouldBeIgnoredByInfraAtAspectJProcessing = new TestBean();
 
   @Around("execution(int *.getAge())")
   int returnCountAsAge() {

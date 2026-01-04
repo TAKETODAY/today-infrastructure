@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ class CompiledTests {
           }
           """;
 
-  private static final String HELLO_SPRING = """
+  private static final String HELLO_INFRA = """
           package com.example;
 
           public class HelloSpring implements java.util.function.Supplier<String> {
@@ -67,7 +67,7 @@ class CompiledTests {
   @Test
   void getSourceFileWhenMultipleThrowsException() {
     SourceFiles sourceFiles = SourceFiles.of(SourceFile.of(HELLO_WORLD),
-            SourceFile.of(HELLO_SPRING));
+            SourceFile.of(HELLO_INFRA));
     TestCompiler.forSystem().compile(sourceFiles,
             compiled -> assertThatIllegalStateException().isThrownBy(
                     compiled::getSourceFile));
@@ -83,7 +83,7 @@ class CompiledTests {
   @Test
   void getSourceFilesReturnsSourceFiles() {
     SourceFiles sourceFiles = SourceFiles.of(SourceFile.of(HELLO_WORLD),
-            SourceFile.of(HELLO_SPRING));
+            SourceFile.of(HELLO_INFRA));
     TestCompiler.forSystem().compile(sourceFiles,
             compiled -> assertThat(compiled.getSourceFiles()).isEqualTo(sourceFiles));
   }
@@ -131,7 +131,7 @@ class CompiledTests {
   @Test
   void getInstanceWhenMultipleMatchesThrowsException() {
     SourceFiles sourceFiles = SourceFiles.of(SourceFile.of(HELLO_WORLD),
-            SourceFile.of(HELLO_SPRING));
+            SourceFile.of(HELLO_INFRA));
     TestCompiler.forSystem().compile(sourceFiles,
             compiled -> assertThatIllegalStateException().isThrownBy(
                     () -> compiled.getInstance(Supplier.class)));
@@ -167,7 +167,7 @@ class CompiledTests {
   @Test
   void getInstanceByNameReturnsInstance() {
     SourceFiles sourceFiles = SourceFiles.of(SourceFile.of(HELLO_WORLD),
-            SourceFile.of(HELLO_SPRING));
+            SourceFile.of(HELLO_INFRA));
     TestCompiler.forSystem().compile(sourceFiles,
             compiled -> assertThat(compiled.getInstance(Supplier.class,
                     "com.example.HelloWorld")).isNotNull());
@@ -176,7 +176,7 @@ class CompiledTests {
   @Test
   void getAllCompiledClassesReturnsCompiledClasses() {
     SourceFiles sourceFiles = SourceFiles.of(SourceFile.of(HELLO_WORLD),
-            SourceFile.of(HELLO_SPRING));
+            SourceFile.of(HELLO_INFRA));
     TestCompiler.forSystem().compile(sourceFiles, compiled -> {
       List<Class<?>> classes = compiled.getAllCompiledClasses();
       assertThat(classes.stream().map(Class::getName)).containsExactlyInAnyOrder(

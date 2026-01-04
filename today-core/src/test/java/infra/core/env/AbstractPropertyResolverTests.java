@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,12 +45,12 @@ class AbstractPropertyResolverTests {
   @AfterAll
   static void resetState() {
     AbstractPropertyResolver.defaultEscapeCharacter = UNDEFINED_ESCAPE_CHARACTER;
-    setSpringProperty(null);
+    setInfraProperty(null);
   }
 
   @Test
-  void getDefaultEscapeCharacterWithSpringPropertySetToCharacterMinValue() {
-    setSpringProperty("" + Character.MIN_VALUE);
+  void getDefaultEscapeCharacterWithInfraPropertySetToCharacterMinValue() {
+    setInfraProperty("" + Character.MIN_VALUE);
 
     assertThatIllegalArgumentException()
             .isThrownBy(AbstractPropertyResolver::getDefaultEscapeCharacter)
@@ -61,8 +61,8 @@ class AbstractPropertyResolverTests {
   }
 
   @Test
-  void getDefaultEscapeCharacterWithSpringPropertySetToXyz() {
-    setSpringProperty("XYZ");
+  void getDefaultEscapeCharacterWithInfraPropertySetToXyz() {
+    setInfraProperty("XYZ");
 
     assertThatIllegalArgumentException()
             .isThrownBy(AbstractPropertyResolver::getDefaultEscapeCharacter)
@@ -73,31 +73,31 @@ class AbstractPropertyResolverTests {
   }
 
   @Test
-  void getDefaultEscapeCharacterWithSpringPropertySetToEmptyString() {
-    setSpringProperty("");
+  void getDefaultEscapeCharacterWithInfraPropertySetToEmptyString() {
+    setInfraProperty("");
     assertEscapeCharacter(null);
   }
 
   @Test
-  void getDefaultEscapeCharacterWithoutSpringPropertySet() {
+  void getDefaultEscapeCharacterWithoutInfraPropertySet() {
     assertEscapeCharacter('\\');
   }
 
   @Test
-  void getDefaultEscapeCharacterWithSpringPropertySetToBackslash() {
-    setSpringProperty("\\");
+  void getDefaultEscapeCharacterWithInfraPropertySetToBackslash() {
+    setInfraProperty("\\");
     assertEscapeCharacter('\\');
   }
 
   @Test
-  void getDefaultEscapeCharacterWithSpringPropertySetToTilde() {
-    setSpringProperty("~");
+  void getDefaultEscapeCharacterWithInfraPropertySetToTilde() {
+    setInfraProperty("~");
     assertEscapeCharacter('~');
   }
 
   @Test
   void getDefaultEscapeCharacterFromMultipleThreads() {
-    setSpringProperty("~");
+    setInfraProperty("~");
 
     IntStream.range(1, 32).parallel().forEach(__ ->
             assertThat(AbstractPropertyResolver.getDefaultEscapeCharacter()).isEqualTo('~'));
@@ -105,7 +105,7 @@ class AbstractPropertyResolverTests {
     assertThat(AbstractPropertyResolver.defaultEscapeCharacter).isEqualTo('~');
   }
 
-  private static void setSpringProperty(String value) {
+  private static void setInfraProperty(String value) {
     TodayStrategies.setProperty(DEFAULT_PLACEHOLDER_ESCAPE_CHARACTER_PROPERTY_NAME, value);
   }
 

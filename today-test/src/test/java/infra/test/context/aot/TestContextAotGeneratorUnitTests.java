@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,14 +48,14 @@ class TestContextAotGeneratorUnitTests {
 
   @ParameterizedTest
   @ValueSource(strings = { "true", "  True\t" })
-  void failOnErrorEnabledViaSpringProperty(String value) {
+  void failOnErrorEnabledViaInfraProperty(String value) {
     TodayStrategies.setProperty(FAIL_ON_ERROR_PROPERTY_NAME, value);
     assertThat(createGenerator().failOnError).isTrue();
   }
 
   @ParameterizedTest
   @ValueSource(strings = { "false", "  False\t", "x" })
-  void failOnErrorDisabledViaSpringProperty(String value) {
+  void failOnErrorDisabledViaInfraProperty(String value) {
     TodayStrategies.setProperty(FAIL_ON_ERROR_PROPERTY_NAME, value);
     assertThat(createGenerator().failOnError).isFalse();
   }

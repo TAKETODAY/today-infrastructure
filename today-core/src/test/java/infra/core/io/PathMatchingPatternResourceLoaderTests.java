@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -387,7 +387,7 @@ class PathMatchingPatternResourceLoaderTests {
     private void writeApplicationJar(Path path) throws Exception {
       Manifest manifest = new Manifest();
       Attributes mainAttributes = manifest.getMainAttributes();
-      mainAttributes.put(Attributes.Name.CLASS_PATH, buildSpringClassPath() + "lib/asset.jar");
+      mainAttributes.put(Attributes.Name.CLASS_PATH, buildInfraClassPath() + "lib/asset.jar");
       mainAttributes.put(Attributes.Name.MAIN_CLASS, ClassPathManifestEntriesTestApplication.class.getName());
       mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
       try (JarOutputStream jar = new JarOutputStream(new FileOutputStream(path.toFile()), manifest)) {
@@ -416,7 +416,7 @@ class PathMatchingPatternResourceLoaderTests {
     private void writeApplicationJarWithAbsolutePath(Path path, Path assetJar) throws Exception {
       Manifest manifest = new Manifest();
       Attributes mainAttributes = manifest.getMainAttributes();
-      mainAttributes.put(Attributes.Name.CLASS_PATH, buildSpringClassPath() + assetJar.toAbsolutePath());
+      mainAttributes.put(Attributes.Name.CLASS_PATH, buildInfraClassPath() + assetJar.toAbsolutePath());
       mainAttributes.put(Attributes.Name.MAIN_CLASS, ClassPathManifestEntriesTestApplication.class.getName());
       mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
       try (JarOutputStream jar = new JarOutputStream(new FileOutputStream(path.toFile()), manifest)) {
@@ -442,7 +442,7 @@ class PathMatchingPatternResourceLoaderTests {
       assertThat(new UrlResource(ResourceUtils.JAR_URL_PREFIX + ResourceUtils.FILE_URL_PREFIX + path + ResourceUtils.JAR_URL_SEPARATOR).exists()).isTrue();
     }
 
-    private String buildSpringClassPath() throws Exception {
+    private String buildInfraClassPath() throws Exception {
       return copyClasses(PathMatchingPatternResourceLoader.class, "today-core")
               + copyClasses(LoggerFactory.class, "commons-logging");
     }

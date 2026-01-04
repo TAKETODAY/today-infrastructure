@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ public class BenchmarkTests {
 
   private static final String ASPECTJ_CONTEXT = CLASS.getSimpleName() + "-aspectj.xml";
 
-  private static final String SPRING_AOP_CONTEXT = CLASS.getSimpleName() + "-springAop.xml";
+  private static final String INFRA_AOP_CONTEXT = CLASS.getSimpleName() + "-aop.xml";
 
   @Test
   public void testRepeatedAroundAdviceInvocationsWithAspectJ() {
@@ -60,8 +60,8 @@ public class BenchmarkTests {
   }
 
   @Test
-  public void testRepeatedAroundAdviceInvocationsWithSpringAop() {
-    testRepeatedAroundAdviceInvocations(SPRING_AOP_CONTEXT, getCount(), "Infra AOP");
+  public void testRepeatedAroundAdviceInvocationsWithInfraAop() {
+    testRepeatedAroundAdviceInvocations(INFRA_AOP_CONTEXT, getCount(), "Infra AOP");
   }
 
   @Test
@@ -70,8 +70,8 @@ public class BenchmarkTests {
   }
 
   @Test
-  public void testRepeatedBeforeAdviceInvocationsWithSpringAop() {
-    testBeforeAdviceWithoutJoinPoint(SPRING_AOP_CONTEXT, getCount(), "Infra AOP");
+  public void testRepeatedBeforeAdviceInvocationsWithInfraAop() {
+    testBeforeAdviceWithoutJoinPoint(INFRA_AOP_CONTEXT, getCount(), "Infra AOP");
   }
 
   @Test
@@ -80,8 +80,8 @@ public class BenchmarkTests {
   }
 
   @Test
-  public void testRepeatedAfterReturningAdviceInvocationsWithSpringAop() {
-    testAfterReturningAdviceWithoutJoinPoint(SPRING_AOP_CONTEXT, getCount(), "Infra AOP");
+  public void testRepeatedAfterReturningAdviceInvocationsWithInfraAop() {
+    testAfterReturningAdviceWithoutJoinPoint(INFRA_AOP_CONTEXT, getCount(), "Infra AOP");
   }
 
   @Test
@@ -90,8 +90,8 @@ public class BenchmarkTests {
   }
 
   @Test
-  public void testRepeatedMixWithSpringAop() {
-    testMix(SPRING_AOP_CONTEXT, getCount(), "Infra AOP");
+  public void testRepeatedMixWithInfraAop() {
+    testMix(INFRA_AOP_CONTEXT, getCount(), "Infra AOP");
   }
 
   /**

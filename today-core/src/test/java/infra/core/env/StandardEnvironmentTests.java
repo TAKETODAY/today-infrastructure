@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -268,7 +268,7 @@ public class StandardEnvironmentTests {
   }
 
   @Test
-  void suppressGetenvAccessThroughSpringProperty() {
+  void suppressGetenvAccessThroughInfraProperty() {
     try {
       TodayStrategies.setProperty("infra.getenv.ignore", "true");
       assertThat(environment.getSystemEnvironment()).isEmpty();
@@ -279,7 +279,7 @@ public class StandardEnvironmentTests {
   }
 
   @Test
-  void suppressGetenvAccessThroughSpringFlag() {
+  void suppressGetenvAccessThroughInfraFlag() {
     try {
       TodayStrategies.setFlag("infra.getenv.ignore");
       assertThat(environment.getSystemEnvironment()).isEmpty();

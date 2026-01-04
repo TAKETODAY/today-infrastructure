@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ public class TimedTransactionalRunnerTests {
   @Test
   @Timed(millis = 10000)
   @Repeat(5)
-  public void transactionalWithSpringTimeout() {
+  public void transactionalWithInfraTimeout() {
     TransactionAssert.assertThatTransaction().isActive();
   }
 
@@ -58,7 +58,7 @@ public class TimedTransactionalRunnerTests {
   @Transactional(propagation = Propagation.NOT_SUPPORTED)
   @Timed(millis = 10000)
   @Repeat(5)
-  public void notTransactionalWithSpringTimeout() {
+  public void notTransactionalWithInfraTimeout() {
     TransactionAssert.assertThatTransaction().isNotActive();
   }
 
