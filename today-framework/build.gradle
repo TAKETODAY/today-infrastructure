@@ -60,6 +60,14 @@ dependencies {
   optional 'com.oracle.database.jdbc:ucp:21.7.0.0'
   optional("com.github.ben-manes.caffeine:caffeine")
 
+  optional("tools.jackson.core:jackson-databind")
+  optional("tools.jackson.dataformat:jackson-dataformat-smile")
+  optional("tools.jackson.dataformat:jackson-dataformat-cbor")
+  optional("tools.jackson.dataformat:jackson-dataformat-smile")
+  optional("tools.jackson.dataformat:jackson-dataformat-xml")
+  optional("tools.jackson.dataformat:jackson-dataformat-yaml")
+
+
   optional 'org.crac:crac'
 
   testImplementation(project(":today-aop"))

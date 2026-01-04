@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2026 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -82,7 +82,7 @@ class RestTemplateAutoConfigurationTests {
               List<HttpMessageConverter> converters = new ArrayList<>();
               ObjectProvider<HttpMessageConverter> messageConverters = context.getBeanProvider(HttpMessageConverter.class);
               messageConverters.addOrderedTo(converters);
-              assertThat(restTemplate.getMessageConverters()).containsExactlyElementsOf((Iterable<? extends HttpMessageConverter<?>>) converters);
+              assertThat(restTemplate.getMessageConverters()).containsExactlyElementsOf((Iterable) converters);
               assertThat(restTemplate.getRequestFactory())
                       .isInstanceOf(HttpComponentsClientHttpRequestFactory.class);
             });

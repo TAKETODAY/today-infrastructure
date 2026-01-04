@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2026 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ package infra.annotation.config.http;
 
 import infra.beans.factory.annotation.DisableAllDependencyInjection;
 import infra.beans.factory.annotation.DisableDependencyInjection;
+import infra.context.annotation.Bean;
 import infra.context.annotation.Conditional;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Lazy;
@@ -27,11 +28,14 @@ import infra.context.condition.ConditionalOnBean;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.condition.ConditionalOnProperty;
-import infra.http.converter.json.GsonHttpMessageConverter;
+import infra.core.annotation.Order;
+import infra.http.converter.HttpMessageConverters.ClientBuilder;
+import infra.http.converter.HttpMessageConverters.ServerBuilder;
 import infra.http.converter.json.JsonbHttpMessageConverter;
-import infra.http.converter.json.MappingJackson2HttpMessageConverter;
-import infra.stereotype.Component;
 import jakarta.json.bind.Jsonb;
+
+import static infra.annotation.config.http.GsonHttpMessageConvertersConfiguration.GsonHttpConvertersCustomizer;
+import static infra.annotation.config.http.JacksonHttpMessageConvertersConfiguration.JacksonJsonHttpMessageConvertersCustomizer;
 
 /**
  * Configuration for HTTP Message converters that use JSON-B.
@@ -52,12 +56,32 @@ class JsonbHttpMessageConvertersConfiguration {
   @Conditional(PreferJsonbOrMissingJacksonAndGsonCondition.class)
   static class JsonbHttpMessageConverterConfiguration {
 
-    @Component
-    @ConditionalOnMissingBean
-    static JsonbHttpMessageConverter jsonbHttpMessageConverter(Jsonb jsonb) {
-      JsonbHttpMessageConverter converter = new JsonbHttpMessageConverter();
-      converter.setJsonb(jsonb);
-      return converter;
+    @Bean
+    @Order(0)
+    @ConditionalOnMissingBean(JsonbHttpMessageConverter.class)
+    JsonbHttpMessageConvertersCustomizer jsonbHttpMessageConvertersCustomizer(Jsonb jsonb) {
+      return new JsonbHttpMessageConvertersCustomizer(jsonb);
+    }
+
+  }
+
+  static class JsonbHttpMessageConvertersCustomizer
+          implements ClientHttpMessageConvertersCustomizer, ServerHttpMessageConvertersCustomizer {
+
+    private final JsonbHttpMessageConverter converter;
+
+    JsonbHttpMessageConvertersCustomizer(Jsonb jsonb) {
+      this.converter = new JsonbHttpMessageConverter(jsonb);
+    }
+
+    @Override
+    public void customize(ClientBuilder builder) {
+      builder.withJsonConverter(this.converter);
+    }
+
+    @Override
+    public void customize(ServerBuilder builder) {
+      builder.withJsonConverter(this.converter);
     }
 
   }
@@ -68,13 +92,13 @@ class JsonbHttpMessageConvertersConfiguration {
       super(ConfigurationPhase.REGISTER_BEAN);
     }
 
-    @ConditionalOnProperty(name =
-            HttpMessageConvertersAutoConfiguration.PREFERRED_MAPPER_PROPERTY, havingValue = "jsonb")
+    @ConditionalOnProperty(name = HttpMessageConvertersAutoConfiguration.PREFERRED_MAPPER_PROPERTY,
+            havingValue = "jsonb")
     static class JsonbPreferred {
 
     }
 
-    @ConditionalOnMissingBean({ MappingJackson2HttpMessageConverter.class, GsonHttpMessageConverter.class })
+    @ConditionalOnMissingBean({ JacksonJsonHttpMessageConvertersCustomizer.class, GsonHttpConvertersCustomizer.class })
     static class JacksonAndGsonMissing {
 
     }

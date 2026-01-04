@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2026 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,6 @@
 
 package infra.annotation.config.http;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.google.gson.Gson;
 
 import org.junit.jupiter.api.Test;
@@ -30,6 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration.StringHttpMessageConvertersCustomizer;
+import infra.annotation.config.http.JacksonHttpMessageConvertersConfiguration.JacksonJsonHttpMessageConvertersCustomizer;
+import infra.annotation.config.http.JacksonHttpMessageConvertersConfiguration.JacksonXmlHttpMessageConvertersCustomizer;
 import infra.annotation.config.logging.ConditionEvaluationReportLoggingListener;
 import infra.app.logging.LogLevel;
 import infra.app.test.context.FilteredClassLoader;
@@ -37,6 +37,7 @@ import infra.app.test.context.assertj.AssertableApplicationContext;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.app.test.context.runner.ReactiveWebApplicationContextRunner;
 import infra.app.test.context.runner.WebApplicationContextRunner;
+import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.ApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
@@ -47,6 +48,8 @@ import infra.http.MediaType;
 import infra.http.converter.AbstractHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters;
+import infra.http.converter.HttpMessageConverters.ClientBuilder;
+import infra.http.converter.HttpMessageConverters.ServerBuilder;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.converter.HttpMessageNotWritableException;
 import infra.http.converter.StringHttpMessageConverter;
@@ -55,14 +58,18 @@ import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.http.converter.json.JsonbHttpMessageConverter;
 import infra.http.converter.json.MappingJackson2HttpMessageConverter;
 import infra.http.converter.xml.JacksonXmlHttpMessageConverter;
-import jakarta.json.Json;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.dataformat.xml.XmlMapper;
 
+import static infra.annotation.config.http.GsonHttpMessageConvertersConfiguration.GsonHttpConvertersCustomizer;
+import static infra.annotation.config.http.JsonbHttpMessageConvertersConfiguration.JsonbHttpMessageConvertersCustomizer;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link infra.annotation.config.http.HttpMessageConvertersAutoConfiguration}.
+ * Tests for {@link HttpMessageConvertersAutoConfiguration}.
  *
  * @author Dave Syer
  * @author Oliver Gierke
@@ -76,7 +83,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class HttpMessageConvertersAutoConfigurationTests {
 
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-          .withConfiguration(AutoConfigurations.of(infra.annotation.config.http.HttpMessageConvertersAutoConfiguration.class));
+          .withConfiguration(AutoConfigurations.of(HttpMessageConvertersAutoConfiguration.class));
 
   @Test
   void jacksonNotAvailable() {
@@ -141,43 +148,6 @@ class HttpMessageConvertersAutoConfigurationTests {
               JacksonJsonHttpMessageConverter.class);
       assertThat(serverConverter).isNotEqualTo(clientConverter);
     });
-  }
-
-  @Test
-  void jackson2DefaultConverter() {
-    this.contextRunner.withUserConfiguration(Jackson2ObjectMapperConfig.class)
-            .withInitializer(ConditionEvaluationReportLoggingListener.forLogLevel(LogLevel.INFO))
-            .run((context) -> assertConverterIsRegistered(context,
-                    infra.http.converter.json.MappingJackson2HttpMessageConverter.class));
-  }
-
-  @Test
-  void jackson2ConverterWithBuilder() {
-    this.contextRunner.withUserConfiguration(Jackson2ObjectMapperBuilderConfig.class)
-            .run((context) -> assertConverterIsRegistered(context,
-                    infra.http.converter.json.MappingJackson2HttpMessageConverter.class));
-  }
-
-  @Test
-  void jackson2CustomConverter() {
-    this.contextRunner.withUserConfiguration(Jackson2ObjectMapperConfig.class, Jackson2ConverterConfig.class)
-            .run((context) -> assertConverterIsRegistered(context,
-                    infra.http.converter.json.MappingJackson2HttpMessageConverter.class));
-  }
-
-  @Test
-  void jackson2ServerAndClientConvertersShouldBeDifferent() {
-    this.contextRunner.withUserConfiguration(Jackson2ObjectMapperConfig.class)
-            .withInitializer(ConditionEvaluationReportLoggingListener.forLoggingLevel(LogLevel.INFO))
-            .run((context) -> {
-              assertThat(context).hasSingleBean(
-                      Jackson2HttpMessageConvertersConfiguration.Jackson2JsonMessageConvertersCustomizer.class);
-              HttpMessageConverter<?> serverConverter = findConverter(getServerConverters(context),
-                      infra.http.converter.json.MappingJackson2HttpMessageConverter.class);
-              HttpMessageConverter<?> clientConverter = findConverter(getClientConverters(context),
-                      infra.http.converter.json.MappingJackson2HttpMessageConverter.class);
-              assertThat(serverConverter).isNotEqualTo(clientConverter);
-            });
   }
 
   @Test
@@ -260,28 +230,6 @@ class HttpMessageConvertersAutoConfigurationTests {
   }
 
   @Test
-  void typeConstrainedConverterDoesNotPreventAutoConfigurationOfJacksonConverter() {
-    this.contextRunner
-            .withUserConfiguration(JacksonJsonMapperBuilderConfig.class, TypeConstrainedConverterConfiguration.class)
-            .run((context) -> {
-              assertThat(context).hasSingleBean(JacksonJsonHttpMessageConvertersCustomizer.class);
-              assertConvertersRegisteredWithHttpMessageConverters(context, List
-                      .of(TypeConstrainedJacksonJsonHttpMessageConverter.class, JacksonJsonHttpMessageConverter.class));
-            });
-  }
-
-  @Test
-  void typeConstrainedConverterFromSpringDataDoesNotPreventAutoConfigurationOfJacksonConverter() {
-    this.contextRunner
-            .withUserConfiguration(JacksonJsonMapperBuilderConfig.class, RepositoryRestMvcConfiguration.class)
-            .run((context) -> {
-              assertThat(context).hasSingleBean(JacksonJsonHttpMessageConvertersCustomizer.class);
-              assertConvertersRegisteredWithHttpMessageConverters(context, List.of(HalFormsHttpMessageConverter.class,
-                      AlpsJacksonJsonHttpMessageConverter.class, JacksonJsonHttpMessageConverter.class));
-            });
-  }
-
-  @Test
   void jacksonIsPreferredByDefault() {
     allOptionsRunner().run((context) -> {
       assertBeanExists(context, JacksonJsonHttpMessageConvertersCustomizer.class,
@@ -293,10 +241,9 @@ class HttpMessageConvertersAutoConfigurationTests {
   }
 
   @Test
-  @SuppressWarnings("removal")
   void jackson2IsPreferredIfJacksonIsNotAvailable() {
     allOptionsRunner().withClassLoader(new FilteredClassLoader(JsonMapper.class.getPackage().getName()))
-            .withInitializer(ConditionEvaluationReportLoggingListener.forLogLevel(LogLevel.INFO))
+            .withInitializer(ConditionEvaluationReportLoggingListener.forLoggingLevel(LogLevel.INFO))
             .run((context) -> {
               assertConverterIsRegistered(context,
                       MappingJackson2HttpMessageConverter.class);
@@ -325,25 +272,25 @@ class HttpMessageConvertersAutoConfigurationTests {
   }
 
   @Test
-  void whenServletWebApplicationHttpMessageConvertersIsConfigured() {
+  void whenWebApplicationHttpMessageConvertersIsConfigured() {
     new WebApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(infra.annotation.config.http.HttpMessageConvertersAutoConfiguration.class))
-            .run((context) -> assertThat(context).hasSingleBean(DefaultClientHttpMessageConvertersCustomizer.class)
-                    .hasSingleBean(DefaultClientHttpMessageConvertersCustomizer.class));
+            .withConfiguration(AutoConfigurations.of(HttpMessageConvertersAutoConfiguration.class))
+            .run((context) -> assertThat(context).hasSingleBean(DefaultHttpMessageConvertersCustomizer.class)
+                    .hasSingleBean(DefaultHttpMessageConvertersCustomizer.class));
   }
 
   @Test
   void whenReactiveWebApplicationHttpMessageConvertersIsNotConfigured() {
     new ReactiveWebApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(infra.annotation.config.http.HttpMessageConvertersAutoConfiguration.class))
-            .run((context) -> assertThat(context).doesNotHaveBean(infra.annotation.config.http.ServerHttpMessageConvertersCustomizer.class)
+            .withConfiguration(AutoConfigurations.of(HttpMessageConvertersAutoConfiguration.class))
+            .run((context) -> assertThat(context).doesNotHaveBean(ServerHttpMessageConvertersCustomizer.class)
                     .doesNotHaveBean(ClientHttpMessageConvertersCustomizer.class));
   }
 
   @Test
   void whenEncodingCharsetIsNotConfiguredThenStringMessageConverterUsesUtf8() {
     new WebApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(infra.annotation.config.http.HttpMessageConvertersAutoConfiguration.class))
+            .withConfiguration(AutoConfigurations.of(HttpMessageConvertersAutoConfiguration.class))
             .run((context) -> {
               StringHttpMessageConverter converter = findConverter(getServerConverters(context),
                       StringHttpMessageConverter.class);
@@ -354,7 +301,7 @@ class HttpMessageConvertersAutoConfigurationTests {
   @Test
   void whenEncodingCharsetIsConfiguredThenStringMessageConverterUsesSpecificCharset() {
     new WebApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(infra.annotation.config.http.HttpMessageConvertersAutoConfiguration.class))
+            .withConfiguration(AutoConfigurations.of(HttpMessageConvertersAutoConfiguration.class))
             .withPropertyValues("http.converters.string-encoding-charset=UTF-16")
             .run((context) -> {
               StringHttpMessageConverter serverConverter = findConverter(getServerConverters(context),
@@ -365,21 +312,16 @@ class HttpMessageConvertersAutoConfigurationTests {
 
   @Test
   void defaultServerConvertersCustomizerHasOrderZero() {
-    defaultConvertersCustomizerHasOrderZero(DefaultServerHttpMessageConvertersCustomizer.class);
-  }
-
-  @Test
-  void defaultClientConvertersCustomizerHasOrderZero() {
-    defaultConvertersCustomizerHasOrderZero(DefaultClientHttpMessageConvertersCustomizer.class);
+    defaultConvertersCustomizerHasOrderZero(StringHttpMessageConvertersCustomizer.class);
   }
 
   private <T> void defaultConvertersCustomizerHasOrderZero(Class<T> customizerType) {
     new WebApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(infra.annotation.config.http.HttpMessageConvertersAutoConfiguration.class))
+            .withConfiguration(AutoConfigurations.of(HttpMessageConvertersAutoConfiguration.class))
             .run((context) -> {
               Map<String, T> customizers = context.getBeansOfType(customizerType);
               assertThat(customizers).hasSize(1);
-              DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) context.getBeanFactory();
+              StandardBeanFactory beanFactory = (StandardBeanFactory) context.getBeanFactory();
               customizers.keySet().forEach((beanName) -> assertThat(beanFactory.getOrder(beanName)).isZero());
             });
   }
@@ -388,8 +330,7 @@ class HttpMessageConvertersAutoConfigurationTests {
     return this.contextRunner.withBean(Gson.class)
             .withBean(JsonMapper.class)
             .withBean(ObjectMapper.class, ObjectMapper::new)
-            .withBean(Jsonb.class, JsonbBuilder::create)
-            .withBean(Json.class, () -> Json.Default);
+            .withBean(Jsonb.class, JsonbBuilder::create);
   }
 
   private void assertConverterIsRegistered(AssertableApplicationContext context,
@@ -423,7 +364,7 @@ class HttpMessageConvertersAutoConfigurationTests {
 
   private HttpMessageConverters getServerConverters(ApplicationContext context) {
     ServerBuilder serverBuilder = HttpMessageConverters.forServer().registerDefaults();
-    context.getBeanProvider(infra.annotation.config.http.ServerHttpMessageConvertersCustomizer.class)
+    context.getBeanProvider(ServerHttpMessageConvertersCustomizer.class)
             .orderedStream()
             .forEach((customizer) -> customizer.customize(serverBuilder));
     return serverBuilder.build();
@@ -472,7 +413,7 @@ class HttpMessageConvertersAutoConfigurationTests {
     }
 
     @Bean
-    infra.annotation.config.http.ServerHttpMessageConvertersCustomizer jsonServerCustomizer() {
+    ServerHttpMessageConvertersCustomizer jsonServerCustomizer() {
       return (configurer) -> configurer.withJsonConverter(new CustomConverter(MediaType.APPLICATION_JSON));
     }
 
@@ -535,38 +476,6 @@ class HttpMessageConvertersAutoConfigurationTests {
   }
 
   @Configuration(proxyBeanMethods = false)
-  @Deprecated(since = "4.0.0", forRemoval = true)
-  @SuppressWarnings("removal")
-  static class Jackson2ObjectMapperBuilderConfig {
-
-    @Bean
-    ObjectMapper objectMapper() {
-      return new ObjectMapper();
-    }
-
-    @Bean
-    infra.http.converter.json.Jackson2ObjectMapperBuilder builder() {
-      return new infra.http.converter.json.Jackson2ObjectMapperBuilder();
-    }
-
-  }
-
-  @Deprecated(since = "4.0.0", forRemoval = true)
-  @Configuration(proxyBeanMethods = false)
-  @SuppressWarnings("removal")
-  static class Jackson2ConverterConfig {
-
-    @Bean
-    infra.http.converter.json.MappingJackson2HttpMessageConverter customJacksonMessageConverter(
-            ObjectMapper objectMapper) {
-      infra.http.converter.json.MappingJackson2HttpMessageConverter converter = new infra.http.converter.json.MappingJackson2HttpMessageConverter();
-      converter.setObjectMapper(objectMapper);
-      return converter;
-    }
-
-  }
-
-  @Configuration(proxyBeanMethods = false)
   static class GsonConverterConfig {
 
     @Bean
@@ -596,16 +505,6 @@ class HttpMessageConvertersAutoConfigurationTests {
     @Bean
     StringHttpMessageConverter customStringMessageConverter() {
       return new StringHttpMessageConverter();
-    }
-
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  static class TypeConstrainedConverterConfiguration {
-
-    @Bean
-    TypeConstrainedJacksonJsonHttpMessageConverter typeConstrainedConverter() {
-      return new TypeConstrainedJacksonJsonHttpMessageConverter(RepresentationModel.class);
     }
 
   }
