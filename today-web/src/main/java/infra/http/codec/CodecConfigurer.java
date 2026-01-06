@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,8 +24,8 @@ import java.util.function.Consumer;
 
 import infra.core.codec.Decoder;
 import infra.core.codec.Encoder;
-import infra.core.io.Resource;
-import infra.http.codec.multipart.MultipartHttpMessageWriter;
+import infra.http.codec.smile.JacksonSmileDecoder;
+import infra.http.codec.smile.JacksonSmileEncoder;
 
 /**
  * Defines a common interface for configuring either client or server HTTP
@@ -43,12 +43,12 @@ import infra.http.codec.multipart.MultipartHttpMessageWriter;
  * <p>HTTP message readers and writers are divided into 3 categories that are
  * ordered as follows:
  * <ol>
- * <li>Typed readers and writers that support specific types, e.g. byte[], String.
- * <li>Object readers and writers, e.g. JSON, XML.
- * <li>Catch-all readers or writers, e.g. String with any media type.
+ * <li>Typed readers and writers that support specific types, for example, byte[], String.
+ * <li>Object readers and writers, for example, JSON, XML.
+ * <li>Catch-all readers or writers, for example, String with any media type.
  * </ol>
  *
- * <p>Typed and object readers are further sub-divided and ordered as follows:
+ * <p>Typed and object readers are further subdivided and ordered as follows:
  * <ol>
  * <li>Default HTTP reader and writer registrations.
  * <li>Custom readers and writers.
@@ -56,6 +56,7 @@ import infra.http.codec.multipart.MultipartHttpMessageWriter;
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public interface CodecConfigurer {
@@ -111,40 +112,58 @@ public interface CodecConfigurer {
   interface DefaultCodecs {
 
     /**
-     * Override the default Jackson JSON {@code Decoder}.
+     * Override the default Jackson 3.x JSON {@code Decoder}.
      * <p>Note that {@link #maxInMemorySize(int)}, if configured, will be
      * applied to the given decoder.
      *
      * @param decoder the decoder instance to use
-     * @see infra.http.codec.json.Jackson2JsonDecoder
+     * @see infra.http.codec.json.JacksonJsonDecoder
      */
-    void jackson2JsonDecoder(Decoder<?> decoder);
+    void jacksonJsonDecoder(Decoder<?> decoder);
 
     /**
-     * Override the default Jackson JSON {@code Encoder}.
+     * Override the default Jackson 3.x JSON {@code Encoder}.
      *
      * @param encoder the encoder instance to use
-     * @see infra.http.codec.json.Jackson2JsonEncoder
+     * @see infra.http.codec.json.JacksonJsonEncoder
      */
-    void jackson2JsonEncoder(Encoder<?> encoder);
+    void jacksonJsonEncoder(Encoder<?> encoder);
 
     /**
-     * Override the default Jackson Smile {@code Decoder}.
+     * Override the default Jackson 3.x Smile {@code Decoder}.
      * <p>Note that {@link #maxInMemorySize(int)}, if configured, will be
      * applied to the given decoder.
      *
      * @param decoder the decoder instance to use
-     * @see infra.http.codec.json.Jackson2SmileDecoder
+     * @see JacksonSmileDecoder
      */
-    void jackson2SmileDecoder(Decoder<?> decoder);
+    void jacksonSmileDecoder(Decoder<?> decoder);
 
     /**
-     * Override the default Jackson Smile {@code Encoder}.
+     * Override the default Jackson 3.x Smile {@code Encoder}.
      *
      * @param encoder the encoder instance to use
-     * @see infra.http.codec.json.Jackson2SmileEncoder
+     * @see JacksonSmileEncoder
      */
-    void jackson2SmileEncoder(Encoder<?> encoder);
+    void jacksonSmileEncoder(Encoder<?> encoder);
+
+    /**
+     * Override the default Jackson 3.x CBOR {@code Decoder}.
+     * <p>Note that {@link #maxInMemorySize(int)}, if configured, will be
+     * applied to the given decoder.
+     *
+     * @param decoder the decoder instance to use
+     * @see infra.http.codec.cbor.JacksonCborDecoder
+     */
+    void jacksonCborDecoder(Decoder<?> decoder);
+
+    /**
+     * Override the default Jackson 3.x CBOR {@code Encoder}.
+     *
+     * @param encoder the encoder instance to use
+     * @see infra.http.codec.cbor.JacksonCborEncoder
+     */
+    void jacksonCborEncoder(Encoder<?> encoder);
 
     /**
      * Override the default Protobuf {@code Decoder}.
@@ -181,8 +200,8 @@ public interface CodecConfigurer {
      * the input stream needs to be aggregated. This can be a result of
      * decoding to a single {@code DataBuffer},
      * {@link java.nio.ByteBuffer ByteBuffer}, {@code byte[]},
-     * {@link Resource Resource}, {@code String}, etc.
-     * It can also occur when splitting the input stream, e.g. delimited text,
+     * {@link infra.core.io.Resource Resource}, {@code String}, etc.
+     * It can also occur when splitting the input stream, for example, delimited text,
      * in which case the limit applies to data buffered between delimiters.
      * <p>By default this is not set, in which case individual codec defaults
      * apply. All codecs are limited to 256K by default.
@@ -202,7 +221,7 @@ public interface CodecConfigurer {
 
     /**
      * Configure encoders or writers for use with
-     * {@link MultipartHttpMessageWriter
+     * {@link infra.http.codec.multipart.MultipartHttpMessageWriter
      * MultipartHttpMessageWriter}.
      */
     MultipartCodecs multipartCodecs();
@@ -233,7 +252,6 @@ public interface CodecConfigurer {
      * </ul>
      *
      * @param codec the codec to register
-     * @since 4.0
      */
     void register(Object codec);
 
@@ -241,8 +259,8 @@ public interface CodecConfigurer {
      * Variant of {@link #register(Object)} that also applies the below
      * properties, if configured, via {@link #defaultCodecs()}:
      * <ul>
-     * <li>{@link DefaultCodecs#maxInMemorySize(int) maxInMemorySize}
-     * <li>{@link DefaultCodecs#enableLoggingRequestDetails(boolean) enableLoggingRequestDetails}
+     * <li>{@link CodecConfigurer.DefaultCodecs#maxInMemorySize(int) maxInMemorySize}
+     * <li>{@link CodecConfigurer.DefaultCodecs#enableLoggingRequestDetails(boolean) enableLoggingRequestDetails}
      * </ul>
      * <p>The properties are applied every time {@link #getReaders()} or
      * {@link #getWriters()} are used to obtain the list of configured
@@ -265,16 +283,6 @@ public interface CodecConfigurer {
      * @param configConsumer consumer of the default config
      */
     void registerWithDefaultConfig(Object codec, Consumer<DefaultCodecConfig> configConsumer);
-
-    /**
-     * Register a callback for the {@link DefaultCodecConfig configuration}
-     * applied to default codecs. This allows custom codecs to follow general
-     * guidelines applied to default ones, such as logging details and limiting
-     * the amount of buffered data.
-     *
-     * @param codecsConfigConsumer the default codecs configuration callback
-     */
-    void withDefaultCodecConfig(Consumer<DefaultCodecConfig> codecsConfigConsumer);
   }
 
   /**
@@ -284,7 +292,6 @@ public interface CodecConfigurer {
    * can also be applied to custom codecs if needed.
    *
    * @see CustomCodecs#registerWithDefaultConfig(Object, Consumer)
-   * @since 4.0
    */
   interface DefaultCodecConfig {
 
@@ -292,15 +299,13 @@ public interface CodecConfigurer {
      * Get the configured limit on the number of bytes that can be buffered whenever
      * the input stream needs to be aggregated.
      */
-    @Nullable
-    Integer maxInMemorySize();
+    @Nullable Integer maxInMemorySize();
 
     /**
      * Whether to log form data at DEBUG level, and headers at TRACE level.
      * Both may contain sensitive information.
      */
-    @Nullable
-    Boolean isEnableLoggingRequestDetails();
+    @Nullable Boolean isEnableLoggingRequestDetails();
   }
 
   /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@ import infra.http.codec.HttpMessageWriter;
 import infra.http.codec.ResourceHttpMessageWriter;
 import infra.http.codec.ServerSentEvent;
 import infra.http.codec.ServerSentEventHttpMessageWriter;
-import infra.http.codec.json.Jackson2JsonEncoder;
+import infra.http.codec.json.JacksonJsonEncoder;
 import infra.http.codec.multipart.MultipartHttpMessageWriter;
 import infra.http.server.reactive.ServerHttpRequest;
 import infra.http.server.reactive.ServerHttpResponse;
@@ -68,7 +68,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import static infra.http.codec.json.Jackson2CodecSupport.JSON_VIEW_HINT;
+import static infra.http.codec.JacksonCodecSupport.JSON_VIEW_HINT;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -76,20 +76,19 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Arjen Poutsma
  * @author Sebastien Deleuze
  */
-public class BodyInsertersTests {
+class BodyInsertersTests {
 
   private BodyInserter.Context context;
 
   private Map<String, Object> hints;
 
   @BeforeEach
-  public void createContext() {
+  void createContext() {
     final List<HttpMessageWriter<?>> messageWriters = new ArrayList<>();
     messageWriters.add(new EncoderHttpMessageWriter<>(new ByteBufferEncoder()));
     messageWriters.add(new EncoderHttpMessageWriter<>(CharSequenceEncoder.textPlainOnly()));
     messageWriters.add(new ResourceHttpMessageWriter());
-//    messageWriters.add(new EncoderHttpMessageWriter<>(new Jaxb2XmlEncoder()));
-    Jackson2JsonEncoder jsonEncoder = new Jackson2JsonEncoder();
+    JacksonJsonEncoder jsonEncoder = new JacksonJsonEncoder();
     messageWriters.add(new EncoderHttpMessageWriter<>(jsonEncoder));
     messageWriters.add(new ServerSentEventHttpMessageWriter(jsonEncoder));
     messageWriters.add(new FormHttpMessageWriter());
@@ -116,7 +115,7 @@ public class BodyInsertersTests {
   }
 
   @Test
-  public void ofString() {
+  void ofString() {
     String body = "foo";
     BodyInserter<String, ReactiveHttpOutputMessage> inserter = BodyInserters.fromValue(body);
 
@@ -133,7 +132,7 @@ public class BodyInsertersTests {
   }
 
   @Test
-  public void ofObject() {
+  void ofObject() {
     User body = new User("foo", "bar");
     BodyInserter<User, ReactiveHttpOutputMessage> inserter = BodyInserters.fromValue(body);
     MockServerHttpResponse response = new MockServerHttpResponse();
@@ -147,7 +146,7 @@ public class BodyInsertersTests {
   }
 
   @Test
-  public void ofObjectWithHints() {
+  void ofObjectWithHints() {
     User body = new User("foo", "bar");
     BodyInserter<User, ReactiveHttpOutputMessage> inserter = BodyInserters.fromValue(body);
     this.hints.put(JSON_VIEW_HINT, SafeToSerialize.class);
@@ -162,7 +161,7 @@ public class BodyInsertersTests {
   }
 
   @Test
-  public void ofProducerWithMono() {
+  void ofProducerWithMono() {
     Mono<User> body = Mono.just(new User("foo", "bar"));
     BodyInserter<?, ReactiveHttpOutputMessage> inserter = BodyInserters.fromProducer(body, User.class);
 
@@ -176,7 +175,7 @@ public class BodyInsertersTests {
   }
 
   @Test
-  public void ofProducerWithFlux() {
+  void ofProducerWithFlux() {
     Flux<String> body = Flux.just("foo");
     BodyInserter<?, ReactiveHttpOutputMessage> inserter = BodyInserters.fromProducer(body, String.class);
 
@@ -193,7 +192,7 @@ public class BodyInsertersTests {
   }
 
   @Test
-  public void ofProducerWithSingle() {
+  void ofProducerWithSingle() {
     Single<User> body = Single.just(new User("foo", "bar"));
     BodyInserter<?, ReactiveHttpOutputMessage> inserter = BodyInserters.fromProducer(body, User.class);
 
@@ -207,7 +206,7 @@ public class BodyInsertersTests {
   }
 
   @Test
-  public void ofPublisher() {
+  void ofPublisher() {
     Flux<String> body = Flux.just("foo");
     BodyInserter<Flux<String>, ReactiveHttpOutputMessage> inserter = BodyInserters.fromPublisher(body, String.class);
 
@@ -224,7 +223,7 @@ public class BodyInsertersTests {
   }
 
   @Test
-  public void ofResource() throws IOException {
+  void ofResource() throws IOException {
     Resource resource = new ClassPathResource("response.txt", getClass());
 
     MockServerHttpResponse response = new MockServerHttpResponse();
@@ -244,7 +243,7 @@ public class BodyInsertersTests {
             .verify();
   }
 
-  @Test // gh-24366
+  @Test
   public void ofResourceWithExplicitMediaType() throws IOException {
     Resource resource = new ClassPathResource("response.txt", getClass());
 
@@ -268,7 +267,7 @@ public class BodyInsertersTests {
   }
 
   @Test
-  public void ofResourceRange() throws IOException {
+  void ofResourceRange() throws IOException {
     final int rangeStart = 10;
     Resource body = new ClassPathResource("response.txt", getClass());
     BodyInserter<Resource, ReactiveHttpOutputMessage> inserter = BodyInserters.fromResource(body);
@@ -311,7 +310,7 @@ public class BodyInsertersTests {
   }
 
   @Test
-  public void ofServerSentEventFlux() {
+  void ofServerSentEventFlux() {
     ServerSentEvent<String> event = ServerSentEvent.builder("foo").build();
     Flux<ServerSentEvent<String>> body = Flux.just(event);
     BodyInserter<Flux<ServerSentEvent<String>>, ServerHttpResponse> inserter =
@@ -323,7 +322,7 @@ public class BodyInsertersTests {
   }
 
   @Test
-  public void fromFormDataMap() {
+  void fromFormDataMap() {
     MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
     body.setOrRemove("name 1", "value 1");
     body.add("name 2", "value 2+1");
@@ -350,7 +349,7 @@ public class BodyInsertersTests {
   }
 
   @Test
-  public void fromFormDataWith() {
+  void fromFormDataWith() {
     BodyInserter<MultiValueMap<String, String>, ClientHttpRequest>
             inserter = BodyInserters.fromFormData("name 1", "value 1")
             .with("name 2", "value 2+1")
@@ -374,7 +373,7 @@ public class BodyInsertersTests {
   }
 
   @Test
-  public void fromMultipartData() {
+  void fromMultipartData() {
     MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
     map.setOrRemove("name 3", "value 3");
 
@@ -389,7 +388,7 @@ public class BodyInsertersTests {
 
   }
 
-  @Test
+  @Test  // SPR-16350
   public void fromMultipartDataWithMultipleValues() {
     MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
     map.put("name", Arrays.asList("value1", "value2"));
@@ -405,23 +404,25 @@ public class BodyInsertersTests {
               dataBuffer.read(resultBytes);
               dataBuffer.release();
               String content = new String(resultBytes, StandardCharsets.UTF_8);
-              assertThat(content).contains("Content-Disposition: form-data; name=\"name\"\r\n" +
-                      "Content-Type: text/plain;charset=UTF-8\r\n" +
-                      "Content-Length: 6\r\n" +
-                      "\r\n" +
-                      "value1");
-              assertThat(content).contains("Content-Disposition: form-data; name=\"name\"\r\n" +
-                      "Content-Type: text/plain;charset=UTF-8\r\n" +
-                      "Content-Length: 6\r\n" +
-                      "\r\n" +
-                      "value2");
+              assertThat(content).contains("""
+                      Content-Disposition: form-data; name="name"\r
+                      Content-Type: text/plain;charset=UTF-8\r
+                      Content-Length: 6\r
+                      \r
+                      value1""");
+              assertThat(content).contains("""
+                      Content-Disposition: form-data; name="name"\r
+                      Content-Type: text/plain;charset=UTF-8\r
+                      Content-Length: 6\r
+                      \r
+                      value2""");
             })
             .expectComplete()
             .verify();
   }
 
   @Test
-  public void ofDataBuffers() {
+  void ofDataBuffers() {
     byte[] bytes = "foo".getBytes(UTF_8);
     DefaultDataBuffer dataBuffer = DefaultDataBufferFactory.sharedInstance.wrap(ByteBuffer.wrap(bytes));
     Flux<DataBuffer> body = Flux.just(dataBuffer);

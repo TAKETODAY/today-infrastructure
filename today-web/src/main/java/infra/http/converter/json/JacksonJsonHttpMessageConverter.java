@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,17 +17,17 @@
 
 package infra.http.converter.json;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.List;
-
-import org.jspecify.annotations.Nullable;
-import tools.jackson.core.JsonGenerator;
-import tools.jackson.databind.cfg.MapperBuilder;
-import tools.jackson.databind.json.JsonMapper;
 
 import infra.http.MediaType;
 import infra.http.ProblemDetail;
 import infra.http.converter.AbstractJacksonHttpMessageConverter;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.cfg.MapperBuilder;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Implementation of {@link infra.http.converter.HttpMessageConverter}
@@ -51,81 +51,82 @@ import infra.http.converter.AbstractJacksonHttpMessageConverter;
  * </ul>
  *
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
 public class JacksonJsonHttpMessageConverter extends AbstractJacksonHttpMessageConverter<JsonMapper> {
 
-	private static final List<MediaType> problemDetailMediaTypes =
-			Collections.singletonList(MediaType.APPLICATION_PROBLEM_JSON);
+  private static final List<MediaType> problemDetailMediaTypes =
+          Collections.singletonList(MediaType.APPLICATION_PROBLEM_JSON);
 
-	private static final MediaType[] DEFAULT_JSON_MIME_TYPES = new MediaType[] {
-			MediaType.APPLICATION_JSON, new MediaType("application", "*+json") };
+  private static final MediaType[] DEFAULT_JSON_MIME_TYPES = new MediaType[] {
+          MediaType.APPLICATION_JSON, new MediaType("application", "*+json") };
 
+  private @Nullable String jsonPrefix;
 
-	private @Nullable String jsonPrefix;
+  /**
+   * Construct a new instance with a {@link JsonMapper} customized with the
+   * {@link tools.jackson.databind.JacksonModule}s found by
+   * {@link MapperBuilder#findModules(ClassLoader)} and
+   * {@link ProblemDetailJacksonMixin}.
+   */
+  public JacksonJsonHttpMessageConverter() {
+    this(JsonMapper.builder());
+  }
 
+  /**
+   * Construct a new instance with the provided {@link JsonMapper.Builder}
+   * customized with the {@link tools.jackson.databind.JacksonModule}s found
+   * by {@link MapperBuilder#findModules(ClassLoader)} and
+   * {@link ProblemDetailJacksonMixin}.
+   *
+   * @see JsonMapper#builder()
+   */
+  public JacksonJsonHttpMessageConverter(JsonMapper.Builder builder) {
+    super(builder.addMixIn(ProblemDetail.class, ProblemDetailJacksonMixin.class), DEFAULT_JSON_MIME_TYPES);
+  }
 
-	/**
-	 * Construct a new instance with a {@link JsonMapper} customized with the
-	 * {@link tools.jackson.databind.JacksonModule}s found by
-	 * {@link MapperBuilder#findModules(ClassLoader)} and
-	 * {@link ProblemDetailJacksonMixin}.
-	 */
-	public JacksonJsonHttpMessageConverter() {
-		this(JsonMapper.builder());
-	}
+  /**
+   * Construct a new instance with the provided {@link JsonMapper}.
+   *
+   * @see JsonMapper#builder()
+   */
+  public JacksonJsonHttpMessageConverter(JsonMapper mapper) {
+    super(mapper, DEFAULT_JSON_MIME_TYPES);
+  }
 
-	/**
-	 * Construct a new instance with the provided {@link JsonMapper.Builder}
-	 * customized with the {@link tools.jackson.databind.JacksonModule}s found
-	 * by {@link MapperBuilder#findModules(ClassLoader)} and
-	 * {@link ProblemDetailJacksonMixin}.
-	 * @see JsonMapper#builder()
-	 */
-	public JacksonJsonHttpMessageConverter(JsonMapper.Builder builder) {
-		super(builder.addMixIn(ProblemDetail.class, ProblemDetailJacksonMixin.class), DEFAULT_JSON_MIME_TYPES);
-	}
+  /**
+   * Specify a custom prefix to use for this view's JSON output.
+   * Default is none.
+   *
+   * @see #setPrefixJson
+   */
+  public void setJsonPrefix(String jsonPrefix) {
+    this.jsonPrefix = jsonPrefix;
+  }
 
-	/**
-	 * Construct a new instance with the provided {@link JsonMapper}.
-	 * @see JsonMapper#builder()
-	 */
-	public JacksonJsonHttpMessageConverter(JsonMapper mapper) {
-		super(mapper, DEFAULT_JSON_MIME_TYPES);
-	}
+  /**
+   * Indicate whether the JSON output by this view should be prefixed with ")]}', ". Default is {@code false}.
+   * <p>Prefixing the JSON string in this manner is used to help prevent JSON Hijacking.
+   * The prefix renders the string syntactically invalid as a script so that it cannot be hijacked.
+   * This prefix should be stripped before parsing the string as JSON.
+   *
+   * @see #setJsonPrefix
+   */
+  public void setPrefixJson(boolean prefixJson) {
+    this.jsonPrefix = (prefixJson ? ")]}', " : null);
+  }
 
+  @Override
+  protected List<MediaType> getMediaTypesForProblemDetail() {
+    return problemDetailMediaTypes;
+  }
 
-	/**
-	 * Specify a custom prefix to use for this view's JSON output.
-	 * Default is none.
-	 * @see #setPrefixJson
-	 */
-	public void setJsonPrefix(String jsonPrefix) {
-		this.jsonPrefix = jsonPrefix;
-	}
-
-	/**
-	 * Indicate whether the JSON output by this view should be prefixed with ")]}', ". Default is {@code false}.
-	 * <p>Prefixing the JSON string in this manner is used to help prevent JSON Hijacking.
-	 * The prefix renders the string syntactically invalid as a script so that it cannot be hijacked.
-	 * This prefix should be stripped before parsing the string as JSON.
-	 * @see #setJsonPrefix
-	 */
-	public void setPrefixJson(boolean prefixJson) {
-		this.jsonPrefix = (prefixJson ? ")]}', " : null);
-	}
-
-
-	@Override
-	protected List<MediaType> getMediaTypesForProblemDetail() {
-		return problemDetailMediaTypes;
-	}
-
-	@Override
-	protected void writePrefix(JsonGenerator generator, Object object) {
-		if (this.jsonPrefix != null) {
-			generator.writeRaw(this.jsonPrefix);
-		}
-	}
+  @Override
+  protected void writePrefix(JsonGenerator generator, Object object) {
+    if (this.jsonPrefix != null) {
+      generator.writeRaw(this.jsonPrefix);
+    }
+  }
 
 }

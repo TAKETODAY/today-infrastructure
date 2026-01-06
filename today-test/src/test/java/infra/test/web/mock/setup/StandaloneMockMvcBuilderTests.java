@@ -17,16 +17,12 @@
 
 package infra.test.web.mock.setup;
 
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ser.impl.UnknownSerializer;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.EnumSet;
 import java.util.Map;
 
-import infra.http.converter.json.BeanFactoryHandlerInstantiator;
 import infra.mock.api.DispatcherType;
 import infra.mock.api.Filter;
 import infra.mock.api.FilterConfig;
@@ -118,16 +114,6 @@ class StandaloneMockMvcBuilderTests {
 
     verify(filter, times(1)).init(captor.capture());
     assertThat(captor.getValue().getInitParameter("p")).isEqualTo("v");
-  }
-
-  @Test
-  @SuppressWarnings("rawtypes")
-  void infraHandlerInstantiator() {
-    TestStandaloneMockMvcBuilder builder = new TestStandaloneMockMvcBuilder(new PersonController());
-    builder.build();
-    BeanFactoryHandlerInstantiator instantiator = new BeanFactoryHandlerInstantiator(builder.wac.getAutowireCapableBeanFactory());
-    JsonSerializer serializer = instantiator.serializerInstance(null, null, UnknownSerializer.class);
-    assertThat(serializer).isNotNull();
   }
 
   @Controller

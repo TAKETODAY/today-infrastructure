@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ import infra.core.io.ClassPathResource;
 import infra.core.io.FileSystemResource;
 import infra.core.io.UrlResource;
 import infra.http.converter.HttpMessageConverter;
-import infra.http.converter.json.MappingJackson2HttpMessageConverter;
+import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
@@ -177,7 +177,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-      converters.add(new MappingJackson2HttpMessageConverter());
+      converters.add(new JacksonJsonHttpMessageConverter());
     }
 
     private String getPath(ClassPathResource resource) {

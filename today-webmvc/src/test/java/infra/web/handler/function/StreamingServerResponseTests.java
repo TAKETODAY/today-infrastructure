@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ import java.util.Collections;
 
 import infra.http.CacheControl;
 import infra.http.MediaType;
-import infra.http.converter.json.MappingJackson2HttpMessageConverter;
+import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockRequestContext;
@@ -118,7 +118,7 @@ class StreamingServerResponseTests {
               }
             });
 
-    ServerResponse.Context context = () -> Collections.singletonList(new MappingJackson2HttpMessageConverter());
+    ServerResponse.Context context = () -> Collections.singletonList(new JacksonJsonHttpMessageConverter());
     Object mav = response.writeTo(requestContext, context);
     assertThat(mav).isNull();
     assertThat(this.mockResponse.getContentType()).isEqualTo(MediaType.APPLICATION_NDJSON.toString());

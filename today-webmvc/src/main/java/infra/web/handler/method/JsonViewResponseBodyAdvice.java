@@ -28,18 +28,12 @@ import infra.core.MethodParameter;
 import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.SmartHttpMessageConverter;
-import infra.http.converter.json.MappingJacksonValue;
 import infra.lang.Assert;
-import infra.web.RequestContext;
 
 /**
  * A {@link ResponseBodyAdvice} implementation that adds support for Jackson's
  * {@code @JsonView} annotation declared on MVC {@code @RequestMapping} or
  * {@code @ExceptionHandler} method.
- *
- * <p>The serialization view specified in the annotation will be passed in to the
- * {@link infra.http.converter.json.MappingJackson2HttpMessageConverter}
- * which will then use it to serialize the response body.
  *
  * <p>Note that despite {@code @JsonView} allowing for more than one class to
  * be specified, the use for a response body advice is only supported with
@@ -68,13 +62,6 @@ public class JsonViewResponseBodyAdvice extends AbstractMappingJacksonResponseBo
       return Collections.singletonMap(JsonView.class.getName(), jsonView);
     }
     return null;
-  }
-
-  @Override
-  protected void beforeBodyWriteInternal(MappingJacksonValue value,
-          MediaType contentType, @Nullable MethodParameter returnType, RequestContext request) {
-
-    value.setSerializationView(getJsonView(returnType));
   }
 
   private static @Nullable Class<?> getJsonView(@Nullable MethodParameter returnType) {

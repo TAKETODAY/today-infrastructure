@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -659,7 +659,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     @Override
     public Object beforeBodyWrite(@Nullable Object body,
             MethodParameter returnType, MediaType contentType,
-            HttpMessageConverter<?> converter, RequestContext context) {
+            HttpMessageConverter<?> selected, RequestContext context) {
       return null;
     }
   }

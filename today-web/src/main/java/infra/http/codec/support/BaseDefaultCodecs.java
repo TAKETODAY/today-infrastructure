@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@ import infra.core.codec.NettyByteBufDecoder;
 import infra.core.codec.NettyByteBufEncoder;
 import infra.core.codec.ResourceDecoder;
 import infra.core.codec.StringDecoder;
+import infra.http.codec.AbstractJacksonDecoder;
 import infra.http.codec.CodecConfigurer;
 import infra.http.codec.DecoderHttpMessageReader;
 import infra.http.codec.EncoderHttpMessageWriter;
@@ -51,11 +52,10 @@ import infra.http.codec.ResourceHttpMessageReader;
 import infra.http.codec.ResourceHttpMessageWriter;
 import infra.http.codec.ServerSentEventHttpMessageReader;
 import infra.http.codec.ServerSentEventHttpMessageWriter;
-import infra.http.codec.json.AbstractJackson2Decoder;
-import infra.http.codec.json.Jackson2JsonDecoder;
-import infra.http.codec.json.Jackson2JsonEncoder;
-import infra.http.codec.json.Jackson2SmileDecoder;
-import infra.http.codec.json.Jackson2SmileEncoder;
+import infra.http.codec.cbor.JacksonCborDecoder;
+import infra.http.codec.cbor.JacksonCborEncoder;
+import infra.http.codec.json.JacksonJsonDecoder;
+import infra.http.codec.json.JacksonJsonEncoder;
 import infra.http.codec.multipart.DefaultPartHttpMessageReader;
 import infra.http.codec.multipart.MultipartHttpMessageReader;
 import infra.http.codec.multipart.MultipartHttpMessageWriter;
@@ -65,6 +65,8 @@ import infra.http.codec.multipart.PartHttpMessageWriter;
 import infra.http.codec.protobuf.ProtobufDecoder;
 import infra.http.codec.protobuf.ProtobufEncoder;
 import infra.http.codec.protobuf.ProtobufHttpMessageWriter;
+import infra.http.codec.smile.JacksonSmileDecoder;
+import infra.http.codec.smile.JacksonSmileEncoder;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 
@@ -78,65 +80,68 @@ import infra.util.ObjectUtils;
  */
 class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigurer.DefaultCodecConfig {
 
-  static final boolean jackson2Present;
-  static final boolean nettyByteBufPresent;
+  static final boolean JACKSON_PRESENT;
 
-  private static final boolean protobufPresent;
-  private static final boolean jackson2SmilePresent;
+  private static final boolean JACKSON_SMILE_PRESENT;
+
+  private static final boolean JACKSON_CBOR_PRESENT;
+
+  private static final boolean PROTOBUF_PRESENT;
+
+  static final boolean NETTY_BYTE_BUF_PRESENT;
 
   static {
     ClassLoader classLoader = BaseCodecConfigurer.class.getClassLoader();
-    jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", classLoader)
-            && ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", classLoader);
-    jackson2SmilePresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory", classLoader);
-    protobufPresent = ClassUtils.isPresent("com.google.protobuf.Message", classLoader);
-    nettyByteBufPresent = ClassUtils.isPresent("io.netty.buffer.ByteBuf", classLoader);
+    JACKSON_PRESENT = ClassUtils.isPresent("tools.jackson.databind.ObjectMapper", classLoader);
+    JACKSON_SMILE_PRESENT = JACKSON_PRESENT && ClassUtils.isPresent("tools.jackson.dataformat.smile.SmileMapper", classLoader);
+    JACKSON_CBOR_PRESENT = JACKSON_PRESENT && ClassUtils.isPresent("tools.jackson.dataformat.cbor.CBORMapper", classLoader);
+    PROTOBUF_PRESENT = ClassUtils.isPresent("com.google.protobuf.Message", classLoader);
+    NETTY_BYTE_BUF_PRESENT = ClassUtils.isPresent("io.netty.buffer.ByteBuf", classLoader);
   }
 
-  @Nullable
-  private Decoder<?> jackson2JsonDecoder;
+  private @Nullable Decoder<?> jacksonJsonDecoder;
 
-  @Nullable
-  private Encoder<?> jackson2JsonEncoder;
+  private @Nullable Encoder<?> jacksonJsonEncoder;
 
-  @Nullable
-  private Encoder<?> jackson2SmileEncoder;
+  private @Nullable Decoder<?> gsonDecoder;
 
-  @Nullable
-  private Decoder<?> jackson2SmileDecoder;
+  private @Nullable Encoder<?> gsonEncoder;
 
-  @Nullable
-  private Decoder<?> protobufDecoder;
+  private @Nullable Encoder<?> jacksonSmileEncoder;
 
-  @Nullable
-  private Encoder<?> protobufEncoder;
+  private @Nullable Decoder<?> jacksonSmileDecoder;
 
-  @Nullable
-  private DefaultMultipartCodecs multipartCodecs;
+  private @Nullable Encoder<?> jacksonCborEncoder;
 
-  @Nullable
-  private Supplier<List<HttpMessageWriter<?>>> partWritersSupplier;
+  private @Nullable Decoder<?> jacksonCborDecoder;
 
-  @Nullable
-  private HttpMessageReader<?> multipartReader;
+  private @Nullable Decoder<?> protobufDecoder;
 
-  @Nullable
-  private Consumer<Object> codecConsumer;
+  private @Nullable Encoder<?> protobufEncoder;
 
-  @Nullable
-  private Integer maxInMemorySize;
+  private @Nullable DefaultMultipartCodecs multipartCodecs;
 
-  @Nullable
-  private Boolean enableLoggingRequestDetails;
+  private @Nullable Supplier<List<HttpMessageWriter<?>>> partWritersSupplier;
+
+  private @Nullable HttpMessageReader<?> multipartReader;
+
+  private @Nullable Consumer<Object> codecConsumer;
+
+  private @Nullable Integer maxInMemorySize;
+
+  private @Nullable Boolean enableLoggingRequestDetails;
 
   private boolean registerDefaults = true;
 
   // The default reader and writer instances to use
 
-  private final ArrayList<HttpMessageReader<?>> typedReaders = new ArrayList<>();
-  private final ArrayList<HttpMessageReader<?>> objectReaders = new ArrayList<>();
-  private final ArrayList<HttpMessageWriter<?>> typedWriters = new ArrayList<>();
-  private final ArrayList<HttpMessageWriter<?>> objectWriters = new ArrayList<>();
+  private final List<HttpMessageReader<?>> typedReaders = new ArrayList<>();
+
+  private final List<HttpMessageReader<?>> objectReaders = new ArrayList<>();
+
+  private final List<HttpMessageWriter<?>> typedWriters = new ArrayList<>();
+
+  private final List<HttpMessageWriter<?>> objectWriters = new ArrayList<>();
 
   BaseDefaultCodecs() {
     initReaders();
@@ -163,10 +168,14 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
    * Create a deep copy of the given {@link BaseDefaultCodecs}.
    */
   protected BaseDefaultCodecs(BaseDefaultCodecs other) {
-    this.jackson2JsonDecoder = other.jackson2JsonDecoder;
-    this.jackson2JsonEncoder = other.jackson2JsonEncoder;
-    this.jackson2SmileDecoder = other.jackson2SmileDecoder;
-    this.jackson2SmileEncoder = other.jackson2SmileEncoder;
+    this.jacksonJsonDecoder = other.jacksonJsonDecoder;
+    this.jacksonJsonEncoder = other.jacksonJsonEncoder;
+    this.gsonDecoder = other.gsonDecoder;
+    this.gsonEncoder = other.gsonEncoder;
+    this.jacksonSmileDecoder = other.jacksonSmileDecoder;
+    this.jacksonSmileEncoder = other.jacksonSmileEncoder;
+    this.jacksonCborDecoder = other.jacksonCborDecoder;
+    this.jacksonCborEncoder = other.jacksonCborEncoder;
     this.protobufDecoder = other.protobufDecoder;
     this.protobufEncoder = other.protobufEncoder;
     this.multipartCodecs = other.multipartCodecs != null ?
@@ -183,27 +192,40 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
   }
 
   @Override
-  public void jackson2JsonDecoder(Decoder<?> decoder) {
-    this.jackson2JsonDecoder = decoder;
+  public void jacksonJsonDecoder(Decoder<?> decoder) {
+    this.jacksonJsonDecoder = decoder;
     initObjectReaders();
   }
 
   @Override
-  public void jackson2JsonEncoder(Encoder<?> encoder) {
-    this.jackson2JsonEncoder = encoder;
+  public void jacksonJsonEncoder(Encoder<?> encoder) {
+    this.jacksonJsonEncoder = encoder;
     initObjectWriters();
     initTypedWriters();
   }
 
   @Override
-  public void jackson2SmileDecoder(Decoder<?> decoder) {
-    this.jackson2SmileDecoder = decoder;
+  public void jacksonSmileDecoder(Decoder<?> decoder) {
+    this.jacksonSmileDecoder = decoder;
     initObjectReaders();
   }
 
   @Override
-  public void jackson2SmileEncoder(Encoder<?> encoder) {
-    this.jackson2SmileEncoder = encoder;
+  public void jacksonSmileEncoder(Encoder<?> encoder) {
+    this.jacksonSmileEncoder = encoder;
+    initObjectWriters();
+    initTypedWriters();
+  }
+
+  @Override
+  public void jacksonCborDecoder(Decoder<?> decoder) {
+    this.jacksonCborDecoder = decoder;
+    initObjectReaders();
+  }
+
+  @Override
+  public void jacksonCborEncoder(Encoder<?> encoder) {
+    this.jacksonCborEncoder = encoder;
     initObjectWriters();
     initTypedWriters();
   }
@@ -237,8 +259,7 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
   }
 
   @Override
-  @Nullable
-  public Integer maxInMemorySize() {
+  public @Nullable Integer maxInMemorySize() {
     return this.maxInMemorySize;
   }
 
@@ -277,8 +298,7 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
   }
 
   @Override
-  @Nullable
-  public Boolean isEnableLoggingRequestDetails() {
+  public @Nullable Boolean isEnableLoggingRequestDetails() {
     return this.enableLoggingRequestDetails;
   }
 
@@ -311,18 +331,16 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     addCodec(this.typedReaders, new DecoderHttpMessageReader<>(new ByteArrayDecoder()));
     addCodec(this.typedReaders, new DecoderHttpMessageReader<>(new ByteBufferDecoder()));
     addCodec(this.typedReaders, new DecoderHttpMessageReader<>(new DataBufferDecoder()));
-    if (nettyByteBufPresent) {
+    if (NETTY_BYTE_BUF_PRESENT) {
       addCodec(this.typedReaders, new DecoderHttpMessageReader<>(new NettyByteBufDecoder()));
     }
     addCodec(this.typedReaders, new ResourceHttpMessageReader(new ResourceDecoder()));
     addCodec(this.typedReaders, new DecoderHttpMessageReader<>(StringDecoder.textPlainOnly()));
-    if (protobufPresent) {
-      addCodec(this.typedReaders, new DecoderHttpMessageReader<>(
-              this.protobufDecoder != null ?
-                      (ProtobufDecoder) this.protobufDecoder : new ProtobufDecoder()));
+    if (PROTOBUF_PRESENT) {
+      addCodec(this.typedReaders, new DecoderHttpMessageReader<>(this.protobufDecoder != null ?
+              (ProtobufDecoder) this.protobufDecoder : new ProtobufDecoder()));
     }
     addCodec(this.typedReaders, new FormHttpMessageReader());
-
     if (this.multipartReader != null) {
       addCodec(this.typedReaders, this.multipartReader);
     }
@@ -350,13 +368,12 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
    * if configured by the application, to the given codec , including any
    * codec it contains.
    */
-  @SuppressWarnings("rawtypes")
   private void initCodec(@Nullable Object codec) {
-    if (codec instanceof DecoderHttpMessageReader) {
-      codec = ((DecoderHttpMessageReader) codec).getDecoder();
+    if (codec instanceof DecoderHttpMessageReader<?> decoderHttpMessageReader) {
+      codec = decoderHttpMessageReader.getDecoder();
     }
-    else if (codec instanceof EncoderHttpMessageWriter) {
-      codec = ((EncoderHttpMessageWriter<?>) codec).getEncoder();
+    else if (codec instanceof EncoderHttpMessageWriter<?> encoderHttpMessageWriter) {
+      codec = encoderHttpMessageWriter.getEncoder();
     }
 
     if (codec == null) {
@@ -365,57 +382,54 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
 
     Integer size = this.maxInMemorySize;
     if (size != null) {
-      if (codec instanceof AbstractDataBufferDecoder) {
-        ((AbstractDataBufferDecoder<?>) codec).setMaxInMemorySize(size);
+      if (codec instanceof AbstractDataBufferDecoder<?> abstractDataBufferDecoder) {
+        abstractDataBufferDecoder.setMaxInMemorySize(size);
       }
-      if (protobufPresent) {
-        if (codec instanceof ProtobufDecoder) {
-          ((ProtobufDecoder) codec).setMaxMessageSize(size);
+      // Pattern variables in the following if-blocks cannot be named the same as instance fields
+      // due to lacking support in Checkstyle: https://github.com/checkstyle/checkstyle/issues/10969
+      if (PROTOBUF_PRESENT) {
+        if (codec instanceof ProtobufDecoder protobufDec) {
+          protobufDec.setMaxMessageSize(size);
         }
       }
-      if (jackson2Present) {
-        if (codec instanceof AbstractJackson2Decoder) {
-          ((AbstractJackson2Decoder) codec).setMaxInMemorySize(size);
+      if (JACKSON_PRESENT) {
+        if (codec instanceof AbstractJacksonDecoder<?> abstractJacksonDecoder) {
+          abstractJacksonDecoder.setMaxInMemorySize(size);
         }
       }
-//      if (jaxb2Present && !shouldIgnoreXml) {
-//        if (codec instanceof Jaxb2XmlDecoder) {
-//          ((Jaxb2XmlDecoder) codec).setMaxInMemorySize(size);
-//        }
-//      }
-      if (codec instanceof FormHttpMessageReader) {
-        ((FormHttpMessageReader) codec).setMaxInMemorySize(size);
+      if (codec instanceof FormHttpMessageReader formHttpMessageReader) {
+        formHttpMessageReader.setMaxInMemorySize(size);
       }
-      if (codec instanceof ServerSentEventHttpMessageReader) {
-        ((ServerSentEventHttpMessageReader) codec).setMaxInMemorySize(size);
+      if (codec instanceof ServerSentEventHttpMessageReader serverSentEventHttpMessageReader) {
+        serverSentEventHttpMessageReader.setMaxInMemorySize(size);
       }
-      if (codec instanceof DefaultPartHttpMessageReader) {
-        ((DefaultPartHttpMessageReader) codec).setMaxInMemorySize(size);
+      if (codec instanceof DefaultPartHttpMessageReader defaultPartHttpMessageReader) {
+        defaultPartHttpMessageReader.setMaxInMemorySize(size);
       }
-      if (codec instanceof PartEventHttpMessageReader) {
-        ((PartEventHttpMessageReader) codec).setMaxInMemorySize(size);
+      if (codec instanceof PartEventHttpMessageReader partEventHttpMessageReader) {
+        partEventHttpMessageReader.setMaxInMemorySize(size);
       }
     }
 
     Boolean enable = this.enableLoggingRequestDetails;
     if (enable != null) {
-      if (codec instanceof FormHttpMessageReader) {
-        ((FormHttpMessageReader) codec).setEnableLoggingRequestDetails(enable);
+      if (codec instanceof FormHttpMessageReader formHttpMessageReader) {
+        formHttpMessageReader.setEnableLoggingRequestDetails(enable);
       }
-      if (codec instanceof MultipartHttpMessageReader) {
-        ((MultipartHttpMessageReader) codec).setEnableLoggingRequestDetails(enable);
+      if (codec instanceof MultipartHttpMessageReader multipartHttpMessageReader) {
+        multipartHttpMessageReader.setEnableLoggingRequestDetails(enable);
       }
-      if (codec instanceof DefaultPartHttpMessageReader) {
-        ((DefaultPartHttpMessageReader) codec).setEnableLoggingRequestDetails(enable);
+      if (codec instanceof DefaultPartHttpMessageReader defaultPartHttpMessageReader) {
+        defaultPartHttpMessageReader.setEnableLoggingRequestDetails(enable);
       }
-      if (codec instanceof PartEventHttpMessageReader) {
-        ((PartEventHttpMessageReader) codec).setEnableLoggingRequestDetails(enable);
+      if (codec instanceof PartEventHttpMessageReader partEventHttpMessageReader) {
+        partEventHttpMessageReader.setEnableLoggingRequestDetails(enable);
       }
-      if (codec instanceof FormHttpMessageWriter) {
-        ((FormHttpMessageWriter) codec).setEnableLoggingRequestDetails(enable);
+      if (codec instanceof FormHttpMessageWriter formHttpMessageWriter) {
+        formHttpMessageWriter.setEnableLoggingRequestDetails(enable);
       }
-      if (codec instanceof MultipartHttpMessageWriter) {
-        ((MultipartHttpMessageWriter) codec).setEnableLoggingRequestDetails(enable);
+      if (codec instanceof MultipartHttpMessageWriter multipartHttpMessageWriter) {
+        multipartHttpMessageWriter.setEnableLoggingRequestDetails(enable);
       }
     }
 
@@ -424,24 +438,25 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     }
 
     // Recurse for nested codecs
-    if (codec instanceof MultipartHttpMessageReader) {
-      initCodec(((MultipartHttpMessageReader) codec).getPartReader());
+    if (codec instanceof MultipartHttpMessageReader multipartHttpMessageReader) {
+      initCodec(multipartHttpMessageReader.getPartReader());
     }
-    else if (codec instanceof MultipartHttpMessageWriter) {
-      initCodec(((MultipartHttpMessageWriter) codec).getFormWriter());
+    else if (codec instanceof MultipartHttpMessageWriter multipartHttpMessageWriter) {
+      initCodec(multipartHttpMessageWriter.getFormWriter());
     }
-    else if (codec instanceof ServerSentEventHttpMessageReader) {
-      initCodec(((ServerSentEventHttpMessageReader) codec).getDecoder());
+    else if (codec instanceof ServerSentEventHttpMessageReader serverSentEventHttpMessageReader) {
+      initCodec(serverSentEventHttpMessageReader.getDecoder());
     }
-    else if (codec instanceof ServerSentEventHttpMessageWriter) {
-      initCodec(((ServerSentEventHttpMessageWriter) codec).getEncoder());
+    else if (codec instanceof ServerSentEventHttpMessageWriter serverSentEventHttpMessageWriter) {
+      initCodec(serverSentEventHttpMessageWriter.getEncoder());
     }
   }
 
   /**
    * Hook for client or server specific typed readers.
    */
-  protected void extendTypedReaders(List<HttpMessageReader<?>> typedReaders) { }
+  protected void extendTypedReaders(List<HttpMessageReader<?>> typedReaders) {
+  }
 
   /**
    * Return Object readers (JSON, XML, SSE).
@@ -458,18 +473,15 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     if (!this.registerDefaults) {
       return;
     }
-    if (jackson2Present) {
-      addCodec(this.objectReaders, new DecoderHttpMessageReader<>(getJackson2JsonDecoder()));
+    if (JACKSON_PRESENT) {
+      addCodec(this.objectReaders, new DecoderHttpMessageReader<>(getJacksonJsonDecoder()));
     }
-    if (jackson2SmilePresent) {
-      addCodec(this.objectReaders, new DecoderHttpMessageReader<>(
-              this.jackson2SmileDecoder != null ?
-                      (Jackson2SmileDecoder) this.jackson2SmileDecoder : new Jackson2SmileDecoder()));
+    if (JACKSON_SMILE_PRESENT) {
+      addCodec(this.objectReaders, new DecoderHttpMessageReader<>(getJacksonSmileDecoder()));
     }
-//    if (jaxb2Present && !shouldIgnoreXml) {
-//      addCodec(this.objectReaders, new DecoderHttpMessageReader<>(this.jaxb2Decoder != null ?
-//                                                                  (Jaxb2XmlDecoder) this.jaxb2Decoder : new Jaxb2XmlDecoder()));
-//    }
+    if (JACKSON_CBOR_PRESENT) {
+      addCodec(this.objectReaders, new DecoderHttpMessageReader<>(getJacksonCborDecoder()));
+    }
 
     // client vs server..
     extendObjectReaders(this.objectReaders);
@@ -502,8 +514,6 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
 
   /**
    * Reset and initialize typed writers.
-   *
-   * @since 4.0
    */
   protected void initTypedWriters() {
     this.typedWriters.clear();
@@ -525,15 +535,14 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     addCodec(writers, new EncoderHttpMessageWriter<>(new ByteArrayEncoder()));
     addCodec(writers, new EncoderHttpMessageWriter<>(new ByteBufferEncoder()));
     addCodec(writers, new EncoderHttpMessageWriter<>(new DataBufferEncoder()));
-    if (nettyByteBufPresent) {
+    if (NETTY_BYTE_BUF_PRESENT) {
       addCodec(writers, new EncoderHttpMessageWriter<>(new NettyByteBufEncoder()));
     }
     addCodec(writers, new ResourceHttpMessageWriter());
     addCodec(writers, new EncoderHttpMessageWriter<>(CharSequenceEncoder.textPlainOnly()));
-    if (protobufPresent) {
-      addCodec(writers, new ProtobufHttpMessageWriter(
-              this.protobufEncoder != null ?
-                      (ProtobufEncoder) this.protobufEncoder : new ProtobufEncoder()));
+    if (PROTOBUF_PRESENT) {
+      addCodec(writers, new ProtobufHttpMessageWriter(this.protobufEncoder != null ?
+              (ProtobufEncoder) this.protobufEncoder : new ProtobufEncoder()));
     }
 
     addCodec(writers, new MultipartHttpMessageWriter(this::getPartWriters, new FormHttpMessageWriter()));
@@ -557,7 +566,8 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
   /**
    * Hook for client or server specific typed writers.
    */
-  protected void extendTypedWriters(List<HttpMessageWriter<?>> typedWriters) { }
+  protected void extendTypedWriters(List<HttpMessageWriter<?>> typedWriters) {
+  }
 
   /**
    * Return Object writers (JSON, XML, SSE).
@@ -583,18 +593,15 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
    */
   final List<HttpMessageWriter<?>> getBaseObjectWriters() {
     List<HttpMessageWriter<?>> writers = new ArrayList<>();
-    if (jackson2Present) {
-      addCodec(writers, new EncoderHttpMessageWriter<>(getJackson2JsonEncoder()));
+    if (JACKSON_PRESENT) {
+      addCodec(writers, new EncoderHttpMessageWriter<>(getJacksonJsonEncoder()));
     }
-    if (jackson2SmilePresent) {
-      addCodec(writers, new EncoderHttpMessageWriter<>(
-              this.jackson2SmileEncoder != null ?
-                      (Jackson2SmileEncoder) this.jackson2SmileEncoder : new Jackson2SmileEncoder()));
+    if (JACKSON_SMILE_PRESENT) {
+      addCodec(writers, new EncoderHttpMessageWriter<>(getJacksonSmileEncoder()));
     }
-//    if (jaxb2Present && !shouldIgnoreXml) {
-//      addCodec(writers, new EncoderHttpMessageWriter<>(this.jaxb2Encoder != null ?
-//                                                       (Jaxb2XmlEncoder) this.jaxb2Encoder : new Jaxb2XmlEncoder()));
-//    }
+    if (JACKSON_CBOR_PRESENT) {
+      addCodec(writers, new EncoderHttpMessageWriter<>(getJacksonCborEncoder()));
+    }
     return writers;
   }
 
@@ -633,18 +640,76 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
 
   // Accessors for use in subclasses...
 
-  protected Decoder<?> getJackson2JsonDecoder() {
-    if (this.jackson2JsonDecoder == null) {
-      this.jackson2JsonDecoder = new Jackson2JsonDecoder();
+  protected Decoder<?> getJacksonJsonDecoder() {
+    if (this.jacksonJsonDecoder == null) {
+      if (JACKSON_PRESENT) {
+        this.jacksonJsonDecoder = new JacksonJsonDecoder();
+      }
+      else {
+        throw new IllegalStateException("Jackson not present");
+      }
     }
-    return this.jackson2JsonDecoder;
+    return this.jacksonJsonDecoder;
   }
 
-  protected Encoder<?> getJackson2JsonEncoder() {
-    if (this.jackson2JsonEncoder == null) {
-      this.jackson2JsonEncoder = new Jackson2JsonEncoder();
+  protected Encoder<?> getJacksonJsonEncoder() {
+    if (this.jacksonJsonEncoder == null) {
+      if (JACKSON_PRESENT) {
+        this.jacksonJsonEncoder = new JacksonJsonEncoder();
+      }
+      else {
+        throw new IllegalStateException("Jackson not present");
+      }
     }
-    return this.jackson2JsonEncoder;
+    return this.jacksonJsonEncoder;
+  }
+
+  protected Decoder<?> getJacksonSmileDecoder() {
+    if (this.jacksonSmileDecoder == null) {
+      if (JACKSON_SMILE_PRESENT) {
+        this.jacksonSmileDecoder = new JacksonSmileDecoder();
+      }
+      else {
+        throw new IllegalStateException("Jackson Smile support not present");
+      }
+    }
+    return this.jacksonSmileDecoder;
+  }
+
+  protected Encoder<?> getJacksonSmileEncoder() {
+    if (this.jacksonSmileEncoder == null) {
+      if (JACKSON_SMILE_PRESENT) {
+        this.jacksonSmileEncoder = new JacksonSmileEncoder();
+      }
+      else {
+        throw new IllegalStateException("Jackson Smile support not present");
+      }
+    }
+    return this.jacksonSmileEncoder;
+  }
+
+  protected Decoder<?> getJacksonCborDecoder() {
+    if (this.jacksonCborDecoder == null) {
+      if (JACKSON_CBOR_PRESENT) {
+        this.jacksonCborDecoder = new JacksonCborDecoder();
+      }
+      else {
+        throw new IllegalStateException("Jackson CBOR support not present");
+      }
+    }
+    return this.jacksonCborDecoder;
+  }
+
+  protected Encoder<?> getJacksonCborEncoder() {
+    if (this.jacksonCborEncoder == null) {
+      if (JACKSON_CBOR_PRESENT) {
+        this.jacksonCborEncoder = new JacksonCborEncoder();
+      }
+      else {
+        throw new IllegalStateException("Jackson CBOR support not present");
+      }
+    }
+    return this.jacksonCborEncoder;
   }
 
   /**
@@ -654,7 +719,8 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
 
     private final List<HttpMessageWriter<?>> writers = new ArrayList<>();
 
-    DefaultMultipartCodecs() { }
+    DefaultMultipartCodecs() {
+    }
 
     DefaultMultipartCodecs(DefaultMultipartCodecs other) {
       this.writers.addAll(other.writers);

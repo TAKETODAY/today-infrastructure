@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,9 +18,6 @@
 package infra.gradle.testkit;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.core.Versioned;
-import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.sun.jna.Platform;
 
 import org.antlr.v4.runtime.Lexer;
@@ -58,6 +55,7 @@ import infra.util.FileCopyUtils;
 import infra.util.FileSystemUtils;
 import io.spring.gradle.dependencymanagement.DependencyManagementPlugin;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
+import tools.jackson.core.Versioned;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -129,7 +127,6 @@ public class GradleBuild {
             new File(pathOfJarContaining(HttpVersionPolicy.class)),
             new File(pathOfJarContaining(Module.class)),
             new File(pathOfJarContaining(Versioned.class)),
-            new File(pathOfJarContaining(ParameterNamesModule.class)),
             new File(pathOfJarContaining(JsonView.class)),
             new File(pathOfJarContaining(Platform.class)),
             new File(pathOfJarContaining(Toml.class)),

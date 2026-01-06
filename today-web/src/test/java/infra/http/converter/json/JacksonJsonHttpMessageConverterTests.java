@@ -57,7 +57,6 @@ import tools.jackson.databind.ser.std.SimpleFilterProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.within;
 
@@ -109,7 +108,6 @@ class JacksonJsonHttpMessageConverterTests {
     assertThat(this.converter.canWrite(MyBean.class, new MediaType("application", "json", StandardCharsets.UTF_8))).isTrue();
     assertThat(this.converter.canWrite(MyBean.class, new MediaType("application", "json", StandardCharsets.US_ASCII))).isTrue();
     assertThat(this.converter.canWrite(MyBean.class, new MediaType("application", "json", StandardCharsets.ISO_8859_1))).isFalse();
-    assertThatThrownBy(() -> this.converter.canWrite(MappingJacksonValue.class, MediaType.APPLICATION_JSON)).isInstanceOf(UnsupportedOperationException.class);
   }
 
   @Test

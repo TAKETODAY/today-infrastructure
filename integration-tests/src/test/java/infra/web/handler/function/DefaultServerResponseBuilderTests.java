@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
 import infra.http.converter.StringHttpMessageConverter;
-import infra.http.converter.json.MappingJackson2HttpMessageConverter;
+import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.util.LinkedMultiValueMap;
@@ -331,7 +331,7 @@ class DefaultServerResponseBuilderTests {
 
     HttpMockRequestImpl mockRequest = new HttpMockRequestImpl("GET", "https://example.com");
     MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
-    ServerResponse.Context context = () -> Collections.singletonList(new MappingJackson2HttpMessageConverter());
+    ServerResponse.Context context = () -> Collections.singletonList(new JacksonJsonHttpMessageConverter());
 
     MockRequestContext requestContext = new MockRequestContext(null, mockRequest, mockResponse);
     Object mav = response.writeTo(requestContext, context);

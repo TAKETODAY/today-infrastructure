@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,15 +21,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
-import tools.jackson.databind.cfg.MapperBuilder;
-import tools.jackson.dataformat.xml.XmlFactory;
-import tools.jackson.dataformat.xml.XmlMapper;
-
 import infra.http.MediaType;
 import infra.http.ProblemDetail;
 import infra.http.converter.AbstractJacksonHttpMessageConverter;
 import infra.http.converter.json.ProblemDetailJacksonXmlMixin;
 import infra.util.xml.StaxUtils;
+import tools.jackson.databind.cfg.MapperBuilder;
+import tools.jackson.dataformat.xml.XmlFactory;
+import tools.jackson.dataformat.xml.XmlMapper;
 
 /**
  * Implementation of {@link infra.http.converter.HttpMessageConverter HttpMessageConverter}
@@ -53,57 +52,59 @@ import infra.util.xml.StaxUtils;
  */
 public class JacksonXmlHttpMessageConverter extends AbstractJacksonHttpMessageConverter<XmlMapper> {
 
-	private static final List<MediaType> problemDetailMediaTypes =
-			Collections.singletonList(MediaType.APPLICATION_PROBLEM_XML);
+  private static final List<MediaType> problemDetailMediaTypes =
+          Collections.singletonList(MediaType.APPLICATION_PROBLEM_XML);
 
-	private static final MediaType[] DEFAULT_XML_MIME_TYPES = new MediaType[] {
-			new MediaType("application", "xml", StandardCharsets.UTF_8),
-			new MediaType("text", "xml", StandardCharsets.UTF_8),
-			new MediaType("application", "*+xml", StandardCharsets.UTF_8)
-	};
+  private static final MediaType[] DEFAULT_XML_MIME_TYPES = new MediaType[] {
+          new MediaType("application", "xml", StandardCharsets.UTF_8),
+          new MediaType("text", "xml", StandardCharsets.UTF_8),
+          new MediaType("application", "*+xml", StandardCharsets.UTF_8)
+  };
 
-	/**
-	 * Construct a new instance with an {@link XmlMapper} created from
-	 * {@link #defensiveXmlFactory} and customized with the
-	 * {@link tools.jackson.databind.JacksonModule}s found by
-	 * {@link MapperBuilder#findModules(ClassLoader)} and
-	 * {@link ProblemDetailJacksonXmlMixin}.
-	 */
-	public JacksonXmlHttpMessageConverter() {
-		this(XmlMapper.builder(defensiveXmlFactory()));
-	}
+  /**
+   * Construct a new instance with an {@link XmlMapper} created from
+   * {@link #defensiveXmlFactory} and customized with the
+   * {@link tools.jackson.databind.JacksonModule}s found by
+   * {@link MapperBuilder#findModules(ClassLoader)} and
+   * {@link ProblemDetailJacksonXmlMixin}.
+   */
+  public JacksonXmlHttpMessageConverter() {
+    this(XmlMapper.builder(defensiveXmlFactory()));
+  }
 
-	/**
-	 * Construct a new instance with the provided {@link XmlMapper.Builder builder}
-	 * customized with the {@link tools.jackson.databind.JacksonModule}s found by
-	 * {@link MapperBuilder#findModules(ClassLoader)} and
-	 * {@link ProblemDetailJacksonXmlMixin}.
-	 * @see XmlMapper#builder()
-	 */
-	public JacksonXmlHttpMessageConverter(XmlMapper.Builder builder) {
-		super(builder.addMixIn(ProblemDetail.class, ProblemDetailJacksonXmlMixin.class), DEFAULT_XML_MIME_TYPES);
-	}
+  /**
+   * Construct a new instance with the provided {@link XmlMapper.Builder builder}
+   * customized with the {@link tools.jackson.databind.JacksonModule}s found by
+   * {@link MapperBuilder#findModules(ClassLoader)} and
+   * {@link ProblemDetailJacksonXmlMixin}.
+   *
+   * @see XmlMapper#builder()
+   */
+  public JacksonXmlHttpMessageConverter(XmlMapper.Builder builder) {
+    super(builder.addMixIn(ProblemDetail.class, ProblemDetailJacksonXmlMixin.class), DEFAULT_XML_MIME_TYPES);
+  }
 
-	/**
-	 * Construct a new instance with the provided {@link XmlMapper}.
-	 * @see XmlMapper#builder()
-	 */
-	public JacksonXmlHttpMessageConverter(XmlMapper xmlMapper) {
-		super(xmlMapper, DEFAULT_XML_MIME_TYPES);
-	}
+  /**
+   * Construct a new instance with the provided {@link XmlMapper}.
+   *
+   * @see XmlMapper#builder()
+   */
+  public JacksonXmlHttpMessageConverter(XmlMapper xmlMapper) {
+    super(xmlMapper, DEFAULT_XML_MIME_TYPES);
+  }
 
-	/**
-	 * Return an {@link XmlFactory} created from {@link StaxUtils#createDefensiveInputFactory}
-	 * with Spring's defensive setup, i.e. no support for the resolution of DTDs and external
-	 * entities.
-	 */
-	public static XmlFactory defensiveXmlFactory() {
-		return new XmlFactory(StaxUtils.createDefensiveInputFactory());
-	}
+  /**
+   * Return an {@link XmlFactory} created from {@link StaxUtils#createDefensiveInputFactory}
+   * with Spring's defensive setup, i.e. no support for the resolution of DTDs and external
+   * entities.
+   */
+  public static XmlFactory defensiveXmlFactory() {
+    return new XmlFactory(StaxUtils.createDefensiveInputFactory());
+  }
 
-	@Override
-	protected List<MediaType> getMediaTypesForProblemDetail() {
-		return problemDetailMediaTypes;
-	}
+  @Override
+  protected List<MediaType> getMediaTypesForProblemDetail() {
+    return problemDetailMediaTypes;
+  }
 
 }

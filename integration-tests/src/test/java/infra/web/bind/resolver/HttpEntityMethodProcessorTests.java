@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ import infra.http.ResponseEntity;
 import infra.http.converter.ByteArrayHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
-import infra.http.converter.json.MappingJackson2HttpMessageConverter;
+import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.ErrorResponse;
@@ -91,7 +91,7 @@ class HttpEntityMethodProcessorTests {
     mockRequest.setContentType("application/json");
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
-    converters.add(new MappingJackson2HttpMessageConverter());
+    converters.add(new JacksonJsonHttpMessageConverter());
     HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters, null);
 
     @SuppressWarnings("unchecked")
@@ -108,7 +108,7 @@ class HttpEntityMethodProcessorTests {
     this.mockRequest.setContentType("application/json");
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
-    converters.add(new MappingJackson2HttpMessageConverter());
+    converters.add(new JacksonJsonHttpMessageConverter());
     HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters, null);
 
     HttpEntity<?> result = (HttpEntity<?>) processor.resolveArgument(webRequest, this.paramSimpleBean);
@@ -124,7 +124,7 @@ class HttpEntityMethodProcessorTests {
     this.mockRequest.setContentType("application/json");
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
-    converters.add(new MappingJackson2HttpMessageConverter());
+    converters.add(new JacksonJsonHttpMessageConverter());
     HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters, null);
 
     @SuppressWarnings("unchecked")
@@ -147,7 +147,7 @@ class HttpEntityMethodProcessorTests {
     this.mockRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
-    converters.add(new MappingJackson2HttpMessageConverter());
+    converters.add(new JacksonJsonHttpMessageConverter());
     HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters, null);
 
     @SuppressWarnings("unchecked")
@@ -164,7 +164,7 @@ class HttpEntityMethodProcessorTests {
     HandlerMethod handlerMethod = new HandlerMethod(new JacksonController(), method);
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
-    converters.add(new MappingJackson2HttpMessageConverter());
+    converters.add(new JacksonJsonHttpMessageConverter());
     HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters, null);
 
     Object returnValue = new JacksonController().handleList();
@@ -214,7 +214,7 @@ class HttpEntityMethodProcessorTests {
   @Test
   public void supportsParameterWithRequestEntity() throws Exception {
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
-    converters.add(new MappingJackson2HttpMessageConverter());
+    converters.add(new JacksonJsonHttpMessageConverter());
 
     ResolvableMethodParameter param = new ResolvableMethodParameter(
             new MethodParameter(getClass().getDeclaredMethod("handleRequestEntity", RequestEntity.class), 0));
@@ -226,43 +226,43 @@ class HttpEntityMethodProcessorTests {
   public void supportsParameterWithNonHttpEntity() throws Exception {
     ResolvableMethodParameter param = new ResolvableMethodParameter(
             new MethodParameter(getClass().getDeclaredMethod("handleString", String.class), 0));
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
     assertThat(processor.supportsParameter(param)).isFalse();
   }
 
   @Test
   public void supportsReturnValueWithHttpEntity() {
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
     assertThat(processor.supportsReturnValue(new HttpEntity<>("test"))).isTrue();
   }
 
   @Test
   public void supportsReturnValueWithResponseEntity() {
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
     assertThat(processor.supportsReturnValue(ResponseEntity.ok("test"))).isTrue();
   }
 
   @Test
   public void supportsReturnValueWithRequestEntity() {
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
     assertThat(processor.supportsReturnValue(new RequestEntity<>("test", HttpMethod.GET, URI.create("/")))).isFalse();
   }
 
   @Test
   public void supportsReturnValueWithNull() {
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
     assertThat(processor.supportsReturnValue(null)).isFalse();
   }
 
   @Test
   public void supportsReturnValueWithProblemDetail() {
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
     assertThat(processor.supportsReturnValue(ProblemDetail.forRawStatusCode(404))).isTrue();
   }
 
   @Test
   public void supportsReturnValueWithErrorStatus() {
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
     assertThat(processor.supportsReturnValue(new TestErrorResponse())).isTrue();
   }
 
@@ -270,7 +270,7 @@ class HttpEntityMethodProcessorTests {
   public void supportsHandlerMethodWithHttpEntityReturnType() throws Exception {
     Method method = getClass().getDeclaredMethod("handleReturnHttpEntity");
     HandlerMethod handlerMethod = new HandlerMethod(this, method);
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
     assertThat(processor.supportsHandlerMethod(handlerMethod)).isTrue();
   }
 
@@ -278,7 +278,7 @@ class HttpEntityMethodProcessorTests {
   public void supportsHandlerMethodWithResponseEntityReturnType() throws Exception {
     Method method = getClass().getDeclaredMethod("handleReturnResponseEntity");
     HandlerMethod handlerMethod = new HandlerMethod(this, method);
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
     assertThat(processor.supportsHandlerMethod(handlerMethod)).isTrue();
   }
 
@@ -286,7 +286,7 @@ class HttpEntityMethodProcessorTests {
   public void supportsHandlerMethodWithRequestEntityReturnType() throws Exception {
     Method method = getClass().getDeclaredMethod("handleReturnRequestEntity");
     HandlerMethod handlerMethod = new HandlerMethod(this, method);
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
     assertThat(processor.supportsHandlerMethod(handlerMethod)).isFalse();
   }
 
@@ -294,13 +294,13 @@ class HttpEntityMethodProcessorTests {
   public void supportsHandlerMethodWithStringReturnType() throws Exception {
     Method method = getClass().getDeclaredMethod("handleString", String.class);
     HandlerMethod handlerMethod = new HandlerMethod(this, method);
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
     assertThat(processor.supportsHandlerMethod(handlerMethod)).isFalse();
   }
 
   @Test
   public void handleNullReturnValue() throws Exception {
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
     processor.handleReturnValue(webRequest, null, null);
     // Should not throw exception
   }
@@ -308,7 +308,7 @@ class HttpEntityMethodProcessorTests {
   @Test
   public void handleProblemDetailReturnValue() throws Exception {
     ProblemDetail problemDetail = ProblemDetail.forRawStatusCode(404);
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
 
     processor.handleReturnValue(webRequest, null, problemDetail);
 
@@ -318,7 +318,7 @@ class HttpEntityMethodProcessorTests {
   @Test
   public void handleErrorResponseReturnValue() throws Exception {
     TestErrorResponse errorResponse = new TestErrorResponse();
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
 
     processor.handleReturnValue(webRequest, null, errorResponse);
 
@@ -331,7 +331,7 @@ class HttpEntityMethodProcessorTests {
     headers.add("Custom-Header", "custom-value");
     ResponseEntity<String> responseEntity = new ResponseEntity<>("body", headers, HttpStatusCode.valueOf(201));
 
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
     processor.handleReturnValue(webRequest, null, responseEntity);
 
     assertThat(webRequest.getStatus()).isEqualTo(201);
@@ -344,7 +344,7 @@ class HttpEntityMethodProcessorTests {
     headers.add(HttpHeaders.LOCATION, "/redirect");
     ResponseEntity<String> responseEntity = new ResponseEntity<>("body", headers, HttpStatusCode.valueOf(302));
 
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
     processor.handleReturnValue(webRequest, null, responseEntity);
 
     assertThat(webRequest.getStatus()).isEqualTo(302);
@@ -355,7 +355,7 @@ class HttpEntityMethodProcessorTests {
   public void supportsParameterWithRawHttpEntity() throws Exception {
     Method method = getClass().getDeclaredMethod("handleRawHttpEntity", HttpEntity.class);
     ResolvableMethodParameter param = new ResolvableMethodParameter(new MethodParameter(method, 0));
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
     assertThat(processor.supportsParameter(param)).isTrue();
   }
 
@@ -381,7 +381,7 @@ class HttpEntityMethodProcessorTests {
     mockRequest.setContentType("application/json");
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
-    converters.add(new MappingJackson2HttpMessageConverter());
+    converters.add(new JacksonJsonHttpMessageConverter());
 
     Method method = getClass().getDeclaredMethod("handleRequestEntity", RequestEntity.class);
     ResolvableMethodParameter param = new ResolvableMethodParameter(new MethodParameter(method, 0));
@@ -400,7 +400,7 @@ class HttpEntityMethodProcessorTests {
     Method method = getClass().getDeclaredMethod("handleRawHttpEntity", HttpEntity.class);
     MethodParameter parameter = new MethodParameter(method, 0);
 
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
     // Access private method via reflection
     java.lang.reflect.Method getHttpEntityType = HttpEntityMethodProcessor.class.getDeclaredMethod("getHttpEntityType", MethodParameter.class);
     getHttpEntityType.setAccessible(true);
@@ -418,7 +418,7 @@ class HttpEntityMethodProcessorTests {
 
     ResponseEntity<String> responseEntity = new ResponseEntity<>("body", entityHeaders, HttpStatus.OK);
 
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
     processor.handleReturnValue(webRequest, null, responseEntity);
 
     List<String> varyHeaders = responseHeaders.getVary();
@@ -435,7 +435,7 @@ class HttpEntityMethodProcessorTests {
 
     ResponseEntity<String> responseEntity = new ResponseEntity<>("body", entityHeaders, HttpStatus.OK);
 
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
     processor.handleReturnValue(webRequest, null, responseEntity);
 
     List<String> varyHeaders = responseHeaders.getVary();
@@ -452,7 +452,7 @@ class HttpEntityMethodProcessorTests {
 
     ResponseEntity<String> responseEntity = new ResponseEntity<>("body", entityHeaders, HttpStatus.OK);
 
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
     processor.handleReturnValue(webRequest, null, responseEntity);
 
     assertThat(webRequest.getStatus()).isEqualTo(304);
@@ -463,7 +463,7 @@ class HttpEntityMethodProcessorTests {
     ProblemDetail problemDetail = ProblemDetail.forRawStatusCode(404);
     problemDetail.setInstance(URI.create("/test"));
 
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
     processor.handleReturnValue(webRequest, null, problemDetail);
 
     assertThat(problemDetail.getInstance()).isEqualTo(URI.create("/test"));
@@ -474,7 +474,7 @@ class HttpEntityMethodProcessorTests {
     ProblemDetail problemDetail = ProblemDetail.forRawStatusCode(404);
     mockRequest.setRequestURI("/test-path");
 
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
     processor.handleReturnValue(webRequest, null, problemDetail);
 
     assertThat(problemDetail.getInstance()).isEqualTo(URI.create("/test-path"));
@@ -482,7 +482,7 @@ class HttpEntityMethodProcessorTests {
 
   @Test
   public void getReturnValueTypeWithReturnValue() throws Exception {
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
 
     java.lang.reflect.Method getReturnValueType = HttpEntityMethodProcessor.class.getDeclaredMethod("getReturnValueType", Object.class, MethodParameter.class);
     getReturnValueType.setAccessible(true);
@@ -498,7 +498,7 @@ class HttpEntityMethodProcessorTests {
     Method method = getClass().getDeclaredMethod("handleReturnResponseEntity");
     MethodParameter returnType = new MethodParameter(method, -1);
 
-    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()), null);
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
 
     java.lang.reflect.Method getReturnValueType = HttpEntityMethodProcessor.class.getDeclaredMethod("getReturnValueType", Object.class, MethodParameter.class);
     getReturnValueType.setAccessible(true);

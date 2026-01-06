@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 
 package infra.test.web.reactive.server;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.TypeRef;
 
@@ -26,8 +25,9 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-import infra.http.codec.json.Jackson2JsonDecoder;
-import infra.http.codec.json.Jackson2JsonEncoder;
+import infra.http.codec.json.JacksonJsonDecoder;
+import infra.http.codec.json.JacksonJsonEncoder;
+import tools.jackson.databind.json.JsonMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,10 +37,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class EncoderDecoderMappingProviderTests {
 
-  private static final ObjectMapper objectMapper = new ObjectMapper();
+  private static final JsonMapper jsonMapper = new JsonMapper();
 
   private final EncoderDecoderMappingProvider mappingProvider = new EncoderDecoderMappingProvider(
-          new Jackson2JsonEncoder(objectMapper), new Jackson2JsonDecoder(objectMapper));
+          new JacksonJsonEncoder(jsonMapper), new JacksonJsonDecoder(jsonMapper));
 
   @Test
   void mapType() {

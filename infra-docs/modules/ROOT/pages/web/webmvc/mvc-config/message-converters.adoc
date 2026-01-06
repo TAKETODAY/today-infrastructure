@@ -22,17 +22,11 @@ public class WebConfiguration implements WebMvcConfigurer {
             .indentOutput(true)
             .dateFormat(new SimpleDateFormat("yyyy-MM-dd"))
             .modulesToInstall(new ParameterNamesModule());
-    converters.add(new MappingJackson2HttpMessageConverter(builder.build()));
-    converters.add(new MappingJackson2XmlHttpMessageConverter(builder.createXmlMapper(true).build()));
+    converters.add(new JacksonJsonHttpMessageConverter(builder.build()));
+    converters.add(new JacksonXmlHttpMessageConverter(builder.createXmlMapper(true).build()));
   }
 }
 ----
-
-在前面的示例中，
-{today-framework-api}/http/converter/json/Jackson2ObjectMapperBuilder.html[`Jackson2ObjectMapperBuilder`]
-用于为 `MappingJackson2HttpMessageConverter` 和 `MappingJackson2XmlHttpMessageConverter` 创建一个通用配置，启用缩进，自定义日期格式，并注册
-{jackson-github-org}/jackson-module-parameter-names[`jackson-module-parameter-names`]，
-这增加了对访问参数名称的支持（Java 8 中新增的功能）。
 
 此构建器按以下方式自定义 Jackson 的默认属性：
 

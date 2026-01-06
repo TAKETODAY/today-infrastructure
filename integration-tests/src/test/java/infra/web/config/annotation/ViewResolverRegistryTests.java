@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ import infra.web.view.freemarker.FreeMarkerConfigurer;
 import infra.web.view.freemarker.FreeMarkerViewResolver;
 import infra.web.view.groovy.GroovyMarkupConfigurer;
 import infra.web.view.groovy.GroovyMarkupViewResolver;
-import infra.web.view.json.MappingJackson2JsonView;
+import infra.web.view.json.JacksonJsonView;
 import infra.web.view.script.ScriptTemplateConfigurer;
 import infra.web.view.script.ScriptTemplateViewResolver;
 import infra.web.view.xml.MarshallingView;
@@ -140,7 +140,7 @@ class ViewResolverRegistryTests {
 
   @Test
   public void contentNegotiation() {
-    MappingJackson2JsonView view = new MappingJackson2JsonView();
+    JacksonJsonView view = new JacksonJsonView();
     this.registry.enableContentNegotiation(view);
     ContentNegotiatingViewResolver resolver = checkAndGetResolver(ContentNegotiatingViewResolver.class);
     assertThat(resolver.getDefaultViews()).isEqualTo(Arrays.asList(view));
@@ -149,7 +149,7 @@ class ViewResolverRegistryTests {
 
   @Test
   public void contentNegotiationAddsDefaultViewRegistrations() {
-    MappingJackson2JsonView view1 = new MappingJackson2JsonView();
+    JacksonJsonView view1 = new JacksonJsonView();
     this.registry.enableContentNegotiation(view1);
 
     ContentNegotiatingViewResolver resolver1 = checkAndGetResolver(ContentNegotiatingViewResolver.class);
@@ -175,7 +175,7 @@ class ViewResolverRegistryTests {
   @Test
   void enableContentNegotiationWithUseNotAcceptableStatus() {
     ViewResolverRegistry registry = new ViewResolverRegistry(null, null);
-    MappingJackson2JsonView view = new MappingJackson2JsonView();
+    JacksonJsonView view = new JacksonJsonView();
 
     registry.enableContentNegotiation(true, view);
 
@@ -188,7 +188,7 @@ class ViewResolverRegistryTests {
   @Test
   void enableContentNegotiationMultipleTimes() {
     ViewResolverRegistry registry = new ViewResolverRegistry(null, null);
-    MappingJackson2JsonView view1 = new MappingJackson2JsonView();
+    JacksonJsonView view1 = new JacksonJsonView();
     MarshallingView view2 = new MarshallingView();
 
     registry.enableContentNegotiation(view1);
@@ -251,7 +251,7 @@ class ViewResolverRegistryTests {
   @Test
   void getViewResolversReturnsContentNegotiatingResolverWhenPresent() {
     ViewResolverRegistry registry = new ViewResolverRegistry(null, null);
-    MappingJackson2JsonView view = new MappingJackson2JsonView();
+    JacksonJsonView view = new JacksonJsonView();
 
     registry.enableContentNegotiation(view);
 

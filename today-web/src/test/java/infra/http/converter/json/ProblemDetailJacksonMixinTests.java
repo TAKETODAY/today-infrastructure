@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,13 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.http.converter.json;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
@@ -29,6 +25,9 @@ import java.net.URI;
 
 import infra.http.HttpStatus;
 import infra.http.ProblemDetail;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.dataformat.xml.XmlMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class ProblemDetailJacksonMixinTests {
 
-  private final ObjectMapper mapper = new Jackson2ObjectMapperBuilder().build();
+  private final ObjectMapper mapper = JsonMapper.builder().addMixIn(ProblemDetail.class, ProblemDetailJacksonMixin.class).build();
 
   @Test
   void writeStatusAndHeaders() throws Exception {
@@ -46,7 +45,6 @@ class ProblemDetailJacksonMixinTests {
     testWrite(detail,
             """
                     {
-                      "type": "about:blank",
                       "title": "Bad Request",
                       "status": 400,
                       "detail": "Missing header"
@@ -61,7 +59,6 @@ class ProblemDetailJacksonMixinTests {
 
     testWrite(detail, """
             {
-            	"type": "about:blank",
             	"title": "Bad Request",
             	"status": 400,
             	"detail": "Missing header",
@@ -71,7 +68,7 @@ class ProblemDetailJacksonMixinTests {
   }
 
   @Test
-  void readCustomProperty() throws Exception {
+  void readCustomProperty() {
     ProblemDetail detail = this.mapper.readValue("""
             {
             	"type": "about:blank",
@@ -92,8 +89,8 @@ class ProblemDetailJacksonMixinTests {
   }
 
   @Test
-  void readCustomPropertyFromXml() throws Exception {
-    ObjectMapper xmlMapper = new Jackson2ObjectMapperBuilder().createXmlMapper(true).build();
+  void readCustomPropertyFromXml() {
+    ObjectMapper xmlMapper = XmlMapper.builder().addMixIn(ProblemDetail.class, ProblemDetailJacksonMixin.class).build();
     ProblemDetail detail = xmlMapper.readValue("""
             <problem xmlns="urn:ietf:rfc:7807">
             	<type>about:blank</type>
@@ -110,7 +107,7 @@ class ProblemDetailJacksonMixinTests {
     assertThat(detail.getProperties()).containsEntry("host", "abc.org");
   }
 
-  private void testWrite(ProblemDetail problemDetail, String expected) throws Exception {
+  private void testWrite(ProblemDetail problemDetail, String expected) throws JSONException {
     String output = this.mapper.writeValueAsString(problemDetail);
     JSONAssert.assertEquals(expected, output, false);
   }

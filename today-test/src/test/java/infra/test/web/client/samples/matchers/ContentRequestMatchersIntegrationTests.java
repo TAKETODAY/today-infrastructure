@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ import java.util.List;
 
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
-import infra.http.converter.json.MappingJackson2HttpMessageConverter;
+import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.test.web.Person;
 import infra.test.web.client.MockRestServiceServer;
 import infra.web.client.RestTemplate;
@@ -42,8 +42,6 @@ import static org.hamcrest.Matchers.startsWith;
  *
  * @author Rossen Stoyanchev
  * @see JsonPathRequestMatchersIntegrationTests
- * @see XmlContentRequestMatchersIntegrationTests
- * @see XpathRequestMatchersIntegrationTests
  */
 public class ContentRequestMatchersIntegrationTests {
 
@@ -55,7 +53,7 @@ public class ContentRequestMatchersIntegrationTests {
   public void setup() {
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new StringHttpMessageConverter());
-    converters.add(new MappingJackson2HttpMessageConverter());
+    converters.add(new JacksonJsonHttpMessageConverter());
 
     this.restTemplate = new RestTemplate();
     this.restTemplate.setMessageConverters(converters);

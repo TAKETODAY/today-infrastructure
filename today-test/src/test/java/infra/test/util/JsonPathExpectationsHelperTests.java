@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,10 @@
 
 package infra.test.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.Configuration;
-import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
+import com.jayway.jsonpath.TypeRef;
+import com.jayway.jsonpath.spi.mapper.MappingException;
+import com.jayway.jsonpath.spi.mapper.MappingProvider;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.util.List;
 
 import infra.core.ParameterizedTypeReference;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.json.JsonMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -46,7 +49,7 @@ import static org.hamcrest.core.Is.is;
 class JsonPathExpectationsHelperTests {
 
   private static final Configuration JACKSON_MAPPING_CONFIGURATION = Configuration.defaultConfiguration()
-          .mappingProvider(new JacksonMappingProvider(new ObjectMapper()));
+          .mappingProvider(new JacksonMappingProvider());
 
   private static final String CONTENT = """
           {
@@ -58,7 +61,8 @@ class JsonPathExpectationsHelperTests {
           	'whitespace':  '    ',
           	'emptyString': '',
           	'emptyArray':  [],
-          	'emptyMap':    {}
+          	'emptyMap':    {},
+          	'nullValue':   null
           }""";
 
   private static final String SIMPSONS = """
@@ -220,13 +224,13 @@ class JsonPathExpectationsHelperTests {
   }
 
   @Test
-
+    // SPR-16339
   void doesNotHaveJsonPath() {
     new JsonPathExpectationsHelper("$.abc").doesNotHaveJsonPath("{}");
   }
 
   @Test
-
+    // SPR-16339
   void doesNotHaveJsonPathWithNull() {
     assertThatExceptionOfType(AssertionError.class).isThrownBy(() ->
             new JsonPathExpectationsHelper("$.abc").doesNotHaveJsonPath("{\"abc\": null}"));
@@ -251,13 +255,18 @@ class JsonPathExpectationsHelperTests {
   }
 
   @Test
+  void assertNullValue() {
+    new JsonPathExpectationsHelper("$.nullValue").assertValue(CONTENT, (Object) null);
+  }
 
+  @Test
+    // SPR-14498
   void assertValueWithNumberConversion() {
     new JsonPathExpectationsHelper("$.num").assertValue(CONTENT, 5.0);
   }
 
   @Test
-
+    // SPR-14498
   void assertValueWithNumberConversionAndMatcher() {
     new JsonPathExpectationsHelper("$.num").assertValue(CONTENT, is(5.0), Double.class);
   }
@@ -377,5 +386,52 @@ class JsonPathExpectationsHelperTests {
   }
 
   public record Member(String name) { }
+
+  /**
+   * Jackson 3.x variant of {@link com.jayway.jsonpath.spi.mapper.JacksonMappingProvider}.
+   */
+  private static class JacksonMappingProvider implements MappingProvider {
+
+    private final JsonMapper jsonMapper;
+
+    public JacksonMappingProvider() {
+      this(new JsonMapper());
+    }
+
+    public JacksonMappingProvider(JsonMapper jsonMapper) {
+      this.jsonMapper = jsonMapper;
+    }
+
+    @Override
+    public <T> T map(Object source, Class<T> targetType, Configuration configuration) {
+      if (source == null) {
+        return null;
+      }
+      try {
+        return jsonMapper.convertValue(source, targetType);
+      }
+      catch (Exception ex) {
+        throw new MappingException(ex);
+      }
+
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T map(Object source, final TypeRef<T> targetType, Configuration configuration) {
+      if (source == null) {
+        return null;
+      }
+      JavaType type = jsonMapper.getTypeFactory().constructType(targetType.getType());
+
+      try {
+        return (T) jsonMapper.convertValue(source, type);
+      }
+      catch (Exception ex) {
+        throw new MappingException(ex);
+      }
+
+    }
+  }
 
 }

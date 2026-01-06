@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ import infra.web.annotation.GetMapping;
 import infra.web.annotation.PathVariable;
 import infra.web.view.ContentNegotiatingViewResolver;
 import infra.web.view.View;
-import infra.web.view.json.MappingJackson2JsonView;
+import infra.web.view.json.JacksonJsonView;
 import infra.web.view.xml.MarshallingView;
 
 import static infra.test.web.mock.result.MockMvcResultMatchers.forwardedUrl;
@@ -59,7 +59,7 @@ class ViewResolutionTests {
   void jsonOnly() {
     WebTestClient testClient =
             MockMvcWebTestClient.bindToController(new PersonController())
-                    .singleView(new MappingJackson2JsonView())
+                    .singleView(new JacksonJsonView())
                     .build();
 
     testClient.get().uri("/person/Corea")
@@ -92,7 +92,7 @@ class ViewResolutionTests {
     marshaller.setClassesToBeBound(Person.class);
 
     List<View> viewList = new ArrayList<>();
-    viewList.add(new MappingJackson2JsonView());
+    viewList.add(new JacksonJsonView());
     viewList.add(new MarshallingView(marshaller));
 
     ContentNegotiationManager manager = new ContentNegotiationManager(

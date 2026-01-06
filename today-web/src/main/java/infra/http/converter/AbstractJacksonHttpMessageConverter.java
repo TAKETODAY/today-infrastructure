@@ -47,8 +47,6 @@ import infra.http.HttpOutputMessage;
 import infra.http.MediaType;
 import infra.http.ProblemDetail;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
-import infra.http.converter.json.MappingJacksonInputMessage;
-import infra.http.converter.json.MappingJacksonValue;
 import infra.lang.Assert;
 import infra.util.CollectionUtils;
 import infra.util.StreamUtils;
@@ -280,9 +278,6 @@ public abstract class AbstractJacksonHttpMessageConverter<T extends ObjectMapper
         return false;
       }
     }
-    if (MappingJacksonValue.class.isAssignableFrom(valueClass)) {
-      throw new UnsupportedOperationException("MappingJacksonValue is not supported, use hints instead");
-    }
     return this.mapperRegistrations == null || selectMapper(valueClass, mediaType) != null;
   }
 
@@ -339,9 +334,6 @@ public abstract class AbstractJacksonHttpMessageConverter<T extends ObjectMapper
             "UTF-32".equals(charset.name());
     try {
       InputStream inputStream = StreamUtils.nonClosing(inputMessage.getBody());
-      if (inputMessage instanceof MappingJacksonInputMessage) {
-        throw new UnsupportedOperationException("MappingJacksonInputMessage is not supported, use hints instead");
-      }
       ObjectReader objectReader = mapper.readerFor(javaType);
       if (hints != null && hints.containsKey(JSON_VIEW_HINT)) {
         objectReader = objectReader.withView((Class<?>) hints.get(JSON_VIEW_HINT));

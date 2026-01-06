@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,6 @@
 
 package infra.http.codec;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.reactivestreams.Publisher;
 
 import java.nio.charset.Charset;
@@ -31,12 +29,13 @@ import infra.core.ResolvableType;
 import infra.core.io.buffer.DataBufferFactory;
 import infra.core.testfixture.io.buffer.AbstractDataBufferAllocatingTests;
 import infra.http.MediaType;
-import infra.http.codec.json.Jackson2JsonEncoder;
-import infra.http.converter.json.Jackson2ObjectMapperBuilder;
+import infra.http.codec.json.JacksonJsonEncoder;
 import infra.web.testfixture.http.server.reactive.MockServerHttpResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 import static infra.core.ResolvableType.forClass;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,7 +53,7 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
   private static final Map<String, Object> HINTS = Collections.emptyMap();
 
   private ServerSentEventHttpMessageWriter messageWriter =
-          new ServerSentEventHttpMessageWriter(new Jackson2JsonEncoder());
+          new ServerSentEventHttpMessageWriter(new JacksonJsonEncoder());
 
   @ParameterizedDataBufferAllocatingTest
   void canWrite(DataBufferFactory bufferFactory) {
@@ -65,7 +64,6 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
 
     assertThat(this.messageWriter.canWrite(null, MediaType.TEXT_EVENT_STREAM)).isTrue();
     assertThat(this.messageWriter.canWrite(forClass(ServerSentEvent.class), new MediaType("foo", "bar"))).isTrue();
-
 
     assertThat(this.messageWriter.canWrite(ResolvableType.NONE, MediaType.TEXT_EVENT_STREAM)).isTrue();
     assertThat(this.messageWriter.canWrite(ResolvableType.NONE, new MediaType("foo", "bar"))).isFalse();
@@ -120,7 +118,6 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
   }
 
   @ParameterizedDataBufferAllocatingTest
-
   void writeStringWithCustomCharset(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
@@ -161,12 +158,11 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
   }
 
   @ParameterizedDataBufferAllocatingTest
-
   void writePojoWithPrettyPrint(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
-    ObjectMapper mapper = Jackson2ObjectMapperBuilder.json().indentOutput(true).build();
-    this.messageWriter = new ServerSentEventHttpMessageWriter(new Jackson2JsonEncoder(mapper));
+    JsonMapper mapper = JsonMapper.builder().enable(SerializationFeature.INDENT_OUTPUT).build();
+    this.messageWriter = new ServerSentEventHttpMessageWriter(new JacksonJsonEncoder(mapper));
 
     MockServerHttpResponse outputMessage = new MockServerHttpResponse(super.bufferFactory);
     Flux<Pojo> source = Flux.just(new Pojo("foofoo", "barbar"), new Pojo("foofoofoo", "barbarbar"));

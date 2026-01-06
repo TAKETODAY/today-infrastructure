@@ -38,11 +38,6 @@ dependencies {
   optional('org.apache.httpcomponents.core5:httpcore5-reactive')
   optional("com.fasterxml.woodstox:woodstox-core")
   optional("com.fasterxml:aalto-xml")
-  optional("com.fasterxml.jackson.core:jackson-databind")
-  optional("com.fasterxml.jackson.dataformat:jackson-dataformat-xml")
-  optional("com.fasterxml.jackson.dataformat:jackson-dataformat-smile")
-  optional("com.fasterxml.jackson.dataformat:jackson-dataformat-cbor")
-  optional("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
   optional("com.google.code.gson:gson")
   optional("com.google.protobuf:protobuf-java-util")
   optional("com.rometools:rome")
@@ -55,15 +50,19 @@ dependencies {
   optional("org.webjars:webjars-locator-core")
   optional("org.webjars:webjars-locator-lite")
 
+  optional("tools.jackson.core:jackson-databind")
+  optional("tools.jackson.dataformat:jackson-dataformat-smile")
+  optional("tools.jackson.dataformat:jackson-dataformat-cbor")
+  optional("tools.jackson.dataformat:jackson-dataformat-smile")
+  optional("tools.jackson.dataformat:jackson-dataformat-xml")
+  optional("tools.jackson.dataformat:jackson-dataformat-yaml")
+
+
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
 
 
   testImplementation('com.google.code.findbugs:findbugs')
   testImplementation("io.projectreactor:reactor-test")
-  testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
-  testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
-  testImplementation("com.fasterxml.jackson.module:jackson-module-parameter-names")
-  testImplementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv")
 
   testImplementation("com.squareup.okhttp3:mockwebserver")
   testImplementation("org.skyscreamer:jsonassert")

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,7 +60,7 @@ public interface JsonParser {
    * @return a {@link JsonParser}
    */
   static JsonParser lookup() {
-    if (ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", JsonParser.class)) {
+    if (ClassUtils.isPresent("tools.jackson.databind.ObjectMapper", JsonParser.class)) {
       return new JacksonJsonParser();
     }
     if (ClassUtils.isPresent("com.google.gson.Gson", JsonParser.class)) {

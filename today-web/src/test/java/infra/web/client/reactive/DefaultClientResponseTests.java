@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.web.client.reactive;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -33,6 +34,7 @@ import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DefaultDataBufferFactory;
 import infra.http.HttpHeaders;
 import infra.http.HttpRange;
+import infra.http.HttpRequest;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
@@ -40,7 +42,7 @@ import infra.http.ResponseCookie;
 import infra.http.ResponseEntity;
 import infra.http.client.reactive.ClientHttpResponse;
 import infra.http.codec.DecoderHttpMessageReader;
-import infra.http.codec.json.Jackson2JsonDecoder;
+import infra.http.codec.json.JacksonJsonDecoder;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import reactor.core.publisher.Flux;
@@ -57,7 +59,7 @@ import static org.mockito.Mockito.mock;
  * @author Arjen Poutsma
  * @author Denys Ivano
  */
-public class DefaultClientResponseTests {
+class DefaultClientResponseTests {
 
   private static final ParameterizedTypeReference<String> STRING_TYPE = new ParameterizedTypeReference<>() { };
 
@@ -67,12 +69,14 @@ public class DefaultClientResponseTests {
 
   private final ExchangeStrategies mockExchangeStrategies = mock();
 
+  private @Nullable HttpRequest httpRequest = null;
+
   private DefaultClientResponse defaultClientResponse;
 
   @BeforeEach
   void configureMocks() {
     given(mockResponse.getHeaders()).willReturn(this.httpHeaders);
-    defaultClientResponse = new DefaultClientResponse(mockResponse, mockExchangeStrategies, "", "", () -> null);
+    defaultClientResponse = new DefaultClientResponse(mockResponse, mockExchangeStrategies, "", "", () -> httpRequest);
   }
 
   @Test
@@ -191,8 +195,7 @@ public class DefaultClientResponseTests {
     ResponseEntity<String> result = defaultClientResponse.toEntity(String.class).block();
     assertThat(result.getBody()).isEqualTo("foo");
     assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(result.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
-    assertThat(result.headers().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
   }
 
   @Test
@@ -210,9 +213,8 @@ public class DefaultClientResponseTests {
 
     ResponseEntity<String> result = defaultClientResponse.toEntity(String.class).block();
     assertThat(result.getBody()).isEqualTo("foo");
-    assertThat(result.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(999));
-    assertThat(result.getStatusCodeValue()).isEqualTo(999);
-    assertThat(result.headers().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(result.getStatusCode().value()).isEqualTo(999);
+    assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
   }
 
   @Test
@@ -227,8 +229,7 @@ public class DefaultClientResponseTests {
     ResponseEntity<String> result = defaultClientResponse.toEntity(STRING_TYPE).block();
     assertThat(result.getBody()).isEqualTo("foo");
     assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(result.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
-    assertThat(result.headers().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
   }
 
   @Test
@@ -243,8 +244,7 @@ public class DefaultClientResponseTests {
     ResponseEntity<List<String>> result = defaultClientResponse.toEntityList(String.class).block();
     assertThat(result.getBody()).containsExactly("foo");
     assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(result.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
-    assertThat(result.headers().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
   }
 
   @Test
@@ -263,8 +263,7 @@ public class DefaultClientResponseTests {
     ResponseEntity<List<String>> result = defaultClientResponse.toEntityList(String.class).block();
     assertThat(result.getBody()).containsExactly("foo");
     assertThat(result.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(999));
-    assertThat(result.getStatusCodeValue()).isEqualTo(999);
-    assertThat(result.headers().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
   }
 
   @Test
@@ -280,8 +279,7 @@ public class DefaultClientResponseTests {
     ResponseEntity<List<String>> result = defaultClientResponse.toEntityList(STRING_TYPE).block();
     assertThat(result.getBody()).containsExactly("foo");
     assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(result.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
-    assertThat(result.headers().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
   }
 
   @Test
@@ -316,7 +314,7 @@ public class DefaultClientResponseTests {
 
     given(mockExchangeStrategies.messageReaders()).willReturn(List.of(
             new DecoderHttpMessageReader<>(new ByteArrayDecoder()),
-            new DecoderHttpMessageReader<>(new Jackson2JsonDecoder())));
+            new DecoderHttpMessageReader<>(new JacksonJsonDecoder())));
 
     WebClientResponseException ex = defaultClientResponse.createException().block();
     assertThat(ex.getResponseBodyAs(Map.class)).containsExactly(entry("name", "Jason"));
@@ -334,7 +332,7 @@ public class DefaultClientResponseTests {
 
     given(mockExchangeStrategies.messageReaders()).willReturn(List.of(
             new DecoderHttpMessageReader<>(new ByteArrayDecoder()),
-            new DecoderHttpMessageReader<>(new Jackson2JsonDecoder())));
+            new DecoderHttpMessageReader<>(new JacksonJsonDecoder())));
 
     WebClientResponseException ex = defaultClientResponse.createException().block();
     assertThat(ex.getResponseBodyAs(Map.class)).isNull();

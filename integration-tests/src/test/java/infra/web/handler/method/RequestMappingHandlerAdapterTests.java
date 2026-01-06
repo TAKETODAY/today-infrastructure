@@ -18,6 +18,7 @@
 package infra.web.handler.method;
 
 import org.apache.groovy.util.Maps;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,6 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,21 +39,18 @@ import infra.http.MediaType;
 import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
-import infra.http.converter.json.MappingJackson2HttpMessageConverter;
-import infra.http.converter.json.MappingJacksonValue;
-import org.jspecify.annotations.Nullable;
+import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
-import infra.session.SessionManager;
 import infra.session.Session;
+import infra.session.SessionManager;
 import infra.session.config.EnableSession;
 import infra.ui.Model;
 import infra.ui.ModelMap;
 import infra.web.BindingContext;
 import infra.web.RedirectModel;
 import infra.web.RedirectModelManager;
-import infra.web.RequestContext;
 import infra.web.annotation.ControllerAdvice;
 import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestParam;
@@ -242,7 +239,7 @@ class RequestMappingHandlerAdapterTests {
 
     Object handle = this.handlerAdapter.handle(context, handlerMethod);
 
-    new HttpEntityMethodProcessor(List.of(new MappingJackson2HttpMessageConverter()),
+    new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()),
             List.of(webAppContext.getBean("rba")), null)
             .handleReturnValue(context, handlerMethod, handle);
 
@@ -434,34 +431,29 @@ class RequestMappingHandlerAdapterTests {
           extends AbstractMappingJacksonResponseBodyAdvice implements RequestBodyAdvice {
 
     @Override
-    protected void beforeBodyWriteInternal(MappingJacksonValue bodyContainer, MediaType contentType,
-            @Nullable MethodParameter returnType, RequestContext request) {
+    public boolean supports(MethodParameter methodParameter, Type targetType,
+            HttpMessageConverter<?> converterType) {
 
-      int status = request.getStatus();
-      request.setStatus(HttpStatus.OK);
-
-      Map<String, Object> map = new LinkedHashMap<>();
-      map.put("status", status);
-      map.put("message", bodyContainer.getValue());
-      bodyContainer.setValue(map);
-    }
-
-    @Override
-    public boolean supports(MethodParameter parameter, Type targetType, HttpMessageConverter<?> converter) {
-      return converter instanceof StringHttpMessageConverter;
+      return converterType instanceof StringHttpMessageConverter;
     }
 
     @Override
     public HttpInputMessage beforeBodyRead(HttpInputMessage inputMessage, MethodParameter parameter,
-            Type targetType, HttpMessageConverter<?> converter) throws IOException {
+            Type targetType, HttpMessageConverter<?> converterType) {
 
       return inputMessage;
     }
 
-    @Nullable
     @Override
-    public Object handleEmptyBody(@Nullable Object body, HttpInputMessage inputMessage,
-            MethodParameter parameter, Type targetType, HttpMessageConverter<?> converter) {
+    public Object afterBodyRead(Object body, HttpInputMessage inputMessage, MethodParameter parameter,
+            Type targetType, HttpMessageConverter<?> converterType) {
+
+      return body;
+    }
+
+    @Override
+    public Object handleEmptyBody(Object body, HttpInputMessage inputMessage, MethodParameter parameter,
+            Type targetType, HttpMessageConverter<?> converterType) {
 
       return "default value for empty body";
     }

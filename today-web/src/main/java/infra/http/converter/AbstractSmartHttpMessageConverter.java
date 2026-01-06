@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -88,17 +88,17 @@ public abstract class AbstractSmartHttpMessageConverter<T> extends AbstractHttpM
    */
   @Override
   public final void write(T t, ResolvableType type, @Nullable MediaType contentType,
-          HttpOutputMessage outputMessage, @Nullable Map<String, Object> hints)
-          throws IOException, HttpMessageNotWritableException {
-
+          HttpOutputMessage outputMessage, @Nullable Map<String, Object> hints) throws IOException, HttpMessageNotWritableException //
+  {
     HttpHeaders headers = outputMessage.getHeaders();
     addDefaultHeaders(headers, t, contentType);
 
-    if (outputMessage instanceof StreamingHttpOutputMessage streamingOutputMessage) {
-      streamingOutputMessage.setBody(new StreamingHttpOutputMessage.Body() {
+    if (outputMessage instanceof StreamingHttpOutputMessage som) {
+      som.setBody(new StreamingHttpOutputMessage.Body() {
         @Override
         public void writeTo(OutputStream outputStream) throws IOException {
           writeInternal(t, type, new HttpOutputMessage() {
+
             @Override
             public OutputStream getBody() {
               return outputStream;
@@ -115,6 +115,7 @@ public abstract class AbstractSmartHttpMessageConverter<T> extends AbstractHttpM
         public boolean repeatable() {
           return supportsRepeatableWrites(t);
         }
+
       });
     }
     else {
@@ -124,9 +125,7 @@ public abstract class AbstractSmartHttpMessageConverter<T> extends AbstractHttpM
   }
 
   @Override
-  protected void writeInternal(T t, HttpOutputMessage outputMessage)
-          throws IOException, HttpMessageNotWritableException {
-
+  protected void writeInternal(T t, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
     writeInternal(t, ResolvableType.NONE, outputMessage, null);
   }
 
@@ -141,13 +140,12 @@ public abstract class AbstractSmartHttpMessageConverter<T> extends AbstractHttpM
    * @throws IOException in case of I/O errors
    * @throws HttpMessageNotWritableException in case of conversion errors
    */
-  protected abstract void writeInternal(T t, ResolvableType type, HttpOutputMessage outputMessage,
-          @Nullable Map<String, Object> hints) throws IOException, HttpMessageNotWritableException;
+  protected abstract void writeInternal(T t, ResolvableType type, HttpOutputMessage outputMessage, @Nullable Map<String, Object> hints)
+          throws IOException, HttpMessageNotWritableException;
 
   @Override
-  protected T readInternal(Class<? extends T> clazz, HttpInputMessage inputMessage)
-          throws IOException, HttpMessageNotReadableException {
-
+  protected T readInternal(Class<? extends T> clazz, HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
     return read(ResolvableType.forClass(clazz), inputMessage, null);
   }
+
 }

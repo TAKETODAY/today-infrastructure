@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 
-import infra.http.converter.json.MappingJackson2HttpMessageConverter;
+import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.test.web.Person;
 import infra.test.web.client.MockRestServiceServer;
 import infra.test.web.client.match.JsonPathRequestMatchers;
@@ -68,7 +68,7 @@ public class JsonPathRequestMatchersIntegrationTests {
   }
 
   private final RestTemplate restTemplate =
-          new RestTemplate(Collections.singletonList(new MappingJackson2HttpMessageConverter()));
+          new RestTemplate(Collections.singletonList(new JacksonJsonHttpMessageConverter()));
 
   private final MockRestServiceServer mockServer = MockRestServiceServer.createServer(this.restTemplate);
 

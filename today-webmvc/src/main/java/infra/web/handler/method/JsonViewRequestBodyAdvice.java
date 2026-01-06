@@ -19,24 +19,23 @@ package infra.web.handler.method;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import java.io.IOException;
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.Map;
 
 import infra.core.MethodParameter;
 import infra.http.HttpInputMessage;
+import infra.http.converter.AbstractJacksonHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
-import infra.http.converter.json.AbstractJackson2HttpMessageConverter;
-import infra.http.converter.json.MappingJacksonInputMessage;
+import infra.http.converter.SmartHttpMessageConverter;
 import infra.lang.Assert;
 
 /**
  * A {@link RequestBodyAdvice} implementation that adds support for Jackson's
  * {@code @JsonView} annotation declared on MVC {@code @HttpEntity} or
  * {@code @RequestBody} method parameter.
- *
- * <p>The deserialization view specified in the annotation will be passed in to the
- * {@link infra.http.converter.json.MappingJackson2HttpMessageConverter}
- * which will then use it to deserialize the request body with.
  *
  * <p>Note that despite {@code @JsonView} allowing for more than one class to
  * be specified, the use for a request body advice is only supported with
@@ -51,15 +50,23 @@ import infra.lang.Assert;
 public class JsonViewRequestBodyAdvice implements RequestBodyAdvice {
 
   @Override
-  public boolean supports(MethodParameter parameter, Type targetType, HttpMessageConverter<?> converter) {
-    return converter instanceof AbstractJackson2HttpMessageConverter
-            && parameter.getParameterAnnotation(JsonView.class) != null;
+  public boolean supports(MethodParameter methodParameter, Type targetType, HttpMessageConverter<?> converterType) {
+    return converterType instanceof AbstractJacksonHttpMessageConverter
+            && methodParameter.getParameterAnnotation(JsonView.class) != null;
   }
 
   @Override
-  public HttpInputMessage beforeBodyRead(HttpInputMessage inputMessage, MethodParameter methodParameter,
-          Type targetType, HttpMessageConverter<?> selectedConverterType) throws IOException {
+  public HttpInputMessage beforeBodyRead(HttpInputMessage inputMessage,
+          MethodParameter methodParameter, Type targetType, HttpMessageConverter<?> selected) {
+    return inputMessage;
+  }
 
+  @Override
+  public @Nullable Map<String, Object> determineReadHints(MethodParameter parameter, Type targetType, SmartHttpMessageConverter<?> selected) {
+    return Collections.singletonMap(JsonView.class.getName(), getJsonView(parameter));
+  }
+
+  private static Class<?> getJsonView(MethodParameter methodParameter) {
     JsonView ann = methodParameter.getParameterAnnotation(JsonView.class);
     Assert.state(ann != null, "No JsonView annotation");
 
@@ -68,8 +75,7 @@ public class JsonViewRequestBodyAdvice implements RequestBodyAdvice {
       throw new IllegalArgumentException(
               "@JsonView only supported for request body advice with exactly 1 class argument: " + methodParameter);
     }
-
-    return new MappingJacksonInputMessage(inputMessage.getBody(), inputMessage.getHeaders(), classes[0]);
+    return classes[0];
   }
 
 }

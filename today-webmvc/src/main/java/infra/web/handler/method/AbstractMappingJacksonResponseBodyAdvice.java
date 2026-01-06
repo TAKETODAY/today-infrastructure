@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,15 +21,14 @@ import org.jspecify.annotations.Nullable;
 
 import infra.core.MethodParameter;
 import infra.http.MediaType;
+import infra.http.converter.AbstractJacksonHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
-import infra.http.converter.json.AbstractJackson2HttpMessageConverter;
-import infra.http.converter.json.MappingJacksonValue;
 import infra.web.RequestContext;
 
 /**
  * A convenient base class for {@code ResponseBodyAdvice} implementations
  * that customize the response before JSON serialization with
- * {@link AbstractJackson2HttpMessageConverter}'s concrete subclasses.
+ * {@link AbstractJacksonHttpMessageConverter}'s concrete subclasses.
  *
  * @author Rossen Stoyanchev
  * @author Sebastien Deleuze
@@ -40,34 +39,15 @@ public abstract class AbstractMappingJacksonResponseBodyAdvice implements Respon
 
   @Override
   public boolean supports(@Nullable Object body, @Nullable MethodParameter returnType, HttpMessageConverter<?> converter) {
-    return converter instanceof AbstractJackson2HttpMessageConverter;
+    return converter instanceof AbstractJacksonHttpMessageConverter;
   }
 
   @Nullable
   @Override
   public Object beforeBodyWrite(@Nullable Object body, @Nullable MethodParameter returnType,
-          MediaType contentType, HttpMessageConverter<?> converter, RequestContext context) {
+          MediaType contentType, HttpMessageConverter<?> selected, RequestContext context) {
 
-    if (body == null) {
-      return null;
-    }
-    MappingJacksonValue container = getOrCreateContainer(body);
-    beforeBodyWriteInternal(container, contentType, returnType, context);
-    return container;
+    return body;
   }
-
-  /**
-   * Wrap the body in a {@link MappingJacksonValue} value container (for providing
-   * additional serialization instructions) or simply cast it if already wrapped.
-   */
-  protected MappingJacksonValue getOrCreateContainer(Object body) {
-    return body instanceof MappingJacksonValue ? (MappingJacksonValue) body : new MappingJacksonValue(body);
-  }
-
-  /**
-   * Invoked only if the converter type is {@code MappingJackson2HttpMessageConverter}.
-   */
-  protected abstract void beforeBodyWriteInternal(MappingJacksonValue bodyContainer,
-          MediaType contentType, @Nullable MethodParameter returnType, RequestContext request);
 
 }

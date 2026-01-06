@@ -17,8 +17,6 @@
 
 package infra.annotation.config.http;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
@@ -30,13 +28,12 @@ import infra.core.codec.Decoder;
 import infra.core.codec.Encoder;
 import infra.http.codec.CodecConfigurer;
 import infra.http.codec.CodecCustomizer;
-import infra.http.codec.json.Jackson2JsonDecoder;
-import infra.http.codec.json.Jackson2JsonEncoder;
 import infra.stereotype.Component;
 import infra.util.DataSize;
 import infra.util.MimeType;
 import infra.util.PropertyMapper;
 import infra.web.client.reactive.WebClient;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for
@@ -80,8 +77,8 @@ public final class CodecsAutoConfiguration {
     public static CodecCustomizer jacksonCodecCustomizer(ObjectMapper objectMapper) {
       return configurer -> {
         CodecConfigurer.DefaultCodecs defaults = configurer.defaultCodecs();
-        defaults.jackson2JsonDecoder(new Jackson2JsonDecoder(objectMapper, EMPTY_MIME_TYPES));
-        defaults.jackson2JsonEncoder(new Jackson2JsonEncoder(objectMapper, EMPTY_MIME_TYPES));
+//        defaults.jackson2JsonDecoder(new Jackson2JsonDecoder(objectMapper, EMPTY_MIME_TYPES));
+//        defaults.jackson2JsonEncoder(new Jackson2JsonEncoder(objectMapper, EMPTY_MIME_TYPES));
       };
     }
 

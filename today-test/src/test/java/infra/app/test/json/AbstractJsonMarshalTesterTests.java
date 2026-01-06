@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.app.test.json;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -90,16 +92,18 @@ abstract class AbstractJsonMarshalTesterTests {
   }
 
   @Test
+  @SuppressWarnings("NullAway")
   void createWhenResourceLoadClassIsNullShouldThrowException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> createTester(null, ResolvableType.forClass(ExampleObject.class)))
-            .withMessageContaining("ResourceLoadClass is required");
+            .withMessageContaining("'resourceLoadClass' is required");
   }
 
   @Test
+  @SuppressWarnings("NullAway")
   void createWhenTypeIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> createTester(getClass(), null))
-            .withMessageContaining("Type is required");
+            .withMessageContaining("'type' is required");
   }
 
   @Test
@@ -153,7 +157,7 @@ abstract class AbstractJsonMarshalTesterTests {
   void parseListShouldReturnContent() throws Exception {
     ResolvableType type = ResolvableTypes.get("listOfExampleObject");
     AbstractJsonMarshalTester<Object> tester = createTester(type);
-    assertThat(tester.parse(ARRAY_JSON)).asList().containsOnly(OBJECT);
+    assertThat(tester.parse(ARRAY_JSON)).asInstanceOf(InstanceOfAssertFactories.LIST).containsOnly(OBJECT);
   }
 
   @Test
@@ -170,7 +174,7 @@ abstract class AbstractJsonMarshalTesterTests {
     assertThat(tester.parse(MAP_JSON)).asMap().containsEntry("a", OBJECT);
   }
 
-  protected static final ExampleObject createExampleObject(String name, int age) {
+  protected static ExampleObject createExampleObject(String name, int age) {
     ExampleObject exampleObject = new ExampleObject();
     exampleObject.setName(name);
     exampleObject.setAge(age);
@@ -188,14 +192,15 @@ abstract class AbstractJsonMarshalTesterTests {
    */
   static class ResolvableTypes {
 
-    public List<ExampleObject> listOfExampleObject;
+    public @Nullable List<ExampleObject> listOfExampleObject;
 
-    public ExampleObject[] arrayOfExampleObject;
+    public ExampleObject @Nullable [] arrayOfExampleObject;
 
-    public Map<String, ExampleObject> mapOfExampleObject;
+    public @Nullable Map<String, ExampleObject> mapOfExampleObject;
 
     static ResolvableType get(String name) {
       Field field = ReflectionUtils.findField(ResolvableTypes.class, name);
+      assertThat(field).isNotNull();
       return ResolvableType.forField(field);
     }
 

@@ -17,35 +17,31 @@
 
 package infra.http.converter.json;
 
-import com.fasterxml.jackson.databind.ser.FilterProvider;
-
 import org.jspecify.annotations.Nullable;
+
+import tools.jackson.databind.ser.FilterProvider;
 
 /**
  * A simple holder for the POJO to serialize via
- * {@link MappingJackson2HttpMessageConverter} along with further
- * serialization instructions to be passed in to the converter.
  *
  * <p>On the server side this wrapper is added with a
  * {@code ResponseBodyInterceptor} after content negotiation selects the
- * converter to use but before the write.
+ * converter to use but before to write.
  *
  * <p>On the client side, simply wrap the POJO and pass it in to the
  * {@code RestTemplate}.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
-@Deprecated
 public class MappingJacksonValue {
 
   private Object value;
 
-  @Nullable
-  private Class<?> serializationView;
+  private @Nullable Class<?> serializationView;
 
-  @Nullable
-  private FilterProvider filters;
+  private @Nullable FilterProvider filters;
 
   /**
    * Create a new instance wrapping the given POJO to be serialized.
@@ -94,9 +90,6 @@ public class MappingJacksonValue {
   /**
    * Set the Jackson filter provider to serialize the POJO with.
    *
-   * @see com.fasterxml.jackson.databind.ObjectMapper#writer(FilterProvider)
-   * @see com.fasterxml.jackson.annotation.JsonFilter
-   * @see Jackson2ObjectMapperBuilder#filters(FilterProvider)
    */
   public void setFilters(@Nullable FilterProvider filters) {
     this.filters = filters;
@@ -104,9 +97,6 @@ public class MappingJacksonValue {
 
   /**
    * Return the Jackson filter provider to use.
-   *
-   * @see com.fasterxml.jackson.databind.ObjectMapper#writer(FilterProvider)
-   * @see com.fasterxml.jackson.annotation.JsonFilter
    */
   @Nullable
   public FilterProvider getFilters() {

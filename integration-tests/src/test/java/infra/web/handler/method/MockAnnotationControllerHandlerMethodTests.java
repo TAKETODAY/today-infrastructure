@@ -83,7 +83,7 @@ import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.converter.HttpMessageNotWritableException;
 import infra.http.converter.StringHttpMessageConverter;
-import infra.http.converter.json.MappingJackson2HttpMessageConverter;
+import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
 import infra.http.converter.xml.MarshallingHttpMessageConverter;
 import infra.lang.Assert;
@@ -989,7 +989,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   @Test
   void httpEntityWithContentType() throws Exception {
     initDispatcher(ResponseEntityController.class, wac -> {
-      wac.registerSingleton(new MappingJackson2HttpMessageConverter());
+      wac.registerSingleton(new JacksonJsonHttpMessageConverter());
       wac.registerSingleton(new Jaxb2RootElementHttpMessageConverter());
     });
 
@@ -1156,7 +1156,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   @Test
   void produces() throws Exception {
     initDispatcher(ProducesController.class, wac -> {
-      wac.registerSingleton(new MappingJackson2HttpMessageConverter());
+      wac.registerSingleton(new JacksonJsonHttpMessageConverter());
       wac.registerSingleton(new Jaxb2RootElementHttpMessageConverter());
     });
 

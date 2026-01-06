@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,13 +20,6 @@ package infra.annotation.config.jackson;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.cfg.EnumFeature;
-import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
 
 import org.jspecify.annotations.Nullable;
 
@@ -36,6 +29,14 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import infra.context.properties.ConfigurationProperties;
+import tools.jackson.core.json.JsonReadFeature;
+import tools.jackson.core.json.JsonWriteFeature;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.cfg.EnumFeature;
+import tools.jackson.databind.cfg.JsonNodeFeature;
 
 /**
  * Configuration properties to configure Jackson.
@@ -54,15 +55,13 @@ public class JacksonProperties {
    * Date format string or a fully-qualified date format class name. For instance,
    * 'yyyy-MM-dd HH:mm:ss'.
    */
-  @Nullable
-  private String dateFormat;
+  private @Nullable String dateFormat;
 
   /**
    * One of the constants on Jackson's PropertyNamingStrategies. Can also be a
    * fully-qualified class name of a PropertyNamingStrategy implementation.
    */
-  @Nullable
-  private String propertyNamingStrategy;
+  private @Nullable String propertyNamingStrategy;
 
   /**
    * Jackson visibility thresholds that can be used to limit which methods (and fields)
@@ -86,16 +85,6 @@ public class JacksonProperties {
   private final Map<MapperFeature, Boolean> mapper = new EnumMap<>(MapperFeature.class);
 
   /**
-   * Jackson on/off features for parsers.
-   */
-  private final Map<JsonParser.Feature, Boolean> parser = new EnumMap<>(JsonParser.Feature.class);
-
-  /**
-   * Jackson on/off features for generators.
-   */
-  private final Map<JsonGenerator.Feature, Boolean> generator = new EnumMap<>(JsonGenerator.Feature.class);
-
-  /**
    * Controls the inclusion of properties during serialization. Configured with one of
    * the values in Jackson's JsonInclude.Include enumeration.
    */
@@ -104,46 +93,48 @@ public class JacksonProperties {
   /**
    * Global default setting (if any) for leniency.
    */
-  @Nullable
-  private Boolean defaultLeniency;
+  private @Nullable Boolean defaultLeniency;
 
   /**
    * Strategy to use to auto-detect constructor, and in particular behavior with
    * single-argument constructors.
    */
-  @Nullable
-  private ConstructorDetectorStrategy constructorDetector;
+  private @Nullable ConstructorDetectorStrategy constructorDetector;
 
   /**
    * Time zone used when formatting dates. For instance, "America/Los_Angeles" or
    * "GMT+10".
    */
-  @Nullable
-  private TimeZone timeZone = null;
+  private @Nullable TimeZone timeZone;
 
   /**
    * Locale used for formatting.
    */
-  @Nullable
-  private Locale locale;
+  private @Nullable Locale locale;
+
+  /**
+   * Whether to find and add modules to the auto-configured JsonMapper.Builder using
+   * MapperBuilder.findAndAddModules(ClassLoader).
+   */
+  private boolean findAndAddModules = true;
 
   private final Datatype datatype = new Datatype();
 
-  @Nullable
-  public String getDateFormat() {
+  private final Json json = new Json();
+
+  public @Nullable String getDateFormat() {
     return this.dateFormat;
   }
 
-  public void setDateFormat(String dateFormat) {
+  public void setDateFormat(@Nullable String dateFormat) {
     this.dateFormat = dateFormat;
   }
 
-  @Nullable
-  public String getPropertyNamingStrategy() {
+  public @Nullable String getPropertyNamingStrategy() {
     return this.propertyNamingStrategy;
   }
 
-  public void setPropertyNamingStrategy(String propertyNamingStrategy) {
+  public void setPropertyNamingStrategy(@Nullable String propertyNamingStrategy) {
     this.propertyNamingStrategy = propertyNamingStrategy;
   }
 
@@ -163,60 +154,60 @@ public class JacksonProperties {
     return this.mapper;
   }
 
-  public Map<JsonParser.Feature, Boolean> getParser() {
-    return this.parser;
-  }
-
-  public Map<JsonGenerator.Feature, Boolean> getGenerator() {
-    return this.generator;
-  }
-
   public JsonInclude.@Nullable Include getDefaultPropertyInclusion() {
     return this.defaultPropertyInclusion;
   }
 
-  public void setDefaultPropertyInclusion(JsonInclude.Include defaultPropertyInclusion) {
+  public void setDefaultPropertyInclusion(JsonInclude.@Nullable Include defaultPropertyInclusion) {
     this.defaultPropertyInclusion = defaultPropertyInclusion;
   }
 
-  @Nullable
-  public Boolean getDefaultLeniency() {
+  public @Nullable Boolean getDefaultLeniency() {
     return this.defaultLeniency;
   }
 
-  public void setDefaultLeniency(Boolean defaultLeniency) {
+  public void setDefaultLeniency(@Nullable Boolean defaultLeniency) {
     this.defaultLeniency = defaultLeniency;
   }
 
-  @Nullable
-  public ConstructorDetectorStrategy getConstructorDetector() {
+  public @Nullable ConstructorDetectorStrategy getConstructorDetector() {
     return this.constructorDetector;
   }
 
-  public void setConstructorDetector(ConstructorDetectorStrategy constructorDetector) {
+  public void setConstructorDetector(@Nullable ConstructorDetectorStrategy constructorDetector) {
     this.constructorDetector = constructorDetector;
   }
 
-  @Nullable
-  public TimeZone getTimeZone() {
+  public @Nullable TimeZone getTimeZone() {
     return this.timeZone;
   }
 
-  public void setTimeZone(TimeZone timeZone) {
+  public void setTimeZone(@Nullable TimeZone timeZone) {
     this.timeZone = timeZone;
   }
 
-  @Nullable
-  public Locale getLocale() {
+  public @Nullable Locale getLocale() {
     return this.locale;
   }
 
-  public void setLocale(Locale locale) {
+  public void setLocale(@Nullable Locale locale) {
     this.locale = locale;
+  }
+
+  public boolean isFindAndAddModules() {
+    return this.findAndAddModules;
+  }
+
+  public void setFindAndAddModules(boolean findModules) {
+    this.findAndAddModules = findModules;
   }
 
   public Datatype getDatatype() {
     return this.datatype;
+  }
+
+  public Json getJson() {
+    return this.json;
   }
 
   public enum ConstructorDetectorStrategy {
@@ -256,12 +247,43 @@ public class JacksonProperties {
      */
     private final Map<JsonNodeFeature, Boolean> jsonNode = new EnumMap<>(JsonNodeFeature.class);
 
+    /**
+     * Jackson on/off features for DateTimes.
+     */
+    private final Map<DateTimeFeature, Boolean> datetime = new EnumMap<>(DateTimeFeature.class);
+
     public Map<EnumFeature, Boolean> getEnum() {
       return this.enumFeatures;
     }
 
     public Map<JsonNodeFeature, Boolean> getJsonNode() {
       return this.jsonNode;
+    }
+
+    public Map<DateTimeFeature, Boolean> getDatetime() {
+      return this.datetime;
+    }
+
+  }
+
+  public static class Json {
+
+    /**
+     * Jackson on/off token reader features that are specific to JSON.
+     */
+    private final Map<JsonReadFeature, Boolean> read = new EnumMap<>(JsonReadFeature.class);
+
+    /**
+     * Jackson on/off token writer features that are specific to JSON.
+     */
+    private final Map<JsonWriteFeature, Boolean> write = new EnumMap<>(JsonWriteFeature.class);
+
+    public Map<JsonReadFeature, Boolean> getRead() {
+      return this.read;
+    }
+
+    public Map<JsonWriteFeature, Boolean> getWrite() {
+      return this.write;
     }
 
   }

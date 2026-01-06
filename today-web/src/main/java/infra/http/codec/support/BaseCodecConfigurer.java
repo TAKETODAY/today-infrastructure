@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,11 +66,10 @@ abstract class BaseCodecConfigurer implements CodecConfigurer {
     this.defaultCodecs = other.cloneDefaultCodecs();
     this.customCodecs = new DefaultCustomCodecs(other.customCodecs);
     this.defaultCodecs.setPartWritersSupplier(this::getWriters);
-
   }
 
   /**
-   * Sub-classes should override this to create a deep copy of
+   * Subclasses should override this to create a deep copy of
    * {@link BaseDefaultCodecs} which can be client or server specific.
    */
   protected abstract BaseDefaultCodecs cloneDefaultCodecs();
@@ -130,7 +129,8 @@ abstract class BaseCodecConfigurer implements CodecConfigurer {
     private final LinkedHashMap<HttpMessageWriter<?>, Boolean> objectWriters = new LinkedHashMap<>(4);
     private final ArrayList<Consumer<DefaultCodecConfig>> defaultConfigConsumers = new ArrayList<>(4);
 
-    DefaultCustomCodecs() { }
+    DefaultCustomCodecs() {
+    }
 
     /**
      * Create a deep copy of the given {@link DefaultCustomCodecs}.
@@ -158,17 +158,12 @@ abstract class BaseCodecConfigurer implements CodecConfigurer {
       this.defaultConfigConsumers.add(configConsumer);
     }
 
-    @Override
-    public void withDefaultCodecConfig(Consumer<DefaultCodecConfig> codecsConfigConsumer) {
-      this.defaultConfigConsumers.add(codecsConfigConsumer);
-    }
-
     private void addCodec(Object codec, boolean applyDefaultConfig) {
-      if (codec instanceof Decoder) {
-        codec = new DecoderHttpMessageReader<>((Decoder<?>) codec);
+      if (codec instanceof Decoder<?> decoder) {
+        codec = new DecoderHttpMessageReader<>(decoder);
       }
-      else if (codec instanceof Encoder) {
-        codec = new EncoderHttpMessageWriter<>((Encoder<?>) codec);
+      else if (codec instanceof Encoder<?> encoder) {
+        codec = new EncoderHttpMessageWriter<>(encoder);
       }
 
       if (codec instanceof HttpMessageReader<?> reader) {

@@ -36,7 +36,7 @@ import infra.http.HttpStatus;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters;
 import infra.http.converter.StringHttpMessageConverter;
-import infra.http.converter.json.MappingJackson2HttpMessageConverter;
+import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
 import infra.scheduling.concurrent.ConcurrentTaskExecutor;
@@ -82,7 +82,7 @@ import infra.web.view.View;
 import infra.web.view.ViewResolver;
 import infra.web.view.ViewResolverComposite;
 import infra.web.view.ViewReturnValueHandler;
-import infra.web.view.json.MappingJackson2JsonView;
+import infra.web.view.json.JacksonJsonView;
 
 import static infra.http.MediaType.APPLICATION_JSON;
 import static infra.http.MediaType.APPLICATION_XML;
@@ -258,7 +258,7 @@ class WebMvcConfigurationSupportTests {
     List<View> defaultViews = (List<View>) accessor.getPropertyValue("defaultViews");
     assertThat(defaultViews).isNotNull();
     assertThat(defaultViews).hasSize(1);
-    assertThat(defaultViews.get(0).getClass()).isEqualTo(MappingJackson2JsonView.class);
+    assertThat(defaultViews.get(0).getClass()).isEqualTo(JacksonJsonView.class);
 
     viewResolvers = (List<ViewResolver>) accessor.getPropertyValue("viewResolvers");
     assertThat(viewResolvers).isNotNull();
@@ -314,7 +314,7 @@ class WebMvcConfigurationSupportTests {
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-      converters.add(new MappingJackson2HttpMessageConverter());
+      converters.add(new JacksonJsonHttpMessageConverter());
     }
 
     @Override
@@ -392,7 +392,7 @@ class WebMvcConfigurationSupportTests {
 
     @Override
     public void configureViewResolvers(ViewResolverRegistry registry) {
-      registry.enableContentNegotiation(new MappingJackson2JsonView());
+      registry.enableContentNegotiation(new JacksonJsonView());
     }
 
     @Override

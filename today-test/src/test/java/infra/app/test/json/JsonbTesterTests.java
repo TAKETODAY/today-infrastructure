@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.app.test.json;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -36,16 +37,20 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 class JsonbTesterTests extends AbstractJsonMarshalTesterTests {
 
   @Test
+  @SuppressWarnings("NullAway")
+    // Test null check
   void initFieldsWhenTestIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> JsonbTester.initFields(null, JsonbBuilder.create()))
-            .withMessageContaining("TestInstance is required");
+            .withMessageContaining("'testInstance' is required");
   }
 
   @Test
+  @SuppressWarnings("NullAway")
+    // Test null check
   void initFieldsWhenMarshallerIsNullShouldThrowException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> JsonbTester.initFields(new InitFieldsTestClass(), (Jsonb) null))
-            .withMessageContaining("Marshaller is required");
+            .withMessageContaining("'marshaller' is required");
   }
 
   @Test
@@ -56,8 +61,10 @@ class JsonbTesterTests extends AbstractJsonMarshalTesterTests {
     JsonbTester.initFields(test, JsonbBuilder.create());
     assertThat(test.test).isNotNull();
     assertThat(test.base).isNotNull();
-    assertThat(test.test.getType().resolve()).isEqualTo(List.class);
-    assertThat(test.test.getType().resolveGeneric()).isEqualTo(ExampleObject.class);
+    ResolvableType type = test.test.getType();
+    assertThat(type).isNotNull();
+    assertThat(type.resolve()).isEqualTo(List.class);
+    assertThat(type.resolveGeneric()).isEqualTo(ExampleObject.class);
   }
 
   @Override
@@ -67,7 +74,7 @@ class JsonbTesterTests extends AbstractJsonMarshalTesterTests {
 
   abstract static class InitFieldsBaseClass {
 
-    public JsonbTester<ExampleObject> base;
+    public @Nullable JsonbTester<ExampleObject> base;
 
     public JsonbTester<ExampleObject> baseSet = new JsonbTester<>(InitFieldsBaseClass.class,
             ResolvableType.forClass(ExampleObject.class), JsonbBuilder.create());
@@ -76,7 +83,7 @@ class JsonbTesterTests extends AbstractJsonMarshalTesterTests {
 
   static class InitFieldsTestClass extends InitFieldsBaseClass {
 
-    public JsonbTester<List<ExampleObject>> test;
+    public @Nullable JsonbTester<List<ExampleObject>> test;
 
     public JsonbTester<ExampleObject> testSet = new JsonbTester<>(InitFieldsBaseClass.class,
             ResolvableType.forClass(ExampleObject.class), JsonbBuilder.create());

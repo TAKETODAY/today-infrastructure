@@ -50,7 +50,6 @@ import infra.http.converter.HttpMessageConverters;
 import infra.lang.Assert;
 import infra.session.SessionManager;
 import infra.stereotype.Component;
-import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.validation.Errors;
 import infra.validation.MessageCodesResolver;
@@ -98,6 +97,8 @@ import infra.web.view.UrlBasedViewResolver;
 import infra.web.view.ViewResolver;
 import infra.web.view.ViewResolverComposite;
 import infra.web.view.ViewReturnValueHandler;
+
+import static infra.util.ClassUtils.isPresent;
 
 /**
  * This is the main class providing the configuration behind the MVC Java config.
@@ -171,16 +172,7 @@ import infra.web.view.ViewReturnValueHandler;
 @DisableAllDependencyInjection
 public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
 
-  private static final boolean gsonPresent = isPresent("com.google.gson.Gson");
-  private static final boolean jsonbPresent = isPresent("jakarta.json.bind.Jsonb");
-  private static final boolean jaxb2Present = isPresent("jakarta.xml.bind.Binder");
-  private static final boolean romePresent = isPresent("com.rometools.rome.feed.WireFeed");
-  private static final boolean jackson2Present = isPresent("com.fasterxml.jackson.databind.ObjectMapper")
-          && isPresent("com.fasterxml.jackson.core.JsonGenerator");
-  private static final boolean jackson2XmlPresent = isPresent("com.fasterxml.jackson.dataformat.xml.XmlMapper");
-  private static final boolean jackson2CborPresent = isPresent("com.fasterxml.jackson.dataformat.cbor.CBORFactory");
-  private static final boolean jackson2YamlPresent = isPresent("com.fasterxml.jackson.dataformat.yaml.YAMLFactory");
-  private static final boolean jackson2SmilePresent = isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory");
+  private static final boolean jacksonPresent = isPresent("tools.jackson.databind.ObjectMapper", WebMvcConfigurationSupport.class);
 
   private final List<Object> requestResponseBodyAdvice = new ArrayList<>();
 
@@ -221,7 +213,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
       requestResponseBodyAdvice.addAll(0, adviceBeans);
     }
 
-    if (jackson2Present) {
+    if (jacksonPresent) {
       requestResponseBodyAdvice.add(new JsonViewRequestBodyAdvice());
       requestResponseBodyAdvice.add(new JsonViewResponseBodyAdvice());
     }
@@ -945,7 +937,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   public Validator mvcValidator() {
     Validator validator = getValidator();
     if (validator == null) {
-      if (ClassUtils.isPresent("jakarta.validation.Validator", getClass().getClassLoader())) {
+      if (isPresent("jakarta.validation.Validator", getClass().getClassLoader())) {
         try {
           validator = new OptionalValidatorFactoryBean();
         }
@@ -1063,11 +1055,6 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    * @since 5.0
    */
   protected void configureApiVersioning(ApiVersionConfigurer configurer) {
-  }
-
-  static boolean isPresent(String name) {
-    ClassLoader classLoader = WebMvcConfigurationSupport.class.getClassLoader();
-    return ClassUtils.isPresent(name, classLoader);
   }
 
   private static final class NoOpValidator implements Validator {

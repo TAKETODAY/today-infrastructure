@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
-import infra.http.converter.json.MappingJackson2HttpMessageConverter;
+import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.mock.api.http.Cookie;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
@@ -328,7 +328,7 @@ class DefaultServerRequestTests {
     MockRequestContext context = new MockRequestContext(null, servletRequest, null);
 
     DefaultServerRequest request = new DefaultServerRequest(context,
-            Collections.singletonList(new MappingJackson2HttpMessageConverter()));
+            Collections.singletonList(new JacksonJsonHttpMessageConverter()));
 
     List<String> result = request.body(new ParameterizedTypeReference<List<String>>() { });
     assertThat(result.size()).isEqualTo(2);

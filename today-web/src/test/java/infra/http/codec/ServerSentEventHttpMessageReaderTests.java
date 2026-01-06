@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferLimitException;
 import infra.core.testfixture.io.buffer.AbstractLeakCheckingTests;
 import infra.http.MediaType;
-import infra.http.codec.json.Jackson2JsonDecoder;
+import infra.http.codec.json.JacksonJsonDecoder;
 import infra.web.testfixture.http.server.reactive.MockServerHttpRequest;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -43,9 +43,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingTests {
 
-  private final Jackson2JsonDecoder jsonDecoder = new Jackson2JsonDecoder();
+  private final JacksonJsonDecoder jsonDecoder = new JacksonJsonDecoder();
 
-  private final ServerSentEventHttpMessageReader reader = new ServerSentEventHttpMessageReader(this.jsonDecoder);
+  private ServerSentEventHttpMessageReader reader = new ServerSentEventHttpMessageReader(this.jsonDecoder);
 
   @Test
   void cannotRead() {
@@ -174,7 +174,6 @@ class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingTests {
   }
 
   @Test
-    // gh-24389
   void readPojoWithCommentOnly() {
     MockServerHttpRequest request = MockServerHttpRequest.post("/")
             .body(Flux.just(stringBuffer(":ping\n"), stringBuffer("\n")));
@@ -186,6 +185,7 @@ class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingTests {
   }
 
   @Test
+    // SPR-15331
   void decodeFullContentAsString() {
     String body = "data:foo\ndata:bar\n\ndata:baz\n\n";
     MockServerHttpRequest request = MockServerHttpRequest.post("/")
@@ -239,7 +239,7 @@ class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingTests {
     String content = "data:{\"foo\": \"" + fooValue + "\"}\n\n";
     MockServerHttpRequest request = MockServerHttpRequest.post("/").body(Mono.just(stringBuffer(content)));
 
-    Jackson2JsonDecoder jacksonDecoder = new Jackson2JsonDecoder();
+    JacksonJsonDecoder jacksonDecoder = new JacksonJsonDecoder();
     ServerSentEventHttpMessageReader messageReader = new ServerSentEventHttpMessageReader(jacksonDecoder);
 
     jacksonDecoder.setMaxInMemorySize(limit + 1024);

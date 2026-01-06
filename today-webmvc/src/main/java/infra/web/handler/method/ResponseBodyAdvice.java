@@ -62,13 +62,13 @@ public interface ResponseBodyAdvice<T> {
    * @param body the body to be written
    * @param returnType the return type of the controller method
    * @param contentType the content type selected through content negotiation
-   * @param converter the converter selected to write to the response
+   * @param selected the converter selected to write to the response
    * @param context the current request context
    * @return the body that was passed in or a modified (possibly new) instance
    */
   @Nullable
   T beforeBodyWrite(@Nullable Object body, @Nullable MethodParameter returnType, MediaType contentType,
-          HttpMessageConverter<?> converter, RequestContext context);
+          HttpMessageConverter<?> selected, RequestContext context);
 
   /**
    * Invoked to determine write hints if the converter is a {@link SmartHttpMessageConverter}.

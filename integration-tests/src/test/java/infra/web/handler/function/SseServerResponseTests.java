@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.util.Collections;
 
-import infra.http.converter.json.MappingJackson2HttpMessageConverter;
+import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockRequestContext;
@@ -84,7 +84,7 @@ class SseServerResponseTests {
       }
     });
 
-    ServerResponse.Context context = () -> Collections.singletonList(new MappingJackson2HttpMessageConverter());
+    ServerResponse.Context context = () -> Collections.singletonList(new JacksonJsonHttpMessageConverter());
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setAsyncSupported(true);
@@ -108,8 +108,7 @@ class SseServerResponseTests {
       }
     });
 
-    MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-    converter.setPrettyPrint(true);
+    JacksonJsonHttpMessageConverter converter = new JacksonJsonHttpMessageConverter();
     ServerResponse.Context context = () -> Collections.singletonList(converter);
 
     var requestContext = new MockRequestContext(null, this.mockRequest, mockResponse);
@@ -117,11 +116,13 @@ class SseServerResponseTests {
     Object mav = response.writeTo(requestContext, context);
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
-    String expected = "data:{\n" +
-            "data:  \"name\" : \"John Doe\",\n" +
-            "data:  \"age\" : 42\n" +
-            "data:}\n" +
-            "\n";
+    String expected = """
+            data:{
+            data:  "name" : "John Doe",
+            data:  "age" : 42
+            data:}
+            
+            """;
     assertThat(this.mockResponse.getContentAsString()).isEqualTo(expected);
   }
 

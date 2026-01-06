@@ -27,20 +27,15 @@ import java.util.function.Consumer;
 
 import infra.http.MediaType;
 import infra.http.converter.cbor.JacksonCborHttpMessageConverter;
-import infra.http.converter.cbor.MappingJackson2CborHttpMessageConverter;
 import infra.http.converter.feed.AtomFeedHttpMessageConverter;
 import infra.http.converter.feed.RssChannelHttpMessageConverter;
 import infra.http.converter.json.GsonHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.http.converter.json.JsonbHttpMessageConverter;
-import infra.http.converter.json.MappingJackson2HttpMessageConverter;
 import infra.http.converter.smile.JacksonSmileHttpMessageConverter;
-import infra.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
 import infra.http.converter.xml.JacksonXmlHttpMessageConverter;
 import infra.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
-import infra.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import infra.http.converter.yaml.JacksonYamlHttpMessageConverter;
-import infra.http.converter.yaml.MappingJackson2YamlHttpMessageConverter;
 import infra.lang.Assert;
 import infra.util.ClassUtils;
 
@@ -79,29 +74,19 @@ class DefaultHttpMessageConverters implements HttpMessageConverters {
 
     private static final boolean JACKSON_PRESENT;
 
-    private static final boolean JACKSON_2_PRESENT;
-
     private static final boolean GSON_PRESENT;
 
     private static final boolean JSONB_PRESENT;
 
-    private static final boolean JACKSON_XML_PRESENT;
-
-    private static final boolean JACKSON_2_XML_PRESENT;
-
     private static final boolean JAXB_2_PRESENT;
+
+    private static final boolean JACKSON_XML_PRESENT;
 
     private static final boolean JACKSON_SMILE_PRESENT;
 
-    private static final boolean JACKSON_2_SMILE_PRESENT;
-
     private static final boolean JACKSON_CBOR_PRESENT;
 
-    private static final boolean JACKSON_2_CBOR_PRESENT;
-
     private static final boolean JACKSON_YAML_PRESENT;
-
-    private static final boolean JACKSON_2_YAML_PRESENT;
 
     private static final boolean ROME_PRESENT;
 
@@ -138,19 +123,13 @@ class DefaultHttpMessageConverters implements HttpMessageConverters {
     static {
       ClassLoader classLoader = DefaultBuilder.class.getClassLoader();
       JACKSON_PRESENT = ClassUtils.isPresent("tools.jackson.databind.ObjectMapper", classLoader);
-      JACKSON_2_PRESENT = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", classLoader) &&
-              ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", classLoader);
       GSON_PRESENT = ClassUtils.isPresent("com.google.gson.Gson", classLoader);
       JSONB_PRESENT = ClassUtils.isPresent("jakarta.json.bind.Jsonb", classLoader);
       JACKSON_SMILE_PRESENT = JACKSON_PRESENT && ClassUtils.isPresent("tools.jackson.dataformat.smile.SmileMapper", classLoader);
-      JACKSON_2_SMILE_PRESENT = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory", classLoader);
       JAXB_2_PRESENT = ClassUtils.isPresent("jakarta.xml.bind.Binder", classLoader);
       JACKSON_XML_PRESENT = JACKSON_PRESENT && ClassUtils.isPresent("tools.jackson.dataformat.xml.XmlMapper", classLoader);
-      JACKSON_2_XML_PRESENT = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.xml.XmlMapper", classLoader);
       JACKSON_CBOR_PRESENT = JACKSON_PRESENT && ClassUtils.isPresent("tools.jackson.dataformat.cbor.CBORMapper", classLoader);
-      JACKSON_2_CBOR_PRESENT = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.cbor.CBORFactory", classLoader);
       JACKSON_YAML_PRESENT = JACKSON_PRESENT && ClassUtils.isPresent("tools.jackson.dataformat.yaml.YAMLMapper", classLoader);
-      JACKSON_2_YAML_PRESENT = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.yaml.YAMLFactory", classLoader);
       ROME_PRESENT = ClassUtils.isPresent("com.rometools.rome.feed.WireFeed", classLoader);
     }
 
@@ -256,9 +235,6 @@ class DefaultHttpMessageConverters implements HttpMessageConverters {
         if (JACKSON_PRESENT) {
           this.jsonConverter = new JacksonJsonHttpMessageConverter();
         }
-        else if (JACKSON_2_PRESENT) {
-          this.jsonConverter = new MappingJackson2HttpMessageConverter();
-        }
         else if (GSON_PRESENT) {
           this.jsonConverter = new GsonHttpMessageConverter();
         }
@@ -271,9 +247,6 @@ class DefaultHttpMessageConverters implements HttpMessageConverters {
         if (JACKSON_XML_PRESENT) {
           this.xmlConverter = new JacksonXmlHttpMessageConverter();
         }
-        else if (JACKSON_2_XML_PRESENT) {
-          this.xmlConverter = new MappingJackson2XmlHttpMessageConverter();
-        }
         else if (JAXB_2_PRESENT) {
           this.xmlConverter = new Jaxb2RootElementHttpMessageConverter();
         }
@@ -283,26 +256,17 @@ class DefaultHttpMessageConverters implements HttpMessageConverters {
         if (JACKSON_SMILE_PRESENT) {
           this.smileConverter = new JacksonSmileHttpMessageConverter();
         }
-        else if (JACKSON_2_SMILE_PRESENT) {
-          this.smileConverter = new MappingJackson2SmileHttpMessageConverter();
-        }
       }
 
       if (this.cborConverter == null) {
         if (JACKSON_CBOR_PRESENT) {
           this.cborConverter = new JacksonCborHttpMessageConverter();
         }
-        else if (JACKSON_2_CBOR_PRESENT) {
-          this.cborConverter = new MappingJackson2CborHttpMessageConverter();
-        }
       }
 
       if (this.yamlConverter == null) {
         if (JACKSON_YAML_PRESENT) {
           this.yamlConverter = new JacksonYamlHttpMessageConverter();
-        }
-        else if (JACKSON_2_YAML_PRESENT) {
-          this.yamlConverter = new MappingJackson2YamlHttpMessageConverter();
         }
       }
 

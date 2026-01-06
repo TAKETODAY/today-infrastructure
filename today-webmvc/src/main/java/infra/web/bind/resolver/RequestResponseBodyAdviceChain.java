@@ -133,11 +133,11 @@ public class RequestResponseBodyAdviceChain implements RequestBodyAdvice, Respon
   @Nullable
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public Object beforeBodyWrite(@Nullable Object body, @Nullable MethodParameter returnType,
-          MediaType contentType, HttpMessageConverter<?> converter, RequestContext context) {
+          MediaType contentType, HttpMessageConverter<?> selected, RequestContext context) {
 
     for (ResponseBodyAdvice advice : getMatchingAdvice(returnType, ResponseBodyAdvice.class, responseBodyAdvice)) {
-      if (advice.supports(body, returnType, converter)) {
-        body = advice.beforeBodyWrite(body, returnType, contentType, converter, context);
+      if (advice.supports(body, returnType, selected)) {
+        body = advice.beforeBodyWrite(body, returnType, contentType, selected, context);
       }
     }
     return body;

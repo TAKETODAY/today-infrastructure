@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,10 +34,10 @@ import infra.http.codec.ServerSentEventHttpMessageWriter;
  */
 class ServerDefaultCodecsImpl extends BaseDefaultCodecs implements ServerCodecConfigurer.ServerDefaultCodecs {
 
-  @Nullable
-  private Encoder<?> sseEncoder;
+  private @Nullable Encoder<?> sseEncoder;
 
-  ServerDefaultCodecsImpl() { }
+  ServerDefaultCodecsImpl() {
+  }
 
   ServerDefaultCodecsImpl(ServerDefaultCodecsImpl other) {
     super(other);
@@ -55,13 +55,8 @@ class ServerDefaultCodecsImpl extends BaseDefaultCodecs implements ServerCodecCo
     objectWriters.add(new ServerSentEventHttpMessageWriter(getSseEncoder()));
   }
 
-  @Nullable
-  private Encoder<?> getSseEncoder() {
-    return this.sseEncoder != null
-            ? this.sseEncoder
-            : jackson2Present
-                    ? getJackson2JsonEncoder()
-                    : null;
+  private @Nullable Encoder<?> getSseEncoder() {
+    return this.sseEncoder != null ? this.sseEncoder : JACKSON_PRESENT ? getJacksonJsonEncoder() : null;
   }
 
 }
