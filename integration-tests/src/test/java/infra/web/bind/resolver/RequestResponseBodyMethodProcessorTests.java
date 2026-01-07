@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2026 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -420,9 +420,8 @@ class RequestResponseBodyMethodProcessorTests {
     this.mockRequest.setRequestURI("/path");
 
     RequestResponseBodyMethodProcessor processor =
-            new RequestResponseBodyMethodProcessor(
-                    List.of(new JacksonJsonHttpMessageConverter(),
-                            new JacksonXmlHttpMessageConverter()));
+            new RequestResponseBodyMethodProcessor(List.of(
+                    new JacksonJsonHttpMessageConverter(), new JacksonXmlHttpMessageConverter()));
 
     Method method = getClass().getDeclaredMethod("handleAndReturnProblemDetail");
 
@@ -433,10 +432,9 @@ class RequestResponseBodyMethodProcessorTests {
     if (expectedContentType.equals(MediaType.APPLICATION_PROBLEM_XML_VALUE)) {
       XmlAssert.assertThat(this.mockResponse.getContentAsString()).and("""
                       <problem xmlns="urn:ietf:rfc:7807">
-                      	<type>about:blank</type>
-                      	<title>Bad Request</title>
-                      	<status>400</status>
-                      	<instance>/path</instance>
+                        <instance>/path</instance>
+                        <status>400</status>
+                        <title>Bad Request</title>
                       </problem>""")
               .ignoreWhitespace()
               .areIdentical();
@@ -444,7 +442,6 @@ class RequestResponseBodyMethodProcessorTests {
     else {
       JSONAssert.assertEquals("""
               {
-              	"type":     "about:blank",
               	"title":    "Bad Request",
               	"status":   400,
               	"instance": "/path"

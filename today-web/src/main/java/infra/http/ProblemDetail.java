@@ -56,30 +56,22 @@ public class ProblemDetail implements Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private static final URI BLANK_TYPE = URI.create("about:blank");
+  private @Nullable URI type;
 
-  @Nullable
-  private URI type = BLANK_TYPE;
-
-  @Nullable
-  private String title;
+  private @Nullable String title;
 
   private int status;
 
-  @Nullable
-  private String detail;
+  private @Nullable String detail;
 
-  @Nullable
-  private URI instance;
+  private @Nullable URI instance;
 
-  @Nullable
-  private Map<String, Object> properties;
+  private @Nullable Map<String, Object> properties;
 
   /**
    * For deserialization.
    */
   protected ProblemDetail() {
-
   }
 
   /**
@@ -177,10 +169,10 @@ public class ProblemDetail implements Serializable {
 
   /**
    * Setter for the {@link #getType() problem type}.
-   * <p>By default, this is {@link #BLANK_TYPE}.
+   * <p>By default, this is not set. According to the spec, when not present,
+   * the type is assumed to be "about:blank"
    *
    * @param type the problem type
-   * @see #withType(URI)
    */
   public void setType(@Nullable URI type) {
     this.type = type;
