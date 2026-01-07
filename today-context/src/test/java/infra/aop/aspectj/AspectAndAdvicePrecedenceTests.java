@@ -32,7 +32,7 @@ import infra.core.Ordered;
  * @author Adrian Colyer
  * @author Chris Beams
  */
-public class AspectAndAdvicePrecedenceTests {
+class AspectAndAdvicePrecedenceTests {
 
   private PrecedenceTestAspect highPrecedenceAspect;
 
@@ -51,7 +51,7 @@ public class AspectAndAdvicePrecedenceTests {
     highPrecedenceAspect = (PrecedenceTestAspect) ctx.getBean("highPrecedenceAspect");
     lowPrecedenceAspect = (PrecedenceTestAspect) ctx.getBean("lowPrecedenceAspect");
     highPrecedenceAdvice = (SimpleInfraBeforeAdvice) ctx.getBean("highPrecedenceAdvice");
-    lowPrecedenceAdvice = (SimpleInfraBeforeAdvice) ctx.getBean("lowPrecedenceSpringAdvice");
+    lowPrecedenceAdvice = (SimpleInfraBeforeAdvice) ctx.getBean("lowPrecedenceAdvice");
     testBean = (ITestBean) ctx.getBean("testBean");
   }
 
@@ -74,8 +74,8 @@ public class AspectAndAdvicePrecedenceTests {
             "beforeAdviceTwo(highPrecedenceAspect)",        // 2
             "aroundAdviceOne(highPrecedenceAspect)",        // 3,  before proceed
             "aroundAdviceTwo(highPrecedenceAspect)",      // 4,  before proceed
-            "beforeAdviceOne(highPrecedenceSpringAdvice)",  // 5
-            "beforeAdviceOne(lowPrecedenceSpringAdvice)",  // 6
+            "beforeAdviceOne(highPrecedenceAdvice)",  // 5
+            "beforeAdviceOne(lowPrecedenceAdvice)",  // 6
             "beforeAdviceOne(lowPrecedenceAspect)",      // 7
             "beforeAdviceTwo(lowPrecedenceAspect)",      // 8
             "aroundAdviceOne(lowPrecedenceAspect)",      // 9,  before proceed

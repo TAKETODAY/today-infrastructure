@@ -25,12 +25,12 @@
 	<aop:config>
 
 		<aop:advisor id="lowPrecedenceAdvisor"
-			advice-ref="lowPrecedenceSpringAdvice"
+			advice-ref="lowPrecedenceAdvice"
 			pointcut="execution(* getAge(..))"
 			order="900"/>
 
 		<aop:advisor id="highPrecedenceAdvisor"
-			advice-ref="highPrecedenceSpringAdvice"
+			advice-ref="highPrecedenceAdvice"
 			pointcut="execution(* getAge(..))"
 			order="90"/>	
 
