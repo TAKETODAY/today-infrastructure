@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -165,7 +165,7 @@ public class Application {
 
   static final ApplicationShutdownHook shutdownHook = new ApplicationShutdownHook();
 
-  private static final ThreadLocal<ApplicationHook> applicationHook = new ThreadLocal<>();
+  private static final ThreadLocal<@Nullable ApplicationHook> applicationHook = new ThreadLocal<>();
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -175,42 +175,33 @@ public class Application {
 
   private final List<BootstrapRegistryInitializer> bootstrapRegistryInitializers;
 
-  @Nullable
-  private Class<?> mainApplicationClass;
+  private @Nullable Class<?> mainApplicationClass;
 
   private List<ApplicationContextInitializer> initializers;
 
-  @Nullable
-  private ApplicationContextFactory applicationContextFactory;
+  private @Nullable ApplicationContextFactory applicationContextFactory;
 
   private ApplicationType applicationType = ApplicationType.forDefaults();
 
-  @Nullable
-  private ConfigurableEnvironment environment;
+  private @Nullable ConfigurableEnvironment environment;
 
-  @Nullable
-  private Map<String, Object> defaultProperties;
+  private @Nullable Map<String, Object> defaultProperties;
 
   private Set<String> additionalProfiles = Collections.emptySet();
 
-  @Nullable
-  private ResourceLoader resourceLoader;
+  private @Nullable ResourceLoader resourceLoader;
 
-  @Nullable
-  private BeanNameGenerator beanNameGenerator;
+  private @Nullable BeanNameGenerator beanNameGenerator;
 
   private Set<String> sources = new LinkedHashSet<>();
 
-  @Nullable
-  private String environmentPrefix;
+  private @Nullable String environmentPrefix;
 
   private List<ApplicationListener<?>> listeners;
 
-  @Nullable
-  private List<ApplicationStartupListener> startupListeners;
+  private @Nullable List<ApplicationStartupListener> startupListeners;
 
-  @Nullable
-  private Banner banner;
+  private @Nullable Banner banner;
 
   private Banner.@Nullable Mode bannerMode;
 
@@ -266,14 +257,12 @@ public class Application {
     setListeners(TodayStrategies.find(ApplicationListener.class));
   }
 
-  @Nullable
-  private Class<?> deduceMainApplicationClass() {
+  private @Nullable Class<?> deduceMainApplicationClass() {
     return StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE)
             .walk(this::getMainApplicationClass);
   }
 
-  @Nullable
-  private Class<?> getMainApplicationClass(Stream<StackFrame> stackFrame) {
+  private @Nullable Class<?> getMainApplicationClass(Stream<StackFrame> stackFrame) {
     return stackFrame.filter(s -> "main".equals(s.getMethodName()))
             .map(StackFrame::getDeclaringClass)
             .findFirst()
@@ -285,8 +274,7 @@ public class Application {
    *
    * @return the main application class or {@code null}
    */
-  @Nullable
-  public Class<?> getMainApplicationClass() {
+  public @Nullable Class<?> getMainApplicationClass() {
     return this.mainApplicationClass;
   }
 
@@ -514,8 +502,7 @@ public class Application {
     }
   }
 
-  @Nullable
-  private Banner printBanner(ConfigurableEnvironment environment) {
+  private @Nullable Banner printBanner(ConfigurableEnvironment environment) {
     var bannerMode = determineBannerMode(environment);
     if (bannerMode == Banner.Mode.OFF) {
       return null;
@@ -1013,8 +1000,7 @@ public class Application {
    * @return the resourceLoader the resource loader that will be used in the
    * ApplicationContext (or null if the default)
    */
-  @Nullable
-  public ResourceLoader getResourceLoader() {
+  public @Nullable ResourceLoader getResourceLoader() {
     return this.resourceLoader;
   }
 
@@ -1043,8 +1029,7 @@ public class Application {
    *
    * @return the environment property prefix
    */
-  @Nullable
-  public String getEnvironmentPrefix() {
+  public @Nullable String getEnvironmentPrefix() {
     return this.environmentPrefix;
   }
 
@@ -1304,8 +1289,11 @@ public class Application {
 
   private List<ApplicationExceptionReporter> getExceptionReporters(@Nullable ConfigurableApplicationContext context) {
     ClassLoader classLoader = getClassLoader();
-    var instantiator = new Instantiator<ApplicationExceptionReporter>(ApplicationExceptionReporter.class,
-            parameters -> parameters.add(ConfigurableApplicationContext.class, context));
+    var instantiator = new Instantiator<ApplicationExceptionReporter>(ApplicationExceptionReporter.class, parameters -> {
+      if (context != null) {
+        parameters.add(ConfigurableApplicationContext.class, context);
+      }
+    });
 
     List<String> strategiesNames = TodayStrategies.findNames(ApplicationExceptionReporter.class, classLoader);
     return instantiator.instantiate(strategiesNames);
@@ -1351,8 +1339,7 @@ public class Application {
     }
   }
 
-  @Nullable
-  StartupExceptionHandler getStartupExceptionHandler() {
+  @Nullable StartupExceptionHandler getStartupExceptionHandler() {
     if (isMainThread(Thread.currentThread())) {
       return StartupExceptionHandler.forCurrentThread();
     }
@@ -1596,7 +1583,7 @@ public class Application {
    * @return the result of the action
    * @see #withHook(ApplicationHook, Runnable)
    */
-  public static <T> T withHook(ApplicationHook hook, ThrowingSupplier<T> action) {
+  public static <T> @Nullable T withHook(ApplicationHook hook, ThrowingSupplier<T> action) {
     applicationHook.set(hook);
     try {
       return action.get();
@@ -1640,8 +1627,7 @@ public class Application {
    */
   public static class AbandonedRunException extends RuntimeException {
 
-    @Nullable
-    private final ConfigurableApplicationContext applicationContext;
+    private final @Nullable ConfigurableApplicationContext applicationContext;
 
     /**
      * Create a new {@link AbandonedRunException} instance with the given application
@@ -1660,8 +1646,7 @@ public class Application {
      *
      * @return the application context
      */
-    @Nullable
-    public ConfigurableApplicationContext getApplicationContext() {
+    public @Nullable ConfigurableApplicationContext getApplicationContext() {
       return this.applicationContext;
     }
 
@@ -1810,7 +1795,7 @@ public class Application {
    */
   private static final class KeepAlive implements ApplicationListener<ApplicationContextEvent> {
 
-    private final AtomicReference<Thread> thread = new AtomicReference<>();
+    private final AtomicReference<@Nullable Thread> thread = new AtomicReference<>();
 
     @Override
     public void onApplicationEvent(ApplicationContextEvent event) {
@@ -1856,8 +1841,7 @@ public class Application {
 
     abstract long startTime();
 
-    @Nullable
-    abstract Long processUptime();
+    abstract @Nullable Long processUptime();
 
     abstract String action();
 
@@ -1890,9 +1874,9 @@ public class Application {
     private final StandardStartup fallback = new StandardStartup();
 
     @Override
-    Long processUptime() {
+    @Nullable Long processUptime() {
       long uptime = CRaCMXBean.getCRaCMXBean().getUptimeSinceRestore();
-      return (uptime >= 0) ? uptime : this.fallback.processUptime();
+      return uptime >= 0 ? Long.valueOf(uptime) : this.fallback.processUptime();
     }
 
     @Override
@@ -1928,7 +1912,7 @@ public class Application {
     }
 
     @Override
-    Long processUptime() {
+    @Nullable Long processUptime() {
       try {
         return ManagementFactory.getRuntimeMXBean().getUptime();
       }
