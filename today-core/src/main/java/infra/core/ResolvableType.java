@@ -824,7 +824,7 @@ public class ResolvableType implements Serializable {
         Type[] actualTypeArguments = pt.getActualTypeArguments();
         generics = new ResolvableType[actualTypeArguments.length];
         for (int i = 0; i < actualTypeArguments.length; i++) {
-          generics[i] = forType(actualTypeArguments[i], typeProvider, variableResolver);
+          generics[i] = forType(actualTypeArguments[i], variableResolver);
         }
       }
       else {
@@ -1580,8 +1580,7 @@ public class ResolvableType implements Serializable {
    */
   public static ResolvableType forType(@Nullable Type type, @Nullable ResolvableType owner) {
     if (owner != null) {
-      VariableResolver variableResolver = owner.asVariableResolver();
-      return forType(type, owner.typeProvider, variableResolver);
+      return forType(type, owner.typeProvider, owner.asVariableResolver());
     }
     return forType(type, null, null);
   }

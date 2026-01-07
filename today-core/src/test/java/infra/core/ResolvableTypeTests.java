@@ -1343,6 +1343,7 @@ class ResolvableTypeTests {
     ResolvableType type = ResolvableType.forField(Fields.class.getField("stringList"));
     ResolvableType narrow = ResolvableType.forType(ArrayList.class, type);
     assertThat(narrow.getGeneric().resolve()).isEqualTo(String.class);
+    assertThat(type.getSource()).isSameAs(narrow.getSource());
   }
 
   @Test
