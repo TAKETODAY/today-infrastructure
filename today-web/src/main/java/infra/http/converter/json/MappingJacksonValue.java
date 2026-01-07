@@ -89,7 +89,6 @@ public class MappingJacksonValue {
 
   /**
    * Set the Jackson filter provider to serialize the POJO with.
-   *
    */
   public void setFilters(@Nullable FilterProvider filters) {
     this.filters = filters;
