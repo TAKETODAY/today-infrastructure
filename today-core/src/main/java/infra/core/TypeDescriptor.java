@@ -23,9 +23,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
-import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,7 +40,6 @@ import infra.lang.Contract;
 import infra.reflect.Property;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
-import infra.util.ReflectionUtils;
 
 /**
  * Contextual descriptor about a type to convert from or to.
@@ -880,19 +877,6 @@ public class TypeDescriptor implements Serializable {
       return null;
     }
     return new TypeDescriptor(type, null, annotatedElement);
-  }
-
-  public static TypeDescriptor forParameter(Executable executable, int parameterIndex) {
-    Parameter parameter = ReflectionUtils.getParameter(executable, parameterIndex);
-    return fromParameter(parameter);
-  }
-
-  /**
-   * @since 3.0.2
-   */
-  public static TypeDescriptor fromParameter(Parameter parameter) {
-    ResolvableType resolvableType = ResolvableType.forParameter(parameter);
-    return new TypeDescriptor(resolvableType, parameter.getType(), parameter);
   }
 
 }

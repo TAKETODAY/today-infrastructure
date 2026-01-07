@@ -23,13 +23,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serial;
 import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
@@ -243,62 +240,6 @@ final class SerializableTypeWrapper {
       inputStream.defaultReadObject();
       try {
         this.field = this.declaringClass.getDeclaredField(this.fieldName);
-      }
-      catch (Throwable ex) {
-        throw new IllegalStateException("Could not find original class structure", ex);
-      }
-    }
-  }
-
-  /**
-   * {@link TypeProvider} for {@link Type Types} obtained from a {@link Parameter}.
-   */
-  static class ParameterTypeProvider implements TypeProvider {
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    @Nullable
-    private final String methodName;
-    private final Class<?>[] parameterTypes;
-    private final Class<?> declaringClass;
-    private final int parameterIndex;
-    private transient Parameter methodParameter;
-
-    public ParameterTypeProvider(Parameter parameter) {
-      this(parameter, ReflectionUtils.getParameterIndex(parameter));
-    }
-
-    public ParameterTypeProvider(Parameter parameter, int parameterIndex) {
-      Executable executable = parameter.getDeclaringExecutable();
-      this.methodParameter = parameter;
-      this.parameterIndex = parameterIndex;
-      this.methodName = executable instanceof Method method ? method.getName() : null;
-      this.parameterTypes = executable.getParameterTypes();
-      this.declaringClass = executable.getDeclaringClass();
-    }
-
-    @Override
-    public Type getType() {
-      return this.methodParameter.getParameterizedType();
-    }
-
-    @Override
-    public Object getSource() {
-      return this.methodParameter;
-    }
-
-    @Serial
-    private void readObject(ObjectInputStream inputStream) throws IOException, ClassNotFoundException {
-      inputStream.defaultReadObject();
-      try {
-        if (this.methodName != null) {
-          Method declaredMethod = this.declaringClass.getDeclaredMethod(this.methodName, this.parameterTypes);
-          this.methodParameter = declaredMethod.getParameters()[parameterIndex];
-        }
-        else {
-          Constructor<?> constructor = this.declaringClass.getDeclaredConstructor(this.parameterTypes);
-          this.methodParameter = constructor.getParameters()[parameterIndex];
-        }
       }
       catch (Throwable ex) {
         throw new IllegalStateException("Could not find original class structure", ex);

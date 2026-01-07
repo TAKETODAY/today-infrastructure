@@ -19,7 +19,6 @@ package infra.core;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.Iterator;
@@ -69,7 +68,7 @@ public final class Conventions {
     boolean pluralize = false;
 
     if (value.getClass().isArray()) {
-      valueClass = value.getClass().getComponentType();
+      valueClass = value.getClass().componentType();
       pluralize = true;
     }
     else if (value instanceof Collection<?> collection) {
@@ -100,48 +99,6 @@ public final class Conventions {
    * @param parameter the method or constructor parameter
    * @return the generated variable name
    */
-  public static String getVariableNameForParameter(Parameter parameter) {
-    Assert.notNull(parameter, "Parameter is required");
-    Class<?> valueClass;
-    boolean pluralize = false;
-    String reactiveSuffix = "";
-
-    if (parameter.getType().isArray()) {
-      valueClass = parameter.getType().getComponentType();
-      pluralize = true;
-    }
-    else if (Collection.class.isAssignableFrom(parameter.getType())) {
-      valueClass = ResolvableType.forParameter(parameter).asCollection().resolveGeneric();
-      if (valueClass == null) {
-        throw new IllegalArgumentException(
-                "Cannot generate variable name for non-typed Collection parameter type");
-      }
-      pluralize = true;
-    }
-    else {
-      valueClass = parameter.getType();
-      ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(valueClass);
-      if (adapter != null && !adapter.getDescriptor().isNoValue()) {
-        reactiveSuffix = ClassUtils.getShortName(valueClass);
-        valueClass = ResolvableType.forParameter(parameter).getGeneric().toClass();
-      }
-    }
-
-    String name = ClassUtils.getShortNameAsProperty(valueClass);
-    return (pluralize ? pluralize(name) : name + reactiveSuffix);
-  }
-
-  /**
-   * Determine the conventional variable name for the given parameter taking
-   * the generic collection type, if any, into account.
-   * <p>this method supports reactive types:<br>
-   * {@code Mono<com.myapp.Product>} becomes {@code "productMono"}<br>
-   * {@code Flux<com.myapp.MyProduct>} becomes {@code "myProductFlux"}<br>
-   * {@code Observable<com.myapp.MyProduct>} becomes {@code "myProductObservable"}<br>
-   *
-   * @param parameter the method or constructor parameter
-   * @return the generated variable name
-   */
   public static String getVariableNameForParameter(MethodParameter parameter) {
     Assert.notNull(parameter, "MethodParameter is required");
     Class<?> valueClass;
@@ -149,7 +106,7 @@ public final class Conventions {
     String reactiveSuffix = "";
 
     if (parameter.getParameterType().isArray()) {
-      valueClass = parameter.getParameterType().getComponentType();
+      valueClass = parameter.getParameterType().componentType();
       pluralize = true;
     }
     else if (Collection.class.isAssignableFrom(parameter.getParameterType())) {
@@ -226,7 +183,7 @@ public final class Conventions {
     String reactiveSuffix = "";
 
     if (resolvedType.isArray()) {
-      valueClass = resolvedType.getComponentType();
+      valueClass = resolvedType.componentType();
       pluralize = true;
     }
     else if (Collection.class.isAssignableFrom(resolvedType)) {

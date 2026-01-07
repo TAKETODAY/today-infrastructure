@@ -20,7 +20,6 @@ package infra.core;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -226,10 +225,10 @@ class ConventionsTests {
 
   @Test
   void getVariableNameForParameterWithReactiveTypes() {
-    Parameter monoParam = getMethodParameter(Mono.class);
-    Parameter fluxParam = getMethodParameter(Flux.class);
-    Parameter singleParam = getMethodParameter(Single.class);
-    Parameter observableParam = getMethodParameter(Observable.class);
+    var monoParam = getMethodParameter(Mono.class);
+    var fluxParam = getMethodParameter(Flux.class);
+    var singleParam = getMethodParameter(Single.class);
+    var observableParam = getMethodParameter(Observable.class);
 
     assertThat(Conventions.getVariableNameForParameter(monoParam)).isEqualTo("testObjectMono");
     assertThat(Conventions.getVariableNameForParameter(fluxParam)).isEqualTo("testObjectFlux");
@@ -239,10 +238,10 @@ class ConventionsTests {
 
   @Test
   void getVariableNameForParameterWithArrayType() {
-    Parameter arrayParam = Arrays.stream(TestBean.class.getDeclaredMethods())
+    var arrayParam = Arrays.stream(TestBean.class.getDeclaredMethods())
             .filter(m -> m.getName().equals("handle"))
             .findFirst()
-            .map(m -> m.getParameters()[0])
+            .map(m -> new MethodParameter(m, 0))
             .orElseThrow();
 
     assertThat(Conventions.getVariableNameForParameter(arrayParam)).isEqualTo("testObject");
@@ -250,7 +249,7 @@ class ConventionsTests {
 
   @Test
   void getVariableNameForParameterWithCollectionType() {
-    Parameter listParam = getMethodParameter(List.class);
+    var listParam = getMethodParameter(List.class);
     assertThat(Conventions.getVariableNameForParameter(listParam)).isEqualTo("testObjectList");
   }
 
@@ -387,11 +386,11 @@ class ConventionsTests {
   private static class InnerTestClass {
   }
 
-  private static Parameter getMethodParameter(Class<?> parameterType) {
+  private static MethodParameter getMethodParameter(Class<?> parameterType) {
     Method method = ReflectionUtils.getMethod(TestBean.class, "handle", (Class<?>[]) null);
     for (int i = 0; i < method.getParameterCount(); i++) {
       if (parameterType.equals(method.getParameterTypes()[i])) {
-        return method.getParameters()[i];
+        return new MethodParameter(method, i);
       }
     }
     throw new IllegalArgumentException("Parameter type not found: " + parameterType);

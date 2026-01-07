@@ -784,7 +784,7 @@ public abstract class BeanUtils {
 
   private static boolean isAssignable(Method writeMethod, Method readMethod) {
     ResolvableType sourceResolvableType = ResolvableType.forReturnType(readMethod);
-    ResolvableType targetResolvableType = ResolvableType.forParameter(writeMethod, 0);
+    ResolvableType targetResolvableType = ResolvableType.forMethodParameter(writeMethod, 0);
 
     // Ignore generic types in assignable check if either ResolvableType has unresolvable generics.
     return (sourceResolvableType.hasUnresolvableGenerics()

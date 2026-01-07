@@ -180,7 +180,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
       throw new IllegalStateException(
               "Event parameter is mandatory for event listener method: " + method);
     }
-    return Collections.singletonList(ResolvableType.forParameter(method, 0));
+    return Collections.singletonList(ResolvableType.forMethodParameter(method, 0));
   }
 
   @Override

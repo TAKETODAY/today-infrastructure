@@ -487,7 +487,7 @@ public class HandlerMethod implements AsyncHandler {
     }
     for (int i = 0; i < paramTypes.length; i++) {
       if (paramTypes[i] !=
-              ResolvableType.forParameter(candidate, i, this.method.getDeclaringClass()).toClass()) {
+              ResolvableType.forMethodParameter(candidate, i, this.method.getDeclaringClass()).toClass()) {
         return false;
       }
     }

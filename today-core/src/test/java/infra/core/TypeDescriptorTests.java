@@ -31,7 +31,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -96,7 +95,9 @@ class TypeDescriptorTests {
     assertThat(desc.isCollection()).isTrue();
     assertThat(desc.isArray()).isFalse();
     assertThat(desc.getElementDescriptor().getType()).isEqualTo(List.class);
-    assertThat(desc.getElementDescriptor()).isEqualTo(TypeDescriptor.nested(methodParameter, 1));
+    TypeDescriptor elementDescriptor = desc.getElementDescriptor();
+    TypeDescriptor nested = TypeDescriptor.nested(methodParameter, 1);
+    assertThat(elementDescriptor).isEqualTo(nested);
     assertThat(desc.getElementDescriptor().getElementDescriptor()).isEqualTo(TypeDescriptor.nested(methodParameter, 2));
     assertThat(desc.getElementDescriptor().getElementDescriptor().getMapValueDescriptor()).isEqualTo(TypeDescriptor.nested(methodParameter, 3));
     assertThat(desc.getElementDescriptor().getElementDescriptor().getMapKeyDescriptor().getType()).isEqualTo(Integer.class);
@@ -821,8 +822,8 @@ class TypeDescriptorTests {
   @Test
   void fromParameterRetainsAnnotations() throws Exception {
     Method method = getClass().getMethod("methodWithAnnotatedParameter", String.class);
-    Parameter param = method.getParameters()[0];
-    TypeDescriptor desc = TypeDescriptor.fromParameter(param);
+    var param = new MethodParameter(method, 0);
+    TypeDescriptor desc = new TypeDescriptor(param);
 
     assertThat(desc.hasAnnotation(ParameterAnnotation.class)).isTrue();
     assertThat(desc.getAnnotation(ParameterAnnotation.class).value()).isEqualTo(123);
