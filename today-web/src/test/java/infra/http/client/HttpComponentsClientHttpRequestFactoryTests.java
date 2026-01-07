@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,13 +31,16 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
+import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
 import infra.util.FileCopyUtils;
+import infra.util.StreamUtils;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,7 +53,7 @@ import static org.mockito.Mockito.withSettings;
 /**
  * @author Stephane Nicoll
  */
-public class HttpComponentsClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryTests {
+class HttpComponentsClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryTests {
 
   @Override
   protected ClientHttpRequestFactory createRequestFactory() {
@@ -62,6 +65,22 @@ public class HttpComponentsClientHttpRequestFactoryTests extends AbstractHttpReq
   void httpMethods() throws Exception {
     super.httpMethods();
     assertHttpMethod("patch", HttpMethod.PATCH);
+  }
+
+  @Test
+  void shouldDecompressWithExpectedHeaders() throws Exception {
+    ClientHttpRequest request = factory.createRequest(URI.create(baseUrl + "/compress/gzip"), HttpMethod.POST);
+    String message = "Hello World";
+    final byte[] body = message.getBytes(StandardCharsets.UTF_8);
+    StreamUtils.copy(body, request.getBody());
+
+    try (ClientHttpResponse response = request.execute()) {
+      assertThat(response.getStatusCode()).as("Invalid status code").isEqualTo(HttpStatus.OK);
+      String result = FileCopyUtils.copyToString(new InputStreamReader(response.getBody()));
+      assertThat(result).as("Invalid body").isEqualTo(message);
+      assertThat(response.getHeaders().get(HttpHeaders.CONTENT_ENCODING)).isNull();
+      assertThat(response.getHeaders().getContentLength()).isEqualTo(-1);
+    }
   }
 
   @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,6 +68,17 @@ final class HttpComponentsClientHttpResponse implements ClientHttpResponse {
       this.headers = HttpHeaders.forWritable();
       for (Header header : this.httpResponse.getHeaders()) {
         this.headers.add(header.getName(), header.getValue());
+      }
+
+      // update headers if response is decompressed
+      HttpEntity httpEntity = this.httpResponse.getEntity();
+      if (httpEntity != null) {
+        if (httpEntity.getContentLength() == -1) {
+          headers.remove(HttpHeaders.CONTENT_LENGTH);
+        }
+        if (httpEntity.getContentEncoding() == null) {
+          headers.remove(HttpHeaders.CONTENT_ENCODING);
+        }
       }
     }
     return this.headers;
