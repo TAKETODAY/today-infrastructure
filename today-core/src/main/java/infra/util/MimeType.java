@@ -781,7 +781,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
         String thisValue = getParameters().get(thisAttribute);
         String otherValue = other.getParameters().get(otherAttribute);
         if (thisValue == null) {
-          throw new IllegalArgumentException("Parameter for " + thisAttribute + " must not be null");
+          throw new IllegalArgumentException("Parameter for %s must not be null".formatted(thisAttribute));
         }
         if (otherValue == null) {
           otherValue = "";

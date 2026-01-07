@@ -150,7 +150,7 @@ public class TestRestTemplate {
 
   private static RestTemplateBuilder createInitialBuilder(RestTemplateBuilder builder, @Nullable String username,
           @Nullable String password, HttpClientOption... httpClientOptions) {
-    Assert.notNull(builder, "'builder' must not be null");
+    Assert.notNull(builder, "'builder' is required");
     ClientHttpRequestFactoryBuilder<?> requestFactoryBuilder = builder.requestFactoryBuilder();
     if (requestFactoryBuilder instanceof HttpComponentsClientHttpRequestFactoryBuilder) {
       builder = builder.requestFactoryBuilder(applyHttpClientOptions(

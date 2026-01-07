@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -194,7 +194,7 @@ class TransactionalApplicationListenerMethodAdapterTests {
   }
 
   private static void assertPhase(Method method, TransactionPhase expected) {
-    assertThat(method).as("Method must not be null").isNotNull();
+    assertThat(method).as("Method is required").isNotNull();
     TransactionalEventListener annotation =
             AnnotatedElementUtils.findMergedAnnotation(method, TransactionalEventListener.class);
     assertThat(annotation.phase()).as("Wrong phase for '" + method + "'").isEqualTo(expected);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,7 +94,7 @@ public abstract class Configurations {
    */
   protected Configurations(@Nullable UnaryOperator<Collection<Class<?>>> sorter, Collection<Class<?>> classes,
           @Nullable Function<Class<?>, String> beanNameGenerator) {
-    Assert.notNull(classes, "Classes must not be null");
+    Assert.notNull(classes, "Classes is required");
     this.sorter = (sorter != null) ? sorter : UnaryOperator.identity();
     Collection<Class<?>> sorted = this.sorter.apply(classes);
     this.classes = Collections.unmodifiableSet(new LinkedHashSet<>(sorted));

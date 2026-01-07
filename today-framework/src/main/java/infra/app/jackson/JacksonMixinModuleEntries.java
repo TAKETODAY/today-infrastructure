@@ -85,7 +85,7 @@ public final class JacksonMixinModuleEntries {
         if (StringUtils.hasText(basePackage)) {
           for (BeanDefinition candidate : scanner.findCandidateComponents(basePackage)) {
             String beanClassName = candidate.getBeanClassName();
-            Assert.state(beanClassName != null, "'beanClassName' must not be null");
+            Assert.state(beanClassName != null, "'beanClassName' is required");
             Class<?> mixinClass = ClassUtils.resolveClassName(beanClassName, context.getClassLoader());
             registerMixinClass(builder, mixinClass);
           }

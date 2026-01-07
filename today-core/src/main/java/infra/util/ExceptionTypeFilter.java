@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,7 +95,7 @@ public class ExceptionTypeFilter extends InstanceFilter<Class<? extends Throwabl
   }
 
   private boolean matchTraversingCauses(Throwable exception) {
-    Assert.notNull(exception, "Throwable to match must not be null");
+    Assert.notNull(exception, "Throwable to match is required");
 
     boolean emptyIncludes = includes.isEmpty();
     boolean emptyExcludes = excludes.isEmpty();

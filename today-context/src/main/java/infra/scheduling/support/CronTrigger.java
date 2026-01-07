@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,7 +78,7 @@ public class CronTrigger implements Trigger {
    */
   public CronTrigger(String expression, TimeZone timeZone) {
     this.expression = CronExpression.parse(expression);
-    Assert.notNull(timeZone, "TimeZone must not be null");
+    Assert.notNull(timeZone, "TimeZone is required");
     this.zoneId = timeZone.toZoneId();
   }
 
@@ -96,7 +96,7 @@ public class CronTrigger implements Trigger {
    */
   public CronTrigger(String expression, ZoneId zoneId) {
     this.expression = CronExpression.parse(expression);
-    Assert.notNull(zoneId, "ZoneId must not be null");
+    Assert.notNull(zoneId, "ZoneId is required");
     this.zoneId = zoneId;
   }
 
