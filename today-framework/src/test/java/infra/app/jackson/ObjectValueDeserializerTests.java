@@ -70,7 +70,7 @@ class ObjectValueDeserializerTests {
   void nullSafeValueWhenClassIsNullShouldThrowException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> this.testDeserializer.testNullSafeValue(mock(JsonNode.class), null))
-            .withMessageContaining("'type' must not be null");
+            .withMessageContaining("'type' is required");
   }
 
   @Test
@@ -164,7 +164,7 @@ class ObjectValueDeserializerTests {
   @Test
   void getRequiredNodeWhenTreeIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> this.testDeserializer.testGetRequiredNode(null, "test"))
-            .withMessageContaining("'tree' must not be null");
+            .withMessageContaining("'tree' is required");
   }
 
   @Test

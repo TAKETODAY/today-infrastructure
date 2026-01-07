@@ -401,7 +401,7 @@ public abstract class AbstractJacksonEncoder<T extends ObjectMapper> extends Jac
     return parameter.getMethodAnnotation(annotType);
   }
 
-  private static class JsonArrayJoinHelper {
+  private static final class JsonArrayJoinHelper {
 
     private static final byte[] COMMA_SEPARATOR = { ',' };
 

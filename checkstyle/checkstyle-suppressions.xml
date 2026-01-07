@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-  ~ Copyright 2017 - 2025 the original author or authors.
+  ~ Copyright 2017 - 2026 the original author or authors.
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 
   <!-- Global: tests and test fixtures -->
   <suppress files="[\\/]src[\\/](test|testFixtures)[\\/](java|java21)[\\/]"
-          checks="AnnotationLocation|AnnotationUseStyle|AtclauseOrder|AvoidNestedBlocks|FinalClass|HideUtilityClassConstructor|InnerTypeLast|JavadocStyle|JavadocType|JavadocVariable|LeftCurly|MultipleVariableDeclarations|NeedBraces|OneTopLevelClass|OuterTypeFilename|RequireThis|InfraCatch|InfraJavadoc|InfraNoThis" />
+      checks="AnnotationLocation|AnnotationUseStyle|AtclauseOrder|AvoidNestedBlocks|FinalClass|HideUtilityClassConstructor|InnerTypeLast|JavadocStyle|JavadocType|JavadocVariable|LeftCurly|MultipleVariableDeclarations|NeedBraces|OneTopLevelClass|OuterTypeFilename|RequireThis|InfraCatch|InfraJavadoc|InfraNoThis" />
   <suppress files="[\\/]src[\\/](test|testFixtures)[\\/](java|java21)[\\/]" checks="RegexpSinglelineJava" id="toLowerCaseWithoutLocale" />
   <suppress files="[\\/]src[\\/](test|testFixtures)[\\/](java|java21)[\\/]" checks="RegexpSinglelineJava" id="toUpperCaseWithoutLocale" />
   <suppress files="[\\/]src[\\/](test|testFixtures)[\\/](java|java21)[\\/]" checks="RegexpSinglelineJava" id="systemOutErrPrint" />
@@ -65,8 +65,8 @@
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/](asm|cglib|objenesis|javapoet)[\\/]" checks=".*" />
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]aot[\\/]nativex[\\/]feature[\\/]" checks="RegexpSinglelineJava" id="systemOutErrPrint" />
   <suppress
-          files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/](core|util|lang|logging)[\\/](Version|SystemPropertyUtils|JavaLoggingFactory|LoggerFactory|MessageFormatter)"
-          checks="RegexpSinglelineJava" id="systemOutErrPrint" />
+      files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/](core|util|lang|logging)[\\/](Version|SystemPropertyUtils|JavaLoggingFactory|LoggerFactory|MessageFormatter)"
+      checks="RegexpSinglelineJava" id="systemOutErrPrint" />
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]lang[\\/]" checks="IllegalImport" id="bannedNullabilityImports" message="javax" />
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]core[\\/]annotation[\\/]" checks="IllegalImport" id="bannedNullabilityImports" message="javax" />
   <suppress files="ByteArrayEncoder" checks="InfraLambda" />
@@ -98,7 +98,7 @@
   <suppress files="today-test[\\/]src[\\/]" checks="IllegalImport" id="bannedJUnit4Imports" />
 
   <suppress files="infra[\\/]test[\\/]context[\\/].+[\\/](ExpectedExceptionInfraRunnerTests|StandardJUnit4FeaturesTests|ProgrammaticTxMgmtTestNGTests)"
-          checks="RegexpSinglelineJava" id="expectedExceptionAnnotation" />
+      checks="RegexpSinglelineJava" id="expectedExceptionAnnotation" />
 
   <suppress files="MultipartStream" checks="InnerTypeLast" />
   <suppress files="FileItemStream" checks="InnerTypeLast" />
@@ -141,7 +141,7 @@
   <!-- infra-app-loader-tools -->
 
   <suppress files="infra.app.loader.tools.SignalUtils"
-          checks="IllegalImport" id="bannedNullabilityImports" message="javax" />
+      checks="IllegalImport" id="bannedNullabilityImports" message="javax" />
 
   <!-- infra-jarmode-layertools -->
 
@@ -161,5 +161,8 @@
 
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]retry[\\/]" checks="JavadocPackage" />
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]classify[\\/]" checks="JavadocPackage" />
+
+  <suppress files=".+Configuration\.java" checks="HideUtilityClassConstructor" />
+  <suppress files=".+Application\.java" checks="HideUtilityClassConstructor" />
 
 </suppressions>
