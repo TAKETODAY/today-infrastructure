@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,6 +47,7 @@ import infra.http.HttpOutputMessage;
 import infra.http.MediaType;
 import infra.http.ProblemDetail;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
+import infra.http.converter.json.MappingJacksonValue;
 import infra.util.CollectionUtils;
 import infra.util.StreamUtils;
 import infra.util.TypeUtils;
@@ -276,6 +277,11 @@ public abstract class AbstractJacksonHttpMessageConverter<T extends ObjectMapper
         return false;
       }
     }
+
+    if (MappingJacksonValue.class.isAssignableFrom(valueClass)) {
+      return true;
+    }
+
     return this.mapperRegistrations == null || selectMapper(valueClass, mediaType) != null;
   }
 
@@ -384,11 +390,23 @@ public abstract class AbstractJacksonHttpMessageConverter<T extends ObjectMapper
   }
 
   @Override
-  protected void writeInternal(Object object, ResolvableType resolvableType, HttpOutputMessage outputMessage, @Nullable Map<String, Object> hints)
-          throws IOException, HttpMessageNotWritableException {
-
+  protected void writeInternal(Object object, ResolvableType resolvable, HttpOutputMessage outputMessage, @Nullable Map<String, Object> hints)
+          throws IOException, HttpMessageNotWritableException //
+  {
     MediaType contentType = outputMessage.getContentType();
     JsonEncoding encoding = getJsonEncoding(contentType);
+
+    Class<?> jsonView = null;
+    FilterProvider filters = null;
+
+    if (object instanceof MappingJacksonValue mjv) {
+      object = mjv.getValue();
+      filters = mjv.getFilters();
+      jsonView = mjv.getSerializationView();
+      if (!resolvable.isInstance(object)) {
+        resolvable = ResolvableType.forInstance(object);
+      }
+    }
 
     Class<?> clazz = object.getClass();
     T mapper = selectMapper(clazz, contentType);
@@ -397,12 +415,9 @@ public abstract class AbstractJacksonHttpMessageConverter<T extends ObjectMapper
       throw new IllegalStateException("No ObjectMapper for " + clazz.getName());
     }
 
-    OutputStream outputStream = StreamUtils.nonClosing(outputMessage.getBody());
-    Class<?> jsonView = null;
-    FilterProvider filters = null;
     JavaType javaType = null;
 
-    Type type = resolvableType.getType();
+    Type type = resolvable.getType();
     if (TypeUtils.isAssignable(type, object.getClass())) {
       javaType = getJavaType(type, null);
     }
@@ -411,8 +426,8 @@ public abstract class AbstractJacksonHttpMessageConverter<T extends ObjectMapper
       filters = (FilterProvider) hints.get(FILTER_PROVIDER_HINT);
     }
 
-    ObjectWriter objectWriter = (jsonView != null ?
-            mapper.writerWithView(jsonView) : mapper.writer());
+    ObjectWriter objectWriter = jsonView != null ? mapper.writerWithView(jsonView) : mapper.writer();
+
     if (filters != null) {
       objectWriter = objectWriter.with(filters);
     }
@@ -420,12 +435,12 @@ public abstract class AbstractJacksonHttpMessageConverter<T extends ObjectMapper
       objectWriter = objectWriter.forType(javaType);
     }
     SerializationConfig config = objectWriter.getConfig();
-    if (contentType != null && contentType.isCompatibleWith(MediaType.TEXT_EVENT_STREAM) &&
-            config.isEnabled(SerializationFeature.INDENT_OUTPUT)) {
+    if (contentType != null && contentType.isCompatibleWith(MediaType.TEXT_EVENT_STREAM)
+            && config.isEnabled(SerializationFeature.INDENT_OUTPUT)) {
       objectWriter = objectWriter.with(this.ssePrettyPrinter);
     }
     objectWriter = customizeWriter(objectWriter, javaType, contentType);
-
+    OutputStream outputStream = StreamUtils.nonClosing(outputMessage.getBody());
     try (JsonGenerator generator = objectWriter.createGenerator(outputStream, encoding)) {
       writePrefix(generator, object);
       objectWriter.writeValue(generator, object);

@@ -639,6 +639,22 @@ class JacksonJsonHttpMessageConverterTests {
     assertThat(this.converter.read(Map.class, inputMessage)).isNull();
   }
 
+  @Test
+  void mappingJacksonValue() throws IOException {
+    MockHttpInputMessage inputMessage = new MockHttpInputMessage("null".getBytes(StandardCharsets.UTF_8));
+    inputMessage.getHeaders().setContentType(new MediaType("application", "json"));
+    assertThat(this.converter.canWrite(ResolvableType.forClass(MappingJacksonValue.class), MappingJacksonValue.class, null)).isTrue();
+
+    MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
+
+    MappingJacksonValue value = new MappingJacksonValue(new BeanWithNoDefaultConstructor("v1", "v2"));
+    converter.write(value, ResolvableType.forInstance(value), null, outputMessage, null);
+    converter.write(value, ResolvableType.forClass(BeanWithNoDefaultConstructor.class), null, outputMessage, null);
+
+    String result = outputMessage.getBodyAsString(StandardCharsets.UTF_8);
+    assertThat(result).contains("{\"property1\":\"v1\",\"property2\":\"v2\"}{\"property1\":\"v1\",\"property2\":\"v2\"}");
+  }
+
   interface MyInterface {
 
     String getString();
