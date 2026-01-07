@@ -34,7 +34,7 @@ dependencies {
 
   testImplementation(project(":today-aop"))
   testImplementation(project(":today-core-aot"))
-  testImplementation(project(":today-framework"))
+  testImplementation(project(":infra-app"))
   testImplementation(project(":today-test-support"))
 
   testImplementation("tools.jackson.core:jackson-databind")

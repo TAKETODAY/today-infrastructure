@@ -25,7 +25,7 @@
 .gradle
 /build/
 /tmp/
-/today-framework/target/
+/infra-app/target/
 .flattened-pom.xml
 */.flattened-pom.xml
 /buildSrc/build/*

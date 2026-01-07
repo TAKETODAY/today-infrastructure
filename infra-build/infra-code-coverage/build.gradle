@@ -8,6 +8,8 @@ description = "Code Coverage"
 dependencies {
   jacocoAggregation(enforcedPlatform(project(":infra-dependencies")))
 
+  jacocoAggregation project(':infra-app')
+
   jacocoAggregation project(':today-core')
   jacocoAggregation project(':today-beans')
   jacocoAggregation project(':today-aop')
@@ -17,7 +19,6 @@ dependencies {
   jacocoAggregation project(':today-context-support')
   jacocoAggregation project(':today-core-aot')
   jacocoAggregation project(':today-core-test')
-  jacocoAggregation project(':today-framework')
   jacocoAggregation project(':today-jcache')
   jacocoAggregation project(':today-jdbc')
   jacocoAggregation project(':today-oxm')

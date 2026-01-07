@@ -37,7 +37,6 @@ include 'today-jdbc'
 include 'today-core'
 include 'today-core-aot'
 include 'today-core-test'
-include 'today-framework'
 include 'today-oxm'
 include 'today-aop'
 include 'today-test'
@@ -49,6 +48,8 @@ include 'integration-tests'
 include 'today-test-support'
 include 'today-context-indexer'
 include 'today-context-support'
+
+include 'infra-app'
 
 // Starters
 file("${rootDir}/today-starter").eachDirMatch(~/today-starter.*/) {

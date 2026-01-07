@@ -18,7 +18,8 @@ ext {
       project(":infra-build:infra-app-loader-tools"),
       project(":infra-build:infra-jarmode-layertools"),
       project(":infra-build:infra-gradle-plugin"),
-      project(":infra-build:infra-maven-plugin")
+      project(":infra-build:infra-maven-plugin"),
+      project(":infra-app")
   ]
   javaProjects = subprojects - starterProjects - [
       project(":infra-build:infra-code-coverage"),
