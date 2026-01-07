@@ -42,7 +42,7 @@ import infra.lang.Assert;
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see com.fasterxml.jackson.annotation.JsonView
- * @see com.fasterxml.jackson.databind.ObjectMapper#writerWithView(Class)
+ * @see tools.jackson.databind.ObjectMapper#writerWithView(Class)
  * @since 4.0 2022/2/11 21:02
  */
 public class JsonViewResponseBodyAdvice extends AbstractJacksonResponseBodyAdvice {

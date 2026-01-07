@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@ package infra.app.json;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -42,13 +44,15 @@ public class GsonJsonParser extends AbstractJsonParser {
   private final Gson gson = new GsonBuilder().create();
 
   @Override
-  public Map<String, Object> parseMap(String json) {
-    return parseMap(json, (trimmed) -> this.gson.fromJson(trimmed, MAP_TYPE.getType()));
+  public Map<String, Object> parseMap(@Nullable String json) {
+    return tryParse(() -> parseMap(json, (trimmed) -> this.gson.fromJson(trimmed, MAP_TYPE.getType())),
+            Exception.class);
   }
 
   @Override
-  public List<Object> parseList(String json) {
-    return parseList(json, (trimmed) -> this.gson.fromJson(trimmed, LIST_TYPE.getType()));
+  public List<Object> parseList(@Nullable String json) {
+    return tryParse(() -> parseList(json, (trimmed) -> this.gson.fromJson(trimmed, LIST_TYPE.getType())),
+            Exception.class);
   }
 
   private static final class MapTypeToken extends TypeToken<Map<String, Object>> {

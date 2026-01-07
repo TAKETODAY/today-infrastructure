@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,17 +56,13 @@ import infra.core.annotation.Order;
 import infra.http.ProblemDetail;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.StreamReadFeature;
-import tools.jackson.core.StreamWriteFeature;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonFactoryBuilder;
 import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.core.json.JsonWriteFeature;
-import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JacksonModule;
-import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationContext;
-import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.cfg.MapperBuilder;
@@ -700,86 +696,6 @@ class JacksonAutoConfigurationTests {
       assertThat(xml).isEqualTo(
               "<problem xmlns=\"urn:ietf:rfc:7807\"><status>404</status><title>Not Found</title><spring>boot</spring></problem>");
     });
-  }
-
-  @Test
-  void whenUsingJackson2DefaultsJsonMapperShouldBeConfiguredUsingConfigureForJackson2() {
-    this.contextRunner.withPropertyValues("jackson.use-jackson2-defaults=true").run((context) -> {
-      JsonMapper jsonMapper = context.getBean(JsonMapper.class);
-      JsonMapper jackson2ConfiguredJsonMapper = JsonMapper.builder().configureForJackson2().build();
-      assertCommonFeatureConfiguration(jsonMapper, jackson2ConfiguredJsonMapper);
-      for (JsonReadFeature feature : JsonReadFeature.values()) {
-        assertThat(jsonMapper.isEnabled(feature)).as(feature.name())
-                .isEqualTo(jackson2ConfiguredJsonMapper.isEnabled(feature));
-      }
-      for (JsonWriteFeature feature : JsonWriteFeature.values()) {
-        assertThat(jsonMapper.isEnabled(feature)).as(feature.name())
-                .isEqualTo(jackson2ConfiguredJsonMapper.isEnabled(feature));
-      }
-    });
-  }
-
-  @Test
-  void whenUsingJackson2DefaultsCborMapperShouldBeConfiguredUsingConfigureForJackson2() {
-    this.contextRunner.withPropertyValues("jackson.use-jackson2-defaults=true").run((context) -> {
-      CBORMapper cborMapper = context.getBean(CBORMapper.class);
-      CBORMapper jackson2ConfiguredCborMapper = CBORMapper.builder().configureForJackson2().build();
-      assertCommonFeatureConfiguration(cborMapper, jackson2ConfiguredCborMapper);
-      assertThat(cborMapper.deserializationConfig().getFormatReadFeatures())
-              .isEqualTo(jackson2ConfiguredCborMapper.deserializationConfig().getFormatReadFeatures());
-      assertThat(cborMapper.serializationConfig().getFormatWriteFeatures())
-              .isEqualTo(jackson2ConfiguredCborMapper.serializationConfig().getFormatWriteFeatures());
-    });
-  }
-
-  @Test
-  void whenUsingJackson2DefaultsXmlMapperShouldBeConfiguredUsingConfigureForJackson2() {
-    this.contextRunner.withPropertyValues("jackson.use-jackson2-defaults=true").run((context) -> {
-      XmlMapper xmlMapper = context.getBean(XmlMapper.class);
-      XmlMapper jackson2ConfiguredXmlMapper = XmlMapper.builder().configureForJackson2().build();
-      assertCommonFeatureConfiguration(xmlMapper, jackson2ConfiguredXmlMapper);
-      assertThat(xmlMapper.deserializationConfig().getFormatReadFeatures())
-              .isEqualTo(jackson2ConfiguredXmlMapper.deserializationConfig().getFormatReadFeatures());
-      assertThat(xmlMapper.serializationConfig().getFormatWriteFeatures())
-              .isEqualTo(jackson2ConfiguredXmlMapper.serializationConfig().getFormatWriteFeatures());
-    });
-  }
-
-  private void assertCommonFeatureConfiguration(tools.jackson.databind.ObjectMapper mapper, tools.jackson.databind.ObjectMapper jackson2ConfiguredMapper) {
-    for (DateTimeFeature feature : DateTimeFeature.values()) {
-      boolean expected = (feature == DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS
-              || feature == DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS) ? false
-              : jackson2ConfiguredMapper.isEnabled(feature);
-      assertThat(mapper.isEnabled(feature)).as(feature.name()).isEqualTo(expected);
-    }
-    for (tools.jackson.databind.DeserializationFeature feature : DeserializationFeature.values()) {
-      assertThat(mapper.isEnabled(feature)).as(feature.name())
-              .isEqualTo(jackson2ConfiguredMapper.isEnabled(feature));
-    }
-    for (tools.jackson.databind.cfg.EnumFeature feature : tools.jackson.databind.cfg.EnumFeature.values()) {
-      assertThat(mapper.isEnabled(feature)).as(feature.name())
-              .isEqualTo(jackson2ConfiguredMapper.isEnabled(feature));
-    }
-    for (tools.jackson.databind.cfg.JsonNodeFeature feature : tools.jackson.databind.cfg.JsonNodeFeature.values()) {
-      assertThat(mapper.isEnabled(feature)).as(feature.name())
-              .isEqualTo(jackson2ConfiguredMapper.isEnabled(feature));
-    }
-    for (tools.jackson.databind.MapperFeature feature : MapperFeature.values()) {
-      assertThat(mapper.isEnabled(feature)).as(feature.name())
-              .isEqualTo(jackson2ConfiguredMapper.isEnabled(feature));
-    }
-    for (tools.jackson.databind.SerializationFeature feature : SerializationFeature.values()) {
-      assertThat(mapper.isEnabled(feature)).as(feature.name())
-              .isEqualTo(jackson2ConfiguredMapper.isEnabled(feature));
-    }
-    for (StreamReadFeature feature : StreamReadFeature.values()) {
-      assertThat(mapper.isEnabled(feature)).as(feature.name())
-              .isEqualTo(jackson2ConfiguredMapper.isEnabled(feature));
-    }
-    for (StreamWriteFeature feature : StreamWriteFeature.values()) {
-      assertThat(mapper.isEnabled(feature)).as(feature.name())
-              .isEqualTo(jackson2ConfiguredMapper.isEnabled(feature));
-    }
   }
 
   static class MyDateFormat extends SimpleDateFormat {

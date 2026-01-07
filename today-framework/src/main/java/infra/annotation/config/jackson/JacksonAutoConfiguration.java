@@ -91,8 +91,8 @@ import tools.jackson.dataformat.xml.XmlMapper;
  * @since 4.0
  */
 @DisableDIAutoConfiguration
-@ConditionalOnClass(ObjectMapper.class)
-public class JacksonAutoConfiguration {
+@ConditionalOnClass(JsonMapper.class)
+public final class JacksonAutoConfiguration {
 
   @Component
   public static JacksonComponentModule jsonComponentModule() {

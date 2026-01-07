@@ -69,7 +69,7 @@ public class MappingJacksonValue {
   /**
    * Set the serialization view to serialize the POJO with.
    *
-   * @see com.fasterxml.jackson.databind.ObjectMapper#writerWithView(Class)
+   * @see tools.jackson.databind.ObjectMapper#writerWithView(Class)
    * @see com.fasterxml.jackson.annotation.JsonView
    */
   public void setSerializationView(@Nullable Class<?> serializationView) {
@@ -79,7 +79,7 @@ public class MappingJacksonValue {
   /**
    * Return the serialization view to use.
    *
-   * @see com.fasterxml.jackson.databind.ObjectMapper#writerWithView(Class)
+   * @see tools.jackson.databind.ObjectMapper#writerWithView(Class)
    * @see com.fasterxml.jackson.annotation.JsonView
    */
   @Nullable

@@ -44,7 +44,7 @@ import infra.lang.Assert;
  * @author Sebastien Deleuze
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see com.fasterxml.jackson.annotation.JsonView
- * @see com.fasterxml.jackson.databind.ObjectMapper#readerWithView(Class)
+ * @see tools.jackson.databind.ObjectMapper#readerWithView(Class)
  * @since 4.0 2022/2/11 21:08
  */
 public class JsonViewRequestBodyAdvice implements RequestBodyAdvice {
