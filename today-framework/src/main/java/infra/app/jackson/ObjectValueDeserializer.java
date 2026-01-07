@@ -50,7 +50,7 @@ public abstract class ObjectValueDeserializer<T> extends ValueDeserializer<T> {
       return deserializeObject(jp, ctxt, jsonNode);
     }
     throw new IllegalStateException(
-            "JsonParser " + jp + " produced " + tree.getClass() + " that is not a JsonNode");
+            "JsonParser %s produced %s that is not a JsonNode".formatted(jp, tree.getClass()));
   }
 
   /**
@@ -98,7 +98,7 @@ public abstract class ObjectValueDeserializer<T> extends ValueDeserializer<T> {
    */
   @SuppressWarnings({ "unchecked" })
   protected final <D> @Nullable D nullSafeValue(@Nullable JsonNode jsonNode, Class<D> type) {
-    Assert.notNull(type, "'type' must not be null");
+    Assert.notNull(type, "'type' is required");
     if (jsonNode == null) {
       return null;
     }
@@ -140,7 +140,7 @@ public abstract class ObjectValueDeserializer<T> extends ValueDeserializer<T> {
    * @return the {@link JsonNode}
    */
   protected final JsonNode getRequiredNode(JsonNode tree, String fieldName) {
-    Assert.notNull(tree, "'tree' must not be null");
+    Assert.notNull(tree, "'tree' is required");
     JsonNode node = tree.get(fieldName);
     Assert.state(node != null && !(node instanceof NullNode), () -> "Missing JSON field '" + fieldName + "'");
     return node;
