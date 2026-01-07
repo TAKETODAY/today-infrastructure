@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -147,8 +147,7 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
    * if returns {@code null} no suitable  {@link ParameterResolvingStrategy}
    */
   @Nullable
-  protected ParameterResolvingStrategy lookupStrategy(
-          ResolvableMethodParameter resolvable, Iterable<ParameterResolvingStrategy> strategies) {
+  protected ParameterResolvingStrategy lookupStrategy(ResolvableMethodParameter resolvable, Iterable<ParameterResolvingStrategy> strategies) {
     for (ParameterResolvingStrategy resolver : strategies) {
       if (resolver.supportsParameter(resolvable)) {
         return resolver;

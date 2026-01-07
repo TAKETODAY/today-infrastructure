@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,6 +52,7 @@ import infra.ui.ModelMap;
 import infra.web.BindingContext;
 import infra.web.RedirectModel;
 import infra.web.RedirectModelManager;
+import infra.web.RequestContext;
 import infra.web.annotation.ControllerAdvice;
 import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestParam;
@@ -225,22 +227,13 @@ class RequestMappingHandlerAdapterTests {
     parent.registerSingleton("rba", ResponseCodeSuppressingAdvice.class);
     this.webAppContext.refresh();
 
-    this.request.addHeader("Accept", MediaType.APPLICATION_JSON_VALUE);
-    this.request.setParameter("c", "callback");
-
-    RequestResponseBodyMethodProcessor processor = webAppContext.getBean(ParameterResolvingRegistry.class)
-            .getDefaultStrategies().get(RequestResponseBodyMethodProcessor.class);
-    RequestResponseBodyAdviceChain advice = (RequestResponseBodyAdviceChain) ReflectionTestUtils.getField(processor, "advice");
-    List requestBodyAdvice = (List) ReflectionTestUtils.getField(advice, "requestBodyAdvice");
-    requestBodyAdvice.add(webAppContext.getBean("rba"));
-
     HandlerMethod handlerMethod = handlerMethod(new TestController(), "handleBadRequest");
     this.handlerAdapter.afterPropertiesSet();
 
     Object handle = this.handlerAdapter.handle(context, handlerMethod);
 
-    new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()),
-            List.of(webAppContext.getBean("rba")), null)
+    List<Object> rba = List.of(webAppContext.getBean("rba"));
+    new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), rba, null)
             .handleReturnValue(context, handlerMethod, handle);
 
     assertThat(this.response.getStatus()).isEqualTo(200);
@@ -427,8 +420,7 @@ class RequestMappingHandlerAdapterTests {
    * and {@link RequestBodyAdvice} does not get registered twice.
    */
   @ControllerAdvice
-  private static class ResponseCodeSuppressingAdvice
-          extends AbstractMappingJacksonResponseBodyAdvice implements RequestBodyAdvice {
+  private static class ResponseCodeSuppressingAdvice extends AbstractJacksonResponseBodyAdvice implements RequestBodyAdvice {
 
     @Override
     public boolean supports(MethodParameter methodParameter, Type targetType,
@@ -438,21 +430,26 @@ class RequestMappingHandlerAdapterTests {
     }
 
     @Override
-    public HttpInputMessage beforeBodyRead(HttpInputMessage inputMessage, MethodParameter parameter,
-            Type targetType, HttpMessageConverter<?> converterType) {
+    public HttpInputMessage beforeBodyRead(HttpInputMessage inputMessage,
+            MethodParameter parameter, Type targetType, HttpMessageConverter<?> converterType) {
 
       return inputMessage;
     }
 
     @Override
-    public Object afterBodyRead(Object body, HttpInputMessage inputMessage, MethodParameter parameter,
-            Type targetType, HttpMessageConverter<?> converterType) {
+    public @Nullable Object beforeBodyWrite(@Nullable Object body, @Nullable MethodParameter returnType,
+            MediaType contentType, HttpMessageConverter<?> selected, RequestContext context) {
 
-      return body;
+      Map<String, Object> map = new LinkedHashMap<>();
+      map.put("status", context.getStatus());
+      map.put("message", body);
+
+      context.setStatus(HttpStatus.OK);
+      return map;
     }
 
     @Override
-    public Object handleEmptyBody(Object body, HttpInputMessage inputMessage, MethodParameter parameter,
+    public Object handleEmptyBody(@Nullable Object body, HttpInputMessage inputMessage, MethodParameter parameter,
             Type targetType, HttpMessageConverter<?> converterType) {
 
       return "default value for empty body";

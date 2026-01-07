@@ -45,7 +45,7 @@ import infra.lang.Assert;
  * @see com.fasterxml.jackson.databind.ObjectMapper#writerWithView(Class)
  * @since 4.0 2022/2/11 21:02
  */
-public class JsonViewResponseBodyAdvice extends AbstractMappingJacksonResponseBodyAdvice {
+public class JsonViewResponseBodyAdvice extends AbstractJacksonResponseBodyAdvice {
 
   @Override
   public boolean supports(@Nullable Object body, @Nullable MethodParameter returnType, HttpMessageConverter<?> converter) {

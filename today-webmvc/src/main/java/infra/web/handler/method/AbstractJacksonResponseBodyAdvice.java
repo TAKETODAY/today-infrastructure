@@ -35,7 +35,7 @@ import infra.web.RequestContext;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/11 20:59
  */
-public abstract class AbstractMappingJacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
+public abstract class AbstractJacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
   @Override
   public boolean supports(@Nullable Object body, @Nullable MethodParameter returnType, HttpMessageConverter<?> converter) {
