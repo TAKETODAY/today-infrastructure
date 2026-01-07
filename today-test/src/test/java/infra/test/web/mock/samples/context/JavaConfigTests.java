@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2025 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,7 +94,7 @@ public class JavaConfigTests {
             .andExpectAll(
                     status().isOk(),
                     request().asyncNotStarted(),
-                    content().string("{\"name\":\"Joe\",\"someDouble\":0.0,\"someBoolean\":false}"),
+                    content().string("{\"name\":\"Joe\",\"someBoolean\":false,\"someDouble\":0.0}"),
                     jsonPath("$.name").value("Joe")
             );
   }
