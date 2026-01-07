@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2026 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,7 +47,6 @@ import infra.http.HttpOutputMessage;
 import infra.http.MediaType;
 import infra.http.ProblemDetail;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
-import infra.lang.Assert;
 import infra.util.CollectionUtils;
 import infra.util.StreamUtils;
 import infra.util.TypeUtils;
@@ -167,7 +166,6 @@ public abstract class AbstractJacksonHttpMessageConverter<T extends ObjectMapper
   private List<JacksonModule> initModules() {
     if (modules == null) {
       modules = MapperBuilder.findModules(AbstractJacksonHttpMessageConverter.class.getClassLoader());
-
     }
     return Objects.requireNonNull(modules);
   }
@@ -309,7 +307,7 @@ public abstract class AbstractJacksonHttpMessageConverter<T extends ObjectMapper
   public Object read(ResolvableType type, HttpInputMessage inputMessage, @Nullable Map<String, Object> hints)
           throws IOException, HttpMessageNotReadableException {
 
-    Class<?> contextClass = (type.getSource() instanceof MethodParameter parameter ? parameter.getContainingClass() : null);
+    Class<?> contextClass = type.getSource() instanceof MethodParameter parameter ? parameter.getContainingClass() : null;
     JavaType javaType = getJavaType(type.getType(), contextClass);
     return readJavaType(javaType, inputMessage, hints);
   }
@@ -327,8 +325,9 @@ public abstract class AbstractJacksonHttpMessageConverter<T extends ObjectMapper
     Charset charset = getCharset(contentType);
 
     T mapper = selectMapper(javaType.getRawClass(), contentType);
-    Assert.state(mapper != null, () -> "No ObjectMapper for " + javaType);
-
+    if (mapper == null) {
+      throw new IllegalStateException("No ObjectMapper for " + javaType);
+    }
     boolean isUnicode = ENCODINGS.containsKey(charset.name()) ||
             "UTF-16".equals(charset.name()) ||
             "UTF-32".equals(charset.name());

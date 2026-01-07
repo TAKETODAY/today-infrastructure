@@ -17,12 +17,6 @@
 
 package infra.expression.spel;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -54,6 +48,11 @@ import infra.expression.spel.support.ReflectiveIndexAccessor;
 import infra.expression.spel.support.SimpleEvaluationContext;
 import infra.expression.spel.support.StandardEvaluationContext;
 import infra.expression.spel.testresources.Person;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.NullNode;
+import tools.jackson.databind.node.StringNode;
 
 import static infra.expression.spel.SpelMessage.EXCEPTION_DURING_INDEX_READ;
 import static infra.expression.spel.SpelMessage.EXCEPTION_DURING_INDEX_WRITE;
@@ -613,15 +612,15 @@ class IndexingTests {
       ObjectMapper objectMapper = new ObjectMapper();
       context.addIndexAccessor(new JacksonArrayNodeIndexAccessor(objectMapper));
 
-      TextNode node0 = new TextNode("node0");
-      TextNode node1 = new TextNode("node1");
+      StringNode node0 = new StringNode("node0");
+      StringNode node1 = new StringNode("node1");
       ArrayNode arrayNode = objectMapper.createArrayNode();
       arrayNode.addAll(List.of(node0, node1));
 
       Expression expr = parser.parseExpression("[0]");
       assertThat(expr.getValue(context, arrayNode)).isSameAs(node0);
 
-      TextNode nodeX = new TextNode("nodeX");
+      StringNode nodeX = new StringNode("nodeX");
       expr.setValue(context, arrayNode, nodeX);
       // We use isEqualTo() instead of isSameAs(), since ObjectMapper.convertValue()
       // converts the supplied TextNode to an equivalent JsonNode.
@@ -647,15 +646,15 @@ class IndexingTests {
               .withIndexAccessors(new JacksonArrayNodeIndexAccessor(objectMapper))
               .build();
 
-      TextNode node0 = new TextNode("node0");
-      TextNode node1 = new TextNode("node1");
+      StringNode node0 = new StringNode("node0");
+      StringNode node1 = new StringNode("node1");
       ArrayNode arrayNode = objectMapper.createArrayNode();
       arrayNode.addAll(List.of(node0, node1));
 
       Expression expr = parser.parseExpression("[0]");
       assertThat(expr.getValue(context, arrayNode)).isSameAs(node0);
 
-      TextNode nodeX = new TextNode("nodeX");
+      StringNode nodeX = new StringNode("nodeX");
       expr.setValue(context, arrayNode, nodeX);
       // We use isEqualTo() instead of isSameAs(), since ObjectMapper.convertValue()
       // converts the supplied TextNode to an equivalent JsonNode.
