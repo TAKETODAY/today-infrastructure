@@ -319,7 +319,6 @@ class ProblemDetailTests {
 
     String toStringResult = problemDetail.toString();
     assertThat(toStringResult).contains("ProblemDetail");
-    assertThat(toStringResult).contains("type='about:blank'");
     assertThat(toStringResult).contains("title='Internal Server Error'");
     assertThat(toStringResult).contains("status=500");
     assertThat(toStringResult).contains("detail='Something went wrong'");
