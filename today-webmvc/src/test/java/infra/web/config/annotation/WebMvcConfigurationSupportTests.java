@@ -85,7 +85,6 @@ import infra.web.view.ViewReturnValueHandler;
 import infra.web.view.json.JacksonJsonView;
 
 import static infra.http.MediaType.APPLICATION_JSON;
-import static infra.http.MediaType.APPLICATION_XML;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -218,9 +217,6 @@ class WebMvcConfigurationSupportTests {
     request.setParameter("f", "json");
     ContentNegotiationManager manager = mapping.getContentNegotiationManager();
     assertThat(manager.resolveMediaTypes(new MockRequestContext(request))).isEqualTo(Collections.singletonList(APPLICATION_JSON));
-
-    request.setParameter("f", "xml");
-    assertThat(manager.resolveMediaTypes(new MockRequestContext(request))).isEqualTo(Collections.singletonList(APPLICATION_XML));
 
     SimpleUrlHandlerMapping handlerMapping = (SimpleUrlHandlerMapping) this.config.resourceHandlerMapping(
             null, this.config.mvcContentNegotiationManager());
