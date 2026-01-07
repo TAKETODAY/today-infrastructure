@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2026 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,7 +75,7 @@ class AsyncTests {
     this.mockMvc.perform(asyncDispatch(mvcResult))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(content().string("{\"name\":\"Joe\",\"someDouble\":0.0,\"someBoolean\":false}"));
+            .andExpect(content().string("{\"name\":\"Joe\",\"someBoolean\":false,\"someDouble\":0.0}"));
   }
 
   @Test
@@ -115,7 +115,7 @@ class AsyncTests {
     this.mockMvc.perform(asyncDispatch(mvcResult))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(content().string("{\"name\":\"Joe\",\"someDouble\":0.0,\"someBoolean\":false}"));
+            .andExpect(content().string("{\"name\":\"Joe\",\"someBoolean\":false,\"someDouble\":0.0}"));
   }
 
   @Test
@@ -128,11 +128,10 @@ class AsyncTests {
     this.mockMvc.perform(asyncDispatch(mvcResult))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(content().string("{\"name\":\"Joe\",\"someDouble\":0.0,\"someBoolean\":false}"));
+            .andExpect(content().json("{\"name\":\"Joe\",\"someDouble\":0.0,\"someBoolean\":false}"));
   }
 
   @Test
-
   void deferredResultWithDelayedError() throws Exception {
     MvcResult mvcResult = this.mockMvc.perform(get("/1").param("deferredResultWithDelayedError", "true"))
             .andExpect(request().asyncStarted())
@@ -152,11 +151,10 @@ class AsyncTests {
     this.mockMvc.perform(asyncDispatch(mvcResult))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(content().string("{\"name\":\"Joe\",\"someDouble\":0.0,\"someBoolean\":false}"));
+            .andExpect(content().string("{\"name\":\"Joe\",\"someBoolean\":false,\"someDouble\":0.0}"));
   }
 
   @Test
-
   void completableFutureWithImmediateValue() throws Exception {
     MvcResult mvcResult = this.mockMvc.perform(get("/1").param("completableFutureWithImmediateValue", "true"))
             .andExpect(request().asyncStarted())
@@ -165,11 +163,10 @@ class AsyncTests {
     this.mockMvc.perform(asyncDispatch(mvcResult))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(content().string("{\"name\":\"Joe\",\"someDouble\":0.0,\"someBoolean\":false}"));
+            .andExpect(content().string("{\"name\":\"Joe\",\"someBoolean\":false,\"someDouble\":0.0}"));
   }
 
   @Test
-
   void printAsyncResult() throws Exception {
     StringWriter writer = new StringWriter();
 
@@ -185,7 +182,7 @@ class AsyncTests {
             .andDo(print(writer))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(content().string("{\"name\":\"Joe\",\"someDouble\":0.0,\"someBoolean\":false}"));
+            .andExpect(content().string("{\"name\":\"Joe\",\"someBoolean\":false,\"someDouble\":0.0}"));
 
     assertThat(writer.toString().contains("Async started = false")).isTrue();
   }
