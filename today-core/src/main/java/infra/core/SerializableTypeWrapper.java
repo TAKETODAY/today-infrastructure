@@ -37,6 +37,7 @@ import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.Objects;
 
+import infra.core.ResolvableType.TypeProvider;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
@@ -69,7 +70,8 @@ final class SerializableTypeWrapper {
 
   static final ConcurrentReferenceHashMap<Type, Type> cache = new ConcurrentReferenceHashMap<>(256);
 
-  private SerializableTypeWrapper() { }
+  private SerializableTypeWrapper() {
+  }
 
   /**
    * Return a {@link Serializable} variant of {@link Field#getGenericType()}.
@@ -152,44 +154,26 @@ final class SerializableTypeWrapper {
   }
 
   /**
-   * A {@link Serializable} interface providing access to a {@link Type}.
-   */
-  interface TypeProvider extends Serializable {
-
-    /**
-     * Return the (possibly non {@link Serializable}) {@link Type}.
-     */
-    @Nullable
-    Type getType();
-
-    /**
-     * Return the source of the type, or {@code null} if not known.
-     * <p>The default implementations returns {@code null}.
-     */
-    @Nullable
-    default Object getSource() {
-      return null;
-    }
-  }
-
-  /**
    * {@link Serializable} {@link InvocationHandler} used by the proxied {@link Type}.
    * Provides serialization support and enhances any methods that return {@code Type}
    * or {@code Type[]}.
-   *
-   * @param provider provider
    */
-  record TypeProxyInvocationHandler(TypeProvider provider) implements InvocationHandler, Serializable {
+  private static class TypeProxyInvocationHandler implements InvocationHandler, Serializable {
 
-    @Nullable
+    private final TypeProvider provider;
+
+    public TypeProxyInvocationHandler(TypeProvider provider) {
+      this.provider = provider;
+    }
+
     @Override
-    public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+    public @Nullable Object invoke(Object proxy, Method method, Object[] args) {
       switch (method.getName()) {
         case "equals" -> {
           Object other = args[0];
           // Unwrap proxies for speed
-          if (other instanceof Type) {
-            other = unwrap((Type) other);
+          if (other instanceof Type otherType) {
+            other = unwrap(otherType);
           }
           return Objects.equals(provider.getType(), other);
         }
@@ -202,11 +186,10 @@ final class SerializableTypeWrapper {
       }
 
       if (ObjectUtils.isEmpty(args)) {
-        Class<?> returnType = method.getReturnType();
-        if (Type.class == returnType) {
-          return forTypeProvider(new MethodInvokeTypeProvider(provider, method, -1));
+        if (Type.class == method.getReturnType()) {
+          return forTypeProvider(new MethodInvokeTypeProvider(this.provider, method, -1));
         }
-        else if (Type[].class == returnType) {
+        else if (Type[].class == method.getReturnType()) {
           Object returnValue = ReflectionUtils.invokeMethod(method, this.provider.getType());
           if (returnValue == null) {
             return null;
@@ -219,7 +202,12 @@ final class SerializableTypeWrapper {
           return result;
         }
       }
-      return ReflectionUtils.invokeMethod(method, provider.getType(), args);
+      Type type = provider.getType();
+      if (type instanceof TypeVariable<?> tv && method.getName().equals("getName")) {
+        // Avoid reflection for common comparison of type variables
+        return tv.getName();
+      }
+      return ReflectionUtils.invokeMethod(method, type, args);
     }
   }
 

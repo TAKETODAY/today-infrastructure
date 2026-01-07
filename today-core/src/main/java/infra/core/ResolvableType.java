@@ -43,7 +43,6 @@ import java.util.StringJoiner;
 
 import infra.core.SerializableTypeWrapper.MethodParameterTypeProvider;
 import infra.core.SerializableTypeWrapper.ParameterTypeProvider;
-import infra.core.SerializableTypeWrapper.TypeProvider;
 import infra.lang.Assert;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
@@ -835,7 +834,7 @@ public class ResolvableType implements Serializable {
         Type[] actualTypeArguments = pt.getActualTypeArguments();
         generics = new ResolvableType[actualTypeArguments.length];
         for (int i = 0; i < actualTypeArguments.length; i++) {
-          generics[i] = forType(actualTypeArguments[i], this.variableResolver);
+          generics[i] = forType(actualTypeArguments[i], typeProvider, variableResolver);
         }
       }
       else {
@@ -1758,6 +1757,27 @@ public class ResolvableType implements Serializable {
   public static void clearCache() {
     cache.clear();
     SerializableTypeWrapper.cache.clear();
+  }
+
+  /**
+   * A {@link Serializable} interface providing access to a {@link Type}.
+   */
+  public interface TypeProvider extends Serializable {
+
+    /**
+     * Return the (possibly non {@link Serializable}) {@link Type}.
+     */
+    @Nullable
+    Type getType();
+
+    /**
+     * Return the source of the type, or {@code null} if not known.
+     * <p>The default implementations returns {@code null}.
+     */
+    @Nullable
+    default Object getSource() {
+      return null;
+    }
   }
 
   /**
