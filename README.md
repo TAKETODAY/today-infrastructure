@@ -13,7 +13,11 @@
 [![Coverage Status](https://coveralls.io/repos/github/TAKETODAY/today-infrastructure/badge.svg)](https://coveralls.io/github/TAKETODAY/today-infrastructure)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FTAKETODAY%2Ftoday-infrastructure.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FTAKETODAY%2Ftoday-infrastructure?ref=badge_shield)
 
-**You ask me what the elegant code looks like? Then I have to show it!**
+## 概述
+
+该项目起源于 2017 年。主要用于构建高性能 Web 应用程序和普通应用程序的 Java 库。
+
+**本项目部分模块是对 Spring，Spring Boot 等项目的深入学习与现代化重构，由衷感谢其团队开创性工作。**
 
 ## 主要目的
 
@@ -264,12 +268,26 @@ public class DemoApplication {
 
 本项目的诞生离不开以下项目：
 
-* [Spring](https://github.com/spring-projects/spring-framework): Spring Framework
-* [Spring Boot](https://github.com/spring-projects/spring-boot): Spring Boot
-* [Jetbrains](https://www.jetbrains.com/?from=https://github.com/TAKETODAY/today-infrastructure): 感谢 Jetbrains 提供免费开源授权
+* [Spring Framework](https://github.com/spring-projects/spring-framework)
+* [Spring Boot](https://github.com/spring-projects/spring-boot)
+* [ASM Bytecode Manipulation Framework](https://asm.ow2.io/)
+* [JetBrains](https://www.jetbrains.com/?from=https://github.com/TAKETODAY/today-infrastructure): 感谢 JetBrains 提供免费开源授权
 
 ## 📄 开源协议
 
-使用 [GPLv3](https://github.com/TAKETODAY/today-infrastructure/blob/master/LICENSE) 开源协议
+使用 [Apache License 2.0](https://github.com/TAKETODAY/today-infrastructure/blob/master/LICENSE) 开源协议
+
+* **Spring Framework & Spring Boot**: 项目部分模块的设计思想与代码实现，源于对 Spring 生态的深度研究与现代化重构。我们严格遵守其 Apache License
+  2.0许可证，并在源码文件中保留了所有原始版权声明。
+* **ASM Bytecode Manipulation Framework**: 用于核心的字节码操作，遵循其BSD-3-Clause许可证。
+
+由衷感谢上述团队和社区的开创性工作。本项目的所有修改与创新部分，均在上述原始许可证的条款下开源。
+
+详细的法律声明，请参阅根目录的 [NOTICE](NOTICE) 文件。
+
+
+如果这个项目对你有帮助，请给我们一个 ⭐️！你的认可是我们持续前进的动力。
+
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FTAKETODAY%2Ftoday-infrastructure.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FTAKETODAY%2Ftoday-infrastructure?ref=badge_large)
+

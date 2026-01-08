@@ -1,0 +1,30 @@
+TODAY Infrastructure ${version}
+Copyright 2017 - ${copyright} taketoday.cn and the TODAY authors.
+
+The "TODAY authors" refer to the contributors to the repository
+at https://github.com/TAKETODAY/today-infrastructure.
+
+===============================================================================
+This product includes portions of software developed at:
+1. The Spring Framework (https://github.com/spring-projects/spring-framework)
+2. Spring Boot (https://github.com/spring-projects/spring-boot)
+These portions are used and modified under the terms of the Apache License, Version 2.0.
+===============================================================================
+
+===============================================================================
+This product includes portions of the ASM Bytecode Manipulation Framework
+(https://asm.ow2.io/), which is Copyright (c) 2000-2024 INRIA, France Telecom.
+ASM is licensed under the BSD-3-Clause license.
+===============================================================================
+
+===============================================================================
+This product includes portions of the CGLIB library (https://github.com/cglib/cglib),
+which is licensed under the Apache License, Version 2.0.
+===============================================================================
+
+== Additional Notes ==
+* This project represents a learning journey and practical refactoring effort,
+  with over 12,000 commits and production use.
+* The original copyright notices and licenses of the above third-party works
+  have been retained within their respective source files.
+* Special thanks to the Spring, ASM, and CGLIB communities.
