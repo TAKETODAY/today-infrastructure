@@ -2,7 +2,9 @@
 = 概述
 
 [[overview-introduce]]
-该框架起源于 2017 年。主要用于构建高性能 Web 应用程序的 Java 库。
+该项目起源于 2017 年。主要用于构建高性能 Web 应用程序和普通应用程序的 Java 库。
+
+**本项目部分模块是对 Spring，Spring Boot 等项目的深入学习与现代化重构，由衷感谢其团队开创性工作。**
 
 [[overview-background]]
 == 背景
@@ -61,4 +63,4 @@ https://github.com/TAKETODAY/today-blog[today-blog]
 
 == 📄 开源协议
 
-使用 https://github.com/TAKETODAY/today-infrastructure/blob/master/LICENSE[GPLv3] 开源协议
+使用 https://github.com/TAKETODAY/today-infrastructure/blob/master/LICENSE[Apache License 2.0] 开源协议
