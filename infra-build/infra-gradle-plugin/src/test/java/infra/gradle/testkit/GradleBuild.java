@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2026 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -125,7 +125,7 @@ public class GradleBuild {
             new File(pathOfJarContaining(HttpClientConnectionManager.class)),
             new File(pathOfJarContaining(HttpRequest.class)),
             new File(pathOfJarContaining(HttpVersionPolicy.class)),
-            new File(pathOfJarContaining(Module.class)),
+//            new File(pathOfJarContaining(Module.class)),
             new File(pathOfJarContaining(Versioned.class)),
             new File(pathOfJarContaining(JsonView.class)),
             new File(pathOfJarContaining(Platform.class)),
