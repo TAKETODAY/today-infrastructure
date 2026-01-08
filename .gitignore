@@ -32,3 +32,4 @@
 **/build/**
 publish.sh
 cached-antora-playbook.yml
+update_headers.sh
