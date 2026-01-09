@@ -19,12 +19,43 @@ ASM is licensed under the BSD-3-Clause license.
 
 ===============================================================================
 This product includes portions of the CGLIB library (https://github.com/cglib/cglib),
+which is Copyright (c) 2023,2024 The CGLIB contributors.
+CGLIB is licensed under the Apache License, Version 2.0.
+===============================================================================
+
+===============================================================================
+Per the LICENSE file in the JavaPoet JAR distribution downloaded from
+https://github.com/square/javapoet/archive/refs/tags/javapoet-1.13.0.zip,
+JavaPoet 1.13.0 is licensed under the Apache License, version 2.0
+===============================================================================
+
+===============================================================================
+This product includes portions of the Apache Commons FileUpload
+(https://github.com/apache/commons-fileupload)
 which is licensed under the Apache License, Version 2.0.
 ===============================================================================
 
+===============================================================================
+This product includes portions of the Hibernate ORM
+(https://github.com/hibernate/hibernate-orm)
+which is licensed under the Apache License, Version 2.0.
+===============================================================================
+
+===============================================================================
+The full text of the Apache License, Version 2.0 can be found in the file
+`LICENSE` in the root directory of this distribution.
+
+The full text of the BSD-3-Clause license (for ASM) can be found in the file
+`LICENSE-ASM` in the root directory of this distribution.
+===============================================================================
+
+The original copyright notices have been retained within the respective source files.
+
 == Additional Notes ==
-* This project represents a learning journey and practical refactoring effort,
-  with over 12,000 commits and production use.
-* The original copyright notices and licenses of the above third-party works
-  have been retained within their respective source files.
-* Special thanks to the Spring, ASM, and CGLIB communities.
+This project represents a learning journey and practical refactoring effort,
+with over 12,000 commits and production use.
+The original copyright notices and licenses of the above third-party works
+have been retained within their respective source files.
+
+== Acknowledgements ==
+Special thanks to the Spring, ASM, CGLIB, Apache Commons, and Hibernate communities.

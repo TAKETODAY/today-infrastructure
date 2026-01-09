@@ -84,7 +84,6 @@ import infra.util.CollectionUtils;
  * method appends valid SQL fragments to the provided buffer. The static utility methods
  * handle common use cases and provide a convenient way to construct SQL conditions.
  *
- * @author Steve Ebersole
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ComparisonRestriction
  * @see NullnessRestriction

@@ -15,6 +15,8 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.web.socket.handler;
 
 import org.junit.jupiter.api.Test;

@@ -19,7 +19,6 @@ package infra.persistence.sql;
 /**
  * Nullness restriction - IS (NOT)? NULL
  *
- * @author Steve Ebersole
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */

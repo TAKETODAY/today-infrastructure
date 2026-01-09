@@ -21,7 +21,6 @@ import java.util.Objects;
 /**
  * A binary-comparison restriction
  *
- * @author Steve Ebersole
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
