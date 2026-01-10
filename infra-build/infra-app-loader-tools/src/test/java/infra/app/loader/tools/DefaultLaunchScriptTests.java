@@ -44,7 +44,7 @@ class DefaultLaunchScriptTests {
 	void loadsDefaultScript() throws Exception {
 		DefaultLaunchScript script = new DefaultLaunchScript(null, null);
 		String content = new String(script.toByteArray());
-		assertThat(content).contains("Infra Application Startup Script");
+		assertThat(content).contains("Infra application startup script");
 	}
 
 	@Test
