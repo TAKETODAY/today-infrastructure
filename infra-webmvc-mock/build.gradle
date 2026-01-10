@@ -1,0 +1,14 @@
+description = "Mock test fixtures for web"
+
+dependencies {
+  implementation(project(":infra-web"))
+  implementation(project(":infra-webmvc"))
+
+  optional 'org.reactivestreams:reactive-streams'
+  optional 'io.projectreactor:reactor-core'
+
+  optional 'org.assertj:assertj-core'
+  optional("org.mockito:mockito-core")
+  optional("org.mockito:mockito-junit-jupiter")
+
+}

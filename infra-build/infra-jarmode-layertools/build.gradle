@@ -7,7 +7,7 @@ description = "Infra Layers Tools"
 
 dependencies {
   implementation(project(":infra-build:infra-app-loader"))
-  implementation(project(":today-core"))
+  implementation(project(":infra-core"))
 
   testImplementation("org.assertj:assertj-core")
   testImplementation("org.junit.jupiter:junit-jupiter")

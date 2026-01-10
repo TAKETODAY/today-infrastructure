@@ -1,0 +1,27 @@
+description = 'Infra Context Support'
+
+dependencies {
+  api(project(":infra-beans"))
+  api(project(":infra-context"))
+  api(project(":infra-core"))
+  optional(project(":infra-jdbc"))
+  optional(project(":infra-tx"))
+  optional(project(":infra-aop"))
+  optional(project(":infra-core-aot"))
+
+  optional("jakarta.activation:jakarta.activation-api")
+  optional("jakarta.mail:jakarta.mail-api")
+
+  testImplementation(project(":infra-context"))
+  testImplementation(testFixtures(project(":infra-beans")))
+  testImplementation(testFixtures(project(":infra-context")))
+  testImplementation(testFixtures(project(":infra-core")))
+  testImplementation(testFixtures(project(":infra-tx")))
+  testImplementation(testFixtures(project(":infra-aop")))
+  testImplementation("jakarta.annotation:jakarta.annotation-api")
+  testRuntimeOnly("org.eclipse.angus:angus-mail")
+  testRuntimeOnly("org.glassfish:jakarta.el")
+  testRuntimeOnly("com.sun.mail:jakarta.mail")
+
+}
+

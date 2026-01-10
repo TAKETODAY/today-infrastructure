@@ -289,7 +289,7 @@ to consider:
 from a different package, cannot be advised because they are effectively private.
 
 NOTE: There is no need to add CGLIB to your classpath. CGLIB is repackaged and included
-in the `today-core` JAR. In other words, CGLIB-based AOP works "out of the box", as do
+in the `infra-core` JAR. In other words, CGLIB-based AOP works "out of the box", as do
 JDK dynamic proxies.
 
 There is little performance difference between CGLIB proxies and dynamic proxies.

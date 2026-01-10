@@ -466,7 +466,7 @@ Java::
 ======
 
 See
-{today-framework-code}/today-test/src/test/java/infra/test/context/junit/jupiter/orm/JpaEntityListenerTests.java[JpaEntityListenerTests]
+{today-framework-code}/infra-test/src/test/java/infra/test/context/junit/jupiter/orm/JpaEntityListenerTests.java[JpaEntityListenerTests]
 in the TODAY Framework test suite for working examples using all JPA lifecycle callbacks.
 =====
 

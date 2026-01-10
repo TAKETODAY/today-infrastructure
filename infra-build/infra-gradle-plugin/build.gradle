@@ -8,7 +8,7 @@ description = "TODAY Infrastructure Applications Gradle Plugins"
 
 
 dependencies {
-  implementation(project(":today-core"))
+  implementation(project(":infra-core"))
   implementation(project(":infra-build:infra-app-loader"))
   implementation(project(":infra-build:infra-app-loader-tools"))
 
@@ -16,10 +16,10 @@ dependencies {
   implementation 'org.apache.commons:commons-compress'
   implementation 'io.spring.gradle:dependency-management-plugin'
 
-  testImplementation(project(":today-aop"))
-  testImplementation(project(":today-core-aot"))
+  testImplementation(project(":infra-aop"))
+  testImplementation(project(":infra-core-aot"))
   testImplementation(project(":infra-app"))
-  testImplementation(project(":today-test-support"))
+  testImplementation(project(":infra-test-support"))
 
   testImplementation("tools.jackson.core:jackson-databind")
 

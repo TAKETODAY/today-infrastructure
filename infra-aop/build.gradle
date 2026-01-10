@@ -1,0 +1,19 @@
+
+description = "AOP infrastructure"
+
+dependencies {
+  api(project(":infra-beans"))
+  api(project(":infra-core"))
+
+  optional(project(":infra-core-aot"))
+  optional("org.aspectj:aspectjweaver")
+  optional("org.apache.commons:commons-pool2")
+  optional 'jakarta.inject:jakarta.inject-api'
+
+  testImplementation(project(":infra-core-test"))
+  testImplementation(testFixtures(project(":infra-beans")))
+  testImplementation(testFixtures(project(":infra-core")))
+  testFixturesImplementation(testFixtures(project(":infra-beans")))
+  testFixturesImplementation(testFixtures(project(":infra-core")))
+  testFixturesImplementation("com.google.code.findbugs:jsr305")
+}

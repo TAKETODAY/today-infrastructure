@@ -9,7 +9,6 @@
 /.project
 /.sts4-cache
 .sts4-cache
-/today-context.iml
 /.idea/
 !/.idea/icon.svg
 /coverage-error.log

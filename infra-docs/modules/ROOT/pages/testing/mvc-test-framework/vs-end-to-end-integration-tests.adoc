@@ -2,7 +2,7 @@
 = MockMvc vs End-to-End Tests
 
 MockMVc is built on Servlet API mock implementations from the
-`today-test` module and does not rely on a running container. Therefore, there are
+`infra-test` module and does not rely on a running container. Therefore, there are
 some differences when compared to full end-to-end integration tests with an actual
 client and a live server running.
 

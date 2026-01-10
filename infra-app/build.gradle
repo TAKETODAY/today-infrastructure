@@ -3,17 +3,17 @@ A Java library for dependency injection and aspect oriented programing and build
 """
 
 dependencies {
-  api project(':today-core')
-  api project(':today-beans')
-  api project(':today-context')
+  api project(':infra-core')
+  api project(':infra-beans')
+  api project(':infra-context')
 
-  optional(project(":today-core-aot"))
-  optional project(':today-aop')
-  optional project(':today-web')
-  optional project(':today-webmvc')
-  optional project(":today-jdbc")
-  optional project(':today-instrument')
-  optional project(':today-websocket')
+  optional(project(":infra-core-aot"))
+  optional project(':infra-aop')
+  optional project(':infra-web')
+  optional project(':infra-webmvc')
+  optional project(":infra-jdbc")
+  optional project(':infra-instrument')
+  optional project(':infra-websocket')
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
   annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
@@ -66,23 +66,23 @@ dependencies {
 
   optional 'org.crac:crac'
 
-  testImplementation(project(":today-aop"))
-  testImplementation(project(":today-beans"))
-  testImplementation(project(":today-context"))
-  testImplementation(project(":today-core"))
-  testImplementation(testFixtures(project(":today-aop")))
-  testImplementation(testFixtures(project(":today-beans")))
-  testImplementation(testFixtures(project(":today-core")))
-  testImplementation(testFixtures(project(":today-tx")))
-  testImplementation(testFixtures(project(":today-context")))
-  testImplementation(project(":today-jdbc"))
-  testImplementation(project(":today-test"))
-  testImplementation(project(':today-test-support'))
-  testImplementation(project(":today-tx"))
-  testImplementation(project(":today-web"))
-  testImplementation project(':today-websocket')
-  testImplementation(project(":today-core-test"))
-  testImplementation project(":today-webmvc-mock")
+  testImplementation(project(":infra-aop"))
+  testImplementation(project(":infra-beans"))
+  testImplementation(project(":infra-context"))
+  testImplementation(project(":infra-core"))
+  testImplementation(testFixtures(project(":infra-aop")))
+  testImplementation(testFixtures(project(":infra-beans")))
+  testImplementation(testFixtures(project(":infra-core")))
+  testImplementation(testFixtures(project(":infra-tx")))
+  testImplementation(testFixtures(project(":infra-context")))
+  testImplementation(project(":infra-jdbc"))
+  testImplementation(project(":infra-test"))
+  testImplementation(project(':infra-test-support'))
+  testImplementation(project(":infra-tx"))
+  testImplementation(project(":infra-web"))
+  testImplementation project(':infra-websocket')
+  testImplementation(project(":infra-core-test"))
+  testImplementation project(":infra-webmvc-mock")
   testImplementation 'org.skyscreamer:jsonassert:1.5.0'
 
   testImplementation 'org.apache.httpcomponents.core5:httpcore5'

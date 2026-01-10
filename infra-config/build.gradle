@@ -1,0 +1,5 @@
+description = "Infrastructure config API"
+
+dependencies {
+  api project(':infra-context')
+}

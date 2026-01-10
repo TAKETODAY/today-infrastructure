@@ -3,7 +3,7 @@
 
 Infra AOP uses either JDK dynamic proxies or CGLIB to create the proxy for a given
 target object. JDK dynamic proxies are built into the JDK, whereas CGLIB is a common
-open-source class definition library (repackaged into `today-core`).
+open-source class definition library (repackaged into `infra-core`).
 
 If the target object to be proxied implements at least one interface, a JDK dynamic
 proxy is used. All of the interfaces implemented by the target type are proxied.

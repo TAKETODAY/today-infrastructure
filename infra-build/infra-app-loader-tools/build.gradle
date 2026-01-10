@@ -21,7 +21,7 @@ configurations {
 dependencies {
   api 'org.apache.commons:commons-compress'
   api("commons-io:commons-io")
-  api(project(":today-core"))
+  api(project(":infra-core"))
   compileOnly("ch.qos.logback:logback-classic")
 
   loader(project(":infra-build:infra-app-loader"))

@@ -11,7 +11,7 @@ ext {
   isSnapshot = version.endsWith('SNAPSHOT')
   isReleaseVersion = !isSnapshot
   starterProjects = subprojects.findAll { it.name.startsWith("today-starter") }
-  moduleProjects = subprojects.findAll { it.name.startsWith("today-") && !it.name.startsWith("today-starter") } + [
+  moduleProjects = subprojects.findAll { it.name.startsWith("infra-") && !it.name.startsWith("today-starter") } + [
       project(":infra-build:infra-annotation-config-processor"),
       project(":infra-build:infra-configuration-processor"),
       project(":infra-build:infra-app-loader"),
@@ -19,23 +19,28 @@ ext {
       project(":infra-build:infra-jarmode-layertools"),
       project(":infra-build:infra-gradle-plugin"),
       project(":infra-build:infra-maven-plugin"),
-      project(":infra-app")
+  ] - [
+      project(":infra-bom"),
+      project(":infra-docs"),
+      project(":infra-build"),
+      project(":infra-dependencies"),
+      project(":infra-build:infra-code-coverage")
   ]
   javaProjects = subprojects - starterProjects - [
       project(":infra-build:infra-code-coverage"),
       project(":infra-bom"), project(":infra-build"), project(":infra-dependencies"),
   ]
   testFixturesProjects = [
-      project(":today-core"),
-      project(":today-aop"),
-      project(":today-beans"),
-      project(":today-context"),
-      project(":today-jcache"),
-      project(":today-web"),
-      project(":today-webmvc"),
-      project(":today-test"),
-      project(":today-tx"),
-      project(":today-core-aot")
+      project(":infra-core"),
+      project(":infra-aop"),
+      project(":infra-beans"),
+      project(":infra-context"),
+      project(":infra-jcache"),
+      project(":infra-web"),
+      project(":infra-webmvc"),
+      project(":infra-test"),
+      project(":infra-tx"),
+      project(":infra-core-aot")
   ] as Set
 }
 

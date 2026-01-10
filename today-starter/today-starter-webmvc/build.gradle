@@ -1,7 +1,7 @@
 description = 'Starter for building web, including RESTful, applications using Web MVC.'
 
 dependencies {
-  api project(':today-web')
-  api project(':today-webmvc')
+  api project(':infra-web')
+  api project(':infra-webmvc')
   api project(':today-starter:today-starter-json')
 }

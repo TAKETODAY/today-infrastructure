@@ -25,10 +25,10 @@
   <!-- Framework docs -->
   <suppress files="infra[\\/]docs[\\/].+" checks="IllegalImport" id="bannedJUnitJupiterImports" />
 
-  <!-- today-aop -->
+  <!-- infra-aop -->
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]org[\\/]aopalliance[\\/]" checks="IllegalImport" id="bannedNullabilityImports" message="javax" />
 
-  <!-- today-beans -->
+  <!-- infra-beans -->
   <suppress files="TypeMismatchException" checks="MutableException" />
   <suppress files="BeanCreationException" checks="MutableException" />
   <suppress files="BeanDefinitionParserDelegate" checks="JavadocVariable" />
@@ -37,14 +37,14 @@
   <suppress files="GenericBeanDefinition" checks="EqualsHashCode" />
   <suppress files="RootBeanDefinition" checks="EqualsHashCode" />
 
-  <!-- today-context -->
+  <!-- infra-context -->
   <suppress files="InfraAtInjectTckTests" checks="IllegalImportCheck" id="bannedJUnit3Imports" />
   <suppress files="infra.mail.javamail.JavaMailSenderImpl" id="EmptyBlock" />
   <suppress files="infra.scheduling.annotation.SchedulingConfiguration" id="HideUtilityClassConstructor" />
   <suppress files="SchedulingConfiguration" checks="HideUtilityClassConstructor" />
   <suppress files="DefaultLifecycleProcessor" checks="FinalClass" />
 
-  <!-- today-core -->
+  <!-- infra-core -->
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/](asm|cglib|objenesis|javapoet)[\\/]" checks=".*" />
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]aot[\\/]nativex[\\/]feature[\\/]" checks="RegexpSinglelineJava" id="systemOutErrPrint" />
   <suppress
@@ -59,7 +59,7 @@
   <suppress files="Target_ClassFinder" checks="HideUtilityClassConstructor" />
   <suppress files="infra.bytecode.tree.analysis.Frame" checks="AvoidNestedBlocks" />
 
-  <!-- today-core-test -->
+  <!-- infra-core-test -->
   <suppress files="CompileWithForkedClassLoader" checks="IllegalImport" id="bannedJUnitJupiterImports" />
   <suppress files="infra[\\/]aot[\\/]test[\\/]agent[\\/].+" checks="IllegalImport" id="bannedJUnitJupiterImports" />
 
@@ -67,18 +67,18 @@
   <suppress files="SpelMessage" checks="JavadocVariable|JavadocStyle" />
   <suppress files="SpelReproTests" checks="InterfaceIsType" />
 
-  <!-- today-jdbc -->
+  <!-- infra-jdbc -->
   <suppress files="ResultSetWrappingSqlRowSet" checks="JavadocStyle" />
   <suppress files="infra.jdbc.format.SqlStatementLogger" id="systemOutErrPrint" />
 
-  <!-- today-tx -->
+  <!-- infra-tx -->
   <suppress files="TransactionSystemException" checks="MutableException" />
   <suppress files="TransactionTemplate" checks="EqualsHashCode" />
 
-  <!-- today-test - main and test -->
-  <suppress files="today-test[\\/]src[\\/]" checks="IllegalImport" id="bannedJUnitJupiterImports" />
-  <suppress files="today-test[\\/]src[\\/]" checks="IllegalImport" id="bannedHamcrestImports" />
-  <suppress files="today-test[\\/]src[\\/]" checks="IllegalImport" id="bannedJUnit4Imports" />
+  <!-- infra-test - main and test -->
+  <suppress files="infra-test[\\/]src[\\/]" checks="IllegalImport" id="bannedJUnitJupiterImports" />
+  <suppress files="infra-test[\\/]src[\\/]" checks="IllegalImport" id="bannedHamcrestImports" />
+  <suppress files="infra-test[\\/]src[\\/]" checks="IllegalImport" id="bannedJUnit4Imports" />
 
   <suppress files="infra[\\/]test[\\/]context[\\/].+[\\/](ExpectedExceptionInfraRunnerTests|StandardJUnit4FeaturesTests|ProgrammaticTxMgmtTestNGTests)"
       checks="RegexpSinglelineJava" id="expectedExceptionAnnotation" />
@@ -86,15 +86,15 @@
   <suppress files="MultipartStream" checks="InnerTypeLast" />
   <suppress files="FileItemStream" checks="InnerTypeLast" />
   <suppress files="infra.test.context.junit4.statements.RepeatTest" checks="TypeName" />
-  <suppress files="today-webmvc-mock[\\/]" checks=".*" />
+  <suppress files="infra-webmvc-mock[\\/]" checks=".*" />
 
-  <!-- today-test-support -->
-  <suppress files="today-test-support[\\/]" checks="IllegalImport" id="bannedJUnitJupiterImports" />
-  <suppress files="today-test-support[\\/]" checks="IllegalImport" id="bannedHamcrestImports" />
-  <suppress files="today-test-support[\\/]" checks="IllegalImport" id="bannedJUnit4Imports" />
+  <!-- infra-test-support -->
+  <suppress files="infra-test-support[\\/]" checks="IllegalImport" id="bannedJUnitJupiterImports" />
+  <suppress files="infra-test-support[\\/]" checks="IllegalImport" id="bannedHamcrestImports" />
+  <suppress files="infra-test-support[\\/]" checks="IllegalImport" id="bannedJUnit4Imports" />
 
 
-  <!-- today-web -->
+  <!-- infra-web -->
   <suppress files="BeanFactoryHandlerInstantiator" checks="JavadocStyle" />
   <suppress files="infra[\\/]http[\\/]HttpMethod" checks="JavadocVariable|JavadocStyle" />
   <suppress files="infra[\\/]http[\\/]HttpStatus" checks="JavadocVariable|JavadocStyle" />
@@ -113,7 +113,7 @@
   <suppress files="ExtractingResponseErrorHandlerTests" checks="MutableException" />
   <suppress files="MockAnnotationControllerHandlerMethodTests" checks="InterfaceIsType" />
 
-  <!-- today-websocket -->
+  <!-- infra-websocket -->
   <suppress files="web[\\/]socket[\\/]CloseStatus" checks="JavadocStyle" />
   <suppress files="web[\\/]socket[\\/]WebSocketHttpHeaders" checks="JavadocVariable" />
   <suppress files="sockjs[\\/]frame[\\/]SockJsFrameType" checks="JavadocVariable" />

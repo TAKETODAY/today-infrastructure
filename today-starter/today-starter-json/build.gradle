@@ -1,7 +1,7 @@
 description = 'Starter for reading and writing JSON'
 
 dependencies {
-  api project(':today-web')
+  api project(':infra-web')
   api project(':today-starter')
 
   api 'tools.jackson.core:jackson-databind'

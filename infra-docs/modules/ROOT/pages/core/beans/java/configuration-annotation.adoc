@@ -162,7 +162,7 @@ about singletons here.
 ====
 It is not necessary to add CGLIB to your classpath because CGLIB classes are repackaged
 under the `infra.cglib` package and included directly within the
-`today-core` JAR.
+`infra-core` JAR.
 ====
 
 [TIP]

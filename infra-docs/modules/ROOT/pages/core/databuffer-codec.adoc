@@ -4,7 +4,7 @@
 Java NIO 提供了 `ByteBuffer`，但许多库在其之上构建了自己的字节缓冲区 API，
 特别是对于网络操作，其中重用缓冲区和/或使用直接缓冲区有利于性能。例如，Netty 使用 `ByteBuf` 结构，
 Undertow 使用 XNIO，Jetty 使用带有释放回调的池化字节缓冲区，等等。
-`today-core` 模块提供了一组抽象，以处理各种字节缓冲区 API，如下所示：
+`infra-core` 模块提供了一组抽象，以处理各种字节缓冲区 API，如下所示：
 
 * xref:core/databuffer-codec.adoc#databuffers-factory[`DataBufferFactory`] 抽象了数据缓冲区的创建。
 * xref:core/databuffer-codec.adoc#databuffers-buffer[`DataBuffer`] 表示一个字节缓冲区，可能是
@@ -70,8 +70,8 @@ xref:core/databuffer-codec.adoc#databuffers-buffer-pooled[池化]、
 . `Encoder` 用于将 `Publisher<T>` 编码为数据缓冲区流。
 . `Decoder` 用于将 `Publisher<DataBuffer>` 解码为更高级别对象流。
 
-`today-core` 模块提供了 `byte[]`、`ByteBuffer`、`DataBuffer`、`Resource` 和 `String`
-的编码器和解码器实现。`today-web` 模块添加了 Jackson JSON、Jackson Smile、JAXB2、Protocol Buffers 和其他编码器和解码器。
+`infra-core` 模块提供了 `byte[]`、`ByteBuffer`、`DataBuffer`、`Resource` 和 `String`
+的编码器和解码器实现。`infra-web` 模块添加了 Jackson JSON、Jackson Smile、JAXB2、Protocol Buffers 和其他编码器和解码器。
 
 [[databuffers-using]]
 == 使用 `DataBuffer`

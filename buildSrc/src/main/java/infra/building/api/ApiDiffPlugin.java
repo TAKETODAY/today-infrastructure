@@ -48,7 +48,7 @@ import me.champeau.gradle.japicmp.JapicmpTask;
  * <p>{@code "./gradlew apiDiff -PbaselineVersion=5.1.0.RELEASE"} will output the
  * reports for the API diff between the baseline version and the current one for all modules.
  * You can limit the report to a single module with
- * {@code "./gradlew :today-core:apiDiff -PbaselineVersion=5.1.0.RELEASE"}.
+ * {@code "./gradlew :infra-core:apiDiff -PbaselineVersion=5.1.0.RELEASE"}.
  *
  * @author Brian Clozel
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -78,7 +78,7 @@ public class ApiDiffPlugin implements Plugin<Project> {
   private void applyApiDiffConventions(Project project) {
     String baselineVersion = project.property(BASELINE_VERSION_PROPERTY).toString();
     project.subprojects(subProject -> {
-      if (subProject.getName().startsWith("today-")) {
+      if (subProject.getName().startsWith("infra-")) {
         createApiDiffTask(baselineVersion, subProject);
       }
     });

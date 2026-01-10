@@ -1,0 +1,68 @@
+plugins {
+  id 'infra.building.runtimehints-agent'
+}
+
+description = "Infra Context"
+
+dependencies {
+  api(project(":infra-aop"))
+  api(project(":infra-beans"))
+  api(project(":infra-core"))
+
+  optional(project(":infra-core-aot"))
+  optional(project(":infra-instrument"))
+  optional("jakarta.annotation:jakarta.annotation-api")
+  optional("jakarta.ejb:jakarta.ejb-api")
+  optional("jakarta.enterprise.concurrent:jakarta.enterprise.concurrent-api")
+  optional("jakarta.inject:jakarta.inject-api")
+  optional("jakarta.interceptor:jakarta.interceptor-api")
+  optional("jakarta.validation:jakarta.validation-api")
+  optional("javax.money:money-api")
+  optional("org.aspectj:aspectjweaver")
+  optional("org.apache.groovy:groovy")
+  optional("org.apache-extras.beanshell:bsh")
+  optional("org.crac:crac")
+  optional("org.hibernate.validator:hibernate-validator")
+  optional("org.reactivestreams:reactive-streams")
+  optional("io.projectreactor:reactor-core")
+  optional("javax.annotation:javax.annotation-api")
+
+  optional 'jakarta.activation:jakarta.activation-api'
+  optional("javax.cache:cache-api")
+  optional("com.github.ben-manes.caffeine:caffeine")
+  optional("org.freemarker:freemarker")
+  optional("javax.inject:javax.inject")
+
+  testImplementation("javax.annotation:javax.annotation-api")
+  testImplementation('com.google.code.findbugs:findbugs')
+  testImplementation(project(":infra-core-test"))
+  testImplementation(project(":infra-test-support"))
+  testImplementation(project(":infra-webmvc-mock"))
+  testImplementation(testFixtures(project(":infra-aop")))
+  testImplementation(testFixtures(project(":infra-beans")))
+  testImplementation(testFixtures(project(":infra-core")))
+  testImplementation("io.projectreactor:reactor-core")
+  testImplementation("org.apache.groovy:groovy-jsr223")
+  testImplementation("org.apache.groovy:groovy-xml")
+  testImplementation("org.apache.commons:commons-pool2")
+  testImplementation("org.awaitility:awaitility")
+  testImplementation("jakarta.inject:jakarta.inject-tck")
+  testImplementation("io.reactivex.rxjava3:rxjava")
+  testImplementation("org.hsqldb:hsqldb")
+  testImplementation("jakarta.annotation:jakarta.annotation-api")
+  testImplementation("io.projectreactor:reactor-test")
+  testRuntimeOnly("org.ehcache:jcache")
+  testRuntimeOnly("org.ehcache:ehcache")
+  testRuntimeOnly("jakarta.xml.bind:jakarta.xml.bind-api")
+  testRuntimeOnly("org.glassfish:jakarta.el")
+  // Substitute for javax.management:jmxremote_optional:1.0.1_04 (not available on Maven Central)
+  testRuntimeOnly("org.glassfish.external:opendmk_jmxremote_optional_jar:1.0-b01-ea")
+  testRuntimeOnly("org.javamoney:moneta")
+  testRuntimeOnly("org.junit.vintage:junit-vintage-engine") // for @Inject TCK
+  testFixturesApi("org.junit.jupiter:junit-jupiter-api")
+  testFixturesImplementation(testFixtures(project(":infra-beans")))
+  testFixturesImplementation("com.google.code.findbugs:jsr305")
+  testFixturesImplementation("org.assertj:assertj-core")
+  testFixturesImplementation("io.projectreactor:reactor-test")
+
+}

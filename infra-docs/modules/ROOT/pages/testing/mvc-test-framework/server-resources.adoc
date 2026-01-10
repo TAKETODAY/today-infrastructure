@@ -3,9 +3,9 @@
 :page-section-summary-toc: 1
 
 The framework's own tests include
-{today-framework-code}/today-test/src/test/java/infra/test/web/mockApi/samples[
+{today-framework-code}/infra-test/src/test/java/infra/test/web/mockApi/samples[
 many sample tests] intended to show how to use MockMvc on its own or through the
-{today-framework-code}/today-test/src/test/java/infra/test/web/mockApi/samples/client[
+{today-framework-code}/infra-test/src/test/java/infra/test/web/mockApi/samples/client[
 WebTestClient]. Browse these examples for further ideas.
 
 

@@ -9,7 +9,7 @@ WebSocket 交互之前需要一个 HTTP 请求，该请求使用 HTTP `Upgrade` 
 
 [source,httprequest,indent=0,subs="verbatim,quotes"]
 ----
-	GET /today-websocket-portfolio/portfolio HTTP/1.1
+	GET /infra-websocket-portfolio/portfolio HTTP/1.1
 	Host: localhost:8080
 	Upgrade: websocket <1>
 	Connection: Upgrade <2>

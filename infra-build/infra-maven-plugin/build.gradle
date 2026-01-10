@@ -10,8 +10,8 @@ dependencies {
     exclude(group: "javax.inject", module: "javax.inject")
   }
 
-  implementation project(":today-core")
-  implementation project(":today-context")
+  implementation project(":infra-core")
+  implementation project(":infra-context")
   implementation project(":infra-build:infra-app-loader")
   implementation project(":infra-build:infra-app-loader-tools")
   implementation 'org.apache.commons:commons-compress'
@@ -20,7 +20,7 @@ dependencies {
   implementation 'org.apache.maven.shared:file-management:1.2.1'
   implementation 'org.apache.maven.shared:maven-common-artifact-filters:3.2.0'
 
-  testImplementation(project(":today-test-support"))
+  testImplementation(project(":infra-test-support"))
   testImplementation("org.testcontainers:testcontainers")
   testImplementation("org.testcontainers:junit-jupiter")
   testImplementation("org.apache.maven.shared:maven-invoker:3.1.0") {

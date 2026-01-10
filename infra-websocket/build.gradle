@@ -1,0 +1,14 @@
+description = "WebSocket infrastructure API, provides default netty implementation"
+
+dependencies {
+  api(project(":infra-context"))
+  api(project(":infra-core"))
+  api(project(":infra-web"))
+
+  optional(project(":infra-webmvc"))
+  optional("io.netty:netty-codec-http")
+
+  testImplementation(testFixtures(project(":infra-core")))
+  testImplementation(testFixtures(project(":infra-web")))
+  testImplementation(testFixtures(project(":infra-webmvc")))
+}

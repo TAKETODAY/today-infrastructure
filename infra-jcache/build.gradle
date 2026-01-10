@@ -1,0 +1,28 @@
+description = 'Infra JCache'
+
+dependencies {
+  api(project(":infra-beans"))
+  api(project(":infra-context"))
+  api(project(":infra-core"))
+  api(project(":infra-context-support"))
+  optional(project(":infra-jdbc"))
+  optional(project(":infra-tx"))
+  optional(project(":infra-aop"))
+
+  optional("javax.cache:cache-api")
+
+  testImplementation(project(":infra-context"))
+  testImplementation(testFixtures(project(":infra-beans")))
+  testImplementation(testFixtures(project(":infra-context")))
+  testImplementation(testFixtures(project(":infra-core")))
+  testImplementation(testFixtures(project(":infra-tx")))
+  testImplementation(testFixtures(project(":infra-aop")))
+  testImplementation("jakarta.annotation:jakarta.annotation-api")
+  testRuntimeOnly("org.ehcache:jcache")
+  testRuntimeOnly("org.ehcache:ehcache")
+  testFixturesApi("org.junit.jupiter:junit-jupiter-api")
+  testFixturesImplementation("org.assertj:assertj-core")
+  testFixturesImplementation("org.mockito:mockito-core")
+
+}
+

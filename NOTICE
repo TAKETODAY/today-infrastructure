@@ -12,38 +12,38 @@ These portions are used and modified under the terms of the Apache License, Vers
 ===============================================================================
 
 ===============================================================================
-The module “today-core” within this distribution contains modified portions of
+The module “infra-core” within this distribution contains modified portions of
 the following third-party libraries:
 - ASM Bytecode Manipulation Framework (BSD 3-Clause License)
 - CGLIB (Apache License 2.0)
 - JavaPoet (Apache License 2.0)
 
 The complete copyright notices and license texts for these components are
-included within the JAR file of the ‘today-core’ module.
+included within the JAR file of the ‘infra-core’ module.
 ===============================================================================
 
 ===============================================================================
-The module “today-webmvc” within this distribution contains modified portions of
+The module “infra-webmvc” within this distribution contains modified portions of
 the Apache Commons FileUpload library.
 
 It is licensed under the Apache License, Version 2.0.
 
 The complete copyright notices and license texts for this component are
-included within the JAR file of the ‘today-webmvc’ module.
+included within the JAR file of the ‘infra-webmvc’ module.
 ===============================================================================
 
 ===============================================================================
-The module “today-jdbc” within this distribution contains modified portions of
+The module “infra-jdbc” within this distribution contains modified portions of
 the following third-party libraries:
 - Hibernate ORM (Apache License 2.0)
 - MyBatis 3, specifically its TypeHandler system (Apache License 2.0)
 
 The complete copyright notices and license texts for these components are
-included within the JAR file of the ‘today-jdbc’ module.
+included within the JAR file of the ‘infra-jdbc’ module.
 ===============================================================================
 
 ===============================================================================
-The module “today-webmvc-mock” within this distribution contains modified portions
+The module “infra-webmvc-mock” within this distribution contains modified portions
 of the Eclipse Project for Servlet API.
 
 It is made available under the terms of a multi-license: (EPL-2.0 OR GPL-2.0 WITH
@@ -58,9 +58,9 @@ The full text of the Apache License, Version 2.0 (applicable to Spring, etc.) ca
 found in the file `LICENSE` in the root directory of this distribution.
 
 For the license texts of other third-party components:
-- The BSD 3-Clause License (for ASM) is included within the ‘today-core’ module JAR.
+- The BSD 3-Clause License (for ASM) is included within the ‘infra-core’ module JAR.
 - The (EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0) AND Apache-2.0 licenses
-  (for Servlet API) are included within the ‘today-webmvc-mock’ module JAR.
+  (for Servlet API) are included within the ‘infra-webmvc-mock’ module JAR.
 ===============================================================================
 
 The original copyright notices have been retained within the respective source files.

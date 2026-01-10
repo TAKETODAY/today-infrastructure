@@ -247,7 +247,7 @@ Web MVC 支持在控制器中使用响应式客户端库。
 应用程序还可以返回 `Flux<ServerSentEvent>` 或 `Observable<ServerSentEvent>`。
 * 任何其他媒体类型的多值流（例如 `application/json`）被适配，类似于使用 `DeferredResult<List<?>>`。
 
-TIP: Web MVC 通过 `today-core` 中的 {today-framework-api}/core/ReactiveAdapterRegistry.html[`ReactiveAdapterRegistry`]
+TIP: Web MVC 通过 `infra-core` 中的 {today-framework-api}/core/ReactiveAdapterRegistry.html[`ReactiveAdapterRegistry`]
 支持 Reactor 和 RxJava，它允许从多种响应式库进行适配。
 
 对于响应式背压的流式传输到响应中，虽然支持，但写入响应仍然是阻塞的，并且是通过

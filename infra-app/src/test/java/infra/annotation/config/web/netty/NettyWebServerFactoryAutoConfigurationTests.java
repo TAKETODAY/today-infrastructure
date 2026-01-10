@@ -149,7 +149,7 @@ class NettyWebServerFactoryAutoConfigurationTests {
   }
 
   @Test
-  @ClassPathExclusions("today-websocket*")
+  @ClassPathExclusions("infra-websocket*")
   void wsNotPresent() {
     contextRunner.run(context -> {
       assertThat(context.getBean(NettyChannelHandler.class).getClass()).isSameAs(NettyChannelHandler.class);

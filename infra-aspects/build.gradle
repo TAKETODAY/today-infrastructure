@@ -1,0 +1,41 @@
+description = "Infra Aspects"
+
+apply plugin: "io.freefair.aspectj"
+
+compileAspectj {
+  sourceCompatibility = "17"
+  targetCompatibility = "17"
+  ajcOptions {
+    compilerArgs += "-parameters"
+  }
+}
+compileTestAspectj {
+  sourceCompatibility = "17"
+  targetCompatibility = "17"
+  ajcOptions {
+    compilerArgs += "-parameters"
+  }
+}
+
+dependencies {
+  api("org.aspectj:aspectjweaver")
+  compileOnly("org.aspectj:aspectjrt")
+
+  optional(project(":infra-aop"))  // for @Async support
+  optional(project(":infra-jcache"))
+  optional(project(":infra-beans"))  // for @Configurable support
+  optional(project(":infra-context"))  // for @Enable* support
+  optional(project(":infra-tx"))  // for JPA, @Transactional support
+  optional("javax.cache:cache-api")  // for JCache aspect
+  optional("jakarta.transaction:jakarta.transaction-api")  // for @jakarta.transaction.Transactional support
+
+  testImplementation(project(":infra-core"))  // for CodeStyleAspect
+  testImplementation(project(":infra-test"))
+  testImplementation(testFixtures(project(":infra-context")))
+  testImplementation(testFixtures(project(":infra-core")))
+  testImplementation(testFixtures(project(":infra-tx")))
+  testImplementation(testFixtures(project(":infra-jcache")))
+  testImplementation("jakarta.mail:jakarta.mail-api")
+  testCompileOnly("org.aspectj:aspectjrt")
+}
+

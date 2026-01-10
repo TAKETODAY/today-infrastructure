@@ -3,7 +3,7 @@
 
 When writing integration tests against a relational database, it is often beneficial to
 run SQL scripts to modify the database schema or insert test data into tables. The
-`today-jdbc` module provides support for _initializing_ an embedded or existing database
+`infra-jdbc` module provides support for _initializing_ an embedded or existing database
 by executing SQL scripts when the Infra `ApplicationContext` is loaded. See
 xref:data-access/jdbc/embedded-database-support.adoc[Embedded database support] and
 xref:data-access/jdbc/embedded-database-support.adoc#jdbc-embedded-database-dao-testing[Testing data access logic with an embedded database]

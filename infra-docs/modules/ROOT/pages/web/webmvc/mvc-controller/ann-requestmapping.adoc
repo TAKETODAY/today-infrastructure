@@ -115,7 +115,7 @@ URI 变量会自动转换为适当的类型，或者抛出 `TypeMismatchExceptio
 `-parameters` 编译器标志进行编译，则可以省略此细节。
 
 语法 `{varName:regex}` 声明了一个具有正则表达式的 URI 变量，该正则表达式的语法为 `{varName:regex}`。
-例如，给定URL `/today-web-4.0.jar`，以下方法提取了名称、版本和文件扩展名：
+例如，给定URL `/infra-web-4.0.jar`，以下方法提取了名称、版本和文件扩展名：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----

@@ -31,7 +31,7 @@ current working version with. You can generate the reports for all modules or a 
 
 ```
 ./gradlew apiDiff -PbaselineVersion=5.1.0.RELEASE
-./gradlew :today-core:apiDiff -PbaselineVersion=5.1.0.RELEASE
+./gradlew :infra-core:apiDiff -PbaselineVersion=5.1.0.RELEASE
 ```      
 
 The reports are located under `build/reports/api-diff/$OLDVERSION_to_$NEWVERSION/`.
@@ -59,7 +59,7 @@ set the "-release" compilation option accordingly to produce the expected byteco
 
 ### RuntimeHints Java Agent
 
-The `today-core-test` project module contributes the `RuntimeHintsAgent` Java agent.
+The `infra-core-test` project module contributes the `RuntimeHintsAgent` Java agent.
 
 The `RuntimeHintsAgentPlugin` Gradle plugin creates a dedicated `"runtimeHintsTest"` test task for each project.
 This task will detect and execute [tests tagged](https://junit.org/junit5/docs/current/user-guide/#running-tests-build-gradle)
@@ -82,13 +82,13 @@ runtimeHintsAgent {
 }
 
 dependencies {
-    // to use the test infrastructure, the project should also depend on the "today-core-test" module
-	testImplementation(project(":today-core-test"))
+    // to use the test infrastructure, the project should also depend on the "infra-core-test" module
+	testImplementation(project(":infra-core-test"))
 }
 ```
 
 With this configuration, `./gradlew runtimeHintsTest` will run all tests instrumented by this java agent.
 The global `./gradlew check` task depends on `runtimeHintsTest`.            
 
-NOTE: the "today-core-test" module doesn't shade "today-core" by design, so the agent should never instrument
-code that doesn't have "today-core" on its classpath.
+NOTE: the "infra-core-test" module doesn't shade "infra-core" by design, so the agent should never instrument
+code that doesn't have "infra-core" on its classpath.

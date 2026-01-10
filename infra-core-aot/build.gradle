@@ -1,0 +1,96 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import infra.building.shadow.ShadowSource
+
+description = "Core for AOT infrastructure."
+
+def javapoetVersion = "1.13.0"
+
+configurations {
+  java21Api.extendsFrom(api)
+  java21Implementation.extendsFrom(implementation)
+  graalvm
+  javapoet
+}
+
+tasks.register('javapoetRepackJar', ShadowJar) {
+  archiveBaseName = 'today-javapoet-repack'
+  archiveVersion = javapoetVersion
+  configurations = [project.configurations.javapoet]
+  relocate('com.squareup.javapoet', 'infra.javapoet')
+}
+
+tasks.register('javapoetSource', ShadowSource) {
+  configurations = [project.configurations.javapoet]
+  relocate('com.squareup.javapoet', 'infra.javapoet')
+  outputDirectory.set file("build/shadow-source/javapoet")
+}
+
+tasks.register('javapoetSourceJar', Jar) {
+  archiveBaseName = 'today-javapoet-repack'
+  archiveVersion = javapoetVersion
+  archiveClassifier = 'sources'
+  from javapoetSource
+}
+
+dependencies {
+  javapoet("com.squareup:javapoet:${javapoetVersion}@jar")
+  api(files(javapoetRepackJar))
+  api(project(":infra-core"))
+
+  compileOnly("org.graalvm.sdk:graal-sdk")
+
+  testImplementation("jakarta.xml.bind:jakarta.xml.bind-api")
+  testImplementation("com.google.code.findbugs:jsr305")
+  testImplementation("com.fasterxml.woodstox:woodstox-core")
+  testImplementation("org.xmlunit:xmlunit-assertj")
+  testImplementation("org.xmlunit:xmlunit-matchers")
+  testImplementation("io.projectreactor:reactor-test")
+  testImplementation("io.projectreactor.tools:blockhound")
+  testImplementation("org.skyscreamer:jsonassert")
+  testImplementation("com.squareup.okhttp3:mockwebserver")
+  testImplementation("tools.jackson.core:jackson-databind")
+  testImplementation 'org.codehaus.janino:janino'
+  testImplementation("ch.qos.logback:logback-classic")
+  testImplementation 'org.apache.logging.log4j:log4j-core'
+
+  testImplementation "com.google.truth:truth:1.1.5"
+  testImplementation "com.google.testing.compile:compile-testing:0.21.0"
+  testImplementation 'com.google.jimfs:jimfs:1.2'
+  testImplementation 'org.eclipse.jdt.core.compiler:ecj:4.6.1'
+  testImplementation(project(":infra-test"))
+  testImplementation("org.awaitility:awaitility")
+  testImplementation(testFixtures(project(":infra-core")))
+  testImplementation("com.networknt:json-schema-validator");
+
+  testFixturesImplementation(testFixtures(project(":infra-core")))
+  testFixturesImplementation("com.google.code.findbugs:jsr305")
+  testFixturesImplementation("org.junit.platform:junit-platform-launcher")
+  testFixturesImplementation("org.junit.jupiter:junit-jupiter-api")
+  testFixturesImplementation("org.junit.jupiter:junit-jupiter-params")
+  testFixturesImplementation("org.assertj:assertj-core")
+  testFixturesImplementation("org.xmlunit:xmlunit-assertj")
+  testFixturesImplementation("io.projectreactor:reactor-test")
+
+}
+
+jar {
+  manifest.attributes["Dependencies"] = "jdk.unsupported"  // for WildFly (-> Objenesis 3.2)
+
+  dependsOn javapoetRepackJar
+  from(zipTree(javapoetRepackJar.archiveFile)) {
+    include "infra/javapoet/**"
+  }
+
+}
+
+
+test {
+  // Make sure the classes dir is used on the test classpath (required by ResourceTests).
+  // When test fixtures are involved, the JAR is used by default.
+  classpath = sourceSets.main.output.classesDirs + files(sourceSets.main.output.resourcesDir) + classpath - files(jar.archiveFile)
+}
+
+sourcesJar {
+  dependsOn javapoetSourceJar
+  from javapoetSource
+}

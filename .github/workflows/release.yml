@@ -45,7 +45,7 @@ jobs:
       - name: Await Sync to Maven Central
         uses: ./.github/actions/await-http-resource
         with:
-          url: ${{ format('https://repo.maven.apache.org/maven2/cn/taketoday/today-core/{0}/today-core-{0}.jar', needs.build-and-stage-release.outputs.version) }}
+          url: ${{ format('https://repo.maven.apache.org/maven2/cn/taketoday/infra-core/{0}/infra-core-{0}.jar', needs.build-and-stage-release.outputs.version) }}
 
   publish-gradle-plugin:
     name: Publish Gradle Plugin

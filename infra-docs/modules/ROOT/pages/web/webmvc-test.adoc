@@ -1,7 +1,7 @@
 [[test]]
 = 测试
 
-本节总结了 `today-test` 在 Web MVC 应用程序中提供的选项。
+本节总结了 `infra-test` 在 Web MVC 应用程序中提供的选项。
 
 * Mock API: 用于单元测试控制器、过滤器和其他 Web 组件的 Mock API 合约的模拟实现。
 有关详细信息，请参阅 xref:testing/unit.adoc#mock-objects-mockApi[Mock API] 模拟对象。
@@ -14,7 +14,7 @@
 测试带有完整 Web MVC 基础设施但没有 HTTP 服务器的注解控制器。有关详细信息，
 请参阅 xref:testing/mvc-test-framework.adoc[Web MVC Test]。
 
-* Client-side REST: `today-test` 提供了一个 `MockRestServiceServer`，
+* Client-side REST: `infra-test` 提供了一个 `MockRestServiceServer`，
 您可以将其用作用于测试内部使用 `RestTemplate` 的客户端代码的模拟服务器。有关详细信息，
 请参阅 xref:testing/mvc-test-client.adoc[客户端 REST 测试]。
 

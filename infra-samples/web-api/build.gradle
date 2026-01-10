@@ -4,8 +4,8 @@ apply plugin: "java-library"
 
 dependencies {
 
-  api 'cn.taketoday:today-web'
-  api 'cn.taketoday:today-websocket'
+  api 'cn.taketoday:infra-web'
+  api 'cn.taketoday:infra-websocket'
   api 'ch.qos.logback:logback-classic'
   api 'tools.jackson.core:jackson-databind'
 

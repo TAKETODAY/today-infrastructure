@@ -12,7 +12,7 @@ support for loading an `ApplicationContext` from different types of resources
 simultaneously (for example, XML configuration files, Groovy scripts, and
 `@Configuration` classes). The TODAY Framework, historically, has not supported this for
 standard deployments. Consequently, most of the `SmartContextLoader` implementations that
-the TODAY Framework delivers in the `today-test` module support only one resource type
+the TODAY Framework delivers in the `infra-test` module support only one resource type
 for each test context. However, this does not mean that you cannot use both. One
 exception to the general rule is that the `GenericGroovyXmlContextLoader` and
 `GenericGroovyXmlWebContextLoader` support both XML configuration files and Groovy

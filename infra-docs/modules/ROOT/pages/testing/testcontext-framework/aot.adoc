@@ -79,4 +79,4 @@ Infra App already implement `AotContextLoader`.
 If you implement a custom `TestExecutionListener`, it must implement
 {today-framework-api}/test/context/aot/AotTestExecutionListener.html[`AotTestExecutionListener`]
 in order to participate in AOT processing. See the `SqlScriptsTestExecutionListener` in
-the `today-test` module for an example.
+the `infra-test` module for an example.

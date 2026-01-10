@@ -1,6 +1,6 @@
 # TODAY Web CHANGE LOG
 
-:apple: today-web is a mockApi based high-performance lightweight web framework
+:apple: infra-web is a mockApi based high-performance lightweight web framework
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/811723d275dc409ba6a823c9e08a5b3b)](https://app.codacy.com/app/TAKETODAY/today-web?utm_source=github.com&utm_medium=referral&utm_content=TAKETODAY/today-web&utm_campaign=Badge_Grade_Dashboard)
 
@@ -99,12 +99,12 @@
 - :sparkles: 加入 WebSocket
 
 ## v2.3.6
-- add new today-context version
+- add new infra-context version
 - :sparkles: feat: auto register `Servlet`,`Filter`,`Listener`
 
 
 ## v2.3.5
-- add new today-context version
+- add new infra-context version
 - adjust: adjust `DispatcherServlet`.`destroy()`
 - :sparkles: feat: add `Reader`, `Writer`,request `Locale`, `OutputStream`, `InputStream`, `java.security.Principal`. parameter types
 
@@ -352,7 +352,7 @@ public final BufferedImage captcha(HttpServletRequest request, HttpServletRespon
 ```
 
 ## v2.2.0 加入 IOC 取消 ConfigurationFactory
-> IOC容器：[today-context](https://gitee.com/TAKETODAY/today_context)
+> IOC容器：[infra-context](https://gitee.com/TAKETODAY/today_context)
 
 
 ## v1.2.0

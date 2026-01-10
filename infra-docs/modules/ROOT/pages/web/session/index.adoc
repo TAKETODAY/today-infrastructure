@@ -1,4 +1,4 @@
-[[today-web-session]]
+[[infra-web-session]]
 = Web 会话
 
 == 介绍

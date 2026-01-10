@@ -13,4 +13,4 @@ exclude_paths:
   - "**/buildSrc/**/*"
   - "buildSrc/**/*"
   - "**/testFixtures/**/*"
-  - "today-test/src/main/java/infra/mock/**/*"
+  - "infra-test/src/main/java/infra/mock/**/*"

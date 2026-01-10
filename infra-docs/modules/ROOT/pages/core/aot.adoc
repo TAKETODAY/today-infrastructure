@@ -569,7 +569,7 @@ class SpellCheckServiceTests {
 在运行测试套件（或应用程序本身）时来了解应用程序的全局运行时行为。
 该代理将记录在运行时需要 GraalVM 提示的所有相关调用，并将它们写出为 JSON 配置文件。
 
-为了更有针对性地发现和测试，Infra Framework 提供了一个专用模块，核心 AOT 测试工具 `"cn.taketoday:today-core-test"`。
+为了更有针对性地发现和测试，Infra Framework 提供了一个专用模块，核心 AOT 测试工具 `"cn.taketoday:infra-core-test"`。
 该模块包含 RuntimeHints Agent，它是一个 Java 代理，记录了所有与运行时提示相关的方法调用，并帮助您断言给定的 `RuntimeHints` 实例是否覆盖了所有记录的调用。
 让我们考虑一个基础设施的例子，我们想要在 AOT 处理阶段测试我们正在贡献的提示。
 

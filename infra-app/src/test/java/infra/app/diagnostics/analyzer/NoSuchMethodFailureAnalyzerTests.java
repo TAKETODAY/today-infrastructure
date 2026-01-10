@@ -50,7 +50,7 @@ class NoSuchMethodFailureAnalyzerTests {
     List<ClassDescriptor> typeHierarchy = descriptor.typeHierarchy;
     assertThat(typeHierarchy).hasSize(1);
     URL location = typeHierarchy.get(0).location;
-    assertThat(location).asString().contains("today-core");
+    assertThat(location).asString().contains("infra-core");
   }
 
 //  @Test
