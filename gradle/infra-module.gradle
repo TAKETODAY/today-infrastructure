@@ -35,9 +35,9 @@ jar {
   manifest.attributes["Created-By"] =
       "${System.getProperty("java.version")} (${System.getProperty("java.specification.vendor")})"
 
-  from("${rootDir}/infra-docs/src/docs/dist") {
-    include "license.txt"
-    include "notice.txt"
+  from("${rootDir}") {
+    include "LICENSE"
+    include "NOTICE"
     into "META-INF"
     expand(copyright: new Date().format("yyyy"), version: project.version)
   }

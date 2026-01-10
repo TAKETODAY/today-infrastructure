@@ -1,0 +1,45 @@
+Eclipse Project for Servlet API - Modified Portions
+===============================================================================
+This module contains modified portions of the Eclipse Project for Servlet API.
+The original project is developed and maintained by the Eclipse EE4J community.
+
+* Original Project Home: https://projects.eclipse.org/projects/ee4j.servlet
+* Original Source Code: https://github.com/eclipse-ee4j/servlet-api
+
+===============================================================================
+Copyright & License
+===============================================================================
+The included portions are:
+Copyright (c) 1997, 2023 Oracle and/or its affiliates and others.
+All rights reserved.
+Copyright 2004 The Apache Software Foundation
+
+This material is made available under the terms of the Eclipse Public License v. 2.0,
+which is available at http://www.eclipse.org/legal/epl-2.0.
+
+This Source Code may also be made available under the following Secondary License
+when the conditions for such availability set forth in the Eclipse Public License
+v. 2.0 are satisfied: GNU General Public License, version 2 with the GNU Classpath
+Exception, which is available at https://www.gnu.org/software/classpath/license.html.
+
+Portions of the included code may also be available under the Apache License,
+Version 2.0, which is available at https://www.apache.org/licenses/LICENSE-2.0.
+
+SPDX-License-Identifier: (EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0) AND Apache-2.0
+
+===============================================================================
+Full License Texts
+===============================================================================
+The complete texts of the above licenses are included in this directory:
+- `LICENSE-EPL-2.0` (Eclipse Public License v2.0)
+- `LICENSE-GPL-2.0-WITH-CLASSPATH-EXCEPTION` (GNU General Public License v2.0 with Classpath Exception)
+- `LICENSE` (Apache License v2.0)
+
+===============================================================================
+Important Notes
+===============================================================================
+- This module contains SELECTIVELY MODIFIED source code from the original project.
+- The original copyright notices and license headers have been RETAINED within
+   each respective source file.
+- "Eclipse" and "Eclipse Project for Servlet" are trademarks of the Eclipse Foundation.
+- All modifications are Copyright (c) 2017-present the TODAY authors.
