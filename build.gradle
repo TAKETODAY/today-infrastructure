@@ -149,5 +149,3 @@ nexusPublishing {
     }
   }
 }
-
-apply from: "${rootDir}/gradle/copyright.gradle"
