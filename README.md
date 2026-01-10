@@ -3,7 +3,7 @@
 ![Logo](./logo.svg) A Java library for applications software infrastructure.
 
 ![Java17](https://img.shields.io/badge/JDK-17+-success.svg)
-[![GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
+[![Apache License 2.0](https://img.shields.io/github/license/TAKETODAY/today-infrastructure?color=blue)](./LICENSE)
 [![Deploy](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/deploy-snapshots.yml/badge.svg)](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/deploy-snapshots.yml)
 [![Codecov](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/codecov.yaml/badge.svg)](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/codecov.yaml)
 [![Coveralls](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/coveralls.yaml/badge.svg)](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/coveralls.yaml)
