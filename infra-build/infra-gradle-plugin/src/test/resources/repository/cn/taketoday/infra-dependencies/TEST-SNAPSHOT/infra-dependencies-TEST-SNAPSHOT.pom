@@ -21,7 +21,7 @@
       </dependency>
       <dependency>
         <groupId>cn.taketoday</groupId>
-        <artifactId>today-starter</artifactId>
+        <artifactId>infra-starter</artifactId>
         <version>TEST-SNAPSHOT</version>
       </dependency>
       <dependency>

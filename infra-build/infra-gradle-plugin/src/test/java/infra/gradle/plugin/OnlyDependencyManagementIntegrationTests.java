@@ -39,7 +39,7 @@ class OnlyDependencyManagementIntegrationTests {
   @TestTemplate
   void dependencyManagementCanBeConfiguredUsingCoordinatesConstant() {
     assertThat(this.gradleBuild.build("dependencyManagement").getOutput())
-            .contains("cn.taketoday:today-starter ");
+            .contains("cn.taketoday:infra-starter ");
   }
 
 }

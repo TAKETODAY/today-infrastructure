@@ -178,8 +178,8 @@ repositories {
 
 dependencies {
   implementation 'cn.taketoday:ip2region-java:1.0-SNAPSHOT'
-  implementation 'cn.taketoday:today-starter-netty'
-  implementation 'cn.taketoday:today-starter-web'
+  implementation 'cn.taketoday:infra-starter-netty'
+  implementation 'cn.taketoday:infra-starter-web'
 }
 
 ```
@@ -191,13 +191,13 @@ dependencies {
 ```xml
 <dependency>
   <groupId>cn.taketoday</groupId>
-  <artifactId>today-starter-web</artifactId>
+  <artifactId>infra-starter-web</artifactId>
   <version>${infraVersion}</version>
 </dependency>
 
 <dependency>
   <groupId>cn.taketoday</groupId>
-  <artifactId>today-starter-netty</artifactId>
+  <artifactId>infra-starter-netty</artifactId>
   <version>${infraVersion}</version>
 </dependency>
 ```

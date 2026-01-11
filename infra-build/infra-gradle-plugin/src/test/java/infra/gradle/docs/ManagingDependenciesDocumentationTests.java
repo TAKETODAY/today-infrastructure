@@ -53,14 +53,14 @@ class ManagingDependenciesDocumentationTests {
   void dependencyManagementInIsolation() {
     assertThat(this.gradleBuild.script("src/docs/gradle/managing-dependencies/configure-bom")
             .build("dependencyManagement")
-            .getOutput()).contains("cn.taketoday:today-starter ");
+            .getOutput()).contains("cn.taketoday:infra-starter ");
   }
 
   @TestTemplate
   void configurePlatform() {
     assertThat(this.gradleBuild.script("src/docs/gradle/managing-dependencies/configure-platform")
             .build("dependencies", "--configuration", "compileClasspath")
-            .getOutput()).contains("cn.taketoday:today-starter ");
+            .getOutput()).contains("cn.taketoday:infra-starter ");
   }
 
   @TestTemplate

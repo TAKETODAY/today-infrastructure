@@ -66,14 +66,14 @@ repositories {
 }
 
 dependencies {
-  implementation 'cn.taketoday:today-starter-web'   // <1>
-  implementation 'cn.taketoday:today-starter-netty' // <2>
+  implementation 'cn.taketoday:infra-starter-web'   // <1>
+  implementation 'cn.taketoday:infra-starter-netty' // <2>
 
 }
 
 ----
 
-<1> 上面的 `today-starter-*` 和 Spring Boot 的 `Starters` 是一个概念，这样设计也是方便那些会用 Spring Boot 的开发者
+<1> 上面的 `infra-starter-*` 和 Spring Boot 的 `Starters` 是一个概念，这样设计也是方便那些会用 Spring Boot 的开发者
 <2> 使用 `Netty` 作为底层 HTTP 网络协议层处理。
 
 [[getting-started.first-application.code]]
@@ -117,8 +117,8 @@ TIP: 如果你用过 Spring 系列的框架 `@RestController` 你一定不陌生
 
 `@EnableAutoConfiguration` 注解 含义是 开启自动配置，去决定使用哪些 Bean。
 
-添加了 `today-starter-web` 依赖之后 框架会自动识别当前应用是一个 Web 应用。
-会开启一个 Web 服务器 由于存在 `today-starter-netty` 依赖，所以使用了 Netty 作为底层 Web 服务器支持。
+添加了 `infra-starter-web` 依赖之后 框架会自动识别当前应用是一个 Web 应用。
+会开启一个 Web 服务器 由于存在 `infra-starter-netty` 依赖，所以使用了 Netty 作为底层 Web 服务器支持。
 
 .Starters 和 Auto-configuration（自动配置）
 ****

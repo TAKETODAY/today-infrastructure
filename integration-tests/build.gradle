@@ -15,7 +15,7 @@ dependencies {
   testImplementation(project(":infra-beans"))
   testImplementation(project(":infra-context"))
   testImplementation(project(":infra-core"))
-  testImplementation(project(":today-starter:today-starter-test"))
+  testImplementation(project(":infra-starter:infra-starter-test"))
 
   testImplementation(testFixtures(project(":infra-aop")))
   testImplementation(testFixtures(project(":infra-beans")))

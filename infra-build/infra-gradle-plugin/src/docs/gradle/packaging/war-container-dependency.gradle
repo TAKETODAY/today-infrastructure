@@ -7,7 +7,7 @@ apply plugin: 'io.spring.dependency-management'
 
 // tag::dependencies[]
 dependencies {
-  implementation('cn.taketoday:today-starter-web')
-  providedRuntime('cn.taketoday:today-starter-tomcat')
+  implementation('cn.taketoday:infra-starter-web')
+  providedRuntime('cn.taketoday:infra-starter-tomcat')
 }
 // end::dependencies[]

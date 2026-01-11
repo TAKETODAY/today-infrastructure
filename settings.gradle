@@ -49,12 +49,12 @@ include 'infra-websocket'
 include 'infra-test'
 include 'infra-test-support'
 
-include 'today-starter'
+include 'infra-starter'
 include 'integration-tests'
 
 // Starters
-file("${rootDir}/today-starter").eachDirMatch(~/today-starter.*/) {
-  include "today-starter:${it.name}"
+file("${rootDir}/infra-starter").eachDirMatch(~/infra-starter.*/) {
+  include "infra-starter:${it.name}"
 }
 
 // Config

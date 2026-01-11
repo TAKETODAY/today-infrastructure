@@ -6,5 +6,5 @@ plugins {
 }
 
 dependencies {
-	implementation('cn.taketoday:today-starter-web')
+	implementation('cn.taketoday:infra-starter-web')
 }

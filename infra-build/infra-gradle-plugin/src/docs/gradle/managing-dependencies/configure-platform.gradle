@@ -10,7 +10,7 @@ dependencies {
 // end::configure-platform[]
 
 dependencies {
-  implementation "cn.taketoday:today-starter"
+  implementation "cn.taketoday:infra-starter"
 }
 
 repositories {

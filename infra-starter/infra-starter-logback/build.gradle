@@ -1,6 +1,6 @@
 description = 'Starter for logging using Logback'
 
 dependencies {
-  api project(':today-starter')
+  api project(':infra-starter')
   api "ch.qos.logback:logback-classic"
 }

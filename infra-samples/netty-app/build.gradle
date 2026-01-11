@@ -4,9 +4,9 @@ apply plugin: 'application'
 
 dependencies {
   implementation project(":web-api")
-  implementation 'cn.taketoday:today-starter-web'
-  implementation 'cn.taketoday:today-starter-netty'
-  implementation 'cn.taketoday:today-starter-freemarker'
+  implementation 'cn.taketoday:infra-starter-web'
+  implementation 'cn.taketoday:infra-starter-netty'
+  implementation 'cn.taketoday:infra-starter-freemarker'
 
   implementation 'ch.qos.logback:logback-classic'
 }

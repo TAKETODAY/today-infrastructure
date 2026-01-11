@@ -10,8 +10,8 @@ plugins {
 ext {
   isSnapshot = version.endsWith('SNAPSHOT')
   isReleaseVersion = !isSnapshot
-  starterProjects = subprojects.findAll { it.name.startsWith("today-starter") }
-  moduleProjects = subprojects.findAll { it.name.startsWith("infra-") && !it.name.startsWith("today-starter") } + [
+  starterProjects = subprojects.findAll { it.name.startsWith("infra-starter") }
+  moduleProjects = subprojects.findAll { it.name.startsWith("infra-") && !it.name.startsWith("infra-starter") } + [
       project(":infra-build:infra-annotation-config-processor"),
       project(":infra-build:infra-configuration-processor"),
       project(":infra-build:infra-app-loader"),

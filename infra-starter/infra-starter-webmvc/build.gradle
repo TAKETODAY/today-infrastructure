@@ -3,5 +3,5 @@ description = 'Starter for building web, including RESTful, applications using W
 dependencies {
   api project(':infra-web')
   api project(':infra-webmvc')
-  api project(':today-starter:today-starter-json')
+  api project(':infra-starter:infra-starter-json')
 }

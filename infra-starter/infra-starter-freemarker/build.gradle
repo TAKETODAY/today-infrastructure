@@ -1,7 +1,7 @@
 description = "Starter for building MVC web applications using FreeMarker views"
 
 dependencies {
-  api project(':today-starter')
+  api project(':infra-starter')
   api project(':infra-context')
   api 'org.freemarker:freemarker'
 
