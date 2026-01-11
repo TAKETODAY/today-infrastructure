@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.web;
+package infra.webmvc.config;
 
 import org.jspecify.annotations.Nullable;
 
@@ -28,10 +28,7 @@ import infra.annotation.ConditionalOnWebApplication;
 import infra.annotation.config.http.ServerHttpMessageConvertersCustomizer;
 import infra.annotation.config.task.TaskExecutionAutoConfiguration;
 import infra.annotation.config.validation.ValidationAutoConfiguration;
-import infra.annotation.config.web.WebMvcProperties.ApiVersion.Use;
-import infra.annotation.config.web.WebMvcProperties.Format;
-import infra.annotation.config.web.WebProperties.Resources;
-import infra.annotation.config.web.WebProperties.Resources.Chain.Strategy;
+import infra.annotation.config.web.ConditionalOnEnabledResourceChain;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.ObjectProvider;
 import infra.beans.factory.config.BeanDefinition;
@@ -65,22 +62,26 @@ import infra.web.accept.ApiVersionDeprecationHandler;
 import infra.web.accept.ApiVersionParser;
 import infra.web.accept.ApiVersionResolver;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
-import infra.web.config.annotation.ApiVersionConfigurer;
-import infra.web.config.annotation.AsyncSupportConfigurer;
-import infra.web.config.annotation.CompositeWebMvcConfigurer;
-import infra.web.config.annotation.ContentNegotiationConfigurer;
-import infra.web.config.annotation.CorsRegistry;
-import infra.web.config.annotation.InterceptorRegistry;
-import infra.web.config.annotation.PathMatchConfigurer;
-import infra.web.config.annotation.ResourceChainRegistration;
-import infra.web.config.annotation.ResourceHandlerRegistration;
-import infra.web.config.annotation.ResourceHandlerRegistry;
-import infra.web.config.annotation.ViewControllerRegistry;
-import infra.web.config.annotation.ViewResolverRegistry;
-import infra.web.config.annotation.WebMvcConfigurationSupport;
-import infra.web.config.annotation.WebMvcConfigurer;
-import infra.web.config.format.DateTimeFormatters;
-import infra.web.config.format.WebConversionService;
+import infra.webmvc.config.WebMvcProperties.ApiVersion.Use;
+import infra.webmvc.config.WebMvcProperties.Format;
+import infra.webmvc.config.WebProperties.Resources;
+import infra.webmvc.config.WebProperties.Resources.Chain.Strategy;
+import infra.webmvc.config.annotation.ApiVersionConfigurer;
+import infra.webmvc.config.annotation.AsyncSupportConfigurer;
+import infra.webmvc.config.annotation.CompositeWebMvcConfigurer;
+import infra.webmvc.config.annotation.ContentNegotiationConfigurer;
+import infra.webmvc.config.annotation.CorsRegistry;
+import infra.webmvc.config.annotation.InterceptorRegistry;
+import infra.webmvc.config.annotation.PathMatchConfigurer;
+import infra.webmvc.config.annotation.ResourceChainRegistration;
+import infra.webmvc.config.annotation.ResourceHandlerRegistration;
+import infra.webmvc.config.annotation.ResourceHandlerRegistry;
+import infra.webmvc.config.annotation.ViewControllerRegistry;
+import infra.webmvc.config.annotation.ViewResolverRegistry;
+import infra.webmvc.config.annotation.WebMvcConfigurationSupport;
+import infra.webmvc.config.annotation.WebMvcConfigurer;
+import infra.webmvc.config.format.DateTimeFormatters;
+import infra.webmvc.config.format.WebConversionService;
 import infra.web.context.support.RequestHandledEventPublisher;
 import infra.web.handler.AbstractHandlerExceptionHandler;
 import infra.web.handler.ReturnValueHandlerManager;

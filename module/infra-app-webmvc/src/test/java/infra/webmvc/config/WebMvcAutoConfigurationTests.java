@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.web;
+package infra.webmvc.config;
 
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.jspecify.annotations.Nullable;
@@ -87,10 +87,10 @@ import infra.web.accept.MissingApiVersionException;
 import infra.web.accept.StandardApiVersionDeprecationHandler;
 import infra.web.async.WebAsyncManagerFactory;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
-import infra.web.config.annotation.AsyncSupportConfigurer;
-import infra.web.config.annotation.CorsRegistry;
-import infra.web.config.annotation.ResourceHandlerRegistry;
-import infra.web.config.annotation.WebMvcConfigurer;
+import infra.webmvc.config.annotation.AsyncSupportConfigurer;
+import infra.webmvc.config.annotation.CorsRegistry;
+import infra.webmvc.config.annotation.ResourceHandlerRegistry;
+import infra.webmvc.config.annotation.WebMvcConfigurer;
 import infra.web.handler.AbstractHandlerExceptionHandler;
 import infra.web.handler.CompositeHandlerExceptionHandler;
 import infra.web.handler.ReturnValueHandlerManager;
@@ -134,7 +134,7 @@ class WebMvcAutoConfigurationTests {
 
   private final ApplicationContextRunner contextRunner =
           ApplicationContextRunner.forProvider(AnnotationConfigWebServerApplicationContext::new)
-                  .withConfiguration(AutoConfigurations.of(WebMvcAutoConfiguration.class, RandomPortWebServerConfig.class,
+                  .withConfiguration(AutoConfigurations.of(WebMvcAutoConfiguration.class,// RandomPortWebServerConfig.class,
                           HttpMessageConvertersAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class))
                   .withUserConfiguration(Config.class);
 

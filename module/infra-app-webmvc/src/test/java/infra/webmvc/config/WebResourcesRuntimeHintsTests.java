@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.web;
+package infra.webmvc.config;
 
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
@@ -30,6 +30,7 @@ import infra.aot.hint.ResourcePatternHint;
 import infra.aot.hint.ResourcePatternHints;
 import infra.aot.hint.RuntimeHints;
 import infra.test.classpath.resources.WithResource;
+import infra.webmvc.config.WebResourcesRuntimeHints;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

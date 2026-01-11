@@ -16,8 +16,9 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.web;
+package infra.webmvc.config;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.Consumer;
@@ -27,7 +28,7 @@ import infra.app.test.context.assertj.AssertableApplicationContext;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.app.test.context.runner.ContextConsumer;
 import infra.context.annotation.Configuration;
-import infra.context.properties.EnableConfigurationProperties;
+import infra.context.properties.EnableConfigurationProperties;import infra.webmvc.config.WebProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -57,7 +58,7 @@ class WebPropertiesResourcesBindingTests {
 
   private ContextConsumer<AssertableApplicationContext> assertResourceProperties(Consumer<Resources> consumer) {
     return (context) -> {
-      assertThat(context).hasSingleBean(WebProperties.class);
+      Assertions.assertThat(context).hasSingleBean(WebProperties.class);
       consumer.accept(context.getBean(WebProperties.class).resources);
     };
   }

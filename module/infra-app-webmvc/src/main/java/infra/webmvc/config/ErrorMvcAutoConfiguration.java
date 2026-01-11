@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.web;
+package infra.webmvc.config;
 
 import org.jspecify.annotations.Nullable;
 
@@ -78,10 +78,7 @@ import infra.web.view.View;
 @ConditionalOnClass({ DispatcherHandler.class })
 @DisableDIAutoConfiguration(before = WebMvcAutoConfiguration.class)
 @EnableConfigurationProperties({ ServerProperties.class, WebMvcProperties.class })
-public class ErrorMvcAutoConfiguration {
-
-  private ErrorMvcAutoConfiguration() {
-  }
+public final class ErrorMvcAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean(value = ErrorAttributes.class, search = SearchStrategy.CURRENT)
@@ -139,7 +136,6 @@ public class ErrorMvcAutoConfiguration {
   /**
    * {@link InfraCondition} that matches when no error template view is detected.
    */
-  @SuppressWarnings("NullAway")
   private static final class ErrorTemplateMissingCondition extends InfraCondition {
 
     @Override
@@ -159,7 +155,6 @@ public class ErrorMvcAutoConfiguration {
   /**
    * Simple {@link View} implementation that writes a default HTML error page.
    */
-  @SuppressWarnings("NullAway")
   private static final class StaticView implements View {
 
     @Override

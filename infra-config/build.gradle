@@ -2,4 +2,6 @@ description = "Infrastructure config API"
 
 dependencies {
   api project(':infra-context')
+  api project(':infra-app')
+
 }

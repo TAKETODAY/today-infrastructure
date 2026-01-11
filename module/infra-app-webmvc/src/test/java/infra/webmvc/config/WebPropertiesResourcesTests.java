@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.web;
+package infra.webmvc.config;
 
 import org.junit.jupiter.api.Test;
 
@@ -24,6 +24,7 @@ import java.time.Duration;
 
 import infra.annotation.config.web.WebProperties.Resources;
 import infra.http.CacheControl;
+import infra.webmvc.config.WebProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

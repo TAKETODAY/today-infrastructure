@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.web;
+package infra.webmvc.config;
 
 import org.jspecify.annotations.Nullable;
 
@@ -30,6 +30,7 @@ import infra.context.properties.bind.Name;
 import infra.http.MediaType;
 import infra.validation.DefaultMessageCodesResolver;
 import infra.web.view.UrlBasedViewResolver;
+import infra.webmvc.config.annotation.ViewControllerRegistry;
 
 /**
  * @author Phillip Webb
@@ -78,7 +79,7 @@ public class WebMvcProperties {
   /**
    * Whether to register the WebView XML configuration.
    *
-   * @see infra.web.config.annotation.ViewControllerRegistry#registerWebViewXml()
+   * @see ViewControllerRegistry#registerWebViewXml()
    */
   public boolean registerWebViewXml = false;
 

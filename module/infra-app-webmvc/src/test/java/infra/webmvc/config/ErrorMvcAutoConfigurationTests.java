@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.web;
+package infra.webmvc.config;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,6 +37,8 @@ import infra.web.server.error.ErrorAttributeOptions.Include;
 import infra.web.server.error.ErrorAttributes;
 import infra.web.util.WebUtils;
 import infra.web.view.View;
+import infra.webmvc.config.ErrorMvcAutoConfiguration;
+import infra.webmvc.config.WebMvcAutoConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -50,7 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ErrorMvcAutoConfigurationTests {
 
   private final ApplicationContextRunner contextRunner = ApplicationContextRunner.forProvider(AnnotationConfigWebServerApplicationContext::new)
-          .withConfiguration(AutoConfigurations.of(RandomPortWebServerConfig.class,
+          .withConfiguration(AutoConfigurations.of(//RandomPortWebServerConfig.class,
                   WebMvcAutoConfiguration.class, ErrorMvcAutoConfiguration.class));
 
   @Test

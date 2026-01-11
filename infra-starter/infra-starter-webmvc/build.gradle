@@ -4,4 +4,7 @@ dependencies {
   api project(':infra-web')
   api project(':infra-webmvc')
   api project(':infra-starter:infra-starter-json')
+
+  api project(':module:infra-app-webmvc')
+
 }
