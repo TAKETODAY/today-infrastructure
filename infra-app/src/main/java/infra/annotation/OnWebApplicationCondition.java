@@ -34,7 +34,7 @@ import infra.core.type.AnnotatedTypeMetadata;
 import infra.web.server.context.GenericWebServerApplicationContext;
 import infra.web.server.reactive.context.ConfigurableReactiveWebEnvironment;
 import infra.web.server.reactive.context.ReactiveWebApplicationContext;
-import infra.web.server.support.ConfigurableNettyWebEnvironment;
+import infra.web.context.ConfigurableWebEnvironment;
 
 /**
  * {@link Condition} that checks for the presence or absence of
@@ -161,7 +161,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
       return ConditionOutcome.noMatch(message.didNotFind("web application classes").atAll());
     }
 
-    if (context.getEnvironment() instanceof ConfigurableNettyWebEnvironment) {
+    if (context.getEnvironment() instanceof ConfigurableWebEnvironment) {
       return ConditionOutcome.match(message.foundExactly("ConfigurableWebEnvironment"));
     }
 

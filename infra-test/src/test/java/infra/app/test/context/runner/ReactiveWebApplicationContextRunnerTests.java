@@ -19,7 +19,7 @@
 package infra.app.test.context.runner;
 
 import infra.app.test.context.assertj.AssertableReactiveWebApplicationContext;
-import infra.web.server.reactive.context.ConfigurableReactiveWebApplicationContext;
+import infra.app.web.context.reactive.ConfigurableReactiveWebApplicationContext;
 
 /**
  * Tests for {@link ReactiveWebApplicationContextRunner}.

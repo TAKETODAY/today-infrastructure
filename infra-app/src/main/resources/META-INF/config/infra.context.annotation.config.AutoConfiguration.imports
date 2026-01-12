@@ -26,7 +26,6 @@ infra.annotation.config.http.client.reactive.ReactiveHttpClientAutoConfiguration
 infra.annotation.config.gson.GsonAutoConfiguration
 infra.annotation.config.jsonb.JsonbAutoConfiguration
 infra.annotation.config.jackson.JacksonAutoConfiguration
-infra.annotation.config.web.socket.WebSocketAutoConfiguration
 infra.annotation.config.web.reactive.client.WebClientAutoConfiguration
 infra.annotation.config.web.reactive.client.ClientHttpConnectorAutoConfiguration
 infra.annotation.config.availability.ApplicationAvailabilityAutoConfiguration

@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import infra.context.properties.source.ConfigurationPropertySources;
 import infra.core.env.ConfigurablePropertyResolver;
 import infra.core.env.PropertySources;
-import infra.web.server.reactive.context.StandardReactiveWebEnvironment;
+import infra.web.context.reactive.StandardReactiveWebEnvironment;
 
 /**
  * {@link StandardReactiveWebEnvironment} for typical use in a typical

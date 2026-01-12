@@ -73,7 +73,7 @@ public class NettyWebSocketSession extends WebSocketSession {
   @Nullable
   private final String acceptedProtocol;
 
-  protected NettyWebSocketSession(boolean secure, Channel channel,
+  public NettyWebSocketSession(boolean secure, Channel channel,
           NettyDataBufferFactory allocator, @Nullable String acceptedProtocol) {
     this.secure = secure;
     this.channel = channel;

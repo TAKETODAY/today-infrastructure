@@ -22,7 +22,7 @@ import infra.stereotype.Component;
 import infra.web.server.WebServerFactoryCustomizer;
 import infra.web.server.WebServerFactoryCustomizerBeanPostProcessor;
 import infra.web.server.config.NettyWebServerFactoryAutoConfiguration;
-import infra.web.server.support.NettyWebServerFactory;
+import infra.web.server.netty.NettyWebServerFactory;
 import infra.webmvc.config.ErrorMvcAutoConfiguration;
 import infra.webmvc.config.WebMvcAutoConfiguration;
 

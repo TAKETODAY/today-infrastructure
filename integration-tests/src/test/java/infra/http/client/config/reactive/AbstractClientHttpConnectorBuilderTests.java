@@ -50,7 +50,7 @@ import infra.web.client.reactive.ExchangeFunctions;
 import infra.web.client.reactive.WebClientRequestException;
 import infra.web.server.Ssl;
 import infra.web.server.WebServer;
-import infra.web.server.support.NettyWebServerFactory;
+import infra.web.server.netty.NettyWebServerFactory;
 import io.netty.channel.ChannelHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;

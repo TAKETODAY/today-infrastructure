@@ -1,0 +1,22 @@
+description = "Infra application Web MVC module"
+
+dependencies {
+  api(project(":infra-webmvc"))
+  api(project(":infra-websocket"))
+  api(project(":infra-config"))
+  api project(':infra-app')
+
+  optional project(':infra-core-aot')
+
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
+  testImplementation project(":infra-test")
+  testImplementation project(':infra-test-support')
+  testImplementation project(":infra-webmvc-mock")
+  testImplementation "jakarta.validation:jakarta.validation-api"
+  testImplementation 'org.hibernate.validator:hibernate-validator'
+  testRuntimeOnly "org.glassfish:jakarta.el"
+
+  testImplementation 'ch.qos.logback:logback-classic'
+}

@@ -35,7 +35,7 @@ import infra.web.mock.MockRequestContext;
 import infra.web.server.error.ErrorAttributeOptions;
 import infra.web.server.error.ErrorAttributeOptions.Include;
 import infra.web.server.error.ErrorAttributes;
-import infra.web.server.support.StandardNettyWebEnvironment;
+import infra.web.context.StandardWebEnvironment;
 import infra.web.util.WebUtils;
 import infra.web.view.View;
 
@@ -52,7 +52,7 @@ class ErrorMvcAutoConfigurationTests {
 
   private final ApplicationContextRunner contextRunner = ApplicationContextRunner.forProvider(() -> {
             AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-            context.setEnvironment(new StandardNettyWebEnvironment());
+            context.setEnvironment(new StandardWebEnvironment());
             return context;
           })
           .withConfiguration(AutoConfigurations.of(WebMvcAutoConfiguration.class, ErrorMvcAutoConfiguration.class));

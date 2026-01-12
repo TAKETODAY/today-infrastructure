@@ -472,7 +472,7 @@ public class Application {
 
     if (!this.isCustomEnvironment) {
       environment = EnvironmentConverter.convertIfNecessary(environment, switch (applicationType) {
-        case WEB -> ApplicationNettyWebEnvironment.class;
+        case WEB -> ApplicationWebEnvironment.class;
         case REACTIVE_WEB -> ApplicationReactiveWebEnvironment.class;
         default -> ApplicationEnvironment.class;
       });
@@ -705,7 +705,7 @@ public class Application {
       return this.environment;
     }
     return switch (applicationType) {
-      case WEB -> new ApplicationNettyWebEnvironment();
+      case WEB -> new ApplicationWebEnvironment();
       case REACTIVE_WEB -> new ApplicationReactiveWebEnvironment();
       default -> new ApplicationEnvironment();
     };

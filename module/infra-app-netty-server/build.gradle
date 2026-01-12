@@ -4,11 +4,17 @@ description = "Infra application netty web server"
 
 dependencies {
   api project(":module:infra-app-webmvc")
+  api project(":module:infra-app-web-server")
   optional project(":infra-websocket")
 
   optional 'io.netty:netty-codec-http'
-  optional 'io.netty:netty-transport-native-kqueue'
-
+  optional 'io.netty:netty-codec-http2'
+  optional("io.netty:netty-buffer")
+  optional("io.netty:netty-handler")
+  optional("io.netty:netty-transport")
+  optional("io.netty:netty-codec-http")
+  optional("io.netty:netty-transport-native-kqueue")
+  optional("io.netty:netty-transport-native-epoll")
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
   annotationProcessor(project(":infra-build:infra-annotation-config-processor"))

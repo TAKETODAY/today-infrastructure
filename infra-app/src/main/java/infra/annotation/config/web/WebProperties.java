@@ -26,6 +26,7 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import infra.context.properties.ConfigurationProperties;
+import infra.context.properties.NestedConfigurationProperty;
 import infra.format.annotation.DurationUnit;
 import infra.http.CacheControl;
 import infra.util.PropertyMapper;
@@ -53,6 +54,9 @@ public class WebProperties {
   public LocaleResolver localeResolver = LocaleResolver.ACCEPT_HEADER;
 
   public final Resources resources = new Resources();
+
+  @NestedConfigurationProperty
+  public final ErrorProperties error = new ErrorProperties();
 
   public enum LocaleResolver {
 

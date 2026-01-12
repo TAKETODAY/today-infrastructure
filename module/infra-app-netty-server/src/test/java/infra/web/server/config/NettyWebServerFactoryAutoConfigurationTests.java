@@ -28,12 +28,12 @@ import infra.context.properties.bind.Binder;
 import infra.test.classpath.ClassPathExclusions;
 import infra.util.DataSize;
 import infra.web.server.ServerProperties;
-import infra.web.server.Ssl;
+import infra.web.context.StandardWebEnvironment;
 import infra.web.server.context.AnnotationConfigWebServerApplicationContext;
+import infra.web.server.netty.NettyChannelHandler;
+import infra.web.server.netty.NettyServerProperties;
+import infra.web.server.netty.NettyWebServerFactory;
 import infra.web.server.netty.RandomPortWebServerConfig;
-import infra.web.server.support.NettyChannelHandler;
-import infra.web.server.support.NettyWebServerFactory;
-import infra.web.server.support.StandardNettyWebEnvironment;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 
@@ -51,7 +51,7 @@ class NettyWebServerFactoryAutoConfigurationTests {
 
   AnnotationConfigWebServerApplicationContext createContext() {
     var context = new AnnotationConfigWebServerApplicationContext();
-    context.setEnvironment(new StandardNettyWebEnvironment());
+    context.setEnvironment(new StandardWebEnvironment());
     return context;
   }
 
@@ -72,17 +72,17 @@ class NettyWebServerFactoryAutoConfigurationTests {
             "server.netty.shutdown.timeout=1",
             "server.netty.shutdown.unit=seconds",
             "server.netty.acceptor-threads=1").run(context -> {
-      ServerProperties properties = context.getBean(ServerProperties.class);
+      NettyServerProperties properties = context.getBean(NettyServerProperties.class);
 
-      var result = Binder.get(context.getEnvironment()).bind("server", ServerProperties.class);
+      var result = Binder.get(context.getEnvironment()).bind("server", NettyServerProperties.class);
       assertThat(result.isBound()).isTrue();
       assertNetty(result.get());
       assertNetty(properties);
     });
   }
 
-  private static void assertNetty(ServerProperties server) {
-    ServerProperties.Netty netty = server.netty;
+  private static void assertNetty(NettyServerProperties server) {
+    NettyServerProperties netty = server;
     assertThat(netty.acceptorThreads).isEqualTo(1);
     assertThat(netty.workerThreads).isEqualTo(8);
     assertThat(netty.maxConnection).isEqualTo(1024);
@@ -100,8 +100,8 @@ class NettyWebServerFactoryAutoConfigurationTests {
     assertThat(shutdown.timeout).isEqualTo(1);
     assertThat(shutdown.unit).isEqualTo(TimeUnit.SECONDS);
 
-    assertThat(Ssl.isEnabled(server.ssl)).isFalse();
-    assertThat(server.ssl).isNull();
+//    assertThat(Ssl.isEnabled(server.ssl)).isFalse();
+//    assertThat(server.ssl).isNull();
   }
 
   @Test
@@ -160,13 +160,13 @@ class NettyWebServerFactoryAutoConfigurationTests {
   void poolName() {
     contextRunner.withPropertyValues("server.netty.acceptorPoolName=acceptor",
             "server.netty.workerPoolName=worker").run(context -> {
-      ServerProperties properties = context.getBean(ServerProperties.class);
+      NettyServerProperties properties = context.getBean(NettyServerProperties.class);
 
-      var result = Binder.get(context.getEnvironment()).bind("server", ServerProperties.class);
+      var result = Binder.get(context.getEnvironment()).bind("server", NettyServerProperties.class);
       assertThat(result.isBound()).isTrue();
 
-      assertThat(properties.netty.acceptorPoolName).isEqualTo(result.get().netty.acceptorPoolName).isEqualTo("acceptor");
-      assertThat(properties.netty.workerPoolName).isEqualTo(result.get().netty.workerPoolName).isEqualTo("worker");
+      assertThat(properties.acceptorPoolName).isEqualTo(result.get().acceptorPoolName).isEqualTo("acceptor");
+      assertThat(properties.workerPoolName).isEqualTo(result.get().workerPoolName).isEqualTo("worker");
 
       NettyWebServerFactory factory = context.getBean(NettyWebServerFactory.class);
 

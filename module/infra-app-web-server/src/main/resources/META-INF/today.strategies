@@ -1,0 +1,5 @@
+#
+# Failure Analyzers
+infra.app.diagnostics.FailureAnalyzer=\
+infra.web.server.diagnostics.MissingWebServerFactoryBeanFailureAnalyzer,\
+infra.web.server.diagnostics.PortInUseFailureAnalyzer

@@ -449,7 +449,7 @@ class ApplicationTests {
     Application application = new Application(ExampleWebConfig.class);
     application.setApplicationType(ApplicationType.WEB);
     this.context = application.run();
-    assertThat(this.context.getEnvironment()).isInstanceOf(ApplicationNettyWebEnvironment.class);
+    assertThat(this.context.getEnvironment()).isInstanceOf(ApplicationWebEnvironment.class);
   }
 
   @Test
@@ -1091,7 +1091,7 @@ class ApplicationTests {
   void webApplicationSwitchedOffInListener() {
     TestApplication application = new TestApplication(ExampleConfig.class);
     application.addListeners((ApplicationListener<ApplicationEnvironmentPreparedEvent>) (event) -> {
-      assertThat(event.getEnvironment()).isInstanceOf(ApplicationNettyWebEnvironment.class);
+      assertThat(event.getEnvironment()).isInstanceOf(ApplicationWebEnvironment.class);
       TestPropertySourceUtils.addInlinedPropertiesToEnvironment(event.getEnvironment(), "foo=bar");
       event.getApplication().setApplicationType(ApplicationType.NORMAL);
     });
@@ -1115,7 +1115,7 @@ class ApplicationTests {
     ConfigurableApplicationContext context = new Application(ExampleWebConfig.class)
             .run("--app.main.application-type=web");
     assertThat(context).isInstanceOf(ApplicationContext.class);
-    assertThat(context.getEnvironment()).isInstanceOf(ApplicationNettyWebEnvironment.class);
+    assertThat(context.getEnvironment()).isInstanceOf(ApplicationWebEnvironment.class);
   }
 
   @Test

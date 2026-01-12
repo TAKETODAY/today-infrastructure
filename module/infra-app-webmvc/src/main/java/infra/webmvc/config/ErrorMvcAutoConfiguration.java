@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import infra.annotation.ConditionalOnWebApplication;
+import infra.annotation.config.web.ErrorProperties;
 import infra.annotation.config.web.WebProperties;
 import infra.aop.framework.autoproxy.AutoProxyUtils;
 import infra.beans.BeansException;
@@ -51,16 +52,15 @@ import infra.ui.template.TemplateAvailabilityProviders;
 import infra.web.DispatcherHandler;
 import infra.web.RequestContext;
 import infra.web.handler.ReturnValueHandlerManager;
-import infra.web.server.ServerProperties;
-import infra.web.server.error.BasicErrorController;
-import infra.web.server.error.DefaultErrorAttributes;
-import infra.web.server.error.DefaultErrorViewResolver;
-import infra.web.server.error.ErrorAttributes;
-import infra.web.server.error.ErrorController;
-import infra.web.server.error.ErrorViewResolver;
 import infra.web.util.HtmlUtils;
 import infra.web.view.BeanNameViewResolver;
 import infra.web.view.View;
+import infra.webmvc.error.BasicErrorController;
+import infra.webmvc.error.DefaultErrorAttributes;
+import infra.webmvc.error.DefaultErrorViewResolver;
+import infra.webmvc.error.ErrorAttributes;
+import infra.webmvc.error.ErrorController;
+import infra.webmvc.error.ErrorViewResolver;
 
 import static infra.annotation.ConditionalOnWebApplication.Type.MVC;
 
@@ -80,7 +80,7 @@ import static infra.annotation.ConditionalOnWebApplication.Type.MVC;
 @ConditionalOnWebApplication(type = MVC)
 @ConditionalOnClass({ DispatcherHandler.class })
 @DisableDIAutoConfiguration(before = WebMvcAutoConfiguration.class)
-@EnableConfigurationProperties({ ServerProperties.class, WebMvcProperties.class })
+@EnableConfigurationProperties({ ErrorProperties.class, WebMvcProperties.class })
 public final class ErrorMvcAutoConfiguration {
 
   @Component
@@ -91,10 +91,10 @@ public final class ErrorMvcAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean(value = ErrorController.class, search = SearchStrategy.CURRENT)
-  public static BasicErrorController basicErrorController(ErrorAttributes errorAttributes, ServerProperties serverProperties,
+  public static BasicErrorController basicErrorController(ErrorAttributes errorAttributes, WebProperties webProperties,
           List<ErrorViewResolver> errorViewResolvers, ReturnValueHandlerManager returnValueHandler) {
     return new BasicErrorController(errorAttributes,
-            serverProperties.error, errorViewResolvers, returnValueHandler);
+            webProperties.error, errorViewResolvers, returnValueHandler);
   }
 
   @Component

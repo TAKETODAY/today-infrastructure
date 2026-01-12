@@ -29,11 +29,13 @@ import infra.beans.BeanUtils;
 import infra.beans.factory.annotation.Qualifier;
 import infra.beans.factory.config.BeanDefinition;
 import infra.context.ApplicationContext;
+import infra.context.annotation.Configuration;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.Role;
 import infra.context.annotation.config.AutoConfigureOrder;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
+import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.ApplicationTemp;
@@ -42,26 +44,31 @@ import infra.core.ssl.SslBundles;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
+import infra.util.DataSize;
 import infra.web.DispatcherHandler;
+import infra.web.context.StandardWebEnvironment;
 import infra.web.multipart.MultipartParser;
 import infra.web.multipart.parsing.DefaultMultipartParser;
 import infra.web.multipart.parsing.ProgressListener;
 import infra.web.server.ServerProperties;
 import infra.web.server.ServiceExecutor;
+import infra.web.server.SimpleServiceExecutor;
 import infra.web.server.Ssl;
 import infra.web.server.WebServerFactoryCustomizerBeanPostProcessor;
 import infra.web.server.error.SendErrorHandler;
-import infra.web.server.support.ChannelConfigurer;
-import infra.web.server.support.NettyChannelHandler;
-import infra.web.server.support.NettyRequestConfig;
-import infra.web.server.support.NettyWebServerFactory;
-import infra.web.server.support.ServerBootstrapCustomizer;
-import infra.web.server.support.SimpleServiceExecutor;
-import infra.web.server.support.StandardNettyWebEnvironment;
-import infra.web.socket.server.support.WsNettyChannelHandler;
+import infra.web.server.netty.ChannelConfigurer;
+import infra.web.server.netty.NettyChannelHandler;
+import infra.web.server.netty.NettyRequestConfig;
+import infra.web.server.netty.NettyRequestUpgradeStrategy;
+import infra.web.server.netty.NettyServerProperties;
+import infra.web.server.netty.NettyWebServerFactory;
+import infra.web.server.netty.ServerBootstrapCustomizer;
+import infra.web.server.netty.WsNettyChannelHandler;
+import infra.web.socket.server.RequestUpgradeStrategy;
 import infra.webmvc.DispatcherHandlerCustomizer;
 import io.netty.channel.ChannelHandler;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
+import io.netty.handler.codec.http.websocketx.WebSocketDecoderConfig;
 
 import static infra.annotation.config.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
 import static infra.annotation.config.task.TaskExecutionAutoConfiguration.TaskExecutorConfiguration;
@@ -77,7 +84,7 @@ import static infra.annotation.config.task.TaskExecutionAutoConfiguration.thread
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @ConditionalOnWebApplication(type = Type.MVC)
-@EnableConfigurationProperties(ServerProperties.class)
+@EnableConfigurationProperties({ ServerProperties.class, NettyServerProperties.class })
 @DisableDIAutoConfiguration(afterName = "infra.webmvc.config.ErrorMvcAutoConfiguration", after = TaskExecutionAutoConfiguration.class)
 public final class NettyWebServerFactoryAutoConfiguration {
 
@@ -89,7 +96,7 @@ public final class NettyWebServerFactoryAutoConfiguration {
 
   @Component
   static DispatcherHandlerCustomizer<DispatcherHandler> nettyDispatcherHandlerCustomizer() {
-    return handler -> handler.setEnvironment(new StandardNettyWebEnvironment());
+    return handler -> handler.setEnvironment(new StandardWebEnvironment());
   }
 
   @Component
@@ -127,13 +134,14 @@ public final class NettyWebServerFactoryAutoConfiguration {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public static NettyWebServerFactory nettyWebServerFactory(ServerProperties serverProperties,
           @Nullable ChannelConfigurer channelConfigurer, @Nullable SslBundles sslBundles,
+          NettyServerProperties nettyServerProperties,
           @Nullable List<ServerBootstrapCustomizer> customizers, @Nullable ApplicationTemp applicationTemp,
           ChannelHandler channelHandler) {
     NettyWebServerFactory factory = new NettyWebServerFactory();
 
     serverProperties.applyTo(factory, sslBundles, applicationTemp);
 
-    factory.applyFrom(serverProperties.netty);
+    factory.applyFrom(nettyServerProperties);
     factory.setBootstrapCustomizers(customizers);
     factory.setChannelConfigurer(channelConfigurer);
     factory.setChannelHandler(channelHandler);
@@ -144,17 +152,17 @@ public final class NettyWebServerFactoryAutoConfiguration {
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public static NettyRequestConfig nettyRequestConfig(ServerProperties server,
-          SendErrorHandler sendErrorHandler, MultipartParser multipartParser) {
+          NettyServerProperties netty, SendErrorHandler sendErrorHandler, MultipartParser multipartParser) {
 
     return NettyRequestConfig.forBuilder(Ssl.isEnabled(server.ssl))
             .multipartParser(multipartParser)
-            .writerAutoFlush(server.netty.writerAutoFlush)
+            .writerAutoFlush(netty.writerAutoFlush)
             .headersFactory(DefaultHttpHeadersFactory.headersFactory()
-                    .withValidation(server.netty.validateHeaders))
+                    .withValidation(netty.validateHeaders))
             .sendErrorHandler(sendErrorHandler)
-            .maxContentLength(server.netty.maxContentLength.toBytes())
-            .dataReceivedQueueCapacity(server.netty.dataReceivedQueueCapacity)
-            .autoRead(server.netty.autoRead)
+            .maxContentLength(netty.maxContentLength.toBytes())
+            .dataReceivedQueueCapacity(netty.dataReceivedQueueCapacity)
+            .autoRead(netty.autoRead)
             .build();
   }
 
@@ -179,11 +187,36 @@ public final class NettyWebServerFactoryAutoConfiguration {
 
   private static ChannelHandler createChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context,
           DispatcherHandler dispatcherHandler, ServiceExecutor executor, @Nullable ClassLoader classLoader) {
-    if (ClassUtils.isPresent("infra.web.socket.server.support.WsNettyChannelHandler", classLoader)) {
+    if (ClassUtils.isPresent("infra.web.socket.server.RequestUpgradeStrategy", classLoader)) {
       return Ws.createChannelHandler(requestConfig, context, dispatcherHandler, executor);
     }
 
     return new NettyChannelHandler(requestConfig, context, dispatcherHandler, executor);
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnClass(RequestUpgradeStrategy.class)
+  public static class NettyWebSocket {
+
+    @Component
+    @ConditionalOnMissingBean
+    public static RequestUpgradeStrategy nettyRequestUpgradeStrategy(WebSocketDecoderConfig decoderConfig) {
+      return new NettyRequestUpgradeStrategy(decoderConfig);
+    }
+
+    @Component
+    @ConditionalOnMissingBean
+    public static WebSocketDecoderConfig webSocketDecoderConfig() {
+      return WebSocketDecoderConfig.newBuilder()
+              .maxFramePayloadLength(DataSize.ofKilobytes(512).bytes().intValue())
+              .expectMaskedFrames(true)
+              .allowMaskMismatch(false)
+              .allowExtensions(false)
+              .closeOnProtocolViolation(true)
+              .withUTF8Validator(true)
+              .build();
+    }
+
   }
 
   static class Ws {

@@ -43,7 +43,7 @@ import infra.web.socket.client.WebSocketClient;
 import infra.web.socket.client.support.NettyWebSocketClient;
 import infra.web.socket.server.RequestUpgradeStrategy;
 import infra.web.socket.server.support.DefaultHandshakeHandler;
-import infra.web.socket.server.support.NettyRequestUpgradeStrategy;
+import infra.web.server.netty.NettyRequestUpgradeStrategy;
 
 import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.provider.Arguments.arguments;

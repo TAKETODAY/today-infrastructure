@@ -36,6 +36,7 @@ import infra.annotation.config.web.WebResourcesRuntimeHints;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.ObjectProvider;
 import infra.beans.factory.config.BeanDefinition;
+import infra.beans.factory.config.BeanFactoryPostProcessor;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationEventPublisher;
 import infra.context.annotation.ImportRuntimeHints;
@@ -64,6 +65,7 @@ import infra.validation.Validator;
 import infra.web.DispatcherHandler;
 import infra.web.HandlerExceptionHandler;
 import infra.web.LocaleResolver;
+import infra.web.RequestContextUtils;
 import infra.web.accept.ApiVersionDeprecationHandler;
 import infra.web.accept.ApiVersionParser;
 import infra.web.accept.ApiVersionResolver;
@@ -257,6 +259,12 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
             .withLogger(WebMvcAutoConfiguration.class)
             .invoke(customizer -> customizer.customize(handler));
     return handler;
+  }
+
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  static BeanFactoryPostProcessor webScopeConfigurer() {
+    return RequestContextUtils::registerScopes;
   }
 
   @Override
