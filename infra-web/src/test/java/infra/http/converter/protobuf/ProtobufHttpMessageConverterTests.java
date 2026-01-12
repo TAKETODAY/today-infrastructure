@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 import infra.http.MediaType;
 import infra.http.MockHttpInputMessage;
@@ -224,7 +223,7 @@ class ProtobufHttpMessageConverterTests {
     byte[] body = this.testMsg.toByteArray();
     MockHttpInputMessage inputMessage = new MockHttpInputMessage(body);
     inputMessage.getHeaders().setContentType(MediaType.APPLICATION_OCTET_STREAM);
-    converter.setSupportedMediaTypes(List.of(MediaType.APPLICATION_OCTET_STREAM));
+    converter.setSupportedMediaTypes(MediaType.APPLICATION_OCTET_STREAM);
     var result = this.converter.read(Msg.class, inputMessage);
     assertThat(result).isEqualTo(this.testMsg);
   }

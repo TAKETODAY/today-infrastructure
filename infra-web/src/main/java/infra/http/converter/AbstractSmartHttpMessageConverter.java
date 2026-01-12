@@ -42,23 +42,6 @@ public abstract class AbstractSmartHttpMessageConverter<T> extends AbstractHttpM
         implements SmartHttpMessageConverter<T> {
 
   /**
-   * Construct an {@code AbstractSmartHttpMessageConverter} with no supported media types.
-   *
-   * @see #setSupportedMediaTypes
-   */
-  protected AbstractSmartHttpMessageConverter() {
-  }
-
-  /**
-   * Construct an {@code AbstractSmartHttpMessageConverter} with one supported media type.
-   *
-   * @param supportedMediaType the supported media type
-   */
-  protected AbstractSmartHttpMessageConverter(MediaType supportedMediaType) {
-    super(supportedMediaType);
-  }
-
-  /**
    * Construct an {@code AbstractSmartHttpMessageConverter} with multiple supported media type.
    *
    * @param supportedMediaTypes the supported media types

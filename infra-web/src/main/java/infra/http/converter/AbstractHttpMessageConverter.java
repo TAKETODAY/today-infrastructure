@@ -23,7 +23,6 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,7 +39,7 @@ import infra.logging.Logger;
  * Abstract base class for most {@link HttpMessageConverter} implementations.
  *
  * <p>This base class adds support for setting supported {@code MediaTypes}, through the
- * {@link #setSupportedMediaTypes(List) supportedMediaTypes} bean property. It also adds
+ * {@link #setSupportedMediaTypes supportedMediaTypes} bean property. It also adds
  * support for {@code Content-Type} and {@code Content-Length} when writing to output messages.
  *
  * @param <T> the converted object type
@@ -57,8 +56,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 
   private List<MediaType> supportedMediaTypes = Collections.emptyList();
 
-  @Nullable
-  private Charset defaultCharset;
+  private @Nullable Charset defaultCharset;
 
   /**
    * Construct an {@code AbstractHttpMessageConverter} with no supported media types.
@@ -74,7 +72,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
    * @param supportedMediaTypes the supported media types
    */
   protected AbstractHttpMessageConverter(MediaType... supportedMediaTypes) {
-    setSupportedMediaTypes(Arrays.asList(supportedMediaTypes));
+    this(null, supportedMediaTypes);
   }
 
   /**
@@ -86,7 +84,21 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
    */
   protected AbstractHttpMessageConverter(@Nullable Charset defaultCharset, MediaType... supportedMediaTypes) {
     this.defaultCharset = defaultCharset;
-    setSupportedMediaTypes(Arrays.asList(supportedMediaTypes));
+    setSupportedMediaTypes(supportedMediaTypes);
+  }
+
+  /**
+   * Set the list of {@link MediaType} objects supported by this converter.
+   *
+   * @since 5.0
+   */
+  public void setSupportedMediaTypes(MediaType @Nullable ... supportedMediaTypes) {
+    if (supportedMediaTypes == null) {
+      this.supportedMediaTypes = Collections.emptyList();
+    }
+    else {
+      this.supportedMediaTypes = List.of(supportedMediaTypes);
+    }
   }
 
   /**
@@ -128,7 +140,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
   }
 
   /**
-   * Returns {@code true} if any of the {@linkplain #setSupportedMediaTypes(List)
+   * Returns {@code true} if any of the {@linkplain #setSupportedMediaTypes
    * supported} media types {@link MediaType#includes(MediaType) include} the
    * given media type.
    *
@@ -267,7 +279,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
    * Returns the default content type for the given type. Called when {@link #write}
    * is invoked without a specified content type parameter.
    * <p>By default, this returns the first element of the
-   * {@link #setSupportedMediaTypes(List) supportedMediaTypes} property, if any.
+   * {@link #setSupportedMediaTypes supportedMediaTypes} property, if any.
    * Can be overridden in subclasses.
    *
    * @param t the type to return the content type for

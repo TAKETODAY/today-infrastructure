@@ -46,7 +46,8 @@ public abstract class AbstractGenericHttpMessageConverter<T>
    *
    * @see #setSupportedMediaTypes
    */
-  protected AbstractGenericHttpMessageConverter() { }
+  protected AbstractGenericHttpMessageConverter() {
+  }
 
   /**
    * Construct an {@code AbstractGenericHttpMessageConverter} with multiple supported media type.

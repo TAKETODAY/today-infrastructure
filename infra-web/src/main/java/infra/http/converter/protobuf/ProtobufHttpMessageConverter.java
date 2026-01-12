@@ -32,7 +32,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 
 import infra.http.HttpInputMessage;
 import infra.http.HttpOutputMessage;
@@ -134,9 +133,9 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
       this.protobufFormatSupport = null;
     }
 
-    setSupportedMediaTypes(Arrays.asList(this.protobufFormatSupport != null
+    setSupportedMediaTypes(this.protobufFormatSupport != null
             ? this.protobufFormatSupport.supportedMediaTypes()
-            : new MediaType[] { PROTOBUF, PLUS_PROTOBUF, TEXT_PLAIN }));
+            : new MediaType[] { PROTOBUF, PLUS_PROTOBUF, TEXT_PLAIN });
 
     this.extensionRegistry = (extensionRegistry == null ? ExtensionRegistry.newInstance() : extensionRegistry);
   }
