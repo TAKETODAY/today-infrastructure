@@ -96,23 +96,24 @@ public class StringHttpMessageConverter extends AbstractHttpMessageConverter<Str
   }
 
   @Override
-  protected Long getContentLength(String str, @Nullable MediaType contentType) {
-    Charset charset = getContentTypeCharset(contentType);
+  protected @Nullable Long getContentLength(String str, HttpOutputMessage message) throws IOException {
+    Charset charset = getContentTypeCharset(message.getContentType());
     return (long) str.getBytes(charset).length;
   }
 
   @Override
-  public void addDefaultHeaders(HttpHeaders headers, String s, @Nullable MediaType type) throws IOException {
-    String contentTypeString = headers.getFirst(HttpHeaders.CONTENT_TYPE);
+  public void addDefaultHeaders(HttpOutputMessage message, String s, @Nullable MediaType type) throws IOException {
+    String contentTypeString = message.getContentTypeAsString();
     if (contentTypeString == null) {
       if (type != null && type.isConcrete() && (
               type.isCompatibleWith(MediaType.APPLICATION_JSON)
                       || type.isCompatibleWith(APPLICATION_PLUS_JSON))) {
         // Prevent charset parameter for JSON..
-        headers.setContentType(type);
+        message.setContentType(type);
       }
     }
-    super.addDefaultHeaders(headers, s, type);
+
+    super.addDefaultHeaders(message, s, type);
   }
 
   @Override

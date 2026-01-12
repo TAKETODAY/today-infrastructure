@@ -200,24 +200,14 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
   public final void write(final T t, @Nullable MediaType contentType, HttpOutputMessage outputMessage)
           throws IOException, HttpMessageNotWritableException {
 
-    final HttpHeaders headers = outputMessage.getHeaders();
-    addDefaultHeaders(headers, t, contentType);
+    addDefaultHeaders(outputMessage, t, contentType);
 
     if (outputMessage instanceof StreamingHttpOutputMessage streaming) {
       streaming.setBody(new StreamingHttpOutputMessage.Body() {
+
         @Override
         public void writeTo(OutputStream outputStream) throws IOException {
-          writeInternal(t, new HttpOutputMessage() {
-            @Override
-            public OutputStream getBody() {
-              return outputStream;
-            }
-
-            @Override
-            public HttpHeaders getHeaders() {
-              return headers;
-            }
-          });
+          writeInternal(t, new BodyHttpOutputMessage(outputMessage, outputStream));
         }
 
         @Override
@@ -236,9 +226,11 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
    * <p>This implementation delegates to {@link #getDefaultContentType(Object)} if a
    * content type was not provided, set if necessary the default character set, calls
    * {@link #getContentLength}, and sets the corresponding headers.
+   *
+   * @since 5.0
    */
-  public void addDefaultHeaders(HttpHeaders headers, T t, @Nullable MediaType contentType) throws IOException {
-    String contentTypeString = headers.getFirst(HttpHeaders.CONTENT_TYPE);
+  public void addDefaultHeaders(HttpOutputMessage message, T t, @Nullable MediaType contentType) throws IOException {
+    String contentTypeString = message.getContentTypeAsString();
     if (contentTypeString == null) {
       MediaType contentTypeToUse = contentType;
       if (contentType == null || !contentType.isConcrete()) {
@@ -257,16 +249,16 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
             contentTypeToUse = contentTypeToUse.withCharset(defaultCharset);
           }
         }
-        headers.setContentType(contentTypeToUse);
+        message.setContentType(contentTypeToUse);
       }
     }
 
     if (!MediaType.TEXT_EVENT_STREAM_VALUE.equals(contentTypeString)
-            && !headers.containsKey(HttpHeaders.TRANSFER_ENCODING)
-            && headers.getContentLength() < 0) {
-      Long contentLength = getContentLength(t, headers.getContentType());
+            && !message.containsHeader(HttpHeaders.TRANSFER_ENCODING)
+            && message.getContentLength() < 0) {
+      Long contentLength = getContentLength(t, message);
       if (contentLength != null) {
-        headers.setContentLength(contentLength);
+        message.setContentLength(contentLength);
       }
     }
   }
@@ -284,7 +276,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
   @Nullable
   protected MediaType getDefaultContentType(T t) throws IOException {
     List<MediaType> mediaTypes = getSupportedMediaTypes();
-    return (!mediaTypes.isEmpty() ? mediaTypes.get(0) : null);
+    return !mediaTypes.isEmpty() ? mediaTypes.get(0) : null;
   }
 
   /**
@@ -296,7 +288,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
    * @return the content length, or {@code null} if not known
    */
   @Nullable
-  protected Long getContentLength(T t, @Nullable MediaType contentType) throws IOException {
+  protected Long getContentLength(T t, HttpOutputMessage message) throws IOException {
     return null;
   }
 

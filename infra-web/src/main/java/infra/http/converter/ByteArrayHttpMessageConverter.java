@@ -62,7 +62,7 @@ public class ByteArrayHttpMessageConverter extends AbstractHttpMessageConverter<
   }
 
   @Override
-  protected Long getContentLength(byte[] bytes, @Nullable MediaType contentType) {
+  protected @Nullable Long getContentLength(byte[] bytes, HttpOutputMessage message) throws IOException {
     return (long) bytes.length;
   }
 

@@ -214,10 +214,11 @@ public class BufferedImageHttpMessageConverter implements HttpMessageConverter<B
           throws IOException, HttpMessageNotWritableException //
   {
     MediaType selectedContentType = getContentType(contentType);
-    outputMessage.getHeaders().setContentType(selectedContentType);
+    outputMessage.setContentType(selectedContentType);
 
     if (outputMessage instanceof StreamingHttpOutputMessage streaming) {
       streaming.setBody(new StreamingHttpOutputMessage.Body() {
+
         @Override
         public void writeTo(OutputStream outputStream) throws IOException {
           BufferedImageHttpMessageConverter.this.writeInternal(image, selectedContentType, outputStream);

@@ -1046,6 +1046,16 @@ public abstract class NettyRequestContext extends RequestContext {
     }
 
     @Override
+    public @Nullable String getHeader(String name) {
+      return nettyResponseHeaders.get(name);
+    }
+
+    @Override
+    public List<String> getHeaders(String name) {
+      return nettyResponseHeaders.getAll(name);
+    }
+
+    @Override
     public @Nullable String getContentTypeAsString() {
       return NettyRequestContext.this.getResponseContentType();
     }

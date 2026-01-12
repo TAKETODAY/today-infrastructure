@@ -118,9 +118,8 @@ public class ResourceHttpMessageConverter extends AbstractHttpMessageConverter<R
     return MediaTypeFactory.getMediaType(resource).orElse(MediaType.APPLICATION_OCTET_STREAM);
   }
 
-  @Nullable
   @Override
-  protected Long getContentLength(Resource resource, @Nullable MediaType contentType) throws IOException {
+  protected @Nullable Long getContentLength(Resource resource, HttpOutputMessage message) throws IOException {
     // Don't try to determine contentLength on InputStreamResource - cannot be read afterwards...
     // Note: custom InputStreamResource subclasses could provide a pre-calculated content length!
     if (InputStreamResource.class == resource.getClass()) {
