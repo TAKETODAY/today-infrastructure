@@ -48,6 +48,7 @@ import infra.app.test.context.assertj.AssertableApplicationContext;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.app.test.context.runner.ContextConsumer;
 import infra.context.ApplicationContext;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
@@ -87,10 +88,10 @@ import infra.web.accept.MissingApiVersionException;
 import infra.web.accept.StandardApiVersionDeprecationHandler;
 import infra.web.async.WebAsyncManagerFactory;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
-import infra.webmvc.config.annotation.AsyncSupportConfigurer;
-import infra.webmvc.config.annotation.CorsRegistry;
-import infra.webmvc.config.annotation.ResourceHandlerRegistry;
-import infra.webmvc.config.annotation.WebMvcConfigurer;
+import infra.web.config.annotation.AsyncSupportConfigurer;
+import infra.web.config.annotation.CorsRegistry;
+import infra.web.config.annotation.ResourceHandlerRegistry;
+import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.handler.AbstractHandlerExceptionHandler;
 import infra.web.handler.CompositeHandlerExceptionHandler;
 import infra.web.handler.ReturnValueHandlerManager;
@@ -115,7 +116,7 @@ import infra.web.resource.ResourceTransformer;
 import infra.web.resource.VersionResourceResolver;
 import infra.web.resource.VersionStrategy;
 import infra.web.server.WebServerFactoryCustomizerBeanPostProcessor;
-import infra.web.server.context.AnnotationConfigWebServerApplicationContext;
+import infra.web.server.support.StandardNettyWebEnvironment;
 import infra.web.view.AbstractView;
 import infra.web.view.ContentNegotiatingViewResolver;
 import infra.web.view.View;
@@ -132,11 +133,14 @@ import static org.mockito.Mockito.mock;
  */
 class WebMvcAutoConfigurationTests {
 
-  private final ApplicationContextRunner contextRunner =
-          ApplicationContextRunner.forProvider(AnnotationConfigWebServerApplicationContext::new)
-                  .withConfiguration(AutoConfigurations.of(WebMvcAutoConfiguration.class,// RandomPortWebServerConfig.class,
-                          HttpMessageConvertersAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class))
-                  .withUserConfiguration(Config.class);
+  private final ApplicationContextRunner contextRunner = ApplicationContextRunner.forProvider(() -> {
+            AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+            context.setEnvironment(new StandardNettyWebEnvironment());
+            return context;
+          })
+          .withConfiguration(AutoConfigurations.of(WebMvcAutoConfiguration.class,
+                  HttpMessageConvertersAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class))
+          .withUserConfiguration(Config.class);
 
   @Test
   void handlerAdaptersCreated() {

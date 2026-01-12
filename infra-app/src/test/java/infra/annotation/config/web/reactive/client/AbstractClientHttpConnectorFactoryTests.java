@@ -48,9 +48,8 @@ abstract class AbstractClientHttpConnectorFactoryTests {
   @Test
   @Disabled
   void insecureConnection() {
-    try (ConfigurableApplicationContext context = Application.forBuilder(RandomPortWebServerConfig.class,
-                    WebMvcAutoConfiguration.class)
-            .type(ApplicationType.NETTY_WEB)
+    try (ConfigurableApplicationContext context = Application.forBuilder(RandomPortWebServerConfig.class, WebMvcAutoConfiguration.class)
+            .type(ApplicationType.WEB)
             .run()) {
       WebServer webServer = context.unwrap(ConfigurableWebServerApplicationContext.class).getWebServer();
       int port = webServer.getPort();
@@ -71,7 +70,7 @@ abstract class AbstractClientHttpConnectorFactoryTests {
   void secureConnection() throws Exception {
     try (ConfigurableApplicationContext context = Application.forBuilder(
                     RandomPortWebServerConfig.class, WebMvcAutoConfiguration.class)
-            .type(ApplicationType.NETTY_WEB)
+            .type(ApplicationType.WEB)
             .run("--server.netty.ssl.enabled=false",
                     "--server.netty.ssl.privateKey=classpath:test-key.pem",
                     "--server.netty.ssl.keyPassword=password",

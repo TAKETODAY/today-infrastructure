@@ -29,6 +29,10 @@ import infra.annotation.config.http.ServerHttpMessageConvertersCustomizer;
 import infra.annotation.config.task.TaskExecutionAutoConfiguration;
 import infra.annotation.config.validation.ValidationAutoConfiguration;
 import infra.annotation.config.web.ConditionalOnEnabledResourceChain;
+import infra.annotation.config.web.WebProperties;
+import infra.annotation.config.web.WebProperties.Resources;
+import infra.annotation.config.web.WebProperties.Resources.Chain.Strategy;
+import infra.annotation.config.web.WebResourcesRuntimeHints;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.ObjectProvider;
 import infra.beans.factory.config.BeanDefinition;
@@ -52,36 +56,34 @@ import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters.ServerBuilder;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
+import infra.util.LambdaSafe;
 import infra.util.ReflectionUtils;
 import infra.validation.DefaultMessageCodesResolver;
 import infra.validation.MessageCodesResolver;
 import infra.validation.Validator;
+import infra.web.DispatcherHandler;
 import infra.web.HandlerExceptionHandler;
 import infra.web.LocaleResolver;
 import infra.web.accept.ApiVersionDeprecationHandler;
 import infra.web.accept.ApiVersionParser;
 import infra.web.accept.ApiVersionResolver;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
-import infra.webmvc.config.WebMvcProperties.ApiVersion.Use;
-import infra.webmvc.config.WebMvcProperties.Format;
-import infra.webmvc.config.WebProperties.Resources;
-import infra.webmvc.config.WebProperties.Resources.Chain.Strategy;
-import infra.webmvc.config.annotation.ApiVersionConfigurer;
-import infra.webmvc.config.annotation.AsyncSupportConfigurer;
-import infra.webmvc.config.annotation.CompositeWebMvcConfigurer;
-import infra.webmvc.config.annotation.ContentNegotiationConfigurer;
-import infra.webmvc.config.annotation.CorsRegistry;
-import infra.webmvc.config.annotation.InterceptorRegistry;
-import infra.webmvc.config.annotation.PathMatchConfigurer;
-import infra.webmvc.config.annotation.ResourceChainRegistration;
-import infra.webmvc.config.annotation.ResourceHandlerRegistration;
-import infra.webmvc.config.annotation.ResourceHandlerRegistry;
-import infra.webmvc.config.annotation.ViewControllerRegistry;
-import infra.webmvc.config.annotation.ViewResolverRegistry;
-import infra.webmvc.config.annotation.WebMvcConfigurationSupport;
-import infra.webmvc.config.annotation.WebMvcConfigurer;
-import infra.webmvc.config.format.DateTimeFormatters;
-import infra.webmvc.config.format.WebConversionService;
+import infra.web.config.annotation.ApiVersionConfigurer;
+import infra.web.config.annotation.AsyncSupportConfigurer;
+import infra.web.config.annotation.CompositeWebMvcConfigurer;
+import infra.web.config.annotation.ContentNegotiationConfigurer;
+import infra.web.config.annotation.CorsRegistry;
+import infra.web.config.annotation.InterceptorRegistry;
+import infra.web.config.annotation.PathMatchConfigurer;
+import infra.web.config.annotation.ResourceChainRegistration;
+import infra.web.config.annotation.ResourceHandlerRegistration;
+import infra.web.config.annotation.ResourceHandlerRegistry;
+import infra.web.config.annotation.ViewControllerRegistry;
+import infra.web.config.annotation.ViewResolverRegistry;
+import infra.web.config.annotation.WebMvcConfigurationSupport;
+import infra.web.config.annotation.WebMvcConfigurer;
+import infra.web.config.format.DateTimeFormatters;
+import infra.web.config.format.WebConversionService;
 import infra.web.context.support.RequestHandledEventPublisher;
 import infra.web.handler.AbstractHandlerExceptionHandler;
 import infra.web.handler.ReturnValueHandlerManager;
@@ -95,7 +97,11 @@ import infra.web.resource.ResourceResolver;
 import infra.web.resource.VersionResourceResolver;
 import infra.web.view.BeanNameViewResolver;
 import infra.web.view.View;
+import infra.webmvc.DispatcherHandlerCustomizer;
+import infra.webmvc.config.WebMvcProperties.ApiVersion.Use;
+import infra.webmvc.config.WebMvcProperties.Format;
 
+import static infra.annotation.ConditionalOnWebApplication.Type.MVC;
 import static infra.annotation.config.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
 
 /**
@@ -115,7 +121,7 @@ import static infra.annotation.config.task.TaskExecutionAutoConfiguration.APPLIC
         TaskExecutionAutoConfiguration.class,
         ValidationAutoConfiguration.class
 })
-@ConditionalOnWebApplication
+@ConditionalOnWebApplication(type = MVC)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE + 10)
 @ImportRuntimeHints(WebResourcesRuntimeHints.class)
@@ -237,6 +243,20 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     AcceptHeaderLocaleResolver localeResolver = new AcceptHeaderLocaleResolver();
     localeResolver.setDefaultLocale(this.webProperties.locale);
     return localeResolver;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Component
+  @ConditionalOnMissingBean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  public static DispatcherHandler dispatcherHandler(ApplicationContext context, List<DispatcherHandlerCustomizer<?>> customizers, WebMvcProperties properties) {
+    DispatcherHandler handler = new DispatcherHandler(context);
+    handler.setThrowExceptionIfNoHandlerFound(properties.throwExceptionIfNoHandlerFound);
+    handler.setEnableLoggingRequestDetails(properties.logRequestDetails);
+    LambdaSafe.callbacks(DispatcherHandlerCustomizer.class, customizers, handler)
+            .withLogger(WebMvcAutoConfiguration.class)
+            .invoke(customizer -> customizer.customize(handler));
+    return handler;
   }
 
   @Override

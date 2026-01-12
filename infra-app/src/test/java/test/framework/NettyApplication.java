@@ -65,7 +65,7 @@ public class NettyApplication {
 
   public static void main(String[] args) {
     Application.forBuilder(NettyApplication.class)
-            .type(ApplicationType.NETTY_WEB)
+            .type(ApplicationType.WEB)
             .properties(Map.of("logging.level.root", "debug"))
             .initializers(ConditionEvaluationReportLoggingListener.forLoggingLevel(LogLevel.INFO))
             .run(args);

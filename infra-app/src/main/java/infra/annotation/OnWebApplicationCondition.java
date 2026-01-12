@@ -74,9 +74,9 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
     }
     ClassNameFilter missingClassFilter = ClassNameFilter.MISSING;
     ConditionMessage.Builder message = ConditionMessage.forCondition(ConditionalOnWebApplication.class);
-    if (ConditionalOnWebApplication.Type.NETTY.name().equals(type)) {
-      if (missingClassFilter.matches(ApplicationType.NETTY_WEB_INDICATOR_CLASS, getBeanClassLoader())) {
-        return ConditionOutcome.noMatch(message.didNotFind("netty web application classes").atAll());
+    if (ConditionalOnWebApplication.Type.MVC.name().equals(type)) {
+      if (missingClassFilter.matches(ApplicationType.WEB_INDICATOR_CLASS, getBeanClassLoader())) {
+        return ConditionOutcome.noMatch(message.didNotFind("Web MVC application classes").atAll());
       }
     }
     else if (ConditionalOnWebApplication.Type.REACTIVE.name().equals(type)) {
@@ -84,9 +84,9 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
         return ConditionOutcome.noMatch(message.didNotFind("reactive web application classes").atAll());
       }
     }
-    if (missingClassFilter.matches(ApplicationType.NETTY_WEB_INDICATOR_CLASS, getBeanClassLoader())
+    if (missingClassFilter.matches(ApplicationType.WEB_INDICATOR_CLASS, getBeanClassLoader())
             && missingClassFilter.matches(ApplicationType.REACTOR_INDICATOR_CLASS, getBeanClassLoader())) {
-      return ConditionOutcome.noMatch(message.didNotFind("reactive, netty web application classes").atAll());
+      return ConditionOutcome.noMatch(message.didNotFind("reactive, mvc web application classes").atAll());
     }
     return null;
   }
@@ -106,7 +106,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
 
   private ConditionOutcome isWebApplication(ConditionContext context, AnnotatedTypeMetadata metadata, boolean required) {
     return switch (deduceType(metadata)) {
-      case NETTY -> isNettyWebApplication(context);
+      case MVC -> isMvcWebApplication(context);
       case REACTIVE -> isReactiveWebApplication(context);
       default -> isAnyApplication(context, required);
     };
@@ -115,16 +115,16 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
   private ConditionOutcome isAnyApplication(ConditionContext context, boolean required) {
     var message = ConditionMessage.forCondition(ConditionalOnWebApplication.class, required ? "(required)" : "");
 
-    ConditionOutcome nettyOutcome = isNettyWebApplication(context);
-    if (nettyOutcome.isMatch() && required) {
-      return new ConditionOutcome(nettyOutcome.isMatch(), message.because(nettyOutcome.getMessage()));
+    ConditionOutcome mvcOutcome = isMvcWebApplication(context);
+    if (mvcOutcome.isMatch() && required) {
+      return new ConditionOutcome(mvcOutcome.isMatch(), message.because(mvcOutcome.getMessage()));
     }
     ConditionOutcome reactiveOutcome = isReactiveWebApplication(context);
     if (reactiveOutcome.isMatch() && required) {
       return new ConditionOutcome(reactiveOutcome.isMatch(), message.because(reactiveOutcome.getMessage()));
     }
-    return new ConditionOutcome(reactiveOutcome.isMatch() || nettyOutcome.isMatch(),
-            message.because(nettyOutcome.getMessage())
+    return new ConditionOutcome(reactiveOutcome.isMatch() || mvcOutcome.isMatch(),
+            message.because(mvcOutcome.getMessage())
                     .append("and").append(reactiveOutcome.getMessage()));
   }
 
@@ -152,28 +152,24 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
   }
 
   /**
-   * web netty classes
+   * web classes
    */
-  private ConditionOutcome isNettyWebApplication(ConditionContext context) {
+  private ConditionOutcome isMvcWebApplication(ConditionContext context) {
     var message = ConditionMessage.forCondition("");
     ClassNameFilter missingClassFilter = ClassNameFilter.MISSING;
     if (missingClassFilter.matches(ApplicationType.WEB_INDICATOR_CLASS, context.getClassLoader())) {
       return ConditionOutcome.noMatch(message.didNotFind("web application classes").atAll());
     }
 
-    if (missingClassFilter.matches(ApplicationType.NETTY_WEB_INDICATOR_CLASS, context.getClassLoader())) {
-      return ConditionOutcome.noMatch(message.didNotFind("netty classes").atAll());
-    }
-
     if (context.getEnvironment() instanceof ConfigurableNettyWebEnvironment) {
-      return ConditionOutcome.match(message.foundExactly("NettyWebConfigurableEnvironment"));
+      return ConditionOutcome.match(message.foundExactly("ConfigurableWebEnvironment"));
     }
 
     ResourceLoader resourceLoader = context.getResourceLoader();
     if (resourceLoader instanceof GenericWebServerApplicationContext) {
       return ConditionOutcome.match(message.foundExactly("GenericWebServerApplicationContext"));
     }
-    return ConditionOutcome.noMatch(message.because("not a netty web application"));
+    return ConditionOutcome.noMatch(message.because("not a web application"));
   }
 
   private Type deduceType(AnnotatedTypeMetadata metadata) {

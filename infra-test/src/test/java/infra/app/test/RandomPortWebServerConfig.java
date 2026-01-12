@@ -16,15 +16,15 @@
 
 package infra.app.test;
 
-import infra.annotation.config.web.ErrorMvcAutoConfiguration;
-import infra.annotation.config.web.WebMvcAutoConfiguration;
-import infra.annotation.config.web.netty.NettyWebServerFactoryAutoConfiguration;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Import;
 import infra.stereotype.Component;
 import infra.web.server.WebServerFactoryCustomizer;
 import infra.web.server.WebServerFactoryCustomizerBeanPostProcessor;
+import infra.web.server.config.NettyWebServerFactoryAutoConfiguration;
 import infra.web.server.support.NettyWebServerFactory;
+import infra.webmvc.config.ErrorMvcAutoConfiguration;
+import infra.webmvc.config.WebMvcAutoConfiguration;
 
 @Import({ NettyWebServerFactoryAutoConfiguration.class, WebMvcAutoConfiguration.class, ErrorMvcAutoConfiguration.class })
 public class RandomPortWebServerConfig {

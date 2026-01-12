@@ -1,0 +1,11 @@
+description = "Infra application freemarker module"
+
+dependencies {
+  api project(":infra-config")
+
+  optional project(":infra-webmvc")
+  optional project(":module:infra-app-webmvc")
+
+  optional 'org.freemarker:freemarker'
+
+}

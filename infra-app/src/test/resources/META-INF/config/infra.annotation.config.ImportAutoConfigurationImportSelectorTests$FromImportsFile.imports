@@ -1,2 +1,2 @@
-infra.annotation.config.freemarker.FreeMarkerAutoConfiguration
+infra.freemarker.config.FreeMarkerAutoConfiguration
 infra.annotation.config.missing.MissingAutoConfiguration

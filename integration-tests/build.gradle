@@ -11,6 +11,10 @@ dependencies {
   testImplementation project(':infra-app')
   testImplementation project(':infra-test-support')
 
+  testImplementation project(':module:infra-app-webmvc')
+  testImplementation project(':module:infra-app-freemarker')
+  testImplementation project(':module:infra-app-netty-server')
+
   testImplementation(project(":infra-aop"))
   testImplementation(project(":infra-beans"))
   testImplementation(project(":infra-context"))

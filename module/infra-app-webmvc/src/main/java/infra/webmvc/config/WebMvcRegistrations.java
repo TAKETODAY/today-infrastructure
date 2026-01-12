@@ -20,7 +20,7 @@ package infra.webmvc.config;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.webmvc.config.annotation.WebMvcConfigurationSupport;
+import infra.web.config.annotation.WebMvcConfigurationSupport;
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import infra.web.handler.method.RequestMappingHandlerAdapter;
 import infra.web.handler.method.RequestMappingHandlerMapping;

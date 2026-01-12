@@ -73,7 +73,7 @@ class ImportAutoConfigurationImportSelectorTests {
     AnnotationMetadata annotationMetadata = getAnnotationMetadata(FromImportsFile.class);
     String[] imports = this.importSelector.selectImports(annotationMetadata);
     assertThat(imports).containsExactly(
-        "infra.annotation.config.freemarker.FreeMarkerAutoConfiguration",
+        "infra.freemarker.config.FreeMarkerAutoConfiguration",
         "infra.annotation.config.missing.MissingAutoConfiguration");
   }
 
@@ -83,7 +83,7 @@ class ImportAutoConfigurationImportSelectorTests {
         FromImportsFileIgnoresMissingOptionalClasses.class);
     String[] imports = this.importSelector.selectImports(annotationMetadata);
     assertThat(imports).containsExactly(
-        "infra.annotation.config.freemarker.FreeMarkerAutoConfiguration",
+        "infra.freemarker.config.FreeMarkerAutoConfiguration",
         "infra.annotation.config.thymeleaf.ThymeleafAutoConfiguration");
   }
 

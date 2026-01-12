@@ -44,7 +44,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import infra.annotation.config.web.RandomPortWebServerConfig;
-import infra.annotation.config.web.WebMvcAutoConfiguration;
 import infra.aot.AotDetector;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
@@ -432,7 +431,7 @@ class ApplicationTests {
   @Test
   void defaultApplicationContextForWeb() {
     Application application = new Application(ExampleWebConfig.class);
-    application.setApplicationType(ApplicationType.NETTY_WEB);
+    application.setApplicationType(ApplicationType.WEB);
     this.context = application.run();
     assertThat(this.context).isInstanceOf(AnnotationConfigWebServerApplicationContext.class);
   }
@@ -448,7 +447,7 @@ class ApplicationTests {
   @Test
   void environmentForWeb() {
     Application application = new Application(ExampleWebConfig.class);
-    application.setApplicationType(ApplicationType.NETTY_WEB);
+    application.setApplicationType(ApplicationType.WEB);
     this.context = application.run();
     assertThat(this.context.getEnvironment()).isInstanceOf(ApplicationNettyWebEnvironment.class);
   }
@@ -1114,7 +1113,7 @@ class ApplicationTests {
   @Test
   void webApplicationConfiguredViaAPropertyHasTheCorrectTypeOfContextAndEnvironment() {
     ConfigurableApplicationContext context = new Application(ExampleWebConfig.class)
-            .run("--app.main.application-type=netty_web");
+            .run("--app.main.application-type=web");
     assertThat(context).isInstanceOf(ApplicationContext.class);
     assertThat(context.getEnvironment()).isInstanceOf(ApplicationNettyWebEnvironment.class);
   }

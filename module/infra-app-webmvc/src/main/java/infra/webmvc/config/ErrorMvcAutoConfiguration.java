@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import infra.annotation.ConditionalOnWebApplication;
+import infra.annotation.config.web.WebProperties;
 import infra.aop.framework.autoproxy.AutoProxyUtils;
 import infra.beans.BeansException;
 import infra.beans.factory.config.BeanFactoryPostProcessor;
@@ -61,6 +62,8 @@ import infra.web.util.HtmlUtils;
 import infra.web.view.BeanNameViewResolver;
 import infra.web.view.View;
 
+import static infra.annotation.ConditionalOnWebApplication.Type.MVC;
+
 /**
  * {@link EnableAutoConfiguration Auto-configuration} to render errors via an MVC error
  * controller.
@@ -74,7 +77,7 @@ import infra.web.view.View;
  * @since 4.0
  */
 // Load before the main WebMvcAutoConfiguration so that the error View is available
-@ConditionalOnWebApplication
+@ConditionalOnWebApplication(type = MVC)
 @ConditionalOnClass({ DispatcherHandler.class })
 @DisableDIAutoConfiguration(before = WebMvcAutoConfiguration.class)
 @EnableConfigurationProperties({ ServerProperties.class, WebMvcProperties.class })
@@ -105,8 +108,7 @@ public final class ErrorMvcAutoConfiguration {
 
     @Component
     @ConditionalOnMissingBean(ErrorViewResolver.class)
-    DefaultErrorViewResolver conventionErrorViewResolver(
-            ApplicationContext applicationContext, WebProperties webProperties) {
+    static DefaultErrorViewResolver conventionErrorViewResolver(ApplicationContext applicationContext, WebProperties webProperties) {
       return new DefaultErrorViewResolver(applicationContext, webProperties.resources.staticLocations);
     }
 

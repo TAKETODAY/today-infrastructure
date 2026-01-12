@@ -100,7 +100,7 @@ public class InfraApplicationContextLoader extends AbstractContextLoader {
     application.getSources().addAll(Arrays.asList(configLocations));
     List<ApplicationContextInitializer> initializers = getInitializers(config, application);
     if (config instanceof WebMergedContextConfiguration) {
-      application.setApplicationType(ApplicationType.NETTY_WEB);
+      application.setApplicationType(ApplicationType.WEB);
       if (!isEmbeddedWebEnvironment(config)) {
         new WebConfigurer().configure(config, application, initializers);
       }

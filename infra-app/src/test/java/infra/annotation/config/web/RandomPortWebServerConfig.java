@@ -16,9 +16,7 @@
 
 package infra.annotation.config.web;
 
-import infra.annotation.config.web.netty.NettyWebServerFactoryAutoConfiguration;
 import infra.context.annotation.Bean;
-import infra.context.annotation.Import;
 import infra.stereotype.Component;
 import infra.web.server.WebServerFactoryCustomizer;
 import infra.web.server.WebServerFactoryCustomizerBeanPostProcessor;
@@ -28,7 +26,7 @@ import infra.web.server.support.NettyWebServerFactory;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/4/21 11:38
  */
-@Import({ NettyWebServerFactoryAutoConfiguration.class, WebMvcAutoConfiguration.class, ErrorMvcAutoConfiguration.class })
+//@Import({ NettyWebServerFactoryAutoConfiguration.class, WebMvcAutoConfiguration.class, ErrorMvcAutoConfiguration.class })
 public class RandomPortWebServerConfig {
 
   @Bean

@@ -30,7 +30,7 @@ import infra.web.server.ServerProperties;
 import reactor.netty.http.server.HttpServer;
 
 /**
- * {@link EnableAutoConfiguration Auto-configuration} for embedded servlet and reactive
+ * {@link EnableAutoConfiguration Auto-configuration} for reactive
  * web servers customizations.
  *
  * @author Phillip Webb

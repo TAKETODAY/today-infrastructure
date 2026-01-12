@@ -103,7 +103,7 @@ public interface ApplicationContextFactory {
       }
 
       // fallback to defaults
-      if (applicationType == ApplicationType.NETTY_WEB) {
+      if (applicationType == ApplicationType.WEB) {
         if (AotDetector.useGeneratedArtifacts()) {
           return new GenericWebServerApplicationContext();
         }

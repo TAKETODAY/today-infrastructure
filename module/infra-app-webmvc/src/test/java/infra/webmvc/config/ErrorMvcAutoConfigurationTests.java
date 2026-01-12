@@ -27,18 +27,17 @@ import java.util.Map;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.app.test.system.CapturedOutput;
 import infra.app.test.system.OutputCaptureExtension;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockRequestContext;
-import infra.web.server.context.AnnotationConfigWebServerApplicationContext;
 import infra.web.server.error.ErrorAttributeOptions;
 import infra.web.server.error.ErrorAttributeOptions.Include;
 import infra.web.server.error.ErrorAttributes;
+import infra.web.server.support.StandardNettyWebEnvironment;
 import infra.web.util.WebUtils;
 import infra.web.view.View;
-import infra.webmvc.config.ErrorMvcAutoConfiguration;
-import infra.webmvc.config.WebMvcAutoConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -51,9 +50,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(OutputCaptureExtension.class)
 class ErrorMvcAutoConfigurationTests {
 
-  private final ApplicationContextRunner contextRunner = ApplicationContextRunner.forProvider(AnnotationConfigWebServerApplicationContext::new)
-          .withConfiguration(AutoConfigurations.of(//RandomPortWebServerConfig.class,
-                  WebMvcAutoConfiguration.class, ErrorMvcAutoConfiguration.class));
+  private final ApplicationContextRunner contextRunner = ApplicationContextRunner.forProvider(() -> {
+            AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+            context.setEnvironment(new StandardNettyWebEnvironment());
+            return context;
+          })
+          .withConfiguration(AutoConfigurations.of(WebMvcAutoConfiguration.class, ErrorMvcAutoConfiguration.class));
 
   @Test
   void renderContainsViewWithExceptionDetails() {

@@ -60,9 +60,9 @@ public @interface ConditionalOnWebApplication {
     ANY,
 
     /**
-     * Only netty-based web application will match.
+     * Only WEB MVC web application will match.
      */
-    NETTY,
+    MVC,
 
     /**
      * Only reactive-based web application will match.

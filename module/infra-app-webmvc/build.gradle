@@ -1,4 +1,4 @@
-description = "Infra application WEB MVC module"
+description = "Infra application Web MVC module"
 
 dependencies {
   api(project(":infra-webmvc"))
@@ -14,6 +14,9 @@ dependencies {
   testImplementation project(":infra-test")
   testImplementation project(':infra-test-support')
   testImplementation project(":infra-webmvc-mock")
+  testImplementation "jakarta.validation:jakarta.validation-api"
   testImplementation 'org.hibernate.validator:hibernate-validator'
+  testRuntimeOnly "org.glassfish:jakarta.el"
 
+  testImplementation 'ch.qos.logback:logback-classic'
 }

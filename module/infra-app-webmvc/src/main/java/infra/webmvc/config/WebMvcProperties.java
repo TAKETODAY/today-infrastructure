@@ -29,8 +29,8 @@ import infra.context.properties.ConfigurationProperties;
 import infra.context.properties.bind.Name;
 import infra.http.MediaType;
 import infra.validation.DefaultMessageCodesResolver;
+import infra.web.config.annotation.ViewControllerRegistry;
 import infra.web.view.UrlBasedViewResolver;
-import infra.webmvc.config.annotation.ViewControllerRegistry;
 
 /**
  * @author Phillip Webb

@@ -44,16 +44,16 @@ class MissingWebServerFactoryBeanFailureAnalyzer
             "Web application could not be started as there was no " + cause.getBeanType().getName()
                     + " bean defined in the context.",
             "Check your application's dependencies for a supported "
-                    + getApplicationType(cause) + " web server.\n"
+                    + getApplicationType(cause) + " server.\n"
                     + "Check the configured web application type.",
             cause);
   }
 
   private String getApplicationType(MissingWebServerFactoryBeanException cause) {
     if (cause.getWebServerFactoryClass() == ReactiveWebServerFactory.class) {
-      return "reactive_web";
+      return "reactive web";
     }
-    return "netty_web";
+    return "web";
   }
 
   @Override
