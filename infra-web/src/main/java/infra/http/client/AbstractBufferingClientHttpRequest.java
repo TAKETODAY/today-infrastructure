@@ -79,7 +79,7 @@ public abstract class AbstractBufferingClientHttpRequest extends AbstractClientH
     if (bufferedOutput.length > 0) {
       long contentLength = request.getContentLength();
       if (contentLength > -1 && contentLength != bufferedOutput.length) {
-        request.getHeaders().setContentLength(bufferedOutput.length);
+        request.setContentLength(bufferedOutput.length);
       }
       StreamingHttpOutputMessage.writeBody(request, bufferedOutput);
     }

@@ -59,6 +59,76 @@ public interface HttpOutputMessage extends HttpMessage {
   }
 
   /**
+   * Sets the length of the content body in the response , this method sets the
+   * HTTP Content-Length header.
+   *
+   * @param length a long specifying the length of the content being returned to the
+   * client; sets the Content-Length header
+   * @since 5.0
+   */
+  default void setContentLength(long length) {
+    getHeaders().setContentLength(length);
+  }
+
+  /**
+   * Sets a response header with the given name and value. If the
+   * header had already been set, the new value overwrites the
+   * previous one.
+   *
+   * @param name the name of the header
+   * @param value the header value If it contains octet string,
+   * it should be encoded according to RFC 2047
+   * (<a href="http://www.ietf.org/rfc/rfc2047.txt">RFC 2047</a>)
+   * @see HttpHeaders#setOrRemove
+   * @since 5.0
+   */
+  default void setHeader(String name, @Nullable String value) {
+    getHeaders().setOrRemove(name, value);
+  }
+
+  /**
+   * merge headers to response http-headers
+   *
+   * @since 5.0
+   */
+  default void setHeaders(@Nullable HttpHeaders headers) {
+    getHeaders().setAll(headers);
+  }
+
+  /**
+   * Add a response header with the given name and value.
+   *
+   * @param name the name of the header
+   * @param value the header value If it contains octet string,
+   * it should be encoded according to RFC 2047
+   * (<a href="http://www.ietf.org/rfc/rfc2047.txt">RFC 2047</a>)
+   * @see HttpHeaders#add(String, String)
+   * @since 5.0
+   */
+  default void addHeader(String name, @Nullable String value) {
+    getHeaders().add(name, value);
+  }
+
+  /**
+   * merge headers to response http-headers
+   *
+   * @since 5.0
+   */
+  default void addHeaders(@Nullable HttpHeaders headers) {
+    getHeaders().addAll(headers);
+  }
+
+  /**
+   * Removes the header with the specified name from the response headers.
+   *
+   * @param name the name of the header to be removed
+   * @since 5.0
+   */
+  default boolean removeHeader(String name) {
+    return getHeaders().remove(name) != null;
+  }
+
+  /**
    * Whether this message supports zero-copy file transfers.
    * <p>Default implementation returns {@code false}.
    *

@@ -290,11 +290,6 @@ public abstract class NettyRequestContext extends RequestContext {
     return request.headers().get(DefaultHttpHeaders.CONTENT_TYPE);
   }
 
-  @Override
-  public boolean containsResponseHeader(String name) {
-    return nettyResponseHeaders.contains(name);
-  }
-
   @Nullable
   @Override
   public String getResponseContentType() {
@@ -311,6 +306,49 @@ public abstract class NettyRequestContext extends RequestContext {
   @Override
   protected infra.http.HttpHeaders createResponseHeaders() {
     return new Netty4HttpHeaders(nettyResponseHeaders);
+  }
+
+  @Override
+  public void setHeader(String name, @Nullable String value) {
+    nettyResponseHeaders.set(name, value);
+  }
+
+  @Override
+  public void setHeaders(infra.http.@Nullable HttpHeaders headers) {
+    if (CollectionUtils.isNotEmpty(headers)) {
+      for (var entry : headers.entrySet()) {
+        nettyResponseHeaders.set(entry.getKey(), entry.getValue());
+      }
+    }
+  }
+
+  @Override
+  public void addHeader(String name, @Nullable String value) {
+    nettyResponseHeaders.add(name, value);
+  }
+
+  @Override
+  public void addHeaders(infra.http.@Nullable HttpHeaders headers) {
+    if (CollectionUtils.isNotEmpty(headers)) {
+      for (var entry : headers.entrySet()) {
+        nettyResponseHeaders.add(entry.getKey(), entry.getValue());
+      }
+    }
+  }
+
+  @Override
+  public boolean removeHeader(String name) {
+    if (!super.removeHeader(name)) {
+      boolean contains = nettyResponseHeaders.contains(name);
+      nettyResponseHeaders.remove(name);
+      return contains;
+    }
+    return true;
+  }
+
+  @Override
+  public boolean containsResponseHeader(String name) {
+    return nettyResponseHeaders.contains(name);
   }
 
   @Override
@@ -945,6 +983,41 @@ public abstract class NettyRequestContext extends RequestContext {
     @Override
     public void setContentType(@Nullable MediaType mediaType) {
       NettyRequestContext.this.setContentType(mediaType);
+    }
+
+    @Override
+    public void setContentLength(long length) {
+      NettyRequestContext.this.setContentLength(length);
+    }
+
+    @Override
+    public void setHeader(String name, @Nullable String value) {
+      NettyRequestContext.this.setHeader(name, value);
+    }
+
+    @Override
+    public void setHeaders(infra.http.@Nullable HttpHeaders headers) {
+      NettyRequestContext.this.setHeaders(headers);
+    }
+
+    @Override
+    public void addHeader(String name, @Nullable String value) {
+      NettyRequestContext.this.addHeader(name, value);
+    }
+
+    @Override
+    public void addHeaders(infra.http.@Nullable HttpHeaders headers) {
+      NettyRequestContext.this.addHeaders(headers);
+    }
+
+    @Override
+    public boolean removeHeader(String name) {
+      return NettyRequestContext.this.removeHeader(name);
+    }
+
+    @Override
+    public boolean containsHeader(String name) {
+      return NettyRequestContext.this.containsResponseHeader(name);
     }
 
     @Override

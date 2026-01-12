@@ -2148,6 +2148,15 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   /**
+   * Replace all headers
+   *
+   * @since 5.0
+   */
+  public void setHeaders(@Nullable HttpHeaders headers) {
+    responseHeaders().setAll(headers);
+  }
+
+  /**
    * Add a response header with the given name and value.
    *
    * @param name the name of the header
@@ -2191,10 +2200,11 @@ public abstract class RequestContext extends AttributeAccessorSupport
    *
    * @param name the name of the header to be removed
    */
-  public void removeHeader(String name) {
+  public boolean removeHeader(String name) {
     if (responseHeaders != null) {
-      responseHeaders.remove(name);
+      return responseHeaders.remove(name) != null;
     }
+    return false;
   }
 
   /**

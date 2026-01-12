@@ -19,7 +19,6 @@
 package infra.http.converter.protobuf;
 
 import com.google.protobuf.Message;
-import com.google.protobuf.util.JsonFormat;
 
 import org.junit.jupiter.api.Test;
 
@@ -41,8 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class ProtobufJsonFormatHttpMessageConverterTests {
 
-  private final ProtobufHttpMessageConverter converter = new ProtobufJsonFormatHttpMessageConverter(
-          JsonFormat.parser(), JsonFormat.printer());
+  private final ProtobufHttpMessageConverter converter = new ProtobufJsonFormatHttpMessageConverter();
 
   private final Msg testMsg = Msg.newBuilder().setFoo("Foo").setBlah(SecondMsg.newBuilder().setBlah(123).build()).build();
   private final MediaType testPlusProtoMediaType = MediaType.parseMediaType("application/vnd.example.public.v1+x-protobuf");

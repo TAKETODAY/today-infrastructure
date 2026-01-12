@@ -34,7 +34,6 @@ import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
-import infra.http.HttpHeaders;
 import infra.http.HttpInputMessage;
 import infra.http.HttpOutputMessage;
 import infra.http.MediaType;
@@ -277,10 +276,9 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
    * before because it writes HTTP headers (making them read only).</p>
    */
   protected void setProtoHeader(HttpOutputMessage response, MessageOrBuilder message) {
-    HttpHeaders headers = response.getHeaders();
     Descriptors.Descriptor descriptorForType = message.getDescriptorForType();
-    headers.setOrRemove(X_PROTOBUF_SCHEMA_HEADER, descriptorForType.getFile().getName());
-    headers.setOrRemove(X_PROTOBUF_MESSAGE_HEADER, descriptorForType.getFullName());
+    response.setHeader(X_PROTOBUF_SCHEMA_HEADER, descriptorForType.getFile().getName());
+    response.setHeader(X_PROTOBUF_MESSAGE_HEADER, descriptorForType.getFullName());
   }
 
   @Override
@@ -316,8 +314,8 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
     private final JsonFormat.Printer printer;
 
     public ProtobufJavaUtilSupport(JsonFormat.@Nullable Parser parser, JsonFormat.@Nullable Printer printer) {
-      this.parser = (parser != null ? parser : JsonFormat.parser());
-      this.printer = (printer != null ? printer : JsonFormat.printer());
+      this.parser = parser != null ? parser : JsonFormat.parser();
+      this.printer = printer != null ? printer : JsonFormat.printer();
     }
 
     @Override
