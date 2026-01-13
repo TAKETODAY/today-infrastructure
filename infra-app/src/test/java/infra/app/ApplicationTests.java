@@ -34,7 +34,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +42,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import infra.annotation.config.web.RandomPortWebServerConfig;
 import infra.aot.AotDetector;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
@@ -85,7 +83,6 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.AnnotationConfigUtils;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.context.annotation.Import;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.Profile;
 import infra.context.event.ApplicationEventMulticaster;
@@ -110,21 +107,13 @@ import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.core.testfixture.DisabledIfInContinuousIntegration;
 import infra.format.support.ApplicationConversionService;
-import infra.http.server.reactive.HttpHandler;
 import infra.mock.env.MockEnvironment;
 import infra.stereotype.Component;
 import infra.test.classpath.ForkedClassPath;
-import infra.test.context.support.TestPropertySourceUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
-import infra.web.server.context.AnnotationConfigWebServerApplicationContext;
-import infra.web.server.context.WebServerApplicationContext;
-import infra.web.server.reactive.context.AnnotationConfigReactiveWebServerApplicationContext;
-import infra.web.server.reactive.context.ReactiveWebApplicationContext;
-import infra.web.server.reactive.support.ReactorNettyReactiveWebServerFactory;
 import jakarta.annotation.PostConstruct;
-import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -429,38 +418,6 @@ class ApplicationTests {
   }
 
   @Test
-  void defaultApplicationContextForWeb() {
-    Application application = new Application(ExampleWebConfig.class);
-    application.setApplicationType(ApplicationType.WEB);
-    this.context = application.run();
-    assertThat(this.context).isInstanceOf(AnnotationConfigWebServerApplicationContext.class);
-  }
-
-  @Test
-  void defaultApplicationContextForReactiveWeb() {
-    Application application = new Application(ExampleReactiveWebConfig.class);
-    application.setApplicationType(ApplicationType.REACTIVE_WEB);
-    this.context = application.run();
-    assertThat(this.context).isInstanceOf(AnnotationConfigReactiveWebServerApplicationContext.class);
-  }
-
-  @Test
-  void environmentForWeb() {
-    Application application = new Application(ExampleWebConfig.class);
-    application.setApplicationType(ApplicationType.WEB);
-    this.context = application.run();
-    assertThat(this.context.getEnvironment()).isInstanceOf(ApplicationWebEnvironment.class);
-  }
-
-  @Test
-  void environmentForReactiveWeb() {
-    Application application = new Application(ExampleReactiveWebConfig.class);
-    application.setApplicationType(ApplicationType.REACTIVE_WEB);
-    this.context = application.run();
-    assertThat(this.context.getEnvironment()).isInstanceOf(ApplicationReactiveWebEnvironment.class);
-  }
-
-  @Test
   void customEnvironment() {
     TestApplication application = new TestApplication(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NORMAL);
@@ -483,14 +440,14 @@ class ApplicationTests {
   @Test
   void customResourceLoaderFromConstructor() {
     ResourceLoader resourceLoader = new DefaultResourceLoader();
-    TestApplication application = new TestApplication(resourceLoader, ExampleWebConfig.class);
+    TestApplication application = new TestApplication(resourceLoader, ExampleConfig.class);
     this.context = application.run();
     then(application.getLoader()).should().setResourceLoader(resourceLoader);
   }
 
   @Test
   void customBeanNameGenerator() {
-    TestApplication application = new TestApplication(ExampleWebConfig.class);
+    TestApplication application = new TestApplication(ExampleConfig.class);
     BeanNameGenerator beanNameGenerator = new DefaultBeanNameGenerator();
     application.setBeanNameGenerator(beanNameGenerator);
     this.context = application.run();
@@ -501,7 +458,7 @@ class ApplicationTests {
 
   @Test
   void customBeanNameGeneratorWithNonWebApplication() {
-    TestApplication application = new TestApplication(ExampleWebConfig.class);
+    TestApplication application = new TestApplication(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NORMAL);
     BeanNameGenerator beanNameGenerator = new DefaultBeanNameGenerator();
     application.setBeanNameGenerator(beanNameGenerator);
@@ -816,13 +773,13 @@ class ApplicationTests {
 
   @Test
   void run() {
-    this.context = Application.run(ExampleWebConfig.class);
+    this.context = Application.run(ExampleConfig.class);
     assertThat(this.context).isNotNull();
   }
 
   @Test
   void runComponents() {
-    this.context = Application.run(new Class<?>[] { ExampleWebConfig.class, Object.class }, new String[0]);
+    this.context = Application.run(new Class<?>[] { ExampleConfig.class, Object.class }, new String[0]);
     assertThat(this.context).isNotNull();
   }
 
@@ -1085,53 +1042,6 @@ class ApplicationTests {
     ApplicationArguments args = this.context.getBean(ApplicationArguments.class);
     assertThat(args.getNonOptionArgs()).containsExactly("spring", "boot");
     assertThat(args.containsOption("debug")).isTrue();
-  }
-
-  @Test
-  void webApplicationSwitchedOffInListener() {
-    TestApplication application = new TestApplication(ExampleConfig.class);
-    application.addListeners((ApplicationListener<ApplicationEnvironmentPreparedEvent>) (event) -> {
-      assertThat(event.getEnvironment()).isInstanceOf(ApplicationWebEnvironment.class);
-      TestPropertySourceUtils.addInlinedPropertiesToEnvironment(event.getEnvironment(), "foo=bar");
-      event.getApplication().setApplicationType(ApplicationType.NORMAL);
-    });
-    this.context = application.run();
-    assertThat(this.context.getEnvironment().getProperty("foo")).isEqualTo("bar");
-    Iterator<PropertySource<?>> iterator = this.context.getEnvironment().getPropertySources().iterator();
-    assertThat(iterator.next().getName()).isEqualTo("configurationProperties");
-    assertThat(iterator.next().getName())
-            .isEqualTo(TestPropertySourceUtils.INLINED_PROPERTIES_PROPERTY_SOURCE_NAME);
-  }
-
-  @Test
-  void nonWebApplicationConfiguredViaAPropertyHasTheCorrectTypeOfContextAndEnvironment() {
-    ConfigurableApplicationContext context = new Application(ExampleConfig.class)
-            .run("--app.main.application-type=normal");
-    assertThat(context).isNotInstanceOfAny(WebServerApplicationContext.class, ReactiveWebApplicationContext.class);
-  }
-
-  @Test
-  void webApplicationConfiguredViaAPropertyHasTheCorrectTypeOfContextAndEnvironment() {
-    ConfigurableApplicationContext context = new Application(ExampleWebConfig.class)
-            .run("--app.main.application-type=web");
-    assertThat(context).isInstanceOf(ApplicationContext.class);
-    assertThat(context.getEnvironment()).isInstanceOf(ApplicationWebEnvironment.class);
-  }
-
-  @Test
-  void reactiveApplicationConfiguredViaAPropertyHasTheCorrectTypeOfContextAndEnvironment() {
-    ConfigurableApplicationContext context = new Application(ExampleReactiveWebConfig.class)
-            .run("--app.main.application-type=REACTIVE_WEB");
-    assertThat(context).isInstanceOf(ReactiveWebApplicationContext.class);
-    assertThat(context.getEnvironment()).isInstanceOf(ApplicationReactiveWebEnvironment.class);
-  }
-
-  @Test
-  void environmentIsConvertedIfTypeDoesNotMatch() {
-    ConfigurableApplicationContext context = new Application(ExampleReactiveWebConfig.class)
-            .run("--infra.profiles.active=withwebapplicationtype");
-    assertThat(context).isInstanceOf(ReactiveWebApplicationContext.class);
-    assertThat(context.getEnvironment()).isInstanceOf(ApplicationReactiveWebEnvironment.class);
   }
 
   @Test
@@ -1662,27 +1572,6 @@ class ApplicationTests {
     @Bean(name = AbstractApplicationContext.APPLICATION_EVENT_MULTICASTER_BEAN_NAME)
     ApplicationEventMulticaster applicationEventMulticaster() {
       return spy(new SimpleApplicationEventMulticaster());
-    }
-
-  }
-
-  @Import({ RandomPortWebServerConfig.class, WebMvcAutoConfiguration.class })
-  @Configuration(proxyBeanMethods = false)
-  static class ExampleWebConfig {
-
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  static class ExampleReactiveWebConfig {
-
-    @Bean
-    ReactorNettyReactiveWebServerFactory webServerFactory() {
-      return new ReactorNettyReactiveWebServerFactory(0);
-    }
-
-    @Bean
-    HttpHandler httpHandler() {
-      return (serverHttpRequest, serverHttpResponse) -> Mono.empty();
     }
 
   }

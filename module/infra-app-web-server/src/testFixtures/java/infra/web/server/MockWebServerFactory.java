@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package infra.annotation.config.web;
-
-import infra.web.server.AbstractConfigurableWebServerFactory;
+package infra.web.server;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/4/21 11:03
  */
-public class MockWebServerFactory extends AbstractConfigurableWebServerFactory {
+public class MockWebServerFactory extends AbstractConfigurableWebServerFactory implements GenericWebServerFactory {
+
+  @Override
+  public WebServer getWebServer() {
+    return new MockWebServer(getPort());
+  }
 
 }
