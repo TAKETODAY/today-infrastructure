@@ -20,7 +20,6 @@ package infra.web.client.config;
 
 import java.util.List;
 
-import infra.annotation.config.http.client.ImperativeHttpClientAutoConfiguration;
 import infra.annotation.config.ssl.SslAutoConfiguration;
 import infra.annotation.config.task.TaskExecutionAutoConfiguration;
 import infra.beans.factory.ObjectProvider;
@@ -36,6 +35,7 @@ import infra.core.io.ResourceLoader;
 import infra.core.ssl.SslBundles;
 import infra.http.client.config.ClientHttpRequestFactoryBuilder;
 import infra.http.client.config.HttpClientSettings;
+import infra.http.client.config.ImperativeHttpClientAutoConfiguration;
 import infra.http.converter.config.ClientHttpMessageConvertersCustomizer;
 import infra.stereotype.Component;
 import infra.stereotype.Prototype;

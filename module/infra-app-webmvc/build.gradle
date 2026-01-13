@@ -5,6 +5,8 @@ dependencies {
   api(project(":infra-config"))
   api project(':infra-app')
 
+  implementation project(':module:infra-app-http-converter')
+
   optional project(':infra-core-aot')
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))

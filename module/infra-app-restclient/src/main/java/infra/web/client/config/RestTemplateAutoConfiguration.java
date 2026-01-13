@@ -22,7 +22,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-import infra.annotation.config.http.client.HttpClientAutoConfiguration;
 import infra.context.annotation.Conditional;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
@@ -30,6 +29,7 @@ import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.http.client.config.ClientHttpRequestFactoryBuilder;
+import infra.http.client.config.HttpClientAutoConfiguration;
 import infra.http.client.config.HttpClientSettings;
 import infra.http.converter.HttpMessageConverters;
 import infra.http.converter.config.ClientHttpMessageConvertersCustomizer;

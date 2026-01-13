@@ -25,7 +25,6 @@ import java.time.Duration;
 import java.util.List;
 
 import infra.annotation.ConditionalOnWebApplication;
-import infra.annotation.config.http.ServerHttpMessageConvertersCustomizer;
 import infra.annotation.config.task.TaskExecutionAutoConfiguration;
 import infra.annotation.config.validation.ValidationAutoConfiguration;
 import infra.annotation.config.web.ConditionalOnEnabledResourceChain;
@@ -55,6 +54,7 @@ import infra.format.support.ApplicationConversionService;
 import infra.format.support.FormattingConversionService;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters.ServerBuilder;
+import infra.http.converter.config.ServerHttpMessageConvertersCustomizer;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
 import infra.util.LambdaSafe;

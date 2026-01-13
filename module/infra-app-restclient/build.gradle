@@ -2,6 +2,7 @@ description = "Infra application RestClient integration"
 
 dependencies {
   api project(":infra-web")
+  api(project(":module:infra-app-http-client"))
   implementation(project(":module:infra-app-http-converter"))
 
   testImplementation project(":infra-webmvc-mock")
