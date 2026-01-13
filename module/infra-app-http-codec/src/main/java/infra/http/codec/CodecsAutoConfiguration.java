@@ -55,7 +55,7 @@ public final class CodecsAutoConfiguration {
 
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnClass(JsonMapper.class)
-  @ConditionalOnProperty(name = "http.codec.preferred-json-mapper", havingValue = "jackson", matchIfMissing = true)
+  @ConditionalOnProperty(name = "http.codecs.preferred-json-mapper", havingValue = "jackson", matchIfMissing = true)
   static class JacksonJsonCodecConfiguration {
 
     @Bean

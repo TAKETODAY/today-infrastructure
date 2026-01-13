@@ -54,14 +54,14 @@ class CodecsAutoConfigurationTests {
 
   @Test
   void loggingRequestDetailsCustomizerShouldUseHttpCodecsProperties() {
-    this.contextRunner.withPropertyValues("http.codec.log-request-details=true")
+    this.contextRunner.withPropertyValues("http.codecs.log-request-details=true")
             .run((context) -> assertThat(defaultCodecs(context))
                     .hasFieldOrPropertyWithValue("enableLoggingRequestDetails", true));
   }
 
   @Test
   void maxInMemorySizeShouldUseHttpCodecProperties() {
-    this.contextRunner.withPropertyValues("http.codec.max-in-memory-size=64KB")
+    this.contextRunner.withPropertyValues("http.codecs.max-in-memory-size=64KB")
             .run((context) -> assertThat(defaultCodecs(context)).hasFieldOrPropertyWithValue("maxInMemorySize",
                     64 * 1024));
   }
@@ -95,7 +95,7 @@ class CodecsAutoConfigurationTests {
 
   @Test
   void maxInMemorySizeEnforcedInDefaultCodecs() {
-    this.contextRunner.withPropertyValues("http.codec.max-in-memory-size=1MB")
+    this.contextRunner.withPropertyValues("http.codecs.max-in-memory-size=1MB")
             .run((context) -> assertThat(defaultCodecs(context)).hasFieldOrPropertyWithValue("maxInMemorySize",
                     1048576));
   }

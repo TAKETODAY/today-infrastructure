@@ -30,7 +30,7 @@ import infra.util.DataSize;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@ConfigurationProperties(prefix = "http.codec")
+@ConfigurationProperties(prefix = "http.codecs")
 public class HttpCodecProperties {
 
   /**
