@@ -20,6 +20,7 @@ package infra.freemarker.config;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -103,14 +104,27 @@ public class FreeMarkerProperties extends AbstractTemplateViewResolverProperties
     this.templateLoaderPath = templateLoaderPaths;
   }
 
-  protected void applyTo(FreeMarkerConfigurationFactory factory) {
+  protected void applyTo(FreeMarkerConfigurationFactory factory, List<FreeMarkerVariablesCustomizer> variablesCustomizers) {
     factory.setTemplateLoaderPaths(getTemplateLoaderPath());
     factory.setPreferFileSystemAccess(isPreferFileSystemAccess());
     factory.setDefaultEncoding(getCharsetName());
+    factory.setFreemarkerSettings(createFreeMarkerSettings());
+    factory.setFreemarkerVariables(createFreeMarkerVariables(variablesCustomizers));
+  }
+
+  private Properties createFreeMarkerSettings() {
     Properties settings = new Properties();
     settings.put("recognize_standard_file_extensions", "true");
     settings.putAll(getSettings());
-    factory.setFreemarkerSettings(settings);
+    return settings;
+  }
+
+  private Map<String, Object> createFreeMarkerVariables(List<FreeMarkerVariablesCustomizer> variablesCustomizers) {
+    Map<String, Object> variables = new HashMap<>();
+    for (FreeMarkerVariablesCustomizer customizer : variablesCustomizers) {
+      customizer.customizeFreeMarkerVariables(variables);
+    }
+    return variables;
   }
 
   @Override

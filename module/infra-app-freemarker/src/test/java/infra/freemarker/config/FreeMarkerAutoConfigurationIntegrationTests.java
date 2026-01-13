@@ -23,17 +23,19 @@ import java.io.StringWriter;
 import java.util.Locale;
 
 import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
+import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.annotation.config.ImportAutoConfiguration;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
+import infra.test.classpath.resources.WithResource;
 import infra.test.util.TestPropertyValues;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.MockUtils;
+import infra.web.server.MockWebServerFactory;
 import infra.web.server.context.AnnotationConfigWebServerApplicationContext;
-import infra.web.server.netty.RandomPortWebServerConfig;
 import infra.web.view.AbstractTemplateViewResolver;
 import infra.web.view.View;
 import infra.web.view.freemarker.FreeMarkerConfig;
@@ -70,6 +72,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
   }
 
   @Test
+  @WithResource(name = "templates/home.ftl", content = "home")
   void defaultViewResolution() throws Exception {
     load();
     MockHttpResponseImpl response = render("home");
@@ -79,6 +82,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
   }
 
   @Test
+  @WithResource(name = "templates/home.ftl", content = "home")
   void customContentType() throws Exception {
     load("freemarker.contentType=application/json");
     MockHttpResponseImpl response = render("home");
@@ -88,6 +92,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
   }
 
   @Test
+  @WithResource(name = "templates/prefix/prefixed.ftl", content = "prefixed")
   void customPrefix() throws Exception {
     load("freemarker.prefix:prefix/");
     MockHttpResponseImpl response = render("prefixed");
@@ -96,6 +101,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
   }
 
   @Test
+  @WithResource(name = "templates/suffixed.freemarker", content = "suffixed")
   void customSuffix() throws Exception {
     load("freemarker.suffix:.freemarker");
     MockHttpResponseImpl response = render("suffixed");
@@ -104,6 +110,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
   }
 
   @Test
+  @WithResource(name = "custom-templates/custom.ftl", content = "custom")
   void customTemplateLoaderPath() throws Exception {
     load("freemarker.templateLoaderPath:classpath:/custom-templates/");
     MockHttpResponseImpl response = render("custom");
@@ -133,6 +140,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
   }
 
   @Test
+  @WithResource(name = "templates/message.ftl", content = "Message: ${greeting}")
   void renderTemplate() throws Exception {
     load();
     FreeMarkerConfigurer freemarker = this.context.getBean(FreeMarkerConfigurer.class);
@@ -160,15 +168,21 @@ class FreeMarkerAutoConfigurationIntegrationTests {
     request.setAttribute(MockUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 
-    MockRequestContext requestContext = new MockRequestContext(null, request, response);
+    MockRequestContext requestContext = new MockRequestContext(request, response);
     view.render(null, requestContext);
+    requestContext.requestCompleted();
     return response;
   }
 
   @Configuration(proxyBeanMethods = false)
-  @ImportAutoConfiguration({ FreeMarkerAutoConfiguration.class, RandomPortWebServerConfig.class,
+  @ImportAutoConfiguration({ FreeMarkerAutoConfiguration.class,// RandomPortWebServerConfig.class,
           WebMvcAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class })
   static class BaseConfiguration {
+
+    @Bean
+    static MockWebServerFactory mockWebServerFactory() {
+      return new MockWebServerFactory();
+    }
 
   }
 

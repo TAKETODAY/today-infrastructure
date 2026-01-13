@@ -20,15 +20,19 @@ package infra.freemarker.config;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
 import java.io.StringWriter;
+import java.nio.file.Path;
 
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.app.test.system.CapturedOutput;
 import infra.app.test.system.OutputCaptureExtension;
+import infra.context.annotation.Bean;
+import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
-import infra.test.BuildOutput;
+import infra.core.annotation.Order;
+import infra.test.classpath.resources.WithResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,12 +45,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(OutputCaptureExtension.class)
 class FreeMarkerAutoConfigurationTests {
 
-  private final BuildOutput buildOutput = new BuildOutput(getClass());
-
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
           .withConfiguration(AutoConfigurations.of(FreeMarkerAutoConfiguration.class));
 
   @Test
+  @WithResource(name = "templates/message.ftl", content = "Message: ${greeting}")
   void renderNonWebAppTemplate() {
     this.contextRunner.run((context) -> {
       var freemarker = context.getBean(freemarker.template.Configuration.class);
@@ -65,21 +68,26 @@ class FreeMarkerAutoConfigurationTests {
   }
 
   @Test
-  void emptyTemplateLocation(CapturedOutput output) {
-    File emptyDirectory = new File(this.buildOutput.getTestResourcesLocation(), "empty-templates/empty-directory");
-    emptyDirectory.mkdirs();
-    this.contextRunner
-            .withPropertyValues("freemarker.templateLoaderPath:classpath:/empty-templates/empty-directory/")
+  void emptyTemplateLocation(CapturedOutput output, @TempDir Path tempDir) {
+    this.contextRunner.withPropertyValues("freemarker.templateLoaderPath:file:" + tempDir.toAbsolutePath())
             .run((context) -> assertThat(output).doesNotContain("Cannot find template location"));
   }
 
   @Test
-  void nonExistentLocationAndEmptyLocation(CapturedOutput output) {
-    new File(this.buildOutput.getTestResourcesLocation(), "empty-templates/empty-directory").mkdirs();
-    this.contextRunner
-            .withPropertyValues("freemarker.templateLoaderPath:"
-                    + "classpath:/does-not-exist/,classpath:/empty-templates/empty-directory/")
+  void nonExistentLocationAndEmptyLocation(CapturedOutput output, @TempDir Path tempDir) {
+    this.contextRunner.withPropertyValues("freemarker.templateLoaderPath:" + "classpath:/does-not-exist/,file:" + tempDir.toAbsolutePath())
             .run((context) -> assertThat(output).doesNotContain("Cannot find template location"));
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void variableCustomizersShouldBeAppliedInOrder() {
+    this.contextRunner.withUserConfiguration(VariablesCustomizersConfiguration.class).run((context) -> {
+      assertThat(context).hasSingleBean(freemarker.template.Configuration.class);
+      freemarker.template.Configuration configuration = context.getBean(freemarker.template.Configuration.class);
+      assertThat(configuration.getSharedVariableNames()).contains("order", "one", "two");
+      assertThat(configuration.getSharedVariable("order")).hasToString("5");
+    });
   }
 
   public static class DataModel {
@@ -90,4 +98,26 @@ class FreeMarkerAutoConfigurationTests {
 
   }
 
+  @Configuration(proxyBeanMethods = false)
+  static class VariablesCustomizersConfiguration {
+
+    @Bean
+    @Order(5)
+    FreeMarkerVariablesCustomizer variablesCustomizer() {
+      return (variables) -> {
+        variables.put("order", 5);
+        variables.put("one", "one");
+      };
+    }
+
+    @Bean
+    @Order(2)
+    FreeMarkerVariablesCustomizer anotherVariablesCustomizer() {
+      return (variables) -> {
+        variables.put("order", 2);
+        variables.put("two", "two");
+      };
+    }
+
+  }
 }

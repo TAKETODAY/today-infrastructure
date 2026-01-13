@@ -18,6 +18,8 @@
 
 package infra.freemarker.config;
 
+import java.util.List;
+
 import infra.annotation.ConditionalOnNotWebApplication;
 import infra.annotation.ConditionalOnWebApplication;
 import infra.context.annotation.Configuration;
@@ -59,9 +61,9 @@ public final class FreeMarkerAutoConfiguration {
 
     @Component
     @ConditionalOnMissingBean
-    static FreeMarkerConfigurationFactoryBean freeMarkerConfiguration(FreeMarkerProperties properties) {
+    static FreeMarkerConfigurationFactoryBean freeMarkerConfiguration(FreeMarkerProperties properties, List<FreeMarkerVariablesCustomizer> variablesCustomizer) {
       var freeMarkerFactoryBean = new FreeMarkerConfigurationFactoryBean();
-      properties.applyTo(freeMarkerFactoryBean);
+      properties.applyTo(freeMarkerFactoryBean, variablesCustomizer);
       return freeMarkerFactoryBean;
     }
 
@@ -75,9 +77,9 @@ public final class FreeMarkerAutoConfiguration {
 
     @Component
     @ConditionalOnMissingBean(FreeMarkerConfig.class)
-    static FreeMarkerConfigurer freeMarkerConfigurer(FreeMarkerProperties properties) {
+    static FreeMarkerConfigurer freeMarkerConfigurer(FreeMarkerProperties properties, List<FreeMarkerVariablesCustomizer> variablesCustomizer) {
       FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
-      properties.applyTo(configurer);
+      properties.applyTo(configurer, variablesCustomizer);
       return configurer;
     }
 
