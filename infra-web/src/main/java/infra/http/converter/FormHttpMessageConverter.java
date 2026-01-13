@@ -398,8 +398,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
           @Nullable MediaType contentType, HttpOutputMessage outputMessage) throws IOException {
 
     contentType = getFormContentType(contentType);
-    HttpHeaders headers = outputMessage.getHeaders();
-    headers.setContentType(contentType);
+    outputMessage.setContentType(contentType);
 
     Charset charset = contentType.getCharset();
     if (charset == null) {
@@ -407,7 +406,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     }
 
     byte[] bytes = serializeForm(formData, charset).getBytes(charset);
-    headers.setContentLength(bytes.length);
+    outputMessage.setContentLength(bytes.length);
 
     StreamingHttpOutputMessage.writeBody(outputMessage, bytes);
   }

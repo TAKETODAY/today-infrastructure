@@ -83,7 +83,7 @@ public abstract class AbstractWireFeedHttpMessageConverter<T extends WireFeed> e
     MediaType contentType = outputMessage.getHeaders().getContentType();
     if (contentType != null) {
       contentType = contentType.withCharset(charset);
-      outputMessage.getHeaders().setContentType(contentType);
+      outputMessage.setContentType(contentType);
     }
 
     WireFeedOutput feedOutput = new WireFeedOutput();

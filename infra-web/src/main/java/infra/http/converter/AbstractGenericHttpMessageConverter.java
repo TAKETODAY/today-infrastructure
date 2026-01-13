@@ -25,7 +25,6 @@ import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 
-import infra.http.HttpHeaders;
 import infra.http.HttpOutputMessage;
 import infra.http.MediaType;
 import infra.http.StreamingHttpOutputMessage;
@@ -47,7 +46,8 @@ public abstract class AbstractGenericHttpMessageConverter<T>
    *
    * @see #setSupportedMediaTypes
    */
-  protected AbstractGenericHttpMessageConverter() { }
+  protected AbstractGenericHttpMessageConverter() {
+  }
 
   /**
    * Construct an {@code AbstractGenericHttpMessageConverter} with multiple supported media type.
@@ -93,24 +93,14 @@ public abstract class AbstractGenericHttpMessageConverter<T>
   public final void write(final T t, @Nullable final Type type, @Nullable MediaType contentType, HttpOutputMessage outputMessage)
           throws IOException, HttpMessageNotWritableException //
   {
-    final HttpHeaders headers = outputMessage.getHeaders();
-    addDefaultHeaders(headers, t, contentType);
+    addDefaultHeaders(outputMessage, t, contentType);
 
     if (outputMessage instanceof StreamingHttpOutputMessage streaming) {
       streaming.setBody(new StreamingHttpOutputMessage.Body() {
+
         @Override
         public void writeTo(OutputStream outputStream) throws IOException {
-          writeInternal(t, type, new HttpOutputMessage() {
-            @Override
-            public OutputStream getBody() {
-              return outputStream;
-            }
-
-            @Override
-            public HttpHeaders getHeaders() {
-              return headers;
-            }
-          });
+          writeInternal(t, type, new BodyHttpOutputMessage(outputMessage, outputStream));
         }
 
         @Override

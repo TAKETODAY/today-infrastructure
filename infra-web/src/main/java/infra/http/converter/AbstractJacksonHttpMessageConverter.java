@@ -31,7 +31,6 @@ import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -128,7 +127,7 @@ public abstract class AbstractJacksonHttpMessageConverter<T extends ObjectMapper
    */
   protected AbstractJacksonHttpMessageConverter(MapperBuilder<T, ?> builder, MediaType supportedMediaType) {
     this(builder);
-    setSupportedMediaTypes(Collections.singletonList(supportedMediaType));
+    setSupportedMediaTypes(supportedMediaType);
   }
 
   /**
@@ -138,7 +137,7 @@ public abstract class AbstractJacksonHttpMessageConverter<T extends ObjectMapper
    */
   protected AbstractJacksonHttpMessageConverter(MapperBuilder<T, ?> builder, MediaType... supportedMediaTypes) {
     this(builder);
-    setSupportedMediaTypes(Arrays.asList(supportedMediaTypes));
+    setSupportedMediaTypes(supportedMediaTypes);
   }
 
   /**
@@ -154,7 +153,7 @@ public abstract class AbstractJacksonHttpMessageConverter<T extends ObjectMapper
    */
   protected AbstractJacksonHttpMessageConverter(T mapper, MediaType supportedMediaType) {
     this(mapper);
-    setSupportedMediaTypes(Collections.singletonList(supportedMediaType));
+    setSupportedMediaTypes(supportedMediaType);
   }
 
   /**
@@ -162,7 +161,7 @@ public abstract class AbstractJacksonHttpMessageConverter<T extends ObjectMapper
    */
   protected AbstractJacksonHttpMessageConverter(T mapper, MediaType... supportedMediaTypes) {
     this(mapper);
-    setSupportedMediaTypes(Arrays.asList(supportedMediaTypes));
+    setSupportedMediaTypes(supportedMediaTypes);
   }
 
   private List<JacksonModule> initModules() {
@@ -176,11 +175,6 @@ public abstract class AbstractJacksonHttpMessageConverter<T extends ObjectMapper
     DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
     prettyPrinter.indentObjectsWith(new DefaultIndenter("  ", "\ndata:"));
     return prettyPrinter;
-  }
-
-  @Override
-  public void setSupportedMediaTypes(List<MediaType> supportedMediaTypes) {
-    super.setSupportedMediaTypes(supportedMediaTypes);
   }
 
   /**
@@ -197,7 +191,7 @@ public abstract class AbstractJacksonHttpMessageConverter<T extends ObjectMapper
    * {@code ObjectMapper} vary by {@code MediaType}.
    * <p><strong>Note:</strong> Use of this method effectively turns off use of
    * the default {@link #getMapper() ObjectMapper} and
-   * {@link #setSupportedMediaTypes(List) supportedMediaTypes} for the given
+   * {@link #setSupportedMediaTypes supportedMediaTypes} for the given
    * class. Therefore it is important for the mappings configured here to
    * {@link MediaType#includes(MediaType) include} every MediaType that must
    * be supported for the given class.

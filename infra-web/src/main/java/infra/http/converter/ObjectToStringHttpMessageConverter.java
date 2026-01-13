@@ -131,12 +131,12 @@ public class ObjectToStringHttpMessageConverter extends AbstractHttpMessageConve
   }
 
   @Override
-  protected Long getContentLength(Object obj, @Nullable MediaType contentType) {
+  protected @Nullable Long getContentLength(Object obj, HttpOutputMessage message) throws IOException {
     String value = this.conversionService.convert(obj, String.class);
     if (value == null) {
       return 0L;
     }
-    return this.stringHttpMessageConverter.getContentLength(value, contentType);
+    return this.stringHttpMessageConverter.getContentLength(value, message);
   }
 
   @Override

@@ -41,6 +41,17 @@ public interface HttpMessage {
   HttpHeaders getHeaders();
 
   /**
+   * Returns {@code true} if this HttpMessage contains a header for the specified
+   * name.
+   *
+   * @param name the header name
+   * @since 5.0
+   */
+  default boolean containsHeader(String name) {
+    return getHeaders().containsKey(name);
+  }
+
+  /**
    * Return the first header value for the given header name, if any.
    *
    * @param name the header name

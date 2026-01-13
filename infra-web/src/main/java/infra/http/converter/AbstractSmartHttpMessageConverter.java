@@ -25,7 +25,6 @@ import java.io.OutputStream;
 import java.util.Map;
 
 import infra.core.ResolvableType;
-import infra.http.HttpHeaders;
 import infra.http.HttpInputMessage;
 import infra.http.HttpOutputMessage;
 import infra.http.MediaType;
@@ -41,23 +40,6 @@ import infra.http.StreamingHttpOutputMessage;
  */
 public abstract class AbstractSmartHttpMessageConverter<T> extends AbstractHttpMessageConverter<T>
         implements SmartHttpMessageConverter<T> {
-
-  /**
-   * Construct an {@code AbstractSmartHttpMessageConverter} with no supported media types.
-   *
-   * @see #setSupportedMediaTypes
-   */
-  protected AbstractSmartHttpMessageConverter() {
-  }
-
-  /**
-   * Construct an {@code AbstractSmartHttpMessageConverter} with one supported media type.
-   *
-   * @param supportedMediaType the supported media type
-   */
-  protected AbstractSmartHttpMessageConverter(MediaType supportedMediaType) {
-    super(supportedMediaType);
-  }
 
   /**
    * Construct an {@code AbstractSmartHttpMessageConverter} with multiple supported media type.
@@ -91,25 +73,14 @@ public abstract class AbstractSmartHttpMessageConverter<T> extends AbstractHttpM
   public final void write(T t, ResolvableType type, @Nullable MediaType contentType,
           HttpOutputMessage outputMessage, @Nullable Map<String, Object> hints) throws IOException, HttpMessageNotWritableException //
   {
-    HttpHeaders headers = outputMessage.getHeaders();
-    addDefaultHeaders(headers, t, contentType);
+    addDefaultHeaders(outputMessage, t, contentType);
 
     if (outputMessage instanceof StreamingHttpOutputMessage som) {
       som.setBody(new StreamingHttpOutputMessage.Body() {
+
         @Override
         public void writeTo(OutputStream outputStream) throws IOException {
-          writeInternal(t, type, new HttpOutputMessage() {
-
-            @Override
-            public OutputStream getBody() {
-              return outputStream;
-            }
-
-            @Override
-            public HttpHeaders getHeaders() {
-              return headers;
-            }
-          }, hints);
+          writeInternal(t, type, new BodyHttpOutputMessage(outputMessage, outputStream), hints);
         }
 
         @Override

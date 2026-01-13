@@ -53,6 +53,11 @@ public class HttpMessageDecorator implements HttpMessage {
   }
 
   @Override
+  public boolean containsHeader(String name) {
+    return delegate.containsHeader(name);
+  }
+
+  @Override
   public List<String> getHeaders(String name) {
     return delegate.getHeaders(name);
   }

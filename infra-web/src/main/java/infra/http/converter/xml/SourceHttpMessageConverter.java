@@ -259,8 +259,7 @@ public class SourceHttpMessageConverter<T extends Source> extends AbstractHttpMe
   }
 
   @Override
-  @Nullable
-  protected Long getContentLength(T t, @Nullable MediaType contentType) {
+  protected @Nullable Long getContentLength(T t, HttpOutputMessage message) throws IOException {
     if (t instanceof DOMSource) {
       try {
         CountingOutputStream os = new CountingOutputStream();
