@@ -22,6 +22,8 @@ import org.jspecify.annotations.Nullable;
 
 import infra.annotation.ConditionalOnWebApplication.Type;
 import infra.app.ApplicationType;
+import infra.app.web.context.ConfigurableWebEnvironment;
+import infra.app.web.context.reactive.ConfigurableReactiveWebEnvironment;
 import infra.app.web.context.reactive.ReactiveWebApplicationContext;
 import infra.context.annotation.Condition;
 import infra.context.annotation.ConditionContext;
@@ -33,8 +35,6 @@ import infra.core.Ordered;
 import infra.core.io.ResourceLoader;
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.util.ClassUtils;
-import infra.app.web.context.ConfigurableWebEnvironment;
-import infra.app.web.context.reactive.ConfigurableReactiveWebEnvironment;
 
 /**
  * {@link Condition} that checks for the presence or absence of
@@ -57,7 +57,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
   @SuppressWarnings("NullAway")
   @Override
   protected @Nullable ConditionOutcome[] getOutcomes(String[] configClasses, AutoConfigurationMetadata configMetadata) {
-    ConditionOutcome[] outcomes = new ConditionOutcome[configClasses.length];
+    @Nullable ConditionOutcome[] outcomes = new ConditionOutcome[configClasses.length];
     for (int i = 0; i < outcomes.length; i++) {
       String autoConfigurationClass = configClasses[i];
       if (autoConfigurationClass != null) {
@@ -75,7 +75,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
     ClassNameFilter missingClassFilter = ClassNameFilter.MISSING;
     ConditionMessage.Builder message = ConditionMessage.forCondition(ConditionalOnWebApplication.class);
     if (ConditionalOnWebApplication.Type.MVC.name().equals(type)) {
-      if (missingClassFilter.matches(ApplicationType.WEB_INDICATOR_CLASS, getBeanClassLoader())) {
+      if (missingClassFilter.matches(ApplicationType.WEB_MVC_INDICATOR_CLASS, getBeanClassLoader())) {
         return ConditionOutcome.noMatch(message.didNotFind("Web MVC application classes").atAll());
       }
     }
@@ -86,7 +86,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
     }
     if (missingClassFilter.matches(ApplicationType.WEB_INDICATOR_CLASS, getBeanClassLoader())
             && missingClassFilter.matches(ApplicationType.REACTOR_INDICATOR_CLASS, getBeanClassLoader())) {
-      return ConditionOutcome.noMatch(message.didNotFind("reactive, mvc web application classes").atAll());
+      return ConditionOutcome.noMatch(message.didNotFind("reactive, web application classes").atAll());
     }
     return null;
   }
@@ -108,11 +108,11 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
     return switch (deduceType(metadata)) {
       case MVC -> isMvcWebApplication(context);
       case REACTIVE -> isReactiveWebApplication(context);
-      default -> isAnyApplication(context, required);
+      default -> isAnyWebApplication(context, required);
     };
   }
 
-  private ConditionOutcome isAnyApplication(ConditionContext context, boolean required) {
+  private ConditionOutcome isAnyWebApplication(ConditionContext context, boolean required) {
     var message = ConditionMessage.forCondition(ConditionalOnWebApplication.class, required ? "(required)" : "");
 
     ConditionOutcome mvcOutcome = isMvcWebApplication(context);
@@ -157,8 +157,8 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
   private ConditionOutcome isMvcWebApplication(ConditionContext context) {
     var message = ConditionMessage.forCondition("");
     ClassNameFilter missingClassFilter = ClassNameFilter.MISSING;
-    if (missingClassFilter.matches(ApplicationType.WEB_INDICATOR_CLASS, context.getClassLoader())) {
-      return ConditionOutcome.noMatch(message.didNotFind("web application classes").atAll());
+    if (missingClassFilter.matches(ApplicationType.WEB_MVC_INDICATOR_CLASS, context.getClassLoader())) {
+      return ConditionOutcome.noMatch(message.didNotFind("web mvc application classes").atAll());
     }
 
     if (context.getEnvironment() instanceof ConfigurableWebEnvironment) {
