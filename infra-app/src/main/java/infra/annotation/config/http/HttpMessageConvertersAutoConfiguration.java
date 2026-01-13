@@ -22,7 +22,6 @@ import java.util.List;
 
 import infra.annotation.ConditionalOnWebApplication;
 import infra.annotation.ConditionalOnWebApplication.Type;
-import infra.annotation.config.gson.GsonAutoConfiguration;
 import infra.annotation.config.jackson.JacksonAutoConfiguration;
 import infra.annotation.config.jsonb.JsonbAutoConfiguration;
 import infra.context.annotation.Conditional;
@@ -56,8 +55,7 @@ import static infra.annotation.config.http.HttpMessageConvertersAutoConfiguratio
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/16 15:10
  */
-@DisableDIAutoConfiguration(after = {
-        GsonAutoConfiguration.class,
+@DisableDIAutoConfiguration(afterName = "infra.gson.config.GsonAutoConfiguration", after = {
         JacksonAutoConfiguration.class,
         JsonbAutoConfiguration.class
 })

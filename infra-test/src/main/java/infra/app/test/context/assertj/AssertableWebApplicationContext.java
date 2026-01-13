@@ -22,11 +22,9 @@ import java.util.function.Supplier;
 
 import infra.app.test.context.runner.WebApplicationContextRunner;
 import infra.web.mock.ConfigurableWebApplicationContext;
-import infra.web.server.context.ConfigurableWebServerApplicationContext;
-import infra.web.server.context.WebServerApplicationContext;
 
 /**
- * A {@link WebServerApplicationContext} that additionally supports AssertJ style assertions.
+ * A {@link ConfigurableWebApplicationContext} that additionally supports AssertJ style assertions.
  * Can be used to decorate an existing mock web application context or an application
  * context that failed to start.
  * <p>
@@ -44,7 +42,7 @@ public interface AssertableWebApplicationContext
    * Factory method to create a new {@link AssertableWebApplicationContext} instance.
    *
    * @param contextSupplier a supplier that will either return a fully configured
-   * {@link ConfigurableWebServerApplicationContext} or throw an exception if the context
+   * {@link ConfigurableWebApplicationContext} or throw an exception if the context
    * fails to start.
    * @return a {@link AssertableWebApplicationContext} instance
    */

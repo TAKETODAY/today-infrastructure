@@ -1,4 +1,4 @@
-description = "Infra application freemarker module"
+description = "Infra application freemarker integration"
 
 dependencies {
   api project(":infra-config")

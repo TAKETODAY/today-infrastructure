@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.gson;
+package infra.gson.config;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;

@@ -16,13 +16,14 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.gson;
+package infra.gson.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.util.List;
 
+import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnClass;
@@ -40,13 +41,11 @@ import infra.util.PropertyMapper;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@Lazy
 @DisableDIAutoConfiguration
 @ConditionalOnClass(Gson.class)
 @EnableConfigurationProperties(GsonProperties.class)
-public class GsonAutoConfiguration {
-
-  private GsonAutoConfiguration() {
-  }
+public final class GsonAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean

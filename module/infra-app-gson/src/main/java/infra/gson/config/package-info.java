@@ -3,6 +3,6 @@
  * Auto-configuration for GSON.
  */
 @NullMarked
-package infra.annotation.config.gson;
+package infra.gson.config;
 
 import org.jspecify.annotations.NullMarked;

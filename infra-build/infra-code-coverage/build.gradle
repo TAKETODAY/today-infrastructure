@@ -30,6 +30,16 @@ dependencies {
   jacocoAggregation project(':infra-websocket')
   jacocoAggregation project(':integration-tests')
 
+  jacocoAggregation project(':module:infra-app-freemarker')
+  jacocoAggregation project(':module:infra-app-gson')
+  jacocoAggregation project(':module:infra-app-netty-server')
+  jacocoAggregation project(':module:infra-app-reactor-netty')
+  jacocoAggregation project(':module:infra-app-web-server')
+  jacocoAggregation project(':module:infra-app-webmvc')
+  jacocoAggregation project(':module:infra-app-websocket')
+
+
+
 //  jacocoAggregation project(':infra-build:infra-app-loader')
 //  jacocoAggregation project(':infra-build:infra-app-loader-tools')
 //  jacocoAggregation project(':infra-build:infra-jarmode-layertools')
