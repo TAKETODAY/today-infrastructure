@@ -1,0 +1,13 @@
+description = "Infra application Jackson integration"
+
+dependencies {
+  api("tools.jackson.core:jackson-databind")
+
+  optional project(":infra-web")
+  optional("tools.jackson.dataformat:jackson-dataformat-cbor")
+  optional("tools.jackson.dataformat:jackson-dataformat-xml")
+  optional("tools.jackson.module:jackson-module-jakarta-xmlbind-annotations")
+
+  testImplementation("tools.jackson.module:jackson-module-kotlin")
+  testRuntimeOnly("ch.qos.logback:logback-classic")
+}

@@ -20,7 +20,6 @@ package infra.annotation.config.web.reactive.client;
 
 import java.util.List;
 
-import infra.annotation.config.http.CodecsAutoConfiguration;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
@@ -49,7 +48,8 @@ import reactor.core.publisher.Mono;
  * @since 4.0
  */
 @Lazy
-@DisableDIAutoConfiguration(after = { CodecsAutoConfiguration.class, ClientHttpConnectorAutoConfiguration.class })
+@DisableDIAutoConfiguration(after = { ClientHttpConnectorAutoConfiguration.class },
+        afterName = "infra.http.codec.CodecsAutoConfiguration")
 @ConditionalOnClass({ WebClient.class, Mono.class })
 public class WebClientAutoConfiguration {
 

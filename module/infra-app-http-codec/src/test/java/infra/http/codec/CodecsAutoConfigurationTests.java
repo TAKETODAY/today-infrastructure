@@ -16,25 +16,22 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.http.codec;
+package infra.http.codec;
 
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Method;
 import java.util.List;
 
-import infra.annotation.config.http.CodecProperties;
-import infra.annotation.config.http.CodecsAutoConfiguration;
+import infra.app.test.context.assertj.AssertableApplicationContext;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
-import infra.core.annotation.AnnotationAwareOrderComparator;
-import infra.http.codec.CodecConfigurer;
-import infra.http.codec.CodecCustomizer;
+import infra.core.Ordered;
+import infra.http.codec.CodecConfigurer.DefaultCodecs;
 import infra.http.codec.support.DefaultClientCodecConfigurer;
-import infra.util.ReflectionUtils;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -51,50 +48,44 @@ class CodecsAutoConfigurationTests {
 
   @Test
   void autoConfigShouldProvideALoggingRequestDetailsCustomizer() {
-    this.contextRunner.run((context) -> {
-      CodecCustomizer customizer = context.getBean(CodecCustomizer.class);
-      CodecConfigurer configurer = new DefaultClientCodecConfigurer();
-      customizer.customize(configurer);
-      assertThat(configurer.defaultCodecs()).hasFieldOrPropertyWithValue("enableLoggingRequestDetails", false);
-    });
-
+    this.contextRunner.run((context) -> assertThat(defaultCodecs(context))
+            .hasFieldOrPropertyWithValue("enableLoggingRequestDetails", false));
   }
 
   @Test
-  void loggingRequestDetailsCustomizerShouldUseHttpProperties() {
-    this.contextRunner.withPropertyValues("http.codec.log-request-details=true").run((context) -> {
-      CodecCustomizer customizer = context.getBean(CodecCustomizer.class);
-      CodecConfigurer configurer = new DefaultClientCodecConfigurer();
-      customizer.customize(configurer);
-      assertThat(configurer.defaultCodecs()).hasFieldOrPropertyWithValue("enableLoggingRequestDetails", true);
-    });
+  void loggingRequestDetailsCustomizerShouldUseHttpCodecsProperties() {
+    this.contextRunner.withPropertyValues("http.codec.log-request-details=true")
+            .run((context) -> assertThat(defaultCodecs(context))
+                    .hasFieldOrPropertyWithValue("enableLoggingRequestDetails", true));
+  }
+
+  @Test
+  void maxInMemorySizeShouldUseHttpCodecProperties() {
+    this.contextRunner.withPropertyValues("http.codec.max-in-memory-size=64KB")
+            .run((context) -> assertThat(defaultCodecs(context)).hasFieldOrPropertyWithValue("maxInMemorySize",
+                    64 * 1024));
   }
 
   @Test
   void defaultCodecCustomizerBeanShouldHaveOrderZero() {
-    this.contextRunner.run((context) -> {
-      Method customizerMethod = ReflectionUtils.findMethod(
-              CodecsAutoConfiguration.class, "defaultCodecCustomizer",
-              CodecProperties.class);
-      Integer order = new TestAnnotationAwareOrderComparator().findOrder(customizerMethod);
-      assertThat(order).isEqualTo(0);
-    });
+    this.contextRunner
+            .run((context) -> assertThat(context.getBean("defaultCodecCustomizer", Ordered.class).getOrder()).isZero());
   }
 
   @Test
-  void jacksonCodecCustomizerBacksOffWhenThereIsNoObjectMapper() {
+  void jacksonCodecCustomizerBacksOffWhenThereIsNoJsonMapper() {
     this.contextRunner.run((context) -> assertThat(context).doesNotHaveBean("jacksonCodecCustomizer"));
   }
 
   @Test
-  void jacksonCodecCustomizerIsAutoConfiguredWhenObjectMapperIsPresent() {
-    this.contextRunner.withUserConfiguration(ObjectMapperConfiguration.class)
+  void jacksonCodecCustomizerIsAutoConfiguredWhenJsonMapperIsPresent() {
+    this.contextRunner.withUserConfiguration(JsonMapperConfiguration.class)
             .run((context) -> assertThat(context).hasBean("jacksonCodecCustomizer"));
   }
 
   @Test
   void userProvidedCustomizerCanOverrideJacksonCodecCustomizer() {
-    this.contextRunner.withUserConfiguration(ObjectMapperConfiguration.class, CodecCustomizerConfiguration.class)
+    this.contextRunner.withUserConfiguration(JsonMapperConfiguration.class, CodecCustomizerConfiguration.class)
             .run((context) -> {
               List<CodecCustomizer> codecCustomizers = context.getBean(CodecCustomizers.class).codecCustomizers;
               assertThat(codecCustomizers).hasSize(3);
@@ -104,19 +95,24 @@ class CodecsAutoConfigurationTests {
 
   @Test
   void maxInMemorySizeEnforcedInDefaultCodecs() {
-    this.contextRunner.withPropertyValues("http.codec.max-in-memory-size=1MB").run((context) -> {
-      CodecCustomizer customizer = context.getBean(CodecCustomizer.class);
-      CodecConfigurer configurer = new DefaultClientCodecConfigurer();
-      customizer.customize(configurer);
-      assertThat(configurer.defaultCodecs()).hasFieldOrPropertyWithValue("maxInMemorySize", 1048576);
-    });
+    this.contextRunner.withPropertyValues("http.codec.max-in-memory-size=1MB")
+            .run((context) -> assertThat(defaultCodecs(context)).hasFieldOrPropertyWithValue("maxInMemorySize",
+                    1048576));
   }
 
-  static class TestAnnotationAwareOrderComparator extends AnnotationAwareOrderComparator {
+  private DefaultCodecs defaultCodecs(AssertableApplicationContext context) {
+    CodecCustomizer customizer = context.getBean(CodecCustomizer.class);
+    CodecConfigurer configurer = new DefaultClientCodecConfigurer();
+    customizer.customize(configurer);
+    return configurer.defaultCodecs();
+  }
 
-    @Override
-    public Integer findOrder(Object obj) {
-      return super.findOrder(obj);
+  @Configuration(proxyBeanMethods = false)
+  static class JsonMapperConfiguration {
+
+    @Bean
+    JsonMapper jsonMapper() {
+      return new JsonMapper();
     }
 
   }

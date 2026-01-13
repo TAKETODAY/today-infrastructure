@@ -1,0 +1,11 @@
+description = "Infra application HTTP converter integration"
+
+dependencies {
+  api project(":infra-web")
+
+  optional(project(":module:infra-app-gson"))
+  optional(project(":module:infra-app-jackson"))
+  optional(project(":module:infra-app-jsonb"))
+
+  testRuntimeOnly("ch.qos.logback:logback-classic")
+}

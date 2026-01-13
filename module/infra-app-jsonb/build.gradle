@@ -1,0 +1,10 @@
+description = "Infra application JSONB integration"
+
+dependencies {
+  api("jakarta.json.bind:jakarta.json.bind-api")
+  api("org.eclipse:yasson")
+
+  optional project(":infra-web")
+
+  testRuntimeOnly("ch.qos.logback:logback-classic")
+}

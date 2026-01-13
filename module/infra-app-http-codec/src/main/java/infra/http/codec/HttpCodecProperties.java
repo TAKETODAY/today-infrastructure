@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2026 the TODAY authors.
+ * Copyright 2012-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package infra.annotation.config.http;
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
+package infra.http.codec;
 
 import org.jspecify.annotations.Nullable;
 
@@ -29,12 +31,12 @@ import infra.util.DataSize;
  * @since 4.0
  */
 @ConfigurationProperties(prefix = "http.codec")
-public class CodecProperties {
+public class HttpCodecProperties {
 
   /**
    * Whether to log form data at DEBUG level, and headers at TRACE level.
    */
-  private boolean logRequestDetails;
+  public boolean logRequestDetails;
 
   /**
    * Limit on the number of bytes that can be buffered whenever the input stream needs
@@ -42,24 +44,6 @@ public class CodecProperties {
    * WebClient instances. By default this is not set, in which case individual codec
    * defaults apply. Most codecs are limited to 256K by default.
    */
-  @Nullable
-  private DataSize maxInMemorySize;
-
-  public boolean isLogRequestDetails() {
-    return this.logRequestDetails;
-  }
-
-  public void setLogRequestDetails(boolean logRequestDetails) {
-    this.logRequestDetails = logRequestDetails;
-  }
-
-  @Nullable
-  public DataSize getMaxInMemorySize() {
-    return this.maxInMemorySize;
-  }
-
-  public void setMaxInMemorySize(DataSize maxInMemorySize) {
-    this.maxInMemorySize = maxInMemorySize;
-  }
+  public @Nullable DataSize maxInMemorySize;
 
 }
