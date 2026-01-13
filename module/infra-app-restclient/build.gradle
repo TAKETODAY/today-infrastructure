@@ -1,0 +1,10 @@
+description = "Infra application HTTP Codec integration"
+
+dependencies {
+  api project(":infra-web")
+  implementation(project(":module:infra-app-http-converter"))
+
+  testImplementation project(":infra-webmvc-mock")
+  testImplementation "org.hamcrest:hamcrest"
+  testImplementation 'io.projectreactor:reactor-test'
+}

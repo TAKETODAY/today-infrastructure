@@ -8,15 +8,12 @@ infra.annotation.config.validation.ValidationAutoConfiguration
 infra.annotation.config.aop.AopAutoConfiguration
 infra.annotation.config.jmx.JmxAutoConfiguration
 infra.annotation.config.jmx.InfraApplicationJmxAutoConfiguration
-infra.annotation.config.web.client.RestClientAutoConfiguration
-infra.annotation.config.web.client.RestTemplateAutoConfiguration
 infra.annotation.config.jdbc.DataSourceAutoConfiguration
 infra.annotation.config.jdbc.JdbcClientAutoConfiguration
 infra.annotation.config.jdbc.JdbcTemplateAutoConfiguration
 infra.annotation.config.jdbc.DataSourceTransactionManagerAutoConfiguration
 infra.annotation.config.transaction.jta.JtaAutoConfiguration
 infra.annotation.config.transaction.TransactionAutoConfiguration
-infra.annotation.config.http.HttpMessageConvertersAutoConfiguration
 infra.annotation.config.http.CodecsAutoConfiguration
 infra.annotation.config.http.client.HttpClientAutoConfiguration
 infra.annotation.config.http.client.ImperativeHttpClientAutoConfiguration
