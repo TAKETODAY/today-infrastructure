@@ -26,6 +26,7 @@ import infra.web.server.Http2;
 import infra.web.server.ServerProperties;
 import infra.web.server.WebServerFactoryCustomizer;
 import infra.web.server.reactor.ReactorNettyReactiveWebServerFactory;
+import infra.web.server.reactor.ReactorServerProperties;
 import io.netty.channel.ChannelOption;
 
 /**
@@ -44,9 +45,12 @@ public class ReactorNettyWebServerFactoryCustomizer
 
   private final ServerProperties serverProperties;
 
-  public ReactorNettyWebServerFactoryCustomizer(Environment environment, ServerProperties serverProperties) {
+  private final ReactorServerProperties reactor;
+
+  public ReactorNettyWebServerFactoryCustomizer(Environment environment, ServerProperties serverProperties, ReactorServerProperties reactorProperties) {
     this.environment = environment;
     this.serverProperties = serverProperties;
+    this.reactor = reactorProperties;
   }
 
   @Override
@@ -58,14 +62,13 @@ public class ReactorNettyWebServerFactoryCustomizer
   public void customize(ReactorNettyReactiveWebServerFactory factory) {
     factory.setUseForwardHeaders(getOrDeduceUseForwardHeaders());
     PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
-    ServerProperties.ReactorNetty nettyProperties = serverProperties.reactorNetty;
 
-    map.from(nettyProperties.idleTimeout).whenNonNull().to(idleTimeout -> customizeIdleTimeout(factory, idleTimeout));
-    map.from(nettyProperties.connectionTimeout).whenNonNull().to(connectionTimeout -> customizeConnectionTimeout(factory, connectionTimeout));
-    map.from(nettyProperties.maxKeepAliveRequests).to(maxKeepAliveRequests -> customizeMaxKeepAliveRequests(factory, maxKeepAliveRequests));
+    map.from(reactor.idleTimeout).whenNonNull().to(idleTimeout -> customizeIdleTimeout(factory, idleTimeout));
+    map.from(reactor.connectionTimeout).whenNonNull().to(connectionTimeout -> customizeConnectionTimeout(factory, connectionTimeout));
+    map.from(reactor.maxKeepAliveRequests).to(maxKeepAliveRequests -> customizeMaxKeepAliveRequests(factory, maxKeepAliveRequests));
 
     if (Http2.isEnabled(serverProperties.http2)) {
-      map.from(serverProperties.reactorNetty.maxHeaderSize)
+      map.from(reactor.maxHeaderSize)
               .whenNonNull()
               .to(size -> customizeHttp2MaxHeaderSize(factory, size.toBytes()));
     }
@@ -87,23 +90,22 @@ public class ReactorNettyWebServerFactoryCustomizer
   @SuppressWarnings("deprecation")
   private void customizeRequestDecoder(ReactorNettyReactiveWebServerFactory factory, PropertyMapper propertyMapper) {
     factory.addServerCustomizers((httpServer) -> httpServer.httpRequestDecoder((httpRequestDecoderSpec) -> {
-      propertyMapper.from(this.serverProperties.reactorNetty.maxHeaderSize)
+      propertyMapper.from(this.reactor.maxHeaderSize)
               .whenNonNull()
               .to(maxHttpRequestHeader -> httpRequestDecoderSpec.maxHeaderSize((int) maxHttpRequestHeader.toBytes()));
-      ServerProperties.ReactorNetty nettyProperties = this.serverProperties.reactorNetty;
-      propertyMapper.from(nettyProperties.maxChunkSize)
+      propertyMapper.from(reactor.maxChunkSize)
               .whenNonNull()
               .to(maxChunkSize -> httpRequestDecoderSpec.maxChunkSize((int) maxChunkSize.toBytes()));
-      propertyMapper.from(nettyProperties.maxInitialLineLength)
+      propertyMapper.from(reactor.maxInitialLineLength)
               .whenNonNull()
               .to(maxInitialLineLength -> httpRequestDecoderSpec.maxInitialLineLength((int) maxInitialLineLength.toBytes()));
-      propertyMapper.from(nettyProperties.h2cMaxContentLength)
+      propertyMapper.from(reactor.h2cMaxContentLength)
               .whenNonNull()
               .to(h2cMaxContentLength -> httpRequestDecoderSpec.h2cMaxContentLength((int) h2cMaxContentLength.toBytes()));
-      propertyMapper.from(nettyProperties.initialBufferSize)
+      propertyMapper.from(reactor.initialBufferSize)
               .whenNonNull()
               .to(initialBufferSize -> httpRequestDecoderSpec.initialBufferSize((int) initialBufferSize.toBytes()));
-      propertyMapper.from(nettyProperties.validateHeaders).whenNonNull().to(httpRequestDecoderSpec::validateHeaders);
+      propertyMapper.from(reactor.validateHeaders).whenNonNull().to(httpRequestDecoderSpec::validateHeaders);
       return httpRequestDecoderSpec;
     }));
   }

@@ -1,5 +1,5 @@
 /**
- * Auto-configuration for reactive web.
+ * Auto-configuration for reactor netty web.
  */
 @NullMarked
 package infra.web.server.reactor.config;

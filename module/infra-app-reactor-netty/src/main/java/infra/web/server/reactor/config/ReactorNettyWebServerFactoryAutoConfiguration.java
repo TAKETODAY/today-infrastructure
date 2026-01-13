@@ -40,6 +40,7 @@ import infra.web.server.reactive.ReactiveWebServerFactory;
 import infra.web.server.reactor.NettyRouteProvider;
 import infra.web.server.reactor.ReactorNettyReactiveWebServerFactory;
 import infra.web.server.reactor.ReactorNettyServerCustomizer;
+import infra.web.server.reactor.ReactorServerProperties;
 import reactor.netty.http.server.HttpServer;
 
 import static infra.annotation.ConditionalOnWebApplication.Type;
@@ -56,7 +57,7 @@ import static infra.annotation.ConditionalOnWebApplication.Type;
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @ConditionalOnClass(ReactiveHttpInputMessage.class)
 @ConditionalOnWebApplication(type = Type.REACTIVE)
-@EnableConfigurationProperties(ServerProperties.class)
+@EnableConfigurationProperties({ ServerProperties.class, ReactorServerProperties.class })
 @Import({ WebServerConfiguration.class, ReactorResourceFactoryConfiguration.class })
 public final class ReactorNettyWebServerFactoryAutoConfiguration {
 
@@ -76,8 +77,9 @@ public final class ReactorNettyWebServerFactoryAutoConfiguration {
   }
 
   @Component
-  static ReactorNettyWebServerFactoryCustomizer nettyWebServerFactoryCustomizer(Environment environment, ServerProperties serverProperties) {
-    return new ReactorNettyWebServerFactoryCustomizer(environment, serverProperties);
+  static ReactorNettyWebServerFactoryCustomizer nettyWebServerFactoryCustomizer(
+          Environment environment, ServerProperties serverProperties, ReactorServerProperties reactorProperties) {
+    return new ReactorNettyWebServerFactoryCustomizer(environment, serverProperties, reactorProperties);
   }
 
   @Component

@@ -21,6 +21,7 @@ package infra.web.server.reactor.config;
 import org.junit.jupiter.api.Test;
 
 import infra.annotation.config.ssl.SslAutoConfiguration;
+import infra.app.LazyInitializationExcludeFilter;
 import infra.app.test.context.runner.ReactiveWebApplicationContextRunner;
 import infra.context.ApplicationContextException;
 import infra.context.annotation.Bean;
@@ -56,6 +57,7 @@ class ReactorNettyWebServerFactoryAutoConfigurationTests {
 
   private final ReactiveWebApplicationContextRunner contextRunner = new ReactiveWebApplicationContextRunner(
           AnnotationConfigReactiveWebServerApplicationContext::new)
+          .withBean(LazyInitializationExcludeFilter.class, () -> LazyInitializationExcludeFilter.forBeanTypes(ForwardedHeaderTransformer.class))
           .withConfiguration(
                   AutoConfigurations.of(ReactorNettyWebServerFactoryAutoConfiguration.class, SslAutoConfiguration.class));
 
@@ -64,7 +66,7 @@ class ReactorNettyWebServerFactoryAutoConfigurationTests {
     this.contextRunner.withUserConfiguration(MockWebServerConfiguration.class, HttpHandlerConfiguration.class)
             .run((context) -> {
               assertThat(context.getBeansOfType(ReactiveWebServerFactory.class)).hasSize(1);
-              assertThat(context.getBeansOfType(WebServerFactoryCustomizer.class)).hasSize(1);
+              assertThat(context.getBeansOfType(WebServerFactoryCustomizer.class)).hasSize(2);
               assertThat(context.getBeansOfType(DefaultWebServerFactoryCustomizer.class)).hasSize(1);
             });
   }

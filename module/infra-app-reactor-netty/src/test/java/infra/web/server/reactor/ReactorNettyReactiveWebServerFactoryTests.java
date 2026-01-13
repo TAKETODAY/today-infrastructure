@@ -37,6 +37,7 @@ import infra.http.MediaType;
 import infra.http.client.ReactorResourceFactory;
 import infra.http.client.reactive.ReactorClientHttpConnector;
 import infra.http.server.reactive.ReactorHttpHandlerAdapter;
+import infra.test.classpath.resources.WithPackageResources;
 import infra.web.client.reactive.WebClient;
 import infra.web.reactive.function.BodyInserters;
 import infra.web.server.PortInUseException;
@@ -140,6 +141,7 @@ class ReactorNettyReactiveWebServerFactoryTests extends AbstractReactiveWebServe
   }
 
   @Test
+  @WithPackageResources({ "1.key", "1.crt", "2.key", "2.crt" })
   void whenSslBundleIsUpdatedThenSslIsReloaded() {
     DefaultSslBundleRegistry bundles = new DefaultSslBundleRegistry("bundle1", createSslBundle("1.key", "1.crt"));
     Mono<String> result = testSslWithBundle(bundles, "bundle1");
@@ -232,9 +234,7 @@ class ReactorNettyReactiveWebServerFactoryTests extends AbstractReactiveWebServe
 
   private static SslBundle createSslBundle(String key, String certificate) {
     return SslBundle.of(new PemSslStoreBundle(
-            new PemSslStoreDetails(null, "classpath:infra/web/embedded/netty/" + certificate,
-                    "classpath:infra/web/embedded/netty/" + key),
-            null));
+            new PemSslStoreDetails(null, "classpath:" + certificate, "classpath:" + key), null));
   }
 
   static class NoPortNettyReactiveWebServerFactory extends ReactorNettyReactiveWebServerFactory {

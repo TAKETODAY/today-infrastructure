@@ -40,6 +40,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ssl.KeyManagerFactory;
 
+import infra.core.io.ClassPathResource;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
 import infra.core.io.buffer.DefaultDataBufferFactory;
@@ -272,10 +273,10 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     testClientAuthSuccess(ssl, buildTrustAllSslConnector());
   }
 
-  protected ReactorClientHttpConnector buildTrustAllSslWithClientKeyConnector(String keyStoreFile,
+  protected ReactorClientHttpConnector buildTrustAllSslWithClientKeyConnector(String keyStore,
           String keyStorePassword) throws Exception {
     KeyStore clientKeyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-    try (InputStream stream = new FileInputStream("src/test/resources/" + keyStoreFile)) {
+    try (InputStream stream = new ClassPathResource(keyStore).getInputStream()) {
       clientKeyStore.load(stream, "secret".toCharArray());
     }
     KeyManagerFactory clientKeyManagerFactory = KeyManagerFactory

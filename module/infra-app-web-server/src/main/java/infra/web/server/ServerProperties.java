@@ -24,7 +24,6 @@ import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.Objects;
 
 import infra.context.properties.ConfigurationProperties;
@@ -110,9 +109,6 @@ public class ServerProperties {
 
   @NestedConfigurationProperty
   public @Nullable Http2 http2;
-
-  @NestedConfigurationProperty
-  public final ReactorNetty reactorNetty = new ReactorNetty();
 
   public void applyTo(ConfigurableWebServerFactory factory,
           @Nullable SslBundles sslBundles, @Nullable ApplicationTemp applicationTemp) {
@@ -229,60 +225,6 @@ public class ServerProperties {
         return applicationTemp.getDir(Objects.requireNonNullElse(tempSubDir, "multipart"));
       }
     }
-
-  }
-
-  /**
-   * ReactorNetty properties.
-   */
-  public static class ReactorNetty {
-
-    /**
-     * Connection timeout of the Netty channel.
-     */
-    public @Nullable Duration connectionTimeout;
-
-    /**
-     * Maximum content length of an H2C upgrade request.
-     */
-    public DataSize h2cMaxContentLength = DataSize.ofBytes(0);
-
-    /**
-     * Initial buffer size for HTTP request decoding.
-     */
-    public DataSize initialBufferSize = DataSize.ofBytes(128);
-
-    /**
-     * Maximum chunk size that can be decoded for an HTTP request.
-     */
-    public DataSize maxChunkSize = DataSize.ofKilobytes(8);
-
-    /**
-     * Maximum size of the HTTP message header.
-     */
-    public DataSize maxHeaderSize = DataSize.ofKilobytes(8);
-
-    /**
-     * Maximum length that can be decoded for an HTTP request's initial line.
-     */
-    public DataSize maxInitialLineLength = DataSize.ofKilobytes(4);
-
-    /**
-     * Maximum number of requests that can be made per connection. By default, a
-     * connection serves unlimited number of requests.
-     */
-    public @Nullable Integer maxKeepAliveRequests;
-
-    /**
-     * Whether to validate headers when decoding requests.
-     */
-    public boolean validateHeaders = true;
-
-    /**
-     * Idle timeout of the Netty channel. When not specified, an infinite timeout is
-     * used.
-     */
-    public @Nullable Duration idleTimeout;
 
   }
 

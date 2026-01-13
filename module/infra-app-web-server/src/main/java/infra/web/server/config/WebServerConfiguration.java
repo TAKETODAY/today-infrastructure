@@ -1,5 +1,7 @@
 package infra.web.server.config;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.annotation.DisableDependencyInjection;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.RootBeanDefinition;
@@ -8,7 +10,10 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.annotation.ImportBeanDefinitionRegistrar;
 import infra.context.properties.EnableConfigurationProperties;
+import infra.core.ApplicationTemp;
+import infra.core.ssl.SslBundles;
 import infra.core.type.AnnotationMetadata;
+import infra.stereotype.Component;
 import infra.util.ObjectUtils;
 import infra.web.server.ServerProperties;
 import infra.web.server.WebServerFactoryCustomizerBeanPostProcessor;
@@ -21,6 +26,12 @@ import infra.web.server.WebServerFactoryCustomizerBeanPostProcessor;
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(ServerProperties.class)
 public class WebServerConfiguration {
+
+  @Component
+  static DefaultWebServerFactoryCustomizer reactiveWebServerFactoryCustomizer(ServerProperties serverProperties,
+          @Nullable SslBundles sslBundles, @Nullable ApplicationTemp applicationTemp) {
+    return new DefaultWebServerFactoryCustomizer(serverProperties, sslBundles, applicationTemp);
+  }
 
   /**
    * Registers a {@link WebServerFactoryCustomizerBeanPostProcessor}. Registered via
