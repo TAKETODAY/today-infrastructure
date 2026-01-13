@@ -16,27 +16,28 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.http.client;
+package infra.http.client.config;
 
-import infra.http.client.config.ClientHttpRequestFactoryBuilder;
+import infra.annotation.ConditionalOnWebApplication;
+import infra.annotation.ConditionalOnWebApplication.Type;
+import infra.context.condition.NoneNestedConditions;
 
 /**
- * Customizer that can be used to modify the auto-configured
- * {@link ClientHttpRequestFactoryBuilder} when its type matches.
+ * {@link infra.context.condition.InfraCondition} that applies only when running in a non-reactive web
+ * application.
  *
- * @param <B> the builder type
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @since 5.0
  */
-public interface ClientHttpRequestFactoryBuilderCustomizer<B extends ClientHttpRequestFactoryBuilder<?>> {
+class NotReactiveWebApplicationCondition extends NoneNestedConditions {
 
-  /**
-   * Customize the given builder.
-   *
-   * @param builder the builder to customize
-   * @return the customized builder
-   */
-  B customize(B builder);
+  NotReactiveWebApplicationCondition() {
+    super(ConfigurationPhase.PARSE_CONFIGURATION);
+  }
+
+  @ConditionalOnWebApplication(type = Type.REACTIVE)
+  private static final class ReactiveWebApplication {
+
+  }
 
 }

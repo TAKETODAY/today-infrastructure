@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.http.client;
+package infra.http.client.config;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
@@ -36,11 +36,7 @@ import infra.context.annotation.config.AutoConfigurations;
 import infra.core.ssl.SslBundle;
 import infra.core.task.VirtualThreadTaskExecutor;
 import infra.http.client.ClientHttpRequestFactory;
-import infra.http.client.config.ClientHttpRequestFactoryBuilder;
-import infra.http.client.config.HttpClientSettings;
-import infra.http.client.config.HttpComponentsClientHttpRequestFactoryBuilder;
-import infra.http.client.config.HttpRedirects;
-import infra.http.client.config.JdkClientHttpRequestFactoryBuilder;
+import infra.http.client.ClientHttpRequestFactoryBuilderCustomizer;
 import infra.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -16,14 +16,13 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.http.client.reactive;
+package infra.http.client.config.reactive;
 
 import infra.context.annotation.Condition;
 import infra.context.annotation.ConditionContext;
 import infra.context.condition.ConditionOutcome;
 import infra.context.condition.InfraCondition;
 import infra.core.type.AnnotatedTypeMetadata;
-import infra.http.client.config.reactive.ClientHttpConnectorBuilder;
 
 /**
  * {@link Condition} that checks that {@link ClientHttpConnectorBuilder} can be detected.

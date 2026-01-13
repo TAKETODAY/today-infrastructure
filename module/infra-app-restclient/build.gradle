@@ -1,4 +1,4 @@
-description = "Infra application HTTP Codec integration"
+description = "Infra application RestClient integration"
 
 dependencies {
   api project(":infra-web")

@@ -16,19 +16,27 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.http.client;
+package infra.http.client;
 
-import infra.context.properties.ConfigurationProperties;
+import infra.http.client.config.ClientHttpRequestFactoryBuilder;
 
 /**
- * {@link ConfigurationProperties @ConfigurationProperties} to configure the defaults used
- * for all imperative and reactive HTTP clients.
+ * Customizer that can be used to modify the auto-configured
+ * {@link ClientHttpRequestFactoryBuilder} when its type matches.
  *
+ * @param <B> the builder type
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-@ConfigurationProperties("http.clients")
-public class HttpClientsProperties extends HttpClientSettingsProperties {
+public interface ClientHttpRequestFactoryBuilderCustomizer<B extends ClientHttpRequestFactoryBuilder<?>> {
+
+  /**
+   * Customize the given builder.
+   *
+   * @param builder the builder to customize
+   * @return the customized builder
+   */
+  B customize(B builder);
 
 }

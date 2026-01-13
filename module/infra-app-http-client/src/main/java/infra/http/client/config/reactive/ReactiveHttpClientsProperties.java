@@ -16,59 +16,59 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.http.client;
+package infra.http.client.config.reactive;
 
 import org.jspecify.annotations.Nullable;
 
 import java.util.function.Supplier;
 
 import infra.context.properties.ConfigurationProperties;
-import infra.http.client.config.ClientHttpRequestFactoryBuilder;
+import infra.http.client.config.HttpClientsProperties;
 
 /**
  * {@link ConfigurationProperties @ConfigurationProperties} to configure the defaults used
- * for imperative HTTP clients.
+ * for reactive HTTP clients.
  *
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see HttpClientsProperties
  * @since 5.0
  */
-@ConfigurationProperties("http.clients.imperative")
-public class ImperativeHttpClientsProperties {
+@ConfigurationProperties("http.clients.reactive")
+public class ReactiveHttpClientsProperties {
 
   /**
-   * Default factory used for a client HTTP request.
+   * Default connector used for a client HTTP request.
    */
-  public @Nullable Factory factory;
+  public @Nullable Connector connector;
 
   /**
    * Supported factory types.
    */
-  public enum Factory {
-
-    /**
-     * Apache HttpComponents HttpClient.
-     */
-    HTTP_COMPONENTS(ClientHttpRequestFactoryBuilder::httpComponents),
+  public enum Connector {
 
     /**
      * Reactor-Netty.
      */
-    REACTOR(ClientHttpRequestFactoryBuilder::reactor),
+    REACTOR(ClientHttpConnectorBuilder::reactor),
+
+    /**
+     * Apache HttpComponents HttpClient.
+     */
+    HTTP_COMPONENTS(ClientHttpConnectorBuilder::httpComponents),
 
     /**
      * Java's HttpClient.
      */
-    JDK(ClientHttpRequestFactoryBuilder::jdk);
+    JDK(ClientHttpConnectorBuilder::jdk);
 
-    private final Supplier<ClientHttpRequestFactoryBuilder<?>> builderSupplier;
+    private final Supplier<ClientHttpConnectorBuilder<?>> builderSupplier;
 
-    Factory(Supplier<ClientHttpRequestFactoryBuilder<?>> builderSupplier) {
+    Connector(Supplier<ClientHttpConnectorBuilder<?>> builderSupplier) {
       this.builderSupplier = builderSupplier;
     }
 
-    ClientHttpRequestFactoryBuilder<?> builder() {
+    ClientHttpConnectorBuilder<?> builder() {
       return this.builderSupplier.get();
     }
 

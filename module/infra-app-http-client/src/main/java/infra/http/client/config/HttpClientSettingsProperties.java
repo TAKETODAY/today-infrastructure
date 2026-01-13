@@ -16,15 +16,13 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.http.client;
+package infra.http.client.config;
 
 import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 
 import infra.context.properties.ConfigurationPropertiesSource;
-import infra.http.client.config.HttpClientSettings;
-import infra.http.client.config.HttpRedirects;
 
 /**
  * Base class for configuration properties configure {@link HttpClientSettings}.

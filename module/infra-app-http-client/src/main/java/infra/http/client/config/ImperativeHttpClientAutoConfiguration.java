@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.http.client;
+package infra.http.client.config;
 
 import java.util.List;
 
@@ -32,9 +32,7 @@ import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
 import infra.core.task.VirtualThreadTaskExecutor;
 import infra.http.client.ClientHttpRequestFactory;
-import infra.http.client.config.ClientHttpRequestFactoryBuilder;
-import infra.http.client.config.HttpClientSettings;
-import infra.http.client.config.JdkClientHttpRequestFactoryBuilder;
+import infra.http.client.ClientHttpRequestFactoryBuilderCustomizer;
 import infra.stereotype.Component;
 import infra.util.LambdaSafe;
 

@@ -16,11 +16,10 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.http.client.reactive;
+package infra.http.client.config.reactive;
 
 import java.util.List;
 
-import infra.annotation.config.http.client.HttpClientAutoConfiguration;
 import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.Conditional;
 import infra.context.annotation.Configuration;
@@ -37,10 +36,8 @@ import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
 import infra.core.task.VirtualThreadTaskExecutor;
 import infra.http.client.ReactorResourceFactory;
+import infra.http.client.config.HttpClientAutoConfiguration;
 import infra.http.client.config.HttpClientSettings;
-import infra.http.client.config.reactive.ClientHttpConnectorBuilder;
-import infra.http.client.config.reactive.JdkClientHttpConnectorBuilder;
-import infra.http.client.config.reactive.ReactorClientHttpConnectorBuilder;
 import infra.http.client.reactive.ClientHttpConnector;
 import infra.http.config.annotation.ReactorNettyConfigurations;
 import infra.stereotype.Component;

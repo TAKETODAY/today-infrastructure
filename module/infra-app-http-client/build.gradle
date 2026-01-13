@@ -1,0 +1,17 @@
+description = "Infra application HTTP Client integration"
+
+dependencies {
+  api project(":infra-web")
+
+  implementation(project(":module:infra-app-http-converter"))
+
+  optional("io.projectreactor:reactor-core")
+  optional("io.projectreactor.netty:reactor-netty-http")
+  optional("org.reactivestreams:reactive-streams")
+
+  optional("org.apache.httpcomponents.client5:httpclient5")
+  optional("org.apache.httpcomponents.core5:httpcore5-reactive")
+
+  testRuntimeOnly("io.projectreactor:reactor-test")
+  testRuntimeOnly("ch.qos.logback:logback-classic")
+}

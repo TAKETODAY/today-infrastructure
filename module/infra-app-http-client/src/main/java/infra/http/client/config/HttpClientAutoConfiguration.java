@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.http.client;
+package infra.http.client.config;
 
 import org.jspecify.annotations.Nullable;
 
@@ -26,7 +26,6 @@ import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.ssl.SslBundles;
-import infra.http.client.config.HttpClientSettings;
 import infra.stereotype.Component;
 
 /**

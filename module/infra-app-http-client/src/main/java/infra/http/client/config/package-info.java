@@ -2,6 +2,6 @@
  * Auto-configuration for client-side HTTP.
  */
 @NullMarked
-package infra.annotation.config.http.client;
+package infra.http.client.config;
 
 import org.jspecify.annotations.NullMarked;

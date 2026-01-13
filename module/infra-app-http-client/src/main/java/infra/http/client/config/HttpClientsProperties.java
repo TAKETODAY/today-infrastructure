@@ -16,27 +16,19 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.http.client.reactive;
+package infra.http.client.config;
 
-import infra.http.client.config.reactive.ClientHttpConnectorBuilder;
+import infra.context.properties.ConfigurationProperties;
 
 /**
- * Customizer that can be used to modify the auto-configured
- * {@link infra.http.client.config.reactive.ClientHttpConnectorBuilder} when its type matches.
+ * {@link ConfigurationProperties @ConfigurationProperties} to configure the defaults used
+ * for all imperative and reactive HTTP clients.
  *
- * @param <B> the builder type
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-public interface ClientHttpConnectorBuilderCustomizer<B extends ClientHttpConnectorBuilder<?>> {
-
-  /**
-   * Customize the given builder.
-   *
-   * @param builder the builder to customize
-   * @return the customized builder
-   */
-  B customize(B builder);
+@ConfigurationProperties("http.clients")
+public class HttpClientsProperties extends HttpClientSettingsProperties {
 
 }

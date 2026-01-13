@@ -16,15 +16,12 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.http.client;
+package infra.http.client.config;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import infra.annotation.config.http.client.ImperativeHttpClientsProperties.Factory;
-import infra.http.client.config.HttpComponentsClientHttpRequestFactoryBuilder;
-import infra.http.client.config.JdkClientHttpRequestFactoryBuilder;
-import infra.http.client.config.ReactorClientHttpRequestFactoryBuilder;
+import infra.http.client.config.ImperativeHttpClientsProperties.Factory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
