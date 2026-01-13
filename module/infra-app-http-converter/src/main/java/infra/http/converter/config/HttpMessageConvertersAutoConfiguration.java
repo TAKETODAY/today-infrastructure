@@ -23,7 +23,7 @@ import java.util.List;
 import infra.annotation.ConditionalOnWebApplication;
 import infra.annotation.ConditionalOnWebApplication.Type;
 import infra.app.jackson.config.JacksonAutoConfiguration;
-import infra.annotation.config.jsonb.JsonbAutoConfiguration;
+import infra.jsonb.config.JsonbAutoConfiguration;
 import infra.context.annotation.Conditional;
 import infra.context.annotation.Import;
 import infra.context.annotation.config.DisableDIAutoConfiguration;

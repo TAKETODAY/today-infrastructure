@@ -3,6 +3,6 @@
  * Auto-configuration for JSON-B.
  */
 @NullMarked
-package infra.annotation.config.jsonb;
+package infra.jsonb.config;
 
 import org.jspecify.annotations.NullMarked;

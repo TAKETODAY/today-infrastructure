@@ -14,8 +14,6 @@ infra.annotation.config.jdbc.JdbcTemplateAutoConfiguration
 infra.annotation.config.jdbc.DataSourceTransactionManagerAutoConfiguration
 infra.annotation.config.transaction.jta.JtaAutoConfiguration
 infra.annotation.config.transaction.TransactionAutoConfiguration
-infra.annotation.config.http.CodecsAutoConfiguration
-infra.annotation.config.jsonb.JsonbAutoConfiguration
 infra.annotation.config.web.reactive.client.WebClientAutoConfiguration
 infra.annotation.config.web.reactive.client.ClientHttpConnectorAutoConfiguration
 infra.annotation.config.availability.ApplicationAvailabilityAutoConfiguration

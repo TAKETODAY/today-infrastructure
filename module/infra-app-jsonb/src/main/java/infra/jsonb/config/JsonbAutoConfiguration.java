@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.jsonb;
+package infra.jsonb.config;
 
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
@@ -38,10 +38,7 @@ import jakarta.json.bind.JsonbBuilder;
 @ConditionalOnClass(Jsonb.class)
 @ConditionalOnResource({ "classpath:META-INF/services/jakarta.json.bind.spi.JsonbProvider",
         "classpath:META-INF/services/jakarta.json.spi.JsonProvider" })
-public class JsonbAutoConfiguration {
-
-  private JsonbAutoConfiguration() {
-  }
+public final class JsonbAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean
