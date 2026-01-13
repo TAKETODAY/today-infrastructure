@@ -46,7 +46,6 @@ import infra.stereotype.Component;
 import infra.util.ClassUtils;
 import infra.util.DataSize;
 import infra.web.DispatcherHandler;
-import infra.app.web.context.StandardWebEnvironment;
 import infra.web.multipart.MultipartParser;
 import infra.web.multipart.parsing.DefaultMultipartParser;
 import infra.web.multipart.parsing.ProgressListener;
@@ -54,6 +53,7 @@ import infra.web.server.ServerProperties;
 import infra.web.server.ServiceExecutor;
 import infra.web.server.SimpleServiceExecutor;
 import infra.web.server.Ssl;
+import infra.web.server.config.WebServerConfiguration;
 import infra.web.server.error.SendErrorHandler;
 import infra.web.server.netty.ChannelConfigurer;
 import infra.web.server.netty.NettyChannelHandler;
@@ -64,7 +64,6 @@ import infra.web.server.netty.NettyWebServerFactory;
 import infra.web.server.netty.ServerBootstrapCustomizer;
 import infra.web.server.netty.WsNettyChannelHandler;
 import infra.web.socket.server.RequestUpgradeStrategy;
-import infra.webmvc.DispatcherHandlerCustomizer;
 import infra.webmvc.config.ErrorMvcAutoConfiguration;
 import io.netty.channel.ChannelHandler;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
@@ -91,11 +90,6 @@ import static infra.annotation.config.task.TaskExecutionAutoConfiguration.thread
         TaskExecutionAutoConfiguration.class
 })
 public final class NettyWebServerFactoryAutoConfiguration {
-
-  @Component
-  static DispatcherHandlerCustomizer<DispatcherHandler> nettyDispatcherHandlerCustomizer() {
-    return handler -> handler.setEnvironment(new StandardWebEnvironment());
-  }
 
   @Component
   @ConditionalOnMissingBean
