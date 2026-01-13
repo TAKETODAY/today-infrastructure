@@ -1,8 +1,7 @@
-
 /**
  * Auto-configuration for jackson.
  */
 @NullMarked
-package infra.annotation.config.jackson;
+package infra.app.jackson.config;
 
 import org.jspecify.annotations.NullMarked;

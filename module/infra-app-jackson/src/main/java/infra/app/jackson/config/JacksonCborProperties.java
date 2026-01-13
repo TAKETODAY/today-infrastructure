@@ -16,40 +16,43 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.jackson;
+package infra.app.jackson.config;
 
 import java.util.EnumMap;
 import java.util.Map;
 
 import infra.context.properties.ConfigurationProperties;
-import tools.jackson.dataformat.xml.XmlReadFeature;
-import tools.jackson.dataformat.xml.XmlWriteFeature;
+import tools.jackson.dataformat.cbor.CBORReadFeature;
+import tools.jackson.dataformat.cbor.CBORWriteFeature;
 
 /**
- * Configuration properties to configure Jackson's XML support.
+ * Configuration properties to configure Jackson's CBOR support.
  *
  * @author Andy Wilkinson
+ * @author Marcel Overdijk
+ * @author Johannes Edmeier
+ * @author Eddú Meléndez
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-@ConfigurationProperties("jackson.xml")
-public class JacksonXmlProperties {
+@ConfigurationProperties("jackson.cbor")
+public class JacksonCborProperties {
 
   /**
-   * Jackson on/off token reader features that are specific to XML.
+   * Jackson on/off token reader features that are specific to CBOR.
    */
-  private final Map<XmlReadFeature, Boolean> read = new EnumMap<>(XmlReadFeature.class);
+  private final Map<CBORReadFeature, Boolean> read = new EnumMap<>(CBORReadFeature.class);
 
   /**
-   * Jackson on/off token writer features that are specific to XML.
+   * Jackson on/off token writer features that are specific to CBOR.
    */
-  private final Map<XmlWriteFeature, Boolean> write = new EnumMap<>(XmlWriteFeature.class);
+  private final Map<CBORWriteFeature, Boolean> write = new EnumMap<>(CBORWriteFeature.class);
 
-  public Map<XmlReadFeature, Boolean> getRead() {
+  public Map<CBORReadFeature, Boolean> getRead() {
     return this.read;
   }
 
-  public Map<XmlWriteFeature, Boolean> getWrite() {
+  public Map<CBORWriteFeature, Boolean> getWrite() {
     return this.write;
   }
 

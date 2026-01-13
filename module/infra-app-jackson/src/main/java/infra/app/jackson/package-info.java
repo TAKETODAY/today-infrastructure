@@ -1,4 +1,3 @@
-
 /**
  * Custom enhancements and support for the Jackson project.
  */

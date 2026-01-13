@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.jackson;
+package infra.app.jackson.config;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -36,13 +36,13 @@ import java.util.TimeZone;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
-import infra.annotation.config.jackson.JacksonProperties.ConstructorDetectorStrategy;
 import infra.aot.hint.ReflectionHints;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.app.jackson.JacksonComponentModule;
 import infra.app.jackson.JacksonMixinModule;
 import infra.app.jackson.JacksonMixinModuleEntries;
+import infra.app.jackson.config.JacksonProperties.ConstructorDetectorStrategy;
 import infra.beans.BeanUtils;
 import infra.beans.factory.ObjectProvider;
 import infra.context.ApplicationContext;
@@ -74,7 +74,7 @@ import tools.jackson.dataformat.cbor.CBORMapper;
 import tools.jackson.dataformat.xml.XmlMapper;
 
 /**
- * Auto configuration for Jackson. The following auto-configuration will get applied:
+ * Auto-configuration for Jackson. The following auto-configuration will get applied:
  * <ul>
  * <li>an {@link ObjectMapper} in case none is already configured.</li>
  * <li>auto-registration for all {@link Module} beans with all {@link ObjectMapper} beans

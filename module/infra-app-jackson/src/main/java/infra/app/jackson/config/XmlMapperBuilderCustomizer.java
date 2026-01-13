@@ -16,26 +16,26 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.jackson;
+package infra.app.jackson.config;
 
-import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.dataformat.cbor.CBORMapper.Builder;
+import tools.jackson.dataformat.xml.XmlMapper;
 
 /**
  * Callback interface that can be implemented by beans wishing to further customize the
- * {@link JsonMapper} through {@link tools.jackson.databind.json.JsonMapper.Builder} to
- * fine-tune its auto-configuration.
+ * {@link XmlMapper} through {@link Builder XmlMapper.Builder} to fine-tune its
+ * auto-configuration.
  *
- * @author Grzegorz Poznachowski
+ * @author Andy Wilkinson
  * @since 5.0
  */
 @FunctionalInterface
-public interface JsonMapperBuilderCustomizer {
+public interface XmlMapperBuilderCustomizer {
 
-  /**
-   * Customize the JsonMapper.Builder.
-   *
-   * @param jsonMapperBuilder the builder to customize
-   */
-  void customize(JsonMapper.Builder jsonMapperBuilder);
+	/**
+	 * Customize the XmlMapper.Builder.
+	 * @param xmlMapperBuilder the builder to customize
+	 */
+	void customize(XmlMapper.Builder xmlMapperBuilder);
 
 }

@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.jackson;
+package infra.app.jackson.config;
 
 import tools.jackson.dataformat.cbor.CBORMapper;
 import tools.jackson.dataformat.cbor.CBORMapper.Builder;

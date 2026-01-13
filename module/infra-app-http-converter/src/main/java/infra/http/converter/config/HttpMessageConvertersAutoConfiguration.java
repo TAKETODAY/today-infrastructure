@@ -22,7 +22,7 @@ import java.util.List;
 
 import infra.annotation.ConditionalOnWebApplication;
 import infra.annotation.ConditionalOnWebApplication.Type;
-import infra.annotation.config.jackson.JacksonAutoConfiguration;
+import infra.app.jackson.config.JacksonAutoConfiguration;
 import infra.annotation.config.jsonb.JsonbAutoConfiguration;
 import infra.context.annotation.Conditional;
 import infra.context.annotation.Import;
@@ -33,7 +33,6 @@ import infra.context.condition.NoneNestedConditions;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.annotation.Order;
 import infra.http.converter.HttpMessageConverter;
-import infra.http.converter.HttpMessageConverters;
 import infra.http.converter.HttpMessageConverters.ClientBuilder;
 import infra.http.converter.HttpMessageConverters.ServerBuilder;
 import infra.http.converter.StringHttpMessageConverter;
