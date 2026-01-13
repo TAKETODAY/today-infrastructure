@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.web.server.config;
+package infra.web.server.netty.config;
 
 import org.jspecify.annotations.Nullable;
 

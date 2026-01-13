@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import java.net.InetSocketAddress;
 
 import infra.web.server.GracefulShutdownCallback;
-import infra.web.server.ServerProperties.NettyServerProperties;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
 

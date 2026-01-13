@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import infra.annotation.ConditionalOnWebApplication;
-import infra.annotation.config.web.ErrorProperties;
 import infra.annotation.config.web.WebProperties;
 import infra.aop.framework.autoproxy.AutoProxyUtils;
 import infra.beans.BeansException;
@@ -80,7 +79,7 @@ import static infra.annotation.ConditionalOnWebApplication.Type.MVC;
 @ConditionalOnWebApplication(type = MVC)
 @ConditionalOnClass({ DispatcherHandler.class })
 @DisableDIAutoConfiguration(before = WebMvcAutoConfiguration.class)
-@EnableConfigurationProperties({ ErrorProperties.class, WebMvcProperties.class })
+@EnableConfigurationProperties({ WebProperties.class, WebMvcProperties.class })
 public final class ErrorMvcAutoConfiguration {
 
   @Component

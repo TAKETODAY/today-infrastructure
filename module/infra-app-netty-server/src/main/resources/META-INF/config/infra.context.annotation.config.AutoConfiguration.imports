@@ -1,1 +1,1 @@
-infra.web.server.config.NettyWebServerFactoryAutoConfiguration
+infra.web.server.netty.config.NettyWebServerFactoryAutoConfiguration

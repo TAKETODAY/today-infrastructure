@@ -19,7 +19,7 @@ package infra.web.server;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Import;
 import infra.stereotype.Component;
-import infra.web.server.config.NettyWebServerFactoryAutoConfiguration;
+import infra.web.server.netty.config.NettyWebServerFactoryAutoConfiguration;
 import infra.web.server.netty.NettyWebServerFactory;
 import infra.webmvc.config.ErrorMvcAutoConfiguration;
 import infra.webmvc.config.WebMvcAutoConfiguration;

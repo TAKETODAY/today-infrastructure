@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import infra.annotation.config.web.ErrorProperties;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
@@ -48,12 +49,12 @@ public abstract class AbstractErrorController implements ErrorController {
 
   protected final ErrorAttributes errorAttributes;
 
-  protected final infra.annotation.config.web.ErrorProperties errorProperties;
+  protected final ErrorProperties errorProperties;
 
   protected final List<ErrorViewResolver> errorViewResolvers;
 
   public AbstractErrorController(ErrorAttributes errorAttributes,
-          infra.annotation.config.web.ErrorProperties errorProperties, @Nullable List<ErrorViewResolver> errorViewResolvers) {
+          ErrorProperties errorProperties, @Nullable List<ErrorViewResolver> errorViewResolvers) {
     Assert.notNull(errorAttributes, "ErrorAttributes is required");
     Assert.notNull(errorProperties, "ErrorProperties is required");
     this.errorAttributes = errorAttributes;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.web.server.config;
+package infra.web.server.netty.config;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -23,12 +23,12 @@ import java.io.FileNotFoundException;
 import java.util.concurrent.TimeUnit;
 
 import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.app.web.context.StandardWebEnvironment;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.context.properties.bind.Binder;
 import infra.test.classpath.ClassPathExclusions;
 import infra.util.DataSize;
 import infra.web.server.ServerProperties;
-import infra.app.web.context.StandardWebEnvironment;
 import infra.web.server.context.AnnotationConfigWebServerApplicationContext;
 import infra.web.server.netty.NettyChannelHandler;
 import infra.web.server.netty.NettyServerProperties;
@@ -162,7 +162,7 @@ class NettyWebServerFactoryAutoConfigurationTests {
             "server.netty.workerPoolName=worker").run(context -> {
       NettyServerProperties properties = context.getBean(NettyServerProperties.class);
 
-      var result = Binder.get(context.getEnvironment()).bind("server", NettyServerProperties.class);
+      var result = Binder.get(context.getEnvironment()).bind("server.netty", NettyServerProperties.class);
       assertThat(result.isBound()).isTrue();
 
       assertThat(properties.acceptorPoolName).isEqualTo(result.get().acceptorPoolName).isEqualTo("acceptor");
