@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.annotation.config.freemarker;
+package infra.freemarker.config;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -23,8 +23,6 @@ import java.io.StringWriter;
 import java.util.Locale;
 
 import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
-import infra.annotation.config.web.RandomPortWebServerConfig;
-import infra.annotation.config.web.WebMvcAutoConfiguration;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.annotation.config.ImportAutoConfiguration;
@@ -35,11 +33,13 @@ import infra.test.util.TestPropertyValues;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.MockUtils;
 import infra.web.server.context.AnnotationConfigWebServerApplicationContext;
+import infra.web.server.netty.RandomPortWebServerConfig;
 import infra.web.view.AbstractTemplateViewResolver;
 import infra.web.view.View;
 import infra.web.view.freemarker.FreeMarkerConfig;
 import infra.web.view.freemarker.FreeMarkerConfigurer;
 import infra.web.view.freemarker.FreeMarkerViewResolver;
+import infra.webmvc.config.WebMvcAutoConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

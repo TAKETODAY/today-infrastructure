@@ -44,7 +44,6 @@ import infra.ui.template.TemplateLocation;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("NullAway")
 @DisableDependencyInjection
 @ConfigurationProperties(prefix = "freemarker")
 public class FreeMarkerProperties extends AbstractTemplateViewResolverProperties
