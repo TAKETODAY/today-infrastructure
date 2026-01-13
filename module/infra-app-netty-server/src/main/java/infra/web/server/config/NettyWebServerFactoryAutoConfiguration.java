@@ -30,6 +30,7 @@ import infra.beans.factory.annotation.Qualifier;
 import infra.beans.factory.config.BeanDefinition;
 import infra.context.ApplicationContext;
 import infra.context.annotation.Configuration;
+import infra.context.annotation.Import;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.Role;
 import infra.context.annotation.config.AutoConfigureOrder;
@@ -40,13 +41,12 @@ import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.ApplicationTemp;
 import infra.core.Ordered;
-import infra.core.ssl.SslBundles;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
 import infra.util.DataSize;
 import infra.web.DispatcherHandler;
-import infra.web.context.StandardWebEnvironment;
+import infra.app.web.context.StandardWebEnvironment;
 import infra.web.multipart.MultipartParser;
 import infra.web.multipart.parsing.DefaultMultipartParser;
 import infra.web.multipart.parsing.ProgressListener;
@@ -54,7 +54,6 @@ import infra.web.server.ServerProperties;
 import infra.web.server.ServiceExecutor;
 import infra.web.server.SimpleServiceExecutor;
 import infra.web.server.Ssl;
-import infra.web.server.WebServerFactoryCustomizerBeanPostProcessor;
 import infra.web.server.error.SendErrorHandler;
 import infra.web.server.netty.ChannelConfigurer;
 import infra.web.server.netty.NettyChannelHandler;
@@ -66,6 +65,7 @@ import infra.web.server.netty.ServerBootstrapCustomizer;
 import infra.web.server.netty.WsNettyChannelHandler;
 import infra.web.socket.server.RequestUpgradeStrategy;
 import infra.webmvc.DispatcherHandlerCustomizer;
+import infra.webmvc.config.ErrorMvcAutoConfiguration;
 import io.netty.channel.ChannelHandler;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketDecoderConfig;
@@ -84,15 +84,13 @@ import static infra.annotation.config.task.TaskExecutionAutoConfiguration.thread
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @ConditionalOnWebApplication(type = Type.MVC)
+@Import(WebServerConfiguration.class)
 @EnableConfigurationProperties({ ServerProperties.class, NettyServerProperties.class })
-@DisableDIAutoConfiguration(afterName = "infra.webmvc.config.ErrorMvcAutoConfiguration", after = TaskExecutionAutoConfiguration.class)
+@DisableDIAutoConfiguration(after = {
+        ErrorMvcAutoConfiguration.class,
+        TaskExecutionAutoConfiguration.class
+})
 public final class NettyWebServerFactoryAutoConfiguration {
-
-  @Component
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public static WebServerFactoryCustomizerBeanPostProcessor webServerFactoryCustomizerBeanPostProcessor() {
-    return new WebServerFactoryCustomizerBeanPostProcessor();
-  }
 
   @Component
   static DispatcherHandlerCustomizer<DispatcherHandler> nettyDispatcherHandlerCustomizer() {
@@ -132,15 +130,11 @@ public final class NettyWebServerFactoryAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public static NettyWebServerFactory nettyWebServerFactory(ServerProperties serverProperties,
-          @Nullable ChannelConfigurer channelConfigurer, @Nullable SslBundles sslBundles,
-          NettyServerProperties nettyServerProperties,
-          @Nullable List<ServerBootstrapCustomizer> customizers, @Nullable ApplicationTemp applicationTemp,
-          ChannelHandler channelHandler) {
+  public static NettyWebServerFactory nettyWebServerFactory(
+          NettyServerProperties nettyServerProperties, @Nullable ChannelConfigurer channelConfigurer,
+          @Nullable List<ServerBootstrapCustomizer> customizers, ChannelHandler channelHandler) {
+
     NettyWebServerFactory factory = new NettyWebServerFactory();
-
-    serverProperties.applyTo(factory, sslBundles, applicationTemp);
-
     factory.applyFrom(nettyServerProperties);
     factory.setBootstrapCustomizers(customizers);
     factory.setChannelConfigurer(channelConfigurer);

@@ -35,7 +35,7 @@ import infra.web.mock.MockRequestContext;
 import infra.web.server.error.ErrorAttributeOptions;
 import infra.web.server.error.ErrorAttributeOptions.Include;
 import infra.web.server.error.ErrorAttributes;
-import infra.web.context.StandardWebEnvironment;
+import infra.app.web.context.StandardWebEnvironment;
 import infra.web.util.WebUtils;
 import infra.web.view.View;
 

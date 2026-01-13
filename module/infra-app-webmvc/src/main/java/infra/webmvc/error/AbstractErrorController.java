@@ -31,8 +31,8 @@ import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.stereotype.Controller;
 import infra.web.RequestContext;
-import infra.web.server.error.ErrorAttributeOptions.Include;
 import infra.web.view.ModelAndView;
+import infra.webmvc.error.ErrorAttributeOptions.Include;
 
 /**
  * Abstract base class for error {@link Controller @Controller} implementations.

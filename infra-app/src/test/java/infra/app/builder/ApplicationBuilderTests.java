@@ -73,7 +73,7 @@ class ApplicationBuilderTests {
   @Test
   void profileAndProperties() {
     ApplicationBuilder application = new ApplicationBuilder().sources(ExampleConfig.class)
-            .contextFactory(ApplicationContextFactory.fromClass(StaticApplicationContext.class))
+            .contextFactory(ApplicationContextFactory.forClass(StaticApplicationContext.class))
             .profiles("foo")
             .properties("foo=bar");
     this.context = application.run();
@@ -85,7 +85,7 @@ class ApplicationBuilderTests {
   @Test
   void propertiesAsMap() {
     ApplicationBuilder application = new ApplicationBuilder().sources(ExampleConfig.class)
-            .contextFactory(ApplicationContextFactory.fromClass(StaticApplicationContext.class))
+            .contextFactory(ApplicationContextFactory.forClass(StaticApplicationContext.class))
             .properties(Collections.singletonMap("bar", "foo"));
     this.context = application.run();
     assertThat(this.context.getEnvironment().getProperty("bar")).isEqualTo("foo");
@@ -94,7 +94,7 @@ class ApplicationBuilderTests {
   @Test
   void propertiesAsProperties() {
     ApplicationBuilder application = new ApplicationBuilder().sources(ExampleConfig.class)
-            .contextFactory(ApplicationContextFactory.fromClass(StaticApplicationContext.class))
+            .contextFactory(ApplicationContextFactory.forClass(StaticApplicationContext.class))
             .properties(StringUtils.splitArrayElementsIntoProperties(new String[] { "bar=foo" }, "="));
     this.context = application.run();
     assertThat(this.context.getEnvironment().getProperty("bar")).isEqualTo("foo");
@@ -103,7 +103,7 @@ class ApplicationBuilderTests {
   @Test
   void propertiesWithRepeatSeparator() {
     ApplicationBuilder application = new ApplicationBuilder().sources(ExampleConfig.class)
-            .contextFactory(ApplicationContextFactory.fromClass(StaticApplicationContext.class))
+            .contextFactory(ApplicationContextFactory.forClass(StaticApplicationContext.class))
             .properties("one=c:\\logging.file.name", "two=a:b", "three:c:\\logging.file.name", "four:a:b");
     this.context = application.run();
     ConfigurableEnvironment environment = this.context.getEnvironment();
@@ -116,7 +116,7 @@ class ApplicationBuilderTests {
   @Test
   void specificApplicationContextFactory() {
     ApplicationBuilder application = new ApplicationBuilder().sources(ExampleConfig.class)
-            .contextFactory(ApplicationContextFactory.fromClass(StaticApplicationContext.class));
+            .contextFactory(ApplicationContextFactory.forClass(StaticApplicationContext.class));
     this.context = application.run();
     assertThat(this.context).isInstanceOf(StaticApplicationContext.class);
   }
@@ -124,7 +124,7 @@ class ApplicationBuilderTests {
   @Test
   void parentContextCreationThatIsRunDirectly() {
     ApplicationBuilder application = new ApplicationBuilder(ChildConfig.class)
-            .contextFactory(ApplicationContextFactory.fromClass(SpyApplicationContext.class));
+            .contextFactory(ApplicationContextFactory.forClass(SpyApplicationContext.class));
     application.parent(ExampleConfig.class);
     this.context = application.run("foo.bar=baz");
     then(((SpyApplicationContext) this.context).getApplicationContext()).should()
@@ -138,7 +138,7 @@ class ApplicationBuilderTests {
   @Test
   void parentContextCreationThatIsBuiltThenRun() {
     ApplicationBuilder application = new ApplicationBuilder(ChildConfig.class)
-            .contextFactory(ApplicationContextFactory.fromClass(SpyApplicationContext.class));
+            .contextFactory(ApplicationContextFactory.forClass(SpyApplicationContext.class));
     application.parent(ExampleConfig.class);
     this.context = application.build("a=alpha").run("b=bravo");
     then(((SpyApplicationContext) this.context).getApplicationContext()).should()
@@ -151,7 +151,7 @@ class ApplicationBuilderTests {
   @Test
   void parentContextCreationWithChildShutdown() {
     ApplicationBuilder application = new ApplicationBuilder(ChildConfig.class)
-            .contextFactory(ApplicationContextFactory.fromClass(SpyApplicationContext.class))
+            .contextFactory(ApplicationContextFactory.forClass(SpyApplicationContext.class))
             .registerShutdownHook(true);
     application.parent(ExampleConfig.class);
     this.context = application.run();
@@ -163,7 +163,7 @@ class ApplicationBuilderTests {
   @Test
   void contextWithClassLoader() {
     ApplicationBuilder application = new ApplicationBuilder(ExampleConfig.class)
-            .contextFactory(ApplicationContextFactory.fromClass(SpyApplicationContext.class));
+            .contextFactory(ApplicationContextFactory.forClass(SpyApplicationContext.class));
     ClassLoader classLoader = new URLClassLoader(new URL[0], getClass().getClassLoader());
     application.resourceLoader(new DefaultResourceLoader(classLoader));
     this.context = application.run();
@@ -173,7 +173,7 @@ class ApplicationBuilderTests {
   @Test
   void parentContextWithClassLoader() {
     ApplicationBuilder application = new ApplicationBuilder(ChildConfig.class)
-            .contextFactory(ApplicationContextFactory.fromClass(SpyApplicationContext.class));
+            .contextFactory(ApplicationContextFactory.forClass(SpyApplicationContext.class));
     ClassLoader classLoader = new URLClassLoader(new URL[0], getClass().getClassLoader());
     application.resourceLoader(new DefaultResourceLoader(classLoader));
     application.parent(ExampleConfig.class);
@@ -185,7 +185,7 @@ class ApplicationBuilderTests {
   void parentFirstCreation() {
     ApplicationBuilder application = new ApplicationBuilder(ExampleConfig.class)
             .child(ChildConfig.class);
-    application.contextFactory(ApplicationContextFactory.fromClass(SpyApplicationContext.class));
+    application.contextFactory(ApplicationContextFactory.forClass(SpyApplicationContext.class));
     this.context = application.run();
     then(((SpyApplicationContext) this.context).getApplicationContext()).should()
             .setParent(any(ApplicationContext.class));
@@ -253,7 +253,7 @@ class ApplicationBuilderTests {
   void parentContextIdentical() {
     ApplicationBuilder application = new ApplicationBuilder(ExampleConfig.class);
     application.parent(ExampleConfig.class);
-    application.contextFactory(ApplicationContextFactory.fromClass(SpyApplicationContext.class));
+    application.contextFactory(ApplicationContextFactory.forClass(SpyApplicationContext.class));
     this.context = application.run();
     then(((SpyApplicationContext) this.context).getApplicationContext()).should()
             .setParent(any(ApplicationContext.class));

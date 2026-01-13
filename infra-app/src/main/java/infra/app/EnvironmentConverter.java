@@ -18,13 +18,14 @@
 
 package infra.app;
 
+import java.lang.reflect.Constructor;
 import java.util.HashSet;
 
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
 import infra.core.env.PropertySource;
 import infra.core.env.PropertySources;
-import infra.core.env.StandardEnvironment;
+import infra.util.ReflectionUtils;
 
 /**
  * Utility class for converting one type of {@link Environment} to another.
@@ -41,7 +42,7 @@ final class EnvironmentConverter {
   }
 
   /**
-   * Converts the given {@code environment} to the given {@link StandardEnvironment}
+   * Converts the given {@code environment} to the given {@link ConfigurableEnvironment}
    * type. If the environment is already of the same type, no conversion is performed
    * and it is returned unchanged.
    *
@@ -49,31 +50,33 @@ final class EnvironmentConverter {
    * @param type the type to convert the Environment to
    * @return the converted Environment
    */
-  static StandardEnvironment convertIfNecessary(ConfigurableEnvironment environment, Class<? extends StandardEnvironment> type) {
+  static ConfigurableEnvironment convertIfNecessary(ConfigurableEnvironment environment, Class<? extends ConfigurableEnvironment> type) {
     if (type.equals(environment.getClass())) {
-      return (StandardEnvironment) environment;
+      return environment;
     }
     return convertEnvironment(environment, type);
   }
 
-  static StandardEnvironment convertEnvironment(ConfigurableEnvironment environment, Class<? extends StandardEnvironment> type) {
-    StandardEnvironment result = createEnvironment(type);
+  static ConfigurableEnvironment convertEnvironment(ConfigurableEnvironment environment, Class<? extends ConfigurableEnvironment> type) {
+    ConfigurableEnvironment result = createEnvironment(type);
     result.setActiveProfiles(environment.getActiveProfiles());
     result.setConversionService(environment.getConversionService());
     copyPropertySources(environment, result);
     return result;
   }
 
-  static StandardEnvironment createEnvironment(Class<? extends StandardEnvironment> type) {
+  static ConfigurableEnvironment createEnvironment(Class<? extends ConfigurableEnvironment> type) {
     try {
-      return type.getDeclaredConstructor().newInstance();
+      Constructor<? extends ConfigurableEnvironment> constructor = type.getDeclaredConstructor();
+      ReflectionUtils.makeAccessible(constructor);
+      return constructor.newInstance();
     }
     catch (Exception ex) {
-      return new StandardEnvironment();
+      return new ApplicationEnvironment();
     }
   }
 
-  static void copyPropertySources(ConfigurableEnvironment source, StandardEnvironment target) {
+  static void copyPropertySources(ConfigurableEnvironment source, ConfigurableEnvironment target) {
     removePropertySources(target.getPropertySources());
     for (PropertySource<?> propertySource : source.getPropertySources()) {
       target.getPropertySources().addLast(propertySource);

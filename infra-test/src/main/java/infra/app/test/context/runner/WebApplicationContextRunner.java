@@ -25,11 +25,10 @@ import infra.mock.web.MockContextImpl;
 import infra.web.mock.AnnotationConfigMockWebApplicationContext;
 import infra.web.mock.ConfigurableWebApplicationContext;
 import infra.web.mock.WebApplicationContext;
-import infra.web.server.context.ConfigurableWebServerApplicationContext;
 
 /**
  * An {@link AbstractApplicationContextRunner ApplicationContext runner} for a Mock
- * based {@link ConfigurableWebServerApplicationContext}.
+ * based {@link ConfigurableWebApplicationContext}.
  * <p>
  * See {@link AbstractApplicationContextRunner} for details.
  *

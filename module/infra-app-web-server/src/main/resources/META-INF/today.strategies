@@ -3,3 +3,7 @@
 infra.app.diagnostics.FailureAnalyzer=\
 infra.web.server.diagnostics.MissingWebServerFactoryBeanFailureAnalyzer,\
 infra.web.server.diagnostics.PortInUseFailureAnalyzer
+
+infra.app.ApplicationContextFactory=\
+infra.web.server.reactive.context.ReactiveWebServerApplicationContextFactory,\
+infra.web.server.context.WebServerApplicationContextFactory

@@ -22,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.annotation.ConditionalOnWebApplication.Type;
 import infra.app.ApplicationType;
+import infra.app.web.context.reactive.ReactiveWebApplicationContext;
 import infra.context.annotation.Condition;
 import infra.context.annotation.ConditionContext;
 import infra.context.annotation.config.AutoConfigurationMetadata;
@@ -31,10 +32,9 @@ import infra.context.condition.FilteringInfraCondition;
 import infra.core.Ordered;
 import infra.core.io.ResourceLoader;
 import infra.core.type.AnnotatedTypeMetadata;
-import infra.web.server.context.GenericWebServerApplicationContext;
-import infra.web.server.reactive.context.ConfigurableReactiveWebEnvironment;
-import infra.web.server.reactive.context.ReactiveWebApplicationContext;
-import infra.web.context.ConfigurableWebEnvironment;
+import infra.util.ClassUtils;
+import infra.app.web.context.ConfigurableWebEnvironment;
+import infra.app.web.context.reactive.ConfigurableReactiveWebEnvironment;
 
 /**
  * {@link Condition} that checks for the presence or absence of
@@ -165,9 +165,11 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
       return ConditionOutcome.match(message.foundExactly("ConfigurableWebEnvironment"));
     }
 
-    ResourceLoader resourceLoader = context.getResourceLoader();
-    if (resourceLoader instanceof GenericWebServerApplicationContext) {
-      return ConditionOutcome.match(message.foundExactly("GenericWebServerApplicationContext"));
+    Class<?> gwsac = ClassUtils.load("infra.web.server.context.GenericWebServerApplicationContext", context.getClassLoader());
+    if (gwsac != null) {
+      if (gwsac.isInstance(context.getResourceLoader())) {
+        return ConditionOutcome.match(message.foundExactly("GenericWebServerApplicationContext"));
+      }
     }
     return ConditionOutcome.noMatch(message.because("not a web application"));
   }

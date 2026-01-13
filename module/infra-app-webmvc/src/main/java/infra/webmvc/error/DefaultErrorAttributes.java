@@ -34,8 +34,8 @@ import infra.validation.ObjectError;
 import infra.web.HttpStatusProvider;
 import infra.web.RequestContext;
 import infra.web.server.ResponseStatusException;
-import infra.web.server.error.ErrorAttributeOptions.Include;
 import infra.web.util.WebUtils;
+import infra.webmvc.error.ErrorAttributeOptions.Include;
 
 /**
  * Default implementation of {@link ErrorAttributes}. Provides the following attributes

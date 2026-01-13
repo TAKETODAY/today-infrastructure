@@ -20,15 +20,12 @@ package infra.app;
 
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
 import java.util.function.Supplier;
 
-import infra.aot.AotDetector;
 import infra.beans.BeanUtils;
 import infra.context.ConfigurableApplicationContext;
-import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.context.support.GenericApplicationContext;
-import infra.lang.TodayStrategies;
+import infra.core.env.ConfigurableEnvironment;
+import infra.core.env.Environment;
 
 /**
  * Strategy interface for creating the {@link ConfigurableApplicationContext} used by a
@@ -42,6 +39,12 @@ import infra.lang.TodayStrategies;
 public interface ApplicationContextFactory {
 
   /**
+   * A default {@link ApplicationContextFactory} implementation that will create an
+   * appropriate context for the {@link ApplicationType}.
+   */
+  ApplicationContextFactory DEFAULT = new DefaultApplicationContextFactory();
+
+  /**
    * Creates the {@link ConfigurableApplicationContext application context} for a
    * {@link Application}, respecting the given {@code ApplicationType}.
    *
@@ -52,11 +55,30 @@ public interface ApplicationContextFactory {
   ConfigurableApplicationContext create(ApplicationType type);
 
   /**
-   * Creates a default {@link ApplicationContextFactory} implementation that will
-   * create an appropriate context for the {@link ApplicationType}.
+   * Return the {@link Environment} type expected to be set on the
+   * {@link #create(ApplicationType) created} application context. The result of this
+   * method can be used to convert an existing environment instance to the correct type.
+   *
+   * @param applicationType the web application type or {@code null}
+   * @return the expected application context type or {@code null} to use the default
+   * @since 5.0
    */
-  static ApplicationContextFactory forDefault() {
-    return new Default();
+  default @Nullable Class<? extends ConfigurableEnvironment> getEnvironmentType(@Nullable ApplicationType applicationType) {
+    return null;
+  }
+
+  /**
+   * Create a new {@link Environment} to be set on the
+   * {@link #create(ApplicationType) created} application context. The result of this
+   * method must match the type returned by
+   * {@link #getEnvironmentType(ApplicationType)}.
+   *
+   * @param applicationType the web application type or {@code null}
+   * @return an environment instance or {@code null} to use the default
+   * @since 5.0
+   */
+  default @Nullable ConfigurableEnvironment createEnvironment(@Nullable ApplicationType applicationType) {
+    return null;
   }
 
   /**
@@ -67,8 +89,8 @@ public interface ApplicationContextFactory {
    * @return the factory that will instantiate the context class
    * @see BeanUtils#newInstance(Class)
    */
-  static ApplicationContextFactory fromClass(Class<? extends ConfigurableApplicationContext> contextClass) {
-    return from(() -> BeanUtils.newInstance(contextClass));
+  static ApplicationContextFactory forClass(Class<? extends ConfigurableApplicationContext> contextClass) {
+    return forSupplier(() -> BeanUtils.newInstance(contextClass));
   }
 
   /**
@@ -79,47 +101,8 @@ public interface ApplicationContextFactory {
    * {@code AnnotationConfigApplicationContext::new}
    * @return the factory that will instantiate the context class
    */
-  static ApplicationContextFactory from(Supplier<ConfigurableApplicationContext> supplier) {
+  static ApplicationContextFactory forSupplier(Supplier<ConfigurableApplicationContext> supplier) {
     return applicationType -> supplier.get();
-  }
-
-  /**
-   * Default ApplicationContextFactory
-   */
-  class Default implements ApplicationContextFactory {
-
-    @Override
-    public ConfigurableApplicationContext create(ApplicationType applicationType) {
-      List<ApplicationContextFactory> factories = TodayStrategies.find(ApplicationContextFactory.class);
-      for (ApplicationContextFactory factory : factories) {
-        ConfigurableApplicationContext context = factory.create(applicationType);
-        if (context != null) {
-          return context;
-        }
-      }
-
-      // fallback to defaults
-      if (applicationType == ApplicationType.WEB) {
-        if (AotDetector.useGeneratedArtifacts()) {
-          return new GenericWebServerApplicationContext();
-        }
-        return new AnnotationConfigWebServerApplicationContext();
-      }
-      else if (applicationType == ApplicationType.REACTIVE_WEB) {
-        if (AotDetector.useGeneratedArtifacts()) {
-          return new ReactiveWebServerApplicationContext();
-        }
-        return new AnnotationConfigReactiveWebServerApplicationContext();
-      }
-      else {
-        if (AotDetector.useGeneratedArtifacts()) {
-          return new GenericApplicationContext();
-        }
-        return new AnnotationConfigApplicationContext();
-      }
-
-    }
-
   }
 
 }

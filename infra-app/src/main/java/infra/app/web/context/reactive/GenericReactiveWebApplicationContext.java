@@ -22,7 +22,6 @@ import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.support.GenericApplicationContext;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.io.Resource;
-import infra.web.context.reactive.StandardReactiveWebEnvironment;
 
 /**
  * Subclass of {@link GenericApplicationContext}, suitable for reactive web environments.

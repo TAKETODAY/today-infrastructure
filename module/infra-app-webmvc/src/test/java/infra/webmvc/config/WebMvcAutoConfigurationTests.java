@@ -116,7 +116,7 @@ import infra.web.resource.ResourceTransformer;
 import infra.web.resource.VersionResourceResolver;
 import infra.web.resource.VersionStrategy;
 import infra.web.server.WebServerFactoryCustomizerBeanPostProcessor;
-import infra.web.context.StandardWebEnvironment;
+import infra.app.web.context.StandardWebEnvironment;
 import infra.web.view.AbstractView;
 import infra.web.view.ContentNegotiatingViewResolver;
 import infra.web.view.View;

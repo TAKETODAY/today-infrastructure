@@ -22,6 +22,7 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import infra.app.ApplicationType;
 import infra.app.context.event.ApplicationReadyEvent;
 import infra.beans.BeansException;
 import infra.beans.factory.DisposableBean;
@@ -39,8 +40,6 @@ import infra.core.env.StandardEnvironment;
 import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.util.ClassUtils;
-import infra.web.server.context.WebServerApplicationContext;
 
 /**
  * Register a {@link InfraApplicationMXBean} implementation to the platform
@@ -109,10 +108,9 @@ public class InfraApplicationMXBeanRegistrar implements ApplicationContextAware,
     if (this.applicationContext.equals(context)) {
       this.ready = true;
     }
-    if (ClassUtils.isPresent("infra.web.server.context.WebServerApplicationContext", context.getClassLoader())) {
-      if (context instanceof WebServerApplicationContext) {
-        this.embeddedWebApplication = true;
-      }
+
+    if (event.getApplication().getApplicationType() != ApplicationType.NORMAL) {
+      this.embeddedWebApplication = true;
     }
   }
 

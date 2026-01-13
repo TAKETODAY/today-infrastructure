@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.io.Resource;
-import infra.web.context.reactive.StandardReactiveWebEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

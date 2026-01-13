@@ -24,7 +24,6 @@ import infra.context.annotation.Configuration;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.io.Resource;
 import infra.stereotype.Component;
-import infra.web.context.reactive.StandardReactiveWebEnvironment;
 
 /**
  * {@link ConfigurableReactiveWebApplicationContext} that accepts annotated classes as

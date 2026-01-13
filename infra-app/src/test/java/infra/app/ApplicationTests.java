@@ -342,7 +342,7 @@ class ApplicationTests {
   @Test
   void specificApplicationContextFactory() {
     Application application = new Application(ExampleConfig.class);
-    application.setApplicationContextFactory(ApplicationContextFactory.fromClass(StaticApplicationContext.class));
+    application.setApplicationContextFactory(ApplicationContextFactory.forClass(StaticApplicationContext.class));
     this.context = application.run();
     assertThat(this.context).isInstanceOf(StaticApplicationContext.class);
   }
@@ -960,7 +960,7 @@ class ApplicationTests {
   @Test
   void registerListener() {
     Application application = new Application(ExampleConfig.class, ListenerConfig.class);
-    application.setApplicationContextFactory(ApplicationContextFactory.fromClass(SpyApplicationContext.class));
+    application.setApplicationContextFactory(ApplicationContextFactory.forClass(SpyApplicationContext.class));
     Set<ApplicationEvent> events = new LinkedHashSet<>();
     application.addListeners(events::add);
     this.context = application.run();
@@ -973,7 +973,7 @@ class ApplicationTests {
   void registerListenerWithCustomMulticaster() {
     Application application = new Application(ExampleConfig.class, ListenerConfig.class,
             Multicaster.class);
-    application.setApplicationContextFactory(ApplicationContextFactory.fromClass(SpyApplicationContext.class));
+    application.setApplicationContextFactory(ApplicationContextFactory.forClass(SpyApplicationContext.class));
     Set<ApplicationEvent> events = new LinkedHashSet<>();
     application.addListeners(events::add);
     this.context = application.run();

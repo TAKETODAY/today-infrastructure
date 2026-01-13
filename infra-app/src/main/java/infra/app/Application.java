@@ -180,7 +180,7 @@ public class Application {
 
   private List<ApplicationContextInitializer> initializers;
 
-  private @Nullable ApplicationContextFactory applicationContextFactory;
+  private ApplicationContextFactory applicationContextFactory = ApplicationContextFactory.DEFAULT;
 
   private ApplicationType applicationType = ApplicationType.forDefaults();
 
@@ -471,15 +471,19 @@ public class Application {
     bindToApplication(environment);
 
     if (!this.isCustomEnvironment) {
-      environment = EnvironmentConverter.convertIfNecessary(environment, switch (applicationType) {
-        case WEB -> ApplicationWebEnvironment.class;
-        case REACTIVE_WEB -> ApplicationReactiveWebEnvironment.class;
-        default -> ApplicationEnvironment.class;
-      });
+      environment = EnvironmentConverter.convertIfNecessary(environment, deduceEnvironmentClass());
     }
 
     ConfigurationPropertySources.attach(environment);
     return environment;
+  }
+
+  private Class<? extends ConfigurableEnvironment> deduceEnvironmentClass() {
+    var environmentType = applicationContextFactory.getEnvironmentType(applicationType);
+    if (environmentType == null && applicationContextFactory != ApplicationContextFactory.DEFAULT) {
+      environmentType = ApplicationContextFactory.DEFAULT.getEnvironmentType(applicationType);
+    }
+    return environmentType != null ? environmentType : ApplicationEnvironment.class;
   }
 
   /**
@@ -541,11 +545,7 @@ public class Application {
    * @see #setApplicationContextFactory(ApplicationContextFactory)
    */
   protected ConfigurableApplicationContext createApplicationContext() {
-    ApplicationContextFactory factory = this.applicationContextFactory;
-    if (factory == null) {
-      factory = ApplicationContextFactory.forDefault();
-    }
-    ConfigurableApplicationContext context = factory.create(applicationType);
+    ConfigurableApplicationContext context = applicationContextFactory.create(applicationType);
     Assert.state(context != null, "No suitable ConfigurableApplicationContext");
     return context;
   }
@@ -704,11 +704,13 @@ public class Application {
     if (this.environment != null) {
       return this.environment;
     }
-    return switch (applicationType) {
-      case WEB -> new ApplicationWebEnvironment();
-      case REACTIVE_WEB -> new ApplicationReactiveWebEnvironment();
-      default -> new ApplicationEnvironment();
-    };
+
+    ConfigurableEnvironment environment = applicationContextFactory.createEnvironment(applicationType);
+    if (environment == null && applicationContextFactory != ApplicationContextFactory.DEFAULT) {
+      environment = ApplicationContextFactory.DEFAULT.createEnvironment(applicationType);
+    }
+
+    return environment != null ? environment : new ApplicationEnvironment();
   }
 
   /**
@@ -780,7 +782,8 @@ public class Application {
    * @param applicationContextFactory the factory for the context
    */
   public void setApplicationContextFactory(@Nullable ApplicationContextFactory applicationContextFactory) {
-    this.applicationContextFactory = applicationContextFactory;
+    this.applicationContextFactory = applicationContextFactory != null ? applicationContextFactory
+            : ApplicationContextFactory.DEFAULT;
   }
 
   /**
