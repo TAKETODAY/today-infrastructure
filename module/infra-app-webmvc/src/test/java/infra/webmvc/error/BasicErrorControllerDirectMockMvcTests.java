@@ -105,7 +105,7 @@ class BasicErrorControllerDirectMockMvcTests {
   @Test
   void errorPageNotAvailableWithWhitelabelDisabled() throws Exception {
     setup(new Application(WebMvcIncludedConfiguration.class)
-            .run("--server.port=0", "--server.error.whitelabel.enabled=false"));
+            .run("--server.port=0", "--web.error.whitelabel.enabled=false"));
 
     this.mockMvc.perform(get("/error").accept(MediaType.TEXT_HTML))
             .andExpect(status().is(500));

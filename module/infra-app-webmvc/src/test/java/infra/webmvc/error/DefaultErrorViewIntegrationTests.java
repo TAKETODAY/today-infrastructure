@@ -56,7 +56,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Scott Frederick
  */
 @DirtiesContext
-@InfraTest(properties = { "server.error.include-message=always" })
+@InfraTest(properties = { "web.error.include-message=always" })
 class DefaultErrorViewIntegrationTests {
 
   @Autowired

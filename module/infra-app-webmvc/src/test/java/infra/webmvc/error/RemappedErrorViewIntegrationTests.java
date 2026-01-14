@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.web.server.error;
+package infra.webmvc.error;
 
 import org.junit.jupiter.api.Test;
 
@@ -35,7 +35,7 @@ import infra.stereotype.Controller;
 import infra.test.annotation.DirtiesContext;
 import infra.web.annotation.RequestMapping;
 import infra.web.config.annotation.WebMvcConfigurer;
-import infra.web.server.RandomPortWebServerConfig;
+import infra.web.server.netty.RandomPortWebServerConfig;
 import infra.webmvc.config.ErrorMvcAutoConfiguration;
 import infra.webmvc.config.WebMvcAutoConfiguration;
 
@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Dave Syer
  */
-@InfraTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = "server.error.path:/infra/error")
+@InfraTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = "web.error.path:/infra/error")
 @DirtiesContext
 class RemappedErrorViewIntegrationTests {
 
