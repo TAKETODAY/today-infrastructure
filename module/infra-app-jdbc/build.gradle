@@ -1,0 +1,23 @@
+description = "Infra application JDBC integration"
+
+dependencies {
+  api project(":infra-jdbc")
+
+  optional project(":infra-tx")
+  optional project(":infra-core-aot")
+
+  optional 'com.zaxxer:HikariCP'
+
+  optional 'org.apache.commons:commons-dbcp2'
+  optional 'com.oracle.database.jdbc:ojdbc8'
+  optional 'com.oracle.database.jdbc:ucp'
+
+  testImplementation project(":infra-webmvc-mock")
+  testImplementation 'com.mchange:c3p0:0.9.5.5'
+  testImplementation "org.hsqldb:hsqldb"
+  testImplementation 'com.h2database:h2'
+  testImplementation 'org.postgresql:postgresql'
+  testImplementation 'com.microsoft.sqlserver:mssql-jdbc'
+  testImplementation 'org.mariadb.jdbc:mariadb-java-client'
+
+}

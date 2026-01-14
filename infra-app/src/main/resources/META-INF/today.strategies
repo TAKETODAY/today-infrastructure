@@ -21,8 +21,8 @@ infra.app.diagnostics.analyzer.InvalidConfigurationPropertyValueFailureAnalyzer,
 infra.app.diagnostics.analyzer.PatternParseFailureAnalyzer,\
 infra.app.diagnostics.analyzer.NoSuchBeanDefinitionFailureAnalyzer,\
 infra.app.diagnostics.analyzer.FactoryMethodBeanFailureAnalyzer,\
-infra.annotation.config.jdbc.DataSourceBeanCreationFailureAnalyzer,\
-infra.annotation.config.jdbc.HikariDriverConfigurationFailureAnalyzer,\
+infra.app.jdbc.config.DataSourceBeanCreationFailureAnalyzer,\
+infra.app.jdbc.config.HikariDriverConfigurationFailureAnalyzer,\
 infra.annotation.config.ssl.BundleContentNotWatchableFailureAnalyzer
 
 #

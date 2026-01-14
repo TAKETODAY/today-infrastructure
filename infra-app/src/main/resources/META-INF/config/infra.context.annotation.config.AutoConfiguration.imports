@@ -8,10 +8,6 @@ infra.annotation.config.validation.ValidationAutoConfiguration
 infra.annotation.config.aop.AopAutoConfiguration
 infra.annotation.config.jmx.JmxAutoConfiguration
 infra.annotation.config.jmx.InfraApplicationJmxAutoConfiguration
-infra.annotation.config.jdbc.DataSourceAutoConfiguration
-infra.annotation.config.jdbc.JdbcClientAutoConfiguration
-infra.annotation.config.jdbc.JdbcTemplateAutoConfiguration
-infra.annotation.config.jdbc.DataSourceTransactionManagerAutoConfiguration
 infra.annotation.config.transaction.jta.JtaAutoConfiguration
 infra.annotation.config.transaction.TransactionAutoConfiguration
 infra.annotation.config.web.reactive.client.WebClientAutoConfiguration

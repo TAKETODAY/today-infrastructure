@@ -24,8 +24,6 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import infra.annotation.config.jdbc.DataSourceAutoConfiguration;
-import infra.annotation.config.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;

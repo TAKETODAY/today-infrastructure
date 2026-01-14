@@ -82,8 +82,8 @@ dependencies {
   testImplementation 'com.mysql:mysql-connector-j'
 
   testImplementation 'com.github.h-thurow:simple-jndi:0.23.0'
-  testImplementation 'org.apache.commons:commons-dbcp2:2.9.0'
-  testImplementation 'com.oracle.database.jdbc:ucp:21.7.0.0'
+  testImplementation 'org.apache.commons:commons-dbcp2'
+  testImplementation 'com.oracle.database.jdbc:ucp'
   testImplementation 'org.hibernate.orm:hibernate-envers:6.1.4.Final'
 
   testImplementation 'org.apache.maven.resolver:maven-resolver-connector-basic:1.8.2'
@@ -105,7 +105,7 @@ dependencies {
   testImplementation 'org.testcontainers:cassandra'
   testImplementation 'org.testcontainers:testcontainers'
   testImplementation 'com.mchange:c3p0:0.9.5.5'
-  testImplementation 'com.oracle.database.jdbc:ojdbc8:21.7.0.0'
+  testImplementation 'com.oracle.database.jdbc:ojdbc8'
 
   testImplementation(testFixtures(project(":infra-context")))
   testImplementation(testFixtures(project(":infra-core")))
