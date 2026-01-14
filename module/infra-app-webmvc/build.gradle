@@ -16,9 +16,17 @@ dependencies {
   testImplementation project(":infra-test")
   testImplementation project(':infra-test-support')
   testImplementation project(":infra-webmvc-mock")
+  testImplementation project(':module:infra-app-freemarker')
+  testImplementation project(':module:infra-app-jackson')
+  testImplementation project(':module:infra-app-netty-server')
+
   testImplementation "jakarta.validation:jakarta.validation-api"
   testImplementation 'org.hibernate.validator:hibernate-validator'
-  testRuntimeOnly "org.glassfish:jakarta.el"
-
+  testImplementation("org.aspectj:aspectjweaver")
   testImplementation 'ch.qos.logback:logback-classic'
+  testImplementation("org.hamcrest:hamcrest")
+
+  testImplementation testFixtures(project(':module:infra-app-netty-server'))
+
+  testRuntimeOnly "org.glassfish:jakarta.el"
 }

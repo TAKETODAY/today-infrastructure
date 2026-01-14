@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2026 the TODAY authors.
+ * Copyright 2012-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,24 @@
  * limitations under the License.
  */
 
-package infra.web.server.error;
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
+package infra.webmvc.error;
 
 import org.junit.jupiter.api.Test;
 
 import java.util.EnumSet;
 
-import static infra.web.server.error.ErrorAttributeOptions.Include;
-import static infra.web.server.error.ErrorAttributeOptions.of;
+import static infra.webmvc.error.ErrorAttributeOptions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/2/20 23:13
+ * Tests for {@link ErrorAttributeOptions}.
+ *
+ * @author Wanderlei Souza
+ * @author Stephane Nicoll
  */
-class ErrorAttributeOptionsTests {
+class ErrorAttributesOptionsTests {
 
   @Test
   void includingFromEmptyAttributesReturnAddedEntry() {

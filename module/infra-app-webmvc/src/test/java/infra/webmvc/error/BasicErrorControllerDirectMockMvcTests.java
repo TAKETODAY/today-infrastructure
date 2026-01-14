@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.web.server.error;
+package infra.webmvc.error;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -33,10 +33,6 @@ import java.lang.annotation.Target;
 import java.net.URL;
 
 import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
-import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
-import infra.annotation.config.web.ErrorMvcAutoConfiguration;
-import infra.annotation.config.web.RandomPortWebServerConfig;
-import infra.annotation.config.web.WebMvcAutoConfiguration;
 import infra.app.Application;
 import infra.app.builder.ApplicationBuilder;
 import infra.app.test.util.ApplicationContextTestUtils;
@@ -45,12 +41,16 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.EnableAspectJAutoProxy;
 import infra.context.annotation.Import;
 import infra.http.MediaType;
+import infra.http.converter.config.HttpMessageConvertersAutoConfiguration;
 import infra.test.context.junit.jupiter.InfraExtension;
 import infra.test.util.ReflectionTestUtils;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.setup.MockMvcBuilders;
 import infra.web.config.annotation.EnableWebMvc;
+import infra.web.server.netty.RandomPortWebServerConfig;
+import infra.webmvc.config.ErrorMvcAutoConfiguration;
+import infra.webmvc.config.WebMvcAutoConfiguration;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.get;
 import static infra.test.web.mock.result.MockMvcResultMatchers.status;

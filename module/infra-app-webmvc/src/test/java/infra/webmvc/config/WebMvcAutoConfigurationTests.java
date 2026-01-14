@@ -40,13 +40,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
-import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
 import infra.annotation.config.task.TaskExecutionAutoConfiguration;
 import infra.annotation.config.validation.ValidationAutoConfiguration;
 import infra.annotation.config.validation.ValidatorAdapter;
 import infra.app.test.context.assertj.AssertableApplicationContext;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.app.test.context.runner.ContextConsumer;
+import infra.app.web.context.StandardWebEnvironment;
 import infra.context.ApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
@@ -64,6 +64,7 @@ import infra.format.support.FormattingConversionService;
 import infra.http.CacheControl;
 import infra.http.HttpHeaders;
 import infra.http.converter.HttpMessageConverter;
+import infra.http.converter.config.HttpMessageConvertersAutoConfiguration;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.test.util.ReflectionTestUtils;
 import infra.util.StringUtils;
@@ -115,8 +116,6 @@ import infra.web.resource.ResourceResolver;
 import infra.web.resource.ResourceTransformer;
 import infra.web.resource.VersionResourceResolver;
 import infra.web.resource.VersionStrategy;
-import infra.web.server.WebServerFactoryCustomizerBeanPostProcessor;
-import infra.app.web.context.StandardWebEnvironment;
 import infra.web.view.AbstractView;
 import infra.web.view.ContentNegotiatingViewResolver;
 import infra.web.view.View;
@@ -931,10 +930,10 @@ class WebMvcAutoConfigurationTests {
 //      return webServerFactory;
 //    }
 
-    @Bean
-    WebServerFactoryCustomizerBeanPostProcessor webServerCustomizerBeanPostProcessor() {
-      return new WebServerFactoryCustomizerBeanPostProcessor();
-    }
+//    @Bean
+//    WebServerFactoryCustomizerBeanPostProcessor webServerCustomizerBeanPostProcessor() {
+//      return new WebServerFactoryCustomizerBeanPostProcessor();
+//    }
 
   }
 

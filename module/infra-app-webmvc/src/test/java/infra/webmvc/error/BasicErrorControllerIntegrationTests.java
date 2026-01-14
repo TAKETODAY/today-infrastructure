@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.web.server.error;
+package infra.webmvc.error;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -30,22 +30,19 @@ import java.net.URI;
 import java.util.Map;
 
 import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
-import infra.annotation.config.freemarker.FreeMarkerAutoConfiguration;
-import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
 import infra.annotation.config.task.TaskExecutionAutoConfiguration;
-import infra.annotation.config.web.ErrorMvcAutoConfiguration;
-import infra.annotation.config.web.RandomPortWebServerConfig;
-import infra.annotation.config.web.WebMvcAutoConfiguration;
 import infra.app.Application;
 import infra.app.test.web.client.TestRestTemplate;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.ImportAutoConfiguration;
+import infra.freemarker.config.FreeMarkerAutoConfiguration;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.RequestEntity;
 import infra.http.ResponseEntity;
+import infra.http.converter.config.HttpMessageConvertersAutoConfiguration;
 import infra.validation.BindException;
 import infra.web.RequestContext;
 import infra.web.annotation.PostMapping;
@@ -54,8 +51,11 @@ import infra.web.annotation.RequestMapping;
 import infra.web.annotation.ResponseStatus;
 import infra.web.annotation.RestController;
 import infra.web.bind.MethodArgumentNotValidException;
+import infra.web.server.netty.RandomPortWebServerConfig;
 import infra.web.view.AbstractView;
 import infra.web.view.View;
+import infra.webmvc.config.ErrorMvcAutoConfiguration;
+import infra.webmvc.config.WebMvcAutoConfiguration;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 

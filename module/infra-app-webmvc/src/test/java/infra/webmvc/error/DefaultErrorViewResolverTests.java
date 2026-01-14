@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.web.server.error;
+package infra.webmvc.error;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

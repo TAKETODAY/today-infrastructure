@@ -27,17 +27,16 @@ import java.util.Map;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.app.test.system.CapturedOutput;
 import infra.app.test.system.OutputCaptureExtension;
+import infra.app.web.context.StandardWebEnvironment;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockRequestContext;
-import infra.web.server.error.ErrorAttributeOptions;
-import infra.web.server.error.ErrorAttributeOptions.Include;
-import infra.web.server.error.ErrorAttributes;
-import infra.app.web.context.StandardWebEnvironment;
 import infra.web.util.WebUtils;
 import infra.web.view.View;
+import infra.webmvc.error.ErrorAttributeOptions;
+import infra.webmvc.error.ErrorAttributes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -120,7 +119,7 @@ class ErrorMvcAutoConfigurationTests {
   }
 
   private ErrorAttributeOptions withAllOptions() {
-    return ErrorAttributeOptions.of(Include.values());
+    return ErrorAttributeOptions.of(ErrorAttributeOptions.Include.values());
   }
 
 }

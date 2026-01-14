@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-present the original author or authors.
+ * Copyright 2017 - 2026 the TODAY authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,48 +14,43 @@
  * limitations under the License.
  */
 
-// Modifications Copyright 2017 - 2026 the TODAY authors.
-
-package infra.web.server.error;
+package infra.webmvc.error;
 
 import org.junit.jupiter.api.Test;
 
 import java.util.EnumSet;
 
-import infra.web.server.error.ErrorAttributeOptions.Include;
-
+import static infra.webmvc.error.ErrorAttributeOptions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link ErrorAttributeOptions}.
- *
- * @author Wanderlei Souza
- * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/2/20 23:13
  */
-class ErrorAttributesOptionsTests {
+class ErrorAttributeOptionsTests {
 
   @Test
   void includingFromEmptyAttributesReturnAddedEntry() {
-    ErrorAttributeOptions options = ErrorAttributeOptions.of(EnumSet.noneOf(Include.class));
+    ErrorAttributeOptions options = of(EnumSet.noneOf(Include.class));
     assertThat(options.including(Include.EXCEPTION).getIncludes()).containsOnly(Include.EXCEPTION);
   }
 
   @Test
   void includingFromMatchingAttributesDoesNotModifyOptions() {
-    ErrorAttributeOptions options = ErrorAttributeOptions.of(EnumSet.of(Include.EXCEPTION, Include.STACK_TRACE));
+    ErrorAttributeOptions options = of(EnumSet.of(Include.EXCEPTION, Include.STACK_TRACE));
     assertThat(options.including(Include.EXCEPTION).getIncludes()).containsOnly(Include.EXCEPTION,
             Include.STACK_TRACE);
   }
 
   @Test
   void excludingFromEmptyAttributesReturnEmptyList() {
-    ErrorAttributeOptions options = ErrorAttributeOptions.of(EnumSet.noneOf(Include.class));
+    ErrorAttributeOptions options = of(EnumSet.noneOf(Include.class));
     assertThat(options.excluding(Include.EXCEPTION).getIncludes()).isEmpty();
   }
 
   @Test
   void excludingFromMatchingAttributesRemoveMatch() {
-    ErrorAttributeOptions options = ErrorAttributeOptions.of(EnumSet.of(Include.EXCEPTION, Include.STACK_TRACE));
+    ErrorAttributeOptions options = of(EnumSet.of(Include.EXCEPTION, Include.STACK_TRACE));
     assertThat(options.excluding(Include.EXCEPTION).getIncludes()).containsOnly(Include.STACK_TRACE);
   }
 

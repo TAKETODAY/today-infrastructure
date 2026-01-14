@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.web.server.error;
+package infra.webmvc.error;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,9 +29,6 @@ import java.lang.annotation.Target;
 import java.util.Map;
 
 import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
-import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
-import infra.annotation.config.web.ErrorMvcAutoConfiguration;
-import infra.annotation.config.web.WebMvcAutoConfiguration;
 import infra.app.Application;
 import infra.app.test.context.InfraTest;
 import infra.beans.factory.annotation.Autowired;
@@ -41,6 +38,7 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.config.ImportAutoConfiguration;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
+import infra.http.converter.config.HttpMessageConvertersAutoConfiguration;
 import infra.mock.api.MockContext;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.test.annotation.DirtiesContext;
@@ -55,6 +53,8 @@ import infra.web.annotation.ResponseStatus;
 import infra.web.annotation.RestController;
 import infra.web.view.AbstractView;
 import infra.web.view.View;
+import infra.webmvc.config.ErrorMvcAutoConfiguration;
+import infra.webmvc.config.WebMvcAutoConfiguration;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.get;
 import static infra.test.web.mock.result.MockMvcResultMatchers.status;
