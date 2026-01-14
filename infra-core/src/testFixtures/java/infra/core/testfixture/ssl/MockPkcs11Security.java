@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.core.ssl;
+package infra.core.testfixture.ssl;
 
 import org.junit.jupiter.api.extension.ExtendWith;
 

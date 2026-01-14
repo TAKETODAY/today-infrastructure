@@ -28,7 +28,6 @@ import infra.app.io.ApplicationResourceLoader;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.util.function.ThrowingConsumer;
-import infra.web.MockPkcs11Security;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -39,7 +38,6 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  * @author Scott Frederick
  * @author Phillip Webb
  */
-@MockPkcs11Security
 class JksSslStoreBundleITTests {
 
   @Test

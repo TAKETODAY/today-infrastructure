@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.web;
+package infra.core.testfixture.ssl;
 
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;

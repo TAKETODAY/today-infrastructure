@@ -12,5 +12,6 @@ dependencies {
   optional("jakarta.json.bind:jakarta.json.bind-api")
   optional("tools.jackson.dataformat:jackson-dataformat-xml")
 
+  testRuntimeOnly("io.projectreactor:reactor-test")
   testRuntimeOnly("ch.qos.logback:logback-classic")
 }

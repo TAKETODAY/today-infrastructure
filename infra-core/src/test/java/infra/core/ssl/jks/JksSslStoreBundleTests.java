@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
-import infra.core.ssl.MockPkcs11Security;
+import infra.core.testfixture.ssl.MockPkcs11Security;
 import infra.util.function.ThrowingConsumer;
 
 import static org.assertj.core.api.Assertions.assertThat;

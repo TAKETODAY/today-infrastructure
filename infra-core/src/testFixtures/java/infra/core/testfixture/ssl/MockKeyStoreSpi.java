@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.core.ssl;
+package infra.core.testfixture.ssl;
 
 import java.io.InputStream;
 import java.io.OutputStream;
