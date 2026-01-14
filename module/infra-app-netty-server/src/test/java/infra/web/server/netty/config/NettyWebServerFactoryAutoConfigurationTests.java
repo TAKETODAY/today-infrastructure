@@ -28,7 +28,7 @@ import infra.context.annotation.config.AutoConfigurations;
 import infra.context.properties.bind.Binder;
 import infra.test.classpath.ClassPathExclusions;
 import infra.util.DataSize;
-import infra.web.server.ServerProperties;
+import infra.web.server.config.ServerProperties;
 import infra.web.server.context.AnnotationConfigWebServerApplicationContext;
 import infra.web.server.netty.NettyChannelHandler;
 import infra.web.server.netty.NettyServerProperties;

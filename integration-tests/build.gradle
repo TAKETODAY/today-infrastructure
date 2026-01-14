@@ -112,6 +112,7 @@ dependencies {
   testImplementation(testFixtures(project(":infra-beans")))
   testImplementation(testFixtures(project(":infra-tx")))
   testImplementation(testFixtures(project(":infra-jcache")))
+  testImplementation testFixtures(project(':module:infra-app-netty-server'))
 
   optional("com.github.librepdf:openpdf")
   optional("org.apache.poi:poi-ooxml")

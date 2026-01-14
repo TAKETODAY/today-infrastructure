@@ -34,7 +34,7 @@ import infra.http.client.ReactorResourceFactory;
 import infra.http.config.annotation.ReactorNettyConfigurations.ReactorResourceFactoryConfiguration;
 import infra.http.server.reactive.ForwardedHeaderTransformer;
 import infra.stereotype.Component;
-import infra.web.server.ServerProperties;
+import infra.web.server.config.ServerProperties;
 import infra.web.server.config.WebServerConfiguration;
 import infra.web.server.reactive.ReactiveWebServerFactory;
 import infra.web.server.reactor.NettyRouteProvider;

@@ -23,7 +23,7 @@ import infra.core.Ordered;
 import infra.core.env.Environment;
 import infra.util.PropertyMapper;
 import infra.web.server.Http2;
-import infra.web.server.ServerProperties;
+import infra.web.server.config.ServerProperties;
 import infra.web.server.WebServerFactoryCustomizer;
 import infra.web.server.reactor.ReactorNettyReactiveWebServerFactory;
 import infra.web.server.reactor.ReactorServerProperties;

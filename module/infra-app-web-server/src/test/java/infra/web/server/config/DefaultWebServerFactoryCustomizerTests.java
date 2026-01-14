@@ -8,7 +8,6 @@ import java.net.InetAddress;
 import infra.core.ssl.DefaultSslBundleRegistry;
 import infra.core.ssl.SslBundles;
 import infra.test.util.ReflectionTestUtils;
-import infra.web.server.ServerProperties;
 import infra.web.server.Shutdown;
 import infra.web.server.Ssl;
 import infra.web.server.reactive.ConfigurableReactiveWebServerFactory;

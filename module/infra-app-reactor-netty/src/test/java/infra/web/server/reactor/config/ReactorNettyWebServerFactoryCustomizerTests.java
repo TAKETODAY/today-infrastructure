@@ -30,7 +30,7 @@ import infra.context.properties.source.ConfigurationPropertySources;
 import infra.mock.env.MockEnvironment;
 import infra.util.DataSize;
 import infra.web.server.Http2;
-import infra.web.server.ServerProperties;
+import infra.web.server.config.ServerProperties;
 import infra.web.server.reactor.ReactorNettyReactiveWebServerFactory;
 import infra.web.server.reactor.ReactorNettyServerCustomizer;
 import infra.web.server.reactor.ReactorServerProperties;

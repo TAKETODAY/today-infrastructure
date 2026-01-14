@@ -49,7 +49,7 @@ import infra.web.DispatcherHandler;
 import infra.web.multipart.MultipartParser;
 import infra.web.multipart.parsing.DefaultMultipartParser;
 import infra.web.multipart.parsing.ProgressListener;
-import infra.web.server.ServerProperties;
+import infra.web.server.config.ServerProperties;
 import infra.web.server.ServiceExecutor;
 import infra.web.server.SimpleServiceExecutor;
 import infra.web.server.Ssl;

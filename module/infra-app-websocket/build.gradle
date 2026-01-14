@@ -19,4 +19,5 @@ dependencies {
   testRuntimeOnly "org.glassfish:jakarta.el"
 
   testImplementation 'ch.qos.logback:logback-classic'
+  testImplementation testFixtures(project(':module:infra-app-netty-server'))
 }

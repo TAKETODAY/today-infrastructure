@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.web.server;
+package infra.web.server.config;
 
 import org.jspecify.annotations.Nullable;
 
@@ -32,6 +32,11 @@ import infra.core.ApplicationTemp;
 import infra.core.ssl.SslBundles;
 import infra.util.DataSize;
 import infra.util.StringUtils;
+import infra.web.server.Compression;
+import infra.web.server.ConfigurableWebServerFactory;
+import infra.web.server.Http2;
+import infra.web.server.Shutdown;
+import infra.web.server.Ssl;
 
 /**
  * {@link ConfigurationProperties @ConfigurationProperties} for a web server (e.g. port

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.annotation.config.web.socket;
+package infra.web.socket.config;
 
 import org.junit.jupiter.api.Test;
 
@@ -23,10 +23,9 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.stereotype.Component;
 import infra.web.server.context.AnnotationConfigWebServerApplicationContext;
+import infra.web.server.netty.RandomPortWebServerConfig;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketSession;
-import infra.web.socket.config.WebSocketConfigurer;
-import infra.web.socket.config.WebSocketHandlerRegistry;
 import infra.web.socket.server.RequestUpgradeStrategy;
 import infra.web.socket.server.support.WebSocketHandlerMapping;
 

@@ -15,7 +15,6 @@ import infra.core.ssl.SslBundles;
 import infra.core.type.AnnotationMetadata;
 import infra.stereotype.Component;
 import infra.util.ObjectUtils;
-import infra.web.server.ServerProperties;
 import infra.web.server.WebServerFactoryCustomizerBeanPostProcessor;
 
 /**

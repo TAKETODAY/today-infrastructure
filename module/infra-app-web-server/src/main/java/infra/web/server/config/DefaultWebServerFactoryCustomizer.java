@@ -24,7 +24,6 @@ import infra.core.ApplicationTemp;
 import infra.core.Ordered;
 import infra.core.ssl.SslBundles;
 import infra.web.server.ConfigurableWebServerFactory;
-import infra.web.server.ServerProperties;
 import infra.web.server.WebServerFactoryCustomizer;
 
 /**

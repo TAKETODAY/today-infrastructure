@@ -72,11 +72,10 @@ public class ImportAutoConfigurationImportSelector extends AutoConfigurationImpo
   }
 
   @Override
-  protected List<String> getCandidateConfigurations(
-          AnnotationMetadata metadata, @Nullable AnnotationAttributes attributes) {
-    ArrayList<String> candidates = new ArrayList<>();
-
+  protected List<String> getCandidateConfigurations(AnnotationMetadata metadata, @Nullable AnnotationAttributes attributes) {
     Map<Class<?>, List<Annotation>> annotations = getAnnotations(metadata);
+    ArrayList<String> candidates = new ArrayList<>(annotations.size());
+
     for (Map.Entry<Class<?>, List<Annotation>> entry : annotations.entrySet()) {
       Class<?> source = entry.getKey();
       List<Annotation> sourceAnnotations = entry.getValue();
@@ -85,8 +84,7 @@ public class ImportAutoConfigurationImportSelector extends AutoConfigurationImpo
     return candidates;
   }
 
-  private void collectCandidateConfigurations(Class<?> source,
-          List<Annotation> annotations, List<String> candidates) {
+  private void collectCandidateConfigurations(Class<?> source, List<Annotation> annotations, List<String> candidates) {
     for (Annotation annotation : annotations) {
       candidates.addAll(getConfigurationsForAnnotation(source, annotation));
     }
@@ -132,10 +130,8 @@ public class ImportAutoConfigurationImportSelector extends AutoConfigurationImpo
     var merged = MergedAnnotations.from(source).get(ImportAutoConfiguration.class);
     if (merged.isPresent()) {
       Class<?>[] exclude = merged.getClassArray("exclude");
-      if (exclude != null) {
-        for (Class<?> excludeClass : exclude) {
-          exclusions.add(excludeClass.getName());
-        }
+      for (Class<?> excludeClass : exclude) {
+        exclusions.add(excludeClass.getName());
       }
     }
 
@@ -158,8 +154,7 @@ public class ImportAutoConfigurationImportSelector extends AutoConfigurationImpo
     return Collections.unmodifiableMap(annotations);
   }
 
-  private void collectAnnotations(Class<?> source,
-          MultiValueMap<Class<?>, Annotation> annotations, HashSet<Class<?>> seen) {
+  private void collectAnnotations(Class<?> source, MultiValueMap<Class<?>, Annotation> annotations, HashSet<Class<?>> seen) {
     if (source != null && seen.add(source)) {
       for (Annotation annotation : source.getDeclaredAnnotations()) {
         if (!AnnotationUtils.isInJavaLangAnnotationPackage(annotation)) {
