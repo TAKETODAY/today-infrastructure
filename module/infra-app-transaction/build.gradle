@@ -14,5 +14,6 @@ dependencies {
   testRuntimeOnly "org.hsqldb:hsqldb"
   testRuntimeOnly 'com.h2database:h2'
 
+  testRuntimeOnly "ch.qos.logback:logback-classic"
   testRuntimeOnly "io.projectreactor:reactor-core"
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2026 the TODAY authors.
+ * Copyright 2012-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.transaction.config;
 
-import infra.transaction.PlatformTransactionManager;
+import infra.transaction.TransactionManager;
 
 /**
- * Callback interface that can be implemented by beans wishing to customize
- * {@link PlatformTransactionManager PlatformTransactionManagers} whilst retaining default
- * auto-configuration.
+ * Callback interface that can be implemented by beans wishing to customize a
+ * {@link TransactionManager} to fine-tune its auto-configuration.
  *
  * @param <T> the transaction manager type
  * @author Phillip Webb
@@ -29,7 +30,7 @@ import infra.transaction.PlatformTransactionManager;
  * @since 4.0
  */
 @FunctionalInterface
-public interface PlatformTransactionManagerCustomizer<T extends PlatformTransactionManager> {
+public interface TransactionManagerCustomizer<T extends TransactionManager> {
 
   /**
    * Customize the given transaction manager.

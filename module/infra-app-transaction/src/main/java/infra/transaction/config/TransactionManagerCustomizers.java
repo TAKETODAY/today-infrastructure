@@ -29,7 +29,7 @@ import infra.transaction.PlatformTransactionManager;
 import infra.util.LambdaSafe;
 
 /**
- * A collection of {@link PlatformTransactionManagerCustomizer}.
+ * A collection of {@link TransactionManagerCustomizer}.
  *
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -37,15 +37,15 @@ import infra.util.LambdaSafe;
  */
 public class TransactionManagerCustomizers {
 
-  private final List<PlatformTransactionManagerCustomizer<?>> customizers;
+  private final List<TransactionManagerCustomizer<?>> customizers;
 
-  public TransactionManagerCustomizers(@Nullable Collection<? extends PlatformTransactionManagerCustomizer<?>> customizers) {
+  public TransactionManagerCustomizers(@Nullable Collection<? extends TransactionManagerCustomizer<?>> customizers) {
     this.customizers = customizers != null ? new ArrayList<>(customizers) : Collections.emptyList();
   }
 
   @SuppressWarnings("unchecked")
   public void customize(PlatformTransactionManager transactionManager) {
-    LambdaSafe.callbacks(PlatformTransactionManagerCustomizer.class, customizers, transactionManager)
+    LambdaSafe.callbacks(TransactionManagerCustomizer.class, customizers, transactionManager)
             .withLogger(TransactionManagerCustomizers.class)
             .invoke((customizer) -> customizer.customize(transactionManager));
   }

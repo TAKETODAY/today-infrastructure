@@ -59,7 +59,7 @@ public final class TransactionAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   public static TransactionManagerCustomizers platformTransactionManagerCustomizers(
-          Collection<PlatformTransactionManagerCustomizer<?>> customizers) {
+          Collection<TransactionManagerCustomizer<?>> customizers) {
     return new TransactionManagerCustomizers(customizers);
   }
 

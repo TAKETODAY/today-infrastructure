@@ -54,7 +54,7 @@ class TransactionManagerCustomizersTests {
   }
 
   static class TestCustomizer<T extends PlatformTransactionManager>
-          implements PlatformTransactionManagerCustomizer<T> {
+          implements TransactionManagerCustomizer<T> {
 
     private int count;
 

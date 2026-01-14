@@ -37,7 +37,7 @@ import infra.transaction.support.AbstractPlatformTransactionManager;
  * @since 4.0
  */
 @ConfigurationProperties(prefix = "transaction")
-public class TransactionProperties implements PlatformTransactionManagerCustomizer<AbstractPlatformTransactionManager> {
+public class TransactionProperties implements TransactionManagerCustomizer<AbstractPlatformTransactionManager> {
 
   /**
    * Default transaction timeout. If a duration suffix is not specified, seconds will be
