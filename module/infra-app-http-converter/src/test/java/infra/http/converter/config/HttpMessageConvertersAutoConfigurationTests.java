@@ -32,7 +32,6 @@ import infra.app.test.context.FilteredClassLoader;
 import infra.app.test.context.assertj.AssertableApplicationContext;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.app.test.context.runner.ReactiveWebApplicationContextRunner;
-import infra.app.test.context.runner.WebApplicationContextRunner;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.ApplicationContext;
 import infra.context.annotation.Bean;
@@ -258,7 +257,7 @@ class HttpMessageConvertersAutoConfigurationTests {
 
   @Test
   void whenWebApplicationHttpMessageConvertersIsConfigured() {
-    new WebApplicationContextRunner()
+    new ApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(HttpMessageConvertersAutoConfiguration.class))
             .run((context) -> assertThat(context).hasSingleBean(DefaultHttpMessageConvertersCustomizer.class)
                     .hasSingleBean(DefaultHttpMessageConvertersCustomizer.class));
@@ -274,7 +273,7 @@ class HttpMessageConvertersAutoConfigurationTests {
 
   @Test
   void whenEncodingCharsetIsNotConfiguredThenStringMessageConverterUsesUtf8() {
-    new WebApplicationContextRunner()
+    new ApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(HttpMessageConvertersAutoConfiguration.class))
             .run((context) -> {
               StringHttpMessageConverter converter = findConverter(getServerConverters(context),
@@ -285,7 +284,7 @@ class HttpMessageConvertersAutoConfigurationTests {
 
   @Test
   void whenEncodingCharsetIsConfiguredThenStringMessageConverterUsesSpecificCharset() {
-    new WebApplicationContextRunner()
+    new ApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(HttpMessageConvertersAutoConfiguration.class))
             .withPropertyValues("http.converters.string-encoding-charset=UTF-16")
             .run((context) -> {

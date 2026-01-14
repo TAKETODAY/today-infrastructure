@@ -11,6 +11,5 @@ dependencies {
 
   testImplementation project(":infra-core-test")
 
-  testImplementation("tools.jackson.module:jackson-module-kotlin")
   testRuntimeOnly("ch.qos.logback:logback-classic")
 }

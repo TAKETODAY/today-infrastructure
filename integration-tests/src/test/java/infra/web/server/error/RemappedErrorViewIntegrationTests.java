@@ -21,7 +21,6 @@ package infra.web.server.error;
 import org.junit.jupiter.api.Test;
 
 import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
-import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
 import infra.annotation.config.task.TaskExecutionAutoConfiguration;
 import infra.app.test.context.InfraTest;
 import infra.app.test.context.InfraTest.WebEnvironment;
@@ -30,6 +29,7 @@ import infra.app.test.web.server.LocalServerPort;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.http.converter.HttpMessageConverters.ServerBuilder;
+import infra.http.converter.config.HttpMessageConvertersAutoConfiguration;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.stereotype.Controller;
 import infra.test.annotation.DirtiesContext;

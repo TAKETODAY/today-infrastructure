@@ -23,8 +23,6 @@ import org.mockito.InOrder;
 
 import java.util.Collections;
 
-import infra.annotation.config.http.client.HttpClientAutoConfiguration;
-import infra.annotation.config.http.client.ImperativeHttpClientAutoConfiguration;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.app.test.context.runner.ReactiveWebApplicationContextRunner;
 import infra.app.test.context.runner.WebApplicationContextRunner;
@@ -36,6 +34,8 @@ import infra.core.annotation.Order;
 import infra.http.HttpStatus;
 import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.JdkClientHttpRequestFactory;
+import infra.http.client.config.HttpClientAutoConfiguration;
+import infra.http.client.config.ImperativeHttpClientAutoConfiguration;
 import infra.http.converter.ByteArrayHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.config.ClientHttpMessageConvertersCustomizer;
