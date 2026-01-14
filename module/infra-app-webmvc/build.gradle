@@ -19,6 +19,7 @@ dependencies {
   testImplementation project(':module:infra-app-freemarker')
   testImplementation project(':module:infra-app-jackson')
   testImplementation project(':module:infra-app-netty-server')
+  testImplementation project(':module:infra-app-validation')
 
   testImplementation "jakarta.validation:jakarta.validation-api"
   testImplementation 'org.hibernate.validator:hibernate-validator'

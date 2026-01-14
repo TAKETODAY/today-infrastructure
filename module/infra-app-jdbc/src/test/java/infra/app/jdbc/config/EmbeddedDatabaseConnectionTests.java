@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.jdbc;
+package infra.app.jdbc.config;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,7 +28,6 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import infra.annotation.config.jdbc.EmbeddedDatabaseConnection;
 import infra.jdbc.datasource.embedded.EmbeddedDatabase;
 import infra.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import infra.jdbc.datasource.embedded.EmbeddedDatabaseType;

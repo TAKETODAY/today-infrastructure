@@ -26,7 +26,6 @@ import java.util.List;
 
 import infra.annotation.ConditionalOnWebApplication;
 import infra.annotation.config.task.TaskExecutionAutoConfiguration;
-import infra.annotation.config.validation.ValidationAutoConfiguration;
 import infra.annotation.config.web.ConditionalOnEnabledResourceChain;
 import infra.annotation.config.web.WebProperties;
 import infra.annotation.config.web.WebProperties.Resources;
@@ -119,10 +118,8 @@ import static infra.annotation.config.task.TaskExecutionAutoConfiguration.APPLIC
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
-@DisableDIAutoConfiguration(after = {
-        TaskExecutionAutoConfiguration.class,
-        ValidationAutoConfiguration.class
-})
+@DisableDIAutoConfiguration(after = TaskExecutionAutoConfiguration.class,
+        afterName = "infra.validation.config.ValidationAutoConfiguration")
 @ConditionalOnWebApplication(type = MVC)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE + 10)

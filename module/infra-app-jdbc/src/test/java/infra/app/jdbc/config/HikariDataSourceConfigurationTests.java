@@ -34,6 +34,7 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.jdbc.datasource.DelegatingDataSource;
 import infra.test.classpath.ClassPathExclusions;
+import infra.test.classpath.ClassPathOverrides;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -109,15 +110,16 @@ class HikariDataSourceConfigurationTests {
   }
 
   @Test
+  @ClassPathOverrides("org.crac:crac:1.3.0")
   void whenCheckpointRestoreIsAvailableHikariAutoConfigRegistersLifecycleBean() {
     this.contextRunner.withPropertyValues("datasource.type=" + HikariDataSource.class.getName())
             .run((context) -> assertThat(context).hasSingleBean(HikariCheckpointRestoreLifecycle.class));
   }
 
   @Test
+  @ClassPathOverrides("org.crac:crac:1.3.0")
   void whenCheckpointRestoreIsAvailableAndDataSourceHasBeenWrappedHikariAutoConfigRegistersLifecycleBean() {
     this.contextRunner.withUserConfiguration(DataSourceWrapperConfiguration.class)
-            .withPropertyValues("datasource.type=" + HikariDataSource.class.getName())
             .run((context) -> assertThat(context).hasSingleBean(HikariCheckpointRestoreLifecycle.class));
   }
 

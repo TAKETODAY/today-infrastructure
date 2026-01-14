@@ -41,8 +41,6 @@ import java.util.function.Consumer;
 
 import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.annotation.config.task.TaskExecutionAutoConfiguration;
-import infra.annotation.config.validation.ValidationAutoConfiguration;
-import infra.annotation.config.validation.ValidatorAdapter;
 import infra.app.test.context.assertj.AssertableApplicationContext;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.app.test.context.runner.ContextConsumer;
@@ -70,6 +68,8 @@ import infra.test.util.ReflectionTestUtils;
 import infra.util.StringUtils;
 import infra.validation.Validator;
 import infra.validation.beanvalidation.LocalValidatorFactoryBean;
+import infra.validation.config.ValidationAutoConfiguration;
+import infra.validation.config.ValidatorAdapter;
 import infra.web.AbstractRedirectModelManager;
 import infra.web.HandlerAdapter;
 import infra.web.HandlerExceptionHandler;

@@ -22,6 +22,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
+import java.time.Duration;
 
 import javax.sql.DataSource;
 
@@ -78,15 +79,15 @@ class OracleUcpDataSourceConfigurationTests {
   void testDataSourceDefaultsPreserved() {
     this.contextRunner.run((context) -> {
       PoolDataSourceImpl ds = context.getBean(PoolDataSourceImpl.class);
-      Assertions.assertThat(ds.getInitialPoolSize()).isEqualTo(0);
-      Assertions.assertThat(ds.getMinPoolSize()).isEqualTo(0);
-      Assertions.assertThat(ds.getMaxPoolSize()).isEqualTo(Integer.MAX_VALUE);
-      Assertions.assertThat(ds.getInactiveConnectionTimeout()).isEqualTo(0);
-      Assertions.assertThat(ds.getConnectionWaitTimeout()).isEqualTo(3);
-      Assertions.assertThat(ds.getTimeToLiveConnectionTimeout()).isEqualTo(0);
-      Assertions.assertThat(ds.getAbandonedConnectionTimeout()).isEqualTo(0);
-      Assertions.assertThat(ds.getTimeoutCheckInterval()).isEqualTo(30);
-      Assertions.assertThat(ds.getFastConnectionFailoverEnabled()).isFalse();
+      assertThat(ds.getInitialPoolSize()).isZero();
+      assertThat(ds.getMinPoolSize()).isOne();
+      assertThat(ds.getMaxPoolSize()).isEqualTo(Integer.MAX_VALUE);
+      assertThat(ds.getInactiveConnectionTimeout()).isZero();
+      assertThat(ds.getConnectionWaitDuration()).isEqualTo(Duration.ofSeconds(3));
+      assertThat(ds.getTimeToLiveConnectionTimeout()).isZero();
+      assertThat(ds.getAbandonedConnectionTimeout()).isZero();
+      assertThat(ds.getTimeoutCheckInterval()).isEqualTo(30);
+      assertThat(ds.getFastConnectionFailoverEnabled()).isFalse();
     });
   }
 
