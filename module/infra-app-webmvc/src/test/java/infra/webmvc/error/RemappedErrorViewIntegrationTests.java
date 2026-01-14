@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Dave Syer
  */
-@InfraTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = "web.error.path:/infra/error")
+@InfraTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = "error.path:/infra/error")
 @DirtiesContext
 class RemappedErrorViewIntegrationTests {
 
