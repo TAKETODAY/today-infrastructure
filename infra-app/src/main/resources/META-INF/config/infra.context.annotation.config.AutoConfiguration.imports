@@ -4,7 +4,6 @@ infra.annotation.config.context.PropertyPlaceholderAutoConfiguration
 infra.annotation.config.context.ConfigurationPropertiesAutoConfiguration
 infra.annotation.config.task.TaskExecutionAutoConfiguration
 infra.annotation.config.task.TaskSchedulingAutoConfiguration
-infra.annotation.config.validation.ValidationAutoConfiguration
 infra.annotation.config.aop.AopAutoConfiguration
 infra.annotation.config.jmx.JmxAutoConfiguration
 infra.annotation.config.jmx.InfraApplicationJmxAutoConfiguration

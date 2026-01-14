@@ -1,0 +1,8 @@
+description = "Infra application Validation integration"
+
+dependencies {
+  api("org.apache.tomcat.embed:tomcat-embed-el")
+  api("org.hibernate.validator:hibernate-validator")
+
+  testRuntimeOnly("ch.qos.logback:logback-classic")
+}

@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.validation;
+package infra.validation.config;
 
 import java.util.Collection;
 
@@ -54,10 +54,7 @@ import jakarta.validation.executable.ExecutableValidator;
 @ConditionalOnClass(ExecutableValidator.class)
 @ConditionalOnResource("classpath:META-INF/services/jakarta.validation.spi.ValidationProvider")
 @Import(PrimaryDefaultValidatorPostProcessor.class)
-public class ValidationAutoConfiguration {
-
-  private ValidationAutoConfiguration() {
-  }
+public final class ValidationAutoConfiguration {
 
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)

@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.validation;
+package infra.validation.config;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;

@@ -688,6 +688,7 @@ dependencies {
     api("com.networknt:json-schema-validator:1.5.3")
     api 'io.spring.gradle:dependency-management-plugin:1.1.7'
     api "org.graalvm.buildtools:native-gradle-plugin:$nativeBuildToolsVersion"
+    api 'org.apache.tomcat.embed:tomcat-embed-el:11.0.15'
   }
 }
 
