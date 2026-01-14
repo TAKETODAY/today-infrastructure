@@ -16,17 +16,17 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.transaction.jta;
+package infra.transaction.jta.config;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.annotation.config.transaction.TransactionManagerCustomizers;
 import infra.context.annotation.Configuration;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnJndi;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.stereotype.Component;
 import infra.transaction.TransactionManager;
+import infra.transaction.config.TransactionManagerCustomizers;
 import infra.transaction.jta.JtaTransactionManager;
 
 /**
@@ -43,10 +43,10 @@ import infra.transaction.jta.JtaTransactionManager;
 @ConditionalOnJndi({ JtaTransactionManager.DEFAULT_USER_TRANSACTION_NAME, "java:comp/TransactionManager",
         "java:appserver/TransactionManager", "java:pm/TransactionManager", "java:/TransactionManager" })
 @ConditionalOnMissingBean(TransactionManager.class)
-class JndiJtaConfiguration {
+final class JndiJtaConfiguration {
 
   @Component
-  public JtaTransactionManager transactionManager(
+  public static JtaTransactionManager transactionManager(
           @Nullable TransactionManagerCustomizers transactionManagerCustomizers) {
     JtaTransactionManager jtaTransactionManager = new JtaTransactionManager();
     if (transactionManagerCustomizers != null) {

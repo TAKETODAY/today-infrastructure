@@ -5,6 +5,7 @@ dependencies {
 
   optional project(":infra-tx")
   optional project(":infra-core-aot")
+  optional project(":module:infra-app-transaction")
 
   optional 'com.zaxxer:HikariCP'
 

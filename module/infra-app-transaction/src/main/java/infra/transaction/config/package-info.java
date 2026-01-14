@@ -1,8 +1,7 @@
-
 /**
  * Auto-configuration for transaction support.
  */
 @NullMarked
-package infra.annotation.config.transaction;
+package infra.transaction.config;
 
 import org.jspecify.annotations.NullMarked;

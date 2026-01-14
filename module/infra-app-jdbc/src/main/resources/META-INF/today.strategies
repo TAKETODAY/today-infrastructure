@@ -1,0 +1,5 @@
+#
+# Failure Analyzers
+infra.app.diagnostics.FailureAnalyzer=\
+infra.app.jdbc.config.DataSourceBeanCreationFailureAnalyzer,\
+infra.app.jdbc.config.HikariDriverConfigurationFailureAnalyzer

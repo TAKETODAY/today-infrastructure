@@ -1,0 +1,2 @@
+infra.transaction.config.TransactionAutoConfiguration
+infra.transaction.jta.config.JtaAutoConfiguration

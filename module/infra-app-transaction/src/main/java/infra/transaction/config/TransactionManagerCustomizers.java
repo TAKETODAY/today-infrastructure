@@ -16,7 +16,9 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.transaction;
+package infra.transaction.config;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,7 +39,7 @@ public class TransactionManagerCustomizers {
 
   private final List<PlatformTransactionManagerCustomizer<?>> customizers;
 
-  public TransactionManagerCustomizers(Collection<? extends PlatformTransactionManagerCustomizer<?>> customizers) {
+  public TransactionManagerCustomizers(@Nullable Collection<? extends PlatformTransactionManagerCustomizer<?>> customizers) {
     this.customizers = customizers != null ? new ArrayList<>(customizers) : Collections.emptyList();
   }
 

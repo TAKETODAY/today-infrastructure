@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.transaction;
+package infra.transaction.config;
 
 import org.junit.jupiter.api.Test;
 

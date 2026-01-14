@@ -24,12 +24,12 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import infra.annotation.config.transaction.TransactionAutoConfiguration;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.jdbc.datasource.DataSourceTransactionManager;
 import infra.jdbc.support.JdbcTransactionManager;
 import infra.transaction.TransactionManager;
+import infra.transaction.config.TransactionAutoConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

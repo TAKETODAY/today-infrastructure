@@ -16,10 +16,12 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.transaction;
+package infra.transaction.config;
 
 import java.util.Collection;
 
+import infra.app.LazyInitializationExcludeFilter;
+import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
@@ -36,6 +38,7 @@ import infra.transaction.ReactiveTransactionManager;
 import infra.transaction.TransactionManager;
 import infra.transaction.annotation.AbstractTransactionManagementConfiguration;
 import infra.transaction.annotation.EnableTransactionManagement;
+import infra.transaction.aspectj.AbstractTransactionAspect;
 import infra.transaction.reactive.TransactionalOperator;
 import infra.transaction.support.TransactionOperations;
 import infra.transaction.support.TransactionTemplate;
@@ -51,10 +54,7 @@ import infra.transaction.support.TransactionTemplate;
 @DisableDIAutoConfiguration
 @ConditionalOnClass(PlatformTransactionManager.class)
 @EnableConfigurationProperties(TransactionProperties.class)
-public class TransactionAutoConfiguration {
-
-  private TransactionAutoConfiguration() {
-  }
+public final class TransactionAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean
@@ -64,9 +64,10 @@ public class TransactionAutoConfiguration {
   }
 
   @Component
+  @ConditionalOnClass(name = "reactor.core.publisher.Mono")
   @ConditionalOnMissingBean
   @ConditionalOnSingleCandidate(ReactiveTransactionManager.class)
-  public static TransactionalOperator transactionalOperator(ReactiveTransactionManager transactionManager) {
+  public TransactionalOperator transactionalOperator(ReactiveTransactionManager transactionManager) {
     return TransactionalOperator.create(transactionManager);
   }
 
@@ -99,6 +100,17 @@ public class TransactionAutoConfiguration {
     @ConditionalOnProperty(prefix = "infra.aop", name = "proxy-target-class", havingValue = "true", matchIfMissing = true)
     public static class CglibAutoProxyConfiguration {
 
+    }
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnBean(AbstractTransactionAspect.class)
+  static class AspectJTransactionManagementConfiguration {
+
+    @Bean
+    static LazyInitializationExcludeFilter eagerTransactionAspect() {
+      return LazyInitializationExcludeFilter.forBeanTypes(AbstractTransactionAspect.class);
     }
 
   }

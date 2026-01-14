@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.transaction;
+package infra.transaction.config;
 
 import org.jspecify.annotations.Nullable;
 
@@ -43,33 +43,13 @@ public class TransactionProperties implements PlatformTransactionManagerCustomiz
    * Default transaction timeout. If a duration suffix is not specified, seconds will be
    * used.
    */
-  @Nullable
   @DurationUnit(ChronoUnit.SECONDS)
-  private Duration defaultTimeout;
+  public @Nullable Duration defaultTimeout;
 
   /**
    * Whether to roll back on commit failures.
    */
-  @Nullable
-  private Boolean rollbackOnCommitFailure;
-
-  @Nullable
-  public Duration getDefaultTimeout() {
-    return this.defaultTimeout;
-  }
-
-  public void setDefaultTimeout(Duration defaultTimeout) {
-    this.defaultTimeout = defaultTimeout;
-  }
-
-  @Nullable
-  public Boolean getRollbackOnCommitFailure() {
-    return this.rollbackOnCommitFailure;
-  }
-
-  public void setRollbackOnCommitFailure(Boolean rollbackOnCommitFailure) {
-    this.rollbackOnCommitFailure = rollbackOnCommitFailure;
-  }
+  public @Nullable Boolean rollbackOnCommitFailure;
 
   @Override
   public void customize(AbstractPlatformTransactionManager transactionManager) {

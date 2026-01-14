@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.transaction;
+package infra.transaction.config;
 
 import org.junit.jupiter.api.Test;
 
@@ -24,6 +24,8 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
+import infra.app.jdbc.config.DataSourceAutoConfiguration;
+import infra.app.jdbc.config.DataSourceTransactionManagerAutoConfiguration;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
@@ -78,9 +80,8 @@ class TransactionAutoConfigurationTests {
 
   @Test
   void whenThereAreBothReactiveAndPlatformTransactionManagersATemplateAndAnOperatorAreAutoConfigured() {
-    contextRunner.withConfiguration(
-                    AutoConfigurations.of(DataSourceAutoConfiguration.class,
-                            DataSourceTransactionManagerAutoConfiguration.class))
+    contextRunner.withConfiguration(AutoConfigurations.of(DataSourceAutoConfiguration.class,
+                    DataSourceTransactionManagerAutoConfiguration.class))
             .withUserConfiguration(SinglePlatformTransactionManagerConfiguration.class,
                     SingleReactiveTransactionManagerConfiguration.class)
             .withPropertyValues("datasource.url:jdbc:h2:mem:" + UUID.randomUUID()).run((context) -> {

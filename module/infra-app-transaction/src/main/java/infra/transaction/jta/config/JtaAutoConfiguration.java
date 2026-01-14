@@ -16,15 +16,15 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.transaction.jta;
+package infra.transaction.jta.config;
 
-import infra.annotation.config.transaction.TransactionAutoConfiguration;
 import infra.context.annotation.Import;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnProperty;
+import infra.transaction.config.TransactionAutoConfiguration;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for JTA.
@@ -40,6 +40,6 @@ import infra.context.condition.ConditionalOnProperty;
 @ConditionalOnClass(jakarta.transaction.Transaction.class)
 @ConditionalOnProperty(prefix = "infra.jta", value = "enabled", matchIfMissing = true)
 @Import(JndiJtaConfiguration.class)
-public class JtaAutoConfiguration {
+public final class JtaAutoConfiguration {
 
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.annotation.config.transaction;
+package infra.transaction.config;
 
 import infra.transaction.PlatformTransactionManager;
 
