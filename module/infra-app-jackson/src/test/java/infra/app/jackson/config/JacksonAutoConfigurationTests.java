@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.annotation.config.jackson;
+package infra.app.jackson.config;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -35,8 +35,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import infra.annotation.config.jackson.JacksonAutoConfiguration.JacksonAutoConfigurationRuntimeHints;
-import infra.annotation.config.jackson.JacksonAutoConfiguration.JacksonJsonMapperBuilderCustomizerConfiguration.StandardJsonMapperBuilderCustomizer;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
 import infra.app.jackson.JacksonComponent;
@@ -44,6 +42,8 @@ import infra.app.jackson.JacksonMixin;
 import infra.app.jackson.JacksonMixinModule;
 import infra.app.jackson.JacksonMixinModuleEntries;
 import infra.app.jackson.ObjectValueSerializer;
+import infra.app.jackson.config.JacksonAutoConfiguration.JacksonAutoConfigurationRuntimeHints;
+import infra.app.jackson.config.JacksonAutoConfiguration.JacksonJsonMapperBuilderCustomizerConfiguration;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.BeanCurrentlyInCreationException;
 import infra.context.ApplicationContext;
@@ -74,6 +74,7 @@ import tools.jackson.databind.util.StdDateFormat;
 import tools.jackson.dataformat.cbor.CBORMapper;
 import tools.jackson.dataformat.xml.XmlMapper;
 
+import static infra.app.jackson.config.JacksonAutoConfiguration.JacksonJsonMapperBuilderCustomizerConfiguration.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.entry;
