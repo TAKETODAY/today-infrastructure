@@ -1,22 +1,4 @@
-/*
- * Copyright 2012-present the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-// Modifications Copyright 2017 - 2026 the TODAY authors.
-
-package infra.annotation.config.web.reactive;
+package infra.web.server.config;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,22 +19,20 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests for {@link ReactiveWebServerFactoryCustomizer}.
- *
- * @author Brian Clozel
- * @author Yunkun Huang
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0 2026/1/14 13:00
  */
-class ReactiveWebServerFactoryCustomizerTests {
+class DefaultWebServerFactoryCustomizerTests {
 
   private final ServerProperties properties = new ServerProperties();
 
   private final SslBundles sslBundles = new DefaultSslBundleRegistry();
 
-  private ReactiveWebServerFactoryCustomizer customizer;
+  private DefaultWebServerFactoryCustomizer customizer;
 
   @BeforeEach
   void setup() {
-    this.customizer = new ReactiveWebServerFactoryCustomizer(this.properties, this.sslBundles);
+    this.customizer = new DefaultWebServerFactoryCustomizer(this.properties, this.sslBundles, null);
   }
 
   @Test

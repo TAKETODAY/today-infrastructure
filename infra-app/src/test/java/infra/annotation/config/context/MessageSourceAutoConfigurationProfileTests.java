@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
 
-import infra.annotation.config.web.RandomPortWebServerConfig;
 import infra.app.test.context.InfraTest;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.ApplicationContext;
@@ -29,6 +28,7 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.config.ImportAutoConfiguration;
 import infra.test.annotation.DirtiesContext;
 import infra.test.context.ActiveProfiles;
+import infra.web.server.netty.RandomPortWebServerConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

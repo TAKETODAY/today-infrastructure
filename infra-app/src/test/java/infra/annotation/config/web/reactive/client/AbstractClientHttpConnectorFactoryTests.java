@@ -19,8 +19,6 @@ package infra.annotation.config.web.reactive.client;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import infra.annotation.config.web.RandomPortWebServerConfig;
-import infra.annotation.config.web.WebMvcAutoConfiguration;
 import infra.app.Application;
 import infra.app.ApplicationType;
 import infra.context.ConfigurableApplicationContext;
@@ -33,6 +31,8 @@ import infra.web.client.reactive.WebClientRequestException;
 import infra.web.server.WebServer;
 import infra.web.server.context.ConfigurableWebServerApplicationContext;
 import infra.web.server.context.WebServerApplicationContext;
+import infra.web.server.netty.RandomPortWebServerConfig;
+import infra.webmvc.config.WebMvcAutoConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

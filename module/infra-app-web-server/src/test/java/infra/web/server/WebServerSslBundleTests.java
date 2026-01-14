@@ -26,6 +26,7 @@ import infra.core.ssl.SslOptions;
 import infra.core.ssl.SslStoreBundle;
 import infra.core.testfixture.ssl.MockPkcs11Security;
 import infra.core.testfixture.ssl.MockPkcs11SecurityProvider;
+import infra.test.classpath.resources.WithPackageResources;
 import infra.web.server.WebServerSslBundle.WebServerSslStoreBundle;
 
 import static org.assertj.core.api.Assertions.assertThat;

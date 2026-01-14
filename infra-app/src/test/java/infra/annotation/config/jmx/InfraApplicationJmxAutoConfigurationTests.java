@@ -26,7 +26,6 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
-import infra.annotation.config.web.RandomPortWebServerConfig;
 import infra.app.ApplicationType;
 import infra.app.builder.ApplicationBuilder;
 import infra.app.test.context.runner.ApplicationContextRunner;
@@ -38,6 +37,7 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.jmx.export.MBeanExporter;
 import infra.web.server.context.WebServerApplicationContext;
+import infra.web.server.netty.RandomPortWebServerConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -105,8 +105,7 @@ class InfraApplicationJmxAutoConfigurationTests {
 
   @Test
   void registerWithSimpleWebApp() throws Exception {
-    try (ConfigurableApplicationContext context = new ApplicationBuilder()
-            .sources(RandomPortWebServerConfig.class,
+    try (ConfigurableApplicationContext context = new ApplicationBuilder().sources(RandomPortWebServerConfig.class,
                     MultipleMBeanExportersConfiguration.class, InfraApplicationJmxAutoConfiguration.class)
             .run("--" + ENABLE_ADMIN_PROP)) {
       assertThat(context).isInstanceOf(WebServerApplicationContext.class);

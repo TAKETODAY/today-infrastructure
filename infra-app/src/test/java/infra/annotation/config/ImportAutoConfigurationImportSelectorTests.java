@@ -27,8 +27,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 
-import infra.annotation.config.jackson.JacksonAutoConfiguration;
-import infra.annotation.config.web.WebMvcAutoConfiguration;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.BootstrapContext;
 import infra.context.annotation.config.ImportAutoConfiguration;
@@ -38,6 +36,7 @@ import infra.core.type.AnnotationMetadata;
 import infra.core.type.classreading.SimpleMetadataReaderFactory;
 import infra.mock.env.MockEnvironment;
 import infra.util.ClassUtils;
+import infra.webmvc.config.WebMvcAutoConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,7 +51,7 @@ class ImportAutoConfigurationImportSelectorTests {
   private final MockEnvironment environment = new MockEnvironment();
 
   private final ImportAutoConfigurationImportSelector importSelector
-      = new TestImportAutoConfigurationImportSelector(new BootstrapContext(environment, beanFactory));
+          = new TestImportAutoConfigurationImportSelector(new BootstrapContext(environment, beanFactory));
 
   @Test
   void importsAreSelected() throws Exception {
@@ -73,18 +72,18 @@ class ImportAutoConfigurationImportSelectorTests {
     AnnotationMetadata annotationMetadata = getAnnotationMetadata(FromImportsFile.class);
     String[] imports = this.importSelector.selectImports(annotationMetadata);
     assertThat(imports).containsExactly(
-        "infra.freemarker.config.FreeMarkerAutoConfiguration",
-        "infra.annotation.config.missing.MissingAutoConfiguration");
+            "infra.freemarker.config.FreeMarkerAutoConfiguration",
+            "infra.annotation.config.missing.MissingAutoConfiguration");
   }
 
   @Test
   void importsSelectedFromImportsFileIgnoreMissingOptionalClasses() throws Exception {
     AnnotationMetadata annotationMetadata = getAnnotationMetadata(
-        FromImportsFileIgnoresMissingOptionalClasses.class);
+            FromImportsFileIgnoresMissingOptionalClasses.class);
     String[] imports = this.importSelector.selectImports(annotationMetadata);
     assertThat(imports).containsExactly(
-        "infra.freemarker.config.FreeMarkerAutoConfiguration",
-        "infra.annotation.config.thymeleaf.ThymeleafAutoConfiguration");
+            "infra.freemarker.config.FreeMarkerAutoConfiguration",
+            "infra.annotation.config.thymeleaf.ThymeleafAutoConfiguration");
   }
 
   @Test
@@ -100,7 +99,7 @@ class ImportAutoConfigurationImportSelectorTests {
     AnnotationMetadata annotationMetadata = getAnnotationMetadata(MultipleImports.class);
     String[] imports = this.importSelector.selectImports(annotationMetadata);
     assertThat(imports).containsOnly(WebMvcAutoConfiguration.class.getName(),
-        JacksonAutoConfiguration.class.getName());
+            JacksonAutoConfiguration.class.getName());
   }
 
   @Test
@@ -134,9 +133,9 @@ class ImportAutoConfigurationImportSelectorTests {
   @Test
   void determineImportsWhenUsingMetaWithoutClassesShouldBeEqual() throws Exception {
     Set<Object> set1 = this.importSelector
-        .determineImports(getAnnotationMetadata(ImportMetaAutoConfigurationWithUnrelatedOne.class));
+            .determineImports(getAnnotationMetadata(ImportMetaAutoConfigurationWithUnrelatedOne.class));
     Set<Object> set2 = this.importSelector
-        .determineImports(getAnnotationMetadata(ImportMetaAutoConfigurationWithUnrelatedTwo.class));
+            .determineImports(getAnnotationMetadata(ImportMetaAutoConfigurationWithUnrelatedTwo.class));
     assertThat(set1).isEqualTo(set2);
     assertThat(set1.hashCode()).isEqualTo(set2.hashCode());
   }
@@ -144,27 +143,27 @@ class ImportAutoConfigurationImportSelectorTests {
   @Test
   void determineImportsWhenUsingNonMetaWithoutClassesShouldBeSame() throws Exception {
     Set<Object> set1 = this.importSelector
-        .determineImports(getAnnotationMetadata(ImportAutoConfigurationWithUnrelatedOne.class));
+            .determineImports(getAnnotationMetadata(ImportAutoConfigurationWithUnrelatedOne.class));
     Set<Object> set2 = this.importSelector
-        .determineImports(getAnnotationMetadata(ImportAutoConfigurationWithUnrelatedTwo.class));
+            .determineImports(getAnnotationMetadata(ImportAutoConfigurationWithUnrelatedTwo.class));
     assertThat(set1).isEqualTo(set2);
   }
 
   @Test
   void determineImportsWhenUsingNonMetaWithClassesShouldBeSame() throws Exception {
     Set<Object> set1 = this.importSelector
-        .determineImports(getAnnotationMetadata(ImportAutoConfigurationWithItemsOne.class));
+            .determineImports(getAnnotationMetadata(ImportAutoConfigurationWithItemsOne.class));
     Set<Object> set2 = this.importSelector
-        .determineImports(getAnnotationMetadata(ImportAutoConfigurationWithItemsTwo.class));
+            .determineImports(getAnnotationMetadata(ImportAutoConfigurationWithItemsTwo.class));
     assertThat(set1).isEqualTo(set2);
   }
 
   @Test
   void determineImportsWhenUsingMetaExcludeWithoutClassesShouldBeEqual() throws Exception {
     Set<Object> set1 = this.importSelector
-        .determineImports(getAnnotationMetadata(ImportMetaAutoConfigurationExcludeWithUnrelatedOne.class));
+            .determineImports(getAnnotationMetadata(ImportMetaAutoConfigurationExcludeWithUnrelatedOne.class));
     Set<Object> set2 = this.importSelector
-        .determineImports(getAnnotationMetadata(ImportMetaAutoConfigurationExcludeWithUnrelatedTwo.class));
+            .determineImports(getAnnotationMetadata(ImportMetaAutoConfigurationExcludeWithUnrelatedTwo.class));
     assertThat(set1).isEqualTo(set2);
     assertThat(set1.hashCode()).isEqualTo(set2.hashCode());
   }
@@ -172,18 +171,18 @@ class ImportAutoConfigurationImportSelectorTests {
   @Test
   void determineImportsWhenUsingMetaDifferentExcludeWithoutClassesShouldBeDifferent() throws Exception {
     Set<Object> set1 = this.importSelector
-        .determineImports(getAnnotationMetadata(ImportMetaAutoConfigurationExcludeWithUnrelatedOne.class));
+            .determineImports(getAnnotationMetadata(ImportMetaAutoConfigurationExcludeWithUnrelatedOne.class));
     Set<Object> set2 = this.importSelector
-        .determineImports(getAnnotationMetadata(ImportMetaAutoConfigurationWithUnrelatedTwo.class));
+            .determineImports(getAnnotationMetadata(ImportMetaAutoConfigurationWithUnrelatedTwo.class));
     assertThat(set1).isNotEqualTo(set2);
   }
 
   @Test
   void determineImportsShouldNotSetPackageImport() throws Exception {
     Class<?> packageImportsClass = ClassUtils.resolveClassName(
-        "infra.context.annotation.config.AutoConfigurationPackages.PackageImports", null);
+            "infra.context.annotation.config.AutoConfigurationPackages.PackageImports", null);
     Set<Object> selectedImports = this.importSelector
-        .determineImports(getAnnotationMetadata(ImportMetaAutoConfigurationExcludeWithUnrelatedOne.class));
+            .determineImports(getAnnotationMetadata(ImportMetaAutoConfigurationExcludeWithUnrelatedOne.class));
     for (Object selectedImport : selectedImports) {
       assertThat(selectedImport).isNotInstanceOf(packageImportsClass);
     }
@@ -347,7 +346,7 @@ class ImportAutoConfigurationImportSelectorTests {
     protected Collection<String> getStrategiesNames(Class<?> source) {
       if (source == MetaImportAutoConfiguration.class) {
         return Arrays.asList(JacksonAutoConfiguration.class.getName(),
-            WebMvcAutoConfiguration.class.getName());
+                WebMvcAutoConfiguration.class.getName());
       }
       return super.getStrategiesNames(source);
     }

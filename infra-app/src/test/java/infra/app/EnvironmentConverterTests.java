@@ -38,7 +38,7 @@ class EnvironmentConverterTests {
   void convertedEnvironmentHasSameActiveProfiles() {
     AbstractEnvironment originalEnvironment = new MockEnvironment();
     originalEnvironment.setActiveProfiles("activeProfile1", "activeProfile2");
-    StandardEnvironment convertedEnvironment = EnvironmentConverter.convertIfNecessary(
+    var convertedEnvironment = EnvironmentConverter.convertIfNecessary(
             originalEnvironment, StandardEnvironment.class);
     assertThat(convertedEnvironment.getActiveProfiles()).containsExactly("activeProfile1", "activeProfile2");
   }
@@ -48,7 +48,7 @@ class EnvironmentConverterTests {
     AbstractEnvironment originalEnvironment = new MockEnvironment();
     ConfigurableConversionService conversionService = mock(ConfigurableConversionService.class);
     originalEnvironment.setConversionService(conversionService);
-    StandardEnvironment convertedEnvironment = EnvironmentConverter.convertIfNecessary(
+    var convertedEnvironment = EnvironmentConverter.convertIfNecessary(
             originalEnvironment, StandardEnvironment.class);
     assertThat(convertedEnvironment.getConversionService()).isEqualTo(conversionService);
   }
@@ -56,7 +56,7 @@ class EnvironmentConverterTests {
   @Test
   void envClassSameShouldReturnEnvironmentUnconverted() {
     StandardEnvironment standardEnvironment = new StandardEnvironment();
-    StandardEnvironment convertedEnvironment = EnvironmentConverter.convertIfNecessary(
+    var convertedEnvironment = EnvironmentConverter.convertIfNecessary(
             standardEnvironment, StandardEnvironment.class);
     assertThat(convertedEnvironment).isSameAs(standardEnvironment);
   }
