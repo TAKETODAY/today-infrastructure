@@ -18,6 +18,7 @@
 
 package infra.transaction.jta.config;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.AfterEachCallback;
@@ -45,6 +46,7 @@ import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
+import infra.test.classpath.ClassPathExclusions;
 import infra.test.util.TestPropertyValues;
 import infra.transaction.jta.JtaTransactionManager;
 import infra.transaction.jta.UserTransactionAdapter;
@@ -64,9 +66,10 @@ import static org.mockito.Mockito.mock;
  * @author Kazuki Shimizu
  * @author Nishant Raut
  */
+@ClassPathExclusions("jetty-jndi-*.jar")
 class JtaAutoConfigurationTests {
 
-  private AnnotationConfigApplicationContext context;
+  private @Nullable AnnotationConfigApplicationContext context;
 
   @AfterEach
   void closeContext() {
@@ -104,8 +107,10 @@ class JtaAutoConfigurationTests {
   void customTransactionManager() {
     this.context = new AnnotationConfigApplicationContext(CustomTransactionManagerConfig.class,
             JtaAutoConfiguration.class);
-    assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
-            .isThrownBy(() -> this.context.getBean(JtaTransactionManager.class));
+    assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() -> {
+      assertThat(this.context).isNotNull();
+      this.context.getBean(JtaTransactionManager.class);
+    });
   }
 
   @Test
@@ -168,7 +173,7 @@ class JtaAutoConfigurationTests {
     public void beforeEach(ExtensionContext context) throws Exception {
       Namespace namespace = Namespace.create(getClass(), context.getUniqueId());
       context.getStore(namespace)
-              .getOrComputeIfAbsent(InitialContext.class, (k) -> createInitialContext(), InitialContext.class);
+              .computeIfAbsent(InitialContext.class, (k) -> createInitialContext(), InitialContext.class);
     }
 
     private InitialContext createInitialContext() {
@@ -185,6 +190,7 @@ class JtaAutoConfigurationTests {
       Namespace namespace = Namespace.create(getClass(), context.getUniqueId());
       InitialContext initialContext = context.getStore(namespace)
               .remove(InitialContext.class, InitialContext.class);
+      assertThat(initialContext).isNotNull();
       initialContext.removeFromEnvironment("org.osjava.sj.jndi.ignoreClose");
       initialContext.close();
     }
@@ -196,7 +202,7 @@ class JtaAutoConfigurationTests {
     }
 
     @Override
-    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
+    public @Nullable Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
             throws ParameterResolutionException {
       Namespace namespace = Namespace.create(getClass(), extensionContext.getUniqueId());
       return extensionContext.getStore(namespace).get(InitialContext.class);
