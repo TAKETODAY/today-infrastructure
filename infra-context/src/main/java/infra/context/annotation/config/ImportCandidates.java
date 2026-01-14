@@ -32,6 +32,7 @@ import java.util.List;
 
 import infra.core.io.UrlResource;
 import infra.lang.Assert;
+import infra.util.ClassUtils;
 
 /**
  * Contains {@code @Configuration} import candidates, usually auto-configurations.
@@ -95,6 +96,10 @@ public final class ImportCandidates implements Iterable<String> {
   }
 
   private static ClassLoader decideClassloader(@Nullable ClassLoader classLoader) {
+    if (classLoader == null) {
+      classLoader = ClassUtils.getDefaultClassLoader();
+    }
+
     if (classLoader == null) {
       return ImportCandidates.class.getClassLoader();
     }
