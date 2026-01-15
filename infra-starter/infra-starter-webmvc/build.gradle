@@ -1,10 +1,8 @@
 description = 'Starter for building web, including RESTful, applications using Web MVC.'
 
 dependencies {
-  api project(':infra-web')
-  api project(':infra-webmvc')
-  api project(':infra-starter:infra-starter-json')
+  api project(':infra-starter:infra-starter-jackson')
 
   api project(':module:infra-app-webmvc')
-
+  api project(':module:infra-app-http-converter')
 }

@@ -1,4 +1,4 @@
-description = 'Starter for using Java Bean Validation with Hibernate Validator'
+description = 'Starter for Transaction'
 
 dependencies {
   api project(':infra-starter')

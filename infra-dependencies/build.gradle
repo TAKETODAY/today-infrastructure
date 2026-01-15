@@ -575,6 +575,13 @@ bom {
       ]
     }
   }
+  library("SQLite JDBC", "3.50.3.0") {
+    group("org.xerial") {
+      modules = [
+          "sqlite-jdbc"
+      ]
+    }
+  }
 }
 
 dependencies {

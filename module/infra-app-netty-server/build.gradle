@@ -6,8 +6,8 @@ dependencies {
   api project(":module:infra-app-webmvc")
   api project(":module:infra-app-web-server")
 
-  implementation 'io.netty:netty-codec-http'
-  implementation 'io.netty:netty-codec-http2'
+  api 'io.netty:netty-codec-http'
+  api 'io.netty:netty-codec-http2'
 
   optional project(":infra-websocket")
   optional("io.netty:netty-buffer")

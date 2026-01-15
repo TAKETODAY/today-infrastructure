@@ -1,4 +1,4 @@
-description = 'Starter for reading and writing JSON'
+description = 'Starter for Jackson'
 
 dependencies {
   api project(':infra-starter')

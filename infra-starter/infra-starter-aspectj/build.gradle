@@ -1,0 +1,7 @@
+description = "Starter for using aspect-oriented programming with AspectJ"
+
+dependencies {
+  api(project(":infra-aop"))
+  api(project(":infra-starter"))
+  api("org.aspectj:aspectjweaver")
+}
