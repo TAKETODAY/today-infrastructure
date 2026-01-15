@@ -64,6 +64,7 @@ import infra.core.annotation.Order;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
 import infra.core.io.Resource;
+import infra.lang.Assert;
 import infra.lang.VisibleForTesting;
 import infra.logging.SLF4JBridgeHandler;
 import infra.util.ClassUtils;
@@ -79,7 +80,6 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("NullAway")
 public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanFactoryInitializationAotProcessor {
 
   private static final String CONFIGURATION_FILE_PROPERTY = "logback.configurationFile";
@@ -187,12 +187,14 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
     }
   }
 
-  private boolean initializeFromAotGeneratedArtifactsIfPossible(@Nullable LoggingStartupContext startupContext, LogFile logFile) {
+  private boolean initializeFromAotGeneratedArtifactsIfPossible(LoggingStartupContext startupContext, @Nullable LogFile logFile) {
     if (!AotDetector.useGeneratedArtifacts()) {
       return false;
     }
     if (startupContext != null) {
-      applySystemProperties(startupContext.getEnvironment(), logFile);
+      Environment environment = startupContext.getEnvironment();
+      Assert.state(environment != null, "'environment' is required");
+      applySystemProperties(environment, logFile);
     }
     LoggerContext loggerContext = getLoggerContext();
     stopAndReset(loggerContext);
@@ -217,6 +219,7 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
       SystemStatusListener.addTo(loggerContext, debug);
       Environment environment = startupContext.getEnvironment();
       // Apply system properties directly in case the same JVM runs multiple apps
+      Assert.state(environment != null, "'environment' is required");
       new LogbackLoggingSystemProperties(environment, getDefaultValueResolver(environment), loggerContext::putProperty).apply(logFile);
       LogbackConfigurator configurator = (!debug) ? new LogbackConfigurator(loggerContext)
               : new DebugLogbackConfigurator(loggerContext);
@@ -227,13 +230,15 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
   }
 
   @Override
-  protected void loadConfiguration(@Nullable LoggingStartupContext context, String location, @Nullable LogFile logFile) {
+  protected void loadConfiguration(LoggingStartupContext context, String location, @Nullable LogFile logFile) {
     LoggerContext loggerContext = getLoggerContext();
     stopAndReset(loggerContext);
     withLoggingSuppressed(() -> {
       putInitializationContextObjects(loggerContext, context);
       if (context != null) {
-        applySystemProperties(context.getEnvironment(), logFile);
+        Environment environment = context.getEnvironment();
+        Assert.state(environment != null, "'environment' is required");
+        applySystemProperties(environment, logFile);
       }
       SystemStatusListener.addTo(loggerContext);
       try {
@@ -317,7 +322,7 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
     loadConfiguration(startupContext, getSelfInitializationConfig(), null);
   }
 
-  private void putInitializationContextObjects(LoggerContext loggerContext, @Nullable LoggingStartupContext startupContext) {
+  private void putInitializationContextObjects(LoggerContext loggerContext, LoggingStartupContext startupContext) {
     withLoggingSuppressed(
             () -> loggerContext.putObject(Environment.class.getName(), startupContext.getEnvironment()));
   }
@@ -325,10 +330,13 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
   @Override
   public List<LoggerConfiguration> getLoggerConfigurations() {
     List<LoggerConfiguration> result = new ArrayList<>();
-    for (ch.qos.logback.classic.Logger logger : getLoggerContext().getLoggerList()) {
-      result.add(getLoggerConfiguration(logger));
+    for (var logger : getLoggerContext().getLoggerList()) {
+      LoggerConfiguration configuration = getLoggerConfiguration(logger);
+      if (configuration != null) {
+        result.add(configuration);
+      }
     }
-    result.sort(CONFIGURATION_COMPARATOR);
+    result.sort(createConfigurationComparator());
     return result;
   }
 
@@ -347,8 +355,7 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
     return name;
   }
 
-  @Nullable
-  private LoggerConfiguration getLoggerConfiguration(ch.qos.logback.classic.@Nullable Logger logger) {
+  private @Nullable LoggerConfiguration getLoggerConfiguration(ch.qos.logback.classic.@Nullable Logger logger) {
     if (logger == null) {
       return null;
     }
