@@ -89,8 +89,6 @@ dependencies {
   testImplementation 'org.apache.maven.resolver:maven-resolver-connector-basic:1.8.2'
   testImplementation 'com.zaxxer:HikariCP:5.0.0'
 
-  testImplementation 'com.hazelcast:hazelcast-all:3.12.6'
-
   testImplementation 'org.skyscreamer:jsonassert:1.5.0'
   testImplementation 'com.microsoft.sqlserver:mssql-jdbc:11.2.1.jre17'
   testImplementation 'com.h2database:h2'

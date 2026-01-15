@@ -22,45 +22,12 @@ dependencies {
 
   optional 'ch.qos.logback:logback-classic'
   optional 'com.google.code.gson:gson'
-  optional 'jakarta.transaction:jakarta.transaction-api'
-  optional 'io.projectreactor.netty:reactor-netty-http'
-  optional 'com.mysql:mysql-connector-j'
-  optional 'io.projectreactor:reactor-test'
-  optional 'org.xmlunit:xmlunit-assertj'
-  optional 'commons-io:commons-io'
-  optional 'jaxen:jaxen'
-  optional 'org.python:jython-standalone'
-  optional 'org.mozilla:rhino'
-  optional 'org.javamoney.moneta:moneta-core'
-  optional 'org.glassfish:jakarta.el'
-  optional 'org.awaitility:awaitility'
-  optional 'jakarta.json.bind:jakarta.json.bind-api'
-  optional 'jakarta.resource:jakarta.resource-api'
-  optional 'org.aspectj:aspectjweaver'
-  optional 'jakarta.annotation:jakarta.annotation-api'
-  optional 'jakarta.inject:jakarta.inject-api'
-  optional 'io.netty:netty-codec-http'
-  optional 'io.netty:netty-transport-native-kqueue'
-  optional 'org.hibernate:hibernate-core-jakarta'
-  optional 'org.eclipse.persistence:org.eclipse.persistence.jpa'
+
   optional 'com.google.code.findbugs:jsr305'
   optional 'org.yaml:snakeyaml'
   optional 'org.hibernate.validator:hibernate-validator'
-  optional 'io.projectreactor:reactor-core'
-  optional 'io.projectreactor.tools:blockhound'
-  optional 'org.apache.httpcomponents.core5:httpcore5'
-  optional 'com.zaxxer:HikariCP'
-  optional 'org.apache.httpcomponents.client5:httpclient5'
-  optional 'org.apache.httpcomponents.core5:httpcore5-reactive'
-  optional("com.github.ben-manes.caffeine:caffeine")
-
   optional("tools.jackson.core:jackson-databind")
-  optional("tools.jackson.dataformat:jackson-dataformat-smile")
-  optional("tools.jackson.dataformat:jackson-dataformat-cbor")
-  optional("tools.jackson.dataformat:jackson-dataformat-smile")
-  optional("tools.jackson.dataformat:jackson-dataformat-xml")
-  optional("tools.jackson.dataformat:jackson-dataformat-yaml")
-
+  optional 'org.glassfish:jakarta.el'
 
   optional 'org.crac:crac'
 
@@ -82,57 +49,20 @@ dependencies {
   testImplementation(project(":infra-core-test"))
   testImplementation project(":infra-webmvc-mock")
   testImplementation 'org.skyscreamer:jsonassert:1.5.0'
+  testImplementation("com.github.ben-manes.caffeine:caffeine")
 
-  testImplementation 'org.apache.httpcomponents.core5:httpcore5'
-  testImplementation 'org.apache.httpcomponents.core5:httpcore5-reactive'
-  testImplementation 'org.apache.httpcomponents.client5:httpclient5'
-  testImplementation 'jakarta.json.bind:jakarta.json.bind-api'
+  testImplementation 'jakarta.inject:jakarta.inject-api'
 
-  testImplementation 'org.freemarker:freemarker'
-  testImplementation 'org.eclipse:yasson'
   testImplementation 'ch.qos.logback:logback-classic'
-  testImplementation("org.codehaus.janino:janino")
-
-  testImplementation 'org.apache.derby:derby'
-  testImplementation 'org.apache.derby:derbytools'
-
-  testImplementation 'jakarta.persistence:jakarta.persistence-api'
-
-  testImplementation("tools.jackson.core:jackson-databind")
-  testImplementation("tools.jackson.dataformat:jackson-dataformat-smile")
-  testImplementation("tools.jackson.dataformat:jackson-dataformat-cbor")
-  testImplementation("tools.jackson.dataformat:jackson-dataformat-smile")
-  testImplementation("tools.jackson.dataformat:jackson-dataformat-xml")
-  testImplementation("tools.jackson.dataformat:jackson-dataformat-yaml")
-
-  testImplementation 'com.mysql:mysql-connector-j'
-
-
-  testImplementation 'com.oracle.database.jdbc:ucp'
-  testImplementation 'org.hibernate:hibernate-envers:5.6.15.Final'
 
   testImplementation 'org.apache.maven.resolver:maven-resolver-connector-basic'
   testImplementation 'com.zaxxer:HikariCP:5.0.0'
 
-  testImplementation 'com.hazelcast:hazelcast-all:3.12.6'
-
-  testImplementation 'org.skyscreamer:jsonassert:1.5.0'
-  testImplementation 'com.microsoft.sqlserver:mssql-jdbc'
-  testImplementation 'org.postgresql:postgresql'
-  testImplementation 'net.sourceforge.jtds:jtds:1.3.1'
-  testImplementation 'org.firebirdsql.jdbc:jaybird:4.0.6.java8'
-
-  testImplementation 'org.xerial:sqlite-jdbc:3.36.0.3'
-  testImplementation 'com.ibm.db2:jcc:11.5.7.0'
-  testImplementation 'org.testcontainers:jdbc:1.16.3'
   testImplementation 'org.testcontainers:cassandra'
   testImplementation 'org.testcontainers:testcontainers'
 
-  testImplementation("org.hsqldb:hsqldb")
-
   testImplementation 'org.aspectj:aspectjrt'
   testImplementation 'jakarta.annotation:jakarta.annotation-api'
-  testImplementation 'org.mybatis:mybatis:3.5.9'
   testImplementation 'javax.cache:cache-api'
   testImplementation 'org.reactivestreams:reactive-streams'
   testImplementation 'com.jayway.jsonpath:json-path'
