@@ -28,6 +28,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty.util.ReferenceCountUtil;
 
 import static infra.web.socket.handler.ExceptionWebSocketHandlerDecorator.tryCloseWithError;
 
@@ -60,6 +61,7 @@ public final class WsNettyChannelHandler extends NettyChannelHandler {
     if (frame instanceof CloseWebSocketFrame cf) {
       CloseStatus closeStatus = new CloseStatus(cf.statusCode(), cf.reasonText());
       onClose(channel, closeStatus);
+      ReferenceCountUtil.safeRelease(frame);
     }
     else {
       attr.session.handleMessage(attr.wsHandler, frame, log);
