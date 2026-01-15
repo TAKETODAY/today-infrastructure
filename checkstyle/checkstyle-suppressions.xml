@@ -145,7 +145,7 @@
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]retry[\\/]" checks="JavadocPackage" />
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]classify[\\/]" checks="JavadocPackage" />
 
-  <suppress files=".+Configuration\.java" checks="HideUtilityClassConstructor" />
-  <suppress files=".+Application\.java" checks="HideUtilityClassConstructor" />
+  <suppress files=".+Configuration\.java" checks="HideUtilityClassConstructor|FinalClass" />
+  <suppress files=".+Application\.java" checks="HideUtilityClassConstructor|FinalClass" />
 
 </suppressions>

@@ -41,10 +41,7 @@ import infra.stereotype.Component;
 @Lazy
 @DisableDIAutoConfiguration
 @EnableConfigurationProperties(SslProperties.class)
-public class SslAutoConfiguration {
-
-  private SslAutoConfiguration() {
-  }
+public final class SslAutoConfiguration {
 
   @Component
   public static SslPropertiesBundleRegistrar sslPropertiesSslBundleRegistrar(SslProperties properties, ResourceLoader resourceLoader) {

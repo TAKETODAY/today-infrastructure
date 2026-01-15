@@ -30,7 +30,6 @@ import infra.util.MimeTypeUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 import infra.web.server.Compression;
-import infra.web.server.reactor.ReactorNettyServerCustomizer;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import reactor.netty.http.server.HttpServer;

@@ -20,10 +20,9 @@ package infra.web.client.config;
 
 import java.util.List;
 
-import infra.web.client.RestClient;
 import infra.http.client.config.ClientHttpRequestFactoryBuilder;
 import infra.http.client.config.HttpClientSettings;
-import infra.web.client.config.RestClientCustomizer;
+import infra.web.client.RestClient;
 
 /**
  * Configure {@link RestClient.Builder RestClient.Builder} with sensible defaults.
