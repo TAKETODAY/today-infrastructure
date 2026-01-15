@@ -3,6 +3,7 @@ description = "Infra application JDBC integration"
 dependencies {
   api project(":infra-jdbc")
   api project(":module:infra-app-transaction")
+  optional project(":module:infra-app-health")
 
   optional project(":infra-core-aot")
 
@@ -19,6 +20,7 @@ dependencies {
   testImplementation 'org.postgresql:postgresql'
   testImplementation 'com.microsoft.sqlserver:mssql-jdbc'
   testImplementation 'org.mariadb.jdbc:mariadb-java-client'
+  testImplementation("org.apache.tomcat:tomcat-jdbc:11.0.15")
 
   testRuntimeOnly 'org.apache.derby:derby'
   testRuntimeOnly 'org.apache.derby:derbytools'
