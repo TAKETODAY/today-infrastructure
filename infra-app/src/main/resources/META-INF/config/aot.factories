@@ -8,3 +8,6 @@ infra.app.env.PropertySourceRuntimeHints,\
 infra.app.logging.java.JavaLoggingSystemRuntimeHints,\
 infra.app.logging.logback.LogbackRuntimeHints,\
 
+
+infra.beans.factory.aot.BeanFactoryInitializationAotProcessor=\
+infra.app.env.EnvironmentPostProcessorApplicationListener.EnvironmentBeanFactoryInitializationAotProcessor
