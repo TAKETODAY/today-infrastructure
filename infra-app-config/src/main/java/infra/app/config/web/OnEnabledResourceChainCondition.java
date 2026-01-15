@@ -69,7 +69,6 @@ class OnEnabledResourceChainCondition extends InfraCondition {
     return ConditionOutcome.noMatch(message.because("disabled"));
   }
 
-  @SuppressWarnings("NullAway")
   private Boolean getEnabledProperty(ConfigurableEnvironment environment, String key, @Nullable Boolean defaultValue) {
     String name = "web.resources.chain." + key + "enabled";
     return environment.getProperty(name, Boolean.class, defaultValue);
