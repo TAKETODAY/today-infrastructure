@@ -18,15 +18,16 @@ package infra.util.concurrent;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import infra.lang.Assert;
 import infra.util.function.ThrowingFunction;
@@ -58,11 +59,11 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
 
   private final boolean allMustSucceed;
 
-  private final Collection<Future<?>> futures;
+  private final Collection<Future> futures;
 
   private final AtomicInteger done = new AtomicInteger();
 
-  FutureCombiner(boolean allMustSucceed, Collection<Future<?>> futures) {
+  FutureCombiner(boolean allMustSucceed, Collection<Future> futures) {
     this.futures = futures;
     this.allMustSucceed = allMustSucceed;
     this.expectedCount = futures.size();
@@ -74,9 +75,9 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
    *
    * @since 5.0
    */
-  public FutureCombiner with(Future<?> future) {
+  public FutureCombiner with(Future future) {
     Assert.notNull(future, "Future is required");
-    LinkedList<Future<?>> futures = new LinkedList<>(this.futures);
+    ArrayList<Future> futures = new ArrayList<>(this.futures);
     futures.add(future);
     return new FutureCombiner(allMustSucceed, futures);
   }
@@ -88,7 +89,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
    * @since 5.0
    */
   public FutureCombiner with(Future<?>... future) {
-    LinkedList<Future<?>> futures = new LinkedList<>(this.futures);
+    ArrayList<Future> futures = new ArrayList<>(this.futures);
     Collections.addAll(futures, future);
     return new FutureCombiner(allMustSucceed, futures);
   }
@@ -101,8 +102,21 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
    */
   public FutureCombiner with(Collection<Future<?>> future) {
     Assert.notNull(future, "Futures is required");
-    LinkedList<Future<?>> futures = new LinkedList<>(this.futures);
+    ArrayList<Future> futures = new ArrayList<>(this.futures);
     futures.addAll(future);
+    return new FutureCombiner(allMustSucceed, futures);
+  }
+
+  /**
+   * Creates a new {@link FutureCombiner} that processes the completed
+   * futures whether they're successful.
+   *
+   * @since 5.0
+   */
+  public FutureCombiner with(Stream<Future<?>> future) {
+    Assert.notNull(future, "Futures is required");
+    ArrayList<Future> futures = new ArrayList<>(this.futures);
+    futures.addAll(future.toList());
     return new FutureCombiner(allMustSucceed, futures);
   }
 
@@ -166,7 +180,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
    * @see #call(ThrowingFunction, Executor)
    * @since 5.0
    */
-  public <C extends @Nullable Object> Future<C> call(ThrowingFunction<Collection<Future<?>>, C> mapper) {
+  public <C extends @Nullable Object> Future<C> call(ThrowingFunction<Collection<Future>, C> mapper) {
     return call(mapper, Future.defaultScheduler);
   }
 
@@ -185,7 +199,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
    * @throws IllegalArgumentException if mapper is null
    * @since 5.0
    */
-  public <C extends @Nullable Object> Future<C> call(ThrowingFunction<Collection<Future<?>>, C> mapper, @Nullable Executor executor) {
+  public <C extends @Nullable Object> Future<C> call(ThrowingFunction<Collection<Future>, C> mapper, @Nullable Executor executor) {
     return call(() -> mapper.apply(futures), executor);
   }
 
