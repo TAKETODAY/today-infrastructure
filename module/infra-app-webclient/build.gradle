@@ -1,0 +1,16 @@
+description = "Infra application WebClient integration"
+
+dependencies {
+  api project(":infra-web")
+  api(project(":module:infra-app-http-client"))
+  api("io.projectreactor.netty:reactor-netty-http")
+  implementation(project(":module:infra-app-http-codec"))
+
+  optional("org.apache.httpcomponents.client5:httpclient5")
+  optional("org.apache.httpcomponents.core5:httpcore5-reactive")
+
+  testImplementation "org.hamcrest:hamcrest"
+  testImplementation 'io.projectreactor:reactor-test'
+
+  testRuntimeOnly("ch.qos.logback:logback-classic")
+}

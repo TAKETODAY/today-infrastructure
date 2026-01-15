@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.config.web.reactive.client;
+package infra.web.client.config;
 
 import java.util.function.Consumer;
 
@@ -33,7 +33,7 @@ import infra.web.client.reactive.WebClient;
  * Typically used as follows: <pre class="code">
  * &#064;Bean
  * public MyBean myBean(WebClient.Builder webClientBuilder, WebClientSsl ssl) {
- *     WebClient webClient = webClientBuilder.apply(ssl.forBundle("mybundle")).build();
+ *     WebClient webClient = webClientBuilder.apply(ssl.fromBundle("mybundle")).build();
  *     return new MyBean(webClient);
  * }
  * </pre> NOTE: Apply SSL configuration will replace any previously

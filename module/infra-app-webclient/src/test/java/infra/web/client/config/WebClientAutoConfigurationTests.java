@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.config.web.reactive.client;
+package infra.web.client.config;
 
 import org.junit.jupiter.api.Test;
 
@@ -25,8 +25,11 @@ import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
+import infra.http.client.config.HttpClientAutoConfiguration;
+import infra.http.client.config.reactive.ReactiveHttpClientAutoConfiguration;
 import infra.http.codec.CodecConfigurer;
 import infra.http.codec.CodecCustomizer;
+import infra.web.client.WebClientCustomizer;
 import infra.web.client.reactive.WebClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,15 +38,16 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests for {@link infra.app.config.web.reactive.client.WebClientAutoConfiguration}
+ * Tests for {@link WebClientAutoConfiguration}
  *
  * @author Brian Clozel
+ * @author Phillip Webb
  */
 class WebClientAutoConfigurationTests {
 
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-          .withConfiguration(AutoConfigurations.of(infra.app.config.web.reactive.client.ClientHttpConnectorAutoConfiguration.class,
-                  infra.app.config.web.reactive.client.WebClientAutoConfiguration.class, SslAutoConfiguration.class));
+          .withConfiguration(AutoConfigurations.of(ReactiveHttpClientAutoConfiguration.class,
+                  HttpClientAutoConfiguration.class, WebClientAutoConfiguration.class, SslAutoConfiguration.class));
 
   @Test
   void shouldCreateBuilder() {
@@ -59,7 +63,7 @@ class WebClientAutoConfigurationTests {
     this.contextRunner.withUserConfiguration(CodecConfiguration.class).run((context) -> {
       WebClient.Builder builder = context.getBean(WebClient.Builder.class);
       CodecCustomizer codecCustomizer = context.getBean(CodecCustomizer.class);
-      infra.app.config.web.reactive.client.WebClientCodecCustomizer clientCustomizer = context.getBean(infra.app.config.web.reactive.client.WebClientCodecCustomizer.class);
+      WebClientCodecCustomizer clientCustomizer = context.getBean(WebClientCodecCustomizer.class);
       builder.build();
       assertThat(clientCustomizer).isNotNull();
       then(codecCustomizer).should().customize(any(CodecConfigurer.class));
@@ -98,7 +102,7 @@ class WebClientAutoConfigurationTests {
   void shouldCreateWebClientSsl() {
     this.contextRunner.run((context) -> {
       WebClientSsl webClientSsl = context.getBean(WebClientSsl.class);
-      assertThat(webClientSsl).isInstanceOf(infra.app.config.web.reactive.client.AutoConfiguredWebClientSsl.class);
+      assertThat(webClientSsl).isInstanceOf(AutoConfiguredWebClientSsl.class);
     });
   }
 

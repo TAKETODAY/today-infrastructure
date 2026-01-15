@@ -16,12 +16,14 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.config.web.reactive.client;
+package infra.web.client.config;
 
 import java.util.function.Consumer;
 
 import infra.core.ssl.SslBundle;
 import infra.core.ssl.SslBundles;
+import infra.http.client.config.HttpClientSettings;
+import infra.http.client.config.reactive.ClientHttpConnectorBuilder;
 import infra.http.client.reactive.ClientHttpConnector;
 import infra.web.client.reactive.WebClient;
 
@@ -29,17 +31,19 @@ import infra.web.client.reactive.WebClient;
  * An auto-configured {@link WebClientSsl} implementation.
  *
  * @author Phillip Webb
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
  */
 class AutoConfiguredWebClientSsl implements WebClientSsl {
 
-  private final ClientHttpConnectorFactory<?> clientHttpConnectorFactory;
+  private final ClientHttpConnectorBuilder<?> connectorBuilder;
+
+  private final HttpClientSettings settings;
 
   private final SslBundles sslBundles;
 
-  AutoConfiguredWebClientSsl(ClientHttpConnectorFactory<?> clientHttpConnectorFactory, SslBundles sslBundles) {
-    this.clientHttpConnectorFactory = clientHttpConnectorFactory;
+  AutoConfiguredWebClientSsl(ClientHttpConnectorBuilder<?> connectorBuilder,
+          HttpClientSettings settings, SslBundles sslBundles) {
+    this.connectorBuilder = connectorBuilder;
+    this.settings = settings;
     this.sslBundles = sslBundles;
   }
 
@@ -50,8 +54,9 @@ class AutoConfiguredWebClientSsl implements WebClientSsl {
 
   @Override
   public Consumer<WebClient.Builder> fromBundle(SslBundle bundle) {
-    return builder -> {
-      ClientHttpConnector connector = clientHttpConnectorFactory.createClientHttpConnector(bundle);
+    return (builder) -> {
+      HttpClientSettings settings = this.settings.withSslBundle(bundle);
+      ClientHttpConnector connector = this.connectorBuilder.build(settings);
       builder.clientConnector(connector);
     };
   }
