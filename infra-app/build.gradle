@@ -55,7 +55,7 @@ dependencies {
 
   testImplementation 'ch.qos.logback:logback-classic'
 
-  testImplementation("org.codehaus.janino:janino")
+  testImplementation("org.codehaus.janino:janino") // infraPropertyInIfWhenTrue
   testImplementation 'org.apache.httpcomponents.core5:httpcore5'
   testImplementation 'org.apache.httpcomponents.core5:httpcore5-reactive'
   testImplementation 'org.apache.httpcomponents.client5:httpclient5'
