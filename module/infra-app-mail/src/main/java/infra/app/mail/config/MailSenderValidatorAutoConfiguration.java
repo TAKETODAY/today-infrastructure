@@ -18,14 +18,12 @@
 
 package infra.app.mail.config;
 
-import infra.context.annotation.config.AutoConfiguration;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnBooleanProperty;
 import infra.context.condition.ConditionalOnSingleCandidate;
 import infra.mail.javamail.JavaMailSenderImpl;
 import jakarta.mail.MessagingException;
-
 
 /**
  * {@link EnableAutoConfiguration Auto configuration} for testing mail service
@@ -40,20 +38,20 @@ import jakarta.mail.MessagingException;
 @ConditionalOnSingleCandidate(JavaMailSenderImpl.class)
 public final class MailSenderValidatorAutoConfiguration {
 
-	private final JavaMailSenderImpl mailSender;
+  private final JavaMailSenderImpl mailSender;
 
-	MailSenderValidatorAutoConfiguration(JavaMailSenderImpl mailSender) {
-		this.mailSender = mailSender;
-		validateConnection();
-	}
+  MailSenderValidatorAutoConfiguration(JavaMailSenderImpl mailSender) {
+    this.mailSender = mailSender;
+    validateConnection();
+  }
 
-	private void validateConnection() {
-		try {
-			this.mailSender.testConnection();
-		}
-		catch (MessagingException ex) {
-			throw new IllegalStateException("Mail server is not available", ex);
-		}
-	}
+  private void validateConnection() {
+    try {
+      this.mailSender.testConnection();
+    }
+    catch (MessagingException ex) {
+      throw new IllegalStateException("Mail server is not available", ex);
+    }
+  }
 
 }

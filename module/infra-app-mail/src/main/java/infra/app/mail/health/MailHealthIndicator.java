@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.app.mail.health;
 
 import infra.app.health.contributor.AbstractHealthIndicator;
