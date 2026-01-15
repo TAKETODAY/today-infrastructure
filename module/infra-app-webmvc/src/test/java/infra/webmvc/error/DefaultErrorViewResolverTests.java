@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import infra.annotation.config.web.WebProperties.Resources;
+import infra.app.config.web.WebProperties.Resources;
 import infra.context.ApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.Ordered;

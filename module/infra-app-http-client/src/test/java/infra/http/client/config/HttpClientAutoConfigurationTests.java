@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 
-import infra.annotation.config.ssl.SslAutoConfiguration;
+import infra.app.config.ssl.SslAutoConfiguration;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;

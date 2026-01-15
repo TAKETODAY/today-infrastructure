@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.io.StringWriter;
 import java.util.Locale;
 
-import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
+import infra.app.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;

@@ -33,7 +33,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
-import infra.annotation.config.jmx.JmxAutoConfiguration;
+import infra.app.config.jmx.JmxAutoConfiguration;
 import infra.aop.framework.ProxyFactory;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.InitializationBeanPostProcessor;

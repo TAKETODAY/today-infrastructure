@@ -16,7 +16,7 @@
 
 package infra.web.socket.config;
 
-import infra.annotation.ConditionalOnWebApplication;
+import infra.app.config.ConditionalOnWebApplication;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;

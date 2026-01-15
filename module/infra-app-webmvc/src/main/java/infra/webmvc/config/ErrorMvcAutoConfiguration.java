@@ -24,8 +24,8 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 
-import infra.annotation.ConditionalOnWebApplication;
-import infra.annotation.config.web.WebProperties;
+import infra.app.config.ConditionalOnWebApplication;
+import infra.app.config.web.WebProperties;
 import infra.aop.framework.autoproxy.AutoProxyUtils;
 import infra.beans.BeansException;
 import infra.beans.factory.config.BeanFactoryPostProcessor;
@@ -61,7 +61,7 @@ import infra.webmvc.error.ErrorAttributes;
 import infra.webmvc.error.ErrorController;
 import infra.webmvc.error.ErrorViewResolver;
 
-import static infra.annotation.ConditionalOnWebApplication.Type.MVC;
+import static infra.app.config.ConditionalOnWebApplication.Type.MVC;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} to render errors via an MVC error

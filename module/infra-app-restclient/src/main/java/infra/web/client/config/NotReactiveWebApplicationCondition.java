@@ -18,8 +18,8 @@
 
 package infra.web.client.config;
 
-import infra.annotation.ConditionalOnWebApplication;
-import infra.annotation.ConditionalOnWebApplication.Type;
+import infra.app.config.ConditionalOnWebApplication;
+import infra.app.config.ConditionalOnWebApplication.Type;
 import infra.context.condition.InfraCondition;
 import infra.context.condition.NoneNestedConditions;
 

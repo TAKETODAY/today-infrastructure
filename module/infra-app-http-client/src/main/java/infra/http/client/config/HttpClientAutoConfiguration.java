@@ -20,7 +20,7 @@ package infra.http.client.config;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.annotation.config.ssl.SslAutoConfiguration;
+import infra.app.config.ssl.SslAutoConfiguration;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnMissingBean;

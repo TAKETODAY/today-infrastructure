@@ -21,10 +21,10 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import infra.annotation.ConditionalOnWebApplication;
-import infra.annotation.ConditionalOnWebApplication.Type;
-import infra.annotation.config.task.TaskExecutionAutoConfiguration;
-import infra.annotation.config.task.TaskExecutionProperties;
+import infra.app.config.ConditionalOnWebApplication;
+import infra.app.config.ConditionalOnWebApplication.Type;
+import infra.app.config.task.TaskExecutionAutoConfiguration;
+import infra.app.config.task.TaskExecutionProperties;
 import infra.beans.BeanUtils;
 import infra.beans.factory.annotation.Qualifier;
 import infra.beans.factory.config.BeanDefinition;
@@ -69,9 +69,9 @@ import io.netty.channel.ChannelHandler;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketDecoderConfig;
 
-import static infra.annotation.config.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
-import static infra.annotation.config.task.TaskExecutionAutoConfiguration.TaskExecutorConfiguration;
-import static infra.annotation.config.task.TaskExecutionAutoConfiguration.threadPoolTaskExecutorBuilder;
+import static infra.app.config.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
+import static infra.app.config.task.TaskExecutionAutoConfiguration.TaskExecutorConfiguration;
+import static infra.app.config.task.TaskExecutionAutoConfiguration.threadPoolTaskExecutorBuilder;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for a netty web server.

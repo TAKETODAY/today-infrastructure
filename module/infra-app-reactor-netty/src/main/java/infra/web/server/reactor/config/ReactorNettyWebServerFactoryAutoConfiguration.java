@@ -16,7 +16,7 @@
 
 package infra.web.server.reactor.config;
 
-import infra.annotation.ConditionalOnWebApplication;
+import infra.app.config.ConditionalOnWebApplication;
 import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.Import;
 import infra.context.annotation.Lazy;
@@ -43,7 +43,7 @@ import infra.web.server.reactor.ReactorNettyServerCustomizer;
 import infra.web.server.reactor.ReactorServerProperties;
 import reactor.netty.http.server.HttpServer;
 
-import static infra.annotation.ConditionalOnWebApplication.Type;
+import static infra.app.config.ConditionalOnWebApplication.Type;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for a reactive web server.

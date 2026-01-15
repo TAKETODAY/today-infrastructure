@@ -39,8 +39,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
-import infra.annotation.config.task.TaskExecutionAutoConfiguration;
+import infra.app.config.context.PropertyPlaceholderAutoConfiguration;
+import infra.app.config.task.TaskExecutionAutoConfiguration;
 import infra.app.test.context.assertj.AssertableApplicationContext;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.app.test.context.runner.ContextConsumer;

@@ -20,7 +20,7 @@ package infra.web.server.reactor.config;
 
 import org.junit.jupiter.api.Test;
 
-import infra.annotation.config.ssl.SslAutoConfiguration;
+import infra.app.config.ssl.SslAutoConfiguration;
 import infra.app.LazyInitializationExcludeFilter;
 import infra.app.test.context.runner.ReactiveWebApplicationContextRunner;
 import infra.context.ApplicationContextException;

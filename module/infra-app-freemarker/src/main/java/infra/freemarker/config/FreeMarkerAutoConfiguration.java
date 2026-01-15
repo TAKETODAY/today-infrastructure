@@ -20,8 +20,8 @@ package infra.freemarker.config;
 
 import java.util.List;
 
-import infra.annotation.ConditionalOnNotWebApplication;
-import infra.annotation.ConditionalOnWebApplication;
+import infra.app.config.ConditionalOnNotWebApplication;
+import infra.app.config.ConditionalOnWebApplication;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.AutoConfigureAfter;

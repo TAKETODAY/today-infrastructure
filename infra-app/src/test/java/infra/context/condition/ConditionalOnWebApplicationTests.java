@@ -21,8 +21,8 @@ package infra.context.condition;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import infra.annotation.ConditionalOnWebApplication;
-import infra.annotation.ConditionalOnWebApplication.Type;
+import infra.app.config.ConditionalOnWebApplication;
+import infra.app.config.ConditionalOnWebApplication.Type;
 import infra.app.web.context.reactive.AnnotationConfigReactiveWebApplicationContext;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;

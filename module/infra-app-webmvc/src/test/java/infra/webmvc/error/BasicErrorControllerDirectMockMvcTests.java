@@ -32,7 +32,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.net.URL;
 
-import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
+import infra.app.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.app.Application;
 import infra.app.builder.ApplicationBuilder;
 import infra.app.test.util.ApplicationContextTestUtils;

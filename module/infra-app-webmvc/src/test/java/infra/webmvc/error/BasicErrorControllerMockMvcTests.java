@@ -28,7 +28,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Map;
 
-import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
+import infra.app.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.app.Application;
 import infra.app.test.context.InfraTest;
 import infra.beans.factory.annotation.Autowired;

@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import infra.annotation.config.web.ErrorProperties;
+import infra.app.config.web.ErrorProperties;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;

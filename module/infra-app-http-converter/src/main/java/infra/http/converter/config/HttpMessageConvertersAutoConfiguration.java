@@ -20,8 +20,8 @@ package infra.http.converter.config;
 
 import java.util.List;
 
-import infra.annotation.ConditionalOnWebApplication;
-import infra.annotation.ConditionalOnWebApplication.Type;
+import infra.app.config.ConditionalOnWebApplication;
+import infra.app.config.ConditionalOnWebApplication.Type;
 import infra.app.jackson.config.JacksonAutoConfiguration;
 import infra.jsonb.config.JsonbAutoConfiguration;
 import infra.context.annotation.Conditional;

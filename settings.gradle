@@ -28,6 +28,7 @@ include 'infra-dependencies'
 
 include 'infra-aop'
 include 'infra-app'
+include 'infra-app-config'
 include 'infra-aspects'
 include 'infra-beans'
 include 'infra-context'
@@ -46,7 +47,6 @@ include 'infra-webmvc'
 include 'infra-webmvc-mock'
 include 'infra-websocket'
 
-include 'infra-config'
 
 include 'infra-test'
 include 'infra-test-support'

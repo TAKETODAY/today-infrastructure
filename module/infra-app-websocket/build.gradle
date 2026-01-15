@@ -3,7 +3,6 @@ description = "Infra application Web MVC module"
 dependencies {
   api(project(":infra-webmvc"))
   api(project(":infra-websocket"))
-  api(project(":infra-config"))
   api project(':infra-app')
 
   optional project(':infra-core-aot')

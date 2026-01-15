@@ -29,8 +29,8 @@ import java.lang.annotation.Target;
 import java.net.URI;
 import java.util.Map;
 
-import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
-import infra.annotation.config.task.TaskExecutionAutoConfiguration;
+import infra.app.config.context.PropertyPlaceholderAutoConfiguration;
+import infra.app.config.task.TaskExecutionAutoConfiguration;
 import infra.app.Application;
 import infra.app.test.web.client.TestRestTemplate;
 import infra.context.ConfigurableApplicationContext;

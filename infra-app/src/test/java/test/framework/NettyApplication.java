@@ -23,7 +23,7 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-import infra.annotation.config.logging.ConditionEvaluationReportLoggingListener;
+import infra.app.config.logging.ConditionEvaluationReportLoggingListener;
 import infra.app.Application;
 import infra.app.ApplicationType;
 import infra.app.InfraApplication;

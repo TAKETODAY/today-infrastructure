@@ -5,7 +5,7 @@ description = "Infra application modules"
 
 configure(subprojects) {
   dependencies {
-    api(project(":infra-config"))
+    api(project(":infra-app-config"))
 
     annotationProcessor(project(":infra-build:infra-configuration-processor"))
     annotationProcessor(project(":infra-build:infra-annotation-config-processor"))

@@ -20,8 +20,8 @@ package infra.webmvc.error;
 
 import org.junit.jupiter.api.Test;
 
-import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
-import infra.annotation.config.task.TaskExecutionAutoConfiguration;
+import infra.app.config.context.PropertyPlaceholderAutoConfiguration;
+import infra.app.config.task.TaskExecutionAutoConfiguration;
 import infra.app.test.context.InfraTest;
 import infra.app.test.context.InfraTest.WebEnvironment;
 import infra.app.test.web.client.TestRestTemplate;

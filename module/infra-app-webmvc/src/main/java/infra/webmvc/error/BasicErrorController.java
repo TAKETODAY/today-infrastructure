@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import infra.annotation.config.web.ErrorProperties;
+import infra.app.config.web.ErrorProperties;
 import infra.http.HttpStatus;
 import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
@@ -54,7 +54,7 @@ import infra.web.util.WebUtils;
  * @author Scott Frederick
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ErrorAttributes
- * @see infra.annotation.config.web.ErrorProperties
+ * @see infra.app.config.web.ErrorProperties
  * @since 4.0
  */
 @RequestMapping

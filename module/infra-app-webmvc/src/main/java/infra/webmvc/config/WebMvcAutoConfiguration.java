@@ -24,13 +24,13 @@ import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.List;
 
-import infra.annotation.ConditionalOnWebApplication;
-import infra.annotation.config.task.TaskExecutionAutoConfiguration;
-import infra.annotation.config.web.ConditionalOnEnabledResourceChain;
-import infra.annotation.config.web.WebProperties;
-import infra.annotation.config.web.WebProperties.Resources;
-import infra.annotation.config.web.WebProperties.Resources.Chain.Strategy;
-import infra.annotation.config.web.WebResourcesRuntimeHints;
+import infra.app.config.ConditionalOnWebApplication;
+import infra.app.config.task.TaskExecutionAutoConfiguration;
+import infra.app.config.web.ConditionalOnEnabledResourceChain;
+import infra.app.config.web.WebProperties;
+import infra.app.config.web.WebProperties.Resources;
+import infra.app.config.web.WebProperties.Resources.Chain.Strategy;
+import infra.app.config.web.WebResourcesRuntimeHints;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.ObjectProvider;
 import infra.beans.factory.config.BeanDefinition;
@@ -102,8 +102,8 @@ import infra.webmvc.DispatcherHandlerCustomizer;
 import infra.webmvc.config.WebMvcProperties.ApiVersion.Use;
 import infra.webmvc.config.WebMvcProperties.Format;
 
-import static infra.annotation.ConditionalOnWebApplication.Type.MVC;
-import static infra.annotation.config.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
+import static infra.app.config.ConditionalOnWebApplication.Type.MVC;
+import static infra.app.config.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for {@link WebMvcConfigurationSupport}.

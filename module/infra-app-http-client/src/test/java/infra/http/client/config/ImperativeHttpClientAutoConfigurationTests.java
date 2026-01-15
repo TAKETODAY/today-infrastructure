@@ -27,7 +27,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.annotation.config.ssl.SslAutoConfiguration;
+import infra.app.config.ssl.SslAutoConfiguration;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.app.test.context.runner.ReactiveWebApplicationContextRunner;
 import infra.context.annotation.Bean;

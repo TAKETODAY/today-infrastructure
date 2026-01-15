@@ -30,8 +30,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.nio.file.Path;
 
-import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
-import infra.annotation.config.task.TaskExecutionAutoConfiguration;
+import infra.app.config.context.PropertyPlaceholderAutoConfiguration;
+import infra.app.config.task.TaskExecutionAutoConfiguration;
 import infra.app.Application;
 import infra.app.InfraApplication;
 import infra.context.ConfigurableApplicationContext;
