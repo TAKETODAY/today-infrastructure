@@ -33,15 +33,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class PatternParseFailureAnalyzerTests {
 
-  private PathPatternParser parser = new PathPatternParser();
+  private final PathPatternParser parser = new PathPatternParser();
 
   @Test
   void patternParseFailureQuotesPattern() {
-    FailureAnalysis failureAnalysis = performAnalysis("/spring/**/framework");
-    assertThat(failureAnalysis.getDescription()).contains("Invalid mapping pattern detected:\n/spring/**/framework\n");
+    FailureAnalysis failureAnalysis = performAnalysis("/infra/**/app");
+    assertThat(failureAnalysis.getDescription()).contains("Invalid mapping pattern detected:\n/infra/**/app\n");
     assertThat(failureAnalysis.getAction())
-            .contains("Fix this pattern in your application or switch to the legacy parser"
-                    + " implementation with 'web.mvc.pathmatch.matching-strategy=ant_path_matcher'.");
+            .contains("Fix this pattern in your application.");
   }
 
   private FailureAnalysis performAnalysis(String pattern) {

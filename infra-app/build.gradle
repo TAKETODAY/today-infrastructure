@@ -140,6 +140,7 @@ dependencies {
   testImplementation project(':module:infra-app-netty-server')
   testImplementation project(':module:infra-app-http-converter')
   testImplementation testFixtures(project(':module:infra-app-netty-server'))
+  testImplementation testFixtures(project(':module:infra-app-web-server'))
 
   testFixturesApi project(':infra-webmvc-mock')
   testFixturesImplementation("org.junit.jupiter:junit-jupiter-api")

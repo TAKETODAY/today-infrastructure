@@ -5,7 +5,6 @@ infra.app.ApplicationType.Hints,\
 infra.app.context.config.ConfigDataLocationRuntimeHints,\
 infra.app.context.config.ConfigDataPropertiesRuntimeHints,\
 infra.app.env.PropertySourceRuntimeHints,\
-infra.app.jdbc.DataSourceBuilderRuntimeHints,\
 infra.app.logging.java.JavaLoggingSystemRuntimeHints,\
 infra.app.logging.logback.LogbackRuntimeHints,\
 

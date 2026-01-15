@@ -67,6 +67,7 @@ import infra.beans.factory.BeanDefinitionStoreException;
 import infra.beans.factory.ObjectProvider;
 import infra.beans.factory.UnsatisfiedDependencyException;
 import infra.beans.factory.annotation.Autowired;
+import infra.beans.factory.config.BeanFactoryPostProcessor;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.BeanDefinitionOverrideException;
 import infra.beans.factory.support.BeanDefinitionRegistry;
@@ -113,6 +114,7 @@ import infra.test.classpath.ForkedClassPath;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
+import infra.web.server.MockWebServerFactory;
 import jakarta.annotation.PostConstruct;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -958,7 +960,7 @@ class ApplicationTests {
   @Test
   void applicationListenerFromApplicationIsCalledWhenContextFailsRefreshBeforeListenerRegistration() {
     ApplicationListener<ApplicationEvent> listener = mock(ApplicationListener.class);
-    Application application = new Application(ExampleConfig.class);
+    Application application = new Application(BrokenBeanFactoryPostProcessing.class);
     application.addListeners(listener);
     assertThatExceptionOfType(ApplicationContextException.class).isThrownBy(application::run);
     verifyRegisteredListenerFailedFromApplicationEvents(listener);
@@ -989,7 +991,7 @@ class ApplicationTests {
   @Test
   void applicationListenerFromContextIsCalledWhenContextFailsRefreshBeforeListenerRegistration() {
     final ApplicationListener<ApplicationEvent> listener = mock(ApplicationListener.class);
-    Application application = new Application(ExampleConfig.class);
+    Application application = new Application(BrokenBeanFactoryPostProcessing.class);
     application.addInitializers((applicationContext) -> applicationContext.addApplicationListener(listener));
     assertThatExceptionOfType(ApplicationContextException.class).isThrownBy(application::run);
     then(listener).should().onApplicationEvent(isA(ApplicationFailedEvent.class));
@@ -1525,6 +1527,11 @@ class ApplicationTests {
       return "test";
     }
 
+    @Bean
+    MockWebServerFactory mockWebServerFactory() {
+      return new MockWebServerFactory();
+    }
+
   }
 
   @Configuration(proxyBeanMethods = false)
@@ -1999,6 +2006,18 @@ class ApplicationTests {
     @Profile("custom")
     Example example() {
       return new Example();
+    }
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class BrokenBeanFactoryPostProcessing {
+
+    @Bean
+    static BeanFactoryPostProcessor brokenBeanFactoryPostProcessor() {
+      return (beanFactory) -> {
+        throw new ApplicationContextException("broken");
+      };
     }
 
   }

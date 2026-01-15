@@ -1,0 +1,3 @@
+infra.aot.hint.RuntimeHintsRegistrar=\
+infra.app.jdbc.DataSourceBuilderRuntimeHints
+
