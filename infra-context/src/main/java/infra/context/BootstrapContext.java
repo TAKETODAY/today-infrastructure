@@ -388,7 +388,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
   }
 
   @SuppressWarnings("NullAway")
-  private void invokeAwareMethods(Object bean) {
+  public void invokeAwareMethods(Object bean) {
     if (bean instanceof Aware) {
       if (bean instanceof BeanClassLoaderAware aware) {
         aware.setBeanClassLoader(getClassLoader());
