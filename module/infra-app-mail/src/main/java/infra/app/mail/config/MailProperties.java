@@ -39,116 +39,50 @@ import infra.context.properties.ConfigurationProperties;
 @ConfigurationProperties("mail")
 public class MailProperties {
 
-  private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-
   /**
    * SMTP server host. For instance, 'smtp.example.com'.
    */
-  private @Nullable String host;
+  public @Nullable String host;
 
   /**
    * SMTP server port.
    */
-  private @Nullable Integer port;
+  public @Nullable Integer port;
 
   /**
    * Login user of the SMTP server.
    */
-  private @Nullable String username;
+  public @Nullable String username;
 
   /**
    * Login password of the SMTP server.
    */
-  private @Nullable String password;
+  public @Nullable String password;
 
   /**
    * Protocol used by the SMTP server.
    */
-  private String protocol = "smtp";
+  public String protocol = "smtp";
 
   /**
    * Default MimeMessage encoding.
    */
-  private Charset defaultEncoding = DEFAULT_CHARSET;
+  public Charset defaultEncoding = StandardCharsets.UTF_8;
 
   /**
    * Additional JavaMail Session properties.
    */
-  private final Map<String, String> properties = new HashMap<>();
+  public final Map<String, String> properties = new HashMap<>();
 
   /**
    * Session JNDI name. When set, takes precedence over other Session settings.
    */
-  private @Nullable String jndiName;
+  public @Nullable String jndiName;
 
   /**
    * SSL configuration.
    */
-  private final Ssl ssl = new Ssl();
-
-  public @Nullable String getHost() {
-    return this.host;
-  }
-
-  public void setHost(@Nullable String host) {
-    this.host = host;
-  }
-
-  public @Nullable Integer getPort() {
-    return this.port;
-  }
-
-  public void setPort(@Nullable Integer port) {
-    this.port = port;
-  }
-
-  public @Nullable String getUsername() {
-    return this.username;
-  }
-
-  public void setUsername(@Nullable String username) {
-    this.username = username;
-  }
-
-  public @Nullable String getPassword() {
-    return this.password;
-  }
-
-  public void setPassword(@Nullable String password) {
-    this.password = password;
-  }
-
-  public String getProtocol() {
-    return this.protocol;
-  }
-
-  public void setProtocol(String protocol) {
-    this.protocol = protocol;
-  }
-
-  public Charset getDefaultEncoding() {
-    return this.defaultEncoding;
-  }
-
-  public void setDefaultEncoding(Charset defaultEncoding) {
-    this.defaultEncoding = defaultEncoding;
-  }
-
-  public Map<String, String> getProperties() {
-    return this.properties;
-  }
-
-  public @Nullable String getJndiName() {
-    return this.jndiName;
-  }
-
-  public void setJndiName(@Nullable String jndiName) {
-    this.jndiName = jndiName;
-  }
-
-  public Ssl getSsl() {
-    return this.ssl;
-  }
+  public final Ssl ssl = new Ssl();
 
   public static class Ssl {
 
@@ -156,7 +90,7 @@ public class MailProperties {
      * Whether to enable SSL support. If enabled, 'mail.(protocol).ssl.enable'
      * property is set to 'true'.
      */
-    private boolean enabled;
+    public boolean enabled;
 
     /**
      * SSL bundle name. If set, 'mail.(protocol).ssl.socketFactory' property is set to
@@ -165,23 +99,7 @@ public class MailProperties {
      * Note that the STARTTLS command can use the corresponding SSLSocketFactory, even
      * if the 'mail.(protocol).ssl.enable' property is not set.
      */
-    private @Nullable String bundle;
-
-    public boolean isEnabled() {
-      return this.enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-      this.enabled = enabled;
-    }
-
-    public @Nullable String getBundle() {
-      return this.bundle;
-    }
-
-    public void setBundle(@Nullable String bundle) {
-      this.bundle = bundle;
-    }
+    public @Nullable String bundle;
 
   }
 

@@ -27,6 +27,7 @@ import infra.app.mail.config.MailProperties.Ssl;
 import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
+import infra.context.annotation.Lazy;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.condition.ConditionalOnProperty;
 import infra.core.ssl.SslBundle;
@@ -43,41 +44,40 @@ import infra.util.StringUtils;
  * @author Oliver Gierke
  * @author Eddú Meléndez
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
-@Configuration(proxyBeanMethods = false)
+@Lazy
 @ConditionalOnProperty("mail.host")
+@Configuration(proxyBeanMethods = false)
 class MailSenderPropertiesConfiguration {
 
   @Bean
   @ConditionalOnMissingBean(JavaMailSender.class)
-  JavaMailSenderImpl mailSender(MailProperties properties, ObjectProvider<SslBundles> sslBundles) {
+  static JavaMailSenderImpl mailSender(MailProperties properties, ObjectProvider<SslBundles> sslBundles) {
     JavaMailSenderImpl sender = new JavaMailSenderImpl();
     applyProperties(properties, sender, sslBundles.getIfAvailable());
     return sender;
   }
 
-  private void applyProperties(MailProperties properties, JavaMailSenderImpl sender,
-          @Nullable SslBundles sslBundles) {
-    sender.setHost(properties.getHost());
-    if (properties.getPort() != null) {
-      sender.setPort(properties.getPort());
+  private static void applyProperties(MailProperties properties, JavaMailSenderImpl sender, @Nullable SslBundles sslBundles) {
+    sender.setHost(properties.host);
+    if (properties.port != null) {
+      sender.setPort(properties.port);
     }
-    sender.setUsername(properties.getUsername());
-    sender.setPassword(properties.getPassword());
-    sender.setProtocol(properties.getProtocol());
-    if (properties.getDefaultEncoding() != null) {
-      sender.setDefaultEncoding(properties.getDefaultEncoding().name());
-    }
-    Properties javaMailProperties = asProperties(properties.getProperties());
-    String protocol = properties.getProtocol();
+    sender.setUsername(properties.username);
+    sender.setPassword(properties.password);
+    sender.setProtocol(properties.protocol);
+    sender.setDefaultEncoding(properties.defaultEncoding.name());
+    Properties javaMailProperties = asProperties(properties.properties);
+    String protocol = properties.protocol;
     protocol = StringUtils.isEmpty(protocol) ? "smtp" : protocol;
-    Ssl ssl = properties.getSsl();
-    if (ssl.isEnabled()) {
-      javaMailProperties.setProperty("mail." + protocol + ".ssl.enable", "true");
+    Ssl ssl = properties.ssl;
+    if (ssl.enabled) {
+      javaMailProperties.setProperty("mail.%s.ssl.enable".formatted(protocol), "true");
     }
-    if (ssl.getBundle() != null) {
-      Assert.state(sslBundles != null, "'sslBundles' must not be null");
-      SslBundle sslBundle = sslBundles.getBundle(ssl.getBundle());
+    if (ssl.bundle != null) {
+      Assert.state(sslBundles != null, "'sslBundles' is required");
+      SslBundle sslBundle = sslBundles.getBundle(ssl.bundle);
       javaMailProperties.put("mail." + protocol + ".ssl.socketFactory",
               sslBundle.createSslContext().getSocketFactory());
     }
@@ -86,7 +86,7 @@ class MailSenderPropertiesConfiguration {
     }
   }
 
-  private Properties asProperties(Map<String, String> source) {
+  private static Properties asProperties(Map<String, String> source) {
     Properties properties = new Properties();
     properties.putAll(source);
     return properties;

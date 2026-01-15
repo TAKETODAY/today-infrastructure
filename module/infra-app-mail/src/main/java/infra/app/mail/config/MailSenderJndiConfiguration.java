@@ -38,31 +38,25 @@ import jakarta.mail.Session;
  * @author Eddú Meléndez
  * @author Stephane Nicoll
  */
+@ConditionalOnJndi
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(Session.class)
 @ConditionalOnProperty("mail.jndi-name")
-@ConditionalOnJndi
 class MailSenderJndiConfiguration {
 
-  private final MailProperties properties;
-
-  MailSenderJndiConfiguration(MailProperties properties) {
-    this.properties = properties;
-  }
-
   @Bean
-  JavaMailSenderImpl mailSender(Session session) {
+  JavaMailSenderImpl mailSender(Session session, MailProperties properties) {
     JavaMailSenderImpl sender = new JavaMailSenderImpl();
-    sender.setDefaultEncoding(this.properties.getDefaultEncoding().name());
+    sender.setDefaultEncoding(properties.defaultEncoding.name());
     sender.setSession(session);
     return sender;
   }
 
   @Bean
   @ConditionalOnMissingBean
-  Session session() {
-    String jndiName = this.properties.getJndiName();
-    Assert.state(jndiName != null, "'jndiName' must not be null");
+  static Session session(MailProperties properties) {
+    String jndiName = properties.jndiName;
+    Assert.state(jndiName != null, "'jndiName' is required");
     try {
       return JndiLocatorDelegate.createDefaultResourceRefLocator().lookup(jndiName, Session.class);
     }
