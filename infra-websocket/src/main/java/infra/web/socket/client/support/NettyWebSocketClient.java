@@ -71,6 +71,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
 import static infra.util.concurrent.Future.ok;
@@ -485,6 +486,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
           CloseStatus closeStatus = new CloseStatus(cf.statusCode(), cf.reasonText());
           session.onClose(handler, closeStatus, logger);
           session = null;
+          ReferenceCountUtil.safeRelease(msg);
         }
         else if (msg instanceof WebSocketFrame frame) {
           session.handleMessage(handler, frame, logger);
@@ -530,6 +532,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
             promise.setFailure(e);
           }
         }
+        ReferenceCountUtil.safeRelease(msg);
       }
       else {
         super.channelRead(ctx, msg);
