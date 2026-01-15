@@ -1,4 +1,0 @@
-
-<included>
-	<infra-property scope="context" name="MINE" source="my.example-property" defaultValue="default-test" />
-</included>

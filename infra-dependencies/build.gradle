@@ -262,7 +262,7 @@ bom {
       ]
     }
   }
-  library("Logback", "1.5.18") {
+  library("Logback", "1.5.22") {
     group("ch.qos.logback") {
       modules = [
           "logback-access",
@@ -674,7 +674,7 @@ dependencies {
     api("org.webjars:underscorejs:1.8.3")
     api("org.webjars:webjars-locator-core:0.55")
     api("org.webjars:webjars-locator-lite:1.0.0")
-    api("org.yaml:snakeyaml:2.4")
+    api("org.yaml:snakeyaml:2.5")
     api("org.projectlombok:lombok:1.18.42")
     api("org.htmlunit:htmlunit:3.1.0")
     api("org.seleniumhq.selenium:htmlunit-driver:4.8.1")
