@@ -42,27 +42,26 @@ public enum ApplicationType {
   NORMAL,
 
   /**
+   * The application should run as a web application and should start an
+   * embedded web server.
+   */
+  WEB,
+
+  /**
    * The application should run as a reactive web application and should start an
    * embedded reactive web server.
    */
-  REACTIVE_WEB,
+  REACTIVE_WEB;
 
-  /**
-   * The application should run as a netty web application and should start an
-   * embedded netty web server.
-   */
-  NETTY_WEB;
+  public static final String WEB_INDICATOR_CLASS = "infra.web.ErrorResponse";
 
-  public static final String WEB_INDICATOR_CLASS = "infra.web.RequestContext";
+  public static final String WEB_MVC_INDICATOR_CLASS = "infra.web.RequestContext";
 
   public static final String REACTOR_INDICATOR_CLASS = ReactiveStreams.REACTOR_INDICATOR_CLASS;
 
-  public static final String NETTY_WEB_INDICATOR_CLASS = "io.netty.handler.codec.http.HttpRequest";
-
   /**
    * Determines the application type by checking for the presence of indicator classes.
-   * If both the web indicator class ({@link #WEB_INDICATOR_CLASS}) and Netty web indicator class
-   * ({@link #NETTY_WEB_INDICATOR_CLASS}) are present, returns {@link ApplicationType#NETTY_WEB}.
+   * If the web indicator class ({@link #WEB_MVC_INDICATOR_CLASS}) are present, returns {@link ApplicationType#WEB}.
    * Otherwise, returns {@link ApplicationType#NORMAL}.
    *
    * @return the application type
@@ -77,9 +76,8 @@ public enum ApplicationType {
     }
 
     ClassLoader classLoader = ApplicationType.class.getClassLoader();
-    if (ClassUtils.isPresent(WEB_INDICATOR_CLASS, classLoader)
-            && ClassUtils.isPresent(NETTY_WEB_INDICATOR_CLASS, classLoader)) {
-      return ApplicationType.NETTY_WEB;
+    if (ClassUtils.isPresent(WEB_MVC_INDICATOR_CLASS, classLoader)) {
+      return ApplicationType.WEB;
     }
     return ApplicationType.NORMAL;
   }
@@ -108,7 +106,7 @@ public enum ApplicationType {
     @Override
     public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
       registerTypeIfPresent(WEB_INDICATOR_CLASS, classLoader, hints);
-      registerTypeIfPresent(NETTY_WEB_INDICATOR_CLASS, classLoader, hints);
+      registerTypeIfPresent(WEB_MVC_INDICATOR_CLASS, classLoader, hints);
       registerTypeIfPresent(REACTOR_INDICATOR_CLASS, classLoader, hints);
     }
 

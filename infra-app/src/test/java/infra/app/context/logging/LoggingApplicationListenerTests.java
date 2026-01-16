@@ -18,13 +18,12 @@
 
 package infra.app.context.logging;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -253,7 +252,7 @@ class LoggingApplicationListenerTests {
     addPropertiesToEnvironment(this.context, "logging.config=classpath:logback-nondefault.xml",
             "logging.file.path=" + this.tempDir);
     this.listener.initialize(this.context.getEnvironment(), this.context.getClassLoader());
-    Log logger = LogFactory.getLog(LoggingApplicationListenerTests.class);
+    Logger logger = LoggerFactory.getLogger(LoggingApplicationListenerTests.class);
     String existingOutput = this.output.toString();
     logger.info("Hello world");
     String output = this.output.toString().substring(existingOutput.length()).trim();

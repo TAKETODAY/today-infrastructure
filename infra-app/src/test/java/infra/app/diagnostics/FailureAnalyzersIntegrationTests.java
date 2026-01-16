@@ -28,7 +28,7 @@ import infra.app.builder.ApplicationBuilder;
 import infra.app.test.system.CapturedOutput;
 import infra.app.test.system.OutputCaptureExtension;
 import infra.context.annotation.Configuration;
-import infra.web.server.PortInUseException;
+import infra.web.util.pattern.PathPatternParser;
 import jakarta.annotation.PostConstruct;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,7 +55,7 @@ class FailureAnalyzersIntegrationTests {
 
     @PostConstruct
     void fail() {
-      throw new PortInUseException(8080);
+      new PathPatternParser().parse("{ }");
     }
 
   }

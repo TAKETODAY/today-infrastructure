@@ -1,0 +1,2 @@
+infra.webmvc.config.WebMvcAutoConfiguration
+infra.webmvc.config.ErrorMvcAutoConfiguration

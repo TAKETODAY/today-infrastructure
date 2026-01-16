@@ -32,7 +32,7 @@ import infra.jndi.JndiPropertySource;
 import infra.mock.api.MockConfig;
 import infra.mock.api.MockContext;
 import infra.util.ClassUtils;
-import infra.web.mock.ConfigurableWebEnvironment;
+import infra.web.mock.ConfigurableMockEnvironment;
 import infra.web.mock.MockConfigPropertySource;
 import infra.web.mock.MockContextPropertySource;
 
@@ -51,7 +51,7 @@ import infra.web.mock.MockContextPropertySource;
  * @see StandardEnvironment
  * @since 4.0
  */
-public class StandardMockEnvironment extends StandardEnvironment implements ConfigurableWebEnvironment {
+public class StandardMockEnvironment extends StandardEnvironment implements ConfigurableMockEnvironment {
 
   /** Servlet context init parameters property source name: {@value}. */
   public static final String MOCK_CONTEXT_PROPERTY_SOURCE_NAME = "mockContextInitParams";

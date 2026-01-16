@@ -48,8 +48,6 @@ import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 import infra.web.client.reactive.ExchangeStrategies;
-import infra.web.server.Ssl;
-import infra.web.server.reactive.AbstractReactiveWebServerFactory;
 
 /**
  * {@link ContextCustomizer} for {@link WebTestClient}.
@@ -207,8 +205,11 @@ class WebTestClientContextCustomizer implements ContextCustomizer {
 
     private boolean isSslEnabled(ApplicationContext context) {
       try {
-        var webServerFactory = context.getBean(AbstractReactiveWebServerFactory.class);
-        return Ssl.isEnabled(webServerFactory.getSsl());
+
+        return false;
+        // todo
+//        var webServerFactory = context.getBean(WebServerFactory.class);
+//        return Ssl.isEnabled(webServerFactory.getSsl());
       }
       catch (NoSuchBeanDefinitionException ex) {
         return false;

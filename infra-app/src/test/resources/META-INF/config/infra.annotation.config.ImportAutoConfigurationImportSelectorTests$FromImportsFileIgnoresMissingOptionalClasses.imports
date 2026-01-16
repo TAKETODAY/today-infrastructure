@@ -1,3 +1,0 @@
-optional:infra.annotation.config.freemarker.FreeMarkerAutoConfiguration
-optional:infra.annotation.config.missing.MissingAutoConfiguration
-infra.annotation.config.thymeleaf.ThymeleafAutoConfiguration

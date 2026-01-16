@@ -1,0 +1,6 @@
+description = 'Starter for Jackson'
+
+dependencies {
+  api project(':infra-starter')
+  api project(":module:infra-app-jackson")
+}

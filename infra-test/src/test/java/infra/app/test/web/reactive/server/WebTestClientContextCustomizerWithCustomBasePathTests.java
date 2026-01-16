@@ -34,7 +34,7 @@ import infra.http.server.reactive.ServerHttpRequest;
 import infra.http.server.reactive.ServerHttpResponse;
 import infra.test.context.TestPropertySource;
 import infra.test.web.reactive.server.WebTestClient;
-import infra.web.server.reactive.support.ReactorNettyReactiveWebServerFactory;
+import infra.web.reactor.netty.ReactorNettyReactiveWebServerFactory;
 import reactor.core.publisher.Mono;
 
 /**
@@ -44,7 +44,7 @@ import reactor.core.publisher.Mono;
  * @author Madhura Bhave
  */
 @InfraTest(webEnvironment = InfraTest.WebEnvironment.RANDOM_PORT,
-           properties = "app.main.application-type=reactive_web")
+        properties = "app.main.application-type=reactive_web")
 @TestPropertySource(properties = "webflux.base-path=/test")
 @Disabled
 class WebTestClientContextCustomizerWithCustomBasePathTests {

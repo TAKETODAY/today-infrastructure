@@ -1,0 +1,12 @@
+description = "Infra application HTTP Codec integration"
+
+dependencies {
+  api project(":infra-web")
+
+  optional(project(":module:infra-app-jackson"))
+
+  optional("org.reactivestreams:reactive-streams")
+
+  testRuntimeOnly("io.projectreactor:reactor-test")
+  testRuntimeOnly("ch.qos.logback:logback-classic")
+}

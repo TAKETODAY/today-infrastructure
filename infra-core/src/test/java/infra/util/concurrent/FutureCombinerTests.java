@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static infra.util.concurrent.FutureTests.directExecutor;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -402,9 +403,35 @@ class FutureCombinerTests {
   }
 
   @Test
+  void withStreamOfFuturesAddsFuturesToCollection() {
+    Future<Integer> future1 = Future.ok(1);
+    Stream<Future<?>> futures = Stream.of(
+            Future.ok(2),
+            Future.ok(3),
+            Future.ok(4)
+    );
+
+    var combiner = Future.combine(future1)
+            .with(futures);
+
+    assertThat(combiner.asList().join()).containsExactly(1, 2, 3, 4);
+  }
+
+  @Test
   void withEmptyFutureCollectionDoesNotModifyCombiner() {
     Future<Integer> future1 = Future.ok(1);
     List<Future<?>> emptyFutures = Collections.emptyList();
+
+    var combiner = Future.combine(future1)
+            .with(emptyFutures);
+
+    assertThat(combiner.asList(null).join()).containsExactly(1);
+  }
+
+  @Test
+  void withEmptyFutureStreamDoesNotModifyCombiner() {
+    Future<Integer> future1 = Future.ok(1);
+    Stream<Future<?>> emptyFutures = Collections.<Future<?>>emptyList().stream();
 
     var combiner = Future.combine(future1)
             .with(emptyFutures);
@@ -426,6 +453,13 @@ class FutureCombinerTests {
     Collection<Future<?>> nullCollection = null;
 
     assertThrows(IllegalArgumentException.class, () -> Future.combine(future1).with(nullCollection));
+  }
+
+  @Test
+  void withNullFutureStreamThrowsException() {
+    Future<Integer> future1 = Future.ok(1);
+    Stream<Future<?>> futureStream = null;
+    assertThrows(IllegalArgumentException.class, () -> Future.combine(future1).with(futureStream));
   }
 
 }

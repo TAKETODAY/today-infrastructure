@@ -20,7 +20,7 @@ package infra.app.test.context.assertj;
 
 import org.junit.jupiter.api.Test;
 
-import infra.web.server.reactive.context.ConfigurableReactiveWebApplicationContext;
+import infra.app.web.context.reactive.ConfigurableReactiveWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

@@ -46,17 +46,19 @@ import infra.util.SystemPropertyUtils;
 @SuppressWarnings("NullAway")
 public abstract class AbstractLoggingSystem extends LoggingSystem {
 
-  protected static final Comparator<LoggerConfiguration> CONFIGURATION_COMPARATOR
-          = new LoggerConfigurationComparator(ROOT_LOGGER_NAME);
-
   private final ClassLoader classLoader;
 
   public AbstractLoggingSystem(ClassLoader classLoader) {
     this.classLoader = classLoader;
   }
 
+  protected Comparator<LoggerConfiguration> createConfigurationComparator() {
+    return new LoggerConfigurationComparator(ROOT_LOGGER_NAME);
+  }
+
   @Override
-  public void beforeInitialize() { }
+  public void beforeInitialize() {
+  }
 
   @Override
   public void initialize(LoggingStartupContext startupContext, @Nullable String configLocation, @Nullable LogFile logFile) {
@@ -96,8 +98,7 @@ public abstract class AbstractLoggingSystem extends LoggingSystem {
    *
    * @return the self initialization config or {@code null}
    */
-  @Nullable
-  protected String getSelfInitializationConfig() {
+  protected @Nullable String getSelfInitializationConfig() {
     return findConfig(getStandardConfigLocations());
   }
 
@@ -107,13 +108,11 @@ public abstract class AbstractLoggingSystem extends LoggingSystem {
    *
    * @return the infra initialization config or {@code null}
    */
-  @Nullable
-  protected String getInfraInitializationConfig() {
+  protected @Nullable String getInfraInitializationConfig() {
     return findConfig(getInfraConfigLocations());
   }
 
-  @Nullable
-  private String findConfig(String[] locations) {
+  private @Nullable String findConfig(String[] locations) {
     for (String location : locations) {
       ClassPathResource resource = new ClassPathResource(location, this.classLoader);
       if (resource.exists()) {
@@ -173,7 +172,8 @@ public abstract class AbstractLoggingSystem extends LoggingSystem {
    *
    * @param startupContext the logging startup context
    */
-  protected void reinitialize(LoggingStartupContext startupContext) { }
+  protected void reinitialize(LoggingStartupContext startupContext) {
+  }
 
   protected final ClassLoader getClassLoader() {
     return this.classLoader;
@@ -215,8 +215,7 @@ public abstract class AbstractLoggingSystem extends LoggingSystem {
    *
    * @return the default log correlation pattern
    */
-  @Nullable
-  protected String getDefaultLogCorrelationPattern() {
+  protected @Nullable String getDefaultLogCorrelationPattern() {
     return null;
   }
 

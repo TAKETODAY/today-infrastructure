@@ -28,6 +28,7 @@ include 'infra-dependencies'
 
 include 'infra-aop'
 include 'infra-app'
+include 'infra-app-config'
 include 'infra-aspects'
 include 'infra-beans'
 include 'infra-context'
@@ -46,6 +47,7 @@ include 'infra-webmvc'
 include 'infra-webmvc-mock'
 include 'infra-websocket'
 
+
 include 'infra-test'
 include 'infra-test-support'
 
@@ -57,14 +59,12 @@ file("${rootDir}/infra-starter").eachDirMatch(~/infra-starter.*/) {
   include "infra-starter:${it.name}"
 }
 
-// Config
-//file("${rootDir}/today-config").eachDirMatch(~/today-config.*/) {
-//  include "today-config:${it.name}"
-//}
-
 // Build helper
 file("${rootDir}/infra-build").eachDirMatch(~/infra-.*/) {
   include "infra-build:${it.name}"
 }
 
-
+// Infra App modules
+file("${rootDir}/module").eachDirMatch(~/infra-app-.*/) {
+  include "module:${it.name}"
+}

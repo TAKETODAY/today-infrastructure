@@ -1,0 +1,10 @@
+description = "Starter using reactive HTTP clients (WebClient and HTTP Service Clients)"
+
+dependencies {
+	api(project(":infra-starter"))
+	api(project(":infra-starter:infra-starter-jackson"))
+
+	api(project(":module:infra-app-webclient"))
+
+	api("io.projectreactor.netty:reactor-netty-http")
+}

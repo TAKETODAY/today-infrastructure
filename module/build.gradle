@@ -1,0 +1,16 @@
+//apply plugin: 'infra.building.conventions'
+//apply plugin: 'infra.building.optional-dependencies'
+
+description = "Infra application modules"
+
+configure(subprojects) {
+  dependencies {
+    api(project(":infra-app-config"))
+
+    annotationProcessor(project(":infra-build:infra-configuration-processor"))
+    annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
+    testImplementation project(":infra-test")
+    testImplementation project(':infra-test-support')
+  }
+}

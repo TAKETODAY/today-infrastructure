@@ -21,15 +21,14 @@ package infra.context.condition;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import infra.annotation.ConditionalOnWebApplication;
-import infra.annotation.ConditionalOnWebApplication.Type;
+import infra.app.config.ConditionalOnWebApplication;
+import infra.app.config.ConditionalOnWebApplication.Type;
+import infra.app.web.context.reactive.AnnotationConfigReactiveWebApplicationContext;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.http.server.reactive.HttpHandler;
-import infra.web.server.reactive.ReactiveWebServerFactory;
-import infra.web.server.reactive.context.AnnotationConfigReactiveWebApplicationContext;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,7 +52,6 @@ class ConditionalOnWebApplicationTests {
   }
 
   @Test
-//  @Disabled
   void testWebApplicationWithReactiveContext() {
     AnnotationConfigReactiveWebApplicationContext context = new AnnotationConfigReactiveWebApplicationContext();
     context.register(AnyWebApplicationConfiguration.class, ReactiveWebApplicationConfiguration.class);
@@ -90,11 +88,6 @@ class ConditionalOnWebApplicationTests {
     @Bean
     String reactive() {
       return "reactive";
-    }
-
-    @Bean
-    ReactiveWebServerFactory reactiveWebServerFactory() {
-      return new MockReactiveWebServerFactory();
     }
 
     @Bean

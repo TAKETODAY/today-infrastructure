@@ -347,8 +347,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
     return this.beanClassLoader;
   }
 
-  @Nullable
-  protected final Environment getEnvironment() {
+  protected final @Nullable Environment getEnvironment() {
     if (bootstrapContext == null) {
       return null;
     }

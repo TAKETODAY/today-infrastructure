@@ -191,7 +191,7 @@ public class MockDispatcher extends DispatcherHandler implements MockApi, Serial
     // is refreshed; do it eagerly here to ensure servlet property sources are in place for
     // use in any post-processing or initialization that occurs below prior to #refresh
     ConfigurableEnvironment env = context.getEnvironment();
-    if (env instanceof ConfigurableWebEnvironment cwe) {
+    if (env instanceof ConfigurableMockEnvironment cwe) {
       cwe.initPropertySources(getMockContext(), getMockConfig());
     }
   }

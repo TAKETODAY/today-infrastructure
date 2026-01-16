@@ -1,0 +1,35 @@
+description = "Infra application JDBC integration"
+
+dependencies {
+  api project(":infra-jdbc")
+  api project(":module:infra-app-transaction")
+  optional project(":module:infra-app-health")
+
+  optional project(":infra-core-aot")
+
+  optional 'com.zaxxer:HikariCP'
+
+  optional 'org.apache.commons:commons-dbcp2'
+  optional 'com.oracle.database.jdbc:ojdbc8'
+  optional 'com.oracle.database.jdbc:ucp'
+
+  testImplementation project(":infra-webmvc-mock")
+  testImplementation 'com.mchange:c3p0:0.9.5.5'
+  testImplementation "org.hsqldb:hsqldb"
+  testImplementation 'com.h2database:h2'
+  testImplementation 'org.postgresql:postgresql'
+  testImplementation 'com.microsoft.sqlserver:mssql-jdbc'
+  testImplementation 'org.mariadb.jdbc:mariadb-java-client'
+  testImplementation("org.apache.tomcat:tomcat-jdbc:11.0.15")
+
+  testRuntimeOnly 'org.apache.derby:derby'
+  testRuntimeOnly 'org.apache.derby:derbytools'
+  testRuntimeOnly 'org.xerial:sqlite-jdbc'
+  testRuntimeOnly 'com.ibm.db2:jcc:11.5.7.0'
+  testRuntimeOnly 'org.testcontainers:jdbc:1.16.3'
+  testRuntimeOnly 'net.sourceforge.jtds:jtds:1.3.1'
+  testRuntimeOnly 'org.firebirdsql.jdbc:jaybird:4.0.6.java8'
+
+  testRuntimeOnly("ch.qos.logback:logback-classic")
+  testRuntimeOnly("com.mysql:mysql-connector-j")
+}

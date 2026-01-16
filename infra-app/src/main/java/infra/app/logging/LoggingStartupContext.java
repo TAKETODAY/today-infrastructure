@@ -30,8 +30,7 @@ import infra.core.env.Environment;
  */
 public class LoggingStartupContext {
 
-  @Nullable
-  private final ConfigurableEnvironment environment;
+  private final @Nullable ConfigurableEnvironment environment;
 
   /**
    * Create a new {@link LoggingStartupContext} instance.
@@ -47,8 +46,7 @@ public class LoggingStartupContext {
    *
    * @return the {@link Environment} or {@code null}
    */
-  @Nullable
-  public Environment getEnvironment() {
+  public @Nullable Environment getEnvironment() {
     return this.environment;
   }
 

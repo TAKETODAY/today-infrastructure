@@ -156,7 +156,7 @@ public class LoggingSystemProperties {
   private void setSystemProperty(LoggingSystemProperty property, PropertyResolver resolver,
           @Nullable String defaultValue, Function<@Nullable String, @Nullable String> mapper) {
     if (property.includePropertyName != null) {
-      if (!resolver.getProperty(property.includePropertyName, Boolean.class, Boolean.TRUE)) {
+      if (!resolver.getFlag(property.includePropertyName, true)) {
         return;
       }
     }

@@ -11,6 +11,13 @@ dependencies {
   testImplementation project(':infra-app')
   testImplementation project(':infra-test-support')
 
+  testImplementation project(':module:infra-app-webmvc')
+  testImplementation project(':module:infra-app-freemarker')
+  testImplementation project(":module:infra-app-web-server")
+  testImplementation project(':module:infra-app-netty-server')
+  testImplementation project(':module:infra-app-websocket')
+  testImplementation project(':module:infra-app-http-converter')
+
   testImplementation(project(":infra-aop"))
   testImplementation(project(":infra-beans"))
   testImplementation(project(":infra-context"))
@@ -75,14 +82,12 @@ dependencies {
   testImplementation 'com.mysql:mysql-connector-j'
 
   testImplementation 'com.github.h-thurow:simple-jndi:0.23.0'
-  testImplementation 'org.apache.commons:commons-dbcp2:2.9.0'
-  testImplementation 'com.oracle.database.jdbc:ucp:21.7.0.0'
+  testImplementation 'org.apache.commons:commons-dbcp2'
+  testImplementation 'com.oracle.database.jdbc:ucp'
   testImplementation 'org.hibernate.orm:hibernate-envers:6.1.4.Final'
 
   testImplementation 'org.apache.maven.resolver:maven-resolver-connector-basic:1.8.2'
   testImplementation 'com.zaxxer:HikariCP:5.0.0'
-
-  testImplementation 'com.hazelcast:hazelcast-all:3.12.6'
 
   testImplementation 'org.skyscreamer:jsonassert:1.5.0'
   testImplementation 'com.microsoft.sqlserver:mssql-jdbc:11.2.1.jre17'
@@ -98,13 +103,14 @@ dependencies {
   testImplementation 'org.testcontainers:cassandra'
   testImplementation 'org.testcontainers:testcontainers'
   testImplementation 'com.mchange:c3p0:0.9.5.5'
-  testImplementation 'com.oracle.database.jdbc:ojdbc8:21.7.0.0'
+  testImplementation 'com.oracle.database.jdbc:ojdbc8'
 
   testImplementation(testFixtures(project(":infra-context")))
   testImplementation(testFixtures(project(":infra-core")))
   testImplementation(testFixtures(project(":infra-beans")))
   testImplementation(testFixtures(project(":infra-tx")))
   testImplementation(testFixtures(project(":infra-jcache")))
+  testImplementation testFixtures(project(':module:infra-app-netty-server'))
 
   optional("com.github.librepdf:openpdf")
   optional("org.apache.poi:poi-ooxml")

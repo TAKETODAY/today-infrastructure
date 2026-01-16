@@ -1,14 +1,6 @@
 description = 'Starter for reading and writing JSON'
 
 dependencies {
-  api project(':infra-web')
   api project(':infra-starter')
-
-  api 'tools.jackson.core:jackson-databind'
-
-  optional("tools.jackson.dataformat:jackson-dataformat-cbor")
-  optional("tools.jackson.dataformat:jackson-dataformat-xml")
-  optional("tools.jackson.module:jackson-module-jakarta-xmlbind-annotations")
+  api project(":module:infra-app-jackson")
 }
-
-

@@ -1,0 +1,16 @@
+description = "Infra application Health"
+
+dependencies {
+	compileOnly("com.google.code.findbugs:jsr305")
+
+	optional("io.projectreactor:reactor-core")
+	optional("com.fasterxml.jackson.core:jackson-annotations")
+
+	testImplementation("io.projectreactor:reactor-test")
+	testImplementation("tools.jackson.core:jackson-databind")
+
+	testCompileOnly("com.google.code.findbugs:jsr305")
+
+	testRuntimeOnly("ch.qos.logback:logback-classic")
+}
+

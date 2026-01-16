@@ -1,8 +1,0 @@
-
-description = 'Starter for using Netty as the embedded container.'
-
-dependencies {
-  api project(':infra-starter')
-  api 'io.netty:netty-codec-http'
-  api 'io.netty:netty-codec-http2'
-}

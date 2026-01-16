@@ -30,6 +30,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import infra.beans.BeanUtils;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
@@ -37,6 +38,7 @@ import infra.lang.Assert;
 import infra.lang.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.ClassUtils;
 import infra.util.LogFormatUtils;
 import infra.util.StringUtils;
 import infra.web.RequestContext;
@@ -324,8 +326,7 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
     if (upgradeStrategy != null) {
       return upgradeStrategy;
     }
-
-    return new NettyRequestUpgradeStrategy();
+    return BeanUtils.newInstance("infra.web.server.netty.NettyRequestUpgradeStrategy", ClassUtils.getDefaultClassLoader());
   }
 
 }

@@ -33,6 +33,7 @@ import infra.app.ApplicationType;
 import infra.app.InfraConfiguration;
 import infra.app.test.web.client.TestRestTemplate;
 import infra.app.test.web.server.LocalServerPort;
+import infra.app.web.context.reactive.ReactiveWebApplicationContext;
 import infra.context.ApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.core.annotation.AliasFor;
@@ -43,8 +44,6 @@ import infra.test.context.ContextLoader;
 import infra.test.context.junit.jupiter.InfraExtension;
 import infra.test.web.reactive.server.WebTestClient;
 import infra.web.mock.WebApplicationContext;
-import infra.web.server.context.WebServerApplicationContext;
-import infra.web.server.reactive.context.ReactiveWebApplicationContext;
 
 /**
  * Annotation that can be specified on a test class that runs Infra based tests.
@@ -174,9 +173,9 @@ public @interface InfraTest {
     }
 
     /**
-     * Return if the environment uses an {@link WebServerApplicationContext}.
+     * Return if the environment uses an {@link infra.web.server.context.WebServerApplicationContext}.
      *
-     * @return if an {@link WebServerApplicationContext} is used.
+     * @return if an {@link infra.web.server.context.WebServerApplicationContext} is used.
      */
     public boolean isEmbedded() {
       return this.embedded;

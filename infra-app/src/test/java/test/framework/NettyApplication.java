@@ -23,7 +23,7 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-import infra.annotation.config.logging.ConditionEvaluationReportLoggingListener;
+import infra.app.config.logging.ConditionEvaluationReportLoggingListener;
 import infra.app.Application;
 import infra.app.ApplicationType;
 import infra.app.InfraApplication;
@@ -65,7 +65,7 @@ public class NettyApplication {
 
   public static void main(String[] args) {
     Application.forBuilder(NettyApplication.class)
-            .type(ApplicationType.NETTY_WEB)
+            .type(ApplicationType.WEB)
             .properties(Map.of("logging.level.root", "debug"))
             .initializers(ConditionEvaluationReportLoggingListener.forLoggingLevel(LogLevel.INFO))
             .run(args);

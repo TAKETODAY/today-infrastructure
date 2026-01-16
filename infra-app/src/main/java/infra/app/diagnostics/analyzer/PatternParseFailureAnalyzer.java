@@ -35,8 +35,7 @@ class PatternParseFailureAnalyzer extends AbstractFailureAnalyzer<PatternParseEx
   @Override
   protected FailureAnalysis analyze(Throwable rootFailure, PatternParseException cause) {
     return new FailureAnalysis("Invalid mapping pattern detected:\n" + cause.toDetailedString(),
-            "Fix this pattern in your application or switch to the legacy parser implementation with "
-                    + "'web.mvc.pathmatch.matching-strategy=ant_path_matcher'.",
+            "Fix this pattern in your application.",
             cause);
   }
 

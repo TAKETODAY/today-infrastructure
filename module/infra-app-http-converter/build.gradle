@@ -1,0 +1,17 @@
+description = "Infra application HTTP converter integration"
+
+dependencies {
+  api project(":infra-web")
+
+  optional project(":infra-webmvc")
+  optional(project(":module:infra-app-gson"))
+  optional(project(":module:infra-app-jackson"))
+  optional(project(":module:infra-app-jsonb"))
+
+  optional("com.google.code.gson:gson")
+  optional("jakarta.json.bind:jakarta.json.bind-api")
+  optional("tools.jackson.dataformat:jackson-dataformat-xml")
+
+  testRuntimeOnly("io.projectreactor:reactor-test")
+  testRuntimeOnly("ch.qos.logback:logback-classic")
+}

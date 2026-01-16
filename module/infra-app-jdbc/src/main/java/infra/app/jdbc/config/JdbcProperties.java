@@ -1,0 +1,97 @@
+/*
+ * Copyright 2012-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
+package infra.app.jdbc.config;
+
+import org.jspecify.annotations.Nullable;
+
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+
+import infra.context.properties.ConfigurationProperties;
+import infra.format.annotation.DurationUnit;
+
+/**
+ * Configuration properties for JDBC.
+ *
+ * @author Kazuki Shimizu
+ * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/2/23 17:55
+ */
+@ConfigurationProperties(prefix = "jdbc")
+public class JdbcProperties {
+
+  private final Template template = new Template();
+
+  public Template getTemplate() {
+    return this.template;
+  }
+
+  /**
+   * {@code JdbcTemplate} settings.
+   */
+  public static class Template {
+
+    /**
+     * Number of rows that should be fetched from the database when more rows are
+     * needed. Use -1 to use the JDBC driver's default configuration.
+     */
+    private int fetchSize = -1;
+
+    /**
+     * Maximum number of rows. Use -1 to use the JDBC driver's default configuration.
+     */
+    private int maxRows = -1;
+
+    /**
+     * Query timeout. Default is to use the JDBC driver's default configuration. If a
+     * duration suffix is not specified, seconds will be used.
+     */
+    @Nullable
+    @DurationUnit(ChronoUnit.SECONDS)
+    private Duration queryTimeout;
+
+    public int getFetchSize() {
+      return this.fetchSize;
+    }
+
+    public void setFetchSize(int fetchSize) {
+      this.fetchSize = fetchSize;
+    }
+
+    public int getMaxRows() {
+      return this.maxRows;
+    }
+
+    public void setMaxRows(int maxRows) {
+      this.maxRows = maxRows;
+    }
+
+    @Nullable
+    public Duration getQueryTimeout() {
+      return this.queryTimeout;
+    }
+
+    public void setQueryTimeout(@Nullable Duration queryTimeout) {
+      this.queryTimeout = queryTimeout;
+    }
+
+  }
+
+}

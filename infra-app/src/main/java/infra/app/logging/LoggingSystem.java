@@ -97,9 +97,7 @@ public abstract class LoggingSystem {
    * @param logFile the log output file that should be written or {@code null} for
    * console only output
    */
-  public void initialize(LoggingStartupContext startupContext,
-          @Nullable String configLocation, @Nullable LogFile logFile) {
-
+  public void initialize(LoggingStartupContext startupContext, @Nullable String configLocation, @Nullable LogFile logFile) {
   }
 
   /**
@@ -107,7 +105,6 @@ public abstract class LoggingSystem {
    * should override this method to perform any logging system-specific cleanup.
    */
   public void cleanup() {
-
   }
 
   /**
@@ -117,8 +114,7 @@ public abstract class LoggingSystem {
    *
    * @return the shutdown handler, or {@code null}
    */
-  @Nullable
-  public Runnable getShutdownHandler() {
+  public @Nullable Runnable getShutdownHandler() {
     return null;
   }
 
@@ -160,8 +156,7 @@ public abstract class LoggingSystem {
    * @param loggerName the name of the logger
    * @return the current configuration
    */
-  @Nullable
-  public LoggerConfiguration getLoggerConfiguration(String loggerName) {
+  public @Nullable LoggerConfiguration getLoggerConfiguration(String loggerName) {
     throw new UnsupportedOperationException("Unable to get logger configuration");
   }
 
@@ -203,12 +198,10 @@ public abstract class LoggingSystem {
 
     @Override
     public void beforeInitialize() {
-
     }
 
     @Override
     public void setLogLevel(@Nullable String loggerName, LogLevel level) {
-
     }
 
     @Override
@@ -216,9 +209,8 @@ public abstract class LoggingSystem {
       return Collections.emptyList();
     }
 
-    @Nullable
     @Override
-    public LoggerConfiguration getLoggerConfiguration(String loggerName) {
+    public @Nullable LoggerConfiguration getLoggerConfiguration(String loggerName) {
       return null;
     }
 

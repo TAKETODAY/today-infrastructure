@@ -1,6 +1,0 @@
-
-<included>
-  <infra-profile name="production">
-    <logger name="infra.app.logging.logback" level="TRACE" />
-  </infra-profile>
-</included>

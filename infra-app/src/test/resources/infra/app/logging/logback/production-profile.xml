@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<configuration>
-	<include resource="infra/app/logging/logback/base.xml" />
-	<infra-profile name="production">
-		<logger name="infra.app.logging.logback" level="TRACE" />
-	</infra-profile>
-</configuration>

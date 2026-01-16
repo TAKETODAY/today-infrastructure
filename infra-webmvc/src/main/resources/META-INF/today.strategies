@@ -1,3 +1,0 @@
-# ApplicationContextInitializer
-infra.context.ApplicationContextInitializer=\
-infra.web.server.context.ServerPortInfoApplicationContextInitializer

@@ -20,13 +20,12 @@ package infra.context.condition;
 
 import org.junit.jupiter.api.Test;
 
-import infra.annotation.ConditionalOnNotWebApplication;
+import infra.app.config.ConditionalOnNotWebApplication;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.app.test.context.runner.ReactiveWebApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.http.server.reactive.HttpHandler;
-import infra.web.server.reactive.ReactiveWebServerFactory;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,11 +55,6 @@ class ConditionalOnNotWebApplicationTests {
 
   @Configuration(proxyBeanMethods = false)
   static class ReactiveApplicationConfig {
-
-    @Bean
-    ReactiveWebServerFactory reactiveWebServerFactory() {
-      return new MockReactiveWebServerFactory();
-    }
 
     @Bean
     HttpHandler httpHandler() {

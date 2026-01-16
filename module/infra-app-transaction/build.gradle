@@ -1,0 +1,19 @@
+description = "Infra application Transaction integration"
+
+dependencies {
+  api project(":infra-tx")
+
+  optional project(":infra-aspects")
+  optional "jakarta.transaction:jakarta.transaction-api"
+
+  testImplementation project(":module:infra-app-jdbc")
+  testImplementation "com.github.h-thurow:simple-jndi"
+  testImplementation 'com.h2database:h2'
+
+  testRuntimeOnly 'com.zaxxer:HikariCP'
+  testRuntimeOnly "org.hsqldb:hsqldb"
+  testRuntimeOnly 'com.h2database:h2'
+
+  testRuntimeOnly "ch.qos.logback:logback-classic"
+  testRuntimeOnly "io.projectreactor:reactor-core"
+}

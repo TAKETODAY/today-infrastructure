@@ -1,0 +1,11 @@
+infra.app.config.context.LifecycleAutoConfiguration
+infra.app.config.context.MessageSourceAutoConfiguration
+infra.app.config.context.PropertyPlaceholderAutoConfiguration
+infra.app.config.context.ConfigurationPropertiesAutoConfiguration
+infra.app.config.task.TaskExecutionAutoConfiguration
+infra.app.config.task.TaskSchedulingAutoConfiguration
+infra.app.config.aop.AopAutoConfiguration
+infra.app.config.jmx.JmxAutoConfiguration
+infra.app.config.jmx.InfraApplicationJmxAutoConfiguration
+infra.app.config.availability.ApplicationAvailabilityAutoConfiguration
+infra.app.config.ssl.SslAutoConfiguration

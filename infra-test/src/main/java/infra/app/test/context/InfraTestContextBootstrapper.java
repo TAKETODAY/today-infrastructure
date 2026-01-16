@@ -96,7 +96,7 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
     TestContext context = super.buildTestContext();
     verifyConfiguration(context.getTestClass());
     WebEnvironment webEnvironment = getWebEnvironment(context.getTestClass());
-    if (webEnvironment == WebEnvironment.MOCK && ApplicationType.forDefaults() == ApplicationType.NETTY_WEB) {
+    if (webEnvironment == WebEnvironment.MOCK && ApplicationType.forDefaults() == ApplicationType.WEB) {
       context.setAttribute(ACTIVATE_LISTENER, true);
     }
     else if (webEnvironment != null && webEnvironment.isEmbedded()) {
@@ -148,7 +148,7 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
     WebEnvironment webEnvironment = getWebEnvironment(mergedConfig.getTestClass());
     if (webEnvironment != null && isWebEnvironmentSupported(mergedConfig)) {
       ApplicationType webApplicationType = getApplicationType(mergedConfig);
-      if (webApplicationType == ApplicationType.NETTY_WEB
+      if (webApplicationType == ApplicationType.WEB
               && (webEnvironment.isEmbedded() || webEnvironment == WebEnvironment.MOCK)) {
         mergedConfig = new WebMergedContextConfiguration(mergedConfig, determineResourceBasePath(mergedConfig));
       }

@@ -16,13 +16,13 @@
 
 package infra.web.socket;
 
-import infra.annotation.config.web.ErrorMvcAutoConfiguration;
-import infra.annotation.config.web.WebMvcAutoConfiguration;
-import infra.annotation.config.web.netty.NettyWebServerFactoryAutoConfiguration;
 import infra.context.annotation.AnnotationConfigApplicationContext;
+import infra.app.web.context.StandardWebEnvironment;
 import infra.web.server.WebServer;
-import infra.web.server.support.NettyWebServerFactory;
-import infra.web.server.support.StandardNettyWebEnvironment;
+import infra.web.server.netty.config.NettyWebServerFactoryAutoConfiguration;
+import infra.web.server.netty.NettyWebServerFactory;
+import infra.webmvc.config.ErrorMvcAutoConfiguration;
+import infra.webmvc.config.WebMvcAutoConfiguration;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -34,7 +34,7 @@ public class NettyTestServer implements WebSocketTestServer {
 
   @Override
   public void setup(AnnotationConfigApplicationContext ctx) {
-    ctx.setEnvironment(new StandardNettyWebEnvironment());
+    ctx.setEnvironment(new StandardWebEnvironment());
     ctx.register(NettyWebServerFactoryAutoConfiguration.class);
     ctx.register(ErrorMvcAutoConfiguration.class);
     ctx.register(WebMvcAutoConfiguration.class);

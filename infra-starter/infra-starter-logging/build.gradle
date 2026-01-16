@@ -1,0 +1,6 @@
+description = "Starter for logging default logging"
+
+dependencies {
+  api project(':infra-starter')
+  api "ch.qos.logback:logback-classic"
+}

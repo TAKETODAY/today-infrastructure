@@ -28,6 +28,7 @@ import infra.core.env.PropertySource;
 import infra.core.io.ByteArrayResource;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
+import infra.test.classpath.resources.WithResource;
 import infra.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -85,8 +86,14 @@ class YamlPropertySourceLoaderTests {
   }
 
   @Test
+  @WithResource(name = "test-yaml.yml", content = """
+          a: b
+          ---
+          c: d
+          e: f
+          """)
   void loadOriginAware() throws Exception {
-    Resource resource = new ClassPathResource("test-yaml.yml", getClass());
+    Resource resource = new ClassPathResource("test-yaml.yml");
     List<PropertySource<?>> loaded = this.loader.load("resource", resource);
     for (PropertySource<?> source : loaded) {
       EnumerablePropertySource<?> enumerableSource = (EnumerablePropertySource<?>) source;

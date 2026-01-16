@@ -48,7 +48,7 @@ import infra.util.StreamUtils;
 import infra.web.server.Ssl;
 import infra.web.server.Ssl.ClientAuth;
 import infra.web.server.WebServer;
-import infra.web.server.support.NettyWebServerFactory;
+import infra.web.server.netty.NettyWebServerFactory;
 import io.netty.channel.ChannelHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;

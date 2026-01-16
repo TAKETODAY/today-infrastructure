@@ -31,7 +31,7 @@ import infra.lang.Assert;
 import infra.mock.api.MockConfig;
 import infra.mock.api.MockContext;
 import infra.web.mock.ConfigurableWebApplicationContext;
-import infra.web.mock.ConfigurableWebEnvironment;
+import infra.web.mock.ConfigurableMockEnvironment;
 import infra.web.mock.MockConfigAware;
 import infra.web.mock.MockContextAware;
 import infra.web.mock.MockContextAwareProcessor;
@@ -183,8 +183,8 @@ public abstract class AbstractRefreshableWebApplicationContext
   @Override
   protected void initPropertySources() {
     ConfigurableEnvironment env = getEnvironment();
-    if (env instanceof ConfigurableWebEnvironment) {
-      ((ConfigurableWebEnvironment) env).initPropertySources(this.mockContext, this.mockConfig);
+    if (env instanceof ConfigurableMockEnvironment) {
+      ((ConfigurableMockEnvironment) env).initPropertySources(this.mockContext, this.mockConfig);
     }
   }
 

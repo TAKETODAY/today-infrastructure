@@ -1,0 +1,65 @@
+{
+  "groups": [],
+  "properties": [
+    {
+      "name": "app.health.defaults.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether to enable default health indicators.",
+      "defaultValue": true
+    },
+    {
+      "name": "app.health.diskspace.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether to enable disk space health check.",
+      "defaultValue": true
+    },
+    {
+      "name": "app.health.livenessstate.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether to enable liveness state health check.",
+      "defaultValue": false
+    },
+    {
+      "name": "app.health.ping.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether to enable ping health check.",
+      "defaultValue": true
+    },
+    {
+      "name": "app.health.readinessstate.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether to enable readiness state health check.",
+      "defaultValue": false
+    },
+    {
+      "name": "app.health.ssl.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether to enable SSL certificate health check.",
+      "defaultValue": true
+    }
+  ],
+  "hints": [
+    {
+      "name": "app.health.status.order",
+      "values": [
+        {
+          "value": "UNKNOWN"
+        },
+        {
+          "value": "UP"
+        },
+        {
+          "value": "DOWN"
+        },
+        {
+          "value": "OUT_OF_SERVICE"
+        }
+      ],
+      "providers": [
+        {
+          "name": "any"
+        }
+      ]
+    }
+  ]
+}

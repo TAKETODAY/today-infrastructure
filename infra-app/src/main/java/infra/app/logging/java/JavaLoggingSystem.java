@@ -143,7 +143,7 @@ public class JavaLoggingSystem extends AbstractLoggingSystem {
     while (names.hasMoreElements()) {
       result.add(getLoggerConfiguration(names.nextElement()));
     }
-    result.sort(CONFIGURATION_COMPARATOR);
+    result.sort(createConfigurationComparator());
     return Collections.unmodifiableList(result);
   }
 

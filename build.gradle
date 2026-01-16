@@ -27,7 +27,7 @@ ext {
       project(":infra-build:infra-code-coverage")
   ]
   javaProjects = subprojects - starterProjects - [
-      project(":infra-build:infra-code-coverage"),
+      project(":infra-build:infra-code-coverage"), project(":module"),
       project(":infra-bom"), project(":infra-build"), project(":infra-dependencies"),
   ]
   testFixturesProjects = [

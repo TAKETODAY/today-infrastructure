@@ -24,7 +24,7 @@ dependencies {
   implementation("org.assertj:assertj-core")
   implementation 'org.junit.platform:junit-platform-launcher'
 
-  testImplementation 'commons-logging:commons-logging:1.2'
+  implementation("commons-logging:commons-logging:1.3.5")
   testImplementation 'org.hibernate.validator:hibernate-validator'
   compileOnly 'com.datastax.oss:java-driver-core'
   compileOnly 'org.elasticsearch:elasticsearch:7.15.2'

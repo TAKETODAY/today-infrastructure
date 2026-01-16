@@ -26,6 +26,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import infra.lang.Assert;
+import infra.lang.Contract;
 import infra.util.ObjectUtils;
 
 /**
@@ -107,8 +108,8 @@ public final class BindResult<T> {
    * {@code null})
    * @return the value, if bound, otherwise {@code other}
    */
-  @Nullable
-  public T orElse(@Nullable T other) {
+  @Contract("!null -> !null")
+  public @Nullable T orElse(@Nullable T other) {
     return value != null ? value : other;
   }
 

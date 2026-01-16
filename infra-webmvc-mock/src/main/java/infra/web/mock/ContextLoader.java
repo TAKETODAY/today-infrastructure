@@ -387,7 +387,7 @@ public class ContextLoader {
     // is refreshed; do it eagerly here to ensure servlet property sources are in place for
     // use in any post-processing or initialization that occurs below prior to #refresh
     ConfigurableEnvironment env = wac.getEnvironment();
-    if (env instanceof ConfigurableWebEnvironment cwe) {
+    if (env instanceof ConfigurableMockEnvironment cwe) {
       cwe.initPropertySources(sc, null);
     }
 

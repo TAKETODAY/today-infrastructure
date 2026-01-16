@@ -35,7 +35,7 @@ import infra.stereotype.Component;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 import infra.web.mock.ConfigurableWebApplicationContext;
-import infra.web.mock.ConfigurableWebEnvironment;
+import infra.web.mock.ConfigurableMockEnvironment;
 import infra.web.mock.MockContextAware;
 import infra.web.mock.MockContextAwareProcessor;
 
@@ -190,8 +190,8 @@ public class GenericWebApplicationContext extends GenericApplicationContext
   @Override
   protected void initPropertySources() {
     ConfigurableEnvironment env = getEnvironment();
-    if (env instanceof ConfigurableWebEnvironment) {
-      ((ConfigurableWebEnvironment) env).initPropertySources(this.mockContext, null);
+    if (env instanceof ConfigurableMockEnvironment) {
+      ((ConfigurableMockEnvironment) env).initPropertySources(this.mockContext, null);
     }
   }
 

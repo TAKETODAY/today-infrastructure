@@ -30,6 +30,7 @@ import infra.app.ApplicationType;
 import infra.app.context.event.ApplicationEnvironmentPreparedEvent;
 import infra.app.test.context.InfraTest.WebEnvironment;
 import infra.app.test.mock.web.InfraMockContext;
+import infra.app.web.context.reactive.GenericReactiveWebApplicationContext;
 import infra.beans.BeanUtils;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextInitializer;
@@ -58,7 +59,6 @@ import infra.test.util.TestPropertyValues.Type;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 import infra.web.mock.support.GenericWebApplicationContext;
-import infra.web.server.reactive.context.GenericReactiveWebApplicationContext;
 
 /**
  * A {@link ContextLoader} that can be used to test Infra applications (those that
@@ -100,7 +100,7 @@ public class InfraApplicationContextLoader extends AbstractContextLoader {
     application.getSources().addAll(Arrays.asList(configLocations));
     List<ApplicationContextInitializer> initializers = getInitializers(config, application);
     if (config instanceof WebMergedContextConfiguration) {
-      application.setApplicationType(ApplicationType.NETTY_WEB);
+      application.setApplicationType(ApplicationType.WEB);
       if (!isEmbeddedWebEnvironment(config)) {
         new WebConfigurer().configure(config, application, initializers);
       }
@@ -109,7 +109,7 @@ public class InfraApplicationContextLoader extends AbstractContextLoader {
       application.setApplicationType(ApplicationType.REACTIVE_WEB);
       if (!isEmbeddedWebEnvironment(config)) {
         application.setApplicationContextFactory(
-                ApplicationContextFactory.from(GenericReactiveWebApplicationContext::new));
+                ApplicationContextFactory.forSupplier(GenericReactiveWebApplicationContext::new));
       }
     }
     else {

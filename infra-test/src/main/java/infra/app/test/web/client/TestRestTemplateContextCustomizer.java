@@ -40,8 +40,6 @@ import infra.test.context.ContextCustomizer;
 import infra.test.context.MergedContextConfiguration;
 import infra.test.context.TestContextAnnotationUtils;
 import infra.web.client.config.RestTemplateBuilder;
-import infra.web.server.AbstractConfigurableWebServerFactory;
-import infra.web.server.Ssl;
 
 /**
  * {@link ContextCustomizer} for {@link TestRestTemplate}.
@@ -145,8 +143,11 @@ class TestRestTemplateContextCustomizer implements ContextCustomizer {
 
     private boolean isSslEnabled(ApplicationContext context) {
       try {
-        var webServerFactory = context.getBean(AbstractConfigurableWebServerFactory.class);
-        return Ssl.isEnabled(webServerFactory.getSsl());
+        // todo
+//        var webServerFactory = context.getBean(AbstractConfigurableWebServerFactory.class);
+//        return Ssl.isEnabled(webServerFactory.getSsl());
+
+        return false;
       }
       catch (NoSuchBeanDefinitionException ex) {
         return false;

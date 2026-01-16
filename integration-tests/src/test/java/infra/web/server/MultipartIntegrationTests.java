@@ -30,11 +30,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.nio.file.Path;
 
-import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
-import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
-import infra.annotation.config.task.TaskExecutionAutoConfiguration;
-import infra.annotation.config.web.ErrorMvcAutoConfiguration;
-import infra.annotation.config.web.WebMvcAutoConfiguration;
+import infra.app.config.context.PropertyPlaceholderAutoConfiguration;
+import infra.app.config.task.TaskExecutionAutoConfiguration;
 import infra.app.Application;
 import infra.app.InfraApplication;
 import infra.context.ConfigurableApplicationContext;
@@ -47,6 +44,7 @@ import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageConverters.ServerBuilder;
+import infra.http.converter.config.HttpMessageConvertersAutoConfiguration;
 import infra.lang.Assert;
 import infra.stereotype.Component;
 import infra.util.MultiValueMap;
@@ -56,6 +54,9 @@ import infra.web.annotation.RestController;
 import infra.web.client.RestClient;
 import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.multipart.Part;
+import infra.web.server.netty.RandomPortWebServerConfig;
+import infra.webmvc.config.ErrorMvcAutoConfiguration;
+import infra.webmvc.config.WebMvcAutoConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

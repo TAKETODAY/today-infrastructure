@@ -138,15 +138,20 @@ final class HttpRequestValuesInitializer {
           @Nullable StringValueResolver embeddedValueResolver, Supplier<HttpRequestValues.Builder> requestValuesSupplier) {
 
     List<AnnotationDescriptor> methodHttpExchanges = getAnnotationDescriptors(method);
-    Assert.state(!methodHttpExchanges.isEmpty(), () -> "Expected @HttpExchange annotation on method " + method);
-    Assert.state(methodHttpExchanges.size() == 1,
-            () -> "Multiple @HttpExchange annotations found on method %s, but only one is allowed: %s"
-                    .formatted(method, methodHttpExchanges));
+    if (methodHttpExchanges.isEmpty()) {
+      throw new IllegalStateException("Expected @HttpExchange annotation on method " + method);
+    }
+
+    if (methodHttpExchanges.size() != 1) {
+      throw new IllegalStateException("Multiple @HttpExchange annotations found on method %s, but only one is allowed: %s"
+              .formatted(method, methodHttpExchanges));
+    }
 
     List<AnnotationDescriptor> typeHttpExchanges = getAnnotationDescriptors(containingClass);
-    Assert.state(typeHttpExchanges.size() <= 1,
-            () -> "Multiple @HttpExchange annotations found on %s, but only one is allowed: %s"
-                    .formatted(containingClass, typeHttpExchanges));
+    if (typeHttpExchanges.size() > 1) {
+      throw new IllegalStateException("Multiple @HttpExchange annotations found on %s, but only one is allowed: %s"
+              .formatted(containingClass, typeHttpExchanges));
+    }
 
     MergedAnnotation<?> methodAnnotation = methodHttpExchanges.get(0).httpExchange;
     MergedAnnotation<?> typeAnnotation = !typeHttpExchanges.isEmpty() ? typeHttpExchanges.get(0).httpExchange : null;
