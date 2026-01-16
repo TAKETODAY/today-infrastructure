@@ -30,29 +30,26 @@ dependencies {
   jacocoAggregation project(':infra-websocket')
   jacocoAggregation project(':integration-tests')
 
+  jacocoAggregation project(':infra-app-config')
   jacocoAggregation project(':module:infra-app-freemarker')
   jacocoAggregation project(':module:infra-app-gson')
-  jacocoAggregation project(':module:infra-app-netty-server')
-  jacocoAggregation project(':module:infra-app-reactor-netty')
-  jacocoAggregation project(':module:infra-app-web-server')
-  jacocoAggregation project(':module:infra-app-webmvc')
-  jacocoAggregation project(':module:infra-app-websocket')
+  jacocoAggregation project(':module:infra-app-health')
   jacocoAggregation project(':module:infra-app-http-client')
   jacocoAggregation project(':module:infra-app-http-codec')
   jacocoAggregation project(':module:infra-app-http-converter')
-  jacocoAggregation project(':module:infra-app-restclient')
   jacocoAggregation project(':module:infra-app-jackson')
+  jacocoAggregation project(':module:infra-app-jdbc')
   jacocoAggregation project(':module:infra-app-jsonb')
-
-
-
-//  jacocoAggregation project(':infra-build:infra-app-loader')
-//  jacocoAggregation project(':infra-build:infra-app-loader-tools')
-//  jacocoAggregation project(':infra-build:infra-jarmode-layertools')
-//  jacocoAggregation project(':infra-build:infra-maven-plugin')
-//  jacocoAggregation project(':infra-build:infra-gradle-plugin')
-//  jacocoAggregation project(':infra-build:infra-configuration-processor')
-//  jacocoAggregation project(':infra-build:infra-annotation-config-processor')
+  jacocoAggregation project(':module:infra-app-mail')
+  jacocoAggregation project(':module:infra-app-netty-server')
+  jacocoAggregation project(':module:infra-app-reactor-netty')
+  jacocoAggregation project(':module:infra-app-restclient')
+  jacocoAggregation project(':module:infra-app-transaction')
+  jacocoAggregation project(':module:infra-app-validation')
+  jacocoAggregation project(':module:infra-app-web-server')
+  jacocoAggregation project(':module:infra-app-webclient')
+  jacocoAggregation project(':module:infra-app-webmvc')
+  jacocoAggregation project(':module:infra-app-websocket')
 }
 
 reporting {
