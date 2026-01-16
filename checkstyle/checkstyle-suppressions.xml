@@ -112,7 +112,7 @@
   <suppress files="src[\\/]test[\\/]java[\\/]infra[\\/]protobuf[\\/].*" checks=".*" />
   <suppress files="ExtractingResponseErrorHandlerTests" checks="MutableException" />
   <suppress files="MockAnnotationControllerHandlerMethodTests" checks="InterfaceIsType" />
-  <suppress files="HttpExchange" checks="*" />
+  <suppress files="HttpExchange" checks=".*" />
 
   <!-- infra-websocket -->
   <suppress files="web[\\/]socket[\\/]CloseStatus" checks="JavadocStyle" />
