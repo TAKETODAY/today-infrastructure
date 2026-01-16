@@ -100,8 +100,11 @@ public final class JacksonMixinModuleEntries {
             .from(mixinClass, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY)
             .get(JacksonMixin.class);
     Class<?>[] types = annotation.getClassArray("type");
-    Assert.state(!ObjectUtils.isEmpty(types),
-            () -> "@JacksonMixin annotation on class '" + mixinClass.getName() + "' does not specify any types");
+
+    if (ObjectUtils.isEmpty(types)) {
+      throw new IllegalStateException("@JacksonMixin annotation on class '" + mixinClass.getName() + "' does not specify any types");
+    }
+
     for (Class<?> type : types) {
       builder.and(type, mixinClass);
     }

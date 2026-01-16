@@ -57,7 +57,6 @@ import infra.core.Ordered;
 import infra.http.ProblemDetail;
 import infra.http.converter.json.ProblemDetailJacksonMixin;
 import infra.http.converter.json.ProblemDetailJacksonXmlMixin;
-import infra.lang.Assert;
 import infra.stereotype.Component;
 import infra.stereotype.Prototype;
 import infra.util.ClassUtils;
@@ -471,7 +470,9 @@ public final class JacksonAutoConfiguration {
     private Field findPropertyNamingStrategyField(String fieldName) {
       Field field = ReflectionUtils.findField(PropertyNamingStrategies.class, fieldName,
               PropertyNamingStrategy.class);
-      Assert.state(field != null, () -> "Constant named '" + fieldName + "' not found");
+      if (field == null) {
+        throw new IllegalStateException("Constant named '" + fieldName + "' not found");
+      }
       return field;
     }
 

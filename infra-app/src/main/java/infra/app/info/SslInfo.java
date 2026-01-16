@@ -155,7 +155,7 @@ public class SslInfo {
     private List<CertificateInfo> extractCertificates(KeyStore keyStore, String alias) {
       try {
         Certificate[] certificates = keyStore.getCertificateChain(alias);
-        return (!ObjectUtils.isEmpty(certificates))
+        return (ObjectUtils.isNotEmpty(certificates))
                 ? Arrays.stream(certificates).map(CertificateInfo::new).toList() : Collections.emptyList();
       }
       catch (KeyStoreException ex) {

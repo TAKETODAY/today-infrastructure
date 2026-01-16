@@ -143,7 +143,10 @@ public abstract class ObjectValueDeserializer<T> extends ValueDeserializer<T> {
   protected final JsonNode getRequiredNode(JsonNode tree, String fieldName) {
     Assert.notNull(tree, "'tree' is required");
     JsonNode node = tree.get(fieldName);
-    Assert.state(node != null && !(node instanceof NullNode), () -> "Missing JSON field '" + fieldName + "'");
+
+    if (node == null || node instanceof NullNode) {
+      throw new IllegalStateException("Missing JSON field '" + fieldName + "'");
+    }
     return node;
   }
 
