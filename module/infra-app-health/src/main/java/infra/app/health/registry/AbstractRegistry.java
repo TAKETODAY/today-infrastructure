@@ -55,7 +55,7 @@ abstract class AbstractRegistry<C, E> {
   AbstractRegistry(BiFunction<String, C, E> entryAdapter,
           @Nullable Collection<? extends HealthContributorNameValidator> nameValidators,
           @Nullable Consumer<BiConsumer<String, C>> initialRegistrations) {
-    this.nameValidators = (nameValidators != null) ? List.copyOf(nameValidators) : Collections.emptyList();
+    this.nameValidators = nameValidators != null ? List.copyOf(nameValidators) : Collections.emptyList();
     this.entryAdapter = entryAdapter;
     Map<String, C> contributors = new LinkedHashMap<>();
     if (initialRegistrations != null) {
@@ -64,7 +64,7 @@ abstract class AbstractRegistry<C, E> {
     this.contributors = Collections.unmodifiableMap(contributors);
   }
 
-  void registerContributor(String name, C contributor) {
+  public void registerContributor(String name, C contributor) {
     synchronized(this.monitor) {
       Map<String, C> contributors = new LinkedHashMap<>(this.contributors);
       registerContributor(contributors, name, contributor);
@@ -75,14 +75,14 @@ abstract class AbstractRegistry<C, E> {
   private void registerContributor(Map<String, C> contributors, String name, C contributor) {
     Assert.hasText(name, "'name' must not be empty");
     Assert.notNull(contributor, "'contributor' is required");
-    verifyName(name, contributor);
-    Assert.state(!contributors.containsKey(name),
-            () -> "A contributor named \"" + name + "\" has already been registered");
+    assertName(name, contributor);
+    if (contributors.containsKey(name)) {
+      throw new IllegalStateException("A contributor named \"" + name + "\" has already been registered");
+    }
     contributors.put(name, contributor);
   }
 
-  @Nullable
-  C unregisterContributor(String name) {
+  public @Nullable C unregisterContributor(String name) {
     Assert.notNull(name, "'name' is required");
     synchronized(this.monitor) {
       C unregistered = this.contributors.get(name);
@@ -95,21 +95,24 @@ abstract class AbstractRegistry<C, E> {
     }
   }
 
-  @Nullable
-  C getContributor(String name) {
+  public @Nullable C getContributor(String name) {
     return this.contributors.get(name);
   }
 
-  Stream<E> stream() {
+  public Stream<E> stream() {
     return this.contributors.entrySet()
             .stream()
-            .map((entry) -> this.entryAdapter.apply(entry.getKey(), entry.getValue()));
+            .map(entry -> this.entryAdapter.apply(entry.getKey(), entry.getValue()));
   }
 
-  private void verifyName(String name, C contributor) {
-    Assert.state(StringUtils.hasText(name), () -> "Name for contributor '%s' must not be empty".formatted(contributor));
-    if (!CollectionUtils.isEmpty(this.nameValidators)) {
-      this.nameValidators.forEach((nameValidator) -> nameValidator.validate(name));
+  private void assertName(String name, C contributor) {
+    if (StringUtils.isBlank(name)) {
+      throw new IllegalStateException("Name for contributor '%s' must not be empty".formatted(contributor));
+    }
+    if (CollectionUtils.isNotEmpty(this.nameValidators)) {
+      for (var validator : nameValidators) {
+        validator.validate(name);
+      }
     }
   }
 

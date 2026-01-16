@@ -195,7 +195,7 @@ public abstract class JacksonCodecSupport<T extends ObjectMapper> {
         result.addAll(entry.getValue().keySet());
       }
     }
-    if (!CollectionUtils.isEmpty(result)) {
+    if (CollectionUtils.isNotEmpty(result)) {
       return result;
     }
     return (ProblemDetail.class.isAssignableFrom(elementClass) ? getMediaTypesForProblemDetail() : getMimeTypes());

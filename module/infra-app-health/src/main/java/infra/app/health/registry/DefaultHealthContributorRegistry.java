@@ -23,7 +23,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.Collection;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import infra.app.health.contributor.HealthContributor;
 import infra.app.health.contributor.HealthContributors.Entry;
@@ -53,26 +52,6 @@ public class DefaultHealthContributorRegistry extends AbstractRegistry<HealthCon
   public DefaultHealthContributorRegistry(@Nullable Collection<? extends HealthContributorNameValidator> nameValidators,
           @Nullable Consumer<BiConsumer<String, HealthContributor>> initialRegistrations) {
     super(Entry::new, nameValidators, initialRegistrations);
-  }
-
-  @Override
-  public @Nullable HealthContributor getContributor(String name) {
-    return super.getContributor(name);
-  }
-
-  @Override
-  public Stream<Entry> stream() {
-    return super.stream();
-  }
-
-  @Override
-  public void registerContributor(String name, HealthContributor contributor) {
-    super.registerContributor(name, contributor);
-  }
-
-  @Override
-  public @Nullable HealthContributor unregisterContributor(String name) {
-    return super.unregisterContributor(name);
   }
 
 }
