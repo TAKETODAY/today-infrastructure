@@ -192,13 +192,11 @@ public @interface RequestMapping {
    * which matches all requests with a Accept other than "text/plain".
    * </p>
    *
-   * </p>
    * <b>
    * Supported at the type level as well as at the method level! If
    * specified at both levels, the method level produces condition
    * overrides the type level condition.
    * </b>
-   * </p>
    *
    * @since 3.0
    */
