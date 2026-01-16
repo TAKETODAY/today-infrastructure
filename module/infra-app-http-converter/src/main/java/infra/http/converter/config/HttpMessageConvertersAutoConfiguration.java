@@ -22,8 +22,6 @@ import java.util.List;
 
 import infra.app.config.ConditionalOnWebApplication;
 import infra.app.config.ConditionalOnWebApplication.Type;
-import infra.app.jackson.config.JacksonAutoConfiguration;
-import infra.jsonb.config.JsonbAutoConfiguration;
 import infra.context.annotation.Conditional;
 import infra.context.annotation.Import;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
@@ -55,9 +53,10 @@ import static infra.http.converter.config.HttpMessageConvertersAutoConfiguration
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/16 15:10
  */
-@DisableDIAutoConfiguration(afterName = "infra.gson.config.GsonAutoConfiguration", after = {
-        JacksonAutoConfiguration.class,
-        JsonbAutoConfiguration.class
+@DisableDIAutoConfiguration(afterName = {
+        "infra.gson.config.GsonAutoConfiguration",
+        "infra.jsonb.config.JsonbAutoConfiguration",
+        "infra.app.jackson.config.JacksonAutoConfiguration"
 })
 @ConditionalOnClass(HttpMessageConverter.class)
 @Conditional(NotReactiveWebApplicationCondition.class)
@@ -115,4 +114,3 @@ public final class HttpMessageConvertersAutoConfiguration {
   }
 
 }
-
