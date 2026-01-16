@@ -147,7 +147,7 @@ public class MockHttpHandlerAdapter implements MockApi {
     ServerHttpResponse httpResponse = createResponse(((HttpMockResponse) response), asyncContext, httpRequest);
     AsyncListener responseListener = ((MockServerHttpResponse) httpResponse).getAsyncListener();
     if (httpRequest.getMethod() == HttpMethod.HEAD) {
-      httpResponse = new HttpHeadResponseDecorator(httpResponse);
+      httpResponse = new infra.http.server.reactive.HttpHeadResponseDecorator(httpResponse);
     }
 
     AtomicBoolean completionFlag = new AtomicBoolean();

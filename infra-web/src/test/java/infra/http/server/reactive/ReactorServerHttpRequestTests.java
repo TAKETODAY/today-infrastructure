@@ -69,7 +69,7 @@ class ReactorServerHttpRequestTests {
     when(mockRequest.hostName()).thenReturn("example.com");
     when(mockRequest.hostPort()).thenReturn(80);
 
-    ReactorServerHttpRequest request = new ReactorServerHttpRequest(mockRequest, bufferFactory);
+    infra.http.server.reactive.ReactorServerHttpRequest request = new ReactorServerHttpRequest(mockRequest, bufferFactory);
 
     assertThat(request.getMethod()).isEqualTo(method);
     assertThat(request.getURI()).isEqualTo(uri);

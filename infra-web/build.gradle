@@ -8,6 +8,8 @@ dependencies {
   api(project(":infra-beans"))
   api(project(":infra-core"))
   api(project(":infra-context"))
+  api(project(":infra-http"))
+  api(project(":infra-http-reactive"))
 
   optional(project(":infra-aop"))
   optional(project(":infra-oxm"))
@@ -86,6 +88,8 @@ dependencies {
   testImplementation(testFixtures(project(":infra-beans")))
   testImplementation(testFixtures(project(":infra-core")))
   testImplementation(testFixtures(project(":infra-context")))
+  testImplementation(testFixtures(project(":infra-http")))
+  testImplementation(testFixtures(project(":infra-http-reactive")))
 
   testImplementation("org.mozilla:rhino")
   testImplementation("org.dom4j:dom4j") {
@@ -111,5 +115,8 @@ dependencies {
   testRuntimeOnly("com.sun.xml.bind:jaxb-impl")
   testRuntimeOnly("com.sun.activation:jakarta.activation")
   testFixturesImplementation("com.google.code.findbugs:jsr305")
+
+  testFixturesApi(project(":infra-http"))
+  testFixturesApi(project(":infra-http-reactive"))
 }
 

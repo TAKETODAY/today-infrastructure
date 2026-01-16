@@ -1,0 +1,16 @@
+apply plugin: "java-test-fixtures"
+
+description = "Web infrastructure API"
+
+
+dependencies {
+  api(project(":infra-web"))
+  api(project(":infra-http-reactive"))
+
+  optional(project(":infra-core-aot"))
+
+
+  testFixturesApi(project(":infra-http"))
+  testFixturesApi(project(":infra-http-reactive"))
+}
+

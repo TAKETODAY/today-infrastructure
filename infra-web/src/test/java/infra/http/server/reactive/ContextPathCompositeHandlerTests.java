@@ -51,7 +51,7 @@ public class ContextPathCompositeHandlerTests {
 
   private void testInvalid(String contextPath, String expectedError) {
     assertThatIllegalArgumentException().isThrownBy(() ->
-                    new ContextPathCompositeHandler(Collections.singletonMap(contextPath, new TestHttpHandler())))
+                    new infra.http.server.reactive.ContextPathCompositeHandler(Collections.singletonMap(contextPath, new TestHttpHandler())))
             .withMessage(expectedError);
   }
 

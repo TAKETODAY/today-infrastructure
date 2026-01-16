@@ -1,0 +1,11 @@
+apply plugin: "java-test-fixtures"
+
+description = "Infra HTTP API"
+
+dependencies {
+  api(project(":infra-core"))
+
+  optional(project(":infra-core-aot"))
+  optional 'io.netty:netty-codec-http'
+
+}

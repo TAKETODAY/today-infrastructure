@@ -189,7 +189,7 @@ class MockServerHttpRequest extends AbstractServerHttpRequest {
   @Nullable
   protected SslInfo initSslInfo() {
     X509Certificate[] certificates = getX509Certificates();
-    return certificates != null ? new DefaultSslInfo(getSslSessionId(), certificates) : null;
+    return certificates != null ? new infra.http.server.reactive.DefaultSslInfo(getSslSessionId(), certificates) : null;
   }
 
   @Nullable

@@ -50,7 +50,7 @@ class DefaultServerHttpRequestBuilderTests {
   void containerImmutableHeadersAreCopied(MultiValueMap<String, String> headerMap, boolean isMutableMap) {
     HttpHeaders originalHeaders = HttpHeaders.forWritable(headerMap);
     ServerHttpRequest mockRequest = createMockRequest(originalHeaders);
-    final DefaultServerHttpRequestBuilder builder = new DefaultServerHttpRequestBuilder(mockRequest);
+    final infra.http.server.reactive.DefaultServerHttpRequestBuilder builder = new DefaultServerHttpRequestBuilder(mockRequest);
 
     //perform mutations on the map adapter of the container's headers if possible
     if (isMutableMap) {

@@ -40,7 +40,7 @@ class DefaultSslInfoTests {
     String sessionId = "test-session-id";
     X509Certificate[] certificates = new X509Certificate[] { mock(X509Certificate.class) };
 
-    DefaultSslInfo sslInfo = new DefaultSslInfo(sessionId, certificates);
+    infra.http.server.reactive.DefaultSslInfo sslInfo = new DefaultSslInfo(sessionId, certificates);
 
     assertThat(sslInfo.getSessionId()).isEqualTo(sessionId);
     assertThat(sslInfo.getPeerCertificates()).isEqualTo(certificates);

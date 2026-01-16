@@ -40,7 +40,7 @@ class DelegatingServerHttpResponseTests {
 
   private ServerHttpResponse mockDelegate;
 
-  private DelegatingServerHttpResponse delegatingResponse;
+  private infra.http.server.DelegatingServerHttpResponse delegatingResponse;
 
   @BeforeEach
   void setUp() {

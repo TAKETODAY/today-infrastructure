@@ -45,7 +45,7 @@ public class HttpHeadResponseDecoratorTests {
           new LeakAwareDataBufferFactory(new NettyDataBufferFactory(PooledByteBufAllocator.DEFAULT));
 
   private final ServerHttpResponse response =
-          new HttpHeadResponseDecorator(new MockServerHttpResponse(this.bufferFactory));
+          new infra.http.server.reactive.HttpHeadResponseDecorator(new MockServerHttpResponse(this.bufferFactory));
 
   @AfterEach
   public void tearDown() {

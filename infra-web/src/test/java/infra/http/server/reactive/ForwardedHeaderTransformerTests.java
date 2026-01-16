@@ -37,7 +37,7 @@ class ForwardedHeaderTransformerTests {
 
   private static final String BASE_URL = "https://example.com/path";
 
-  private final ForwardedHeaderTransformer requestMutator = new ForwardedHeaderTransformer();
+  private final infra.http.server.reactive.ForwardedHeaderTransformer requestMutator = new ForwardedHeaderTransformer();
 
   @Test
   void removeOnly() {

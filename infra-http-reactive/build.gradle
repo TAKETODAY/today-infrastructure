@@ -1,0 +1,18 @@
+apply plugin: "java-test-fixtures"
+
+description = "Infra HTTP Reactive API"
+
+dependencies {
+  api(project(":infra-core"))
+  api(project(":infra-http"))
+
+  optional(project(":infra-core-aot"))
+
+  optional("org.reactivestreams:reactive-streams")
+  optional("io.projectreactor.netty:reactor-netty-http")
+  optional("io.projectreactor:reactor-core")
+
+  testImplementation("io.projectreactor:reactor-test")
+
+  testFixturesApi(project(":infra-http"))
+}

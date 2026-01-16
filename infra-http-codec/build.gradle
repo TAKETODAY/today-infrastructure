@@ -1,0 +1,16 @@
+description = "Infra HTTP Reactive Codec"
+
+dependencies {
+  api(project(":infra-http-reactive"))
+
+  optional(project(":infra-core-aot"))
+
+  optional("org.reactivestreams:reactive-streams")
+  optional("io.projectreactor.netty:reactor-netty-http")
+  optional("io.projectreactor:reactor-core")
+
+  testImplementation("io.projectreactor:reactor-test")
+  testImplementation testFixtures(project(":infra-http"))
+  testImplementation testFixtures(project(":infra-http-reactive"))
+
+}

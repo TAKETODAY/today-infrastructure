@@ -47,6 +47,13 @@ include 'infra-webmvc'
 include 'infra-webmvc-mock'
 include 'infra-websocket'
 
+include 'infra-http'
+include 'infra-http-client'
+include 'infra-http-codec'
+include 'infra-http-converter'
+include 'infra-http-reactive'
+
+include 'infra-web-reactive'
 
 include 'infra-test'
 include 'infra-test-support'
