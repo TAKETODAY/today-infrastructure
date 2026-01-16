@@ -16,21 +16,27 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.web.server.reactor;
+package infra.web.reactor.netty.config;
 
-import java.util.function.Function;
+import org.jspecify.annotations.Nullable;
 
-import reactor.netty.http.server.HttpServer;
+import java.time.Duration;
+
+import infra.context.properties.ConfigurationProperties;
 
 /**
- * Mapping function that can be used to customize a Reactor Netty server instance.
+ * Configuration properties for Reactor Netty.
  *
- * @author Brian Clozel
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see ReactorNettyReactiveWebServerFactory
- * @since 4.0
+ * @author Moritz Halbritter
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0
  */
-@FunctionalInterface
-public interface ReactorNettyServerCustomizer extends Function<HttpServer, HttpServer> {
+@ConfigurationProperties("reactor.netty")
+public class ReactorNettyProperties {
+
+  /**
+   * Amount of time to wait before shutting down resources.
+   */
+  public @Nullable Duration shutdownQuietPeriod;
 
 }

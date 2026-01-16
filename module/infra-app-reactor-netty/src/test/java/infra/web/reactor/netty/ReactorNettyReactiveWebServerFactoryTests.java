@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.web.server.reactor;
+package infra.web.reactor.netty;
 
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Disabled;

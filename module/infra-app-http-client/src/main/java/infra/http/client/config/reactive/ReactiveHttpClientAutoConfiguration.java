@@ -39,7 +39,7 @@ import infra.http.client.ReactorResourceFactory;
 import infra.http.client.config.HttpClientAutoConfiguration;
 import infra.http.client.config.HttpClientSettings;
 import infra.http.client.reactive.ClientHttpConnector;
-import infra.http.config.annotation.ReactorNettyConfigurations;
+import infra.web.reactor.netty.config.ReactorNettyConfigurations;
 import infra.stereotype.Component;
 import infra.util.LambdaSafe;
 import reactor.core.publisher.Mono;

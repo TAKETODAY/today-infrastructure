@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.web.server.reactor.config;
+package infra.web.reactor.netty.config;
 
 import org.junit.jupiter.api.Test;
 
@@ -36,8 +36,8 @@ import infra.web.server.reactive.ConfigurableReactiveWebServerFactory;
 import infra.web.server.reactive.MockReactiveWebServerFactory;
 import infra.web.server.reactive.ReactiveWebServerFactory;
 import infra.web.server.reactive.context.AnnotationConfigReactiveWebServerApplicationContext;
-import infra.web.server.reactor.ReactorNettyReactiveWebServerFactory;
-import infra.web.server.reactor.ReactorNettyServerCustomizer;
+import infra.web.reactor.netty.ReactorNettyReactiveWebServerFactory;
+import infra.web.reactor.netty.ReactorNettyServerCustomizer;
 import reactor.netty.http.server.HttpServer;
 
 import static org.assertj.core.api.Assertions.assertThat;

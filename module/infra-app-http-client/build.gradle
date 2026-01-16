@@ -5,6 +5,8 @@ dependencies {
 
   implementation(project(":module:infra-app-http-converter"))
 
+  optional(project(":module:infra-app-reactor-netty"))
+
   optional("io.projectreactor:reactor-core")
   optional("io.projectreactor.netty:reactor-netty-http")
   optional("org.reactivestreams:reactive-streams")

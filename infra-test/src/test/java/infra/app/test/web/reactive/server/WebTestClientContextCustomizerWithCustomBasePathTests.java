@@ -34,7 +34,7 @@ import infra.http.server.reactive.ServerHttpRequest;
 import infra.http.server.reactive.ServerHttpResponse;
 import infra.test.context.TestPropertySource;
 import infra.test.web.reactive.server.WebTestClient;
-import infra.web.server.reactor.ReactorNettyReactiveWebServerFactory;
+import infra.web.reactor.netty.ReactorNettyReactiveWebServerFactory;
 import reactor.core.publisher.Mono;
 
 /**

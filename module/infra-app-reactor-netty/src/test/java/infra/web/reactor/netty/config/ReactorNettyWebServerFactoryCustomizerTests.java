@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.web.server.reactor.config;
+package infra.web.reactor.netty.config;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,9 +31,9 @@ import infra.mock.env.MockEnvironment;
 import infra.util.DataSize;
 import infra.web.server.Http2;
 import infra.web.server.config.ServerProperties;
-import infra.web.server.reactor.ReactorNettyReactiveWebServerFactory;
-import infra.web.server.reactor.ReactorNettyServerCustomizer;
-import infra.web.server.reactor.ReactorServerProperties;
+import infra.web.reactor.netty.ReactorNettyReactiveWebServerFactory;
+import infra.web.reactor.netty.ReactorNettyServerCustomizer;
+import infra.web.reactor.netty.ReactorServerProperties;
 import io.netty.channel.ChannelOption;
 import reactor.netty.http.Http2SettingsSpec;
 import reactor.netty.http.server.HttpRequestDecoderSpec;

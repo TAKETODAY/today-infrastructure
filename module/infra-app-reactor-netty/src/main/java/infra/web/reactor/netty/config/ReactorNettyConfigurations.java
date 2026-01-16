@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.http.config.annotation;
+package infra.web.reactor.netty.config;
 
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Lazy;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.web.server.reactor.config;
+package infra.web.reactor.netty.config;
 
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +26,7 @@ import infra.context.properties.bind.Bindable;
 import infra.context.properties.bind.Binder;
 import infra.context.properties.source.ConfigurationPropertySource;
 import infra.context.properties.source.MapConfigurationPropertySource;
-import infra.web.server.reactor.ReactorServerProperties;
+import infra.web.reactor.netty.ReactorServerProperties;
 import reactor.netty.http.HttpDecoderSpec;
 
 import static org.assertj.core.api.Assertions.assertThat;

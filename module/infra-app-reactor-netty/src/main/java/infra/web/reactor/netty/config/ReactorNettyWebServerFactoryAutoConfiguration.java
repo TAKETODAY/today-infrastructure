@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.web.server.reactor.config;
+package infra.web.reactor.netty.config;
 
 import infra.app.config.ConditionalOnWebApplication;
 import infra.beans.factory.ObjectProvider;
@@ -31,16 +31,16 @@ import infra.core.Ordered;
 import infra.core.env.Environment;
 import infra.http.ReactiveHttpInputMessage;
 import infra.http.client.ReactorResourceFactory;
-import infra.http.config.annotation.ReactorNettyConfigurations.ReactorResourceFactoryConfiguration;
 import infra.http.server.reactive.ForwardedHeaderTransformer;
 import infra.stereotype.Component;
+import infra.web.reactor.netty.NettyRouteProvider;
+import infra.web.reactor.netty.ReactorNettyReactiveWebServerFactory;
+import infra.web.reactor.netty.ReactorNettyServerCustomizer;
+import infra.web.reactor.netty.ReactorServerProperties;
+import infra.web.reactor.netty.config.ReactorNettyConfigurations.ReactorResourceFactoryConfiguration;
 import infra.web.server.config.ServerProperties;
 import infra.web.server.config.WebServerConfiguration;
 import infra.web.server.reactive.ReactiveWebServerFactory;
-import infra.web.server.reactor.NettyRouteProvider;
-import infra.web.server.reactor.ReactorNettyReactiveWebServerFactory;
-import infra.web.server.reactor.ReactorNettyServerCustomizer;
-import infra.web.server.reactor.ReactorServerProperties;
 import reactor.netty.http.server.HttpServer;
 
 import static infra.app.config.ConditionalOnWebApplication.Type;

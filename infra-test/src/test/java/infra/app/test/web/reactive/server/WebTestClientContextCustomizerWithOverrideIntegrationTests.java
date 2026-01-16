@@ -30,7 +30,7 @@ import infra.http.server.reactive.ServerHttpRequest;
 import infra.http.server.reactive.ServerHttpResponse;
 import infra.test.annotation.DirtiesContext;
 import infra.test.web.reactive.server.WebTestClient;
-import infra.web.server.reactor.ReactorNettyReactiveWebServerFactory;
+import infra.web.reactor.netty.ReactorNettyReactiveWebServerFactory;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
