@@ -344,7 +344,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   public Validator mvcValidator() {
     if (ClassUtils.isPresent("jakarta.validation.Validator", getClass().getClassLoader())) {
       var validatorAdapter = ClassUtils.load(
-              "infra.annotation.config.validation.ValidatorAdapter", getClass().getClassLoader());
+              "infra.validation.config.ValidatorAdapter", getClass().getClassLoader());
       if (validatorAdapter != null) {
         Method method = ReflectionUtils.getMethod(validatorAdapter, "get", ApplicationContext.class, Validator.class);
         return (Validator) ReflectionUtils.invokeMethod(method, null, getApplicationContext(), getValidator());
