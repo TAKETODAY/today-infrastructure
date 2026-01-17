@@ -129,12 +129,13 @@ public final class HttpServiceProxyRegistryFactoryBean
     return this.proxyRegistry;
   }
 
-  private static class GroupAdapterInitializer {
+  private static final class GroupAdapterInitializer {
 
     private static final String REST_CLIENT_HTTP_SERVICE_GROUP_ADAPTER =
             "infra.web.service.support.RestClientHttpServiceGroupAdapter";
 
-    private static final String WEB_CLIENT_HTTP_SERVICE_GROUP_ADAPTER = "infra.web.service.support.WebClientHttpServiceGroupAdapter";
+    private static final String WEB_CLIENT_HTTP_SERVICE_GROUP_ADAPTER
+            = "infra.web.service.support.WebClientHttpServiceGroupAdapter";
 
     static Map<HttpServiceGroup.ClientType, HttpServiceGroupAdapter<?>> initGroupAdapters() {
       Map<HttpServiceGroup.ClientType, HttpServiceGroupAdapter<?>> map = new LinkedHashMap<>(2);

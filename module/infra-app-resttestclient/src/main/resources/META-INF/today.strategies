@@ -1,0 +1,4 @@
+# Default ContextCustomizerFactory implementations for the TestContext Framework
+#
+infra.test.context.ContextCustomizerFactory=\
+    infra.app.rest.client.TestRestTemplateContextCustomizerFactory

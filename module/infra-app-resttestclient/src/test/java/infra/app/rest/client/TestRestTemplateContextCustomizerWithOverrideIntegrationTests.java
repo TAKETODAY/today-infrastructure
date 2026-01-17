@@ -14,43 +14,50 @@
  * limitations under the License.
  */
 
-package infra.app.test.web.client;
+package infra.app.rest.client;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.test.RandomPortWebServerConfig;
 import infra.app.test.context.InfraTest;
 import infra.beans.factory.annotation.Autowired;
-import infra.context.annotation.ComponentScan;
+import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.test.annotation.DirtiesContext;
+import infra.web.server.netty.RandomPortWebServerConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Integration tests for {@link TestRestTemplateContextCustomizer} to ensure
- * early-initialization of factory beans doesn't occur.
+ * Integration tests for {@link TestRestTemplateContextCustomizer} with a custom
+ * {@link TestRestTemplate} bean.
  *
- * @author Madhura Bhave
+ * @author Phillip Webb
  */
-@InfraTest(classes = TestRestTemplateContextCustomizerWithFactoryBeanTests.TestClassWithFactoryBean.class,
-           webEnvironment = InfraTest.WebEnvironment.RANDOM_PORT)
+@InfraTest(webEnvironment = InfraTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext
-class TestRestTemplateContextCustomizerWithFactoryBeanTests {
+class TestRestTemplateContextCustomizerWithOverrideIntegrationTests {
 
   @Autowired
   private TestRestTemplate restTemplate;
 
   @Test
   void test() {
-    assertThat(this.restTemplate).isNotNull();
+    assertThat(this.restTemplate).isInstanceOf(CustomTestRestTemplate.class);
   }
 
-  @Import(RandomPortWebServerConfig.class)
   @Configuration(proxyBeanMethods = false)
-  @ComponentScan("infra.app.test.web.client.scan")
-  static class TestClassWithFactoryBean {
+  @Import({ NoTestRestTemplateBeanChecker.class, RandomPortWebServerConfig.class })
+  static class TestConfig {
+
+    @Bean
+    TestRestTemplate template() {
+      return new CustomTestRestTemplate();
+    }
+
+  }
+
+  static class CustomTestRestTemplate extends TestRestTemplate {
 
   }
 

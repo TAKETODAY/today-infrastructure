@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.test.web.client;
+package infra.app.rest.client;
 
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.DefaultRedirectStrategy;
@@ -34,9 +34,9 @@ import java.net.http.HttpClient;
 import java.util.Base64;
 import java.util.stream.Stream;
 
+import infra.app.rest.client.TestRestTemplate.HttpClientOption;
 import infra.app.test.http.server.LocalTestWebServer;
 import infra.app.test.http.server.LocalTestWebServer.Scheme;
-import infra.app.test.web.client.TestRestTemplate.HttpClientOption;
 import infra.core.ParameterizedTypeReference;
 import infra.http.HttpEntity;
 import infra.http.HttpHeaders;

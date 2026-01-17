@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.app.test.web.client;
+package infra.app.rest.client;
 
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;

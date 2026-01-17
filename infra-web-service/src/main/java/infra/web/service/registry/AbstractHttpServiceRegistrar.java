@@ -273,7 +273,7 @@ public abstract class AbstractHttpServiceRegistrar implements
   /**
    * Default implementation of {@link GroupRegistry}.
    */
-  private class DefaultGroupRegistry implements GroupRegistry {
+  private final class DefaultGroupRegistry implements GroupRegistry {
 
     @Override
     public GroupSpec forGroup(String name, HttpServiceGroup.ClientType clientType) {

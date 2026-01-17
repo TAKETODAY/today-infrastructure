@@ -1,0 +1,17 @@
+description = "Infra application RestTestClient integration"
+
+dependencies {
+  api project(":infra-web-client")
+  api project(":module:infra-app-test")
+
+  optional project(':module:infra-app-restclient')
+
+  optional 'org.apache.httpcomponents.core5:httpcore5'
+  optional 'org.apache.httpcomponents.core5:httpcore5-reactive'
+  optional 'org.apache.httpcomponents.client5:httpclient5'
+
+  testImplementation project(":infra-webmvc-mock")
+  testImplementation "org.hamcrest:hamcrest"
+  testImplementation 'io.projectreactor:reactor-test'
+  testImplementation testFixtures(project(':module:infra-app-netty-server'))
+}

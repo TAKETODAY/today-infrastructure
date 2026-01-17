@@ -29,10 +29,10 @@ import java.lang.annotation.Target;
 import java.net.URI;
 import java.util.Map;
 
+import infra.app.Application;
 import infra.app.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.app.config.task.TaskExecutionAutoConfiguration;
-import infra.app.Application;
-import infra.app.test.web.client.TestRestTemplate;
+import infra.app.rest.client.TestRestTemplate;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;

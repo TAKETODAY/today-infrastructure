@@ -22,9 +22,9 @@ import org.junit.jupiter.api.Test;
 
 import infra.app.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.app.config.task.TaskExecutionAutoConfiguration;
+import infra.app.rest.client.TestRestTemplate;
 import infra.app.test.context.InfraTest;
 import infra.app.test.context.InfraTest.WebEnvironment;
-import infra.app.test.web.client.TestRestTemplate;
 import infra.app.test.web.server.LocalServerPort;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;

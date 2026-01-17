@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.app.test.web.client;
+package infra.app.rest.client;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;

@@ -8,7 +8,6 @@ infra.test.context.TestExecutionListener=\
 #
 infra.test.context.ContextCustomizerFactory=\
     infra.app.test.context.ImportsContextCustomizerFactory,\
-    infra.app.test.web.client.TestRestTemplateContextCustomizerFactory,\
     infra.app.test.mock.mockito.MockitoContextCustomizerFactory,\
     infra.app.test.json.DuplicateJsonObjectContextCustomizerFactory,\
     infra.app.test.context.filter.ExcludeFilterContextCustomizerFactory,\
