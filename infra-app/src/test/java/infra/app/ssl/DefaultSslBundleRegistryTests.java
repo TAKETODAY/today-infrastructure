@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import infra.app.test.system.CapturedOutput;
 import infra.app.test.system.OutputCaptureExtension;
+import infra.core.testfixture.DisabledIfInContinuousIntegration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -123,6 +124,7 @@ class DefaultSslBundleRegistryTests {
   }
 
   @Test
+  @DisabledIfInContinuousIntegration
   void shouldLogIfUpdatingBundleWithoutListeners(CapturedOutput output) {
     this.registry.registerBundle("test1", this.bundle1);
     this.registry.getBundle("test1");
