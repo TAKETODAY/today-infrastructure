@@ -62,8 +62,6 @@ public class Task {
 
   /**
    * Return the outcome of the last task execution.
-   *
-   * @since 6.2
    */
   public TaskExecutionOutcome getLastExecutionOutcome() {
     return this.lastExecutionOutcome;

@@ -15,6 +15,7 @@ dependencies {
   testImplementation(project(":infra-core-test"))
   testImplementation testFixtures(project(":infra-web"))
   testImplementation testFixtures(project(":infra-core"))
+  testImplementation testFixtures(project(":infra-beans"))
 
   testImplementation("tools.jackson.core:jackson-databind")
   testImplementation("io.projectreactor.tools:blockhound")
