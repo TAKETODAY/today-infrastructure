@@ -25,10 +25,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import infra.http.client.ClientHttpRequestFactory;
-import infra.http.client.HttpComponentsClientHttpRequestFactory;
-import infra.http.client.JdkClientHttpRequestFactory;
-import infra.http.client.ReactorClientHttpRequestFactory;
 import infra.lang.Assert;
 import infra.util.LambdaSafe;
 

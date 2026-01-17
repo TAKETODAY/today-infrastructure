@@ -20,7 +20,6 @@ package infra.web.client;
 
 import infra.http.client.ClientHttpRequest;
 import infra.http.client.ClientHttpRequestInitializer;
-import infra.web.client.RestTemplate;
 
 /**
  * Callback interface that can be used to customize the {@link ClientHttpRequest} sent

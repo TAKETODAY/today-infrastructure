@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
-import infra.http.client.ClientHttpRequestFactory;
 import infra.lang.Assert;
 import infra.util.LambdaSafe;
 

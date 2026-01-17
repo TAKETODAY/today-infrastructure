@@ -18,8 +18,6 @@
 
 package infra.web.client;
 
-import infra.web.client.RestTemplate;
-
 /**
  * Callback interface that can be used to customize a {@link RestTemplate}.
  *

@@ -21,11 +21,11 @@ package infra.http.client.config;
 import org.jspecify.annotations.Nullable;
 
 import infra.app.config.ssl.SslAutoConfiguration;
+import infra.app.ssl.SslBundles;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.properties.EnableConfigurationProperties;
-import infra.app.ssl.SslBundles;
 import infra.http.client.HttpClientSettings;
 import infra.stereotype.Component;
 

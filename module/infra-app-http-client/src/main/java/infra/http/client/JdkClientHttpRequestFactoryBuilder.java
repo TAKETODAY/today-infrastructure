@@ -27,7 +27,6 @@ import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
-import infra.http.client.JdkClientHttpRequestFactory;
 import infra.lang.Assert;
 
 /**

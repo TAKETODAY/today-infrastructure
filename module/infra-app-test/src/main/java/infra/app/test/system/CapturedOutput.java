@@ -20,8 +20,8 @@ package infra.app.test.system;
 
 /**
  * Provides access to {@link System#out System.out} and {@link System#err System.err}
- * output that has been captured by the {@link OutputCaptureExtension} or
- * {@link OutputCaptureRule}. Can be used to apply assertions either using AssertJ or
+ * output that has been captured by the {@link OutputCaptureExtension}
+ * Can be used to apply assertions either using AssertJ or
  * standard JUnit assertions. For example: <pre class="code">
  * assertThat(output).contains("started"); // Checks all output
  * assertThat(output.getErr()).contains("failed"); // Only checks System.err

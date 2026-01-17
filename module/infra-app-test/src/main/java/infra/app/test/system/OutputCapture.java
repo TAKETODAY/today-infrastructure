@@ -43,7 +43,6 @@ import infra.util.ClassUtils;
  * @author Andy Wilkinson
  * @author Sam Brannen
  * @see OutputCaptureExtension
- * @see OutputCaptureRule
  */
 class OutputCapture implements CapturedOutput {
 
