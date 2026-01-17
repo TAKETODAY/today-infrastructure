@@ -252,7 +252,7 @@ public class Jaxb2Marshaller implements MimeMarshaller, MimeUnmarshaller,
 
   /**
    * Set the packages to search for classes with JAXB2 annotations in the classpath.
-   * This is using a Spring-bases search and therefore analogous to Spring's component-scan
+   * This is using a Infra-bases search and therefore analogous to Infra component-scan
    * feature ({@link infra.context.annotation.ClassPathBeanDefinitionScanner}).
    * <p>Setting either this property, {@link #setContextPath "contextPath"} or
    * {@link #setClassesToBeBound "classesToBeBound"} is required.

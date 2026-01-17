@@ -1,0 +1,84 @@
+/*
+ * Copyright 2012-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
+package infra.web.service.config;
+
+import org.junit.jupiter.api.Test;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+
+import infra.context.annotation.AnnotationConfigApplicationContext;
+import infra.context.annotation.Configuration;
+import infra.context.properties.EnableConfigurationProperties;
+import infra.http.client.HttpRedirects;
+import infra.mock.env.MockEnvironment;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * Tests for {@link HttpServiceClientProperties}.
+ *
+ * @author Phillip Webb
+ */
+class HttpServiceClientPropertiesTests {
+
+  @Test
+  void bindProperties() {
+    MockEnvironment environment = new MockEnvironment();
+    environment.setProperty("http.service-client.c1.base-url", "https://example.com/olga");
+    environment.setProperty("http.service-client.c1.default-header.secure", "very,somewhat");
+    environment.setProperty("http.service-client.c1.default-header.test", "true");
+    environment.setProperty("http.service-client.c1.redirects", "dont-follow");
+    environment.setProperty("http.service-client.c1.connect-timeout", "10s");
+    environment.setProperty("http.service-client.c1.read-timeout", "20s");
+    environment.setProperty("http.service-client.c1.ssl.bundle", "usual");
+    environment.setProperty("http.service-client.c2.base-url", "https://example.com/rossen");
+    environment.setProperty("http.service-client.c3.base-url", "https://example.com/phil");
+    try (AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext()) {
+      applicationContext.setEnvironment(environment);
+      applicationContext.register(PropertiesConfiguration.class);
+      applicationContext.refresh();
+      HttpServiceClientProperties properties = applicationContext.getBean(HttpServiceClientProperties.class);
+      assertThat(properties).containsOnlyKeys("c1", "c2", "c3");
+      HttpClientProperties c1 = properties.get("c1");
+      assertThat(c1).isNotNull();
+      assertThat(c1.baseUrl).isEqualTo("https://example.com/olga");
+      assertThat(c1.defaultHeader).containsOnly(Map.entry("secure", List.of("very", "somewhat")),
+              Map.entry("test", List.of("true")));
+      assertThat(c1.redirects).isEqualTo(HttpRedirects.DONT_FOLLOW);
+      assertThat(c1.connectTimeout).isEqualTo(Duration.ofSeconds(10));
+      assertThat(c1.readTimeout).isEqualTo(Duration.ofSeconds(20));
+      assertThat(c1.ssl.bundle).isEqualTo("usual");
+      HttpClientProperties c2 = properties.get("c2");
+      assertThat(c2).isNotNull();
+      assertThat(c2.baseUrl).isEqualTo("https://example.com/rossen");
+      HttpClientProperties c3 = properties.get("c3");
+      assertThat(c3).isNotNull();
+      assertThat(c3.baseUrl).isEqualTo("https://example.com/phil");
+    }
+  }
+
+  @Configuration
+  @EnableConfigurationProperties(HttpServiceClientProperties.class)
+  static class PropertiesConfiguration {
+
+  }
+
+}

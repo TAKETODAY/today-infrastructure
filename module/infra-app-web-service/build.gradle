@@ -1,0 +1,13 @@
+description = "Infra application HTTP Service Interface Clients"
+
+dependencies {
+  api project(':infra-web-service')
+
+  optional project(":module:infra-app-restclient")
+  optional project(":module:infra-app-webclient")
+
+  testImplementation project(":infra-webmvc-mock")
+  testImplementation "org.apache.httpcomponents.client5:httpclient5"
+  testImplementation "org.hamcrest:hamcrest"
+
+}

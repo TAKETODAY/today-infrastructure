@@ -105,7 +105,7 @@ public class ArgumentBindingTests {
   }
 
   /**
-   * Mimics Spring's @Transactional annotation without actually introducing the dependency.
+   * Mimics @Transactional annotation without actually introducing the dependency.
    */
   @Retention(RetentionPolicy.RUNTIME)
   @interface Transactional {

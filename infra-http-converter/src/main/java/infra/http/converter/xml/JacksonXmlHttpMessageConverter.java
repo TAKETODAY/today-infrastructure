@@ -96,7 +96,7 @@ public class JacksonXmlHttpMessageConverter extends AbstractJacksonHttpMessageCo
 
   /**
    * Return an {@link XmlFactory} created from {@link StaxUtils#createDefensiveInputFactory}
-   * with Spring's defensive setup, i.e. no support for the resolution of DTDs and external
+   * with Infra defensive setup, i.e. no support for the resolution of DTDs and external
    * entities.
    */
   public static XmlFactory defensiveXmlFactory() {

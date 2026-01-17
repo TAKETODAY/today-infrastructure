@@ -47,7 +47,7 @@ import infra.lang.Assert;
  * implementation: Any such call will consume the given {@code InputStream}!</b>
  * Consider overriding {@code #contentLength()} with a custom implementation if
  * possible. For any other purpose, it is not recommended to extend from this
- * class; this is particularly true when used with Spring's web resource rendering
+ * class; this is particularly true when used with Infra web resource rendering
  * which specifically skips {@code #contentLength()} for this exact class only.
  *
  * @author Juergen Hoeller
