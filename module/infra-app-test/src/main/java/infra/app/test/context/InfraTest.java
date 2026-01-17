@@ -31,7 +31,6 @@ import infra.app.Application;
 import infra.app.ApplicationArguments;
 import infra.app.ApplicationType;
 import infra.app.InfraConfiguration;
-import infra.app.test.web.client.TestRestTemplate;
 import infra.app.test.web.server.LocalServerPort;
 import infra.app.web.context.reactive.ReactiveWebApplicationContext;
 import infra.context.ApplicationContext;
@@ -65,7 +64,7 @@ import infra.web.mock.WebApplicationContext;
  * including the ability to start a fully running web server listening on a
  * {@link WebEnvironment#DEFINED_PORT defined} or {@link WebEnvironment#RANDOM_PORT
  * random} port.</li>
- * <li>Registers a {@link TestRestTemplate
+ * <li>Registers a {@link infra.app.rest.client.TestRestTemplate
  * TestRestTemplate} and/or
  * {@link WebTestClient WebTestClient} bean
  * for use in web tests that are using a fully running web server.</li>
