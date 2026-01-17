@@ -40,7 +40,7 @@ import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
-import infra.app.test.context.FilteredClassLoader;
+import infra.test.context.FilteredClassLoader;
 import infra.app.test.context.assertj.AssertableApplicationContext;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.BeanCreationException;

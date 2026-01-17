@@ -33,7 +33,7 @@ import infra.core.ResolvableType;
 import infra.core.codec.DecodingException;
 import infra.core.io.buffer.DataBufferLimitException;
 import infra.http.MediaType;
-import infra.http.ReactiveHttpInputMessage;
+import infra.http.reactive.ReactiveHttpInputMessage;
 import infra.http.codec.HttpMessageReader;
 import infra.http.codec.LoggingCodecSupport;
 import infra.lang.Assert;

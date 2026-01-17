@@ -4,8 +4,10 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 
-import infra.core.ssl.SslBundle;
-import infra.core.ssl.SslBundles;
+import infra.app.ssl.SslBundle;
+import infra.app.ssl.SslBundles;
+import infra.http.client.HttpClientSettings;
+import infra.http.client.HttpRedirects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

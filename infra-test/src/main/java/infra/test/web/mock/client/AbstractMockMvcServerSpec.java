@@ -18,7 +18,7 @@
 
 package infra.test.web.mock.client;
 
-import infra.http.client.reactive.ClientHttpConnector;
+import infra.http.reactive.client.ClientHttpConnector;
 import infra.mock.api.Filter;
 import infra.test.web.mock.DispatcherCustomizer;
 import infra.test.web.mock.MockMvc;

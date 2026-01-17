@@ -21,6 +21,9 @@ package infra.http.client.config;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import infra.http.client.HttpComponentsClientHttpRequestFactoryBuilder;
+import infra.http.client.JdkClientHttpRequestFactoryBuilder;
+import infra.http.client.ReactorClientHttpRequestFactoryBuilder;
 import infra.http.client.config.ImperativeHttpClientsProperties.Factory;
 
 import static org.assertj.core.api.Assertions.assertThat;

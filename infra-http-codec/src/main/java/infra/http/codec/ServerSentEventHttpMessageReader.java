@@ -34,13 +34,13 @@ import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferLimitException;
 import infra.core.io.buffer.DefaultDataBufferFactory;
 import infra.http.MediaType;
-import infra.http.ReactiveHttpInputMessage;
+import infra.http.reactive.ReactiveHttpInputMessage;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Reader that supports a stream of {@link ServerSentEvent ServerSentEvents} and also plain
- * {@link Object Objects} which is the same as an {@link ServerSentEvent} with data only.
+ * Reader that supports a stream of {@link infra.http.ServerSentEvent ServerSentEvents} and also plain
+ * {@link Object Objects} which is the same as an {@link infra.http.ServerSentEvent} with data only.
  *
  * @author Sebastien Deleuze
  * @author Rossen Stoyanchev
@@ -112,7 +112,7 @@ public class ServerSentEventHttpMessageReader implements HttpMessageReader<Objec
   }
 
   private boolean isServerSentEvent(ResolvableType elementType) {
-    return ServerSentEvent.class.isAssignableFrom(elementType.toClass());
+    return infra.http.ServerSentEvent.class.isAssignableFrom(elementType.toClass());
   }
 
   @Override
@@ -135,7 +135,7 @@ public class ServerSentEventHttpMessageReader implements HttpMessageReader<Objec
   @Nullable
   @SuppressWarnings("NullAway")
   private Object buildEvent(List<String> lines, ResolvableType valueType, boolean shouldWrap, Map<String, Object> hints) {
-    ServerSentEvent.Builder<Object> sseBuilder = shouldWrap ? ServerSentEvent.builder() : null;
+    infra.http.ServerSentEvent.Builder<Object> sseBuilder = shouldWrap ? infra.http.ServerSentEvent.builder() : null;
     StringBuilder data = null;
     StringBuilder comment = null;
 

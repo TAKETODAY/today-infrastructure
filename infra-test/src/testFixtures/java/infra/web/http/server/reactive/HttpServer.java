@@ -19,7 +19,7 @@
 package infra.web.http.server.reactive;
 
 import infra.beans.factory.InitializingBean;
-import infra.http.server.reactive.HttpHandler;
+import infra.http.reactive.server.HttpHandler;
 import infra.context.Lifecycle;
 
 /**

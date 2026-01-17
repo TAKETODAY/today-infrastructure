@@ -18,11 +18,11 @@
 
 package infra.web.client;
 
-import infra.web.client.reactive.WebClient;
+import infra.web.reactive.client.WebClient;
 
 /**
  * Callback interface that can be used to customize a
- * {@link infra.web.client.reactive.WebClient.Builder
+ * {@link infra.web.reactive.client.WebClient.Builder
  * WebClient.Builder}.
  *
  * @author Brian Clozel
@@ -34,7 +34,7 @@ public interface WebClientCustomizer {
 
   /**
    * Callback to customize a
-   * {@link infra.web.client.reactive.WebClient.Builder
+   * {@link infra.web.reactive.client.WebClient.Builder
    * WebClient.Builder} instance.
    *
    * @param webClientBuilder the client builder to customize

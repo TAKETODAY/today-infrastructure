@@ -20,7 +20,7 @@ package infra.app.jdbc.config;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.test.context.FilteredClassLoader;
+import infra.test.context.FilteredClassLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

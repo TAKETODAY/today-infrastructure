@@ -25,7 +25,7 @@ import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.app.test.context.runner.ReactiveWebApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.http.server.reactive.HttpHandler;
+import infra.http.reactive.server.HttpHandler;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;

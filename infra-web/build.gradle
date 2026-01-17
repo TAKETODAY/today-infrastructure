@@ -10,8 +10,11 @@ dependencies {
   api(project(":infra-context"))
   api(project(":infra-http"))
   api(project(":infra-http-reactive"))
+  api(project(":infra-web-core"))
 
   optional(project(":infra-aop"))
+  optional(project(":infra-web-client"))
+  optional(project(":infra-http-codec"))
   optional(project(":infra-oxm"))
   optional(project(":infra-core-aot"))
   optional("org.apache.groovy:groovy-templates")
@@ -19,9 +22,7 @@ dependencies {
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
 
-  optional("jakarta.json.bind:jakarta.json.bind-api")
   optional("jakarta.validation:jakarta.validation-api")
-  optional("jakarta.xml.bind:jakarta.xml.bind-api")
   optional("io.reactivex.rxjava3:rxjava")
   optional("io.netty:netty-buffer")
   optional("io.netty:netty-handler")
@@ -31,13 +32,9 @@ dependencies {
 
   optional("io.projectreactor.netty:reactor-netty-http")
 
-  optional('org.apache.httpcomponents.client5:httpclient5')
-  optional('org.apache.httpcomponents.core5:httpcore5-reactive')
   optional("com.fasterxml.woodstox:woodstox-core")
   optional("com.fasterxml:aalto-xml")
-  optional("com.google.code.gson:gson")
   optional("com.google.protobuf:protobuf-java-util")
-  optional("com.rometools:rome")
   optional("org.apache.groovy:groovy")
   optional("org.freemarker:freemarker")
   optional("org.webjars:webjars-locator-core")
@@ -89,6 +86,7 @@ dependencies {
   testImplementation(testFixtures(project(":infra-core")))
   testImplementation(testFixtures(project(":infra-context")))
   testImplementation(testFixtures(project(":infra-http")))
+  testImplementation(testFixtures(project(":infra-test")))
   testImplementation(testFixtures(project(":infra-http-reactive")))
 
   testImplementation("org.mozilla:rhino")
@@ -106,7 +104,10 @@ dependencies {
   testImplementation("org.xmlunit:xmlunit-assertj")
   testImplementation("org.xmlunit:xmlunit-matchers")
   testImplementation("org.eclipse.jetty:jetty-io:12.1.0.alpha1")
-  testRuntimeOnly("org.apache.httpcomponents.client5:httpclient5")
+  testImplementation 'org.apache.httpcomponents.core5:httpcore5'
+  testImplementation 'org.apache.httpcomponents.core5:httpcore5-reactive'
+  testImplementation("org.apache.httpcomponents.client5:httpclient5")
+
   testRuntimeOnly("org.jruby:jruby")
   testRuntimeOnly("org.python:jython-standalone")
   testRuntimeOnly("org.webjars:underscorejs")
@@ -116,7 +117,8 @@ dependencies {
   testRuntimeOnly("com.sun.activation:jakarta.activation")
   testFixturesImplementation("com.google.code.findbugs:jsr305")
 
-  testFixturesApi(project(":infra-http"))
+  testFixturesApi(testFixtures(project(":infra-http")))
   testFixturesApi(project(":infra-http-reactive"))
+  testFixturesImplementation("jakarta.xml.bind:jakarta.xml.bind-api")
 }
 

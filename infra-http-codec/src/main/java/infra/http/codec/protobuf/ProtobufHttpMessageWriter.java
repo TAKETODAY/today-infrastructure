@@ -33,7 +33,7 @@ import infra.core.codec.Encoder;
 import infra.core.codec.EncodingException;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
-import infra.http.ReactiveHttpOutputMessage;
+import infra.http.reactive.ReactiveHttpOutputMessage;
 import infra.http.codec.EncoderHttpMessageWriter;
 import infra.http.codec.HttpMessageEncoder;
 import infra.util.ConcurrentReferenceHashMap;

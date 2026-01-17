@@ -18,8 +18,6 @@
 
 package infra.http.client;
 
-import infra.http.client.config.ClientHttpRequestFactoryBuilder;
-
 /**
  * Customizer that can be used to modify the auto-configured
  * {@link ClientHttpRequestFactoryBuilder} when its type matches.

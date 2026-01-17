@@ -37,7 +37,7 @@ import infra.lang.Assert;
  * <p>For an extended response, an application can add to the
  * {@link #getProperties() properties} map. When using the Jackson library, the
  * {@code properties} map is expanded as top level JSON properties through the
- * {@link infra.http.converter.json.ProblemDetailJacksonMixin}.
+ * {@link infra.http.support.ProblemDetailJacksonMixin}.
  *
  * <p>For an extended response, an application can also create a subclass with
  * additional properties. Subclasses can use the protected copy constructor to
@@ -243,7 +243,7 @@ public class ProblemDetail implements Serializable {
    *
    * @param name the property name
    * @param value the property value
-   * @see infra.http.converter.json.ProblemDetailJacksonMixin
+   * @see infra.http.support.ProblemDetailJacksonMixin
    */
   public void setProperty(String name, @Nullable Object value) {
     if (properties == null) {
@@ -321,7 +321,7 @@ public class ProblemDetail implements Serializable {
    * is unwrapped and rendered as top level key-value pairs in the output JSON.
    * Otherwise, they are rendered as a {@code "properties"} sub-map.
    *
-   * @see infra.http.converter.json.ProblemDetailJacksonMixin
+   * @see infra.http.support.ProblemDetailJacksonMixin
    */
   @Nullable
   public Map<String, Object> getProperties() {

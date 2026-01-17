@@ -20,8 +20,9 @@ package infra.http.client.config;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.core.ssl.SslBundle;
-import infra.core.ssl.SslBundles;
+import infra.app.ssl.SslBundle;
+import infra.app.ssl.SslBundles;
+import infra.http.client.HttpClientSettings;
 import infra.lang.Assert;
 
 /**

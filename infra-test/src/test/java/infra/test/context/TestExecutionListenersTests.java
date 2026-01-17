@@ -24,8 +24,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
-import infra.app.test.mock.mockito.MockitoTestExecutionListener;
-import infra.app.test.mock.mockito.ResetMocksTestExecutionListener;
 import infra.core.Ordered;
 import infra.core.annotation.AliasFor;
 import infra.core.annotation.AnnotationConfigurationException;
@@ -65,13 +63,11 @@ class TestExecutionListenersTests {
     List<Class<?>> expected = asList(MockTestExecutionListener.class,//
             DirtiesContextBeforeModesTestExecutionListener.class,//
             ApplicationEventsTestExecutionListener.class,//
-            MockitoTestExecutionListener.class,
             DependencyInjectionTestExecutionListener.class,//
             DirtiesContextTestExecutionListener.class,//
             TransactionalTestExecutionListener.class,//
             SqlScriptsTestExecutionListener.class,//
-            EventPublishingTestExecutionListener.class,
-            ResetMocksTestExecutionListener.class
+            EventPublishingTestExecutionListener.class
     );
     assertRegisteredListeners(DefaultListenersTestCase.class, expected);
   }
@@ -85,14 +81,11 @@ class TestExecutionListenersTests {
             MockTestExecutionListener.class,//
             DirtiesContextBeforeModesTestExecutionListener.class,//
             ApplicationEventsTestExecutionListener.class,//
-            MockitoTestExecutionListener.class,
             DependencyInjectionTestExecutionListener.class,//
             DirtiesContextTestExecutionListener.class,//
             TransactionalTestExecutionListener.class,//
             SqlScriptsTestExecutionListener.class,//
-            EventPublishingTestExecutionListener.class,
-
-            ResetMocksTestExecutionListener.class
+            EventPublishingTestExecutionListener.class
 
     );
     assertRegisteredListeners(MergedDefaultListenersWithCustomListenerPrependedTestCase.class, expected);
@@ -106,13 +99,11 @@ class TestExecutionListenersTests {
     List<Class<?>> expected = asList(MockTestExecutionListener.class,//
             DirtiesContextBeforeModesTestExecutionListener.class,//
             ApplicationEventsTestExecutionListener.class,//
-            MockitoTestExecutionListener.class,
             DependencyInjectionTestExecutionListener.class,//
             DirtiesContextTestExecutionListener.class,//
             TransactionalTestExecutionListener.class,
             SqlScriptsTestExecutionListener.class,//
             EventPublishingTestExecutionListener.class,//
-            ResetMocksTestExecutionListener.class,
             BazTestExecutionListener.class
     );
     assertRegisteredListeners(MergedDefaultListenersWithCustomListenerAppendedTestCase.class, expected);
@@ -126,15 +117,12 @@ class TestExecutionListenersTests {
     List<Class<?>> expected = asList(MockTestExecutionListener.class,//
             DirtiesContextBeforeModesTestExecutionListener.class,//
             ApplicationEventsTestExecutionListener.class,//
-            MockitoTestExecutionListener.class,
             DependencyInjectionTestExecutionListener.class,//
             BarTestExecutionListener.class,//
             DirtiesContextTestExecutionListener.class,//
             TransactionalTestExecutionListener.class,//
             SqlScriptsTestExecutionListener.class,//
-            EventPublishingTestExecutionListener.class,
-
-            ResetMocksTestExecutionListener.class
+            EventPublishingTestExecutionListener.class
     );
     assertRegisteredListeners(MergedDefaultListenersWithCustomListenerInsertedTestCase.class, expected);
   }
@@ -312,7 +300,7 @@ class TestExecutionListenersTests {
 
     @AliasFor(annotation = TestExecutionListeners.class)
     Class<? extends TestExecutionListener>[] listeners() default
-            {FooTestExecutionListener.class, BarTestExecutionListener.class};
+            { FooTestExecutionListener.class, BarTestExecutionListener.class };
   }
 
   @TestExecutionListeners

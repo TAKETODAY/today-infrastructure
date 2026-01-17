@@ -24,12 +24,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
 
-import infra.http.client.config.ClientHttpRequestFactoryBuilder;
-import infra.http.client.config.HttpClientSettings;
+import infra.http.client.ClientHttpRequestFactoryBuilder;
+import infra.http.client.HttpClientSettings;
 import infra.http.converter.HttpMessageConverters;
 import infra.http.converter.HttpMessageConverters.ClientBuilder;
 import infra.http.converter.config.ClientHttpMessageConvertersCustomizer;
 import infra.util.ObjectUtils;
+import infra.web.client.RestTemplateBuilder;
+import infra.web.client.RestTemplateCustomizer;
+import infra.web.client.RestTemplateRequestCustomizer;
 
 /**
  * Configure {@link RestTemplateBuilder} with sensible defaults.

@@ -18,7 +18,7 @@
 
 package infra.test.web.reactive.server;
 
-import infra.http.client.reactive.ClientHttpResponse;
+import infra.http.reactive.client.ClientHttpResponse;
 
 /**
  * Simple {@link ClientHttpResponse} extension that also exposes a result object

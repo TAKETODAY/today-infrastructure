@@ -30,7 +30,7 @@ import infra.core.io.buffer.DataBufferFactory;
 import infra.http.DefaultHttpHeaders;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
-import infra.http.ReactiveHttpOutputMessage;
+import infra.http.reactive.ReactiveHttpOutputMessage;
 import infra.http.codec.HttpMessageWriter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

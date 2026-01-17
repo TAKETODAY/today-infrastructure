@@ -5,7 +5,13 @@ description = "Infra HTTP API"
 dependencies {
   api(project(":infra-core"))
 
+  optional(project(":infra-context"))
   optional(project(":infra-core-aot"))
   optional 'io.netty:netty-codec-http'
+  optional("io.projectreactor.netty:reactor-netty-http")
 
+  optional("tools.jackson.core:jackson-databind")
+  optional("tools.jackson.dataformat:jackson-dataformat-xml")
+
+  testFixturesApi("com.google.protobuf:protobuf-java-util")
 }

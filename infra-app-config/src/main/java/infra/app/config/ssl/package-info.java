@@ -1,4 +1,3 @@
-
 /**
  * Auto-configuration for SSL bundles.
  */

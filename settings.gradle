@@ -53,6 +53,9 @@ include 'infra-http-codec'
 include 'infra-http-converter'
 include 'infra-http-reactive'
 
+include 'infra-web-core'
+include 'infra-web-client'
+include 'infra-web-service'
 include 'infra-web-reactive'
 
 include 'infra-test'

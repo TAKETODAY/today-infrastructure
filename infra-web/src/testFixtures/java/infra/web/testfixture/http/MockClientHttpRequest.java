@@ -18,6 +18,8 @@
 
 package infra.web.testfixture.http;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
@@ -29,7 +31,6 @@ import infra.http.MockHttpOutputMessage;
 import infra.http.client.ClientHttpRequest;
 import infra.http.client.ClientHttpResponse;
 import infra.lang.Assert;
-import org.jspecify.annotations.Nullable;
 import infra.util.concurrent.Future;
 import infra.web.util.UriComponentsBuilder;
 

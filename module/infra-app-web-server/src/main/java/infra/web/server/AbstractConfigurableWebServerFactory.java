@@ -27,8 +27,8 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 import infra.core.ApplicationTemp;
-import infra.core.ssl.SslBundle;
-import infra.core.ssl.SslBundles;
+import infra.app.ssl.SslBundle;
+import infra.app.ssl.SslBundles;
 import infra.lang.Assert;
 import infra.util.StringUtils;
 

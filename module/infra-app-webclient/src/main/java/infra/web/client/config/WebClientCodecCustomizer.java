@@ -22,7 +22,7 @@ import java.util.List;
 
 import infra.http.codec.CodecCustomizer;
 import infra.web.client.WebClientCustomizer;
-import infra.web.client.reactive.WebClient;
+import infra.web.reactive.client.WebClient;
 
 /**
  * {@link WebClientCustomizer} that configures codecs for the HTTP client.

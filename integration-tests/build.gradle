@@ -11,6 +11,7 @@ dependencies {
   testImplementation project(':infra-app')
   testImplementation project(':infra-test-support')
 
+  testImplementation project(':module:infra-app-test')
   testImplementation project(':module:infra-app-webmvc')
   testImplementation project(':module:infra-app-freemarker')
   testImplementation project(":module:infra-app-web-server")
@@ -40,7 +41,13 @@ dependencies {
   testImplementation project(':infra-websocket')
   testImplementation project(':infra-oxm')
   testImplementation(project(":infra-core-test"))
+  testImplementation(project(":infra-web-client"))
+  testImplementation(project(":infra-web-service"))
+  testImplementation(project(":infra-web-reactive"))
+  testImplementation(project(":infra-http-client"))
+  testImplementation(project(":module:infra-app-restclient"))
 
+  testImplementation("org.apache.httpcomponents.client5:httpclient5")
   testImplementation("jakarta.inject:jakarta.inject-api")
   testImplementation("jakarta.resource:jakarta.resource-api")
   testImplementation("org.aspectj:aspectjweaver")

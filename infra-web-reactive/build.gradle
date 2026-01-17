@@ -4,13 +4,29 @@ description = "Web infrastructure API"
 
 
 dependencies {
+  api(project(":infra-web-core"))
   api(project(":infra-web"))
   api(project(":infra-http-reactive"))
+  api(project(":infra-http-codec"))
 
   optional(project(":infra-core-aot"))
 
+  optional("org.reactivestreams:reactive-streams")
+  optional("io.projectreactor.netty:reactor-netty-http")
+  optional("io.projectreactor:reactor-core")
+  optional("io.reactivex.rxjava3:rxjava")
 
-  testFixturesApi(project(":infra-http"))
-  testFixturesApi(project(":infra-http-reactive"))
+  testImplementation("tools.jackson.core:jackson-databind")
+  testImplementation("com.squareup.okhttp3:mockwebserver")
+  testImplementation("io.projectreactor:reactor-test")
+  testImplementation 'org.apache.httpcomponents.core5:httpcore5'
+  testImplementation 'org.apache.httpcomponents.core5:httpcore5-reactive'
+  testImplementation 'org.apache.httpcomponents.client5:httpclient5'
+
+
+  testFixturesApi(testFixtures(project(":infra-core")))
+  testFixturesApi(testFixtures(project(":infra-web")))
+  testFixturesApi(testFixtures(project(":infra-beans")))
+  testFixturesApi(testFixtures(project(":infra-http-reactive")))
 }
 

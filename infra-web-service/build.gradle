@@ -1,0 +1,24 @@
+description = "Infra HTTP service"
+
+dependencies {
+  api(project(":infra-http"))
+
+  optional(project(":infra-core-aot"))
+  optional(project(":infra-web-client"))
+  optional(project(":infra-web-reactive"))
+
+  optional("io.projectreactor.netty:reactor-netty-http")
+
+  optional("io.reactivex.rxjava3:rxjava")
+  optional("io.smallrye.reactive:mutiny")
+
+  testImplementation(project(":infra-core-test"))
+  testImplementation testFixtures(project(":infra-web"))
+  testImplementation testFixtures(project(":infra-core"))
+
+  testImplementation("tools.jackson.core:jackson-databind")
+  testImplementation("io.projectreactor.tools:blockhound")
+  testImplementation("com.squareup.okhttp3:mockwebserver")
+  testImplementation("io.projectreactor:reactor-test")
+
+}

@@ -20,11 +20,11 @@ package infra.web.client.config;
 
 import java.util.function.Consumer;
 
-import infra.core.ssl.NoSuchSslBundleException;
-import infra.core.ssl.SslBundle;
+import infra.app.ssl.NoSuchSslBundleException;
+import infra.app.ssl.SslBundle;
 import infra.http.client.ClientHttpRequestFactory;
-import infra.http.client.config.ClientHttpRequestFactoryBuilder;
-import infra.http.client.config.HttpClientSettings;
+import infra.http.client.ClientHttpRequestFactoryBuilder;
+import infra.http.client.HttpClientSettings;
 import infra.web.client.RestClient;
 
 /**

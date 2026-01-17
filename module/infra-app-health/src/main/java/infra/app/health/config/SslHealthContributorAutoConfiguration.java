@@ -29,7 +29,7 @@ import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.properties.EnableConfigurationProperties;
-import infra.core.ssl.SslBundles;
+import infra.app.ssl.SslBundles;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for {@link SslHealthIndicator}.

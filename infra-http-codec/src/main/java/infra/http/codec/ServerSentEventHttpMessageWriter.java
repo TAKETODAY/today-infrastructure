@@ -34,9 +34,9 @@ import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
 import infra.http.HttpLogging;
 import infra.http.MediaType;
-import infra.http.ReactiveHttpOutputMessage;
-import infra.http.server.reactive.ServerHttpRequest;
-import infra.http.server.reactive.ServerHttpResponse;
+import infra.http.reactive.ReactiveHttpOutputMessage;
+import infra.http.reactive.server.ServerHttpRequest;
+import infra.http.reactive.server.ServerHttpResponse;
 import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.util.StringUtils;
@@ -97,7 +97,7 @@ public class ServerSentEventHttpMessageWriter implements HttpMessageWriter<Objec
   @Override
   public boolean canWrite(ResolvableType elementType, @Nullable MediaType mediaType) {
     return mediaType == null || MediaType.TEXT_EVENT_STREAM.includes(mediaType)
-            || ServerSentEvent.class.isAssignableFrom(elementType.toClass());
+            || infra.http.ServerSentEvent.class.isAssignableFrom(elementType.toClass());
   }
 
   @Override
@@ -114,13 +114,13 @@ public class ServerSentEventHttpMessageWriter implements HttpMessageWriter<Objec
   private Flux<Publisher<DataBuffer>> encode(Publisher<?> input, ResolvableType elementType,
           MediaType mediaType, DataBufferFactory factory, Map<String, Object> hints) {
 
-    ResolvableType dataType = (ServerSentEvent.class.isAssignableFrom(elementType.toClass()) ?
+    ResolvableType dataType = (infra.http.ServerSentEvent.class.isAssignableFrom(elementType.toClass()) ?
             elementType.getGeneric() : elementType);
 
     return Flux.from(input).map(element -> {
 
-      ServerSentEvent<?> sse = (element instanceof ServerSentEvent<?> serverSentEvent ?
-              serverSentEvent : ServerSentEvent.builder().data(element).build());
+      infra.http.ServerSentEvent<?> sse = (element instanceof infra.http.ServerSentEvent<?> serverSentEvent ?
+              serverSentEvent : infra.http.ServerSentEvent.builder().data(element).build());
 
       String sseText = sse.format();
       Object data = sse.data();

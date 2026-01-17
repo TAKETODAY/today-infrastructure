@@ -28,13 +28,16 @@ import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
-import infra.http.client.config.ClientHttpRequestFactoryBuilder;
+import infra.http.client.ClientHttpRequestFactoryBuilder;
+import infra.http.client.HttpClientSettings;
 import infra.http.client.config.HttpClientAutoConfiguration;
-import infra.http.client.config.HttpClientSettings;
 import infra.http.converter.HttpMessageConverters;
 import infra.http.converter.config.ClientHttpMessageConvertersCustomizer;
 import infra.stereotype.Component;
 import infra.web.client.RestTemplate;
+import infra.web.client.RestTemplateBuilder;
+import infra.web.client.RestTemplateCustomizer;
+import infra.web.client.RestTemplateRequestCustomizer;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for {@link RestTemplate} (via

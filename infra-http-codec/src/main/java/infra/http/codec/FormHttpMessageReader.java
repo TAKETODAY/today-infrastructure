@@ -31,7 +31,7 @@ import infra.core.codec.Hints;
 import infra.core.io.buffer.DataBufferLimitException;
 import infra.core.io.buffer.DataBufferUtils;
 import infra.http.MediaType;
-import infra.http.ReactiveHttpInputMessage;
+import infra.http.reactive.ReactiveHttpInputMessage;
 import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.util.LinkedMultiValueMap;

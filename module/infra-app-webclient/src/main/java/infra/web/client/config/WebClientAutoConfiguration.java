@@ -33,23 +33,23 @@ import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.core.annotation.Order;
 import infra.core.io.ResourceLoader;
-import infra.core.ssl.SslBundles;
-import infra.http.client.config.HttpClientSettings;
-import infra.http.client.config.reactive.ClientHttpConnectorBuilder;
+import infra.app.ssl.SslBundles;
+import infra.http.client.HttpClientSettings;
 import infra.http.client.config.reactive.ReactiveHttpClientAutoConfiguration;
-import infra.http.client.reactive.ClientHttpConnector;
+import infra.http.client.reactive.ClientHttpConnectorBuilder;
 import infra.http.codec.CodecCustomizer;
 import infra.http.codec.CodecsAutoConfiguration;
+import infra.http.reactive.client.ClientHttpConnector;
 import infra.stereotype.Component;
 import infra.stereotype.Prototype;
 import infra.web.client.WebClientCustomizer;
-import infra.web.client.reactive.WebClient;
+import infra.web.reactive.client.WebClient;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for {@link WebClient}.
  * <p>
  * This will produce a
- * {@link infra.web.client.reactive.WebClient.Builder WebClient.Builder}
+ * {@link infra.web.reactive.client.WebClient.Builder WebClient.Builder}
  * bean with the {@code prototype} scope, meaning each injection point
  * will receive a newly cloned instance of the builder.
  *

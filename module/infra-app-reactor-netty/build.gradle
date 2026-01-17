@@ -1,6 +1,7 @@
 description = "Infra application reactor netty integration"
 
 dependencies {
+  api project(":infra-web-reactive")
   api project(":module:infra-app-web-server")
   api 'io.projectreactor.netty:reactor-netty-http'
 

@@ -18,7 +18,7 @@
 
 package infra.web.server.reactive;
 
-import infra.http.server.reactive.HttpHandler;
+import infra.http.reactive.server.HttpHandler;
 import infra.web.server.WebServer;
 import infra.web.server.WebServerFactory;
 

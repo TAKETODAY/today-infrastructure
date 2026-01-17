@@ -437,12 +437,6 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
           "infra/test/context/aot/samples/common/DefaultMessageService__TestContext006_BeanDefinitions.java",
           "infra/test/context/aot/samples/xml/XmlInfraJupiterTests__TestContext006_ApplicationContextInitializer.java",
           "infra/test/context/aot/samples/xml/XmlInfraJupiterTests__TestContext006_BeanFactoryRegistrations.java",
-          "infra/app/test/mock/mockito/MockitoPostProcessor__TestContext001_BeanDefinitions.java",
-          "infra/app/test/mock/mockito/MockitoPostProcessor__TestContext002_BeanDefinitions.java",
-          "infra/app/test/mock/mockito/MockitoPostProcessor__TestContext003_BeanDefinitions.java",
-          "infra/app/test/mock/mockito/MockitoPostProcessor__TestContext004_BeanDefinitions.java",
-          "infra/app/test/mock/mockito/MockitoPostProcessor__TestContext005_BeanDefinitions.java",
-          "infra/app/test/mock/mockito/MockitoPostProcessor__TestContext006_BeanDefinitions.java",
 
           "infra/test/context/aot/samples/basic/BasicInfraJupiterTests_NestedTests__TestContext002_EnvironmentPostProcessor.java"
   };

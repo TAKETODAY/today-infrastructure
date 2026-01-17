@@ -20,6 +20,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import infra.http.client.config.reactive.ReactiveHttpClientsProperties.Connector;
+import infra.http.client.reactive.HttpComponentsClientHttpConnectorBuilder;
+import infra.http.client.reactive.JdkClientHttpConnectorBuilder;
+import infra.http.client.reactive.ReactorClientHttpConnectorBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

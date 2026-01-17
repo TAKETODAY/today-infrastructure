@@ -23,6 +23,7 @@ import infra.context.annotation.ConditionContext;
 import infra.context.condition.ConditionOutcome;
 import infra.context.condition.InfraCondition;
 import infra.core.type.AnnotatedTypeMetadata;
+import infra.http.client.reactive.ClientHttpConnectorBuilder;
 
 /**
  * {@link Condition} that checks that {@link ClientHttpConnectorBuilder} can be detected.

@@ -24,9 +24,9 @@ import infra.core.ResolvableType;
 import infra.core.codec.Hints;
 import infra.core.codec.ResourceDecoder;
 import infra.core.io.Resource;
-import infra.http.ReactiveHttpInputMessage;
-import infra.http.server.reactive.ServerHttpRequest;
-import infra.http.server.reactive.ServerHttpResponse;
+import infra.http.reactive.ReactiveHttpInputMessage;
+import infra.http.reactive.server.ServerHttpRequest;
+import infra.http.reactive.server.ServerHttpResponse;
 import infra.util.StringUtils;
 
 /**

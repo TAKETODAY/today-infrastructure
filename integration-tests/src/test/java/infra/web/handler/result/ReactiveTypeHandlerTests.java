@@ -18,6 +18,7 @@
 
 package infra.web.handler.result;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -35,8 +36,7 @@ import infra.core.ReactiveAdapterRegistry;
 import infra.core.ResolvableType;
 import infra.core.task.SyncTaskExecutor;
 import infra.http.MediaType;
-import infra.http.codec.ServerSentEvent;
-import org.jspecify.annotations.Nullable;
+import infra.http.ServerSentEvent;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.BindingContext;

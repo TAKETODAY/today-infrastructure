@@ -33,7 +33,7 @@ import infra.core.ResolvableType;
 import infra.core.codec.Hints;
 import infra.core.io.buffer.DataBuffer;
 import infra.http.MediaType;
-import infra.http.ReactiveHttpOutputMessage;
+import infra.http.reactive.ReactiveHttpOutputMessage;
 import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.util.LogFormatUtils;

@@ -25,8 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import infra.core.ssl.SslBundle;
-import infra.core.ssl.SslOptions;
+import infra.app.ssl.SslBundle;
+import infra.app.ssl.SslOptions;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ExceptionUtils;

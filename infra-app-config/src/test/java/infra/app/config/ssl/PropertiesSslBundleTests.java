@@ -28,7 +28,7 @@ import java.util.function.Consumer;
 
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
-import infra.core.ssl.SslBundle;
+import infra.app.ssl.SslBundle;
 import infra.util.function.ThrowingConsumer;
 
 import static org.assertj.core.api.Assertions.assertThat;

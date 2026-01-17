@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import infra.http.MediaType;
-import infra.http.client.MultipartBodyBuilder;
+import infra.http.codec.multipart.MultipartBodyBuilder;
 import infra.stereotype.Controller;
 import infra.test.web.mock.client.MockMvcWebTestClient;
 import infra.test.web.reactive.server.WebTestClient;

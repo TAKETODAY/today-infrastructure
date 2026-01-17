@@ -37,7 +37,7 @@ import infra.context.ApplicationListener;
 import infra.context.event.ContextClosedEvent;
 import infra.context.event.ContextRefreshedEvent;
 import infra.core.env.ConfigurableEnvironment;
-import infra.http.server.reactive.HttpHandler;
+import infra.http.reactive.server.HttpHandler;
 import infra.web.server.MissingWebServerFactoryBeanException;
 import infra.web.server.context.ServerPortInfoApplicationContextInitializer;
 import infra.web.server.reactive.MockReactiveWebServerFactory;

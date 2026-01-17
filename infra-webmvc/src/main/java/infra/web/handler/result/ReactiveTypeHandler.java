@@ -37,7 +37,7 @@ import infra.core.ResolvableType;
 import infra.core.task.SyncTaskExecutor;
 import infra.core.task.TaskExecutor;
 import infra.http.MediaType;
-import infra.http.codec.ServerSentEvent;
+import infra.http.ServerSentEvent;
 import infra.lang.Assert;
 import infra.lang.Unmodifiable;
 import infra.logging.Logger;

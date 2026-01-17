@@ -23,8 +23,8 @@ import java.util.Map;
 
 import infra.core.ResolvableType;
 import infra.core.codec.Decoder;
-import infra.http.server.reactive.ServerHttpRequest;
-import infra.http.server.reactive.ServerHttpResponse;
+import infra.http.reactive.server.ServerHttpRequest;
+import infra.http.reactive.server.ServerHttpResponse;
 
 /**
  * Extension of {@code Decoder} exposing extra methods relevant in the context

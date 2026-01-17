@@ -41,6 +41,7 @@ import infra.util.ClassUtils;
 final class CodecConfigurerFactory {
 
   private static final String DEFAULT_CONFIGURERS_PATH = "CodecConfigurer.properties";
+
   private static final HashMap<Class<?>, Class<?>> defaultCodecConfigurers = new HashMap<>(4);
 
   static {
@@ -59,7 +60,8 @@ final class CodecConfigurerFactory {
     }
   }
 
-  private CodecConfigurerFactory() { }
+  private CodecConfigurerFactory() {
+  }
 
   @SuppressWarnings("unchecked")
   public static <T extends CodecConfigurer> T create(Class<T> ifc) {

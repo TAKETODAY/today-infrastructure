@@ -46,6 +46,7 @@ import infra.http.HttpMethod;
 import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.stereotype.Controller;
+import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.PathMatcher;
 import infra.util.StringUtils;
@@ -248,11 +249,12 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
    *
    * @see #getCustomCondition(AnnotatedElement)
    */
-  @Nullable
-  private RequestMappingInfo createRequestMappingInfo(AnnotatedElement element) {
+  private @Nullable RequestMappingInfo createRequestMappingInfo(AnnotatedElement element) {
+    var exchangeType = ClassUtils.load("infra.web.service.annotation.HttpExchange", getClass().getClassLoader());
+
     List<AnnotationDescriptor> descriptors = MergedAnnotations.from(element, SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.none())
             .stream()
-            .filter(MergedAnnotationPredicates.typeIn(RequestMapping.class, HttpExchange.class))
+            .filter(MergedAnnotationPredicates.typeIn(RequestMapping.class, exchangeType))
             .filter(MergedAnnotationPredicates.firstRunOf(MergedAnnotation::getAggregateIndex))
             .map(AnnotationDescriptor::new)
             .distinct()
@@ -267,7 +269,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
       if (descriptor.annotation instanceof RequestMapping) {
         mappingDescriptors.add(descriptor);
       }
-      else if (descriptor.annotation instanceof HttpExchange) {
+      else if (exchangeType != null && exchangeType.isInstance(descriptor.annotation)) {
         exchangeDescriptors.add(descriptor);
       }
     }
@@ -279,7 +281,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
     if (!exchangeDescriptors.isEmpty()) {
       checkMultipleAnnotations(element, info, mappingDescriptors, exchangeDescriptors);
-      info = createRequestMappingInfo((HttpExchange) exchangeDescriptors.get(0).annotation, getCustomCondition(element));
+      info = new HttpExchangeDelegate().createRequestMappingInfo(exchangeDescriptors.get(0).annotation, getCustomCondition(element));
     }
 
     if (info != null && getApiVersionStrategy() instanceof DefaultApiVersionStrategy davs) {
@@ -331,28 +333,6 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
     return builder.options(this.config).build();
   }
 
-  /**
-   * Create a {@link RequestMappingInfo} from the supplied
-   * {@link HttpExchange @HttpExchange} annotation, or meta-annotation,
-   * or synthesized result of merging annotation attributes within an
-   * annotation hierarchy.
-   */
-  protected RequestMappingInfo createRequestMappingInfo(HttpExchange httpExchange, @Nullable RequestCondition<?> customCondition) {
-    var builder = RequestMappingInfo.paths(
-                    resolveEmbeddedValuesInPatterns(toStringArray(httpExchange.value())))
-            .methods(toMethodArray(httpExchange.method()))
-            .consumes(toStringArray(httpExchange.contentType()))
-            .combine(true)
-            .produces(httpExchange.accept())
-            .headers(httpExchange.headers());
-
-    if (customCondition != null) {
-      builder.customCondition(customCondition);
-    }
-
-    return builder.options(this.config).build();
-  }
-
   private void checkMultipleAnnotations(AnnotatedElement element, List<AnnotationDescriptor> mappingDescriptors) {
     if (logger.isWarnEnabled() && mappingDescriptors.size() > 1) {
       logger.warn("Multiple @RequestMapping annotations found on {}, but only the first will be used: {}",
@@ -387,7 +367,6 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
    *
    * @return a new array with updated patterns
    */
-  @SuppressWarnings("NullAway")
   protected String[] resolveEmbeddedValuesInPatterns(String[] patterns) {
     StringValueResolver embeddedValueResolver = this.embeddedValueResolver;
     if (embeddedValueResolver == null) {
@@ -539,6 +518,32 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
       return this.root.synthesize().toString();
     }
 
+  }
+
+  private final class HttpExchangeDelegate {
+
+    /**
+     * Create a {@link RequestMappingInfo} from the supplied
+     * {@link infra.web.service.annotation.HttpExchange @HttpExchange} annotation, or meta-annotation,
+     * or synthesized result of merging annotation attributes within an
+     * annotation hierarchy.
+     */
+    public RequestMappingInfo createRequestMappingInfo(Annotation annotation, @Nullable RequestCondition<?> customCondition) {
+      HttpExchange httpExchange = (HttpExchange) annotation;
+      var builder = RequestMappingInfo.paths(
+                      resolveEmbeddedValuesInPatterns(toStringArray(httpExchange.value())))
+              .methods(toMethodArray(httpExchange.method()))
+              .consumes(toStringArray(httpExchange.contentType()))
+              .combine(true)
+              .produces(httpExchange.accept())
+              .headers(httpExchange.headers());
+
+      if (customCondition != null) {
+        builder.customCondition(customCondition);
+      }
+
+      return builder.options(config).build();
+    }
   }
 
 }

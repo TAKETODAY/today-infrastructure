@@ -36,7 +36,7 @@ import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
-import infra.core.ssl.SslBundles;
+import infra.app.ssl.SslBundles;
 import infra.test.classpath.resources.WithPackageResources;
 
 import static org.assertj.core.api.Assertions.assertThat;

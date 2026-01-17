@@ -36,8 +36,8 @@ import infra.core.codec.Hints;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
 import infra.http.MediaType;
-import infra.http.server.reactive.ServerHttpRequest;
-import infra.http.server.reactive.ServerHttpResponse;
+import infra.http.reactive.server.ServerHttpRequest;
+import infra.http.reactive.server.ServerHttpResponse;
 import infra.lang.Assert;
 import infra.util.CollectionUtils;
 import infra.util.LogFormatUtils;
@@ -126,7 +126,7 @@ public abstract class AbstractJacksonEncoder<T extends ObjectMapper> extends Jac
       return false;
     }
     Class<?> elementClass = elementType.toClass();
-    return !ServerSentEvent.class.isAssignableFrom(elementClass);
+    return !infra.http.ServerSentEvent.class.isAssignableFrom(elementClass);
   }
 
   @Override

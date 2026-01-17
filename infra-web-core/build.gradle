@@ -1,0 +1,9 @@
+apply plugin: "java-test-fixtures"
+
+description = "Infra Web common API"
+
+dependencies {
+  api(project(":infra-core"))
+  api(project(":infra-http"))
+
+}

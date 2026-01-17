@@ -1,0 +1,21 @@
+# Default TestExecutionListeners for the TestContext Framework
+#
+infra.test.context.TestExecutionListener=\
+    infra.app.test.mock.mockito.MockitoTestExecutionListener,\
+    infra.app.test.mock.mockito.ResetMocksTestExecutionListener
+
+# Default ContextCustomizerFactory implementations for the TestContext Framework
+#
+infra.test.context.ContextCustomizerFactory=\
+    infra.app.test.context.ImportsContextCustomizerFactory,\
+    infra.app.test.web.client.TestRestTemplateContextCustomizerFactory,\
+    infra.app.test.mock.mockito.MockitoContextCustomizerFactory,\
+    infra.app.test.json.DuplicateJsonObjectContextCustomizerFactory,\
+    infra.app.test.context.filter.ExcludeFilterContextCustomizerFactory,\
+    infra.app.test.web.reactive.server.WebTestClientContextCustomizerFactory
+
+infra.app.env.EnvironmentPostProcessor=\
+infra.app.test.web.InfraTestRandomPortEnvironmentPostProcessor
+
+infra.context.ApplicationContextInitializer=\
+infra.app.test.context.filter.ExcludeFilterApplicationContextInitializer

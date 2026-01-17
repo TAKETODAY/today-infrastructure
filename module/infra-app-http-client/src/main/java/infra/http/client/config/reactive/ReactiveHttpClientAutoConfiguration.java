@@ -35,13 +35,16 @@ import infra.core.annotation.Order;
 import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
 import infra.core.task.VirtualThreadTaskExecutor;
-import infra.http.client.ReactorResourceFactory;
+import infra.http.client.HttpClientSettings;
 import infra.http.client.config.HttpClientAutoConfiguration;
-import infra.http.client.config.HttpClientSettings;
-import infra.http.client.reactive.ClientHttpConnector;
-import infra.web.reactor.netty.config.ReactorNettyConfigurations;
+import infra.http.client.reactive.ClientHttpConnectorBuilder;
+import infra.http.client.reactive.JdkClientHttpConnectorBuilder;
+import infra.http.client.reactive.ReactorClientHttpConnectorBuilder;
+import infra.http.reactive.client.ClientHttpConnector;
+import infra.http.support.ReactorResourceFactory;
 import infra.stereotype.Component;
 import infra.util.LambdaSafe;
+import infra.web.reactor.netty.config.ReactorNettyConfigurations;
 import reactor.core.publisher.Mono;
 
 /**

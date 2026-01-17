@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.function.Supplier;
 
 import infra.format.support.FormattingConversionService;
-import infra.http.client.reactive.ClientHttpConnector;
+import infra.http.reactive.client.ClientHttpConnector;
 import infra.http.converter.HttpMessageConverter;
 import infra.mock.api.Filter;
 import infra.test.web.mock.DispatcherCustomizer;

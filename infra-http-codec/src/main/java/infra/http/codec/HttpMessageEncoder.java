@@ -28,8 +28,8 @@ import infra.core.ResolvableType;
 import infra.core.codec.Encoder;
 import infra.core.codec.Hints;
 import infra.http.MediaType;
-import infra.http.server.reactive.ServerHttpRequest;
-import infra.http.server.reactive.ServerHttpResponse;
+import infra.http.reactive.server.ServerHttpRequest;
+import infra.http.reactive.server.ServerHttpResponse;
 
 /**
  * Extension of {@code Encoder} exposing extra methods relevant in the context

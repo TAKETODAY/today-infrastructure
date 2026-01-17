@@ -40,7 +40,7 @@ import infra.core.io.buffer.DataBufferFactory;
 import infra.http.HttpEntity;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
-import infra.http.ReactiveHttpOutputMessage;
+import infra.http.reactive.ReactiveHttpOutputMessage;
 import infra.http.codec.EncoderHttpMessageWriter;
 import infra.http.codec.FormHttpMessageWriter;
 import infra.http.codec.HttpMessageWriter;

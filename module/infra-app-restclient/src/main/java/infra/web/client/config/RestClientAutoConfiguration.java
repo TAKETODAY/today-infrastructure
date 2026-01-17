@@ -32,14 +32,15 @@ import infra.context.condition.ConditionalOnMissingBean;
 import infra.core.Ordered;
 import infra.core.annotation.Order;
 import infra.core.io.ResourceLoader;
-import infra.core.ssl.SslBundles;
-import infra.http.client.config.ClientHttpRequestFactoryBuilder;
-import infra.http.client.config.HttpClientSettings;
+import infra.app.ssl.SslBundles;
+import infra.http.client.ClientHttpRequestFactoryBuilder;
+import infra.http.client.HttpClientSettings;
 import infra.http.client.config.ImperativeHttpClientAutoConfiguration;
 import infra.http.converter.config.ClientHttpMessageConvertersCustomizer;
 import infra.stereotype.Component;
 import infra.stereotype.Prototype;
 import infra.web.client.RestClient;
+import infra.web.client.RestClientCustomizer;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for {@link RestClient}.

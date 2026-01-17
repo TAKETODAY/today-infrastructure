@@ -36,7 +36,7 @@ import infra.http.codec.json.JacksonJsonDecoder;
 import infra.http.codec.json.JacksonJsonEncoder;
 import infra.stereotype.Component;
 import infra.util.DataSize;
-import infra.web.client.reactive.WebClient;
+import infra.web.reactive.client.WebClient;
 import tools.jackson.databind.json.JsonMapper;
 
 /**

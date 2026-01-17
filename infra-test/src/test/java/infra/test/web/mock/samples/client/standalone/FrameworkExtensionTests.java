@@ -24,7 +24,7 @@ import java.util.List;
 
 import infra.context.ApplicationContext;
 import infra.http.HttpHeaders;
-import infra.http.client.reactive.ClientHttpConnector;
+import infra.http.reactive.client.ClientHttpConnector;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.stereotype.Controller;
 import infra.test.web.mock.client.MockMvcHttpConnector;

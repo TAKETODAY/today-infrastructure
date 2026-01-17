@@ -3,6 +3,7 @@ description = "Mock test fixtures for web"
 dependencies {
   implementation(project(":infra-web"))
   implementation(project(":infra-webmvc"))
+  implementation(project(":infra-http-client"))
 
   optional 'org.reactivestreams:reactive-streams'
   optional 'io.projectreactor:reactor-core'

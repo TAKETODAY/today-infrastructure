@@ -5,6 +5,9 @@ dependencies {
   api(project(":infra-core"))
   api(project(":infra-web"))
 
+  optional(project(":infra-web-client"))
+  optional(project(":infra-http-client"))
+
   optional(project(":infra-webmvc"))
   optional("io.netty:netty-codec-http")
 

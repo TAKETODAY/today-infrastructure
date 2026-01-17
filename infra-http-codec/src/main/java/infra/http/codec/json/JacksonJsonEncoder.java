@@ -28,7 +28,7 @@ import infra.core.ResolvableType;
 import infra.http.MediaType;
 import infra.http.ProblemDetail;
 import infra.http.codec.AbstractJacksonEncoder;
-import infra.http.converter.json.ProblemDetailJacksonMixin;
+import infra.http.support.ProblemDetailJacksonMixin;
 import infra.util.MimeType;
 import reactor.core.publisher.Flux;
 import tools.jackson.core.PrettyPrinter;

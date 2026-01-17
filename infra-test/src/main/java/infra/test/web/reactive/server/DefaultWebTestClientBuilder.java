@@ -28,20 +28,20 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import infra.http.HttpHeaders;
-import infra.http.client.reactive.ClientHttpConnector;
-import infra.http.client.reactive.HttpComponentsClientHttpConnector;
-import infra.http.client.reactive.JdkClientHttpConnector;
-import infra.http.client.reactive.ReactorClientHttpConnector;
 import infra.http.codec.ClientCodecConfigurer;
+import infra.http.reactive.client.ClientHttpConnector;
+import infra.http.reactive.client.HttpComponentsClientHttpConnector;
+import infra.http.reactive.client.JdkClientHttpConnector;
+import infra.http.reactive.client.ReactorClientHttpConnector;
 import infra.lang.Assert;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
-import infra.web.client.reactive.ExchangeFilterFunction;
-import infra.web.client.reactive.ExchangeFunction;
-import infra.web.client.reactive.ExchangeFunctions;
-import infra.web.client.reactive.ExchangeStrategies;
+import infra.web.reactive.client.ExchangeFilterFunction;
+import infra.web.reactive.client.ExchangeFunction;
+import infra.web.reactive.client.ExchangeFunctions;
+import infra.web.reactive.client.ExchangeStrategies;
 import infra.web.util.DefaultUriBuilderFactory;
 import infra.web.util.UriBuilderFactory;
 
