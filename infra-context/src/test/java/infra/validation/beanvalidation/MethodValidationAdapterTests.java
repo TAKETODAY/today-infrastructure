@@ -21,7 +21,6 @@ package infra.validation.beanvalidation;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Documented;
@@ -34,6 +33,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import infra.context.MessageSourceResolvable;
+import infra.test.context.junit.jupiter.DisabledIf;
 import infra.util.ReflectionUtils;
 import infra.validation.FieldError;
 import infra.validation.method.MethodValidationResult;
@@ -61,7 +61,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/6/15 22:44
  */
-@Order(1)
+@DisabledIf(expression = "#{T(java.util.Locale).getDefault() != T(java.util.Locale).ENGLISH}")
 class MethodValidationAdapterTests {
 
   private static final Person faustino1234 = new Person("Faustino1234", List.of("Working on Spring"));
