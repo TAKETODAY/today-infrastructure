@@ -83,7 +83,7 @@ public final class GsonAutoConfiguration {
     @SuppressWarnings("NullAway")
     public void customize(GsonBuilder builder) {
       GsonProperties properties = this.properties;
-      PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
+      PropertyMapper map = PropertyMapper.get();
       map.from(properties::getGenerateNonExecutableJson).whenTrue().toCall(builder::generateNonExecutableJson);
       map.from(properties::getExcludeFieldsWithoutExposeAnnotation)
               .whenTrue()
