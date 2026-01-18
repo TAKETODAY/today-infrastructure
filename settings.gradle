@@ -48,14 +48,14 @@ include 'infra-webmvc-mock'
 include 'infra-websocket'
 
 include 'infra-http'
-include 'infra-http-client'
 include 'infra-http-codec'
-include 'infra-http-converter'
+include 'infra-http-client'
+include 'infra-http-service'
 include 'infra-http-reactive'
+include 'infra-http-converter'
 
 include 'infra-web-core'
 include 'infra-web-client'
-include 'infra-web-service'
 include 'infra-web-reactive'
 
 include 'infra-test'

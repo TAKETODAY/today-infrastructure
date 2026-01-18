@@ -2,7 +2,6 @@ description = "Infra HTTP service"
 
 dependencies {
   api(project(":infra-http"))
-  api(project(":infra-web-core"))
 
   optional(project(":infra-core-aot"))
   optional(project(":infra-web-client"))

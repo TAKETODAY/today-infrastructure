@@ -38,7 +38,7 @@ dependencies {
   jacocoAggregation project(':infra-web-client')
   jacocoAggregation project(':infra-web-core')
   jacocoAggregation project(':infra-web-reactive')
-  jacocoAggregation project(':infra-web-service')
+  jacocoAggregation project(':infra-http-service')
 
   jacocoAggregation project(':infra-app-config')
   jacocoAggregation project(':module:infra-app-freemarker')
