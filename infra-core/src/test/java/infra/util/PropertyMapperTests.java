@@ -214,16 +214,16 @@ class PropertyMapperTests {
 
   @Test
   void toImmutableReturnsNewInstance() {
-    Immutable instance = this.map.from("Spring").toInstance(Immutable::of);
+    Immutable instance = this.map.from("infra").toInstance(Immutable::of);
     instance = this.map.from("123").as(Integer::valueOf).to(instance, Immutable::withAge);
-    assertThat(instance).hasToString("Spring 123");
+    assertThat(instance).hasToString("infra 123");
   }
 
   @Test
   void toImmutableWhenFilteredReturnsOriginalInstance() {
-    Immutable instance = this.map.from("Spring").toInstance(Immutable::of);
+    Immutable instance = this.map.from("infra").toInstance(Immutable::of);
     instance = this.map.from("123").when("345"::equals).as(Integer::valueOf).to(instance, Immutable::withAge);
-    assertThat(instance).hasToString("Spring null");
+    assertThat(instance).hasToString("infra null");
   }
 
   @Test
@@ -236,9 +236,9 @@ class PropertyMapperTests {
 
   @Test
   void toImmutableWhenNull() {
-    Immutable instance = this.map.from("Spring").toInstance(Immutable::of);
+    Immutable instance = this.map.from("infra").toInstance(Immutable::of);
     instance = this.map.from((Integer) null).to(instance, Immutable::withAge);
-    assertThat(instance).hasToString("Spring null");
+    assertThat(instance).hasToString("infra null");
     assertThat(instance.withAgeCalled).isFalse();
   }
 
@@ -283,9 +283,9 @@ class PropertyMapperTests {
 
     @Test
     void toImmutableWhenNull() {
-      Immutable instance = this.map.from("Spring").toInstance(Immutable::of);
+      Immutable instance = this.map.from("infra").toInstance(Immutable::of);
       instance = this.map.from((Integer) null).always().to(instance, Immutable::withAge);
-      assertThat(instance).hasToString("Spring null");
+      assertThat(instance).hasToString("infra null");
       assertThat(instance.withAgeCalled).isTrue();
     }
 

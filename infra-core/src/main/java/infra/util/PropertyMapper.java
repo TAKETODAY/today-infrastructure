@@ -172,7 +172,6 @@ public final class PropertyMapper {
      *
      * @param fallback the fallback supplier
      * @return a new {@link Source} instance
-     * @since 4.0.0
      */
     public Source<T> orFrom(Supplier<? extends @Nullable T> fallback) {
       Assert.notNull(fallback, "'fallback' is required");
@@ -318,7 +317,6 @@ public final class PropertyMapper {
      * @param instance the current instance
      * @param mapper the mapping function
      * @return a new mapped instance or the original instance
-     * @since 3.0.0
      */
     public <R> R to(R instance, BiFunction<R, ? super T, R> mapper) {
       Assert.notNull(instance, "'instance' is required");
@@ -366,7 +364,6 @@ public final class PropertyMapper {
      * even if values are {@code null}.
      *
      * @return a new {@link Always} instance
-     * @since 4.0.0
      */
     public Always<T> always() {
       Supplier<@Nullable T> getValue = this::getValue;
@@ -392,7 +389,6 @@ public final class PropertyMapper {
      *
      * @param <T> the source type
      * @param <R> the result type
-     * @since 4.0.0
      */
     @FunctionalInterface
     public interface Adapter<T, R> {
@@ -411,7 +407,6 @@ public final class PropertyMapper {
      * Allow source mapping to complete using methods that accept nulls.
      *
      * @param <T> the source type
-     * @since 4.0.0
      */
     public static class Always<T> {
 
