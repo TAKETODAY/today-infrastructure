@@ -4,6 +4,8 @@ dependencies {
   api project(':infra-core')
   api project(':infra-test')
   api project(':infra-test-support')
+  api project(':module:infra-app-test')
+  api project(':module:infra-app-resttestclient')
 
   api("com.jayway.jsonpath:json-path")
   api("jakarta.xml.bind:jakarta.xml.bind-api")
@@ -14,6 +16,7 @@ dependencies {
   api("org.mockito:mockito-core")
   api("org.mockito:mockito-junit-jupiter")
   api("org.skyscreamer:jsonassert")
+  api("org.awaitility:awaitility")
 
   api("org.xmlunit:xmlunit-core") {
     exclude group: "javax.xml.bind", module: "jaxb-api"
