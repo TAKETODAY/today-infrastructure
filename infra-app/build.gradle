@@ -16,6 +16,7 @@ dependencies {
   optional project(":infra-jdbc")
   optional project(':infra-instrument')
   optional project(':infra-websocket')
+  optional(project(":infra-http-reactive"))
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
   annotationProcessor(project(":infra-build:infra-annotation-config-processor"))

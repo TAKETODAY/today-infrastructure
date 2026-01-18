@@ -5,6 +5,8 @@ dependencies {
   implementation(project(":infra-webmvc"))
   implementation(project(":infra-http-client"))
 
+  optional(project(":infra-http-reactive"))
+
   optional 'org.reactivestreams:reactive-streams'
   optional 'io.projectreactor:reactor-core'
 

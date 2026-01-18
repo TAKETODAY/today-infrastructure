@@ -9,12 +9,12 @@ dependencies {
   api(project(":infra-core"))
   api(project(":infra-context"))
   api(project(":infra-http"))
-  api(project(":infra-http-reactive"))
   api(project(":infra-web-core"))
 
   optional(project(":infra-aop"))
   optional(project(":infra-web-client"))
   optional(project(":infra-http-codec"))
+  optional(project(":infra-http-reactive"))
   optional(project(":infra-oxm"))
   optional(project(":infra-core-aot"))
   optional("org.apache.groovy:groovy-templates")
