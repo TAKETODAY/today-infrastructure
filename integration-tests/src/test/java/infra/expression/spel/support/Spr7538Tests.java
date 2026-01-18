@@ -47,7 +47,7 @@ class Spr7538Tests {
 
     List<TypeDescriptor> argumentTypes = new ArrayList<>();
     argumentTypes.add(TypeDescriptor.forObject(arguments));
-    ReflectiveMethodResolver resolver = new ReflectiveMethodResolver();
+    infra.expression.spel.support.ReflectiveMethodResolver resolver = new ReflectiveMethodResolver();
     MethodExecutor executor = resolver.resolve(context, target, "checkCompleteness", argumentTypes);
 
     Object result = executor.execute(context, target, arguments);

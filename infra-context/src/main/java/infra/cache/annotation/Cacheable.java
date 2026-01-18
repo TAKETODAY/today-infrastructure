@@ -97,7 +97,7 @@ public @interface Cacheable {
   String[] cacheNames() default {};
 
   /**
-   * Spring Expression Language (SpEL) expression for computing the key dynamically.
+   * Infra Expression Language (SpEL) expression for computing the key dynamically.
    * <p>Default is {@code ""}, meaning all method parameters are considered as a key,
    * unless a custom {@link #keyGenerator} has been configured.
    * <p>The SpEL expression evaluates against a dedicated context that provides the
@@ -144,7 +144,7 @@ public @interface Cacheable {
   String cacheResolver() default "";
 
   /**
-   * Spring Expression Language (SpEL) expression used for making the method
+   * Infra Expression Language (SpEL) expression used for making the method
    * caching conditional. Cache the result if the condition evaluates to
    * {@code true}.
    * <p>Default is {@code ""}, meaning the method result is always cached.
@@ -164,7 +164,7 @@ public @interface Cacheable {
   String condition() default "";
 
   /**
-   * Spring Expression Language (SpEL) expression used to veto method caching.
+   * Infra Expression Language (SpEL) expression used to veto method caching.
    * Veto caching the result if the condition evaluates to {@code true}.
    *
    * <p>Unlike {@link #condition}, this expression is evaluated after the method

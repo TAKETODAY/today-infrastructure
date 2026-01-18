@@ -18,6 +18,7 @@ dependencies {
   jacocoAggregation project(':infra-context-indexer')
   jacocoAggregation project(':infra-context-support')
   jacocoAggregation project(':infra-core-aot')
+  jacocoAggregation project(':infra-expression')
   jacocoAggregation project(':infra-core-test')
   jacocoAggregation project(':infra-jcache')
   jacocoAggregation project(':infra-jdbc')

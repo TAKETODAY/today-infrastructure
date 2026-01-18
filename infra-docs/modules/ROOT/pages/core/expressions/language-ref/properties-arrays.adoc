@@ -1,7 +1,7 @@
 [[expressions-properties-arrays]]
 = Properties, Arrays, Lists, Maps, and Indexers
 
-The Spring Expression Language provides support for navigating object graphs and indexing
+The Infra Expression Language provides support for navigating object graphs and indexing
 into various structures.
 
 NOTE: Numerical index values are zero-based, such as when accessing the n^th^ element of
@@ -145,7 +145,7 @@ String name = parser.parseExpression("#root['name']")
 [[expressions-indexing-custom]]
 == Indexing into Custom Structures
 
-the Spring Expression Language supports indexing into custom
+the Infra Expression Language supports indexing into custom
 structures by allowing developers to implement and register an `IndexAccessor` with the
 `EvaluationContext`. If you would like to support
 xref:core/expressions/evaluation.adoc#expressions-spel-compilation[compilation] of
