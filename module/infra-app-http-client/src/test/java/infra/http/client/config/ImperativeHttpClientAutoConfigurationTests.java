@@ -33,10 +33,15 @@ import infra.app.test.context.runner.ReactiveWebApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
-import infra.core.ssl.SslBundle;
+import infra.app.ssl.SslBundle;
 import infra.core.task.VirtualThreadTaskExecutor;
 import infra.http.client.ClientHttpRequestFactory;
+import infra.http.client.ClientHttpRequestFactoryBuilder;
 import infra.http.client.ClientHttpRequestFactoryBuilderCustomizer;
+import infra.http.client.HttpClientSettings;
+import infra.http.client.HttpComponentsClientHttpRequestFactoryBuilder;
+import infra.http.client.HttpRedirects;
+import infra.http.client.JdkClientHttpRequestFactoryBuilder;
 import infra.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

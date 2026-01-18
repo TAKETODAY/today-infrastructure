@@ -157,9 +157,6 @@ class DelegatingSmartContextLoaderTests {
       cac.close();
     }
 
-    /**
-     * @since 6.0
-     */
     @Test
     void loadContextWithXmlConfigWithoutRefresh() throws Exception {
       MergedContextConfiguration mergedConfig = new MergedContextConfiguration(
@@ -170,9 +167,6 @@ class DelegatingSmartContextLoaderTests {
       assertApplicationContextLoadsForAotProcessing(mergedConfig, "foo");
     }
 
-    /**
-     * @since 6.0
-     */
     @Test
     void loadContextWithConfigurationClassWithoutRefresh() throws Exception {
       MergedContextConfiguration mergedConfig = new MergedContextConfiguration(ConfigClassTestCase.class,

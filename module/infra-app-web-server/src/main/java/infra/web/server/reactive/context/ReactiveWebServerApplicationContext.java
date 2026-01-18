@@ -25,7 +25,7 @@ import infra.beans.BeansException;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.ApplicationContextException;
-import infra.http.server.reactive.HttpHandler;
+import infra.http.reactive.server.HttpHandler;
 import infra.util.StringUtils;
 import infra.web.server.WebServer;
 import infra.web.server.context.ConfigurableWebServerApplicationContext;

@@ -1,0 +1,154 @@
+/*
+ * Copyright 2002-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
+package infra.http.reactive.server;
+
+import org.jspecify.annotations.Nullable;
+
+import java.net.InetSocketAddress;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+
+import javax.net.ssl.SSLSession;
+
+import infra.core.io.buffer.DataBuffer;
+import infra.core.io.buffer.NettyDataBufferFactory;
+import infra.http.HttpCookie;
+import infra.http.HttpLogging;
+import infra.http.HttpMethod;
+import infra.http.support.Netty4HttpHeaders;
+import infra.logging.Logger;
+import infra.util.LinkedMultiValueMap;
+import infra.util.MultiValueMap;
+import io.netty.channel.Channel;
+import io.netty.handler.codec.http.cookie.Cookie;
+import io.netty.handler.ssl.SslHandler;
+import reactor.core.publisher.Flux;
+import reactor.netty.ChannelOperationsId;
+import reactor.netty.Connection;
+import reactor.netty.http.server.HttpServerRequest;
+
+/**
+ * Adapt {@link ServerHttpRequest} to the Reactor {@link HttpServerRequest}.
+ *
+ * @author Stephane Maldini
+ * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
+ */
+class ReactorServerHttpRequest extends AbstractServerHttpRequest {
+
+  private static final Logger logger = HttpLogging.forLogName(ReactorServerHttpRequest.class);
+
+  private static final AtomicLong logPrefixIndex = new AtomicLong();
+
+  private final HttpServerRequest request;
+
+  private final NettyDataBufferFactory bufferFactory;
+
+  public ReactorServerHttpRequest(HttpServerRequest request, NettyDataBufferFactory bufferFactory) throws URISyntaxException {
+    super(HttpMethod.valueOf(request.method().name()), ReactorUriHelper.createUri(request), null,
+            new Netty4HttpHeaders(request.requestHeaders()));
+    this.request = request;
+    this.bufferFactory = bufferFactory;
+  }
+
+  @Override
+  public String getMethodAsString() {
+    return this.request.method().name();
+  }
+
+  @Override
+  protected MultiValueMap<String, HttpCookie> initCookies() {
+    LinkedMultiValueMap<String, HttpCookie> cookies = MultiValueMap.forLinkedHashMap();
+    Map<CharSequence, List<Cookie>> allCookies = this.request.allCookies();
+    for (CharSequence name : allCookies.keySet()) {
+      for (Cookie cookie : allCookies.get(name)) {
+        HttpCookie httpCookie = new HttpCookie(name.toString(), cookie.value());
+        cookies.add(name.toString(), httpCookie);
+      }
+    }
+    return cookies;
+  }
+
+  @Override
+  @Nullable
+  public InetSocketAddress getLocalAddress() {
+    return this.request.hostAddress();
+  }
+
+  @Override
+  @Nullable
+  public InetSocketAddress getRemoteAddress() {
+    return this.request.remoteAddress();
+  }
+
+  @Override
+  @Nullable
+  protected SslInfo initSslInfo() {
+    Channel channel = ((Connection) this.request).channel();
+    SslHandler sslHandler = channel.pipeline().get(SslHandler.class);
+    if (sslHandler == null && channel.parent() != null) { // HTTP/2
+      sslHandler = channel.parent().pipeline().get(SslHandler.class);
+    }
+    if (sslHandler != null) {
+      SSLSession session = sslHandler.engine().getSession();
+      return new DefaultSslInfo(session);
+    }
+    return null;
+  }
+
+  @Override
+  public Flux<DataBuffer> getBody() {
+    return this.request.receive().retain().map(this.bufferFactory::wrap);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> T getNativeRequest() {
+    return (T) this.request;
+  }
+
+  @Override
+  @Nullable
+  protected String initId() {
+    if (this.request instanceof Connection) {
+      return ((Connection) this.request).channel().id().asShortText() + "-" + logPrefixIndex.incrementAndGet();
+    }
+    return null;
+  }
+
+  @Override
+  protected String initLogPrefix() {
+    String id = null;
+    if (request instanceof ChannelOperationsId operationsId) {
+      id = logger.isDebugEnabled() ? operationsId.asLongText() : operationsId.asShortText();
+    }
+    if (id != null) {
+      return id;
+    }
+    if (request instanceof Connection) {
+      return ((Connection) request).channel().id().asShortText() +
+              "-" + logPrefixIndex.incrementAndGet();
+    }
+    return getId();
+  }
+
+}

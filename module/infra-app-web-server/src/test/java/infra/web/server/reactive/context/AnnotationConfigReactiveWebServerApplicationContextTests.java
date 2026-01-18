@@ -29,7 +29,7 @@ import infra.context.annotation.ScopeMetadataResolver;
 import infra.context.event.ApplicationEventMulticaster;
 import infra.context.event.ContextRefreshedEvent;
 import infra.context.event.SimpleApplicationEventMulticaster;
-import infra.http.server.reactive.HttpHandler;
+import infra.http.reactive.server.HttpHandler;
 import infra.web.server.reactive.ReactiveWebServerFactory;
 import infra.web.server.reactive.context.WebServerManager.DelayedInitializationHttpHandler;
 import infra.web.server.reactive.context.config.ExampleReactiveWebServerApplicationConfiguration;

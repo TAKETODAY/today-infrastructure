@@ -21,7 +21,7 @@ package infra.util;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Utility methods for simple pattern matching, in particular for Spring's typical
+ * Utility methods for simple pattern matching, in particular for Infra typical
  * {@code xxx*}, {@code *xxx}, {@code *xxx*}, and {@code xxx*yyy} pattern styles.
  *
  * @author Juergen Hoeller

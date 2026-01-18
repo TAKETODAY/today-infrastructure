@@ -20,7 +20,7 @@ package infra.test.web.reactive.server;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.http.client.reactive.ClientHttpConnector;
+import infra.http.reactive.client.ClientHttpConnector;
 import infra.test.web.mock.client.MockMvcHttpConnector;
 
 /**

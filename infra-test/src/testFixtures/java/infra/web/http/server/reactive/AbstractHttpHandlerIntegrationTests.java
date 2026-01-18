@@ -34,7 +34,7 @@ import java.lang.annotation.Target;
 import java.time.Duration;
 import java.util.stream.Stream;
 
-import infra.http.server.reactive.HttpHandler;
+import infra.http.reactive.server.HttpHandler;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.StringUtils;

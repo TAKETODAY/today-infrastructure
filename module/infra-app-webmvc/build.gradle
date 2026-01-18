@@ -15,10 +15,12 @@ dependencies {
   testImplementation project(":infra-test")
   testImplementation project(':infra-test-support')
   testImplementation project(":infra-webmvc-mock")
+  testImplementation project(":module:infra-app-test")
   testImplementation project(':module:infra-app-freemarker')
   testImplementation project(':module:infra-app-jackson')
   testImplementation project(':module:infra-app-netty-server')
   testImplementation project(':module:infra-app-validation')
+  testImplementation project(':module:infra-app-resttestclient')
 
   testImplementation "jakarta.validation:jakarta.validation-api"
   testImplementation 'org.hibernate.validator:hibernate-validator'

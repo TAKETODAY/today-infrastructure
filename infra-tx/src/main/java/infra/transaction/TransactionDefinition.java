@@ -270,7 +270,7 @@ public interface TransactionDefinition {
    * Return the name of this transaction. Can be {@code null}.
    * <p>This will be used as the transaction name to be shown in a
    * transaction monitor, if applicable.
-   * <p>In case of Spring's declarative transactions, the exposed name will be
+   * <p>In case of Infra declarative transactions, the exposed name will be
    * the {@code fully-qualified class name + "." + method name} (by default).
    *
    * @return the name of this transaction ({@code null} by default}

@@ -15,10 +15,12 @@ configurations {
 
 dependencies {
   api(project(":infra-web"))
+  api(project(":infra-http-converter"))
 
   optional(project(":infra-aop"))
   optional(project(":infra-oxm"))
   optional(project(":infra-core-aot"))
+  optional(project(":infra-http-service"))
   optional("org.apache.groovy:groovy-templates")
   optional('io.micrometer:context-propagation')
 

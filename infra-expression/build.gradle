@@ -1,0 +1,8 @@
+description = "Infra Expression Language"
+
+dependencies {
+  api project(":infra-core")
+
+  testImplementation(testFixtures(project(":infra-core")))
+  testImplementation("tools.jackson.core:jackson-databind")
+}

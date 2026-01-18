@@ -2125,7 +2125,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   public String getResponseContentType() {
     if (responseContentType == null) {
       if (responseHeaders != null) {
-        return responseHeaders.getFirst(HttpHeaders.CONTENT_TYPE);
+        return responseHeaders.getContentTypeAsString();
       }
     }
     return responseContentType;

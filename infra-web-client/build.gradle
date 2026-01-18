@@ -1,0 +1,24 @@
+description = "Infra Web Client (RestClient)"
+
+dependencies {
+  api(project(":infra-http"))
+  api(project(":infra-http-client"))
+  api(project(":infra-http-converter"))
+  api(project(":infra-web-core"))
+
+  optional(project(":infra-beans"))
+  optional(project(":infra-context"))
+  optional(project(":infra-core-aot"))
+
+  testImplementation("org.apache.httpcomponents.client5:httpclient5")
+  testImplementation("tools.jackson.core:jackson-databind")
+  testImplementation("com.squareup.okhttp3:mockwebserver")
+  testImplementation 'io.projectreactor.netty:reactor-netty-http'
+  testImplementation project(":infra-webmvc-mock")
+  testImplementation testFixtures(project(":infra-http"))
+
+  testImplementation(testFixtures(project(":infra-beans")))
+  testImplementation(testFixtures(project(":infra-core")))
+  testImplementation(testFixtures(project(":infra-web")))
+
+}

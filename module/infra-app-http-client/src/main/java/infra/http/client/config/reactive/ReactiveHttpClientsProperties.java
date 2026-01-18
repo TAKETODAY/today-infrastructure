@@ -24,6 +24,7 @@ import java.util.function.Supplier;
 
 import infra.context.properties.ConfigurationProperties;
 import infra.http.client.config.HttpClientsProperties;
+import infra.http.client.reactive.ClientHttpConnectorBuilder;
 
 /**
  * {@link ConfigurationProperties @ConfigurationProperties} to configure the defaults used

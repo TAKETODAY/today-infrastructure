@@ -1,0 +1,2 @@
+infra.http.service.config.HttpServiceClientAutoConfiguration
+infra.http.service.config.ReactiveHttpServiceClientAutoConfiguration

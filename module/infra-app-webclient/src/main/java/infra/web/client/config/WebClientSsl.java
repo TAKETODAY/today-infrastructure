@@ -20,14 +20,14 @@ package infra.web.client.config;
 
 import java.util.function.Consumer;
 
-import infra.core.ssl.NoSuchSslBundleException;
-import infra.core.ssl.SslBundle;
-import infra.http.client.reactive.ClientHttpConnector;
-import infra.web.client.reactive.WebClient;
+import infra.app.ssl.NoSuchSslBundleException;
+import infra.app.ssl.SslBundle;
+import infra.http.reactive.client.ClientHttpConnector;
+import infra.web.reactive.client.WebClient;
 
 /**
  * Interface that can be used to {@link WebClient.Builder#apply apply} SSL configuration
- * to a {@link infra.web.client.reactive.WebClient.Builder
+ * to a {@link infra.web.reactive.client.WebClient.Builder
  * WebClient.Builder}.
  * <p>
  * Typically used as follows: <pre class="code">
@@ -48,7 +48,7 @@ public interface WebClientSsl {
   /**
    * Return a {@link Consumer} that will apply SSL configuration for the named
    * {@link SslBundle} to a
-   * {@link infra.web.client.reactive.WebClient.Builder
+   * {@link infra.web.reactive.client.WebClient.Builder
    * WebClient.Builder}.
    *
    * @param bundleName the name of the SSL bundle to apply
@@ -60,7 +60,7 @@ public interface WebClientSsl {
   /**
    * Return a {@link Consumer} that will apply SSL configuration for the
    * {@link SslBundle} to a
-   * {@link infra.web.client.reactive.WebClient.Builder
+   * {@link infra.web.reactive.client.WebClient.Builder
    * WebClient.Builder}.
    *
    * @param bundle the SSL bundle to apply

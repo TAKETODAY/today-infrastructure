@@ -16,8 +16,7 @@ dependencies {
   optional(project(":infra-aop"))
   optional(project(":infra-oxm"))
   optional(project(":infra-core-aot"))
-
-  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  optional(project(":infra-http-reactive"))
 
   optional("jakarta.json.bind:jakarta.json.bind-api")
   optional("jakarta.validation:jakarta.validation-api")
@@ -78,11 +77,11 @@ dependencies {
   testImplementation testFixtures(project(":infra-core"))
   testImplementation testFixtures(project(":infra-app"))
 
+  testFixturesImplementation(project(":infra-web-reactive"))
   testFixturesApi("org.mockito:mockito-core")
   testFixturesApi 'org.awaitility:awaitility'
   testFixturesApi("io.projectreactor:reactor-test")
   testFixturesImplementation("io.projectreactor.netty:reactor-netty-http")
-
   testFixturesImplementation("org.junit.jupiter:junit-jupiter-api")
   testFixturesImplementation("org.junit.jupiter:junit-jupiter-params")
   testFixturesImplementation("org.junit.platform:junit-platform-suite-api")

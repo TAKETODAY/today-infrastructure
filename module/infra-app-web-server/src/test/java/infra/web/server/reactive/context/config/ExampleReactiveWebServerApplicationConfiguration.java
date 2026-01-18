@@ -20,7 +20,7 @@ package infra.web.server.reactive.context.config;
 
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.http.server.reactive.HttpHandler;
+import infra.http.reactive.server.HttpHandler;
 import infra.web.server.reactive.MockReactiveWebServerFactory;
 
 import static org.mockito.Mockito.mock;

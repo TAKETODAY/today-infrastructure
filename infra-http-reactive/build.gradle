@@ -1,0 +1,26 @@
+apply plugin: "java-test-fixtures"
+
+description = "Infra HTTP Reactive API"
+
+dependencies {
+  api(project(":infra-core"))
+  api(project(":infra-http"))
+
+  optional(project(":infra-beans"))
+  optional(project(":infra-context"))
+  optional(project(":infra-core-aot"))
+
+  optional("org.reactivestreams:reactive-streams")
+  optional("io.projectreactor.netty:reactor-netty-http")
+  optional("io.projectreactor:reactor-core")
+  optional('org.apache.httpcomponents.client5:httpclient5')
+  optional('org.apache.httpcomponents.core5:httpcore5-reactive')
+
+  testImplementation("tools.jackson.core:jackson-databind")
+  testImplementation("io.projectreactor:reactor-test")
+  testImplementation(testFixtures(project(":infra-web-reactive")))
+
+  testFixturesApi(testFixtures(project(":infra-http")))
+  testFixturesApi(testFixtures(project(":infra-core")))
+
+}

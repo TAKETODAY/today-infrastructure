@@ -1,9 +1,2 @@
 infra.aot.hint.RuntimeHintsRegistrar= \
-infra.http.HttpMimeTypesRuntimeHints,\
-infra.http.codec.CodecConfigurerRuntimeHints,\
-infra.http.converter.json.ProblemDetailRuntimeHints,\
-infra.http.client.config.ClientHttpRequestFactoryRuntimeHints,\
 infra.web.util.WebUtilRuntimeHints
-
-infra.beans.factory.aot.BeanRegistrationAotProcessor=\
-infra.web.service.annotation.HttpExchangeBeanRegistrationAotProcessor

@@ -30,7 +30,7 @@ import infra.http.client.config.reactive.ReactiveHttpClientAutoConfiguration;
 import infra.http.codec.CodecConfigurer;
 import infra.http.codec.CodecCustomizer;
 import infra.web.client.WebClientCustomizer;
-import infra.web.client.reactive.WebClient;
+import infra.web.reactive.client.WebClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;

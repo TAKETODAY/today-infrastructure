@@ -36,17 +36,17 @@ import infra.core.ReactiveAdapterRegistry;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
-import infra.http.client.reactive.ClientHttpConnector;
-import infra.http.client.reactive.ClientHttpRequest;
 import infra.http.codec.ClientCodecConfigurer;
+import infra.http.reactive.client.ClientHttpConnector;
+import infra.http.reactive.client.ClientHttpRequest;
 import infra.test.util.XmlExpectationsHelper;
 import infra.util.MultiValueMap;
-import infra.web.client.reactive.ExchangeFilterFunction;
-import infra.web.client.reactive.ExchangeStrategies;
-import infra.web.client.reactive.WebClient;
 import infra.web.handler.function.RouterFunction;
-import infra.web.reactive.function.BodyInserter;
-import infra.web.reactive.function.BodyInserters;
+import infra.web.reactive.BodyInserter;
+import infra.web.reactive.BodyInserters;
+import infra.web.reactive.client.ExchangeFilterFunction;
+import infra.web.reactive.client.ExchangeStrategies;
+import infra.web.reactive.client.WebClient;
 import infra.web.util.UriBuilder;
 import infra.web.util.UriBuilderFactory;
 
@@ -232,14 +232,14 @@ public interface WebTestClient {
   /**
    * Steps for customizing the {@link WebClient} used to test with,
    * internally delegating to a
-   * {@link infra.web.client.reactive.WebClient.Builder
+   * {@link infra.web.reactive.client.WebClient.Builder
    * WebClient.Builder}.
    */
   interface Builder {
 
     /**
      * Configure a base URI as described in
-     * {@link infra.web.client.reactive.WebClient#create(String)
+     * {@link infra.web.reactive.client.WebClient#create(String)
      * WebClient.create(String)}.
      */
     Builder baseUrl(String baseUrl);
@@ -581,7 +581,7 @@ public interface WebTestClient {
 
     /**
      * Set the body to the given {@code Object} value. This method invokes the
-     * {@link infra.web.client.reactive.WebClient.RequestBodySpec#bodyValue(Object)
+     * {@link infra.web.reactive.client.WebClient.RequestBodySpec#bodyValue(Object)
      * bodyValue} method on the underlying {@code WebClient}.
      *
      * @param body the value to write to the request body
@@ -617,7 +617,7 @@ public interface WebTestClient {
 
     /**
      * Set the body from the given producer. This method invokes the
-     * {@link infra.web.client.reactive.WebClient.RequestBodySpec#body(Object, Class)
+     * {@link infra.web.reactive.client.WebClient.RequestBodySpec#body(Object, Class)
      * body(Object, Class)} method on the underlying {@code WebClient}.
      *
      * @param producer the producer to write to the request. This must be a
@@ -630,7 +630,7 @@ public interface WebTestClient {
 
     /**
      * Set the body from the given producer. This method invokes the
-     * {@link infra.web.client.reactive.WebClient.RequestBodySpec#body(Object, ParameterizedTypeReference)
+     * {@link infra.web.reactive.client.WebClient.RequestBodySpec#body(Object, ParameterizedTypeReference)
      * body(Object, TypeReference)} method on the underlying {@code WebClient}.
      *
      * @param producer the producer to write to the request. This must be a
@@ -644,12 +644,12 @@ public interface WebTestClient {
     /**
      * Set the body of the request to the given {@code BodyInserter}.
      * This method invokes the
-     * {@link infra.web.client.reactive.WebClient.RequestBodySpec#body(BodyInserter)
+     * {@link infra.web.reactive.client.WebClient.RequestBodySpec#body(BodyInserter)
      * body(BodyInserter)} method on the underlying {@code WebClient}.
      *
      * @param inserter the body inserter to use
      * @return spec for further declaration of the request
-     * @see infra.web.reactive.function.BodyInserters
+     * @see infra.web.reactive.BodyInserters
      */
     RequestHeadersSpec<?> body(BodyInserter<?, ? super ClientHttpRequest> inserter);
 

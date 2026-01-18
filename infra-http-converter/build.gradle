@@ -1,0 +1,33 @@
+description = "Infra HTTP converter"
+
+dependencies {
+  api(project(":infra-http"))
+
+  optional(project(":infra-beans"))
+  optional(project(":infra-oxm"))
+  optional(project(":infra-aop"))
+  optional(project(":infra-core-aot"))
+
+  optional("com.google.code.gson:gson")
+  optional("tools.jackson.core:jackson-databind")
+  optional("tools.jackson.dataformat:jackson-dataformat-smile")
+  optional("tools.jackson.dataformat:jackson-dataformat-cbor")
+  optional("tools.jackson.dataformat:jackson-dataformat-smile")
+  optional("tools.jackson.dataformat:jackson-dataformat-xml")
+  optional("tools.jackson.dataformat:jackson-dataformat-yaml")
+  optional("com.google.protobuf:protobuf-java-util")
+  optional("jakarta.xml.bind:jakarta.xml.bind-api")
+  optional("jakarta.json.bind:jakarta.json.bind-api")
+
+  optional("com.rometools:rome")
+
+  testImplementation testFixtures(project(":infra-http"))
+  testImplementation testFixtures(project(":infra-core"))
+  testImplementation("org.xmlunit:xmlunit-assertj")
+  testImplementation("org.xmlunit:xmlunit-matchers")
+  testImplementation("org.skyscreamer:jsonassert")
+  testImplementation 'org.eclipse:yasson'
+  testRuntimeOnly("com.sun.xml.bind:jaxb-core")
+  testRuntimeOnly("com.sun.xml.bind:jaxb-impl")
+
+}

@@ -21,7 +21,7 @@ package infra.web.http.server.reactive;
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicReference;
 
-import infra.http.server.reactive.ReactorHttpHandlerAdapter;
+import infra.http.reactive.server.ReactorHttpHandlerAdapter;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import reactor.netty.DisposableServer;
 import reactor.netty.http.Http11SslContextSpec;

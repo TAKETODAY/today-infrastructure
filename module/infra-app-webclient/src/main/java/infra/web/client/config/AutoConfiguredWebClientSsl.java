@@ -20,12 +20,12 @@ package infra.web.client.config;
 
 import java.util.function.Consumer;
 
-import infra.core.ssl.SslBundle;
-import infra.core.ssl.SslBundles;
-import infra.http.client.config.HttpClientSettings;
-import infra.http.client.config.reactive.ClientHttpConnectorBuilder;
-import infra.http.client.reactive.ClientHttpConnector;
-import infra.web.client.reactive.WebClient;
+import infra.app.ssl.SslBundle;
+import infra.app.ssl.SslBundles;
+import infra.http.client.HttpClientSettings;
+import infra.http.client.reactive.ClientHttpConnectorBuilder;
+import infra.http.reactive.client.ClientHttpConnector;
+import infra.web.reactive.client.WebClient;
 
 /**
  * An auto-configured {@link WebClientSsl} implementation.

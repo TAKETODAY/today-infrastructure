@@ -27,6 +27,8 @@ import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
+import infra.http.client.HttpClientSettings;
+import infra.http.client.HttpRedirects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

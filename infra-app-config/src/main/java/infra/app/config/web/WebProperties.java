@@ -255,9 +255,9 @@ public class WebProperties {
         map.from(cachecontrol.cachePrivate).whenTrue().toCall(control::cachePrivate);
         map.from(cachecontrol.proxyRevalidate).whenTrue().toCall(control::proxyRevalidate);
 
-        map.from(cachecontrol.sMaxAge).whenNonNull().to(duration -> control.sMaxAge(duration.getSeconds(), TimeUnit.SECONDS));
-        map.from(cachecontrol.staleIfError).whenNonNull().to(duration -> control.staleIfError(duration.getSeconds(), TimeUnit.SECONDS));
-        map.from(cachecontrol.staleWhileRevalidate).whenNonNull().to(duration -> control.staleWhileRevalidate(duration.getSeconds(), TimeUnit.SECONDS));
+        map.from(cachecontrol.sMaxAge).to(duration -> control.sMaxAge(duration.getSeconds(), TimeUnit.SECONDS));
+        map.from(cachecontrol.staleIfError).to(duration -> control.staleIfError(duration.getSeconds(), TimeUnit.SECONDS));
+        map.from(cachecontrol.staleWhileRevalidate).to(duration -> control.staleWhileRevalidate(duration.getSeconds(), TimeUnit.SECONDS));
 
         // check if cacheControl remained untouched
         if (control.getHeaderValue() == null) {

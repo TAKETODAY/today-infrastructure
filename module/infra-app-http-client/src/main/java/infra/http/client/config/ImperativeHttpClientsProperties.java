@@ -23,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.function.Supplier;
 
 import infra.context.properties.ConfigurationProperties;
+import infra.http.client.ClientHttpRequestFactoryBuilder;
 
 /**
  * {@link ConfigurationProperties @ConfigurationProperties} to configure the defaults used

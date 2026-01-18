@@ -1,4 +1,3 @@
-
 /**
  * Auto-configuration for web clients.
  */

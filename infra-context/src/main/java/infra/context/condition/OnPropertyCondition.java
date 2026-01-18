@@ -18,6 +18,8 @@
 
 package infra.context.condition;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -174,7 +176,7 @@ class OnPropertyCondition extends InfraCondition implements Ordered {
       }
     }
 
-    private boolean isMatch(String value, String requiredValue) {
+    private boolean isMatch(@Nullable String value, String requiredValue) {
       if (StringUtils.isNotEmpty(requiredValue)) {
         return requiredValue.equalsIgnoreCase(value);
       }

@@ -8,6 +8,7 @@ dependencies {
   api(project(":infra-aop"))
   api(project(":infra-beans"))
   api(project(":infra-core"))
+  api(project(":infra-expression"))
 
   optional(project(":infra-core-aot"))
   optional(project(":infra-instrument"))

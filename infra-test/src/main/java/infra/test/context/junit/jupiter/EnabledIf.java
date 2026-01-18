@@ -95,7 +95,7 @@ public @interface EnabledIf {
    * <p>Expressions can be any of the following.
    *
    * <ul>
-   * <li>Spring Expression Language (SpEL) expression &mdash; for example:
+   * <li>Infra Expression Language (SpEL) expression &mdash; for example:
    * <pre style="code">@EnabledIf("#{systemProperties['os.name'].toLowerCase().contains('mac')}")</pre>
    * <li>Placeholder for a property available in the Infra
    * {@link Environment Environment} &mdash; for example:

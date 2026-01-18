@@ -8,24 +8,10 @@ infra.test.context.TestExecutionListener=\
 	infra.test.context.support.DirtiesContextTestExecutionListener,\
 	infra.test.context.transaction.TransactionalTestExecutionListener,\
 	infra.test.context.jdbc.SqlScriptsTestExecutionListener,\
-	infra.test.context.event.EventPublishingTestExecutionListener,\
-    infra.app.test.mock.mockito.MockitoTestExecutionListener,\
-    infra.app.test.mock.mockito.ResetMocksTestExecutionListener
+	infra.test.context.event.EventPublishingTestExecutionListener
 
 # Default ContextCustomizerFactory implementations for the TestContext Framework
 #
 infra.test.context.ContextCustomizerFactory=\
 	infra.test.context.web.socket.MockServerContainerContextCustomizerFactory,\
-	infra.test.context.support.DynamicPropertiesContextCustomizerFactory,\
-    infra.app.test.context.ImportsContextCustomizerFactory,\
-    infra.app.test.web.client.TestRestTemplateContextCustomizerFactory,\
-    infra.app.test.mock.mockito.MockitoContextCustomizerFactory,\
-    infra.app.test.json.DuplicateJsonObjectContextCustomizerFactory,\
-    infra.app.test.context.filter.ExcludeFilterContextCustomizerFactory,\
-    infra.app.test.web.reactive.server.WebTestClientContextCustomizerFactory
-
-infra.app.env.EnvironmentPostProcessor=\
-infra.app.test.web.InfraTestRandomPortEnvironmentPostProcessor
-
-infra.context.ApplicationContextInitializer=\
-infra.app.test.context.filter.ExcludeFilterApplicationContextInitializer
+	infra.test.context.support.DynamicPropertiesContextCustomizerFactory

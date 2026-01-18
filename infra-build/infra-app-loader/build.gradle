@@ -8,6 +8,7 @@ description = "TODAY Infrastructure Application Loader"
 dependencies {
   compileOnly(project(":infra-core"))
 
+  testImplementation(project(":module:infra-app-test"))
   testImplementation(project(":infra-aop"))
   testImplementation(project(":infra-test"))
   testImplementation(project(":infra-test-support"))

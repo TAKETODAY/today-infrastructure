@@ -22,8 +22,8 @@ import java.net.InetAddress;
 import java.util.Map;
 
 import infra.core.ApplicationTemp;
-import infra.core.ssl.SslBundle;
-import infra.core.ssl.SslBundles;
+import infra.app.ssl.SslBundle;
+import infra.app.ssl.SslBundles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;

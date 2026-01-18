@@ -20,7 +20,7 @@ package infra.web.server.reactive;
 
 import java.util.Map;
 
-import infra.http.server.reactive.HttpHandler;
+import infra.http.reactive.server.HttpHandler;
 import infra.web.server.WebServer;
 
 public class MockReactiveWebServer implements WebServer {

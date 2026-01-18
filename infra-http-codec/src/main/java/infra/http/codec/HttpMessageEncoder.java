@@ -1,0 +1,70 @@
+/*
+ * Copyright 2002-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
+package infra.http.codec;
+
+import org.jspecify.annotations.Nullable;
+
+import java.lang.reflect.Parameter;
+import java.util.List;
+import java.util.Map;
+
+import infra.core.ResolvableType;
+import infra.core.codec.Encoder;
+import infra.core.codec.Hints;
+import infra.http.MediaType;
+import infra.http.reactive.server.ServerHttpRequest;
+import infra.http.reactive.server.ServerHttpResponse;
+
+/**
+ * Extension of {@code Encoder} exposing extra methods relevant in the context
+ * of HTTP request or response body encoding.
+ *
+ * @param <T> the type of elements in the input stream
+ * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
+ */
+public interface HttpMessageEncoder<T> extends Encoder<T> {
+
+  /**
+   * Return "streaming" media types for which flushing should be performed
+   * automatically vs at the end of the input stream.
+   */
+  List<MediaType> getStreamingMediaTypes();
+
+  /**
+   * Get decoding hints based on the server request or annotations on the
+   * target controller method parameter.
+   *
+   * @param actualType the actual source type to encode, possibly a reactive
+   * wrapper and sourced from {@link Parameter},
+   * i.e. providing access to method annotations.
+   * @param elementType the element type within {@code Flux/Mono} that we're
+   * trying to encode.
+   * @param request the current request
+   * @param response the current response
+   * @return a Map with hints, possibly empty
+   */
+  default Map<String, Object> getEncodeHints(ResolvableType actualType, ResolvableType elementType,
+          @Nullable MediaType mediaType, ServerHttpRequest request, ServerHttpResponse response) {
+
+    return Hints.none();
+  }
+
+}

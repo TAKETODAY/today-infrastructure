@@ -79,6 +79,9 @@
   <suppress files="infra-test[\\/]src[\\/]" checks="IllegalImport" id="bannedJUnitJupiterImports" />
   <suppress files="infra-test[\\/]src[\\/]" checks="IllegalImport" id="bannedHamcrestImports" />
   <suppress files="infra-test[\\/]src[\\/]" checks="IllegalImport" id="bannedJUnit4Imports" />
+  <suppress files="infra-app-test[\\/]src[\\/]" checks="IllegalImport" id="bannedJUnit4Imports" />
+  <suppress files="infra-app-test[\\/]src[\\/]" checks="IllegalImport" id="bannedHamcrestImports" />
+  <suppress files="infra-app-test[\\/]src[\\/]" checks="IllegalImport" id="bannedJUnitJupiterImports" />
 
   <suppress files="infra[\\/]test[\\/]context[\\/].+[\\/](ExpectedExceptionInfraRunnerTests|StandardJUnit4FeaturesTests|ProgrammaticTxMgmtTestNGTests)"
       checks="RegexpSinglelineJava" id="expectedExceptionAnnotation" />
@@ -148,5 +151,8 @@
 
   <suppress files=".+Configuration\.java" checks="HideUtilityClassConstructor|FinalClass" />
   <suppress files=".+Application\.java" checks="HideUtilityClassConstructor|FinalClass" />
+  <suppress files="Msg.java" checks=".*" />
+  <suppress files="SecondMsg.java" checks=".*" />
+  <suppress files="OuterSample.java" checks=".*" />
 
 </suppressions>

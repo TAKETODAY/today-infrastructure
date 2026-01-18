@@ -18,9 +18,11 @@
 
 package infra.http.client.config.reactive;
 
+import infra.http.client.reactive.ClientHttpConnectorBuilder;
+
 /**
  * Customizer that can be used to modify the auto-configured
- * {@link infra.http.client.config.reactive.ClientHttpConnectorBuilder} when its type matches.
+ * {@link infra.http.client.reactive.ClientHttpConnectorBuilder} when its type matches.
  *
  * @param <B> the builder type
  * @author Phillip Webb

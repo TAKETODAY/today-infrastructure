@@ -57,7 +57,7 @@ public class DisconnectedClientHelper {
       CLIENT_EXCEPTION_TYPES.add(ClassUtils.forName(
               "infra.web.client.RestClientException", classLoader));
       CLIENT_EXCEPTION_TYPES.add(ClassUtils.forName(
-              "infra.web.client.reactive.WebClientException", classLoader));
+              "infra.web.reactive.client.WebClientException", classLoader));
     }
     catch (ClassNotFoundException ex) {
       // ignore

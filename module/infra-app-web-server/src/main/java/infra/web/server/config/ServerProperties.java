@@ -29,7 +29,7 @@ import java.util.Objects;
 import infra.context.properties.ConfigurationProperties;
 import infra.context.properties.NestedConfigurationProperty;
 import infra.core.ApplicationTemp;
-import infra.core.ssl.SslBundles;
+import infra.app.ssl.SslBundles;
 import infra.util.DataSize;
 import infra.util.StringUtils;
 import infra.web.server.Compression;

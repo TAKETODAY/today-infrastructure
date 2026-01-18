@@ -25,9 +25,9 @@ import java.util.function.Predicate;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
-import infra.app.test.context.FilteredClassLoader;
 import infra.beans.factory.aot.AotServices;
 import infra.core.io.ClassPathResource;
+import infra.test.context.FilteredClassLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

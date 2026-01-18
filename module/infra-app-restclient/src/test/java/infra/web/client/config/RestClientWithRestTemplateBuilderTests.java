@@ -24,6 +24,7 @@ import infra.test.web.client.MockRestServiceServer;
 import infra.web.client.RestClient;
 import infra.web.client.RestClient.Builder;
 import infra.web.client.RestTemplate;
+import infra.web.client.RestTemplateBuilder;
 
 import static infra.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static infra.test.web.client.response.MockRestResponseCreators.withSuccess;

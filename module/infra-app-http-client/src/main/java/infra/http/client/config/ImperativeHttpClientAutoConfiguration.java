@@ -32,7 +32,10 @@ import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
 import infra.core.task.VirtualThreadTaskExecutor;
 import infra.http.client.ClientHttpRequestFactory;
+import infra.http.client.ClientHttpRequestFactoryBuilder;
 import infra.http.client.ClientHttpRequestFactoryBuilderCustomizer;
+import infra.http.client.HttpClientSettings;
+import infra.http.client.JdkClientHttpRequestFactoryBuilder;
 import infra.stereotype.Component;
 import infra.util.LambdaSafe;
 

@@ -285,7 +285,7 @@ public class JavaMailSenderImpl implements JavaMailSender {
    * <p>A {@code FileTypeMap} specified here will be autodetected by
    * {@link MimeMessageHelper}, avoiding the need to specify the
    * {@code FileTypeMap} for each {@code MimeMessageHelper} instance.
-   * <p>For example, you can specify a custom instance of Spring's
+   * <p>For example, you can specify a custom instance of Infra
    * {@link ConfigurableMimeFileTypeMap} here. If not explicitly specified,
    * a default {@code ConfigurableMimeFileTypeMap} will be used, containing
    * an extended set of MIME type mappings (as defined by the

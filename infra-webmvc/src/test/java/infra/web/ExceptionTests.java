@@ -64,7 +64,6 @@ import infra.web.multipart.parsing.MalformedStreamException;
 import infra.web.multipart.parsing.MultipartBoundaryException;
 import infra.web.multipart.parsing.MultipartFieldCountLimitException;
 import infra.web.multipart.parsing.MultipartSizeException;
-import infra.web.reactive.function.UnsupportedMediaTypeException;
 import infra.web.server.InternalServerException;
 import infra.web.server.MethodNotAllowedException;
 import infra.web.server.RequestBodySizeExceededException;

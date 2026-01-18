@@ -23,7 +23,7 @@ package infra.transaction.annotation;
  *
  * <p>Note that the default behavior matches the traditional behavior in
  * EJB CMT and JTA, with the latter having rollback rules similar to Spring.
- * A global switch to trigger a rollback on any exception affects Spring's
+ * A global switch to trigger a rollback on any exception affects Infra
  * {@link Transactional} as well as {@link jakarta.transaction.Transactional}
  * but leaves the non-rule-based {@link jakarta.ejb.TransactionAttribute} as-is.
  *

@@ -26,12 +26,12 @@ import org.mockito.MockitoAnnotations;
 import java.time.Duration;
 import java.util.function.Consumer;
 
-import infra.core.ssl.SslBundle;
-import infra.core.ssl.SslBundles;
+import infra.app.ssl.SslBundle;
+import infra.app.ssl.SslBundles;
 import infra.http.client.ClientHttpRequestFactory;
-import infra.http.client.config.ClientHttpRequestFactoryBuilder;
-import infra.http.client.config.HttpClientSettings;
-import infra.http.client.config.HttpRedirects;
+import infra.http.client.ClientHttpRequestFactoryBuilder;
+import infra.http.client.HttpClientSettings;
+import infra.http.client.HttpRedirects;
 import infra.web.client.RestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;

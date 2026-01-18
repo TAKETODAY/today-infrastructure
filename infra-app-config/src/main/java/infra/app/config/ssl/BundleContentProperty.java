@@ -20,9 +20,9 @@ package infra.app.config.ssl;
 
 import java.nio.file.Path;
 
+import infra.app.ssl.pem.PemContent;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
-import infra.core.ssl.pem.PemContent;
 import infra.lang.Assert;
 import infra.util.StringUtils;
 

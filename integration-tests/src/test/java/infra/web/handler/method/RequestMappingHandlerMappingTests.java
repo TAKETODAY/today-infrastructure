@@ -50,9 +50,9 @@ import infra.web.annotation.RestController;
 import infra.web.handler.condition.ConsumesRequestCondition;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.support.StaticWebApplicationContext;
-import infra.web.service.annotation.HttpExchange;
-import infra.web.service.annotation.PostExchange;
-import infra.web.service.annotation.PutExchange;
+import infra.http.service.annotation.HttpExchange;
+import infra.http.service.annotation.PostExchange;
+import infra.http.service.annotation.PutExchange;
 import infra.web.util.pattern.PathPattern;
 import infra.web.view.PathPatternsParameterizedTest;
 

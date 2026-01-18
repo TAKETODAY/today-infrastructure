@@ -16,6 +16,7 @@ dependencies {
   optional project(":infra-jdbc")
   optional project(':infra-instrument')
   optional project(':infra-websocket')
+  optional(project(":infra-http-reactive"))
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
   annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
@@ -48,6 +49,7 @@ dependencies {
   testImplementation project(':infra-websocket')
   testImplementation(project(":infra-core-test"))
   testImplementation project(":infra-webmvc-mock")
+  testImplementation(project(":module:infra-app-test"))
   testImplementation 'org.skyscreamer:jsonassert:1.5.0'
   testImplementation("com.github.ben-manes.caffeine:caffeine")
 

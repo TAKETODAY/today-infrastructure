@@ -44,6 +44,9 @@ import infra.mock.http.client.MockClientHttpRequest;
 import infra.mock.http.client.MockClientHttpResponse;
 import infra.stereotype.Component;
 import infra.web.client.RestTemplate;
+import infra.web.client.RestTemplateBuilder;
+import infra.web.client.RestTemplateCustomizer;
+import infra.web.client.RestTemplateRequestCustomizer;
 
 import static infra.http.converter.HttpMessageConverters.ClientBuilder;
 import static org.assertj.core.api.Assertions.assertThat;

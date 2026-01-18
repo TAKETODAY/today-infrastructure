@@ -47,7 +47,7 @@ public abstract class MergedAnnotationPredicates {
    * @param typeNames the names that should be matched
    * @return a {@link Predicate} to test the annotation type
    */
-  public static <A extends Annotation> Predicate<MergedAnnotation<? extends A>> typeIn(String... typeNames) {
+  public static <A extends Annotation> Predicate<MergedAnnotation<? extends A>> typeIn(@Nullable String... typeNames) {
     return annotation -> ObjectUtils.containsElement(typeNames, annotation.getType().getName());
   }
 
@@ -60,7 +60,7 @@ public abstract class MergedAnnotationPredicates {
    * @param types the types that should be matched
    * @return a {@link Predicate} to test the annotation type
    */
-  public static <A extends Annotation> Predicate<MergedAnnotation<? extends A>> typeIn(Class<?>... types) {
+  public static <A extends Annotation> Predicate<MergedAnnotation<? extends A>> typeIn(@Nullable Class<?>... types) {
     return annotation -> ObjectUtils.containsElement(types, annotation.getType());
   }
 

@@ -301,8 +301,6 @@ class PathPatternParserTests {
     /**
      * Delegates to {@link #checkError(String, int, PatternMessage, String...)},
      * passing {@code -1} as the {@code expectedPos}.
-     *
-     * @since 5.2
      */
     private void checkError(String pattern, PatternMessage expectedMessage, String... expectedInserts) {
       checkError(pattern, -1, expectedMessage, expectedInserts);

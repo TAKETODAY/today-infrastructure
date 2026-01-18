@@ -1,0 +1,30 @@
+description = "Infra HTTP Reactive Codec"
+
+dependencies {
+  api(project(":infra-http-reactive"))
+
+  optional(project(":infra-beans"))
+  optional(project(":infra-core-aot"))
+
+  optional("org.reactivestreams:reactive-streams")
+  optional("io.projectreactor.netty:reactor-netty-http")
+  optional("io.projectreactor:reactor-core")
+  optional("tools.jackson.core:jackson-databind")
+  optional("tools.jackson.dataformat:jackson-dataformat-smile")
+  optional("tools.jackson.dataformat:jackson-dataformat-cbor")
+  optional("tools.jackson.dataformat:jackson-dataformat-smile")
+  optional("tools.jackson.dataformat:jackson-dataformat-xml")
+  optional("tools.jackson.dataformat:jackson-dataformat-yaml")
+  optional("com.google.protobuf:protobuf-java-util")
+
+  testImplementation("jakarta.xml.bind:jakarta.xml.bind-api")
+  testImplementation("org.skyscreamer:jsonassert")
+  testImplementation("io.projectreactor:reactor-test")
+  testImplementation testFixtures(project(":infra-http"))
+  testImplementation testFixtures(project(":infra-http-reactive"))
+
+  testImplementation(testFixtures(project(":infra-beans")))
+  testImplementation(testFixtures(project(":infra-beans")))
+  testImplementation(testFixtures(project(":infra-web-reactive")))
+
+}

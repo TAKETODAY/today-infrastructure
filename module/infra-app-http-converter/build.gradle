@@ -1,7 +1,7 @@
 description = "Infra application HTTP converter integration"
 
 dependencies {
-  api project(":infra-web")
+  api project(":infra-http-converter")
 
   optional project(":infra-webmvc")
   optional(project(":module:infra-app-gson"))

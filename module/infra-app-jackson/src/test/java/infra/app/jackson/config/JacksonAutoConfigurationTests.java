@@ -43,7 +43,6 @@ import infra.app.jackson.JacksonMixinModule;
 import infra.app.jackson.JacksonMixinModuleEntries;
 import infra.app.jackson.ObjectValueSerializer;
 import infra.app.jackson.config.JacksonAutoConfiguration.JacksonAutoConfigurationRuntimeHints;
-import infra.app.jackson.config.JacksonAutoConfiguration.JacksonJsonMapperBuilderCustomizerConfiguration;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.BeanCurrentlyInCreationException;
 import infra.context.ApplicationContext;

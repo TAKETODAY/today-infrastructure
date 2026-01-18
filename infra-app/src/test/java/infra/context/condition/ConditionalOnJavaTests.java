@@ -25,12 +25,12 @@ import org.junit.jupiter.api.condition.JRE;
 import java.io.Console;
 import java.lang.reflect.Method;
 
-import infra.app.test.context.FilteredClassLoader;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.condition.ConditionalOnJava.Range;
 import infra.core.JavaVersion;
+import infra.test.context.FilteredClassLoader;
 import infra.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

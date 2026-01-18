@@ -22,11 +22,11 @@ import infra.app.cloud.CloudPlatform;
 import infra.core.Ordered;
 import infra.core.env.Environment;
 import infra.util.PropertyMapper;
-import infra.web.server.Http2;
-import infra.web.server.config.ServerProperties;
-import infra.web.server.WebServerFactoryCustomizer;
 import infra.web.reactor.netty.ReactorNettyReactiveWebServerFactory;
 import infra.web.reactor.netty.ReactorServerProperties;
+import infra.web.server.Http2;
+import infra.web.server.WebServerFactoryCustomizer;
+import infra.web.server.config.ServerProperties;
 import io.netty.channel.ChannelOption;
 
 /**
@@ -61,15 +61,14 @@ public class ReactorNettyWebServerFactoryCustomizer
   @Override
   public void customize(ReactorNettyReactiveWebServerFactory factory) {
     factory.setUseForwardHeaders(getOrDeduceUseForwardHeaders());
-    PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
+    PropertyMapper map = PropertyMapper.get();
 
-    map.from(reactor.idleTimeout).whenNonNull().to(idleTimeout -> customizeIdleTimeout(factory, idleTimeout));
-    map.from(reactor.connectionTimeout).whenNonNull().to(connectionTimeout -> customizeConnectionTimeout(factory, connectionTimeout));
+    map.from(reactor.idleTimeout).to(idleTimeout -> customizeIdleTimeout(factory, idleTimeout));
+    map.from(reactor.connectionTimeout).to(connectionTimeout -> customizeConnectionTimeout(factory, connectionTimeout));
     map.from(reactor.maxKeepAliveRequests).to(maxKeepAliveRequests -> customizeMaxKeepAliveRequests(factory, maxKeepAliveRequests));
 
     if (Http2.isEnabled(serverProperties.http2)) {
       map.from(reactor.maxHeaderSize)
-              .whenNonNull()
               .to(size -> customizeHttp2MaxHeaderSize(factory, size.toBytes()));
     }
     customizeRequestDecoder(factory, map);
@@ -91,21 +90,16 @@ public class ReactorNettyWebServerFactoryCustomizer
   private void customizeRequestDecoder(ReactorNettyReactiveWebServerFactory factory, PropertyMapper propertyMapper) {
     factory.addServerCustomizers((httpServer) -> httpServer.httpRequestDecoder((httpRequestDecoderSpec) -> {
       propertyMapper.from(this.reactor.maxHeaderSize)
-              .whenNonNull()
               .to(maxHttpRequestHeader -> httpRequestDecoderSpec.maxHeaderSize((int) maxHttpRequestHeader.toBytes()));
       propertyMapper.from(reactor.maxChunkSize)
-              .whenNonNull()
               .to(maxChunkSize -> httpRequestDecoderSpec.maxChunkSize((int) maxChunkSize.toBytes()));
       propertyMapper.from(reactor.maxInitialLineLength)
-              .whenNonNull()
               .to(maxInitialLineLength -> httpRequestDecoderSpec.maxInitialLineLength((int) maxInitialLineLength.toBytes()));
       propertyMapper.from(reactor.h2cMaxContentLength)
-              .whenNonNull()
               .to(h2cMaxContentLength -> httpRequestDecoderSpec.h2cMaxContentLength((int) h2cMaxContentLength.toBytes()));
       propertyMapper.from(reactor.initialBufferSize)
-              .whenNonNull()
               .to(initialBufferSize -> httpRequestDecoderSpec.initialBufferSize((int) initialBufferSize.toBytes()));
-      propertyMapper.from(reactor.validateHeaders).whenNonNull().to(httpRequestDecoderSpec::validateHeaders);
+      propertyMapper.from(reactor.validateHeaders).to(httpRequestDecoderSpec::validateHeaders);
       return httpRequestDecoderSpec;
     }));
   }

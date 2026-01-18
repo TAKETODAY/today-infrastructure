@@ -23,6 +23,8 @@ import org.jspecify.annotations.Nullable;
 import java.time.Duration;
 
 import infra.context.properties.ConfigurationPropertiesSource;
+import infra.http.client.HttpClientSettings;
+import infra.http.client.HttpRedirects;
 
 /**
  * Base class for configuration properties configure {@link HttpClientSettings}.

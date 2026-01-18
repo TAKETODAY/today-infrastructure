@@ -22,7 +22,7 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.Lazy;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.properties.EnableConfigurationProperties;
-import infra.http.client.ReactorResourceFactory;
+import infra.http.support.ReactorResourceFactory;
 import infra.stereotype.Component;
 
 /**

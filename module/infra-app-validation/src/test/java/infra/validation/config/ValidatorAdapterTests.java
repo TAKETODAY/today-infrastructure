@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 
-import infra.app.test.context.FilteredClassLoader;
+import infra.test.context.FilteredClassLoader;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.ApplicationContext;
 import infra.context.annotation.Bean;

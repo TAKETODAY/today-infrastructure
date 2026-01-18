@@ -20,7 +20,7 @@ package infra.app.config.ssl;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.core.ssl.pem.PemSslStoreBundle;
+import infra.app.ssl.pem.PemSslStoreBundle;
 
 /**
  * {@link SslBundleProperties} for PEM-encoded certificates and private keys.

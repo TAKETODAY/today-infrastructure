@@ -20,7 +20,7 @@ package infra.app.config.ssl;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.core.ssl.jks.JksSslStoreBundle;
+import infra.app.ssl.jks.JksSslStoreBundle;
 
 /**
  * {@link SslBundleProperties} for Java keystores.

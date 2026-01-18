@@ -18,12 +18,18 @@
 
 package infra.util;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
+import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.NoSuchElementException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
@@ -55,20 +61,30 @@ class PropertyMapperTests {
   }
 
   @Test
-  void fromValueAlwaysApplyingWhenNonNullShouldAlwaysApplyNonNullToSource() {
-    this.map.alwaysApplyingWhenNonNull().from((String) null).toCall(Assertions::fail);
-  }
-
-  @Test
+  @SuppressWarnings("NullAway")
+    // Test null check
   void fromWhenSupplierIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> this.map.from((Supplier<?>) null))
-            .withMessageContaining("Supplier is required");
+            .withMessageContaining("'supplier' is required");
   }
 
   @Test
+  void orFromWhenSuppliedWithNull() {
+    assertThat(this.map.from("value").orFrom(() -> "fallback").toInstance(Function.identity())).isEqualTo("value");
+  }
+
+  @Test
+  void orFromWhenSuppliedWithNonNull() {
+    assertThat(this.map.from((String) null).orFrom(() -> "fallback").toInstance(Function.identity()))
+            .isEqualTo("fallback");
+  }
+
+  @Test
+  @SuppressWarnings("NullAway")
+    // Test null check
   void toWhenConsumerIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> this.map.from(() -> "").to(null))
-            .withMessageContaining("Consumer is required");
+            .withMessageContaining("'consumer' is required");
   }
 
   @Test
@@ -86,9 +102,11 @@ class PropertyMapperTests {
   }
 
   @Test
+  @SuppressWarnings("NullAway")
+    // Test null check
   void asWhenAdapterIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> this.map.from(() -> "").as(null))
-            .withMessageContaining("Adapter is required");
+            .withMessageContaining("'adapter' is required");
   }
 
   @Test
@@ -99,18 +117,6 @@ class PropertyMapperTests {
   }
 
   @Test
-  void whenNonNullWhenSuppliedNullShouldNotMap() {
-    this.map.from(() -> null).whenNonNull().as(String::valueOf).toCall(Assertions::fail);
-  }
-
-  @Test
-  void whenNonNullWhenSuppliedThrowsNullPointerExceptionShouldNotMap() {
-    this.map.from(() -> {
-      throw new NullPointerException();
-    }).whenNonNull().as(String::valueOf).toCall(Assertions::fail);
-  }
-
-  @Test
   void whenTrueWhenValueIsTrueShouldMap() {
     Boolean result = this.map.from(true).whenTrue().toInstance(Boolean::valueOf);
     assertThat(result).isTrue();
@@ -118,7 +124,7 @@ class PropertyMapperTests {
 
   @Test
   void whenTrueWhenValueIsFalseShouldNotMap() {
-    this.map.from(false).whenTrue().toCall(Assertions::fail);
+    this.map.from(false).whenTrue().toCall(org.assertj.core.api.Assertions::fail);
   }
 
   @Test
@@ -129,17 +135,17 @@ class PropertyMapperTests {
 
   @Test
   void whenFalseWhenValueIsTrueShouldNotMap() {
-    this.map.from(true).whenFalse().toCall(Assertions::fail);
+    this.map.from(true).whenFalse().toCall(org.assertj.core.api.Assertions::fail);
   }
 
   @Test
   void whenHasTextWhenValueIsNullShouldNotMap() {
-    this.map.from(() -> null).whenHasText().toCall(Assertions::fail);
+    this.map.from(() -> null).whenHasText().toCall(org.assertj.core.api.Assertions::fail);
   }
 
   @Test
   void whenHasTextWhenValueIsEmptyShouldNotMap() {
-    this.map.from("").whenHasText().toCall(Assertions::fail);
+    this.map.from("").whenHasText().toCall(org.assertj.core.api.Assertions::fail);
   }
 
   @Test
@@ -156,7 +162,7 @@ class PropertyMapperTests {
 
   @Test
   void whenEqualToWhenValueIsNotEqualShouldNotMatch() {
-    this.map.from("123").whenEqualTo("321").toCall(Assertions::fail);
+    this.map.from("123").whenEqualTo("321").toCall(org.assertj.core.api.Assertions::fail);
   }
 
   @Test
@@ -168,7 +174,7 @@ class PropertyMapperTests {
   @Test
   void whenInstanceOfWhenValueIsNotTargetTypeShouldNotMatch() {
     Supplier<Number> supplier = () -> 123L;
-    this.map.from(supplier).whenInstanceOf(Double.class).toCall(Assertions::fail);
+    this.map.from(supplier).whenInstanceOf(Double.class).toCall(org.assertj.core.api.Assertions::fail);
   }
 
   @Test
@@ -179,21 +185,20 @@ class PropertyMapperTests {
 
   @Test
   void whenWhenValueDoesNotMatchShouldNotMap() {
-    this.map.from("123").when("321"::equals).toCall(Assertions::fail);
+    this.map.from("123").when("321"::equals).toCall(org.assertj.core.api.Assertions::fail);
   }
 
   @Test
   void whenWhenCombinedWithAsUsesSourceValue() {
     Count<String> source = new Count<>(() -> "123");
-    Long result = this.map.from(source).when("123"::equals).as(Integer::valueOf).when((v) -> v == 123)
-            .as(Integer::longValue).toInstance(Long::valueOf);
+    Long result = this.map.from(source)
+            .when("123"::equals)
+            .as(Integer::valueOf)
+            .when((v) -> v == 123)
+            .as(Integer::longValue)
+            .toInstance(Long::valueOf);
     assertThat(result).isEqualTo(123);
     assertThat(source.getCount()).isOne();
-  }
-
-  @Test
-  void alwaysApplyingWhenNonNullShouldAlwaysApplyNonNullToSource() {
-    this.map.alwaysApplyingWhenNonNull().from(() -> null).toCall(Assertions::fail);
   }
 
   @Test
@@ -209,16 +214,95 @@ class PropertyMapperTests {
 
   @Test
   void toImmutableReturnsNewInstance() {
-    Immutable instance = this.map.from("Spring").toInstance(Immutable::of);
+    Immutable instance = this.map.from("infra").toInstance(Immutable::of);
     instance = this.map.from("123").as(Integer::valueOf).to(instance, Immutable::withAge);
-    assertThat(instance).hasToString("Spring 123");
+    assertThat(instance).hasToString("infra 123");
   }
 
   @Test
   void toImmutableWhenFilteredReturnsOriginalInstance() {
-    Immutable instance = this.map.from("Spring").toInstance(Immutable::of);
+    Immutable instance = this.map.from("infra").toInstance(Immutable::of);
     instance = this.map.from("123").when("345"::equals).as(Integer::valueOf).to(instance, Immutable::withAge);
-    assertThat(instance).hasToString("Spring null");
+    assertThat(instance).hasToString("infra null");
+  }
+
+  @Test
+  void toConsumerWhenNull() {
+    ExampleDest dest = new ExampleDest();
+    this.map.from((String) null).to(dest::setName);
+    assertThat(dest.getName()).isNull();
+    assertThat(dest.setNameCalled).isFalse();
+  }
+
+  @Test
+  void toImmutableWhenNull() {
+    Immutable instance = this.map.from("infra").toInstance(Immutable::of);
+    instance = this.map.from((Integer) null).to(instance, Immutable::withAge);
+    assertThat(instance).hasToString("infra null");
+    assertThat(instance.withAgeCalled).isFalse();
+  }
+
+  @Test
+  void toInstanceWhenNull() {
+    assertThatExceptionOfType(NoSuchElementException.class)
+            .isThrownBy(() -> this.map.from((String) null).toInstance(String::valueOf));
+  }
+
+  @Test
+  void toCallWhenNull() {
+    AtomicBoolean called = new AtomicBoolean();
+    Runnable call = () -> called.set(true);
+    this.map.from((String) null).toCall(call);
+    assertThat(called).isFalse();
+  }
+
+  /**
+   * Tests for {@link PropertyMapper.Source.Always}.
+   */
+  @Nested
+  class AlwaysTests {
+
+    private final PropertyMapper map = PropertyMapperTests.this.map;
+
+    @Test
+    void asWhenNull() {
+      String value = this.map.from((String) null).always().as(String::valueOf).toInstance((string) -> {
+        assertThat(string).isNotNull();
+        return string;
+      });
+      assertThat(value).isEqualTo("null");
+    }
+
+    @Test
+    void toConsumerWhenNull() {
+      ExampleDest dest = new ExampleDest();
+      this.map.from((String) null).always().to(dest::setName);
+      assertThat(dest.getName()).isNull();
+      assertThat(dest.setNameCalled).isTrue();
+    }
+
+    @Test
+    void toImmutableWhenNull() {
+      Immutable instance = this.map.from("infra").toInstance(Immutable::of);
+      instance = this.map.from((Integer) null).always().to(instance, Immutable::withAge);
+      assertThat(instance).hasToString("infra null");
+      assertThat(instance.withAgeCalled).isTrue();
+    }
+
+    @Test
+    void toInstanceWhenNull() {
+      String value = this.map.from((String) null).always().toInstance(String::valueOf);
+      assertThat(value).isEqualTo("null");
+    }
+
+    @Test
+    void toCallWhenNull() {
+      AtomicBoolean called = new AtomicBoolean();
+      Runnable call = () -> called.set(true);
+      this.map.from((String) null).always().toCall(call);
+      assertThat(called).isTrue();
+    }
+
   }
 
   static class Count<T> implements Supplier<T> {
@@ -259,13 +343,16 @@ class PropertyMapperTests {
 
   static class ExampleDest {
 
-    private String name;
+    private @Nullable String name;
 
-    void setName(String name) {
+    boolean setNameCalled;
+
+    void setName(@Nullable String name) {
       this.name = name;
+      this.setNameCalled = true;
     }
 
-    String getName() {
+    @Nullable String getName() {
       return this.name;
     }
 
@@ -275,15 +362,22 @@ class PropertyMapperTests {
 
     private final String name;
 
-    private final Integer age;
+    private final @Nullable Integer age;
 
-    Immutable(String name, Integer age) {
-      this.name = name;
-      this.age = age;
+    final boolean withAgeCalled;
+
+    Immutable(String name, @Nullable Integer age) {
+      this(name, age, false);
     }
 
-    Immutable withAge(Integer age) {
-      return new Immutable(this.name, age);
+    private Immutable(String name, @Nullable Integer age, boolean withAgeCalled) {
+      this.name = name;
+      this.age = age;
+      this.withAgeCalled = withAgeCalled;
+    }
+
+    Immutable withAge(@Nullable Integer age) {
+      return new Immutable(this.name, age, true);
     }
 
     @Override

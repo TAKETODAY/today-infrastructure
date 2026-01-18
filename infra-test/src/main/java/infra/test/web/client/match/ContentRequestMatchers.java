@@ -374,7 +374,7 @@ public class ContentRequestMatchers {
           @Override
           @Nullable
           public String getContentType() {
-            return request.getHeaders().getFirst(HttpHeaders.CONTENT_TYPE);
+            return request.getContentTypeAsString();
           }
 
           @Override
