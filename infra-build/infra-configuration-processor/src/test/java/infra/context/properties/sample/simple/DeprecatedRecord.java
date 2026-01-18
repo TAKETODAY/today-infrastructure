@@ -20,16 +20,18 @@ package infra.context.properties.sample.simple;
 
 import infra.context.properties.sample.TestConfigurationProperties;
 import infra.context.properties.sample.TestDeprecatedConfigurationProperty;
+import infra.context.properties.sample.TestName;
 
 /**
  * Configuration properties as record with deprecated property.
  *
  * @param alpha alpha property, deprecated
  * @param bravo bravo property
+ * @param charlie charlie property, named, deprecated
  * @author Moritz Halbritter
  */
 @TestConfigurationProperties("deprecated-record")
-public record DeprecatedRecord(String alpha, String bravo) {
+public record DeprecatedRecord(String alpha, String bravo, @TestName("named.charlie") String charlie) {
 
   @Deprecated
   @TestDeprecatedConfigurationProperty(reason = "some-reason")
@@ -37,4 +39,10 @@ public record DeprecatedRecord(String alpha, String bravo) {
     return this.alpha;
   }
 
+  @Deprecated
+  @TestDeprecatedConfigurationProperty(reason = "another-reason")
+  public String charlie() {
+    return this.charlie;
+  }
 }
+
