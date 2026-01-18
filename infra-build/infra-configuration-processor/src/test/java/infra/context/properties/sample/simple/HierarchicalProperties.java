@@ -28,6 +28,9 @@ import infra.context.properties.sample.TestConfigurationProperties;
 @TestConfigurationProperties(prefix = "hierarchical")
 public class HierarchicalProperties extends HierarchicalPropertiesParent {
 
+  /**
+   * Concrete property.
+   */
   private String third = "three";
 
   public String getThird() {

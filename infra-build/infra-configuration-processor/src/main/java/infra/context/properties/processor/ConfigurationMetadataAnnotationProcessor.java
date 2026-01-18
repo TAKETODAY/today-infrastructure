@@ -49,6 +49,7 @@ import javax.tools.Diagnostic.Kind;
 
 import infra.context.properties.processor.metadata.ConfigurationMetadata;
 import infra.context.properties.processor.metadata.InvalidConfigurationMetadataException;
+import infra.context.properties.processor.metadata.ItemHint;
 import infra.context.properties.processor.metadata.ItemIgnore;
 import infra.context.properties.processor.metadata.ItemMetadata;
 
@@ -278,6 +279,10 @@ public class ConfigurationMetadataAnnotationProcessor extends AbstractProcessor 
       seen.push(element);
       new PropertyDescriptorResolver(this.metadataEnv).resolve(element, source).forEach((descriptor) -> {
         this.metadataCollector.add(descriptor.resolveItemMetadata(prefix, this.metadataEnv));
+        ItemHint itemHint = descriptor.resolveItemHint(prefix, this.metadataEnv);
+        if (itemHint != null) {
+          this.metadataCollector.add(itemHint);
+        }
         if (descriptor.isNested(this.metadataEnv)) {
           TypeElement nestedTypeElement = (TypeElement) this.metadataEnv.getTypeUtils()
                   .asElement(descriptor.getType());

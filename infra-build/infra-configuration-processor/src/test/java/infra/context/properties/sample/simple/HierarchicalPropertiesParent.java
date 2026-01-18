@@ -25,6 +25,9 @@ package infra.context.properties.sample.simple;
  */
 public abstract class HierarchicalPropertiesParent extends HierarchicalPropertiesGrandparent {
 
+  /**
+   * Parent property.
+   */
   private String second = "two";
 
   public String getSecond() {

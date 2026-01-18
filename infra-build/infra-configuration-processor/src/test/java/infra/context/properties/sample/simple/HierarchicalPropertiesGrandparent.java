@@ -25,6 +25,9 @@ package infra.context.properties.sample.simple;
  */
 public abstract class HierarchicalPropertiesGrandparent {
 
+  /**
+   * Grandparent property.
+   */
   private String first = "one";
 
   public String getFirst() {
