@@ -31,7 +31,7 @@ import infra.context.properties.json.JSONArray;
 import infra.context.properties.json.JSONObject;
 
 /**
- * Read standard json metadata format as {@link ConfigurationMetadataRepository}.
+ * Read standard JSON metadata format as {@link ConfigurationMetadataRepository}.
  *
  * @author Stephane Nicoll
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -179,7 +179,7 @@ class JsonReader {
   private Deprecation.Level parseDeprecationLevel(String value) {
     if (value != null) {
       try {
-        return Deprecation.Level.valueOf(value.toUpperCase(Locale.ROOT));
+        return Deprecation.Level.valueOf(value.toUpperCase(Locale.ENGLISH));
       }
       catch (IllegalArgumentException ex) {
         // let's use the default

@@ -1,5 +1,3 @@
-
-
 /**
  * Infra App configuration meta-data parser.
  */
