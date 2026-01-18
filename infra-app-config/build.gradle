@@ -14,6 +14,9 @@ dependencies {
   optional("org.apache.httpcomponents.client5:httpclient5")
   optional("org.apache.httpcomponents.core5:httpcore5-reactive")
 
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
   testImplementation project(":infra-test")
   testImplementation project(':infra-test-support')
   testImplementation project(":module:infra-app-test")

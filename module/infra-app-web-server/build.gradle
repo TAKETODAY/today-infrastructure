@@ -18,8 +18,6 @@ dependencies {
   optional(project(":infra-core-aot"))
   optional(project(":infra-http-reactive"))
 
-  annotationProcessor(project(":infra-build:infra-configuration-processor"))
-
   optional("jakarta.json.bind:jakarta.json.bind-api")
   optional("jakarta.validation:jakarta.validation-api")
   optional("jakarta.xml.bind:jakarta.xml.bind-api")
