@@ -18,14 +18,14 @@
 
 package infra.context.properties.sample.specific;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Demonstrates that invalid accessors are ignored.
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties(prefix = "config")
+@TestConfigurationProperties("config")
 public class InvalidAccessorProperties {
 
   private String name;

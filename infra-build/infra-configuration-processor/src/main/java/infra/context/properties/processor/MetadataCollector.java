@@ -18,17 +18,14 @@
 
 package infra.context.properties.processor;
 
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.RoundEnvironment;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.TypeElement;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import infra.context.properties.processor.metadata.ConfigurationMetadata;
+import infra.context.properties.processor.metadata.ItemHint;
 import infra.context.properties.processor.metadata.ItemMetadata;
 
 /**
@@ -40,47 +37,54 @@ import infra.context.properties.processor.metadata.ItemMetadata;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class MetadataCollector {
+class MetadataCollector {
 
-  private final Set<ItemMetadata> metadataItems = new LinkedHashSet<>();
-
-  private final ProcessingEnvironment processingEnvironment;
+  private final Predicate<ItemMetadata> mergeRequired;
 
   private final ConfigurationMetadata previousMetadata;
 
-  private final TypeUtils typeUtils;
+  private final Set<ItemMetadata> metadataItems = new LinkedHashSet<>();
 
-  private final Set<String> processedSourceTypes = new HashSet<>();
+  private final Set<ItemHint> metadataHints = new LinkedHashSet<>();
 
   /**
    * Creates a new {@code MetadataProcessor} instance.
    *
-   * @param processingEnvironment the processing environment of the build
+   * @param mergeRequired specify whether an item can be merged
    * @param previousMetadata any previous metadata or {@code null}
    */
-  public MetadataCollector(ProcessingEnvironment processingEnvironment, ConfigurationMetadata previousMetadata) {
-    this.processingEnvironment = processingEnvironment;
+  public MetadataCollector(Predicate<ItemMetadata> mergeRequired, ConfigurationMetadata previousMetadata) {
+    this.mergeRequired = mergeRequired;
     this.previousMetadata = previousMetadata;
-    this.typeUtils = new TypeUtils(processingEnvironment);
-  }
-
-  public void processing(RoundEnvironment roundEnv) {
-    for (Element element : roundEnv.getRootElements()) {
-      markAsProcessed(element);
-    }
-  }
-
-  private void markAsProcessed(Element element) {
-    if (element instanceof TypeElement) {
-      this.processedSourceTypes.add(this.typeUtils.getQualifiedName(element));
-    }
   }
 
   public void add(ItemMetadata metadata) {
     this.metadataItems.add(metadata);
   }
 
-  public boolean hasSimilarGroup(ItemMetadata metadata) {
+  public void add(ItemMetadata metadata, Consumer<ItemMetadata> onConflict) {
+    ItemMetadata existing = find(metadata.getName());
+    if (existing != null) {
+      onConflict.accept(existing);
+      return;
+    }
+    add(metadata);
+  }
+
+  public boolean addIfAbsent(ItemMetadata metadata) {
+    ItemMetadata existing = find(metadata.getName());
+    if (existing != null) {
+      return false;
+    }
+    add(metadata);
+    return true;
+  }
+
+  public void add(ItemHint itemHint) {
+    this.metadataHints.add(itemHint);
+  }
+
+  boolean hasSimilarGroup(ItemMetadata metadata) {
     if (!metadata.isOfItemType(ItemMetadata.ItemType.GROUP)) {
       throw new IllegalStateException("item " + metadata + " must be a group");
     }
@@ -98,10 +102,13 @@ public class MetadataCollector {
     for (ItemMetadata item : this.metadataItems) {
       metadata.add(item);
     }
+    for (ItemHint metadataHint : this.metadataHints) {
+      metadata.add(metadataHint);
+    }
     if (this.previousMetadata != null) {
       List<ItemMetadata> items = this.previousMetadata.getItems();
       for (ItemMetadata item : items) {
-        if (shouldBeMerged(item)) {
+        if (this.mergeRequired.test(item)) {
           metadata.addIfMissing(item);
         }
       }
@@ -109,17 +116,11 @@ public class MetadataCollector {
     return metadata;
   }
 
-  private boolean shouldBeMerged(ItemMetadata itemMetadata) {
-    String sourceType = itemMetadata.getSourceType();
-    return (sourceType != null && !deletedInCurrentBuild(sourceType) && !processedInCurrentBuild(sourceType));
-  }
-
-  private boolean deletedInCurrentBuild(String sourceType) {
-    return this.processingEnvironment.getElementUtils().getTypeElement(sourceType.replace('$', '.')) == null;
-  }
-
-  private boolean processedInCurrentBuild(String sourceType) {
-    return this.processedSourceTypes.contains(sourceType);
+  private ItemMetadata find(String name) {
+    return this.metadataItems.stream()
+            .filter((candidate) -> name.equals(candidate.getName()))
+            .findFirst()
+            .orElse(null);
   }
 
 }

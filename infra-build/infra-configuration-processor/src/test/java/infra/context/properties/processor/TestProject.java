@@ -18,17 +18,22 @@
 
 package infra.context.properties.processor;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import infra.context.properties.processor.metadata.ConfigurationMetadata;
+import infra.context.properties.processor.metadata.JsonMarshaller;
 import infra.context.properties.processor.test.CompiledMetadataReader;
 import infra.context.properties.processor.test.TestConfigurationMetadataAnnotationProcessor;
-import infra.context.properties.sample.ConfigurationProperties;
-import infra.context.properties.sample.NestedConfigurationProperty;
+import infra.context.properties.sample.TestConfigurationProperties;
+import infra.context.properties.sample.TestNestedConfigurationProperty;
+import infra.core.test.tools.ResourceFile;
 import infra.core.test.tools.SourceFile;
 import infra.core.test.tools.SourceFiles;
 import infra.core.test.tools.TestCompiler;
@@ -47,8 +52,8 @@ import infra.util.FileCopyUtils;
  */
 public class TestProject {
 
-  private static final Class<?>[] ALWAYS_INCLUDE = { ConfigurationProperties.class,
-          NestedConfigurationProperty.class };
+  private static final Class<?>[] ALWAYS_INCLUDE = { TestConfigurationProperties.class,
+          TestNestedConfigurationProperty.class };
 
   private SourceFiles sources;
 
@@ -57,12 +62,31 @@ public class TestProject {
   }
 
   public ConfigurationMetadata compile() {
+    return compile(null);
+  }
+
+  public ConfigurationMetadata compile(ConfigurationMetadata previousMetadata) {
     TestConfigurationMetadataAnnotationProcessor processor = new TestConfigurationMetadataAnnotationProcessor();
     TestCompiler compiler = TestCompiler.forSystem().withProcessors(processor);
+    if (previousMetadata != null) {
+      compiler = compiler.withResources(
+              ResourceFile.of("META-INF/infra-configuration-metadata.json", asBytes(previousMetadata)));
+    }
     AtomicReference<ConfigurationMetadata> configurationMetadata = new AtomicReference<>();
     compiler.compile(this.sources,
             (compiled) -> configurationMetadata.set(CompiledMetadataReader.getMetadata(compiled)));
     return configurationMetadata.get();
+  }
+
+  private byte[] asBytes(ConfigurationMetadata previousMetadata) {
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    try {
+      new JsonMarshaller().write(previousMetadata, output);
+    }
+    catch (IOException ex) {
+      throw new UncheckedIOException(ex);
+    }
+    return output.toByteArray();
   }
 
   /**

@@ -26,6 +26,7 @@ import java.util.Map;
 
 import infra.context.properties.json.JSONArray;
 import infra.context.properties.json.JSONObject;
+import infra.context.properties.processor.metadata.ItemMetadata.ItemType;
 
 /**
  * Converter to change meta-data objects into JSON objects.
@@ -39,7 +40,7 @@ class JsonConverter {
 
   private static final ItemMetadataComparator ITEM_COMPARATOR = new ItemMetadataComparator();
 
-  JSONArray toJsonArray(ConfigurationMetadata metadata, ItemMetadata.ItemType itemType) throws Exception {
+  JSONArray toJsonArray(ConfigurationMetadata metadata, ItemType itemType) throws Exception {
     JSONArray jsonArray = new JSONArray();
     List<ItemMetadata> items = metadata.getItems()
             .stream()
@@ -60,6 +61,21 @@ class JsonConverter {
       jsonArray.put(toJsonObject(hint));
     }
     return jsonArray;
+  }
+
+  JSONObject toJsonObject(Collection<ItemIgnore> ignored) throws Exception {
+    JSONObject result = new JSONObject();
+    result.put("properties", ignoreToJsonArray(
+            ignored.stream().filter((itemIgnore) -> itemIgnore.getType() == ItemType.PROPERTY).toList()));
+    return result;
+  }
+
+  private JSONArray ignoreToJsonArray(Collection<ItemIgnore> ignored) throws Exception {
+    JSONArray result = new JSONArray();
+    for (ItemIgnore itemIgnore : ignored) {
+      result.put(toJsonObject(itemIgnore));
+    }
+    return result;
   }
 
   JSONObject toJsonObject(ItemMetadata item) throws Exception {
@@ -103,6 +119,12 @@ class JsonConverter {
     if (!hint.getProviders().isEmpty()) {
       jsonObject.put("providers", getItemHintProviders(hint));
     }
+    return jsonObject;
+  }
+
+  private JSONObject toJsonObject(ItemIgnore ignore) throws Exception {
+    JSONObject jsonObject = new JSONObject();
+    jsonObject.put("name", ignore.getName());
     return jsonObject;
   }
 
@@ -177,7 +199,7 @@ class JsonConverter {
 
     @Override
     public int compare(ItemMetadata o1, ItemMetadata o2) {
-      if (o1.isOfItemType(ItemMetadata.ItemType.GROUP)) {
+      if (o1.isOfItemType(ItemType.GROUP)) {
         return GROUP.compare(o1, o2);
       }
       return ITEM.compare(o1, o2);

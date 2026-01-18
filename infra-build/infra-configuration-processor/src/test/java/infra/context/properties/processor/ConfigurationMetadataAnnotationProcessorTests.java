@@ -18,11 +18,25 @@
 
 package infra.context.properties.processor;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 import infra.context.properties.processor.metadata.ConfigurationMetadata;
+import infra.context.properties.processor.metadata.ItemIgnore;
 import infra.context.properties.processor.metadata.ItemMetadata;
 import infra.context.properties.processor.metadata.Metadata;
+import infra.context.properties.processor.test.CompiledMetadataReader;
+import infra.context.properties.processor.test.TestConfigurationMetadataAnnotationProcessor;
+import infra.context.properties.sample.deprecation.Dbcp2Configuration;
+import infra.context.properties.sample.method.NestedPropertiesMethod;
+import infra.context.properties.sample.record.ExampleRecord;
+import infra.context.properties.sample.record.NestedPropertiesRecord;
 import infra.context.properties.sample.record.RecordWithGetter;
 import infra.context.properties.sample.recursive.RecursiveProperties;
 import infra.context.properties.sample.simple.ClassWithNestedProperties;
@@ -34,6 +48,7 @@ import infra.context.properties.sample.simple.DescriptionProperties;
 import infra.context.properties.sample.simple.HierarchicalProperties;
 import infra.context.properties.sample.simple.HierarchicalPropertiesGrandparent;
 import infra.context.properties.sample.simple.HierarchicalPropertiesParent;
+import infra.context.properties.sample.simple.IgnoredProperties;
 import infra.context.properties.sample.simple.InnerClassWithPrivateConstructor;
 import infra.context.properties.sample.simple.NotAnnotated;
 import infra.context.properties.sample.simple.SimpleArrayProperties;
@@ -41,13 +56,39 @@ import infra.context.properties.sample.simple.SimpleCollectionProperties;
 import infra.context.properties.sample.simple.SimplePrefixValueProperties;
 import infra.context.properties.sample.simple.SimpleProperties;
 import infra.context.properties.sample.simple.SimpleTypeProperties;
+import infra.context.properties.sample.source.ConcreteProperties;
+import infra.context.properties.sample.source.ConcreteSource;
+import infra.context.properties.sample.source.ConcreteSourceAnnotated;
+import infra.context.properties.sample.source.ConventionSource;
+import infra.context.properties.sample.source.ConventionSourceAnnotated;
+import infra.context.properties.sample.source.ImmutableSource;
+import infra.context.properties.sample.source.ImmutableSourceAnnotated;
+import infra.context.properties.sample.source.LombokSource;
+import infra.context.properties.sample.source.LombokSourceAnnotated;
+import infra.context.properties.sample.source.ParentWithHintProperties;
+import infra.context.properties.sample.source.RecordSource;
+import infra.context.properties.sample.source.RecordSourceAnnotated;
+import infra.context.properties.sample.source.SimpleSource;
+import infra.context.properties.sample.source.SimpleSourceAnnotated;
+import infra.context.properties.sample.source.generation.AbstractPropertiesSource;
+import infra.context.properties.sample.source.generation.ConfigurationPropertySourcesContainer;
+import infra.context.properties.sample.source.generation.ConfigurationPropertySourcesContainer.First;
+import infra.context.properties.sample.source.generation.ConfigurationPropertySourcesContainer.Second;
+import infra.context.properties.sample.source.generation.ConfigurationPropertySourcesContainer.Third;
+import infra.context.properties.sample.source.generation.ImmutablePropertiesSource;
+import infra.context.properties.sample.source.generation.LombokPropertiesSource;
+import infra.context.properties.sample.source.generation.NestedPropertiesSource;
+import infra.context.properties.sample.source.generation.RecordPropertiesSources;
+import infra.context.properties.sample.source.generation.SimplePropertiesSource;
 import infra.context.properties.sample.specific.AnnotatedGetter;
 import infra.context.properties.sample.specific.BoxingPojo;
 import infra.context.properties.sample.specific.BuilderPojo;
 import infra.context.properties.sample.specific.DeprecatedLessPreciseTypePojo;
+import infra.context.properties.sample.specific.DeprecatedSimplePojo;
 import infra.context.properties.sample.specific.DeprecatedUnrelatedMethodPojo;
 import infra.context.properties.sample.specific.DoubleRegistrationProperties;
 import infra.context.properties.sample.specific.EmptyDefaultValueProperties;
+import infra.context.properties.sample.specific.EnumValuesPojo;
 import infra.context.properties.sample.specific.ExcludedTypesPojo;
 import infra.context.properties.sample.specific.InnerClassAnnotatedGetterConfig;
 import infra.context.properties.sample.specific.InnerClassHierarchicalProperties;
@@ -61,6 +102,10 @@ import infra.context.properties.sample.specific.InvalidDoubleRegistrationPropert
 import infra.context.properties.sample.specific.SimplePojo;
 import infra.context.properties.sample.specific.StaticAccessor;
 import infra.core.test.tools.CompilationException;
+import infra.core.test.tools.Compiled;
+import infra.core.test.tools.ResourceFile;
+import infra.core.test.tools.SourceFile;
+import infra.core.test.tools.TestCompiler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -84,6 +129,7 @@ class ConfigurationMetadataAnnotationProcessorTests extends AbstractMetadataGene
     assertThat(new ConfigurationMetadataAnnotationProcessor().getSupportedAnnotationTypes())
             .containsExactlyInAnyOrder("infra.context.annotation.config.AutoConfiguration",
                     "infra.context.properties.ConfigurationProperties",
+                    "infra.context.properties.ConfigurationPropertiesSource",
                     "infra.context.annotation.config.DisableDIAutoConfiguration",
                     "infra.context.annotation.Configuration");
   }
@@ -167,6 +213,15 @@ class ConfigurationMetadataAnnotationProcessorTests extends AbstractMetadataGene
   }
 
   @Test
+  void enumValues() {
+    ConfigurationMetadata metadata = compile(EnumValuesPojo.class);
+    assertThat(metadata).has(Metadata.withGroup("test").fromSource(EnumValuesPojo.class));
+    assertThat(metadata).has(Metadata.withProperty("test.seconds", ChronoUnit.class).withDefaultValue("seconds"));
+    assertThat(metadata)
+            .has(Metadata.withProperty("test.hour-of-day", ChronoField.class).withDefaultValue("hour-of-day"));
+  }
+
+  @Test
   void descriptionProperties() {
     ConfigurationMetadata metadata = compile(DescriptionProperties.class);
     assertThat(metadata).has(Metadata.withGroup("description").fromSource(DescriptionProperties.class));
@@ -244,6 +299,9 @@ class ConfigurationMetadataAnnotationProcessorTests extends AbstractMetadataGene
             .fromSource(type)
             .withDeprecation("some-reason", null, null));
     assertThat(metadata).has(Metadata.withProperty("deprecated-record.bravo", String.class).fromSource(type));
+    assertThat(metadata).has(Metadata.withProperty("deprecated-record.named.charlie", String.class)
+            .fromSource(type)
+            .withDeprecation("another-reason", null, null));
   }
 
   @Test
@@ -331,6 +389,10 @@ class ConfigurationMetadataAnnotationProcessorTests extends AbstractMetadataGene
     assertThat(metadata).has(Metadata.withProperty("config.third.value"));
     assertThat(metadata).has(Metadata.withProperty("config.fourth"));
     assertThat(metadata).isNotEqualTo(Metadata.withGroup("config.fourth"));
+    assertThat(metadata).has(Metadata.withGroup("config.fifth")
+            .ofType(DeprecatedSimplePojo.class)
+            .fromSource(InnerClassProperties.class));
+    assertThat(metadata).has(Metadata.withProperty("config.fifth.value").withDeprecation());
   }
 
   @Test
@@ -351,6 +413,15 @@ class ConfigurationMetadataAnnotationProcessorTests extends AbstractMetadataGene
     assertThat(metadata).has(Metadata.withProperty("specific.value"));
     assertThat(metadata).has(Metadata.withProperty("foo.name"));
     assertThat(metadata).isNotEqualTo(Metadata.withProperty("specific.foo"));
+  }
+
+  @Test
+  void nestedClassMethod() {
+    ConfigurationMetadata metadata = compile(NestedPropertiesMethod.class);
+    assertThat(metadata).has(Metadata.withGroup("method-nested.nested"));
+    assertThat(metadata).has(Metadata.withProperty("method-nested.nested.my-nested-property"));
+    assertThat(metadata).has(Metadata.withGroup("method-nested.inner.nested"));
+    assertThat(metadata).has(Metadata.withProperty("method-nested.inner.nested.my-nested-property"));
   }
 
   @Test
@@ -448,7 +519,7 @@ class ConfigurationMetadataAnnotationProcessorTests extends AbstractMetadataGene
   @Test
   void recordProperties() {
     String source = """
-            @infra.context.properties.sample.ConfigurationProperties("implicit")
+            @infra.context.properties.sample.TestConfigurationProperties("implicit")
             public record ExampleRecord(String someString, Integer someInteger) {
             }
             """;
@@ -460,10 +531,10 @@ class ConfigurationMetadataAnnotationProcessorTests extends AbstractMetadataGene
   @Test
   void recordPropertiesWithDefaultValues() {
     String source = """
-            @infra.context.properties.sample.ConfigurationProperties("record.defaults")
+            @infra.context.properties.sample.TestConfigurationProperties("record.defaults")
             public record ExampleRecord(
-            	@infra.context.properties.sample.DefaultValue("An1s9n") String someString,
-            	@infra.context.properties.sample.DefaultValue("594") Integer someInteger) {
+            	@infra.context.properties.sample.TestDefaultValue("An1s9n") String someString,
+            	@infra.context.properties.sample.TestDefaultValue("594") Integer someInteger) {
             }
             """;
     ConfigurationMetadata metadata = compile(source);
@@ -476,9 +547,9 @@ class ConfigurationMetadataAnnotationProcessorTests extends AbstractMetadataGene
   @Test
   void multiConstructorRecordProperties() {
     String source = """
-            @infra.context.properties.sample.ConfigurationProperties("multi")
+            @infra.context.properties.sample.TestConfigurationProperties("multi")
             public record ExampleRecord(String someString, Integer someInteger) {
-            	@infra.context.properties.sample.ConstructorBinding
+            	@infra.context.properties.sample.TestConstructorBinding
             	public ExampleRecord(String someString) {
             		this(someString, 42);
             	}
@@ -504,6 +575,442 @@ class ConfigurationMetadataAnnotationProcessorTests extends AbstractMetadataGene
     ConfigurationMetadata metadata = compile(RecordWithGetter.class);
     assertThat(metadata).has(Metadata.withProperty("record-with-getter.alpha"));
     assertThat(metadata).doesNotHave(Metadata.withProperty("record-with-getter.bravo"));
+  }
+
+  @Test
+  void recordNested() {
+    ConfigurationMetadata metadata = compile(NestedPropertiesRecord.class);
+    assertThat(metadata).has(Metadata.withGroup("record-nested.nested"));
+    assertThat(metadata).has(Metadata.withProperty("record-nested.nested.my-nested-property"));
+    assertThat(metadata).has(Metadata.withGroup("record-nested.inner.nested"));
+    assertThat(metadata).has(Metadata.withProperty("record-nested.inner.nested.my-nested-property"));
+  }
+
+  @Test
+  void shouldNotMarkDbcp2UsernameOrPasswordAsDeprecated() {
+    ConfigurationMetadata metadata = compile(Dbcp2Configuration.class);
+    assertThat(metadata).has(Metadata.withProperty("datasource.dbcp2.username").withNoDeprecation());
+    assertThat(metadata).has(Metadata.withProperty("datasource.dbcp2.password").withNoDeprecation());
+  }
+
+  @Test
+  void recordPropertiesWithDescriptions() {
+    ConfigurationMetadata metadata = compile(ExampleRecord.class);
+    assertThat(metadata).has(Metadata.withProperty("record.descriptions.some-string", String.class)
+            .withDescription("very long description that doesn't fit single line and is indented"));
+    assertThat(metadata).has(Metadata.withProperty("record.descriptions.some-integer", Integer.class)
+            .withDescription("description with @param and @ pitfalls"));
+    assertThat(metadata).has(Metadata.withProperty("record.descriptions.some-boolean", Boolean.class)
+            .withDescription("description with extra spaces"));
+    assertThat(metadata).has(Metadata.withProperty("record.descriptions.some-long", Long.class)
+            .withDescription("description without space after asterisk"));
+    assertThat(metadata).has(Metadata.withProperty("record.descriptions.some-byte", Byte.class)
+            .withDescription("last description in Javadoc"));
+    assertThat(metadata).has(Metadata.withProperty("record.descriptions.named.record.component", String.class)
+            .withDescription("description of a named component"));
+  }
+
+  @Test
+  void shouldIgnoreProperties() {
+    String additionalMetadata = """
+            {
+            	"ignored": {
+            		"properties": [
+            			{
+            				"name": "ignored.prop3"
+            			}
+            		]
+            	}
+            }
+            """;
+    ConfigurationMetadata metadata = compile(additionalMetadata, IgnoredProperties.class);
+    assertThat(metadata).has(Metadata.withProperty("ignored.prop1", String.class));
+    assertThat(metadata).has(Metadata.withProperty("ignored.prop2", String.class));
+    assertThat(metadata).doesNotHave(Metadata.withProperty("ignored.prop3", String.class));
+    assertThat(metadata.getIgnored()).containsExactly(ItemIgnore.forProperty("ignored.prop3"));
+  }
+
+  @Nested
+  class SourceTests {
+
+    @Test
+    void javaBeansSourceIsMergedWithNestedConfigurationProperty() {
+      ConfigurationMetadata metadata = compile(SimpleSourceAnnotated.class, SimpleSource.class);
+      assertThat(metadata).has(Metadata.withGroup("example.nested", SimpleSource.class))
+              .has(Metadata.withProperty("example.nested.name", String.class).withDescription("Name description."))
+              .has(Metadata.withProperty("example.nested.description", String.class)
+                      .withDescription("Description description.")
+                      .withDefaultValue("Hello World"))
+              .has(Metadata.withProperty("example.nested.type", String.class)
+                      .withDescription("A property with a fixed set of values.")
+                      .withDefaultValue("single"));
+    }
+
+    @Test
+    void lombokSourceIsMergedWithNestedConfigurationProperty() {
+      ConfigurationMetadata metadata = compile(LombokSourceAnnotated.class, LombokSource.class);
+      assertThat(metadata).has(Metadata.withGroup("example.nested", LombokSource.class))
+              .has(Metadata.withProperty("example.nested.name", String.class).withDescription("Name description."))
+              .has(Metadata.withProperty("example.nested.description", String.class)
+                      .withDescription("Description description.")
+                      .withDefaultValue("Hello World"))
+              .has(Metadata.withProperty("example.nested.type", String.class)
+                      .withDescription("A property with a fixed set of values.")
+                      .withDefaultValue("single"));
+    }
+
+    @Test
+    void immutableSourceIsMergedWithNestedConfigurationProperty() {
+      ConfigurationMetadata metadata = compile(ImmutableSourceAnnotated.class, ImmutableSource.class);
+      assertThat(metadata).has(Metadata.withGroup("example.nested", ImmutableSource.class))
+              .has(Metadata.withProperty("example.nested.name", String.class).withDescription("Name description."))
+              .has(Metadata.withProperty("example.nested.description", String.class)
+                      .withDescription("Description description.")
+                      .withDefaultValue("Hello World"))
+              .has(Metadata.withProperty("example.nested.type", String.class)
+                      .withDescription("A property with a fixed set of values.")
+                      .withDefaultValue("single"));
+    }
+
+    @Test
+    void recordSourceIsMergedWithNestedConfigurationProperty() {
+      ConfigurationMetadata metadata = compile(RecordSourceAnnotated.class, RecordSource.class);
+      assertThat(metadata).has(Metadata.withGroup("example.nested", RecordSource.class))
+              .has(Metadata.withProperty("example.nested.name", String.class).withDescription("Name description."))
+              .has(Metadata.withProperty("example.nested.description", String.class)
+                      .withDescription("Description description.")
+                      .withDefaultValue("Hello World"))
+              .has(Metadata.withProperty("example.nested.type", String.class)
+                      .withDescription("A property with a fixed set of values.")
+                      .withDefaultValue("single"));
+    }
+
+    @Test
+    void sourceIsMergedWithConfigurationProperties() {
+      ConfigurationMetadata metadata = compile(ParentWithHintProperties.class);
+      assertThat(metadata).has(Metadata.withGroup("example", ParentWithHintProperties.class))
+              .has(Metadata.withProperty("example.name", String.class).withDescription("Name description."))
+              .has(Metadata.withProperty("example.description", String.class)
+                      .withDescription("Description description.")
+                      .withDefaultValue("Hello World"))
+              .has(Metadata.withProperty("example.type", String.class)
+                      .withDescription("A property with a fixed set of values.")
+                      .withDefaultValue("single"))
+              .has(Metadata.withProperty("example.enabled", Boolean.class)
+                      .withDescription("Whether this is enabled.")
+                      .withDefaultValue(false));
+    }
+
+    @Test
+    void sourceHintIsMergedWithNestedConfigurationProperty() {
+      ConfigurationMetadata metadata = compile(SimpleSourceAnnotated.class);
+      assertThat(metadata).has(Metadata.withHint("example.nested.type")
+              .withValue(0, "auto", "Detect the type automatically.")
+              .withValue(1, "single", "Single type.")
+              .withValue(2, "multi", "Multi type."));
+    }
+
+    @Test
+    void sourceHintIsMergedWithConfigurationProperties() {
+      ConfigurationMetadata metadata = compile(ParentWithHintProperties.class);
+      assertThat(metadata).has(Metadata.withHint("example.type")
+              .withValue(0, "auto", "Detect the type automatically.")
+              .withValue(1, "single", "Single type.")
+              .withValue(2, "multi", "Multi type."));
+    }
+
+    @Test
+    void sourceWithNonCanonicalMetadataIsDiscovered() {
+      ConfigurationMetadata metadata = compile(ConventionSourceAnnotated.class);
+      assertThat(metadata).has(Metadata.withGroup("example.nested", ConventionSource.class))
+              .has(Metadata.withProperty("example.nested.first-name", String.class).withDescription("Camel case."))
+              .has(Metadata.withProperty("example.nested.last-name", String.class)
+                      .withDescription("Canonical format."));
+      assertThat(metadata.getItems()).hasSize(4);
+    }
+
+    @Test
+    void sourceFromParentClasIsDiscoveredForConcreteSource() {
+      ConfigurationMetadata metadata = compile(ConcreteSourceAnnotated.class, ConcreteSource.class);
+      assertThat(metadata).has(Metadata.withGroup("example", ConcreteSourceAnnotated.class))
+              .has(Metadata.withGroup("example.nested", ConcreteSource.class))
+              .has(Metadata.withProperty("example.nested.enabled", Boolean.class)
+                      .withDescription("Whether the feature is enabled."))
+              .has(Metadata.withProperty("example.nested.username", String.class)
+                      .withDescription("User name.")
+                      .withDefaultValue("user"))
+              .has(Metadata.withProperty("example.nested.password", String.class).withDescription("Password."));
+      assertThat(metadata.getItems()).hasSize(5);
+    }
+
+    @Test
+    void sourceFromParentClasIsDiscoveredForConfigurationProperties() {
+      ConfigurationMetadata metadata = compile(ConcreteProperties.class);
+      assertThat(metadata).has(Metadata.withGroup("example", ConcreteProperties.class))
+              .has(Metadata.withProperty("example.enabled", Boolean.class)
+                      .withDescription("Whether the feature is enabled."))
+              .has(Metadata.withProperty("example.username", String.class)
+                      .withDescription("User name.")
+                      .withDefaultValue("user"))
+              .has(Metadata.withProperty("example.password", String.class).withDescription("Password."));
+      assertThat(metadata.getItems()).hasSize(4);
+    }
+
+  }
+
+  @Nested
+  class SourceGenerationTests {
+
+    @Test
+    void simplePropertiesSource() {
+      compile(withTestClasses(SimplePropertiesSource.class), (compiled) -> {
+        ConfigurationMetadata metadata = CompiledMetadataReader.getMetadata(compiled,
+                getSourceMetadataLocation(SimplePropertiesSource.class));
+        assertThat(metadata).isNotNull()
+                .has(Metadata.withProperty("name")
+                        .ofType(String.class)
+                        .withDefaultValue("boot")
+                        .withDescription("Description of this simple property."))
+                .has(Metadata.withProperty("enabled")
+                        .ofType(Boolean.class)
+                        .withDefaultValue(false)
+                        .withDescription("Whether it is enabled."));
+        assertThat(metadata.getItems()).hasSize(2);
+        assertThat(metadata.getHints()).isEmpty();
+      });
+    }
+
+    @Test
+    void simplePropertiesSourceWithAdditionalMetadataIsMerged() {
+      String additionalMetadata = """
+              {
+                 "properties": [
+              	 {
+              	   "name": "custom",
+              	   "type": "java.lang.Integer",
+              	   "description": "Custom property description."
+              	 }
+                 ]
+               }""";
+      compile(withTestClasses(SimplePropertiesSource.class)
+              .andThen(withAdditionalMetadata(SimplePropertiesSource.class, additionalMetadata)), (compiled) -> {
+        ConfigurationMetadata metadata = CompiledMetadataReader.getMetadata(compiled,
+                getSourceMetadataLocation(SimplePropertiesSource.class));
+        assertThat(metadata).isNotNull()
+                .has(Metadata.withProperty("name")
+                        .ofType(String.class)
+                        .withDefaultValue("boot")
+                        .withDescription("Description of this simple property."))
+                .has(Metadata.withProperty("enabled")
+                        .ofType(Boolean.class)
+                        .withDefaultValue(false)
+                        .withDescription("Whether it is enabled."))
+                .has(Metadata.withProperty("custom")
+                        .ofType(Integer.class)
+                        .withDescription("Custom property description."));
+        assertThat(metadata.getItems()).hasSize(3);
+      });
+    }
+
+    @Test
+    void simplePropertiesSourceWithAdditionalMetadataHintIsMerged() {
+      String additionalMetadata = """
+              {
+               "hints": [
+                 {
+              	 "name": "name",
+              	 "values": [
+              	   { "value": "boot", "description": "Infra App." },
+              	   { "value": "framework", "description": "TODAY Framework." }
+              	 ]
+                 }
+               ]
+              }""";
+      compile(withTestClasses(SimplePropertiesSource.class)
+              .andThen(withAdditionalMetadata(SimplePropertiesSource.class, additionalMetadata)), (compiled) -> {
+        ConfigurationMetadata metadata = CompiledMetadataReader.getMetadata(compiled,
+                getSourceMetadataLocation(SimplePropertiesSource.class));
+        assertThat(metadata).isNotNull()
+                .has(Metadata.withProperty("name")
+                        .ofType(String.class)
+                        .withDefaultValue("boot")
+                        .withDescription("Description of this simple property."))
+                .has(Metadata.withProperty("enabled")
+                        .ofType(Boolean.class)
+                        .withDefaultValue(false)
+                        .withDescription("Whether it is enabled."))
+                .has(Metadata.withHint("name")
+                        .withValue(0, "boot", "Infra App.")
+                        .withValue(1, "framework", "TODAY Framework."));
+        assertThat(metadata.getItems()).hasSize(2);
+        assertThat(metadata.getHints()).hasSize(1);
+      });
+    }
+
+    @Test
+    void simplePropertiesSourceWithAdditionalMetadataCanBeOverridden() {
+      String additionalMetadata = """
+              {
+                 "properties": [
+              	 {
+              	   "name": "name",
+              	   "description": "Custom description."
+              	 }
+                 ]
+               }""";
+      compile(withTestClasses(SimplePropertiesSource.class)
+              .andThen(withAdditionalMetadata(SimplePropertiesSource.class, additionalMetadata)), (compiled) -> {
+        ConfigurationMetadata metadata = CompiledMetadataReader.getMetadata(compiled,
+                getSourceMetadataLocation(SimplePropertiesSource.class));
+        assertThat(metadata).isNotNull()
+                .has(Metadata.withProperty("name")
+                        .ofType(String.class)
+                        .withDefaultValue("boot")
+                        .withDescription("Custom description."))
+                .has(Metadata.withProperty("enabled")
+                        .ofType(Boolean.class)
+                        .withDefaultValue(false)
+                        .withDescription("Whether it is enabled."));
+        assertThat(metadata.getItems()).hasSize(2);
+      });
+    }
+
+    @Test
+    void lombokPropertiesSource() {
+      compile(withTestClasses(LombokPropertiesSource.class), (compiled) -> {
+        ConfigurationMetadata metadata = CompiledMetadataReader.getMetadata(compiled,
+                getSourceMetadataLocation(LombokPropertiesSource.class));
+        assertThat(metadata).isNotNull()
+                .has(Metadata.withProperty("name")
+                        .ofType(String.class)
+                        .withDefaultValue("boot")
+                        .withDescription("Description of this simple property."))
+                .has(Metadata.withProperty("enabled")
+                        .ofType(Boolean.class)
+                        .withDefaultValue(false)
+                        .withDescription("Whether it is enabled."));
+        assertThat(metadata.getItems()).hasSize(2);
+        assertThat(metadata.getHints()).isEmpty();
+      });
+    }
+
+    @Test
+    void immutablePropertiesSource() {
+      compile(withTestClasses(ImmutablePropertiesSource.class), (compiled) -> {
+        ConfigurationMetadata metadata = CompiledMetadataReader.getMetadata(compiled,
+                getSourceMetadataLocation(ImmutablePropertiesSource.class));
+        assertThat(metadata).isNotNull()
+                .has(Metadata.withProperty("name")
+                        .ofType(String.class)
+                        .withDefaultValue("boot")
+                        .withDescription("Description of this simple property."))
+                .has(Metadata.withProperty("enabled")
+                        .ofType(Boolean.class)
+                        .withDefaultValue(false)
+                        .withDescription("Whether it is enabled."));
+        assertThat(metadata.getItems()).hasSize(2);
+        assertThat(metadata.getHints()).isEmpty();
+      });
+    }
+
+    @Test
+    void recordPropertiesSource() {
+      compile(withTestClasses(RecordPropertiesSources.class), (compiled) -> {
+        ConfigurationMetadata metadata = CompiledMetadataReader.getMetadata(compiled, getSourceMetadataLocation(RecordPropertiesSources.class));
+        assertThat(metadata).isNotNull()
+                .has(Metadata.withProperty("name")
+                        .ofType(String.class)
+                        .withDefaultValue("boot")
+                        .withDescription("Description of this simple property."))
+                .has(Metadata.withProperty("enabled")
+                        .ofType(Boolean.class)
+                        .withDefaultValue(false)
+                        .withDescription("Whether it is enabled."));
+        assertThat(metadata.getItems()).hasSize(2);
+        assertThat(metadata.getHints()).isEmpty();
+      });
+    }
+
+    @Test
+    void abstractPropertiesSource() {
+      compile(withTestClasses(AbstractPropertiesSource.class), (compiled) -> {
+        ConfigurationMetadata metadata = CompiledMetadataReader.getMetadata(compiled,
+                getSourceMetadataLocation(AbstractPropertiesSource.class));
+        assertThat(metadata).isNotNull()
+                .has(Metadata.withProperty("name")
+                        .ofType(String.class)
+                        .withDefaultValue("boot")
+                        .withDescription("Description of this simple property."))
+                .has(Metadata.withProperty("enabled")
+                        .ofType(Boolean.class)
+                        .withDefaultValue(false)
+                        .withDescription("Whether it is enabled."));
+        assertThat(metadata.getItems()).hasSize(2);
+        assertThat(metadata.getHints()).isEmpty();
+      });
+    }
+
+    @Test
+    void nonRootConfigurationPropertiesSources() {
+      compile(withTestClasses(ConfigurationPropertySourcesContainer.class), (compiled) -> {
+        assertThat(CompiledMetadataReader.getMetadata(compiled,
+                getSourceMetadataLocation(ConfigurationPropertySourcesContainer.class)))
+                .isNull();
+        ConfigurationMetadata firstMetadata = CompiledMetadataReader.getMetadata(compiled,
+                getSourceMetadataLocation(First.class));
+        assertThat(firstMetadata).isNotNull()
+                .has(Metadata.withProperty("name").ofType(String.class).withDescription("A name."));
+        assertThat(firstMetadata.getItems()).hasSize(1);
+        assertThat(firstMetadata.getHints()).isEmpty();
+        ConfigurationMetadata secondMetadata = CompiledMetadataReader.getMetadata(compiled,
+                getSourceMetadataLocation(Second.class));
+        assertThat(secondMetadata).isNotNull()
+                .has(Metadata.withProperty("visible")
+                        .ofType(Boolean.class)
+                        .withDefaultValue(true)
+                        .withDescription("Whether this is visible."));
+        assertThat(secondMetadata.getItems()).hasSize(1);
+        assertThat(secondMetadata.getHints()).isEmpty();
+        assertThat(CompiledMetadataReader.getMetadata(compiled, getSourceMetadataLocation(Third.class)))
+                .isNull();
+
+      });
+    }
+
+    @Test
+    void nestedPropertiesSource() {
+      compile(withTestClasses(NestedPropertiesSource.class), (compiled) -> {
+        ConfigurationMetadata metadata = CompiledMetadataReader.getMetadata(compiled,
+                getSourceMetadataLocation(NestedPropertiesSource.class));
+        assertThat(metadata).isNotNull()
+                .has(Metadata.withProperty("name").ofType(String.class).withDescription("A name."))
+                .has(Metadata.withGroup("nested").ofType(NestedPropertiesSource.Nested.class))
+                .has(Metadata.withProperty("nested.name").ofType(String.class).withDescription("Another name."));
+        assertThat(metadata.getItems()).hasSize(3);
+      });
+    }
+
+    private String getSourceMetadataLocation(Class<?> type) {
+      return "META-INF/configuration-metadata/%s.json".formatted(type.getName());
+    }
+
+    private void compile(Function<TestCompiler, TestCompiler> configuration, Consumer<Compiled> compiled) {
+      TestCompiler testCompiler = TestCompiler.forSystem();
+      configuration.apply(testCompiler)
+              .withProcessors(new TestConfigurationMetadataAnnotationProcessor())
+              .compile(compiled);
+    }
+
+    private Function<TestCompiler, TestCompiler> withTestClasses(Class<?>... testClasses) {
+      return (compiler) -> compiler
+              .withSources(Arrays.stream(testClasses).map(SourceFile::forTestClass).toList());
+    }
+
+    private Function<TestCompiler, TestCompiler> withAdditionalMetadata(Class<?> type, String content) {
+      String location = "META-INF/configuration-metadata/additional/%s.json".formatted(type.getName());
+      return (compiler) -> compiler.withResources(ResourceFile.of(location, content));
+    }
+
   }
 
 }

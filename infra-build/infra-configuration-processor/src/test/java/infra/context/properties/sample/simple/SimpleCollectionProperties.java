@@ -25,14 +25,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Properties with collections.
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties(prefix = "collection")
+@TestConfigurationProperties(prefix = "collection")
 public class SimpleCollectionProperties {
 
   private Map<Integer, String> integersToNames;

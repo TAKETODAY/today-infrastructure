@@ -18,20 +18,20 @@
 
 package infra.context.properties.sample.immutable;
 
-import infra.context.properties.sample.ConfigurationProperties;
-import infra.context.properties.sample.DefaultValue;
+import infra.context.properties.sample.TestConfigurationProperties;
+import infra.context.properties.sample.TestDefaultValue;
 
 /**
  * Inner properties, in immutable format.
  *
  * @author Phillip Webb
  */
-@ConfigurationProperties("test")
+@TestConfigurationProperties("test")
 public class DeducedImmutableClassProperties {
 
   private final Nested nested;
 
-  public DeducedImmutableClassProperties(@DefaultValue Nested nested) {
+  public DeducedImmutableClassProperties(@TestDefaultValue Nested nested) {
     this.nested = nested;
   }
 

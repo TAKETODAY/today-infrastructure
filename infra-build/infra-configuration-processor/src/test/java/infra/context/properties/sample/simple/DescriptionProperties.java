@@ -18,14 +18,14 @@
 
 package infra.context.properties.sample.simple;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Configuration properties with various description styles.
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties("description")
+@TestConfigurationProperties("description")
 public class DescriptionProperties {
 
   /**

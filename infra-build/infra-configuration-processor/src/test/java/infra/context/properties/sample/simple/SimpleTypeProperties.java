@@ -18,14 +18,14 @@
 
 package infra.context.properties.sample.simple;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Expose simple types to make sure these are detected properly.
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties(prefix = "simple.type")
+@TestConfigurationProperties(prefix = "simple.type")
 public class SimpleTypeProperties {
 
   private String myString;

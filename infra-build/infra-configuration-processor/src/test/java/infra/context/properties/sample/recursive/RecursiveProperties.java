@@ -18,9 +18,9 @@
 
 package infra.context.properties.sample.recursive;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
-@ConfigurationProperties("prefix")
+@TestConfigurationProperties("prefix")
 public class RecursiveProperties {
 
   private RecursiveProperties recursive;

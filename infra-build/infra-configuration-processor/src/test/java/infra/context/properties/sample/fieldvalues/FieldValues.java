@@ -22,8 +22,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Period;
+import java.time.temporal.ChronoUnit;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 import infra.util.DataSize;
 import infra.util.MimeType;
 
@@ -34,7 +35,7 @@ import infra.util.MimeType;
  * @author Stephane Nicoll
  */
 @SuppressWarnings("unused")
-@ConfigurationProperties
+@TestConfigurationProperties
 public class FieldValues {
 
   private static final String STRING_CONST = "c";
@@ -65,6 +66,8 @@ public class FieldValues {
 
   private boolean boolConst = BOOLEAN_CONST;
 
+  private boolean boolInverted = !false;
+
   private Boolean boolObject = Boolean.TRUE;
 
   private Boolean boolObjectNone;
@@ -76,6 +79,10 @@ public class FieldValues {
   private int integerNone;
 
   private int integerConst = INTEGER_CONST;
+
+  private int integerArithmetic = 10 * 10;
+
+  private int integerMax = Math.max(10, 20);
 
   private Integer integerObject = 3;
 
@@ -110,6 +117,8 @@ public class FieldValues {
   private String[] stringArrayConstElements = new String[] { STRING_CONST };
 
   private Integer[] integerArray = new Integer[] { 42, 24 };
+
+  private int[] intArrayUnsupportedExpression = new int[] { 10 + 10 };
 
   private UnknownElementType[] unknownArray = new UnknownElementType[] { new UnknownElementType() };
 
@@ -152,5 +161,23 @@ public class FieldValues {
   private Period periodYears = Period.ofYears(15);
 
   private Period periodZero = Period.ZERO;
+
+  private ChronoUnit enumNone;
+
+  private ChronoUnit enumSimple = ChronoUnit.SECONDS;
+
+  private java.time.temporal.ChronoField enumQualified = java.time.temporal.ChronoField.HOUR_OF_DAY;
+
+  private ChronoUnit enumWithIndirection = SampleOptions.DEFAULT_UNIT;
+
+  private int memberSelectInt = SampleOptions.DEFAULT_MAX_RETRIES;
+
+  public static class SampleOptions {
+
+    static final Integer DEFAULT_MAX_RETRIES = 20;
+
+    static final ChronoUnit DEFAULT_UNIT = ChronoUnit.SECONDS;
+
+  }
 
 }

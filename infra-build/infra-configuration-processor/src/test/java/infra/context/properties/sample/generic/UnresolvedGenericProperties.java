@@ -18,7 +18,7 @@
 
 package infra.context.properties.sample.generic;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Properties with unresolved generic information.
@@ -27,7 +27,7 @@ import infra.context.properties.sample.ConfigurationProperties;
  * @param <C> mapping value type
  * @author Stephane Nicoll
  */
-@ConfigurationProperties("generic")
+@TestConfigurationProperties("generic")
 public class UnresolvedGenericProperties<B extends Number, C> extends AbstractGenericProperties<String, B, C> {
 
 }

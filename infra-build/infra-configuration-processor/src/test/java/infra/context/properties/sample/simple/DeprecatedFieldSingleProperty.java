@@ -18,14 +18,14 @@
 
 package infra.context.properties.sample.simple;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Configuration properties with a single deprecated element.
  *
  * @author Andy Wilkinson
  */
-@ConfigurationProperties("singlefielddeprecated")
+@TestConfigurationProperties("singlefielddeprecated")
 public class DeprecatedFieldSingleProperty {
 
   @Deprecated

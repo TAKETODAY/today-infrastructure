@@ -18,8 +18,8 @@
 
 package infra.context.properties.sample.endpoint;
 
-import infra.context.properties.sample.ReadOperation;
-import infra.context.properties.sample.WebEndpoint;
+import infra.context.properties.sample.TestReadOperation;
+import infra.context.properties.sample.TestWebEndpoint;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -28,10 +28,10 @@ import org.jspecify.annotations.Nullable;
  *
  * @author Stephane Nicoll
  */
-@WebEndpoint(id = "specific", enableByDefault = true)
+@TestWebEndpoint(id = "specific", enableByDefault = true)
 public class SpecificEndpoint {
 
-  @ReadOperation
+  @TestReadOperation
   String invoke(@Nullable String param) {
     return "test";
   }

@@ -18,11 +18,11 @@
 
 package infra.context.properties.sample.inheritance;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 public class ChildPropertiesConfig {
 
-  @ConfigurationProperties(prefix = "inheritance")
+  @TestConfigurationProperties(prefix = "inheritance")
   public ChildProperties childConfig() {
     return new ChildProperties();
   }

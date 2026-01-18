@@ -18,14 +18,14 @@
 
 package infra.context.properties.sample.method;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Sample for testing method configuration.
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties("something")
+@TestConfigurationProperties("something")
 public class EmptyTypeMethodConfig {
 
   private String name;
@@ -38,7 +38,7 @@ public class EmptyTypeMethodConfig {
     this.name = name;
   }
 
-  @ConfigurationProperties("something")
+  @TestConfigurationProperties("something")
   public Foo foo() {
     return new Foo();
   }

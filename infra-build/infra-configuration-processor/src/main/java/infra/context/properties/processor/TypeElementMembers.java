@@ -29,6 +29,7 @@ import java.util.function.Function;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.RecordComponentElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
@@ -48,7 +49,7 @@ class TypeElementMembers {
 
   private static final String OBJECT_CLASS_NAME = Object.class.getName();
 
-  private static final String RECORD_CLASS_NAME = "java.lang.Record";
+  private static final String RECORD_CLASS_NAME = Record.class.getName();
 
   private final MetadataGenerationEnvironment env;
 
@@ -57,6 +58,8 @@ class TypeElementMembers {
   private final boolean isRecord;
 
   private final Map<String, VariableElement> fields = new LinkedHashMap<>();
+
+  private final Map<String, RecordComponentElement> recordComponents = new LinkedHashMap<>();
 
   private final Map<String, List<ExecutableElement>> publicGetters = new LinkedHashMap<>();
 
@@ -72,6 +75,9 @@ class TypeElementMembers {
   private void process(TypeElement element) {
     for (VariableElement field : ElementFilter.fieldsIn(element.getEnclosedElements())) {
       processField(field);
+    }
+    for (RecordComponentElement recordComponent : ElementFilter.recordComponentsIn(element.getEnclosedElements())) {
+      processRecordComponent(recordComponent);
     }
     for (ExecutableElement method : ElementFilter.methodsIn(element.getEnclosedElements())) {
       processMethod(method);
@@ -193,8 +199,17 @@ class TypeElementMembers {
     this.fields.putIfAbsent(name, field);
   }
 
+  private void processRecordComponent(RecordComponentElement recordComponent) {
+    String name = recordComponent.getSimpleName().toString();
+    this.recordComponents.putIfAbsent(name, recordComponent);
+  }
+
   Map<String, VariableElement> getFields() {
     return Collections.unmodifiableMap(this.fields);
+  }
+
+  Map<String, RecordComponentElement> getRecordComponents() {
+    return Collections.unmodifiableMap(this.recordComponents);
   }
 
   Map<String, List<ExecutableElement>> getPublicGetters() {

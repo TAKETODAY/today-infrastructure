@@ -18,22 +18,22 @@
 
 package infra.context.properties.sample.specific;
 
-import infra.context.properties.sample.ConfigurationProperties;
-import infra.context.properties.sample.ConstructorBinding;
-import infra.context.properties.sample.DefaultValue;
+import infra.context.properties.sample.TestConfigurationProperties;
+import infra.context.properties.sample.TestConstructorBinding;
+import infra.context.properties.sample.TestDefaultValue;
 
 /**
  * Demonstrates that an empty default value on a property leads to no default value.
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties("test")
+@TestConfigurationProperties("test")
 public class EmptyDefaultValueProperties {
 
   private final String name;
 
-  @ConstructorBinding
-  public EmptyDefaultValueProperties(@DefaultValue String name) {
+  @TestConstructorBinding
+  public EmptyDefaultValueProperties(@TestDefaultValue String name) {
     this.name = name;
   }
 

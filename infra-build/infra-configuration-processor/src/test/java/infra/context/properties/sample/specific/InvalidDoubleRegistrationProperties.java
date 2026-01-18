@@ -18,7 +18,7 @@
 
 package infra.context.properties.sample.specific;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Test that compilation fails if the same type is registered twice with the same prefix.
@@ -27,12 +27,12 @@ import infra.context.properties.sample.ConfigurationProperties;
  */
 public class InvalidDoubleRegistrationProperties {
 
-  @ConfigurationProperties("foo")
+  @TestConfigurationProperties("foo")
   public Foo foo() {
     return new Foo();
   }
 
-  @ConfigurationProperties("foo")
+  @TestConfigurationProperties("foo")
   public static class Foo {
 
     private String name;

@@ -18,7 +18,7 @@
 
 package infra.context.properties.sample.method;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Sample for testing method configuration that uses a constructor that should not be
@@ -29,7 +29,7 @@ import infra.context.properties.sample.ConfigurationProperties;
 @SuppressWarnings("unused")
 public class SingleConstructorMethodConfig {
 
-  @ConfigurationProperties(prefix = "foo")
+  @TestConfigurationProperties(prefix = "foo")
   public Foo foo() {
     return new Foo(new Object());
   }

@@ -18,8 +18,8 @@
 
 package infra.context.properties.sample.lombok;
 
-import infra.context.properties.sample.ConfigurationProperties;
-import infra.context.properties.sample.NestedConfigurationProperty;
+import infra.context.properties.sample.TestConfigurationProperties;
+import infra.context.properties.sample.TestNestedConfigurationProperty;
 import lombok.Data;
 
 /**
@@ -28,7 +28,7 @@ import lombok.Data;
  * @author Stephane Nicoll
  */
 @Data
-@ConfigurationProperties(prefix = "config")
+@TestConfigurationProperties(prefix = "config")
 @SuppressWarnings("unused")
 public class LombokInnerClassProperties {
 
@@ -36,7 +36,7 @@ public class LombokInnerClassProperties {
 
   private Foo second = new Foo();
 
-  @NestedConfigurationProperty
+  @TestNestedConfigurationProperty
   private final SimpleLombokPojo third = new SimpleLombokPojo();
 
   private Fourth fourth;

@@ -43,7 +43,7 @@ class MetadataStoreTests {
 
   private final ProcessingEnvironment environment = mock(ProcessingEnvironment.class);
 
-  private final MetadataStore metadataStore = new MetadataStore(this.environment);
+  private final MetadataStore metadataStore = new MetadataStore(this.environment, mock(TypeUtils.class));
 
   @Test
   void additionalMetadataIsLocatedInMavenBuild() throws IOException {
@@ -54,7 +54,8 @@ class MetadataStoreTests {
     File additionalMetadata = new File(metaInf, "additional-infra-configuration-metadata.json");
     additionalMetadata.createNewFile();
     assertThat(this.metadataStore.locateAdditionalMetadataFile(
-            new File(classesLocation, "META-INF/additional-infra-configuration-metadata.json")))
+            new File(classesLocation, "META-INF/additional-infra-configuration-metadata.json"),
+            "META-INF/additional-infra-configuration-metadata.json"))
             .isEqualTo(additionalMetadata);
   }
 
@@ -68,7 +69,8 @@ class MetadataStoreTests {
     File additionalMetadata = new File(metaInf, "additional-infra-configuration-metadata.json");
     additionalMetadata.createNewFile();
     assertThat(this.metadataStore.locateAdditionalMetadataFile(
-            new File(classesLocation, "META-INF/additional-infra-configuration-metadata.json")))
+            new File(classesLocation, "META-INF/additional-infra-configuration-metadata.json"),
+            "META-INF/additional-infra-configuration-metadata.json"))
             .isEqualTo(additionalMetadata);
   }
 
@@ -82,7 +84,8 @@ class MetadataStoreTests {
     File additionalMetadata = new File(metaInf, "additional-infra-configuration-metadata.json");
     additionalMetadata.createNewFile();
     assertThat(this.metadataStore.locateAdditionalMetadataFile(
-            new File(classesLocation, "META-INF/additional-infra-configuration-metadata.json")))
+            new File(classesLocation, "META-INF/additional-infra-configuration-metadata.json"),
+            "META-INF/additional-infra-configuration-metadata.json"))
             .isEqualTo(additionalMetadata);
   }
 
@@ -97,7 +100,9 @@ class MetadataStoreTests {
     given(this.environment.getOptions()).willReturn(
             Collections.singletonMap(ConfigurationMetadataAnnotationProcessor.ADDITIONAL_METADATA_LOCATIONS_OPTION,
                     location.getAbsolutePath()));
-    assertThat(this.metadataStore.locateAdditionalMetadataFile(new File(app, "foo"))).isEqualTo(additionalMetadata);
+    assertThat(this.metadataStore.locateAdditionalMetadataFile(new File(app, "foo"),
+            "META-INF/additional-infra-configuration-metadata.json"))
+            .isEqualTo(additionalMetadata);
   }
 
 }

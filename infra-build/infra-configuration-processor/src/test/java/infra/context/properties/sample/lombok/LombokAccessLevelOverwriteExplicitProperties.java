@@ -18,7 +18,7 @@
 
 package infra.context.properties.sample.lombok;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,7 +31,7 @@ import lombok.Setter;
  */
 @Getter(AccessLevel.PUBLIC)
 @Setter(AccessLevel.PUBLIC)
-@ConfigurationProperties(prefix = "accesslevel.overwrite.explicit")
+@TestConfigurationProperties(prefix = "accesslevel.overwrite.explicit")
 @SuppressWarnings("unused")
 public class LombokAccessLevelOverwriteExplicitProperties {
 

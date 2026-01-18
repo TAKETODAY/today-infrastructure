@@ -20,6 +20,8 @@ package infra.context.properties.processor.metadata;
 
 import java.util.Locale;
 
+import infra.context.properties.processor.support.ConventionUtils;
+
 /**
  * A group or property meta-data item from some {@link ConfigurationMetadata}.
  *
@@ -71,7 +73,7 @@ public final class ItemMetadata implements Comparable<ItemMetadata> {
       if (!fullName.isEmpty()) {
         fullName.append('.');
       }
-      fullName.append(ConfigurationMetadata.toDashedCase(name));
+      fullName.append(ConventionUtils.toDashedCase(name));
     }
     return fullName.toString();
   }
@@ -199,7 +201,7 @@ public final class ItemMetadata implements Comparable<ItemMetadata> {
     return string.toString();
   }
 
-  protected void buildToStringProperty(StringBuilder string, String property, Object value) {
+  private void buildToStringProperty(StringBuilder string, String property, Object value) {
     if (value != null) {
       string.append(" ").append(property).append(":").append(value);
     }
@@ -221,7 +223,7 @@ public final class ItemMetadata implements Comparable<ItemMetadata> {
   }
 
   public static String newItemMetadataPrefix(String prefix, String suffix) {
-    return prefix.toLowerCase(Locale.ROOT) + ConfigurationMetadata.toDashedCase(suffix);
+    return prefix.toLowerCase(Locale.ENGLISH) + ConventionUtils.toDashedCase(suffix);
   }
 
   /**

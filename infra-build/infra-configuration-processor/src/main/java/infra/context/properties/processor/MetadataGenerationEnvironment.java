@@ -43,6 +43,7 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 
+import infra.context.properties.processor.ConfigurationPropertiesSourceResolver.SourceMetadata;
 import infra.context.properties.processor.fieldvalues.FieldValuesParser;
 import infra.context.properties.processor.fieldvalues.javac.JavaCompilerFieldValuesParser;
 import infra.context.properties.processor.metadata.ItemDeprecation;
@@ -59,14 +60,17 @@ class MetadataGenerationEnvironment {
 
   private static final String NULLABLE_ANNOTATION = "org.jspecify.annotations.Nullable";
 
-  private static final Set<String> TYPE_EXCLUDES = Set.of(
-          "com.zaxxer.hikari.IConnectionCustomizer",
+  private static final Set<String> TYPE_EXCLUDES = Set.of("com.zaxxer.hikari.IConnectionCustomizer",
           "groovy.lang.MetaClass", "groovy.text.markup.MarkupTemplateEngine",
           "java.io.Writer", "java.io.PrintWriter",
           "java.lang.ClassLoader", "java.util.concurrent.ThreadFactory",
           "jakarta.jms.XAConnectionFactory", "javax.sql.DataSource", "javax.sql.XADataSource",
           "org.apache.tomcat.jdbc.pool.PoolConfiguration", "org.apache.tomcat.jdbc.pool.Validator",
           "org.flywaydb.core.api.callback.FlywayCallback", "org.flywaydb.core.api.resolver.MigrationResolver");
+
+  private static final Set<String> DEPRECATION_EXCLUDES = Set.of(
+          "org.apache.commons.dbcp2.BasicDataSource#getPassword",
+          "org.apache.commons.dbcp2.BasicDataSource#getUsername");
 
   private final TypeUtils typeUtils;
 
@@ -76,11 +80,17 @@ class MetadataGenerationEnvironment {
 
   private final FieldValuesParser fieldValuesParser;
 
+  private final ConfigurationPropertiesSourceResolver sourceResolver;
+
   private final Map<TypeElement, Map<String, Object>> defaultValues = new HashMap<>();
+
+  private final Map<TypeElement, SourceMetadata> sources = new HashMap<>();
 
   private final String configurationPropertiesAnnotation;
 
   private final String nestedConfigurationPropertyAnnotation;
+
+  private final String configurationPropertiesSourceAnnotation;
 
   private final String deprecatedConfigurationPropertyAnnotation;
 
@@ -97,14 +107,17 @@ class MetadataGenerationEnvironment {
   private final String autowiredAnnotation;
 
   MetadataGenerationEnvironment(ProcessingEnvironment environment, String configurationPropertiesAnnotation,
-          String nestedConfigurationPropertyAnnotation, String deprecatedConfigurationPropertyAnnotation,
-          String constructorBindingAnnotation, String autowiredAnnotation, String defaultValueAnnotation,
-          Set<String> endpointAnnotations, String readOperationAnnotation, String nameAnnotation) {
+          String configurationPropertiesSourceAnnotation, String nestedConfigurationPropertyAnnotation,
+          String deprecatedConfigurationPropertyAnnotation, String constructorBindingAnnotation,
+          String autowiredAnnotation, String defaultValueAnnotation, Set<String> endpointAnnotations,
+          String readOperationAnnotation, String nameAnnotation) {
     this.typeUtils = new TypeUtils(environment);
     this.elements = environment.getElementUtils();
     this.messager = environment.getMessager();
     this.fieldValuesParser = resolveFieldValuesParser(environment);
+    this.sourceResolver = new ConfigurationPropertiesSourceResolver(environment, this.typeUtils);
     this.configurationPropertiesAnnotation = configurationPropertiesAnnotation;
+    this.configurationPropertiesSourceAnnotation = configurationPropertiesSourceAnnotation;
     this.nestedConfigurationPropertyAnnotation = nestedConfigurationPropertyAnnotation;
     this.deprecatedConfigurationPropertyAnnotation = deprecatedConfigurationPropertyAnnotation;
     this.constructorBindingAnnotation = constructorBindingAnnotation;
@@ -133,15 +146,33 @@ class MetadataGenerationEnvironment {
   }
 
   /**
-   * Return the default value of the field with the specified {@code name}.
+   * Return the default value of the given {@code field}.
    *
    * @param type the type to consider
-   * @param name the name of the field
+   * @param field the field or {@code null} if it is not available
    * @return the default value or {@code null} if the field does not exist or no default
    * value has been detected
    */
-  Object getFieldDefaultValue(TypeElement type, String name) {
-    return this.defaultValues.computeIfAbsent(type, this::resolveFieldValues).get(name);
+  Object getFieldDefaultValue(TypeElement type, VariableElement field) {
+    return (field != null) ? this.defaultValues.computeIfAbsent(type, this::resolveFieldValues)
+            .get(field.getSimpleName().toString()) : null;
+  }
+
+  /**
+   * Resolve the {@link SourceMetadata} for the specified property.
+   *
+   * @param field the field of the property (can be {@code null})
+   * @param getter the getter of the property (can be {@code null})
+   * @return the {@link SourceMetadata} for the specified property
+   */
+  SourceMetadata resolveSourceMetadata(VariableElement field, ExecutableElement getter) {
+    if (field != null && field.getEnclosingElement() instanceof TypeElement type) {
+      return this.sources.computeIfAbsent(type, this.sourceResolver::resolveSource);
+    }
+    if (getter != null && getter.getEnclosingElement() instanceof TypeElement type) {
+      return this.sources.computeIfAbsent(type, this.sourceResolver::resolveSource);
+    }
+    return SourceMetadata.EMPTY;
   }
 
   boolean isExcluded(TypeMirror type) {
@@ -156,6 +187,13 @@ class MetadataGenerationEnvironment {
   }
 
   boolean isDeprecated(Element element) {
+    if (element == null) {
+      return false;
+    }
+    String elementName = element.getEnclosingElement() + "#" + element.getSimpleName();
+    if (DEPRECATION_EXCLUDES.contains(elementName)) {
+      return false;
+    }
     if (isElementDeprecated(element)) {
       return true;
     }
@@ -226,6 +264,17 @@ class MetadataGenerationEnvironment {
   AnnotationMirror getAnnotation(Element element, String type) {
     if (element != null) {
       for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
+        if (type.equals(annotation.getAnnotationType().toString())) {
+          return annotation;
+        }
+      }
+    }
+    return null;
+  }
+
+  private AnnotationMirror getTypeUseAnnotation(Element element, String type) {
+    if (element != null) {
+      for (AnnotationMirror annotation : element.asType().getAnnotationMirrors()) {
         if (type.equals(annotation.getAnnotationType().toString())) {
           return annotation;
         }
@@ -306,6 +355,10 @@ class MetadataGenerationEnvironment {
     return getAnnotation(element, this.configurationPropertiesAnnotation);
   }
 
+  TypeElement getConfigurationPropertiesSourceAnnotationElement() {
+    return this.elements.getTypeElement(this.configurationPropertiesSourceAnnotation);
+  }
+
   AnnotationMirror getNestedConfigurationPropertyAnnotation(Element element) {
     return getAnnotation(element, this.nestedConfigurationPropertyAnnotation);
   }
@@ -330,7 +383,7 @@ class MetadataGenerationEnvironment {
   }
 
   boolean hasNullableAnnotation(Element element) {
-    return getAnnotation(element, NULLABLE_ANNOTATION) != null;
+    return getTypeUseAnnotation(element, NULLABLE_ANNOTATION) != null;
   }
 
   private boolean isElementDeprecated(Element element) {

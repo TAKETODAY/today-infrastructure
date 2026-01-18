@@ -20,14 +20,14 @@ package infra.context.properties.sample.simple;
 
 import java.util.Map;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Properties with array.
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties("array")
+@TestConfigurationProperties("array")
 public class SimpleArrayProperties {
 
   private int[] primitive;

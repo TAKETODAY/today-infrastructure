@@ -21,14 +21,14 @@ package infra.context.properties.sample.generic;
 import java.util.List;
 import java.util.Map;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Demonstrate properties with a wildcard type.
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties("wildcard")
+@TestConfigurationProperties("wildcard")
 public class WildcardConfig {
 
   private Map<String, ? extends Number> stringToNumber;

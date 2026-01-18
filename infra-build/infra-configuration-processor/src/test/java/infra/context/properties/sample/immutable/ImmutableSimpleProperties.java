@@ -20,16 +20,16 @@ package infra.context.properties.sample.immutable;
 
 import java.util.Comparator;
 
-import infra.context.properties.sample.ConfigurationProperties;
-import infra.context.properties.sample.ConstructorBinding;
-import infra.context.properties.sample.DefaultValue;
+import infra.context.properties.sample.TestConfigurationProperties;
+import infra.context.properties.sample.TestConstructorBinding;
+import infra.context.properties.sample.TestDefaultValue;
 
 /**
  * Simple properties, in immutable format.
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties("immutable")
+@TestConfigurationProperties("immutable")
 public class ImmutableSimpleProperties {
 
   /**
@@ -50,8 +50,8 @@ public class ImmutableSimpleProperties {
   @SuppressWarnings("unused")
   private final Long counter;
 
-  @ConstructorBinding
-  public ImmutableSimpleProperties(@DefaultValue("boot") String theName, boolean flag, Comparator<?> comparator,
+  @TestConstructorBinding
+  public ImmutableSimpleProperties(@TestDefaultValue("boot") String theName, boolean flag, Comparator<?> comparator,
           Long counter) {
     this.theName = theName;
     this.flag = flag;

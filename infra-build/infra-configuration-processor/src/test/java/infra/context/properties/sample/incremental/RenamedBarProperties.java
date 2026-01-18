@@ -18,9 +18,9 @@
 
 package infra.context.properties.sample.incremental;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
-@ConfigurationProperties("bar")
+@TestConfigurationProperties("bar")
 public class RenamedBarProperties {
 
   private String name;

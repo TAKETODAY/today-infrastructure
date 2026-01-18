@@ -18,7 +18,7 @@
 
 package infra.context.properties.sample.immutable;
 
-import infra.context.properties.sample.ConstructorBinding;
+import infra.context.properties.sample.TestConstructorBinding;
 
 /**
  * Simple immutable properties with several constructors.
@@ -39,7 +39,7 @@ public class ImmutableMultiConstructorProperties {
     this(name, null);
   }
 
-  @ConstructorBinding
+  @TestConstructorBinding
   public ImmutableMultiConstructorProperties(String name, String description) {
     this.name = name;
     this.description = description;

@@ -20,14 +20,14 @@ package infra.context.properties.sample.generic;
 
 import java.time.Duration;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Simple properties with resolved generic information.
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties("generic")
+@TestConfigurationProperties("generic")
 public class SimpleGenericProperties extends AbstractIntermediateGenericProperties<Duration> {
 
 }

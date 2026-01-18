@@ -18,8 +18,8 @@
 
 package infra.context.properties.sample.simple;
 
-import infra.context.properties.sample.ConfigurationProperties;
-import infra.context.properties.sample.DeprecatedConfigurationProperty;
+import infra.context.properties.sample.TestConfigurationProperties;
+import infra.context.properties.sample.TestDeprecatedConfigurationProperty;
 
 /**
  * Configuration properties as record with deprecated property.
@@ -28,11 +28,11 @@ import infra.context.properties.sample.DeprecatedConfigurationProperty;
  * @param bravo bravo property
  * @author Moritz Halbritter
  */
-@ConfigurationProperties("deprecated-record")
+@TestConfigurationProperties("deprecated-record")
 public record DeprecatedRecord(String alpha, String bravo) {
 
   @Deprecated
-  @DeprecatedConfigurationProperty(reason = "some-reason")
+  @TestDeprecatedConfigurationProperty(reason = "some-reason")
   public String alpha() {
     return this.alpha;
   }

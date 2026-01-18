@@ -177,13 +177,35 @@ class JsonMarshallerTests {
   }
 
   @Test
+  void shouldReadIgnoredProperties() throws Exception {
+    String json = """
+            {
+            	"ignored": {
+            		"properties": [
+            			{
+            				"name": "prop1"
+            			},
+            			{
+            				"name": "prop2"
+            			}
+            		]
+            	}
+            }
+            """;
+    ConfigurationMetadata metadata = read(json);
+    assertThat(metadata.getIgnored()).containsExactly(ItemIgnore.forProperty("prop1"),
+            ItemIgnore.forProperty("prop2"));
+  }
+
+  @Test
   void shouldCheckRootFields() {
     String json = """
             {
-            	"groups": [], "properties": [], "hints": [], "dummy": []
+            	"groups": [], "properties": [], "hints": [], "ignored": {}, "dummy": []
             }""";
     assertThatException().isThrownBy(() -> read(json))
-            .withMessage("Expected only keys [groups, hints, properties], but found additional keys [dummy]. Path: .");
+            .withMessage(
+                    "Expected only keys [groups, hints, ignored, properties], but found additional keys [dummy]. Path: .");
   }
 
   @Test
@@ -313,7 +335,7 @@ class JsonMarshallerTests {
             				{
             					"name": "name",
             					"parameters": {
-            						"target": "HttpServlet"
+            						"target": "jakarta.servlet.http.HttpServlet"
             					},
             					"dummy": "dummy"
             				}
@@ -326,9 +348,41 @@ class JsonMarshallerTests {
                     "Expected only keys [name, parameters], but found additional keys [dummy]. Path: .hints.[0].providers.[0]");
   }
 
-  private void read(String json) throws Exception {
+  @Test
+  void shouldCheckIgnoredFields() {
+    String json = """
+            {
+            	"ignored": {
+            		"properties": [],
+            		"dummy": {}
+            	}
+            }
+            """;
+    assertThatException().isThrownBy(() -> read(json))
+            .withMessage("Expected only keys [properties], but found additional keys [dummy]. Path: .ignored");
+  }
+
+  @Test
+  void shouldCheckIgnoredPropertiesFields() {
+    String json = """
+            {
+            	"ignored": {
+            		"properties": [
+            			{
+            				"name": "prop1",
+            				"dummy": true
+            			}
+            		]
+            	}
+            }
+            """;
+    assertThatException().isThrownBy(() -> read(json))
+            .withMessage("Expected only keys [name], but found additional keys [dummy]. Path: .ignored.properties.[0]");
+  }
+
+  private ConfigurationMetadata read(String json) throws Exception {
     JsonMarshaller marshaller = new JsonMarshaller();
-    marshaller.read(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
+    return marshaller.read(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
   }
 
 }

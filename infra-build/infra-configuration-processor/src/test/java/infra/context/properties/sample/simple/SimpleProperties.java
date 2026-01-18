@@ -21,14 +21,14 @@ package infra.context.properties.sample.simple;
 import java.beans.FeatureDescriptor;
 import java.util.Comparator;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Simple properties.
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties(prefix = "simple")
+@TestConfigurationProperties(prefix = "simple")
 public class SimpleProperties {
 
   /**

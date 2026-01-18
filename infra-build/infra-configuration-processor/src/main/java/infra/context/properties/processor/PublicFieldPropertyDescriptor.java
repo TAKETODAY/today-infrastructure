@@ -24,26 +24,46 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
+import infra.context.properties.processor.metadata.ItemDeprecation;
+
 /**
  * for public field
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/3/13 23:35
  */
-class PublicFieldPropertyDescriptor extends PropertyDescriptor<VariableElement> {
+class PublicFieldPropertyDescriptor extends PropertyDescriptor {
 
-  PublicFieldPropertyDescriptor(TypeElement ownerElement, ExecutableElement factoryMethod, String name, TypeMirror type, VariableElement field) {
-    super(ownerElement, factoryMethod, null, name, type, field, null, null);
+  private final VariableElement field;
+
+  PublicFieldPropertyDescriptor(String name, TypeMirror type, TypeElement declaringElement, ExecutableElement getter, VariableElement field) {
+    super(name, type, declaringElement, getter);
+    this.field = field;
   }
 
   @Override
   protected boolean isProperty(MetadataGenerationEnvironment env) {
-    return !env.isExcluded(getType()) && !getField().getModifiers().contains(Modifier.STATIC);
+    return !env.isExcluded(getType()) && !field.getModifiers().contains(Modifier.STATIC);
+  }
+
+  @Override
+  protected boolean isMarkedAsNested(MetadataGenerationEnvironment environment) {
+    return environment.getNestedConfigurationPropertyAnnotation(field) != null;
+  }
+
+  @Override
+  protected String resolveDescription(MetadataGenerationEnvironment environment) {
+    return environment.getTypeUtils().getJavaDoc(this.field);
   }
 
   @Override
   protected Object resolveDefaultValue(MetadataGenerationEnvironment environment) {
-    return environment.getFieldDefaultValue(getOwnerElement(), getName());
+    return environment.getFieldDefaultValue(getDeclaringElement(), field);
+  }
+
+  @Override
+  protected ItemDeprecation resolveItemDeprecation(MetadataGenerationEnvironment environment) {
+    return resolveItemDeprecation(environment, getGetter(), this.field);
   }
 
 }

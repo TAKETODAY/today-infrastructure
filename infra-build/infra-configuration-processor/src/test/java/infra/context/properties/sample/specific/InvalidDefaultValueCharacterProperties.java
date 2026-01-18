@@ -18,22 +18,22 @@
 
 package infra.context.properties.sample.specific;
 
-import infra.context.properties.sample.ConfigurationProperties;
-import infra.context.properties.sample.ConstructorBinding;
-import infra.context.properties.sample.DefaultValue;
+import infra.context.properties.sample.TestConfigurationProperties;
+import infra.context.properties.sample.TestConstructorBinding;
+import infra.context.properties.sample.TestDefaultValue;
 
 /**
  * Demonstrates that an invalid default character value leads to a compilation failure.
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties("test")
+@TestConfigurationProperties("test")
 public class InvalidDefaultValueCharacterProperties {
 
   private final char letter;
 
-  @ConstructorBinding
-  public InvalidDefaultValueCharacterProperties(@DefaultValue("bad") char letter) {
+  @TestConstructorBinding
+  public InvalidDefaultValueCharacterProperties(@TestDefaultValue("bad") char letter) {
     this.letter = letter;
   }
 

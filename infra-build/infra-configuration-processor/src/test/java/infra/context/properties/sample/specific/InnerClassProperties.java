@@ -18,25 +18,27 @@
 
 package infra.context.properties.sample.specific;
 
-import infra.context.properties.sample.ConfigurationProperties;
-import infra.context.properties.sample.NestedConfigurationProperty;
+import infra.context.properties.sample.TestConfigurationProperties;
+import infra.context.properties.sample.TestNestedConfigurationProperty;
 
 /**
  * Demonstrate the auto-detection of inner config classes.
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties(prefix = "config")
+@TestConfigurationProperties("config")
 public class InnerClassProperties {
 
   private final Foo first = new Foo();
 
   private Foo second = new Foo();
 
-  @NestedConfigurationProperty
+  @TestNestedConfigurationProperty
   private final SimplePojo third = new SimplePojo();
 
   private Fourth fourth;
+
+  private final DeprecatedSimplePojo fifth = new DeprecatedSimplePojo();
 
   public Foo getFirst() {
     return this.first;
@@ -60,6 +62,11 @@ public class InnerClassProperties {
 
   public void setFourth(Fourth fourth) {
     this.fourth = fourth;
+  }
+
+  @TestNestedConfigurationProperty
+  public DeprecatedSimplePojo getFifth() {
+    return this.fifth;
   }
 
   public static class Foo {

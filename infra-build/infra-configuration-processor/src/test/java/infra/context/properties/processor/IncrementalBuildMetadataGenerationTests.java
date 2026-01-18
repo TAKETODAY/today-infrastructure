@@ -18,7 +18,6 @@
 
 package infra.context.properties.processor;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import infra.context.properties.processor.metadata.ConfigurationMetadata;
@@ -69,14 +68,13 @@ class IncrementalBuildMetadataGenerationTests extends AbstractMetadataGeneration
     ConfigurationMetadata metadata = project.compile();
     assertThat(metadata).has(Metadata.withProperty("foo.counter").withDefaultValue(0));
     assertThat(metadata).has(Metadata.withProperty("bar.counter").withDefaultValue(0));
-    project.replaceText(BarProperties.class, "@ConfigurationProperties", "//@ConfigurationProperties");
-    project.replaceText(FooProperties.class, "@ConfigurationProperties", "//@ConfigurationProperties");
+    project.replaceText(BarProperties.class, "@TestConfigurationProperties", "//@TestConfigurationProperties");
+    project.replaceText(FooProperties.class, "@TestConfigurationProperties", "//@TestConfigurationProperties");
     metadata = project.compile();
     assertThat(metadata).isNull();
   }
 
   @Test
-  @Disabled("gh-26271")
   void incrementalBuildTypeRenamed() {
     TestProject project = new TestProject(FooProperties.class, BarProperties.class);
     ConfigurationMetadata metadata = project.compile();
@@ -87,7 +85,7 @@ class IncrementalBuildMetadataGenerationTests extends AbstractMetadataGeneration
     assertThat(metadata).doesNotHave(Metadata.withProperty("bar.counter").fromSource(RenamedBarProperties.class));
     project.delete(BarProperties.class);
     project.add(RenamedBarProperties.class);
-    metadata = project.compile();
+    metadata = project.compile(metadata);
     assertThat(metadata)
             .has(Metadata.withProperty("foo.counter").fromSource(FooProperties.class).withDefaultValue(0));
     assertThat(metadata)

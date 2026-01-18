@@ -41,7 +41,7 @@ import infra.context.properties.bind.Nested;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@Target(ElementType.FIELD)
+@Target({ ElementType.FIELD, ElementType.RECORD_COMPONENT, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Nested

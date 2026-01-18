@@ -18,11 +18,11 @@
 
 package infra.context.properties.sample.lombok;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 import lombok.Data;
 
 @Data
-@ConfigurationProperties(prefix = "config")
+@TestConfigurationProperties(prefix = "config")
 @SuppressWarnings("unused")
 public class LombokInnerClassWithGetterProperties {
 

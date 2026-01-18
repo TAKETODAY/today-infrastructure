@@ -40,9 +40,15 @@ class ExpressionTree extends ReflectionWrapper {
 
   private final Method methodInvocationArgumentsMethod = findMethod(this.methodInvocationTreeType, "getArguments");
 
+  private final Class<?> memberSelectTreeType = findClass("com.sun.source.tree.MemberSelectTree");
+
   private final Class<?> newArrayTreeType = findClass("com.sun.source.tree.NewArrayTree");
 
   private final Method arrayValueMethod = findMethod(this.newArrayTreeType, "getInitializers");
+
+  private final Method memberSelectTreeExpressionMethod = findMethod(this.memberSelectTreeType, "getExpression");
+
+  private final Method memberSelectTreeIdentifierMethod = findMethod(this.memberSelectTreeType, "getIdentifier");
 
   ExpressionTree(Object instance) {
     super("com.sun.source.tree.ExpressionTree", instance);
@@ -69,6 +75,17 @@ class ExpressionTree extends ReflectionWrapper {
     return null;
   }
 
+  Member getSelectedMember() throws Exception {
+    if (this.memberSelectTreeType.isAssignableFrom(getInstance().getClass())) {
+      String expression = this.memberSelectTreeExpressionMethod.invoke(getInstance()).toString();
+      String identifier = this.memberSelectTreeIdentifierMethod.invoke(getInstance()).toString();
+      if (expression != null && identifier != null) {
+        return new Member(expression, identifier);
+      }
+    }
+    return null;
+  }
+
   List<? extends ExpressionTree> getArrayExpression() throws Exception {
     if (this.newArrayTreeType.isAssignableFrom(getInstance().getClass())) {
       List<?> elements = (List<?>) this.arrayValueMethod.invoke(getInstance());
@@ -82,6 +99,9 @@ class ExpressionTree extends ReflectionWrapper {
       return result;
     }
     return null;
+  }
+
+  record Member(String expression, String identifier) {
   }
 
 }

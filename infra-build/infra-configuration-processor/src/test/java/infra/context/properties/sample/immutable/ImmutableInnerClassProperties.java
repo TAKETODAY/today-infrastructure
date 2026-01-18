@@ -18,7 +18,7 @@
 
 package infra.context.properties.sample.immutable;
 
-import infra.context.properties.sample.NestedConfigurationProperty;
+import infra.context.properties.sample.TestNestedConfigurationProperty;
 import infra.context.properties.sample.specific.SimplePojo;
 
 /**
@@ -32,7 +32,7 @@ public class ImmutableInnerClassProperties {
 
   private Foo second;
 
-  @NestedConfigurationProperty
+  @TestNestedConfigurationProperty
   private final SimplePojo third;
 
   private final Fourth fourth;

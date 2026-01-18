@@ -18,8 +18,8 @@
 
 package infra.context.properties.sample.specific;
 
-import infra.context.properties.sample.ConfigurationProperties;
-import infra.context.properties.sample.DefaultValue;
+import infra.context.properties.sample.TestConfigurationProperties;
+import infra.context.properties.sample.TestDefaultValue;
 
 /**
  * Demonstrates that an invalid default floating point value leads to a compilation
@@ -27,12 +27,12 @@ import infra.context.properties.sample.DefaultValue;
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties("test")
+@TestConfigurationProperties("test")
 public class InvalidDefaultValueFloatingPointProperties {
 
   private final Double ratio;
 
-  public InvalidDefaultValueFloatingPointProperties(@DefaultValue("55.55.33") Double ratio) {
+  public InvalidDefaultValueFloatingPointProperties(@TestDefaultValue("55.55.33") Double ratio) {
     this.ratio = ratio;
   }
 

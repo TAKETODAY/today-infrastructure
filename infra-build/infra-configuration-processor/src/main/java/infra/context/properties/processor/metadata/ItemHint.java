@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import infra.context.properties.processor.support.ConventionUtils;
+
 /**
  * Provide hints on an {@link ItemMetadata}. Defines the list of possible values for a
  * particular item as {@link ItemHint.ValueHint} instances.
@@ -56,9 +58,9 @@ public class ItemHint implements Comparable<ItemHint> {
     if (dot != -1) {
       String prefix = name.substring(0, dot);
       String originalName = name.substring(dot);
-      return prefix + ConfigurationMetadata.toDashedCase(originalName);
+      return prefix + ConventionUtils.toDashedCase(originalName);
     }
-    return ConfigurationMetadata.toDashedCase(name);
+    return ConventionUtils.toDashedCase(name);
   }
 
   public String getName() {
@@ -73,6 +75,17 @@ public class ItemHint implements Comparable<ItemHint> {
     return Collections.unmodifiableList(this.providers);
   }
 
+  /**
+   * Return an {@link ItemHint} with the given prefix applied.
+   *
+   * @param prefix the prefix to apply
+   * @return a new {@link ItemHint} with the same of this instance whose property name
+   * has the prefix applied to it
+   */
+  public ItemHint applyPrefix(String prefix) {
+    return new ItemHint(ConventionUtils.toDashedCase(prefix) + "." + this.name, this.values, this.providers);
+  }
+
   @Override
   public int compareTo(ItemHint other) {
     return getName().compareTo(other.getName());
@@ -84,7 +97,7 @@ public class ItemHint implements Comparable<ItemHint> {
 
   @Override
   public String toString() {
-    return "ItemHint{name='" + this.name + "', values=" + this.values + ", providers=" + this.providers + '}';
+    return "ItemHint{name='%s', values=%s, providers=%s}".formatted(this.name, this.values, this.providers);
   }
 
   /**
@@ -140,7 +153,7 @@ public class ItemHint implements Comparable<ItemHint> {
 
     @Override
     public String toString() {
-      return "ValueProvider{name='" + this.name + "', parameters=" + this.parameters + '}';
+      return "ValueProvider{name='%s', parameters=%s}".formatted(this.name, this.parameters);
     }
 
   }

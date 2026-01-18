@@ -18,7 +18,7 @@
 
 package infra.context.properties.sample.simple;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Deprecated configuration properties.
@@ -26,7 +26,7 @@ import infra.context.properties.sample.ConfigurationProperties;
  * @author Stephane Nicoll
  */
 @Deprecated
-@ConfigurationProperties(prefix = "deprecated")
+@TestConfigurationProperties(prefix = "deprecated")
 public class DeprecatedProperties {
 
   private String name;

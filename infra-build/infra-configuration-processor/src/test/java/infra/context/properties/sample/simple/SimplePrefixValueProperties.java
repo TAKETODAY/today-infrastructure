@@ -18,14 +18,14 @@
 
 package infra.context.properties.sample.simple;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Properties with a simple prefix.
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties("simple")
+@TestConfigurationProperties("simple")
 public class SimplePrefixValueProperties {
 
   private String name;

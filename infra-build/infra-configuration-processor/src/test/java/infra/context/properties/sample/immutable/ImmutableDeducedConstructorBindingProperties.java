@@ -18,13 +18,13 @@
 
 package infra.context.properties.sample.immutable;
 
-import infra.context.properties.sample.ConfigurationProperties;
-import infra.context.properties.sample.DefaultValue;
+import infra.context.properties.sample.TestConfigurationProperties;
+import infra.context.properties.sample.TestDefaultValue;
 
 /**
  * @author Madhura Bhave
  */
-@ConfigurationProperties("immutable")
+@TestConfigurationProperties("immutable")
 public class ImmutableDeducedConstructorBindingProperties {
 
   /**
@@ -37,7 +37,7 @@ public class ImmutableDeducedConstructorBindingProperties {
    */
   private final boolean flag;
 
-  public ImmutableDeducedConstructorBindingProperties(@DefaultValue("boot") String theName, boolean flag) {
+  public ImmutableDeducedConstructorBindingProperties(@TestDefaultValue("boot") String theName, boolean flag) {
     this.theName = theName;
     this.flag = flag;
   }

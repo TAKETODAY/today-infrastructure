@@ -18,14 +18,14 @@
 
 package infra.context.properties.sample.simple;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Nested properties with a private constructor.
  *
  * @author Phillip Webb
  */
-@ConfigurationProperties(prefix = "config")
+@TestConfigurationProperties(prefix = "config")
 public class InnerClassWithPrivateConstructor {
 
   private Nested nested = new Nested("whatever");

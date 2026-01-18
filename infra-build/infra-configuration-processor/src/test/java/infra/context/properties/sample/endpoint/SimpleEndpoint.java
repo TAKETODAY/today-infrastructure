@@ -18,18 +18,18 @@
 
 package infra.context.properties.sample.endpoint;
 
-import infra.context.properties.sample.Endpoint;
-import infra.context.properties.sample.ReadOperation;
+import infra.context.properties.sample.TestEndpoint;
+import infra.context.properties.sample.TestReadOperation;
 
 /**
  * A simple endpoint with no default override.
  *
  * @author Stephane Nicoll
  */
-@Endpoint(id = "simple")
+@TestEndpoint(id = "simple")
 public class SimpleEndpoint {
 
-  @ReadOperation
+  @TestReadOperation
   public String invoke() {
     return "test";
   }

@@ -18,7 +18,7 @@
 
 package infra.context.properties.sample.specific;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Demonstrate the use of boxing/unboxing. Even if the type does not strictly match, it
@@ -26,7 +26,7 @@ import infra.context.properties.sample.ConfigurationProperties;
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties("boxing")
+@TestConfigurationProperties("boxing")
 public class BoxingPojo {
 
   private boolean flag;

@@ -16,14 +16,14 @@
 
 package infra.context.properties.sample.endpoint;
 
-import infra.context.properties.sample.Endpoint;
+import infra.context.properties.sample.TestEndpoint;
 
 /**
  * An endpoint that is disabled unless configured explicitly.
  *
  * @author Stephane Nicoll
  */
-@Endpoint(id = "disabled", enableByDefault = false)
+@TestEndpoint(id = "disabled", enableByDefault = false)
 public class DisabledEndpoint {
 
 }

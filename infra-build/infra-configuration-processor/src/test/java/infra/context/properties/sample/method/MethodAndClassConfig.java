@@ -18,14 +18,14 @@
 
 package infra.context.properties.sample.method;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Sample for testing mixed method and class configuration.
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties("conflict")
+@TestConfigurationProperties("conflict")
 public class MethodAndClassConfig {
 
   private String value;
@@ -38,7 +38,7 @@ public class MethodAndClassConfig {
     this.value = value;
   }
 
-  @ConfigurationProperties(prefix = "conflict")
+  @TestConfigurationProperties(prefix = "conflict")
   public Foo foo() {
     return new Foo();
   }

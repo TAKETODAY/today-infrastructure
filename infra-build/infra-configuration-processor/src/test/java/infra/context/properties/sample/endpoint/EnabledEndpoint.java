@@ -18,22 +18,22 @@
 
 package infra.context.properties.sample.endpoint;
 
-import infra.context.properties.sample.Endpoint;
-import infra.context.properties.sample.ReadOperation;
+import infra.context.properties.sample.TestEndpoint;
+import infra.context.properties.sample.TestReadOperation;
 
 /**
  * An endpoint that is enabled unless configured explicitly.
  *
  * @author Stephane Nicoll
  */
-@Endpoint(id = "enabled")
+@TestEndpoint(id = "enabled")
 public class EnabledEndpoint {
 
   public String someMethod() {
     return "not a read operation";
   }
 
-  @ReadOperation
+  @TestReadOperation
   public String retrieve(String parameter, Integer anotherParameter) {
     return "not a main read operation";
   }

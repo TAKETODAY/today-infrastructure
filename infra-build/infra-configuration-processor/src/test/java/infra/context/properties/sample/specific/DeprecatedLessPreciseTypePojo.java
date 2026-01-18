@@ -18,7 +18,7 @@
 
 package infra.context.properties.sample.specific;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Demonstrate that deprecating accessor with not the same type is not taken into account
@@ -26,7 +26,7 @@ import infra.context.properties.sample.ConfigurationProperties;
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties("not.deprecated")
+@TestConfigurationProperties("not.deprecated")
 public class DeprecatedLessPreciseTypePojo {
 
   private boolean flag;

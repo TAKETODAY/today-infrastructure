@@ -18,7 +18,7 @@
 
 package infra.context.properties.sample.specific;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Sample with a simple inner class config.
@@ -27,7 +27,7 @@ import infra.context.properties.sample.ConfigurationProperties;
  */
 public class InnerClassRootConfig {
 
-  @ConfigurationProperties(prefix = "config")
+  @TestConfigurationProperties("config")
   public static class Config {
 
     private String name;

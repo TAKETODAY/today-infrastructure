@@ -38,6 +38,7 @@ import infra.context.properties.processor.ConfigurationMetadataAnnotationProcess
  * @author Scott Frederick
  */
 @SupportedAnnotationTypes({ TestConfigurationMetadataAnnotationProcessor.CONFIGURATION_PROPERTIES_ANNOTATION,
+        TestConfigurationMetadataAnnotationProcessor.CONFIGURATION_PROPERTIES_SOURCE_ANNOTATION,
         TestConfigurationMetadataAnnotationProcessor.CONTROLLER_ENDPOINT_ANNOTATION,
         TestConfigurationMetadataAnnotationProcessor.ENDPOINT_ANNOTATION,
         TestConfigurationMetadataAnnotationProcessor.JMX_ENDPOINT_ANNOTATION,
@@ -48,33 +49,35 @@ import infra.context.properties.processor.ConfigurationMetadataAnnotationProcess
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class TestConfigurationMetadataAnnotationProcessor extends ConfigurationMetadataAnnotationProcessor {
 
-  public static final String CONFIGURATION_PROPERTIES_ANNOTATION = "infra.context.properties.sample.ConfigurationProperties";
+  public static final String CONFIGURATION_PROPERTIES_ANNOTATION = "infra.context.properties.sample.TestConfigurationProperties";
 
-  public static final String NESTED_CONFIGURATION_PROPERTY_ANNOTATION = "infra.context.properties.sample.NestedConfigurationProperty";
+  public static final String CONFIGURATION_PROPERTIES_SOURCE_ANNOTATION = "infra.context.properties.sample.TestConfigurationPropertiesSource";
 
-  public static final String DEPRECATED_CONFIGURATION_PROPERTY_ANNOTATION = "infra.context.properties.sample.DeprecatedConfigurationProperty";
+  public static final String NESTED_CONFIGURATION_PROPERTY_ANNOTATION = "infra.context.properties.sample.TestNestedConfigurationProperty";
 
-  public static final String CONSTRUCTOR_BINDING_ANNOTATION = "infra.context.properties.sample.ConstructorBinding";
+  public static final String DEPRECATED_CONFIGURATION_PROPERTY_ANNOTATION = "infra.context.properties.sample.TestDeprecatedConfigurationProperty";
 
-  public static final String AUTOWIRED_ANNOTATION = "infra.context.properties.sample.Autowired";
+  public static final String CONSTRUCTOR_BINDING_ANNOTATION = "infra.context.properties.sample.TestConstructorBinding";
 
-  public static final String DEFAULT_VALUE_ANNOTATION = "infra.context.properties.sample.DefaultValue";
+  public static final String AUTOWIRED_ANNOTATION = "infra.context.properties.sample.TestAutowired";
 
-  public static final String CONTROLLER_ENDPOINT_ANNOTATION = "infra.context.properties.sample.ControllerEndpoint";
+  public static final String DEFAULT_VALUE_ANNOTATION = "infra.context.properties.sample.TestDefaultValue";
 
-  public static final String ENDPOINT_ANNOTATION = "infra.context.properties.sample.Endpoint";
+  public static final String CONTROLLER_ENDPOINT_ANNOTATION = "infra.context.properties.sample.TestControllerEndpoint";
 
-  public static final String JMX_ENDPOINT_ANNOTATION = "infra.context.properties.sample.JmxEndpoint";
+  public static final String ENDPOINT_ANNOTATION = "infra.context.properties.sample.TestEndpoint";
 
-  public static final String REST_CONTROLLER_ENDPOINT_ANNOTATION = "infra.context.properties.sample.RestControllerEndpoint";
+  public static final String JMX_ENDPOINT_ANNOTATION = "infra.context.properties.sample.TestJmxEndpoint";
 
-  public static final String MOCK_ENDPOINT_ANNOTATION = "infra.context.properties.sample.MockEndpoint";
+  public static final String REST_CONTROLLER_ENDPOINT_ANNOTATION = "infra.context.properties.sample.TestRestControllerEndpoint";
 
-  public static final String WEB_ENDPOINT_ANNOTATION = "infra.context.properties.sample.WebEndpoint";
+  public static final String MOCK_ENDPOINT_ANNOTATION = "infra.context.properties.sample.TestMockEndpoint";
 
-  public static final String READ_OPERATION_ANNOTATION = "infra.context.properties.sample.ReadOperation";
+  public static final String WEB_ENDPOINT_ANNOTATION = "infra.context.properties.sample.TestWebEndpoint";
 
-  public static final String NAME_ANNOTATION = "infra.context.properties.sample.Name";
+  public static final String READ_OPERATION_ANNOTATION = "infra.context.properties.sample.TestReadOperation";
+
+  public static final String NAME_ANNOTATION = "infra.context.properties.sample.TestName";
 
   public TestConfigurationMetadataAnnotationProcessor() {
   }
@@ -82,6 +85,11 @@ public class TestConfigurationMetadataAnnotationProcessor extends ConfigurationM
   @Override
   protected String configurationPropertiesAnnotation() {
     return CONFIGURATION_PROPERTIES_ANNOTATION;
+  }
+
+  @Override
+  protected String configurationPropertiesSourceAnnotation() {
+    return CONFIGURATION_PROPERTIES_SOURCE_ANNOTATION;
   }
 
   @Override

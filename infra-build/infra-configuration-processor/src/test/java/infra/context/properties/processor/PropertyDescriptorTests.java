@@ -20,7 +20,6 @@ package infra.context.properties.processor;
 
 import java.util.function.BiConsumer;
 
-import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -49,7 +48,7 @@ public abstract class PropertyDescriptorTests {
   protected ExecutableElement getMethod(TypeElement element, String name) {
     return ElementFilter.methodsIn(element.getEnclosedElements())
             .stream()
-            .filter((method) -> ((Element) method).getSimpleName().toString().equals(name))
+            .filter((method) -> method.getSimpleName().toString().equals(name))
             .findFirst()
             .orElse(null);
   }
@@ -57,13 +56,13 @@ public abstract class PropertyDescriptorTests {
   protected VariableElement getField(TypeElement element, String name) {
     return ElementFilter.fieldsIn(element.getEnclosedElements())
             .stream()
-            .filter((method) -> ((Element) method).getSimpleName().toString().equals(name))
+            .filter((method) -> method.getSimpleName().toString().equals(name))
             .findFirst()
             .orElse(null);
   }
 
   protected ItemMetadataAssert assertItemMetadata(MetadataGenerationEnvironment metadataEnv,
-          PropertyDescriptor<?> property) {
+          PropertyDescriptor property) {
     return new ItemMetadataAssert(property.resolveItemMetadata("test", metadataEnv));
   }
 

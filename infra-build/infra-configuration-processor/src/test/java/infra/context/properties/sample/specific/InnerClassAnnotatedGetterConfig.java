@@ -18,7 +18,7 @@
 
 package infra.context.properties.sample.specific;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Demonstrate that a method that exposes a root group within an annotated class is
@@ -26,7 +26,7 @@ import infra.context.properties.sample.ConfigurationProperties;
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties("specific")
+@TestConfigurationProperties("specific")
 public class InnerClassAnnotatedGetterConfig {
 
   private String value;
@@ -39,7 +39,7 @@ public class InnerClassAnnotatedGetterConfig {
     this.value = value;
   }
 
-  @ConfigurationProperties("foo")
+  @TestConfigurationProperties("foo")
   public Foo getFoo() {
     return new Foo();
   }

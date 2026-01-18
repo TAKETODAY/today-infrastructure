@@ -36,12 +36,15 @@ import infra.context.properties.processor.test.TestableAnnotationProcessor;
 import infra.context.properties.sample.immutable.ImmutableClassConstructorBindingProperties;
 import infra.context.properties.sample.immutable.ImmutableDeducedConstructorBindingProperties;
 import infra.context.properties.sample.immutable.ImmutableMultiConstructorProperties;
-import infra.context.properties.sample.immutable.ImmutableNameAnnotationProperties;
 import infra.context.properties.sample.immutable.ImmutableSimpleProperties;
 import infra.context.properties.sample.lombok.LombokExplicitProperties;
 import infra.context.properties.sample.lombok.LombokSimpleDataProperties;
 import infra.context.properties.sample.lombok.LombokSimpleProperties;
 import infra.context.properties.sample.lombok.LombokSimpleValueProperties;
+import infra.context.properties.sample.name.ConstructorParameterNameAnnotationProperties;
+import infra.context.properties.sample.name.JavaBeanNameAnnotationProperties;
+import infra.context.properties.sample.name.LombokNameAnnotationProperties;
+import infra.context.properties.sample.name.RecordComponentNameAnnotationProperties;
 import infra.context.properties.sample.simple.AutowiredProperties;
 import infra.context.properties.sample.simple.HierarchicalProperties;
 import infra.context.properties.sample.simple.HierarchicalPropertiesGrandparent;
@@ -79,9 +82,13 @@ class PropertyDescriptorResolverTests {
                       .map((descriptor) -> descriptor.getGetter().getEnclosingElement().getSimpleName().toString()))
                       .containsExactly("HierarchicalProperties", "HierarchicalPropertiesParent",
                               "HierarchicalPropertiesParent");
-              assertThat(resolver.resolve(type, null)
+              List<ItemMetadata> itemMetadataList = resolver.resolve(type, null)
                       .map((descriptor) -> descriptor.resolveItemMetadata("test", metadataEnv))
-                      .map(ItemMetadata::getDefaultValue)).containsExactly("three", "two", "one");
+                      .toList();
+              assertThat(itemMetadataList).map(ItemMetadata::getDefaultValue)
+                      .containsExactly("three", "two", "one");
+              assertThat(itemMetadataList).map(ItemMetadata::getDescription)
+                      .containsExactly("Concrete property.", "Parent property.", "Grandparent property.");
             });
   }
 
@@ -157,13 +164,31 @@ class PropertyDescriptorResolverTests {
   }
 
   @Test
-  void propertiesWithNameAnnotationParameter() {
-    process(ImmutableNameAnnotationProperties.class,
-            propertyNames((stream) -> assertThat(stream).containsExactly("import")));
+  void constructorParameterPropertyWithNameAnnotationParameter() {
+    process(ConstructorParameterNameAnnotationProperties.class,
+            propertyNames((stream) -> assertThat(stream).containsOnly("import", "default")));
+  }
+
+  @Test
+  void recordComponentPropertyWithNameAnnotationParameter() {
+    process(RecordComponentNameAnnotationProperties.class,
+            propertyNames((stream) -> assertThat(stream).containsOnly("import", "default")));
+  }
+
+  @Test
+  void javaBeanPropertyWithNameAnnotationParameter() {
+    process(JavaBeanNameAnnotationProperties.class,
+            propertyNames((stream) -> assertThat(stream).containsOnly("import", "default")));
+  }
+
+  @Test
+  void lombokPropertyWithNameAnnotationParameter() {
+    process(LombokNameAnnotationProperties.class,
+            propertyNames((stream) -> assertThat(stream).containsOnly("import", "default")));
   }
 
   private BiConsumer<TypeElement, MetadataGenerationEnvironment> properties(
-          Consumer<Stream<PropertyDescriptor<?>>> stream) {
+          Consumer<Stream<PropertyDescriptor>> stream) {
     return (element, metadataEnv) -> {
       PropertyDescriptorResolver resolver = new PropertyDescriptorResolver(metadataEnv);
       stream.accept(resolver.resolve(element, null));

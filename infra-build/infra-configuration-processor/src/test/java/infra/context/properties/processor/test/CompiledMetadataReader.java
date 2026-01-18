@@ -38,7 +38,11 @@ public final class CompiledMetadataReader {
   }
 
   public static ConfigurationMetadata getMetadata(Compiled compiled) {
-    InputStream inputStream = compiled.getClassLoader().getResourceAsStream(METADATA_FILE);
+    return getMetadata(compiled, METADATA_FILE);
+  }
+
+  public static ConfigurationMetadata getMetadata(Compiled compiled, String location) {
+    InputStream inputStream = compiled.getClassLoader().getResourceAsStream(location);
     try {
       if (inputStream != null) {
         return new JsonMarshaller().read(inputStream);
@@ -48,7 +52,7 @@ public final class CompiledMetadataReader {
       }
     }
     catch (Exception ex) {
-      throw new RuntimeException("Failed to read metadata", ex);
+      throw new RuntimeException("Failed to read metadata fom '%s'".formatted(location), ex);
     }
   }
 

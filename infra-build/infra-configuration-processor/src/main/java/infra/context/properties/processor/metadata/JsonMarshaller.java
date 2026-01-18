@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import infra.context.properties.json.JSONArray;
+import infra.context.properties.json.JSONException;
 import infra.context.properties.json.JSONObject;
 import infra.context.properties.processor.metadata.ItemMetadata.ItemType;
 
@@ -52,6 +53,7 @@ public class JsonMarshaller {
       object.put("groups", converter.toJsonArray(metadata, ItemType.GROUP));
       object.put("properties", converter.toJsonArray(metadata, ItemType.PROPERTY));
       object.put("hints", converter.toJsonArray(metadata.getHints()));
+      object.put("ignored", converter.toJsonObject(metadata.getIgnored()));
       outputStream.write(object.toString(2).getBytes(StandardCharsets.UTF_8));
     }
     catch (Exception ex) {
@@ -69,7 +71,7 @@ public class JsonMarshaller {
     ConfigurationMetadata metadata = new ConfigurationMetadata();
     JSONObject object = new JSONObject(toString(inputStream));
     JsonPath path = JsonPath.root();
-    checkAllowedKeys(object, path, "groups", "properties", "hints");
+    checkAllowedKeys(object, path, "groups", "properties", "hints", "ignored");
     JSONArray groups = object.optJSONArray("groups");
     if (groups != null) {
       for (int i = 0; i < groups.length(); i++) {
@@ -90,7 +92,26 @@ public class JsonMarshaller {
         metadata.add(toItemHint((JSONObject) hints.get(i), path.resolve("hints").index(i)));
       }
     }
+    JSONObject ignored = object.optJSONObject("ignored");
+    if (ignored != null) {
+      JsonPath ignoredPath = path.resolve("ignored");
+      checkAllowedKeys(ignored, ignoredPath, "properties");
+      addIgnoredProperties(metadata, ignored, ignoredPath);
+    }
     return metadata;
+  }
+
+  private void addIgnoredProperties(ConfigurationMetadata metadata, JSONObject ignored, JsonPath path)
+          throws JSONException {
+    JSONArray properties = ignored.optJSONArray("properties");
+    if (properties == null) {
+      return;
+    }
+    for (int i = 0; i < properties.length(); i++) {
+      JSONObject jsonObject = properties.getJSONObject(i);
+      checkAllowedKeys(jsonObject, path.resolve("properties").index(i), "name");
+      metadata.add(ItemIgnore.forProperty(jsonObject.getString("name")));
+    }
   }
 
   private ItemMetadata toItemMetadata(JSONObject object, JsonPath path, ItemType itemType) throws Exception {

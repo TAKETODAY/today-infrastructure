@@ -18,7 +18,7 @@
 
 package infra.context.properties.sample.specific;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 import jakarta.validation.constraints.NotEmpty;
 
 /**
@@ -27,7 +27,7 @@ import jakarta.validation.constraints.NotEmpty;
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties("specific")
+@TestConfigurationProperties("specific")
 public class AnnotatedGetter {
 
   private String name;

@@ -18,7 +18,7 @@
 
 package infra.context.properties.sample.lombok;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,7 +29,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@ConfigurationProperties(prefix = "deprecated")
+@TestConfigurationProperties(prefix = "deprecated")
 @Deprecated
 @SuppressWarnings("unused")
 public class LombokDeprecatedProperties {

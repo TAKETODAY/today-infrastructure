@@ -18,16 +18,15 @@
 
 package infra.context.properties.sample.specific;
 
-import infra.context.properties.sample.ConfigurationProperties;
-import infra.context.properties.sample.NestedConfigurationProperty;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Demonstrate inner classes end up in metadata regardless of position in hierarchy and
- * without the use of {@link NestedConfigurationProperty @NestedConfigurationProperty}.
+ * without the use of {@code @NestedConfigurationProperty}.
  *
  * @author Madhura Bhave
  */
-@ConfigurationProperties(prefix = "config")
+@TestConfigurationProperties("config")
 public class InnerClassHierarchicalProperties {
 
   private Foo foo;

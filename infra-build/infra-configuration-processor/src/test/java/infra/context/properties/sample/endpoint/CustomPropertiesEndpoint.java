@@ -18,22 +18,22 @@
 
 package infra.context.properties.sample.endpoint;
 
-import infra.context.properties.sample.ConfigurationProperties;
-import infra.context.properties.sample.Endpoint;
-import infra.context.properties.sample.ReadOperation;
+import infra.context.properties.sample.TestConfigurationProperties;
+import infra.context.properties.sample.TestEndpoint;
+import infra.context.properties.sample.TestReadOperation;
 
 /**
  * An endpoint with additional custom properties.
  *
  * @author Stephane Nicoll
  */
-@Endpoint(id = "customprops")
-@ConfigurationProperties("management.endpoint.customprops")
+@TestEndpoint(id = "customprops")
+@TestConfigurationProperties("management.endpoint.customprops")
 public class CustomPropertiesEndpoint {
 
   private String name = "test";
 
-  @ReadOperation
+  @TestReadOperation
   public String getName() {
     return this.name;
   }

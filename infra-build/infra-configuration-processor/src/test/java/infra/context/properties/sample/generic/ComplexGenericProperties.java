@@ -18,18 +18,18 @@
 
 package infra.context.properties.sample.generic;
 
-import infra.context.properties.sample.ConfigurationProperties;
-import infra.context.properties.sample.NestedConfigurationProperty;
+import infra.context.properties.sample.TestConfigurationProperties;
+import infra.context.properties.sample.TestNestedConfigurationProperty;
 
 /**
  * More advanced generic setup.
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties("generic")
+@TestConfigurationProperties("generic")
 public class ComplexGenericProperties {
 
-  @NestedConfigurationProperty
+  @TestNestedConfigurationProperty
   private final UpperBoundGenericPojo<Test> test = new UpperBoundGenericPojo<>();
 
   public UpperBoundGenericPojo<Test> getTest() {

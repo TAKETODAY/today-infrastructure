@@ -18,7 +18,7 @@
 
 package infra.context.properties.sample.simple;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Class with nested configuration properties.
@@ -41,7 +41,7 @@ public class ClassWithNestedProperties {
 
   }
 
-  @ConfigurationProperties(prefix = "nestedChildProps")
+  @TestConfigurationProperties(prefix = "nestedChildProps")
   public static class NestedChildClass extends NestedParentClass {
 
     private int childClassProperty = 20;

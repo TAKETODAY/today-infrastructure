@@ -18,7 +18,7 @@
 
 package infra.context.properties.sample.specific;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 import infra.context.properties.sample.simple.SimpleProperties;
 
 /**
@@ -26,7 +26,7 @@ import infra.context.properties.sample.simple.SimpleProperties;
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties("simple")
+@TestConfigurationProperties("simple")
 public class SimpleConflictingProperties {
 
   private String flag = "hello";

@@ -18,14 +18,14 @@
 
 package infra.context.properties.sample.method;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Sample for testing invalid method configuration.
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties(prefix = "something")
+@TestConfigurationProperties(prefix = "something")
 public class InvalidMethodConfig {
 
   private String name;
@@ -38,7 +38,7 @@ public class InvalidMethodConfig {
     this.name = name;
   }
 
-  @ConfigurationProperties(prefix = "invalid")
+  @TestConfigurationProperties(prefix = "invalid")
   InvalidMethodConfig foo() {
     return new InvalidMethodConfig();
   }

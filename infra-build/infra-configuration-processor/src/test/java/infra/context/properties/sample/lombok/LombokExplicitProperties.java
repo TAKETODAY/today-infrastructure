@@ -21,7 +21,7 @@ package infra.context.properties.sample.lombok;
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,7 +30,7 @@ import lombok.Setter;
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties(prefix = "explicit")
+@TestConfigurationProperties(prefix = "explicit")
 public class LombokExplicitProperties {
 
   @Getter

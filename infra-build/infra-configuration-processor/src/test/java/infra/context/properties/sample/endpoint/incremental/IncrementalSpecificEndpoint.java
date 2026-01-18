@@ -18,7 +18,7 @@
 
 package infra.context.properties.sample.endpoint.incremental;
 
-import infra.context.properties.sample.JmxEndpoint;
+import infra.context.properties.sample.TestJmxEndpoint;
 
 /**
  * A meta-annotated endpoint.
@@ -26,7 +26,7 @@ import infra.context.properties.sample.JmxEndpoint;
  * @author Stephane Nicoll
  * @author Andy Wilkinson
  */
-@JmxEndpoint(id = "incremental")
+@TestJmxEndpoint(id = "incremental")
 public class IncrementalSpecificEndpoint {
 
 }

@@ -18,8 +18,8 @@
 
 package infra.context.properties.sample.endpoint.incremental;
 
-import infra.context.properties.sample.Endpoint;
-import infra.context.properties.sample.ReadOperation;
+import infra.context.properties.sample.TestEndpoint;
+import infra.context.properties.sample.TestReadOperation;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -27,10 +27,10 @@ import org.jspecify.annotations.Nullable;
  *
  * @author Stephane Nicoll
  */
-@Endpoint(id = "incremental")
+@TestEndpoint(id = "incremental")
 public class IncrementalEndpoint {
 
-  @ReadOperation
+  @TestReadOperation
   public String invoke(@Nullable String param) {
     return "test";
   }

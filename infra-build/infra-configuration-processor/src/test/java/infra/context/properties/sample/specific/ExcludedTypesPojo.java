@@ -23,7 +23,7 @@ import java.io.Writer;
 
 import javax.sql.DataSource;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Sample config with types that should not be added to the meta-data as we have no way to
@@ -31,7 +31,7 @@ import infra.context.properties.sample.ConfigurationProperties;
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties(prefix = "excluded")
+@TestConfigurationProperties("excluded")
 public class ExcludedTypesPojo {
 
   private String name;

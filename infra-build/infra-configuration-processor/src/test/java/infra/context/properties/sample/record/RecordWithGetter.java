@@ -18,12 +18,12 @@
 
 package infra.context.properties.sample.record;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * @author Moritz Halbritter
  */
-@ConfigurationProperties("record-with-getter")
+@TestConfigurationProperties("record-with-getter")
 public record RecordWithGetter(String alpha) {
 
   public String getBravo() {

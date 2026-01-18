@@ -18,21 +18,21 @@
 
 package infra.context.properties.sample.simple;
 
-import infra.context.properties.sample.ConfigurationProperties;
-import infra.context.properties.sample.DeprecatedConfigurationProperty;
+import infra.context.properties.sample.TestConfigurationProperties;
+import infra.context.properties.sample.TestDeprecatedConfigurationProperty;
 
 /**
  * Configuration properties with a single deprecated element.
  *
  * @author Phillip Webb
  */
-@ConfigurationProperties("singledeprecated")
+@TestConfigurationProperties("singledeprecated")
 public class DeprecatedSingleProperty {
 
   private String newName;
 
   @Deprecated
-  @DeprecatedConfigurationProperty(reason = "renamed", replacement = "singledeprecated.new-name", since = "1.2.3")
+  @TestDeprecatedConfigurationProperty(reason = "renamed", replacement = "singledeprecated.new-name", since = "1.2.3")
   public String getName() {
     return getNewName();
   }

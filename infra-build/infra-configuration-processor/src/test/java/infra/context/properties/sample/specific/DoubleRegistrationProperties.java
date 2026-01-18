@@ -18,7 +18,7 @@
 
 package infra.context.properties.sample.specific;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Test that the same type can be registered several times if the prefix is different.
@@ -27,12 +27,12 @@ import infra.context.properties.sample.ConfigurationProperties;
  */
 public class DoubleRegistrationProperties {
 
-  @ConfigurationProperties("one")
+  @TestConfigurationProperties("one")
   public SimplePojo one() {
     return new SimplePojo();
   }
 
-  @ConfigurationProperties("two")
+  @TestConfigurationProperties("two")
   public SimplePojo two() {
     return new SimplePojo();
   }

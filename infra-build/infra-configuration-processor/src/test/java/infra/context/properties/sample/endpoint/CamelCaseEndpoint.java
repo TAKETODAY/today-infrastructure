@@ -18,14 +18,14 @@
 
 package infra.context.properties.sample.endpoint;
 
-import infra.context.properties.sample.Endpoint;
+import infra.context.properties.sample.TestEndpoint;
 
 /**
  * An endpoint with an upper camel case id.
  *
  * @author Stephane Nicoll
  */
-@Endpoint(id = "PascalCase")
+@TestEndpoint(id = "PascalCase")
 public class CamelCaseEndpoint {
 
 }

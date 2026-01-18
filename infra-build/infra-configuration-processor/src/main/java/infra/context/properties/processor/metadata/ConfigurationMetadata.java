@@ -22,10 +22,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+
+import infra.context.properties.processor.metadata.ItemMetadata.ItemType;
+import infra.context.properties.processor.support.ConventionUtils;
 
 /**
  * Configuration meta-data.
@@ -38,20 +38,22 @@ import java.util.Set;
  */
 public class ConfigurationMetadata {
 
-  private static final Set<Character> SEPARATORS = Set.of('-', '_');
-
   private final Map<String, List<ItemMetadata>> items;
 
   private final Map<String, List<ItemHint>> hints;
 
+  private final Map<String, List<ItemIgnore>> ignored;
+
   public ConfigurationMetadata() {
     this.items = new LinkedHashMap<>();
     this.hints = new LinkedHashMap<>();
+    this.ignored = new LinkedHashMap<>();
   }
 
   public ConfigurationMetadata(ConfigurationMetadata metadata) {
     this.items = new LinkedHashMap<>(metadata.items);
     this.hints = new LinkedHashMap<>(metadata.hints);
+    this.ignored = new LinkedHashMap<>(metadata.ignored);
   }
 
   /**
@@ -82,6 +84,32 @@ public class ConfigurationMetadata {
   }
 
   /**
+   * Add item ignore.
+   *
+   * @param itemIgnore the item ignore to add
+   */
+  public void add(ItemIgnore itemIgnore) {
+    add(this.ignored, itemIgnore.getName(), itemIgnore, false);
+  }
+
+  /**
+   * Remove item meta-data for the given item type and name.
+   *
+   * @param itemType the item type
+   * @param name the name
+   */
+  public void removeMetadata(ItemType itemType, String name) {
+    List<ItemMetadata> metadata = this.items.get(name);
+    if (metadata == null) {
+      return;
+    }
+    metadata.removeIf((item) -> item.isOfItemType(itemType));
+    if (metadata.isEmpty()) {
+      this.items.remove(name);
+    }
+  }
+
+  /**
    * Merge the content from another {@link ConfigurationMetadata}.
    *
    * @param metadata the {@link ConfigurationMetadata} instance to merge
@@ -92,6 +120,9 @@ public class ConfigurationMetadata {
     }
     for (ItemHint itemHint : metadata.getHints()) {
       add(itemHint);
+    }
+    for (ItemIgnore itemIgnore : metadata.getIgnored()) {
+      add(itemIgnore);
     }
   }
 
@@ -111,6 +142,15 @@ public class ConfigurationMetadata {
    */
   public List<ItemHint> getHints() {
     return flattenValues(this.hints);
+  }
+
+  /**
+   * Return ignore meta-data.
+   *
+   * @return the ignores
+   */
+  public List<ItemIgnore> getIgnored() {
+    return flattenValues(this.ignored);
   }
 
   protected void mergeItemMetadata(ItemMetadata metadata) {
@@ -186,29 +226,9 @@ public class ConfigurationMetadata {
 
   public static String nestedPrefix(String prefix, String name) {
     String nestedPrefix = (prefix != null) ? prefix : "";
-    String dashedName = toDashedCase(name);
-    nestedPrefix += (nestedPrefix == null || nestedPrefix.isEmpty()) ? dashedName : "." + dashedName;
+    String dashedName = ConventionUtils.toDashedCase(name);
+    nestedPrefix += nestedPrefix.isEmpty() ? dashedName : "." + dashedName;
     return nestedPrefix;
-  }
-
-  static String toDashedCase(String name) {
-    StringBuilder dashed = new StringBuilder();
-    Character previous = null;
-    for (int i = 0; i < name.length(); i++) {
-      char current = name.charAt(i);
-      if (SEPARATORS.contains(current)) {
-        dashed.append("-");
-      }
-      else if (Character.isUpperCase(current) && previous != null && !SEPARATORS.contains(previous)) {
-        dashed.append("-").append(current);
-      }
-      else {
-        dashed.append(current);
-      }
-      previous = current;
-
-    }
-    return dashed.toString().toLowerCase(Locale.ROOT);
   }
 
   private static <T extends Comparable<T>> List<T> flattenValues(Map<?, List<T>> map) {
@@ -218,20 +238,6 @@ public class ConfigurationMetadata {
     }
     Collections.sort(content);
     return content;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o)
-      return true;
-    if (!(o instanceof ConfigurationMetadata that))
-      return false;
-    return Objects.equals(items, that.items) && Objects.equals(hints, that.hints);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(items, hints);
   }
 
   @Override

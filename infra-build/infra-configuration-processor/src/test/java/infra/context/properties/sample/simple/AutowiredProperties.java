@@ -18,7 +18,7 @@
 
 package infra.context.properties.sample.simple;
 
-import infra.context.properties.sample.Autowired;
+import infra.context.properties.sample.TestAutowired;
 
 /**
  * Properties with autowired constructor.
@@ -32,7 +32,7 @@ public class AutowiredProperties {
    */
   private String theName;
 
-  @Autowired
+  @TestAutowired
   public AutowiredProperties(String theName) {
     this.theName = theName;
   }

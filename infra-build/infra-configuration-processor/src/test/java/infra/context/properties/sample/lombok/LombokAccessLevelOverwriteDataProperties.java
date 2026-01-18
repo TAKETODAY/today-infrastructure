@@ -18,7 +18,7 @@
 
 package infra.context.properties.sample.lombok;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
@@ -31,7 +31,7 @@ import lombok.Setter;
  * @author Jonas Keßler
  */
 @Data
-@ConfigurationProperties(prefix = "accesslevel.overwrite.data")
+@TestConfigurationProperties(prefix = "accesslevel.overwrite.data")
 @SuppressWarnings("unused")
 public class LombokAccessLevelOverwriteDataProperties {
 

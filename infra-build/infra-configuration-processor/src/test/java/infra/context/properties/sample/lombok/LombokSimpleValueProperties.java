@@ -21,7 +21,7 @@ package infra.context.properties.sample.lombok;
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 import lombok.Value;
 
 /**
@@ -30,7 +30,7 @@ import lombok.Value;
  * @author Mark Jeffrey
  */
 @Value
-@ConfigurationProperties(prefix = "value")
+@TestConfigurationProperties(prefix = "value")
 @SuppressWarnings("unused")
 public class LombokSimpleValueProperties {
 

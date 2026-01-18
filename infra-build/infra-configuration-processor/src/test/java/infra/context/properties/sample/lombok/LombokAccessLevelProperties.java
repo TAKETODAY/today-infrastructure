@@ -18,7 +18,7 @@
 
 package infra.context.properties.sample.lombok;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,7 +28,7 @@ import lombok.Setter;
  *
  * @author Jonas Keßler
  */
-@ConfigurationProperties(prefix = "accesslevel")
+@TestConfigurationProperties(prefix = "accesslevel")
 public class LombokAccessLevelProperties {
 
   @Getter(AccessLevel.PUBLIC)

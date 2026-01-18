@@ -16,20 +16,20 @@
 
 package infra.context.properties.sample.immutable;
 
-import infra.context.properties.sample.ConfigurationProperties;
-import infra.context.properties.sample.Name;
+import infra.context.properties.sample.TestConfigurationProperties;
+import infra.context.properties.sample.TestName;
 
 /**
  * Immutable properties making use of {@code @Name}.
  *
  * @author Phillip Webb
  */
-@ConfigurationProperties("named")
+@TestConfigurationProperties("named")
 public class ImmutableNameAnnotationProperties {
 
   private final String imports;
 
-  public ImmutableNameAnnotationProperties(@Name("import") String imports) {
+  public ImmutableNameAnnotationProperties(@TestName("import") String imports) {
     this.imports = imports;
   }
 

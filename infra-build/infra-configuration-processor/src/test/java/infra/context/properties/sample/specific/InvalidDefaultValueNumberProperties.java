@@ -18,20 +18,20 @@
 
 package infra.context.properties.sample.specific;
 
-import infra.context.properties.sample.ConfigurationProperties;
-import infra.context.properties.sample.DefaultValue;
+import infra.context.properties.sample.TestConfigurationProperties;
+import infra.context.properties.sample.TestDefaultValue;
 
 /**
  * Demonstrates that an invalid default number value leads to a compilation failure.
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties("test")
+@TestConfigurationProperties("test")
 public class InvalidDefaultValueNumberProperties {
 
   private final int counter;
 
-  public InvalidDefaultValueNumberProperties(@DefaultValue("invalid") int counter) {
+  public InvalidDefaultValueNumberProperties(@TestDefaultValue("invalid") int counter) {
     this.counter = counter;
   }
 

@@ -18,14 +18,14 @@
 
 package infra.context.properties.sample.specific;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * A property that is exposed by static accessors.
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties("specific")
+@TestConfigurationProperties("specific")
 public class StaticAccessor {
 
   private static String name;

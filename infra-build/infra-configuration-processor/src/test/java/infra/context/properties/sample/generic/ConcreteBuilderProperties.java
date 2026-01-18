@@ -18,14 +18,14 @@
 
 package infra.context.properties.sample.generic;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Builder pattern with a resolved generic
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties("builder")
+@TestConfigurationProperties("builder")
 public class ConcreteBuilderProperties extends GenericBuilderProperties<ConcreteBuilderProperties> {
 
   private String description;

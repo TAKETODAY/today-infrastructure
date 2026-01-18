@@ -18,150 +18,143 @@
 
 package infra.context.properties.processor;
 
+import java.util.Arrays;
+
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
 import infra.context.properties.processor.metadata.ConfigurationMetadata;
 import infra.context.properties.processor.metadata.ItemDeprecation;
+import infra.context.properties.processor.metadata.ItemHint;
 import infra.context.properties.processor.metadata.ItemMetadata;
 
 /**
  * Description of a property that can be candidate for metadata generation.
  *
- * @param <S> the type of the source element that determines the property
  * @author Stephane Nicoll
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-abstract class PropertyDescriptor<S extends Element> {
-
-  private final TypeElement ownerElement;
-
-  private final ExecutableElement factoryMethod;
-
-  private final S source;
+abstract class PropertyDescriptor {
 
   private final String name;
 
   private final TypeMirror type;
 
-  private final VariableElement field;
+  private final TypeElement declaringElement;
 
   private final ExecutableElement getter;
 
-  private final ExecutableElement setter;
-
-  protected PropertyDescriptor(TypeElement ownerElement, ExecutableElement factoryMethod, S source, String name,
-          TypeMirror type, VariableElement field, ExecutableElement getter, ExecutableElement setter) {
-    this.ownerElement = ownerElement;
-    this.factoryMethod = factoryMethod;
-    this.source = source;
+  /**
+   * Create a new {@link PropertyDescriptor} instance.
+   *
+   * @param name the property name
+   * @param type the property type
+   * @param declaringElement the element that declared the item
+   * @param getter the getter for the property or {@code null}
+   */
+  PropertyDescriptor(String name, TypeMirror type, TypeElement declaringElement, ExecutableElement getter) {
+    this.declaringElement = declaringElement;
     this.name = name;
     this.type = type;
-    this.field = field;
     this.getter = getter;
-    this.setter = setter;
   }
 
-  TypeElement getOwnerElement() {
-    return this.ownerElement;
-  }
-
-  ExecutableElement getFactoryMethod() {
-    return this.factoryMethod;
-  }
-
-  S getSource() {
-    return this.source;
-  }
-
+  /**
+   * Return the name of the property.
+   *
+   * @return the property name
+   */
   String getName() {
     return this.name;
   }
 
+  /**
+   * Return the type of the property.
+   *
+   * @return the property type
+   */
   TypeMirror getType() {
     return this.type;
   }
 
-  VariableElement getField() {
-    return this.field;
+  /**
+   * Return the element that declared the property.
+   *
+   * @return the declaring element
+   */
+  protected final TypeElement getDeclaringElement() {
+    return this.declaringElement;
   }
 
-  ExecutableElement getGetter() {
+  /**
+   * Return the getter for the property.
+   *
+   * @return the getter or {@code null}
+   */
+  protected final ExecutableElement getGetter() {
     return this.getter;
   }
 
-  ExecutableElement getSetter() {
-    return this.setter;
-  }
-
-  protected abstract boolean isProperty(MetadataGenerationEnvironment environment);
-
-  protected abstract Object resolveDefaultValue(MetadataGenerationEnvironment environment);
-
-  protected ItemDeprecation resolveItemDeprecation(MetadataGenerationEnvironment environment) {
-    boolean deprecated = environment.isDeprecated(getGetter()) || environment.isDeprecated(getSetter())
-            || environment.isDeprecated(getField()) || environment.isDeprecated(getFactoryMethod());
-    return deprecated ? environment.resolveItemDeprecation(getGetter()) : null;
-  }
-
-  protected boolean isNested(MetadataGenerationEnvironment environment) {
-    Element typeElement = environment.getTypeUtils().asElement(getType());
-    if (!(typeElement instanceof TypeElement) || typeElement.getKind() == ElementKind.ENUM) {
-      return false;
-    }
-    if (environment.getConfigurationPropertiesAnnotation(getGetter()) != null) {
-      return false;
-    }
-    if (environment.getNestedConfigurationPropertyAnnotation(getField()) != null) {
-      return true;
-    }
-    if (isCyclePresent(typeElement, getOwnerElement())) {
-      return false;
-    }
-    return isParentTheSame(environment, typeElement, getOwnerElement());
-  }
-
-  ItemMetadata resolveItemMetadata(String prefix, MetadataGenerationEnvironment environment) {
+  /**
+   * Resolve the {@link ItemMetadata} for this property.
+   *
+   * @param prefix the property prefix
+   * @param environment the metadata generation environment
+   * @return the item metadata or {@code null}
+   */
+  final ItemMetadata resolveItemMetadata(String prefix, MetadataGenerationEnvironment environment) {
     if (isNested(environment)) {
       return resolveItemMetadataGroup(prefix, environment);
     }
-    else if (isProperty(environment)) {
+    if (isProperty(environment)) {
       return resolveItemMetadataProperty(prefix, environment);
     }
     return null;
   }
 
-  private ItemMetadata resolveItemMetadataProperty(String prefix, MetadataGenerationEnvironment environment) {
-    String dataType = resolveType(environment);
-    String ownerType = environment.getTypeUtils().getQualifiedName(getOwnerElement());
-    String description = resolveDescription(environment);
-    Object defaultValue = resolveDefaultValue(environment);
-    ItemDeprecation deprecation = resolveItemDeprecation(environment);
-    return ItemMetadata.newProperty(prefix, getName(), dataType, ownerType, null, description, defaultValue,
-            deprecation);
+  /**
+   * Resolve the {@link ItemHint} for this property.
+   *
+   * @param prefix the property prefix
+   * @param environment the metadata generation environment
+   * @return the item hint or {@code null}
+   */
+  protected ItemHint resolveItemHint(String prefix, MetadataGenerationEnvironment environment) {
+    return null;
   }
 
-  private ItemMetadata resolveItemMetadataGroup(String prefix, MetadataGenerationEnvironment environment) {
-    Element propertyElement = environment.getTypeUtils().asElement(getType());
-    String nestedPrefix = ConfigurationMetadata.nestedPrefix(prefix, getName());
-    String dataType = environment.getTypeUtils().getQualifiedName(propertyElement);
-    String ownerType = environment.getTypeUtils().getQualifiedName(getOwnerElement());
-    String sourceMethod = (getGetter() != null) ? getGetter().toString() : null;
-    return ItemMetadata.newGroup(nestedPrefix, dataType, ownerType, sourceMethod);
+  /**
+   * Return if this is a nested property.
+   *
+   * @param environment the metadata generation environment
+   * @return if the property is nested
+   * @see #isMarkedAsNested(MetadataGenerationEnvironment)
+   */
+  boolean isNested(MetadataGenerationEnvironment environment) {
+    Element typeElement = environment.getTypeUtils().asElement(getType());
+    if (!(typeElement instanceof TypeElement) || typeElement.getKind() == ElementKind.ENUM
+            || environment.getConfigurationPropertiesAnnotation(getGetter()) != null) {
+      return false;
+    }
+    if (isMarkedAsNested(environment)) {
+      return true;
+    }
+    return !isCyclePresent(typeElement, getDeclaringElement())
+            && isParentTheSame(environment, typeElement, getDeclaringElement());
   }
 
-  private String resolveType(MetadataGenerationEnvironment environment) {
-    return environment.getTypeUtils().getType(getOwnerElement(), getType());
-  }
-
-  private String resolveDescription(MetadataGenerationEnvironment environment) {
-    return environment.getTypeUtils().getJavaDoc(getField());
-  }
+  /**
+   * Return if this property has been explicitly marked as nested (for example using an
+   * annotation}.
+   *
+   * @param environment the metadata generation environment
+   * @return if the property has been marked as nested
+   */
+  protected abstract boolean isMarkedAsNested(MetadataGenerationEnvironment environment);
 
   private boolean isCyclePresent(Element returnType, Element element) {
     if (!(element.getEnclosingElement() instanceof TypeElement)) {
@@ -180,7 +173,7 @@ abstract class PropertyDescriptor<S extends Element> {
     }
     returnType = getTopLevelType(returnType);
     Element candidate = element;
-    while (candidate != null && candidate instanceof TypeElement) {
+    while (candidate instanceof TypeElement) {
       if (returnType.equals(getTopLevelType(candidate))) {
         return true;
       }
@@ -195,5 +188,65 @@ abstract class PropertyDescriptor<S extends Element> {
     }
     return getTopLevelType(element.getEnclosingElement());
   }
+
+  private ItemMetadata resolveItemMetadataGroup(String prefix, MetadataGenerationEnvironment environment) {
+    Element propertyElement = environment.getTypeUtils().asElement(getType());
+    String nestedPrefix = ConfigurationMetadata.nestedPrefix(prefix, getName());
+    String dataType = environment.getTypeUtils().getQualifiedName(propertyElement);
+    String ownerType = environment.getTypeUtils().getQualifiedName(getDeclaringElement());
+    String sourceMethod = (getGetter() != null) ? getGetter().toString() : null;
+    return ItemMetadata.newGroup(nestedPrefix, dataType, ownerType, sourceMethod);
+  }
+
+  private ItemMetadata resolveItemMetadataProperty(String prefix, MetadataGenerationEnvironment environment) {
+    String dataType = resolveType(environment);
+    String ownerType = environment.getTypeUtils().getQualifiedName(getDeclaringElement());
+    String description = resolveDescription(environment);
+    Object defaultValue = resolveDefaultValue(environment);
+    ItemDeprecation deprecation = resolveItemDeprecation(environment);
+    return ItemMetadata.newProperty(prefix, getName(), dataType, ownerType,
+            null, description, defaultValue, deprecation);
+  }
+
+  protected final ItemDeprecation resolveItemDeprecation(MetadataGenerationEnvironment environment, Element... elements) {
+    boolean deprecated = Arrays.stream(elements).anyMatch(environment::isDeprecated);
+    return deprecated ? environment.resolveItemDeprecation(getGetter()) : null;
+  }
+
+  private String resolveType(MetadataGenerationEnvironment environment) {
+    return environment.getTypeUtils().getType(getDeclaringElement(), getType());
+  }
+
+  /**
+   * Resolve the property description.
+   *
+   * @param environment the metadata generation environment
+   * @return the property description
+   */
+  protected abstract String resolveDescription(MetadataGenerationEnvironment environment);
+
+  /**
+   * Resolve the default value for this property.
+   *
+   * @param environment the metadata generation environment
+   * @return the default value or {@code null}
+   */
+  protected abstract Object resolveDefaultValue(MetadataGenerationEnvironment environment);
+
+  /**
+   * Resolve the {@link ItemDeprecation} for this property.
+   *
+   * @param environment the metadata generation environment
+   * @return the deprecation or {@code null}
+   */
+  protected abstract ItemDeprecation resolveItemDeprecation(MetadataGenerationEnvironment environment);
+
+  /**
+   * Return true if this descriptor is for a property.
+   *
+   * @param environment the metadata generation environment
+   * @return if this is a property
+   */
+  abstract boolean isProperty(MetadataGenerationEnvironment environment);
 
 }

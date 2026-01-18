@@ -18,14 +18,14 @@
 
 package infra.context.properties.sample.specific;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Sample with builder style setters.
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties(prefix = "builder")
+@TestConfigurationProperties("builder")
 public class BuilderPojo {
 
   private String name;

@@ -18,14 +18,14 @@
 
 package infra.context.properties.sample.simple;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Configuration properties with inherited values.
  *
  * @author Stephane Nicoll
  */
-@ConfigurationProperties(prefix = "hierarchical")
+@TestConfigurationProperties(prefix = "hierarchical")
 public class HierarchicalProperties extends HierarchicalPropertiesParent {
 
   private String third = "three";

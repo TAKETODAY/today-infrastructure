@@ -18,7 +18,7 @@
 
 package infra.context.properties.sample.method;
 
-import infra.context.properties.sample.ConfigurationProperties;
+import infra.context.properties.sample.TestConfigurationProperties;
 
 /**
  * Sample for testing private method configuration.
@@ -27,7 +27,7 @@ import infra.context.properties.sample.ConfigurationProperties;
  */
 public class PrivateMethodConfig {
 
-  @ConfigurationProperties(prefix = "foo")
+  @TestConfigurationProperties(prefix = "foo")
   private Foo foo() {
     return new Foo();
   }
