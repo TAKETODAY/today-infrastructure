@@ -43,6 +43,7 @@ import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.core.annotation.RepeatableContainers;
 import infra.http.HttpMethod;
+import infra.http.service.annotation.HttpExchange;
 import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.stereotype.Controller;
@@ -61,7 +62,6 @@ import infra.web.handler.condition.AbstractRequestCondition;
 import infra.web.handler.condition.CompositeRequestCondition;
 import infra.web.handler.condition.ConsumesRequestCondition;
 import infra.web.handler.condition.RequestCondition;
-import infra.web.service.annotation.HttpExchange;
 
 /**
  * Creates {@link RequestMappingInfo} instances from type and method-level
@@ -250,7 +250,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
    * @see #getCustomCondition(AnnotatedElement)
    */
   private @Nullable RequestMappingInfo createRequestMappingInfo(AnnotatedElement element) {
-    var exchangeType = ClassUtils.load("infra.web.service.annotation.HttpExchange", getClass().getClassLoader());
+    var exchangeType = ClassUtils.load("infra.http.service.annotation.HttpExchange", getClass().getClassLoader());
 
     List<AnnotationDescriptor> descriptors = MergedAnnotations.from(element, SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.none())
             .stream()
@@ -524,7 +524,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
     /**
      * Create a {@link RequestMappingInfo} from the supplied
-     * {@link infra.web.service.annotation.HttpExchange @HttpExchange} annotation, or meta-annotation,
+     * {@link HttpExchange @HttpExchange} annotation, or meta-annotation,
      * or synthesized result of merging annotation attributes within an
      * annotation hierarchy.
      */

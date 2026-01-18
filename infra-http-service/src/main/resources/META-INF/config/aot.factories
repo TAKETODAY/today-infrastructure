@@ -1,9 +1,9 @@
 infra.beans.factory.aot.BeanRegistrationAotProcessor=\
-infra.web.service.annotation.HttpExchangeBeanRegistrationAotProcessor,\
-infra.web.service.registry.HttpServiceProxyBeanRegistrationAotProcessor
+infra.http.service.annotation.HttpExchangeBeanRegistrationAotProcessor,\
+infra.http.service.registry.HttpServiceProxyBeanRegistrationAotProcessor
 
 infra.aot.hint.RuntimeHintsRegistrar= \
-infra.web.service.registry.HttpServiceProxyRegistryFactoryBean.HttpServiceProxyRegistryRuntimeHints
+infra.http.service.registry.HttpServiceProxyRegistryFactoryBean.HttpServiceProxyRegistryRuntimeHints
 
 infra.aot.generate.ValueCodeGenerator$Delegate=\
-infra.web.service.registry.GroupsMetadataValueDelegate
+infra.http.service.registry.GroupsMetadataValueDelegate
