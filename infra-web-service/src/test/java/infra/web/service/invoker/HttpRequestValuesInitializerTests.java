@@ -100,22 +100,22 @@ class HttpRequestValuesInitializerTests {
     Method execute = MethodService.class.getDeclaredMethod("execute");
     var initializer = HttpRequestValuesInitializer.create(execute, MethodService.class, null, HttpRequestValues::builder);
     assertThat(initializer).extracting("httpMethod").isEqualTo(HttpMethod.POST);
-    assertThat(initializer).extracting("url").isNull();
+    assertThat(initializer).extracting("uri").isNull();
     assertThat(initializer).extracting("contentType").isNull();
     assertThat(initializer).extracting("acceptMediaTypes").isNull();
     assertThat(initializer).extracting("otherHeaders").isNull();
     assertThat(initializer).extracting("params").isNull();
-    assertThat(initializer).extracting("requestValuesSupplier").isNotNull();
+    assertThat(initializer).extracting("requestValuesCreator").isNotNull();
 
     Method executePath = MethodService.class.getDeclaredMethod("executePath");
     initializer = HttpRequestValuesInitializer.create(executePath, MethodService.class, null, HttpRequestValues::builder);
     assertThat(initializer).extracting("httpMethod").isEqualTo(HttpMethod.POST);
-    assertThat(initializer).extracting("url").isNull();
+    assertThat(initializer).extracting("uri").isNull();
     assertThat(initializer).extracting("contentType").isNull();
     assertThat(initializer).extracting("acceptMediaTypes").isNull();
     assertThat(initializer).extracting("otherHeaders").isNull();
     assertThat(initializer).extracting("params").isNull();
-    assertThat(initializer).extracting("requestValuesSupplier").isNotNull();
+    assertThat(initializer).extracting("requestValuesCreator").isNotNull();
 
   }
 
