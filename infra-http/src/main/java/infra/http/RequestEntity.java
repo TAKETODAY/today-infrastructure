@@ -71,7 +71,7 @@ import infra.util.ObjectUtils;
  * @see ResponseEntity
  * @since 4.0 2021/11/5 21:46
  */
-public class RequestEntity<T> extends HttpEntity<T> {
+public class RequestEntity<T extends @Nullable Object> extends HttpEntity<T> {
 
   private final @Nullable HttpMethod method;
 
@@ -157,8 +157,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
    *
    * @return the HTTP method as an {@code HttpMethod} enum value
    */
-  @Nullable
-  public HttpMethod getMethod() {
+  public @Nullable HttpMethod getMethod() {
     return method;
   }
 
@@ -200,7 +199,6 @@ public class RequestEntity<T> extends HttpEntity<T> {
   }
 
   @Override
-  @SuppressWarnings("NullAway")
   public boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;
@@ -751,7 +749,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
    *
    * @param <T> the body type
    */
-  public static class UriTemplateRequestEntity<T> extends RequestEntity<T> {
+  public static class UriTemplateRequestEntity<T extends @Nullable Object> extends RequestEntity<T> {
 
     private final String uriTemplate;
 
@@ -783,7 +781,6 @@ public class RequestEntity<T> extends HttpEntity<T> {
     }
 
     @Override
-    @SuppressWarnings("NullAway")
     public boolean equals(@Nullable Object other) {
       if (this == other) {
         return true;

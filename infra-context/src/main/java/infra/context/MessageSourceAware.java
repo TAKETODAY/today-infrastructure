@@ -30,6 +30,7 @@ import infra.beans.factory.Aware;
  *
  * @author Juergen Hoeller
  * @author Chris Beams
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see ApplicationContextAware
  * @since 4.0
  */

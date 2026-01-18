@@ -59,14 +59,14 @@ import infra.util.MultiValueMap;
  * @see #headers()
  * @since 3.0 2020/12/6 17:10
  */
-public class HttpEntity<T> {
+public class HttpEntity<T extends @Nullable Object> {
 
   /**
    * The empty {@code HttpEntity}, with no body or headers.
    */
   public static final HttpEntity<?> EMPTY = new HttpEntity<>(HttpHeaders.empty());
 
-  private final @Nullable T body;
+  private final T body;
 
   private @Nullable HttpHeaders headers;
 
@@ -128,8 +128,7 @@ public class HttpEntity<T> {
    *
    * @since 5.0
    */
-  @Nullable
-  public HttpHeaders getHeaders() {
+  public @Nullable HttpHeaders getHeaders() {
     return headers;
   }
 
@@ -142,8 +141,7 @@ public class HttpEntity<T> {
    * @throws InvalidMediaTypeException if the media type value cannot be parsed
    * @since 5.0
    */
-  @Nullable
-  public MediaType getContentType() {
+  public @Nullable MediaType getContentType() {
     return headers != null ? headers.getContentType() : null;
   }
 
@@ -168,7 +166,7 @@ public class HttpEntity<T> {
   /**
    * Returns the body of this entity.
    */
-  public @Nullable T getBody() {
+  public T getBody() {
     return body;
   }
 

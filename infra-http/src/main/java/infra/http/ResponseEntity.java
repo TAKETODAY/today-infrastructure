@@ -68,7 +68,7 @@ import infra.util.MultiValueMap;
  * @see #getStatusCode()
  * @since 3.0 2020/12/6 17:06
  */
-public class ResponseEntity<T> extends HttpEntity<T> {
+public class ResponseEntity<T extends @Nullable Object> extends HttpEntity<T> {
 
   private final Object status;
 
@@ -169,7 +169,6 @@ public class ResponseEntity<T> extends HttpEntity<T> {
   }
 
   @Override
-  @SuppressWarnings("NullAway")
   public boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;
@@ -243,7 +242,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
    *
    * @return the created {@code ResponseEntity}
    */
-  public static <T> ResponseEntity<T> ok(T body) {
+  public static <T extends @Nullable Object> ResponseEntity<T> ok(T body) {
     return ok().body(body);
   }
 
@@ -255,7 +254,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
    *
    * @return the created {@code ResponseEntity}
    */
-  public static <T> ResponseEntity<T> of(Optional<T> body) {
+  public static <T extends @Nullable Object> ResponseEntity<T> of(Optional<T> body) {
     Assert.notNull(body, "Body is required");
     return body.map(ResponseEntity::ok)
             .orElseGet(() -> notFound().build());
@@ -641,12 +640,12 @@ public class ResponseEntity<T> extends HttpEntity<T> {
     }
 
     @Override
-    public <T> ResponseEntity<T> build() {
+    public <T extends @Nullable Object> ResponseEntity<T> build() {
       return body(null);
     }
 
     @Override
-    public <T> ResponseEntity<T> body(@Nullable T body) {
+    public <T extends @Nullable Object> ResponseEntity<T> body(T body) {
       return new ResponseEntity<>(body, this.headers, this.statusCode);
     }
   }
