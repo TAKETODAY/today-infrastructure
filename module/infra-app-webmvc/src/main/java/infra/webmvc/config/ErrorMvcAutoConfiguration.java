@@ -24,9 +24,9 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 
+import infra.aop.framework.autoproxy.AutoProxyUtils;
 import infra.app.config.ConditionalOnWebApplication;
 import infra.app.config.web.WebProperties;
-import infra.aop.framework.autoproxy.AutoProxyUtils;
 import infra.beans.BeansException;
 import infra.beans.factory.config.BeanFactoryPostProcessor;
 import infra.beans.factory.config.ConfigurableBeanFactory;

@@ -37,6 +37,7 @@ import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.BeanFactoryPostProcessor;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationEventPublisher;
+import infra.context.annotation.Configuration;
 import infra.context.annotation.ImportRuntimeHints;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.Role;
@@ -44,9 +45,11 @@ import infra.context.annotation.config.AutoConfigureOrder;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnBean;
+import infra.context.condition.ConditionalOnBooleanProperty;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.Ordered;
+import infra.core.annotation.Order;
 import infra.core.task.AsyncTaskExecutor;
 import infra.format.FormatterRegistry;
 import infra.format.support.ApplicationConversionService;
@@ -87,6 +90,7 @@ import infra.web.config.format.DateTimeFormatters;
 import infra.web.config.format.WebConversionService;
 import infra.web.context.support.RequestHandledEventPublisher;
 import infra.web.handler.AbstractHandlerExceptionHandler;
+import infra.web.handler.ResponseEntityExceptionHandler;
 import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import infra.web.handler.method.RequestMappingHandlerAdapter;
@@ -497,6 +501,19 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   static ResourceHandlerRegistrationCustomizer resourceHandlerRegistrationCustomizer(
           WebProperties webProperties) {
     return new ResourceHandlerRegistrationCustomizer(webProperties.resources);
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnBooleanProperty("web.mvc.problemdetails.enabled")
+  static class ProblemDetailsErrorHandlingConfiguration {
+
+    @Component
+    @Order(0)
+    @ConditionalOnMissingBean(ResponseEntityExceptionHandler.class)
+    static ProblemDetailsExceptionHandler problemDetailsExceptionHandler() {
+      return new ProblemDetailsExceptionHandler();
+    }
+
   }
 
   static class ResourceHandlerRegistrationCustomizer {

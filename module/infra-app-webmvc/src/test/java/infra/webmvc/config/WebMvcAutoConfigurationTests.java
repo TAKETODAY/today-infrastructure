@@ -18,6 +18,9 @@
 
 package infra.webmvc.config;
 
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.Aspect;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
@@ -39,6 +42,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import infra.aop.support.AopUtils;
 import infra.app.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.app.config.task.TaskExecutionAutoConfiguration;
 import infra.app.test.context.assertj.AssertableApplicationContext;
@@ -49,9 +53,12 @@ import infra.context.ApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
+import infra.context.annotation.EnableAspectJAutoProxy;
 import infra.context.annotation.Import;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.context.annotation.config.ImportAutoConfiguration;
+import infra.core.Ordered;
+import infra.core.annotation.Order;
 import infra.core.conversion.ConversionService;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
@@ -87,6 +94,7 @@ import infra.web.accept.DefaultApiVersionStrategy;
 import infra.web.accept.InvalidApiVersionException;
 import infra.web.accept.MissingApiVersionException;
 import infra.web.accept.StandardApiVersionDeprecationHandler;
+import infra.web.annotation.ControllerAdvice;
 import infra.web.async.WebAsyncManagerFactory;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.config.annotation.AsyncSupportConfigurer;
@@ -95,9 +103,11 @@ import infra.web.config.annotation.ResourceHandlerRegistry;
 import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.handler.AbstractHandlerExceptionHandler;
 import infra.web.handler.CompositeHandlerExceptionHandler;
+import infra.web.handler.ResponseEntityExceptionHandler;
 import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.handler.SimpleHandlerExceptionHandler;
 import infra.web.handler.SimpleUrlHandlerMapping;
+import infra.web.handler.method.ControllerAdviceBean;
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import infra.web.handler.method.RequestMappingHandlerAdapter;
 import infra.web.handler.method.RequestMappingHandlerMapping;
@@ -122,6 +132,8 @@ import infra.web.view.View;
 import infra.web.view.ViewResolver;
 import jakarta.validation.ValidatorFactory;
 
+import static infra.webmvc.config.WebMvcAutoConfigurationTests.OrderedControllerAdviceBeansConfiguration.HighestOrderedControllerAdvice;
+import static infra.webmvc.config.WebMvcAutoConfigurationTests.OrderedControllerAdviceBeansConfiguration.LowestOrderedControllerAdvice;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
@@ -831,6 +843,45 @@ class WebMvcAutoConfigurationTests {
     });
   }
 
+  @Test
+  void problemDetailsDisabledByDefault() {
+    this.contextRunner.run((context) -> assertThat(context).doesNotHaveBean(ProblemDetailsExceptionHandler.class));
+  }
+
+  @Test
+  void problemDetailsEnabledAddsExceptionHandler() {
+    this.contextRunner.withPropertyValues("web.mvc.problemdetails.enabled:true")
+            .run((context) -> assertThat(context).hasSingleBean(ProblemDetailsExceptionHandler.class));
+  }
+
+  @Test
+  void problemDetailsExceptionHandlerDoesNotPreventProxying() {
+    this.contextRunner.withUserConfiguration(AopConfiguration.class)
+            .withBean(ExceptionHandlerInterceptor.class)
+            .withPropertyValues("web.mvc.problemdetails.enabled:true")
+            .run((context) -> assertThat(context).getBean(ProblemDetailsExceptionHandler.class)
+                    .matches(AopUtils::isCglibProxy, "isCglibProxy"));
+  }
+
+  @Test
+  void problemDetailsBacksOffWhenExceptionHandler() {
+    this.contextRunner.withPropertyValues("web.mvc.problemdetails.enabled:true")
+            .withUserConfiguration(CustomExceptionHandlerConfiguration.class)
+            .run((context) -> assertThat(context).doesNotHaveBean(ProblemDetailsExceptionHandler.class)
+                    .hasSingleBean(CustomExceptionHandler.class));
+  }
+
+  @Test
+  void problemDetailsExceptionHandlerIsOrderedAt0() {
+    this.contextRunner.withPropertyValues("web.mvc.problemdetails.enabled:true")
+            .withUserConfiguration(OrderedControllerAdviceBeansConfiguration.class)
+            .run((context) -> assertThat(
+                    ControllerAdviceBean.findAnnotatedBeans(context).stream().map(ControllerAdviceBean::getBeanType))
+                    .asInstanceOf(InstanceOfAssertFactories.list(Class.class))
+                    .containsExactly(HighestOrderedControllerAdvice.class, ProblemDetailsExceptionHandler.class,
+                            LowestOrderedControllerAdvice.class));
+  }
+
   private void assertResourceHttpRequestHandler(AssertableApplicationContext context,
           Consumer<ResourceHttpRequestHandler> handlerConsumer) {
     Map<String, Object> handlerMap = getHandlerMap(context.getBean("resourceHandlerMapping", HandlerMapping.class));
@@ -1269,6 +1320,54 @@ class WebMvcAutoConfigurationTests {
     @Bean
     ApiVersionParser<String> apiVersionParser() {
       return (version) -> String.valueOf(version);
+    }
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class CustomExceptionHandlerConfiguration {
+
+    @Bean
+    CustomExceptionHandler customExceptionHandler() {
+      return new CustomExceptionHandler();
+    }
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  @Import({ LowestOrderedControllerAdvice.class, HighestOrderedControllerAdvice.class })
+  static class OrderedControllerAdviceBeansConfiguration {
+
+    @ControllerAdvice
+    @Order
+    static class LowestOrderedControllerAdvice {
+
+    }
+
+    @ControllerAdvice
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    static class HighestOrderedControllerAdvice {
+
+    }
+
+  }
+
+  @ControllerAdvice
+  static class CustomExceptionHandler extends ResponseEntityExceptionHandler {
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  @EnableAspectJAutoProxy(proxyTargetClass = true)
+  static class AopConfiguration {
+
+  }
+
+  @Aspect
+  static class ExceptionHandlerInterceptor {
+
+    @AfterReturning(pointcut = "@annotation(infra.web.annotation.ExceptionHandler)", returning = "returnValue")
+    void exceptionHandlerIntercept(JoinPoint joinPoint, Object returnValue) {
     }
 
   }

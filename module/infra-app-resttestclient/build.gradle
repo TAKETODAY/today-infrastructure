@@ -3,8 +3,7 @@ description = "Infra application RestTestClient integration"
 dependencies {
   api project(":infra-web-client")
   api project(":module:infra-app-test")
-
-  optional project(':module:infra-app-restclient')
+  api project(":module:infra-app-restclient")
 
   optional 'org.apache.httpcomponents.core5:httpcore5'
   optional 'org.apache.httpcomponents.core5:httpcore5-reactive'
