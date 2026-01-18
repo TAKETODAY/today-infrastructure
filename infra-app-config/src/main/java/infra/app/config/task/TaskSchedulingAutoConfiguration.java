@@ -55,10 +55,7 @@ import infra.stereotype.Component;
 @ConditionalOnBean(name = TaskManagementConfigUtils.SCHEDULED_ANNOTATION_PROCESSOR_BEAN_NAME)
 @DisableDIAutoConfiguration(after = TaskExecutionAutoConfiguration.class)
 @EnableConfigurationProperties(TaskSchedulingProperties.class)
-public class TaskSchedulingAutoConfiguration {
-
-  private TaskSchedulingAutoConfiguration() {
-  }
+public final class TaskSchedulingAutoConfiguration {
 
   @Component
   public static LazyInitializationExcludeFilter scheduledBeanLazyInitializationExcludeFilter() {
@@ -104,9 +101,6 @@ public class TaskSchedulingAutoConfiguration {
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnMissingBean({ TaskScheduler.class, ScheduledExecutorService.class })
   public static class TaskSchedulerConfiguration {
-
-    private TaskSchedulerConfiguration() {
-    }
 
     @Component(name = "taskScheduler")
     @ConditionalOnThreading(Threading.VIRTUAL)

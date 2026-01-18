@@ -18,6 +18,8 @@
 
 package infra.app.config.task;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -41,7 +43,6 @@ import infra.core.env.Environment;
 import infra.core.task.SimpleAsyncTaskExecutor;
 import infra.core.task.TaskDecorator;
 import infra.core.task.TaskExecutor;
-import org.jspecify.annotations.Nullable;
 import infra.scheduling.annotation.AsyncConfigurer;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 import infra.scheduling.support.SimpleAsyncTaskExecutorBuilder;
@@ -61,10 +62,7 @@ import infra.stereotype.Component;
 @DisableDIAutoConfiguration
 @ConditionalOnClass(ThreadPoolTaskExecutor.class)
 @EnableConfigurationProperties(TaskExecutionProperties.class)
-public class TaskExecutionAutoConfiguration {
-
-  private TaskExecutionAutoConfiguration() {
-  }
+public final class TaskExecutionAutoConfiguration {
 
   /**
    * Bean name of the application {@link TaskExecutor}.
