@@ -165,9 +165,9 @@ public final class HttpServiceProxyRegistryFactoryBean
 
     private final HttpServiceGroupAdapter<?> groupAdapter;
 
-    private @Nullable Object clientBuilder;
-
     private final HttpServiceProxyFactory.Builder proxyFactoryBuilder = HttpServiceProxyFactory.builder();
+
+    private @Nullable Object clientBuilder;
 
     ConfigurableGroup(HttpServiceGroup group) {
       this.group = group;
@@ -219,13 +219,15 @@ public final class HttpServiceProxyRegistryFactoryBean
       Map<Class<?>, Object> map = new LinkedHashMap<>(this.group.httpServiceTypes().size());
       HttpExchangeAdapter adapter = this.groupAdapter.createExchangeAdapter(getClientBuilder());
       HttpServiceProxyFactory factory = this.proxyFactoryBuilder.exchangeAdapter(adapter).build();
-      this.group.httpServiceTypes().forEach(type -> map.put(type, factory.createClient(type)));
+      for (Class<?> type : group.httpServiceTypes()) {
+        map.put(type, factory.createClient(type));
+      }
       return map;
     }
 
     @Override
     public String toString() {
-      return getClass().getSimpleName() + "[name=" + name() + "]";
+      return "%s[name=%s]".formatted(getClass().getSimpleName(), name());
     }
 
   }

@@ -84,7 +84,7 @@ class HttpServiceClientAutoConfigurationTests {
   @Test
   void configuresClientFromProperties() {
     this.contextRunner.withPropertyValues("http.service-client.one.default-header.test=true",
-                    "http.service-client.one.base-url=https://example.com/one",
+                    "http.service-client.one.base-uri=https://example.com/one",
                     "http.service-client.two.default-header.test=true",
                     "http.service-client.two.default-header.two=iam2")
             .withUserConfiguration(HttpClientConfiguration.class, MockRestServiceServerConfiguration.class)
@@ -158,7 +158,7 @@ class HttpServiceClientAutoConfigurationTests {
 
   @Test
   void whenHasUserDefinedRequestFactoryBuilder() {
-    this.contextRunner.withPropertyValues("http.client.service.base-url=https://example.com")
+    this.contextRunner.withPropertyValues("http.client.service.base-uri=https://example.com")
             .withUserConfiguration(HttpClientConfiguration.class, RequestFactoryBuilderConfiguration.class)
             .run((context) -> {
               TestClientOne clientOne = context.getBean(TestClientOne.class);
@@ -169,7 +169,7 @@ class HttpServiceClientAutoConfigurationTests {
   @Test
   void whenHasUserDefinedRequestFactorySettings() {
     this.contextRunner
-            .withPropertyValues("http.service-client.one.base-url=https://example.com",
+            .withPropertyValues("http.service-client.one.base-uri=https://example.com",
                     "http.clients.imperative.factory=jdk")
             .withUserConfiguration(HttpClientConfiguration.class, RequestFactorySettingsConfiguration.class)
             .run((context) -> {
@@ -180,7 +180,7 @@ class HttpServiceClientAutoConfigurationTests {
 
   @Test
   void whenHasUserDefinedRestClientCustomizer() {
-    this.contextRunner.withPropertyValues("http.service-client.one.base-url=https://example.com")
+    this.contextRunner.withPropertyValues("http.service-client.one.base-uri=https://example.com")
             .withUserConfiguration(HttpClientConfiguration.class, MockRestServiceServerConfiguration.class,
                     RestClientCustomizerConfiguration.class)
             .run((context) -> {
@@ -197,7 +197,7 @@ class HttpServiceClientAutoConfigurationTests {
 
   @Test
   void whenHasUserDefinedHttpServiceGroupConfigurer() {
-    this.contextRunner.withPropertyValues("http.service-client.one.base-url=https://example.com")
+    this.contextRunner.withPropertyValues("http.service-client.one.base-uri=https://example.com")
             .withUserConfiguration(HttpClientConfiguration.class, MockRestServiceServerConfiguration.class,
                     HttpServiceGroupConfigurerConfiguration.class)
             .run((context) -> {
@@ -214,7 +214,7 @@ class HttpServiceClientAutoConfigurationTests {
 
   @Test
   void whenHasNoHttpServiceProxyRegistryBean() {
-    this.contextRunner.withPropertyValues("http.clients.service.base-url=https://example.com")
+    this.contextRunner.withPropertyValues("http.clients.service.base-uri=https://example.com")
             .run((context) -> assertThat(context).doesNotHaveBean(HttpServiceProxyRegistry.class));
   }
 
@@ -227,7 +227,7 @@ class HttpServiceClientAutoConfigurationTests {
     Advisor[] advisors = (Advisor[]) Extractors.byName("advised.advisors").apply(handler);
     Map<?, ?> serviceMethods = (Map<?, ?>) Extractors.byName("advice.httpServiceMethods").apply(advisors[0]);
     Object serviceMethod = serviceMethods.values().iterator().next();
-    return (RestClient) Extractors.byName("responseFunction.arg$1.restClient")
+    return (RestClient) Extractors.byName("requestExecution.arg$1.restClient")
             .apply(serviceMethod);
   }
 

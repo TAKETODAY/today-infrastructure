@@ -45,7 +45,7 @@ public class HttpClientProperties extends HttpClientSettingsProperties {
    * Base url to set in the underlying HTTP client group. By default, set to
    * {@code null}.
    */
-  public @Nullable String baseUrl;
+  public @Nullable String baseUri;
 
   /**
    * Default request headers for interface client group. By default, set to empty

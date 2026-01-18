@@ -26,7 +26,6 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import infra.core.StringValueResolver;
@@ -59,7 +58,7 @@ final class HttpRequestValuesInitializer {
   private final HttpMethod httpMethod;
 
   @Nullable
-  private final String url;
+  private final String uri;
 
   @Nullable
   private final MediaType contentType;
@@ -73,31 +72,31 @@ final class HttpRequestValuesInitializer {
   @Nullable
   private final MultiValueMap<String, String> params;
 
-  private final Supplier<HttpRequestValues.Builder> requestValuesSupplier;
+  private final HttpRequestValuesCreator<HttpRequestValues> requestValuesCreator;
 
   @Nullable
   private final String version;
 
-  HttpRequestValuesInitializer(@Nullable HttpMethod method, @Nullable String url, @Nullable MediaType contentType,
+  HttpRequestValuesInitializer(@Nullable HttpMethod method, @Nullable String uri, @Nullable MediaType contentType,
           @Nullable List<MediaType> acceptMediaTypes, @Nullable MultiValueMap<String, String> otherHeaders,
-          @Nullable MultiValueMap<String, String> params, Supplier<HttpRequestValues.Builder> requestValuesSupplier, @Nullable String version) {
-    this.url = url;
+          @Nullable MultiValueMap<String, String> params, HttpRequestValuesCreator<HttpRequestValues> requestValuesCreator, @Nullable String version) {
+    this.uri = uri;
     this.params = params;
     this.httpMethod = method;
     this.contentType = contentType;
     this.otherHeaders = otherHeaders;
     this.acceptMediaTypes = acceptMediaTypes;
-    this.requestValuesSupplier = requestValuesSupplier;
+    this.requestValuesCreator = requestValuesCreator;
     this.version = version;
   }
 
-  public HttpRequestValues.Builder initializeRequestValuesBuilder() {
-    HttpRequestValues.Builder requestValues = requestValuesSupplier.get();
+  public HttpRequestValues.Builder initialize() {
+    HttpRequestValues.Builder requestValues = requestValuesCreator.createBuilder();
     if (httpMethod != null) {
       requestValues.setHttpMethod(httpMethod);
     }
-    if (url != null) {
-      requestValues.setUriTemplate(url);
+    if (uri != null) {
+      requestValues.setUriTemplate(uri);
     }
     if (contentType != null) {
       requestValues.setContentType(contentType);
@@ -135,7 +134,7 @@ final class HttpRequestValuesInitializer {
    * Introspect the method and create the request factory for it.
    */
   public static HttpRequestValuesInitializer create(Method method, Class<?> containingClass,
-          @Nullable StringValueResolver embeddedValueResolver, Supplier<HttpRequestValues.Builder> requestValuesSupplier) {
+          @Nullable StringValueResolver embeddedValueResolver, HttpRequestValuesCreator<HttpRequestValues> requestValuesCreator) {
 
     List<AnnotationDescriptor> methodHttpExchanges = getAnnotationDescriptors(method);
     if (methodHttpExchanges.isEmpty()) {
@@ -169,7 +168,7 @@ final class HttpRequestValuesInitializer {
     String version = initVersion(typeAnnotation, methodAnnotation);
 
     return new HttpRequestValuesInitializer(
-            httpMethod, url, contentType, acceptableMediaTypes, headers, params, requestValuesSupplier, version);
+            httpMethod, url, contentType, acceptableMediaTypes, headers, params, requestValuesCreator, version);
   }
 
   @Nullable

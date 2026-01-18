@@ -77,9 +77,9 @@ class ReactiveHttpServiceClientAutoConfigurationTests {
   @Test
   void configuresClientFromProperties() {
     this.contextRunner
-            .withPropertyValues("http.service-client.one.base-url=https://example.com/one",
+            .withPropertyValues("http.service-client.one.base-uri=https://example.com/one",
                     "http.service-client.one.default-header.test=true",
-                    "http.service-client.two.base-url=https://example.com/two",
+                    "http.service-client.two.base-uri=https://example.com/two",
                     "http.service-client.two.default-header.test=true",
                     "http.service-client.two.default-header.two=iam2")
             .withUserConfiguration(HttpClientConfiguration.class)
@@ -135,7 +135,7 @@ class ReactiveHttpServiceClientAutoConfigurationTests {
 
   @Test
   void whenHasUserDefinedHttpConnectorBuilder() {
-    this.contextRunner.withPropertyValues("http.reactiveclient.service.base-url=https://example.com")
+    this.contextRunner.withPropertyValues("http.reactiveclient.service.base-uri=https://example.com")
             .withUserConfiguration(HttpClientConfiguration.class, HttpConnectorBuilderConfiguration.class)
             .run((context) -> {
               TestClientOne clientOne = context.getBean(TestClientOne.class);
@@ -146,7 +146,7 @@ class ReactiveHttpServiceClientAutoConfigurationTests {
   @Test
   void whenHasUserDefinedRequestFactorySettings() {
     this.contextRunner
-            .withPropertyValues("http.service-client.one.base-url=https://example.com",
+            .withPropertyValues("http.service-client.one.base-uri=https://example.com",
                     "http.clients.reactive.connector=jdk")
             .withUserConfiguration(HttpClientConfiguration.class, HttpConnectorSettingsConfiguration.class)
             .run((context) -> {
@@ -157,7 +157,7 @@ class ReactiveHttpServiceClientAutoConfigurationTests {
 
   @Test
   void whenHasUserDefinedWebClientCustomizer() {
-    this.contextRunner.withPropertyValues("http.service-client.one.base-url=https://example.com")
+    this.contextRunner.withPropertyValues("http.service-client.one.base-uri=https://example.com")
             .withUserConfiguration(HttpClientConfiguration.class, WebClientCustomizerConfiguration.class)
             .run((context) -> {
               TestClientOne clientOne = context.getBean(TestClientOne.class);
@@ -169,7 +169,7 @@ class ReactiveHttpServiceClientAutoConfigurationTests {
 
   @Test
   void whenHasUserDefinedHttpServiceGroupConfigurer() {
-    this.contextRunner.withPropertyValues("http.service-client.one.base-url=https://example.com")
+    this.contextRunner.withPropertyValues("http.service-client.one.base-uri=https://example.com")
             .withUserConfiguration(HttpClientConfiguration.class, HttpServiceGroupConfigurerConfiguration.class)
             .run((context) -> {
               TestClientOne clientOne = context.getBean(TestClientOne.class);
@@ -181,7 +181,7 @@ class ReactiveHttpServiceClientAutoConfigurationTests {
 
   @Test
   void whenHasNoHttpServiceProxyRegistryBean() {
-    this.contextRunner.withPropertyValues("http.service-client.one.base-url=https://example.com")
+    this.contextRunner.withPropertyValues("http.service-client.one.base-uri=https://example.com")
             .run((context) -> assertThat(context).doesNotHaveBean(HttpServiceProxyRegistry.class));
   }
 
@@ -202,7 +202,7 @@ class ReactiveHttpServiceClientAutoConfigurationTests {
     Advisor[] advisors = (Advisor[]) Extractors.byName("advised.advisors").apply(handler);
     Map<?, ?> serviceMethods = (Map<?, ?>) Extractors.byName("advice.httpServiceMethods").apply(advisors[0]);
     Object serviceMethod = serviceMethods.values().iterator().next();
-    return (WebClient) Extractors.byName("responseFunction.arg$1.webClient").apply(serviceMethod);
+    return (WebClient) Extractors.byName("requestExecution.arg$1.webClient").apply(serviceMethod);
   }
 
   @Configuration(proxyBeanMethods = false)

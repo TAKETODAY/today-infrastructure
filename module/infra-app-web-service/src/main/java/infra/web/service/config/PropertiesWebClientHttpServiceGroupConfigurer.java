@@ -72,8 +72,8 @@ class PropertiesWebClientHttpServiceGroupConfigurer implements WebClientHttpServ
     HttpClientSettings clientSettings = this.clientSettingsPropertyMapper.map(clientProperties);
     builder.clientConnector(this.clientConnectorBuilder.build(clientSettings));
     if (clientProperties != null) {
-      if (clientProperties.baseUrl != null) {
-        builder.baseURI(clientProperties.baseUrl);
+      if (clientProperties.baseUri != null) {
+        builder.baseURI(clientProperties.baseUri);
       }
       if (!clientProperties.defaultHeader.isEmpty()) {
         builder.defaultHeaders(HttpHeaders.copyOf(clientProperties.defaultHeader));
@@ -83,7 +83,7 @@ class PropertiesWebClientHttpServiceGroupConfigurer implements WebClientHttpServ
         builder.defaultApiVersion(clientProperties.apiVersion.defaultVersion);
       }
 
-      builder.apiVersionInserter(PropertiesApiVersionInserter.create(clientProperties.apiVersion.insert));
+      builder.apiVersionInserter(clientProperties.apiVersion.createApiVersionInserter());
     }
   }
 

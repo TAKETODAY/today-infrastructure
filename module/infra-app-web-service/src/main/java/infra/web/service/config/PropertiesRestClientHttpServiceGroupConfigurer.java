@@ -79,8 +79,8 @@ class PropertiesRestClientHttpServiceGroupConfigurer implements RestClientHttpSe
     builder.requestFactory(this.requestFactoryBuilder.build(clientSettings));
 
     if (clientProperties != null) {
-      if (clientProperties.baseUrl != null) {
-        builder.baseURI(clientProperties.baseUrl);
+      if (clientProperties.baseUri != null) {
+        builder.baseURI(clientProperties.baseUri);
       }
       if (!clientProperties.defaultHeader.isEmpty()) {
         builder.defaultHeaders(HttpHeaders.copyOf(clientProperties.defaultHeader));
@@ -90,7 +90,7 @@ class PropertiesRestClientHttpServiceGroupConfigurer implements RestClientHttpSe
         builder.defaultApiVersion(clientProperties.apiVersion.defaultVersion);
       }
 
-      builder.apiVersionInserter(PropertiesApiVersionInserter.create(clientProperties.apiVersion.insert));
+      builder.apiVersionInserter(clientProperties.apiVersion.createApiVersionInserter());
     }
 
   }

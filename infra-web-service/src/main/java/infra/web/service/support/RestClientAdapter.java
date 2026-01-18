@@ -20,23 +20,36 @@ package infra.web.service.support;
 
 import org.jspecify.annotations.Nullable;
 
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
 
+import infra.core.MethodParameter;
 import infra.core.ParameterizedTypeReference;
+import infra.core.ReactiveAdapter;
+import infra.core.ReactiveAdapterRegistry;
 import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
+import infra.http.HttpInputMessage;
 import infra.http.HttpMethod;
 import infra.http.ResponseEntity;
 import infra.http.StreamingHttpOutputMessage;
+import infra.http.client.ClientHttpResponse;
 import infra.lang.Assert;
+import infra.util.ClassUtils;
 import infra.util.concurrent.Future;
 import infra.web.client.ClientResponse;
 import infra.web.client.RestClient;
 import infra.web.service.invoker.HttpExchangeAdapter;
 import infra.web.service.invoker.HttpRequestValues;
 import infra.web.service.invoker.HttpServiceProxyFactory;
+import infra.web.service.invoker.RequestExecution;
+import infra.web.service.invoker.RequestExecutionFactory;
+import infra.web.service.invoker.WrapOptionalExecutionDecorator;
 import infra.web.util.UriBuilderFactory;
 
 /**
@@ -51,7 +64,7 @@ import infra.web.util.UriBuilderFactory;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public final class RestClientAdapter implements HttpExchangeAdapter {
+public final class RestClientAdapter implements HttpExchangeAdapter, RequestExecutionFactory<HttpRequestValues> {
 
   private final RestClient restClient;
 
@@ -192,4 +205,129 @@ public final class RestClientAdapter implements HttpExchangeAdapter {
     return new RestClientAdapter(restClient, asyncExecutor);
   }
 
+  @Override
+  public HttpRequestValues.Builder createBuilder() {
+    return HttpRequestValues.builder();
+  }
+
+  /**
+   * Create the {@link RequestExecution} that matches the method return type.
+   */
+  @Override
+  public RequestExecution<HttpRequestValues> createRequestExecution(Method method) {
+    MethodParameter param = returnType(method);
+    return param.getParameterType() == Optional.class
+            ? new WrapOptionalExecutionDecorator<>(createRequestExecution(param))
+            : createRequestExecution(param);
+  }
+
+  private RequestExecution<HttpRequestValues> createRequestExecution(MethodParameter param) {
+    Class<?> returnType = param.getParameterType();
+    if (isAsync(returnType)) {
+      RequestExecution<HttpRequestValues> execution = createResponseFunctionAsync(param);
+      if (CompletionStage.class.isAssignableFrom(returnType)) {
+        return request -> {
+          Future<?> result = (Future<?>) execution.execute(request);
+          return result.completable();  // result non-null
+        };
+      }
+      return execution;
+    }
+
+    Class<?> paramType = param.getNestedParameterType();
+    if (ClassUtils.isVoidType(paramType)) {
+      return request -> {
+        exchange(request).close();
+        return null;
+      };
+    }
+    else if (paramType == HttpInputMessage.class
+            || paramType == ClientHttpResponse.class
+            || paramType == ClientResponse.class) {
+      return this::exchange;
+    }
+    else if (paramType == HttpHeaders.class) {
+      return request -> {
+        try (var response = exchange(request)) {
+          return response.getHeaders();
+        }
+      };
+    }
+    else if (paramType == ResponseEntity.class) {
+      MethodParameter bodyParam = param.nested();
+      if (bodyParam.getNestedParameterType().equals(Void.class)) {
+        return this::exchangeForBodilessEntity;
+      }
+      else {
+        var bodyTypeRef = ParameterizedTypeReference.forType(bodyParam.getNestedGenericParameterType());
+        return request -> exchangeForEntity(request, bodyTypeRef);
+      }
+    }
+
+    var sharedRegistry = ReactiveAdapterRegistry.getSharedInstance();
+    ReactiveAdapter returnAdapter = sharedRegistry.getAdapter(returnType);
+    if (returnAdapter != null) {
+      ReactiveAdapter reactiveAdapter = sharedRegistry.getAdapter(Future.class);
+      // Future reactive adapter
+      if (reactiveAdapter == null) {
+        throw new IllegalStateException("Return type: '%s' reactive adapter not found".formatted(Future.class.getName()));
+      }
+      RequestExecution<HttpRequestValues> execution = createResponseFunctionAsync(param.nested());
+      return request -> returnAdapter.fromPublisher(reactiveAdapter.toPublisher(execution.execute(request)));
+    }
+
+    var bodyTypeRef = ParameterizedTypeReference.forType(param.getNestedGenericParameterType());
+    return request -> exchangeForBody(request, bodyTypeRef);
+  }
+
+  private static boolean isAsync(Class<?> parameterType) {
+    return java.util.concurrent.Future.class == parameterType || Future.class == parameterType
+            || CompletionStage.class == parameterType || CompletableFuture.class == parameterType;
+  }
+
+  // @since 5.0
+  private RequestExecution<HttpRequestValues> createResponseFunctionAsync(MethodParameter param) {
+    Class<?> paramType = param.getNestedParameterType();
+
+    if (ClassUtils.isVoidType(paramType)) {
+      // Future<Void> auto close response
+      return this::exchangeAsyncVoid;
+    }
+    if (paramType == ClientHttpResponse.class
+            || paramType == ClientResponse.class) {
+      // Future<ClientHttpResponse/ConvertibleClientHttpResponse> close by user
+      return this::exchangeAsync;
+    }
+    else if (paramType == HttpHeaders.class) {
+      // Future<HttpHeaders>
+      return request -> this.exchangeAsync(request)
+              .onSuccess(ClientHttpResponse::close)
+              .map(ClientHttpResponse::getHeaders);
+    }
+    else if (paramType == ResponseEntity.class) {
+      MethodParameter bodyParam = param.nested();
+      if (bodyParam.getNestedParameterType().equals(Void.class)) {
+        // Future<ResponseEntity<Void>>
+        return this::exchangeForBodilessEntityAsync;
+      }
+      else {
+        // Future<ResponseEntity<T>>
+        var bodyTypeRef = ParameterizedTypeReference.forType(bodyParam.getNestedGenericParameterType());
+        return request -> exchangeForEntityAsync(request, bodyTypeRef);
+      }
+    }
+    else {
+      // Future<T>, Future<List<T>>
+      var bodyTypeRef = ParameterizedTypeReference.forType(param.getNestedGenericParameterType());
+      return request -> exchangeAsyncBody(request, bodyTypeRef);
+    }
+  }
+
+  private static MethodParameter returnType(Method method) {
+    MethodParameter param = new MethodParameter(method, -1).nestedIfOptional();
+    if (isAsync(param.getParameterType())) {
+      param = param.nested();
+    }
+    return param;
+  }
 }

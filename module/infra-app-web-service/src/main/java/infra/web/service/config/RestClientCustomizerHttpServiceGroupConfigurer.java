@@ -56,7 +56,9 @@ class RestClientCustomizerHttpServiceGroupConfigurer implements RestClientHttpSe
   }
 
   private void configureClient(HttpServiceGroup group, RestClient.Builder builder) {
-    this.customizers.orderedStream().forEach((customizer) -> customizer.customize(builder));
+    for (RestClientCustomizer customizer : customizers) {
+      customizer.customize(builder);
+    }
   }
 
 }

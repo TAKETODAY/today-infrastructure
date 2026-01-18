@@ -28,29 +28,23 @@ import infra.web.client.ApiVersionInserter;
 import infra.web.service.config.ApiVersionProperties.Insert;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
- * Tests for {@link PropertiesApiVersionInserter}.
+ * Tests for {@link ApiVersionProperties}.
  *
  * @author Phillip Webb
  */
-class PropertiesApiVersionInserterTests {
-
-  @Test
-  void getWhenPropertiesIsNullThrowsException() {
-    assertThatIllegalArgumentException().isThrownBy(() -> PropertiesApiVersionInserter.create(null))
-            .withMessage("'properties' is required");
-  }
+class ApiVersionPropertiesTests {
 
   @Test
   void getReturnsInserterBasedOnProperties() throws Exception {
-    Insert properties = new ApiVersionProperties().insert;
+    ApiVersionProperties apiVersionProperties = new ApiVersionProperties();
+    Insert properties = apiVersionProperties.insert;
     properties.header = ("x-test");
     properties.queryParameter = ("v");
-    properties.pathSegment = (1);
+    properties.pathSegment = 1;
     properties.mediaTypeParameter = ("mtp");
-    ApiVersionInserter inserter = PropertiesApiVersionInserter.create(properties);
+    ApiVersionInserter inserter = apiVersionProperties.createApiVersionInserter();
     URI uri = new URI("https://example.com/foo/bar");
     assertThat(inserter.insertVersion("123", uri)).hasToString("https://example.com/foo/123/bar?v=123");
     HttpHeaders headers = HttpHeaders.forWritable();
@@ -64,8 +58,8 @@ class PropertiesApiVersionInserterTests {
 
   @Test
   void getWhenNoPropertiesReturnsEmpty() {
-    Insert properties = new ApiVersionProperties().insert;
-    ApiVersionInserter inserter = PropertiesApiVersionInserter.create(properties);
+    ApiVersionProperties apiVersionProperties = new ApiVersionProperties();
+    ApiVersionInserter inserter = apiVersionProperties.createApiVersionInserter();
     assertThat(inserter).isNull();
   }
 

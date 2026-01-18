@@ -24,7 +24,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +35,7 @@ import infra.aop.framework.ProxyFactory;
 import infra.core.MethodIntrospector;
 import infra.core.MethodParameter;
 import infra.core.ReactiveAdapterRegistry;
+import infra.core.ReactiveStreams;
 import infra.core.StringValueResolver;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
@@ -60,7 +60,7 @@ import infra.web.service.annotation.HttpExchange;
  */
 public final class HttpServiceProxyFactory {
 
-  private final HttpExchangeAdapter exchangeAdapter;
+  private final RequestExecutionFactory<?> requestExecutionFactory;
 
   private final List<HttpServiceArgumentResolver> argumentResolvers;
 
@@ -69,12 +69,12 @@ public final class HttpServiceProxyFactory {
 
   private final HttpRequestValues.Processor requestValuesProcessor;
 
-  private HttpServiceProxyFactory(HttpExchangeAdapter exchangeAdapter,
+  private HttpServiceProxyFactory(RequestExecutionFactory<?> requestExecutionFactory,
           List<HttpServiceArgumentResolver> argumentResolvers,
           @Nullable StringValueResolver embeddedValueResolver,
           ArrayList<HttpRequestValues.Processor> requestValuesProcessors) {
 
-    this.exchangeAdapter = exchangeAdapter;
+    this.requestExecutionFactory = requestExecutionFactory;
     this.argumentResolvers = argumentResolvers;
     this.embeddedValueResolver = embeddedValueResolver;
     this.requestValuesProcessor = new CompositeHttpRequestValuesProcessor(requestValuesProcessors);
@@ -110,8 +110,8 @@ public final class HttpServiceProxyFactory {
     Assert.notNull(this.argumentResolvers,
             "No argument resolvers: afterPropertiesSet was not called");
 
-    return new HttpServiceMethod(
-            method, serviceType, this.argumentResolvers, this.exchangeAdapter, this.embeddedValueResolver, requestValuesProcessor);
+    return new HttpServiceMethod(method, serviceType, this.argumentResolvers,
+            this.requestExecutionFactory, this.embeddedValueResolver, requestValuesProcessor);
   }
 
   /**
@@ -119,6 +119,13 @@ public final class HttpServiceProxyFactory {
    */
   public static Builder forAdapter(HttpExchangeAdapter exchangeAdapter) {
     return new Builder().exchangeAdapter(exchangeAdapter);
+  }
+
+  /**
+   * Return a builder that's initialized with the given client.
+   */
+  public static Builder forExecutionFactory(RequestExecutionFactory<?> factory) {
+    return new Builder().requestExecutionFactory(factory);
   }
 
   /**
@@ -133,10 +140,6 @@ public final class HttpServiceProxyFactory {
    */
   public static final class Builder {
 
-    private @Nullable HttpExchangeAdapter exchangeAdapter;
-
-    private final List<HttpServiceArgumentResolver> customArgumentResolvers = new ArrayList<>();
-
     private @Nullable ConversionService conversionService;
 
     private @Nullable StringValueResolver embeddedValueResolver;
@@ -144,14 +147,29 @@ public final class HttpServiceProxyFactory {
     /**
      * @since 5.0
      */
-    private boolean addFallbackArgumentResolver;
+    private @Nullable ReactiveAdapterRegistry reactiveAdapterRegistry;
 
     /**
      * @since 5.0
      */
     private @Nullable HttpServiceArgumentResolver fallbackArgumentResolver;
 
+    private @Nullable RequestExecutionFactory<?> requestExecutionFactory;
+
+    /**
+     * @since 5.0
+     */
+    private boolean addFallbackArgumentResolver;
+
+    private final List<HttpServiceArgumentResolver> customArgumentResolvers = new ArrayList<>();
+
     private final ArrayList<HttpRequestValues.Processor> requestValuesProcessors = new ArrayList<>();
+
+    public Builder() {
+      if (ReactiveStreams.isPresent) {
+        reactiveAdapterRegistry = ReactiveAdapterRegistry.getSharedInstance();
+      }
+    }
 
     /**
      * Provide the HTTP client to perform requests through.
@@ -159,8 +177,18 @@ public final class HttpServiceProxyFactory {
      * @param adapter a client adapted to {@link HttpExchangeAdapter}
      * @return this same builder instance
      */
-    public Builder exchangeAdapter(@Nullable HttpExchangeAdapter adapter) {
-      this.exchangeAdapter = adapter;
+    public Builder exchangeAdapter(HttpExchangeAdapter adapter) {
+      this.requestExecutionFactory = new HttpExchangeAdapterExecutionFactory(adapter);
+      return this;
+    }
+
+    /**
+     * Provide the HTTP client to perform requests through.
+     *
+     * @return this same builder instance
+     */
+    public Builder requestExecutionFactory(@Nullable RequestExecutionFactory<?> requestExecutionFactory) {
+      this.requestExecutionFactory = requestExecutionFactory;
       return this;
     }
 
@@ -237,32 +265,12 @@ public final class HttpServiceProxyFactory {
     /**
      * Set the {@link ReactiveAdapterRegistry} to use to support different
      * asynchronous types for HTTP service method return values.
-     * <p>By default this is {@link ReactiveAdapterRegistry#getSharedInstance()}.
+     * <p>By default, this is {@link ReactiveAdapterRegistry#getSharedInstance()}.
      *
      * @return this same builder instance
      */
-    public Builder reactiveAdapterRegistry(ReactiveAdapterRegistry registry) {
-      if (this.exchangeAdapter instanceof AbstractReactorHttpExchangeAdapter settable) {
-        settable.setReactiveAdapterRegistry(registry);
-      }
-      return this;
-    }
-
-    /**
-     * Configure how long to block for the response of an HTTP service method
-     * with a synchronous (blocking) method signature.
-     * <p>By default this is not set, in which case the behavior depends on
-     * connection and request timeout settings of the underlying HTTP client.
-     * We recommend configuring timeout values directly on the underlying HTTP
-     * client, which provides more control over such settings.
-     *
-     * @param blockTimeout the timeout value
-     * @return this same builder instance
-     */
-    public Builder blockTimeout(@Nullable Duration blockTimeout) {
-      if (this.exchangeAdapter instanceof AbstractReactorHttpExchangeAdapter settable) {
-        settable.setBlockTimeout(blockTimeout);
-      }
+    public Builder reactiveAdapterRegistry(ReactiveAdapterRegistry reactiveAdapterRegistry) {
+      this.reactiveAdapterRegistry = reactiveAdapterRegistry;
       return this;
     }
 
@@ -270,10 +278,10 @@ public final class HttpServiceProxyFactory {
      * Build the {@link HttpServiceProxyFactory} instance.
      */
     public HttpServiceProxyFactory build() {
-      Assert.notNull(exchangeAdapter, "HttpClientAdapter is required");
+      Assert.notNull(requestExecutionFactory, "RequestExecutionFactory is required");
 
       return new HttpServiceProxyFactory(
-              exchangeAdapter, initArgumentResolvers(), embeddedValueResolver, requestValuesProcessors);
+              requestExecutionFactory, initArgumentResolvers(), embeddedValueResolver, requestValuesProcessors);
     }
 
     /**
@@ -297,12 +305,12 @@ public final class HttpServiceProxyFactory {
 
       // Annotation-based
       resolvers.add(new RequestHeaderArgumentResolver(service));
-      resolvers.add(new RequestBodyArgumentResolver(exchangeAdapter));
+      resolvers.add(new RequestBodyArgumentResolver(reactiveAdapterRegistry));
       resolvers.add(new PathVariableArgumentResolver(service));
       resolvers.add(new RequestParamArgumentResolver(service));
-      resolvers.add(new RequestPartArgumentResolver(exchangeAdapter));
+      resolvers.add(new RequestPartArgumentResolver(reactiveAdapterRegistry));
       resolvers.add(new CookieValueArgumentResolver(service));
-      if (exchangeAdapter.supportsRequestAttributes()) {
+      if (requestExecutionFactory.supportsRequestAttributes()) {
         resolvers.add(new RequestAttributeArgumentResolver());
       }
 
@@ -334,9 +342,8 @@ public final class HttpServiceProxyFactory {
               .collect(Collectors.toMap(HttpServiceMethod::getMethod, Function.identity()));
     }
 
-    @Nullable
     @Override
-    public Object invoke(MethodInvocation invocation) throws Throwable {
+    public @Nullable Object invoke(MethodInvocation invocation) throws Throwable {
       Method method = invocation.getMethod();
       HttpServiceMethod httpServiceMethod = httpServiceMethods.get(method);
       if (httpServiceMethod != null) {
@@ -359,7 +366,6 @@ public final class HttpServiceProxyFactory {
           implements HttpRequestValues.Processor {
 
     @Override
-    @SuppressWarnings("NullAway")
     public void process(Method method, MethodParameter[] parameters, @Nullable Object[] arguments,
             HttpRequestValues.Builder builder) {
 

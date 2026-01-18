@@ -22,6 +22,7 @@ import java.util.List;
 
 import infra.app.config.ssl.SslAutoConfiguration;
 import infra.app.config.task.TaskExecutionAutoConfiguration;
+import infra.app.ssl.SslBundles;
 import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
@@ -32,7 +33,6 @@ import infra.context.condition.ConditionalOnMissingBean;
 import infra.core.Ordered;
 import infra.core.annotation.Order;
 import infra.core.io.ResourceLoader;
-import infra.app.ssl.SslBundles;
 import infra.http.client.ClientHttpRequestFactoryBuilder;
 import infra.http.client.HttpClientSettings;
 import infra.http.client.config.ImperativeHttpClientAutoConfiguration;
@@ -93,7 +93,7 @@ public final class RestClientAutoConfiguration {
   @Component
   @ConditionalOnBean(ClientHttpMessageConvertersCustomizer.class)
   @Order(Ordered.LOWEST_PRECEDENCE)
-  static HttpMessageConvertersRestClientCustomizer httpMessageConvertersRestClientCustomizer(List<ClientHttpMessageConvertersCustomizer> customizers) {
+  static HttpMessageConvertersRestClientCustomizer httpMessageConvertersRestClientCustomizer(ObjectProvider<ClientHttpMessageConvertersCustomizer> customizers) {
     return new HttpMessageConvertersRestClientCustomizer(customizers);
   }
 

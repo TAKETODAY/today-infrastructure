@@ -42,15 +42,15 @@ class HttpServiceClientPropertiesTests {
   @Test
   void bindProperties() {
     MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("http.service-client.c1.base-url", "https://example.com/olga");
+    environment.setProperty("http.service-client.c1.base-uri", "https://example.com/olga");
     environment.setProperty("http.service-client.c1.default-header.secure", "very,somewhat");
     environment.setProperty("http.service-client.c1.default-header.test", "true");
     environment.setProperty("http.service-client.c1.redirects", "dont-follow");
     environment.setProperty("http.service-client.c1.connect-timeout", "10s");
     environment.setProperty("http.service-client.c1.read-timeout", "20s");
     environment.setProperty("http.service-client.c1.ssl.bundle", "usual");
-    environment.setProperty("http.service-client.c2.base-url", "https://example.com/rossen");
-    environment.setProperty("http.service-client.c3.base-url", "https://example.com/phil");
+    environment.setProperty("http.service-client.c2.base-uri", "https://example.com/rossen");
+    environment.setProperty("http.service-client.c3.base-uri", "https://example.com/phil");
     try (AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext()) {
       applicationContext.setEnvironment(environment);
       applicationContext.register(PropertiesConfiguration.class);
@@ -59,7 +59,7 @@ class HttpServiceClientPropertiesTests {
       assertThat(properties).containsOnlyKeys("c1", "c2", "c3");
       HttpClientProperties c1 = properties.get("c1");
       assertThat(c1).isNotNull();
-      assertThat(c1.baseUrl).isEqualTo("https://example.com/olga");
+      assertThat(c1.baseUri).isEqualTo("https://example.com/olga");
       assertThat(c1.defaultHeader).containsOnly(Map.entry("secure", List.of("very", "somewhat")),
               Map.entry("test", List.of("true")));
       assertThat(c1.redirects).isEqualTo(HttpRedirects.DONT_FOLLOW);
@@ -68,10 +68,10 @@ class HttpServiceClientPropertiesTests {
       assertThat(c1.ssl.bundle).isEqualTo("usual");
       HttpClientProperties c2 = properties.get("c2");
       assertThat(c2).isNotNull();
-      assertThat(c2.baseUrl).isEqualTo("https://example.com/rossen");
+      assertThat(c2.baseUri).isEqualTo("https://example.com/rossen");
       HttpClientProperties c3 = properties.get("c3");
       assertThat(c3).isNotNull();
-      assertThat(c3.baseUrl).isEqualTo("https://example.com/phil");
+      assertThat(c3.baseUri).isEqualTo("https://example.com/phil");
     }
   }
 

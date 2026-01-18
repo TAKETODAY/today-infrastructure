@@ -24,7 +24,6 @@ import infra.core.MethodParameter;
 import infra.core.ParameterizedTypeReference;
 import infra.core.ReactiveAdapter;
 import infra.core.ReactiveAdapterRegistry;
-import infra.core.ReactiveStreams;
 import infra.http.StreamingHttpOutputMessage;
 import infra.lang.Assert;
 import infra.web.annotation.RequestBody;
@@ -39,22 +38,13 @@ import infra.web.annotation.RequestBody;
  */
 public class RequestBodyArgumentResolver implements HttpServiceArgumentResolver {
 
-  @Nullable
-  private final ReactiveAdapterRegistry reactiveAdapterRegistry;
+  private final @Nullable ReactiveAdapterRegistry registry;
 
   /**
-   * Constructor with a {@link HttpExchangeAdapter}, for access to config settings.
+   * Constructor with a {@link ReactiveAdapterRegistry}
    */
-  public RequestBodyArgumentResolver(HttpExchangeAdapter exchangeAdapter) {
-    if (ReactiveStreams.reactorPresent) {
-      this.reactiveAdapterRegistry =
-              (exchangeAdapter instanceof ReactorHttpExchangeAdapter reactorAdapter ?
-                      reactorAdapter.getReactiveAdapterRegistry() :
-                      ReactiveAdapterRegistry.getSharedInstance());
-    }
-    else {
-      this.reactiveAdapterRegistry = null;
-    }
+  public RequestBodyArgumentResolver(@Nullable ReactiveAdapterRegistry registry) {
+    this.registry = registry;
   }
 
   @Override
@@ -70,8 +60,8 @@ public class RequestBodyArgumentResolver implements HttpServiceArgumentResolver 
     }
 
     if (argument != null) {
-      if (this.reactiveAdapterRegistry != null) {
-        ReactiveAdapter adapter = this.reactiveAdapterRegistry.getAdapter(parameter.getParameterType());
+      if (registry != null) {
+        ReactiveAdapter adapter = registry.getAdapter(parameter.getParameterType());
         if (adapter != null) {
           MethodParameter nestedParam = parameter.nested();
 

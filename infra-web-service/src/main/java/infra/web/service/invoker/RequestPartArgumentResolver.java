@@ -25,7 +25,6 @@ import infra.core.MethodParameter;
 import infra.core.ParameterizedTypeReference;
 import infra.core.ReactiveAdapter;
 import infra.core.ReactiveAdapterRegistry;
-import infra.core.ReactiveStreams;
 import infra.core.io.Resource;
 import infra.http.HttpEntity;
 import infra.http.HttpHeaders;
@@ -55,27 +54,17 @@ import infra.web.multipart.Part;
  */
 public class RequestPartArgumentResolver extends AbstractNamedValueArgumentResolver {
 
-  @Nullable
-  private final ReactiveAdapterRegistry reactiveAdapterRegistry;
+  private final @Nullable ReactiveAdapterRegistry registry;
 
   /**
    * Constructor with a {@link HttpExchangeAdapter}, for access to config settings.
    */
-  public RequestPartArgumentResolver(HttpExchangeAdapter exchangeAdapter) {
-    if (ReactiveStreams.reactorPresent) {
-      this.reactiveAdapterRegistry =
-              (exchangeAdapter instanceof ReactorHttpExchangeAdapter reactorAdapter ?
-                      reactorAdapter.getReactiveAdapterRegistry() :
-                      ReactiveAdapterRegistry.getSharedInstance());
-    }
-    else {
-      this.reactiveAdapterRegistry = null;
-    }
+  public RequestPartArgumentResolver(@Nullable ReactiveAdapterRegistry registry) {
+    this.registry = registry;
   }
 
-  @Nullable
   @Override
-  protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
+  protected @Nullable NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
     RequestPart annot = parameter.getParameterAnnotation(RequestPart.class);
     boolean isMultipart = parameter.getParameterType().equals(Part.class);
     String label = "request part";
@@ -92,8 +81,8 @@ public class RequestPartArgumentResolver extends AbstractNamedValueArgumentResol
 
   @Override
   protected void addRequestValue(String name, Object value, MethodParameter parameter, HttpRequestValues.Builder requestValues) {
-    if (reactiveAdapterRegistry != null) {
-      ReactiveAdapter adapter = reactiveAdapterRegistry.getAdapter(parameter.getParameterType());
+    if (registry != null) {
+      ReactiveAdapter adapter = registry.getAdapter(parameter.getParameterType());
       if (adapter != null) {
         String message = "Async type for @RequestPart should produce value(s)";
         Assert.isTrue(!adapter.isNoValue(), message);

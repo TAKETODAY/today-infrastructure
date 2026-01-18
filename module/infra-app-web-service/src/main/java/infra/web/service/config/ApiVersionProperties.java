@@ -22,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.context.properties.ConfigurationPropertiesSource;
 import infra.context.properties.bind.Name;
+import infra.web.client.ApiVersionInserter;
 
 /**
  * API Version properties for both reactive and imperative HTTP Clients.
@@ -67,6 +68,52 @@ public class ApiVersionProperties {
      */
     public @Nullable String mediaTypeParameter;
 
+  }
+
+  /**
+   * Factory method to get a new {@link ApiVersionInserter} for the given
+   * properties.
+   *
+   * @return an {@link ApiVersionInserter} configured from the properties
+   */
+  public @Nullable ApiVersionInserter createApiVersionInserter() {
+    ApiVersionInserter.@Nullable Builder builder = builder(insert);
+    return builder != null ? builder.build() : null;
+  }
+
+  /**
+   * Factory method to create a new
+   * {@link infra.web.client.ApiVersionInserter.Builder builder} from the
+   * given properties, if there are any.
+   *
+   * @param properties the API version properties
+   * @return a builder configured from the properties or {@code null} if no properties
+   * were mapped
+   */
+  private static ApiVersionInserter.@Nullable Builder builder(Insert properties) {
+    ApiVersionInserter.Builder builder = ApiVersionInserter.builder();
+
+    boolean empty = true;
+
+    if (properties.header != null) {
+      builder.useHeader(properties.header);
+      empty = false;
+    }
+    if (properties.queryParameter != null) {
+      builder.useQueryParam(properties.queryParameter);
+      empty = false;
+    }
+    if (properties.pathSegment != null) {
+      builder.usePathSegment(properties.pathSegment);
+      empty = false;
+    }
+
+    if (properties.mediaTypeParameter != null) {
+      builder.useMediaTypeParam(properties.mediaTypeParameter);
+      empty = false;
+    }
+
+    return empty ? null : builder;
   }
 
 }

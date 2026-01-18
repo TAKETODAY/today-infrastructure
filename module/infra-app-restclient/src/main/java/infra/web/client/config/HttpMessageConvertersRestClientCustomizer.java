@@ -19,7 +19,6 @@
 package infra.web.client.config;
 
 import java.util.Arrays;
-import java.util.List;
 
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.config.ClientHttpMessageConvertersCustomizer;
@@ -37,13 +36,13 @@ import infra.web.client.RestClientCustomizer;
  */
 public class HttpMessageConvertersRestClientCustomizer implements RestClientCustomizer {
 
-  private final List<ClientHttpMessageConvertersCustomizer> customizers;
+  private final Iterable<ClientHttpMessageConvertersCustomizer> customizers;
 
   public HttpMessageConvertersRestClientCustomizer(ClientHttpMessageConvertersCustomizer... customizers) {
     this(Arrays.asList(customizers));
   }
 
-  public HttpMessageConvertersRestClientCustomizer(List<ClientHttpMessageConvertersCustomizer> customizers) {
+  public HttpMessageConvertersRestClientCustomizer(Iterable<ClientHttpMessageConvertersCustomizer> customizers) {
     Assert.notNull(customizers, "customizers is required");
     this.customizers = customizers;
   }
