@@ -106,7 +106,7 @@ public interface HttpMessage {
    * @since 5.0
    */
   default @Nullable String getContentTypeAsString() {
-    return getHeaders().getFirst(HttpHeaders.CONTENT_TYPE);
+    return getHeaders().getContentTypeAsString();
   }
 
   /**

@@ -1181,6 +1181,17 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   }
 
   /**
+   * Return the {@code Content-Type} header value as a string, if any.
+   *
+   * @return the content type as a string, or {@code null} if not defined
+   * @see HttpHeaders#getContentType()
+   * @since 5.0
+   */
+  public @Nullable String getContentTypeAsString() {
+    return getFirst(HttpHeaders.CONTENT_TYPE);
+  }
+
+  /**
    * Set the date and time at which the message was created, as specified by the
    * {@code Date} header.
    */

@@ -146,9 +146,8 @@ final class HttpComponentsClientHttpRequest extends AbstractStreamingClientHttpR
     }
 
     @Override
-    @Nullable
-    public String getContentType() {
-      return this.headers.getFirst(HttpHeaders.CONTENT_TYPE);
+    public @Nullable String getContentType() {
+      return this.headers.getContentTypeAsString();
     }
 
     @Override

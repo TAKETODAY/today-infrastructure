@@ -34,16 +34,15 @@ import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferUtils;
 import infra.core.io.buffer.DefaultDataBufferFactory;
 import infra.http.HttpCookie;
-import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
-import infra.http.reactive.ReactiveHttpInputMessage;
 import infra.http.ResponseCookie;
-import infra.http.reactive.client.ClientHttpConnector;
-import infra.http.reactive.client.ClientHttpRequest;
-import infra.http.reactive.client.ClientHttpResponse;
 import infra.http.codec.multipart.DefaultPartHttpMessageReader;
 import infra.http.codec.multipart.FilePart;
 import infra.http.codec.multipart.Part;
+import infra.http.reactive.ReactiveHttpInputMessage;
+import infra.http.reactive.client.ClientHttpConnector;
+import infra.http.reactive.client.ClientHttpRequest;
+import infra.http.reactive.client.ClientHttpResponse;
 import infra.lang.Assert;
 import infra.mock.api.http.Cookie;
 import infra.mock.http.client.reactive.MockClientHttpRequest;
@@ -151,7 +150,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
   private MockHttpRequestBuilder initRequestBuilder(
           HttpMethod httpMethod, URI uri, MockClientHttpRequest httpRequest, byte @Nullable [] bytes) {
 
-    String contentType = httpRequest.getHeaders().getFirst(HttpHeaders.CONTENT_TYPE);
+    String contentType = httpRequest.getContentTypeAsString();
     if (!StringUtils.startsWithIgnoreCase(contentType, "multipart/")) {
       MockHttpRequestBuilder requestBuilder = MockMvcRequestBuilders.request(httpMethod, uri);
       if (ObjectUtils.isNotEmpty(bytes)) {
