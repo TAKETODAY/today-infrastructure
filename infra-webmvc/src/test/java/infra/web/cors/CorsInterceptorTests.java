@@ -72,7 +72,7 @@ class CorsInterceptorTests {
   }
 
   @Test
-  void beforeProcessReturnsTrueWhenNotPreFlightRequest() throws Throwable {
+  void preProcessingReturnsTrueWhenNotPreFlightRequest() throws Throwable {
     CorsConfigurationSource configSource = mock(CorsConfigurationSource.class);
     CorsProcessor processor = mock(CorsProcessor.class);
     RequestContext request = mock(RequestContext.class);
@@ -86,7 +86,7 @@ class CorsInterceptorTests {
     CorsInterceptor interceptor = new CorsInterceptor(configSource);
     interceptor.setCorsProcessor(processor);
 
-    boolean result = interceptor.beforeProcess(request, handler);
+    boolean result = interceptor.preProcessing(request, handler);
 
     assertThat(result).isTrue();
     verify(configSource).getCorsConfiguration(request);
@@ -95,7 +95,7 @@ class CorsInterceptorTests {
   }
 
   @Test
-  void beforeProcessReturnsFalseWhenPreFlightRequest() throws Throwable {
+  void preProcessingReturnsFalseWhenPreFlightRequest() throws Throwable {
     CorsConfigurationSource configSource = mock(CorsConfigurationSource.class);
     CorsProcessor processor = mock(CorsProcessor.class);
     RequestContext request = mock(RequestContext.class);
@@ -109,7 +109,7 @@ class CorsInterceptorTests {
     CorsInterceptor interceptor = new CorsInterceptor(configSource);
     interceptor.setCorsProcessor(processor);
 
-    boolean result = interceptor.beforeProcess(request, handler);
+    boolean result = interceptor.preProcessing(request, handler);
 
     assertThat(result).isFalse();
     verify(configSource).getCorsConfiguration(request);
@@ -118,7 +118,7 @@ class CorsInterceptorTests {
   }
 
   @Test
-  void beforeProcessReturnsFalseWhenProcessorReturnsFalse() throws Throwable {
+  void preProcessingReturnsFalseWhenProcessorReturnsFalse() throws Throwable {
     CorsConfigurationSource configSource = mock(CorsConfigurationSource.class);
     CorsProcessor processor = mock(CorsProcessor.class);
     RequestContext request = mock(RequestContext.class);
@@ -132,7 +132,7 @@ class CorsInterceptorTests {
     CorsInterceptor interceptor = new CorsInterceptor(configSource);
     interceptor.setCorsProcessor(processor);
 
-    boolean result = interceptor.beforeProcess(request, handler);
+    boolean result = interceptor.preProcessing(request, handler);
 
     assertThat(result).isFalse();
     verify(configSource).getCorsConfiguration(request);

@@ -314,7 +314,7 @@ public class ModelAndView {
    * in the {@code postHandle} method of a HandlerInterceptor.
    *
    * @see #isEmpty()
-   * @see HandlerInterceptor#afterProcess(RequestContext, Object, Object)
+   * @see HandlerInterceptor#postProcessing(RequestContext, Object, Object)
    */
   public void clear() {
     this.view = null;

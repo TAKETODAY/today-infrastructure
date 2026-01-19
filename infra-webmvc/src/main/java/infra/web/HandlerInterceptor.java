@@ -48,7 +48,7 @@ import infra.web.handler.method.HandlerMethod;
  *   }
  *
  *   @Override
- *   public boolean beforeProcess(RequestContext request, Object handler) throws Throwable {
+ *   public boolean preProcessing(RequestContext request, Object handler) throws Throwable {
  *     CorsConfiguration corsConfiguration = configSource.getCorsConfiguration(request);
  *     return processor.process(corsConfiguration, request)
  *             && !request.isPreFlightRequest();
@@ -61,7 +61,7 @@ import infra.web.handler.method.HandlerMethod;
  * static class ModifyResult implements HandlerInterceptor {
  *
  *   @Override
- *   public void afterProcess(RequestContext request, Object handler, Object result) {
+ *   public void postProcessing(RequestContext request, Object handler, Object result) {
  *     if (result instanceof List list) {
  *       list.add(new TestBean("add"));
  *     }
@@ -76,7 +76,7 @@ import infra.web.handler.method.HandlerMethod;
  *   private String paramName = "locale";
  *
  *   @Override
- *   public boolean beforeProcess(RequestContext request, Object handler) {
+ *   public boolean preProcessing(RequestContext request, Object handler) {
  *     String localeValue = request.getParameter(paramName);
  *     if (localeValue != null) {
  *       Locale locale = parseLocaleValue(localeValue);
@@ -98,11 +98,11 @@ import infra.web.handler.method.HandlerMethod;
  *
  * <h3>Key Methods</h3>
  *
- * <p>{@link #beforeProcess(RequestContext, Object)}: Called before the handler processes
+ * <p>{@link #preProcessing(RequestContext, Object)}: Called before the handler processes
  * the request. Return {@code true} to allow the handler to execute, or {@code false}
  * to prevent further processing.
  *
- * <p>{@link #afterProcess(RequestContext, Object, Object)}: Called after the handler has
+ * <p>{@link #postProcessing(RequestContext, Object, Object)}: Called after the handler has
  * processed the request. Use this method to modify the result or perform cleanup.
  *
  * <p>{@link #intercept(RequestContext, InterceptorChain)}: Provides a hook for
@@ -147,7 +147,7 @@ public interface HandlerInterceptor {
    * <pre>{@code
    * public class CustomInterceptor implements HandlerInterceptor {
    *   @Override
-   *   public boolean beforeProcess(RequestContext request, Object handler) throws Throwable {
+   *   public boolean preProcessing(RequestContext request, Object handler) throws Throwable {
    *     // Log the incoming request
    *     System.out.println("Processing request: " + request.getRequestURI());
    *
@@ -171,7 +171,7 @@ public interface HandlerInterceptor {
    * @throws Throwable If any exception occurs during the execution of this method
    * @see HandlerMethod#unwrap(Object)
    */
-  default boolean beforeProcess(RequestContext request, Object handler) throws Throwable {
+  default boolean preProcessing(RequestContext request, Object handler) throws Throwable {
     return true;
   }
 
@@ -184,7 +184,7 @@ public interface HandlerInterceptor {
    * <pre>{@code
    * public class CustomInterceptor implements HandlerInterceptor {
    *   @Override
-   *   public void afterProcess(RequestContext request, Object handler,
+   *   public void postProcessing(RequestContext request, Object handler,
    *                            @Nullable Object result) throws Throwable {
    *     // Log the result of the request processing
    *     System.out.println("Request processed with result: " + result);
@@ -209,7 +209,7 @@ public interface HandlerInterceptor {
    * This may be {@code null} if the handler does not return a value
    * @throws Throwable If any exception occurs during the execution of this method
    */
-  default void afterProcess(RequestContext request, Object handler, @Nullable Object result) throws Throwable {
+  default void postProcessing(RequestContext request, Object handler, @Nullable Object result) throws Throwable {
   }
 
   /**
@@ -221,13 +221,13 @@ public interface HandlerInterceptor {
    * <pre>{@code
    * public class CustomInterceptor implements HandlerInterceptor {
    *   @Override
-   *   public boolean beforeProcess(RequestContext request, Object handler) throws Throwable {
+   *   public boolean preProcessing(RequestContext request, Object handler) throws Throwable {
    *     System.out.println("Pre-processing request: " + request.getRequestURI());
    *     return true; // Continue processing
    *   }
    *
    *   @Override
-   *   public void afterProcess(RequestContext request, Object handler,
+   *   public void postProcessing(RequestContext request, Object handler,
    *                             @Nullable Object result) throws Throwable {
    *     if (result instanceof String) {
    *       System.out.println("Post-processing result: " + result);
@@ -245,18 +245,17 @@ public interface HandlerInterceptor {
    * @param request The current request context containing details about the request
    * @param chain The interceptor chain that allows proceeding to the next interceptor
    * or the final handler
-   * @return The result of the request processing if {@link #beforeProcess} returns true;
+   * @return The result of the request processing if {@link #preProcessing} returns true;
    * otherwise, {@link HandlerInterceptor#NONE_RETURN_VALUE}. May be {@code null}
    * if the handler does not return a value
    * @throws Throwable If any exception occurs during the execution of this method or
    * within the interceptor chain
    */
-  @Nullable
-  default Object intercept(RequestContext request, InterceptorChain chain) throws Throwable {
+  default @Nullable Object intercept(RequestContext request, InterceptorChain chain) throws Throwable {
     Object handler = chain.getHandler();
-    if (beforeProcess(request, handler)) {
+    if (preProcessing(request, handler)) {
       Object result = chain.proceed(request);
-      afterProcess(request, handler, result);
+      postProcessing(request, handler, result);
       return result;
     }
     return NONE_RETURN_VALUE;

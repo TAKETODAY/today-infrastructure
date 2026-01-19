@@ -135,7 +135,7 @@ public class WebContentInterceptor extends WebContentGenerator implements Handle
   }
 
   @Override
-  public boolean beforeProcess(RequestContext request, Object handler) {
+  public boolean preProcessing(RequestContext request, Object handler) {
     checkRequest(request);
 
     if (!cacheControlMappings.isEmpty()) {

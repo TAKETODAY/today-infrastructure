@@ -25,8 +25,8 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>This interface provides two callback methods:
  * <ul>
- *   <li>{@link #beforeProcessing(BatchExecution, boolean)}: Invoked before batch processing begins.</li>
- *   <li>{@link #afterProcessing(BatchExecution, boolean, Throwable)}: Invoked after batch processing completes or fails.</li>
+ *   <li>{@link #preProcessing(BatchExecution, boolean)}: Invoked before batch processing begins.</li>
+ *   <li>{@link #postProcessing(BatchExecution, boolean, Throwable)}: Invoked after batch processing completes or fails.</li>
  * </ul>
  *
  * <p><strong>Usage Example:</strong>
@@ -34,13 +34,13 @@ import org.jspecify.annotations.Nullable;
  * public class LoggingBatchPersistListener implements BatchPersistListener {
  *
  *   @Override
- *   public void beforeProcessing(BatchExecution execution, boolean implicitExecution) {
+ *   public void preProcessing(BatchExecution execution, boolean implicitExecution) {
  *     System.out.println("Starting batch processing for SQL: " + execution.sql);
  *     System.out.println("Number of entities in batch: " + execution.entities.size());
  *   }
  *
  *   @Override
- *   public void afterProcessing(BatchExecution execution, boolean implicitExecution, Throwable exception) {
+ *   public void postProcessing(BatchExecution execution, boolean implicitExecution, Throwable exception) {
  *     if (exception != null) {
  *       System.err.println("Batch processing failed with error: " + exception.getMessage());
  *     } else {
@@ -56,12 +56,12 @@ import org.jspecify.annotations.Nullable;
  * BatchExecution execution = new BatchExecution("INSERT INTO users (name) VALUES (?)", null, null, false);
  *
  * try {
- *   listener.beforeProcessing(execution, false);
+ *   listener.preProcessing(execution, false);
  *   // Perform batch operations here
- *   listener.afterProcessing(execution, false, null);
+ *   listener.postProcessing(execution, false, null);
  * }
  * catch (Exception e) {
- *   listener.afterProcessing(execution, false, e);
+ *   listener.postProcessing(execution, false, e);
  * }
  * }</pre>
  *
@@ -81,7 +81,7 @@ public interface BatchPersistListener {
    * public class LoggingBatchPersistListener implements BatchPersistListener {
    *
    *   @Override
-   *   public void beforeProcessing(BatchExecution execution, boolean implicitExecution) {
+   *   public void preProcessing(BatchExecution execution, boolean implicitExecution) {
    *     System.out.println("Starting batch processing for SQL: " + execution.sql);
    *     System.out.println("Number of entities in batch: " + execution.entities.size());
    *     if (implicitExecution) {
@@ -96,8 +96,8 @@ public interface BatchPersistListener {
    * BatchPersistListener listener = new LoggingBatchPersistListener();
    * BatchExecution execution = new BatchExecution("INSERT INTO users (name) VALUES (?)", null, null, false);
    *
-   * // Trigger the beforeProcessing callback
-   * listener.beforeProcessing(execution, false);
+   * // Trigger the preProcessing callback
+   * listener.preProcessing(execution, false);
    * }</pre>
    *
    * @param execution the batch execution metadata, including the SQL statement,
@@ -105,7 +105,7 @@ public interface BatchPersistListener {
    * @param implicitExecution a flag indicating whether the batch execution
    * is implicit (e.g., triggered automatically by the system)
    */
-  default void beforeProcessing(BatchExecution execution, boolean implicitExecution) {
+  default void preProcessing(BatchExecution execution, boolean implicitExecution) {
   }
 
   /**
@@ -119,7 +119,7 @@ public interface BatchPersistListener {
    * public class LoggingBatchPersistListener implements BatchPersistListener {
    *
    *   @Override
-   *   public void afterProcessing(BatchExecution execution, boolean implicitExecution, Throwable exception) {
+   *   public void postProcessing(BatchExecution execution, boolean implicitExecution, Throwable exception) {
    *     if (exception == null) {
    *       System.out.println("Batch processing completed successfully for SQL: " + execution.sql);
    *       System.out.println("Number of entities processed: " + execution.entities.size());
@@ -139,10 +139,10 @@ public interface BatchPersistListener {
    * BatchExecution execution = new BatchExecution("INSERT INTO users (name) VALUES (?)", null, null, false);
    *
    * // Simulate successful batch processing
-   * listener.afterProcessing(execution, false, null);
+   * listener.postProcessing(execution, false, null);
    *
    * // Simulate batch processing with an exception
-   * listener.afterProcessing(execution, true, new RuntimeException("Database error"));
+   * listener.postProcessing(execution, true, new RuntimeException("Database error"));
    * }</pre>
    *
    * @param execution the batch execution metadata, including the SQL statement,
@@ -152,6 +152,6 @@ public interface BatchPersistListener {
    * @param exception the exception that occurred during batch processing, if any;
    * {@code null} if no exception occurred
    */
-  void afterProcessing(BatchExecution execution, boolean implicitExecution, @Nullable Throwable exception);
+  void postProcessing(BatchExecution execution, boolean implicitExecution, @Nullable Throwable exception);
 
 }

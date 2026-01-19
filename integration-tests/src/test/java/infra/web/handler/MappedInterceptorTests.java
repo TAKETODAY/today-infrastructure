@@ -131,20 +131,20 @@ class MappedInterceptorTests {
   void preHandle() throws Throwable {
     HandlerInterceptor delegate = mock(HandlerInterceptor.class);
 
-    new MappedInterceptor(null, delegate).beforeProcess(
+    new MappedInterceptor(null, delegate).preProcessing(
             mock(RequestContext.class), null);
 
-    then(delegate).should().beforeProcess(any(RequestContext.class), any());
+    then(delegate).should().preProcessing(any(RequestContext.class), any());
   }
 
   @Test
   void postHandle() throws Throwable {
     HandlerInterceptor delegate = mock(HandlerInterceptor.class);
 
-    new MappedInterceptor(null, delegate).afterProcess(
+    new MappedInterceptor(null, delegate).postProcessing(
             mock(RequestContext.class), null, mock(ModelAndView.class));
 
-    then(delegate).should().afterProcess(any(), any(), any());
+    then(delegate).should().postProcessing(any(), any(), any());
   }
 
   @Test
@@ -278,22 +278,22 @@ class MappedInterceptorTests {
   }
 
   @Test
-  void beforeProcessDelegatesToInterceptor() throws Throwable {
+  void preProcessingDelegatesToInterceptor() throws Throwable {
     HandlerInterceptor delegate = mock(HandlerInterceptor.class);
     RequestContext request = mock(RequestContext.class);
     Object handler = new Object();
-    given(delegate.beforeProcess(request, handler)).willReturn(true);
+    given(delegate.preProcessing(request, handler)).willReturn(true);
 
     MappedInterceptor mappedInterceptor = new MappedInterceptor(null, delegate);
 
-    boolean result = mappedInterceptor.beforeProcess(request, handler);
+    boolean result = mappedInterceptor.preProcessing(request, handler);
 
     assertThat(result).isTrue();
-    verify(delegate).beforeProcess(request, handler);
+    verify(delegate).preProcessing(request, handler);
   }
 
   @Test
-  void afterProcessDelegatesToInterceptor() throws Throwable {
+  void postProcessingDelegatesToInterceptor() throws Throwable {
     HandlerInterceptor delegate = mock(HandlerInterceptor.class);
     RequestContext request = mock(RequestContext.class);
     Object handler = new Object();
@@ -301,9 +301,9 @@ class MappedInterceptorTests {
 
     MappedInterceptor mappedInterceptor = new MappedInterceptor(null, delegate);
 
-    mappedInterceptor.afterProcess(request, handler, result);
+    mappedInterceptor.postProcessing(request, handler, result);
 
-    verify(delegate).afterProcess(request, handler, result);
+    verify(delegate).postProcessing(request, handler, result);
   }
 
   @Test

@@ -281,7 +281,7 @@ public class PathMatchingUrlHandlerMappingTests {
     HandlerInterceptor[] interceptors = chain.getInterceptors();
     if (interceptors != null) {
       for (HandlerInterceptor interceptor : interceptors) {
-        interceptor.beforeProcess(context, chain.getRawHandler());
+        interceptor.preProcessing(context, chain.getRawHandler());
       }
     }
 

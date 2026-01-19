@@ -568,7 +568,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
     }
 
     @Override
-    public boolean beforeProcess(RequestContext request, Object handler) throws Throwable {
+    public boolean preProcessing(RequestContext request, Object handler) throws Throwable {
       return corsProcessor.process(config, request);
     }
 

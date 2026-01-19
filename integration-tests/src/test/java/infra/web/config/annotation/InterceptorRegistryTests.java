@@ -153,13 +153,13 @@ class InterceptorRegistryTests {
     private boolean preHandleInvoked = false;
 
     @Override
-    public boolean beforeProcess(RequestContext request, Object handler) throws Throwable {
+    public boolean preProcessing(RequestContext request, Object handler) throws Throwable {
       preHandleInvoked = true;
       return true;
     }
 
     @Override
-    public void afterProcess(RequestContext request, Object handler, Object result) throws Throwable {
+    public void postProcessing(RequestContext request, Object handler, Object result) throws Throwable {
 
     }
 

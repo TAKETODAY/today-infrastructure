@@ -1474,7 +1474,7 @@ public class DefaultEntityManager implements EntityManager {
     }
 
     private void executeBatch(PreparedStatement statement, boolean implicitExecution) throws Throwable {
-      beforeProcessing(implicitExecution);
+      preProcessing(implicitExecution);
       if (stmtLogger.isDebugEnabled()) {
         stmtLogger.logStatement(LogMessage.format("Executing batch size: {}", entities.size()), sql);
       }
@@ -1505,24 +1505,24 @@ public class DefaultEntityManager implements EntityManager {
         throw e;
       }
       finally {
-        afterProcessing(implicitExecution, exception);
+        postProcessing(implicitExecution, exception);
         this.currentBatchRecords = 0;
         this.entities.clear();
       }
     }
 
-    private void afterProcessing(boolean implicitExecution, @Nullable Throwable exception) {
+    private void postProcessing(boolean implicitExecution, @Nullable Throwable exception) {
       if (CollectionUtils.isNotEmpty(batchPersistListeners)) {
         for (BatchPersistListener listener : batchPersistListeners) {
-          listener.afterProcessing(this, implicitExecution, exception);
+          listener.postProcessing(this, implicitExecution, exception);
         }
       }
     }
 
-    private void beforeProcessing(boolean implicitExecution) {
+    private void preProcessing(boolean implicitExecution) {
       if (CollectionUtils.isNotEmpty(batchPersistListeners)) {
         for (BatchPersistListener listener : batchPersistListeners) {
-          listener.beforeProcessing(this, implicitExecution);
+          listener.preProcessing(this, implicitExecution);
         }
       }
     }

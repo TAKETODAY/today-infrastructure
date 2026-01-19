@@ -192,13 +192,13 @@ public final class MappedInterceptor implements HandlerInterceptor {
   // HandlerInterceptor delegation
 
   @Override
-  public boolean beforeProcess(RequestContext request, Object handler) throws Throwable {
-    return interceptor.beforeProcess(request, handler);
+  public boolean preProcessing(RequestContext request, Object handler) throws Throwable {
+    return interceptor.preProcessing(request, handler);
   }
 
   @Override
-  public void afterProcess(RequestContext request, Object handler, @Nullable Object result) throws Throwable {
-    interceptor.afterProcess(request, handler, result);
+  public void postProcessing(RequestContext request, Object handler, @Nullable Object result) throws Throwable {
+    interceptor.postProcessing(request, handler, result);
   }
 
   @Nullable

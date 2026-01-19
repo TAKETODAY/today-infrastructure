@@ -54,7 +54,7 @@ class WebContentInterceptorTests {
   @Test
   void cacheResourcesConfiguration() throws Exception {
     interceptor.setCacheSeconds(10);
-    interceptor.beforeProcess(context, handler);
+    interceptor.preProcessing(context, handler);
 
     context.flush();
     Iterable<String> cacheControlHeaders = response.getHeaders("Cache-Control");
@@ -70,13 +70,13 @@ class WebContentInterceptorTests {
     interceptor.setCacheMappings(mappings);
 
     RequestContext request = requestFactory.apply("/example/adminhandle.vm");
-    interceptor.beforeProcess(request, handler);
+    interceptor.preProcessing(request, handler);
 
     List<String> cacheControlHeaders = response.getHeaders("Cache-Control");
     assertThat(cacheControlHeaders).isEmpty();
 
     request = requestFactory.apply("/example/bingo.html");
-    interceptor.beforeProcess(request, handler);
+    interceptor.preProcessing(request, handler);
 
     request.requestCompleted();
 
@@ -88,7 +88,7 @@ class WebContentInterceptorTests {
   void preventCacheConfiguration() throws Exception {
     interceptor.setCacheSeconds(0);
     RequestContext requestContext = requestFactory.apply("/");
-    interceptor.beforeProcess(requestContext, handler);
+    interceptor.preProcessing(requestContext, handler);
     requestContext.requestCompleted();
     Iterable<String> cacheControlHeaders = response.getHeaders("Cache-Control");
     assertThat(cacheControlHeaders).contains("no-store");
@@ -97,7 +97,7 @@ class WebContentInterceptorTests {
   @Test
   void emptyCacheConfiguration() throws Exception {
     interceptor.setCacheSeconds(-1);
-    interceptor.beforeProcess(requestFactory.apply("/"), handler);
+    interceptor.preProcessing(requestFactory.apply("/"), handler);
 
     Iterable<String> expiresHeaders = response.getHeaders("Expires");
     assertThat(expiresHeaders).isEmpty();

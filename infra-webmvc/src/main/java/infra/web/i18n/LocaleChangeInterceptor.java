@@ -121,7 +121,7 @@ public class LocaleChangeInterceptor implements HandlerInterceptor {
   }
 
   @Override
-  public boolean beforeProcess(RequestContext request, Object handler) {
+  public boolean preProcessing(RequestContext request, Object handler) {
     String newLocale = request.getParameter(getParamName());
     if (newLocale != null) {
       if (checkHttpMethod(request.getMethodAsString())) {
