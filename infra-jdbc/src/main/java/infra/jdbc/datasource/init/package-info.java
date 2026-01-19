@@ -1,4 +1,3 @@
-
 /**
  * Provides extensible support for initializing databases through scripts.
  */

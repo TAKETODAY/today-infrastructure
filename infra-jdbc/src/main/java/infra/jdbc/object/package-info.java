@@ -1,4 +1,3 @@
-
 /**
  * The classes in this package represent RDBMS queries, updates,
  * and stored procedures as threadsafe, reusable objects. This approach

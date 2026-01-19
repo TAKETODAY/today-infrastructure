@@ -39,12 +39,14 @@ import infra.util.ReflectionUtils;
 /**
  * Bean Metadata
  *
- * @author TODAY 2021/1/27 22:26
- * @since 3.0
+ * <p>This class provides metadata information about a Java bean class,
+ * including its properties, instantiation methods, and property accessors.
+ *
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 3.0 2021/1/27 22:26
  */
 public final class BeanMetadata implements Iterable<BeanProperty> {
 
-  @SuppressWarnings("NullAway")
   private static final MapCache<Class<?>, BeanMetadata, ?> metadataMappings = new MapCache<>(
           new ConcurrentReferenceHashMap<>(), BeanMetadata::new);
 
@@ -52,14 +54,12 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
 
   private final Class<?> beanClass;
 
-  @Nullable
-  private BeanInstantiator instantiator;
+  private @Nullable BeanInstantiator instantiator;
 
   /**
    * @since 4.0
    */
-  @Nullable
-  private BeanPropertiesHolder propertyHolder;
+  private @Nullable BeanPropertiesHolder propertyHolder;
 
   public BeanMetadata(Class<?> beanClass) {
     this.beanClass = beanClass;
@@ -102,8 +102,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    * @param propertyName property name
    * @return target {@link BeanProperty}
    */
-  @Nullable
-  public BeanProperty getBeanProperty(String propertyName) {
+  public @Nullable BeanProperty getBeanProperty(String propertyName) {
     return getBeanProperties().get(propertyName);
   }
 
@@ -144,8 +143,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    * @throws NoSuchPropertyException If no such property
    * @see #obtainBeanProperty(String)
    */
-  @Nullable
-  public Object getProperty(Object root, String propertyName) {
+  public @Nullable Object getProperty(Object root, String propertyName) {
     return obtainBeanProperty(propertyName).getValue(root);
   }
 
@@ -286,7 +284,6 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    * @return {@link BeanMetadata}
    * @see ClassUtils#isSimpleType(Class)
    */
-  @SuppressWarnings("NullAway")
   public static BeanMetadata forClass(Class<?> beanClass) {
     return metadataMappings.get(beanClass);
   }
@@ -325,7 +322,6 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
       super(new ConcurrentReferenceHashMap<>());
     }
 
-    @SuppressWarnings("NullAway")
     static BeanPropertiesHolder computeProperties(BeanMetadata metadata) {
       return beanPropertiesMappings.get(metadata);
     }

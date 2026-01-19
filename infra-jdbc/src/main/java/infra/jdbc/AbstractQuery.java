@@ -124,8 +124,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
 
   private final boolean returnGeneratedKeys;
 
-  @Nullable
-  private String name;
+  private @Nullable String name;
 
   private final String querySQL;
   private int maxBatchRecords = 0;
@@ -135,23 +134,17 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
   private boolean autoDerivingColumns = true;
   private boolean throwOnMappingFailure = true;
 
-  @Nullable
-  private PreparedStatement preparedStatement;
+  private @Nullable PreparedStatement preparedStatement;
 
-  @Nullable
-  private TypeHandlerManager typeHandlerManager;
+  private @Nullable TypeHandlerManager typeHandlerManager;
 
-  @Nullable
-  private Map<String, String> columnMappings;
+  private @Nullable Map<String, String> columnMappings;
 
-  @Nullable
-  private Map<String, String> caseSensitiveColumnMappings;
+  private @Nullable Map<String, String> caseSensitiveColumnMappings;
 
-  @Nullable
-  private QueryStatementCallback statementCallback;
+  private @Nullable QueryStatementCallback statementCallback;
 
-  @Nullable
-  private BatchResult batchResult;
+  private @Nullable BatchResult batchResult;
 
   public AbstractQuery(JdbcConnection connection, String querySQL, boolean generatedKeys) {
     this(connection, querySQL, generatedKeys, null);
@@ -297,8 +290,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
     return this.connection;
   }
 
-  @Nullable
-  public String getName() {
+  public @Nullable String getName() {
     return name;
   }
 
@@ -386,7 +378,6 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
   }
 
   protected void postProcessStatement(PreparedStatement statement) {
-
   }
 
   private PreparedStatement preparedStatement(Connection connection, boolean allowArrayParameters) {
@@ -460,7 +451,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * @param returnType the class object representing the type of each row in the result set
    * @return a list of instances of the specified return type, containing all rows from the result set
    */
-  public <T> List<T> fetch(Class<T> returnType) {
+  public <T extends @Nullable Object> List<T> fetch(Class<T> returnType) {
     return iterate(returnType).list();
   }
 
@@ -489,7 +480,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * the provided handler. Returns an empty list if no data
    * is available.
    */
-  public <T> List<T> fetch(ResultSetExtractor<T> handler) {
+  public <T extends @Nullable Object> List<T> fetch(ResultSetExtractor<T> handler) {
     return iterate(handler).list();
   }
 
@@ -519,7 +510,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * by the provided factory
    * @see ResultSetHandlerFactory
    */
-  public <T> List<T> fetch(ResultSetHandlerFactory<T> factory) {
+  public <T extends @Nullable Object> List<T> fetch(ResultSetHandlerFactory<T> factory) {
     return iterate(factory).list();
   }
 
@@ -547,8 +538,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * @return the first element of the iteration as an instance of the specified type,
    * or {@code null} if no elements are available
    */
-  @Nullable
-  public <T> T fetchFirst(Class<T> returnType) {
+  public <T extends @Nullable Object> T fetchFirst(Class<T> returnType) {
     return iterate(returnType).first();
   }
 
@@ -582,8 +572,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * @return the first extracted result, or {@code null} if no results are
    * available in the result set
    */
-  @Nullable
-  public <T> T fetchFirst(ResultSetExtractor<T> handler) {
+  public <T extends @Nullable Object> T fetchFirst(ResultSetExtractor<T> handler) {
     return iterate(handler).first();
   }
 
@@ -617,8 +606,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * @return the first result of the query execution, or {@code null} if no
    * results are available
    */
-  @Nullable
-  public <T> T fetchFirst(ResultSetHandlerFactory<T> factory) {
+  public <T extends @Nullable Object> T fetchFirst(ResultSetHandlerFactory<T> factory) {
     return iterate(factory).first();
   }
 
@@ -647,7 +635,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * @return a {@code ResultSetIterator<T>} instance that allows iteration over the
    * query results as instances of the specified return type
    */
-  public <T> ResultSetIterator<T> iterate(Class<T> returnType) {
+  public <T extends @Nullable Object> ResultSetIterator<T> iterate(Class<T> returnType) {
     return new ResultSetHandlerIterator<>(createHandlerFactory(returnType));
   }
 
@@ -682,7 +670,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * @param handler the {@code ResultSetExtractor} used to extract objects from the result set
    * @return a {@code ResultSetIterator} that iterates over the result set using the handler
    */
-  public <T> ResultSetIterator<T> iterate(ResultSetExtractor<T> handler) {
+  public <T extends @Nullable Object> ResultSetIterator<T> iterate(ResultSetExtractor<T> handler) {
     return new ResultSetHandlerIterator<>(handler);
   }
 
@@ -718,11 +706,11 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * @return a {@code ResultSetIterator} that iterates over the result set using the
    * provided factory
    */
-  public <T> ResultSetIterator<T> iterate(ResultSetHandlerFactory<T> factory) {
+  public <T extends @Nullable Object> ResultSetIterator<T> iterate(ResultSetHandlerFactory<T> factory) {
     return new ResultSetHandlerIterator<>(factory);
   }
 
-  public <T> ResultSetHandlerFactory<T> createHandlerFactory(Class<T> returnType) {
+  public <T extends @Nullable Object> ResultSetHandlerFactory<T> createHandlerFactory(Class<T> returnType) {
     return new DefaultResultSetHandlerFactory<>(
             new JdbcBeanMetadata(returnType, caseSensitive, autoDerivingColumns, throwOnMappingFailure),
             connection.getManager(), getColumnMappings());
@@ -826,7 +814,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * @return an {@link UpdateResult} object containing the outcome of the update operation,
    * including any generated keys or error information
    */
-  public <T> UpdateResult<T> executeUpdate() {
+  public <T extends @Nullable Object> UpdateResult<T> executeUpdate() {
     return executeUpdate(returnGeneratedKeys);
   }
 
@@ -844,7 +832,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * the operation and any generated keys if requested.
    */
   @SuppressWarnings("unchecked")
-  public <T> UpdateResult<T> executeUpdate(boolean generatedKeys) {
+  public <T extends @Nullable Object> UpdateResult<T> executeUpdate(boolean generatedKeys) {
     return (UpdateResult<T>) executeUpdate(generatedKeys ? ObjectTypeHandler.sharedInstance : null);
   }
 
@@ -867,7 +855,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * @return an {@link UpdateResult} object containing the update count and optionally the generated keys
    * @throws DataAccessException if an SQL exception occurs during the execution of the update
    */
-  public <T> UpdateResult<T> executeUpdate(@Nullable TypeHandler<T> generatedKeyHandler) {
+  public <T extends @Nullable Object> UpdateResult<T> executeUpdate(@Nullable TypeHandler<T> generatedKeyHandler) {
     logStatement();
     long start = System.currentTimeMillis();
     try {
@@ -972,9 +960,9 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * @return the scalar value processed by the default handler, or {@code null}
    * if the computation results in no value
    */
-  @Nullable
-  public Object scalar() {
-    return scalar(ObjectTypeHandler.sharedInstance);
+  @SuppressWarnings("unchecked")
+  public <T extends @Nullable Object> T scalar() {
+    return (T) scalar(ObjectTypeHandler.sharedInstance);
   }
 
   /**
@@ -1002,8 +990,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * @return the scalar value of the specified type, or null if no value
    * is available or no suitable type handler is found
    */
-  @Nullable
-  public <V> V scalar(Class<V> returnType) {
+  public <V extends @Nullable Object> V scalar(Class<V> returnType) {
     return scalar(getTypeHandlerManager().getTypeHandler(returnType));
   }
 
@@ -1035,8 +1022,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * @throws RuntimeException if a SQL exception occurs during query execution. The exception is
    * translated using the {@link #translateException(String, SQLException)} method.
    */
-  @Nullable
-  public <T> T scalar(TypeHandler<T> typeHandler) {
+  public <T extends @Nullable Object> T scalar(TypeHandler<T> typeHandler) {
     logStatement();
     long start = System.currentTimeMillis();
     try (PreparedStatement ps = buildStatement();
@@ -1087,7 +1073,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * @return a list of scalar values of the specified type, extracted
    * from the result set
    */
-  public <T> List<T> scalars(Class<T> returnType) {
+  public <T extends @Nullable Object> List<T> scalars(Class<T> returnType) {
     TypeHandler<T> typeHandler = getTypeHandlerManager().getTypeHandler(returnType);
     return scalars(typeHandler);
   }
@@ -1111,7 +1097,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * @param typeHandler the {@code TypeHandler} used to extract scalar values from the result set
    * @return a list of scalar values of type {@code T} extracted using the provided handler
    */
-  public <T> List<T> scalars(TypeHandler<T> typeHandler) {
+  public <T extends @Nullable Object> List<T> scalars(TypeHandler<T> typeHandler) {
     return fetch(new TypeHandlerResultSetHandler<>(typeHandler));
   }
 
@@ -1229,7 +1215,6 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * The current number of batched commands is accessible via the
    * <code>getCurrentBatchRecords()</code> method.
    */
-  @SuppressWarnings("NullAway")
   public <A> List<A> addToBatchGetKeys(Class<A> klass) {
     addToBatch();
     BatchResult batchResult = this.batchResult;
@@ -1340,7 +1325,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * the {@code handler} is not {@code null}
    * @throws DataAccessException if a SQL exception occurs during the batch execution
    */
-  public <T> BatchResult executeBatch(@Nullable TypeHandler<T> handler) {
+  public <T extends @Nullable Object> BatchResult executeBatch(@Nullable TypeHandler<T> handler) {
     logStatement();
     long start = System.currentTimeMillis();
     try {
@@ -1385,8 +1370,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
   // column mapping
   //---------------------------------------------------------------------
 
-  @Nullable
-  public Map<String, String> getColumnMappings() {
+  public @Nullable Map<String, String> getColumnMappings() {
     if (isCaseSensitive()) {
       return caseSensitiveColumnMappings;
     }
@@ -1463,7 +1447,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * @param <T> result type
    * @since 4.0
    */
-  private final class ResultIterable<T> extends ResultSetIterable<T> {
+  private final class ResultIterable<T extends @Nullable Object> extends ResultSetIterable<T> {
 
     private final ResultSetIterator<T> iterator;
 
@@ -1502,7 +1486,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * @param <T> result type
    * @since 4.0
    */
-  abstract class CloseResultSetIterator<T> extends ResultSetIterator<T> {
+  abstract class CloseResultSetIterator<T extends @Nullable Object> extends ResultSetIterator<T> {
 
     protected CloseResultSetIterator(ResultSet rs) {
       super(rs);
@@ -1536,7 +1520,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * @param <T> result type
    * @since 4.0
    */
-  final class ResultSetHandlerIterator<T> extends CloseResultSetIterator<T> {
+  final class ResultSetHandlerIterator<T extends @Nullable Object> extends CloseResultSetIterator<T> {
     private final ResultSetExtractor<T> handler;
 
     public ResultSetHandlerIterator(ResultSetExtractor<T> handler) {
@@ -1554,7 +1538,6 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
       }
     }
 
-    @Nullable
     @Override
     protected T readNext(ResultSet resultSet) throws SQLException {
       return handler.extractData(resultSet);

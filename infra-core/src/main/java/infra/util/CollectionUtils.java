@@ -660,7 +660,7 @@ public abstract class CollectionUtils {
    */
   @Nullable
   @Contract("null -> null")
-  public static <T> T getElement(@Nullable final List<T> list, final int index) {
+  public static <T extends @Nullable Object> T getElement(@Nullable final List<T> list, final int index) {
     if (list != null && index >= 0 && index < list.size()) {
       return list.get(index);
     }
@@ -952,7 +952,7 @@ public abstract class CollectionUtils {
    */
   @Nullable
   @Contract("null -> null")
-  public static <T> T firstElement(@Nullable List<T> list) {
+  public static <T extends @Nullable Object> T firstElement(@Nullable List<T> list) {
     return getElement(list, 0);
   }
 

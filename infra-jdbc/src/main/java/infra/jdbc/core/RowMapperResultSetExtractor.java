@@ -18,6 +18,8 @@
 
 package infra.jdbc.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -62,7 +64,7 @@ import infra.lang.Assert;
  * @see MappingSqlQuery
  * @since 4.0
  */
-public class RowMapperResultSetExtractor<T> implements ResultSetExtractor<List<T>> {
+public class RowMapperResultSetExtractor<T extends @Nullable Object> implements ResultSetExtractor<List<T>> {
 
   private final RowMapper<T> rowMapper;
 

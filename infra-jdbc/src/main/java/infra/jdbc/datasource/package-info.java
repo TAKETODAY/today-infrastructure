@@ -1,4 +1,3 @@
-
 /**
  * Provides a utility class for easy DataSource access,
  * a PlatformTransactionManager for a single DataSource,

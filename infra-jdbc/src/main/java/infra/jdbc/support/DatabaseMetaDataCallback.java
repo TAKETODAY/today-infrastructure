@@ -18,6 +18,8 @@
 
 package infra.jdbc.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
@@ -33,7 +35,7 @@ import java.sql.SQLException;
  * @see JdbcUtils#extractDatabaseMetaData(javax.sql.DataSource, DatabaseMetaDataCallback)
  */
 @FunctionalInterface
-public interface DatabaseMetaDataCallback<T> {
+public interface DatabaseMetaDataCallback<T extends @Nullable Object> {
 
   /**
    * Implementations must implement this method to process the meta-data

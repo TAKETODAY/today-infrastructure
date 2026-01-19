@@ -108,11 +108,11 @@ public class IsolationLevelDataSourceRouter extends AbstractRoutingDataSource {
    * defined in {@link TransactionDefinition}.
    */
   static final Map<String, Integer> constants = Map.of(
-      "ISOLATION_DEFAULT", TransactionDefinition.ISOLATION_DEFAULT,
-      "ISOLATION_READ_UNCOMMITTED", TransactionDefinition.ISOLATION_READ_UNCOMMITTED,
-      "ISOLATION_READ_COMMITTED", TransactionDefinition.ISOLATION_READ_COMMITTED,
-      "ISOLATION_REPEATABLE_READ", TransactionDefinition.ISOLATION_REPEATABLE_READ,
-      "ISOLATION_SERIALIZABLE", TransactionDefinition.ISOLATION_SERIALIZABLE
+          "ISOLATION_DEFAULT", TransactionDefinition.ISOLATION_DEFAULT,
+          "ISOLATION_READ_UNCOMMITTED", TransactionDefinition.ISOLATION_READ_UNCOMMITTED,
+          "ISOLATION_READ_COMMITTED", TransactionDefinition.ISOLATION_READ_COMMITTED,
+          "ISOLATION_REPEATABLE_READ", TransactionDefinition.ISOLATION_REPEATABLE_READ,
+          "ISOLATION_SERIALIZABLE", TransactionDefinition.ISOLATION_SERIALIZABLE
   );
 
   /**
@@ -124,7 +124,7 @@ public class IsolationLevelDataSourceRouter extends AbstractRoutingDataSource {
   protected Object resolveSpecifiedLookupKey(Object lookupKey) {
     if (lookupKey instanceof Integer isolationLevel) {
       Assert.isTrue(constants.containsValue(isolationLevel),
-          "Only values of isolation constants allowed");
+              "Only values of isolation constants allowed");
       return isolationLevel;
     }
     else if (lookupKey instanceof String constantName) {
@@ -135,7 +135,7 @@ public class IsolationLevelDataSourceRouter extends AbstractRoutingDataSource {
     }
     else {
       throw new IllegalArgumentException(
-          "Invalid lookup key - needs to be isolation level Integer or isolation level name String: " + lookupKey);
+              "Invalid lookup key - needs to be isolation level Integer or isolation level name String: " + lookupKey);
     }
   }
 

@@ -1,4 +1,3 @@
-
 /**
  * This package contains classes and interfaces for working with JDBC (Java Database Connectivity).
  */

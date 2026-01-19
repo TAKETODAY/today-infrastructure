@@ -16,6 +16,8 @@
 
 package infra.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Closeable;
 
 /**
@@ -27,7 +29,8 @@ import java.io.Closeable;
  * @author aldenquimby@gmail.com
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
-public abstract class ResultSetIterable<T> implements Iterable<T>, Closeable, AutoCloseable {
+public abstract class ResultSetIterable<T extends @Nullable Object> implements Iterable<T>, Closeable, AutoCloseable {
+
   private boolean autoCloseConnection = false;
 
   public boolean isAutoCloseConnection() {

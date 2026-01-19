@@ -1,4 +1,3 @@
-
 /**
  * Support classes for the JDBC framework, used by the classes in the
  * jdbc.core and jdbc.object packages. Provides a translator from

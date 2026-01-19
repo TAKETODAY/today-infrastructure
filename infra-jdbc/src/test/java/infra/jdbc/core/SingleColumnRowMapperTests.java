@@ -46,7 +46,7 @@ public class SingleColumnRowMapperTests {
   public void useDefaultConversionService() throws SQLException {
     Timestamp timestamp = new Timestamp(0);
 
-    SingleColumnRowMapper<LocalDateTime> rowMapper = SingleColumnRowMapper.newInstance(LocalDateTime.class);
+    SingleColumnRowMapper<LocalDateTime> rowMapper = SingleColumnRowMapper.forClass(LocalDateTime.class);
 
     ResultSet resultSet = mock(ResultSet.class);
     ResultSetMetaData metaData = mock(ResultSetMetaData.class);
@@ -69,7 +69,7 @@ public class SingleColumnRowMapperTests {
     myConversionService.addConverter(Timestamp.class, MyLocalDateTime.class,
             source -> new MyLocalDateTime(source.toLocalDateTime()));
     SingleColumnRowMapper<MyLocalDateTime> rowMapper =
-            SingleColumnRowMapper.newInstance(MyLocalDateTime.class, myConversionService);
+            SingleColumnRowMapper.forClass(MyLocalDateTime.class, myConversionService);
 
     ResultSet resultSet = mock(ResultSet.class);
     ResultSetMetaData metaData = mock(ResultSetMetaData.class);
@@ -88,7 +88,7 @@ public class SingleColumnRowMapperTests {
   @Test
   public void doesNotUseConversionService() throws SQLException {
     SingleColumnRowMapper<LocalDateTime> rowMapper =
-            SingleColumnRowMapper.newInstance(LocalDateTime.class, null);
+            SingleColumnRowMapper.forClass(LocalDateTime.class, null);
 
     ResultSet resultSet = mock(ResultSet.class);
     ResultSetMetaData metaData = mock(ResultSetMetaData.class);

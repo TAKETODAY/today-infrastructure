@@ -46,7 +46,7 @@ import infra.dao.DataAccessException;
  * @since 4.0
  */
 @FunctionalInterface
-public interface CallableStatementCallback<T> {
+public interface CallableStatementCallback<T extends @Nullable Object> {
 
   /**
    * Gets called by {@code JdbcTemplate.execute} with an active JDBC
@@ -78,7 +78,6 @@ public interface CallableStatementCallback<T> {
    * into a DataAccessException by an SQLExceptionTranslator
    * @throws DataAccessException in case of custom exceptions
    */
-  @Nullable
   T doInCallableStatement(CallableStatement cs) throws SQLException, DataAccessException;
 
 }

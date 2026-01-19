@@ -18,6 +18,8 @@
 
 package infra.jdbc.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -37,11 +39,12 @@ import java.sql.SQLException;
  * @param <T> the argument type
  * @author Nicolas Fabre
  * @author Thomas Risberg
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see JdbcTemplate#batchUpdate(String, java.util.Collection, int, ParameterizedPreparedStatementSetter)
  * @since 4.0
  */
 @FunctionalInterface
-public interface ParameterizedPreparedStatementSetter<T> {
+public interface ParameterizedPreparedStatementSetter<T extends @Nullable Object> {
 
   /**
    * Set parameter values on the given PreparedStatement.

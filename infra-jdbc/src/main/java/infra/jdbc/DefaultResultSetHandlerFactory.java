@@ -31,7 +31,7 @@ import infra.util.ConcurrentReferenceHashMap;
 import infra.util.MapCache;
 
 @SuppressWarnings("rawtypes")
-public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactory<T> {
+public class DefaultResultSetHandlerFactory<T extends @Nullable Object> implements ResultSetHandlerFactory<T> {
 
   static final MapCache<HandlerKey, ResultSetExtractor, ResultSetMetaData> CACHE
           = new MapCache<>(new ConcurrentReferenceHashMap<>()) {

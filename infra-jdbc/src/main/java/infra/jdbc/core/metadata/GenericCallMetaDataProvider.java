@@ -460,7 +460,7 @@ public class GenericCallMetaDataProvider implements CallMetaDataProvider {
   }
 
   private record ProcedureMetadata(@Nullable String schemaName, @Nullable String procedureName,
-                                   List<String> matches, boolean function) {
+          List<String> matches, boolean function) {
 
     int hits() {
       return this.matches.size();

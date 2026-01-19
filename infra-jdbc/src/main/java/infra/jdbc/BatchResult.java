@@ -137,7 +137,7 @@ public class BatchResult extends ExecutionResult {
    * @throws GeneratedKeysConversionException Generated Keys conversion failed
    * @throws IllegalArgumentException If conversionService is null
    */
-  public <V> V getKey(Class<V> returnType) {
+  public <V extends @Nullable Object> V getKey(Class<V> returnType) {
     return getKey(returnType, getManager().getConversionService());
   }
 
@@ -145,8 +145,7 @@ public class BatchResult extends ExecutionResult {
    * @throws GeneratedKeysConversionException Generated Keys conversion failed
    * @throws IllegalArgumentException If conversionService is null
    */
-  @SuppressWarnings("NullAway")
-  public <V> V getKey(Class<V> returnType, ConversionService conversionService) {
+  public <V extends @Nullable Object> V getKey(Class<V> returnType, ConversionService conversionService) {
     Assert.notNull(conversionService, "conversionService is required");
     Object key = getKey();
     try {
@@ -170,8 +169,7 @@ public class BatchResult extends ExecutionResult {
    * @throws GeneratedKeysConversionException cannot converting value from database
    * @throws IllegalArgumentException If conversionService is null
    */
-  @Nullable
-  public <V> List<V> getKeys(Class<V> returnType) {
+  public <V> @Nullable List<V> getKeys(Class<V> returnType) {
     return getKeys(returnType, getManager().getConversionService());
   }
 
@@ -179,8 +177,7 @@ public class BatchResult extends ExecutionResult {
    * @throws GeneratedKeysConversionException cannot converting value from database
    * @throws IllegalArgumentException If conversionService is null
    */
-  @Nullable
-  public <V> List<V> getKeys(Class<V> returnType, ConversionService conversionService) {
+  public <V> @Nullable List<V> getKeys(Class<V> returnType, ConversionService conversionService) {
     assertCanGetKeys();
     if (generatedKeys != null) {
       Assert.notNull(conversionService, "conversionService is required");

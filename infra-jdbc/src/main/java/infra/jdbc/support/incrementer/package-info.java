@@ -1,4 +1,3 @@
-
 /**
  * Provides a support framework for incrementing database table values
  * via sequences, with implementations for various databases.

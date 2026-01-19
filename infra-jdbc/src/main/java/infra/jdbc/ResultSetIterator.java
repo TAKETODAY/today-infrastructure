@@ -42,7 +42,8 @@ import infra.jdbc.support.JdbcUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T>, AutoCloseable {
+public abstract class ResultSetIterator<T extends @Nullable Object> implements Iterator<T>, Spliterator<T>, AutoCloseable {
+
   // fields needed to read rows set
   protected final ResultSet resultSet;
 
@@ -56,8 +57,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
   }
 
   // fields needed to properly implement
-  @Nullable
-  private ResultSetValue<T> next; // keep track of next item in case hasNext() is called multiple times
+  private @Nullable ResultSetValue<T> next; // keep track of next item in case hasNext() is called multiple times
 
   private boolean resultSetFinished; // used to note when rows set exhausted
 
@@ -83,7 +83,6 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
   }
 
   @Override
-  @SuppressWarnings("NullAway")
   public T next() {
     ResultSetValue<T> result = next;
     if (result == null) {
@@ -144,8 +143,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
   }
 
   @Override
-  @Nullable
-  public Spliterator<T> trySplit() {
+  public @Nullable Spliterator<T> trySplit() {
     return null;
   }
 
@@ -357,8 +355,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
    * @return the unique element from the result set, or {@code null} if no element exists
    * @throws IncorrectResultSizeDataAccessException if more than one element exists in the result set
    */
-  @Nullable
-  public T unique() throws IncorrectResultSizeDataAccessException {
+  public @Nullable T unique() throws IncorrectResultSizeDataAccessException {
     try {
       T returnValue = readNext();
       if (returnValue != null && readNext() != null) {
@@ -403,8 +400,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
    *
    * @return the first element from the result set, or {@code null} if the result set is empty
    */
-  @Nullable
-  public T first() {
+  public @Nullable T first() {
     try {
       return readNext();
     }
@@ -479,7 +475,6 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
    * @param entities the collection to which the entities will be added;
    * must not be null
    */
-  @SuppressWarnings("NullAway")
   public void collect(Collection<T> entities) {
     final ResultSet resultSet = this.resultSet;
     try {
@@ -519,13 +514,13 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
     return new PersistenceException("Database read error: " + ex.getMessage(), ex);
   }
 
-  protected abstract @Nullable T readNext(ResultSet resultSet) throws SQLException;
+  protected abstract T readNext(ResultSet resultSet) throws SQLException;
 
-  static final class ResultSetValue<T> {
+  static final class ResultSetValue<T extends @Nullable Object> {
 
-    public final @Nullable T value;
+    public final T value;
 
-    private ResultSetValue(@Nullable T value) {
+    private ResultSetValue(T value) {
       this.value = value;
     }
   }

@@ -1,4 +1,3 @@
-
 /**
  * configuration for JDBC.
  *

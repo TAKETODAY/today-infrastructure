@@ -18,6 +18,8 @@
 
 package infra.jdbc.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -79,7 +81,7 @@ import infra.util.ReflectionUtils;
  * @see SimplePropertySqlParameterSource
  * @since 4.0
  */
-public class SimplePropertyRowMapper<T> implements RowMapper<T> {
+public class SimplePropertyRowMapper<T extends @Nullable Object> implements RowMapper<T> {
 
   private final Class<T> mappedClass;
 

@@ -5,7 +5,6 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-
 package infra.jdbc.format;
 
 import org.jspecify.annotations.Nullable;

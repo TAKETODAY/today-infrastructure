@@ -26,7 +26,7 @@ import org.jspecify.annotations.Nullable;
  *
  * @param <T> Argument type
  */
-public interface StatementRunnable<T> {
+public interface StatementRunnable<T extends @Nullable Object> {
 
   /**
    * Executes the statement logic within a transaction using the provided JDBC connection.
@@ -57,6 +57,6 @@ public interface StatementRunnable<T> {
    * This exception will be propagated to the caller of the
    * transaction method.
    */
-  void run(JdbcConnection connection, @Nullable T argument) throws Throwable;
+  void run(JdbcConnection connection, T argument) throws Throwable;
 
 }

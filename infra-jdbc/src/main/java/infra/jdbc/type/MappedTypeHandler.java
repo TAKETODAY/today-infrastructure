@@ -25,6 +25,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * Annotation for mapping a property to a specific type handler.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/7/30 23:17
  */
@@ -33,5 +35,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MappedTypeHandler {
 
+  /**
+   * Returns the type handler class to be used for mapping.
+   *
+   * @return the type handler class
+   */
   Class<? extends TypeHandler<?>> value();
 }

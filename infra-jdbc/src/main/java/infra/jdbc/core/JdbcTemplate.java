@@ -463,8 +463,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
      */
     final class ExecuteStatementCallback implements StatementCallback<Object>, SqlProvider {
       @Override
-      @Nullable
-      public Object doInStatement(Statement stmt) throws SQLException {
+      public @Nullable Object doInStatement(Statement stmt) throws SQLException {
         stmt.execute(sql);
         return null;
       }
@@ -1399,7 +1398,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
       try {
         if (param.getRowMapper() != null) {
           RowMapper<?> rowMapper = param.getRowMapper();
-          Object data = (ResultSetExtractor.forRowMapper(rowMapper)).extractData(rs);
+          Object data = ResultSetExtractor.forRowMapper(rowMapper).extractData(rs);
           return Collections.singletonMap(param.getName(), data);
         }
         else if (param.getRowCallbackHandler() != null) {

@@ -35,7 +35,7 @@ import java.sql.SQLException;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/11/6 16:43
  */
-public interface WrappedTypeHandler<T> extends TypeHandler<T> {
+public interface WrappedTypeHandler<T extends @Nullable Object> extends TypeHandler<T> {
 
   /**
    * Applies the result from the database to a wrapped object.

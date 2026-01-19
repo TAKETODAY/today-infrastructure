@@ -74,13 +74,11 @@ import infra.util.CollectionUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/1/17 10:28
  */
-public class UpdateResult<T> extends ExecutionResult {
+public class UpdateResult<T extends @Nullable Object> extends ExecutionResult {
 
-  @Nullable
-  private final Integer affectedRows;
+  private final @Nullable Integer affectedRows;
 
-  @Nullable
-  private ArrayList<T> generatedKeys;
+  private @Nullable ArrayList<T> generatedKeys;
 
   public UpdateResult(@Nullable Integer affectedRows, JdbcConnection connection) {
     super(connection);
@@ -124,8 +122,7 @@ public class UpdateResult<T> extends ExecutionResult {
    *
    * @return the first generated key, or {@code null} if no keys are available
    */
-  @Nullable
-  public T getFirstKey() {
+  public @Nullable T getFirstKey() {
     return CollectionUtils.firstElement(generatedKeys());
   }
 
@@ -149,8 +146,7 @@ public class UpdateResult<T> extends ExecutionResult {
    * @throws GeneratedKeysConversionException if the conversion of the generated key fails
    * @throws IllegalArgumentException if the conversion service is null
    */
-  @Nullable
-  public <V> V getFirstKey(Class<V> returnType) {
+  public <V extends @Nullable Object> V getFirstKey(Class<V> returnType) {
     return getFirstKey(returnType, getManager().getConversionService());
   }
 
@@ -178,8 +174,7 @@ public class UpdateResult<T> extends ExecutionResult {
    * @throws GeneratedKeysConversionException if the conversion of the generated key fails
    * @throws IllegalArgumentException if the {@code conversionService} is {@code null}
    */
-  @Nullable
-  public <V> V getFirstKey(Class<V> returnType, ConversionService conversionService) {
+  public <V extends @Nullable Object> V getFirstKey(Class<V> returnType, ConversionService conversionService) {
     Assert.notNull(conversionService, "conversionService is required");
     Object key = getFirstKey();
     try {
@@ -239,7 +234,7 @@ public class UpdateResult<T> extends ExecutionResult {
    * @throws ArrayStoreException if the generated keys cannot be stored in an array of the specified type
    */
   @SuppressWarnings("unchecked")
-  public <V> V[] getKeysArray(Class<V> componentType) {
+  public <V extends @Nullable Object> V[] getKeysArray(Class<V> componentType) {
     ArrayList<T> generatedKeys = generatedKeys();
     V[] o = (V[]) Array.newInstance(componentType, generatedKeys.size());
     return generatedKeys.toArray(o);
@@ -268,7 +263,6 @@ public class UpdateResult<T> extends ExecutionResult {
    * @throws GeneratedKeysConversionException if the conversion of any generated key fails
    * @throws IllegalArgumentException if the conversion service is null
    */
-  @Nullable
   public <V> List<V> getKeys(Class<V> returnType) {
     return getKeys(returnType, getManager().getConversionService());
   }
@@ -299,7 +293,6 @@ public class UpdateResult<T> extends ExecutionResult {
    * @throws GeneratedKeysConversionException if the conversion of any generated key fails
    * @throws IllegalArgumentException if the {@code conversionService} is {@code null}
    */
-  @Nullable
   public <V> List<V> getKeys(Class<V> returnType, ConversionService conversionService) {
     ArrayList<T> generatedKeys = generatedKeys();
     Assert.notNull(conversionService, "conversionService is required");

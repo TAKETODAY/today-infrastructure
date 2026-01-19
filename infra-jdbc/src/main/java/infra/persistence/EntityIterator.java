@@ -16,6 +16,8 @@
 
 package infra.persistence;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.ResultSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -48,7 +50,7 @@ import infra.jdbc.ResultSetIterator;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/22 19:38
  */
-public abstract class EntityIterator<T> extends ResultSetIterator<T> {
+public abstract class EntityIterator<T extends @Nullable Object> extends ResultSetIterator<T> {
 
   private final EntityMetadata entityMetadata;
 

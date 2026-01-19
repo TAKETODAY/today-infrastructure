@@ -1,4 +1,3 @@
-
 /**
  * JdbcTemplate variant with named parameter support.
  *

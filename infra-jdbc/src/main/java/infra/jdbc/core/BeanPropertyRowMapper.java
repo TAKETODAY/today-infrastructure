@@ -90,12 +90,11 @@ import infra.util.StringUtils;
  * @see DataClassRowMapper
  * @since 4.0
  */
-public class BeanPropertyRowMapper<T> implements RowMapper<T> {
+public class BeanPropertyRowMapper<T extends @Nullable Object> implements RowMapper<T> {
   private static final Logger log = LoggerFactory.getLogger(BeanPropertyRowMapper.class);
 
   /** The class we are mapping to. */
-  @Nullable
-  private Class<T> mappedClass;
+  private @Nullable Class<T> mappedClass;
 
   /** Whether we're strictly validating. */
   private boolean checkFullyPopulated = false;
@@ -104,15 +103,12 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
   private boolean primitivesDefaultedForNullValue = false;
 
   /** Map of the fields we provide mapping for. */
-  @Nullable
-  private HashMap<String, BeanProperty> mappedFields;
+  private @Nullable HashMap<String, BeanProperty> mappedFields;
 
   /** Set of bean properties we provide mapping for. */
-  @Nullable
-  private Set<String> mappedProperties;
+  private @Nullable Set<String> mappedProperties;
 
-  @Nullable
-  private BeanMetadata metadata;
+  private @Nullable BeanMetadata metadata;
 
   protected final BeanWrapperImpl beanWrapper = new BeanWrapperImpl();
 
@@ -122,7 +118,8 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
    * @see #setMappedClass
    * @see #setCheckFullyPopulated
    */
-  public BeanPropertyRowMapper() { }
+  public BeanPropertyRowMapper() {
+  }
 
   /**
    * Create a new {@code BeanPropertyRowMapper}, accepting unpopulated
@@ -155,8 +152,8 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
     }
     else {
       if (this.mappedClass != mappedClass) {
-        throw new InvalidDataAccessApiUsageException("The mapped class can not be reassigned to map to " +
-                mappedClass + " since it is already providing mapping for " + this.mappedClass);
+        throw new InvalidDataAccessApiUsageException("The mapped class can not be reassigned to map to %s since it is already providing mapping for %s"
+                .formatted(mappedClass, this.mappedClass));
       }
     }
   }
@@ -164,9 +161,8 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
   /**
    * Get the class that we are mapping to.
    */
-  @Nullable
   @SuppressWarnings("unchecked")
-  public final Class<T> getMappedClass() {
+  public final @Nullable Class<T> getMappedClass() {
     return metadata != null ? (Class<T>) metadata.getType() : null;
   }
 
@@ -218,8 +214,7 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
    * Return a {@link ConversionService} for binding JDBC values to bean properties,
    * or {@code null} if none.
    */
-  @Nullable
-  public ConversionService getConversionService() {
+  public @Nullable ConversionService getConversionService() {
     return beanWrapper.getConversionService();
   }
 
@@ -397,8 +392,7 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
    * @throws SQLException in case of extraction failure
    * @see #getColumnValue(ResultSet, int, Class)
    */
-  @Nullable
-  protected Object getColumnValue(ResultSet rs, int index, BeanProperty pd) throws SQLException {
+  protected @Nullable Object getColumnValue(ResultSet rs, int index, BeanProperty pd) throws SQLException {
     return JdbcUtils.getResultSetValue(rs, index, pd.getType());
   }
 
@@ -416,8 +410,7 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
    * @throws SQLException in case of extraction failure
    * @see JdbcUtils#getResultSetValue(ResultSet, int, Class)
    */
-  @Nullable
-  protected Object getColumnValue(ResultSet rs, int index, Class<?> paramType) throws SQLException {
+  protected @Nullable Object getColumnValue(ResultSet rs, int index, Class<?> paramType) throws SQLException {
     return JdbcUtils.getResultSetValue(rs, index, paramType);
   }
 

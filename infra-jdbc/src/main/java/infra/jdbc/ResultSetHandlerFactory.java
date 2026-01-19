@@ -16,19 +16,27 @@
 
 package infra.jdbc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 import infra.jdbc.core.ResultSetExtractor;
 
 /**
- * @param <T> element type
+ * Factory for creating {@link ResultSetExtractor} instances.
+ *
+ * @param <T> the type of the extracted result
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
-public interface ResultSetHandlerFactory<T> {
+public interface ResultSetHandlerFactory<T extends @Nullable Object> {
 
   /**
-   * Get one row ResultSetExtractor
+   * Creates and returns a ResultSetExtractor for handling a single row from the ResultSet.
+   *
+   * @param resultSetMetaData metadata of the ResultSet to be processed
+   * @return a ResultSetExtractor configured for the given metadata
+   * @throws SQLException if there's an issue accessing the ResultSet metadata
    */
   ResultSetExtractor<T> getResultSetHandler(ResultSetMetaData resultSetMetaData) throws SQLException;
 

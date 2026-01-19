@@ -38,7 +38,7 @@ import java.sql.SQLException;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public interface TypeHandler<T> {
+public interface TypeHandler<T extends @Nullable Object> {
 
   /**
    * <p>Sets the value of the designated parameter using the given object.

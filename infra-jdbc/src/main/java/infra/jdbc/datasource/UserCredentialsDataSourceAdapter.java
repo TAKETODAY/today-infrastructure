@@ -162,8 +162,8 @@ public class UserCredentialsDataSourceAdapter extends DelegatingDataSource {
   public Connection getConnection() throws SQLException {
     JdbcUserCredentials threadCredentials = this.threadBoundCredentials.get();
     Connection con = threadCredentials != null
-                     ? doGetConnection(threadCredentials.username, threadCredentials.password)
-                     : doGetConnection(this.username, this.password);
+            ? doGetConnection(threadCredentials.username, threadCredentials.password)
+            : doGetConnection(this.username, this.password);
 
     if (this.catalog != null) {
       con.setCatalog(this.catalog);

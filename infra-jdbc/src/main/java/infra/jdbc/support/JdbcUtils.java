@@ -333,7 +333,7 @@ public abstract class JdbcUtils {
    * @throws MetaDataAccessException if meta-data access failed
    * @see DatabaseMetaData
    */
-  public static <T> T extractDatabaseMetaData(
+  public static <T extends @Nullable Object> T extractDatabaseMetaData(
           DataSource dataSource, DatabaseMetaDataCallback<T> action) throws MetaDataAccessException {
 
     Connection con = null;

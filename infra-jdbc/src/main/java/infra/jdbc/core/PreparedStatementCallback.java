@@ -41,12 +41,13 @@ import infra.dao.DataAccessException;
  *
  * @param <T> the result type
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see JdbcTemplate#execute(String, PreparedStatementCallback)
  * @see JdbcTemplate#execute(PreparedStatementCreator, PreparedStatementCallback)
  * @since 4.0
  */
 @FunctionalInterface
-public interface PreparedStatementCallback<T> {
+public interface PreparedStatementCallback<T extends @Nullable Object> {
 
   /**
    * Gets called by {@code JdbcTemplate.execute} with an active JDBC
@@ -78,7 +79,6 @@ public interface PreparedStatementCallback<T> {
    * @see JdbcTemplate#queryForObject(String, Object[], Class)
    * @see JdbcTemplate#queryForList(String, Object[])
    */
-  @Nullable
   T doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException;
 
 }

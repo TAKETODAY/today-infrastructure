@@ -16,6 +16,7 @@
 
 package infra.util;
 
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
@@ -26,46 +27,67 @@ import infra.lang.Assert;
 import infra.lang.NullValue;
 
 /**
- * Map cache
+ * A thread-safe map-based cache implementation that supports lazy initialization of values.
+ * It provides methods to retrieve cached values based on keys, with optional parameters
+ * for value computation when the key is not present in the cache.
  *
- * @param <Key> key type
- * @param <Param> param type, extra computing param type
- * @param <Value> value type
+ * @param <K> The type of keys maintained by this cache
+ * @param <V> The type of cached values
+ * @param <P> The type of additional parameter used during value computation
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0 2021/1/27 23:02
  */
-public class MapCache<Key, Value, Param> {
+public class MapCache<K, V extends @Nullable Object, P extends @Nullable Object> {
 
-  private final Map<Key, Value> mapping;
+  private final Map<K, V> mapping;
 
-  /** default mapping function */
-  @Nullable
-  private final Function<Key, @Nullable Value> mappingFunction;
+  /**
+   * default mapping function
+   */
+  private final @Nullable Function<K, V> mappingFunction;
 
+  /**
+   * Constructs a new instance with default initial capacity and load factor.
+   */
   public MapCache() {
     this(new HashMap<>());
   }
 
+  /**
+   * Constructs a new instance with the specified initial capacity.
+   *
+   * @param initialCapacity the initial capacity of the underlying map
+   */
   public MapCache(int initialCapacity) {
     this(new HashMap<>(initialCapacity));
   }
 
   /**
+   * Constructs a new instance with the specified map as the underlying storage.
+   *
    * @param mapping allows to define your own map implementation
    */
-  public MapCache(Map<Key, Value> mapping) {
+  public MapCache(Map<K, V> mapping) {
     this.mapping = mapping;
     this.mappingFunction = null;
   }
 
-  public MapCache(Function<Key, @Nullable Value> mappingFunction) {
+  /**
+   * Constructs a new instance with default map implementation and the specified mapping function.
+   *
+   * @param mappingFunction the default function to compute values when keys are not present
+   */
+  public MapCache(Function<K, V> mappingFunction) {
     this(new HashMap<>(), mappingFunction);
   }
 
   /**
+   * Constructs a new instance with the specified map implementation and mapping function.
+   *
    * @param mapping allows to define your own map implementation
+   * @param mappingFunction the default function to compute values when keys are not present
    */
-  public MapCache(Map<Key, Value> mapping, @Nullable Function<Key, @Nullable Value> mappingFunction) {
+  public MapCache(Map<K, V> mapping, @Nullable Function<K, V> mappingFunction) {
     this.mapping = mapping;
     this.mappingFunction = mappingFunction;
   }
@@ -78,25 +100,25 @@ public class MapCache<Key, Value, Param> {
    * High performance way
    * </p>
    *
-   * @param key key with which the specified value is to be associated
-   * @param param createValue's param
+   * @param k key with which the specified value is to be associated
+   * @param p createValue's param
    * @return the current (existing or computed) value associated with
    * the specified key, should never {@code null}
    * @see #createValue
    */
-  public final Value get(Key key, Param param) {
-    Value value = mapping.get(key);
-    if (value == null) {
+  public final @NonNull V get(K k, P p) {
+    V v = mapping.get(k);
+    if (v == null) {
       synchronized(mapping) {
-        value = mapping.get(key);
-        if (value == null) {
-          value = createValue(key, param);
-          Assert.state(value != null, "createValue() returns null");
-          mapping.put(key, value);
+        v = mapping.get(k);
+        if (v == null) {
+          v = createValue(k, p);
+          Assert.state(v != null, "createValue() returns null");
+          mapping.put(k, v);
         }
       }
     }
-    return value;
+    return v;
   }
 
   /**
@@ -104,13 +126,12 @@ public class MapCache<Key, Value, Param> {
    * to {@code null}), attempts to compute its value using the given mapping
    * function and enters it into this map unless {@code null}.
    *
-   * @param key key with which the specified value is to be associated
+   * @param k key with which the specified value is to be associated
    * @return the current (existing or computed) value associated with
    * the specified key, or null if the computed value is null
    */
-  @Nullable
-  public final Value get(Key key) {
-    return get(key, mappingFunction);
+  public final V get(K k) {
+    return get(k, mappingFunction);
   }
 
   /**
@@ -118,49 +139,46 @@ public class MapCache<Key, Value, Param> {
    * to {@code null}), attempts to compute its value using the given mapping
    * function and enters it into this map unless {@code null}.
    *
-   * @param key key with which the specified value is to be associated
+   * @param k key with which the specified value is to be associated
    * @param mappingFunction the function to compute a value, can be null,
    * if its null use default mappingFunction
    * @return the current (existing or computed) value associated with
    * the specified key, or null if the computed value is null
    */
-  @Nullable
-  @SuppressWarnings({ "unchecked", "NullAway" })
-  public final Value get(Key key, @Nullable Function<Key, @Nullable Value> mappingFunction) {
-    Value value = mapping.get(key);
-    if (value == null) {
+  @SuppressWarnings("unchecked")
+  public final V get(K k, @Nullable Function<K, V> mappingFunction) {
+    V v = mapping.get(k);
+    if (v == null) {
       synchronized(mapping) {
-        value = mapping.get(key);
-        if (value == null) {
+        v = mapping.get(k);
+        if (v == null) {
           if (mappingFunction == null) {
             mappingFunction = this.mappingFunction;
           }
           if (mappingFunction != null) {
-            value = mappingFunction.apply(key);
+            v = mappingFunction.apply(k);
           }
           else {
             // fallback to #createValue()
-            value = createValue(key, null);
+            v = createValue(k, null);
           }
-          if (value == null) {
-            value = (Value) NullValue.INSTANCE;
+          if (v == null) {
+            v = (V) NullValue.INSTANCE;
           }
-          mapping.put(key, value);
+          mapping.put(k, v);
         }
       }
     }
-    return unwrap(value);
+    return unwrap(v);
   }
 
-  @Nullable
-  protected Value createValue(Key key, Param param) {
+  protected V createValue(K k, P p) {
     return null;
   }
 
-  @Nullable
-  public Value put(Key key, @Nullable Value value) {
+  public @Nullable V put(K k, @Nullable V v) {
     synchronized(mapping) {
-      return unwrap(mapping.put(key, value));
+      return unwrap(mapping.put(k, v));
     }
   }
 
@@ -170,15 +188,13 @@ public class MapCache<Key, Value, Param> {
     }
   }
 
-  @Nullable
-  public Value remove(Key key) {
+  public @Nullable V remove(K k) {
     synchronized(mapping) {
-      return unwrap(mapping.remove(key));
+      return unwrap(mapping.remove(k));
     }
   }
 
-  @Nullable
-  private static <V> V unwrap(@Nullable V ret) {
+  private static <V extends @Nullable Object> @Nullable V unwrap(@Nullable V ret) {
     return ret == NullValue.INSTANCE ? null : ret;
   }
 

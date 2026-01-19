@@ -1,4 +1,3 @@
-
 /**
  * Simplification layer for table inserts and stored procedure calls.
  *

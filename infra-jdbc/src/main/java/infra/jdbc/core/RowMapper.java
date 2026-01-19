@@ -54,7 +54,7 @@ import infra.jdbc.object.MappingSqlQuery;
  * @see MappingSqlQuery
  */
 @FunctionalInterface
-public interface RowMapper<T> {
+public interface RowMapper<T extends @Nullable Object> {
 
   /**
    * Implementations must implement this method to map each row of data
@@ -67,7 +67,6 @@ public interface RowMapper<T> {
    * @throws SQLException if an SQLException is encountered getting
    * column values (that is, there's no need to catch SQLException)
    */
-  @Nullable
   T mapRow(ResultSet rs, int rowNum) throws SQLException;
 
   // Static Factory Methods
@@ -77,7 +76,7 @@ public interface RowMapper<T> {
    *
    * @param mappedClass the class that each row should be mapped to
    */
-  static <T> BeanPropertyRowMapper<T> forMappedClass(Class<T> mappedClass) {
+  static <T extends @Nullable Object> BeanPropertyRowMapper<T> forMappedClass(Class<T> mappedClass) {
     return new BeanPropertyRowMapper<>(mappedClass);
   }
 
@@ -86,7 +85,7 @@ public interface RowMapper<T> {
    *
    * @param mappedClass the class that each row should be mapped to
    */
-  static <T> DataClassRowMapper<T> forDataClass(Class<T> mappedClass) {
+  static <T extends @Nullable Object> DataClassRowMapper<T> forDataClass(Class<T> mappedClass) {
     return new DataClassRowMapper<>(mappedClass);
   }
 
@@ -104,7 +103,7 @@ public interface RowMapper<T> {
    *
    * @param requiredType the type that each result object is expected to match
    */
-  static <T> SingleColumnRowMapper<T> forSingleColumn(Class<T> requiredType) {
+  static <T extends @Nullable Object> SingleColumnRowMapper<T> forSingleColumn(Class<T> requiredType) {
     return new SingleColumnRowMapper<>(requiredType);
   }
 

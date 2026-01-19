@@ -113,7 +113,7 @@ public class OracleTableMetaDataProvider extends GenericTableMetaDataProvider {
 
   @Override
   public void initializeWithTableColumnMetaData(DatabaseMetaData databaseMetaData,
-                                                @Nullable String catalogName, @Nullable String schemaName, @Nullable String tableName)
+          @Nullable String catalogName, @Nullable String schemaName, @Nullable String tableName)
           throws SQLException {
 
     if (!this.includeSynonyms) {

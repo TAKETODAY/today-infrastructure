@@ -510,10 +510,9 @@ public abstract class StatementCreatorUtils {
    * @see DisposableSqlTypeValue#cleanup()
    * @see SqlLobValue#cleanup()
    */
-  @SuppressWarnings("NullAway")
   public static void cleanupParameters(@Nullable Collection<?> paramValues) {
     if (paramValues != null) {
-      for (Object inValue : paramValues) {
+      for (@Nullable Object inValue : paramValues) {
         // Unwrap SqlParameterValue first...
         if (inValue instanceof SqlParameterValue) {
           inValue = ((SqlParameterValue) inValue).getValue();

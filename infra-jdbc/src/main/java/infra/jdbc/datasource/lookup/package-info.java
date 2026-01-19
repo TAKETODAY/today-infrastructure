@@ -1,4 +1,3 @@
-
 /**
  * Provides a strategy for looking up JDBC DataSources by name.
  */

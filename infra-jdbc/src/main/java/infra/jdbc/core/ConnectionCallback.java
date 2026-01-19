@@ -37,13 +37,14 @@ import infra.dao.DataAccessException;
  *
  * @param <T> the result type
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see JdbcTemplate#execute(ConnectionCallback)
  * @see JdbcTemplate#query
  * @see JdbcTemplate#update
  * @since 4.0
  */
 @FunctionalInterface
-public interface ConnectionCallback<T> {
+public interface ConnectionCallback<T extends @Nullable Object> {
 
   /**
    * Gets called by {@code JdbcTemplate.execute} with an active JDBC
@@ -68,7 +69,6 @@ public interface ConnectionCallback<T> {
    * @see JdbcTemplate#queryForObject(String, Class)
    * @see JdbcTemplate#queryForRowSet(String)
    */
-  @Nullable
   T doInConnection(Connection con) throws SQLException, DataAccessException;
 
 }

@@ -157,8 +157,7 @@ public interface Pageable {
    * @return the unwrapped {@code Pageable} instance if the source is a {@code Pageable},
    * or {@code null} if the source is not a {@code Pageable} or is {@code null}
    */
-  @Nullable
-  static Pageable unwrap(@Nullable Object source) {
+  static @Nullable Pageable unwrap(@Nullable Object source) {
     return source instanceof Pageable pageable ? pageable : null;
   }
 

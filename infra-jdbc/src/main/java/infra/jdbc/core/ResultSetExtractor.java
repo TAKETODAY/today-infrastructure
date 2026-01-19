@@ -54,7 +54,7 @@ import infra.jdbc.core.support.AbstractLobStreamingResultSetExtractor;
  * @since 4.0
  */
 @FunctionalInterface
-public interface ResultSetExtractor<T> {
+public interface ResultSetExtractor<T extends @Nullable Object> {
 
   /**
    * Implementations must implement this method to process the entire ResultSet.
@@ -72,11 +72,11 @@ public interface ResultSetExtractor<T> {
 
   // static
 
-  static <T> RowMapperResultSetExtractor<T> forRowMapper(RowMapper<T> mapper, int rowsExpected) {
+  static <T extends @Nullable Object> RowMapperResultSetExtractor<T> forRowMapper(RowMapper<T> mapper, int rowsExpected) {
     return new RowMapperResultSetExtractor<>(mapper, rowsExpected);
   }
 
-  static <T> RowMapperResultSetExtractor<T> forRowMapper(RowMapper<T> mapper) {
+  static <T extends @Nullable Object> RowMapperResultSetExtractor<T> forRowMapper(RowMapper<T> mapper) {
     return new RowMapperResultSetExtractor<>(mapper);
   }
 

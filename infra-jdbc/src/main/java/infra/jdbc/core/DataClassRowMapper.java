@@ -50,7 +50,7 @@ import infra.logging.LoggerFactory;
  * @see SimplePropertyRowMapper
  * @since 4.0
  */
-public class DataClassRowMapper<T> extends BeanPropertyRowMapper<T> {
+public class DataClassRowMapper<T extends @Nullable Object> extends BeanPropertyRowMapper<T> {
 
   @Nullable
   private BeanInstantiator mappedInstantiator;
