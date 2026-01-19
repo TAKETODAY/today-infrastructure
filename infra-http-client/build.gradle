@@ -13,11 +13,18 @@ dependencies {
   optional('org.apache.httpcomponents.client5:httpclient5')
   optional('org.apache.httpcomponents.core5:httpcore5-reactive')
 
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
   testImplementation("com.squareup.okhttp3:mockwebserver")
   testImplementation("org.skyscreamer:jsonassert")
   testImplementation("org.xmlunit:xmlunit-assertj")
   testImplementation("org.xmlunit:xmlunit-matchers")
   testImplementation 'io.projectreactor:reactor-test'
+  testImplementation project(':infra-test-support')
+  testImplementation project(':module:infra-app-test')
 
   testImplementation(testFixtures(project(":infra-web")))
+  testImplementation testFixtures(project(":module:infra-app-netty-server"))
+  testFixturesImplementation testFixtures(project(":module:infra-app-netty-server"))
 }

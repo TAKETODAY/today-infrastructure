@@ -37,7 +37,7 @@ import infra.web.reactor.netty.NettyRouteProvider;
 import infra.web.reactor.netty.ReactorNettyReactiveWebServerFactory;
 import infra.web.reactor.netty.ReactorNettyServerCustomizer;
 import infra.web.reactor.netty.ReactorServerProperties;
-import infra.web.reactor.netty.config.ReactorNettyConfigurations.ReactorResourceFactoryConfiguration;
+import infra.http.support.ReactorNettyConfigurations.ReactorResourceFactoryConfiguration;
 import infra.web.server.config.ServerProperties;
 import infra.web.server.config.WebServerConfiguration;
 import infra.web.server.reactive.ReactiveWebServerFactory;

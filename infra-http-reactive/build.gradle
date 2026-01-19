@@ -16,9 +16,15 @@ dependencies {
   optional('org.apache.httpcomponents.client5:httpclient5')
   optional('org.apache.httpcomponents.core5:httpcore5-reactive')
 
+  testImplementation project(':infra-test-support')
+  testImplementation(project(":infra-test"))
   testImplementation("tools.jackson.core:jackson-databind")
   testImplementation("io.projectreactor:reactor-test")
+  testImplementation(project(":module:infra-app-test"))
+  testImplementation(project(":module:infra-app-web-server"))
+  testImplementation(project(":module:infra-app-netty-server"))
   testImplementation(testFixtures(project(":infra-web-reactive")))
+  testImplementation(testFixtures(project(":infra-http-client")))
 
   testFixturesApi(testFixtures(project(":infra-http")))
   testFixturesApi(testFixtures(project(":infra-core")))

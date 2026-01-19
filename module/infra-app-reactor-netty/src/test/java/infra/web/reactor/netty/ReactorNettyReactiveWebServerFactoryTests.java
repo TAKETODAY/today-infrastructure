@@ -28,11 +28,11 @@ import java.net.SocketAddress;
 import java.time.Duration;
 import java.util.Arrays;
 
-import infra.app.ssl.DefaultSslBundleRegistry;
-import infra.app.ssl.SslBundle;
-import infra.app.ssl.SslBundles;
-import infra.app.ssl.pem.PemSslStoreBundle;
-import infra.app.ssl.pem.PemSslStoreDetails;
+import infra.core.ssl.DefaultSslBundleRegistry;
+import infra.core.ssl.SslBundle;
+import infra.core.ssl.SslBundles;
+import infra.core.ssl.pem.PemSslStoreBundle;
+import infra.core.ssl.pem.PemSslStoreDetails;
 import infra.http.MediaType;
 import infra.http.reactive.client.ReactorClientHttpConnector;
 import infra.http.reactive.server.ReactorHttpHandlerAdapter;

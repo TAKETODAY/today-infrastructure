@@ -27,7 +27,7 @@ import infra.context.ApplicationContextException;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
-import infra.app.ssl.NoSuchSslBundleException;
+import infra.core.ssl.NoSuchSslBundleException;
 import infra.http.reactive.server.HttpHandler;
 import infra.web.reactive.server.ForwardedHeaderTransformer;
 import infra.web.reactor.netty.ReactorNettyReactiveWebServerFactory;

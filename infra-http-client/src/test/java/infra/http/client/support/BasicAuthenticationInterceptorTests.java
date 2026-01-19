@@ -26,7 +26,7 @@ import infra.http.HttpRequest;
 import infra.http.client.ClientHttpRequestExecution;
 import infra.http.client.ClientHttpResponse;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -101,6 +101,5 @@ class BasicAuthenticationInterceptorTests {
     assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).startsWith("Basic ");
     assertThat(result).isSameAs(response);
   }
-
 
 }
