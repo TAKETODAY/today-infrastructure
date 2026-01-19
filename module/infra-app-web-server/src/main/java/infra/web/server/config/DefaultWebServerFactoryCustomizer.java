@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.core.ApplicationTemp;
 import infra.core.Ordered;
-import infra.app.ssl.SslBundles;
+import infra.core.ssl.SslBundles;
 import infra.web.server.ConfigurableWebServerFactory;
 import infra.web.server.WebServerFactoryCustomizer;
 

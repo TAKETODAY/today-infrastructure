@@ -35,7 +35,7 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 import infra.beans.BeanUtils;
-import infra.app.ssl.SslBundle;
+import infra.core.ssl.SslBundle;
 import infra.http.client.ClientHttpRequest;
 import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.ClientHttpRequestFactoryBuilder;

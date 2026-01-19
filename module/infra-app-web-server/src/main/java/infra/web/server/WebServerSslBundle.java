@@ -22,17 +22,17 @@ import org.jspecify.annotations.Nullable;
 
 import java.security.KeyStore;
 
-import infra.app.ssl.NoSuchSslBundleException;
-import infra.app.ssl.SslBundle;
-import infra.app.ssl.SslBundleKey;
-import infra.app.ssl.SslBundles;
-import infra.app.ssl.SslManagerBundle;
-import infra.app.ssl.SslOptions;
-import infra.app.ssl.SslStoreBundle;
-import infra.app.ssl.jks.JksSslStoreBundle;
-import infra.app.ssl.jks.JksSslStoreDetails;
-import infra.app.ssl.pem.PemSslStoreBundle;
-import infra.app.ssl.pem.PemSslStoreDetails;
+import infra.core.ssl.NoSuchSslBundleException;
+import infra.core.ssl.SslBundle;
+import infra.core.ssl.SslBundleKey;
+import infra.core.ssl.SslBundles;
+import infra.core.ssl.SslManagerBundle;
+import infra.core.ssl.SslOptions;
+import infra.core.ssl.SslStoreBundle;
+import infra.core.ssl.jks.JksSslStoreBundle;
+import infra.core.ssl.jks.JksSslStoreDetails;
+import infra.core.ssl.pem.PemSslStoreBundle;
+import infra.core.ssl.pem.PemSslStoreDetails;
 import infra.core.style.ToStringBuilder;
 import infra.lang.Assert;
 import infra.util.StringUtils;

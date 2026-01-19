@@ -45,7 +45,6 @@ dependencies {
   jacocoAggregation project(':module:infra-app-freemarker')
   jacocoAggregation project(':module:infra-app-gson')
   jacocoAggregation project(':module:infra-app-health')
-  jacocoAggregation project(':module:infra-app-http-client')
   jacocoAggregation project(':module:infra-app-http-codec')
   jacocoAggregation project(':module:infra-app-http-converter')
   jacocoAggregation project(':module:infra-app-jackson')

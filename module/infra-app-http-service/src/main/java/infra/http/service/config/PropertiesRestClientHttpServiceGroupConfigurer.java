@@ -20,7 +20,7 @@ package infra.http.service.config;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.app.ssl.SslBundles;
+import infra.core.ssl.SslBundles;
 import infra.beans.factory.ObjectProvider;
 import infra.core.Ordered;
 import infra.http.HttpHeaders;

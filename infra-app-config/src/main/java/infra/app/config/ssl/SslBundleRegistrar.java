@@ -18,8 +18,8 @@
 
 package infra.app.config.ssl;
 
-import infra.app.ssl.SslBundle;
-import infra.app.ssl.SslBundleRegistry;
+import infra.core.ssl.SslBundle;
+import infra.core.ssl.SslBundleRegistry;
 
 /**
  * Interface to be implemented by types that register {@link SslBundle} instances with an

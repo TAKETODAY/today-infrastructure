@@ -21,9 +21,9 @@ import org.junit.jupiter.api.Test;
 import java.net.URI;
 import java.util.List;
 
-import infra.app.ssl.SslBundle;
-import infra.app.ssl.SslManagerBundle;
-import infra.app.ssl.SslOptions;
+import infra.core.ssl.SslBundle;
+import infra.core.ssl.SslManagerBundle;
+import infra.core.ssl.SslOptions;
 import infra.http.HttpHeaders;
 import infra.web.socket.WebSocketHandler;
 import io.netty.handler.ssl.SslContextBuilder;

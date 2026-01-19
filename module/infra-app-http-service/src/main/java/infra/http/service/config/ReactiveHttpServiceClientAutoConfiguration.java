@@ -18,16 +18,16 @@
 
 package infra.http.service.config;
 
-import infra.app.ssl.SslBundles;
 import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.config.AutoConfiguration;
 import infra.context.condition.ConditionalOnBean;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.io.ResourceLoader;
+import infra.core.ssl.SslBundles;
 import infra.http.client.HttpClientSettings;
-import infra.http.client.config.reactive.ReactiveHttpClientAutoConfiguration;
-import infra.http.client.reactive.ClientHttpConnectorBuilder;
+import infra.http.reactive.client.config.ReactiveHttpClientAutoConfiguration;
+import infra.http.reactive.client.ClientHttpConnectorBuilder;
 import infra.http.service.registry.HttpServiceProxyRegistry;
 import infra.http.service.support.WebClientAdapter;
 import infra.stereotype.Component;

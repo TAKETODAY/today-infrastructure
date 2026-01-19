@@ -23,7 +23,7 @@ import infra.app.health.config.contributor.ConditionalOnEnabledHealthIndicator;
 import infra.app.health.config.contributor.HealthContributorAutoConfiguration;
 import infra.app.health.contributor.Health;
 import infra.app.info.SslInfo;
-import infra.app.ssl.SslBundles;
+import infra.core.ssl.SslBundles;
 import infra.context.annotation.Bean;
 import infra.context.annotation.config.AutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;

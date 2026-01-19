@@ -18,7 +18,7 @@
 
 package infra.http.service.config;
 
-import infra.app.ssl.SslBundles;
+import infra.core.ssl.SslBundles;
 import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.condition.ConditionalOnBean;

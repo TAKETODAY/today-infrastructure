@@ -20,10 +20,10 @@ package infra.web.server;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.ssl.SslBundle;
-import infra.app.ssl.SslBundleKey;
-import infra.app.ssl.SslOptions;
-import infra.app.ssl.SslStoreBundle;
+import infra.core.ssl.SslBundle;
+import infra.core.ssl.SslBundleKey;
+import infra.core.ssl.SslOptions;
+import infra.core.ssl.SslStoreBundle;
 import infra.core.testfixture.ssl.MockPkcs11Security;
 import infra.core.testfixture.ssl.MockPkcs11SecurityProvider;
 import infra.web.server.WebServerSslBundle.WebServerSslStoreBundle;

@@ -39,7 +39,7 @@ import java.util.function.UnaryOperator;
 
 import javax.net.ssl.SSLContext;
 
-import infra.app.ssl.SslBundle;
+import infra.core.ssl.SslBundle;
 import infra.app.test.context.InfraTest;
 import infra.core.ParameterizedTypeReference;
 import infra.http.HttpEntity;

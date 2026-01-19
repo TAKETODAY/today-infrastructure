@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 
 import java.net.InetAddress;
 
-import infra.app.ssl.DefaultSslBundleRegistry;
-import infra.app.ssl.SslBundles;
+import infra.core.ssl.DefaultSslBundleRegistry;
+import infra.core.ssl.SslBundles;
 import infra.test.util.ReflectionTestUtils;
 import infra.web.server.Shutdown;
 import infra.web.server.Ssl;

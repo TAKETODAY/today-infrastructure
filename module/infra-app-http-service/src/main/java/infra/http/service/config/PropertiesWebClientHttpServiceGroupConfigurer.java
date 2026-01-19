@@ -20,13 +20,13 @@ package infra.http.service.config;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.app.ssl.SslBundles;
 import infra.beans.factory.ObjectProvider;
 import infra.core.Ordered;
+import infra.core.ssl.SslBundles;
 import infra.http.HttpHeaders;
 import infra.http.client.HttpClientSettings;
 import infra.http.client.config.HttpClientSettingsPropertyMapper;
-import infra.http.client.reactive.ClientHttpConnectorBuilder;
+import infra.http.reactive.client.ClientHttpConnectorBuilder;
 import infra.http.service.registry.HttpServiceGroup;
 import infra.http.service.support.WebClientHttpServiceGroupConfigurer;
 import infra.util.StringUtils;

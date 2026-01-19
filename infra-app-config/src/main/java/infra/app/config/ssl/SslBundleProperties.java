@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
 
-import infra.app.ssl.SslBundle;
+import infra.core.ssl.SslBundle;
 
 /**
  * Base class for SSL Bundle properties.

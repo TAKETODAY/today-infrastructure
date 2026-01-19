@@ -11,7 +11,7 @@ import infra.context.annotation.Import;
 import infra.context.annotation.ImportBeanDefinitionRegistrar;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.ApplicationTemp;
-import infra.app.ssl.SslBundles;
+import infra.core.ssl.SslBundles;
 import infra.core.type.AnnotationMetadata;
 import infra.stereotype.Component;
 import infra.util.ObjectUtils;

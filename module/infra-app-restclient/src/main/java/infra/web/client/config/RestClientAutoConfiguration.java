@@ -22,7 +22,7 @@ import java.util.List;
 
 import infra.app.config.ssl.SslAutoConfiguration;
 import infra.app.config.task.TaskExecutionAutoConfiguration;
-import infra.app.ssl.SslBundles;
+import infra.core.ssl.SslBundles;
 import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;

@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.net.InetAddress;
 
 import infra.core.ApplicationTemp;
-import infra.app.ssl.SslBundles;
+import infra.core.ssl.SslBundles;
 
 /**
  * A configurable {@link WebServerFactory}.

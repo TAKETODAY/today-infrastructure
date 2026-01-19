@@ -20,9 +20,9 @@ package infra.app.config.ssl;
 
 import java.util.List;
 
-import infra.app.ssl.DefaultSslBundleRegistry;
-import infra.app.ssl.SslBundleRegistry;
-import infra.app.ssl.SslBundles;
+import infra.core.ssl.DefaultSslBundleRegistry;
+import infra.core.ssl.SslBundleRegistry;
+import infra.core.ssl.SslBundles;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;

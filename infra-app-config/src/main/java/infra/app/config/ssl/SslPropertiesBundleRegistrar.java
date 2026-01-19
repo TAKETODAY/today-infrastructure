@@ -28,8 +28,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import infra.app.ssl.SslBundle;
-import infra.app.ssl.SslBundleRegistry;
+import infra.core.ssl.SslBundle;
+import infra.core.ssl.SslBundleRegistry;
 import infra.beans.factory.DisposableBean;
 import infra.core.io.ResourceLoader;
 

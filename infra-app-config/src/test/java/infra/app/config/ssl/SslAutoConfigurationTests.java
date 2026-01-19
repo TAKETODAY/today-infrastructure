@@ -29,9 +29,9 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.context.properties.ConfigurationProperties;
 import infra.context.properties.EnableConfigurationProperties;
-import infra.app.ssl.SslBundle;
-import infra.app.ssl.SslBundleRegistry;
-import infra.app.ssl.SslBundles;
+import infra.core.ssl.SslBundle;
+import infra.core.ssl.SslBundleRegistry;
+import infra.core.ssl.SslBundles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -24,8 +24,8 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-import infra.app.ssl.SslBundle;
-import infra.app.ssl.SslOptions;
+import infra.core.ssl.SslBundle;
+import infra.core.ssl.SslOptions;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.web.server.Ssl;

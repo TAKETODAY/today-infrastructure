@@ -26,8 +26,8 @@ import org.mockito.MockitoAnnotations;
 import java.time.Duration;
 import java.util.function.Consumer;
 
-import infra.app.ssl.SslBundle;
-import infra.app.ssl.SslBundles;
+import infra.core.ssl.SslBundle;
+import infra.core.ssl.SslBundles;
 import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.ClientHttpRequestFactoryBuilder;
 import infra.http.client.HttpClientSettings;

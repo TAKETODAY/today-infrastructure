@@ -20,11 +20,11 @@ package infra.web.client.config;
 
 import java.util.function.Consumer;
 
-import infra.app.ssl.SslBundle;
-import infra.app.ssl.SslBundles;
+import infra.core.ssl.SslBundle;
+import infra.core.ssl.SslBundles;
 import infra.http.client.HttpClientSettings;
-import infra.http.client.reactive.ClientHttpConnectorBuilder;
 import infra.http.reactive.client.ClientHttpConnector;
+import infra.http.reactive.client.ClientHttpConnectorBuilder;
 import infra.web.reactive.client.WebClient;
 
 /**

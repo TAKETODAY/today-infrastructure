@@ -26,8 +26,8 @@ import java.nio.file.Path;
 import java.util.Set;
 
 import infra.core.io.DefaultResourceLoader;
-import infra.app.ssl.DefaultSslBundleRegistry;
-import infra.app.ssl.SslBundleRegistry;
+import infra.core.ssl.DefaultSslBundleRegistry;
+import infra.core.ssl.SslBundleRegistry;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

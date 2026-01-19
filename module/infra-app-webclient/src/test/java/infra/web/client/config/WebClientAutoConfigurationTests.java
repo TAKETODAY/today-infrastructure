@@ -26,7 +26,7 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.http.client.config.HttpClientAutoConfiguration;
-import infra.http.client.config.reactive.ReactiveHttpClientAutoConfiguration;
+import infra.http.reactive.client.config.ReactiveHttpClientAutoConfiguration;
 import infra.http.codec.CodecConfigurer;
 import infra.http.codec.CodecCustomizer;
 import infra.web.client.WebClientCustomizer;
