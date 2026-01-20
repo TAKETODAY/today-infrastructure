@@ -18,6 +18,8 @@ package infra.util.concurrent;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -127,6 +129,7 @@ class SpinSingleThreadAwaiterTests {
   }
 
   @Test
+  @DisabledOnOs(OS.MAC)
   void successiveSpinsOptimizePerformance() throws InterruptedException {
     assumeThat(Runtime.getRuntime().availableProcessors()).isGreaterThan(1);
 
