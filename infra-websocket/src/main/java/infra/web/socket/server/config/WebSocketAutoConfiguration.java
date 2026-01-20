@@ -14,32 +14,32 @@
  * limitations under the License.
  */
 
-package infra.web.socket.config;
+package infra.web.socket.server.config;
 
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-import infra.beans.factory.annotation.DisableAllDependencyInjection;
-import infra.context.annotation.Configuration;
+import infra.context.annotation.Lazy;
+import infra.context.annotation.config.DisableDIAutoConfiguration;
+import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.stereotype.Component;
 import infra.web.config.annotation.WebMvcConfigurationSupport;
+import infra.web.socket.config.DefaultWebSocketHandlerRegistry;
+import infra.web.socket.config.WebSocketConfigurer;
 import infra.web.socket.server.RequestUpgradeStrategy;
 import infra.web.socket.server.support.DefaultHandshakeHandler;
 import infra.web.socket.server.support.WebSocketHandlerMapping;
 
 /**
- * A Configuration that detects implementations of {@link WebSocketConfigurer} in
- * Infra configuration and invokes them in order to configure WebSocket request handling.
+ * {@link EnableAutoConfiguration Auto-configuration} WebSocket
  *
- * @author Rossen Stoyanchev
- * @author Sebastien Deleuze
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 4.0 2023/2/5 21:52
  */
-@DisableAllDependencyInjection
-@Configuration(proxyBeanMethods = false)
-public class WebSocketConfiguration {
+@Lazy
+@DisableDIAutoConfiguration
+public final class WebSocketAutoConfiguration {
 
   @Component
   public static WebSocketHandlerMapping webSocketHandlerMapping(List<WebSocketConfigurer> configurers,

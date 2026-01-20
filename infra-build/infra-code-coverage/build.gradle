@@ -55,7 +55,6 @@ dependencies {
   jacocoAggregation project(':module:infra-app-validation')
   jacocoAggregation project(':module:infra-app-web-server')
   jacocoAggregation project(':module:infra-app-webmvc')
-  jacocoAggregation project(':module:infra-app-websocket')
 }
 
 reporting {

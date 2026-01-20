@@ -32,7 +32,6 @@ import infra.web.socket.handler.TextWebSocketHandler;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/2/6 11:19
  */
-@EnableWebSocket
 @Configuration(proxyBeanMethods = false)
 public class WebSocketConfig implements WebSocketConfigurer {
 

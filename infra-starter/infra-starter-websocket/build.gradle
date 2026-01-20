@@ -2,6 +2,7 @@ description = "Starter for building WebSocket applications using Infra MVC WebSo
 
 dependencies {
   api project(':infra-starter:infra-starter-webmvc')
-  api project(':module:infra-app-websocket')
+  api project(':infra-websocket')
+
 }
 

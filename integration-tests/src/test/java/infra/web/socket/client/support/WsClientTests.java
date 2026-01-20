@@ -16,6 +16,7 @@
 
 package infra.web.socket.client.support;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -24,7 +25,6 @@ import java.util.concurrent.CountDownLatch;
 import infra.app.Application;
 import infra.app.InfraApplication;
 import infra.core.io.buffer.DataBuffer;
-import org.jspecify.annotations.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.concurrent.Future;
@@ -32,7 +32,6 @@ import infra.web.RequestContext;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketMessage;
 import infra.web.socket.WebSocketSession;
-import infra.web.socket.config.EnableWebSocket;
 import infra.web.socket.config.WebSocketConfigurer;
 import infra.web.socket.config.WebSocketHandlerRegistry;
 import infra.web.socket.server.HandshakeCapable;
@@ -121,7 +120,6 @@ class WsClientTests {
 
   }
 
-  @EnableWebSocket
   @InfraApplication
   static class WsServerApp implements WebSocketConfigurer {
 

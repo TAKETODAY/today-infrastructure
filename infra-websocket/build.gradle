@@ -11,7 +11,15 @@ dependencies {
   optional(project(":infra-webmvc"))
   optional("io.netty:netty-codec-http")
 
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
+  testImplementation project(":infra-test")
+  testImplementation project(':infra-test-support')
+  testImplementation project(":module:infra-app-test")
+
   testImplementation(testFixtures(project(":infra-core")))
   testImplementation(testFixtures(project(":infra-web")))
   testImplementation(testFixtures(project(":infra-webmvc")))
+  testImplementation testFixtures(project(':module:infra-app-netty-server'))
 }

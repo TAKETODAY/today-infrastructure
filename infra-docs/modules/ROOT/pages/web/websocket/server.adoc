@@ -25,7 +25,6 @@ public class MyHandler extends TextWebSocketHandler {
 [source,java]
 ----
 @Configuration
-@EnableWebSocket
 public class WebSocketConfiguration implements WebSocketConfigurer {
 
   @Override
@@ -56,7 +55,6 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
 [source,java]
 ----
 @Configuration
-@EnableWebSocket
 public class WebSocketConfiguration implements WebSocketConfigurer {
 
   @Override
@@ -124,7 +122,6 @@ WebSocket 的默认行为是仅接受同源请求。
 [source,java]
 ----
 @Configuration
-@EnableWebSocket
 public class WebSocketConfiguration implements WebSocketConfigurer {
 
   @Override

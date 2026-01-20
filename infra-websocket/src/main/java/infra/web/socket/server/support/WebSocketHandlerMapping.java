@@ -22,9 +22,10 @@ import org.jspecify.annotations.Nullable;
 
 import infra.context.Lifecycle;
 import infra.context.SmartLifecycle;
+import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.web.RequestContext;
-import infra.web.handler.HandlerExecutionChain;
+import infra.web.handler.HandlerWrapper;
 import infra.web.handler.SimpleUrlHandlerMapping;
 
 /**
@@ -87,19 +88,17 @@ public class WebSocketHandlerMapping extends SimpleUrlHandlerMapping implements 
   }
 
   @Override
-  @Nullable
-  protected Object getHandlerInternal(RequestContext request) {
+  protected @Nullable Object getHandlerInternal(RequestContext request) {
     Object handler = super.getHandlerInternal(request);
-    return (matchWebSocketUpgrade(handler, request) ? handler : null);
+    return matchWebSocketUpgrade(handler, request) ? handler : null;
   }
 
   private boolean matchWebSocketUpgrade(@Nullable Object handler, RequestContext request) {
-    handler = (handler instanceof HandlerExecutionChain ?
-               ((HandlerExecutionChain) handler).getRawHandler() : handler);
+    handler = handler instanceof HandlerWrapper wrapper ? wrapper.getRawHandler() : handler;
     if (this.webSocketUpgradeMatch && handler instanceof WebSocketHttpRequestHandler) {
       String header = request.requestHeaders().getUpgrade();
       return request.getMethod() == HttpMethod.GET
-              && header != null && header.equalsIgnoreCase("websocket");
+              && header != null && header.equalsIgnoreCase(HttpHeaders.WEBSOCKET);
     }
     return true;
   }

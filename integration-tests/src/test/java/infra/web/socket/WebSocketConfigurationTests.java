@@ -26,11 +26,12 @@ import java.util.concurrent.TimeUnit;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
+import infra.context.annotation.Import;
 import infra.web.socket.client.WebSocketClient;
-import infra.web.socket.config.EnableWebSocket;
 import infra.web.socket.config.WebSocketConfigurer;
 import infra.web.socket.config.WebSocketHandlerRegistry;
 import infra.web.socket.server.HandshakeHandler;
+import infra.web.socket.server.config.WebSocketAutoConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -61,7 +62,7 @@ class WebSocketConfigurationTests extends AbstractWebSocketIntegrationTests {
   }
 
   @Configuration
-  @EnableWebSocket
+  @Import(WebSocketAutoConfiguration.class)
   static class TestConfig implements WebSocketConfigurer {
 
     @Autowired
