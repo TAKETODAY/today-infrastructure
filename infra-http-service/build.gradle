@@ -25,4 +25,12 @@ dependencies {
   testImplementation("com.squareup.okhttp3:mockwebserver")
   testImplementation("io.projectreactor:reactor-test")
 
+  testImplementation project(":infra-test")
+  testImplementation project(':infra-test-support')
+  testImplementation project(":module:infra-app-test")
+
+  testImplementation project(":infra-webmvc-mock")
+  testImplementation "org.apache.httpcomponents.client5:httpclient5"
+  testImplementation "org.hamcrest:hamcrest"
+
 }

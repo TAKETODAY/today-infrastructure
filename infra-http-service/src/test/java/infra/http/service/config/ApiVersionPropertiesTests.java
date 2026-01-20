@@ -24,8 +24,8 @@ import java.net.URI;
 
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
-import infra.web.client.ApiVersionInserter;
 import infra.http.service.config.ApiVersionProperties.Insert;
+import infra.web.client.ApiVersionInserter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
