@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.web.client.config;
+package infra.web.reactive.client.config;
 
 import org.jspecify.annotations.Nullable;
 
@@ -29,21 +29,20 @@ import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnBean;
-import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.core.annotation.Order;
 import infra.core.io.ResourceLoader;
 import infra.core.ssl.SslBundles;
 import infra.http.client.HttpClientSettings;
-import infra.http.reactive.client.config.ReactiveHttpClientAutoConfiguration;
 import infra.http.codec.CodecCustomizer;
-import infra.http.codec.CodecsAutoConfiguration;
+import infra.http.codec.config.CodecsAutoConfiguration;
 import infra.http.reactive.client.ClientHttpConnector;
 import infra.http.reactive.client.ClientHttpConnectorBuilder;
+import infra.http.reactive.client.config.ReactiveHttpClientAutoConfiguration;
 import infra.stereotype.Component;
 import infra.stereotype.Prototype;
-import infra.web.client.WebClientCustomizer;
 import infra.web.reactive.client.WebClient;
+import infra.web.reactive.client.WebClientCustomizer;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for {@link WebClient}.
@@ -59,7 +58,6 @@ import infra.web.reactive.client.WebClient;
  * @since 4.0
  */
 @Lazy
-@ConditionalOnClass(WebClient.class)
 @DisableDIAutoConfiguration(after = { ReactiveHttpClientAutoConfiguration.class, CodecsAutoConfiguration.class })
 public final class WebClientAutoConfiguration {
 

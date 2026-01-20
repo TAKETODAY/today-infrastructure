@@ -51,8 +51,8 @@ import infra.http.service.registry.HttpServiceProxyRegistry;
 import infra.http.service.registry.ImportHttpServices;
 import infra.http.service.support.WebClientHttpServiceGroupConfigurer;
 import infra.test.util.ReflectionTestUtils;
-import infra.web.client.WebClientCustomizer;
-import infra.web.client.config.WebClientAutoConfiguration;
+import infra.web.reactive.client.WebClientCustomizer;
+import infra.web.reactive.client.config.WebClientAutoConfiguration;
 import infra.web.reactive.client.WebClient;
 import infra.web.util.UriComponentsBuilder;
 

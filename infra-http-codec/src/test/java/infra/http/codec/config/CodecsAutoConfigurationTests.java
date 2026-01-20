@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.http.codec;
+package infra.http.codec.config;
 
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +28,9 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.core.Ordered;
+import infra.http.codec.CodecConfigurer;
 import infra.http.codec.CodecConfigurer.DefaultCodecs;
+import infra.http.codec.CodecCustomizer;
 import infra.http.codec.support.DefaultClientCodecConfigurer;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
@@ -36,7 +38,7 @@ import tools.jackson.databind.json.JsonMapper;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link CodecsAutoConfiguration}.
+ * Tests for {@link infra.http.codec.config.CodecsAutoConfiguration}.
  *
  * @author Madhura Bhave
  * @author Andy Wilkinson
@@ -44,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CodecsAutoConfigurationTests {
 
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-          .withConfiguration(AutoConfigurations.of(CodecsAutoConfiguration.class));
+          .withConfiguration(AutoConfigurations.of(infra.http.codec.config.CodecsAutoConfiguration.class));
 
   @Test
   void autoConfigShouldProvideALoggingRequestDetailsCustomizer() {

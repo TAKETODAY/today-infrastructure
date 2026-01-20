@@ -4,7 +4,7 @@ dependencies {
 	api(project(":infra-starter"))
 	api(project(":infra-starter:infra-starter-jackson"))
 
-	api(project(":module:infra-app-webclient"))
+	api(project(":infra-web-reactive"))
 
 	api("io.projectreactor.netty:reactor-netty-http")
 }

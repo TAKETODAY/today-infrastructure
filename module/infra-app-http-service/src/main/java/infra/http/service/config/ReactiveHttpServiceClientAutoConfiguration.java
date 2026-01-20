@@ -31,8 +31,8 @@ import infra.http.reactive.client.ClientHttpConnectorBuilder;
 import infra.http.service.registry.HttpServiceProxyRegistry;
 import infra.http.service.support.WebClientAdapter;
 import infra.stereotype.Component;
-import infra.web.client.WebClientCustomizer;
-import infra.web.client.config.WebClientAutoConfiguration;
+import infra.web.reactive.client.WebClientCustomizer;
+import infra.web.reactive.client.config.WebClientAutoConfiguration;
 import infra.web.reactive.client.WebClient;
 
 /**

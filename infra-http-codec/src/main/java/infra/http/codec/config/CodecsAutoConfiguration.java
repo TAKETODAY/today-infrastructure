@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.http.codec;
+package infra.http.codec.config;
 
 import org.jspecify.annotations.Nullable;
 
@@ -32,11 +32,12 @@ import infra.core.Ordered;
 import infra.core.annotation.Order;
 import infra.core.codec.Decoder;
 import infra.core.codec.Encoder;
+import infra.http.codec.CodecConfigurer;
+import infra.http.codec.CodecCustomizer;
 import infra.http.codec.json.JacksonJsonDecoder;
 import infra.http.codec.json.JacksonJsonEncoder;
 import infra.stereotype.Component;
 import infra.util.DataSize;
-import infra.web.reactive.client.WebClient;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
@@ -49,7 +50,6 @@ import tools.jackson.databind.json.JsonMapper;
  * @since 4.0
  */
 @DisableDIAutoConfiguration
-@ConditionalOnClass({ CodecConfigurer.class, WebClient.class })
 @EnableConfigurationProperties(HttpCodecProperties.class)
 public final class CodecsAutoConfiguration {
 

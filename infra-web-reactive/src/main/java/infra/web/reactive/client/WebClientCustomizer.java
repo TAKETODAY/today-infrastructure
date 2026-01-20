@@ -16,33 +16,27 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.web.client.config;
-
-import java.util.List;
-
-import infra.http.codec.CodecCustomizer;
-import infra.web.client.WebClientCustomizer;
-import infra.web.reactive.client.WebClient;
+package infra.web.reactive.client;
 
 /**
- * {@link WebClientCustomizer} that configures codecs for the HTTP client.
+ * Callback interface that can be used to customize a
+ * {@link infra.web.reactive.client.WebClient.Builder
+ * WebClient.Builder}.
  *
  * @author Brian Clozel
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class WebClientCodecCustomizer implements WebClientCustomizer {
+@FunctionalInterface
+public interface WebClientCustomizer {
 
-  private final List<CodecCustomizer> codecCustomizers;
-
-  public WebClientCodecCustomizer(List<CodecCustomizer> codecCustomizers) {
-    this.codecCustomizers = codecCustomizers;
-  }
-
-  @Override
-  public void customize(WebClient.Builder webClientBuilder) {
-    webClientBuilder
-            .codecs((codecs) -> this.codecCustomizers.forEach((customizer) -> customizer.customize(codecs)));
-  }
+  /**
+   * Callback to customize a
+   * {@link infra.web.reactive.client.WebClient.Builder
+   * WebClient.Builder} instance.
+   *
+   * @param webClientBuilder the client builder to customize
+   */
+  void customize(WebClient.Builder webClientBuilder);
 
 }

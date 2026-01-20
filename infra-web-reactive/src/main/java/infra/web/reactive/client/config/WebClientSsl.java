@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.web.client.config;
+package infra.web.reactive.client.config;
 
 import java.util.function.Consumer;
 

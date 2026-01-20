@@ -4,7 +4,7 @@ dependencies {
   api project(':infra-http-service')
 
   optional(project(":infra-web-client"))
-  optional project(":module:infra-app-webclient")
+  optional project(":infra-web-reactive")
 
   testImplementation project(":infra-webmvc-mock")
   testImplementation "org.apache.httpcomponents.client5:httpclient5"

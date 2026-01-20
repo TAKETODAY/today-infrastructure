@@ -21,8 +21,8 @@ package infra.http.service.config;
 import infra.beans.factory.ObjectProvider;
 import infra.http.service.registry.HttpServiceGroup;
 import infra.http.service.support.WebClientHttpServiceGroupConfigurer;
-import infra.web.client.WebClientCustomizer;
 import infra.web.reactive.client.WebClient;
+import infra.web.reactive.client.WebClientCustomizer;
 
 /**
  * A {@link WebClientHttpServiceGroupConfigurer} to apply auto-configured

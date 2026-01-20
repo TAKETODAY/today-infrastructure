@@ -4,6 +4,7 @@ dependencies {
   api(project(":infra-http-reactive"))
 
   optional(project(":infra-beans"))
+  optional(project(":infra-context"))
   optional(project(":infra-core-aot"))
 
   optional("org.reactivestreams:reactive-streams")
@@ -17,6 +18,11 @@ dependencies {
   optional("tools.jackson.dataformat:jackson-dataformat-yaml")
   optional("com.google.protobuf:protobuf-java-util")
 
+
+  testImplementation project(':infra-test-support')
+  testImplementation project(':module:infra-app-test')
+  testImplementation(project(":module:infra-app-jackson"))
+
   testImplementation("jakarta.xml.bind:jakarta.xml.bind-api")
   testImplementation("org.skyscreamer:jsonassert")
   testImplementation("io.projectreactor:reactor-test")
@@ -27,4 +33,5 @@ dependencies {
   testImplementation(testFixtures(project(":infra-beans")))
   testImplementation(testFixtures(project(":infra-web-reactive")))
 
+  testRuntimeOnly("ch.qos.logback:logback-classic")
 }

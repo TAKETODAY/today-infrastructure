@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.web.client.config;
+package infra.web.reactive.client.config;
 
 import org.junit.jupiter.api.Test;
 
@@ -25,12 +25,11 @@ import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
-import infra.http.client.config.HttpClientAutoConfiguration;
-import infra.http.reactive.client.config.ReactiveHttpClientAutoConfiguration;
 import infra.http.codec.CodecConfigurer;
 import infra.http.codec.CodecCustomizer;
-import infra.web.client.WebClientCustomizer;
+import infra.http.reactive.client.config.ReactiveHttpClientAutoConfiguration;
 import infra.web.reactive.client.WebClient;
+import infra.web.reactive.client.WebClientCustomizer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -47,7 +46,7 @@ class WebClientAutoConfigurationTests {
 
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
           .withConfiguration(AutoConfigurations.of(ReactiveHttpClientAutoConfiguration.class,
-                  HttpClientAutoConfiguration.class, WebClientAutoConfiguration.class, SslAutoConfiguration.class));
+                  WebClientAutoConfiguration.class, SslAutoConfiguration.class));
 
   @Test
   void shouldCreateBuilder() {

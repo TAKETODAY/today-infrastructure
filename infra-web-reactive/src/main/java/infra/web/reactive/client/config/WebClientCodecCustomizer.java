@@ -16,34 +16,33 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.http.codec;
+package infra.web.reactive.client.config;
 
-import org.jspecify.annotations.Nullable;
+import java.util.List;
 
-import infra.context.properties.ConfigurationProperties;
-import infra.util.DataSize;
+import infra.http.codec.CodecCustomizer;
+import infra.web.reactive.client.WebClient;
+import infra.web.reactive.client.WebClientCustomizer;
 
 /**
- * {@link ConfigurationProperties properties} for reactive codecs.
+ * {@link WebClientCustomizer} that configures codecs for the HTTP client.
  *
  * @author Brian Clozel
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@ConfigurationProperties(prefix = "http.codecs")
-public class HttpCodecProperties {
+public class WebClientCodecCustomizer implements WebClientCustomizer {
 
-  /**
-   * Whether to log form data at DEBUG level, and headers at TRACE level.
-   */
-  public boolean logRequestDetails;
+  private final List<CodecCustomizer> codecCustomizers;
 
-  /**
-   * Limit on the number of bytes that can be buffered whenever the input stream needs
-   * to be aggregated. This applies only to the auto-configured WebFlux server and
-   * WebClient instances. By default this is not set, in which case individual codec
-   * defaults apply. Most codecs are limited to 256K by default.
-   */
-  public @Nullable DataSize maxInMemorySize;
+  public WebClientCodecCustomizer(List<CodecCustomizer> codecCustomizers) {
+    this.codecCustomizers = codecCustomizers;
+  }
+
+  @Override
+  public void customize(WebClient.Builder webClientBuilder) {
+    webClientBuilder
+            .codecs((codecs) -> this.codecCustomizers.forEach((customizer) -> customizer.customize(codecs)));
+  }
 
 }
