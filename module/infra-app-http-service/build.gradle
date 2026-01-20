@@ -3,7 +3,7 @@ description = "Infra application HTTP Service Interface Clients"
 dependencies {
   api project(':infra-http-service')
 
-  optional project(":module:infra-app-restclient")
+  optional(project(":infra-web-client"))
   optional project(":module:infra-app-webclient")
 
   testImplementation project(":infra-webmvc-mock")

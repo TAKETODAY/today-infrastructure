@@ -22,7 +22,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-import infra.context.annotation.Conditional;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
@@ -51,7 +50,6 @@ import infra.web.client.RestTemplateRequestCustomizer;
 @Lazy
 @ConditionalOnClass({ RestTemplate.class, HttpMessageConverters.class })
 @DisableDIAutoConfiguration(after = HttpClientAutoConfiguration.class)
-@Conditional(NotReactiveWebApplicationCondition.class)
 public final class RestTemplateAutoConfiguration {
 
   @Lazy

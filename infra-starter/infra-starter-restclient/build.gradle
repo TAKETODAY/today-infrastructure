@@ -4,5 +4,5 @@ dependencies {
 	api(project(":infra-starter"))
 	api(project(":infra-starter:infra-starter-jackson"))
 
-	api(project(":module:infra-app-restclient"))
+	api(project(":infra-web-client"))
 }

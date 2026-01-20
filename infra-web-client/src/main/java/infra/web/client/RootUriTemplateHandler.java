@@ -22,7 +22,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
 import java.util.Map;
-import java.util.function.Function;
 
 import infra.lang.Assert;
 import infra.util.StringUtils;
@@ -77,7 +76,7 @@ public class RootUriTemplateHandler implements UriTemplateHandler {
   }
 
   @Override
-  public URI expand(String uriTemplate, Object... uriVariables) {
+  public URI expand(String uriTemplate, @Nullable Object... uriVariables) {
     return this.handler.expand(apply(uriTemplate), uriVariables);
   }
 
@@ -91,18 +90,6 @@ public class RootUriTemplateHandler implements UriTemplateHandler {
   @Nullable
   public String getRootUri() {
     return this.rootUri;
-  }
-
-  /**
-   * Derives a new {@code RootUriTemplateHandler} from this one, wrapping its delegate
-   * {@link UriTemplateHandler} by applying the given {@code wrapper}.
-   *
-   * @param wrapper the wrapper to apply to the delegate URI template handler
-   * @return the new handler
-   */
-  @SuppressWarnings("NullAway")
-  public RootUriTemplateHandler withHandlerWrapper(Function<UriTemplateHandler, UriTemplateHandler> wrapper) {
-    return new RootUriTemplateHandler(getRootUri(), wrapper.apply(this.handler));
   }
 
   /**

@@ -20,9 +20,6 @@ package infra.web.client.config;
 
 import java.util.List;
 
-import infra.app.config.ssl.SslAutoConfiguration;
-import infra.app.config.task.TaskExecutionAutoConfiguration;
-import infra.core.ssl.SslBundles;
 import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
@@ -33,9 +30,9 @@ import infra.context.condition.ConditionalOnMissingBean;
 import infra.core.Ordered;
 import infra.core.annotation.Order;
 import infra.core.io.ResourceLoader;
+import infra.core.ssl.SslBundles;
 import infra.http.client.ClientHttpRequestFactoryBuilder;
 import infra.http.client.HttpClientSettings;
-import infra.http.client.config.ImperativeHttpClientAutoConfiguration;
 import infra.http.converter.config.ClientHttpMessageConvertersCustomizer;
 import infra.stereotype.Component;
 import infra.stereotype.Prototype;
@@ -54,10 +51,10 @@ import infra.web.client.RestClientCustomizer;
  * @since 4.0
  */
 @Lazy
-@DisableDIAutoConfiguration(after = {
-        SslAutoConfiguration.class,
-        ImperativeHttpClientAutoConfiguration.class,
-        TaskExecutionAutoConfiguration.class
+@DisableDIAutoConfiguration(afterName = {
+        "infra.app.config.ssl.SslAutoConfiguration",
+        "infra.app.config.task.TaskExecutionAutoConfiguration",
+        "infra.http.client.config.ImperativeHttpClientAutoConfiguration"
 })
 @ConditionalOnClass(RestClient.class)
 public final class RestClientAutoConfiguration {

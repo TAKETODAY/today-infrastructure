@@ -4,7 +4,7 @@ dependencies {
   api(project(":infra-webmvc"))
   api project(':infra-app')
 
-  implementation project(':module:infra-app-http-converter')
+  implementation project(':infra-http-converter')
 
   optional project(':infra-core-aot')
 

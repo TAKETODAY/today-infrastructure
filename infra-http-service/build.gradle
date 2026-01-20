@@ -12,6 +12,9 @@ dependencies {
   optional("io.reactivex.rxjava3:rxjava")
   optional("io.smallrye.reactive:mutiny")
 
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
   testImplementation(project(":infra-core-test"))
   testImplementation testFixtures(project(":infra-web"))
   testImplementation testFixtures(project(":infra-core"))

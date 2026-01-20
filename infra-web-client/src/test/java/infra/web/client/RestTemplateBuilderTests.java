@@ -110,7 +110,7 @@ class RestTemplateBuilderTests {
   void rootUriShouldApply() {
     RestTemplate restTemplate = this.builder.rootUri("https://example.com").build();
     MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
-    server.expect(requestTo("https://example.com/hello")).andRespond(withSuccess());
+    server.expect(MockRestRequestMatchers.requestTo("https://example.com/hello")).andRespond(MockRestResponseCreators.withSuccess());
     restTemplate.getForEntity("/hello", String.class);
     server.verify();
   }

@@ -20,6 +20,8 @@ package infra.http.converter.config;
 
 import com.google.gson.Gson;
 
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -85,16 +87,16 @@ class HttpMessageConvertersAutoConfigurationTests {
   void jacksonNotAvailable() {
     this.contextRunner.withClassLoader(new FilteredClassLoader(JsonMapper.class.getPackage().getName()))
             .run((context) -> {
-              assertThat(context).doesNotHaveBean(JsonMapper.class);
-              assertThat(context).doesNotHaveBean(JacksonJsonHttpMessageConvertersCustomizer.class);
-              assertThat(context).doesNotHaveBean(JacksonXmlHttpMessageConvertersCustomizer.class);
+              Assertions.assertThat(context).doesNotHaveBean(JsonMapper.class);
+              Assertions.assertThat(context).doesNotHaveBean(JacksonJsonHttpMessageConvertersCustomizer.class);
+              Assertions.assertThat(context).doesNotHaveBean(JacksonXmlHttpMessageConvertersCustomizer.class);
             });
   }
 
   @Test
   void jacksonDefaultConverter() {
     this.contextRunner.withUserConfiguration(JacksonJsonMapperConfig.class).run((context) -> {
-      assertThat(context).hasSingleBean(JacksonJsonHttpMessageConvertersCustomizer.class);
+      Assertions.assertThat(context).hasSingleBean(JacksonJsonHttpMessageConvertersCustomizer.class);
       assertConverterIsRegistered(context, JacksonJsonHttpMessageConverter.class);
     });
   }
@@ -110,7 +112,7 @@ class HttpMessageConvertersAutoConfigurationTests {
   @Test
   void jacksonConverterWithBuilder() {
     this.contextRunner.withUserConfiguration(JacksonJsonMapperBuilderConfig.class).run((context) -> {
-      assertThat(context).hasSingleBean(JacksonJsonHttpMessageConvertersCustomizer.class);
+      Assertions.assertThat(context).hasSingleBean(JacksonJsonHttpMessageConvertersCustomizer.class);
       assertConverterIsRegistered(context, JacksonJsonHttpMessageConverter.class);
     });
   }
@@ -118,7 +120,7 @@ class HttpMessageConvertersAutoConfigurationTests {
   @Test
   void jacksonXmlConverterWithBuilder() {
     this.contextRunner.withUserConfiguration(JacksonXmlMapperBuilderConfig.class).run((context) -> {
-      assertThat(context).hasSingleBean(JacksonXmlHttpMessageConvertersCustomizer.class);
+      Assertions.assertThat(context).hasSingleBean(JacksonXmlHttpMessageConvertersCustomizer.class);
       assertConverterIsRegistered(context, JacksonXmlHttpMessageConverter.class);
     });
   }
@@ -127,7 +129,7 @@ class HttpMessageConvertersAutoConfigurationTests {
   void jacksonCustomConverter() {
     this.contextRunner.withUserConfiguration(JacksonJsonMapperConfig.class, JacksonConverterConfig.class)
             .run((context) -> {
-              assertThat(context).doesNotHaveBean(JacksonJsonHttpMessageConvertersCustomizer.class);
+              Assertions.assertThat(context).doesNotHaveBean(JacksonJsonHttpMessageConvertersCustomizer.class);
               HttpMessageConverters serverConverters = getServerConverters(context);
               assertThat(serverConverters)
                       .contains(context.getBean("customJacksonMessageConverter", JacksonJsonHttpMessageConverter.class));
@@ -137,7 +139,7 @@ class HttpMessageConvertersAutoConfigurationTests {
   @Test
   void jacksonServerAndClientConvertersShouldBeDifferent() {
     this.contextRunner.withUserConfiguration(JacksonJsonMapperConfig.class).run((context) -> {
-      assertThat(context).hasSingleBean(JacksonJsonHttpMessageConvertersCustomizer.class);
+      Assertions.assertThat(context).hasSingleBean(JacksonJsonHttpMessageConvertersCustomizer.class);
       JacksonJsonHttpMessageConverter serverConverter = findConverter(getServerConverters(context),
               JacksonJsonHttpMessageConverter.class);
       JacksonJsonHttpMessageConverter clientConverter = findConverter(getClientConverters(context),
@@ -149,7 +151,7 @@ class HttpMessageConvertersAutoConfigurationTests {
   @Test
   void gsonNotAvailable() {
     this.contextRunner.run((context) -> {
-      assertThat(context).doesNotHaveBean(Gson.class);
+      Assertions.assertThat(context).doesNotHaveBean(Gson.class);
       assertConverterIsNotRegistered(context, GsonHttpMessageConverter.class);
     });
   }
@@ -180,7 +182,7 @@ class HttpMessageConvertersAutoConfigurationTests {
   @Test
   void jsonbNotAvailable() {
     this.contextRunner.run((context) -> {
-      assertThat(context).doesNotHaveBean(Jsonb.class);
+      Assertions.assertThat(context).doesNotHaveBean(Jsonb.class);
       assertConverterIsNotRegistered(context, JsonbHttpMessageConverter.class);
     });
   }
@@ -231,8 +233,8 @@ class HttpMessageConvertersAutoConfigurationTests {
       assertBeanExists(context, JacksonJsonHttpMessageConvertersCustomizer.class,
               "jacksonJsonHttpMessageConvertersCustomizer");
       assertConverterIsRegistered(context, JacksonJsonHttpMessageConverter.class);
-      assertThat(context).doesNotHaveBean(GsonHttpConvertersCustomizer.class);
-      assertThat(context).doesNotHaveBean(JsonbHttpMessageConvertersCustomizer.class);
+      Assertions.assertThat(context).doesNotHaveBean(GsonHttpConvertersCustomizer.class);
+      Assertions.assertThat(context).doesNotHaveBean(JsonbHttpMessageConvertersCustomizer.class);
     });
   }
 
@@ -259,15 +261,16 @@ class HttpMessageConvertersAutoConfigurationTests {
   void whenWebApplicationHttpMessageConvertersIsConfigured() {
     new ApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(HttpMessageConvertersAutoConfiguration.class))
-            .run((context) -> assertThat(context).hasSingleBean(DefaultHttpMessageConvertersCustomizer.class)
+            .run((context) -> Assertions.assertThat(context).hasSingleBean(DefaultHttpMessageConvertersCustomizer.class)
                     .hasSingleBean(DefaultHttpMessageConvertersCustomizer.class));
   }
 
   @Test
+  @Disabled("reactive")
   void whenReactiveWebApplicationHttpMessageConvertersIsNotConfigured() {
     new ReactiveWebApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(HttpMessageConvertersAutoConfiguration.class))
-            .run((context) -> assertThat(context).doesNotHaveBean(ServerHttpMessageConvertersCustomizer.class)
+            .run((context) -> Assertions.assertThat(context).doesNotHaveBean(ServerHttpMessageConvertersCustomizer.class)
                     .doesNotHaveBean(ClientHttpMessageConvertersCustomizer.class));
   }
 
@@ -334,8 +337,8 @@ class HttpMessageConvertersAutoConfigurationTests {
   }
 
   private void assertBeanExists(AssertableApplicationContext context, Class<?> type, String beanName) {
-    assertThat(context).getBean(beanName).isInstanceOf(type);
-    assertThat(context).hasBean(beanName);
+    Assertions.assertThat(context).getBean(beanName).isInstanceOf(type);
+    Assertions.assertThat(context).hasBean(beanName);
   }
 
   private HttpMessageConverters getClientConverters(ApplicationContext context) {

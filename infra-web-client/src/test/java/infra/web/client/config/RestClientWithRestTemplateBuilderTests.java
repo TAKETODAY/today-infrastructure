@@ -63,7 +63,7 @@ class RestClientWithRestTemplateBuilderTests {
 
   private RestClient buildMockedClient(Builder builder, String url) {
     MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
-    server.expect(requestTo(url)).andRespond(withSuccess());
+    server.expect(MockRestRequestMatchers.requestTo(url)).andRespond(MockRestResponseCreators.withSuccess());
     return builder.build();
   }
 

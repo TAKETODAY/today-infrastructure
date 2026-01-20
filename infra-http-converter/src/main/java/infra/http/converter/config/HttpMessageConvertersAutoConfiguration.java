@@ -20,14 +20,10 @@ package infra.http.converter.config;
 
 import java.util.List;
 
-import infra.app.config.ConditionalOnWebApplication;
-import infra.app.config.ConditionalOnWebApplication.Type;
-import infra.context.annotation.Conditional;
 import infra.context.annotation.Import;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
-import infra.context.condition.NoneNestedConditions;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.annotation.Order;
 import infra.http.converter.HttpMessageConverter;
@@ -35,8 +31,6 @@ import infra.http.converter.HttpMessageConverters.ClientBuilder;
 import infra.http.converter.HttpMessageConverters.ServerBuilder;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.stereotype.Component;
-
-import static infra.http.converter.config.HttpMessageConvertersAutoConfiguration.NotReactiveWebApplicationCondition;
 
 /**
  * Auto-configuration for {@link HttpMessageConverter}s.
@@ -59,7 +53,6 @@ import static infra.http.converter.config.HttpMessageConvertersAutoConfiguration
         "infra.app.jackson.config.JacksonAutoConfiguration"
 })
 @ConditionalOnClass(HttpMessageConverter.class)
-@Conditional(NotReactiveWebApplicationCondition.class)
 @EnableConfigurationProperties(HttpMessageConvertersProperties.class)
 @Import({ JacksonHttpMessageConvertersConfiguration.class,
         GsonHttpMessageConvertersConfiguration.class, JsonbHttpMessageConvertersConfiguration.class })
@@ -96,19 +89,6 @@ public final class HttpMessageConvertersAutoConfiguration {
     @Override
     public void customize(ServerBuilder builder) {
       builder.withStringConverter(this.converter);
-    }
-
-  }
-
-  static class NotReactiveWebApplicationCondition extends NoneNestedConditions {
-
-    NotReactiveWebApplicationCondition() {
-      super(ConfigurationPhase.PARSE_CONFIGURATION);
-    }
-
-    @ConditionalOnWebApplication(type = Type.REACTIVE)
-    private static final class ReactiveWebApplication {
-
     }
 
   }

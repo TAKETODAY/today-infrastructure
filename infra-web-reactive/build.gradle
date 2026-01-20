@@ -16,6 +16,9 @@ dependencies {
   optional("io.projectreactor:reactor-core")
   optional("io.reactivex.rxjava3:rxjava")
 
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
   testImplementation("tools.jackson.core:jackson-databind")
   testImplementation("com.squareup.okhttp3:mockwebserver")
   testImplementation("io.projectreactor:reactor-test")

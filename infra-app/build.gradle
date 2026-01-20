@@ -72,7 +72,6 @@ dependencies {
   testImplementation 'com.jayway.jsonpath:json-path'
 
   testImplementation project(':module:infra-app-netty-server')
-  testImplementation project(':module:infra-app-http-converter')
   testImplementation testFixtures(project(':module:infra-app-netty-server'))
   testImplementation testFixtures(project(':module:infra-app-web-server'))
 

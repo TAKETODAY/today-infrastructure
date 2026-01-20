@@ -25,7 +25,6 @@ dependencies {
   testImplementation project(':module:infra-app-jackson')
   testImplementation project(':module:infra-app-netty-server')
   testImplementation project(':module:infra-app-validation')
-  testImplementation project(':module:infra-app-http-converter')
 
   testImplementation 'ch.qos.logback:logback-classic'
   testImplementation 'org.awaitility:awaitility'

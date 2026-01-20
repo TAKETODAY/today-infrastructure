@@ -18,6 +18,7 @@
 
 package infra.web.client.config;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
@@ -67,8 +68,8 @@ class RestClientAutoConfigurationTests {
   @Test
   void shouldSupplyBeans() {
     this.contextRunner.run((context) -> {
-      assertThat(context).hasSingleBean(RestClientBuilderConfigurer.class);
-      assertThat(context).hasSingleBean(RestClient.Builder.class);
+      Assertions.assertThat(context).hasSingleBean(RestClientBuilderConfigurer.class);
+      Assertions.assertThat(context).hasSingleBean(RestClient.Builder.class);
     });
   }
 
@@ -86,7 +87,7 @@ class RestClientAutoConfigurationTests {
             .withBean(HttpClientSettings.class, () -> clientSettings)
             .withBean(ClientHttpRequestFactoryBuilder.class, () -> clientHttpRequestFactoryBuilder)
             .run((context) -> {
-              assertThat(context).hasSingleBean(RestClientSsl.class);
+              Assertions.assertThat(context).hasSingleBean(RestClientSsl.class);
               RestClientSsl restClientSsl = context.getBean(RestClientSsl.class);
               assertThat(restClientSsl).hasFieldOrPropertyWithValue("sslBundles", sslBundles);
               assertThat(restClientSsl).hasFieldOrPropertyWithValue("builder", clientHttpRequestFactoryBuilder);
@@ -98,7 +99,7 @@ class RestClientAutoConfigurationTests {
   void shouldSupplyRestClientSslIfSslBundlesIsThereWithAutoConfiguredHttpSettingsAndBuilder() {
     SslBundles sslBundles = mock(SslBundles.class);
     this.contextRunner.withBean(SslBundles.class, () -> sslBundles).run((context) -> {
-      assertThat(context).hasSingleBean(RestClientSsl.class)
+      Assertions.assertThat(context).hasSingleBean(RestClientSsl.class)
               .hasSingleBean(HttpClientSettings.class)
               .hasSingleBean(ClientHttpRequestFactoryBuilder.class);
       RestClientSsl restClientSsl = context.getBean(RestClientSsl.class);
@@ -191,7 +192,7 @@ class RestClientAutoConfigurationTests {
             .withUserConfiguration(RestClientConfig.class)
             .withPropertyValues("http.clients.imperative.factory=jdk")
             .run((context) -> {
-              assertThat(context).hasSingleBean(RestClient.class);
+              Assertions.assertThat(context).hasSingleBean(RestClient.class);
               RestClient restClient = context.getBean(RestClient.class);
               assertThat(restClient).extracting("clientRequestFactory")
                       .isInstanceOf(JdkClientHttpRequestFactory.class);
@@ -214,7 +215,7 @@ class RestClientAutoConfigurationTests {
             .withBean("httpMessageConverterCustomizer", HttpMessageConvertersRestClientCustomizer.class,
                     () -> httpMessageConverterCustomizer)
             .run((context) -> {
-              assertThat(context).hasSingleBean(RestClientBuilderConfigurer.class)
+              Assertions.assertThat(context).hasSingleBean(RestClientBuilderConfigurer.class)
                       .hasSingleBean(HttpClientSettings.class)
                       .hasSingleBean(ClientHttpRequestFactoryBuilder.class);
               RestClientBuilderConfigurer configurer = context.getBean(RestClientBuilderConfigurer.class);
@@ -233,7 +234,7 @@ class RestClientAutoConfigurationTests {
     this.contextRunner.withBean("customizer1", RestClientCustomizer.class, () -> customizer1)
             .withBean("customizer2", RestClientCustomizer.class, () -> customizer2)
             .run((context) -> {
-              assertThat(context).hasSingleBean(RestClientBuilderConfigurer.class)
+              Assertions.assertThat(context).hasSingleBean(RestClientBuilderConfigurer.class)
                       .hasSingleBean(HttpClientSettings.class)
                       .hasSingleBean(ClientHttpRequestFactoryBuilder.class);
               RestClientBuilderConfigurer configurer = context.getBean(RestClientBuilderConfigurer.class);
@@ -249,8 +250,8 @@ class RestClientAutoConfigurationTests {
   void whenServletWebApplicationRestClientIsConfigured() {
     new WebApplicationContextRunner().withConfiguration(AutoConfigurations.of(RestClientAutoConfiguration.class))
             .run((context) -> {
-              assertThat(context).hasSingleBean(RestClientBuilderConfigurer.class);
-              assertThat(context).hasSingleBean(RestClient.Builder.class);
+              Assertions.assertThat(context).hasSingleBean(RestClientBuilderConfigurer.class);
+              Assertions.assertThat(context).hasSingleBean(RestClient.Builder.class);
             });
   }
 

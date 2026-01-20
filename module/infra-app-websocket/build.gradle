@@ -18,6 +18,6 @@ dependencies {
   testRuntimeOnly "org.glassfish:jakarta.el"
 
   testImplementation 'ch.qos.logback:logback-classic'
-  testImplementation project(':module:infra-app-restclient')
+  testImplementation project(":infra-web-client")
   testImplementation testFixtures(project(':module:infra-app-netty-server'))
 }

@@ -9,7 +9,6 @@ dependencies {
   optional project(":infra-web")
   optional project(':infra-webmvc-mock')
   optional project(":infra-web-reactive")
-  optional project(':module:infra-app-restclient')
   optional project(':module:infra-app-web-server')
 
   optional("org.junit.platform:junit-platform-launcher")

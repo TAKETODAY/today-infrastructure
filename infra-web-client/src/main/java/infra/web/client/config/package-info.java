@@ -1,5 +1,5 @@
 /**
- * Web client config.
+ * Auto-configuration for web clients.
  */
 @NullMarked
 package infra.web.client.config;
