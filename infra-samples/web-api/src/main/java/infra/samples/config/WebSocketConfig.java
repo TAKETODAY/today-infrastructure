@@ -23,7 +23,6 @@ import infra.util.concurrent.Future;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketMessage;
 import infra.web.socket.WebSocketSession;
-import infra.web.socket.config.EnableWebSocket;
 import infra.web.socket.config.WebSocketConfigurer;
 import infra.web.socket.config.WebSocketHandlerRegistry;
 import infra.web.socket.handler.TextWebSocketHandler;
