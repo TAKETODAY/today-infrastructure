@@ -44,8 +44,7 @@ public class JdkClientHttpRequestFactory implements ClientHttpRequestFactory {
 
   private final Executor executor;
 
-  @Nullable
-  private Duration readTimeout;
+  private @Nullable Duration readTimeout;
 
   private boolean compression = false;
 
