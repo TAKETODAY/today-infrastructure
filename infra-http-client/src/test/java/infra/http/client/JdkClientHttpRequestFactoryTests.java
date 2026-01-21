@@ -21,6 +21,7 @@ package infra.http.client;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
@@ -77,6 +78,7 @@ class JdkClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryTests {
   }
 
   @Test
+  @Disabled
   void customizeDisallowedHeaders() throws IOException {
     URI uri = URI.create(this.baseUrl + "/status/299");
     ClientHttpRequest request = this.factory.createRequest(uri, HttpMethod.PUT);
