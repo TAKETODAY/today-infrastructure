@@ -1,8 +1,8 @@
 infra.aot.hint.RuntimeHintsRegistrar=\
-infra.app.jackson.config.JacksonAutoConfiguration.JacksonAutoConfigurationRuntimeHints
+infra.jackson.config.JacksonAutoConfiguration.JacksonAutoConfigurationRuntimeHints
 
 infra.beans.factory.aot.BeanFactoryInitializationAotProcessor=\
-infra.app.jackson.JacksonComponentModule$JacksonComponentBeanFactoryInitializationAotProcessor,\
+infra.jackson.JacksonComponentModule$JacksonComponentBeanFactoryInitializationAotProcessor,\
 
 infra.beans.factory.aot.BeanRegistrationAotProcessor=\
-infra.app.jackson.JacksonMixinModuleEntriesBeanRegistrationAotProcessor
+infra.jackson.JacksonMixinModuleEntriesBeanRegistrationAotProcessor

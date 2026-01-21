@@ -62,7 +62,7 @@ class JacksonMixinModuleTests {
     assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() -> load(EmptyMixIn.class))
             .withMessageContaining("Error creating bean with name 'jacksonMixinModule'")
             .withStackTraceContaining("@JacksonMixin annotation on class "
-                    + "'infra.app.jackson.scan.f.EmptyMixIn' does not specify any types");
+                    + "'infra.jackson.scan.f.EmptyMixIn' does not specify any types");
   }
 
   @Test

@@ -50,7 +50,7 @@ import infra.stereotype.Component;
 @DisableDIAutoConfiguration(afterName = {
         "infra.gson.config.GsonAutoConfiguration",
         "infra.jsonb.config.JsonbAutoConfiguration",
-        "infra.app.jackson.config.JacksonAutoConfiguration"
+        "infra.jackson.config.JacksonAutoConfiguration"
 })
 @ConditionalOnClass(HttpMessageConverter.class)
 @EnableConfigurationProperties(HttpMessageConvertersProperties.class)

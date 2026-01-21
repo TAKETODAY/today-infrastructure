@@ -30,9 +30,6 @@ import infra.aot.hint.MemberCategory;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
 import infra.aot.test.generate.TestGenerationContext;
-import infra.jackson.scan.a.RenameMixInClass;
-import infra.jackson.types.Name;
-import infra.jackson.types.NameAndAge;
 import infra.beans.factory.support.BeanDefinitionBuilder;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextInitializer;
@@ -44,6 +41,9 @@ import infra.context.support.GenericApplicationContext;
 import infra.core.test.tools.CompileWithForkedClassLoader;
 import infra.core.test.tools.Compiled;
 import infra.core.test.tools.TestCompiler;
+import infra.jackson.scan.a.RenameMixInClass;
+import infra.jackson.types.Name;
+import infra.jackson.types.NameAndAge;
 import infra.javapoet.ClassName;
 import infra.util.ClassUtils;
 
@@ -87,7 +87,7 @@ class JacksonMixinModuleEntriesBeanRegistrationAotProcessorTests {
   @Test
   void processAheadOfTimeWhenNonAccessibleClassShouldRegisterClassName() {
     Class<?> privateMixinClass = ClassUtils
-            .resolveClassName("infra.app.jackson.scan.e.PrivateMixInClass", null);
+            .resolveClassName("infra.jackson.scan.e.PrivateMixInClass", null);
     registerEntries(privateMixinClass);
     compile((freshContext, compiled) -> {
       assertThat(freshContext.getBean(TestConfiguration.class).scanningInvoked).isFalse();
