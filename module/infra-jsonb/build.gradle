@@ -1,0 +1,16 @@
+description = "Infra application JSONB integration"
+
+dependencies {
+  api("jakarta.json.bind:jakarta.json.bind-api")
+  api("org.eclipse:yasson")
+
+  optional project(":infra-web")
+
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
+  testImplementation project(":infra-core-test")
+  testImplementation project(":module:infra-app-test")
+
+  testRuntimeOnly("ch.qos.logback:logback-classic")
+}
