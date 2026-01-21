@@ -1,6 +1,6 @@
 description = 'Starter for HTTP Service Interface Clients.'
 
 dependencies {
-  api project(':module:infra-app-http-service')
+  api project(':infra-http-service')
 
 }

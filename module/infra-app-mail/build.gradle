@@ -1,7 +1,7 @@
 description = "Infra application Mail integration"
 
 dependencies {
-  api project(":infra-context-support")
+  api project(":module:infra-mail")
   optional project(":module:infra-app-health")
 
   api("jakarta.mail:jakarta.mail-api")

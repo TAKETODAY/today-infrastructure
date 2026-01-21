@@ -76,6 +76,6 @@ file("${rootDir}/infra-build").eachDirMatch(~/infra-.*/) {
 }
 
 // Infra App modules
-file("${rootDir}/module").eachDirMatch(~/infra-app-.*/) {
+file("${rootDir}/module").eachDirMatch(~/infra-.*/) {
   include "module:${it.name}"
 }

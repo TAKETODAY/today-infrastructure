@@ -1,3 +1,0 @@
-infra.app.mail.config.MailHealthContributorAutoConfiguration
-infra.app.mail.config.MailSenderAutoConfiguration
-infra.app.mail.config.MailSenderValidatorAutoConfiguration
