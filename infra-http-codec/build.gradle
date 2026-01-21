@@ -21,7 +21,7 @@ dependencies {
 
   testImplementation project(':infra-test-support')
   testImplementation project(':module:infra-app-test')
-  testImplementation(project(":module:infra-app-jackson"))
+  testImplementation(project(":module:infra-jackson"))
 
   testImplementation("jakarta.xml.bind:jakarta.xml.bind-api")
   testImplementation("org.skyscreamer:jsonassert")

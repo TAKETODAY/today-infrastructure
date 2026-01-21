@@ -12,6 +12,9 @@ dependencies {
   optional("jakarta.activation:jakarta.activation-api")
   optional("jakarta.mail:jakarta.mail-api")
 
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
   compileOnly("com.fasterxml.jackson.core:jackson-annotations")
 
   runtimeOnly("org.eclipse.angus:angus-mail")

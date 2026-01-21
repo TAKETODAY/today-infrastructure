@@ -22,7 +22,7 @@ dependencies {
   testImplementation project(":module:infra-app-test")
   testImplementation project(":infra-webmvc-mock")
   testImplementation project(':module:infra-app-freemarker')
-  testImplementation project(':module:infra-app-jackson')
+  testImplementation project(':module:infra-jackson')
   testImplementation project(':module:infra-app-netty-server')
   testImplementation project(':module:infra-app-validation')
 
