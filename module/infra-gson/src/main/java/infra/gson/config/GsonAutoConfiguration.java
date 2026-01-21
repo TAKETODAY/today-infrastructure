@@ -21,8 +21,7 @@ package infra.gson.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.util.List;
-
+import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
@@ -49,9 +48,11 @@ public final class GsonAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean
-  public static GsonBuilder gsonBuilder(List<GsonBuilderCustomizer> customizers) {
+  public static GsonBuilder gsonBuilder(ObjectProvider<GsonBuilderCustomizer> customizers) {
     GsonBuilder builder = new GsonBuilder();
-    customizers.forEach((c) -> c.customize(builder));
+    for (GsonBuilderCustomizer customizer : customizers) {
+      customizer.customize(builder);
+    }
     return builder;
   }
 
@@ -80,7 +81,6 @@ public final class GsonAutoConfiguration {
     }
 
     @Override
-    @SuppressWarnings("NullAway")
     public void customize(GsonBuilder builder) {
       GsonProperties properties = this.properties;
       PropertyMapper map = PropertyMapper.get();

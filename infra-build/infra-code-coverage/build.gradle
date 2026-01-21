@@ -42,10 +42,10 @@ dependencies {
   jacocoAggregation project(':infra-http-service')
 
   jacocoAggregation project(':infra-app-config')
+  jacocoAggregation project(':module:infra-gson')
   jacocoAggregation project(':module:infra-jackson')
   jacocoAggregation project(':module:infra-mail')
   jacocoAggregation project(':module:infra-app-freemarker')
-  jacocoAggregation project(':module:infra-app-gson')
   jacocoAggregation project(':module:infra-app-health')
   jacocoAggregation project(':module:infra-app-jdbc')
   jacocoAggregation project(':module:infra-app-jsonb')
