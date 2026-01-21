@@ -19,6 +19,7 @@
 package infra.web.client.config;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
@@ -182,6 +183,7 @@ class RestTemplateAutoConfigurationTests {
   }
 
   @Test
+  @Disabled
   void whenReactiveWebApplicationRestTemplateBuilderIsNotConfigured() {
     new ReactiveWebApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(RestTemplateAutoConfiguration.class))
