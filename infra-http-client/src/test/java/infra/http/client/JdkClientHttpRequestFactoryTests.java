@@ -21,6 +21,7 @@ package infra.http.client;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
 import org.junit.jupiter.api.condition.JRE;
@@ -42,6 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/7/1 20:19
  */
+@Order(0)
 class JdkClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryTests {
 
   private static @Nullable String originalPropertyValue;
@@ -81,7 +83,8 @@ class JdkClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryTests {
     request.getHeaders().set("Expect", "299");
 
     try (ClientHttpResponse response = request.execute()) {
-      assertThat(response.getStatusCode()).as("Invalid status code").isEqualTo(HttpStatusCode.valueOf(299));
+      assertThat(response.getStatusCode())
+              .as("Invalid status code").isEqualTo(HttpStatusCode.valueOf(299));
     }
   }
 
