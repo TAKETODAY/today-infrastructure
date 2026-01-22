@@ -2,5 +2,6 @@ description = 'Starter for HTTP Service Interface Clients.'
 
 dependencies {
   api project(':infra-http-service')
+  api project(":infra-starter:infra-starter-restclient")
 
 }
