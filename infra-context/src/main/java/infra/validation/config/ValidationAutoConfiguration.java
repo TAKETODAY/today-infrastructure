@@ -59,8 +59,7 @@ public final class ValidationAutoConfiguration {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(Validator.class)
-  public static LocalValidatorFactoryBean defaultValidator(
-          ApplicationContext applicationContext,
+  public static LocalValidatorFactoryBean defaultValidator(ApplicationContext applicationContext,
           ObjectProvider<ValidationConfigurationCustomizer> customizers) {
 
     LocalValidatorFactoryBean factoryBean = new LocalValidatorFactoryBean();

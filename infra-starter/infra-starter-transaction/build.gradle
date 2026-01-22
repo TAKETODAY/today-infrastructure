@@ -2,6 +2,6 @@ description = 'Starter for Transaction'
 
 dependencies {
   api project(':infra-starter')
-  api project(":module:infra-app-validation")
+  api project(":infra-context")
 }
 

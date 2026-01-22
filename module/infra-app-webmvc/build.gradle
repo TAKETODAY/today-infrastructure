@@ -19,7 +19,6 @@ dependencies {
   testImplementation project(':module:infra-app-freemarker')
   testImplementation project(':module:infra-jackson')
   testImplementation project(':infra-web-netty-server')
-  testImplementation project(':module:infra-app-validation')
   testImplementation project(':module:infra-app-resttestclient')
 
   testImplementation "jakarta.validation:jakarta.validation-api"

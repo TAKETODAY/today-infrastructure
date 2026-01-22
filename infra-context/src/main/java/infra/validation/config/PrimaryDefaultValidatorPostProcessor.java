@@ -56,21 +56,16 @@ class PrimaryDefaultValidatorPostProcessor implements ImportBeanDefinitionRegist
     }
   }
 
-  @Nullable
-  private BeanDefinition getAutoConfiguredValidator(BootstrapContext context) {
+  private @Nullable BeanDefinition getAutoConfiguredValidator(BootstrapContext context) {
     if (context.containsBeanDefinition(VALIDATOR_BEAN_NAME)) {
       BeanFactory beanFactory = context.getBeanFactory();
       BeanDefinition definition = context.getBeanDefinition(VALIDATOR_BEAN_NAME);
       if (definition.getRole() == BeanDefinition.ROLE_INFRASTRUCTURE
-              && isTypeMatch(beanFactory, VALIDATOR_BEAN_NAME, LocalValidatorFactoryBean.class)) {
+              && beanFactory.isTypeMatch(VALIDATOR_BEAN_NAME, LocalValidatorFactoryBean.class)) {
         return definition;
       }
     }
     return null;
-  }
-
-  private boolean isTypeMatch(BeanFactory beanFactory, String name, Class<?> type) {
-    return beanFactory != null && beanFactory.isTypeMatch(name, type);
   }
 
   private boolean hasPrimaryInfraValidator(BeanFactory beanFactory) {

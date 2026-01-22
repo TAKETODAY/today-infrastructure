@@ -34,6 +34,9 @@ dependencies {
   optional("org.freemarker:freemarker")
   optional("javax.inject:javax.inject")
 
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
   testImplementation("javax.annotation:javax.annotation-api")
   testImplementation('com.google.code.findbugs:findbugs')
   testImplementation(project(":infra-core-test"))
@@ -65,5 +68,9 @@ dependencies {
   testFixturesImplementation("com.google.code.findbugs:jsr305")
   testFixturesImplementation("org.assertj:assertj-core")
   testFixturesImplementation("io.projectreactor:reactor-test")
+
+  testImplementation project(":infra-test")
+  testImplementation project(':infra-test-support')
+  testImplementation project(":module:infra-app-test")
 
 }
