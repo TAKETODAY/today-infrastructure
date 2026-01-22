@@ -71,6 +71,7 @@ import infra.http.HttpHeaders;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.config.HttpMessageConvertersAutoConfiguration;
 import infra.mock.web.HttpMockRequestImpl;
+import infra.test.classpath.ClassPathExclusions;
 import infra.test.util.ReflectionTestUtils;
 import infra.util.StringUtils;
 import infra.validation.Validator;
@@ -149,7 +150,7 @@ class WebMvcAutoConfigurationTests {
             context.setEnvironment(new StandardWebEnvironment());
             return context;
           })
-          .withConfiguration(AutoConfigurations.of(infra.web.config.WebMvcAutoConfiguration.class,
+          .withConfiguration(AutoConfigurations.of(WebMvcAutoConfiguration.class,
                   HttpMessageConvertersAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class))
           .withUserConfiguration(Config.class);
 
@@ -167,6 +168,7 @@ class WebMvcAutoConfigurationTests {
   }
 
   @Test
+  @ClassPathExclusions("webjars*.jar")
   void resourceHandlerMapping() {
     this.contextRunner.run(context -> {
       Map<String, List<Resource>> locations = getResourceMappingLocations(context);
@@ -182,6 +184,7 @@ class WebMvcAutoConfigurationTests {
   }
 
   @Test
+  @ClassPathExclusions("webjars*.jar")
   void customResourceHandlerMapping() {
     this.contextRunner.withPropertyValues("web.resources.static-path-pattern:/static/**").run((context) -> {
       Map<String, List<Resource>> locations = getResourceMappingLocations(context);
@@ -191,6 +194,7 @@ class WebMvcAutoConfigurationTests {
   }
 
   @Test
+  @ClassPathExclusions("webjars*.jar")
   void customWebjarsHandlerMapping() {
     this.contextRunner.withPropertyValues("web.resources.webjars-path-pattern:/assets/**").run((context) -> {
       Map<String, List<Resource>> locations = getResourceMappingLocations(context);
@@ -226,6 +230,7 @@ class WebMvcAutoConfigurationTests {
   }
 
   @Test
+  @ClassPathExclusions("webjars*.jar")
   void resourceHandlerChainEnabled() {
     this.contextRunner.withPropertyValues("web.resources.chain.enabled:true").run((context) -> {
       assertThat(getResourceResolvers(context, "/webjars/**")).hasSize(2);
@@ -238,6 +243,7 @@ class WebMvcAutoConfigurationTests {
   }
 
   @Test
+  @ClassPathExclusions("webjars*.jar")
   void resourceHandlerFixedStrategyEnabled() {
     this.contextRunner.withPropertyValues("web.resources.chain.strategy.fixed.enabled:true",
             "web.resources.chain.strategy.fixed.version:test",
@@ -255,6 +261,7 @@ class WebMvcAutoConfigurationTests {
   }
 
   @Test
+  @ClassPathExclusions("webjars*.jar")
   void resourceHandlerContentStrategyEnabled() {
     this.contextRunner.withPropertyValues("web.resources.chain.strategy.content.enabled:true",
             "web.resources.chain.strategy.content.paths:/**,/*.png").run((context) -> {
@@ -271,6 +278,7 @@ class WebMvcAutoConfigurationTests {
   }
 
   @Test
+  @ClassPathExclusions("webjars*.jar")
   void resourceHandlerChainCustomized() {
     this.contextRunner.withPropertyValues("web.resources.chain.enabled:true",
                     "web.resources.chain.cache:false", "web.resources.chain.strategy.content.enabled:true",
@@ -444,14 +452,14 @@ class WebMvcAutoConfigurationTests {
   @Test
   void noMessageCodesResolver() {
     this.contextRunner.run(
-            (context) -> assertThat(context.getBean(infra.web.config.WebMvcAutoConfiguration.class).getMessageCodesResolver())
+            (context) -> assertThat(context.getBean(WebMvcAutoConfiguration.class).getMessageCodesResolver())
                     .isNull());
   }
 
   @Test
   void overrideMessageCodesFormat() {
     this.contextRunner.withPropertyValues("web.mvc.messageCodesResolverFormat:POSTFIX_ERROR_CODE")
-            .run(context -> assertThat(context.getBean(infra.web.config.WebMvcAutoConfiguration.class).getMessageCodesResolver())
+            .run(context -> assertThat(context.getBean(WebMvcAutoConfiguration.class).getMessageCodesResolver())
                     .isNotNull());
   }
 
@@ -1287,7 +1295,7 @@ class WebMvcAutoConfigurationTests {
 
   @Configuration(proxyBeanMethods = false)
 //  @EnableWebMvc
-  @ImportAutoConfiguration(infra.web.config.WebMvcAutoConfiguration.class)
+  @ImportAutoConfiguration(WebMvcAutoConfiguration.class)
   static class ResourceHandlersWithChildAndParentContextChildConfiguration {
 
     @Bean
