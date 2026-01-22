@@ -5,13 +5,16 @@ dependencies {
   api project(":infra-web-server")
   api 'io.projectreactor.netty:reactor-netty-http'
 
+  optional(project(":infra-app-config"))
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
   annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
 
+
   testImplementation project(":infra-test")
   testImplementation project(':infra-test-support')
   testImplementation project(":infra-webmvc-mock")
+  testImplementation project(":module:infra-app-test")
 
   testImplementation(testFixtures(project(":infra-web-server")))
 }

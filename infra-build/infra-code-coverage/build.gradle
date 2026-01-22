@@ -49,7 +49,7 @@ dependencies {
   jacocoAggregation project(':module:infra-app-freemarker')
   jacocoAggregation project(':module:infra-app-health')
   jacocoAggregation project(':infra-web-netty-server')
-  jacocoAggregation project(':module:infra-app-reactor-netty')
+  jacocoAggregation project(':infra-web-reactor-server')
   jacocoAggregation project(':module:infra-app-transaction')
   jacocoAggregation project(':infra-web-server')
   jacocoAggregation project(':module:infra-app-webmvc')

@@ -64,7 +64,7 @@ dependencies {
   testImplementation project(':module:infra-app-freemarker')
   testImplementation project(':infra-web-netty-server')
   testImplementation project(':infra-web-server')
-  testImplementation project(':module:infra-app-reactor-netty')
+  testImplementation project(':infra-web-reactor-server')
   testImplementation testFixtures(project(':infra-web-netty-server'))
 
   testImplementation("org.junit.platform:junit-platform-testkit")

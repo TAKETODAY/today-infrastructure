@@ -60,6 +60,7 @@ include 'infra-web-client'
 include 'infra-web-server'
 include 'infra-web-netty-server'
 include 'infra-web-reactive'
+include 'infra-web-reactor-server'
 
 include 'infra-test'
 include 'infra-test-support'
