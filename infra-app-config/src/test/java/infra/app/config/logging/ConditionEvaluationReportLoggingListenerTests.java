@@ -40,7 +40,7 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.condition.ConditionEvaluationReport;
 import infra.http.converter.config.HttpMessageConvertersAutoConfiguration;
-import infra.webmvc.config.WebMvcAutoConfiguration;
+import infra.web.config.WebMvcAutoConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;

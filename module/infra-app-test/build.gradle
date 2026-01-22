@@ -60,7 +60,6 @@ dependencies {
 
   testImplementation 'org.eclipse:yasson'
   testImplementation project(':infra-test-support')
-  testImplementation project(':module:infra-app-webmvc')
   testImplementation project(':module:infra-app-freemarker')
   testImplementation project(':infra-web-netty-server')
   testImplementation project(':infra-web-server')

@@ -22,8 +22,8 @@ import infra.stereotype.Component;
 import infra.web.server.WebServerFactoryCustomizer;
 import infra.web.server.WebServerFactoryCustomizerBeanPostProcessor;
 import infra.web.server.netty.config.NettyWebServerFactoryAutoConfiguration;
-import infra.webmvc.config.ErrorMvcAutoConfiguration;
-import infra.webmvc.config.WebMvcAutoConfiguration;
+import infra.web.config.ErrorMvcAutoConfiguration;
+import infra.web.config.WebMvcAutoConfiguration;
 
 @Import({ NettyWebServerFactoryAutoConfiguration.class, WebMvcAutoConfiguration.class, ErrorMvcAutoConfiguration.class })
 public class RandomPortWebServerConfig {

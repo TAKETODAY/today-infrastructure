@@ -64,7 +64,7 @@ import infra.web.server.netty.NettyWebServerFactory;
 import infra.web.server.netty.ServerBootstrapCustomizer;
 import infra.web.server.netty.WsNettyChannelHandler;
 import infra.web.socket.server.RequestUpgradeStrategy;
-import infra.webmvc.config.ErrorMvcAutoConfiguration;
+import infra.web.config.ErrorMvcAutoConfiguration;
 import io.netty.channel.ChannelHandler;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketDecoderConfig;

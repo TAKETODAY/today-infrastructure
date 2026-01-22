@@ -4,5 +4,5 @@ dependencies {
   api project(':infra-starter:infra-starter-jackson')
 
   api project(':infra-http-converter')
-  api project(':module:infra-app-webmvc')
+  api project(':infra-webmvc')
 }

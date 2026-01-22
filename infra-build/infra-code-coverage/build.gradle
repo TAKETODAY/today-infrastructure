@@ -52,7 +52,6 @@ dependencies {
   jacocoAggregation project(':infra-web-reactor-server')
   jacocoAggregation project(':module:infra-app-transaction')
   jacocoAggregation project(':infra-web-server')
-  jacocoAggregation project(':module:infra-app-webmvc')
 }
 
 reporting {

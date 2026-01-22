@@ -80,7 +80,6 @@ dependencies {
   testImplementation(testFixtures(project(":infra-core")))
   testImplementation(testFixtures(project(":infra-tx")))
   testImplementation(testFixtures(project(":infra-web")))
-  testImplementation project(':module:infra-app-webmvc')
   testImplementation project(':module:infra-app-freemarker')
   testImplementation project(':infra-web-netty-server')
   testImplementation project(':infra-web-server')

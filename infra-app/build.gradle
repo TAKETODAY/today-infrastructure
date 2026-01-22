@@ -10,9 +10,7 @@ dependencies {
   optional(project(":infra-core-aot"))
   optional project(':infra-aop')
   optional project(':infra-web')
-  optional project(':infra-webmvc')
   optional project(':infra-instrument')
-  optional project(':infra-websocket')
   optional(project(":infra-http-reactive"))
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))

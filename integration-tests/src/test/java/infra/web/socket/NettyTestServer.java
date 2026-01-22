@@ -21,8 +21,8 @@ import infra.app.web.context.StandardWebEnvironment;
 import infra.web.server.WebServer;
 import infra.web.server.netty.config.NettyWebServerFactoryAutoConfiguration;
 import infra.web.server.netty.NettyWebServerFactory;
-import infra.webmvc.config.ErrorMvcAutoConfiguration;
-import infra.webmvc.config.WebMvcAutoConfiguration;
+import infra.web.config.ErrorMvcAutoConfiguration;
+import infra.web.config.WebMvcAutoConfiguration;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

@@ -55,8 +55,8 @@ import infra.web.client.RestClient;
 import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.multipart.Part;
 import infra.web.server.netty.RandomPortWebServerConfig;
-import infra.webmvc.config.ErrorMvcAutoConfiguration;
-import infra.webmvc.config.WebMvcAutoConfiguration;
+import infra.web.config.ErrorMvcAutoConfiguration;
+import infra.web.config.WebMvcAutoConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
