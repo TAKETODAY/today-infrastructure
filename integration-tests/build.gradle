@@ -13,6 +13,7 @@ dependencies {
   testImplementation project(':module:infra-app-test')
   testImplementation project(':module:infra-app-webmvc')
   testImplementation project(':module:infra-app-freemarker')
+  testImplementation project(':module:infra-app-transaction')
   testImplementation project(":infra-web-server")
   testImplementation project(':infra-web-netty-server')
 
