@@ -57,6 +57,7 @@ include 'infra-http-converter'
 
 include 'infra-web-core'
 include 'infra-web-client'
+include 'infra-web-server'
 include 'infra-web-reactive'
 
 include 'infra-test'

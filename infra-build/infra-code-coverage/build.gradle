@@ -53,7 +53,7 @@ dependencies {
   jacocoAggregation project(':module:infra-app-reactor-netty')
   jacocoAggregation project(':module:infra-app-transaction')
   jacocoAggregation project(':module:infra-app-validation')
-  jacocoAggregation project(':module:infra-app-web-server')
+  jacocoAggregation project(':infra-web-server')
   jacocoAggregation project(':module:infra-app-webmvc')
 }
 

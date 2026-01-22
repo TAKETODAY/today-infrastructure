@@ -1,6 +1,6 @@
 apply plugin: "java-test-fixtures"
 
-description = "Infra application Web Server API"
+description = "Infra Web Server API"
 
 configurations {
   testFixturesAnnotationProcessor.extendsFrom(dependencyManagement)
@@ -11,8 +11,8 @@ dependencies {
   api(project(":infra-core"))
   api(project(":infra-context"))
   api(project(":infra-web"))
-  api(project(":infra-app"))
 
+  optional(project(":infra-app"))
   optional(project(":infra-aop"))
   optional(project(":infra-oxm"))
   optional(project(":infra-core-aot"))
@@ -51,6 +51,14 @@ dependencies {
   optional("tools.jackson.dataformat:jackson-dataformat-smile")
   optional("tools.jackson.dataformat:jackson-dataformat-xml")
   optional("tools.jackson.dataformat:jackson-dataformat-yaml")
+
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
+  testImplementation(project(":infra-app-config"))
+
+  testImplementation project(':infra-test-support')
+  testImplementation project(":module:infra-app-test")
 
   testImplementation('com.google.code.findbugs:findbugs')
   testImplementation("io.projectreactor:reactor-test")

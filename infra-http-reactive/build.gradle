@@ -24,7 +24,7 @@ dependencies {
   testImplementation("tools.jackson.core:jackson-databind")
   testImplementation("io.projectreactor:reactor-test")
   testImplementation(project(":module:infra-app-test"))
-  testImplementation(project(":module:infra-app-web-server"))
+  testImplementation(project(":infra-web-server"))
   testImplementation(project(":module:infra-app-netty-server"))
   testImplementation(testFixtures(project(":infra-web-reactive")))
   testImplementation(testFixtures(project(":infra-http-client")))

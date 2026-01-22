@@ -9,7 +9,7 @@ dependencies {
   optional project(":infra-web")
   optional project(':infra-webmvc-mock')
   optional project(":infra-web-reactive")
-  optional project(':module:infra-app-web-server')
+  optional project(':infra-web-server')
 
   optional("org.junit.platform:junit-platform-launcher")
   optional("org.junit.jupiter:junit-jupiter-api")
@@ -63,7 +63,7 @@ dependencies {
   testImplementation project(':module:infra-app-webmvc')
   testImplementation project(':module:infra-app-freemarker')
   testImplementation project(':module:infra-app-netty-server')
-  testImplementation project(':module:infra-app-web-server')
+  testImplementation project(':infra-web-server')
   testImplementation project(':module:infra-app-reactor-netty')
   testImplementation testFixtures(project(':module:infra-app-netty-server'))
 

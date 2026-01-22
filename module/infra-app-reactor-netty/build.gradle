@@ -2,7 +2,7 @@ description = "Infra application reactor netty integration"
 
 dependencies {
   api project(":infra-web-reactive")
-  api project(":module:infra-app-web-server")
+  api project(":infra-web-server")
   api 'io.projectreactor.netty:reactor-netty-http'
 
 
@@ -13,5 +13,5 @@ dependencies {
   testImplementation project(':infra-test-support')
   testImplementation project(":infra-webmvc-mock")
 
-  testImplementation(testFixtures(project(":module:infra-app-web-server")))
+  testImplementation(testFixtures(project(":infra-web-server")))
 }
