@@ -1,4 +1,4 @@
-description = "Infra HTTP Reactive Codec"
+description = "HTTP Reactive Codec infrastructure"
 
 dependencies {
   api(project(":infra-http-reactive"))

@@ -1,6 +1,6 @@
 apply plugin: "java-test-fixtures"
 
-description = "Infra HTTP API"
+description = "HTTP infrastructure"
 
 dependencies {
   api(project(":infra-core"))

@@ -1,4 +1,4 @@
-description = "Infra Core Technologies"
+description = "Core infrastructure Technologies"
 
 apply plugin: "infra.building.multiReleaseJar"
 

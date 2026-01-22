@@ -2,7 +2,7 @@ plugins {
   id 'infra.building.runtimehints-agent'
 }
 
-description = "Infra Context"
+description = "Context infrastructure"
 
 dependencies {
   api(project(":infra-aop"))

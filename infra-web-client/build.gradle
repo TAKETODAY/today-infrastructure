@@ -1,4 +1,4 @@
-description = "Infra Web Client (RestClient)"
+description = "Web Client (RestClient) infrastructure"
 
 dependencies {
   api(project(":infra-http"))

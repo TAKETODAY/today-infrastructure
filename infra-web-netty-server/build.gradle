@@ -1,6 +1,6 @@
 apply plugin: "java-test-fixtures"
 
-description = "Infra application netty web server"
+description = "Netty web server implementation"
 
 dependencies {
   api project(":module:infra-app-webmvc")

@@ -1,6 +1,4 @@
-
 description = "Transaction infrastructure"
-
 
 dependencies {
   api(project(":infra-beans"))

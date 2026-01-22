@@ -1,4 +1,4 @@
-description = "Infra HTTP converter"
+description = "HTTP message converter infrastructure"
 
 dependencies {
   api(project(":infra-http"))

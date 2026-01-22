@@ -1,4 +1,4 @@
-description = "Web MVC, provides default netty implementation"
+description = "Web MVC infrastructure"
 
 apply plugin: "infra.building.multiReleaseJar"
 

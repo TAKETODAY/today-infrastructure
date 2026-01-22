@@ -1,4 +1,4 @@
-description = "Infra HTTP service"
+description = "HTTP service infrastructure"
 
 dependencies {
   api(project(":infra-http"))
