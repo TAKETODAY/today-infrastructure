@@ -71,8 +71,8 @@ dependencies {
   testImplementation 'org.reactivestreams:reactive-streams'
   testImplementation 'com.jayway.jsonpath:json-path'
 
-  testImplementation project(':module:infra-app-netty-server')
-  testImplementation testFixtures(project(':module:infra-app-netty-server'))
+  testImplementation project(':infra-web-netty-server')
+  testImplementation testFixtures(project(':infra-web-netty-server'))
   testImplementation testFixtures(project(':infra-web-server'))
 
   testFixturesApi project(':infra-webmvc-mock')

@@ -16,6 +16,6 @@ dependencies {
   testImplementation 'ch.qos.logback:logback-classic'
 
   testImplementation testFixtures(project(":infra-web-server"))
-  testImplementation testFixtures(project(":module:infra-app-netty-server"))
+  testImplementation testFixtures(project(":infra-web-netty-server"))
 
 }

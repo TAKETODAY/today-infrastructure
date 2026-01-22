@@ -18,7 +18,7 @@ dependencies {
   testImplementation project(":module:infra-app-test")
   testImplementation project(':module:infra-app-freemarker')
   testImplementation project(':module:infra-jackson')
-  testImplementation project(':module:infra-app-netty-server')
+  testImplementation project(':infra-web-netty-server')
   testImplementation project(':module:infra-app-validation')
   testImplementation project(':module:infra-app-resttestclient')
 
@@ -28,7 +28,7 @@ dependencies {
   testImplementation 'ch.qos.logback:logback-classic'
   testImplementation("org.hamcrest:hamcrest")
 
-  testImplementation testFixtures(project(':module:infra-app-netty-server'))
+  testImplementation testFixtures(project(':infra-web-netty-server'))
 
   testRuntimeOnly "org.glassfish:jakarta.el"
 }

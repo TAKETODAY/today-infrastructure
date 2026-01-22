@@ -2,5 +2,5 @@ description = 'Starter for using Netty as the embedded container.'
 
 dependencies {
   api project(':infra-starter')
-  api project(":module:infra-app-netty-server")
+  api project(":infra-web-netty-server")
 }

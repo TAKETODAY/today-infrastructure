@@ -14,7 +14,7 @@ dependencies {
   testImplementation project(':module:infra-app-webmvc')
   testImplementation project(':module:infra-app-freemarker')
   testImplementation project(":infra-web-server")
-  testImplementation project(':module:infra-app-netty-server')
+  testImplementation project(':infra-web-netty-server')
 
   testImplementation(project(":infra-aop"))
   testImplementation(project(":infra-beans"))
@@ -113,7 +113,7 @@ dependencies {
   testImplementation(testFixtures(project(":infra-beans")))
   testImplementation(testFixtures(project(":infra-tx")))
   testImplementation(testFixtures(project(":infra-jcache")))
-  testImplementation testFixtures(project(':module:infra-app-netty-server'))
+  testImplementation testFixtures(project(':infra-web-netty-server'))
 
   optional("com.github.librepdf:openpdf")
   optional("org.apache.poi:poi-ooxml")

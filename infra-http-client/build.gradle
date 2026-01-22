@@ -25,6 +25,6 @@ dependencies {
   testImplementation project(':module:infra-app-test')
 
   testImplementation(testFixtures(project(":infra-web")))
-  testImplementation testFixtures(project(":module:infra-app-netty-server"))
-  testFixturesImplementation testFixtures(project(":module:infra-app-netty-server"))
+  testImplementation testFixtures(project(":infra-web-netty-server"))
+  testFixturesImplementation testFixtures(project(":infra-web-netty-server"))
 }

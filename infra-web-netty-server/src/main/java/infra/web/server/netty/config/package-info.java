@@ -1,6 +1,5 @@
-
 /**
- * Configuration for netty web server.
+ * Auto Configuration for netty web server.
  */
 @NullMarked
 package infra.web.server.netty.config;

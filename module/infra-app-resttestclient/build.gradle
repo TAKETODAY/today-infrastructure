@@ -11,5 +11,5 @@ dependencies {
   testImplementation project(":infra-webmvc-mock")
   testImplementation "org.hamcrest:hamcrest"
   testImplementation 'io.projectreactor:reactor-test'
-  testImplementation testFixtures(project(':module:infra-app-netty-server'))
+  testImplementation testFixtures(project(':infra-web-netty-server'))
 }
