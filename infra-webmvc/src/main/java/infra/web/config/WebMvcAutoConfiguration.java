@@ -25,7 +25,6 @@ import java.time.Duration;
 import java.util.List;
 
 import infra.app.config.ConditionalOnWebApplication;
-import infra.app.config.task.TaskExecutionAutoConfiguration;
 import infra.app.config.web.ConditionalOnEnabledResourceChain;
 import infra.app.config.web.WebProperties;
 import infra.app.config.web.WebProperties.Resources;
@@ -72,6 +71,8 @@ import infra.web.accept.ApiVersionDeprecationHandler;
 import infra.web.accept.ApiVersionParser;
 import infra.web.accept.ApiVersionResolver;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
+import infra.web.config.WebMvcProperties.ApiVersion.Use;
+import infra.web.config.WebMvcProperties.Format;
 import infra.web.config.annotation.ApiVersionConfigurer;
 import infra.web.config.annotation.AsyncSupportConfigurer;
 import infra.web.config.annotation.CompositeWebMvcConfigurer;
@@ -102,8 +103,6 @@ import infra.web.resource.ResourceResolver;
 import infra.web.resource.VersionResourceResolver;
 import infra.web.view.BeanNameViewResolver;
 import infra.web.view.View;
-import infra.web.config.WebMvcProperties.ApiVersion.Use;
-import infra.web.config.WebMvcProperties.Format;
 
 import static infra.app.config.ConditionalOnWebApplication.Type.MVC;
 import static infra.app.config.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
@@ -121,8 +120,9 @@ import static infra.app.config.task.TaskExecutionAutoConfiguration.APPLICATION_T
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
-@DisableDIAutoConfiguration(after = TaskExecutionAutoConfiguration.class,
-        afterName = "infra.validation.config.ValidationAutoConfiguration")
+@DisableDIAutoConfiguration(afterName = {
+        "infra.validation.config.ValidationAutoConfiguration",
+        "infra.app.config.task.TaskExecutionAutoConfiguration" })
 @ConditionalOnWebApplication(type = MVC)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE + 10)
