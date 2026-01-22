@@ -38,7 +38,6 @@ import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionMessage;
 import infra.context.condition.ConditionOutcome;
-import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.condition.ConditionalOnProperty;
 import infra.context.condition.InfraCondition;
@@ -48,18 +47,17 @@ import infra.core.type.AnnotatedTypeMetadata;
 import infra.logging.LoggerFactory;
 import infra.stereotype.Component;
 import infra.ui.template.TemplateAvailabilityProviders;
-import infra.web.DispatcherHandler;
 import infra.web.RequestContext;
 import infra.web.handler.ReturnValueHandlerManager;
-import infra.web.util.HtmlUtils;
-import infra.web.view.BeanNameViewResolver;
-import infra.web.view.View;
 import infra.web.server.error.BasicErrorController;
 import infra.web.server.error.DefaultErrorAttributes;
 import infra.web.server.error.DefaultErrorViewResolver;
 import infra.web.server.error.ErrorAttributes;
 import infra.web.server.error.ErrorController;
 import infra.web.server.error.ErrorViewResolver;
+import infra.web.util.HtmlUtils;
+import infra.web.view.BeanNameViewResolver;
+import infra.web.view.View;
 
 import static infra.app.config.ConditionalOnWebApplication.Type.MVC;
 
@@ -77,7 +75,6 @@ import static infra.app.config.ConditionalOnWebApplication.Type.MVC;
  */
 // Load before the main WebMvcAutoConfiguration so that the error View is available
 @ConditionalOnWebApplication(type = MVC)
-@ConditionalOnClass({ DispatcherHandler.class })
 @DisableDIAutoConfiguration(before = WebMvcAutoConfiguration.class)
 @EnableConfigurationProperties({ WebProperties.class, WebMvcProperties.class })
 public final class ErrorMvcAutoConfiguration {

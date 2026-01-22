@@ -25,7 +25,6 @@ import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnBean;
-import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.core.Ordered;
 import infra.core.annotation.Order;
@@ -56,7 +55,6 @@ import infra.web.client.RestClientCustomizer;
         "infra.app.config.task.TaskExecutionAutoConfiguration",
         "infra.http.client.config.ImperativeHttpClientAutoConfiguration"
 })
-@ConditionalOnClass(RestClient.class)
 public final class RestClientAutoConfiguration {
 
   @Component
