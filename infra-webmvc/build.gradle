@@ -20,7 +20,7 @@ dependencies {
   optional(project(":infra-aop"))
   optional(project(":infra-oxm"))
   optional(project(":infra-core-aot"))
-  optional(project(":infra-app-config"))
+  optional(project(":infra-app"))
   optional(project(":infra-http-service"))
   optional("org.apache.groovy:groovy-templates")
   optional('io.micrometer:context-propagation')

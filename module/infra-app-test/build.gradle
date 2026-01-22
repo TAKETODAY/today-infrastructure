@@ -2,7 +2,7 @@ description = "Infra application test module"
 
 dependencies {
   api(project(":infra-core"))
-  api(project(":infra-app-config"))
+  api(project(":infra-app"))
   api project(":infra-test")
 
   optional project(":infra-web-client")

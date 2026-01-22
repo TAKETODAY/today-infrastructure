@@ -52,7 +52,7 @@ class OnEnabledResourceChainCondition extends InfraCondition {
     boolean fixed = getEnabledProperty(environment, "strategy.fixed.", false);
     boolean content = getEnabledProperty(environment, "strategy.content.", false);
     Boolean chain = getEnabledProperty(environment, "", null);
-    Boolean match = WebProperties.Resources.Chain.getEnabled(fixed, content, chain);
+    Boolean match = infra.app.config.web.WebProperties.Resources.Chain.getEnabled(fixed, content, chain);
     ConditionMessage.Builder message = ConditionMessage.forCondition(ConditionalOnEnabledResourceChain.class);
     if (match == null) {
       if (ClassUtils.isPresent(WEBJAR_VERSION_LOCATOR, getClass().getClassLoader())) {

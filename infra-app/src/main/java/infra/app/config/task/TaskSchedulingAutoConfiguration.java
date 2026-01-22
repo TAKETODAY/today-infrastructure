@@ -53,7 +53,7 @@ import infra.stereotype.Component;
  */
 @ConditionalOnClass(ThreadPoolTaskScheduler.class)
 @ConditionalOnBean(name = TaskManagementConfigUtils.SCHEDULED_ANNOTATION_PROCESSOR_BEAN_NAME)
-@DisableDIAutoConfiguration(after = TaskExecutionAutoConfiguration.class)
+@DisableDIAutoConfiguration(after = infra.app.config.task.TaskExecutionAutoConfiguration.class)
 @EnableConfigurationProperties(TaskSchedulingProperties.class)
 public final class TaskSchedulingAutoConfiguration {
 

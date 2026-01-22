@@ -48,7 +48,7 @@ import static org.assertj.core.api.Assertions.fail;
  */
 class FileWatcherTests {
 
-  private FileWatcher fileWatcher;
+  private infra.app.config.ssl.FileWatcher fileWatcher;
 
   @BeforeEach
   void setUp() {

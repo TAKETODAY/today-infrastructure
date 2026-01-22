@@ -41,7 +41,6 @@ dependencies {
   jacocoAggregation project(':infra-web-reactive')
   jacocoAggregation project(':infra-http-service')
 
-  jacocoAggregation project(':infra-app-config')
   jacocoAggregation project(':module:infra-gson')
   jacocoAggregation project(':module:infra-jsonb')
   jacocoAggregation project(':module:infra-jackson')

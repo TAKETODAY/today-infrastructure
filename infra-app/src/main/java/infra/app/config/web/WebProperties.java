@@ -56,7 +56,7 @@ public class WebProperties {
   public final Resources resources = new Resources();
 
   @NestedConfigurationProperty
-  public final ErrorProperties error = new ErrorProperties();
+  public final infra.app.config.web.ErrorProperties error = new ErrorProperties();
 
   public enum LocaleResolver {
 

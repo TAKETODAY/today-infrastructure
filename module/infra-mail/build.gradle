@@ -19,7 +19,7 @@ dependencies {
 
   runtimeOnly("org.eclipse.angus:angus-mail")
 
-  testImplementation testFixtures(project(":infra-app-config"))
+  testImplementation testFixtures(project(":infra-app"))
   testImplementation project(":module:infra-app-test")
 
   testRuntimeOnly("ch.qos.logback:logback-classic")

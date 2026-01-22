@@ -28,7 +28,6 @@ include 'infra-dependencies'
 
 include 'infra-aop'
 include 'infra-app'
-include 'infra-app-config'
 include 'infra-aspects'
 include 'infra-beans'
 include 'infra-context'

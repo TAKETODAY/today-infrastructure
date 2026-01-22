@@ -35,7 +35,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import infra.app.InfraApplication;
-import infra.beans.BeanUtils;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.support.StandardBeanFactory;

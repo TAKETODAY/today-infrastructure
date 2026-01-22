@@ -34,7 +34,7 @@ import infra.stereotype.Component;
  * @see InfraApplicationMXBean
  * @since 4.0
  */
-@DisableDIAutoConfiguration(after = JmxAutoConfiguration.class)
+@DisableDIAutoConfiguration(after = infra.app.config.jmx.JmxAutoConfiguration.class)
 @ConditionalOnProperty(prefix = "app.admin", value = "enabled", havingValue = "true", matchIfMissing = false)
 public class InfraApplicationJmxAutoConfiguration {
 

@@ -5,7 +5,7 @@ dependencies {
   api project(":infra-web-server")
   api 'io.projectreactor.netty:reactor-netty-http'
 
-  optional(project(":infra-app-config"))
+  optional(project(":infra-app"))
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
   annotationProcessor(project(":infra-build:infra-annotation-config-processor"))

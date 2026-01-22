@@ -55,8 +55,6 @@ dependencies {
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
   annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
 
-  testImplementation(project(":infra-app-config"))
-
   testImplementation project(':infra-test-support')
   testImplementation project(":module:infra-app-test")
 

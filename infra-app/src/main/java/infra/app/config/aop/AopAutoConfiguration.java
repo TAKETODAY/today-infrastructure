@@ -50,7 +50,7 @@ import infra.stereotype.Component;
 public class AopAutoConfiguration {
 
   @Configuration(proxyBeanMethods = false)
-  @ConditionalOnClass(org.aspectj.weaver.Advice.class)
+  @ConditionalOnClass(name = "org.aspectj.weaver.Advice")
   static class AspectJAutoProxyingConfiguration {
 
     @Configuration(proxyBeanMethods = false)

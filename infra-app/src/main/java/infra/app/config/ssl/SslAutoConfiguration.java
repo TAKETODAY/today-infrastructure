@@ -45,7 +45,7 @@ public final class SslAutoConfiguration {
 
   @Component
   public static SslPropertiesBundleRegistrar sslPropertiesSslBundleRegistrar(SslProperties properties, ResourceLoader resourceLoader) {
-    FileWatcher fileWatcher = new FileWatcher(properties.getBundle().getWatch().getFile().getQuietPeriod());
+    infra.app.config.ssl.FileWatcher fileWatcher = new FileWatcher(properties.getBundle().getWatch().getFile().getQuietPeriod());
     return new SslPropertiesBundleRegistrar(properties, fileWatcher, resourceLoader);
   }
 

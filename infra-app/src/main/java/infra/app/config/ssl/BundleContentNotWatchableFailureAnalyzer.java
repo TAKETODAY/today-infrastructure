@@ -27,7 +27,7 @@ import infra.app.diagnostics.FailureAnalysis;
  *
  * @author Moritz Halbritter
  */
-class BundleContentNotWatchableFailureAnalyzer extends AbstractFailureAnalyzer<BundleContentNotWatchableException> {
+class BundleContentNotWatchableFailureAnalyzer extends AbstractFailureAnalyzer<infra.app.config.ssl.BundleContentNotWatchableException> {
 
   @Override
   protected FailureAnalysis analyze(Throwable rootFailure, BundleContentNotWatchableException cause) {

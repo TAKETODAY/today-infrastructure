@@ -47,7 +47,7 @@ class SslPropertiesBundleRegistrar implements SslBundleRegistrar, DisposableBean
 
   private final SslProperties.Bundles properties;
 
-  private final FileWatcher fileWatcher;
+  private final infra.app.config.ssl.FileWatcher fileWatcher;
 
   private final ResourceLoader resourceLoader;
 
