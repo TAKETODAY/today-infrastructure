@@ -68,12 +68,10 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   private Class<?> contextClass = ClassPathXmlApplicationContext.class;
 
   /** ApplicationContext id to assign. */
-  @Nullable
-  private String contextId;
+  private @Nullable String contextId;
 
   /** Explicit context config location. */
-  @Nullable
-  private String contextConfigLocation;
+  private @Nullable String contextConfigLocation;
 
   /** Actual ApplicationContextInitializer instances to apply to the context. */
   private final ArrayList<ApplicationContextInitializer> contextInitializers = new ArrayList<>();
@@ -86,11 +84,9 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
 
   protected String beanName = Conventions.getVariableName(this);
 
-  @Nullable
-  private ConfigurableEnvironment environment;
+  private @Nullable ConfigurableEnvironment environment;
 
-  @Nullable
-  private ApplicationContext applicationContext;
+  private @Nullable ApplicationContext applicationContext;
 
   /** Whether to log potentially sensitive info (request params at DEBUG + headers at TRACE). */
   private boolean enableLoggingRequestDetails = false;
@@ -240,8 +236,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
     return wac;
   }
 
-  @Nullable
-  protected ApplicationContext getRootApplicationContext() {
+  protected @Nullable ApplicationContext getRootApplicationContext() {
     return null;
   }
 
@@ -275,8 +270,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    *
    * @return the ApplicationContext for this handler, or {@code null} if not found
    */
-  @Nullable
-  protected ApplicationContext findApplicationContext() {
+  protected @Nullable ApplicationContext findApplicationContext() {
     return null;
   }
 
@@ -441,7 +435,6 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   /**
    * Return this handler's ApplicationContext.
    */
-  @SuppressWarnings("NullAway")
   public final ApplicationContext getApplicationContext() {
     return this.applicationContext;
   }
@@ -477,8 +470,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   /**
    * Return the custom ApplicationContext id, if any.
    */
-  @Nullable
-  public String getContextId() {
+  public @Nullable String getContextId() {
     return this.contextId;
   }
 
@@ -494,8 +486,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   /**
    * Return the explicit context config location, if any.
    */
-  @Nullable
-  public String getContextConfigLocation() {
+  public @Nullable String getContextConfigLocation() {
     return this.contextConfigLocation;
   }
 

@@ -42,7 +42,9 @@ import io.netty.util.AttributeKey;
 import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFactory;
 
 /**
- * process HTTP Requests
+ * Handles HTTP requests in Netty server
+ * <p>
+ * Processes incoming HTTP requests, WebSocket frames and manages HTTP connection lifecycle
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-07-04 21:50
