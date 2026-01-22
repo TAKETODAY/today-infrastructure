@@ -6,7 +6,7 @@ dependencies {
   optional project(":infra-aspects")
   optional "jakarta.transaction:jakarta.transaction-api"
 
-  testImplementation project(":module:infra-app-jdbc")
+  testImplementation project(":infra-jdbc")
   testImplementation "com.github.h-thurow:simple-jndi"
   testImplementation 'com.h2database:h2'
 

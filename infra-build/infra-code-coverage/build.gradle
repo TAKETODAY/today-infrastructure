@@ -48,7 +48,6 @@ dependencies {
   jacocoAggregation project(':module:infra-mail')
   jacocoAggregation project(':module:infra-app-freemarker')
   jacocoAggregation project(':module:infra-app-health')
-  jacocoAggregation project(':module:infra-app-jdbc')
   jacocoAggregation project(':infra-web-netty-server')
   jacocoAggregation project(':module:infra-app-reactor-netty')
   jacocoAggregation project(':module:infra-app-transaction')

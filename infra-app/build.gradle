@@ -11,7 +11,6 @@ dependencies {
   optional project(':infra-aop')
   optional project(':infra-web')
   optional project(':infra-webmvc')
-  optional project(":infra-jdbc")
   optional project(':infra-instrument')
   optional project(':infra-websocket')
   optional(project(":infra-http-reactive"))
