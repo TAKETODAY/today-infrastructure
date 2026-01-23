@@ -72,31 +72,26 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
   protected final Logger mappingsLogger =
           LogDelegateFactory.getHiddenLog(HandlerMapping.class.getName() + ".Mappings");
 
-  @Nullable
-  private Object defaultHandler;
-
-  private int order = Ordered.LOWEST_PRECEDENCE;
-
-  @Nullable
-  private String beanName;
-
-  /**
-   * @since 4.0
-   */
-  @Nullable
-  protected StringValueResolver embeddedValueResolver;
-
   private final PathPatternParser patternParser = new PathPatternParser();
 
   private final ArrayList<HandlerInterceptor> interceptors = new ArrayList<>();
 
-  @Nullable
-  private CorsConfigurationSource corsConfigurationSource;
+  private int order = Ordered.LOWEST_PRECEDENCE;
 
   private CorsProcessor corsProcessor = new DefaultCorsProcessor();
 
-  @Nullable
-  private ApiVersionStrategy apiVersionStrategy;
+  private @Nullable Object defaultHandler;
+
+  private @Nullable String beanName;
+
+  /**
+   * @since 4.0
+   */
+  protected @Nullable StringValueResolver embeddedValueResolver;
+
+  private @Nullable CorsConfigurationSource corsConfigurationSource;
+
+  private @Nullable ApiVersionStrategy apiVersionStrategy;
 
   /**
    * Shortcut method for setting the same property on the underlying pattern
@@ -194,8 +189,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
    *
    * @since 5.0
    */
-  @Nullable
-  public ApiVersionStrategy getApiVersionStrategy() {
+  public @Nullable ApiVersionStrategy getApiVersionStrategy() {
     return this.apiVersionStrategy;
   }
 
@@ -232,8 +226,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
   }
 
   /** @since 3.0.3 */
-  @Nullable
-  protected String resolveEmbeddedVariables(String expression) {
+  protected @Nullable String resolveEmbeddedVariables(String expression) {
     if (embeddedValueResolver != null) {
       return embeddedValueResolver.resolveStringValue(expression);
     }
@@ -246,8 +239,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
    *
    * @since 4.0
    */
-  @Nullable
-  public CorsConfigurationSource getCorsConfigurationSource() {
+  public @Nullable CorsConfigurationSource getCorsConfigurationSource() {
     return this.corsConfigurationSource;
   }
 
@@ -264,8 +256,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
   /**
    * Return the default handler for this handler mapping, or {@code null} if none.
    */
-  @Nullable
-  public Object getDefaultHandler() {
+  public @Nullable Object getDefaultHandler() {
     return this.defaultHandler;
   }
 
@@ -314,7 +305,6 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
    * @since 4.0
    */
   protected void extendInterceptors(List<HandlerInterceptor> interceptors) {
-
   }
 
   /**
@@ -341,10 +331,8 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
    * @return the corresponding handler instance, or the default handler
    * @see #getHandlerInternal
    */
-  @Nullable
   @Override
-  @SuppressWarnings("NullAway")
-  public final Object getHandler(final RequestContext request) throws Exception {
+  public final @Nullable Object getHandler(final RequestContext request) throws Exception {
     Comparable<?> version = null;
     if (this.apiVersionStrategy != null) {
       version = (Comparable<?>) request.getAttribute(API_VERSION_ATTRIBUTE);
@@ -416,8 +404,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
    * @return the corresponding handler instance, or {@code null} if none found
    * @throws Exception if there is an internal error
    */
-  @Nullable
-  protected abstract Object getHandlerInternal(RequestContext request) throws Exception;
+  protected abstract @Nullable Object getHandlerInternal(RequestContext request) throws Exception;
 
   /**
    * Build a {@link HandlerExecutionChain} for the given handler, including
@@ -490,8 +477,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
    * @return the CORS configuration for the handler, or {@code null} if none
    * @since 4.0
    */
-  @Nullable
-  protected CorsConfiguration getCorsConfiguration(Object handler, RequestContext request) {
+  protected @Nullable CorsConfiguration getCorsConfiguration(Object handler, RequestContext request) {
     Object resolvedHandler = handler;
     if (handler instanceof HandlerWrapper wrapper) {
       resolvedHandler = wrapper.getRawHandler();
@@ -537,8 +523,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
 
   private class PreFlightHandler implements HttpRequestHandler, CorsConfigurationSource {
 
-    @Nullable
-    private final CorsConfiguration config;
+    private final @Nullable CorsConfiguration config;
 
     public PreFlightHandler(@Nullable CorsConfiguration config) {
       this.config = config;
@@ -551,8 +536,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
     }
 
     @Override
-    @Nullable
-    public CorsConfiguration getCorsConfiguration(RequestContext request) {
+    public @Nullable CorsConfiguration getCorsConfiguration(RequestContext request) {
       return this.config;
     }
 
@@ -560,8 +544,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
 
   private class CorsInterceptor implements HandlerInterceptor, CorsConfigurationSource {
 
-    @Nullable
-    private final CorsConfiguration config;
+    private final @Nullable CorsConfiguration config;
 
     public CorsInterceptor(@Nullable CorsConfiguration config) {
       this.config = config;
@@ -573,8 +556,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
     }
 
     @Override
-    @Nullable
-    public CorsConfiguration getCorsConfiguration(RequestContext request) {
+    public @Nullable CorsConfiguration getCorsConfiguration(RequestContext request) {
       return this.config;
     }
 

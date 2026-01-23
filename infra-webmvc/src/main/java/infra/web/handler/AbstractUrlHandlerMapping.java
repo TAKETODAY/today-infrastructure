@@ -51,8 +51,7 @@ import infra.web.util.pattern.PathPattern;
  */
 public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
 
-  @Nullable
-  private Object rootHandler;
+  private @Nullable Object rootHandler;
 
   // @since 4.0
   private boolean lazyInitHandlers = false;
@@ -76,8 +75,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
    * Return the root handler for this handler mapping (registered for "/"),
    * or {@code null} if none.
    */
-  @Nullable
-  public Object getRootHandler() {
+  public @Nullable Object getRootHandler() {
     return this.rootHandler;
   }
 
@@ -104,10 +102,8 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
    * @return the handler instance, or {@code null} if none found
    * @since 4.0
    */
-  @Nullable
   @Override
-  @SuppressWarnings("NullAway")
-  protected Object getHandlerInternal(RequestContext request) {
+  protected @Nullable Object getHandlerInternal(RequestContext request) {
     Object handler = lookupHandler(request);
     if (handler == null) {
       // We need to care for the default handler directly
@@ -138,9 +134,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
    * @return a matching handler, or {@code null} if not found
    * @since 4.0
    */
-  @Nullable
-  @SuppressWarnings("NullAway")
-  protected Object lookupHandler(RequestContext request) {
+  protected @Nullable Object lookupHandler(RequestContext request) {
     PathContainer lookupPath = request.getRequestPath();
 
     String requestPath = lookupPath.value();
@@ -187,8 +181,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
     return handler;
   }
 
-  @Nullable
-  private Object getDirectMatch(String urlPath, RequestContext request) {
+  private @Nullable Object getDirectMatch(String urlPath, RequestContext request) {
     Object handler = handlerMap.get(urlPath);
     if (handler != null) {
       // Bean name or resolved handler?
@@ -210,22 +203,21 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
    * @param request current HTTP request
    */
   protected void validateHandler(@Nullable Object handler, RequestContext request) {
-
   }
 
   /**
    * Register the specified handler for the given URL paths.
    *
    * @param urlPaths the URLs that the bean should be mapped to
-   * @param beanName the name of the handler bean
+   * @param handler the name or bean instance of the handler bean
    * @throws BeansException if the handler couldn't be registered
    * @throws IllegalStateException if there is a conflicting handler registered
    * @since 4.0
    */
-  protected void registerHandler(String[] urlPaths, String beanName) throws BeansException, IllegalStateException {
+  protected void registerHandler(String[] urlPaths, Object handler) throws BeansException, IllegalStateException {
     Assert.notNull(urlPaths, "URL path array is required");
     for (String urlPath : urlPaths) {
-      registerHandler(urlPath, beanName);
+      registerHandler(urlPath, handler);
     }
   }
 
@@ -238,7 +230,6 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
    * @throws BeansException if the handler couldn't be registered
    * @throws IllegalStateException if there is a conflicting handler registered
    */
-  @SuppressWarnings("NullAway")
   public void registerHandler(String urlPath, Object handler) throws BeansException, IllegalStateException {
     Assert.notNull(urlPath, "URL path is required");
     Assert.notNull(handler, "Handler object is required");
@@ -249,6 +240,10 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
       ApplicationContext beanFactory = obtainApplicationContext();
       if (beanFactory.isSingleton(handlerName)) {
         resolvedHandler = beanFactory.getBean(handlerName);
+        if (resolvedHandler == null) {
+          throw new IllegalStateException("Singleton handler instance of '%s' cannot be determined"
+                  .formatted(handlerName));
+        }
       }
     }
 
