@@ -5,7 +5,7 @@ dependencies {
   api(project(":infra-context"))
   api(project(":infra-core"))
   api(project(":infra-context-support"))
-  optional(project(":infra-jdbc"))
+
   optional(project(":infra-tx"))
   optional(project(":infra-aop"))
 

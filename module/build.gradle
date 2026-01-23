@@ -1,11 +1,8 @@
-//apply plugin: 'infra.building.conventions'
-//apply plugin: 'infra.building.optional-dependencies'
+description = "Infra modules"
 
-description = "Infra application modules"
-
-configure(subprojects) {
+configure(subprojects.findAll({ it.name.startsWith("infra-app") })) {
   dependencies {
-    api(project(":infra-app-config"))
+    api(project(":infra-app"))
 
     annotationProcessor(project(":infra-build:infra-configuration-processor"))
     annotationProcessor(project(":infra-build:infra-annotation-config-processor"))

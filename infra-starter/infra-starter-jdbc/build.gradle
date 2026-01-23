@@ -4,7 +4,7 @@ dependencies {
   api 'com.zaxxer:HikariCP'
   api project(':infra-jdbc')
   api project(':infra-starter')
-  api(project(":module:infra-app-jdbc"))
+  api project(':infra-starter:infra-starter-transaction')
 
 }
 

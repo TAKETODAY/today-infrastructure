@@ -24,14 +24,14 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import infra.app.jdbc.config.DataSourceAutoConfiguration;
-import infra.app.jdbc.config.DataSourceTransactionManagerAutoConfiguration;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.annotation.config.AutoConfigurations;
+import infra.jdbc.config.DataSourceAutoConfiguration;
 import infra.jdbc.config.DataSourceBuilder;
+import infra.jdbc.config.DataSourceTransactionManagerAutoConfiguration;
 import infra.jdbc.datasource.DataSourceTransactionManager;
 import infra.transaction.PlatformTransactionManager;
 import infra.transaction.ReactiveTransactionManager;

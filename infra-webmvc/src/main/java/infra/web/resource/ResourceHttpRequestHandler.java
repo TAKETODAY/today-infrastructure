@@ -46,8 +46,6 @@ import infra.http.converter.ResourceHttpMessageConverter;
 import infra.http.converter.ResourceRegionHttpMessageConverter;
 import infra.http.server.ServerHttpResponse;
 import infra.lang.Assert;
-import infra.logging.Logger;
-import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
@@ -96,8 +94,6 @@ import infra.web.handler.SimpleNotFoundHandler;
 public class ResourceHttpRequestHandler extends WebContentGenerator
         implements HttpRequestHandler, EmbeddedValueResolverAware, InitializingBean, CorsConfigurationSource {
 
-  private static final Logger log = LoggerFactory.getLogger(ResourceHttpRequestHandler.class);
-
   private static final String URL_RESOURCE_CHARSET_PREFIX = "[charset=";
 
   private final ArrayList<String> locationValues = new ArrayList<>(4);
@@ -112,37 +108,29 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
 
   private final ArrayList<ResourceTransformer> resourceTransformers = new ArrayList<>(4);
 
-  @Nullable
-  private ResourceResolvingChain resolvingChain;
-
-  @Nullable
-  private ResourceTransformerChain transformerChain;
-
-  @Nullable
-  private ResourceHttpMessageConverter resourceHttpMessageConverter;
-
-  @Nullable
-  private ResourceRegionHttpMessageConverter resourceRegionHttpMessageConverter;
-
-  @Nullable
-  private ContentNegotiationManager contentNegotiationManager;
-
   private final Map<String, MediaType> mediaTypes = new HashMap<>(4);
 
-  @Nullable
-  private CorsConfiguration corsConfiguration;
+  private @Nullable ResourceResolvingChain resolvingChain;
 
-  @Nullable
-  private Function<Resource, String> etagGenerator;
+  private @Nullable ResourceTransformerChain transformerChain;
+
+  private @Nullable ResourceHttpMessageConverter resourceHttpMessageConverter;
+
+  private @Nullable ResourceRegionHttpMessageConverter resourceRegionHttpMessageConverter;
+
+  private @Nullable ContentNegotiationManager contentNegotiationManager;
+
+  private @Nullable CorsConfiguration corsConfiguration;
+
+  private @Nullable Function<Resource, String> etagGenerator;
+
+  private @Nullable StringValueResolver embeddedValueResolver;
 
   private boolean useLastModified = true;
 
   private boolean optimizeLocations = false;
 
-  @Nullable
-  private StringValueResolver embeddedValueResolver;
-
-  private NotFoundHandler notFoundHandler = SimpleNotFoundHandler.sharedInstance;
+  private NotFoundHandler notFoundHandler = NotFoundHandler.sharedInstance;
 
   public ResourceHttpRequestHandler() {
     super(HttpMethod.GET.name(), HttpMethod.HEAD.name());
@@ -253,8 +241,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
   /**
    * Return the configured resource converter.
    */
-  @Nullable
-  public ResourceHttpMessageConverter getResourceHttpMessageConverter() {
+  public @Nullable ResourceHttpMessageConverter getResourceHttpMessageConverter() {
     return this.resourceHttpMessageConverter;
   }
 
@@ -269,8 +256,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
   /**
    * Return the configured resource region converter.
    */
-  @Nullable
-  public ResourceRegionHttpMessageConverter getResourceRegionHttpMessageConverter() {
+  public @Nullable ResourceRegionHttpMessageConverter getResourceRegionHttpMessageConverter() {
     return this.resourceRegionHttpMessageConverter;
   }
 
@@ -286,8 +272,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
   /**
    * Return the configured content negotiation manager.
    */
-  @Nullable
-  public ContentNegotiationManager getContentNegotiationManager() {
+  public @Nullable ContentNegotiationManager getContentNegotiationManager() {
     return this.contentNegotiationManager;
   }
 
@@ -326,8 +311,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * Return the specified CORS configuration.
    */
   @Override
-  @Nullable
-  public CorsConfiguration getCorsConfiguration(RequestContext request) {
+  public @Nullable CorsConfiguration getCorsConfiguration(RequestContext request) {
     return this.corsConfiguration;
   }
 
@@ -368,8 +352,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    *
    * @return the HTTP ETag generator function
    */
-  @Nullable
-  public Function<Resource, String> getEtagGenerator() {
+  public @Nullable Function<Resource, String> getEtagGenerator() {
     return this.etagGenerator;
   }
 
@@ -401,15 +384,16 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
   }
 
   /**
-   * Set not found handler
-   * <p>
-   * handle if resource not found
+   * Set the NotFoundHandler to use when a resource is not found.
+   * <p>If not set, the default behavior will be to use {@link SimpleNotFoundHandler#sharedInstance}.
    *
-   * @param notFoundHandler HttpRequestHandler can be null
+   * @param notFoundHandler the handler to use when a resource is not found, can be null in which case
+   * the default {@link SimpleNotFoundHandler#sharedInstance} will be used
    * @see SimpleNotFoundHandler#sharedInstance
+   * @since 4.0
    */
   public void setNotFoundHandler(@Nullable NotFoundHandler notFoundHandler) {
-    this.notFoundHandler = notFoundHandler == null ? SimpleNotFoundHandler.sharedInstance : notFoundHandler;
+    this.notFoundHandler = notFoundHandler == null ? NotFoundHandler.sharedInstance : notFoundHandler;
   }
 
   @Override
@@ -527,9 +511,8 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * of the resource will be written to the response with caching headers
    * set to expire one year in the future.
    */
-  @Nullable
   @Override
-  public Object handleRequest(RequestContext request) throws Throwable {
+  public @Nullable Object handleRequest(RequestContext request) throws Throwable {
     // For very general mappings (e.g. "/") we need to check 404 first
     Resource resource = getResource(request);
     if (resource == null) {
@@ -550,7 +533,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     // Header phase
     String eTag = getETag(resource);
     if (request.checkNotModified(eTag, isUseLastModified() ? resource.lastModified() : -1)) {
-      log.trace("Resource not modified");
+      logger.trace("Resource not modified");
       return NONE_RETURN_VALUE;
     }
 
@@ -588,8 +571,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     return NONE_RETURN_VALUE;
   }
 
-  @Nullable
-  private String getETag(Resource resource) {
+  private @Nullable String getETag(Resource resource) {
     Function<Resource, String> etagGenerator = getEtagGenerator();
     if (etagGenerator != null) {
       return etagGenerator.apply(resource);
@@ -597,8 +579,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     return null;
   }
 
-  @Nullable
-  protected Resource getResource(RequestContext request) throws IOException {
+  protected @Nullable Resource getResource(RequestContext request) throws IOException {
     String path;
     var matchingMetadata = request.getMatchingMetadata();
     if (matchingMetadata == null) {
@@ -656,8 +637,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * @param resource the resource to check
    * @return the corresponding media type, or {@code null} if none found
    */
-  @Nullable
-  protected MediaType getMediaType(RequestContext request, Resource resource) {
+  protected @Nullable MediaType getMediaType(RequestContext request, Resource resource) {
     MediaType result = null;
     MediaType mediaType = null;
     String filename = resource.getName();

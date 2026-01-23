@@ -29,12 +29,12 @@ import infra.app.info.SslInfo.BundleInfo;
 import infra.app.info.SslInfo.CertificateChainInfo;
 import infra.app.info.SslInfo.CertificateInfo;
 import infra.app.info.SslInfo.CertificateValidityInfo.Status;
-import infra.app.ssl.DefaultSslBundleRegistry;
-import infra.app.ssl.SslBundle;
-import infra.app.ssl.SslBundleKey;
-import infra.app.ssl.SslStoreBundle;
-import infra.app.ssl.jks.JksSslStoreBundle;
-import infra.app.ssl.jks.JksSslStoreDetails;
+import infra.core.ssl.DefaultSslBundleRegistry;
+import infra.core.ssl.SslBundle;
+import infra.core.ssl.SslBundleKey;
+import infra.core.ssl.SslStoreBundle;
+import infra.core.ssl.jks.JksSslStoreBundle;
+import infra.core.ssl.jks.JksSslStoreDetails;
 import infra.test.classpath.resources.WithPackageResources;
 
 import static org.assertj.core.api.Assertions.assertThat;

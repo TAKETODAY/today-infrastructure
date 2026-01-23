@@ -1,0 +1,29 @@
+apply plugin: "java-test-fixtures"
+
+description = "Netty web server implementation"
+
+dependencies {
+  api project(":infra-webmvc")
+  api project(":infra-web-server")
+
+  api 'io.netty:netty-codec-http'
+  api 'io.netty:netty-codec-http2'
+
+  optional project(":infra-app")
+  optional project(":infra-websocket")
+  optional("io.netty:netty-buffer")
+  optional("io.netty:netty-handler")
+  optional("io.netty:netty-transport")
+  optional("io.netty:netty-codec-http")
+  optional("io.netty:netty-transport-native-kqueue")
+  optional("io.netty:netty-transport-native-epoll")
+
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
+  testImplementation project(':infra-test-support')
+  testImplementation project(":module:infra-app-test")
+  testImplementation project(":infra-webmvc-mock")
+
+  testFixturesApi('io.netty:netty-codec-http')
+}

@@ -19,13 +19,10 @@ package demo;
 import demo.config.AppConfig;
 import infra.app.Application;
 import infra.context.annotation.Import;
-import infra.web.config.annotation.EnableWebMvc;
 
 /**
  * @author TODAY 2021/8/29 22:22
  */
-@EnableWebMvc
-//@EnableTomcatHandling
 @Import(AppConfig.class)
 public class DemoApplication {
 

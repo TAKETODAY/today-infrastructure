@@ -1,0 +1,20 @@
+description = "Infra application reactor netty integration"
+
+dependencies {
+  api project(":infra-web-reactive")
+  api project(":infra-web-server")
+  api 'io.projectreactor.netty:reactor-netty-http'
+
+  optional(project(":infra-app"))
+
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
+
+  testImplementation project(":infra-test")
+  testImplementation project(':infra-test-support')
+  testImplementation project(":infra-webmvc-mock")
+  testImplementation project(":module:infra-app-test")
+
+  testImplementation(testFixtures(project(":infra-web-server")))
+}

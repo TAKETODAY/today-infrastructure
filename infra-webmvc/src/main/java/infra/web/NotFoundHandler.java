@@ -23,7 +23,7 @@ import infra.logging.LoggerFactory;
 import infra.web.handler.SimpleNotFoundHandler;
 
 /**
- * Process when handler not found
+ * Handler for processing requests when no appropriate handler is found
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/1/9 23:05
@@ -49,6 +49,13 @@ public interface NotFoundHandler {
    */
   SimpleNotFoundHandler sharedInstance = new SimpleNotFoundHandler();
 
+  /**
+   * Handle the request when no appropriate handler is found
+   *
+   * @param request current request context
+   * @return handler return value or {@link #NONE_RETURN_VALUE} if no value returned or already processed
+   * @throws Throwable in case of errors during handling
+   */
   @Nullable
   Object handleNotFound(RequestContext request) throws Throwable;
 

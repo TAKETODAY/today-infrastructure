@@ -28,7 +28,6 @@ include 'infra-dependencies'
 
 include 'infra-aop'
 include 'infra-app'
-include 'infra-app-config'
 include 'infra-aspects'
 include 'infra-beans'
 include 'infra-context'
@@ -57,7 +56,10 @@ include 'infra-http-converter'
 
 include 'infra-web-core'
 include 'infra-web-client'
+include 'infra-web-server'
+include 'infra-web-netty-server'
 include 'infra-web-reactive'
+include 'infra-web-reactor-server'
 
 include 'infra-test'
 include 'infra-test-support'
@@ -76,6 +78,6 @@ file("${rootDir}/infra-build").eachDirMatch(~/infra-.*/) {
 }
 
 // Infra App modules
-file("${rootDir}/module").eachDirMatch(~/infra-app-.*/) {
+file("${rootDir}/module").eachDirMatch(~/infra-.*/) {
   include "module:${it.name}"
 }

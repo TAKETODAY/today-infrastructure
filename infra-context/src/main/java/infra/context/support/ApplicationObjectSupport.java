@@ -53,12 +53,14 @@ public abstract class ApplicationObjectSupport implements ApplicationContextAwar
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-  @Nullable
-  protected ApplicationContext applicationContext;
+  protected @Nullable ApplicationContext applicationContext;
 
-  /** MessageSourceAccessor for easy message access. @since 4.0 */
-  @Nullable
-  protected MessageSourceAccessor messageSourceAccessor;
+  /**
+   * MessageSourceAccessor for easy message access.
+   *
+   * @since 4.0
+   */
+  protected @Nullable MessageSourceAccessor messageSourceAccessor;
 
   @Override
   public final void setApplicationContext(@Nullable ApplicationContext context) throws BeansException {
@@ -121,8 +123,7 @@ public abstract class ApplicationObjectSupport implements ApplicationContextAwar
    *
    * @throws IllegalStateException if not running in an ApplicationContext
    */
-  @Nullable
-  public final ApplicationContext getApplicationContext() throws IllegalStateException {
+  public final @Nullable ApplicationContext getApplicationContext() throws IllegalStateException {
     ApplicationContext context = this.applicationContext;
     if (context == null && isContextRequired()) {
       throw new IllegalStateException(
@@ -170,8 +171,7 @@ public abstract class ApplicationObjectSupport implements ApplicationContextAwar
    * @throws IllegalStateException if not running in an ApplicationContext
    * @since 4.0
    */
-  @Nullable
-  protected final MessageSourceAccessor getMessageSourceAccessor() throws IllegalStateException {
+  protected final @Nullable MessageSourceAccessor getMessageSourceAccessor() throws IllegalStateException {
     MessageSourceAccessor accessor = this.messageSourceAccessor;
     if (accessor == null) {
       ApplicationContext context = this.applicationContext;

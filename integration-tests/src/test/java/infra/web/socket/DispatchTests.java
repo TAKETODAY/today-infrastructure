@@ -38,7 +38,6 @@ import infra.test.context.TestPropertySource;
 import infra.util.concurrent.Future;
 import infra.web.RequestContext;
 import infra.web.socket.client.support.NettyWebSocketClient;
-import infra.web.socket.config.EnableWebSocket;
 import infra.web.socket.config.WebSocketConfigurer;
 import infra.web.socket.config.WebSocketHandlerRegistry;
 import infra.web.socket.handler.LoggingWebSocketHandler;
@@ -171,7 +170,6 @@ class DispatchTests {
     }
   }
 
-  @EnableWebSocket
   @InfraApplication
   static class WsServerApp implements WebSocketConfigurer {
 

@@ -1,0 +1,2 @@
+infra.http.client.config.HttpClientAutoConfiguration
+infra.http.client.config.ImperativeHttpClientAutoConfiguration

@@ -30,14 +30,15 @@ import java.util.concurrent.TimeUnit;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
+import infra.context.annotation.Import;
 import infra.util.concurrent.Future;
 import infra.web.HandlerExceptionHandler;
 import infra.web.RequestContext;
 import infra.web.socket.client.WebSocketClient;
-import infra.web.socket.config.EnableWebSocket;
 import infra.web.socket.config.WebSocketConfigurer;
 import infra.web.socket.config.WebSocketHandlerRegistry;
 import infra.web.socket.handler.TextWebSocketHandler;
+import infra.web.socket.server.config.WebSocketAutoConfiguration;
 import infra.web.socket.server.support.DefaultHandshakeHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -87,8 +88,8 @@ class WebSocketHandshakeTests extends AbstractWebSocketIntegrationTests {
     assertThat(serverHandler.getReceivedMessages().get(0).getType()).isEqualTo(WebSocketMessage.Type.PONG);
   }
 
+  @Import(WebSocketAutoConfiguration.class)
   @Configuration
-  @EnableWebSocket
   static class TestConfig implements WebSocketConfigurer {
 
     @Autowired

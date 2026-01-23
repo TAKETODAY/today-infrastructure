@@ -3,6 +3,6 @@ description = 'Starter for building web, including RESTful, applications using W
 dependencies {
   api project(':infra-starter:infra-starter-jackson')
 
-  api project(':module:infra-app-webmvc')
-  api project(':module:infra-app-http-converter')
+  api project(':infra-http-converter')
+  api project(':infra-webmvc')
 }

@@ -65,20 +65,17 @@ public abstract class WebContentGenerator extends ApplicationObjectSupport {
   public static final String METHOD_POST = "POST";
 
   /** Set of supported HTTP methods. */
-  @Nullable
-  private Set<String> supportedMethods;
+  private @Nullable Set<String> supportedMethods;
 
-  @Nullable
-  private String allowHeader;
+  private @Nullable String allowHeader;
+
+  private @Nullable CacheControl cacheControl;
+
+  private String @Nullable [] varyByRequestHeaders;
 
   private boolean requireSession = false;
 
-  @Nullable
-  private CacheControl cacheControl;
-
   private int cacheSeconds = -1;
-
-  private String @Nullable [] varyByRequestHeaders;
 
   /**
    * Create a new WebContentGenerator which supports
@@ -165,8 +162,7 @@ public abstract class WebContentGenerator extends ApplicationObjectSupport {
    * supported method as long as HTTP OPTIONS requests are handled before making a
    * call to {@link #checkRequest(RequestContext)}.
    */
-  @Nullable
-  protected String getAllowHeader() {
+  protected @Nullable String getAllowHeader() {
     return this.allowHeader;
   }
 
@@ -196,8 +192,7 @@ public abstract class WebContentGenerator extends ApplicationObjectSupport {
    * Get the {@link CacheControl} instance
    * that builds the Cache-Control HTTP response header.
    */
-  @Nullable
-  public final CacheControl getCacheControl() {
+  public final @Nullable CacheControl getCacheControl() {
     return this.cacheControl;
   }
 

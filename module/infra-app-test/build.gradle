@@ -2,15 +2,14 @@ description = "Infra application test module"
 
 dependencies {
   api(project(":infra-core"))
-  api(project(":infra-app-config"))
+  api(project(":infra-app"))
   api project(":infra-test")
 
   optional project(":infra-web-client")
   optional project(":infra-web")
   optional project(':infra-webmvc-mock')
   optional project(":infra-web-reactive")
-  optional project(':module:infra-app-restclient')
-  optional project(':module:infra-app-web-server')
+  optional project(':infra-web-server')
 
   optional("org.junit.platform:junit-platform-launcher")
   optional("org.junit.jupiter:junit-jupiter-api")
@@ -61,12 +60,11 @@ dependencies {
 
   testImplementation 'org.eclipse:yasson'
   testImplementation project(':infra-test-support')
-  testImplementation project(':module:infra-app-webmvc')
   testImplementation project(':module:infra-app-freemarker')
-  testImplementation project(':module:infra-app-netty-server')
-  testImplementation project(':module:infra-app-web-server')
-  testImplementation project(':module:infra-app-reactor-netty')
-  testImplementation testFixtures(project(':module:infra-app-netty-server'))
+  testImplementation project(':infra-web-netty-server')
+  testImplementation project(':infra-web-server')
+  testImplementation project(':infra-web-reactor-server')
+  testImplementation testFixtures(project(':infra-web-netty-server'))
 
   testImplementation("org.junit.platform:junit-platform-testkit")
   testImplementation("com.thoughtworks.xstream:xstream")

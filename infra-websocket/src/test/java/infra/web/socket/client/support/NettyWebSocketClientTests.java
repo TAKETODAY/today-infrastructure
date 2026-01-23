@@ -27,6 +27,9 @@ import java.net.URI;
 import java.time.Duration;
 import java.util.List;
 
+import infra.core.ssl.SslBundle;
+import infra.core.ssl.SslManagerBundle;
+import infra.core.ssl.SslOptions;
 import infra.http.HttpHeaders;
 import infra.util.DataSize;
 import infra.util.concurrent.Future;
@@ -41,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -91,9 +95,30 @@ class NettyWebSocketClientTests {
   }
 
   @Test
+  void configureSslViaBundle() throws Exception {
+    var sslBundle = mock(SslBundle.class);
+    var sslOptions = mock(SslOptions.class);
+    var managers = mock(SslManagerBundle.class);
+
+    when(sslBundle.getOptions()).thenReturn(sslOptions);
+    when(sslBundle.getManagers()).thenReturn(managers);
+    when(sslOptions.getCiphers()).thenReturn(new String[] { "TLS_RSA_WITH_AES_128_CBC_SHA" });
+    when(sslOptions.getEnabledProtocols()).thenReturn(new String[] { "TLSv1.2" });
+
+    client.setSslBundle(sslBundle);
+    client.setSslContext(null);
+
+    var uri = URI.create("wss://localhost:8080/ws");
+    var handler = mock(WebSocketHandler.class);
+
+    client.doHandshakeInternal(handler, HttpHeaders.forWritable(), uri, List.of(), List.of());
+  }
+
+  @Test
   void configureSslViaContext() throws Exception {
     var sslContext = mock(SslContext.class);
     client.setSslContext(sslContext);
+    client.setSslBundle(null);
 
     var uri = URI.create("wss://localhost:8080/ws");
     var handler = mock(WebSocketHandler.class);

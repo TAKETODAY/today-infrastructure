@@ -22,7 +22,6 @@ import infra.web.socket.WebSocketHandler;
 
 /**
  * Defines callback methods to configure the WebSocket request handling
- * via {@link EnableWebSocket @EnableWebSocket}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Rossen Stoyanchev

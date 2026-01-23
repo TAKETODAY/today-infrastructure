@@ -11,12 +11,10 @@ dependencies {
   testImplementation project(':infra-test-support')
 
   testImplementation project(':module:infra-app-test')
-  testImplementation project(':module:infra-app-webmvc')
   testImplementation project(':module:infra-app-freemarker')
-  testImplementation project(":module:infra-app-web-server")
-  testImplementation project(':module:infra-app-netty-server')
-  testImplementation project(':module:infra-app-websocket')
-  testImplementation project(':module:infra-app-http-converter')
+  testImplementation project(':module:infra-app-transaction')
+  testImplementation project(":infra-web-server")
+  testImplementation project(':infra-web-netty-server')
 
   testImplementation(project(":infra-aop"))
   testImplementation(project(":infra-beans"))
@@ -44,7 +42,6 @@ dependencies {
   testImplementation(project(":infra-http-service"))
   testImplementation(project(":infra-web-reactive"))
   testImplementation(project(":infra-http-client"))
-  testImplementation(project(":module:infra-app-restclient"))
 
   testImplementation("org.apache.httpcomponents.client5:httpclient5")
   testImplementation("jakarta.inject:jakarta.inject-api")
@@ -116,7 +113,7 @@ dependencies {
   testImplementation(testFixtures(project(":infra-beans")))
   testImplementation(testFixtures(project(":infra-tx")))
   testImplementation(testFixtures(project(":infra-jcache")))
-  testImplementation testFixtures(project(':module:infra-app-netty-server'))
+  testImplementation testFixtures(project(':infra-web-netty-server'))
 
   optional("com.github.librepdf:openpdf")
   optional("org.apache.poi:poi-ooxml")

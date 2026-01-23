@@ -503,9 +503,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
             && mappingRegistry.getCorsConfiguration(handlerMethod) != null);
   }
 
-  @Nullable
   @Override
-  protected CorsConfiguration getCorsConfiguration(Object handler, RequestContext request) {
+  protected @Nullable CorsConfiguration getCorsConfiguration(Object handler, RequestContext request) {
     CorsConfiguration corsConfig = super.getCorsConfiguration(handler, request);
     HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
     if (handlerMethod != null) {

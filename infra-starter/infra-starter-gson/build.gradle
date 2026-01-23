@@ -2,5 +2,5 @@ description = "Starter for using GSON"
 
 dependencies {
 	api(project(":infra-starter"))
-	api(project(":module:infra-app-gson"))
+	api(project(":module:infra-gson"))
 }

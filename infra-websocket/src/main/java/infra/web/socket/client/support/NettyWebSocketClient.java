@@ -26,6 +26,9 @@ import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLException;
 
 import infra.core.io.buffer.NettyDataBufferFactory;
+import infra.core.ssl.SslBundle;
+import infra.core.ssl.SslManagerBundle;
+import infra.core.ssl.SslOptions;
 import infra.http.HttpHeaders;
 import infra.lang.Assert;
 import infra.util.DataSize;
@@ -156,6 +159,12 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
    * @since 5.0
    */
   @Nullable
+  private SslBundle sslBundle;
+
+  /**
+   * @since 5.0
+   */
+  @Nullable
   private SslContext sslContext;
 
   /**
@@ -267,6 +276,15 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
   }
 
   /**
+   * Set the SslBundle for WSS
+   *
+   * @since 5.0
+   */
+  public void setSslBundle(@Nullable SslBundle sslBundle) {
+    this.sslBundle = sslBundle;
+  }
+
+  /**
    * Set the SslContext for WSS
    *
    * @since 5.0
@@ -353,7 +371,19 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
   private SslContext getSslContext() {
     if (sslContext == null) {
       try {
-        sslContext = SslContextBuilder.forClient().build();
+        if (sslBundle != null) {
+          SslOptions options = sslBundle.getOptions();
+          SslManagerBundle managers = sslBundle.getManagers();
+          sslContext = SslContextBuilder.forClient()
+                  .keyManager(managers.getKeyManagerFactory())
+                  .trustManager(managers.getTrustManagerFactory())
+                  .ciphers(SslOptions.asSet(options.getCiphers()))
+                  .protocols(options.getEnabledProtocols())
+                  .build();
+        }
+        else {
+          sslContext = SslContextBuilder.forClient().build();
+        }
       }
       catch (SSLException e) {
         throw ExceptionUtils.sneakyThrow(e);

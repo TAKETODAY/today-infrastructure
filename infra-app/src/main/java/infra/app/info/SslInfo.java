@@ -35,9 +35,9 @@ import java.util.function.Function;
 import javax.security.auth.x500.X500Principal;
 
 import infra.app.info.SslInfo.CertificateValidityInfo.Status;
-import infra.app.ssl.NoSuchSslBundleException;
-import infra.app.ssl.SslBundle;
-import infra.app.ssl.SslBundles;
+import infra.core.ssl.NoSuchSslBundleException;
+import infra.core.ssl.SslBundle;
+import infra.core.ssl.SslBundles;
 import infra.lang.Assert;
 import infra.util.ObjectUtils;
 

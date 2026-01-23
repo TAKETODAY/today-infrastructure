@@ -2,7 +2,7 @@ plugins {
   id 'infra.building.runtimehints-agent'
 }
 
-description = "Infra Context"
+description = "Context infrastructure"
 
 dependencies {
   api(project(":infra-aop"))
@@ -33,6 +33,9 @@ dependencies {
   optional("com.github.ben-manes.caffeine:caffeine")
   optional("org.freemarker:freemarker")
   optional("javax.inject:javax.inject")
+
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
 
   testImplementation("javax.annotation:javax.annotation-api")
   testImplementation('com.google.code.findbugs:findbugs')
@@ -65,5 +68,9 @@ dependencies {
   testFixturesImplementation("com.google.code.findbugs:jsr305")
   testFixturesImplementation("org.assertj:assertj-core")
   testFixturesImplementation("io.projectreactor:reactor-test")
+
+  testImplementation project(":infra-test")
+  testImplementation project(':infra-test-support')
+  testImplementation project(":module:infra-app-test")
 
 }

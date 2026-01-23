@@ -42,7 +42,7 @@ import infra.context.condition.ConditionEvaluationReport.ConditionAndOutcomes;
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.test.util.TestPropertyValues;
 import infra.util.ClassUtils;
-import infra.webmvc.config.WebMvcAutoConfiguration;
+import infra.web.config.WebMvcAutoConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

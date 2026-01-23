@@ -10,4 +10,5 @@ infra.app.logging.logback.LogbackRuntimeHints,\
 
 
 infra.beans.factory.aot.BeanFactoryInitializationAotProcessor=\
+infra.app.config.logging.ConditionEvaluationReportLoggingProcessor,\
 infra.app.env.EnvironmentPostProcessorApplicationListener.EnvironmentBeanFactoryInitializationAotProcessor

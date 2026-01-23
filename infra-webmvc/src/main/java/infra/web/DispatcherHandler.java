@@ -50,7 +50,23 @@ import infra.web.server.RequestContinueExpectedResolver;
 import infra.web.util.WebUtils;
 
 /**
- * Central dispatcher for HTTP request handlers/controllers
+ * Central dispatcher for HTTP request handlers/controllers.
+ * <p>
+ * This class is responsible for processing all incoming HTTP requests and dispatching them
+ * to the appropriate handler/controller based on the request mappings.
+ *
+ * The DispatcherHandler follows a well-defined request processing workflow:
+ * <ul>
+ * <li>Lookup appropriate handler for the incoming request using configured HandlerMapping</li>
+ * <li>Determine the HandlerAdapter that supports the handler</li>
+ * <li>Invoke the handler to process the request and generate a return value</li>
+ * <li>Select an appropriate ReturnValueHandler to handle the return value</li>
+ * <li>In case of exceptions, delegate to HandlerExceptionHandler for error handling</li>
+ * <li>Notify registered RequestCompletedListener instances upon request completion</li>
+ * </ul>
+ *
+ * It also handles special cases like asynchronous request processing and provides
+ * hooks for customizing various aspects of request handling through configurable strategies.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0 2019-11-16 19:05
@@ -89,7 +105,6 @@ public class DispatcherHandler extends InfraHandler {
   @Nullable
   protected WebAsyncManagerFactory webAsyncManagerFactory;
 
-  @SuppressWarnings("NullAway")
   public DispatcherHandler() {
   }
 
@@ -106,30 +121,49 @@ public class DispatcherHandler extends InfraHandler {
    * @see #initApplicationContext
    * @see #configureAndRefreshApplicationContext
    */
-  @SuppressWarnings("NullAway")
   public DispatcherHandler(ApplicationContext context) {
     super(context);
   }
 
+  /**
+   * Set the HandlerMapping to use for looking up handlers for incoming requests.
+   *
+   * @param handlerMapping the HandlerMapping instance to use
+   * @throws IllegalArgumentException if the provided handlerMapping is null
+   */
   public void setHandlerMapping(HandlerMapping handlerMapping) {
     Assert.notNull(handlerMapping, "HandlerMapping is required");
     this.handlerMapping = handlerMapping;
   }
 
+  /**
+   * Set the HandlerAdapter to use for adapting handlers to the actual request.
+   *
+   * @param handlerAdapter the HandlerAdapter instance to use
+   * @throws IllegalArgumentException if the provided handlerAdapter is null
+   */
   public void setHandlerAdapter(HandlerAdapter handlerAdapter) {
     Assert.notNull(handlerAdapter, "HandlerAdapter is required");
     this.handlerAdapter = handlerAdapter;
   }
 
+  /**
+   * Set the HandlerExceptionHandler to use for handling exceptions thrown during request processing.
+   *
+   * @param exceptionHandler the HandlerExceptionHandler instance to use
+   * @throws IllegalArgumentException if the provided exceptionHandler is null
+   */
   public void setExceptionHandler(HandlerExceptionHandler exceptionHandler) {
     Assert.notNull(exceptionHandler, "exceptionHandler is required");
     this.exceptionHandler = exceptionHandler;
   }
 
   /**
-   * Set ReturnValueHandlerManager
+   * Sets the ReturnValueHandlerManager to use for handling return values from request handlers.
    *
-   * @param returnValueHandler ReturnValueHandlerManager
+   * @param returnValueHandler the ReturnValueHandlerManager instance to use
+   * @throws IllegalArgumentException if the provided returnValueHandler is null
+   * @since 4.0
    */
   public void setReturnValueHandler(ReturnValueHandlerManager returnValueHandler) {
     Assert.notNull(returnValueHandler, "ReturnValueHandlerManager is required");
@@ -184,9 +218,10 @@ public class DispatcherHandler extends InfraHandler {
   }
 
   /**
-   * Set not found handler
+   * Sets the NotFoundHandler to use for handling requests when no suitable handler is found.
    *
-   * @param notFoundHandler HttpRequestHandler
+   * @param notFoundHandler the NotFoundHandler instance to use
+   * @throws IllegalArgumentException if the provided notFoundHandler is null
    * @since 4.0
    */
   public void setNotFoundHandler(NotFoundHandler notFoundHandler) {
@@ -328,7 +363,6 @@ public class DispatcherHandler extends InfraHandler {
    *
    * @see SimpleNotFoundHandler
    */
-  @SuppressWarnings("NullAway")
   private void initNotFoundHandler(ApplicationContext context) {
     if (notFoundHandler == null) {
       notFoundHandler = BeanFactoryUtils.find(context, NotFoundHandler.class);
@@ -344,7 +378,6 @@ public class DispatcherHandler extends InfraHandler {
    *
    * @see WebAsyncManagerFactory
    */
-  @SuppressWarnings("NullAway")
   private void initWebAsyncManagerFactory(ApplicationContext context) {
     if (webAsyncManagerFactory == null) {
       setWebAsyncManagerFactory(WebAsyncManagerFactory.find(context));

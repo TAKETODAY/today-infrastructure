@@ -1,4 +1,4 @@
-description = "Web MVC, provides default netty implementation"
+description = "Web MVC infrastructure"
 
 apply plugin: "infra.building.multiReleaseJar"
 
@@ -20,6 +20,7 @@ dependencies {
   optional(project(":infra-aop"))
   optional(project(":infra-oxm"))
   optional(project(":infra-core-aot"))
+  optional(project(":infra-app"))
   optional(project(":infra-http-service"))
   optional("org.apache.groovy:groovy-templates")
   optional('io.micrometer:context-propagation')
@@ -61,7 +62,9 @@ dependencies {
 
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
 
+  testImplementation project(":module:infra-app-test")
 
   testImplementation('com.google.code.findbugs:findbugs')
   testImplementation("io.projectreactor:reactor-test")
@@ -101,7 +104,6 @@ dependencies {
   testRuntimeOnly("org.jruby:jruby")
   testRuntimeOnly("org.python:jython-standalone")
   testRuntimeOnly("org.webjars:underscorejs")
-  testRuntimeOnly("org.glassfish:jakarta.el")
   testRuntimeOnly("com.sun.xml.bind:jaxb-core")
   testRuntimeOnly("com.sun.xml.bind:jaxb-impl")
   testRuntimeOnly("com.sun.activation:jakarta.activation")
@@ -115,4 +117,19 @@ dependencies {
 
   testFixturesImplementation("org.xmlunit:xmlunit-assertj")
   testFixturesImplementation("org.xmlunit:xmlunit-matchers")
+
+  testImplementation project(':module:infra-app-freemarker')
+  testImplementation project(':module:infra-jackson')
+  testImplementation project(':infra-web-netty-server')
+  testImplementation project(':module:infra-app-resttestclient')
+
+  testImplementation "jakarta.validation:jakarta.validation-api"
+  testImplementation 'org.hibernate.validator:hibernate-validator'
+  testImplementation("org.aspectj:aspectjweaver")
+  testImplementation 'ch.qos.logback:logback-classic'
+  testImplementation("org.hamcrest:hamcrest")
+
+  testImplementation testFixtures(project(':infra-web-netty-server'))
+
+  testRuntimeOnly("org.apache.tomcat.embed:tomcat-embed-el")
 }

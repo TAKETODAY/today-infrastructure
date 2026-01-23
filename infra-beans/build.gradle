@@ -1,4 +1,4 @@
-description = "Infra Beans"
+description = "Beans infrastructure"
 
 dependencies {
   api(project(":infra-core"))

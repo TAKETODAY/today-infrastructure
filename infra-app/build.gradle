@@ -1,8 +1,6 @@
 apply plugin: "java-test-fixtures"
 
-description = """
-A Java library for dependency injection and aspect oriented programing and building high-performance (web) applications like Spring Boot.\
-"""
+description = "Infra application"
 
 dependencies {
   api project(':infra-core')
@@ -12,10 +10,7 @@ dependencies {
   optional(project(":infra-core-aot"))
   optional project(':infra-aop')
   optional project(':infra-web')
-  optional project(':infra-webmvc')
-  optional project(":infra-jdbc")
   optional project(':infra-instrument')
-  optional project(':infra-websocket')
   optional(project(":infra-http-reactive"))
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
@@ -71,18 +66,22 @@ dependencies {
   testImplementation 'org.reactivestreams:reactive-streams'
   testImplementation 'com.jayway.jsonpath:json-path'
 
-  testImplementation project(':module:infra-app-netty-server')
-  testImplementation project(':module:infra-app-http-converter')
-  testImplementation testFixtures(project(':module:infra-app-netty-server'))
-  testImplementation testFixtures(project(':module:infra-app-web-server'))
+  testImplementation project(':infra-web-netty-server')
+  testImplementation testFixtures(project(':infra-web-netty-server'))
+  testImplementation testFixtures(project(':infra-web-server'))
+  testImplementation 'org.aspectj:aspectjweaver'
 
   testFixturesApi project(':infra-webmvc-mock')
-  testFixturesImplementation("org.junit.jupiter:junit-jupiter-api")
-  testFixturesImplementation("org.junit.jupiter:junit-jupiter-params")
   testFixturesImplementation("org.junit.platform:junit-platform-suite-api")
-  testFixturesImplementation("org.mockito:mockito-core")
-  testFixturesImplementation("org.mockito:mockito-junit-jupiter")
-  testFixturesImplementation("org.assertj:assertj-core")
 
+  testFixturesApi project(":infra-test")
+  testFixturesApi project(':infra-test-support')
+  testFixturesApi("org.junit.platform:junit-platform-launcher")
+  testFixturesApi("org.junit.jupiter:junit-jupiter-api")
+  testFixturesApi("org.junit.jupiter:junit-jupiter-params")
+  testFixturesApi("org.mockito:mockito-core")
+  testFixturesApi("org.mockito:mockito-junit-jupiter")
+  testFixturesApi("org.assertj:assertj-core")
+  testFixturesApi 'org.junit.platform:junit-platform-launcher'
 
 }

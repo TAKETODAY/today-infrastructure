@@ -41,7 +41,7 @@ import infra.web.view.View;
 import infra.web.view.freemarker.FreeMarkerConfig;
 import infra.web.view.freemarker.FreeMarkerConfigurer;
 import infra.web.view.freemarker.FreeMarkerViewResolver;
-import infra.webmvc.config.WebMvcAutoConfiguration;
+import infra.web.config.WebMvcAutoConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -16,17 +16,25 @@ dependencies {
   optional("io.projectreactor:reactor-core")
   optional("io.reactivex.rxjava3:rxjava")
 
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
+  testImplementation project(':infra-test-support')
+  testImplementation project(':module:infra-app-test')
+
   testImplementation("tools.jackson.core:jackson-databind")
   testImplementation("com.squareup.okhttp3:mockwebserver")
   testImplementation("io.projectreactor:reactor-test")
   testImplementation 'org.apache.httpcomponents.core5:httpcore5'
   testImplementation 'org.apache.httpcomponents.core5:httpcore5-reactive'
   testImplementation 'org.apache.httpcomponents.client5:httpclient5'
-
+  testImplementation "org.hamcrest:hamcrest"
 
   testFixturesApi(testFixtures(project(":infra-core")))
   testFixturesApi(testFixtures(project(":infra-web")))
   testFixturesApi(testFixtures(project(":infra-beans")))
   testFixturesApi(testFixtures(project(":infra-http-reactive")))
+
+  testRuntimeOnly("ch.qos.logback:logback-classic")
 }
 

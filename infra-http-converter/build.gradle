@@ -1,9 +1,10 @@
-description = "Infra HTTP converter"
+description = "HTTP message converter infrastructure"
 
 dependencies {
   api(project(":infra-http"))
 
   optional(project(":infra-beans"))
+  optional(project(":infra-context"))
   optional(project(":infra-oxm"))
   optional(project(":infra-aop"))
   optional(project(":infra-core-aot"))
@@ -21,6 +22,11 @@ dependencies {
 
   optional("com.rometools:rome")
 
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
+  testImplementation project(":infra-test")
+  testImplementation project(":module:infra-app-test")
   testImplementation testFixtures(project(":infra-http"))
   testImplementation testFixtures(project(":infra-core"))
   testImplementation("org.xmlunit:xmlunit-assertj")
@@ -29,5 +35,7 @@ dependencies {
   testImplementation 'org.eclipse:yasson'
   testRuntimeOnly("com.sun.xml.bind:jaxb-core")
   testRuntimeOnly("com.sun.xml.bind:jaxb-impl")
+  testRuntimeOnly("io.projectreactor:reactor-test")
+  testRuntimeOnly("ch.qos.logback:logback-classic")
 
 }

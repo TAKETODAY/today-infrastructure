@@ -2,6 +2,6 @@ description = "Starter for using Java Mail and Infra email sending support"
 
 dependencies {
   api project(':infra-starter')
-  api project(':module:infra-app-mail')
+  api project(':module:infra-mail')
   api 'org.eclipse.angus:jakarta.mail'
 }

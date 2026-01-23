@@ -1,0 +1,5 @@
+infra.jdbc.config.DataSourceAutoConfiguration
+infra.jdbc.config.JdbcClientAutoConfiguration
+infra.jdbc.config.JdbcTemplateAutoConfiguration
+infra.jdbc.config.DataSourceTransactionManagerAutoConfiguration
+infra.jdbc.config.health.DataSourceHealthContributorAutoConfiguration

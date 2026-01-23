@@ -1,6 +1,6 @@
 apply plugin: "java-test-fixtures"
 
-description = "Infra HTTP API"
+description = "HTTP infrastructure"
 
 dependencies {
   api(project(":infra-core"))
@@ -9,6 +9,9 @@ dependencies {
   optional(project(":infra-core-aot"))
   optional 'io.netty:netty-codec-http'
   optional("io.projectreactor.netty:reactor-netty-http")
+
+  optional('org.apache.httpcomponents.client5:httpclient5')
+  optional('org.apache.httpcomponents.core5:httpcore5-reactive')
 
   optional("tools.jackson.core:jackson-databind")
   optional("tools.jackson.dataformat:jackson-dataformat-xml")

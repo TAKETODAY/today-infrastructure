@@ -18,7 +18,6 @@ dependencies {
   optional(project(":infra-http-converter"))
   optional(project(":infra-web-reactive"))
   optional(project(":infra-web-client"))
-  optional(project(":module:infra-app-restclient"))
 
   optional("jakarta.validation:jakarta.validation-api")
   optional("jakarta.activation:jakarta.activation-api")
@@ -81,11 +80,10 @@ dependencies {
   testImplementation(testFixtures(project(":infra-core")))
   testImplementation(testFixtures(project(":infra-tx")))
   testImplementation(testFixtures(project(":infra-web")))
-  testImplementation project(':module:infra-app-webmvc')
   testImplementation project(':module:infra-app-freemarker')
-  testImplementation project(':module:infra-app-netty-server')
-  testImplementation project(':module:infra-app-web-server')
-  testImplementation project(':module:infra-app-reactor-netty')
+  testImplementation project(':infra-web-netty-server')
+  testImplementation project(':infra-web-server')
+  testImplementation project(':infra-web-reactor-server')
 
   testImplementation("jakarta.annotation:jakarta.annotation-api")
   testImplementation("javax.cache:cache-api")

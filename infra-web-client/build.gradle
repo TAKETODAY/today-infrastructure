@@ -1,4 +1,4 @@
-description = "Infra Web Client (RestClient)"
+description = "Web Client (RestClient) infrastructure"
 
 dependencies {
   api(project(":infra-http"))
@@ -10,6 +10,13 @@ dependencies {
   optional(project(":infra-context"))
   optional(project(":infra-core-aot"))
 
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
+  testImplementation project(":infra-test")
+  testImplementation project(':infra-test-support')
+  testImplementation project(":module:infra-app-test")
+
   testImplementation("org.apache.httpcomponents.client5:httpclient5")
   testImplementation("tools.jackson.core:jackson-databind")
   testImplementation("com.squareup.okhttp3:mockwebserver")
@@ -20,5 +27,9 @@ dependencies {
   testImplementation(testFixtures(project(":infra-beans")))
   testImplementation(testFixtures(project(":infra-core")))
   testImplementation(testFixtures(project(":infra-web")))
+
+  testImplementation "org.hamcrest:hamcrest"
+  testImplementation 'io.projectreactor:reactor-test'
+  testImplementation "org.apache.httpcomponents.client5:httpclient5"
 
 }
