@@ -82,7 +82,7 @@ public final class ValidationAutoConfiguration {
     var processor = new FilteredMethodValidationPostProcessor(excludeFilters);
     boolean proxyTargetClass = environment.getFlag("infra.aop.proxy-target-class", true);
     boolean adaptConstraintViolations = environment.getFlag(
-            "infra.validation.method.adapt-constraint-violations", false);
+            "validation.method.adapt-constraint-violations", false);
 
     processor.setProxyTargetClass(proxyTargetClass);
     processor.setValidatorProvider(validator);

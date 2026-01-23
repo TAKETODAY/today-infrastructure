@@ -62,7 +62,7 @@ public final class HttpMessageConvertersAutoConfiguration {
 
   @Order(0)
   @Component
-  static DefaultHttpMessageConvertersCustomizer clientConvertersCustomizer(List<HttpMessageConverter<?>> converters) {
+  static DefaultHttpMessageConvertersCustomizer defaultHttpMessageConvertersCustomizer(List<HttpMessageConverter<?>> converters) {
     return new DefaultHttpMessageConvertersCustomizer(converters);
   }
 

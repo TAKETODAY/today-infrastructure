@@ -377,18 +377,10 @@
       "description": "Auto-configuration classes to exclude."
     },
     {
-      "name": "infra.validation.method.adapt-constraint-violations",
+      "name": "validation.method.adapt-constraint-violations",
       "type": "java.lang.Boolean",
       "description": "Whether to adapt ConstraintViolations to MethodValidationResult.",
       "defaultValue": false
-    },
-    {
-      "name": "jackson.constructor-detector",
-      "defaultValue": "default"
-    },
-    {
-      "name": "jackson.datatype.enum",
-      "description": "Jackson on/off features for enums."
     },
     {
       "name": "trace",
@@ -398,7 +390,7 @@
       "defaultValue": false
     },
     {
-      "name": "web.mvc.converters.preferred-json-mapper",
+      "name": "http.converters.preferred-json-mapper",
       "type": "java.lang.String",
       "description": "Preferred JSON mapper to use for HTTP message conversion. By default, auto-detected according to the environment."
     }
@@ -581,7 +573,7 @@
       ]
     },
     {
-      "name": "web.mvc.converters.preferred-json-mapper",
+      "name": "http.converters.preferred-json-mapper",
       "values": [
         {
           "value": "gson"

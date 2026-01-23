@@ -264,7 +264,7 @@ class ValidationAutoConfigurationTests {
   @Test
   void validationCanBeConfiguredToAdaptConstraintViolations() {
     this.contextRunner.withUserConfiguration(AnotherSampleServiceConfiguration.class)
-            .withPropertyValues("infra.validation.method.adapt-constraint-violations=true")
+            .withPropertyValues("validation.method.adapt-constraint-violations=true")
             .run((context) -> {
               assertThat(context.getBeansOfType(Validator.class)).hasSize(1);
               AnotherSampleService service = context.getBean(AnotherSampleService.class);
