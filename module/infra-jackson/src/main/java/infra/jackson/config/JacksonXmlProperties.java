@@ -38,19 +38,11 @@ public class JacksonXmlProperties {
   /**
    * Jackson on/off token reader features that are specific to XML.
    */
-  private final Map<XmlReadFeature, Boolean> read = new EnumMap<>(XmlReadFeature.class);
+  public final Map<XmlReadFeature, Boolean> read = new EnumMap<>(XmlReadFeature.class);
 
   /**
    * Jackson on/off token writer features that are specific to XML.
    */
-  private final Map<XmlWriteFeature, Boolean> write = new EnumMap<>(XmlWriteFeature.class);
-
-  public Map<XmlReadFeature, Boolean> getRead() {
-    return this.read;
-  }
-
-  public Map<XmlWriteFeature, Boolean> getWrite() {
-    return this.write;
-  }
+  public final Map<XmlWriteFeature, Boolean> write = new EnumMap<>(XmlWriteFeature.class);
 
 }

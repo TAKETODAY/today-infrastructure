@@ -59,7 +59,6 @@ public interface SmartInitializingSingleton {
    * with the intended bootstrap semantics only.
    */
   default void afterSingletonsInstantiated() {
-
   }
 
   /**

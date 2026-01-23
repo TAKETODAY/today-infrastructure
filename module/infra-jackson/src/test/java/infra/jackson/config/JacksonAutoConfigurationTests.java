@@ -37,14 +37,7 @@ import java.util.Set;
 
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
-import infra.jackson.JacksonComponent;
-import infra.jackson.JacksonMixin;
-import infra.jackson.JacksonMixinModule;
-import infra.jackson.JacksonMixinModuleEntries;
-import infra.jackson.ObjectValueSerializer;
-import infra.jackson.config.JacksonAutoConfiguration.JacksonAutoConfigurationRuntimeHints;
 import infra.app.test.context.runner.ApplicationContextRunner;
-import infra.beans.factory.BeanCurrentlyInCreationException;
 import infra.context.ApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
@@ -54,6 +47,12 @@ import infra.context.annotation.config.AutoConfigurationPackage;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.core.annotation.Order;
 import infra.http.ProblemDetail;
+import infra.jackson.JacksonComponent;
+import infra.jackson.JacksonMixin;
+import infra.jackson.JacksonMixinModule;
+import infra.jackson.JacksonMixinModuleEntries;
+import infra.jackson.ObjectValueSerializer;
+import infra.jackson.config.JacksonAutoConfiguration.JacksonAutoConfigurationRuntimeHints;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.StreamReadFeature;
 import tools.jackson.core.json.JsonFactory;
@@ -73,7 +72,7 @@ import tools.jackson.databind.util.StdDateFormat;
 import tools.jackson.dataformat.cbor.CBORMapper;
 import tools.jackson.dataformat.xml.XmlMapper;
 
-import static infra.jackson.config.JacksonAutoConfiguration.JacksonJsonMapperBuilderCustomizerConfiguration.*;
+import static infra.jackson.config.JacksonAutoConfiguration.JacksonJsonMapperBuilderCustomizerConfiguration.StandardJsonMapperBuilderCustomizer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.entry;
@@ -663,9 +662,9 @@ class JacksonAutoConfigurationTests {
 
   @Test
   void jacksonComponentThatInjectsJsonMapperCausesBeanCurrentlyInCreationException() {
+    // 注册延后 解决循环依赖
     this.contextRunner.withUserConfiguration(CircularDependencySerializerConfiguration.class).run((context) -> {
-      assertThat(context).hasFailed();
-      assertThat(context).getFailure().hasRootCauseInstanceOf(BeanCurrentlyInCreationException.class);
+      assertThat(context).hasNotFailed();
     });
   }
 

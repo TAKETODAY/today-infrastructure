@@ -18,6 +18,8 @@
 
 package infra.jackson;
 
+import org.jspecify.annotations.Nullable;
+
 import tools.jackson.databind.module.SimpleModule;
 
 /**
@@ -39,7 +41,7 @@ public class JacksonMixinModule extends SimpleModule {
    * @param entries the entries to register to this instance
    * @param classLoader the classloader to use
    */
-  public void registerEntries(JacksonMixinModuleEntries entries, ClassLoader classLoader) {
+  public void registerEntries(JacksonMixinModuleEntries entries, @Nullable ClassLoader classLoader) {
     entries.doWithEntry(classLoader, this::setMixInAnnotation);
   }
 

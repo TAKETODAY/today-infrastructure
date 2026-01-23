@@ -30,21 +30,18 @@ import java.util.function.BiConsumer;
 import infra.aot.generate.GenerationContext;
 import infra.aot.hint.MemberCategory;
 import infra.aot.hint.ReflectionHints;
-import infra.jackson.JacksonComponent.Scope;
 import infra.beans.BeanUtils;
-import infra.beans.BeansException;
 import infra.beans.factory.BeanFactory;
-import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.HierarchicalBeanFactory;
-import infra.beans.factory.InitializingBean;
+import infra.beans.factory.SmartInitializingSingleton;
 import infra.beans.factory.aot.BeanFactoryInitializationAotContribution;
 import infra.beans.factory.aot.BeanFactoryInitializationAotProcessor;
 import infra.beans.factory.aot.BeanFactoryInitializationCode;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.ResolvableType;
-import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
+import infra.jackson.JacksonComponent.Scope;
 import infra.lang.Assert;
 import infra.util.ObjectUtils;
 import tools.jackson.databind.KeyDeserializer;
@@ -62,28 +59,17 @@ import tools.jackson.databind.module.SimpleModule;
  * @see JacksonComponent
  * @since 4.0
  */
-@SuppressWarnings("NullAway")
-public class JacksonComponentModule extends SimpleModule implements BeanFactoryAware, InitializingBean {
-
-  @SuppressWarnings("NullAway.Init")
-  private BeanFactory beanFactory;
+public class JacksonComponentModule extends SimpleModule implements SmartInitializingSingleton {
 
   @Override
-  public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-    this.beanFactory = beanFactory;
+  public void afterSingletonsInstantiated(ConfigurableBeanFactory beanFactory) {
+    registerJacksonComponents(beanFactory);
   }
 
-  @Override
-  public void afterPropertiesSet() {
-    registerJacksonComponents();
-  }
-
-  public void registerJacksonComponents() {
-    BeanFactory beanFactory = this.beanFactory;
+  public void registerJacksonComponents(BeanFactory beanFactory) {
     while (beanFactory != null) {
       addJacksonComponentBeans(beanFactory);
-      beanFactory = (beanFactory instanceof HierarchicalBeanFactory hierarchicalBeanFactory)
-              ? hierarchicalBeanFactory.getParentBeanFactory() : null;
+      beanFactory = beanFactory instanceof HierarchicalBeanFactory hbf ? hbf.getParentBeanFactory() : null;
     }
   }
 
@@ -95,9 +81,7 @@ public class JacksonComponentModule extends SimpleModule implements BeanFactoryA
   }
 
   private void addJacksonComponentBean(Object bean) {
-    MergedAnnotation<JacksonComponent> annotation = MergedAnnotations
-            .from(bean.getClass(), SearchStrategy.TYPE_HIERARCHY)
-            .get(JacksonComponent.class);
+    var annotation = MergedAnnotations.from(bean.getClass(), SearchStrategy.TYPE_HIERARCHY).get(JacksonComponent.class);
     Class<?>[] types = annotation.getClassArray("type");
     Scope scope = annotation.getEnum("scope", Scope.class);
     addJacksonComponentBean(bean, types, scope);

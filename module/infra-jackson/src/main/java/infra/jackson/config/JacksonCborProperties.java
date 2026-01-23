@@ -41,19 +41,11 @@ public class JacksonCborProperties {
   /**
    * Jackson on/off token reader features that are specific to CBOR.
    */
-  private final Map<CBORReadFeature, Boolean> read = new EnumMap<>(CBORReadFeature.class);
+  public final Map<CBORReadFeature, Boolean> read = new EnumMap<>(CBORReadFeature.class);
 
   /**
    * Jackson on/off token writer features that are specific to CBOR.
    */
-  private final Map<CBORWriteFeature, Boolean> write = new EnumMap<>(CBORWriteFeature.class);
-
-  public Map<CBORReadFeature, Boolean> getRead() {
-    return this.read;
-  }
-
-  public Map<CBORWriteFeature, Boolean> getWrite() {
-    return this.write;
-  }
+  public final Map<CBORWriteFeature, Boolean> write = new EnumMap<>(CBORWriteFeature.class);
 
 }

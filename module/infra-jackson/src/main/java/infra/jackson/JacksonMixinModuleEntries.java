@@ -29,7 +29,6 @@ import java.util.function.Consumer;
 import infra.beans.factory.config.BeanDefinition;
 import infra.context.ApplicationContext;
 import infra.context.annotation.ClassPathScanningCandidateComponentProvider;
-import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.type.AnnotationMetadata;
 import infra.core.type.filter.AnnotationTypeFilter;
@@ -45,7 +44,6 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/29 21:30
  */
-@SuppressWarnings("NullAway")
 public final class JacksonMixinModuleEntries {
 
   private final Map<Object, Object> entries;
@@ -75,7 +73,7 @@ public final class JacksonMixinModuleEntries {
    * @return an instance with the result of the scanning
    */
   public static JacksonMixinModuleEntries scan(ApplicationContext context, Collection<String> basePackages) {
-    return JacksonMixinModuleEntries.create((builder) -> {
+    return JacksonMixinModuleEntries.create(builder -> {
       if (ObjectUtils.isEmpty(basePackages)) {
         return;
       }
@@ -96,13 +94,11 @@ public final class JacksonMixinModuleEntries {
   }
 
   private static void registerMixinClass(Builder builder, Class<?> mixinClass) {
-    MergedAnnotation<JacksonMixin> annotation = MergedAnnotations
-            .from(mixinClass, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY)
-            .get(JacksonMixin.class);
+    var annotation = MergedAnnotations.from(mixinClass, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY).get(JacksonMixin.class);
     Class<?>[] types = annotation.getClassArray("type");
 
     if (ObjectUtils.isEmpty(types)) {
-      throw new IllegalStateException("@JacksonMixin annotation on class '" + mixinClass.getName() + "' does not specify any types");
+      throw new IllegalStateException("@JacksonMixin annotation on class '%s' does not specify any types".formatted(mixinClass.getName()));
     }
 
     for (Class<?> type : types) {
@@ -118,12 +114,14 @@ public final class JacksonMixinModuleEntries {
    * @param action the action to invoke on each type to mixin class entry
    */
   public void doWithEntry(@Nullable ClassLoader classLoader, BiConsumer<Class<?>, Class<?>> action) {
-    this.entries.forEach((type, mixin) -> action.accept(resolveClassNameIfNecessary(type, classLoader),
-            resolveClassNameIfNecessary(mixin, classLoader)));
+    for (var entry : entries.entrySet()) {
+      action.accept(resolveClassNameIfNecessary(entry.getKey(), classLoader),
+              resolveClassNameIfNecessary(entry.getValue(), classLoader));
+    }
   }
 
   private Class<?> resolveClassNameIfNecessary(Object nameOrType, @Nullable ClassLoader classLoader) {
-    return (nameOrType instanceof Class<?> type) ? type
+    return nameOrType instanceof Class<?> type ? type
             : ClassUtils.resolveClassName((String) nameOrType, classLoader);
   }
 
