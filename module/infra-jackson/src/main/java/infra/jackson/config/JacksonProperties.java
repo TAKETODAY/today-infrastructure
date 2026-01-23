@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import infra.context.properties.ConfigurationProperties;
+import infra.context.properties.NestedConfigurationProperty;
+import infra.context.properties.bind.Name;
 import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.DeserializationFeature;
@@ -56,160 +58,74 @@ public class JacksonProperties {
    * Date format string or a fully-qualified date format class name. For instance,
    * 'yyyy-MM-dd HH:mm:ss'.
    */
-  private @Nullable String dateFormat;
+  public @Nullable String dateFormat;
 
   /**
    * One of the constants on Jackson's PropertyNamingStrategies. Can also be a
    * fully-qualified class name of a PropertyNamingStrategy implementation.
    */
-  private @Nullable String propertyNamingStrategy;
+  public @Nullable String propertyNamingStrategy;
 
   /**
    * Jackson visibility thresholds that can be used to limit which methods (and fields)
    * are auto-detected.
    */
-  private final Map<PropertyAccessor, JsonAutoDetect.Visibility> visibility = new EnumMap<>(PropertyAccessor.class);
+  public final Map<PropertyAccessor, JsonAutoDetect.Visibility> visibility = new EnumMap<>(PropertyAccessor.class);
 
   /**
    * Jackson on/off features that affect the way Java objects are serialized.
    */
-  private final Map<SerializationFeature, Boolean> serialization = new EnumMap<>(SerializationFeature.class);
+  public final Map<SerializationFeature, Boolean> serialization = new EnumMap<>(SerializationFeature.class);
 
   /**
    * Jackson on/off features that affect the way Java objects are deserialized.
    */
-  private final Map<DeserializationFeature, Boolean> deserialization = new EnumMap<>(DeserializationFeature.class);
+  public final Map<DeserializationFeature, Boolean> deserialization = new EnumMap<>(DeserializationFeature.class);
 
   /**
    * Jackson general purpose on/off features.
    */
-  private final Map<MapperFeature, Boolean> mapper = new EnumMap<>(MapperFeature.class);
+  public final Map<MapperFeature, Boolean> mapper = new EnumMap<>(MapperFeature.class);
 
   /**
    * Controls the inclusion of properties during serialization. Configured with one of
    * the values in Jackson's JsonInclude.Include enumeration.
    */
-  private JsonInclude.@Nullable Include defaultPropertyInclusion;
+  public JsonInclude.@Nullable Include defaultPropertyInclusion;
 
   /**
    * Global default setting (if any) for leniency.
    */
-  private @Nullable Boolean defaultLeniency;
+  public @Nullable Boolean defaultLeniency;
 
   /**
    * Strategy to use to auto-detect constructor, and in particular behavior with
    * single-argument constructors.
    */
-  private @Nullable ConstructorDetectorStrategy constructorDetector;
+  public @Nullable ConstructorDetectorStrategy constructorDetector;
 
   /**
    * Time zone used when formatting dates. For instance, "America/Los_Angeles" or
    * "GMT+10".
    */
-  private @Nullable TimeZone timeZone;
+  public @Nullable TimeZone timeZone;
 
   /**
    * Locale used for formatting.
    */
-  private @Nullable Locale locale;
+  public @Nullable Locale locale;
 
   /**
    * Whether to find and add modules to the auto-configured JsonMapper.Builder using
    * MapperBuilder.findAndAddModules(ClassLoader).
    */
-  private boolean findAndAddModules = true;
+  public boolean findAndAddModules = true;
 
-  private final Datatype datatype = new Datatype();
+  @NestedConfigurationProperty
+  public final Datatype datatype = new Datatype();
 
-  private final Json json = new Json();
-
-  public @Nullable String getDateFormat() {
-    return this.dateFormat;
-  }
-
-  public void setDateFormat(@Nullable String dateFormat) {
-    this.dateFormat = dateFormat;
-  }
-
-  public @Nullable String getPropertyNamingStrategy() {
-    return this.propertyNamingStrategy;
-  }
-
-  public void setPropertyNamingStrategy(@Nullable String propertyNamingStrategy) {
-    this.propertyNamingStrategy = propertyNamingStrategy;
-  }
-
-  public Map<PropertyAccessor, JsonAutoDetect.Visibility> getVisibility() {
-    return this.visibility;
-  }
-
-  public Map<SerializationFeature, Boolean> getSerialization() {
-    return this.serialization;
-  }
-
-  public Map<DeserializationFeature, Boolean> getDeserialization() {
-    return this.deserialization;
-  }
-
-  public Map<MapperFeature, Boolean> getMapper() {
-    return this.mapper;
-  }
-
-  public JsonInclude.@Nullable Include getDefaultPropertyInclusion() {
-    return this.defaultPropertyInclusion;
-  }
-
-  public void setDefaultPropertyInclusion(JsonInclude.@Nullable Include defaultPropertyInclusion) {
-    this.defaultPropertyInclusion = defaultPropertyInclusion;
-  }
-
-  public @Nullable Boolean getDefaultLeniency() {
-    return this.defaultLeniency;
-  }
-
-  public void setDefaultLeniency(@Nullable Boolean defaultLeniency) {
-    this.defaultLeniency = defaultLeniency;
-  }
-
-  public @Nullable ConstructorDetectorStrategy getConstructorDetector() {
-    return this.constructorDetector;
-  }
-
-  public void setConstructorDetector(@Nullable ConstructorDetectorStrategy constructorDetector) {
-    this.constructorDetector = constructorDetector;
-  }
-
-  public @Nullable TimeZone getTimeZone() {
-    return this.timeZone;
-  }
-
-  public void setTimeZone(@Nullable TimeZone timeZone) {
-    this.timeZone = timeZone;
-  }
-
-  public @Nullable Locale getLocale() {
-    return this.locale;
-  }
-
-  public void setLocale(@Nullable Locale locale) {
-    this.locale = locale;
-  }
-
-  public boolean isFindAndAddModules() {
-    return this.findAndAddModules;
-  }
-
-  public void setFindAndAddModules(boolean findModules) {
-    this.findAndAddModules = findModules;
-  }
-
-  public Datatype getDatatype() {
-    return this.datatype;
-  }
-
-  public Json getJson() {
-    return this.json;
-  }
+  @NestedConfigurationProperty
+  public final Json json = new Json();
 
   public enum ConstructorDetectorStrategy {
 
@@ -241,29 +157,18 @@ public class JacksonProperties {
     /**
      * Jackson on/off features for enums.
      */
-    private final Map<EnumFeature, Boolean> enumFeatures = new EnumMap<>(EnumFeature.class);
+    @Name("enum")
+    public final Map<EnumFeature, Boolean> enumFeatures = new EnumMap<>(EnumFeature.class);
 
     /**
      * Jackson on/off features for JsonNodes.
      */
-    private final Map<JsonNodeFeature, Boolean> jsonNode = new EnumMap<>(JsonNodeFeature.class);
+    public final Map<JsonNodeFeature, Boolean> jsonNode = new EnumMap<>(JsonNodeFeature.class);
 
     /**
      * Jackson on/off features for DateTimes.
      */
-    private final Map<DateTimeFeature, Boolean> datetime = new EnumMap<>(DateTimeFeature.class);
-
-    public Map<EnumFeature, Boolean> getEnum() {
-      return this.enumFeatures;
-    }
-
-    public Map<JsonNodeFeature, Boolean> getJsonNode() {
-      return this.jsonNode;
-    }
-
-    public Map<DateTimeFeature, Boolean> getDatetime() {
-      return this.datetime;
-    }
+    public final Map<DateTimeFeature, Boolean> datetime = new EnumMap<>(DateTimeFeature.class);
 
   }
 
@@ -272,20 +177,12 @@ public class JacksonProperties {
     /**
      * Jackson on/off token reader features that are specific to JSON.
      */
-    private final Map<JsonReadFeature, Boolean> read = new EnumMap<>(JsonReadFeature.class);
+    public final Map<JsonReadFeature, Boolean> read = new EnumMap<>(JsonReadFeature.class);
 
     /**
      * Jackson on/off token writer features that are specific to JSON.
      */
-    private final Map<JsonWriteFeature, Boolean> write = new EnumMap<>(JsonWriteFeature.class);
-
-    public Map<JsonReadFeature, Boolean> getRead() {
-      return this.read;
-    }
-
-    public Map<JsonWriteFeature, Boolean> getWrite() {
-      return this.write;
-    }
+    public final Map<JsonWriteFeature, Boolean> write = new EnumMap<>(JsonWriteFeature.class);
 
   }
 
