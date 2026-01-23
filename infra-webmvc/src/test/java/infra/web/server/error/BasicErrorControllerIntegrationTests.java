@@ -51,11 +51,11 @@ import infra.web.annotation.RequestMapping;
 import infra.web.annotation.ResponseStatus;
 import infra.web.annotation.RestController;
 import infra.web.bind.MethodArgumentNotValidException;
+import infra.web.config.ErrorMvcAutoConfiguration;
+import infra.web.config.WebMvcAutoConfiguration;
 import infra.web.server.netty.RandomPortWebServerConfig;
 import infra.web.view.AbstractView;
 import infra.web.view.View;
-import infra.web.config.ErrorMvcAutoConfiguration;
-import infra.web.config.WebMvcAutoConfiguration;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
@@ -293,8 +293,8 @@ class BasicErrorControllerIntegrationTests {
             .contentType(MediaType.APPLICATION_JSON)
             .body("{}");
     ResponseEntity<Map> entity = new TestRestTemplate().exchange(request, Map.class);
-    assertErrorAttributes(entity.getBody(), "400", "Bad Request", MethodArgumentNotValidException.class, null,
-            "/bodyValidation");
+    assertErrorAttributes(entity.getBody(), "400", "Bad Request",
+            MethodArgumentNotValidException.class, null, "/bodyValidation");
     assertThat(entity.getBody()).doesNotContainKey("errors");
   }
 
@@ -467,11 +467,11 @@ class BasicErrorControllerIntegrationTests {
         @NotNull
         private String content;
 
-        String getContent() {
+        public String getContent() {
           return this.content;
         }
 
-        void setContent(String content) {
+        public void setContent(String content) {
           this.content = content;
         }
 

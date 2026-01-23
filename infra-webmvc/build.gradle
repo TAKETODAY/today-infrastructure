@@ -104,7 +104,6 @@ dependencies {
   testRuntimeOnly("org.jruby:jruby")
   testRuntimeOnly("org.python:jython-standalone")
   testRuntimeOnly("org.webjars:underscorejs")
-  testRuntimeOnly("org.glassfish:jakarta.el")
   testRuntimeOnly("com.sun.xml.bind:jaxb-core")
   testRuntimeOnly("com.sun.xml.bind:jaxb-impl")
   testRuntimeOnly("com.sun.activation:jakarta.activation")
@@ -132,5 +131,5 @@ dependencies {
 
   testImplementation testFixtures(project(':infra-web-netty-server'))
 
-  testRuntimeOnly "org.glassfish:jakarta.el"
+  testRuntimeOnly("org.apache.tomcat.embed:tomcat-embed-el")
 }
