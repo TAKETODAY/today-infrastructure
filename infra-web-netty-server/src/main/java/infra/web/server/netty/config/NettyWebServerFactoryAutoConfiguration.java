@@ -46,13 +46,14 @@ import infra.stereotype.Component;
 import infra.util.ClassUtils;
 import infra.util.DataSize;
 import infra.web.DispatcherHandler;
+import infra.web.config.ErrorMvcAutoConfiguration;
 import infra.web.multipart.MultipartParser;
 import infra.web.multipart.parsing.DefaultMultipartParser;
 import infra.web.multipart.parsing.ProgressListener;
-import infra.web.server.config.ServerProperties;
 import infra.web.server.ServiceExecutor;
 import infra.web.server.SimpleServiceExecutor;
 import infra.web.server.Ssl;
+import infra.web.server.config.ServerProperties;
 import infra.web.server.config.WebServerConfiguration;
 import infra.web.server.error.SendErrorHandler;
 import infra.web.server.netty.ChannelConfigurer;
@@ -64,7 +65,6 @@ import infra.web.server.netty.NettyWebServerFactory;
 import infra.web.server.netty.ServerBootstrapCustomizer;
 import infra.web.server.netty.WsNettyChannelHandler;
 import infra.web.socket.server.RequestUpgradeStrategy;
-import infra.web.config.ErrorMvcAutoConfiguration;
 import io.netty.channel.ChannelHandler;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketDecoderConfig;
@@ -184,12 +184,12 @@ public final class NettyWebServerFactoryAutoConfiguration {
 
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnClass(RequestUpgradeStrategy.class)
-  public static class NettyWebSocket {
+  public static class WebSocket {
 
     @Component
     @ConditionalOnMissingBean
-    public static RequestUpgradeStrategy nettyRequestUpgradeStrategy(WebSocketDecoderConfig decoderConfig) {
-      return new NettyRequestUpgradeStrategy(decoderConfig);
+    public static RequestUpgradeStrategy nettyRequestUpgradeStrategy(WebSocketDecoderConfig config) {
+      return new NettyRequestUpgradeStrategy(config);
     }
 
     @Component
