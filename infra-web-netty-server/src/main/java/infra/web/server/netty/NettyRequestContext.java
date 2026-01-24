@@ -193,6 +193,13 @@ public abstract class NettyRequestContext extends RequestContext {
     return requestTimeMillis;
   }
 
+  public HttpVersion version() {
+    if (http2) {
+      return H2;
+    }
+    return HttpVersion.HTTP_1_1;
+  }
+
   @Override
   public String getScheme() {
     return config.secure ? Constant.HTTPS : Constant.HTTP;
@@ -727,6 +734,11 @@ public abstract class NettyRequestContext extends RequestContext {
   @Override
   protected AsyncWebRequest createAsyncWebRequest() {
     return new NettyAsyncWebRequest(this);
+  }
+
+  @Override
+  public String toString() {
+    return super.toString() + " " + version();
   }
 
   /**
