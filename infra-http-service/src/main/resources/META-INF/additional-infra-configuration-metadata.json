@@ -1,0 +1,11 @@
+{
+  "groups": [],
+  "properties": [
+    {
+      "name": "http.service-client",
+      "type": "java.util.Map<java.lang.String, infra.http.service.config.HttpClientProperties>",
+      "description": "HTTP Service Client definitions.",
+      "sourceType": "infra.http.service.config.HttpServiceClientProperties"
+    }
+  ]
+}
