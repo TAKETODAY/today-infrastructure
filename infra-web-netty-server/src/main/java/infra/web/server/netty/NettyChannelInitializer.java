@@ -52,7 +52,13 @@ sealed class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
   protected static final String H2MultiplexHandler = "H2MultiplexHandler";
 
   private static final Http2StreamFrameToHttpObjectCodec HTTP2_STREAM_FRAME_TO_HTTP_OBJECT =
-          new Http2StreamFrameToHttpObjectCodec(true);
+          new Http2StreamFrameToHttpObjectCodec(true) {
+
+            @Override
+            public boolean isSharable() {
+              return true;
+            }
+          };
 
   private final ChannelHandler channelHandler;
 
