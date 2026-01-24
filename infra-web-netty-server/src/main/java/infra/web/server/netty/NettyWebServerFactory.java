@@ -419,12 +419,12 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   private NettyChannelInitializer createInitializer(ChannelHandler channelHandler, HttpDecoderConfig config) {
     Ssl ssl = getSsl();
     if (Ssl.isEnabled(ssl)) {
-      SSLNettyChannelInitializer initializer = new SSLNettyChannelInitializer(channelHandler, config,
+      SecuredNettyChannelInitializer initializer = new SecuredNettyChannelInitializer(channelHandler, config,
               channelConfigurer, isHttp2Enabled(), ssl, getSslBundle(), getServerNameSslBundles());
       addBundleUpdateHandler(ssl, initializer::updateSSLBundle);
       return initializer;
     }
-    return new NettyChannelInitializer(channelHandler, channelConfigurer, config);
+    return new NettyChannelInitializer(channelHandler, isHttp2Enabled(), channelConfigurer, config);
   }
 
   private InetSocketAddress getListenAddress() {

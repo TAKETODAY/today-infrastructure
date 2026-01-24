@@ -34,10 +34,14 @@ import infra.util.ObjectUtils;
 import infra.web.server.Ssl;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInitializer;
 import io.netty.handler.codec.http.HttpDecoderConfig;
+import io.netty.handler.codec.http2.Http2MultiplexHandler;
 import io.netty.handler.codec.http2.Http2SecurityUtil;
 import io.netty.handler.ssl.ApplicationProtocolConfig;
 import io.netty.handler.ssl.ApplicationProtocolNames;
+import io.netty.handler.ssl.ApplicationProtocolNegotiationHandler;
 import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.OpenSsl;
 import io.netty.handler.ssl.SniHandler;
@@ -47,6 +51,7 @@ import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 
+import static infra.web.server.netty.NettyUtils.format;
 import static io.netty.handler.ssl.ApplicationProtocolConfig.Protocol;
 import static io.netty.handler.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
 import static io.netty.handler.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
@@ -54,14 +59,16 @@ import static io.netty.handler.ssl.SslProvider.JDK;
 import static io.netty.handler.ssl.SslProvider.OPENSSL;
 
 /**
- * HTTPS netty channel initializer
+ * Secure Netty channel initializer for handling HTTPS connections.
+ * This class extends {@link NettyChannelInitializer} and provides
+ * SSL/TLS support along with HTTP/2 protocol negotiation.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/3/6 21:16
  */
-final class SSLNettyChannelInitializer extends NettyChannelInitializer {
+final class SecuredNettyChannelInitializer extends NettyChannelInitializer {
 
-  private static final Logger logger = LoggerFactory.getLogger(SSLNettyChannelInitializer.class);
+  private static final Logger logger = LoggerFactory.getLogger(SecuredNettyChannelInitializer.class);
 
   private final @Nullable HashMap<String, SslContext> serverNameSslContexts;
 
@@ -69,14 +76,11 @@ final class SSLNettyChannelInitializer extends NettyChannelInitializer {
 
   private final ClientAuth clientAuth;
 
-  private final boolean http2Enabled;
-
   private volatile SslContext sslContext;
 
-  public SSLNettyChannelInitializer(ChannelHandler handler, HttpDecoderConfig config, @Nullable ChannelConfigurer configurer,
+  public SecuredNettyChannelInitializer(ChannelHandler handler, HttpDecoderConfig config, @Nullable ChannelConfigurer configurer,
           boolean http2Enabled, Ssl ssl, SslBundle sslBundle, Map<String, SslBundle> serverNameSslBundles) {
-    super(handler, configurer, config);
-    this.http2Enabled = http2Enabled;
+    super(handler, http2Enabled, configurer, config);
     this.handshakeTimeout = ssl.handshakeTimeout.toMillis();
     this.clientAuth = Ssl.ClientAuth.map(ssl.clientAuth, ClientAuth.NONE, ClientAuth.OPTIONAL, ClientAuth.REQUIRE);
     this.sslContext = createSslContext(sslBundle);
@@ -84,10 +88,18 @@ final class SSLNettyChannelInitializer extends NettyChannelInitializer {
   }
 
   @Override
-  protected void preInitChannel(@Nullable ChannelConfigurer configurer, final Channel ch) {
-    if (configurer != null) {
-      configurer.initChannel(ch);
-    }
+  protected void configureHttp11Channel(Channel ch) {
+    configureSecuredChannel(ch);
+    super.configureHttp11Channel(ch);
+  }
+
+  @Override
+  protected void configureHttp11OrH2Channel(Channel ch) {
+    configureSecuredChannel(ch);
+    ch.pipeline().addLast(new H2OrHttp11Codec(ch));
+  }
+
+  private void configureSecuredChannel(Channel ch) {
     if (serverNameSslContexts != null) {
       SniHandler sniHandler = new SniHandler((hostname, promise) ->
               promise.setSuccess(serverNameSslContexts.getOrDefault(hostname, sslContext)), handshakeTimeout);
@@ -164,6 +176,55 @@ final class SSLNettyChannelInitializer extends NettyChannelInitializer {
   private SslProvider getSslProvider() {
     return http2Enabled ? (SslProvider.isAlpnSupported(OPENSSL) ? OPENSSL : JDK)
             : (OpenSsl.isAvailable() ? OPENSSL : JDK);
+  }
+
+  private final class H2OrHttp11Codec extends ApplicationProtocolNegotiationHandler {
+
+    private final Channel ch;
+
+    public H2OrHttp11Codec(Channel ch) {
+      super(ApplicationProtocolNames.HTTP_1_1);
+      this.ch = ch;
+    }
+
+    @Override
+    protected void configurePipeline(ChannelHandlerContext ctx, String protocol) {
+      if (logger.isDebugEnabled()) {
+        logger.debug(format(ch, "Negotiated application-level protocol [{}]"), protocol);
+      }
+
+      if (ApplicationProtocolNames.HTTP_2.equals(protocol)) {
+        ch.pipeline()
+                .addLast(HttpCodec, createHttp2FrameCodec())
+                .addLast(H2MultiplexHandler, new Http2MultiplexHandler(new H2Codec()));
+      }
+      else if (ApplicationProtocolNames.HTTP_1_1.equals(protocol)) {
+        SecuredNettyChannelInitializer.super.configureHttp11Channel(ch);
+      }
+      else {
+        throw new IllegalStateException("Unknown protocol: " + protocol);
+      }
+    }
+
+    @Override
+    public boolean isSharable() {
+      return false;
+    }
+
+  }
+
+  final class H2Codec extends ChannelInitializer<Channel> {
+
+    @Override
+    public boolean isSharable() {
+      return false;
+    }
+
+    @Override
+    protected void initChannel(Channel ch) {
+      ch.pipeline().remove(this);
+      addH2StreamHandlers(ch);
+    }
   }
 
 }

@@ -128,7 +128,6 @@ import static infra.lang.Constant.DEFAULT_CHARSET;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2.3.7 2019-06-22 15:48
  */
-@SuppressWarnings("NullAway")
 public abstract class RequestContext extends AttributeAccessorSupport
         implements InputStreamSource, OutputStreamSource, HttpInputMessage, HttpRequest, AttributeAccessor {
 
