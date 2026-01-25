@@ -24,10 +24,10 @@ import java.time.Duration;
 
 import infra.core.ParameterizedTypeReference;
 import infra.core.ReactiveAdapterRegistry;
+import infra.http.HttpHeaders;
 import infra.http.ResponseEntity;
 import infra.lang.Assert;
 import infra.util.concurrent.Future;
-import infra.web.client.ClientResponse;
 import reactor.core.publisher.Mono;
 
 /**
@@ -79,10 +79,9 @@ public abstract class AbstractReactorHttpExchangeAdapter implements ReactorHttpE
   }
 
   @Override
-  public abstract ClientResponse exchange(HttpRequestValues requestValues);
-
-  @Override
-  public abstract Future<ClientResponse> exchangeAsync(HttpRequestValues requestValues);
+  public void exchange(HttpRequestValues requestValues) {
+    blockingGet(exchangeForMono(requestValues));
+  }
 
   @Nullable
   @Override
@@ -102,6 +101,11 @@ public abstract class AbstractReactorHttpExchangeAdapter implements ReactorHttpE
     ResponseEntity<T> entity = blockingGet(exchangeForEntityMono(requestValues, bodyType));
     Assert.state(entity != null, "Expected ResponseEntity");
     return entity;
+  }
+
+  @Override
+  public HttpHeaders exchangeForHeaders(HttpRequestValues requestValues) {
+    return exchangeForBodilessEntity(requestValues).headers();
   }
 
   @Override

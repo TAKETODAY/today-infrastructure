@@ -21,25 +21,20 @@ package infra.http.service.support;
 import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.lang.reflect.Method;
 
+import infra.core.MethodParameter;
 import infra.core.ParameterizedTypeReference;
-import infra.core.io.buffer.DataBuffer;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
-import infra.http.HttpStatus;
-import infra.http.HttpStatusCode;
 import infra.http.ResponseEntity;
-import infra.http.client.ClientHttpResponse;
 import infra.http.service.invoker.AbstractReactorHttpExchangeAdapter;
 import infra.http.service.invoker.HttpRequestValues;
 import infra.http.service.invoker.HttpServiceProxyFactory;
 import infra.http.service.invoker.ReactiveHttpRequestValues;
 import infra.http.service.invoker.ReactorHttpExchangeAdapter;
+import infra.http.service.invoker.RequestExecution;
 import infra.lang.Assert;
-import infra.util.StreamUtils;
 import infra.util.concurrent.Future;
 import infra.web.reactive.client.ClientResponse;
 import infra.web.reactive.client.WebClient;
@@ -110,18 +105,6 @@ public final class WebClientAdapter extends AbstractReactorHttpExchangeAdapter {
   }
 
   @Override
-  @SuppressWarnings("NullAway")
-  public infra.web.client.ClientResponse exchange(HttpRequestValues requestValues) {
-    return blockingGet(newRequest(requestValues).exchange().map(ReactorClientResponse::new));
-  }
-
-  @Override
-  public Future<infra.web.client.ClientResponse> exchangeAsync(HttpRequestValues requestValues) {
-    return Future.forAdaption(newRequest(requestValues).exchange().toFuture())
-            .map(ReactorClientResponse::new);
-  }
-
-  @Override
   public <T> Future<T> exchangeAsyncBody(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyTypeRef) {
     return Future.forAdaption(newRequest(requestValues).retrieve().bodyToMono(bodyTypeRef).toFuture());
   }
@@ -132,7 +115,14 @@ public final class WebClientAdapter extends AbstractReactorHttpExchangeAdapter {
   }
 
   @Override
-  public Mono<ClientResponse> exchangeMono(HttpRequestValues requestValues) {
+  public @Nullable RequestExecution<HttpRequestValues> createRequestExecution(Method method, MethodParameter returnType, boolean isFuture) {
+    if (returnType.getParameterType() == infra.web.reactive.client.ClientResponse.class) {
+      return this::exchangeMono;
+    }
+    return null;
+  }
+
+  private Mono<ClientResponse> exchangeMono(HttpRequestValues requestValues) {
     return newRequest(requestValues).exchange();
   }
 
@@ -197,84 +187,6 @@ public final class WebClientAdapter extends AbstractReactorHttpExchangeAdapter {
    */
   public static WebClientAdapter forClient(WebClient webClient) {
     return new WebClientAdapter(webClient);
-  }
-
-  /**
-   * @since 5.0
-   */
-  final class ReactorClientResponse implements ClientHttpResponse, infra.web.client.ClientResponse {
-
-    private final ClientResponse clientResponse;
-
-    @Nullable
-    private volatile InputStream body;
-
-    private ReactorClientResponse(ClientResponse clientResponse) {
-      this.clientResponse = clientResponse;
-    }
-
-    @Override
-    public HttpStatusCode getStatusCode() {
-      return clientResponse.statusCode();
-    }
-
-    @Override
-    public String getStatusText() {
-      if (getStatusCode() instanceof HttpStatus status) {
-        return status.getReasonPhrase();
-      }
-      else {
-        return "";
-      }
-    }
-
-    @Override
-    public void close() {
-      InputStream body = this.body;
-      if (body != null) {
-        try (body) {
-          StreamUtils.drain(body);
-        }
-        catch (IOException ignored) {
-        }
-      }
-    }
-
-    @Override
-    public InputStream getBody() {
-      InputStream body = this.body;
-      if (body != null) {
-        return body;
-      }
-
-      Mono<InputStream> inputStreamMono = clientResponse.body((response, context) ->
-              DataBufferUtils.join(response.getBody())).map(DataBuffer::asInputStream);
-
-      body = blockingGet(inputStreamMono);
-      if (body == null) {
-        body = InputStream.nullInputStream();
-      }
-      this.body = body;
-      return body;
-    }
-
-    @Override
-    public HttpHeaders getHeaders() {
-      return clientResponse.headers().asHttpHeaders();
-    }
-
-    @Nullable
-    @Override
-    public <T> T bodyTo(Class<T> bodyType) {
-      return blockingGet(clientResponse.bodyToMono(bodyType));
-    }
-
-    @Nullable
-    @Override
-    public <T> T bodyTo(ParameterizedTypeReference<T> bodyType) {
-      return blockingGet(clientResponse.bodyToMono(bodyType));
-    }
-
   }
 
 }

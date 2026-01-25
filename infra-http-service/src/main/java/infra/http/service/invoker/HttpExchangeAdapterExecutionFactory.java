@@ -15,13 +15,10 @@ import infra.core.ReactiveAdapter;
 import infra.core.ReactiveAdapterRegistry;
 import infra.core.ReactiveStreams;
 import infra.http.HttpHeaders;
-import infra.http.HttpInputMessage;
 import infra.http.ResponseEntity;
-import infra.http.client.ClientHttpResponse;
 import infra.lang.Assert;
 import infra.util.ClassUtils;
 import infra.util.concurrent.Future;
-import infra.web.client.ClientResponse;
 import reactor.core.publisher.Flux;
 
 /**
@@ -75,7 +72,7 @@ final class HttpExchangeAdapterExecutionFactory implements RequestExecutionFacto
 
     Class<?> returnType = param.getParameterType();
     if (isAsync(returnType)) {
-      RequestExecution<HttpRequestValues> function = createResponseFunctionAsync(client, param);
+      RequestExecution<HttpRequestValues> function = createResponseFunctionAsync(client, method, param);
       if (CompletionStage.class.isAssignableFrom(returnType)) {
         return request -> {
           Future<?> result = (Future<?>) function.execute(request);
@@ -85,26 +82,21 @@ final class HttpExchangeAdapterExecutionFactory implements RequestExecutionFacto
       return function;
     }
 
-    Class<?> paramType = param.getNestedParameterType();
-    if (ClassUtils.isVoidType(paramType)) {
+    RequestExecution<HttpRequestValues> requestExecution = client.createRequestExecution(method, param, false);
+    if (requestExecution != null) {
+      return requestExecution;
+    }
+
+    if (ClassUtils.isVoidType(returnType)) {
       return request -> {
-        client.exchange(request).close();
+        client.exchange(request);
         return null;
       };
     }
-    else if (paramType == HttpInputMessage.class
-            || paramType == ClientHttpResponse.class
-            || paramType == ClientResponse.class) {
-      return client::exchange;
+    else if (returnType == HttpHeaders.class) {
+      return client::exchangeForHeaders;
     }
-    else if (paramType == HttpHeaders.class) {
-      return request -> {
-        try (var response = client.exchange(request)) {
-          return response.getHeaders();
-        }
-      };
-    }
-    else if (paramType == ResponseEntity.class) {
+    else if (returnType == ResponseEntity.class) {
       MethodParameter bodyParam = param.nested();
       if (bodyParam.getNestedParameterType().equals(Void.class)) {
         return client::exchangeForBodilessEntity;
@@ -123,7 +115,7 @@ final class HttpExchangeAdapterExecutionFactory implements RequestExecutionFacto
       if (reactiveAdapter == null) {
         throw new IllegalStateException("Return type: '%s' reactive adapter not found".formatted(Future.class.getName()));
       }
-      RequestExecution<HttpRequestValues> responseFunction = createResponseFunctionAsync(client, param.nested());
+      RequestExecution<HttpRequestValues> responseFunction = createResponseFunctionAsync(client, method, param.nested());
       return request -> returnAdapter.fromPublisher(reactiveAdapter.toPublisher(responseFunction.execute(request)));
     }
 
@@ -137,23 +129,22 @@ final class HttpExchangeAdapterExecutionFactory implements RequestExecutionFacto
   }
 
   // @since 5.0
-  private static RequestExecution<HttpRequestValues> createResponseFunctionAsync(HttpExchangeAdapter client, MethodParameter param) {
-    Class<?> paramType = param.getNestedParameterType();
+  private static RequestExecution<HttpRequestValues> createResponseFunctionAsync(HttpExchangeAdapter client, Method method, MethodParameter param) {
+    RequestExecution<HttpRequestValues> requestExecution = client.createRequestExecution(method, param, true);
+    if (requestExecution != null) {
+      return requestExecution;
+    }
 
+    Class<?> paramType = param.getNestedParameterType();
     if (ClassUtils.isVoidType(paramType)) {
       // Future<Void> auto close response
       return client::exchangeAsyncVoid;
     }
-    if (paramType == ClientHttpResponse.class
-            || paramType == ClientResponse.class) {
-      // Future<ClientHttpResponse/ConvertibleClientHttpResponse> close by user
-      return client::exchangeAsync;
-    }
-    else if (paramType == HttpHeaders.class) {
+
+    if (paramType == HttpHeaders.class) {
       // Future<HttpHeaders>
-      return request -> client.exchangeAsync(request)
-              .onSuccess(ClientHttpResponse::close)
-              .map(ClientHttpResponse::getHeaders);
+      return request -> client.exchangeForBodilessEntityAsync(request)
+              .map(ResponseEntity::headers);
     }
     else if (paramType == ResponseEntity.class) {
       MethodParameter bodyParam = param.nested();
@@ -200,8 +191,13 @@ final class HttpExchangeAdapterExecutionFactory implements RequestExecutionFacto
     @Nullable
     public static RequestExecution<HttpRequestValues> create(ReactorHttpExchangeAdapter client, Method method) {
       MethodParameter returnParam = new MethodParameter(method, -1);
-      Class<?> returnType = returnParam.getParameterType();
 
+      RequestExecution<HttpRequestValues> execution = client.createRequestExecution(method, returnParam, false);
+      if (execution != null) {
+        return execution;
+      }
+
+      Class<?> returnType = returnParam.getParameterType();
       ReactiveAdapter reactiveAdapter = client.getReactiveAdapterRegistry().getAdapter(returnType);
       if (reactiveAdapter == null) {
         return null;
@@ -229,14 +225,6 @@ final class HttpExchangeAdapterExecutionFactory implements RequestExecutionFacto
           ReactiveAdapter bodyAdapter = client.getReactiveAdapterRegistry().getAdapter(bodyType);
           responseFunction = initResponseEntityFunction(client, bodyParam, bodyAdapter);
         }
-      }
-      else if (actualType == infra.web.reactive.client.ClientResponse.class) {
-        responseFunction = client::exchangeMono;
-      }
-      else if (actualType == ClientResponse.class) {
-        ReactiveAdapter futureAdapter = client.getReactiveAdapterRegistry().getAdapter(Future.class);
-        Assert.state(futureAdapter != null, "Future reactive adapter not found");
-        responseFunction = request -> futureAdapter.toPublisher(client.exchangeAsync(request));
       }
       else {
         responseFunction = initBodyFunction(client, actualParam, reactiveAdapter);
@@ -283,4 +271,5 @@ final class HttpExchangeAdapterExecutionFactory implements RequestExecutionFacto
               : request -> client.exchangeForBodyMono(request, bodyType);
     }
   }
+
 }

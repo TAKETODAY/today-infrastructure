@@ -18,9 +18,13 @@
 
 package infra.http.service.invoker;
 
+import org.jspecify.annotations.Nullable;
+
+import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.Collections;
 
+import infra.core.MethodParameter;
 import infra.core.ParameterizedTypeReference;
 import infra.core.ReactiveAdapterRegistry;
 import infra.http.HttpHeaders;
@@ -98,6 +102,13 @@ class TestReactorExchangeAdapter extends TestExchangeAdapter implements ReactorH
   }
 
   @Override
+  public @Nullable RequestExecution<HttpRequestValues> createRequestExecution(Method method, MethodParameter returnType, boolean isFuture) {
+    if (returnType.getParameterType() == infra.web.reactive.client.ClientResponse.class) {
+      return this::exchangeMono;
+    }
+    return null;
+  }
+
   public Mono<ClientResponse> exchangeMono(HttpRequestValues requestValues) {
     saveInput("exchangeMono", requestValues, null);
     return Mono.just(ClientResponse.create(HttpStatus.OK).build());

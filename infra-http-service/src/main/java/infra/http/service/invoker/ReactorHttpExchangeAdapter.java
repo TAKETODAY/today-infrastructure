@@ -117,9 +117,5 @@ public interface ReactorHttpExchangeAdapter extends HttpExchangeAdapter {
   <T> Mono<ResponseEntity<Flux<T>>> exchangeForEntityFlux(
           HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType);
 
-  /**
-   * @since 5.0
-   */
-  Mono<ClientResponse> exchangeMono(HttpRequestValues requestValues);
 
 }

@@ -39,7 +39,7 @@ class PathVariableArgumentResolverTests {
   private final TestExchangeAdapter client = new TestExchangeAdapter();
 
   private final Service service =
-          HttpServiceProxyFactory.forAdapter(this.client).build().createClient(Service.class);
+          HttpServiceProxyFactory.forExecutionFactory(new HttpExchangeAdapterExecutionFactory(this.client)).build().createClient(Service.class);
 
   @Test
   void pathVariable() {

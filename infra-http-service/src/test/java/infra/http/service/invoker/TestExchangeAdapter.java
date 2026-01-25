@@ -20,10 +20,15 @@ package infra.http.service.invoker;
 
 import org.jspecify.annotations.Nullable;
 
+import java.lang.reflect.Method;
 import java.util.Collections;
 
+import infra.core.MethodParameter;
 import infra.core.ParameterizedTypeReference;
+import infra.http.HttpHeaders;
+import infra.http.HttpInputMessage;
 import infra.http.ResponseEntity;
+import infra.http.client.ClientHttpResponse;
 import infra.util.concurrent.Future;
 import infra.web.client.ClientResponse;
 import infra.web.testfixture.http.MockClientHttpResponse;
@@ -63,7 +68,11 @@ public class TestExchangeAdapter implements HttpExchangeAdapter {
   }
 
   @Override
-  public ClientResponse exchange(HttpRequestValues requestValues) {
+  public void exchange(HttpRequestValues requestValues) {
+    saveInput("exchange", requestValues, null);
+  }
+
+  public ClientResponse exchangeClientResponse(HttpRequestValues requestValues) {
     saveInput("exchange", requestValues, null);
     return new MockClientHttpResponse();
   }
@@ -91,7 +100,6 @@ public class TestExchangeAdapter implements HttpExchangeAdapter {
     return (ResponseEntity<T>) ResponseEntity.ok(getInvokedMethodName());
   }
 
-  @Override
   public Future<ClientResponse> exchangeAsync(HttpRequestValues requestValues) {
     saveInput("exchangeAsync", requestValues, null);
     MockClientHttpResponse result = new MockClientHttpResponse();
@@ -111,6 +119,12 @@ public class TestExchangeAdapter implements HttpExchangeAdapter {
   }
 
   @Override
+  public HttpHeaders exchangeForHeaders(HttpRequestValues requestValues) {
+    saveInput("exchangeForHeaders", requestValues, null);
+    return HttpHeaders.forWritable();
+  }
+
+  @Override
   public <T> Future<ResponseEntity<T>> exchangeForEntityAsync(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
     return Future.ok(exchangeForEntity(requestValues, bodyType));
   }
@@ -123,6 +137,17 @@ public class TestExchangeAdapter implements HttpExchangeAdapter {
   @Override
   public boolean supportsRequestAttributes() {
     return true;
+  }
+
+  @Override
+  public @Nullable RequestExecution<HttpRequestValues> createRequestExecution(Method method, MethodParameter returnType, boolean isFuture) {
+    Class<?> paramType = isFuture ? returnType.getNestedParameterType() : returnType.getParameterType();
+    if (paramType == HttpInputMessage.class
+            || paramType == ClientHttpResponse.class
+            || paramType == ClientResponse.class) {
+      return isFuture ? this::exchangeAsync : this::exchangeClientResponse;
+    }
+    return null;
   }
 
   protected <T> void saveInput(

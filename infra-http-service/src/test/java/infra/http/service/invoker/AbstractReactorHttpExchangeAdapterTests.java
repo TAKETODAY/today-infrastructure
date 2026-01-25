@@ -25,7 +25,6 @@ import infra.core.ReactiveAdapterRegistry;
 import infra.http.HttpHeaders;
 import infra.http.ResponseEntity;
 import infra.util.concurrent.Future;
-import infra.web.client.ClientResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -103,13 +102,7 @@ class AbstractReactorHttpExchangeAdapterTests {
     }
 
     @Override
-    public ClientResponse exchange(HttpRequestValues requestValues) {
-      return null;
-    }
-
-    @Override
-    public Future<ClientResponse> exchangeAsync(HttpRequestValues requestValues) {
-      return null;
+    public void exchange(HttpRequestValues requestValues) {
     }
 
     @Override
@@ -157,10 +150,6 @@ class AbstractReactorHttpExchangeAdapterTests {
       return null;
     }
 
-    @Override
-    public Mono<infra.web.reactive.client.ClientResponse> exchangeMono(HttpRequestValues requestValues) {
-      return null;
-    }
   }
 
 }

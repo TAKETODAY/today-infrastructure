@@ -20,10 +20,13 @@ package infra.http.service.invoker;
 
 import org.jspecify.annotations.Nullable;
 
+import java.lang.reflect.Method;
+
+import infra.core.MethodParameter;
 import infra.core.ParameterizedTypeReference;
+import infra.http.HttpHeaders;
 import infra.http.ResponseEntity;
 import infra.util.concurrent.Future;
-import infra.web.client.ClientResponse;
 
 /**
  * Contract to abstract an HTTP client from {@linkplain HttpServiceProxyFactory}
@@ -43,22 +46,6 @@ public interface HttpExchangeAdapter {
   boolean supportsRequestAttributes();
 
   /**
-   * Perform the given request, and release the response content, if any.
-   *
-   * @param requestValues the request to perform
-   * @return Returns non-closed ConvertibleClientHttpResponse
-   */
-  ClientResponse exchange(HttpRequestValues requestValues);
-
-  /**
-   * Perform the given request, and release the response content, if any.
-   *
-   * @param requestValues the request to perform
-   * @since 5.0
-   */
-  Future<ClientResponse> exchangeAsync(HttpRequestValues requestValues);
-
-  /**
    * Perform the given request
    *
    * @param requestValues the request to perform
@@ -73,6 +60,22 @@ public interface HttpExchangeAdapter {
    * @since 5.0
    */
   Future<Void> exchangeAsyncVoid(HttpRequestValues requestValues);
+
+  /**
+   * Perform the given request, and release the response content, if any.
+   *
+   * @param requestValues the request to perform
+   */
+  void exchange(HttpRequestValues requestValues);
+
+  /**
+   * Perform the given request, release the response content, and return the
+   * response headers.
+   *
+   * @param requestValues the request to perform
+   * @return the response headers
+   */
+  HttpHeaders exchangeForHeaders(HttpRequestValues requestValues);
 
   /**
    * Perform the given request and decode the response content to the given type.
@@ -118,5 +121,15 @@ public interface HttpExchangeAdapter {
    * @since 5.0
    */
   <T> Future<ResponseEntity<T>> exchangeForEntityAsync(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType);
+
+  /**
+   * Creates an HTTP request executor for the given method and return type.
+   *
+   * @param method the method to create executor for
+   * @return a new HTTP request executor instance
+   */
+  default @Nullable RequestExecution<HttpRequestValues> createRequestExecution(Method method, MethodParameter returnType, boolean isFuture) {
+    return null;
+  }
 
 }
