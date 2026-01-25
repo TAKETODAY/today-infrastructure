@@ -27,11 +27,14 @@ import infra.core.ApplicationTemp;
 import infra.core.ssl.SslBundles;
 
 /**
- * A configurable {@link WebServerFactory}.
+ * A configurable {@link WebServerFactory} that provides methods to customize
+ * various aspects of the web server such as port, address, SSL configuration,
+ * HTTP/2 settings, compression, and shutdown behavior.
  *
  * @author Phillip Webb
  * @author Brian Clozel
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see WebServerFactoryCustomizer
  * @since 4.0
  */
 public interface ConfigurableWebServerFactory extends WebServerFactory {

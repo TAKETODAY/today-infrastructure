@@ -82,23 +82,14 @@ final class NettyWebServer implements WebServer, IntSupplier {
       if (serverBootstrap.bind(bindAddress).syncUninterruptibly().channel().localAddress() instanceof InetSocketAddress la) {
         bindAddress = la;
       }
-      String bindInfo = getBindInfo();
       String protocolInfo = sslEnabled ? "(https)" : "(http)";
       String http2Support = http2Enabled ? " with HTTP/2" : "";
-      log.info("Netty started on {} {}{}", bindInfo, protocolInfo, http2Support);
+      log.info("Netty started on {} {}{}", bindAddress, protocolInfo, http2Support);
     }
     catch (Exception ex) {
       PortInUseException.throwIfPortBindingException(ex, this);
       throw new WebServerException("Unable to start Netty", ex);
     }
-  }
-
-  private String getBindInfo() {
-    int port = getPort();
-    if (port > 0) {
-      return "port: " + port;
-    }
-    return bindAddress.toString();
   }
 
   @Override
@@ -109,12 +100,12 @@ final class NettyWebServer implements WebServer, IntSupplier {
   @Override
   public void stop() {
     if (!shutdownComplete) {
-      log.info("Shutdown netty web server: [{}] on ", this, getBindInfo());
       shutdown();
     }
   }
 
   private void shutdown() {
+    log.info("Shutdown netty web server: [{}] on {}", this, bindAddress);
     parentGroup.shutdownGracefully(shutdownConfig.quietPeriod, shutdownConfig.timeout, shutdownConfig.unit);
     childGroup.shutdownGracefully(shutdownConfig.quietPeriod, shutdownConfig.timeout, shutdownConfig.unit);
   }
