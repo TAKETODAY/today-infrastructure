@@ -61,7 +61,7 @@ final class NettyWebServer implements WebServer, IntSupplier {
 
   private final ServerBootstrap serverBootstrap;
 
-  private final SocketAddress bindAddress;
+  private SocketAddress bindAddress;
 
   private volatile boolean shutdownComplete = false;
 
@@ -79,7 +79,9 @@ final class NettyWebServer implements WebServer, IntSupplier {
   @Override
   public void start() throws WebServerException {
     try {
-      serverBootstrap.bind(bindAddress).syncUninterruptibly();
+      if (serverBootstrap.bind(bindAddress).syncUninterruptibly().channel().localAddress() instanceof InetSocketAddress la) {
+        bindAddress = la;
+      }
       String bindInfo = getBindInfo();
       String protocolInfo = sslEnabled ? "(https)" : "(http)";
       String http2Support = http2Enabled ? " with HTTP/2" : "";
