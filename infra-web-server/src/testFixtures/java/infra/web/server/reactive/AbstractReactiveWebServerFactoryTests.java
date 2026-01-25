@@ -113,7 +113,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     AbstractReactiveWebServerFactory factory = getFactory();
     int specificPort = doWithRetry(() -> {
       factory.setPort(0);
-      this.webServer = factory.getWebServer(new EchoHandler());
+      this.webServer = factory.createWebServer(new EchoHandler());
       this.webServer.start();
       return this.webServer.getPort();
     });
@@ -131,7 +131,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
   @Test
   protected void restartAfterStop() throws Exception {
     AbstractReactiveWebServerFactory factory = getFactory();
-    this.webServer = factory.getWebServer(new EchoHandler());
+    this.webServer = factory.createWebServer(new EchoHandler());
     this.webServer.start();
     int port = this.webServer.getPort();
     assertThat(getResponse(port, "/test")).isEqualTo("Hello World");
@@ -155,7 +155,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
   @Test
   void portIsMinusOneWhenConnectionIsClosed() {
     AbstractReactiveWebServerFactory factory = getFactory();
-    this.webServer = factory.getWebServer(new EchoHandler());
+    this.webServer = factory.createWebServer(new EchoHandler());
     this.webServer.start();
     assertThat(this.webServer.getPort()).isGreaterThan(0);
     this.webServer.destroy();
@@ -179,7 +179,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     ssl.keyPassword = (keyPassword);
     ssl.keyStorePassword = ("secret");
     factory.setSsl(ssl);
-    this.webServer = factory.getWebServer(new EchoHandler());
+    this.webServer = factory.createWebServer(new EchoHandler());
     this.webServer.start();
     ReactorClientHttpConnector connector = buildTrustAllSslConnector();
     WebClient client = WebClient.builder()
@@ -206,7 +206,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     ssl.keyPassword = (keyPassword);
     ssl.keyAlias = ("test-alias");
     factory.setSsl(ssl);
-    this.webServer = factory.getWebServer(new EchoHandler());
+    this.webServer = factory.createWebServer(new EchoHandler());
     this.webServer.start();
     ReactorClientHttpConnector connector = buildTrustAllSslConnector();
     WebClient client = WebClient.builder()
@@ -234,7 +234,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     ssl.keyPassword = (keyPassword);
     ssl.keyAlias = ("test-alias-404");
     factory.setSsl(ssl);
-    assertThatSslWithInvalidAliasCallFails(() -> factory.getWebServer(new EchoHandler()).start());
+    assertThatSslWithInvalidAliasCallFails(() -> factory.createWebServer(new EchoHandler()).start());
   }
 
   protected void assertThatSslWithInvalidAliasCallFails(ThrowingCallable call) {
@@ -293,7 +293,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
   protected void testClientAuthSuccess(Ssl sslConfiguration, ReactorClientHttpConnector clientConnector) {
     AbstractReactiveWebServerFactory factory = getFactory();
     factory.setSsl(sslConfiguration);
-    this.webServer = factory.getWebServer(new EchoHandler());
+    this.webServer = factory.createWebServer(new EchoHandler());
     this.webServer.start();
     WebClient client = WebClient.builder()
             .baseURI("https://localhost:" + this.webServer.getPort())
@@ -343,7 +343,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
   protected void testClientAuthFailure(Ssl sslConfiguration, ReactorClientHttpConnector clientConnector) {
     AbstractReactiveWebServerFactory factory = getFactory();
     factory.setSsl(sslConfiguration);
-    this.webServer = factory.getWebServer(new EchoHandler());
+    this.webServer = factory.createWebServer(new EchoHandler());
     this.webServer.start();
     WebClient client = WebClient.builder()
             .baseURI("https://localhost:" + this.webServer.getPort())
@@ -433,23 +433,23 @@ public abstract class AbstractReactiveWebServerFactoryTests {
   }
 
   @Test
-  void whenThereAreNoInFlightRequestsShutDownGracefullyReturnsTrueBeforePeriodElapses() throws Exception {
+  void whenThereAreNoInFlightRequestsShutdownGracefullyReturnsTrueBeforePeriodElapses() throws Exception {
     AbstractReactiveWebServerFactory factory = getFactory();
     factory.setShutdown(Shutdown.GRACEFUL);
-    this.webServer = factory.getWebServer(new EchoHandler());
+    this.webServer = factory.createWebServer(new EchoHandler());
     this.webServer.start();
     AtomicReference<GracefulShutdownResult> result = new AtomicReference<>();
-    this.webServer.shutDownGracefully(result::set);
+    this.webServer.shutdownGracefully(result::set);
     Awaitility.await().atMost(Duration.ofSeconds(30)).until(() -> GracefulShutdownResult.IDLE == result.get());
   }
 
   @Test
-  void whenARequestRemainsInFlightThenShutDownGracefullyDoesNotInvokeCallbackUntilTheRequestCompletes()
+  void whenARequestRemainsInFlightThenShutdownGracefullyDoesNotInvokeCallbackUntilTheRequestCompletes()
           throws Exception {
     AbstractReactiveWebServerFactory factory = getFactory();
     factory.setShutdown(Shutdown.GRACEFUL);
     BlockingHandler blockingHandler = new BlockingHandler();
-    this.webServer = factory.getWebServer(blockingHandler);
+    this.webServer = factory.createWebServer(blockingHandler);
     this.webServer.start();
     Mono<ResponseEntity<Void>> request = getWebClient(this.webServer.getPort()).build()
             .get()
@@ -463,7 +463,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     });
     blockingHandler.awaitQueue();
     AtomicReference<GracefulShutdownResult> result = new AtomicReference<>();
-    this.webServer.shutDownGracefully(result::set);
+    this.webServer.shutdownGracefully(result::set);
     assertThat(responseReference.get()).isNull();
     blockingHandler.completeOne();
     assertThat(responseLatch.await(5, TimeUnit.SECONDS)).isTrue();
@@ -476,7 +476,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     AbstractReactiveWebServerFactory factory = getFactory();
     factory.setShutdown(Shutdown.GRACEFUL);
     BlockingHandler blockingHandler = new BlockingHandler();
-    this.webServer = factory.getWebServer(blockingHandler);
+    this.webServer = factory.createWebServer(blockingHandler);
     this.webServer.start();
     Mono<ResponseEntity<Void>> request = getWebClient(this.webServer.getPort()).build()
             .get()
@@ -490,7 +490,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     });
     blockingHandler.awaitQueue();
     AtomicReference<GracefulShutdownResult> result = new AtomicReference<>();
-    this.webServer.shutDownGracefully(result::set);
+    this.webServer.shutdownGracefully(result::set);
     assertThat(responseReference.get()).isNull();
     try {
       this.webServer.stop();
@@ -510,7 +510,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     AbstractReactiveWebServerFactory factory = getFactory();
     factory.setShutdown(Shutdown.GRACEFUL);
     BlockingHandler blockingHandler = new BlockingHandler();
-    this.webServer = factory.getWebServer(blockingHandler);
+    this.webServer = factory.createWebServer(blockingHandler);
     this.webServer.start();
     Mono<ResponseEntity<Void>> request = getWebClient(this.webServer.getPort()).build()
             .get()
@@ -524,7 +524,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     });
     blockingHandler.awaitQueue();
     AtomicReference<GracefulShutdownResult> result = new AtomicReference<>();
-    this.webServer.shutDownGracefully(result::set);
+    this.webServer.shutdownGracefully(result::set);
     this.webServer.stop();
     Awaitility.await()
             .atMost(Duration.ofSeconds(30))
@@ -536,7 +536,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
   void whenARequestIsActiveThenStopWillComplete() throws InterruptedException {
     AbstractReactiveWebServerFactory factory = getFactory();
     BlockingHandler blockingHandler = new BlockingHandler();
-    this.webServer = factory.getWebServer(blockingHandler);
+    this.webServer = factory.createWebServer(blockingHandler);
     this.webServer.start();
     Mono<ResponseEntity<Void>> request = getWebClient(this.webServer.getPort()).build()
             .get()
@@ -564,7 +564,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     Http2 http2 = new Http2();
     http2.setEnabled(true);
     factory.setHttp2(http2);
-    this.webServer = factory.getWebServer(new EchoHandler());
+    this.webServer = factory.createWebServer(new EchoHandler());
     this.webServer.start();
     Mono<String> result = getWebClient(this.webServer.getPort()).build()
             .post()
@@ -579,7 +579,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
   @Test
   void startedLogMessageWithSinglePort() {
     AbstractReactiveWebServerFactory factory = getFactory();
-    this.webServer = factory.getWebServer(new EchoHandler());
+    this.webServer = factory.createWebServer(new EchoHandler());
     this.webServer.start();
     assertThat(startedLogMessage()).matches(
             "Netty started on port " + this.webServer.getPort() + " \\(http\\)");
@@ -589,7 +589,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
   protected void startedLogMessageWithMultiplePorts() {
     AbstractReactiveWebServerFactory factory = getFactory();
     addConnector(0, factory);
-    this.webServer = factory.getWebServer(new EchoHandler());
+    this.webServer = factory.createWebServer(new EchoHandler());
     this.webServer.start();
     assertThat(startedLogMessage()).matches("(Jetty|Tomcat|Undertow) started on ports " + this.webServer.getPort()
             + " \\(http(/1.1)?\\), [0-9]+ \\(http(/1.1)?\\)");
@@ -608,7 +608,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
   protected WebClient prepareCompressionTest(Compression compression, String responseContentType) {
     AbstractReactiveWebServerFactory factory = getFactory();
     factory.setCompression(compression);
-    this.webServer = factory.getWebServer(new CharsHandler(3000, responseContentType));
+    this.webServer = factory.createWebServer(new CharsHandler(3000, responseContentType));
     this.webServer.start();
 
     HttpClient client = HttpClient.create()
@@ -631,7 +631,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
   }
 
   protected void assertForwardHeaderIsUsed(AbstractReactiveWebServerFactory factory) {
-    this.webServer = factory.getWebServer(new XForwardedHandler());
+    this.webServer = factory.createWebServer(new XForwardedHandler());
     this.webServer.start();
     String body = getWebClient(this.webServer.getPort()).build()
             .get()

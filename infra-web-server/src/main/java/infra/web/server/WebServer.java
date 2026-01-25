@@ -63,7 +63,7 @@ public interface WebServer {
    *
    * @param callback the callback to invoke when the graceful shutdown completes
    */
-  default void shutDownGracefully(GracefulShutdownCallback callback) {
+  default void shutdownGracefully(GracefulShutdownCallback callback) {
     callback.shutdownComplete(GracefulShutdownResult.IMMEDIATE);
   }
 

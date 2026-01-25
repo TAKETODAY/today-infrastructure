@@ -98,7 +98,7 @@ abstract class AbstractClientHttpRequestFactoryBuilderTests<T extends ClientHttp
   void connectWithSslBundle(String httpMethod) throws Exception {
     NettyWebServerFactory webServerFactory = createWebServerFactory();
     webServerFactory.setSsl(ssl());
-    WebServer webServer = webServerFactory.getWebServer();
+    WebServer webServer = webServerFactory.createWebServer();
     try {
       webServer.start();
       int port = webServer.getPort();
@@ -124,7 +124,7 @@ abstract class AbstractClientHttpRequestFactoryBuilderTests<T extends ClientHttp
   void connectWithSslBundleAndOptionsMismatch(String httpMethod) throws Exception {
     NettyWebServerFactory webServerFactory = createWebServerFactory();
     webServerFactory.setSsl(ssl("TLS_AES_128_GCM_SHA256"));
-    WebServer webServer = webServerFactory.getWebServer();
+    WebServer webServer = webServerFactory.createWebServer();
     try {
       webServer.start();
       int port = webServer.getPort();
@@ -166,7 +166,7 @@ abstract class AbstractClientHttpRequestFactoryBuilderTests<T extends ClientHttp
           Function<HttpMethod, HttpStatus> expectedStatusForMethod) throws URISyntaxException, IOException {
     HttpStatus expectedStatus = expectedStatusForMethod.apply(httpMethod);
     NettyWebServerFactory webServerFactory = createWebServerFactory();
-    WebServer webServer = webServerFactory.getWebServer();
+    WebServer webServer = webServerFactory.createWebServer();
     try {
       webServer.start();
       int port = webServer.getPort();

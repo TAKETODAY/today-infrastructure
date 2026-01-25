@@ -17,6 +17,7 @@
 package infra.web.server.netty;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.function.IntSupplier;
 
 import infra.logging.Logger;
@@ -30,7 +31,16 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
 
 /**
- * Netty {@link WebServer}
+ * Netty implementation of {@link WebServer}.
+ * <p>
+ * This class provides a Netty-based web server that can be started and stopped,
+ * and supports graceful shutdown operations. It manages the lifecycle of the
+ * underlying Netty server including binding to a port, handling SSL configuration,
+ * and managing event loop groups.
+ * <p>
+ * The server can be configured with various parameters including the parent and
+ * child event loop groups, server bootstrap configuration, listening address,
+ * shutdown configuration, and SSL settings.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-07-02 21:15
@@ -43,33 +53,38 @@ final class NettyWebServer implements WebServer, IntSupplier {
 
   private final boolean sslEnabled;
 
+  private final boolean http2Enabled;
+
   private final EventLoopGroup parentGroup;
 
   private final NettyServerProperties.Shutdown shutdownConfig;
 
   private final ServerBootstrap serverBootstrap;
 
+  private SocketAddress bindAddress;
+
   private volatile boolean shutdownComplete = false;
 
-  private InetSocketAddress listenAddress;
-
   NettyWebServer(EventLoopGroup parentGroup, EventLoopGroup childGroup, ServerBootstrap serverBootstrap,
-          InetSocketAddress listenAddress, NettyServerProperties.Shutdown shutdownConfig, boolean sslEnabled) {
+          SocketAddress bindAddress, NettyServerProperties.Shutdown shutdownConfig, boolean sslEnabled, boolean http2Enabled) {
     this.serverBootstrap = serverBootstrap;
     this.shutdownConfig = shutdownConfig;
-    this.listenAddress = listenAddress;
+    this.bindAddress = bindAddress;
     this.parentGroup = parentGroup;
     this.childGroup = childGroup;
     this.sslEnabled = sslEnabled;
+    this.http2Enabled = http2Enabled;
   }
 
   @Override
   public void start() throws WebServerException {
     try {
-      if (serverBootstrap.bind(listenAddress).syncUninterruptibly().channel().localAddress() instanceof InetSocketAddress localAddress) {
-        listenAddress = localAddress;
+      if (serverBootstrap.bind(bindAddress).syncUninterruptibly().channel().localAddress() instanceof InetSocketAddress la) {
+        bindAddress = la;
       }
-      log.info("Netty started on port: {} {}", getPort(), sslEnabled ? "(https)" : "(http)");
+      String protocolInfo = sslEnabled ? "(https)" : "(http)";
+      String http2Support = http2Enabled ? " with HTTP/2" : "";
+      log.info("Netty started on {} {}{}", bindAddress, protocolInfo, http2Support);
     }
     catch (Exception ex) {
       PortInUseException.throwIfPortBindingException(ex, this);
@@ -84,19 +99,19 @@ final class NettyWebServer implements WebServer, IntSupplier {
 
   @Override
   public void stop() {
-    log.info("Shutdown netty web server: [{}] on port: '{}'", this, getPort());
     if (!shutdownComplete) {
       shutdown();
     }
   }
 
   private void shutdown() {
+    log.info("Shutdown netty web server: [{}] on {}", this, bindAddress);
     parentGroup.shutdownGracefully(shutdownConfig.quietPeriod, shutdownConfig.timeout, shutdownConfig.unit);
     childGroup.shutdownGracefully(shutdownConfig.quietPeriod, shutdownConfig.timeout, shutdownConfig.unit);
   }
 
   @Override
-  public void shutDownGracefully(GracefulShutdownCallback callback) {
+  public void shutdownGracefully(GracefulShutdownCallback callback) {
     log.info("Commencing graceful shutdown. Waiting for active requests to complete");
     try {
       shutdown();
@@ -114,7 +129,10 @@ final class NettyWebServer implements WebServer, IntSupplier {
 
   @Override
   public int getPort() {
-    return listenAddress.getPort();
+    if (bindAddress instanceof InetSocketAddress isa) {
+      return isa.getPort();
+    }
+    return -1;
   }
 
 }

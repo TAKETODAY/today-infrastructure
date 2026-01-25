@@ -45,8 +45,7 @@ public class WebProperties {
    * Locale to use. By default, this locale is overridden by the "Accept-Language"
    * header.
    */
-  @Nullable
-  public Locale locale;
+  public @Nullable Locale locale;
 
   /**
    * Define how the locale should be resolved.
@@ -56,7 +55,7 @@ public class WebProperties {
   public final Resources resources = new Resources();
 
   @NestedConfigurationProperty
-  public final infra.app.config.web.ErrorProperties error = new ErrorProperties();
+  public final ErrorProperties error = new ErrorProperties();
 
   public enum LocaleResolver {
 

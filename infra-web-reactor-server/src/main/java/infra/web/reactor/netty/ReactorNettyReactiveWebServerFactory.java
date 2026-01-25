@@ -20,7 +20,6 @@ package infra.web.reactor.netty;
 
 import org.jspecify.annotations.Nullable;
 
-import java.net.InetSocketAddress;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -71,7 +70,7 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
   }
 
   @Override
-  public WebServer getWebServer(HttpHandler httpHandler) {
+  public WebServer createWebServer(HttpHandler httpHandler) {
     HttpServer httpServer = createHttpServer();
     var handlerAdapter = new ReactorHttpHandlerAdapter(httpHandler);
     var webServer = createNettyWebServer(httpServer, handlerAdapter, lifecycleTimeout, getShutdown());
@@ -154,7 +153,7 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
   }
 
   private HttpServer createHttpServer() {
-    HttpServer server = HttpServer.create().bindAddress(this::getListenAddress);
+    HttpServer server = HttpServer.create().bindAddress(this::bindAddress);
     Ssl ssl = getSsl();
     if (Ssl.isEnabled(ssl)) {
       server = customizeSslConfiguration(ssl, server);
@@ -186,13 +185,6 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
       }
     }
     return protocols.toArray(new HttpProtocol[0]);
-  }
-
-  private InetSocketAddress getListenAddress() {
-    if (getAddress() != null) {
-      return new InetSocketAddress(getAddress().getHostAddress(), getPort());
-    }
-    return new InetSocketAddress(getPort());
   }
 
   private HttpServer applyCustomizers(HttpServer server) {

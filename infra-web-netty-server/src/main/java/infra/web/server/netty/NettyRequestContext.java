@@ -63,6 +63,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.DefaultHeaders;
+import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -76,6 +77,8 @@ import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.CookieHeaderNames;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
+import io.netty.handler.codec.http2.Http2DataChunkedInput;
+import io.netty.handler.codec.http2.Http2StreamChannel;
 import io.netty.handler.stream.ChunkedNioFile;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.internal.PlatformDependent;
@@ -134,6 +137,8 @@ public abstract class NettyRequestContext extends RequestContext {
    */
   private static final String CHUNKED_WRITER_NAME = "chunkedWriter";
 
+  private static final HttpVersion H2 = HttpVersion.valueOf("HTTP/2.0");
+
   // UNSAFE fields
   public final NettyRequestConfig config;
 
@@ -151,6 +156,8 @@ public abstract class NettyRequestContext extends RequestContext {
   private final AtomicBoolean committed = new AtomicBoolean();
 
   private final long requestTimeMillis = System.currentTimeMillis();
+
+  private final boolean http2;
 
   @Nullable
   private String remoteAddress;
@@ -176,6 +183,7 @@ public abstract class NettyRequestContext extends RequestContext {
   protected NettyRequestContext(ApplicationContext context, Channel channel,
           HttpRequest request, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
     super(context, dispatcherHandler);
+    this.http2 = channel.pipeline().context(NettyChannelInitializer.H2ToHttp11Codec) != null;
     this.config = config;
     this.request = request;
     this.channel = channel;
@@ -185,6 +193,13 @@ public abstract class NettyRequestContext extends RequestContext {
   @Override
   public long getRequestTimeMillis() {
     return requestTimeMillis;
+  }
+
+  public HttpVersion version() {
+    if (http2) {
+      return H2;
+    }
+    return HttpVersion.HTTP_1_1;
   }
 
   @Override
@@ -464,7 +479,7 @@ public abstract class NettyRequestContext extends RequestContext {
     ByteBuf responseBody = this.responseBody;
     if (responseBody != null) {
       this.responseBody = null;
-      channel.writeAndFlush(responseBody);
+      channel.writeAndFlush(http2 ? new DefaultHttpContent(responseBody) : responseBody);
     }
     else if ((fileToSend = this.fileToSend) != null) {
       channel.writeAndFlush(fileToSend);
@@ -586,7 +601,7 @@ public abstract class NettyRequestContext extends RequestContext {
         }
       }
 
-      channel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, headers));
+      channel.write(new DefaultHttpResponse(version(), status, headers));
     }
 
   }
@@ -721,6 +736,11 @@ public abstract class NettyRequestContext extends RequestContext {
   @Override
   protected AsyncWebRequest createAsyncWebRequest() {
     return new NettyAsyncWebRequest(this);
+  }
+
+  @Override
+  public String toString() {
+    return super.toString() + " " + version();
   }
 
   /**
@@ -1077,8 +1097,14 @@ public abstract class NettyRequestContext extends RequestContext {
         if (pipeline.context(CHUNKED_WRITER_NAME) == null) {
           pipeline.addLast(CHUNKED_WRITER_NAME, new ChunkedWriteHandler());
         }
-        fileToSend = new ChunkedNioFile(FileChannel.open(file.toPath(), StandardOpenOption.READ),
+        ChunkedNioFile nioFile = new ChunkedNioFile(FileChannel.open(file.toPath(), StandardOpenOption.READ),
                 position, count, nioFileChunkSize);
+        if (http2) {
+          fileToSend = new Http2DataChunkedInput(nioFile, ((Http2StreamChannel) channel).stream());
+        }
+        else {
+          fileToSend = nioFile;
+        }
       }
       else {
         fileToSend = new DefaultFileRegion(file, position, count);

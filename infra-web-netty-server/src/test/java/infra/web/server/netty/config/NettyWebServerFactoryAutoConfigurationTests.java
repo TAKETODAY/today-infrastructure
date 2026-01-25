@@ -30,7 +30,7 @@ import infra.test.classpath.ClassPathExclusions;
 import infra.util.DataSize;
 import infra.web.server.config.ServerProperties;
 import infra.web.server.context.AnnotationConfigWebServerApplicationContext;
-import infra.web.server.netty.NettyChannelHandler;
+import infra.web.server.netty.HttpTrafficHandler;
 import infra.web.server.netty.NettyServerProperties;
 import infra.web.server.netty.NettyWebServerFactory;
 import infra.web.server.netty.RandomPortWebServerConfig;
@@ -152,7 +152,7 @@ class NettyWebServerFactoryAutoConfigurationTests {
   @ClassPathExclusions("infra-websocket*")
   void wsNotPresent() {
     contextRunner.run(context -> {
-      assertThat(context.getBean(NettyChannelHandler.class).getClass()).isSameAs(NettyChannelHandler.class);
+      assertThat(context.getBean(HttpTrafficHandler.class).getClass()).isSameAs(HttpTrafficHandler.class);
     });
   }
 

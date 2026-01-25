@@ -21,6 +21,8 @@ package infra.web.server;
 import org.jspecify.annotations.Nullable;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,6 +52,8 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
   private int port = 8080;
 
   private @Nullable InetAddress address;
+
+  private @Nullable SocketAddress bindAddress;
 
   private @Nullable Ssl ssl;
 
@@ -168,10 +172,64 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
     this.applicationTemp = applicationTemp;
   }
 
+  /**
+   * Returns the application temporary directory.
+   *
+   * @return the application temporary directory
+   * @since 4.0
+   */
   public ApplicationTemp getApplicationTemp() {
     return applicationTemp;
   }
 
+  /**
+   * Sets the bind address for the web server.
+   *
+   * @param bindAddress the bind address
+   * @since 5.0
+   */
+  @Override
+  public void setBindAddress(@Nullable SocketAddress bindAddress) {
+    this.bindAddress = bindAddress;
+  }
+
+  /**
+   * Returns the bind address for the web server.
+   *
+   * @return the bind address, or {@code null} if not set
+   * @since 5.0
+   */
+  public @Nullable SocketAddress getBindAddress() {
+    return bindAddress;
+  }
+
+  /**
+   * Returns the bind address for the web server.
+   * <p>
+   * If a specific bind address has been set using {@link #setBindAddress(SocketAddress)},
+   * it will be returned. Otherwise, if an address has been set using
+   * {@link #setAddress(InetAddress)}, an {@link InetSocketAddress} will be created
+   * using that address and the configured port. If no specific address is set,
+   * a wildcard {@link InetSocketAddress} will be created using only the port.
+   *
+   * @return the socket address to bind to
+   */
+  protected final SocketAddress bindAddress() {
+    SocketAddress bindAddress = getBindAddress();
+    if (bindAddress == null) {
+      if (getAddress() != null) {
+        return new InetSocketAddress(getAddress().getHostAddress(), getPort());
+      }
+      return new InetSocketAddress(getPort());
+    }
+    return bindAddress;
+  }
+
+  /**
+   * Checks if HTTP/2 support is enabled.
+   *
+   * @return {@code true} if HTTP/2 is enabled, {@code false} otherwise
+   */
   protected final boolean isHttp2Enabled() {
     return Http2.isEnabled(getHttp2());
   }

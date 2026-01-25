@@ -23,7 +23,7 @@ package infra.web.server;
  *
  * @author Andy Wilkinson
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see WebServer#shutDownGracefully(GracefulShutdownCallback)
+ * @see WebServer#shutdownGracefully(GracefulShutdownCallback)
  * @since 4.0
  */
 @FunctionalInterface

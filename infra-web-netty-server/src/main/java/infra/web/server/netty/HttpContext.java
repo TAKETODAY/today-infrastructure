@@ -37,16 +37,14 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
-import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 
 import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFactory;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 final class HttpContext extends NettyRequestContext implements Runnable {
 
-  private final NettyChannelHandler channelHandler;
+  private final HttpTrafficHandler httpTrafficHandler;
 
   private final long contentLength;
 
@@ -60,9 +58,9 @@ final class HttpContext extends NettyRequestContext implements Runnable {
   private volatile boolean continueExpected = false;
 
   public HttpContext(Channel channel, HttpRequest request, NettyRequestConfig config,
-          ApplicationContext context, DispatcherHandler dispatcherHandler, NettyChannelHandler channelHandler) {
+          ApplicationContext context, DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler) {
     super(context, channel, request, config, dispatcherHandler);
-    this.channelHandler = channelHandler;
+    this.httpTrafficHandler = httpTrafficHandler;
     this.contentLength = HttpUtil.getContentLength(request, -1L);
   }
 
@@ -180,7 +178,7 @@ final class HttpContext extends NettyRequestContext implements Runnable {
       }
     }
     catch (Throwable e) {
-      channelHandler.handleException(channel, e);
+      httpTrafficHandler.handleException(channel, e);
     }
     finally {
       RequestContextHolder.cleanup();
@@ -219,7 +217,7 @@ final class HttpContext extends NettyRequestContext implements Runnable {
       return null;
     }
 
-    return new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE, Unpooled.EMPTY_BUFFER,
+    return new DefaultFullHttpResponse(version(), HttpResponseStatus.CONTINUE, Unpooled.EMPTY_BUFFER,
             config.httpHeadersFactory, trailersFactory());
   }
 
@@ -227,7 +225,7 @@ final class HttpContext extends NettyRequestContext implements Runnable {
    * Returns the appropriate 4XX {@link HttpResponse} for the given {@link HttpRequest}.
    */
   private HttpResponse rejectResponse() {
-    DefaultFullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.EXPECTATION_FAILED, Unpooled.EMPTY_BUFFER,
+    DefaultFullHttpResponse response = new DefaultFullHttpResponse(version(), HttpResponseStatus.EXPECTATION_FAILED, Unpooled.EMPTY_BUFFER,
             config.httpHeadersFactory, trailersFactory());
     response.headers().set(CONTENT_LENGTH, 0);
     return response;

@@ -43,6 +43,6 @@ public interface ReactiveWebServerFactory extends WebServerFactory {
    * @return a fully configured and started {@link WebServer}
    * @see WebServer#stop()
    */
-  WebServer getWebServer(HttpHandler httpHandler);
+  WebServer createWebServer(HttpHandler httpHandler);
 
 }

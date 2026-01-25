@@ -21,16 +21,20 @@ package infra.web.server;
 import org.jspecify.annotations.Nullable;
 
 import java.net.InetAddress;
+import java.net.SocketAddress;
 
 import infra.core.ApplicationTemp;
 import infra.core.ssl.SslBundles;
 
 /**
- * A configurable {@link WebServerFactory}.
+ * A configurable {@link WebServerFactory} that provides methods to customize
+ * various aspects of the web server such as port, address, SSL configuration,
+ * HTTP/2 settings, compression, and shutdown behavior.
  *
  * @author Phillip Webb
  * @author Brian Clozel
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see WebServerFactoryCustomizer
  * @since 4.0
  */
 public interface ConfigurableWebServerFactory extends WebServerFactory {
@@ -50,6 +54,14 @@ public interface ConfigurableWebServerFactory extends WebServerFactory {
    * @param address the address to set (defaults to {@code null})
    */
   void setAddress(@Nullable InetAddress address);
+
+  /**
+   * Sets the bind address for the web server.
+   *
+   * @param bindAddress the bind address
+   * @since 5.0
+   */
+  void setBindAddress(@Nullable SocketAddress bindAddress);
 
   /**
    * Sets the SSL configuration that will be applied to the server's default connector.

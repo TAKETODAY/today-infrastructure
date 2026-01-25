@@ -18,7 +18,7 @@ package infra.web.server.netty;
 
 import org.jspecify.annotations.Nullable;
 
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.List;
 
 import infra.lang.Assert;
@@ -34,6 +34,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.IoHandlerFactory;
 import io.netty.channel.MultiThreadIoEventLoopGroup;
+import io.netty.channel.ServerChannel;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.channel.epoll.EpollIoHandler;
@@ -54,7 +55,10 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 import static infra.util.ClassUtils.isPresent;
 
 /**
- * Factory for {@link NettyWebServer}
+ * Factory for creating {@link NettyWebServer} instances.
+ * This factory handles the configuration and setup of Netty server components including
+ * event loop groups, channel initialization, SSL support, HTTP/2 configuration, and various
+ * Netty-specific options such as thread counts, connection limits, and logging levels.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/20 13:44
@@ -93,7 +97,7 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
 
   private @Nullable EventLoopGroup acceptorGroup;
 
-  private @Nullable Class<? extends ServerSocketChannel> socketChannel;
+  private @Nullable Class<? extends ServerChannel> socketChannel;
 
   private @Nullable LogLevel loggingLevel;
 
@@ -109,36 +113,55 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   /** @since 5.0 */
   private @Nullable String acceptorPoolName;
 
-  private @Nullable ChannelHandler channelHandler;
+  private @Nullable ChannelHandler httpTrafficHandler;
 
   /**
-   * EventLoopGroup for acceptor
+   * Sets the acceptor {@link EventLoopGroup} for the server.
+   * The acceptor group is responsible for accepting incoming connections.
+   * If not set, a default {@link MultiThreadIoEventLoopGroup} will be created during server initialization.
    *
-   * @param acceptorGroup acceptor
+   * @param acceptorGroup the acceptor {@link EventLoopGroup} to use, or {@code null} to use the default
+   * @since 4.0
    */
   public void setAcceptorGroup(@Nullable EventLoopGroup acceptorGroup) {
     this.acceptorGroup = acceptorGroup;
   }
 
   /**
-   * set the worker EventLoopGroup
+   * Sets the worker {@link EventLoopGroup} for the server.
+   * The worker group is responsible for handling I/O operations for accepted connections.
+   * If not set, a default {@link MultiThreadIoEventLoopGroup} will be created during server initialization.
    *
-   * @param workerGroup worker
+   * @param workerGroup the worker {@link EventLoopGroup} to use, or {@code null} to use the default
+   * @since 4.0
    */
   public void setWorkerGroup(@Nullable EventLoopGroup workerGroup) {
     this.workerGroup = workerGroup;
   }
 
-  public void setSocketChannel(@Nullable Class<? extends ServerSocketChannel> socketChannel) {
+  /**
+   * Sets the server socket channel class to be used by the Netty server.
+   * This allows specifying the type of server socket channel to use, such as
+   * {@link NioServerSocketChannel}, {@link EpollServerSocketChannel}, or {@link KQueueServerSocketChannel},
+   * depending on the platform and transport mechanism desired.
+   *
+   * @param socketChannel the server socket channel class to use, or {@code null} to use the default
+   * @see ServerSocketChannel
+   * @see NioServerSocketChannel
+   * @see EpollServerSocketChannel
+   * @see KQueueServerSocketChannel
+   */
+  public void setSocketChannel(@Nullable Class<? extends ServerChannel> socketChannel) {
     this.socketChannel = socketChannel;
   }
 
   /**
-   * set the number of threads that will be used by
+   * Sets the number of threads that will be used by
    * {@link io.netty.util.concurrent.MultithreadEventExecutorGroup}
    *
-   * For parent {@link EventLoopGroup}
+   * For parent {@link EventLoopGroup} which accepts incoming connections
    *
+   * @param acceptorThreadCount the number of acceptor threads
    * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
    */
   public void setAcceptorThreadCount(int acceptorThreadCount) {
@@ -146,11 +169,12 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   }
 
   /**
-   * get the number of threads that will be used by
+   * Gets the number of threads that will be used by
    * {@link io.netty.util.concurrent.MultithreadEventExecutorGroup}
    *
    * For parent {@link EventLoopGroup}
    *
+   * @return the number of acceptor threads
    * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
    */
   public int getAcceptorThreadCount() {
@@ -158,11 +182,12 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   }
 
   /**
-   * set the number of threads that will be used by
+   * Sets the number of threads that will be used by
    * {@link io.netty.util.concurrent.MultithreadEventExecutorGroup}
    *
    * For child {@link EventLoopGroup}
    *
+   * @param workThreadCount the number of worker threads
    * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
    */
   public void setWorkerThreadCount(int workThreadCount) {
@@ -170,21 +195,28 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   }
 
   /**
-   * The SOMAXCONN value of the current machine.  If failed to get the value,  {@code 200} is used as a
-   * default value for Windows and {@code 128} for others.
+   * Sets the maximum number of pending connections that the server socket can hold in its backlog queue.
+   * This corresponds to the {@code SO_BACKLOG} socket option.
    * <p>
-   * so_backlog
+   * The SOMAXCONN value of the current machine is typically used as a reference.
+   * If failed to get the system value, {@code 200} is used as a default value for Windows
+   * and {@code 128} for other operating systems.
+   *
+   * @param maxConnection the maximum number of pending connections in the server socket's backlog
+   * @see #maxConnection
+   * @see ChannelOption#SO_BACKLOG
    */
   public void setMaxConnection(int maxConnection) {
     this.maxConnection = maxConnection;
   }
 
   /**
-   * get the number of threads that will be used by
+   * Gets the number of threads that will be used by
    * {@link io.netty.util.concurrent.MultithreadEventExecutorGroup}
    *
    * For child {@link EventLoopGroup}
    *
+   * @return the number of worker threads
    * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
    */
   public int getWorkThreadCount() {
@@ -192,12 +224,11 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   }
 
   /**
-   * Set {@link LoggingHandler} logging Level
+   * Sets the logging level for the {@link LoggingHandler}.
    * <p>
-   * If that {@code loggingLevel} is {@code null} will not register logging handler
-   * </p>
+   * If the provided {@code loggingLevel} is {@code null}, no logging handler will be registered.
    *
-   * @param loggingLevel LogLevel
+   * @param loggingLevel the logging level to set
    * @see LogLevel
    * @see LoggingHandler
    * @see ServerBootstrap#handler
@@ -207,18 +238,28 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   }
 
   /**
-   * Set {@link ChannelConfigurer}
+   * Set {@link ChannelConfigurer} to customize channel configuration.
+   * The channel configurer allows for additional customization of the channel
+   * after it has been initialized but before it's registered with the event loop.
    *
-   * @param channelConfigurer ChannelConfigurer
+   * @param channelConfigurer ChannelConfigurer instance to be used for configuring channels,
+   * or {@code null} to clear the existing configurer
+   * @since 4.0
    */
   public void setChannelConfigurer(@Nullable ChannelConfigurer channelConfigurer) {
     this.channelConfigurer = channelConfigurer;
   }
 
   /**
-   * Set {@link ServerBootstrapCustomizer}
+   * Sets the list of {@link ServerBootstrapCustomizer} instances that will be applied
+   * to customize the Netty {@link ServerBootstrap} during web server initialization.
+   * These customizers allow for additional configuration of the server bootstrap,
+   * such as setting custom channel options or other Netty-specific settings.
    *
-   * @param bootstrapCustomizers ServerBootstrapCustomizer list
+   * @param bootstrapCustomizers A list of {@link ServerBootstrapCustomizer} instances
+   * that will be used to customize the {@link ServerBootstrap}, or {@code null}
+   * to clear any previously set customizers
+   * @since 4.0
    */
   public void setBootstrapCustomizers(@Nullable List<ServerBootstrapCustomizer> bootstrapCustomizers) {
     this.bootstrapCustomizers = bootstrapCustomizers;
@@ -227,6 +268,7 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   /**
    * Set the worker thread pool name
    *
+   * @param workerPoolName the name of the worker thread pool
    * @since 5.0
    */
   public void setWorkerPoolName(@Nullable String workerPoolName) {
@@ -236,6 +278,7 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   /**
    * Set the acceptor thread pool name
    *
+   * @param acceptorPoolName the name of the acceptor thread pool
    * @since 5.0
    */
   public void setAcceptorPoolName(@Nullable String acceptorPoolName) {
@@ -243,17 +286,20 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   }
 
   /**
-   * set ChannelHandler
+   * Sets the HTTP traffic handler for processing incoming requests.
    *
+   * @param trafficHandler the channel handler responsible for handling
+   * HTTP traffic, or {@code null} to clear the handler
    * @since 5.0
    */
-  public void setChannelHandler(@Nullable ChannelHandler channelHandler) {
-    this.channelHandler = channelHandler;
+  public void setHttpTrafficHandler(@Nullable ChannelHandler trafficHandler) {
+    this.httpTrafficHandler = trafficHandler;
   }
 
   /**
-   * Get {@link LoggingHandler} logging Level
+   * Returns the logging level for the {@link LoggingHandler}.
    *
+   * @return the logging level, or {@code null} if no logging handler is configured
    * @see LogLevel
    * @see LoggingHandler
    * @see ServerBootstrap#handler
@@ -262,20 +308,44 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
     return loggingLevel;
   }
 
+  /**
+   * Returns the worker {@link EventLoopGroup} used by the server.
+   *
+   * @return the worker {@link EventLoopGroup}, or {@code null} if not set
+   * @since 4.0
+   */
   public @Nullable EventLoopGroup getWorkerGroup() {
     return workerGroup;
   }
 
+  /**
+   * Returns the acceptor {@link EventLoopGroup} used by the server.
+   *
+   * @return the acceptor {@link EventLoopGroup}, or {@code null} if not set
+   * @since 4.0
+   */
   public @Nullable EventLoopGroup getAcceptorGroup() {
     return acceptorGroup;
   }
 
-  public @Nullable Class<? extends ServerSocketChannel> getSocketChannel() {
+  /**
+   * Returns the server socket channel class used by the Netty server.
+   *
+   * @return the server socket channel class, or {@code null} if not set
+   * @see ServerSocketChannel
+   */
+  public @Nullable Class<? extends ServerChannel> getSocketChannel() {
     return socketChannel;
   }
 
-  public @Nullable ChannelHandler getChannelHandler() {
-    return channelHandler;
+  /**
+   * Returns the HTTP traffic handler for processing incoming requests.
+   *
+   * @return the channel handler responsible for handling HTTP traffic, or {@code null} if not set
+   * @since 5.0
+   */
+  public @Nullable ChannelHandler getHttpTrafficHandler() {
+    return httpTrafficHandler;
   }
 
   /**
@@ -295,7 +365,7 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   }
 
   @Override
-  public WebServer getWebServer() {
+  public WebServer createWebServer() {
     ServerBootstrap bootstrap = new ServerBootstrap();
     preBootstrap(bootstrap);
 
@@ -332,9 +402,9 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
       bootstrap.handler(new LoggingHandler(loggingLevel));
     }
 
-    ChannelHandler channelHandler = getChannelHandler();
-    Assert.state(channelHandler != null, "No 'channelHandler' set");
-    bootstrap.childHandler(createChannelInitializer(nettyConfig, channelHandler));
+    ChannelHandler httpTrafficHandler = getHttpTrafficHandler();
+    Assert.state(httpTrafficHandler != null, "No 'httpTrafficHandler' set");
+    bootstrap.childHandler(createChannelInitializer(nettyConfig, httpTrafficHandler));
     bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
 
     if (bootstrapCustomizers != null) {
@@ -345,19 +415,21 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
 
     postBootstrap(bootstrap);
 
-    InetSocketAddress listenAddress = getListenAddress();
+    boolean http2Enabled = isHttp2Enabled();
+    SocketAddress bindAddress = bindAddress();
     return new NettyWebServer(acceptorGroup, workerGroup, bootstrap,
-            listenAddress, nettyConfig.shutdown, Ssl.isEnabled(getSsl()));
+            bindAddress, nettyConfig.shutdown, Ssl.isEnabled(getSsl()), http2Enabled);
   }
 
   /**
-   * Creates Infra netty channel initializer
+   * Creates a Netty channel initializer for the given configuration and HTTP traffic handler.
    *
-   * @param netty netty config
-   * @param channelHandler ChannelHandler
+   * @param netty the Netty server properties configuration
+   * @param httpTrafficHandler the channel handler responsible for processing HTTP traffic
+   * @return a {@link ChannelInitializer} instance configured with the provided parameters
    */
-  protected ChannelInitializer<Channel> createChannelInitializer(NettyServerProperties netty, ChannelHandler channelHandler) {
-    return createInitializer(channelHandler, createHttpDecoderConfig(netty));
+  protected ChannelInitializer<Channel> createChannelInitializer(NettyServerProperties netty, ChannelHandler httpTrafficHandler) {
+    return createInitializer(httpTrafficHandler, createHttpDecoderConfig(netty));
   }
 
   protected final HttpDecoderConfig createHttpDecoderConfig(NettyServerProperties netty) {
@@ -373,18 +445,27 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   }
 
   /**
-   * before bootstrap
+   * Called before initializing the Netty server bootstrap.
+   * This method is invoked during the server creation process prior to setting up
+   * the channel and event loop groups. It provides an opportunity to configure
+   * global Netty settings or perform initialization tasks needed before the
+   * server starts.
    *
-   * @param bootstrap netty ServerBootstrap
+   * @param bootstrap the Netty {@link ServerBootstrap} instance being prepared
+   * @since 4.0
    */
   protected void preBootstrap(ServerBootstrap bootstrap) {
     ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
   }
 
   /**
-   * after bootstrap
+   * Called after the Netty server bootstrap has been fully configured but before
+   * the server begins accepting connections. This method allows for final
+   * modifications to the bootstrap configuration or additional setup tasks
+   * that should occur after all standard configuration is complete.
    *
-   * @param bootstrap netty ServerBootstrap
+   * @param bootstrap the Netty {@link ServerBootstrap} instance that has been configured
+   * @since 4.0
    */
   protected void postBootstrap(ServerBootstrap bootstrap) {
   }
@@ -416,22 +497,15 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
     nettyConfig = netty;
   }
 
-  private NettyChannelInitializer createInitializer(ChannelHandler channelHandler, HttpDecoderConfig config) {
+  private NettyChannelInitializer createInitializer(ChannelHandler httpTrafficHandler, HttpDecoderConfig config) {
     Ssl ssl = getSsl();
     if (Ssl.isEnabled(ssl)) {
-      SSLNettyChannelInitializer initializer = new SSLNettyChannelInitializer(channelHandler, config,
+      SecuredNettyChannelInitializer initializer = new SecuredNettyChannelInitializer(httpTrafficHandler, config,
               channelConfigurer, isHttp2Enabled(), ssl, getSslBundle(), getServerNameSslBundles());
       addBundleUpdateHandler(ssl, initializer::updateSSLBundle);
       return initializer;
     }
-    return new NettyChannelInitializer(channelHandler, channelConfigurer, config);
-  }
-
-  private InetSocketAddress getListenAddress() {
-    if (getAddress() != null) {
-      return new InetSocketAddress(getAddress().getHostAddress(), getPort());
-    }
-    return new InetSocketAddress(getPort());
+    return new NettyChannelInitializer(httpTrafficHandler, isHttp2Enabled(), channelConfigurer, config);
   }
 
   static class EpollDelegate {

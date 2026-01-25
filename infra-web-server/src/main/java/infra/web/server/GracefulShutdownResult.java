@@ -24,7 +24,7 @@ package infra.web.server;
  * @author Andy Wilkinson
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see GracefulShutdownCallback
- * @see WebServer#shutDownGracefully(GracefulShutdownCallback)
+ * @see WebServer#shutdownGracefully(GracefulShutdownCallback)
  * @since 4.0
  */
 public enum GracefulShutdownResult {

@@ -191,7 +191,6 @@ public class Ssl {
   /**
    * @since 5.0
    */
-  @SuppressWarnings("NullAway")
   public static class ServerNameSslBundle {
 
     private String serverName;

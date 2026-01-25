@@ -32,18 +32,18 @@ import static infra.web.socket.handler.ExceptionWebSocketHandlerDecorator.tryClo
 
 /**
  * A Netty channel handler for handling WebSocket connections.
- * This class extends {@link NettyChannelHandler} and provides specific
+ * This class extends {@link HttpTrafficHandler} and provides specific
  * functionality for processing WebSocket frames and managing the lifecycle
  * of WebSocket sessions.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/4/28 15:02
  */
-public final class WsNettyChannelHandler extends NettyChannelHandler {
+public final class WsHttpTrafficHandler extends HttpTrafficHandler {
 
-  private static final Logger log = LoggerFactory.getLogger(WsNettyChannelHandler.class);
+  private static final Logger log = LoggerFactory.getLogger(WsHttpTrafficHandler.class);
 
-  public WsNettyChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context,
+  public WsHttpTrafficHandler(NettyRequestConfig requestConfig, ApplicationContext context,
           DispatcherHandler dispatcherHandler, ServiceExecutor executor) {
     super(requestConfig, context, dispatcherHandler, executor);
   }
