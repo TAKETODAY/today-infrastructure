@@ -18,7 +18,6 @@ package infra.web.server.netty;
 
 import org.jspecify.annotations.Nullable;
 
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.List;
 
@@ -416,9 +415,10 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
 
     postBootstrap(bootstrap);
 
-    SocketAddress listenAddress = getListenAddress();
+    boolean http2Enabled = isHttp2Enabled();
+    SocketAddress bindAddress = bindAddress();
     return new NettyWebServer(acceptorGroup, workerGroup, bootstrap,
-            listenAddress, nettyConfig.shutdown, Ssl.isEnabled(getSsl()));
+            bindAddress, nettyConfig.shutdown, Ssl.isEnabled(getSsl()), http2Enabled);
   }
 
   /**
@@ -506,13 +506,6 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
       return initializer;
     }
     return new NettyChannelInitializer(httpTrafficHandler, isHttp2Enabled(), channelConfigurer, config);
-  }
-
-  private InetSocketAddress getListenAddress() {
-    if (getAddress() != null) {
-      return new InetSocketAddress(getAddress().getHostAddress(), getPort());
-    }
-    return new InetSocketAddress(getPort());
   }
 
   static class EpollDelegate {

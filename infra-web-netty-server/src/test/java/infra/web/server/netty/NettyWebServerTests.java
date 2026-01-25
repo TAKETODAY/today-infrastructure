@@ -33,6 +33,8 @@ import static org.mockito.Mockito.mock;
  */
 class NettyWebServerTests {
 
+  private final boolean http2Enabled = false;
+
   @Test
   void shouldCreateNettyWebServer() {
     // given
@@ -44,7 +46,7 @@ class NettyWebServerTests {
 
     // when
     NettyWebServer webServer = new NettyWebServer(parentGroup, childGroup, serverBootstrap,
-            listenAddress, shutdownConfig, false);
+            listenAddress, shutdownConfig, false, http2Enabled);
 
     // then
     assertThat(webServer).isNotNull();
@@ -61,7 +63,7 @@ class NettyWebServerTests {
     NettyServerProperties.Shutdown shutdownConfig = new NettyServerProperties.Shutdown();
 
     NettyWebServer webServer = new NettyWebServer(parentGroup, childGroup, serverBootstrap,
-            listenAddress, shutdownConfig, false);
+            listenAddress, shutdownConfig, false, http2Enabled);
 
     // when & then
     assertThat(webServer.getAsInt()).isEqualTo(9090);
@@ -79,7 +81,7 @@ class NettyWebServerTests {
 
     // when
     NettyWebServer webServer = new NettyWebServer(parentGroup, childGroup, serverBootstrap,
-            listenAddress, shutdownConfig, true);
+            listenAddress, shutdownConfig, true, http2Enabled);
 
     // then
     assertThat(webServer).extracting("sslEnabled").isEqualTo(true);
@@ -95,7 +97,7 @@ class NettyWebServerTests {
     NettyServerProperties.Shutdown shutdownConfig = new NettyServerProperties.Shutdown();
 
     NettyWebServer webServer = new NettyWebServer(parentGroup, childGroup, serverBootstrap,
-            listenAddress, shutdownConfig, false);
+            listenAddress, shutdownConfig, false, http2Enabled);
 
     // when
     webServer.stop();
@@ -115,7 +117,7 @@ class NettyWebServerTests {
     NettyServerProperties.Shutdown shutdownConfig = new NettyServerProperties.Shutdown();
 
     NettyWebServer webServer = new NettyWebServer(parentGroup, childGroup, serverBootstrap,
-            listenAddress, shutdownConfig, false);
+            listenAddress, shutdownConfig, false, http2Enabled);
 
     // Manually set shutdownComplete to true
     webServer.stop(); // This will set shutdownComplete to true internally
@@ -139,7 +141,7 @@ class NettyWebServerTests {
     NettyServerProperties.Shutdown shutdownConfig = new NettyServerProperties.Shutdown();
 
     NettyWebServer webServer = new NettyWebServer(parentGroup, childGroup, serverBootstrap,
-            listenAddress, shutdownConfig, false);
+            listenAddress, shutdownConfig, false, http2Enabled);
 
     GracefulShutdownCallback callback = mock(GracefulShutdownCallback.class);
 

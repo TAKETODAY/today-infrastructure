@@ -53,36 +53,50 @@ final class NettyWebServer implements WebServer, IntSupplier {
 
   private final boolean sslEnabled;
 
+  private final boolean http2Enabled;
+
   private final EventLoopGroup parentGroup;
 
   private final NettyServerProperties.Shutdown shutdownConfig;
 
   private final ServerBootstrap serverBootstrap;
 
-  private final SocketAddress listenAddress;
+  private final SocketAddress bindAddress;
 
   private volatile boolean shutdownComplete = false;
 
   NettyWebServer(EventLoopGroup parentGroup, EventLoopGroup childGroup, ServerBootstrap serverBootstrap,
-          SocketAddress listenAddress, NettyServerProperties.Shutdown shutdownConfig, boolean sslEnabled) {
+          SocketAddress bindAddress, NettyServerProperties.Shutdown shutdownConfig, boolean sslEnabled, boolean http2Enabled) {
     this.serverBootstrap = serverBootstrap;
     this.shutdownConfig = shutdownConfig;
-    this.listenAddress = listenAddress;
+    this.bindAddress = bindAddress;
     this.parentGroup = parentGroup;
     this.childGroup = childGroup;
     this.sslEnabled = sslEnabled;
+    this.http2Enabled = http2Enabled;
   }
 
   @Override
   public void start() throws WebServerException {
     try {
-      serverBootstrap.bind(listenAddress).syncUninterruptibly();
-      log.info("Netty started on port: {} {}", getPort(), sslEnabled ? "(https)" : "(http)");
+      serverBootstrap.bind(bindAddress).syncUninterruptibly();
+      String listenInfo = getListenInfo();
+      String protocolInfo = sslEnabled ? "(https)" : "(http)";
+      String http2Support = http2Enabled ? " with HTTP/2 support" : "";
+      log.info("Netty started on {} {}{}", listenInfo, protocolInfo, http2Support);
     }
     catch (Exception ex) {
       PortInUseException.throwIfPortBindingException(ex, this);
       throw new WebServerException("Unable to start Netty", ex);
     }
+  }
+
+  private String getListenInfo() {
+    int port = getPort();
+    if (port > 0) {
+      return "port: " + port;
+    }
+    return bindAddress.toString();
   }
 
   @Override
@@ -92,8 +106,8 @@ final class NettyWebServer implements WebServer, IntSupplier {
 
   @Override
   public void stop() {
-    log.info("Shutdown netty web server: [{}] on port: '{}'", this, getPort());
     if (!shutdownComplete) {
+      log.info("Shutdown netty web server: [{}] on ", this, getListenInfo());
       shutdown();
     }
   }
@@ -122,7 +136,7 @@ final class NettyWebServer implements WebServer, IntSupplier {
 
   @Override
   public int getPort() {
-    if (listenAddress instanceof InetSocketAddress isa) {
+    if (bindAddress instanceof InetSocketAddress isa) {
       return isa.getPort();
     }
     return -1;
