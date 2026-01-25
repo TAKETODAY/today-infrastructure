@@ -188,6 +188,7 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
    * @param bindAddress the bind address
    * @since 5.0
    */
+  @Override
   public void setBindAddress(@Nullable SocketAddress bindAddress) {
     this.bindAddress = bindAddress;
   }

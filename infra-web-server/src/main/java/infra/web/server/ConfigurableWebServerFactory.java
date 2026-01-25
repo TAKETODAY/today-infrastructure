@@ -21,6 +21,7 @@ package infra.web.server;
 import org.jspecify.annotations.Nullable;
 
 import java.net.InetAddress;
+import java.net.SocketAddress;
 
 import infra.core.ApplicationTemp;
 import infra.core.ssl.SslBundles;
@@ -50,6 +51,14 @@ public interface ConfigurableWebServerFactory extends WebServerFactory {
    * @param address the address to set (defaults to {@code null})
    */
   void setAddress(@Nullable InetAddress address);
+
+  /**
+   * Sets the bind address for the web server.
+   *
+   * @param bindAddress the bind address
+   * @since 5.0
+   */
+  void setBindAddress(@Nullable SocketAddress bindAddress);
 
   /**
    * Sets the SSL configuration that will be applied to the server's default connector.

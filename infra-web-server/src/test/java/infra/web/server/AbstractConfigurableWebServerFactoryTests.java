@@ -19,6 +19,7 @@ package infra.web.server;
 import org.junit.jupiter.api.Test;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.Map;
 
 import infra.core.ApplicationTemp;
@@ -73,6 +74,16 @@ class AbstractConfigurableWebServerFactoryTests {
 
     factory.setAddress(address);
     assertThat(factory.getAddress()).isEqualTo(address);
+  }
+
+  @Test
+  void setBindAddressShouldUpdateAddress() throws Exception {
+    AbstractConfigurableWebServerFactory factory = new AbstractConfigurableWebServerFactory() { };
+    InetAddress address = InetAddress.getByName("127.0.0.1");
+
+    InetSocketAddress bindAddress = new InetSocketAddress(address, 90);
+    factory.setBindAddress(bindAddress);
+    assertThat(factory.getBindAddress()).isSameAs(bindAddress);
   }
 
   @Test
