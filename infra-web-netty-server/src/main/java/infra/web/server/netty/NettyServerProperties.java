@@ -25,7 +25,7 @@ import infra.context.properties.NestedConfigurationProperty;
 import infra.util.DataSize;
 import infra.web.RequestContext;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.socket.ServerSocketChannel;
+import io.netty.channel.ServerChannel;
 import io.netty.handler.logging.LogLevel;
 
 /**
@@ -78,12 +78,12 @@ public class NettyServerProperties {
   public @Nullable Integer maxConnection;
 
   /**
-   * The ServerSocketChannel class to be used by the Netty server.
+   * The ServerChannel class to be used by the Netty server.
    * <p>
    * This allows customization of the underlying socket channel implementation
    * that Netty will use for accepting incoming connections.
    */
-  public @Nullable Class<? extends ServerSocketChannel> socketChannel;
+  public @Nullable Class<? extends ServerChannel> socketChannel;
 
   /**
    * Set netty LoggingHandler logging Level. If that loggingLevel

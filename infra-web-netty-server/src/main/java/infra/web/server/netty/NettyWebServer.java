@@ -17,6 +17,7 @@
 package infra.web.server.netty;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.function.IntSupplier;
 
 import infra.logging.Logger;
@@ -30,7 +31,16 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
 
 /**
- * Netty {@link WebServer}
+ * Netty implementation of {@link WebServer}.
+ * <p>
+ * This class provides a Netty-based web server that can be started and stopped,
+ * and supports graceful shutdown operations. It manages the lifecycle of the
+ * underlying Netty server including binding to a port, handling SSL configuration,
+ * and managing event loop groups.
+ * <p>
+ * The server can be configured with various parameters including the parent and
+ * child event loop groups, server bootstrap configuration, listening address,
+ * shutdown configuration, and SSL settings.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-07-02 21:15
@@ -49,12 +59,12 @@ final class NettyWebServer implements WebServer, IntSupplier {
 
   private final ServerBootstrap serverBootstrap;
 
+  private final SocketAddress listenAddress;
+
   private volatile boolean shutdownComplete = false;
 
-  private InetSocketAddress listenAddress;
-
   NettyWebServer(EventLoopGroup parentGroup, EventLoopGroup childGroup, ServerBootstrap serverBootstrap,
-          InetSocketAddress listenAddress, NettyServerProperties.Shutdown shutdownConfig, boolean sslEnabled) {
+          SocketAddress listenAddress, NettyServerProperties.Shutdown shutdownConfig, boolean sslEnabled) {
     this.serverBootstrap = serverBootstrap;
     this.shutdownConfig = shutdownConfig;
     this.listenAddress = listenAddress;
@@ -66,9 +76,7 @@ final class NettyWebServer implements WebServer, IntSupplier {
   @Override
   public void start() throws WebServerException {
     try {
-      if (serverBootstrap.bind(listenAddress).syncUninterruptibly().channel().localAddress() instanceof InetSocketAddress localAddress) {
-        listenAddress = localAddress;
-      }
+      serverBootstrap.bind(listenAddress).syncUninterruptibly();
       log.info("Netty started on port: {} {}", getPort(), sslEnabled ? "(https)" : "(http)");
     }
     catch (Exception ex) {
@@ -114,7 +122,10 @@ final class NettyWebServer implements WebServer, IntSupplier {
 
   @Override
   public int getPort() {
-    return listenAddress.getPort();
+    if (listenAddress instanceof InetSocketAddress isa) {
+      return isa.getPort();
+    }
+    return -1;
   }
 
 }

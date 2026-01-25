@@ -78,9 +78,9 @@ final class SecuredNettyChannelInitializer extends NettyChannelInitializer {
 
   private volatile SslContext sslContext;
 
-  public SecuredNettyChannelInitializer(ChannelHandler handler, HttpDecoderConfig config, @Nullable ChannelConfigurer configurer,
+  public SecuredNettyChannelInitializer(ChannelHandler httpTrafficHandler, HttpDecoderConfig config, @Nullable ChannelConfigurer configurer,
           boolean http2Enabled, Ssl ssl, SslBundle sslBundle, Map<String, SslBundle> serverNameSslBundles) {
-    super(handler, http2Enabled, configurer, config);
+    super(httpTrafficHandler, http2Enabled, configurer, config);
     this.handshakeTimeout = ssl.handshakeTimeout.toMillis();
     this.clientAuth = Ssl.ClientAuth.map(ssl.clientAuth, ClientAuth.NONE, ClientAuth.OPTIONAL, ClientAuth.REQUIRE);
     this.sslContext = createSslContext(sslBundle);

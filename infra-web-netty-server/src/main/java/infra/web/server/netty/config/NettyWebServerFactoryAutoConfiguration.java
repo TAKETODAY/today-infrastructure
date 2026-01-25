@@ -94,7 +94,7 @@ public final class NettyWebServerFactoryAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public static ChannelHandler nettyChannelHandler(ApplicationContext context,
+  public static ChannelHandler httpTrafficHandler(ApplicationContext context,
           NettyRequestConfig requestConfig, DispatcherHandler dispatcherHandler, ServiceExecutor executor) {
     return createChannelHandler(requestConfig, context, dispatcherHandler, executor, context.getClassLoader());
   }
@@ -126,13 +126,13 @@ public final class NettyWebServerFactoryAutoConfiguration {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public static NettyWebServerFactory nettyWebServerFactory(
           NettyServerProperties nettyServerProperties, @Nullable ChannelConfigurer channelConfigurer,
-          @Nullable List<ServerBootstrapCustomizer> customizers, ChannelHandler channelHandler) {
+          @Nullable List<ServerBootstrapCustomizer> customizers, ChannelHandler httpTrafficHandler) {
 
     NettyWebServerFactory factory = new NettyWebServerFactory();
     factory.applyFrom(nettyServerProperties);
     factory.setBootstrapCustomizers(customizers);
     factory.setChannelConfigurer(channelConfigurer);
-    factory.setChannelHandler(channelHandler);
+    factory.setHttpTrafficHandler(httpTrafficHandler);
     return factory;
   }
 

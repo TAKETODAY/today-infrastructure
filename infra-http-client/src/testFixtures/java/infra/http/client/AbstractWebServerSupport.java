@@ -45,7 +45,7 @@ public abstract class AbstractWebServerSupport {
                 new HttpObjectAggregator(1000, true));
       }
     });
-    webServerFactory.setChannelHandler(createChannelHandler());
+    webServerFactory.setHttpTrafficHandler(createChannelHandler());
     return webServerFactory;
   }
 

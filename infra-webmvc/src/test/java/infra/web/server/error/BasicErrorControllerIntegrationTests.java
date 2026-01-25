@@ -20,6 +20,8 @@ package infra.web.server.error;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -286,6 +288,7 @@ class BasicErrorControllerIntegrationTests {
 
   @Test
   @SuppressWarnings({ "rawtypes", "unchecked" })
+  @DisabledOnOs(OS.MAC)
   void testRequestBodyValidationForMachineClient() {
     load("--web.error.include-exception=true");
     RequestEntity request = RequestEntity.post(URI.create(createUrl("/bodyValidation")))

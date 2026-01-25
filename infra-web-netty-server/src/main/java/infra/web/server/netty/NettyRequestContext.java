@@ -77,6 +77,8 @@ import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.CookieHeaderNames;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
+import io.netty.handler.codec.http2.Http2DataChunkedInput;
+import io.netty.handler.codec.http2.Http2StreamChannel;
 import io.netty.handler.stream.ChunkedNioFile;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.internal.PlatformDependent;
@@ -599,7 +601,7 @@ public abstract class NettyRequestContext extends RequestContext {
         }
       }
 
-      channel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, headers));
+      channel.write(new DefaultHttpResponse(version(), status, headers));
     }
 
   }
@@ -1095,8 +1097,14 @@ public abstract class NettyRequestContext extends RequestContext {
         if (pipeline.context(CHUNKED_WRITER_NAME) == null) {
           pipeline.addLast(CHUNKED_WRITER_NAME, new ChunkedWriteHandler());
         }
-        fileToSend = new ChunkedNioFile(FileChannel.open(file.toPath(), StandardOpenOption.READ),
+        ChunkedNioFile nioFile = new ChunkedNioFile(FileChannel.open(file.toPath(), StandardOpenOption.READ),
                 position, count, nioFileChunkSize);
+        if (http2) {
+          fileToSend = new Http2DataChunkedInput(nioFile, ((Http2StreamChannel) channel).stream());
+        }
+        else {
+          fileToSend = nioFile;
+        }
       }
       else {
         fileToSend = new DefaultFileRegion(file, position, count);

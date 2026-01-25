@@ -60,7 +60,7 @@ sealed class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
             }
           };
 
-  private final ChannelHandler channelHandler;
+  private final ChannelHandler httpTrafficHandler;
 
   private final @Nullable ChannelConfigurer channelConfigurer;
 
@@ -72,9 +72,9 @@ sealed class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
 
   protected final boolean http2Enabled;
 
-  protected NettyChannelInitializer(ChannelHandler channelHandler, boolean http2Enabled,
+  protected NettyChannelInitializer(ChannelHandler httpTrafficHandler, boolean http2Enabled,
           @Nullable ChannelConfigurer channelConfigurer, HttpDecoderConfig httpDecoderConfig) {
-    this.channelHandler = channelHandler;
+    this.httpTrafficHandler = httpTrafficHandler;
     this.http2Enabled = http2Enabled;
     this.channelConfigurer = channelConfigurer;
     this.httpDecoderConfig = httpDecoderConfig;
@@ -100,7 +100,7 @@ sealed class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
   protected void configureHttp11Channel(Channel ch) {
     ch.pipeline()
             .addLast(HttpCodec, new HttpServerCodec(httpDecoderConfig))
-            .addLast(HttpTrafficHandler, channelHandler)
+            .addLast(HttpTrafficHandler, httpTrafficHandler)
             .remove(this);
   }
 
@@ -114,7 +114,7 @@ sealed class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
 
     channel.pipeline()
             .addLast(H2CUpgradeHandler, h2cUpgradeHandler)
-            .addLast(HttpTrafficHandler, channelHandler);
+            .addLast(HttpTrafficHandler, httpTrafficHandler);
   }
 
   protected final Http2FrameCodec createHttp2FrameCodec() {
@@ -125,7 +125,7 @@ sealed class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
   protected final void addH2StreamHandlers(Channel ch) {
     ChannelPipeline pipeline = ch.pipeline();
     pipeline.addLast(H2ToHttp11Codec, HTTP2_STREAM_FRAME_TO_HTTP_OBJECT)
-            .addLast(HttpTrafficHandler, channelHandler);
+            .addLast(HttpTrafficHandler, httpTrafficHandler);
   }
 
   @Override
