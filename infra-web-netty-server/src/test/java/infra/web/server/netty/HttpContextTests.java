@@ -24,6 +24,7 @@ import infra.util.concurrent.Awaiter;
 import infra.web.DispatcherHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
+import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.DecoderResult;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpContent;
@@ -48,7 +49,7 @@ class HttpContextTests {
   @Test
   void initDataExceedsMaxContentLengthShouldTriggerError() {
     // Given
-    Channel channel = mock(Channel.class);
+    Channel channel = new EmbeddedChannel();
     HttpRequest request = mock(HttpRequest.class);
     NettyRequestConfig config = createConfigBuilder().maxContentLength(149).build();
     ApplicationContext context = mock(ApplicationContext.class);
@@ -67,7 +68,7 @@ class HttpContextTests {
   @Test
   void validContentLengthWithinLimitShouldNotSetDecoderFailure() {
     // Given
-    Channel channel = mock(Channel.class);
+    Channel channel = new EmbeddedChannel();
     HttpRequest request = mock(HttpRequest.class);
     NettyRequestConfig config = createRequestConfig();
     ApplicationContext context = mock(ApplicationContext.class);
@@ -86,9 +87,9 @@ class HttpContextTests {
 
   @Test
   void normalHttpContentShouldDeliverToRequestBodyStream() {
-    // Given
     Awaiter awaiter = mock(Awaiter.class);
-    Channel channel = mock(Channel.class);
+    Channel channel = new EmbeddedChannel();
+
     HttpRequest request = mock(HttpRequest.class);
     NettyRequestConfig config = createConfigBuilder().maxContentLength(149)
             .awaiterFactory(req -> awaiter).build();
@@ -119,7 +120,7 @@ class HttpContextTests {
   void lastHttpContentWithNoExistingStreamButWithDataShouldCreateAndCompleteStream() {
     // Given
     Awaiter awaiter = mock(Awaiter.class);
-    Channel channel = mock(Channel.class);
+    Channel channel = new EmbeddedChannel();
     HttpRequest request = mock(HttpRequest.class);
     NettyRequestConfig config = createConfigBuilder().maxContentLength(149)
             .awaiterFactory(req -> awaiter).build();
