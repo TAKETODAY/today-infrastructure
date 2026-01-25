@@ -42,14 +42,14 @@ import io.netty.util.AttributeKey;
 import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFactory;
 
 /**
- * Handles HTTP requests in Netty server
- * <p>
- * Processes incoming HTTP requests, WebSocket frames and manages HTTP connection lifecycle
+ * Handles HTTP traffic in Netty server, processing incoming requests and managing HTTP context.
+ * This handler is responsible for creating and managing {@link HttpContext} instances,
+ * delegating request handling to the service executor, and managing WebSocket frames.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-07-04 21:50
  */
-public class NettyChannelHandler extends ChannelInboundHandlerAdapter {
+public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
 
   public static final AttributeKey<@Nullable HttpContext> KEY = AttributeKey.valueOf(HttpContext.class, "KEY");
 
@@ -61,7 +61,7 @@ public class NettyChannelHandler extends ChannelInboundHandlerAdapter {
 
   protected final ServiceExecutor executor;
 
-  public NettyChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context,
+  public HttpTrafficHandler(NettyRequestConfig requestConfig, ApplicationContext context,
           DispatcherHandler dispatcherHandler, ServiceExecutor executor) {
     Assert.notNull(executor, "ServiceExecutor is required");
     Assert.notNull(context, "ApplicationContext is required");

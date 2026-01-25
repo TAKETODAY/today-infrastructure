@@ -44,7 +44,7 @@ import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 
 final class HttpContext extends NettyRequestContext implements Runnable {
 
-  private final NettyChannelHandler channelHandler;
+  private final HttpTrafficHandler httpTrafficHandler;
 
   private final long contentLength;
 
@@ -58,9 +58,9 @@ final class HttpContext extends NettyRequestContext implements Runnable {
   private volatile boolean continueExpected = false;
 
   public HttpContext(Channel channel, HttpRequest request, NettyRequestConfig config,
-          ApplicationContext context, DispatcherHandler dispatcherHandler, NettyChannelHandler channelHandler) {
+          ApplicationContext context, DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler) {
     super(context, channel, request, config, dispatcherHandler);
-    this.channelHandler = channelHandler;
+    this.httpTrafficHandler = httpTrafficHandler;
     this.contentLength = HttpUtil.getContentLength(request, -1L);
   }
 
@@ -178,7 +178,7 @@ final class HttpContext extends NettyRequestContext implements Runnable {
       }
     }
     catch (Throwable e) {
-      channelHandler.handleException(channel, e);
+      httpTrafficHandler.handleException(channel, e);
     }
     finally {
       RequestContextHolder.cleanup();

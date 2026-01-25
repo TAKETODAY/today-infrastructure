@@ -54,7 +54,7 @@ class HttpContextTests {
     NettyRequestConfig config = createConfigBuilder().maxContentLength(149).build();
     ApplicationContext context = mock(ApplicationContext.class);
     DispatcherHandler dispatcherHandler = mock(DispatcherHandler.class);
-    NettyChannelHandler channelHandler = mock(NettyChannelHandler.class);
+    HttpTrafficHandler channelHandler = mock(HttpTrafficHandler.class);
 
     when(request.headers()).thenReturn(new DefaultHttpHeaders().set(HttpHeaderNames.CONTENT_LENGTH, "150"));
 
@@ -73,7 +73,7 @@ class HttpContextTests {
     NettyRequestConfig config = createRequestConfig();
     ApplicationContext context = mock(ApplicationContext.class);
     DispatcherHandler dispatcherHandler = mock(DispatcherHandler.class);
-    NettyChannelHandler channelHandler = mock(NettyChannelHandler.class);
+    HttpTrafficHandler channelHandler = mock(HttpTrafficHandler.class);
 
     when(request.headers()).thenReturn(new DefaultHttpHeaders().set(HttpHeaderNames.CONTENT_LENGTH, "150"));
 
@@ -96,7 +96,7 @@ class HttpContextTests {
 
     ApplicationContext context = mock(ApplicationContext.class);
     DispatcherHandler dispatcherHandler = mock(DispatcherHandler.class);
-    NettyChannelHandler channelHandler = mock(NettyChannelHandler.class);
+    HttpTrafficHandler channelHandler = mock(HttpTrafficHandler.class);
     HttpContent httpContent = mock(HttpContent.class);
     ByteBuf byteBuf = mock(ByteBuf.class);
 
@@ -127,7 +127,7 @@ class HttpContextTests {
 
     ApplicationContext context = mock(ApplicationContext.class);
     DispatcherHandler dispatcherHandler = mock(DispatcherHandler.class);
-    NettyChannelHandler channelHandler = mock(NettyChannelHandler.class);
+    HttpTrafficHandler channelHandler = mock(HttpTrafficHandler.class);
     LastHttpContent lastHttpContent = mock(LastHttpContent.class);
     ByteBuf byteBuf = mock(ByteBuf.class);
 
