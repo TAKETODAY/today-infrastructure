@@ -27,7 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.net.URI;
 
 import infra.http.client.ClientHttpRequest;
-import infra.http.client.support.HttpRequestDecorator;
+import infra.http.client.support.DecoratingHttpRequest;
 import infra.test.web.client.ExpectedCount;
 import infra.test.web.client.MockRestServiceServer;
 import infra.test.web.client.RequestExpectationManager;
@@ -101,7 +101,7 @@ class RootUriRequestExpectationManagerTests {
     this.manager.validateRequest(request);
     URI expectedURI = new URI("/hello");
     then(this.delegate).should()
-            .validateRequest(assertArg((actual) -> assertThat(actual).isInstanceOfSatisfying(HttpRequestDecorator.class,
+            .validateRequest(assertArg((actual) -> assertThat(actual).isInstanceOfSatisfying(DecoratingHttpRequest.class,
                     (requestWrapper) -> {
                       assertThat(requestWrapper.delegate()).isSameAs(request);
                       assertThat(requestWrapper.getURI()).isEqualTo(expectedURI);

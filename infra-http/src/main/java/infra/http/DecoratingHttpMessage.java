@@ -30,11 +30,11 @@ import java.util.List;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/12/10 21:58
  */
-public class HttpMessageDecorator implements HttpMessage {
+public class DecoratingHttpMessage implements HttpMessage {
 
   private final HttpMessage delegate;
 
-  protected HttpMessageDecorator(HttpMessage delegate) {
+  protected DecoratingHttpMessage(HttpMessage delegate) {
     this.delegate = delegate;
   }
 

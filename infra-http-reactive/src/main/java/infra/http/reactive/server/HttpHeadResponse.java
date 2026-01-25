@@ -32,9 +32,9 @@ import reactor.core.publisher.Mono;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class HttpHeadResponseDecorator extends ServerHttpResponseDecorator {
+public class HttpHeadResponse extends DecoratingServerHttpResponse {
 
-  public HttpHeadResponseDecorator(ServerHttpResponse delegate) {
+  public HttpHeadResponse(ServerHttpResponse delegate) {
     super(delegate);
   }
 

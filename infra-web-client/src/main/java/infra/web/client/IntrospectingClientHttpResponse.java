@@ -28,7 +28,7 @@ import java.io.PushbackInputStream;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.client.ClientHttpResponse;
-import infra.http.client.ClientHttpResponseDecorator;
+import infra.http.client.DecoratingClientHttpResponse;
 
 /**
  * Implementation of {@link ClientHttpResponse} that can not only check if
@@ -39,7 +39,7 @@ import infra.http.client.ClientHttpResponseDecorator;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class IntrospectingClientHttpResponse extends ClientHttpResponseDecorator implements ClientHttpResponse {
+class IntrospectingClientHttpResponse extends DecoratingClientHttpResponse implements ClientHttpResponse {
 
   @Nullable
   private PushbackInputStream pushbackInputStream;

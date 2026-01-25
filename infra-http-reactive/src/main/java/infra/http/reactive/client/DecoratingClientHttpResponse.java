@@ -19,7 +19,7 @@
 package infra.http.reactive.client;
 
 import infra.core.io.buffer.DataBuffer;
-import infra.http.HttpMessageDecorator;
+import infra.http.DecoratingHttpMessage;
 import infra.http.HttpStatusCode;
 import infra.http.ResponseCookie;
 import infra.lang.Assert;
@@ -34,11 +34,11 @@ import reactor.core.publisher.Flux;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ClientHttpResponseDecorator extends HttpMessageDecorator implements ClientHttpResponse {
+public class DecoratingClientHttpResponse extends DecoratingHttpMessage implements ClientHttpResponse {
 
   private final ClientHttpResponse delegate;
 
-  public ClientHttpResponseDecorator(ClientHttpResponse delegate) {
+  public DecoratingClientHttpResponse(ClientHttpResponse delegate) {
     super(delegate);
     Assert.notNull(delegate, "Delegate is required");
     this.delegate = delegate;

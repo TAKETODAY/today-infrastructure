@@ -36,11 +36,11 @@ import infra.lang.Assert;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/2 9:06
  */
-public class ResourceDecorator implements Resource {
+public class DecoratingResource implements Resource {
 
   protected Resource delegate;
 
-  public ResourceDecorator(Resource delegate) {
+  public DecoratingResource(Resource delegate) {
     Assert.notNull(delegate, "Resource delegate is required");
     this.delegate = delegate;
   }
@@ -149,7 +149,7 @@ public class ResourceDecorator implements Resource {
     if (this == obj) {
       return true;
     }
-    if (obj instanceof ResourceDecorator decorator) {
+    if (obj instanceof DecoratingResource decorator) {
       return Objects.equals(decorator.delegate, delegate);
     }
     return false;

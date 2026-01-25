@@ -37,12 +37,12 @@ import static org.mockito.Mockito.when;
  * @since 5.0 2025/10/6 14:12
  */
 @SuppressWarnings("cast")
-class ServerHttpResponseDecoratorTests {
+class DecoratingServerHttpResponseTests {
 
   @Test
   void delegateMethodsAreCalled() {
     ServerHttpResponse delegate = mock(ServerHttpResponse.class);
-    ServerHttpResponseDecorator decorator = new ServerHttpResponseDecorator(delegate);
+    DecoratingServerHttpResponse decorator = new DecoratingServerHttpResponse(delegate);
 
     decorator.setStatusCode(HttpStatus.OK);
     verify(delegate).setStatusCode(HttpStatus.OK);
@@ -96,7 +96,7 @@ class ServerHttpResponseDecoratorTests {
     Object nativeResponse = new Object();
     when(abstractResponse.getNativeResponse()).thenReturn(nativeResponse);
 
-    assertThat((Object) ServerHttpResponseDecorator.getNativeResponse(abstractResponse)).isSameAs(nativeResponse);
+    assertThat((Object) DecoratingServerHttpResponse.getNativeResponse(abstractResponse)).isSameAs(nativeResponse);
   }
 
   @Test
@@ -105,10 +105,10 @@ class ServerHttpResponseDecoratorTests {
     Object nativeResponse = new Object();
     when(abstractResponse.getNativeResponse()).thenReturn(nativeResponse);
 
-    ServerHttpResponseDecorator decorator1 = new ServerHttpResponseDecorator(abstractResponse);
-    ServerHttpResponseDecorator decorator2 = new ServerHttpResponseDecorator(decorator1);
+    DecoratingServerHttpResponse decorator1 = new DecoratingServerHttpResponse(abstractResponse);
+    DecoratingServerHttpResponse decorator2 = new DecoratingServerHttpResponse(decorator1);
 
-    assertThat((Object) ServerHttpResponseDecorator.getNativeResponse(decorator2)).isSameAs(nativeResponse);
+    assertThat((Object) DecoratingServerHttpResponse.getNativeResponse(decorator2)).isSameAs(nativeResponse);
   }
 
   @Test
@@ -116,14 +116,14 @@ class ServerHttpResponseDecoratorTests {
     ServerHttpResponse unknownResponse = mock(ServerHttpResponse.class);
 
     assertThatIllegalArgumentException()
-            .isThrownBy(() -> ServerHttpResponseDecorator.getNativeResponse(unknownResponse))
+            .isThrownBy(() -> DecoratingServerHttpResponse.getNativeResponse(unknownResponse))
             .withMessageContaining("Can't find native response");
   }
 
   @Test
   void constructorWithNullDelegate() {
     assertThatIllegalArgumentException()
-            .isThrownBy(() -> new ServerHttpResponseDecorator(null))
+            .isThrownBy(() -> new DecoratingServerHttpResponse(null))
             .withMessageContaining("Delegate is required");
   }
 
@@ -131,7 +131,7 @@ class ServerHttpResponseDecoratorTests {
   void toStringContainsDelegate() {
     ServerHttpResponse delegate = mock(ServerHttpResponse.class);
     when(delegate.toString()).thenReturn("MockDelegate");
-    ServerHttpResponseDecorator decorator = new ServerHttpResponseDecorator(delegate);
+    DecoratingServerHttpResponse decorator = new DecoratingServerHttpResponse(delegate);
 
     assertThat(decorator.toString()).contains("MockDelegate");
   }

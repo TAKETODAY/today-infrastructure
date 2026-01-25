@@ -29,7 +29,7 @@ import java.util.concurrent.Executor;
 
 import infra.http.client.ClientHttpRequest;
 import infra.http.client.ClientHttpResponse;
-import infra.http.client.support.HttpRequestDecorator;
+import infra.http.client.support.DecoratingHttpRequest;
 import infra.lang.Assert;
 import infra.mock.http.client.MockClientHttpRequest;
 import infra.test.web.client.ExpectedCount;
@@ -178,7 +178,7 @@ public class RootUriRequestExpectationManager implements RequestExpectationManag
   /**
    * {@link ClientHttpRequest} wrapper to replace the request URI.
    */
-  private static class ReplaceUriClientHttpRequest extends HttpRequestDecorator implements ClientHttpRequest {
+  private static class ReplaceUriClientHttpRequest extends DecoratingHttpRequest implements ClientHttpRequest {
 
     private final URI uri;
 

@@ -57,7 +57,7 @@ public class ReactorHttpHandlerAdapter implements BiFunction<HttpServerRequest, 
       ReactorServerHttpRequest request = new ReactorServerHttpRequest(reactorRequest, bufferFactory);
 
       if (request.getMethod() == HttpMethod.HEAD) {
-        response = new HttpHeadResponseDecorator(response);
+        response = new HttpHeadResponse(response);
       }
 
       if (log.isDebugEnabled()) {

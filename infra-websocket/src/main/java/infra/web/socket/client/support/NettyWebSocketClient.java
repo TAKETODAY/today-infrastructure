@@ -76,7 +76,7 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 
 import static infra.util.concurrent.Future.ok;
 import static infra.web.socket.PromiseAdapter.adapt;
-import static infra.web.socket.handler.ExceptionWebSocketHandlerDecorator.tryCloseWithError;
+import static infra.web.socket.handler.ExceptionWebSocketHandler.tryCloseWithError;
 
 /**
  * Netty websocket client

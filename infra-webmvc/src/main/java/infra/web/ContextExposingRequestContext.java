@@ -34,7 +34,9 @@ import infra.lang.Assert;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/5 14:27
  */
-public class ContextExposingRequestContext extends RequestContextDecorator {
+public class ContextExposingRequestContext extends DecoratingRequestContext {
+
+  private final RequestContext delegate;
 
   private final ApplicationContext webApplicationContext;
 
@@ -47,16 +49,16 @@ public class ContextExposingRequestContext extends RequestContextDecorator {
   /**
    * Create a new ContextExposingRequestContext for the given request.
    *
-   * @param originalRequest the original RequestContext
+   * @param delegate the original RequestContext
    * @param context the WebApplicationContext that this request runs in
    * @param exposedContextBeanNames the names of beans in the context which
    * are supposed to be exposed (if this is non-null, only the beans in this
    * Set are eligible for exposure as attributes)
    */
-  public ContextExposingRequestContext(RequestContext originalRequest,
-          ApplicationContext context, @Nullable Set<String> exposedContextBeanNames) {
-    super(originalRequest);
+  public ContextExposingRequestContext(RequestContext delegate, ApplicationContext context, @Nullable Set<String> exposedContextBeanNames) {
+    Assert.notNull(delegate, "RequestContext delegate is required");
     Assert.notNull(context, "WebApplicationContext is required");
+    this.delegate = delegate;
     this.webApplicationContext = context;
     this.exposedContextBeanNames = exposedContextBeanNames;
   }
@@ -89,6 +91,11 @@ public class ContextExposingRequestContext extends RequestContextDecorator {
       this.explicitAttributes = new HashSet<>(8);
     }
     this.explicitAttributes.add(name);
+  }
+
+  @Override
+  public RequestContext delegate() {
+    return delegate;
   }
 
 }

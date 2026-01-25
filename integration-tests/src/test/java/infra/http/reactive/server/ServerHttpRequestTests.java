@@ -210,7 +210,7 @@ public class ServerHttpRequestTests {
     ServerHttpRequest request = createRequest("/path");
     request = request.mutate().header("key", "value").build();
 
-    Object nativeRequest = ServerHttpRequestDecorator.getNativeRequest(request);
+    Object nativeRequest = DecoratingServerHttpRequest.getNativeRequest(request);
     assertThat(nativeRequest).isInstanceOf(HttpMockRequest.class);
   }
 

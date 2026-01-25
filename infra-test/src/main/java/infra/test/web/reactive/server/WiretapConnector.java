@@ -33,9 +33,9 @@ import infra.core.io.buffer.DefaultDataBufferFactory;
 import infra.http.HttpMethod;
 import infra.http.reactive.client.ClientHttpConnector;
 import infra.http.reactive.client.ClientHttpRequest;
-import infra.http.reactive.client.ClientHttpRequestDecorator;
+import infra.http.reactive.client.DecoratingClientHttpRequest;
 import infra.http.reactive.client.ClientHttpResponse;
-import infra.http.reactive.client.ClientHttpResponseDecorator;
+import infra.http.reactive.client.DecoratingClientHttpResponse;
 import infra.lang.Assert;
 import reactor.core.Scannable;
 import reactor.core.publisher.Flux;
@@ -214,7 +214,7 @@ class WiretapConnector implements ClientHttpConnector {
   /**
    * ClientHttpRequestDecorator that intercepts and saves the request body.
    */
-  private static class WiretapClientHttpRequest extends ClientHttpRequestDecorator {
+  private static class WiretapClientHttpRequest extends DecoratingClientHttpRequest {
 
     @Nullable
     private WiretapRecorder recorder;
@@ -250,7 +250,7 @@ class WiretapConnector implements ClientHttpConnector {
   /**
    * ClientHttpResponseDecorator that intercepts and saves the response body.
    */
-  private static class WiretapClientHttpResponse extends ClientHttpResponseDecorator {
+  private static class WiretapClientHttpResponse extends DecoratingClientHttpResponse {
 
     private final WiretapRecorder recorder;
 

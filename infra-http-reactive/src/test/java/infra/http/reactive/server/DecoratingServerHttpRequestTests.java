@@ -34,11 +34,11 @@ import static org.mockito.Mockito.when;
  * @since 5.0 2025/10/6 14:00
  */
 @SuppressWarnings("cast")
-class ServerHttpRequestDecoratorTests {
+class DecoratingServerHttpRequestTests {
   @Test
   void delegateMethodsAreCalled() {
     ServerHttpRequest delegate = mock(ServerHttpRequest.class);
-    ServerHttpRequestDecorator decorator = new ServerHttpRequestDecorator(delegate);
+    DecoratingServerHttpRequest decorator = new DecoratingServerHttpRequest(delegate);
 
     decorator.getId();
     verify(delegate).getId();
@@ -122,7 +122,7 @@ class ServerHttpRequestDecoratorTests {
     Object nativeRequest = new Object();
     when(abstractRequest.getNativeRequest()).thenReturn(nativeRequest);
 
-    assertThat((Object) ServerHttpRequestDecorator.getNativeRequest(abstractRequest)).isSameAs(nativeRequest);
+    assertThat((Object) DecoratingServerHttpRequest.getNativeRequest(abstractRequest)).isSameAs(nativeRequest);
   }
 
   @Test
@@ -131,10 +131,10 @@ class ServerHttpRequestDecoratorTests {
     Object nativeRequest = new Object();
     when(abstractRequest.getNativeRequest()).thenReturn(nativeRequest);
 
-    ServerHttpRequestDecorator decorator1 = new ServerHttpRequestDecorator(abstractRequest);
-    ServerHttpRequestDecorator decorator2 = new ServerHttpRequestDecorator(decorator1);
+    DecoratingServerHttpRequest decorator1 = new DecoratingServerHttpRequest(abstractRequest);
+    DecoratingServerHttpRequest decorator2 = new DecoratingServerHttpRequest(decorator1);
 
-    assertThat((Object) ServerHttpRequestDecorator.getNativeRequest(decorator2)).isSameAs(nativeRequest);
+    assertThat((Object) DecoratingServerHttpRequest.getNativeRequest(decorator2)).isSameAs(nativeRequest);
   }
 
   @Test
@@ -142,14 +142,14 @@ class ServerHttpRequestDecoratorTests {
     ServerHttpRequest unknownRequest = mock(ServerHttpRequest.class);
 
     assertThatIllegalArgumentException()
-            .isThrownBy(() -> ServerHttpRequestDecorator.getNativeRequest(unknownRequest))
+            .isThrownBy(() -> DecoratingServerHttpRequest.getNativeRequest(unknownRequest))
             .withMessageContaining("Can't find native request");
   }
 
   @Test
   void constructorWithNullDelegate() {
     assertThatIllegalArgumentException()
-            .isThrownBy(() -> new ServerHttpRequestDecorator(null))
+            .isThrownBy(() -> new DecoratingServerHttpRequest(null))
             .withMessageContaining("Delegate is required");
   }
 
@@ -157,7 +157,7 @@ class ServerHttpRequestDecoratorTests {
   void toStringContainsDelegate() {
     ServerHttpRequest delegate = mock(ServerHttpRequest.class);
     when(delegate.toString()).thenReturn("MockDelegate");
-    ServerHttpRequestDecorator decorator = new ServerHttpRequestDecorator(delegate);
+    DecoratingServerHttpRequest decorator = new DecoratingServerHttpRequest(delegate);
 
     assertThat(decorator.toString()).contains("MockDelegate");
   }

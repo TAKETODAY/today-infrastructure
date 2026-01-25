@@ -32,11 +32,11 @@ import java.nio.file.Path;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2026/1/12 16:21
  */
-public class HttpOutputMessageDecorator extends HttpMessageDecorator implements HttpOutputMessage {
+public class DecoratingHttpOutputMessage extends DecoratingHttpMessage implements HttpOutputMessage {
 
   private final HttpOutputMessage delegate;
 
-  protected HttpOutputMessageDecorator(HttpOutputMessage delegate) {
+  protected DecoratingHttpOutputMessage(HttpOutputMessage delegate) {
     super(delegate);
     this.delegate = delegate;
   }

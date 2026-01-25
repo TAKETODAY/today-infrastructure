@@ -35,17 +35,17 @@ import reactor.core.publisher.Mono;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Unit tests for {@link HttpHeadResponseDecorator}.
+ * Unit tests for {@link HttpHeadResponse}.
  *
  * @author Rossen Stoyanchev
  */
-public class HttpHeadResponseDecoratorTests {
+public class HttpHeadResponseTests {
 
   private final LeakAwareDataBufferFactory bufferFactory =
           new LeakAwareDataBufferFactory(new NettyDataBufferFactory(PooledByteBufAllocator.DEFAULT));
 
   private final ServerHttpResponse response =
-          new HttpHeadResponseDecorator(new MockServerHttpResponse(this.bufferFactory));
+          new HttpHeadResponse(new MockServerHttpResponse(this.bufferFactory));
 
   @AfterEach
   public void tearDown() {

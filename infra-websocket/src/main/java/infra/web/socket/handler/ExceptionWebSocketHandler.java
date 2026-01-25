@@ -37,11 +37,11 @@ import infra.web.socket.WebSocketSession;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/2/7 21:47
  */
-public class ExceptionWebSocketHandlerDecorator extends WebSocketHandler {
+public class ExceptionWebSocketHandler extends WebSocketHandler {
 
-  private static final Logger logger = LoggerFactory.getLogger(ExceptionWebSocketHandlerDecorator.class);
+  private static final Logger logger = LoggerFactory.getLogger(ExceptionWebSocketHandler.class);
 
-  public ExceptionWebSocketHandlerDecorator(WebSocketHandler delegate) {
+  public ExceptionWebSocketHandler(WebSocketHandler delegate) {
     super(delegate);
   }
 

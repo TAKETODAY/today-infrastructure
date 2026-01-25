@@ -74,7 +74,7 @@ Java 配置和 XML 命名空间都可以配置自定义的 `HandshakeHandler`。
 
 TIP: Infra 提供了一个 `WebSocketHandlerDecorator` 基类，您可以使用它来装饰 `WebSocketHandler`，以添加额外的行为。
 在使用 WebSocket Java 配置或 XML 命名空间时，默认情况下会提供并添加日志记录和异常处理实现。
-`ExceptionWebSocketHandlerDecorator` 捕获所有由任何 `WebSocketHandler` 方法引发的未捕获异常，并使用状态 `1011` 关闭 WebSocket 会话，这表示服务器错误。
+`ExceptionWebSocketHandler` 捕获所有由任何 `WebSocketHandler` 方法引发的未捕获异常，并使用状态 `1011` 关闭 WebSocket 会话，这表示服务器错误。
 
 
 [[websocket-server-deployment]]

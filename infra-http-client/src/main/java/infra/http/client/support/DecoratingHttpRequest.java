@@ -16,99 +16,82 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.http.reactive.client;
+package infra.http.client.support;
 
 import org.jspecify.annotations.Nullable;
-import org.reactivestreams.Publisher;
 
 import java.net.URI;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import infra.core.AttributeAccessor;
-import infra.core.io.buffer.DataBuffer;
-import infra.core.io.buffer.DataBufferFactory;
-import infra.http.HttpCookie;
-import infra.http.HttpMessageDecorator;
+import infra.http.DecoratingHttpMessage;
 import infra.http.HttpMethod;
+import infra.http.HttpRequest;
 import infra.lang.Assert;
-import infra.util.MultiValueMap;
-import reactor.core.publisher.Mono;
 
 /**
- * Wraps another {@link ClientHttpRequest} and delegates all methods to it.
- * Sub-classes can override specific methods selectively.
+ * Provides a convenient implementation of the {@link HttpRequest} interface
+ * that can be overridden to adapt the request.
  *
- * @author Rossen Stoyanchev
+ * <p>These methods default to calling through to the wrapped request object.
+ *
+ * @author Arjen Poutsma
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ClientHttpRequestDecorator extends HttpMessageDecorator implements ClientHttpRequest {
+public class DecoratingHttpRequest extends DecoratingHttpMessage implements HttpRequest {
 
-  protected final ClientHttpRequest delegate;
+  protected final HttpRequest delegate;
 
-  public ClientHttpRequestDecorator(ClientHttpRequest delegate) {
+  /**
+   * Create a new {@code HttpRequest} wrapping the given request object.
+   *
+   * @param delegate the request object to be wrapped
+   */
+  public DecoratingHttpRequest(HttpRequest delegate) {
     super(delegate);
-    Assert.notNull(delegate, "Delegate is required");
+    Assert.notNull(delegate, "delegate is required");
     this.delegate = delegate;
   }
 
+  /**
+   * Return the wrapped request.
+   */
   @Override
-  public ClientHttpRequest delegate() {
+  public HttpRequest delegate() {
     return this.delegate;
   }
 
-  // ClientHttpRequest delegation methods...
-
+  /**
+   * Return the method of the wrapped request.
+   */
   @Override
   public HttpMethod getMethod() {
     return this.delegate.getMethod();
   }
 
+  /**
+   * Return the method value of the wrapped request.
+   */
+  @Override
+  public String getMethodAsString() {
+    return this.delegate.getMethodAsString();
+  }
+
+  /**
+   * Return the URI of the wrapped request.
+   */
   @Override
   public URI getURI() {
     return this.delegate.getURI();
   }
 
-  @Override
-  public MultiValueMap<String, HttpCookie> getCookies() {
-    return this.delegate.getCookies();
-  }
+  // AttributeAccessor
 
   @Override
-  public DataBufferFactory bufferFactory() {
-    return this.delegate.bufferFactory();
-  }
-
-  @Override
-  public <T> T getNativeRequest() {
-    return this.delegate.getNativeRequest();
-  }
-
-  @Override
-  public void beforeCommit(Supplier<? extends Mono<Void>> action) {
-    this.delegate.beforeCommit(action);
-  }
-
-  @Override
-  public boolean isCommitted() {
-    return this.delegate.isCommitted();
-  }
-
-  @Override
-  public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
-    return this.delegate.writeWith(body);
-  }
-
-  @Override
-  public Mono<Void> writeAndFlushWith(Publisher<? extends Publisher<? extends DataBuffer>> body) {
-    return this.delegate.writeAndFlushWith(body);
-  }
-
-  @Override
-  public Mono<Void> setComplete() {
-    return this.delegate.setComplete();
+  public Map<String, Object> getAttributes() {
+    return delegate.getAttributes();
   }
 
   @Override
@@ -145,11 +128,6 @@ public class ClientHttpRequestDecorator extends HttpMessageDecorator implements 
   @Override
   public String[] getAttributeNames() {
     return delegate.getAttributeNames();
-  }
-
-  @Override
-  public Map<String, Object> getAttributes() {
-    return delegate.getAttributes();
   }
 
   @Override

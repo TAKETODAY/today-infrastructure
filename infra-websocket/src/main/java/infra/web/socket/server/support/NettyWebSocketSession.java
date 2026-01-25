@@ -48,7 +48,7 @@ import io.netty.util.ReferenceCountUtil;
 import static infra.web.socket.CloseStatus.NO_CLOSE_FRAME;
 import static infra.web.socket.CloseStatus.NO_STATUS_CODE;
 import static infra.web.socket.PromiseAdapter.adapt;
-import static infra.web.socket.handler.ExceptionWebSocketHandlerDecorator.tryCloseWithError;
+import static infra.web.socket.handler.ExceptionWebSocketHandler.tryCloseWithError;
 
 /**
  * Netty websocket session

@@ -16,111 +16,99 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.http.reactive.server;
+package infra.http.reactive.client;
 
 import org.jspecify.annotations.Nullable;
+import org.reactivestreams.Publisher;
 
-import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import infra.core.AttributeAccessor;
 import infra.core.io.buffer.DataBuffer;
+import infra.core.io.buffer.DataBufferFactory;
+import infra.http.DecoratingHttpMessage;
 import infra.http.HttpCookie;
-import infra.http.HttpMessageDecorator;
 import infra.http.HttpMethod;
-import infra.http.server.RequestPath;
 import infra.lang.Assert;
 import infra.util.MultiValueMap;
-import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
- * Wraps another {@link ServerHttpRequest} and delegates all methods to it.
+ * Wraps another {@link ClientHttpRequest} and delegates all methods to it.
  * Sub-classes can override specific methods selectively.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ServerHttpRequestDecorator extends HttpMessageDecorator implements ServerHttpRequest {
+public class DecoratingClientHttpRequest extends DecoratingHttpMessage implements ClientHttpRequest {
 
-  private final ServerHttpRequest delegate;
+  protected final ClientHttpRequest delegate;
 
-  public ServerHttpRequestDecorator(ServerHttpRequest delegate) {
+  public DecoratingClientHttpRequest(ClientHttpRequest delegate) {
     super(delegate);
     Assert.notNull(delegate, "Delegate is required");
     this.delegate = delegate;
   }
 
   @Override
-  public ServerHttpRequest delegate() {
+  public ClientHttpRequest delegate() {
     return this.delegate;
   }
 
-  // ServerHttpRequest delegation methods...
-
-  @Override
-  public String getId() {
-    return delegate.getId();
-  }
+  // ClientHttpRequest delegation methods...
 
   @Override
   public HttpMethod getMethod() {
-    return delegate.getMethod();
-  }
-
-  @Override
-  public String getMethodAsString() {
-    return delegate.getMethodAsString();
+    return this.delegate.getMethod();
   }
 
   @Override
   public URI getURI() {
-    return delegate.getURI();
-  }
-
-  @Override
-  public RequestPath getPath() {
-    return delegate.getPath();
-  }
-
-  @Override
-  public MultiValueMap<String, String> getQueryParams() {
-    return delegate.getQueryParams();
+    return this.delegate.getURI();
   }
 
   @Override
   public MultiValueMap<String, HttpCookie> getCookies() {
-    return delegate.getCookies();
+    return this.delegate.getCookies();
   }
 
   @Override
-  @Nullable
-  public InetSocketAddress getLocalAddress() {
-    return delegate.getLocalAddress();
+  public DataBufferFactory bufferFactory() {
+    return this.delegate.bufferFactory();
   }
 
   @Override
-  @Nullable
-  public InetSocketAddress getRemoteAddress() {
-    return delegate.getRemoteAddress();
+  public <T> T getNativeRequest() {
+    return this.delegate.getNativeRequest();
   }
 
   @Override
-  @Nullable
-  public SslInfo getSslInfo() {
-    return delegate.getSslInfo();
+  public void beforeCommit(Supplier<? extends Mono<Void>> action) {
+    this.delegate.beforeCommit(action);
   }
 
   @Override
-  public Flux<DataBuffer> getBody() {
-    return delegate.getBody();
+  public boolean isCommitted() {
+    return this.delegate.isCommitted();
   }
 
   @Override
-  public Map<String, Object> getAttributes() {
-    return delegate.getAttributes();
+  public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
+    return this.delegate.writeWith(body);
+  }
+
+  @Override
+  public Mono<Void> writeAndFlushWith(Publisher<? extends Publisher<? extends DataBuffer>> body) {
+    return this.delegate.writeAndFlushWith(body);
+  }
+
+  @Override
+  public Mono<Void> setComplete() {
+    return this.delegate.setComplete();
   }
 
   @Override
@@ -160,6 +148,11 @@ public class ServerHttpRequestDecorator extends HttpMessageDecorator implements 
   }
 
   @Override
+  public Map<String, Object> getAttributes() {
+    return delegate.getAttributes();
+  }
+
+  @Override
   public boolean hasAttribute(String name) {
     return delegate.hasAttribute(name);
   }
@@ -178,27 +171,6 @@ public class ServerHttpRequestDecorator extends HttpMessageDecorator implements 
   @Override
   public void setAttribute(String name, @Nullable Object value) {
     delegate.setAttribute(name, value);
-  }
-
-  /**
-   * Return the native request of the underlying server API, if possible,
-   * also unwrapping {@link ServerHttpRequestDecorator} if necessary.
-   *
-   * @param request the request to check
-   * @param <T> the expected native request type
-   * @throws IllegalArgumentException if the native request can't be obtained
-   */
-  public static <T> T getNativeRequest(ServerHttpRequest request) {
-    if (request instanceof AbstractServerHttpRequest) {
-      return ((AbstractServerHttpRequest) request).getNativeRequest();
-    }
-    else if (request instanceof ServerHttpRequestDecorator) {
-      return getNativeRequest(((ServerHttpRequestDecorator) request).delegate());
-    }
-    else {
-      throw new IllegalArgumentException(
-              "Can't find native request in " + request.getClass().getName());
-    }
   }
 
 }

@@ -21,21 +21,22 @@ package infra.http.client;
 import java.io.IOException;
 import java.io.InputStream;
 
-import infra.http.HttpMessageDecorator;
+import infra.http.DecoratingHttpMessage;
 import infra.http.HttpStatusCode;
 import infra.lang.Assert;
 
 /**
- * ClientHttpResponse Decorator
+ * Decorator for {@link ClientHttpResponse} that allows for wrapping and extending
+ * the functionality of an existing response implementation.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/9 14:57
  */
-public class ClientHttpResponseDecorator extends HttpMessageDecorator implements ClientHttpResponse {
+public class DecoratingClientHttpResponse extends DecoratingHttpMessage implements ClientHttpResponse {
 
   protected final ClientHttpResponse delegate;
 
-  public ClientHttpResponseDecorator(ClientHttpResponse delegate) {
+  public DecoratingClientHttpResponse(ClientHttpResponse delegate) {
     super(delegate);
     Assert.notNull(delegate, "ClientHttpResponse delegate is required");
     this.delegate = delegate;

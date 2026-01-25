@@ -32,13 +32,13 @@ import static org.mockito.Mockito.mock;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/2/7 21:50
  */
-class ExceptionWebSocketHandlerDecoratorTests {
+class ExceptionWebSocketHandlerTests {
 
   private TestWebSocketSession session = new TestWebSocketSession(true);
 
   private WebSocketHandler delegate = mock();
 
-  private ExceptionWebSocketHandlerDecorator decorator = new ExceptionWebSocketHandlerDecorator(this.delegate);
+  private ExceptionWebSocketHandler decorator = new ExceptionWebSocketHandler(this.delegate);
 
   @Test
   void afterConnectionEstablished() throws Throwable {

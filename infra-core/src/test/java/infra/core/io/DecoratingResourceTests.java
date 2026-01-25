@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/3/22 14:03
  */
-class ResourceDecoratorTests {
+class DecoratingResourceTests {
 
   @Test
   void delegatesGetInputStream() throws IOException {
@@ -195,7 +195,7 @@ class ResourceDecoratorTests {
 
   @Test
   void existsReturnsFalseOnIOException() throws IOException {
-    Resource delegate = new ResourceDecorator(mock(Resource.class)) {
+    Resource delegate = new DecoratingResource(mock(Resource.class)) {
       @Override
       public boolean exists() {
         throw ExceptionUtils.sneakyThrow(new IOException());
@@ -243,7 +243,7 @@ class ResourceDecoratorTests {
     assertThat(decorator1).isNotEqualTo(decorator2);
   }
 
-  static class TestResourceDecorator extends ResourceDecorator {
+  static class TestResourceDecorator extends DecoratingResource {
     TestResourceDecorator(Resource delegate) {
       super(delegate);
     }

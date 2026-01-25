@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
-import infra.http.HttpMessageDecorator;
+import infra.http.DecoratingHttpMessage;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.ResponseCookie;
@@ -41,11 +41,11 @@ import reactor.core.publisher.Mono;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ServerHttpResponseDecorator extends HttpMessageDecorator implements ServerHttpResponse {
+public class DecoratingServerHttpResponse extends DecoratingHttpMessage implements ServerHttpResponse {
 
   private final ServerHttpResponse delegate;
 
-  public ServerHttpResponseDecorator(ServerHttpResponse delegate) {
+  public DecoratingServerHttpResponse(ServerHttpResponse delegate) {
     super(delegate);
     Assert.notNull(delegate, "Delegate is required");
     this.delegate = delegate;
@@ -122,7 +122,7 @@ public class ServerHttpResponseDecorator extends HttpMessageDecorator implements
 
   /**
    * Return the native response of the underlying server API, if possible,
-   * also unwrapping {@link ServerHttpResponseDecorator} if necessary.
+   * also unwrapping {@link DecoratingServerHttpResponse} if necessary.
    *
    * @param response the response to check
    * @param <T> the expected native response type
@@ -132,8 +132,8 @@ public class ServerHttpResponseDecorator extends HttpMessageDecorator implements
     if (response instanceof AbstractServerHttpResponse) {
       return ((AbstractServerHttpResponse) response).getNativeResponse();
     }
-    else if (response instanceof ServerHttpResponseDecorator) {
-      return getNativeResponse(((ServerHttpResponseDecorator) response).delegate());
+    else if (response instanceof DecoratingServerHttpResponse) {
+      return getNativeResponse(((DecoratingServerHttpResponse) response).delegate());
     }
     else {
       throw new IllegalArgumentException(

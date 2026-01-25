@@ -16,78 +16,107 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.http.client.support;
+package infra.http.reactive.server;
 
 import org.jspecify.annotations.Nullable;
 
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.Map;
 import java.util.function.Function;
 
 import infra.core.AttributeAccessor;
-import infra.http.HttpMessageDecorator;
+import infra.core.io.buffer.DataBuffer;
+import infra.http.DecoratingHttpMessage;
+import infra.http.HttpCookie;
 import infra.http.HttpMethod;
-import infra.http.HttpRequest;
+import infra.http.server.RequestPath;
 import infra.lang.Assert;
+import infra.util.MultiValueMap;
+import reactor.core.publisher.Flux;
 
 /**
- * Provides a convenient implementation of the {@link HttpRequest} interface
- * that can be overridden to adapt the request.
+ * Wraps another {@link ServerHttpRequest} and delegates all methods to it.
+ * Sub-classes can override specific methods selectively.
  *
- * <p>These methods default to calling through to the wrapped request object.
- *
- * @author Arjen Poutsma
+ * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class HttpRequestDecorator extends HttpMessageDecorator implements HttpRequest {
+public class DecoratingServerHttpRequest extends DecoratingHttpMessage implements ServerHttpRequest {
 
-  protected final HttpRequest delegate;
+  private final ServerHttpRequest delegate;
 
-  /**
-   * Create a new {@code HttpRequest} wrapping the given request object.
-   *
-   * @param delegate the request object to be wrapped
-   */
-  public HttpRequestDecorator(HttpRequest delegate) {
+  public DecoratingServerHttpRequest(ServerHttpRequest delegate) {
     super(delegate);
-    Assert.notNull(delegate, "delegate is required");
+    Assert.notNull(delegate, "Delegate is required");
     this.delegate = delegate;
   }
 
-  /**
-   * Return the wrapped request.
-   */
   @Override
-  public HttpRequest delegate() {
+  public ServerHttpRequest delegate() {
     return this.delegate;
   }
 
-  /**
-   * Return the method of the wrapped request.
-   */
+  // ServerHttpRequest delegation methods...
+
+  @Override
+  public String getId() {
+    return delegate.getId();
+  }
+
   @Override
   public HttpMethod getMethod() {
-    return this.delegate.getMethod();
+    return delegate.getMethod();
   }
 
-  /**
-   * Return the method value of the wrapped request.
-   */
   @Override
   public String getMethodAsString() {
-    return this.delegate.getMethodAsString();
+    return delegate.getMethodAsString();
   }
 
-  /**
-   * Return the URI of the wrapped request.
-   */
   @Override
   public URI getURI() {
-    return this.delegate.getURI();
+    return delegate.getURI();
   }
 
-  // AttributeAccessor
+  @Override
+  public RequestPath getPath() {
+    return delegate.getPath();
+  }
+
+  @Override
+  public MultiValueMap<String, String> getQueryParams() {
+    return delegate.getQueryParams();
+  }
+
+  @Override
+  public MultiValueMap<String, HttpCookie> getCookies() {
+    return delegate.getCookies();
+  }
+
+  @Override
+  @Nullable
+  public InetSocketAddress getLocalAddress() {
+    return delegate.getLocalAddress();
+  }
+
+  @Override
+  @Nullable
+  public InetSocketAddress getRemoteAddress() {
+    return delegate.getRemoteAddress();
+  }
+
+  @Override
+  @Nullable
+  public SslInfo getSslInfo() {
+    return delegate.getSslInfo();
+  }
+
+  @Override
+  public Flux<DataBuffer> getBody() {
+    return delegate.getBody();
+  }
 
   @Override
   public Map<String, Object> getAttributes() {
@@ -149,6 +178,27 @@ public class HttpRequestDecorator extends HttpMessageDecorator implements HttpRe
   @Override
   public void setAttribute(String name, @Nullable Object value) {
     delegate.setAttribute(name, value);
+  }
+
+  /**
+   * Return the native request of the underlying server API, if possible,
+   * also unwrapping {@link DecoratingServerHttpRequest} if necessary.
+   *
+   * @param request the request to check
+   * @param <T> the expected native request type
+   * @throws IllegalArgumentException if the native request can't be obtained
+   */
+  public static <T> T getNativeRequest(ServerHttpRequest request) {
+    if (request instanceof AbstractServerHttpRequest) {
+      return ((AbstractServerHttpRequest) request).getNativeRequest();
+    }
+    else if (request instanceof DecoratingServerHttpRequest) {
+      return getNativeRequest(((DecoratingServerHttpRequest) request).delegate());
+    }
+    else {
+      throw new IllegalArgumentException(
+              "Can't find native request in " + request.getClass().getName());
+    }
   }
 
 }

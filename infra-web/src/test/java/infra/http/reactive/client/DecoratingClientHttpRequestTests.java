@@ -46,19 +46,19 @@ import static org.mockito.Mockito.when;
  * @since 5.0 2025/10/6 13:36
  */
 @SuppressWarnings("cast")
-class ClientHttpRequestDecoratorTests {
+class DecoratingClientHttpRequestTests {
 
   @Test
   void constructorWithValidDelegate() {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     assertThat(decorator.delegate()).isSameAs(delegate);
   }
 
   @Test
   void constructorWithNullDelegateThrowsException() {
     assertThatIllegalArgumentException()
-            .isThrownBy(() -> new ClientHttpRequestDecorator(null))
+            .isThrownBy(() -> new DecoratingClientHttpRequest(null))
             .withMessage("Delegate is required");
   }
 
@@ -66,7 +66,7 @@ class ClientHttpRequestDecoratorTests {
   void getMethodDelegatesToWrappedRequest() {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
     when(delegate.getMethod()).thenReturn(HttpMethod.POST);
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     assertThat(decorator.getMethod()).isEqualTo(HttpMethod.POST);
   }
 
@@ -75,7 +75,7 @@ class ClientHttpRequestDecoratorTests {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
     URI uri = URI.create("http://example.com");
     when(delegate.getURI()).thenReturn(uri);
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     assertThat(decorator.getURI()).isSameAs(uri);
   }
 
@@ -84,7 +84,7 @@ class ClientHttpRequestDecoratorTests {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
     HttpHeaders headers = HttpHeaders.forWritable();
     when(delegate.getHeaders()).thenReturn(headers);
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     assertThat(decorator.getHeaders()).isSameAs(headers);
   }
 
@@ -93,7 +93,7 @@ class ClientHttpRequestDecoratorTests {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
     MultiValueMap<String, HttpCookie> cookies = new LinkedMultiValueMap<>();
     when(delegate.getCookies()).thenReturn(cookies);
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     assertThat(decorator.getCookies()).isSameAs(cookies);
   }
 
@@ -102,7 +102,7 @@ class ClientHttpRequestDecoratorTests {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
     DataBufferFactory bufferFactory = mock(DataBufferFactory.class);
     when(delegate.bufferFactory()).thenReturn(bufferFactory);
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     assertThat(decorator.bufferFactory()).isSameAs(bufferFactory);
   }
 
@@ -111,7 +111,7 @@ class ClientHttpRequestDecoratorTests {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
     Object nativeRequest = new Object();
     when(delegate.getNativeRequest()).thenReturn(nativeRequest);
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     assertThat((Object) decorator.getNativeRequest()).isSameAs(nativeRequest);
   }
 
@@ -119,7 +119,7 @@ class ClientHttpRequestDecoratorTests {
   void beforeCommitDelegatesToWrappedRequest() {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
     Supplier<Mono<Void>> action = () -> Mono.empty();
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     decorator.beforeCommit(action);
     verify(delegate).beforeCommit(action);
   }
@@ -128,7 +128,7 @@ class ClientHttpRequestDecoratorTests {
   void isCommittedDelegatesToWrappedRequest() {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
     when(delegate.isCommitted()).thenReturn(true);
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     assertThat(decorator.isCommitted()).isTrue();
   }
 
@@ -138,7 +138,7 @@ class ClientHttpRequestDecoratorTests {
     Publisher<DataBuffer> body = mock(Publisher.class);
     Mono<Void> result = Mono.empty();
     when(delegate.writeWith(body)).thenReturn(result);
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     assertThat(decorator.writeWith(body)).isSameAs(result);
   }
 
@@ -148,7 +148,7 @@ class ClientHttpRequestDecoratorTests {
     Publisher<Publisher<DataBuffer>> body = mock(Publisher.class);
     Mono<Void> result = Mono.empty();
     when(delegate.writeAndFlushWith(body)).thenReturn(result);
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     assertThat(decorator.writeAndFlushWith(body)).isSameAs(result);
   }
 
@@ -157,7 +157,7 @@ class ClientHttpRequestDecoratorTests {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
     Mono<Void> result = Mono.empty();
     when(delegate.setComplete()).thenReturn(result);
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     assertThat(decorator.setComplete()).isSameAs(result);
   }
 
@@ -165,7 +165,7 @@ class ClientHttpRequestDecoratorTests {
   void setAttributesDelegatesToWrappedRequest() {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
     Map<String, Object> attributes = Map.of("key", "value");
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     decorator.setAttributes(attributes);
     verify(delegate).setAttributes(attributes);
   }
@@ -175,14 +175,14 @@ class ClientHttpRequestDecoratorTests {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
     Iterable<String> attributeNames = List.of("attr1", "attr2");
     when(delegate.attributeNames()).thenReturn(attributeNames);
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     assertThat(decorator.attributeNames()).isSameAs(attributeNames);
   }
 
   @Test
   void clearAttributesDelegatesToWrappedRequest() {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     decorator.clearAttributes();
     verify(delegate).clearAttributes();
   }
@@ -192,7 +192,7 @@ class ClientHttpRequestDecoratorTests {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
     Function<String, String> computeFunction = s -> "computed";
     when(delegate.computeAttribute("name", computeFunction)).thenReturn("computed");
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     assertThat(decorator.computeAttribute("name", computeFunction)).isEqualTo("computed");
   }
 
@@ -200,7 +200,7 @@ class ClientHttpRequestDecoratorTests {
   void copyFromDelegatesToWrappedRequest() {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
     AttributeAccessor source = mock(AttributeAccessor.class);
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     decorator.copyFrom(source);
     verify(delegate).copyFrom(source);
   }
@@ -209,7 +209,7 @@ class ClientHttpRequestDecoratorTests {
   void getAttributeDelegatesToWrappedRequest() {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
     when(delegate.getAttribute("name")).thenReturn("value");
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     assertThat(decorator.getAttribute("name")).isEqualTo("value");
   }
 
@@ -218,7 +218,7 @@ class ClientHttpRequestDecoratorTests {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
     String[] attributeNames = { "attr1", "attr2" };
     when(delegate.getAttributeNames()).thenReturn(attributeNames);
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     assertThat(decorator.getAttributeNames()).isSameAs(attributeNames);
   }
 
@@ -227,7 +227,7 @@ class ClientHttpRequestDecoratorTests {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
     Map<String, Object> attributes = Map.of("key", "value");
     when(delegate.getAttributes()).thenReturn(attributes);
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     assertThat(decorator.getAttributes()).isSameAs(attributes);
   }
 
@@ -235,7 +235,7 @@ class ClientHttpRequestDecoratorTests {
   void hasAttributeDelegatesToWrappedRequest() {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
     when(delegate.hasAttribute("name")).thenReturn(true);
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     assertThat(decorator.hasAttribute("name")).isTrue();
   }
 
@@ -243,7 +243,7 @@ class ClientHttpRequestDecoratorTests {
   void hasAttributesDelegatesToWrappedRequest() {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
     when(delegate.hasAttributes()).thenReturn(true);
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     assertThat(decorator.hasAttributes()).isTrue();
   }
 
@@ -251,14 +251,14 @@ class ClientHttpRequestDecoratorTests {
   void removeAttributeDelegatesToWrappedRequest() {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
     when(delegate.removeAttribute("name")).thenReturn("value");
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     assertThat(decorator.removeAttribute("name")).isEqualTo("value");
   }
 
   @Test
   void setAttributeDelegatesToWrappedRequest() {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     decorator.setAttribute("name", "value");
     verify(delegate).setAttribute("name", "value");
   }
@@ -267,7 +267,7 @@ class ClientHttpRequestDecoratorTests {
   void toStringReturnsFormattedString() {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
     when(delegate.toString()).thenReturn("MockDelegate");
-    ClientHttpRequestDecorator decorator = new ClientHttpRequestDecorator(delegate);
+    DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
     assertThat(decorator.toString()).isEqualTo("ClientHttpRequestDecorator [delegate=MockDelegate]");
   }
 

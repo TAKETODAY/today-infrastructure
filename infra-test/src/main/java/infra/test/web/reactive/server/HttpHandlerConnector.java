@@ -34,7 +34,7 @@ import infra.http.reactive.client.ClientHttpConnector;
 import infra.http.reactive.client.ClientHttpRequest;
 import infra.http.reactive.client.ClientHttpResponse;
 import infra.http.reactive.server.HttpHandler;
-import infra.http.reactive.server.HttpHeadResponseDecorator;
+import infra.http.reactive.server.HttpHeadResponse;
 import infra.http.reactive.server.ServerHttpRequest;
 import infra.http.reactive.server.ServerHttpResponse;
 import infra.lang.Assert;
@@ -142,7 +142,7 @@ public class HttpHandlerConnector implements ClientHttpConnector {
   }
 
   private ServerHttpResponse prepareResponse(ServerHttpResponse response, ServerHttpRequest request) {
-    return (request.getMethod() == HttpMethod.HEAD ? new HttpHeadResponseDecorator(response) : response);
+    return (request.getMethod() == HttpMethod.HEAD ? new HttpHeadResponse(response) : response);
   }
 
   private ClientHttpResponse adaptResponse(MockServerHttpResponse response, Flux<DataBuffer> body) {

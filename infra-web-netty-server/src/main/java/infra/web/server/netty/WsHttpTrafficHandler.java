@@ -28,7 +28,7 @@ import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.ReferenceCountUtil;
 
-import static infra.web.socket.handler.ExceptionWebSocketHandlerDecorator.tryCloseWithError;
+import static infra.web.socket.handler.ExceptionWebSocketHandler.tryCloseWithError;
 
 /**
  * A Netty channel handler for handling WebSocket connections.

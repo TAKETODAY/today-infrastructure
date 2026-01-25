@@ -21,7 +21,7 @@ package infra.http.client;
 import java.io.IOException;
 
 import infra.http.HttpRequest;
-import infra.http.client.support.HttpRequestDecorator;
+import infra.http.client.support.DecoratingHttpRequest;
 import infra.lang.Assert;
 
 /**
@@ -44,7 +44,7 @@ public interface ClientHttpRequestInterceptor {
    * <p>A typical implementation of this method would follow the following pattern:
    * <ol>
    * <li>Examine the {@linkplain HttpRequest request} and body.</li>
-   * <li>Optionally {@linkplain HttpRequestDecorator
+   * <li>Optionally {@linkplain DecoratingHttpRequest
    * wrap} the request to filter HTTP attributes.</li>
    * <li>Optionally modify the body of the request.</li>
    * <ul>
