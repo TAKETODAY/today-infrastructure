@@ -159,7 +159,7 @@ class ReactorNettyReactiveWebServerFactoryTests extends AbstractReactiveWebServe
     this.webServer = factory.getWebServer(blockingHandler);
     this.webServer.start();
     WebClient webClient = getWebClient(this.webServer.getPort()).build();
-    this.webServer.shutDownGracefully((result) -> {
+    this.webServer.shutdownGracefully((result) -> {
     });
     Awaitility.await().atMost(Duration.ofSeconds(30)).until(() -> {
       blockingHandler.stopBlocking();

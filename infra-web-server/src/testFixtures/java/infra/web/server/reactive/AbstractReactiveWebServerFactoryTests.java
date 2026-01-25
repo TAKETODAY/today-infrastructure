@@ -433,18 +433,18 @@ public abstract class AbstractReactiveWebServerFactoryTests {
   }
 
   @Test
-  void whenThereAreNoInFlightRequestsShutDownGracefullyReturnsTrueBeforePeriodElapses() throws Exception {
+  void whenThereAreNoInFlightRequestsShutdownGracefullyReturnsTrueBeforePeriodElapses() throws Exception {
     AbstractReactiveWebServerFactory factory = getFactory();
     factory.setShutdown(Shutdown.GRACEFUL);
     this.webServer = factory.getWebServer(new EchoHandler());
     this.webServer.start();
     AtomicReference<GracefulShutdownResult> result = new AtomicReference<>();
-    this.webServer.shutDownGracefully(result::set);
+    this.webServer.shutdownGracefully(result::set);
     Awaitility.await().atMost(Duration.ofSeconds(30)).until(() -> GracefulShutdownResult.IDLE == result.get());
   }
 
   @Test
-  void whenARequestRemainsInFlightThenShutDownGracefullyDoesNotInvokeCallbackUntilTheRequestCompletes()
+  void whenARequestRemainsInFlightThenShutdownGracefullyDoesNotInvokeCallbackUntilTheRequestCompletes()
           throws Exception {
     AbstractReactiveWebServerFactory factory = getFactory();
     factory.setShutdown(Shutdown.GRACEFUL);
@@ -463,7 +463,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     });
     blockingHandler.awaitQueue();
     AtomicReference<GracefulShutdownResult> result = new AtomicReference<>();
-    this.webServer.shutDownGracefully(result::set);
+    this.webServer.shutdownGracefully(result::set);
     assertThat(responseReference.get()).isNull();
     blockingHandler.completeOne();
     assertThat(responseLatch.await(5, TimeUnit.SECONDS)).isTrue();
@@ -490,7 +490,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     });
     blockingHandler.awaitQueue();
     AtomicReference<GracefulShutdownResult> result = new AtomicReference<>();
-    this.webServer.shutDownGracefully(result::set);
+    this.webServer.shutdownGracefully(result::set);
     assertThat(responseReference.get()).isNull();
     try {
       this.webServer.stop();
@@ -524,7 +524,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     });
     blockingHandler.awaitQueue();
     AtomicReference<GracefulShutdownResult> result = new AtomicReference<>();
-    this.webServer.shutDownGracefully(result::set);
+    this.webServer.shutdownGracefully(result::set);
     this.webServer.stop();
     Awaitility.await()
             .atMost(Duration.ofSeconds(30))

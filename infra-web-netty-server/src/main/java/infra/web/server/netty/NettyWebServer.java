@@ -118,7 +118,7 @@ final class NettyWebServer implements WebServer, IntSupplier {
   }
 
   @Override
-  public void shutDownGracefully(GracefulShutdownCallback callback) {
+  public void shutdownGracefully(GracefulShutdownCallback callback) {
     log.info("Commencing graceful shutdown. Waiting for active requests to complete");
     try {
       shutdown();

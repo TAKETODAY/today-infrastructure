@@ -57,7 +57,7 @@ public abstract class AbstractWebServerSupport {
 
   protected void shutdownGracefully(WebServer webServer) {
     logger.debug("Shutting down Graceful shutdown...");
-    webServer.shutDownGracefully(createGracefulShutdownCallback());
+    webServer.shutdownGracefully(createGracefulShutdownCallback());
   }
 
 }

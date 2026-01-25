@@ -187,7 +187,7 @@ public class ReactorNettyWebServer implements WebServer {
   }
 
   @Override
-  public void shutDownGracefully(GracefulShutdownCallback callback) {
+  public void shutdownGracefully(GracefulShutdownCallback callback) {
     if (this.gracefulShutdown == null) {
       callback.shutdownComplete(GracefulShutdownResult.IMMEDIATE);
       return;

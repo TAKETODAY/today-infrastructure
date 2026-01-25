@@ -146,7 +146,7 @@ class NettyWebServerTests {
     GracefulShutdownCallback callback = mock(GracefulShutdownCallback.class);
 
     // when
-    webServer.shutDownGracefully(callback);
+    webServer.shutdownGracefully(callback);
 
   }
 
