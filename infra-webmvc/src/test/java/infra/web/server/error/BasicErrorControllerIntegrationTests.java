@@ -20,8 +20,6 @@ package infra.web.server.error;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -39,6 +37,7 @@ import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.ImportAutoConfiguration;
+import infra.core.testfixture.DisabledIfInContinuousIntegration;
 import infra.freemarker.config.FreeMarkerAutoConfiguration;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
@@ -71,6 +70,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Stephane Nicoll
  * @author Scott Frederick
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 class BasicErrorControllerIntegrationTests {
 
   private ConfigurableApplicationContext context;
@@ -83,7 +83,6 @@ class BasicErrorControllerIntegrationTests {
   }
 
   @Test
-  @SuppressWarnings({ "rawtypes", "unchecked" })
   void testErrorForMachineClientDefault() {
     load();
     ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(createUrl("?trace=true"), Map.class);
@@ -287,8 +286,7 @@ class BasicErrorControllerIntegrationTests {
   }
 
   @Test
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  @DisabledOnOs(OS.MAC)
+  @DisabledIfInContinuousIntegration
   void testRequestBodyValidationForMachineClient() {
     load("--web.error.include-exception=true");
     RequestEntity request = RequestEntity.post(URI.create(createUrl("/bodyValidation")))
