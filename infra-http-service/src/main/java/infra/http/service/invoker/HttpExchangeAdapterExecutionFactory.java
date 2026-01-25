@@ -45,11 +45,11 @@ final class HttpExchangeAdapterExecutionFactory implements RequestExecutionFacto
   public RequestExecution<HttpRequestValues> createRequestExecution(Method method) {
     RequestExecution<HttpRequestValues> responseFunction = null;
     if (isReactorAdapter) {
-      responseFunction = ReactorExchangeResponseFunction.create((ReactorHttpExchangeAdapter) exchangeAdapter, method);
+      responseFunction = ReactorExchangeRequestExecution.create((ReactorHttpExchangeAdapter) exchangeAdapter, method);
     }
 
     if (responseFunction == null) {
-      responseFunction = createResponseFunction(exchangeAdapter, method);
+      responseFunction = createRequestExecution(exchangeAdapter, method);
     }
 
     return method.getReturnType() == Optional.class
@@ -68,9 +68,9 @@ final class HttpExchangeAdapterExecutionFactory implements RequestExecutionFacto
   }
 
   /**
-   * Create the {@code ResponseFunction} that matches the method return type.
+   * Create the {@code RequestExecution} that matches the method return type.
    */
-  private static RequestExecution<HttpRequestValues> createResponseFunction(HttpExchangeAdapter client, Method method) {
+  private static RequestExecution<HttpRequestValues> createRequestExecution(HttpExchangeAdapter client, Method method) {
     MethodParameter param = returnType(method);
 
     Class<?> returnType = param.getParameterType();
@@ -185,7 +185,7 @@ final class HttpExchangeAdapterExecutionFactory implements RequestExecutionFacto
   /**
    * {@link RequestExecution} for {@link ReactorHttpExchangeAdapter}.
    */
-  private record ReactorExchangeResponseFunction(Function<HttpRequestValues, Publisher<?>> responseFunction,
+  private record ReactorExchangeRequestExecution(Function<HttpRequestValues, Publisher<?>> responseFunction,
           ReactiveAdapter returnTypeAdapter) implements RequestExecution<HttpRequestValues> {
 
     @Override
@@ -242,7 +242,7 @@ final class HttpExchangeAdapterExecutionFactory implements RequestExecutionFacto
         responseFunction = initBodyFunction(client, actualParam, reactiveAdapter);
       }
 
-      return new ReactorExchangeResponseFunction(responseFunction, reactiveAdapter);
+      return new ReactorExchangeRequestExecution(responseFunction, reactiveAdapter);
     }
 
     @SuppressWarnings("NullAway")

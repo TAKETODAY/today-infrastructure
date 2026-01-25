@@ -786,18 +786,6 @@ For `WebClient`:
 	RepositoryService service = factory.createClient(RepositoryService.class);
 ----
 
-For `RestTemplate`:
-
-[source,java,indent=0,subs="verbatim,quotes"]
-----
-	RestTemplate restTemplate = new RestTemplate();
-	restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory("https://api.github.com/"));
-	RestTemplateAdapter adapter = RestTemplateAdapter.create(restTemplate);
-	HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
-
-	RepositoryService service = factory.createClient(RepositoryService.class);
-----
-
 `@HttpExchange` is supported at the type level where it applies to all methods:
 
 [source,java,indent=0,subs="verbatim,quotes"]
@@ -883,8 +871,8 @@ individual value. Type conversion is supported for non-String values.
 
 The supported return values depend on the underlying client.
 
-Clients adapted to `HttpExchangeAdapter` such as `RestClient` and `RestTemplate`
-support synchronous return values:
+Clients adapted to `RequestExecutionFactory` such as `RestClient`
+support synchronous and asynchronous return values:
 
 [cols="1,2",options="header"]
 |===
@@ -906,9 +894,15 @@ support synchronous return values:
 | Perform the given request, decode the response content to the declared return type, and
 return a `ResponseEntity` with the status, headers, and the decoded body.
 
+| `ClientResponse`, `ClientHttpResponse`
+| 直接返回原始响应
+
+| `Future<T>`, `CompletionStage<T>`
+| 返回异步结果， T 可以是是上面的任何一个
+
 |===
 
-Clients adapted to `ReactorHttpExchangeAdapter` such as `WebClient`, support all of above as well as reactive variants.
+Clients adapted to `RequestExecutionFactory` such as `WebClient`, support all of above as well as reactive variants.
 The table below shows Reactor types, but you can also use other reactive types that are supported through the `ReactiveAdapterRegistry`:
 
 [cols="1,2",options="header"]
