@@ -268,7 +268,7 @@ class DecoratingClientHttpRequestTests {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
     when(delegate.toString()).thenReturn("MockDelegate");
     DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
-    assertThat(decorator.toString()).isEqualTo("ClientHttpRequestDecorator [delegate=MockDelegate]");
+    assertThat(decorator.toString()).isEqualTo("DecoratingClientHttpRequest [delegate=MockDelegate]");
   }
 
 }
