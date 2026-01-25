@@ -33,7 +33,7 @@ public class MockReactiveWebServerFactory extends AbstractReactiveWebServerFacto
   private MockReactiveWebServer webServer;
 
   @Override
-  public WebServer getWebServer(HttpHandler httpHandler) {
+  public WebServer createWebServer(HttpHandler httpHandler) {
     this.webServer = spy(new MockReactiveWebServer(httpHandler, getPort()));
     return this.webServer;
   }

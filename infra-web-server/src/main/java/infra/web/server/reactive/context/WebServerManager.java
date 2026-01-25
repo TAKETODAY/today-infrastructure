@@ -49,7 +49,7 @@ final class WebServerManager {
     Assert.notNull(factory, "Factory is required");
     this.applicationContext = applicationContext;
     this.handler = new DelayedInitializationHttpHandler(handlerSupplier, lazyInit);
-    this.webServer = factory.getWebServer(handler);
+    this.webServer = factory.createWebServer(handler);
   }
 
   void start() {

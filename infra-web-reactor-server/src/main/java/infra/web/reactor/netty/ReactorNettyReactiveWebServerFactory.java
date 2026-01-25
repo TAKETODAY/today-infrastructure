@@ -70,7 +70,7 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
   }
 
   @Override
-  public WebServer getWebServer(HttpHandler httpHandler) {
+  public WebServer createWebServer(HttpHandler httpHandler) {
     HttpServer httpServer = createHttpServer();
     var handlerAdapter = new ReactorHttpHandlerAdapter(httpHandler);
     var webServer = createNettyWebServer(httpServer, handlerAdapter, lifecycleTimeout, getShutdown());

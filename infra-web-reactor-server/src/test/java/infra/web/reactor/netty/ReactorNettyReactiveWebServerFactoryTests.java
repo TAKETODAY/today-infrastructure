@@ -74,10 +74,10 @@ class ReactorNettyReactiveWebServerFactoryTests extends AbstractReactiveWebServe
   void exceptionIsThrownWhenPortIsAlreadyInUse() {
     AbstractReactiveWebServerFactory factory = getFactory();
     factory.setPort(0);
-    this.webServer = factory.getWebServer(new EchoHandler());
+    this.webServer = factory.createWebServer(new EchoHandler());
     this.webServer.start();
     factory.setPort(this.webServer.getPort());
-    assertThatExceptionOfType(PortInUseException.class).isThrownBy(factory.getWebServer(new EchoHandler())::start)
+    assertThatExceptionOfType(PortInUseException.class).isThrownBy(factory.createWebServer(new EchoHandler())::start)
             .satisfies(this::portMatchesRequirement)
             .withCauseInstanceOf(Throwable.class);
   }
@@ -85,7 +85,7 @@ class ReactorNettyReactiveWebServerFactoryTests extends AbstractReactiveWebServe
   @Test
   void getPortWhenDisposableServerPortOperationIsUnsupportedReturnsMinusOne() {
     ReactorNettyReactiveWebServerFactory factory = new NoPortNettyReactiveWebServerFactory(0);
-    this.webServer = factory.getWebServer(new EchoHandler());
+    this.webServer = factory.createWebServer(new EchoHandler());
     this.webServer.start();
     assertThat(this.webServer.getPort()).isEqualTo(-1);
   }
@@ -96,7 +96,7 @@ class ReactorNettyReactiveWebServerFactoryTests extends AbstractReactiveWebServe
     factory.setPort(0);
     ReactorResourceFactory resourceFactory = new ReactorResourceFactory();
     factory.setResourceFactory(resourceFactory);
-    this.webServer = factory.getWebServer(new EchoHandler());
+    this.webServer = factory.createWebServer(new EchoHandler());
     assertThatNoException().isThrownBy(() -> {
       resourceFactory.start();
       this.webServer.start();
@@ -120,7 +120,7 @@ class ReactorNettyReactiveWebServerFactoryTests extends AbstractReactiveWebServe
       given(customizers[i].apply(any(HttpServer.class))).will((invocation) -> invocation.getArgument(0));
     }
     factory.setServerCustomizers(Arrays.asList(customizers[0], customizers[1]));
-    this.webServer = factory.getWebServer(new EchoHandler());
+    this.webServer = factory.createWebServer(new EchoHandler());
     InOrder ordered = inOrder((Object[]) customizers);
     for (ReactorNettyServerCustomizer customizer : customizers) {
       ordered.verify(customizer).apply(any(HttpServer.class));
@@ -156,7 +156,7 @@ class ReactorNettyReactiveWebServerFactoryTests extends AbstractReactiveWebServe
     ReactorNettyReactiveWebServerFactory factory = getFactory();
     factory.setShutdown(Shutdown.GRACEFUL);
     BlockingHandler blockingHandler = new BlockingHandler();
-    this.webServer = factory.getWebServer(blockingHandler);
+    this.webServer = factory.createWebServer(blockingHandler);
     this.webServer.start();
     WebClient webClient = getWebClient(this.webServer.getPort()).build();
     this.webServer.shutdownGracefully((result) -> {
@@ -189,7 +189,7 @@ class ReactorNettyReactiveWebServerFactoryTests extends AbstractReactiveWebServe
     ssl.keyPassword = (keyPassword);
     ssl.keyAlias = (alias);
     factory.setSsl(ssl);
-    this.webServer = factory.getWebServer(new EchoHandler());
+    this.webServer = factory.createWebServer(new EchoHandler());
     this.webServer.start();
     return executeSslRequest();
   }
@@ -198,7 +198,7 @@ class ReactorNettyReactiveWebServerFactoryTests extends AbstractReactiveWebServe
     ReactorNettyReactiveWebServerFactory factory = getFactory();
     factory.setSslBundles(sslBundles);
     factory.setSsl(Ssl.forBundle(bundle));
-    this.webServer = factory.getWebServer(new EchoHandler());
+    this.webServer = factory.createWebServer(new EchoHandler());
     this.webServer.start();
     return executeSslRequest();
   }
