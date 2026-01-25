@@ -82,7 +82,7 @@ final class NettyWebServer implements WebServer, IntSupplier {
       serverBootstrap.bind(bindAddress).syncUninterruptibly();
       String bindInfo = getBindInfo();
       String protocolInfo = sslEnabled ? "(https)" : "(http)";
-      String http2Support = http2Enabled ? " with HTTP/2 support" : "";
+      String http2Support = http2Enabled ? " with HTTP/2" : "";
       log.info("Netty started on {} {}{}", bindInfo, protocolInfo, http2Support);
     }
     catch (Exception ex) {
