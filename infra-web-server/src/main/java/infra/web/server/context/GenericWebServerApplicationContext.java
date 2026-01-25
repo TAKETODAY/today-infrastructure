@@ -90,7 +90,7 @@ public class GenericWebServerApplicationContext extends GenericApplicationContex
   protected WebServer createWebServer() {
     GenericWebServerFactory factory = getWebServerFactory();
 
-    WebServer webServer = factory.getWebServer();
+    WebServer webServer = factory.createWebServer();
 
     beanFactory.registerSingleton("webServerStartStop", new WebServerStartStopLifecycle(this, webServer));
     beanFactory.registerSingleton("webServerGracefulShutdown", new WebServerGracefulShutdownLifecycle(webServer));

@@ -33,6 +33,6 @@ public interface GenericWebServerFactory extends WebServerFactory {
    * @return a fully configured and started {@link WebServer}
    * @see WebServer#stop()
    */
-  WebServer getWebServer();
+  WebServer createWebServer();
 
 }

@@ -365,7 +365,7 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   }
 
   @Override
-  public WebServer getWebServer() {
+  public WebServer createWebServer() {
     ServerBootstrap bootstrap = new ServerBootstrap();
     preBootstrap(bootstrap);
 

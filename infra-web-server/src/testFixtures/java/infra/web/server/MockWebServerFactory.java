@@ -23,7 +23,7 @@ package infra.web.server;
 public class MockWebServerFactory extends AbstractConfigurableWebServerFactory implements GenericWebServerFactory {
 
   @Override
-  public WebServer getWebServer() {
+  public WebServer createWebServer() {
     return new MockWebServer(getPort());
   }
 

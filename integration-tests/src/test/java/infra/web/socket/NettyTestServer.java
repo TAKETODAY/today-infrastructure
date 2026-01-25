@@ -45,7 +45,7 @@ public class NettyTestServer implements WebSocketTestServer {
     NettyWebServerFactory factory = ctx.getBean(NettyWebServerFactory.class);
     factory.setPort(0);
 
-    webServer = factory.getWebServer();
+    webServer = factory.createWebServer();
     webServer.start();
   }
 
