@@ -51,9 +51,11 @@ class WsClientTests {
 
   @Test
   void doHandshake() throws InterruptedException {
-    var context = Application.run(WsServerApp.class);
+    var context = Application.forBuilder(WsServerApp.class)
+            .properties("server.port=8082", "server.http2.enabled=true")
+            .run();
     CountDownLatch latch = new CountDownLatch(1);
-    client.connect(new ClientWebSocketHandler(latch), "ws://localhost:8080/websocket")
+    client.connect(new ClientWebSocketHandler(latch), "ws://localhost:8082/websocket")
             .onSuccess(session -> session.sendText("Hello World"))
             .onFailure(Throwable::printStackTrace)
             .onFailure(e -> {
