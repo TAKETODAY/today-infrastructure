@@ -162,7 +162,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
     }
   }
 
-  private final static class Ws {
+  private static final class Ws {
 
     static void handleFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
       WebSocketAttribute attr = WebSocketAttribute.find(ctx.channel());
