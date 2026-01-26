@@ -18,6 +18,7 @@ package infra.web.server.netty;
 
 import org.jspecify.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import infra.context.properties.ConfigurationProperties;
@@ -27,6 +28,7 @@ import infra.web.RequestContext;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
 import io.netty.handler.logging.LogLevel;
+import io.netty.util.ResourceLeakDetector;
 
 /**
  * Netty server properties.
@@ -205,6 +207,28 @@ public class NettyServerProperties {
    * @since 5.0
    */
   public boolean autoRead = true;
+
+  /**
+   * Netty resource leak detection level.
+   * <p>
+   * This setting controls the level of resource leak detection in Netty.
+   * It helps identify cases where Netty resources like ByteBuf are not
+   * properly released, which could lead to memory leaks.
+   * Default is {@link ResourceLeakDetector.Level#DISABLED}.
+   *
+   * @since 5.0
+   */
+  public ResourceLeakDetector.@Nullable Level leakDetection = ResourceLeakDetector.Level.DISABLED;
+
+  /**
+   * Connection timeout duration.
+   * <p>
+   * This setting specifies the maximum time to wait for establishing a connection
+   * before timing out. If not set, there will be no connection timeout.
+   *
+   * @since 5.0
+   */
+  public @Nullable Duration connectionTimeout;
 
   /**
    * shutdown details

@@ -19,6 +19,7 @@ package infra.web.server.netty;
 import org.jspecify.annotations.Nullable;
 
 import java.net.SocketAddress;
+import java.time.Duration;
 import java.util.List;
 
 import infra.lang.Assert;
@@ -107,13 +108,16 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
 
   private @Nullable ChannelConfigurer channelConfigurer;
 
+  private @Nullable ChannelHandler httpTrafficHandler;
+
   /** @since 5.0 */
   private @Nullable String workerPoolName;
 
   /** @since 5.0 */
   private @Nullable String acceptorPoolName;
 
-  private @Nullable ChannelHandler httpTrafficHandler;
+  /** @since 5.0 */
+  private @Nullable Duration connectionTimeout;
 
   /**
    * Sets the acceptor {@link EventLoopGroup} for the server.
@@ -233,7 +237,7 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
    * @see LoggingHandler
    * @see ServerBootstrap#handler
    */
-  public void setLoggingLevel(LogLevel loggingLevel) {
+  public void setLoggingLevel(@Nullable LogLevel loggingLevel) {
     this.loggingLevel = loggingLevel;
   }
 
@@ -294,6 +298,18 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
    */
   public void setHttpTrafficHandler(@Nullable ChannelHandler trafficHandler) {
     this.httpTrafficHandler = trafficHandler;
+  }
+
+  /**
+   * Sets the connection timeout duration for the server socket.
+   * This timeout applies to the time it takes to establish a connection.
+   * If the provided {@code connectionTimeout} is {@code null}, no connection timeout will be set.
+   *
+   * @param connectionTimeout the connection timeout duration to set, or {@code null} for no timeout
+   * @since 5.0
+   */
+  public void setConnectionTimeout(@Nullable Duration connectionTimeout) {
+    this.connectionTimeout = connectionTimeout;
   }
 
   /**
@@ -398,6 +414,10 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
     bootstrap.channel(socketChannel);
     bootstrap.option(ChannelOption.SO_BACKLOG, maxConnection);
 
+    if (connectionTimeout != null) {
+      bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) connectionTimeout.toMillis());
+    }
+
     if (loggingLevel != null) {
       bootstrap.handler(new LoggingHandler(loggingLevel));
     }
@@ -455,7 +475,6 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
    * @since 4.0
    */
   protected void preBootstrap(ServerBootstrap bootstrap) {
-    ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
   }
 
   /**
@@ -470,13 +489,25 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   protected void postBootstrap(ServerBootstrap bootstrap) {
   }
 
+  /**
+   * Applies the configuration from the given {@link NettyServerProperties} to this factory.
+   * This method sets various Netty server configuration options including:
+   * <ul>
+   *   <li>Resource leak detection level</li>
+   *   <li>Logging level for the server</li>
+   *   <li>Server socket channel type</li>
+   *   <li>Number of acceptor threads</li>
+   *   <li>Number of worker threads</li>
+   *   <li>Maximum number of pending connections</li>
+   *   <li>Worker and acceptor thread pool names</li>
+   * </ul>
+   *
+   * @param netty the {@link NettyServerProperties} containing the configuration to apply
+   * @since 4.0
+   */
   public void applyFrom(NettyServerProperties netty) {
-    if (netty.loggingLevel != null) {
-      setLoggingLevel(netty.loggingLevel);
-    }
-
-    if (netty.socketChannel != null) {
-      setSocketChannel(netty.socketChannel);
+    if (netty.leakDetection != null) {
+      ResourceLeakDetector.setLevel(netty.leakDetection);
     }
 
     if (netty.acceptorThreads != null) {
@@ -491,8 +522,11 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
       setMaxConnection(netty.maxConnection);
     }
 
+    setLoggingLevel(netty.loggingLevel);
+    setSocketChannel(netty.socketChannel);
     setWorkerPoolName(netty.workerPoolName);
     setAcceptorPoolName(netty.acceptorPoolName);
+    setConnectionTimeout(netty.connectionTimeout);
 
     nettyConfig = netty;
   }

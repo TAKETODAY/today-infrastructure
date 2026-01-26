@@ -235,7 +235,7 @@ public abstract class ExceptionUtils {
   /**
    * @since 4.0
    */
-  public static <T> T sneakyThrow(ThrowingSupplier<T> action) {
+  public static <T extends @Nullable Object> T sneakyThrow(ThrowingSupplier<T> action) {
     try {
       return action.getWithException();
     }
