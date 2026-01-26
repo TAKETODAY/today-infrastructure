@@ -22,9 +22,13 @@ import java.io.IOException;
 
 import infra.context.ApplicationContext;
 import infra.lang.Assert;
+import infra.logging.Logger;
+import infra.logging.LoggerFactory;
+import infra.util.ClassUtils;
 import infra.web.DispatcherHandler;
 import infra.web.HttpStatusProvider;
 import infra.web.server.ServiceExecutor;
+import infra.web.socket.CloseStatus;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
@@ -36,9 +40,12 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.AttributeKey;
+import io.netty.util.ReferenceCountUtil;
 
+import static infra.web.socket.handler.ExceptionWebSocketHandler.tryCloseWithError;
 import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFactory;
 
 /**
@@ -51,7 +58,11 @@ import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFact
  */
 public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
 
-  public static final AttributeKey<@Nullable HttpContext> KEY = AttributeKey.valueOf(HttpContext.class, "KEY");
+  private static final Logger log = LoggerFactory.getLogger(HttpTrafficHandler.class);
+
+  private static final AttributeKey<@Nullable HttpContext> KEY = AttributeKey.valueOf(HttpContext.class, "KEY");
+
+  private static final boolean webSocketPresent = ClassUtils.isPresent("infra.web.socket.WebSocketMessage", HttpTrafficHandler.class);
 
   protected final NettyRequestConfig requestConfig;
 
@@ -101,12 +112,22 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
   }
 
   protected void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
-    ctx.fireChannelRead(frame);
+    if (webSocketPresent) {
+      Ws.handleFrame(ctx, frame);
+    }
+    else {
+      ctx.fireChannelRead(frame);
+    }
   }
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    handleException(ctx.channel(), cause);
+    if (webSocketPresent) {
+      Ws.exceptionCaught(this, ctx, cause);
+    }
+    else {
+      handleException(ctx.channel(), cause);
+    }
   }
 
   void handleException(Channel channel, Throwable cause) {
@@ -127,11 +148,64 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
 
   @Override
   public void channelInactive(ChannelHandlerContext ctx) {
-    HttpContext httpContext = ctx.channel().attr(KEY).getAndSet(null);
-    if (httpContext != null) {
-      httpContext.channelInactive();
+    try {
+      if (webSocketPresent) {
+        Ws.channelInactive(ctx);
+      }
     }
-    ctx.fireChannelInactive();
+    finally {
+      HttpContext httpContext = ctx.channel().attr(KEY).getAndSet(null);
+      if (httpContext != null) {
+        httpContext.channelInactive();
+      }
+      ctx.fireChannelInactive();
+    }
+  }
+
+  private final static class Ws {
+
+    static void handleFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
+      WebSocketAttribute attr = WebSocketAttribute.find(ctx.channel());
+      if (attr == null) {
+        ReferenceCountUtil.safeRelease(frame);
+        return;
+      }
+      if (frame instanceof CloseWebSocketFrame cf) {
+        CloseStatus closeStatus = new CloseStatus(cf.statusCode(), cf.reasonText());
+        onClose(ctx.channel(), closeStatus);
+        ReferenceCountUtil.safeRelease(frame);
+      }
+      else {
+        attr.session.handleMessage(attr.wsHandler, frame, log);
+      }
+    }
+
+    public static void exceptionCaught(HttpTrafficHandler handler, ChannelHandlerContext ctx, Throwable cause) {
+      var attr = WebSocketAttribute.find(ctx.channel());
+      if (attr != null) {
+        try {
+          attr.wsHandler.onError(attr.session, cause);
+        }
+        catch (Throwable e) {
+          tryCloseWithError(attr.session, e, log);
+        }
+      }
+      else {
+        handler.handleException(ctx.channel(), cause);
+      }
+    }
+
+    public static void channelInactive(ChannelHandlerContext ctx) {
+      onClose(ctx.channel(), CloseStatus.NO_CLOSE_FRAME);
+    }
+
+    private static void onClose(Channel channel, CloseStatus closeStatus) {
+      WebSocketAttribute attr = WebSocketAttribute.find(channel);
+      if (attr != null) {
+        attr.unbind(channel);
+        attr.session.onClose(attr.wsHandler, closeStatus, log);
+      }
+    }
   }
 
 }

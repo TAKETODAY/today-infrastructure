@@ -63,7 +63,6 @@ import infra.web.server.netty.NettyRequestUpgradeStrategy;
 import infra.web.server.netty.NettyServerProperties;
 import infra.web.server.netty.NettyWebServerFactory;
 import infra.web.server.netty.ServerBootstrapCustomizer;
-import infra.web.server.netty.WsHttpTrafficHandler;
 import infra.web.socket.server.RequestUpgradeStrategy;
 import io.netty.channel.ChannelHandler;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
@@ -96,7 +95,7 @@ public final class NettyWebServerFactoryAutoConfiguration {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public static ChannelHandler httpTrafficHandler(ApplicationContext context,
           NettyRequestConfig requestConfig, DispatcherHandler dispatcherHandler, ServiceExecutor executor) {
-    return createHttpTrafficHandler(requestConfig, context, dispatcherHandler, executor, context.getClassLoader());
+    return new HttpTrafficHandler(requestConfig, context, dispatcherHandler, executor);
   }
 
   @Component
@@ -173,15 +172,6 @@ public final class NettyWebServerFactoryAutoConfiguration {
     return multipartParser;
   }
 
-  private static ChannelHandler createHttpTrafficHandler(NettyRequestConfig requestConfig, ApplicationContext context,
-          DispatcherHandler dispatcherHandler, ServiceExecutor executor, @Nullable ClassLoader classLoader) {
-    if (ClassUtils.isPresent("infra.web.socket.server.RequestUpgradeStrategy", classLoader)) {
-      return Ws.createHttpTrafficHandler(requestConfig, context, dispatcherHandler, executor);
-    }
-
-    return new HttpTrafficHandler(requestConfig, context, dispatcherHandler, executor);
-  }
-
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnClass(RequestUpgradeStrategy.class)
   public static class WebSocket {
@@ -205,13 +195,6 @@ public final class NettyWebServerFactoryAutoConfiguration {
               .build();
     }
 
-  }
-
-  static class Ws {
-    private static ChannelHandler createHttpTrafficHandler(NettyRequestConfig requestConfig, ApplicationContext context,
-            DispatcherHandler dispatcherHandler, ServiceExecutor executor) {
-      return new WsHttpTrafficHandler(requestConfig, context, dispatcherHandler, executor);
-    }
   }
 
 }
