@@ -460,40 +460,6 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
             bindAddress, nettyConfig.shutdown, Ssl.isEnabled(getSsl()), http2Enabled);
   }
 
-  private Http2Settings createHttp2InitialSettings(Http2.InitialSettings config) {
-    Http2Settings settings = new Http2Settings();
-
-    if (config.maxFrameSize != null) {
-      settings.maxFrameSize(config.maxFrameSize.toBytesInt());
-    }
-
-    if (config.maxHeaderListSize != null) {
-      settings.maxHeaderListSize(config.maxHeaderListSize);
-    }
-
-    if (config.initialWindowSize != null) {
-      settings.initialWindowSize(config.initialWindowSize);
-    }
-
-    if (config.maxConcurrentStreams != null) {
-      settings.maxConcurrentStreams(config.maxConcurrentStreams);
-    }
-
-    if (config.headerTableSize != null) {
-      settings.headerTableSize(config.headerTableSize);
-    }
-
-    if (config.pushEnabled != null) {
-      settings.pushEnabled(config.pushEnabled);
-    }
-
-    if (config.connectProtocolEnabled != null) {
-      settings.connectProtocolEnabled(config.connectProtocolEnabled);
-    }
-
-    return settings;
-  }
-
   /**
    * Creates a Netty channel initializer for the given configuration and HTTP traffic handler.
    *
@@ -597,16 +563,56 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
 
   private class DefaultHttp2FrameCodecFactory implements Http2FrameCodecFactory {
 
+    private @Nullable Http2Settings http2Settings;
+
     @Override
     public Http2FrameCodec create() {
+      if (http2Settings == null) {
+        http2Settings = createHttp2InitialSettings(http2.initialSettings);
+      }
       return Http2FrameCodecBuilder.forServer()
               .validateHeaders(nettyConfig.validateHeaders)
               .autoAckPingFrame(nettyConfig.autoAckPingFrame)
               .autoAckSettingsFrame(nettyConfig.autoAckSettingsFrame)
               .gracefulShutdownTimeoutMillis(nettyConfig.http2GracefulShutdownTimeout.toMillis())
-              .initialSettings(createHttp2InitialSettings(http2.initialSettings))
+              .initialSettings(http2Settings)
               .build();
     }
+
+    private Http2Settings createHttp2InitialSettings(Http2.InitialSettings config) {
+      Http2Settings settings = new Http2Settings();
+
+      if (config.maxFrameSize != null) {
+        settings.maxFrameSize(config.maxFrameSize.toBytesInt());
+      }
+
+      if (config.maxHeaderListSize != null) {
+        settings.maxHeaderListSize(config.maxHeaderListSize);
+      }
+
+      if (config.initialWindowSize != null) {
+        settings.initialWindowSize(config.initialWindowSize);
+      }
+
+      if (config.maxConcurrentStreams != null) {
+        settings.maxConcurrentStreams(config.maxConcurrentStreams);
+      }
+
+      if (config.headerTableSize != null) {
+        settings.headerTableSize(config.headerTableSize);
+      }
+
+      if (config.pushEnabled != null) {
+        settings.pushEnabled(config.pushEnabled);
+      }
+
+      if (config.connectProtocolEnabled != null) {
+        settings.connectProtocolEnabled(config.connectProtocolEnabled);
+      }
+
+      return settings;
+    }
+
   }
 
   static class EpollDelegate {
