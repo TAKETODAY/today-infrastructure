@@ -497,15 +497,15 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
     nettyConfig = netty;
   }
 
-  private NettyChannelInitializer createInitializer(ChannelHandler httpTrafficHandler, HttpDecoderConfig config) {
+  private HttpChannelInitializer createInitializer(ChannelHandler httpTrafficHandler, HttpDecoderConfig config) {
     Ssl ssl = getSsl();
     if (Ssl.isEnabled(ssl)) {
-      SecuredNettyChannelInitializer initializer = new SecuredNettyChannelInitializer(httpTrafficHandler, config,
+      SecuredHttpChannelInitializer initializer = new SecuredHttpChannelInitializer(httpTrafficHandler, config,
               channelConfigurer, isHttp2Enabled(), ssl, getSslBundle(), getServerNameSslBundles());
       addBundleUpdateHandler(ssl, initializer::updateSSLBundle);
       return initializer;
     }
-    return new NettyChannelInitializer(httpTrafficHandler, isHttp2Enabled(), channelConfigurer, config);
+    return new HttpChannelInitializer(httpTrafficHandler, isHttp2Enabled(), channelConfigurer, config);
   }
 
   static class EpollDelegate {

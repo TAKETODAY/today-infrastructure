@@ -183,7 +183,7 @@ public abstract class NettyRequestContext extends RequestContext {
   protected NettyRequestContext(ApplicationContext context, Channel channel,
           HttpRequest request, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
     super(context, dispatcherHandler);
-    this.http2 = channel.pipeline().context(NettyChannelInitializer.H2ToHttp11Codec) != null;
+    this.http2 = channel.pipeline().context(HttpChannelInitializer.H2ToHttp11Codec) != null;
     this.config = config;
     this.request = request;
     this.channel = channel;

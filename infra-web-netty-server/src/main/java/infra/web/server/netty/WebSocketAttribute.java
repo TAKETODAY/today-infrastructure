@@ -18,9 +18,10 @@ package infra.web.server.netty;
 
 import org.jspecify.annotations.Nullable;
 
+import infra.logging.Logger;
+import infra.web.socket.CloseStatus;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.server.support.NettyWebSocketSession;
-import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 import io.netty.util.AttributeMap;
 
@@ -41,12 +42,17 @@ final class WebSocketAttribute {
     this.session = session;
   }
 
-  public void unbind(AttributeMap attributes) {
-    attributes.attr(KEY).set(null);
+  public void unbind(AttributeMap map) {
+    map.attr(KEY).set(null);
   }
 
-  public static void bind(Channel channel, WebSocketHandler wsHandler, NettyWebSocketSession session) {
-    channel.attr(KEY).set(new WebSocketAttribute(wsHandler, session));
+  public static void bind(AttributeMap map, WebSocketHandler wsHandler, NettyWebSocketSession session) {
+    map.attr(KEY).set(new WebSocketAttribute(wsHandler, session));
+  }
+
+  public void close(AttributeMap map, CloseStatus status, Logger logger) {
+    unbind(map);
+    session.onClose(wsHandler, status, logger);
   }
 
   @Nullable

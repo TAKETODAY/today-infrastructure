@@ -70,8 +70,7 @@ public class NettyWebSocketSession extends WebSocketSession {
 
   private final NettyDataBufferFactory allocator;
 
-  @Nullable
-  private final String acceptedProtocol;
+  private final @Nullable String acceptedProtocol;
 
   public NettyWebSocketSession(boolean secure, Channel channel,
           NettyDataBufferFactory allocator, @Nullable String acceptedProtocol) {
@@ -158,21 +157,18 @@ public class NettyWebSocketSession extends WebSocketSession {
             .addListener(ChannelFutureListener.CLOSE));
   }
 
-  @Nullable
   @Override
-  public InetSocketAddress getRemoteAddress() {
+  public @Nullable InetSocketAddress getRemoteAddress() {
     return (InetSocketAddress) channel.remoteAddress();
   }
 
-  @Nullable
   @Override
-  public InetSocketAddress getLocalAddress() {
+  public @Nullable InetSocketAddress getLocalAddress() {
     return (InetSocketAddress) channel.localAddress();
   }
 
-  @Nullable
   @Override
-  public String getAcceptedProtocol() {
+  public @Nullable String getAcceptedProtocol() {
     return acceptedProtocol;
   }
 

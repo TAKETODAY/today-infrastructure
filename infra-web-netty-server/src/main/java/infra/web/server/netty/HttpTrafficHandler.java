@@ -148,31 +148,27 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
 
   @Override
   public void channelInactive(ChannelHandlerContext ctx) {
-    try {
-      if (webSocketPresent) {
-        Ws.channelInactive(ctx);
-      }
+    if (webSocketPresent) {
+      Ws.channelInactive(ctx);
     }
-    finally {
-      HttpContext httpContext = ctx.channel().attr(KEY).getAndSet(null);
-      if (httpContext != null) {
-        httpContext.channelInactive();
-      }
-      ctx.fireChannelInactive();
+
+    HttpContext context = ctx.channel().attr(KEY).getAndSet(null);
+    if (context != null) {
+      context.channelInactive();
     }
+    ctx.fireChannelInactive();
   }
 
   private static final class Ws {
 
-    static void handleFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
+    public static void handleFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
       WebSocketAttribute attr = WebSocketAttribute.find(ctx.channel());
       if (attr == null) {
         ReferenceCountUtil.safeRelease(frame);
         return;
       }
       if (frame instanceof CloseWebSocketFrame cf) {
-        CloseStatus closeStatus = new CloseStatus(cf.statusCode(), cf.reasonText());
-        onClose(ctx.channel(), closeStatus);
+        attr.close(ctx, new CloseStatus(cf.statusCode(), cf.reasonText()), log);
         ReferenceCountUtil.safeRelease(frame);
       }
       else {
@@ -196,14 +192,9 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
     }
 
     public static void channelInactive(ChannelHandlerContext ctx) {
-      onClose(ctx.channel(), CloseStatus.NO_CLOSE_FRAME);
-    }
-
-    private static void onClose(Channel channel, CloseStatus closeStatus) {
-      WebSocketAttribute attr = WebSocketAttribute.find(channel);
+      WebSocketAttribute attr = WebSocketAttribute.find(ctx.channel());
       if (attr != null) {
-        attr.unbind(channel);
-        attr.session.onClose(attr.wsHandler, closeStatus, log);
+        attr.close(ctx, CloseStatus.NO_CLOSE_FRAME, log);
       }
     }
   }

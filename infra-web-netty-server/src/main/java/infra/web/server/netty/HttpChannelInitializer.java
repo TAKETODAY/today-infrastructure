@@ -43,7 +43,7 @@ import io.netty.util.AsciiString;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-07-02 21:34
  */
-sealed class NettyChannelInitializer extends ChannelInitializer<Channel> implements ChannelHandler permits SecuredNettyChannelInitializer {
+sealed class HttpChannelInitializer extends ChannelInitializer<Channel> implements ChannelHandler permits SecuredHttpChannelInitializer {
 
   protected static final String HttpCodec = "HttpServerCodec";
   protected static final String HttpTrafficHandler = "HttpTrafficHandler";
@@ -72,7 +72,7 @@ sealed class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
 
   protected final boolean http2Enabled;
 
-  protected NettyChannelInitializer(ChannelHandler httpTrafficHandler, boolean http2Enabled,
+  protected HttpChannelInitializer(ChannelHandler httpTrafficHandler, boolean http2Enabled,
           @Nullable ChannelConfigurer channelConfigurer, HttpDecoderConfig httpDecoderConfig) {
     this.httpTrafficHandler = httpTrafficHandler;
     this.http2Enabled = http2Enabled;
