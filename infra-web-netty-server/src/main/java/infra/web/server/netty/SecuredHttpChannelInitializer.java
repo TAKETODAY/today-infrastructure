@@ -18,7 +18,6 @@ package infra.web.server.netty;
 
 import org.jspecify.annotations.Nullable;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -148,19 +147,15 @@ final class SecuredHttpChannelInitializer extends HttpChannelInitializer {
    */
   private SslContext createSslContext(SslBundle ssl) {
     SslOptions options = ssl.getOptions();
-    try {
-      return SslContextBuilder.forServer(ssl.getManagers().getKeyManagerFactory())
-              .protocols(options.getEnabledProtocols())
-              .sslProvider(getSslProvider())
-              .ciphers(getCiphers(options), SupportedCipherSuiteFilter.INSTANCE)
-              .clientAuth(clientAuth)
-              .applicationProtocolConfig(http2Enabled ? new ApplicationProtocolConfig(Protocol.ALPN, SelectorFailureBehavior.NO_ADVERTISE,
-                      SelectedListenerFailureBehavior.ACCEPT, ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1) : null)
-              .build();
-    }
-    catch (IOException e) {
-      throw ExceptionUtils.sneakyThrow(e);
-    }
+    SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(ssl.getManagers().getKeyManagerFactory())
+            .protocols(options.getEnabledProtocols())
+            .sslProvider(getSslProvider())
+            .ciphers(getCiphers(options), SupportedCipherSuiteFilter.INSTANCE)
+            .clientAuth(clientAuth)
+            .applicationProtocolConfig(http2Enabled ? new ApplicationProtocolConfig(Protocol.ALPN, SelectorFailureBehavior.NO_ADVERTISE,
+                    SelectedListenerFailureBehavior.ACCEPT, ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1) : null);
+
+    return ExceptionUtils.sneakyThrow(sslContextBuilder::build);
   }
 
   private @Nullable List<String> getCiphers(SslOptions options) {
