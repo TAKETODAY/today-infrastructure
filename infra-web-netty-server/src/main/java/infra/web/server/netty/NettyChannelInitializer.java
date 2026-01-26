@@ -100,8 +100,7 @@ sealed class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
   protected void configureHttp11Channel(Channel ch) {
     ch.pipeline()
             .addLast(HttpCodec, new HttpServerCodec(httpDecoderConfig))
-            .addLast(HttpTrafficHandler, httpTrafficHandler)
-            .remove(this);
+            .addLast(HttpTrafficHandler, httpTrafficHandler);
   }
 
   protected void configureHttp11OrH2Channel(Channel channel) {
@@ -143,7 +142,6 @@ sealed class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
 
     @Override
     protected void initChannel(Channel ch) {
-      ch.pipeline().remove(this);
       addH2StreamHandlers(ch);
     }
 

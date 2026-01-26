@@ -217,12 +217,11 @@ final class SecuredNettyChannelInitializer extends NettyChannelInitializer {
 
     @Override
     public boolean isSharable() {
-      return false;
+      return true;
     }
 
     @Override
     protected void initChannel(Channel ch) {
-      ch.pipeline().remove(this);
       addH2StreamHandlers(ch);
     }
   }
