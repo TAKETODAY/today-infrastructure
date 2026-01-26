@@ -202,7 +202,7 @@ abstract class AbstractClientHttpRequestFactoryBuilderTests<T extends ClientHttp
   }
 
   @Override
-  protected ChannelHandler createChannelHandler() {
+  protected ChannelHandler createHttpTrafficHandler() {
     return new RedirectHandler();
   }
 

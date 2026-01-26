@@ -19,12 +19,11 @@ package infra.http.client;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.web.server.GracefulShutdownCallback;
+import infra.web.server.Http2;
 import infra.web.server.WebServer;
 import infra.web.server.netty.ChannelConfigurer;
 import infra.web.server.netty.NettyWebServerFactory;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
-import io.netty.handler.codec.http.HttpObjectAggregator;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -35,21 +34,18 @@ public abstract class AbstractWebServerSupport {
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   protected NettyWebServerFactory createWebServerFactory() {
-    NettyWebServerFactory webServerFactory = new NettyWebServerFactory();
-    webServerFactory.setPort(0);
-    webServerFactory.setChannelConfigurer(new ChannelConfigurer() {
+    NettyWebServerFactory factory = new NettyWebServerFactory();
+    Http2 http2 = new Http2();
+    http2.setEnabled(true);
 
-      @Override
-      public void postInitChannel(Channel ch) {
-        ch.pipeline().addAfter("HttpServerCodec", "httpObjectAggregator",
-                new HttpObjectAggregator(1000, true));
-      }
-    });
-    webServerFactory.setHttpTrafficHandler(createChannelHandler());
-    return webServerFactory;
+    factory.setPort(0);
+    factory.setHttp2(http2);
+    factory.setChannelConfigurer(new ChannelConfigurer() { });
+    factory.setHttpTrafficHandler(createHttpTrafficHandler());
+    return factory;
   }
 
-  protected abstract ChannelHandler createChannelHandler();
+  protected abstract ChannelHandler createHttpTrafficHandler();
 
   protected GracefulShutdownCallback createGracefulShutdownCallback() {
     return result -> logger.debug("Graceful shutdown complete, result: {}", result);

@@ -228,7 +228,7 @@ abstract class AbstractClientHttpConnectorBuilderTests<T extends ClientHttpConne
   }
 
   @Override
-  protected ChannelHandler createChannelHandler() {
+  protected ChannelHandler createHttpTrafficHandler() {
     return new RedirectHandler();
   }
 
