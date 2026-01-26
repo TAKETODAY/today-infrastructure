@@ -25,6 +25,7 @@ import java.util.List;
 import infra.lang.Assert;
 import infra.web.server.AbstractConfigurableWebServerFactory;
 import infra.web.server.GenericWebServerFactory;
+import infra.web.server.Http2;
 import infra.web.server.Ssl;
 import infra.web.server.WebServer;
 import io.netty.bootstrap.ServerBootstrap;
@@ -47,6 +48,9 @@ import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpDecoderConfig;
+import io.netty.handler.codec.http2.Http2FrameCodec;
+import io.netty.handler.codec.http2.Http2FrameCodecBuilder;
+import io.netty.handler.codec.http2.Http2Settings;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.NetUtil;
@@ -118,6 +122,8 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
 
   /** @since 5.0 */
   private @Nullable Duration connectionTimeout;
+
+  private Http2FrameCodecFactory http2FrameCodecFactory = new DefaultHttp2FrameCodecFactory();
 
   /**
    * Sets the acceptor {@link EventLoopGroup} for the server.
@@ -313,6 +319,19 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   }
 
   /**
+   * Sets the HTTP/2 frame codec factory to be used for creating HTTP/2 frame codecs.
+   * The HTTP/2 frame codec is responsible for encoding and decoding HTTP/2 frames
+   * in the connection.
+   *
+   * @param factory the HTTP/2 frame codec factory instance to use,
+   * or {@code null} to clear the existing factory
+   * @since 5.0
+   */
+  public void setHttp2FrameCodecFactory(@Nullable Http2FrameCodecFactory factory) {
+    this.http2FrameCodecFactory = factory != null ? factory : new DefaultHttp2FrameCodecFactory();
+  }
+
+  /**
    * Returns the logging level for the {@link LoggingHandler}.
    *
    * @return the logging level, or {@code null} if no logging handler is configured
@@ -441,6 +460,40 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
             bindAddress, nettyConfig.shutdown, Ssl.isEnabled(getSsl()), http2Enabled);
   }
 
+  private Http2Settings createHttp2InitialSettings(Http2.InitialSettings config) {
+    Http2Settings settings = new Http2Settings();
+
+    if (config.maxFrameSize != null) {
+      settings.maxFrameSize(config.maxFrameSize.toBytesInt());
+    }
+
+    if (config.maxHeaderListSize != null) {
+      settings.maxHeaderListSize(config.maxHeaderListSize);
+    }
+
+    if (config.initialWindowSize != null) {
+      settings.initialWindowSize(config.initialWindowSize);
+    }
+
+    if (config.maxConcurrentStreams != null) {
+      settings.maxConcurrentStreams(config.maxConcurrentStreams);
+    }
+
+    if (config.headerTableSize != null) {
+      settings.headerTableSize(config.headerTableSize);
+    }
+
+    if (config.pushEnabled != null) {
+      settings.pushEnabled(config.pushEnabled);
+    }
+
+    if (config.connectProtocolEnabled != null) {
+      settings.connectProtocolEnabled(config.connectProtocolEnabled);
+    }
+
+    return settings;
+  }
+
   /**
    * Creates a Netty channel initializer for the given configuration and HTTP traffic handler.
    *
@@ -535,11 +588,25 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
     Ssl ssl = getSsl();
     if (Ssl.isEnabled(ssl)) {
       SecuredHttpChannelInitializer initializer = new SecuredHttpChannelInitializer(httpTrafficHandler, config,
-              channelConfigurer, isHttp2Enabled(), ssl, getSslBundle(), getServerNameSslBundles());
+              channelConfigurer, isHttp2Enabled(), ssl, getSslBundle(), getServerNameSslBundles(), http2FrameCodecFactory);
       addBundleUpdateHandler(ssl, initializer::updateSSLBundle);
       return initializer;
     }
-    return new HttpChannelInitializer(httpTrafficHandler, isHttp2Enabled(), channelConfigurer, config);
+    return new HttpChannelInitializer(httpTrafficHandler, isHttp2Enabled(), channelConfigurer, config, http2FrameCodecFactory);
+  }
+
+  private class DefaultHttp2FrameCodecFactory implements Http2FrameCodecFactory {
+
+    @Override
+    public Http2FrameCodec create() {
+      return Http2FrameCodecBuilder.forServer()
+              .validateHeaders(nettyConfig.validateHeaders)
+              .autoAckPingFrame(nettyConfig.autoAckPingFrame)
+              .autoAckSettingsFrame(nettyConfig.autoAckSettingsFrame)
+              .gracefulShutdownTimeoutMillis(nettyConfig.http2GracefulShutdownTimeout.toMillis())
+              .initialSettings(createHttp2InitialSettings(http2.initialSettings))
+              .build();
+    }
   }
 
   static class EpollDelegate {

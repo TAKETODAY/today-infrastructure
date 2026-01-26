@@ -31,7 +31,6 @@ import io.netty.handler.codec.http.HttpServerUpgradeHandler;
 import io.netty.handler.codec.http2.CleartextHttp2ServerUpgradeHandler;
 import io.netty.handler.codec.http2.Http2CodecUtil;
 import io.netty.handler.codec.http2.Http2FrameCodec;
-import io.netty.handler.codec.http2.Http2FrameCodecBuilder;
 import io.netty.handler.codec.http2.Http2MultiplexHandler;
 import io.netty.handler.codec.http2.Http2ServerUpgradeCodec;
 import io.netty.handler.codec.http2.Http2StreamFrameToHttpObjectCodec;
@@ -72,12 +71,16 @@ sealed class HttpChannelInitializer extends ChannelInitializer<Channel> permits 
 
   private final @Nullable ChannelConfigurer channelConfigurer;
 
+  private final Http2FrameCodecFactory http2FrameCodecFactory;
+
   protected HttpChannelInitializer(ChannelHandler httpTrafficHandler, boolean http2Enabled,
-          @Nullable ChannelConfigurer channelConfigurer, HttpDecoderConfig httpDecoderConfig) {
+          @Nullable ChannelConfigurer channelConfigurer, HttpDecoderConfig httpDecoderConfig,
+          Http2FrameCodecFactory http2FrameCodecFactory) {
     this.http2Enabled = http2Enabled;
     this.channelConfigurer = channelConfigurer;
     this.httpDecoderConfig = httpDecoderConfig;
     this.httpTrafficHandler = httpTrafficHandler;
+    this.http2FrameCodecFactory = http2FrameCodecFactory;
   }
 
   @Override
@@ -105,7 +108,7 @@ sealed class HttpChannelInitializer extends ChannelInitializer<Channel> permits 
 
   protected void configureHttp11OrH2Channel(Channel channel) {
     HttpServerCodec httpServerCodec = new HttpServerCodec(httpDecoderConfig);
-    Http11OrH2CleartextCodec upgrader = new Http11OrH2CleartextCodec(createHttp2FrameCodec());
+    Http11OrH2CleartextCodec upgrader = new Http11OrH2CleartextCodec();
     ChannelHandler http2ServerHandler = new H2CleartextCodec(upgrader, true);
 
     CleartextHttp2ServerUpgradeHandler h2cUpgradeHandler = new CleartextHttp2ServerUpgradeHandler(
@@ -117,8 +120,7 @@ sealed class HttpChannelInitializer extends ChannelInitializer<Channel> permits 
   }
 
   protected final Http2FrameCodec createHttp2FrameCodec() {
-    Http2FrameCodecBuilder codecBuilder = Http2FrameCodecBuilder.forServer();
-    return codecBuilder.build();
+    return http2FrameCodecFactory.create();
   }
 
   protected final void addH2StreamHandlers(Channel ch) {
@@ -134,12 +136,6 @@ sealed class HttpChannelInitializer extends ChannelInitializer<Channel> permits 
 
   final class Http11OrH2CleartextCodec extends ChannelInitializer<Channel> implements HttpServerUpgradeHandler.UpgradeCodecFactory {
 
-    final Http2FrameCodec http2FrameCodec;
-
-    Http11OrH2CleartextCodec(Http2FrameCodec http2FrameCodec) {
-      this.http2FrameCodec = http2FrameCodec;
-    }
-
     @Override
     protected void initChannel(Channel ch) {
       addH2StreamHandlers(ch);
@@ -148,13 +144,13 @@ sealed class HttpChannelInitializer extends ChannelInitializer<Channel> permits 
     @Override
     public HttpServerUpgradeHandler.@Nullable UpgradeCodec newUpgradeCodec(CharSequence protocol) {
       if (AsciiString.contentEquals(Http2CodecUtil.HTTP_UPGRADE_PROTOCOL_NAME, protocol)) {
-        return new Http2ServerUpgradeCodec(http2FrameCodec, new H2CleartextCodec(this, false));
+        return new Http2ServerUpgradeCodec(createHttp2FrameCodec(), new H2CleartextCodec(this, false));
       }
       return null;
     }
   }
 
-  private static final class H2CleartextCodec extends ChannelHandlerAdapter {
+  private final class H2CleartextCodec extends ChannelHandlerAdapter {
 
     private final Http11OrH2CleartextCodec upgrader;
 
@@ -175,7 +171,7 @@ sealed class HttpChannelInitializer extends ChannelInitializer<Channel> permits 
       ChannelPipeline pipeline = ctx.pipeline();
 
       if (addHttp2FrameCodec) {
-        pipeline.addAfter(ctx.name(), HttpCodec, upgrader.http2FrameCodec);
+        pipeline.addAfter(ctx.name(), HttpCodec, createHttp2FrameCodec());
       }
 
       // Add this handler at the end of the pipeline as it does not forward all channelRead events

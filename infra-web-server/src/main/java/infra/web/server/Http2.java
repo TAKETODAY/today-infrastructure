@@ -20,6 +20,9 @@ package infra.web.server;
 
 import org.jspecify.annotations.Nullable;
 
+import infra.context.properties.NestedConfigurationProperty;
+import infra.util.DataSize;
+
 /**
  * Simple server-independent abstraction for HTTP/2 configuration.
  *
@@ -30,6 +33,12 @@ import org.jspecify.annotations.Nullable;
 public class Http2 {
 
   private boolean enabled = false;
+
+  /**
+   * HTTP/2 initial settings for the connection.
+   */
+  @NestedConfigurationProperty
+  public final InitialSettings initialSettings = new InitialSettings();
 
   /**
    * Return whether to enable HTTP/2 support, if the current environment supports it.
@@ -52,6 +61,48 @@ public class Http2 {
    */
   public static boolean isEnabled(@Nullable Http2 http2) {
     return http2 != null && http2.enabled;
+  }
+
+  /**
+   * HTTP/2 initial settings for the connection.
+   */
+  public static class InitialSettings {
+
+    /**
+     * The maximum size of HTTP/2 frames that the peer is allowed to send.
+     */
+    public @Nullable DataSize maxFrameSize;
+
+    /**
+     * The maximum size of the header compression table used to decode header blocks.
+     */
+    public @Nullable Integer maxHeaderListSize = 8192;
+
+    /**
+     * The initial window size used by the peer to control the amount of data that can be sent.
+     */
+    public @Nullable Integer initialWindowSize;
+
+    /**
+     * The maximum number of concurrent streams that the peer allows.
+     */
+    public @Nullable Integer maxConcurrentStreams;
+
+    /**
+     * The size of the dynamic header table used for HPACK compression.
+     */
+    public @Nullable Integer headerTableSize;
+
+    /**
+     * Whether server push is enabled.
+     */
+    public @Nullable Boolean pushEnabled;
+
+    /**
+     * Whether CONNECT protocol is enabled.
+     */
+    public @Nullable Boolean connectProtocolEnabled;
+
   }
 
 }

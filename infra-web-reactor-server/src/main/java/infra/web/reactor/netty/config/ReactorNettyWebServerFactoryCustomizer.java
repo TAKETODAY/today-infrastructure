@@ -21,6 +21,7 @@ import java.time.Duration;
 import infra.app.cloud.CloudPlatform;
 import infra.core.Ordered;
 import infra.core.env.Environment;
+import infra.util.DataSize;
 import infra.util.PropertyMapper;
 import infra.web.reactor.netty.ReactorNettyReactiveWebServerFactory;
 import infra.web.reactor.netty.ReactorServerProperties;
@@ -68,8 +69,17 @@ public class ReactorNettyWebServerFactoryCustomizer
     map.from(reactor.maxKeepAliveRequests).to(maxKeepAliveRequests -> customizeMaxKeepAliveRequests(factory, maxKeepAliveRequests));
 
     if (Http2.isEnabled(serverProperties.http2)) {
-      map.from(reactor.maxHeaderSize)
-              .to(size -> customizeHttp2MaxHeaderSize(factory, size.toBytes()));
+      map.from(reactor.maxHeaderSize).to(size -> customizeHttp2MaxHeaderSize(factory, size.toBytes()));
+
+      factory.addServerCustomizers(httpServer -> httpServer.http2Settings(builder -> {
+        var settings = serverProperties.http2.initialSettings;
+        map.from(settings.connectProtocolEnabled).to(builder::connectProtocolEnabled);
+        map.from(settings.headerTableSize).to(builder::headerTableSize);
+        map.from(settings.initialWindowSize).to(builder::initialWindowSize);
+        map.from(settings.maxConcurrentStreams).to(builder::maxConcurrentStreams);
+        map.from(settings.maxHeaderListSize).to(builder::maxHeaderListSize);
+        map.from(settings.maxFrameSize).asInt(DataSize::bytes).to(builder::maxFrameSize);
+      }));
     }
     customizeRequestDecoder(factory, map);
   }

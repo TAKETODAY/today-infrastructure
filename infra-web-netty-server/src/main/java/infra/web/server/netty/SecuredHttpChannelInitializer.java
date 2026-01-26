@@ -77,9 +77,10 @@ final class SecuredHttpChannelInitializer extends HttpChannelInitializer {
 
   private volatile SslContext sslContext;
 
-  public SecuredHttpChannelInitializer(ChannelHandler httpTrafficHandler, HttpDecoderConfig config, @Nullable ChannelConfigurer configurer,
-          boolean http2Enabled, Ssl ssl, SslBundle sslBundle, Map<String, SslBundle> serverNameSslBundles) {
-    super(httpTrafficHandler, http2Enabled, configurer, config);
+  public SecuredHttpChannelInitializer(ChannelHandler httpTrafficHandler, HttpDecoderConfig config,
+          @Nullable ChannelConfigurer configurer, boolean http2Enabled, Ssl ssl, SslBundle sslBundle,
+          Map<String, SslBundle> serverNameSslBundles, Http2FrameCodecFactory http2FrameCodecFactory) {
+    super(httpTrafficHandler, http2Enabled, configurer, config, http2FrameCodecFactory);
     this.handshakeTimeout = ssl.handshakeTimeout.toMillis();
     this.clientAuth = Ssl.ClientAuth.map(ssl.clientAuth, ClientAuth.NONE, ClientAuth.OPTIONAL, ClientAuth.REQUIRE);
     this.sslContext = createSslContext(sslBundle);

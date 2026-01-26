@@ -16,6 +16,7 @@
 
 package infra.web.server.netty;
 
+import org.assertj.core.extractor.Extractors;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -205,6 +206,23 @@ class NettyWebServerFactoryTests {
     // then
     assertThat(factory).extracting("workerPoolName").isEqualTo(workerPoolName);
     assertThat(factory).extracting("acceptorPoolName").isEqualTo(acceptorPoolName);
+  }
+
+  @Test
+  void setHttp2FrameCodecFactory() {
+    NettyWebServerFactory factory = new NettyWebServerFactory();
+    assertThat(factory).extracting("http2FrameCodecFactory").isNotNull();
+
+    Object http2FrameCodecFactory = Extractors.byName("http2FrameCodecFactory").apply(factory);
+    factory.setHttp2FrameCodecFactory(() -> null);
+
+    assertThat(factory).extracting("http2FrameCodecFactory").isNotNull()
+            .isNotEqualTo(http2FrameCodecFactory);
+
+    factory.setHttp2FrameCodecFactory(null);
+
+    assertThat(factory).extracting("http2FrameCodecFactory").isNotNull()
+            .isInstanceOf(http2FrameCodecFactory.getClass());
   }
 
 }

@@ -231,6 +231,31 @@ public class NettyServerProperties {
   public @Nullable Duration connectionTimeout;
 
   /**
+   * Whether to automatically acknowledge PING frames.
+   * <p>
+   * Defaults to {@code true}, meaning automatic PING frame acknowledgment is enabled.
+   *
+   * @since 5.0
+   */
+  public boolean autoAckPingFrame = true;
+
+  /**
+   * Whether to automatically acknowledge SETTINGS frames.
+   * <p>
+   * Defaults to {@code true}, meaning automatic SETTINGS frame acknowledgment is enabled.
+   *
+   * @since 5.0
+   */
+  public boolean autoAckSettingsFrame = true;
+
+  /**
+   * Sets the graceful shutdown timeout for the HTTP/2 connection.
+   *
+   * @since 5.0
+   */
+  public Duration http2GracefulShutdownTimeout = Duration.ofSeconds(30);
+
+  /**
    * shutdown details
    */
   @NestedConfigurationProperty

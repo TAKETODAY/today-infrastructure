@@ -121,8 +121,7 @@ class AbstractConfigurableWebServerFactoryTests {
   @Test
   void getHttp2ShouldReturnNullByDefault() {
     AbstractConfigurableWebServerFactory factory = new AbstractConfigurableWebServerFactory() { };
-
-    assertThat(factory.getHttp2()).isNull();
+    assertThat(factory.getHttp2()).isNotNull();
   }
 
   @Test

@@ -21,36 +21,9 @@ dependencies {
   optional("jakarta.json.bind:jakarta.json.bind-api")
   optional("jakarta.validation:jakarta.validation-api")
   optional("jakarta.xml.bind:jakarta.xml.bind-api")
-  optional("io.reactivex.rxjava3:rxjava")
-  optional("io.netty:netty-buffer")
-  optional("io.netty:netty-handler")
-  optional("io.netty:netty-transport")
-  optional 'io.netty:netty-codec-http'
-  optional 'io.netty:netty-transport-native-kqueue'
 
-  optional("io.projectreactor.netty:reactor-netty-http")
-
-  optional('org.apache.httpcomponents.client5:httpclient5')
-  optional('org.apache.httpcomponents.core5:httpcore5-reactive')
-  optional("com.fasterxml.woodstox:woodstox-core")
-  optional("com.fasterxml:aalto-xml")
-  optional("com.google.code.gson:gson")
-  optional("com.google.protobuf:protobuf-java-util")
-  optional("com.rometools:rome")
-  optional("org.apache.groovy:groovy")
-  optional("org.freemarker:freemarker")
-  optional("org.webjars:webjars-locator-core")
-  optional("org.webjars:webjars-locator-lite")
-  optional("com.github.librepdf:openpdf")
-  optional("org.apache.poi:poi-ooxml")
   optional("org.reactivestreams:reactive-streams")
-
-  optional("tools.jackson.core:jackson-databind")
-  optional("tools.jackson.dataformat:jackson-dataformat-smile")
-  optional("tools.jackson.dataformat:jackson-dataformat-cbor")
-  optional("tools.jackson.dataformat:jackson-dataformat-smile")
-  optional("tools.jackson.dataformat:jackson-dataformat-xml")
-  optional("tools.jackson.dataformat:jackson-dataformat-yaml")
+  optional("io.projectreactor:reactor-core")
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
   annotationProcessor(project(":infra-build:infra-annotation-config-processor"))

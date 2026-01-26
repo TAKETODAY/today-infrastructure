@@ -59,9 +59,9 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
 
   private @Nullable SslBundles sslBundles;
 
-  private @Nullable Http2 http2;
-
   private @Nullable Compression compression;
+
+  protected Http2 http2 = new Http2();
 
   private Shutdown shutdown = Shutdown.IMMEDIATE;
 
@@ -134,13 +134,13 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
     this.sslBundles = sslBundles;
   }
 
-  public @Nullable Http2 getHttp2() {
+  public Http2 getHttp2() {
     return this.http2;
   }
 
   @Override
   public void setHttp2(@Nullable Http2 http2) {
-    this.http2 = http2;
+    this.http2 = http2 == null ? new Http2() : http2;
   }
 
   public @Nullable Compression getCompression() {
