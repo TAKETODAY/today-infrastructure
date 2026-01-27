@@ -561,7 +561,7 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
     return new HttpChannelInitializer(httpTrafficHandler, isHttp2Enabled(), channelConfigurer, config, http2FrameCodecFactory);
   }
 
-  private class DefaultHttp2FrameCodecFactory implements Http2FrameCodecFactory {
+  private final class DefaultHttp2FrameCodecFactory implements Http2FrameCodecFactory {
 
     private @Nullable Http2Settings http2Settings;
 
