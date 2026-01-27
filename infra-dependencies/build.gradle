@@ -582,6 +582,36 @@ bom {
       ]
     }
   }
+  library("Flyway", "11.20.3") {
+    group("org.flywaydb") {
+      modules = [
+          "flyway-commandline",
+          "flyway-core",
+          "flyway-database-cassandra",
+          "flyway-database-db2",
+          "flyway-database-derby",
+          "flyway-database-hsqldb",
+          "flyway-database-informix",
+          "flyway-database-mongodb",
+          "flyway-database-oracle",
+          "flyway-database-postgresql",
+          "flyway-database-redshift",
+          "flyway-database-saphana",
+          "flyway-database-snowflake",
+          "flyway-database-sybasease",
+          "flyway-firebird",
+          "flyway-gcp-bigquery",
+          "flyway-gcp-spanner",
+          "flyway-mysql",
+          "flyway-singlestore",
+          "flyway-sqlserver"
+      ]
+      plugins = [
+          "flyway-maven-plugin"
+      ]
+    }
+  }
+
 }
 
 dependencies {
@@ -663,7 +693,7 @@ dependencies {
     api("org.eclipse.persistence:org.eclipse.persistence.jpa:3.0.4")
     api("org.eclipse:yasson:2.0.4")
     api("org.ehcache:jcache:1.0.1")
-    api("org.freemarker:freemarker:2.3.33")
+    api("org.freemarker:freemarker:2.3.34")
     api("org.glassfish:jakarta.el:4.0.2")
     api("org.graalvm.sdk:graal-sdk:22.3.1")
     api("org.hibernate:hibernate-core-jakarta:5.6.15.Final")
