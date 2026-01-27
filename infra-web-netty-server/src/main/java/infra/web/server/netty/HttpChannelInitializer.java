@@ -69,9 +69,9 @@ sealed class HttpChannelInitializer extends ChannelInitializer<Channel> permits 
    */
   private final HttpDecoderConfig httpDecoderConfig;
 
-  private final @Nullable ChannelConfigurer channelConfigurer;
-
   private final Http2FrameCodecFactory http2FrameCodecFactory;
+
+  private final @Nullable ChannelConfigurer channelConfigurer;
 
   protected HttpChannelInitializer(ChannelHandler httpTrafficHandler, boolean http2Enabled,
           @Nullable ChannelConfigurer channelConfigurer, HttpDecoderConfig httpDecoderConfig,
@@ -124,8 +124,8 @@ sealed class HttpChannelInitializer extends ChannelInitializer<Channel> permits 
   }
 
   protected final void addH2StreamHandlers(Channel ch) {
-    ChannelPipeline pipeline = ch.pipeline();
-    pipeline.addLast(H2ToHttp11Codec, HTTP2_STREAM_FRAME_TO_HTTP_OBJECT)
+    ch.pipeline()
+            .addLast(H2ToHttp11Codec, HTTP2_STREAM_FRAME_TO_HTTP_OBJECT)
             .addLast(HttpTrafficHandler, httpTrafficHandler);
   }
 
