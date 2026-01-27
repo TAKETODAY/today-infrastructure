@@ -1,0 +1,28 @@
+description = "Infra Flyway integration"
+
+dependencies {
+  api(project(":infra-context"))
+  api(project(":infra-jdbc"))
+
+  api("org.flywaydb:flyway-core")
+
+  optional(project(":infra-core-aot"))
+  optional(project(":module:infra-sql"))
+
+  optional("org.flywaydb:flyway-database-oracle")
+  optional("org.flywaydb:flyway-database-postgresql")
+  optional("org.flywaydb:flyway-sqlserver")
+
+  testImplementation(project(":module:infra-app-test"))
+  testImplementation(project(":infra-test-support"))
+  testImplementation(project(":infra-core-test"))
+
+  testImplementation("org.hibernate.orm:hibernate-core")
+  testImplementation("org.hsqldb:hsqldb")
+  testImplementation("org.postgresql:postgresql")
+
+  testRuntimeOnly("ch.qos.logback:logback-classic")
+  testRuntimeOnly("com.h2database:h2")
+  testRuntimeOnly("com.zaxxer:HikariCP")
+  testRuntimeOnly("org.flywaydb:flyway-database-hsqldb")
+}

@@ -1,0 +1,8 @@
+description = "Starter for using Flyway database migrations"
+
+dependencies {
+  api project(':infra-starter')
+	api(project(":infra-starter:infra-starter-jdbc"))
+
+	api(project(":module:infra-flyway"))
+}

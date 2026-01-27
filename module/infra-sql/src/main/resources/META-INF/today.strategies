@@ -1,0 +1,3 @@
+# Depends On Database Initialization Detectors
+infra.sql.init.dependency.DependsOnDatabaseInitializationDetector=\
+infra.sql.init.dependency.AnnotationDependsOnDatabaseInitializationDetector

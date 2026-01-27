@@ -1,0 +1,39 @@
+{
+  "properties": [
+    {
+      "name": "sql.init.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether basic script-based initialization of an SQL database is enabled.",
+      "defaultValue": true,
+      "deprecation": {
+        "level": "warning",
+        "replacement": "sql.init.mode",
+        "since": "2.5.1"
+      }
+    }
+  ],
+  "hints": [
+    {
+      "name": "sql.init.data-locations",
+      "providers": [
+        {
+          "name": "handle-as",
+          "parameters": {
+            "target": "java.util.List<infra.core.io.Resource>"
+          }
+        }
+      ]
+    },
+    {
+      "name": "sql.init.schema-locations",
+      "providers": [
+        {
+          "name": "handle-as",
+          "parameters": {
+            "target": "java.util.List<infra.core.io.Resource>"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+# Database Initializer Detectors
+infra.sql.init.dependency.DatabaseInitializerDetector=\
+infra.flyway.FlywayDatabaseInitializerDetector,\
+infra.flyway.config.FlywayMigrationInitializerDatabaseInitializerDetector

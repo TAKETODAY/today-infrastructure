@@ -1,0 +1,8 @@
+description = "Starter Infra SQL"
+
+dependencies {
+  api project(':infra-starter')
+	api(project(":infra-starter:infra-starter-jdbc"))
+  api project(':module:infra-sql')
+
+}

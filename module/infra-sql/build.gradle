@@ -1,0 +1,26 @@
+plugins {
+  id "java-library"
+  id "java-test-fixtures"
+}
+
+description = "Infra SQL"
+
+dependencies {
+  api(project(":infra-context"))
+
+  optional(project(":infra-core-aot"))
+
+  testImplementation(project(":infra-webmvc-mock"))
+  testImplementation(project(":module:infra-app-test"))
+  testImplementation(project(":infra-test-support"))
+
+  testFixturesImplementation("org.assertj:assertj-core")
+  testFixturesImplementation("org.junit.jupiter:junit-jupiter-api")
+  testFixturesImplementation(project(":module:infra-app-test"))
+  testFixturesImplementation(project(":infra-test-support"))
+
+
+  testFixturesImplementation(project(":infra-tx"))
+
+  testRuntimeOnly("ch.qos.logback:logback-classic")
+}
