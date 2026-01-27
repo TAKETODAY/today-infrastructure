@@ -116,7 +116,7 @@ class FlywayAutoConfigurationTests {
 
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
           .withConfiguration(AutoConfigurations.of(FlywayAutoConfiguration.class))
-          .withPropertyValues("spring.datasource.generate-unique-name=true");
+          .withPropertyValues("datasource.generate-unique-name=true");
 
   @Test
   void backsOffWithNoDataSourceBeanAndNoFlywayUrl() {
@@ -133,9 +133,9 @@ class FlywayAutoConfigurationTests {
   }
 
   @Test
-  void backsOffWithFlywayUrlAndNoSpringJdbc() {
+  void backsOffWithFlywayUrlAndNoInfraJdbc() {
     this.contextRunner.withPropertyValues("flyway.url:jdbc:hsqldb:mem:" + UUID.randomUUID())
-            .withClassLoader(new FilteredClassLoader("infra.jdbc"))
+            .withClassLoader(new FilteredClassLoader("infra.jdbc.support"))
             .run((context) -> assertThat(context).doesNotHaveBean(Flyway.class));
   }
 
@@ -197,9 +197,9 @@ class FlywayAutoConfigurationTests {
     this.contextRunner
             .withUserConfiguration(EmbeddedDataSourceConfiguration.class, JdbcConnectionDetailsConfiguration.class,
                     MockFlywayMigrationStrategy.class)
-            .withPropertyValues("spring.datasource.url=jdbc:hsqldb:mem:flywaytest", "spring.datasource.user=some-user",
-                    "spring.datasource.password=some-password",
-                    "spring.datasource.driver-class-name=org.hsqldb.jdbc.JDBCDriver")
+            .withPropertyValues("datasource.url=jdbc:hsqldb:mem:flywaytest", "datasource.user=some-user",
+                    "datasource.password=some-password",
+                    "datasource.driver-class-name=org.hsqldb.jdbc.JDBCDriver")
             .run((context) -> {
               Flyway flyway = context.getBean(Flyway.class);
               assertThat(flyway.getConfiguration().getDataSource()).isSameAs(context.getBean(DataSource.class));
@@ -209,7 +209,7 @@ class FlywayAutoConfigurationTests {
   @Test
   void createDataSourceWithUser() {
     this.contextRunner.withUserConfiguration(EmbeddedDataSourceConfiguration.class)
-            .withPropertyValues("spring.datasource.url:jdbc:hsqldb:mem:" + UUID.randomUUID(), "flyway.user:sa")
+            .withPropertyValues("datasource.url:jdbc:hsqldb:mem:" + UUID.randomUUID(), "flyway.user:sa")
             .run((context) -> {
               assertThat(context).hasSingleBean(Flyway.class);
               assertThat(context.getBean(Flyway.class).getConfiguration().getDataSource()).isNotNull();

@@ -32,8 +32,6 @@ import org.jspecify.annotations.Nullable;
 import java.sql.DatabaseMetaData;
 import java.time.Duration;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,12 +44,11 @@ import javax.sql.DataSource;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.beans.factory.ObjectProvider;
-import infra.context.annotation.Bean;
 import infra.context.annotation.Conditional;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.annotation.ImportRuntimeHints;
-import infra.context.annotation.config.AutoConfiguration;
+import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.AnyNestedCondition;
 import infra.context.condition.ConditionalOnBean;
@@ -78,11 +75,15 @@ import infra.jdbc.support.JdbcUtils;
 import infra.jdbc.support.MetaDataAccessException;
 import infra.lang.Assert;
 import infra.sql.init.dependency.DatabaseInitializationDependencyConfigurer;
+import infra.stereotype.Component;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 import infra.util.PropertyMapper;
 import infra.util.StringUtils;
 import infra.util.function.SingletonSupplier;
+
+import static infra.flyway.config.FlywayAutoConfiguration.FlywayAutoConfigurationRuntimeHints;
+import static infra.flyway.config.FlywayAutoConfiguration.FlywayDataSourceCondition;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for Flyway database migrations.
@@ -103,15 +104,15 @@ import infra.util.function.SingletonSupplier;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-@AutoConfiguration(after = DataSourceAutoConfiguration.class)
+@DisableDIAutoConfiguration(after = DataSourceAutoConfiguration.class)
 @ConditionalOnClass(Flyway.class)
-@Conditional(FlywayAutoConfiguration.FlywayDataSourceCondition.class)
+@Conditional(FlywayDataSourceCondition.class)
 @ConditionalOnBooleanProperty(name = "flyway.enabled", matchIfMissing = true)
 @Import(DatabaseInitializationDependencyConfigurer.class)
-@ImportRuntimeHints(FlywayAutoConfiguration.FlywayAutoConfigurationRuntimeHints.class)
+@ImportRuntimeHints(FlywayAutoConfigurationRuntimeHints.class)
 public final class FlywayAutoConfiguration {
 
-  @Bean
+  @Component
   @ConfigurationPropertiesBinding
   static StringOrNumberToMigrationVersionConverter stringOrNumberMigrationVersionConverter() {
     return new StringOrNumberToMigrationVersionConverter();
@@ -123,48 +124,45 @@ public final class FlywayAutoConfiguration {
   @EnableConfigurationProperties(FlywayProperties.class)
   static class FlywayConfiguration {
 
-    private final FlywayProperties properties;
-
-    FlywayConfiguration(FlywayProperties properties) {
-      this.properties = properties;
-    }
-
-    @Bean
+    @Component
     static ResourceProviderCustomizer resourceProviderCustomizer() {
       return new ResourceProviderCustomizer();
     }
 
-    @Bean
+    @Component
     @ConditionalOnMissingBean(FlywayConnectionDetails.class)
     static PropertiesFlywayConnectionDetails flywayConnectionDetails(FlywayProperties properties) {
       return new PropertiesFlywayConnectionDetails(properties);
     }
 
-    @Bean
-    Flyway flyway(FlywayConnectionDetails connectionDetails, ResourceLoader resourceLoader,
-            ObjectProvider<DataSource> dataSource,
+    @Component
+    static Flyway flyway(FlywayConnectionDetails connectionDetails, ResourceLoader resourceLoader,
+            ObjectProvider<DataSource> dataSource, FlywayProperties properties,
             @FlywayDataSource @Nullable DataSource flywayDataSource,
             ObjectProvider<FlywayConfigurationCustomizer> fluentConfigurationCustomizers,
             ObjectProvider<JavaMigration> javaMigrations, ObjectProvider<Callback> callbacks,
             ResourceProviderCustomizer resourceProviderCustomizer) {
       FluentConfiguration configuration = new FluentConfiguration(resourceLoader.getClassLoader());
-      configureDataSource(configuration, flywayDataSource, dataSource.getIfUnique(),
-              connectionDetails);
-      configureProperties(configuration, this.properties);
+      configureDataSource(configuration, flywayDataSource, dataSource.getIfUnique(), connectionDetails);
+      configureProperties(configuration, properties);
       configureCallbacks(configuration, callbacks.orderedStream().toList());
       configureJavaMigrations(configuration, javaMigrations.orderedStream().toList());
-      fluentConfigurationCustomizers.orderedStream().forEach((customizer) -> customizer.customize(configuration));
+
+      for (FlywayConfigurationCustomizer customizer : fluentConfigurationCustomizers) {
+        customizer.customize(configuration);
+      }
+
       resourceProviderCustomizer.customize(configuration);
       return configuration.load();
     }
 
-    private void configureDataSource(FluentConfiguration configuration, @Nullable DataSource flywayDataSource,
+    private static void configureDataSource(FluentConfiguration configuration, @Nullable DataSource flywayDataSource,
             @Nullable DataSource dataSource, FlywayConnectionDetails connectionDetails) {
       DataSource migrationDataSource = getMigrationDataSource(flywayDataSource, dataSource, connectionDetails);
       configuration.dataSource(migrationDataSource);
     }
 
-    private DataSource getMigrationDataSource(@Nullable DataSource flywayDataSource,
+    private static DataSource getMigrationDataSource(@Nullable DataSource flywayDataSource,
             @Nullable DataSource dataSource, FlywayConnectionDetails connectionDetails) {
       if (flywayDataSource != null) {
         return flywayDataSource;
@@ -187,7 +185,7 @@ public final class FlywayAutoConfiguration {
       return dataSource;
     }
 
-    private void applyConnectionDetails(FlywayConnectionDetails connectionDetails, DataSourceBuilder<?> builder) {
+    private static void applyConnectionDetails(FlywayConnectionDetails connectionDetails, DataSourceBuilder<?> builder) {
       builder.username(connectionDetails.getUsername());
       builder.password(connectionDetails.getPassword());
       String driverClassName = connectionDetails.getDriverClassName();
@@ -205,7 +203,7 @@ public final class FlywayAutoConfiguration {
      * @param configuration the configuration
      * @param properties the properties
      */
-    private void configureProperties(FluentConfiguration configuration, FlywayProperties properties) {
+    private static void configureProperties(FluentConfiguration configuration, FlywayProperties properties) {
       // NOTE: Using method references in the mapper methods can break
       // back-compatibility (see gh-38164)
       PropertyMapper map = PropertyMapper.get();
@@ -273,7 +271,7 @@ public final class FlywayAutoConfiguration {
       map.from(properties.getDetectEncoding()).to(configuration::detectEncoding);
     }
 
-    private void configureExecuteInTransaction(FluentConfiguration configuration, FlywayProperties properties,
+    private static void configureExecuteInTransaction(FluentConfiguration configuration, FlywayProperties properties,
             PropertyMapper map) {
       try {
         map.from(properties.isExecuteInTransaction()).to(configuration::executeInTransaction);
@@ -283,21 +281,21 @@ public final class FlywayAutoConfiguration {
       }
     }
 
-    private void configureCallbacks(FluentConfiguration configuration, List<Callback> callbacks) {
+    private static void configureCallbacks(FluentConfiguration configuration, List<Callback> callbacks) {
       if (!callbacks.isEmpty()) {
         configuration.callbacks(callbacks.toArray(new Callback[0]));
       }
     }
 
-    private void configureJavaMigrations(FluentConfiguration flyway, List<JavaMigration> migrations) {
+    private static void configureJavaMigrations(FluentConfiguration flyway, List<JavaMigration> migrations) {
       if (!migrations.isEmpty()) {
         flyway.javaMigrations(migrations.toArray(new JavaMigration[0]));
       }
     }
 
-    @Bean
+    @Component
     @ConditionalOnMissingBean
-    FlywayMigrationInitializer flywayInitializer(Flyway flyway,
+    static FlywayMigrationInitializer flywayInitializer(Flyway flyway,
             ObjectProvider<FlywayMigrationStrategy> migrationStrategy) {
       return new FlywayMigrationInitializer(flyway, migrationStrategy.getIfAvailable());
     }
@@ -306,8 +304,8 @@ public final class FlywayAutoConfiguration {
     @Configuration(proxyBeanMethods = false)
     static class SqlServerConfiguration {
 
-      @Bean
-      SqlServerFlywayConfigurationCustomizer sqlServerFlywayConfigurationCustomizer(FlywayProperties properties) {
+      @Component
+      static SqlServerFlywayConfigurationCustomizer sqlServerFlywayConfigurationCustomizer(FlywayProperties properties) {
         return new SqlServerFlywayConfigurationCustomizer(properties);
       }
 
@@ -317,8 +315,8 @@ public final class FlywayAutoConfiguration {
     @ConditionalOnClass(name = "org.flywaydb.database.oracle.OracleConfigurationExtension")
     static class OracleConfiguration {
 
-      @Bean
-      OracleFlywayConfigurationCustomizer oracleFlywayConfigurationCustomizer(FlywayProperties properties) {
+      @Component
+      static OracleFlywayConfigurationCustomizer oracleFlywayConfigurationCustomizer(FlywayProperties properties) {
         return new OracleFlywayConfigurationCustomizer(properties);
       }
 
@@ -328,8 +326,8 @@ public final class FlywayAutoConfiguration {
     @Configuration(proxyBeanMethods = false)
     static class PostgresqlConfiguration {
 
-      @Bean
-      PostgresqlFlywayConfigurationCustomizer postgresqlFlywayConfigurationCustomizer(
+      @Component
+      static PostgresqlFlywayConfigurationCustomizer postgresqlFlywayConfigurationCustomizer(
               FlywayProperties properties) {
         return new PostgresqlFlywayConfigurationCustomizer(properties);
       }
@@ -391,14 +389,9 @@ public final class FlywayAutoConfiguration {
    */
   static class StringOrNumberToMigrationVersionConverter implements GenericConverter {
 
-    private static final Set<ConvertiblePair> CONVERTIBLE_TYPES;
-
-    static {
-      Set<ConvertiblePair> types = new HashSet<>(2);
-      types.add(new ConvertiblePair(String.class, MigrationVersion.class));
-      types.add(new ConvertiblePair(Number.class, MigrationVersion.class));
-      CONVERTIBLE_TYPES = Collections.unmodifiableSet(types);
-    }
+    private static final Set<ConvertiblePair> CONVERTIBLE_TYPES = Set.of(
+            new ConvertiblePair(String.class, MigrationVersion.class),
+            new ConvertiblePair(Number.class, MigrationVersion.class));
 
     @Override
     public Set<ConvertiblePair> getConvertibleTypes() {

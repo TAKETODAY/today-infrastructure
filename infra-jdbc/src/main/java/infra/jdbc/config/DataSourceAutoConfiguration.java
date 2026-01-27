@@ -52,7 +52,7 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/23 17:12
  */
-@DisableDIAutoConfiguration
+@DisableDIAutoConfiguration(before = DataSourceInitializationAutoConfiguration.class)
 @ConditionalOnClass({ DataSource.class, EmbeddedDatabaseType.class })
 @EnableConfigurationProperties(DataSourceProperties.class)
 @Import(DataSourcePoolMetadataProvidersConfiguration.class)

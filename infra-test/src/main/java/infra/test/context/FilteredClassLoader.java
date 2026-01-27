@@ -101,7 +101,7 @@ public class FilteredClassLoader extends URLClassLoader implements SmartClassLoa
   protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
     for (Predicate<String> filter : this.classesFilters) {
       if (filter.test(name)) {
-        throw new ClassNotFoundException();
+        throw new ClassNotFoundException(name);
       }
     }
     return super.loadClass(name, resolve);
