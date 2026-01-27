@@ -350,7 +350,6 @@ public class MockHttpRequestBuilder implements ConfigurableSmartRequestBuilder<M
    * Variant of {@link #param(String, String...)} with a {@link MultiValueMap}.
    *
    * @param params the parameters to add
-   * @since 4.0.4
    */
   public MockHttpRequestBuilder params(MultiValueMap<String, String> params) {
     params.forEach((name, values) -> {

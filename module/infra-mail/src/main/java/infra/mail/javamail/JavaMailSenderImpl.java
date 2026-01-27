@@ -461,7 +461,6 @@ public class JavaMailSenderImpl implements JavaMailSender {
    * @see #getPort()
    * @see #getUsername()
    * @see #getPassword()
-   * @since 4.1.2
    */
   protected Transport connectTransport() throws MessagingException {
     String username = getUsername();

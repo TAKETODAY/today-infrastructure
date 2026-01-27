@@ -116,9 +116,6 @@ class DelegatingSmartContextLoaderTests {
               .withMessageContaining("is able to load an ApplicationContext for");
     }
 
-    /**
-     * @since 4.1
-     */
     @Test
     void loadContextWithLocationsAndConfigurationClasses() throws Exception {
       MergedContextConfiguration mergedConfig = new MergedContextConfiguration(getClass(),
