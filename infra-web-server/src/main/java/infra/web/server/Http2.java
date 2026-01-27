@@ -76,7 +76,7 @@ public class Http2 {
     /**
      * The maximum size of the header compression table used to decode header blocks.
      */
-    public @Nullable Integer maxHeaderListSize = 8192;
+    public @Nullable DataSize maxHeaderListSize = DataSize.ofKilobytes(8);
 
     /**
      * The initial window size used by the peer to control the amount of data that can be sent.

@@ -113,7 +113,7 @@ public class ServerProperties {
   public @Nullable Compression compression;
 
   @NestedConfigurationProperty
-  public @Nullable Http2 http2;
+  public final Http2 http2 = new Http2();
 
   public void applyTo(ConfigurableWebServerFactory factory,
           @Nullable SslBundles sslBundles, @Nullable ApplicationTemp applicationTemp) {

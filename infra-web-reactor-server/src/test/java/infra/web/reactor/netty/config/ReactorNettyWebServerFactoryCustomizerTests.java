@@ -29,11 +29,10 @@ import java.util.Map;
 import infra.context.properties.source.ConfigurationPropertySources;
 import infra.mock.env.MockEnvironment;
 import infra.util.DataSize;
-import infra.web.server.Http2;
-import infra.web.server.config.ServerProperties;
 import infra.web.reactor.netty.ReactorNettyReactiveWebServerFactory;
 import infra.web.reactor.netty.ReactorNettyServerCustomizer;
 import infra.web.reactor.netty.ReactorServerProperties;
+import infra.web.server.config.ServerProperties;
 import io.netty.channel.ChannelOption;
 import reactor.netty.http.Http2SettingsSpec;
 import reactor.netty.http.server.HttpRequestDecoderSpec;
@@ -135,9 +134,9 @@ class ReactorNettyWebServerFactoryCustomizerTests {
   @Test
   void setHttp2MaxRequestHeaderSize() {
     DataSize headerSize = DataSize.ofKilobytes(24);
-    serverProperties.http2 = new Http2();
-    this.serverProperties.http2.setEnabled(true);
-    reactorProperties.maxHeaderSize = (headerSize);
+    serverProperties.http2.setEnabled(true);
+    serverProperties.http2.initialSettings.maxHeaderListSize = headerSize;
+    reactorProperties.maxHeaderSize = DataSize.ofKilobytes(25);
     ReactorNettyReactiveWebServerFactory factory = mock(ReactorNettyReactiveWebServerFactory.class);
     this.customizer.customize(factory);
     verifyHttp2MaxHeaderSize(factory, headerSize.toBytes());

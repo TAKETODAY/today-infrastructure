@@ -587,7 +587,7 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
       }
 
       if (config.maxHeaderListSize != null) {
-        settings.maxHeaderListSize(config.maxHeaderListSize);
+        settings.maxHeaderListSize(config.maxHeaderListSize.toBytes());
       }
 
       if (config.initialWindowSize != null) {

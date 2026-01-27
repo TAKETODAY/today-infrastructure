@@ -23,10 +23,10 @@ import org.jspecify.annotations.Nullable;
  */
 public class OrderedSupport implements Ordered {
 
-  @Nullable
-  protected Integer order;  // default: same as non-Ordered
+  protected @Nullable Integer order;  // default: same as non-Ordered
 
-  public OrderedSupport() { }
+  public OrderedSupport() {
+  }
 
   public OrderedSupport(int order) {
     this.order = order;

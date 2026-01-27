@@ -63,18 +63,15 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
   /** Logger available to subclasses. */
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-  @Nullable
-  private Set<?> mappedHandlers;
+  private @Nullable Set<?> mappedHandlers;
 
   private Class<?> @Nullable [] mappedHandlerClasses;
 
-  @Nullable
-  private Logger warnLogger;
+  private @Nullable Logger warnLogger;
 
   private boolean preventResponseCaching = false;
 
-  @Nullable
-  private Predicate<Object> mappedHandlerPredicate;
+  private @Nullable Predicate<@Nullable Object> mappedHandlerPredicate;
 
   /**
    * Specify the set of handlers that this exception resolver should apply to.
@@ -152,7 +149,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * <p>If no handler predicate, nor handlers, nor handler classes are set,
    * the exception resolver applies to all handlers.
    */
-  public void setMappedHandlerPredicate(Predicate<Object> predicate) {
+  public void setMappedHandlerPredicate(Predicate<@Nullable Object> predicate) {
     this.mappedHandlerPredicate =
             (this.mappedHandlerPredicate != null ? this.mappedHandlerPredicate.and(predicate) : predicate);
   }
@@ -163,9 +160,8 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * {@linkplain #setMappedHandlerClasses handler classes}), and then delegate
    * to the {@link #handleInternal} template method.
    */
-  @Nullable
   @Override
-  public Object handleException(RequestContext context, Throwable ex, @Nullable Object handler) throws Exception {
+  public @Nullable Object handleException(RequestContext context, Throwable ex, @Nullable Object handler) throws Exception {
     if (shouldApplyTo(context, handler)) {
       prepareResponse(ex, context);
       Object result = handleInternal(context, handler, ex);
@@ -200,7 +196,6 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * @see #setMappedHandlers
    * @see #setMappedHandlerClasses
    */
-  @SuppressWarnings("NullAway")
   protected boolean shouldApplyTo(RequestContext request, @Nullable Object handler) {
     if (this.mappedHandlerPredicate != null) {
       return this.mappedHandlerPredicate.test(handler);

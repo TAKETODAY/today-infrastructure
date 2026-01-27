@@ -69,16 +69,14 @@ public class ReactorNettyWebServerFactoryCustomizer
     map.from(reactor.maxKeepAliveRequests).to(maxKeepAliveRequests -> customizeMaxKeepAliveRequests(factory, maxKeepAliveRequests));
 
     if (Http2.isEnabled(serverProperties.http2)) {
-      map.from(reactor.maxHeaderSize).to(size -> customizeHttp2MaxHeaderSize(factory, size.toBytes()));
-
       factory.addServerCustomizers(httpServer -> httpServer.http2Settings(builder -> {
         var settings = serverProperties.http2.initialSettings;
         map.from(settings.connectProtocolEnabled).to(builder::connectProtocolEnabled);
         map.from(settings.headerTableSize).to(builder::headerTableSize);
         map.from(settings.initialWindowSize).to(builder::initialWindowSize);
         map.from(settings.maxConcurrentStreams).to(builder::maxConcurrentStreams);
-        map.from(settings.maxHeaderListSize).to(builder::maxHeaderListSize);
         map.from(settings.maxFrameSize).asInt(DataSize::bytes).to(builder::maxFrameSize);
+        map.from(settings.maxHeaderListSize).asInt(DataSize::bytes).to(builder::maxHeaderListSize);
       }));
     }
     customizeRequestDecoder(factory, map);
@@ -120,11 +118,6 @@ public class ReactorNettyWebServerFactoryCustomizer
 
   private void customizeMaxKeepAliveRequests(ReactorNettyReactiveWebServerFactory factory, int maxKeepAliveRequests) {
     factory.addServerCustomizers(httpServer -> httpServer.maxKeepAliveRequests(maxKeepAliveRequests));
-  }
-
-  private void customizeHttp2MaxHeaderSize(ReactorNettyReactiveWebServerFactory factory, long size) {
-    factory.addServerCustomizers(
-            ((httpServer) -> httpServer.http2Settings(settings -> settings.maxHeaderListSize(size))));
   }
 
 }
