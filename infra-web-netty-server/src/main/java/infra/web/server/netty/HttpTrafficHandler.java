@@ -102,6 +102,9 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
       if (httpContext != null) {
         httpContext.onDataReceived(content);
       }
+      else {
+        content.release();
+      }
     }
     else if (msg instanceof WebSocketFrame) {
       handleWebSocketFrame(ctx, (WebSocketFrame) msg);
