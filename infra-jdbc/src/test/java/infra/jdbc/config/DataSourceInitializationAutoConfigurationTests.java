@@ -26,7 +26,6 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
-import infra.jdbc.datasource.init.DatabasePopulator;
 import infra.jdbc.init.DataSourceScriptDatabaseInitializer;
 import infra.sql.config.init.ApplicationScriptDatabaseInitializer;
 import infra.sql.init.AbstractScriptDatabaseInitializer;
@@ -100,7 +99,7 @@ class DataSourceInitializationAutoConfigurationTests {
   @Test
   void whenADataSourceIsAvailableAndInfraJdbcIsNotThenAutoConfigurationBacksOff() {
     this.contextRunner.withConfiguration(AutoConfigurations.of(DataSourceAutoConfiguration.class))
-            .withClassLoader(new FilteredClassLoader(DatabasePopulator.class))
+            .withClassLoader(new FilteredClassLoader(ApplicationScriptDatabaseInitializer.class))
             .run((context) -> {
               assertThat(context).hasSingleBean(DataSource.class);
               assertThat(context).doesNotHaveBean(AbstractScriptDatabaseInitializer.class);
