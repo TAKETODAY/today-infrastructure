@@ -52,15 +52,15 @@ public class DisconnectedClientHelper {
   private static final Set<Class<?>> CLIENT_EXCEPTION_TYPES = new HashSet<>(2);
 
   static {
-    try {
-      ClassLoader classLoader = DisconnectedClientHelper.class.getClassLoader();
-      CLIENT_EXCEPTION_TYPES.add(ClassUtils.forName(
-              "infra.web.client.RestClientException", classLoader));
-      CLIENT_EXCEPTION_TYPES.add(ClassUtils.forName(
-              "infra.web.reactive.client.WebClientException", classLoader));
+    ClassLoader classLoader = DisconnectedClientHelper.class.getClassLoader();
+    Class<?> loaded = ClassUtils.load("infra.web.client.RestClientException", classLoader);
+    if (loaded != null) {
+      CLIENT_EXCEPTION_TYPES.add(loaded);
     }
-    catch (ClassNotFoundException ex) {
-      // ignore
+
+    loaded = ClassUtils.load("infra.web.reactive.client.WebClientException", classLoader);
+    if (loaded != null) {
+      CLIENT_EXCEPTION_TYPES.add(loaded);
     }
   }
 
