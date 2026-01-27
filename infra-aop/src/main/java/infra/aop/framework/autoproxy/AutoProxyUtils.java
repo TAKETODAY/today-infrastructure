@@ -187,7 +187,7 @@ public abstract class AutoProxyUtils {
    * Checks the {@link #EXPOSED_INTERFACES_ATTRIBUTE "exposedInterfaces" attribute}
    * of the corresponding bean definition.
    *
-   * @param beanFactory the containing ConfigurableListableBeanFactory
+   * @param beanFactory the containing ConfigurableBeanFactory
    * @param beanName the name of the bean
    * @return whether the given bean should be proxied with its target class
    * @see #EXPOSED_INTERFACES_ATTRIBUTE

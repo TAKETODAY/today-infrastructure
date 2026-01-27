@@ -22,7 +22,7 @@ import infra.core.io.FileSystemResource;
 import infra.core.io.Resource;
 
 /**
- * Strategy interface registered in {@code spring.factories} and used by
+ * Strategy interface registered in {@code today.strategies} and used by
  * {@link ApplicationResourceLoader} to determine the file path of loaded resource
  * when it can also be represented as a {@link FileSystemResource}.
  *

@@ -312,7 +312,7 @@ public class ApplicationConversionService extends FormattingConversionService {
    * @since 5.0
    */
   public static Map<String, Object> addBeans(FormatterRegistry registry, BeanFactory beanFactory, @Nullable String qualifier) {
-    ConfigurableBeanFactory configurableBeanFactory = getConfigurableListableBeanFactory(beanFactory);
+    ConfigurableBeanFactory configurableBeanFactory = getConfigurableBeanFactory(beanFactory);
     Map<String, Object> beans = getBeans(beanFactory, qualifier);
     beans.forEach((beanName, bean) -> {
       BeanDefinition beanDefinition = (configurableBeanFactory != null)
@@ -324,12 +324,12 @@ public class ApplicationConversionService extends FormattingConversionService {
   }
 
   @Nullable
-  private static ConfigurableBeanFactory getConfigurableListableBeanFactory(BeanFactory beanFactory) {
+  private static ConfigurableBeanFactory getConfigurableBeanFactory(BeanFactory beanFactory) {
     if (beanFactory instanceof ConfigurableApplicationContext applicationContext) {
       return applicationContext.getBeanFactory();
     }
-    if (beanFactory instanceof ConfigurableBeanFactory configurableListableBeanFactory) {
-      return configurableListableBeanFactory;
+    if (beanFactory instanceof ConfigurableBeanFactory configurableBeanFactory) {
+      return configurableBeanFactory;
     }
     return null;
   }

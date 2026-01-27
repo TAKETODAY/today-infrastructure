@@ -45,12 +45,12 @@ issue is addressed through support for automatic discovery of default
 For example, the modules that make up the testing support in TODAY Framework and Infra
 Boot declare all core default `ContextCustomizerFactory` implementations under the
 `infra.test.context.ContextCustomizerFactory` key in their
-`META-INF/spring.factories` properties files. The `spring.factories` file for the
+`META-INF/today.strategies` properties files. The `today.strategies` file for the
 `infra-test` module can be viewed
-{today-framework-code}/infra-test/src/main/resources/META-INF/spring.factories[here].
+{today-framework-code}/infra-test/src/main/resources/META-INF/today.strategies[here].
 Third-party frameworks and developers can contribute their own `ContextCustomizerFactory`
 implementations to the list of default factories in the same manner through their own
-`spring.factories` files.
+`today.strategies` files.
 
 
 [[testcontext-context-customizers-merging]]

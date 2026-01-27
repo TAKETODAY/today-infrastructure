@@ -229,7 +229,7 @@ public final class LocalTestWebServer {
 
   /**
    * Internal strategy used to provide the running {@link LocalTestWebServer}.
-   * Implementations can be registered in {@code spring.factories} and may accept an
+   * Implementations can be registered in {@code today.strategies} and may accept an
    * {@link ApplicationContext} constructor argument.
    */
   @FunctionalInterface

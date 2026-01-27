@@ -138,7 +138,7 @@ class ReactiveHttpClientAutoConfigurationTests {
 
   private List<String> sslPropertyValues() {
     List<String> propertyValues = new ArrayList<>();
-    String location = "classpath:org/springframework/boot/autoconfigure/ssl/";
+    String location = "classpath:infra/ssl/";
     propertyValues.add("ssl.bundle.pem.test.key.alias=alias1");
     propertyValues.add("ssl.bundle.pem.test.truststore.type=PKCS12");
     propertyValues.add("ssl.bundle.pem.test.truststore.certificate=" + location + "rsa-cert.pem");

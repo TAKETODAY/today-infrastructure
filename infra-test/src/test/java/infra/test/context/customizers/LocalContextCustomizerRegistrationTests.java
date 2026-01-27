@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @CustomizeWithFoo
 class LocalContextCustomizerRegistrationTests {
 
-  // GlobalFruitContextCustomizerFactory is registered via spring.factories
+  // GlobalFruitContextCustomizerFactory is registered via today.strategies
   @Autowired(required = false)
   @Qualifier("global$fruit")
   String fruit;

@@ -670,7 +670,7 @@ public abstract class DataBuffer {
 
   /**
    * @return empty buffer
-   * @since 2.5
+   * @since 5.0
    */
   public static DataBuffer empty() {
     return DefaultDataBuffer.EMPTY;

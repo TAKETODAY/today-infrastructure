@@ -50,7 +50,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @CustomizeWithBar
 class ContextCustomizerTests {
 
-  // GlobalFruitContextCustomizerFactory is registered via spring.factories
+  // GlobalFruitContextCustomizerFactory is registered via today.strategies
   @Autowired(required = false)
   @Qualifier("global$fruit")
   String fruit;
@@ -68,7 +68,7 @@ class ContextCustomizerTests {
 
   @Test
   void injectedBean() {
-    // Local Bootstrapper overrides spring.factories lookup
+    // Local Bootstrapper overrides today.strategies lookup
     assertThat(fruit).isNull();
 
     // From local Bootstrapper

@@ -36,13 +36,13 @@ import infra.stereotype.Component;
  * @see DataSourceAutoConfiguration
  * @since 4.0 2022/2/23 18:07
  */
-@SuppressWarnings("NullAway")
 @DisableDependencyInjection
 @DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(DataSourceProperties.class)
 public class EmbeddedDataSourceConfiguration implements BeanClassLoaderAware {
 
+  @SuppressWarnings("NullAway.Init")
   private ClassLoader classLoader;
 
   @Override

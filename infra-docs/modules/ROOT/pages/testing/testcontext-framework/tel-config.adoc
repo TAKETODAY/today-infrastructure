@@ -71,10 +71,10 @@ issue is addressed through support for automatic discovery of default
 
 For example, the `infra-test` module declares all core default `TestExecutionListener`
 implementations under the `infra.test.context.TestExecutionListener` key in
-its {today-framework-code}/infra-test/src/main/resources/META-INF/spring.factories[`META-INF/spring.factories`
+its {today-framework-code}/infra-test/src/main/resources/META-INF/today.strategies[`META-INF/today.strategies`
 properties file]. Third-party frameworks and developers can contribute their own
 `TestExecutionListener` implementations to the list of default listeners in the same
-manner through their own `spring.factories` files.
+manner through their own `today.strategies` files.
 
 [[testcontext-tel-config-ordering]]
 == Ordering `TestExecutionListener` Implementations

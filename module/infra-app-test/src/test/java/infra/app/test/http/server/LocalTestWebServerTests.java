@@ -182,7 +182,7 @@ class LocalTestWebServerTests {
   }
 
   @Test
-  @WithResource(name = "META-INF/spring.factories", content = """
+  @WithResource(name = "META-INF/today.strategies", content = """
           infra.app.test.http.server.LocalTestWebServer$Provider=\
           infra.app.test.http.server.LocalTestWebServerTests$Provider1
           """)
