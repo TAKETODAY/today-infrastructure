@@ -39,6 +39,7 @@ import infra.context.properties.EnableConfigurationProperties;
 import infra.core.env.Environment;
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import infra.stereotype.Component;
 import infra.util.StringUtils;
 
 /**
@@ -72,6 +73,12 @@ public final class DataSourceAutoConfiguration {
           DataSourceConfiguration.Dbcp2.class, DataSourceConfiguration.OracleUcp.class,
           DataSourceConfiguration.Generic.class, DataSourceJmxConfiguration.class })
   protected static class PooledDataSourceConfiguration {
+
+    @Component
+    @ConditionalOnMissingBean(JdbcConnectionDetails.class)
+    static PropertiesJdbcConnectionDetails jdbcConnectionDetails(DataSourceProperties properties) {
+      return new PropertiesJdbcConnectionDetails(properties);
+    }
 
   }
 

@@ -388,18 +388,18 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
     /**
      * XA datasource fully qualified name.
      */
-    private String dataSourceClassName;
+    private @Nullable String dataSourceClassName;
 
     /**
      * Properties to pass to the XA data source.
      */
     private Map<String, String> properties = new LinkedHashMap<>();
 
-    public String getDataSourceClassName() {
+    public @Nullable String getDataSourceClassName() {
       return this.dataSourceClassName;
     }
 
-    public void setDataSourceClassName(String dataSourceClassName) {
+    public void setDataSourceClassName(@Nullable String dataSourceClassName) {
       this.dataSourceClassName = dataSourceClassName;
     }
 
