@@ -62,7 +62,7 @@ public class DefaultResultSetHandlerFactory<T extends @Nullable Object> implemen
   }
 
   @Override
-  @SuppressWarnings({ "unchecked", "NullAway" })
+  @SuppressWarnings({ "unchecked" })
   public ResultSetExtractor<T> getResultSetHandler(ResultSetMetaData meta) throws SQLException {
     int columnCount = meta.getColumnCount();
     StringBuilder builder = new StringBuilder(columnCount * 10);
@@ -73,7 +73,7 @@ public class DefaultResultSetHandlerFactory<T extends @Nullable Object> implemen
     return CACHE.get(new HandlerKey(builder.toString(), this), meta);
   }
 
-  @SuppressWarnings({ "unchecked", "NullAway" })
+  @SuppressWarnings({ "unchecked" })
   private ResultSetExtractor<T> createHandler(ResultSetMetaData meta) throws SQLException {
     // cache key is ResultSetMetadata + Bean type
     int columnCount = meta.getColumnCount();
@@ -84,7 +84,7 @@ public class DefaultResultSetHandlerFactory<T extends @Nullable Object> implemen
      */
     boolean singleScalarColumn = BeanUtils.isSimpleValueType(metadata.getObjectType()) && columnCount == 1;
     if (singleScalarColumn) {
-      TypeHandler typeHandler = repositoryManager.getTypeHandler(metadata.getObjectType());
+      TypeHandler typeHandler = repositoryManager.getTypeHandlerManager().getTypeHandler(metadata.getObjectType());
       return new TypeHandlerResultSetHandler<>(typeHandler);
     }
 
@@ -112,7 +112,7 @@ public class DefaultResultSetHandlerFactory<T extends @Nullable Object> implemen
       if (beanProperty == null) {
         return null;
       }
-      return new ObjectPropertySetter(null, beanProperty, repositoryManager);
+      return createObjectPropertySetter(null, beanProperty, repositoryManager);
     }
 
     PropertyPath propertyPath = new PropertyPath(metadata.getObjectType(), colName);
@@ -123,7 +123,12 @@ public class DefaultResultSetHandlerFactory<T extends @Nullable Object> implemen
     }
 
     // if colName is property-path style just using property-path set
-    return new ObjectPropertySetter(propertyPath, beanProperty, repositoryManager);
+    return createObjectPropertySetter(propertyPath, beanProperty, repositoryManager);
+  }
+
+  private ObjectPropertySetter createObjectPropertySetter(@Nullable PropertyPath propertyPath, BeanProperty beanProperty, RepositoryManager manager) {
+    return new ObjectPropertySetter(propertyPath, beanProperty, manager.getConversionService(),
+            manager.getTypeHandlerManager().getTypeHandler(beanProperty), manager.getPrimitiveTypeNullHandler());
   }
 
   static final class HandlerKey {

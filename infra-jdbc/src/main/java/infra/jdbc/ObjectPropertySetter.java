@@ -49,11 +49,6 @@ final class ObjectPropertySetter {
   @Nullable
   private final PrimitiveTypeNullHandler primitiveTypeNullHandler;
 
-  public ObjectPropertySetter(@Nullable PropertyPath propertyPath, BeanProperty beanProperty, RepositoryManager manager) {
-    this(propertyPath, beanProperty, manager.getConversionService(),
-            manager.getTypeHandler(beanProperty), manager.getPrimitiveTypeNullHandler());
-  }
-
   public ObjectPropertySetter(@Nullable PropertyPath propertyPath, BeanProperty beanProperty,
           ConversionService conversionService, TypeHandler<?> typeHandler, @Nullable PrimitiveTypeNullHandler primitiveTypeNullHandler) {
     Assert.notNull(typeHandler, "TypeHandler is required");
@@ -117,8 +112,7 @@ final class ObjectPropertySetter {
    * @return data object
    * @throws SQLException If {@link ResultSet#getObject(int)} failed
    */
-  @Nullable
-  private Object getResult(ResultSet resultSet, int columnIndex) throws SQLException {
+  private @Nullable Object getResult(ResultSet resultSet, int columnIndex) throws SQLException {
     try {
       return typeHandler.getResult(resultSet, columnIndex);
     }

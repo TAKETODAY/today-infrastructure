@@ -19,17 +19,25 @@ package infra.jdbc;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Represents a method with a {@link JdbcConnection} and an optional argument.
- * Implementations of this interface be used as a parameter to one of the
+ * Represents a function that accepts a {@link JdbcConnection} and an optional argument.
+ * Implementations of this interface can be used as a parameter to one of the
  * {@link RepositoryManager#runInTransaction(ResultStatementRunnable)}
- * overloads, to run code safely in a transaction.
+ * overloads, to execute code safely within a transaction.
  *
- * @param <V> value type
- * @param <P> param type
+ * @param <V> the return value type
+ * @param <P> the parameter type
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public interface ResultStatementRunnable<V, P> {
+public interface ResultStatementRunnable<V extends @Nullable Object, P extends @Nullable Object> {
 
-  V run(JdbcConnection connection, @Nullable P argument) throws Throwable;
+  /**
+   * Executes a statement with the given connection and argument.
+   *
+   * @param connection the JDBC connection to use for executing the statement
+   * @param argument an optional argument to pass to the statement execution
+   * @return the result of the statement execution
+   * @throws Throwable if any error occurs during the statement execution
+   */
+  V run(JdbcConnection connection, P argument) throws Throwable;
 }
