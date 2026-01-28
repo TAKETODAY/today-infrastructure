@@ -3,11 +3,11 @@ description = "Infra Flyway integration"
 dependencies {
   api(project(":infra-context"))
   api(project(":infra-jdbc"))
+  api(project(":module:infra-sql"))
 
   api("org.flywaydb:flyway-core")
 
   optional(project(":infra-core-aot"))
-  optional(project(":module:infra-sql"))
 
   optional("org.flywaydb:flyway-database-oracle")
   optional("org.flywaydb:flyway-database-postgresql")
