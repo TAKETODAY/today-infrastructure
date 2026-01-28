@@ -140,14 +140,12 @@ public class TransactionTemplate extends DefaultTransactionDefinition implements
   }
 
   @Override
-  @Nullable
-  public <T> T execute(TransactionCallback<T> action) throws TransactionException {
+  public <T extends @Nullable Object> T execute(TransactionCallback<T> action) throws TransactionException {
     return execute(action, this);
   }
 
   @Override
-  @Nullable
-  public <T> T execute(TransactionCallback<T> action, @Nullable TransactionDefinition definition) throws TransactionException {
+  public <T extends @Nullable Object> T execute(TransactionCallback<T> action, @Nullable TransactionDefinition definition) throws TransactionException {
     PlatformTransactionManager transactionManager = getTransactionManager();
     Assert.state(transactionManager != null, "No PlatformTransactionManager set");
 

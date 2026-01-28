@@ -296,8 +296,9 @@ public interface TransactionDefinition {
   }
 
   /**
-   * Return an {@code DefaultTransactionDefinition}. init with {@code readonly}
+   * Return a {@code DefaultTransactionDefinition} initialized with read-only mode enabled.
    *
+   * @return a new {@code DefaultTransactionDefinition} instance with read-only flag set to {@code true}
    * @since 4.0
    */
   static TransactionDefinition forReadOnly() {
@@ -307,8 +308,10 @@ public interface TransactionDefinition {
   }
 
   /**
-   * Return an {@code DefaultTransactionDefinition}. init with {@code timeout}
+   * Return a {@code DefaultTransactionDefinition} initialized with the given timeout value.
    *
+   * @param timeout the timeout value to set in seconds
+   * @return a new {@code DefaultTransactionDefinition} instance with the specified timeout
    * @since 4.0
    */
   static TransactionDefinition forTimeout(int timeout) {
@@ -317,12 +320,31 @@ public interface TransactionDefinition {
     return definition;
   }
 
+  /**
+   * Return a {@code DefaultTransactionDefinition} initialized with the given isolation level.
+   *
+   * @param isolationLevel the isolation level to set
+   * @return a new {@code DefaultTransactionDefinition} instance with the specified isolation level
+   * @see #ISOLATION_DEFAULT
+   * @see #ISOLATION_READ_UNCOMMITTED
+   * @see #ISOLATION_READ_COMMITTED
+   * @see #ISOLATION_REPEATABLE_READ
+   * @see #ISOLATION_SERIALIZABLE
+   * @since 4.0
+   */
   static TransactionDefinition forIsolationLevel(int isolationLevel) {
     DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
     definition.setIsolationLevel(isolationLevel);
     return definition;
   }
 
+  /**
+   * Return a {@code DefaultTransactionDefinition} initialized with the given Isolation enum value.
+   *
+   * @param isolation the Isolation enum value to set
+   * @return a new {@code DefaultTransactionDefinition} instance with the specified isolation level
+   * @since 4.0
+   */
   static TransactionDefinition forIsolationLevel(Isolation isolation) {
     DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
     definition.setIsolationLevel(isolation.value());

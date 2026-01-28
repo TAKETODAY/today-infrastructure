@@ -49,8 +49,7 @@ public interface TransactionOperations {
    * @throws RuntimeException if thrown by the TransactionCallback
    * @see #executeWithoutResult(TransactionCallbackWithoutResult)
    */
-  @Nullable
-  <T> T execute(TransactionCallback<T> action) throws TransactionException;
+  <T extends @Nullable Object> T execute(TransactionCallback<T> action) throws TransactionException;
 
   /**
    * Execute the action specified by the given callback object within a transaction.
@@ -66,8 +65,7 @@ public interface TransactionOperations {
    * @see #executeWithoutResult(TransactionCallbackWithoutResult)
    * @since 4.0
    */
-  @Nullable
-  <T> T execute(TransactionCallback<T> action, @Nullable TransactionDefinition config)
+  <T extends @Nullable Object> T execute(TransactionCallback<T> action, @Nullable TransactionDefinition config)
           throws TransactionException;
 
   /**

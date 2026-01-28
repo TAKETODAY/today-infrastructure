@@ -39,7 +39,7 @@ import infra.transaction.TransactionStatus;
  * @since 4.0
  */
 @FunctionalInterface
-public interface TransactionCallback<T> {
+public interface TransactionCallback<T extends @Nullable Object> {
 
   /**
    * Gets called by {@link TransactionTemplate#executeWithoutResult} within a transactional context.
@@ -57,7 +57,6 @@ public interface TransactionCallback<T> {
    * @see TransactionTemplate#executeWithoutResult
    * @see CallbackPreferringPlatformTransactionManager#execute
    */
-  @Nullable
   T doInTransaction(TransactionStatus status);
 
 }
