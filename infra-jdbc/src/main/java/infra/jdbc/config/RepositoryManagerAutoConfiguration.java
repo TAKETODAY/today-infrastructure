@@ -19,6 +19,10 @@ import infra.stereotype.Component;
 import infra.transaction.PlatformTransactionManager;
 
 /**
+ * Auto-configuration for Repository Manager and related components.
+ * This configuration sets up the {@link RepositoryManager} and {@link TypeHandlerManager}
+ * based on the available beans in the application context and configured properties.
+ *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2026/1/28 20:25
  */
