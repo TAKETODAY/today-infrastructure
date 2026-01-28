@@ -37,18 +37,16 @@ import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.BeanFactoryPostProcessor;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.BeanDefinitionBuilder;
+import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.context.BootstrapContext;
-import infra.context.EnvironmentAware;
+import infra.context.BootstrapContextAware;
 import infra.context.annotation.Import;
 import infra.context.annotation.ImportBeanDefinitionRegistrar;
 import infra.core.Ordered;
-import infra.core.env.Environment;
 import infra.core.type.AnnotationMetadata;
 import infra.lang.TodayStrategies;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
-
-import static infra.lang.TodayStrategies.ArgumentResolver;
 
 /**
  * Configures beans that depend upon SQL database initialization with
@@ -73,10 +71,13 @@ public class DatabaseInitializationDependencyConfigurer implements ImportBeanDef
 
   @Override
   public void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
+    BeanDefinitionRegistry registry = context.getRegistry();
     String name = DependsOnDatabaseInitializationPostProcessor.class.getName();
-    if (!context.containsBeanDefinition(name)) {
-      BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(DependsOnDatabaseInitializationPostProcessor.class);
-      context.registerBeanDefinition(name, builder.getBeanDefinition());
+    if (!registry.containsBeanDefinition(name)) {
+      BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(DependsOnDatabaseInitializationPostProcessor.class)
+              .setEnableDependencyInjection(false)
+              .setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+      registry.registerBeanDefinition(name, builder.getBeanDefinition());
     }
   }
 
@@ -85,14 +86,14 @@ public class DatabaseInitializationDependencyConfigurer implements ImportBeanDef
    * dependency relationships.
    */
   static class DependsOnDatabaseInitializationPostProcessor
-          implements BeanFactoryPostProcessor, EnvironmentAware, Ordered {
+          implements BeanFactoryPostProcessor, BootstrapContextAware, Ordered {
 
     @SuppressWarnings("NullAway.Init")
-    private Environment environment;
+    private BootstrapContext context;
 
     @Override
-    public void setEnvironment(Environment environment) {
-      this.environment = environment;
+    public void setBootstrapContext(BootstrapContext context) {
+      this.context = context;
     }
 
     @Override
@@ -113,8 +114,7 @@ public class DatabaseInitializationDependencyConfigurer implements ImportBeanDef
       for (Set<String> initializerBeanNamesBatch : initializerBeanNames.batchedBeanNames()) {
         for (String initializerBeanName : initializerBeanNamesBatch) {
           BeanDefinition beanDefinition = getBeanDefinition(initializerBeanName, beanFactory);
-          beanDefinition
-                  .setDependsOn(merge(beanDefinition.getDependsOn(), previousInitializerBeanNamesBatch));
+          beanDefinition.setDependsOn(merge(beanDefinition.getDependsOn(), previousInitializerBeanNamesBatch));
         }
         previousInitializerBeanNamesBatch = initializerBeanNamesBatch;
       }
@@ -161,9 +161,8 @@ public class DatabaseInitializationDependencyConfigurer implements ImportBeanDef
     }
 
     private <T> List<T> getDetectors(ConfigurableBeanFactory beanFactory, Class<T> type) {
-      ArgumentResolver argumentResolver = ArgumentResolver.of(Environment.class, this.environment);
       return TodayStrategies.forDefaultResourceLocation(beanFactory.getBeanClassLoader())
-              .load(type, argumentResolver);
+              .load(type, context);
     }
 
     private static BeanDefinition getBeanDefinition(String beanName, ConfigurableBeanFactory beanFactory) {
