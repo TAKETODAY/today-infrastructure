@@ -37,7 +37,7 @@ public abstract class AbstractBeansOfTypeDatabaseInitializerDetector implements 
   public Set<String> detect(ConfigurableBeanFactory beanFactory) {
     try {
       Set<Class<?>> types = getDatabaseInitializerBeanTypes();
-      return new BeansOfTypeDetector(types).detect(beanFactory);
+      return BeansOfTypeDetector.detect(types, beanFactory);
     }
     catch (Throwable ex) {
       return Collections.emptySet();

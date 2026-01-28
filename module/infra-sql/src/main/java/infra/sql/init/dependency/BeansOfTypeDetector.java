@@ -18,7 +18,6 @@
 
 package infra.sql.init.dependency;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,21 +28,19 @@ import infra.beans.factory.BeanFactoryUtils;
  * Helper class for detecting beans of particular types in a bean factory.
  *
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
 class BeansOfTypeDetector {
 
-  private final Set<Class<?>> types;
-
-  BeansOfTypeDetector(Set<Class<?>> types) {
-    this.types = types;
-  }
-
-  Set<String> detect(BeanFactory beanFactory) {
-    Set<String> beanNames = new HashSet<>();
-    for (Class<?> type : this.types) {
+  public static Set<String> detect(Set<Class<?>> types, BeanFactory beanFactory) {
+    HashSet<String> beanNames = new HashSet<>();
+    for (Class<?> type : types) {
       try {
         String[] names = beanFactory.getBeanNamesForType(type, true, false);
-        Arrays.stream(names).map(BeanFactoryUtils::transformedBeanName).forEach(beanNames::add);
+        for (String name : names) {
+          name = BeanFactoryUtils.transformedBeanName(name);
+          beanNames.add(name);
+        }
       }
       catch (Throwable ex) {
         // Continue
