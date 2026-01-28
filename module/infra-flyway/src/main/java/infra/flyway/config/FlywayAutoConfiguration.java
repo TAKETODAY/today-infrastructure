@@ -140,13 +140,13 @@ public final class FlywayAutoConfiguration {
             ObjectProvider<DataSource> dataSource, FlywayProperties properties,
             @FlywayDataSource @Nullable DataSource flywayDataSource,
             ObjectProvider<FlywayConfigurationCustomizer> fluentConfigurationCustomizers,
-            ObjectProvider<JavaMigration> javaMigrations, ObjectProvider<Callback> callbacks,
+            List<JavaMigration> javaMigrations, List<Callback> callbacks,
             ResourceProviderCustomizer resourceProviderCustomizer) {
       FluentConfiguration configuration = new FluentConfiguration(resourceLoader.getClassLoader());
       configureDataSource(configuration, flywayDataSource, dataSource.getIfUnique(), connectionDetails);
       configureProperties(configuration, properties);
-      configureCallbacks(configuration, callbacks.orderedStream().toList());
-      configureJavaMigrations(configuration, javaMigrations.orderedStream().toList());
+      configureCallbacks(configuration, callbacks);
+      configureJavaMigrations(configuration, javaMigrations);
 
       for (FlywayConfigurationCustomizer customizer : fluentConfigurationCustomizers) {
         customizer.customize(configuration);
@@ -196,16 +196,11 @@ public final class FlywayAutoConfiguration {
 
     /**
      * Configure the given {@code configuration} using the given {@code properties}.
-     * <p>
-     * To maximize forwards- and backwards-compatibility method references are not
-     * used.
      *
      * @param configuration the configuration
      * @param properties the properties
      */
     private static void configureProperties(FluentConfiguration configuration, FlywayProperties properties) {
-      // NOTE: Using method references in the mapper methods can break
-      // back-compatibility (see gh-38164)
       PropertyMapper map = PropertyMapper.get();
       String[] locations = new LocationResolver(configuration.getDataSource())
               .resolveLocations(properties.getLocations())
@@ -271,14 +266,8 @@ public final class FlywayAutoConfiguration {
       map.from(properties.getDetectEncoding()).to(configuration::detectEncoding);
     }
 
-    private static void configureExecuteInTransaction(FluentConfiguration configuration, FlywayProperties properties,
-            PropertyMapper map) {
-      try {
-        map.from(properties.isExecuteInTransaction()).to(configuration::executeInTransaction);
-      }
-      catch (NoSuchMethodError ex) {
-        // Flyway < 9.14
-      }
+    private static void configureExecuteInTransaction(FluentConfiguration configuration, FlywayProperties properties, PropertyMapper map) {
+      map.from(properties.isExecuteInTransaction()).to(configuration::executeInTransaction);
     }
 
     private static void configureCallbacks(FluentConfiguration configuration, List<Callback> callbacks) {
@@ -295,9 +284,8 @@ public final class FlywayAutoConfiguration {
 
     @Component
     @ConditionalOnMissingBean
-    static FlywayMigrationInitializer flywayInitializer(Flyway flyway,
-            ObjectProvider<FlywayMigrationStrategy> migrationStrategy) {
-      return new FlywayMigrationInitializer(flyway, migrationStrategy.getIfAvailable());
+    static FlywayMigrationInitializer flywayInitializer(Flyway flyway, @Nullable FlywayMigrationStrategy migrationStrategy) {
+      return new FlywayMigrationInitializer(flyway, migrationStrategy);
     }
 
     @ConditionalOnClass(name = "org.flywaydb.database.sqlserver.SQLServerConfigurationExtension")
