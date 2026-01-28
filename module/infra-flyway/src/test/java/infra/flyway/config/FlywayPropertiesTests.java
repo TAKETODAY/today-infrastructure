@@ -51,61 +51,58 @@ class FlywayPropertiesTests {
   void defaultValuesAreConsistent() {
     FlywayProperties properties = new FlywayProperties();
     Configuration configuration = new FluentConfiguration();
-    assertThat(properties.isFailOnMissingLocations()).isEqualTo(configuration.isFailOnMissingLocations());
-    assertThat(properties.getLocations().stream().map(this::toLocation).toArray(Location[]::new))
-            .isEqualTo(configuration.getLocations());
-    assertThat(properties.getCallbackLocations().stream().map(this::toLocation).toArray(Location[]::new))
-            .isEqualTo(configuration.getCallbackLocations());
-    assertThat(properties.getEncoding()).isEqualTo(configuration.getEncoding());
-    assertThat(properties.getConnectRetries()).isEqualTo(configuration.getConnectRetries());
-    assertThat(properties.getConnectRetriesInterval()).extracting(Duration::getSeconds)
+    assertThat(properties.failOnMissingLocations).isEqualTo(configuration.isFailOnMissingLocations());
+    assertThat(properties.locations.stream().map(this::toLocation).toArray(Location[]::new)).isEqualTo(configuration.getLocations());
+    assertThat(properties.callbackLocations.stream().map(this::toLocation).toArray(Location[]::new)).isEqualTo(configuration.getCallbackLocations());
+    assertThat(properties.encoding).isEqualTo(configuration.getEncoding());
+    assertThat(properties.connectRetries).isEqualTo(configuration.getConnectRetries());
+    assertThat(properties.connectRetriesInterval).extracting(Duration::getSeconds)
             .extracting(Long::intValue)
             .isEqualTo(configuration.getConnectRetriesInterval());
-    assertThat(properties.getLockRetryCount()).isEqualTo(configuration.getLockRetryCount());
-    assertThat(properties.getDefaultSchema()).isEqualTo(configuration.getDefaultSchema());
-    assertThat(properties.getSchemas()).isEqualTo(Arrays.asList(configuration.getSchemas()));
-    assertThat(properties.isCreateSchemas()).isEqualTo(configuration.isCreateSchemas());
-    assertThat(properties.getTable()).isEqualTo(configuration.getTable());
-    assertThat(properties.getBaselineDescription()).isEqualTo(configuration.getBaselineDescription());
-    assertThat(MigrationVersion.fromVersion(properties.getBaselineVersion()))
-            .isEqualTo(configuration.getBaselineVersion());
-    assertThat(properties.getInstalledBy()).isEqualTo(configuration.getInstalledBy());
-    assertThat(properties.getPlaceholders()).isEqualTo(configuration.getPlaceholders());
-    assertThat(properties.getPlaceholderPrefix()).isEqualToIgnoringWhitespace(configuration.getPlaceholderPrefix());
-    assertThat(properties.getPlaceholderSuffix()).isEqualTo(configuration.getPlaceholderSuffix());
-    assertThat(properties.isPlaceholderReplacement()).isEqualTo(configuration.isPlaceholderReplacement());
-    assertThat(properties.getPowershellExecutable()).isEqualTo(configuration.getPowershellExecutable());
-    assertThat(properties.getSqlMigrationPrefix()).isEqualTo(configuration.getSqlMigrationPrefix());
-    assertThat(properties.getSqlMigrationSuffixes()).containsExactly(configuration.getSqlMigrationSuffixes());
-    assertThat(properties.getSqlMigrationSeparator()).isEqualTo(configuration.getSqlMigrationSeparator());
-    assertThat(properties.getRepeatableSqlMigrationPrefix())
-            .isEqualTo(configuration.getRepeatableSqlMigrationPrefix());
-    assertThat(MigrationVersion.fromVersion(properties.getTarget())).isEqualTo(configuration.getTarget());
+    assertThat(properties.lockRetryCount).isEqualTo(configuration.getLockRetryCount());
+    assertThat(properties.defaultSchema).isEqualTo(configuration.getDefaultSchema());
+    assertThat(properties.schemas).isEqualTo(Arrays.asList(configuration.getSchemas()));
+    assertThat(properties.createSchemas).isEqualTo(configuration.isCreateSchemas());
+    assertThat(properties.table).isEqualTo(configuration.getTable());
+    assertThat(properties.baselineDescription).isEqualTo(configuration.getBaselineDescription());
+    assertThat(MigrationVersion.fromVersion(properties.baselineVersion)).isEqualTo(configuration.getBaselineVersion());
+    assertThat(properties.installedBy).isEqualTo(configuration.getInstalledBy());
+    assertThat(properties.placeholders).isEqualTo(configuration.getPlaceholders());
+    assertThat(properties.placeholderPrefix).isEqualToIgnoringWhitespace(configuration.getPlaceholderPrefix());
+    assertThat(properties.placeholderSuffix).isEqualTo(configuration.getPlaceholderSuffix());
+    assertThat(properties.placeholderReplacement).isEqualTo(configuration.isPlaceholderReplacement());
+    assertThat(properties.powershellExecutable).isEqualTo(configuration.getPowershellExecutable());
+    assertThat(properties.sqlMigrationPrefix).isEqualTo(configuration.getSqlMigrationPrefix());
+    assertThat(properties.sqlMigrationSuffixes).containsExactly(configuration.getSqlMigrationSuffixes());
+    assertThat(properties.sqlMigrationSeparator).isEqualTo(configuration.getSqlMigrationSeparator());
+    assertThat(properties.repeatableSqlMigrationPrefix).isEqualTo(configuration.getRepeatableSqlMigrationPrefix());
+    assertThat(MigrationVersion.fromVersion(properties.target)).isEqualTo(configuration.getTarget());
     assertThat(configuration.getInitSql()).isNull();
-    assertThat(properties.getInitSqls()).isEmpty();
-    assertThat(properties.isBaselineOnMigrate()).isEqualTo(configuration.isBaselineOnMigrate());
-    assertThat(properties.isCleanDisabled()).isEqualTo(configuration.isCleanDisabled());
-    assertThat(properties.isGroup()).isEqualTo(configuration.isGroup());
-    assertThat(properties.isMixed()).isEqualTo(configuration.isMixed());
-    assertThat(properties.isOutOfOrder()).isEqualTo(configuration.isOutOfOrder());
-    assertThat(properties.isSkipDefaultCallbacks()).isEqualTo(configuration.isSkipDefaultCallbacks());
-    assertThat(properties.isSkipDefaultResolvers()).isEqualTo(configuration.isSkipDefaultResolvers());
-    assertThat(properties.isValidateMigrationNaming()).isEqualTo(configuration.isValidateMigrationNaming());
-    assertThat(properties.isValidateOnMigrate()).isEqualTo(configuration.isValidateOnMigrate());
-    assertThat(properties.getDetectEncoding()).isNull();
-    assertThat(properties.getPlaceholderSeparator()).isEqualTo(configuration.getPlaceholderSeparator());
-    assertThat(properties.getScriptPlaceholderPrefix()).isEqualTo(configuration.getScriptPlaceholderPrefix());
-    assertThat(properties.getScriptPlaceholderSuffix()).isEqualTo(configuration.getScriptPlaceholderSuffix());
-    assertThat(properties.isExecuteInTransaction()).isEqualTo(configuration.isExecuteInTransaction());
-    assertThat(properties.getCommunityDbSupportEnabled()).isNull();
-    assertThat(properties.getIgnoreMigrationPatterns().stream().map(ValidatePattern::fromPattern))
+    assertThat(properties.initSqls).isEmpty();
+    assertThat(properties.baselineOnMigrate).isEqualTo(configuration.isBaselineOnMigrate());
+    assertThat(properties.cleanDisabled).isEqualTo(configuration.isCleanDisabled());
+    assertThat(properties.group).isEqualTo(configuration.isGroup());
+    assertThat(properties.mixed).isEqualTo(configuration.isMixed());
+    assertThat(properties.outOfOrder).isEqualTo(configuration.isOutOfOrder());
+    assertThat(properties.skipDefaultCallbacks).isEqualTo(configuration.isSkipDefaultCallbacks());
+    assertThat(properties.skipDefaultResolvers).isEqualTo(configuration.isSkipDefaultResolvers());
+    assertThat(properties.validateMigrationNaming).isEqualTo(configuration.isValidateMigrationNaming());
+    assertThat(properties.validateOnMigrate).isEqualTo(configuration.isValidateOnMigrate());
+    assertThat(properties.detectEncoding).isNull();
+    assertThat(properties.placeholderSeparator).isEqualTo(configuration.getPlaceholderSeparator());
+    assertThat(properties.scriptPlaceholderPrefix).isEqualTo(configuration.getScriptPlaceholderPrefix());
+    assertThat(properties.scriptPlaceholderSuffix).isEqualTo(configuration.getScriptPlaceholderSuffix());
+    assertThat(properties.executeInTransaction).isEqualTo(configuration.isExecuteInTransaction());
+    assertThat(properties.communityDbSupportEnabled).isNull();
+    assertThat(properties.ignoreMigrationPatterns.stream().map(ValidatePattern::fromPattern))
             .containsExactly(configuration.getIgnoreMigrationPatterns());
+    assertThat(properties.enabled).isTrue();
   }
 
   @Test
   void loggersIsOverriddenToSlf4j() {
     assertThat(new FluentConfiguration().getLoggers()).containsExactly("auto");
-    assertThat(new FlywayProperties().getLoggers()).containsExactly("slf4j");
+    assertThat(new FlywayProperties().loggers).containsExactly("slf4j");
   }
 
   @Test
