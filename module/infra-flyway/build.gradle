@@ -13,6 +13,9 @@ dependencies {
   optional("org.flywaydb:flyway-database-postgresql")
   optional("org.flywaydb:flyway-sqlserver")
 
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
   testImplementation(project(":module:infra-app-test"))
   testImplementation(project(":infra-test-support"))
   testImplementation(project(":infra-core-test"))

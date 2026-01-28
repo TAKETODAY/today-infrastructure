@@ -10,6 +10,9 @@ dependencies {
 
   optional(project(":infra-core-aot"))
 
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
   testImplementation(project(":infra-webmvc-mock"))
   testImplementation(project(":module:infra-app-test"))
   testImplementation(project(":infra-test-support"))
