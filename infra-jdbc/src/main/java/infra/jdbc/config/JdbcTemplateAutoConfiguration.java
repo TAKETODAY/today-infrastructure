@@ -25,7 +25,6 @@ import infra.context.annotation.Lazy;
 import infra.context.annotation.Primary;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
-import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.condition.ConditionalOnSingleCandidate;
 import infra.context.properties.EnableConfigurationProperties;
@@ -48,7 +47,6 @@ import infra.stereotype.Component;
  * @since 4.0 2022/2/23 17:56
  */
 @Lazy
-@ConditionalOnClass({ DataSource.class, JdbcTemplate.class })
 @ConditionalOnSingleCandidate(DataSource.class)
 @EnableConfigurationProperties(JdbcProperties.class)
 @DisableDIAutoConfiguration(after = DataSourceAutoConfiguration.class)

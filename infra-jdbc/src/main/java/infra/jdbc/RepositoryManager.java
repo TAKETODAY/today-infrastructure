@@ -24,7 +24,6 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import infra.beans.BeanProperty;
 import infra.core.conversion.ConversionService;
 import infra.core.conversion.support.DefaultConversionService;
 import infra.dao.DataAccessException;
@@ -34,15 +33,10 @@ import infra.jdbc.datasource.DriverManagerDataSource;
 import infra.jdbc.datasource.SingleConnectionDataSource;
 import infra.jdbc.parsing.QueryParameter;
 import infra.jdbc.parsing.SqlParameterParser;
-import infra.jdbc.support.ClobToStringConverter;
 import infra.jdbc.support.JdbcAccessor;
 import infra.jdbc.support.JdbcTransactionManager;
-import infra.jdbc.support.OffsetTimeToSQLTimeConverter;
-import infra.jdbc.type.TypeHandler;
 import infra.jdbc.type.TypeHandlerManager;
 import infra.lang.Assert;
-import infra.persistence.DefaultEntityManager;
-import infra.persistence.EntityManager;
 import infra.transaction.PlatformTransactionManager;
 import infra.transaction.TransactionDefinition;
 import infra.transaction.TransactionException;
@@ -73,7 +67,9 @@ import infra.transaction.support.TransactionTemplate;
  */
 public class RepositoryManager extends JdbcAccessor implements QueryProducer, TransactionOperations {
 
-  private TypeHandlerManager typeHandlerManager = TypeHandlerManager.sharedInstance;
+  private final PlatformTransactionManager transactionManager;
+
+  private final TransactionTemplate txOperations;
 
   private boolean defaultCaseSensitive;
 
@@ -81,28 +77,15 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
 
   private boolean catchResourceCloseErrors = false;
 
-  @Nullable
-  private Map<String, String> defaultColumnMappings;
-
   private SqlParameterParser sqlParameterParser = new SqlParameterParser();
+
+  private TypeHandlerManager typeHandlerManager = TypeHandlerManager.sharedInstance;
 
   private ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
-  @Nullable
-  private PrimitiveTypeNullHandler primitiveTypeNullHandler;
+  private @Nullable Map<String, String> defaultColumnMappings;
 
-  @Nullable
-  private EntityManager entityManager;
-
-  private final PlatformTransactionManager transactionManager;
-
-  private final TransactionTemplate txOperations;
-
-  static {
-    DefaultConversionService sharedInstance = DefaultConversionService.getSharedInstance();
-    sharedInstance.addConverter(new ClobToStringConverter());
-    sharedInstance.addConverter(new OffsetTimeToSQLTimeConverter());
-  }
+  private @Nullable PrimitiveTypeNullHandler primitiveTypeNullHandler;
 
   public RepositoryManager(String jndiLookup) {
     this(DataSourceUtils.getJndiDatasource(jndiLookup));
@@ -185,6 +168,11 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
     this.defaultCaseSensitive = defaultCaseSensitive;
   }
 
+  /**
+   * Sets whether generated keys should be returned by default for queries executed through this RepositoryManager.
+   *
+   * @param generatedKeys true if queries should return generated keys by default, false otherwise
+   */
   public void setGeneratedKeys(boolean generatedKeys) {
     this.generatedKeys = generatedKeys;
   }
@@ -197,71 +185,106 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
     return generatedKeys;
   }
 
+  /**
+   * Sets the {@link SqlParameterParser} to be used for parsing SQL parameters.
+   *
+   * @param sqlParameterParser the {@link SqlParameterParser} to be used for parsing SQL parameters.
+   * @throws IllegalArgumentException if the provided {@link SqlParameterParser} is null.
+   */
   public void setSqlParameterParser(SqlParameterParser sqlParameterParser) {
     Assert.notNull(sqlParameterParser, "SqlParameterParser is required");
     this.sqlParameterParser = sqlParameterParser;
   }
 
+  /**
+   * Gets the {@link SqlParameterParser} used for parsing SQL parameters.
+   *
+   * @return the {@link SqlParameterParser} instance used for parsing SQL parameters.
+   */
   public SqlParameterParser getSqlParameterParser() {
     return sqlParameterParser;
   }
 
+  /**
+   * Sets the {@link TypeHandlerManager} to be used for handling type conversions.
+   *
+   * @param typeHandlerManager the {@link TypeHandlerManager} instance to be used,
+   * if null then the shared instance ({@link TypeHandlerManager#sharedInstance}) will be used
+   */
   public void setTypeHandlerManager(@Nullable TypeHandlerManager typeHandlerManager) {
     this.typeHandlerManager =
             typeHandlerManager == null ? TypeHandlerManager.sharedInstance : typeHandlerManager;
   }
 
+  /**
+   * Gets the {@link TypeHandlerManager} used for handling type conversions.
+   *
+   * @return the current {@link TypeHandlerManager} instance
+   */
   public TypeHandlerManager getTypeHandlerManager() {
     return typeHandlerManager;
   }
 
   /**
-   * set {@link ConversionService} to convert keys or other object
+   * Sets the {@link ConversionService} to be used for converting keys or other objects.
    *
-   * @param conversionService ConversionService
+   * @param conversionService the {@link ConversionService} instance to be used,
+   * if null then the shared instance ({@link ApplicationConversionService#getSharedInstance()}) will be used
    */
   public void setConversionService(@Nullable ConversionService conversionService) {
     this.conversionService = conversionService == null
             ? ApplicationConversionService.getSharedInstance() : conversionService;
   }
 
+  /**
+   * Gets the {@link ConversionService} used for converting keys or other objects.
+   *
+   * @return the current {@link ConversionService} instance
+   */
   public ConversionService getConversionService() {
     return conversionService;
   }
 
   /**
-   * set {@link PrimitiveTypeNullHandler}
-   * to handle null values when property is PrimitiveType
+   * Sets the {@link PrimitiveTypeNullHandler} to handle null values when the property is of primitive type.
+   * This handler will be used to manage scenarios where a null value needs to be assigned to a primitive type field,
+   * which would normally cause an issue since primitive types cannot hold null values.
    *
-   * @param primitiveTypeNullHandler PrimitiveTypeNullHandler
+   * @param primitiveTypeNullHandler the {@link PrimitiveTypeNullHandler} instance to be used,
+   * may be null if no special handling of primitive type nulls is needed
    */
   public void setPrimitiveTypeNullHandler(@Nullable PrimitiveTypeNullHandler primitiveTypeNullHandler) {
     this.primitiveTypeNullHandler = primitiveTypeNullHandler;
   }
 
   /**
-   * @return {@link PrimitiveTypeNullHandler}
+   * Returns the currently configured {@link PrimitiveTypeNullHandler}.
+   * This handler is responsible for managing null values when they need to be assigned to primitive type properties.
+   *
+   * @return the current {@link PrimitiveTypeNullHandler} instance, or null if none has been set
    */
   @Nullable
   public PrimitiveTypeNullHandler getPrimitiveTypeNullHandler() {
     return primitiveTypeNullHandler;
   }
 
-  public void setEntityManager(@Nullable EntityManager entityManager) {
-    this.entityManager = entityManager;
-  }
-
-  public EntityManager getEntityManager() {
-    if (entityManager == null) {
-      entityManager = new DefaultEntityManager(this);
-    }
-    return entityManager;
-  }
-
+  /**
+   * Sets whether to catch and ignore errors when closing resources such as connections, statements,
+   * and result sets. When set to {@code true}, any exceptions thrown during resource cleanup
+   * will be silently ignored. When {@code false} (default), such exceptions will be propagated.
+   *
+   * @param catchResourceCloseErrors {@code true} to suppress resource closing errors, {@code false} otherwise
+   */
   public void setCatchResourceCloseErrors(boolean catchResourceCloseErrors) {
     this.catchResourceCloseErrors = catchResourceCloseErrors;
   }
 
+  /**
+   * Returns whether to catch and ignore errors when closing resources such as connections, statements,
+   * and result sets.
+   *
+   * @return {@code true} if resource closing errors are suppressed, {@code false} otherwise
+   */
   public boolean isCatchResourceCloseErrors() {
     return catchResourceCloseErrors;
   }
@@ -424,7 +447,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
    *
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public <V, P> V withConnection(ResultStatementRunnable<V, P> runnable, @Nullable P argument) {
+  public <V extends @Nullable Object, P extends @Nullable Object> V withConnection(ResultStatementRunnable<V, P> runnable, @Nullable P argument) {
     try (JdbcConnection connection = open()) {
       return runnable.run(connection, argument);
     }
@@ -446,7 +469,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
    *
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public <V, P> V withConnection(ResultStatementRunnable<V, P> runnable) {
+  public <V extends @Nullable Object, P extends @Nullable Object> V withConnection(ResultStatementRunnable<V, P> runnable) {
     return withConnection(runnable, null);
   }
 
@@ -457,7 +480,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
    *
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public <T> void withConnection(StatementRunnable<T> runnable) {
+  public <T extends @Nullable Object> void withConnection(StatementRunnable<T> runnable) {
     withConnection(runnable, null);
   }
 
@@ -468,7 +491,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
    *
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public <T> void withConnection(StatementRunnable<T> runnable, @Nullable T argument) {
+  public <T extends @Nullable Object> void withConnection(StatementRunnable<T> runnable, T argument) {
     try (JdbcConnection connection = open()) {
       runnable.run(connection, argument);
     }
@@ -625,7 +648,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
    * @param runnable The {@link StatementRunnable} instance.
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public <T> void runInTransaction(StatementRunnable<T> runnable) {
+  public <T extends @Nullable Object> void runInTransaction(StatementRunnable<T> runnable) {
     runInTransaction(runnable, null);
   }
 
@@ -648,7 +671,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
    * {@link StatementRunnable#run(JdbcConnection, Object) run} method
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public <T> void runInTransaction(StatementRunnable<T> runnable, @Nullable T argument) {
+  public <T extends @Nullable Object> void runInTransaction(StatementRunnable<T> runnable, T argument) {
     runInTransaction(runnable, argument, Connection.TRANSACTION_READ_COMMITTED);
   }
 
@@ -669,7 +692,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
    * @param isolationLevel The isolation level of the transaction
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public <T> void runInTransaction(StatementRunnable<T> runnable, @Nullable T argument, int isolationLevel) {
+  public <T extends @Nullable Object> void runInTransaction(StatementRunnable<T> runnable, T argument, int isolationLevel) {
     JdbcConnection connection = beginTransaction(isolationLevel);
     connection.setRollbackOnException(false);
 
@@ -690,38 +713,86 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
   }
 
   /**
-   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
+   * Executes the given {@link ResultStatementRunnable} in a transaction with default isolation level.
+   * The transaction will automatically be committed if the runnable completes successfully,
+   * or rolled back if an exception is thrown.
+   *
+   * @param runnable the {@link ResultStatementRunnable} to execute
+   * @param <V> the return type of the runnable
+   * @param <P> the parameter type passed to the runnable
+   * @return the result of the runnable execution
+   * @throws CannotGetJdbcConnectionException if unable to acquire a connection from the connection source
    */
-  public <V, P> V runInTransaction(ResultStatementRunnable<V, P> runnable) {
+  public <V extends @Nullable Object, P extends @Nullable Object> V runInTransaction(ResultStatementRunnable<V, P> runnable) {
     return runInTransaction(runnable, null);
   }
 
   /**
-   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
+   * Executes the given {@link ResultStatementRunnable} in a transaction with default isolation level.
+   * The transaction will automatically be committed if the runnable completes successfully,
+   * or rolled back if an exception is thrown.
+   *
+   * @param runnable the {@link ResultStatementRunnable} to execute
+   * @param argument the argument to pass to the runnable
+   * @param <V> the return type of the runnable
+   * @param <P> the parameter type passed to the runnable
+   * @return the result of the runnable execution
+   * @throws CannotGetJdbcConnectionException if unable to acquire a connection from the connection source
    */
-  public <V, P> V runInTransaction(ResultStatementRunnable<V, P> runnable, @Nullable P argument) {
+  public <V extends @Nullable Object, P extends @Nullable Object> V runInTransaction(ResultStatementRunnable<V, P> runnable, P argument) {
     return runInTransaction(runnable, argument, Connection.TRANSACTION_READ_COMMITTED);
   }
 
   /**
-   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
+   * Executes the given {@link ResultStatementRunnable} in a transaction with the specified isolation level.
+   * The transaction will automatically be committed if the runnable completes successfully,
+   * or rolled back if an exception is thrown.
+   *
+   * @param runnable the {@link ResultStatementRunnable} to execute
+   * @param argument the argument to pass to the runnable
+   * @param isolationLevel the isolation level of the transaction
+   * @param <V> the return type of the runnable
+   * @param <P> the parameter type passed to the runnable
+   * @return the result of the runnable execution
+   * @throws CannotGetJdbcConnectionException if unable to acquire a connection from the connection source
    */
-  public <V, P> V runInTransaction(ResultStatementRunnable<V, P> runnable, @Nullable P argument, int isolationLevel) {
+  public <V extends @Nullable Object, P extends @Nullable Object> V runInTransaction(ResultStatementRunnable<V, P> runnable, P argument, int isolationLevel) {
     return runInTransaction(runnable, argument, TransactionDefinition.forIsolationLevel(isolationLevel));
   }
 
   /**
-   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
+   * Executes the given {@link ResultStatementRunnable} in a transaction with the specified isolation level.
+   * The transaction will automatically be committed if the runnable completes successfully,
+   * or rolled back if an exception is thrown.
+   *
+   * @param runnable the {@link ResultStatementRunnable} to execute
+   * @param argument the argument to pass to the runnable
+   * @param isolation the isolation level of the transaction
+   * @param <V> the return type of the runnable
+   * @param <P> the parameter type passed to the runnable
+   * @return the result of the runnable execution
+   * @throws CannotGetJdbcConnectionException if unable to acquire a connection from the connection source
    */
-  public <V, P> V runInTransaction(ResultStatementRunnable<V, P> runnable, @Nullable P argument, Isolation isolation) {
+  public <V extends @Nullable Object, P extends @Nullable Object> V runInTransaction(ResultStatementRunnable<V, P> runnable, P argument, Isolation isolation) {
     return runInTransaction(runnable, argument, TransactionDefinition.forIsolationLevel(isolation));
   }
 
   /**
-   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
+   * Executes the given {@link ResultStatementRunnable} in a transaction with the specified transaction definition.
+   * The transaction will automatically be committed if the runnable completes successfully,
+   * or rolled back if an exception is thrown.
+   *
+   * @param runnable the {@link ResultStatementRunnable} to execute
+   * @param argument the argument to pass to the runnable
+   * @param definition the TransactionDefinition instance (can be {@code null} for defaults),
+   * describing propagation behavior, isolation level, timeout etc.
+   * @param <V> the return type of the runnable
+   * @param <P> the parameter type passed to the runnable
+   * @return the result of the runnable execution
+   * @throws CannotGetJdbcConnectionException if unable to acquire a connection from the connection source
    */
-  public <V, P> V runInTransaction(ResultStatementRunnable<V, P> runnable,
-          @Nullable P argument, @Nullable TransactionDefinition definition) {
+  public <V extends @Nullable Object, P extends @Nullable Object> V runInTransaction(ResultStatementRunnable<V, P> runnable,
+          P argument, @Nullable TransactionDefinition definition) {
     JdbcConnection connection = beginTransaction(definition);
     V result;
     try {
@@ -746,15 +817,13 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
   // Implementation of TransactionOperations methods
   // ---------------------------------------------------------------------
 
-  @Nullable
   @Override
-  public <T> T execute(TransactionCallback<T> action) throws TransactionException {
+  public <T extends @Nullable Object> T execute(TransactionCallback<T> action) throws TransactionException {
     return txOperations.execute(action);
   }
 
-  @Nullable
   @Override
-  public <T> T execute(TransactionCallback<T> action, @Nullable TransactionDefinition definition) throws TransactionException {
+  public <T extends @Nullable Object> T execute(TransactionCallback<T> action, @Nullable TransactionDefinition definition) throws TransactionException {
     return txOperations.execute(action, definition);
   }
 
@@ -766,28 +835,6 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
   @Override
   public void executeWithoutResult(TransactionCallbackWithoutResult action, @Nullable TransactionDefinition config) throws TransactionException {
     txOperations.executeWithoutResult(action, config);
-  }
-
-  //
-
-  /**
-   * persist an entity to underlying repository
-   *
-   * @param entity entity instance
-   * @throws IllegalArgumentException if the instance is not an entity
-   */
-  public void persist(Object entity) {
-    getEntityManager().persist(entity);
-  }
-
-  //
-
-  public <T> TypeHandler<T> getTypeHandler(BeanProperty property) {
-    return typeHandlerManager.getTypeHandler(property);
-  }
-
-  public <T> TypeHandler<T> getTypeHandler(Class<T> type) {
-    return typeHandlerManager.getTypeHandler(type);
   }
 
 }

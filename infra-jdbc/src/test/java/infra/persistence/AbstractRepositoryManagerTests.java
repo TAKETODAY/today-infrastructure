@@ -63,9 +63,6 @@ public abstract class AbstractRepositoryManagerTests {
         con.createNamedQuery("set database sql syntax MYS true")
                 .executeUpdate();
       }
-      if (repositoryManager.getEntityManager() instanceof DefaultEntityManager entityManager) {
-        entityManager.setPlatform(new HyperSQLPlatform());
-      }
     }
 
     prepareTestsData(dbType, repositoryManager);

@@ -18,7 +18,6 @@
 
 package infra.jdbc.config;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import infra.app.test.context.runner.ApplicationContextRunner;
