@@ -189,15 +189,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
   }
 
   @Override
-  @SuppressWarnings({ "unchecked", "NullAway" })
+  @SuppressWarnings("unchecked")
   public <T> T createBean(Class<T> beanClass, int autowireMode, boolean dependencyCheck) throws BeansException {
     // Use non-singleton bean merged, to avoid registering bean as dependent bean.
     RootBeanDefinition bd = new RootBeanDefinition(beanClass, autowireMode, dependencyCheck);
     bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     Object bean = createBean(beanClass.getName(), bd, null);
-    if (bean == NullValue.INSTANCE) {
-      return null;
-    }
     return (T) bean;
   }
 
