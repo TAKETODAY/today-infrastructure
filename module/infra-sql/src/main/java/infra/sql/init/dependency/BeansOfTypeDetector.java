@@ -30,7 +30,7 @@ import infra.beans.factory.BeanFactoryUtils;
  * @author Andy Wilkinson
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
-class BeansOfTypeDetector {
+abstract class BeansOfTypeDetector {
 
   public static Set<String> detect(Set<Class<?>> types, BeanFactory beanFactory) {
     HashSet<String> beanNames = new HashSet<>();
