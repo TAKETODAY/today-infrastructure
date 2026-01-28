@@ -18,6 +18,7 @@ package infra.jdbc.init;
 
 import java.util.Set;
 
+import infra.jdbc.RepositoryManager;
 import infra.jdbc.core.JdbcOperations;
 import infra.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import infra.jdbc.core.simple.JdbcClient;
@@ -33,7 +34,7 @@ class InfraJdbcDependsOnDatabaseInitializationDetector extends AbstractBeansOfTy
 
   @Override
   protected Set<Class<?>> getDependsOnDatabaseInitializationBeanTypes() {
-    return Set.of(JdbcClient.class, JdbcOperations.class, NamedParameterJdbcOperations.class);
+    return Set.of(JdbcClient.class, JdbcOperations.class, NamedParameterJdbcOperations.class, RepositoryManager.class);
   }
 
 }
