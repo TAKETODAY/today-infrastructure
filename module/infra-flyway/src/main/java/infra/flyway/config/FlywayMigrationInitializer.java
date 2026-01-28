@@ -23,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.beans.factory.InitializingBean;
 import infra.core.Ordered;
+import infra.core.OrderedSupport;
 import infra.lang.Assert;
 
 /**
@@ -33,13 +34,11 @@ import infra.lang.Assert;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-public class FlywayMigrationInitializer implements InitializingBean, Ordered {
+public class FlywayMigrationInitializer extends OrderedSupport implements InitializingBean, Ordered {
 
   private final Flyway flyway;
 
   private final @Nullable FlywayMigrationStrategy migrationStrategy;
-
-  private int order;
 
   /**
    * Create a new {@link FlywayMigrationInitializer} instance.
@@ -57,34 +56,19 @@ public class FlywayMigrationInitializer implements InitializingBean, Ordered {
    * @param migrationStrategy the migration strategy or {@code null}
    */
   public FlywayMigrationInitializer(Flyway flyway, @Nullable FlywayMigrationStrategy migrationStrategy) {
-    Assert.notNull(flyway, "'flyway' must not be null");
+    Assert.notNull(flyway, "'flyway' is required");
     this.flyway = flyway;
     this.migrationStrategy = migrationStrategy;
   }
 
   @Override
-  public void afterPropertiesSet() throws Exception {
-    if (this.migrationStrategy != null) {
-      this.migrationStrategy.migrate(this.flyway);
+  public void afterPropertiesSet() {
+    if (migrationStrategy != null) {
+      migrationStrategy.migrate(flyway);
     }
     else {
-      try {
-        this.flyway.migrate();
-      }
-      catch (NoSuchMethodError ex) {
-        // Flyway < 7.0
-        this.flyway.getClass().getMethod("migrate").invoke(this.flyway);
-      }
+      flyway.migrate();
     }
-  }
-
-  @Override
-  public int getOrder() {
-    return this.order;
-  }
-
-  public void setOrder(int order) {
-    this.order = order;
   }
 
 }
