@@ -39,12 +39,7 @@ import infra.jdbc.type.TypeHandlerManager;
 import infra.lang.Assert;
 import infra.transaction.PlatformTransactionManager;
 import infra.transaction.TransactionDefinition;
-import infra.transaction.TransactionException;
 import infra.transaction.annotation.Isolation;
-import infra.transaction.support.TransactionCallback;
-import infra.transaction.support.TransactionCallbackWithoutResult;
-import infra.transaction.support.TransactionOperations;
-import infra.transaction.support.TransactionTemplate;
 
 /**
  * RepositoryManager is the main class for the infra-jdbc library.
@@ -65,11 +60,9 @@ import infra.transaction.support.TransactionTemplate;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class RepositoryManager extends JdbcAccessor implements QueryProducer, TransactionOperations {
+public class RepositoryManager extends JdbcAccessor implements QueryProducer {
 
   private final PlatformTransactionManager transactionManager;
-
-  private final TransactionTemplate txOperations;
 
   private boolean defaultCaseSensitive;
 
@@ -125,7 +118,6 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
     Assert.notNull(transactionManager, "transactionManager is required");
     setDataSource(dataSource);
     this.transactionManager = transactionManager;
-    this.txOperations = new TransactionTemplate(transactionManager);
   }
 
   /**
@@ -136,8 +128,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
    * @return The {@code Map<String,String>} instance, which RepositoryManager internally uses
    * to map column names with property names.
    */
-  @Nullable
-  public Map<String, String> getDefaultColumnMappings() {
+  public @Nullable Map<String, String> getDefaultColumnMappings() {
     return defaultColumnMappings;
   }
 
@@ -263,8 +254,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
    *
    * @return the current {@link PrimitiveTypeNullHandler} instance, or null if none has been set
    */
-  @Nullable
-  public PrimitiveTypeNullHandler getPrimitiveTypeNullHandler() {
+  public @Nullable PrimitiveTypeNullHandler getPrimitiveTypeNullHandler() {
     return primitiveTypeNullHandler;
   }
 
@@ -811,30 +801,6 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
     }
     connection.commit();
     return result;
-  }
-
-  // ---------------------------------------------------------------------
-  // Implementation of TransactionOperations methods
-  // ---------------------------------------------------------------------
-
-  @Override
-  public <T extends @Nullable Object> T execute(TransactionCallback<T> action) throws TransactionException {
-    return txOperations.execute(action);
-  }
-
-  @Override
-  public <T extends @Nullable Object> T execute(TransactionCallback<T> action, @Nullable TransactionDefinition definition) throws TransactionException {
-    return txOperations.execute(action, definition);
-  }
-
-  @Override
-  public void executeWithoutResult(TransactionCallbackWithoutResult action) throws TransactionException {
-    txOperations.executeWithoutResult(action);
-  }
-
-  @Override
-  public void executeWithoutResult(TransactionCallbackWithoutResult action, @Nullable TransactionDefinition config) throws TransactionException {
-    txOperations.executeWithoutResult(action, config);
   }
 
 }
