@@ -1,2 +1,3 @@
 infra.transaction.config.TransactionAutoConfiguration
+infra.transaction.config.TransactionManagerCustomizationAutoConfiguration
 infra.transaction.jta.config.JtaAutoConfiguration

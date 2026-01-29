@@ -25,6 +25,7 @@ import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnProperty;
 import infra.transaction.config.TransactionAutoConfiguration;
+import infra.transaction.config.TransactionManagerCustomizationAutoConfiguration;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for JTA.
@@ -36,7 +37,8 @@ import infra.transaction.config.TransactionAutoConfiguration;
  * @since 4.0
  */
 @Lazy
-@DisableDIAutoConfiguration(before = { TransactionAutoConfiguration.class })
+@DisableDIAutoConfiguration(before = {
+        TransactionAutoConfiguration.class, TransactionManagerCustomizationAutoConfiguration.class })
 @ConditionalOnClass(jakarta.transaction.Transaction.class)
 @ConditionalOnProperty(prefix = "infra.jta", value = "enabled", matchIfMissing = true)
 @Import(JndiJtaConfiguration.class)

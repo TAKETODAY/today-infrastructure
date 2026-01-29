@@ -18,8 +18,6 @@
 
 package infra.transaction.config;
 
-import java.util.Collection;
-
 import infra.app.LazyInitializationExcludeFilter;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
@@ -55,13 +53,6 @@ import infra.transaction.support.TransactionTemplate;
 @ConditionalOnClass(PlatformTransactionManager.class)
 @EnableConfigurationProperties(TransactionProperties.class)
 public final class TransactionAutoConfiguration {
-
-  @Component
-  @ConditionalOnMissingBean
-  public static TransactionManagerCustomizers platformTransactionManagerCustomizers(
-          Collection<TransactionManagerCustomizer<?>> customizers) {
-    return new TransactionManagerCustomizers(customizers);
-  }
 
   @Component
   @ConditionalOnClass(name = "reactor.core.publisher.Mono")

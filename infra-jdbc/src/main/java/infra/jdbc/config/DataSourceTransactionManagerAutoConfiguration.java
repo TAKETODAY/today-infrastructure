@@ -36,7 +36,6 @@ import infra.jdbc.datasource.DataSourceTransactionManager;
 import infra.jdbc.support.JdbcTransactionManager;
 import infra.stereotype.Component;
 import infra.transaction.TransactionManager;
-import infra.transaction.config.TransactionAutoConfiguration;
 import infra.transaction.config.TransactionManagerCustomizers;
 
 /**
@@ -50,7 +49,10 @@ import infra.transaction.config.TransactionManagerCustomizers;
  * @since 4.0 2022/10/31 11:51
  */
 @AutoConfigureOrder(Ordered.LOWEST_PRECEDENCE)
-@DisableDIAutoConfiguration(before = TransactionAutoConfiguration.class)
+@DisableDIAutoConfiguration(
+        after = DataSourceAutoConfiguration.class,
+        afterName = "infra.transaction.config.TransactionManagerCustomizationAutoConfiguration",
+        beforeName = "infra.transaction.config.TransactionAutoConfiguration")
 @ConditionalOnClass({ JdbcTemplate.class, TransactionManager.class })
 public final class DataSourceTransactionManagerAutoConfiguration {
 
