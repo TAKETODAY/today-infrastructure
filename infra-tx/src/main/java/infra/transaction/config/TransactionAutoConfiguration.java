@@ -57,6 +57,13 @@ public final class TransactionAutoConfiguration {
     return TransactionalOperator.create(transactionManager);
   }
 
+  @Component
+  @ConditionalOnBean(type = "infra.transaction.aspectj.AbstractTransactionAspect")
+  static LazyInitializationExcludeFilter eagerTransactionAspect() {
+    return LazyInitializationExcludeFilter.forBeanTypes(ClassUtils.resolveClassName(
+            "infra.transaction.aspectj.AbstractTransactionAspect", ClassUtils.getDefaultClassLoader()));
+  }
+
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnSingleCandidate(PlatformTransactionManager.class)
   public static class TransactionTemplateConfiguration {
@@ -88,13 +95,6 @@ public final class TransactionAutoConfiguration {
 
     }
 
-  }
-
-  @Component
-  @ConditionalOnBean(type = "infra.transaction.aspectj.AbstractTransactionAspect")
-  static LazyInitializationExcludeFilter eagerTransactionAspect() {
-    return LazyInitializationExcludeFilter.forBeanTypes(ClassUtils.resolveClassName(
-            "infra.transaction.aspectj.AbstractTransactionAspect", ClassUtils.getDefaultClassLoader()));
   }
 
 }
