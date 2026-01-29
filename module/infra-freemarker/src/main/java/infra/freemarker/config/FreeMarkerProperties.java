@@ -47,8 +47,7 @@ import infra.ui.template.TemplateLocation;
  */
 @DisableDependencyInjection
 @ConfigurationProperties(prefix = "freemarker")
-public class FreeMarkerProperties extends AbstractTemplateViewResolverProperties
-        implements InitializingBean, ApplicationContextAware {
+public class FreeMarkerProperties extends AbstractTemplateViewResolverProperties implements InitializingBean, ApplicationContextAware {
 
   public static final String DEFAULT_TEMPLATE_LOADER_PATH = TemplateAvailabilityProvider.DEFAULT_TEMPLATE_LOADER_PATH;
 

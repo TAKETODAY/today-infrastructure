@@ -11,7 +11,7 @@ dependencies {
   testImplementation project(':infra-test-support')
 
   testImplementation project(':module:infra-app-test')
-  testImplementation project(':module:infra-app-freemarker')
+  testImplementation project(':module:infra-freemarker')
   testImplementation project(":infra-web-server")
   testImplementation project(':infra-web-netty-server')
 

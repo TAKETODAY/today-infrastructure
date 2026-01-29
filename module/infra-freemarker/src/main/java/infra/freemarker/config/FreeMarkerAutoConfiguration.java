@@ -34,11 +34,11 @@ import infra.context.properties.EnableConfigurationProperties;
 import infra.stereotype.Component;
 import infra.ui.freemarker.FreeMarkerConfigurationFactory;
 import infra.ui.freemarker.FreeMarkerConfigurationFactoryBean;
+import infra.web.config.WebMvcAutoConfiguration;
+import infra.web.config.WebMvcProperties;
 import infra.web.view.freemarker.FreeMarkerConfig;
 import infra.web.view.freemarker.FreeMarkerConfigurer;
 import infra.web.view.freemarker.FreeMarkerViewResolver;
-import infra.web.config.WebMvcAutoConfiguration;
-import infra.web.config.WebMvcProperties;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for FreeMarker.

@@ -42,7 +42,7 @@ dependencies {
   jacocoAggregation project(':infra-web-reactive')
   jacocoAggregation project(':infra-http-service')
 
-  jacocoAggregation project(':module:infra-app-freemarker')
+  jacocoAggregation project(':module:infra-freemarker')
   jacocoAggregation project(':module:infra-app-resttestclient')
   jacocoAggregation project(':module:infra-app-health')
   jacocoAggregation project(':module:infra-app-test')

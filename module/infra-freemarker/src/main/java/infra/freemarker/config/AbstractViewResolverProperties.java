@@ -91,7 +91,7 @@ public abstract class AbstractViewResolverProperties {
     return this.viewNames;
   }
 
-  public void setViewNames(String @Nullable [] viewNames) {
+  public void setViewNames(String @Nullable ... viewNames) {
     this.viewNames = viewNames;
   }
 

@@ -3,6 +3,7 @@ description = "Infra application freemarker integration"
 dependencies {
   api 'org.freemarker:freemarker'
 
+  optional(project(":infra-app"))
   optional project(":infra-webmvc")
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
@@ -12,9 +13,10 @@ dependencies {
   testImplementation project(':infra-test-support')
   testImplementation project(":infra-webmvc-mock")
   testImplementation project(":infra-web-server")
+  testImplementation project(':infra-test-support')
+  testImplementation project(":module:infra-app-test")
   testImplementation 'ch.qos.logback:logback-classic'
 
   testImplementation testFixtures(project(":infra-web-server"))
   testImplementation testFixtures(project(":infra-web-netty-server"))
-
 }
