@@ -1,7 +1,10 @@
 description = 'Infra simple persistence lib'
 
 dependencies {
+  api(project(":infra-tx"))
   api(project(":infra-jdbc"))
+
+  optional(project(":infra-context"))
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
   annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
@@ -20,6 +23,9 @@ dependencies {
   testImplementation("org.apache.derby:derbytools")
   testImplementation 'com.zaxxer:HikariCP'
 
+  testImplementation project(":module:infra-app-transaction")
+  testImplementation project(':infra-test-support')
+  testImplementation project(":module:infra-app-test")
 
   testRuntimeOnly("ch.qos.logback:logback-classic")
   testRuntimeOnly("com.mysql:mysql-connector-j")

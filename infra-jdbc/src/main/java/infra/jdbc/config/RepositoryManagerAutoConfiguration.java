@@ -26,9 +26,8 @@ import infra.transaction.PlatformTransactionManager;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2026/1/28 20:25
  */
-@DisableDIAutoConfiguration(
-        after = DataSourceAutoConfiguration.class,
-        afterName = "infra.transaction.config.TransactionAutoConfiguration")
+@DisableDIAutoConfiguration(after = {
+        DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class })
 @ConditionalOnSingleCandidate(DataSource.class)
 @EnableConfigurationProperties(RepositoryProperties.class)
 public final class RepositoryManagerAutoConfiguration {

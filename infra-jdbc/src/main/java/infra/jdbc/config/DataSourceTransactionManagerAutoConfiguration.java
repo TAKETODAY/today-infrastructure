@@ -22,7 +22,6 @@ import org.jspecify.annotations.Nullable;
 
 import javax.sql.DataSource;
 
-import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigureOrder;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
@@ -47,34 +46,29 @@ import infra.transaction.config.TransactionManagerCustomizers;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/31 11:51
  */
+@ConditionalOnClass(TransactionManager.class)
 @ConditionalOnSingleCandidate(DataSource.class)
 @AutoConfigureOrder(Ordered.LOWEST_PRECEDENCE)
 @DisableDIAutoConfiguration(after = DataSourceAutoConfiguration.class,
         afterName = "infra.transaction.config.TransactionManagerCustomizationAutoConfiguration",
         beforeName = "infra.transaction.config.TransactionAutoConfiguration")
-@ConditionalOnClass({ TransactionManager.class })
 public final class DataSourceTransactionManagerAutoConfiguration {
 
-  @Configuration(proxyBeanMethods = false)
-  static class JdbcTransactionManagerConfiguration {
-
-    @Component
-    @ConditionalOnMissingBean(TransactionManager.class)
-    static DataSourceTransactionManager transactionManager(Environment environment, DataSource dataSource,
-            @Nullable TransactionManagerCustomizers transactionManagerCustomizers) {
-      DataSourceTransactionManager transactionManager = createTransactionManager(environment, dataSource);
-      if (transactionManagerCustomizers != null) {
-        transactionManagerCustomizers.customize(transactionManager);
-      }
-      return transactionManager;
+  @Component
+  @ConditionalOnMissingBean(TransactionManager.class)
+  static DataSourceTransactionManager transactionManager(Environment environment, DataSource dataSource,
+          @Nullable TransactionManagerCustomizers transactionManagerCustomizers) {
+    DataSourceTransactionManager transactionManager = createTransactionManager(environment, dataSource);
+    if (transactionManagerCustomizers != null) {
+      transactionManagerCustomizers.customize(transactionManager);
     }
+    return transactionManager;
+  }
 
-    private static DataSourceTransactionManager createTransactionManager(Environment environment, DataSource dataSource) {
-      return environment.getFlag("dao.exceptiontranslation.enabled", true)
-              ? new JdbcTransactionManager(dataSource)
-              : new DataSourceTransactionManager(dataSource);
-    }
-
+  private static DataSourceTransactionManager createTransactionManager(Environment environment, DataSource dataSource) {
+    return environment.getFlag("dao.exceptiontranslation.enabled", true)
+            ? new JdbcTransactionManager(dataSource)
+            : new DataSourceTransactionManager(dataSource);
   }
 
 }

@@ -1,7 +1,1 @@
-infra.jdbc.config.DataSourceAutoConfiguration
-infra.jdbc.config.JdbcClientAutoConfiguration
-infra.jdbc.config.JdbcTemplateAutoConfiguration
-infra.jdbc.config.RepositoryManagerAutoConfiguration
-infra.jdbc.config.DataSourceInitializationAutoConfiguration
-infra.jdbc.config.DataSourceTransactionManagerAutoConfiguration
-infra.jdbc.config.health.DataSourceHealthContributorAutoConfiguration
+infra.persistence.config.EntityManagerAutoConfiguration

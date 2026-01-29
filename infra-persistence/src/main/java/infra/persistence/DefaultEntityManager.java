@@ -133,7 +133,7 @@ public class DefaultEntityManager implements EntityManager {
     this(repositoryManager, Platform.forClasspath());
   }
 
-  public DefaultEntityManager(RepositoryManager repositoryManager, Platform platform) {
+  public DefaultEntityManager(RepositoryManager repositoryManager, @Nullable Platform platform) {
     this.dataSource = repositoryManager.getDataSource();
     this.repositoryManager = repositoryManager;
     setPlatform(platform);
