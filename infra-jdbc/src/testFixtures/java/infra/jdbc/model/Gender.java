@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.persistence.model;
+package infra.jdbc.model;
 
 import infra.lang.Enumerable;
 

@@ -19,9 +19,8 @@ package infra.jdbc;
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.persistence.AbstractRepositoryManagerTests;
+import infra.jdbc.model.UserModel;
 import infra.persistence.DefaultEntityManager;
-import infra.persistence.model.UserModel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

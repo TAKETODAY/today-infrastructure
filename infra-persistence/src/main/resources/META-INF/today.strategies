@@ -1,0 +1,13 @@
+#
+# Failure Analyzers
+infra.app.diagnostics.FailureAnalyzer=\
+infra.jdbc.config.DataSourceBeanCreationFailureAnalyzer,\
+infra.jdbc.config.HikariDriverConfigurationFailureAnalyzer
+
+# Database Initializer Detectors
+infra.sql.init.dependency.DatabaseInitializerDetector=\
+infra.jdbc.init.DataSourceScriptDatabaseInitializerDetector
+
+# Depends On Database Initialization Detectors
+infra.sql.init.dependency.DependsOnDatabaseInitializationDetector=\
+infra.jdbc.init.InfraJdbcDependsOnDatabaseInitializationDetector

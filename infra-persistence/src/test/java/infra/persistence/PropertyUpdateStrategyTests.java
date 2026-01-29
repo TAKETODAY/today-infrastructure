@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 
-import infra.persistence.model.UserModel;
+import infra.jdbc.model.UserModel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

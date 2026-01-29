@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 import java.util.Set;
 
 import infra.beans.BeanMetadata;
-import infra.persistence.model.UserModel;
+import infra.jdbc.model.UserModel;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;

@@ -27,9 +27,7 @@ import java.util.Objects;
 
 import infra.beans.BeanMetadata;
 import infra.beans.BeanProperty;
-import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
-import infra.persistence.Column;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.MapCache;
 import infra.util.StringUtils;
@@ -146,7 +144,7 @@ public class JdbcBeanMetadata {
   @Nullable
   static String getAnnotatedPropertyName(AnnotatedElement propertyElement) {
     // just alias name, cannot override its getter,setter
-    MergedAnnotation<Column> annotation = MergedAnnotations.from(propertyElement).get(Column.class);
+    var annotation = MergedAnnotations.from(propertyElement).get("infra.persistence.Column");
     if (annotation.isPresent()) {
       String name = annotation.getStringValue();
       if (StringUtils.isNotEmpty(name)) {

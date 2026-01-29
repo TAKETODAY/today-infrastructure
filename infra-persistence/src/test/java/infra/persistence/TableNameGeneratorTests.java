@@ -18,27 +18,26 @@ package infra.persistence;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
-
-import infra.persistence.model.UserModel;
-import infra.persistence.sql.OrderByClause;
+import infra.jdbc.model.UserModel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2024/2/16 22:47
+ * @since 4.0 2022/8/16 22:56
  */
-class NoConditionsOrderByQueryTests {
-  DefaultEntityMetadataFactory factory = new DefaultEntityMetadataFactory();
+class TableNameGeneratorTests {
 
   @Test
-  void render() {
-    EntityMetadata entityMetadata = factory.createEntityMetadata(UserModel.class);
-    var handler = new NoConditionsOrderByQuery(OrderByClause.forMap(Map.of("name", Order.ASC, "age", Order.DESC)));
+  void forAnnotation() {
+    TableNameGenerator generator = TableNameGenerator.forTableAnnotation();
+    assertThat(generator.generateTableName(UserModel.class)).isEqualTo("t_user");
+    assertThat(generator.generateTableName(UpdateUserName.class)).isEqualTo("t_user");
+  }
 
-    StatementSequence select = handler.render(entityMetadata);
-    assertThat(select).extracting("orderByClause").isNotNull().asString().contains("`name` ASC").contains("`age` DESC");
+  @EntityRef(UserModel.class)
+  static class UpdateUserName {
+
   }
 
 }

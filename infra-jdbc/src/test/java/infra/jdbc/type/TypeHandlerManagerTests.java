@@ -26,7 +26,7 @@ import java.sql.SQLException;
 
 import infra.beans.BeanMetadata;
 import infra.beans.BeanProperty;
-import infra.persistence.model.UserModel;
+import infra.jdbc.model.UserModel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

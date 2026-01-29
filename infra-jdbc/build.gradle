@@ -1,3 +1,5 @@
+apply plugin: "java-test-fixtures"
+
 description = 'JDBC infrastructure'
 
 dependencies {
@@ -58,6 +60,13 @@ dependencies {
   testImplementation 'com.microsoft.sqlserver:mssql-jdbc'
   testImplementation 'org.mariadb.jdbc:mariadb-java-client'
   testImplementation("org.apache.tomcat:tomcat-jdbc:11.0.15")
+
+  testImplementation project(":infra-persistence")
+
+  testFixturesImplementation project(":infra-test")
+  testFixturesImplementation project(":infra-persistence")
+  testFixturesImplementation("org.junit.jupiter:junit-jupiter-api")
+  testFixturesImplementation("org.junit.jupiter:junit-jupiter-params")
 
   testRuntimeOnly 'org.apache.derby:derby'
   testRuntimeOnly 'org.apache.derby:derbytools'

@@ -18,8 +18,6 @@ package infra.jdbc;
 
 import java.util.List;
 
-import infra.persistence.AbstractRepositoryManagerTests;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.persistence;
+package infra.jdbc;
 
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -26,10 +26,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.stream.Stream;
-
-import infra.jdbc.JdbcConnection;
-import infra.jdbc.RepositoryManager;
-import infra.persistence.platform.MySQLPlatform;
 
 import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -44,7 +40,7 @@ public abstract class AbstractRepositoryManagerTests {
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.METHOD)
   @ParameterizedTest(name = "[{index}] {0}")
-  @MethodSource("infra.persistence.AbstractRepositoryManagerTests#data")
+  @MethodSource("infra.jdbc.AbstractRepositoryManagerTests#data")
   public @interface ParameterizedRepositoryManagerTest {
 
   }
@@ -84,15 +80,6 @@ public abstract class AbstractRepositoryManagerTests {
       this.url = url;
       this.user = user;
       this.pass = pass;
-    }
-  }
-
-  static class HyperSQLPlatform extends MySQLPlatform {
-
-    @Override
-    public void selectCountFrom(StringBuilder countSql, String tableName) {
-      countSql.append("SELECT COUNT(*) FROM ")
-              .append(tableName);
     }
   }
 

@@ -19,7 +19,7 @@ package infra.persistence;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
-import infra.persistence.model.UserModel;
+import infra.jdbc.model.UserModel;
 import infra.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

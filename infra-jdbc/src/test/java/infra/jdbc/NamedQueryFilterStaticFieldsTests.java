@@ -20,7 +20,7 @@ import com.google.common.primitives.Longs;
 
 import java.util.Comparator;
 
-import infra.persistence.AbstractRepositoryManagerTests;
+import infra.jdbc.AbstractRepositoryManagerTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

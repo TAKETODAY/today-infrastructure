@@ -52,9 +52,10 @@ import infra.jdbc.type.SmartTypeHandler;
 import infra.jdbc.type.TypeHandler;
 import infra.jdbc.type.WrappedTypeHandler;
 import infra.lang.Descriptive;
-import infra.persistence.model.Gender;
+import infra.jdbc.model.Gender;
 import infra.persistence.model.NoIdModel;
-import infra.persistence.model.UserModel;
+import infra.jdbc.model.UserModel;
+import infra.persistence.platform.MySQLPlatform;
 import infra.persistence.platform.Platform;
 import infra.persistence.sql.Restriction;
 import infra.test.util.ReflectionTestUtils;
@@ -75,7 +76,7 @@ import static org.mockito.Mockito.when;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/8/16 22:48
  */
-class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
+class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTests {
 
   @Override
   protected void prepareTestsData(DbType dbType, RepositoryManager repositoryManager) {
@@ -1475,6 +1476,16 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     }
 
   }
+
+  static class HyperSQLPlatform extends MySQLPlatform {
+
+    @Override
+    public void selectCountFrom(StringBuilder countSql, String tableName) {
+      countSql.append("SELECT COUNT(*) FROM ")
+              .append(tableName);
+    }
+  }
+
 }
 
 

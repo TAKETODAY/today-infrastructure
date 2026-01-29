@@ -1,0 +1,3 @@
+infra.aot.hint.RuntimeHintsRegistrar=\
+infra.jdbc.datasource.embedded.EmbeddedDatabaseFactoryRuntimeHints,\
+infra.jdbc.config.DataSourceBuilderRuntimeHints

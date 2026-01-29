@@ -26,7 +26,7 @@ import infra.jdbc.Row;
 import infra.jdbc.Table;
 import infra.jdbc.issues.pojos.Issue1Pojo;
 import infra.jdbc.issues.pojos.KeyValueEntity;
-import infra.persistence.AbstractRepositoryManagerTests;
+import infra.jdbc.AbstractRepositoryManagerTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;

@@ -48,7 +48,6 @@ import infra.jdbc.type.BytesInputStreamTypeHandler;
 import infra.jdbc.type.Enumerated;
 import infra.jdbc.type.TypeHandlerManager;
 import infra.jdbc.utils.IOUtils;
-import infra.persistence.AbstractRepositoryManagerTests;
 import infra.util.StreamUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

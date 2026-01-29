@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.persistence.model;
+package infra.jdbc.model;
 
 import java.util.Objects;
 
