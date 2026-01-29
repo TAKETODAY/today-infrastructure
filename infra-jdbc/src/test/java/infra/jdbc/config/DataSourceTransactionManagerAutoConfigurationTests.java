@@ -30,6 +30,7 @@ import infra.jdbc.datasource.DataSourceTransactionManager;
 import infra.jdbc.support.JdbcTransactionManager;
 import infra.transaction.TransactionManager;
 import infra.transaction.config.TransactionAutoConfiguration;
+import infra.transaction.config.TransactionManagerCustomizationAutoConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -42,6 +43,7 @@ class DataSourceTransactionManagerAutoConfigurationTests {
 
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
           .withConfiguration(AutoConfigurations.of(TransactionAutoConfiguration.class,
+                  TransactionManagerCustomizationAutoConfiguration.class,
                   DataSourceTransactionManagerAutoConfiguration.class))
           .withPropertyValues("datasource.url:jdbc:hsqldb:mem:test-" + UUID.randomUUID());
 

@@ -53,7 +53,7 @@ import infra.util.StringUtils;
  * @since 4.0 2022/2/23 17:12
  */
 @DisableDIAutoConfiguration(before = DataSourceInitializationAutoConfiguration.class)
-@ConditionalOnClass({ DataSource.class, EmbeddedDatabaseType.class })
+@ConditionalOnClass({ DataSource.class })
 @EnableConfigurationProperties(DataSourceProperties.class)
 @Import(DataSourcePoolMetadataProvidersConfiguration.class)
 public final class DataSourceAutoConfiguration {

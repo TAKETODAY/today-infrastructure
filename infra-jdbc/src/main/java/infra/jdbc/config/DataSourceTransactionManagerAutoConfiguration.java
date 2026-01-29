@@ -31,7 +31,6 @@ import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.condition.ConditionalOnSingleCandidate;
 import infra.core.Ordered;
 import infra.core.env.Environment;
-import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.datasource.DataSourceTransactionManager;
 import infra.jdbc.support.JdbcTransactionManager;
 import infra.stereotype.Component;
@@ -48,16 +47,15 @@ import infra.transaction.config.TransactionManagerCustomizers;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/31 11:51
  */
+@ConditionalOnSingleCandidate(DataSource.class)
 @AutoConfigureOrder(Ordered.LOWEST_PRECEDENCE)
-@DisableDIAutoConfiguration(
-        after = DataSourceAutoConfiguration.class,
+@DisableDIAutoConfiguration(after = DataSourceAutoConfiguration.class,
         afterName = "infra.transaction.config.TransactionManagerCustomizationAutoConfiguration",
         beforeName = "infra.transaction.config.TransactionAutoConfiguration")
-@ConditionalOnClass({ JdbcTemplate.class, TransactionManager.class })
+@ConditionalOnClass({ TransactionManager.class })
 public final class DataSourceTransactionManagerAutoConfiguration {
 
   @Configuration(proxyBeanMethods = false)
-  @ConditionalOnSingleCandidate(DataSource.class)
   static class JdbcTransactionManagerConfiguration {
 
     @Component
