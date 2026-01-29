@@ -681,7 +681,7 @@ public interface ServerResponse {
     /**
      * Completes the stream with the given error.
      *
-     * <p>The throwable is dispatched back into Spring MVC, and passed to
+     * <p>The throwable is dispatched back into Infra MVC, and passed to
      * its exception handling mechanism. Since the response has
      * been committed by this point, the response status can not change.
      *

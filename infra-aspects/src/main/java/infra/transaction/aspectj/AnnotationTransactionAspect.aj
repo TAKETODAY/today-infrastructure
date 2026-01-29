@@ -67,7 +67,7 @@ public aspect AnnotationTransactionAspect extends AbstractTransactionAspect {
 
   /**
    * Definition of pointcut from super aspect - matched join points
-   * will have Spring transaction management applied.
+   * will have Infra transaction management applied.
    */
   protected pointcut transactionalMethodExecution(Object txObject):
           (executionOfAnyPublicMethodInAtTransactionalType() || executionOfTransactionalMethod() ) && this(txObject);

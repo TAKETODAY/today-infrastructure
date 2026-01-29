@@ -104,7 +104,7 @@ public class ReactorClientHttpRequestFactory implements ClientHttpRequestFactory
    * global resources held in {@link reactor.netty.http.HttpResources}, or by
    * using a specific, shared set of resources through a
    * {@link ReactorResourceFactory} bean. The latter can ensure that resources
-   * are shut down when the Spring ApplicationContext is stopped/closed and
+   * are shut down when the Infra ApplicationContext is stopped/closed and
    * restarted again (e.g. JVM checkpoint restore).
    *
    * @param resourceFactory the resource factory to get resources from

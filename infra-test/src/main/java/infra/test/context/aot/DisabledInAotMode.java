@@ -72,7 +72,7 @@ public @interface DisabledInAotMode {
    * reason. For example,
    * {@code @DisabledInAotMode("@ContextHierarchy is not supported")} will result
    * in a combined reason like the following:
-   * {@code "Disabled in Spring AOT mode ==> @ContextHierarchy is not supported"}.
+   * {@code "Disabled in Infra AOT mode ==> @ContextHierarchy is not supported"}.
    *
    * @since 5.0
    */

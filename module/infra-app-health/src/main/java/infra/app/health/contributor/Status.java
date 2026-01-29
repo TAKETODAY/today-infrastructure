@@ -31,7 +31,7 @@ import infra.util.ObjectUtils;
  * Status provides convenient constants for commonly used states like {@link #UP},
  * {@link #DOWN} or {@link #OUT_OF_SERVICE}.
  * <p>
- * Custom states can also be created and used throughout the Spring Boot Health subsystem.
+ * Custom states can also be created and used throughout the Infra Health subsystem.
  *
  * @author Christian Dupuis
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>

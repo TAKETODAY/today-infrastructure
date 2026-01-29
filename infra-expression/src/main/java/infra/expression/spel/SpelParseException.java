@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import infra.expression.ParseException;
 
 /**
- * Root exception for Spring EL related exceptions. Rather than holding a hard coded
+ * Root exception for Infra EL related exceptions. Rather than holding a hard coded
  * string indicating the problem, it records a message key and the inserts for the
  * message. See {@link SpelMessage} for the list of all possible messages that can occur.
  *

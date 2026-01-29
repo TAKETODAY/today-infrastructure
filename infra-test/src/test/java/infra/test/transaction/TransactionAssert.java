@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Collection of assertions for tests involving transactions. Intended for
- * internal use within the Spring testing suite.
+ * internal use within the Infra testing suite.
  *
  * @author Sam Brannen
  * @author Phillip Webb

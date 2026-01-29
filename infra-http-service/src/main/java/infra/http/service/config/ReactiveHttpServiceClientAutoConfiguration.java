@@ -19,31 +19,31 @@
 package infra.http.service.config;
 
 import infra.beans.factory.ObjectProvider;
-import infra.context.annotation.config.AutoConfiguration;
+import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.condition.ConditionalOnBean;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.io.ResourceLoader;
 import infra.core.ssl.SslBundles;
 import infra.http.client.HttpClientSettings;
-import infra.http.reactive.client.config.ReactiveHttpClientAutoConfiguration;
 import infra.http.reactive.client.ClientHttpConnectorBuilder;
+import infra.http.reactive.client.config.ReactiveHttpClientAutoConfiguration;
 import infra.http.service.registry.HttpServiceProxyRegistry;
 import infra.http.service.support.WebClientAdapter;
 import infra.stereotype.Component;
+import infra.web.reactive.client.WebClient;
 import infra.web.reactive.client.WebClientCustomizer;
 import infra.web.reactive.client.config.WebClientAutoConfiguration;
-import infra.web.reactive.client.WebClient;
 
 /**
- * AutoConfiguration for Spring reactive HTTP Service Clients backed by {@link WebClient}.
+ * AutoConfiguration for Infra reactive HTTP Service Clients backed by {@link WebClient}.
  *
  * @author Olga Maciaszek-Sharma
  * @author Rossen Stoyanchev
  * @author Phillip Webb
  * @since 5.0
  */
-@AutoConfiguration(after = { ReactiveHttpClientAutoConfiguration.class, WebClientAutoConfiguration.class })
+@DisableDIAutoConfiguration(after = { ReactiveHttpClientAutoConfiguration.class, WebClientAutoConfiguration.class })
 @ConditionalOnClass(WebClientAdapter.class)
 @ConditionalOnBean(HttpServiceProxyRegistry.class)
 @EnableConfigurationProperties(HttpServiceClientProperties.class)

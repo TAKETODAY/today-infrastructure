@@ -548,7 +548,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
       PreInstantiation preInstantiation = this.preInstantiationThread.get();
       if (preInstantiation != null) {
-        // A Spring-managed bootstrap thread:
+        // A Infra-managed bootstrap thread:
         // MAIN is allowed to lock (true) or even forced to lock (null),
         // BACKGROUND is never allowed to lock (false).
         return switch (preInstantiation) {
@@ -557,7 +557,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         };
       }
 
-      // Not a Spring-managed bootstrap thread...
+      // Not a Infra-managed bootstrap thread...
       if (Boolean.FALSE.equals(this.strictLocking)) {
         // Explicitly configured to use lenient locking wherever possible.
         return true;

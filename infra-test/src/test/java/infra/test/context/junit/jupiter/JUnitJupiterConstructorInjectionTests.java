@@ -60,22 +60,22 @@ class JUnitJupiterConstructorInjectionTests {
 
   @Test
   void applicationContextInjected() {
-    assertThat(applicationContext).as("ApplicationContext should have been injected by Spring").isNotNull();
+    assertThat(applicationContext).as("ApplicationContext should have been injected by Infra").isNotNull();
     assertThat(applicationContext.getBean("dilbert", Person.class)).isEqualTo(this.dilbert);
   }
 
   @Test
   void beansInjected() {
-    assertThat(this.dilbert).as("Dilbert should have been @Autowired by Spring").isNotNull();
+    assertThat(this.dilbert).as("Dilbert should have been @Autowired by Infra").isNotNull();
     assertThat(this.dilbert.getName()).as("Person's name").isEqualTo("Dilbert");
 
-    assertThat(this.dog).as("Dogbert should have been @Autowired by Spring").isNotNull();
+    assertThat(this.dog).as("Dogbert should have been @Autowired by Infra").isNotNull();
     assertThat(this.dog.getName()).as("Dog's name").isEqualTo("Dogbert");
   }
 
   @Test
   void propertyPlaceholderInjected() {
-    assertThat(this.enigma).as("Enigma should have been injected via @Value by Spring").isNotNull();
+    assertThat(this.enigma).as("Enigma should have been injected via @Value by Infra").isNotNull();
     assertThat(this.enigma).as("enigma").isEqualTo(42);
   }
 

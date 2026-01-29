@@ -104,7 +104,7 @@ public final class AotServices<T> implements Iterable<T> {
    * Create a new {@link Loader} that will obtain AOT services from the given
    * {@link TodayStrategies}.
    *
-   * @param strategies the spring factories loader
+   * @param strategies the strategies loader
    * @return a new {@link Loader} instance
    */
   public static Loader factories(TodayStrategies strategies) {
@@ -130,7 +130,7 @@ public final class AotServices<T> implements Iterable<T> {
    * Create a new {@link Loader} that will obtain AOT services from the given
    * {@link TodayStrategies} and {@link BeanFactory}.
    *
-   * @param strategies the spring factories loader
+   * @param strategies the strategies loader
    * @param beanFactory the bean factory
    * @return a new {@link Loader} instance
    */

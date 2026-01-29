@@ -51,7 +51,7 @@ public abstract aspect AbstractCacheAspect extends CacheAspectSupport implements
 
   /**
    * Construct object using the given caching metadata retrieval strategy.
-   * @param cos {@link CacheOperationSource} implementation, retrieving Spring cache
+   * @param cos {@link CacheOperationSource} implementation, retrieving Infra cache
    * metadata for each joinpoint.
    */
   protected AbstractCacheAspect(CacheOperationSource... cos) {

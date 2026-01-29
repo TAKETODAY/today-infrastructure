@@ -71,7 +71,7 @@ public class CachingMetadataReaderFactory extends AbstractMetadataReaderFactory 
    * Create a new CachingMetadataReaderFactory for the given {@link ResourceLoader},
    * using a shared resource cache if supported or a local resource cache otherwise.
    *
-   * @param resourceLoader the Spring ResourceLoader to use
+   * @param resourceLoader the Infra ResourceLoader to use
    * (also determines the ClassLoader to use)
    * @see DefaultResourceLoader#getResourceCache
    */

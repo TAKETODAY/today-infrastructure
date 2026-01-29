@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 import infra.util.StringUtils;
 
 /**
- * A {@link DependencyVersion} for a release train such as Spring Data.
+ * A {@link DependencyVersion} for a release train.
  *
  * @author Andy Wilkinson
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

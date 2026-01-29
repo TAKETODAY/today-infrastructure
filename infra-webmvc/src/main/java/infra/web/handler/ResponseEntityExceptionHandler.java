@@ -54,7 +54,7 @@ import infra.web.multipart.MultipartException;
 import infra.web.util.WebUtils;
 
 /**
- * A class with an {@code @ExceptionHandler} method that handles all Spring MVC
+ * A class with an {@code @ExceptionHandler} method that handles all Infra MVC
  * raised exceptions by returning a {@link ResponseEntity} with RFC 9457
  * formatted error details in the body.
  *

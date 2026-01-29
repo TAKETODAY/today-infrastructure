@@ -114,8 +114,8 @@ public class ReactorClientHttpConnector implements ClientHttpConnector, SmartLif
    * fixed, shared resources are favored for event loop concurrency. However,
    * consider declaring a {@link ReactorResourceFactory} bean with
    * {@code globalResources=true} in order to ensure the Reactor Netty global
-   * resources are shut down when the Spring ApplicationContext is stopped or closed
-   * and restarted properly when the Spring ApplicationContext is
+   * resources are shut down when the Infra ApplicationContext is stopped or closed
+   * and restarted properly when the Infra ApplicationContext is
    * (with JVM Checkpoint Restore for example).
    *
    * @param resourceFactory the resource factory to obtain the resources from

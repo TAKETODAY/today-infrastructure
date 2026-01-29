@@ -53,7 +53,7 @@ public abstract aspect AbstractTransactionAspect extends TransactionAspectSuppor
 
   /**
    * Construct the aspect using the given transaction metadata retrieval strategy.
-   * @param tas TransactionAttributeSource implementation, retrieving Spring
+   * @param tas TransactionAttributeSource implementation, retrieving Infra
    * transaction metadata for each joinpoint. Implement the subclass to pass in
    * {@code null} if it is intended to be configured through Setter Injection.
    */

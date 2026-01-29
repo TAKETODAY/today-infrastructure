@@ -56,7 +56,7 @@ import infra.lang.Assert;
  * }
  * </pre>
  *
- * <p>See also the Spring reference manual for a fuller discussion of the
+ * <p>See also the Infra reference manual for a fuller discussion of the
  * {@code Validator} interface and its role in an enterprise application.
  *
  * @author Rod Johnson

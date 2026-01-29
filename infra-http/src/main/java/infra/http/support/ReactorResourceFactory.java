@@ -37,10 +37,10 @@ import reactor.netty.resources.LoopResources;
 /**
  * Factory to manage Reactor Netty resources, i.e. {@link LoopResources} for
  * event loop threads and {@link ConnectionProvider} for the connection pool,
- * within the lifecycle of a Spring {@code ApplicationContext}.
+ * within the lifecycle of a Infra {@code ApplicationContext}.
  *
  * <p>This factory implements {@link SmartLifecycle} and is expected typically
- * to be declared as a Spring-managed bean.
+ * to be declared as a Infra-managed bean.
  *
  * <p>Note that after a {@link SmartLifecycle} stop/restart, new instances of
  * the configured {@link LoopResources} and {@link ConnectionProvider} are

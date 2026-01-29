@@ -124,7 +124,7 @@ public final class ReactorHttpClientBuilder {
   }
 
   HttpClient applyDefaults(HttpClient httpClient) {
-    // Aligns with Spring Framework defaults
+    // Aligns with Infra Framework defaults
     return httpClient.compress(true);
   }
 

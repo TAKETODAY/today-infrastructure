@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Interface for integration tests that demonstrate support for interface default
- * methods and Java generics in JUnit Jupiter test classes when used with the Spring
+ * methods and Java generics in JUnit Jupiter test classes when used with the Infra
  * TestContext Framework and the {@link InfraExtension}.
  *
  * @author Sam Brannen
@@ -48,7 +48,7 @@ interface GenericComicCharactersInterfaceDefaultMethodsTests<C extends Character
 
   @Test
   default void autowiredParameterWithGenericBean(@Autowired C character) {
-    assertThat(character).as("Character should have been @Autowired by Spring").isNotNull();
+    assertThat(character).as("Character should have been @Autowired by Infra").isNotNull();
     assertThat(character).as("character's name").extracting(Character::getName).isEqualTo(getExpectedName());
   }
 

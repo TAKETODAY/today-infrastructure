@@ -103,7 +103,7 @@ public aspect AnnotationCacheAspect extends AbstractCacheAspect {
           execution(@Caching * *(..));
 
   /**
-   * Definition of pointcut from super aspect - matched join points will have Spring
+   * Definition of pointcut from super aspect - matched join points will have Infra
    * cache management applied.
    */
   protected pointcut cacheMethodExecution(Object cachedObject):

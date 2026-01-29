@@ -7021,7 +7021,7 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
     }
   }
 
-  // These test classes simulate a pattern of public/private classes seen in Spring Security
+  // These test classes simulate a pattern of public/private classes seen in Infra Security
 
   // final class HttpServlet3RequestFactory implements HttpServletRequestFactory
   static class HttpServlet3RequestFactory {

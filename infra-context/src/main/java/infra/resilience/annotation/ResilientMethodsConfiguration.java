@@ -30,7 +30,7 @@ import infra.core.annotation.AnnotationAttributes;
 import infra.core.type.AnnotationMetadata;
 
 /**
- * {@code @Configuration} class that registers the Spring infrastructure beans necessary
+ * {@code @Configuration} class that registers the Infra infrastructure beans necessary
  * to enable proxy-based method invocations with retry and concurrency limit behavior.
  *
  * @author Juergen Hoeller

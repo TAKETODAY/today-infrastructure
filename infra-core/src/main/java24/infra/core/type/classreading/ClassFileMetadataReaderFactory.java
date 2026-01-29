@@ -45,7 +45,7 @@ class ClassFileMetadataReaderFactory extends AbstractMetadataReaderFactory {
   /**
    * Create a new ClassFileMetadataReaderFactory for the given resource loader.
    *
-   * @param resourceLoader the Spring ResourceLoader to use
+   * @param resourceLoader the Infra ResourceLoader to use
    * (also determines the ClassLoader to use)
    */
   public ClassFileMetadataReaderFactory(@Nullable ResourceLoader resourceLoader) {

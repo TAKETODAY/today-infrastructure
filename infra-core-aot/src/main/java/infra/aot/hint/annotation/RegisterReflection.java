@@ -69,7 +69,7 @@ import infra.aot.hint.MemberCategory;
  * <p>If the class is not available, {@link #classNames()} allows to specify the
  * fully qualified name, rather than the {@link Class} reference.
  *
- * <p>The annotated element can also be any test class that uses the <em>Spring
+ * <p>The annotated element can also be any test class that uses the <em>Infra
  * TestContext Framework</em> to load an {@code ApplicationContext}.
  *
  * @author Stephane Nicoll

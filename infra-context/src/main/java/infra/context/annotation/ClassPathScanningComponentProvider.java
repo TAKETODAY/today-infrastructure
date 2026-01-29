@@ -56,7 +56,7 @@ public class ClassPathScanningComponentProvider implements ResourceLoaderAware {
   public static final String DEFAULT_RESOURCE_PATTERN = "**/*.class";
 
   /**
-   * System property that instructs Spring to ignore class format exceptions during
+   * System property that instructs Infra to ignore class format exceptions during
    * classpath scanning, in particular for unsupported class file versions.
    * By default, such a class format mismatch leads to a classpath scanning failure.
    *

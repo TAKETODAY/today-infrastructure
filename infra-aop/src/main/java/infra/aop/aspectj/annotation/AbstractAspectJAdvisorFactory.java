@@ -67,8 +67,8 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
   private static final String AJC_MAGIC = "ajc$";
 
   /**
-   * System property that instructs Spring to ignore ajc-compiled aspects
-   * for Spring AOP proxying, restoring traditional Spring behavior for
+   * System property that instructs Infra to ignore ajc-compiled aspects
+   * for Infra AOP proxying, restoring traditional Infra behavior for
    * scenarios where both weaving and AspectJ auto-proxying are enabled.
    * <p>The default is "false". Consider switching this to "true" if you
    * encounter double execution of your aspects in a given build setup.

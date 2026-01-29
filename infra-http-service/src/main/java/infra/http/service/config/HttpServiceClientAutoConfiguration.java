@@ -36,7 +36,7 @@ import infra.web.client.RestClientCustomizer;
 import infra.web.client.config.RestClientAutoConfiguration;
 
 /**
- * AutoConfiguration for Spring HTTP Service clients backed by {@link RestClient}.
+ * AutoConfiguration for Infra HTTP Service clients backed by {@link RestClient}.
  *
  * @author Olga Maciaszek-Sharma
  * @author Rossen Stoyanchev

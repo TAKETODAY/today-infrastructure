@@ -139,7 +139,7 @@ public abstract class AbstractRunMojo extends AbstractDependencyFilterMojo {
   private String commandlineArguments;
 
   /**
-   * The spring profiles to activate. Convenience shortcut of specifying the
+   * The infra profiles to activate. Convenience shortcut of specifying the
    * 'infra.profiles.active' argument. On command line use commas to separate multiple
    * profiles.
    */

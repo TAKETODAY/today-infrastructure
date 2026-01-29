@@ -56,14 +56,14 @@ class ComposedInfraExtensionTests {
   @Test
   @DisplayName("ApplicationContext injected into method")
   void applicationContextInjected(ApplicationContext applicationContext) {
-    assertThat(applicationContext).as("ApplicationContext should have been injected into method by Spring").isNotNull();
+    assertThat(applicationContext).as("ApplicationContext should have been injected into method by Infra").isNotNull();
     assertThat(applicationContext.getBean("dilbert", Person.class)).isEqualTo(dilbert);
   }
 
   @Test
   @DisplayName("@Beans injected into fields")
   void infraBeansInjected() {
-    assertThat(dilbert).as("Person should have been @Autowired by Spring").isNotNull();
+    assertThat(dilbert).as("Person should have been @Autowired by Infra").isNotNull();
     assertThat(dilbert.getName()).as("Person's name").isEqualTo("Dilbert");
     assertThat(people).as("Number of Person objects in context").hasSize(2);
   }

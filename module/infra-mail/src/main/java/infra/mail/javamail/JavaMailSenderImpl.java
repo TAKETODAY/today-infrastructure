@@ -289,7 +289,7 @@ public class JavaMailSenderImpl implements JavaMailSender {
    * {@link ConfigurableMimeFileTypeMap} here. If not explicitly specified,
    * a default {@code ConfigurableMimeFileTypeMap} will be used, containing
    * an extended set of MIME type mappings (as defined by the
-   * {@code mime.types} file contained in the Spring jar).
+   * {@code mime.types} file contained in the Infra jar).
    *
    * @see MimeMessageHelper#setFileTypeMap
    */

@@ -24,7 +24,7 @@ import infra.expression.Expression;
 import infra.expression.spel.standard.SpelExpression;
 
 /**
- * Utilities for working with Spring Expressions.
+ * Utilities for working with Infra Expressions.
  *
  * @author Andy Clement
  */
