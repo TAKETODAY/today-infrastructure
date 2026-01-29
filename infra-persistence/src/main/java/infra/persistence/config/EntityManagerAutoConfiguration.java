@@ -25,6 +25,10 @@ import infra.persistence.platform.Platform;
 import infra.stereotype.Component;
 
 /**
+ * Auto-configuration class for setting up the {@link EntityManager}.
+ * This configuration provides default beans for {@link EntityManager},
+ * {@link SqlStatementLogger}, and {@link EntityMetadataFactory} when not already present.
+ *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2026/1/29 14:22
  */
