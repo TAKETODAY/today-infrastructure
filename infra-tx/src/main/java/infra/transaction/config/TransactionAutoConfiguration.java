@@ -19,7 +19,6 @@
 package infra.transaction.config;
 
 import infra.app.LazyInitializationExcludeFilter;
-import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
@@ -34,10 +33,10 @@ import infra.transaction.ReactiveTransactionManager;
 import infra.transaction.TransactionManager;
 import infra.transaction.annotation.AbstractTransactionManagementConfiguration;
 import infra.transaction.annotation.EnableTransactionManagement;
-import infra.transaction.aspectj.AbstractTransactionAspect;
 import infra.transaction.reactive.TransactionalOperator;
 import infra.transaction.support.TransactionOperations;
 import infra.transaction.support.TransactionTemplate;
+import infra.util.ClassUtils;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for Infra transaction.
@@ -91,15 +90,11 @@ public final class TransactionAutoConfiguration {
 
   }
 
-  @Configuration(proxyBeanMethods = false)
-  @ConditionalOnBean(AbstractTransactionAspect.class)
-  static class AspectJTransactionManagementConfiguration {
-
-    @Bean
-    static LazyInitializationExcludeFilter eagerTransactionAspect() {
-      return LazyInitializationExcludeFilter.forBeanTypes(AbstractTransactionAspect.class);
-    }
-
+  @Component
+  @ConditionalOnBean(type = "infra.transaction.aspectj.AbstractTransactionAspect")
+  static LazyInitializationExcludeFilter eagerTransactionAspect() {
+    return LazyInitializationExcludeFilter.forBeanTypes(ClassUtils.resolveClassName(
+            "infra.transaction.aspectj.AbstractTransactionAspect", ClassUtils.getDefaultClassLoader()));
   }
 
 }

@@ -23,7 +23,6 @@ dependencies {
   testImplementation("org.apache.derby:derbytools")
   testImplementation 'com.zaxxer:HikariCP'
 
-  testImplementation project(":module:infra-app-transaction")
   testImplementation project(':infra-test-support')
   testImplementation project(":module:infra-app-test")
 

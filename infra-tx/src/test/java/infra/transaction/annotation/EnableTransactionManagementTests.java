@@ -46,6 +46,7 @@ import infra.context.annotation.Primary;
 import infra.context.support.PropertySourcesPlaceholderConfigurer;
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.stereotype.Service;
+import infra.test.classpath.ClassPathExclusions;
 import infra.transaction.PlatformTransactionManager;
 import infra.transaction.TransactionManager;
 import infra.transaction.config.TransactionManagementConfigUtils;
@@ -58,7 +59,6 @@ import infra.util.ClassUtils;
 import static infra.transaction.annotation.RollbackOn.ALL_EXCEPTIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 
 /**
  * Tests demonstrating use of @EnableTransactionManagement @Configuration classes.
@@ -235,6 +235,7 @@ class EnableTransactionManagementTests {
    * get loaded -- or in this case, attempted to be loaded at which point the test fails.
    */
   @Test
+  @ClassPathExclusions("infra-aspects*.jar")
   void proxyTypeAspectJCausesRegistrationOfAnnotationTransactionAspect() {
     // should throw CNFE when trying to load AnnotationTransactionAspect.
     // Do you actually have infra.aspects on the classpath?

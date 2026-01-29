@@ -26,6 +26,8 @@ import java.util.UUID;
 import javax.sql.DataSource;
 
 import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.context.annotation.AdviceMode;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
@@ -161,6 +163,17 @@ class TransactionAutoConfigurationTests {
               Assertions.assertThat(context).doesNotHaveBean(AnotherServiceImpl.class);
               Assertions.assertThat(context).doesNotHaveBean(TransactionalServiceImpl.class);
             });
+  }
+
+  @Test
+  void proxyTypeAspectJCausesRegistrationOfAnnotationTransactionAspect() {
+    new AnnotationConfigApplicationContext(EnableAspectjTxConfig.class,
+            TransactionAutoConfiguration.class);
+  }
+
+  @Configuration
+  @EnableTransactionManagement(mode = AdviceMode.ASPECTJ)
+  static class EnableAspectjTxConfig {
   }
 
   @Configuration
