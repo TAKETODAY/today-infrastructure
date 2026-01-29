@@ -36,7 +36,7 @@ import infra.util.ExceptionUtils;
  * use of any transaction implementation supported by Infra.
  *
  * <p><b>NB:</b> If a method implements an interface that is itself
- * transactionally annotated, the relevant Spring transaction attribute
+ * transactionally annotated, the relevant Infra transaction attribute
  * will <i>not</i> be resolved. This behavior will vary from that of Infra AOP
  * if proxying an interface (but not when proxying a class). We recommend that
  * transaction annotations should be added to classes, rather than business
