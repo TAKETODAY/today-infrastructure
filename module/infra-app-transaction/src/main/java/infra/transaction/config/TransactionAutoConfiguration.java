@@ -21,7 +21,6 @@ package infra.transaction.config;
 import infra.app.LazyInitializationExcludeFilter;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnBean;
@@ -29,7 +28,6 @@ import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.condition.ConditionalOnProperty;
 import infra.context.condition.ConditionalOnSingleCandidate;
-import infra.context.properties.EnableConfigurationProperties;
 import infra.stereotype.Component;
 import infra.transaction.PlatformTransactionManager;
 import infra.transaction.ReactiveTransactionManager;
@@ -48,10 +46,8 @@ import infra.transaction.support.TransactionTemplate;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@Lazy
 @DisableDIAutoConfiguration
 @ConditionalOnClass(PlatformTransactionManager.class)
-@EnableConfigurationProperties(TransactionProperties.class)
 public final class TransactionAutoConfiguration {
 
   @Component
