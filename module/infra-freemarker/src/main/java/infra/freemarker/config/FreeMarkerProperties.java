@@ -30,10 +30,10 @@ import infra.beans.factory.annotation.DisableDependencyInjection;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
 import infra.context.properties.ConfigurationProperties;
+import infra.freemarker.FreeMarkerTemplateAvailabilityProvider;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.ui.freemarker.FreeMarkerConfigurationFactory;
-import infra.ui.freemarker.FreeMarkerTemplateAvailabilityProvider;
 import infra.ui.template.TemplateAvailabilityProvider;
 import infra.ui.template.TemplateLocation;
 

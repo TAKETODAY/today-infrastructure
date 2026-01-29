@@ -72,5 +72,6 @@ dependencies {
   testImplementation project(":infra-test")
   testImplementation project(':infra-test-support')
   testImplementation project(":module:infra-app-test")
+  testImplementation project(":module:infra-freemarker")
 
 }

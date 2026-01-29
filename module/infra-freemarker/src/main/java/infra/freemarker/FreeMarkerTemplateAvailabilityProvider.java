@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.ui.freemarker;
+package infra.freemarker;
 
 import org.jspecify.annotations.Nullable;
 

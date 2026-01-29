@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.ui.freemarker;
+package infra.freemarker;
 
 import org.junit.jupiter.api.Test;
 
@@ -29,8 +29,8 @@ import infra.core.io.ResourceLoader;
 import infra.mock.env.MockEnvironment;
 import infra.ui.template.TemplateAvailabilityProvider;
 
-import static infra.ui.freemarker.FreeMarkerTemplateAvailabilityProvider.FreeMarkerTemplateAvailabilityProperties;
-import static infra.ui.freemarker.FreeMarkerTemplateAvailabilityProvider.Hints;
+import static infra.freemarker.FreeMarkerTemplateAvailabilityProvider.FreeMarkerTemplateAvailabilityProperties;
+import static infra.freemarker.FreeMarkerTemplateAvailabilityProvider.Hints;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

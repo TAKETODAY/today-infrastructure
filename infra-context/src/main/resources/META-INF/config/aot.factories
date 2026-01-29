@@ -8,5 +8,4 @@ infra.validation.beanvalidation.BeanValidationBeanRegistrationAotProcessor
 
 infra.aot.hint.RuntimeHintsRegistrar= \
 infra.ui.template.TemplateRuntimeHints,\
-infra.format.support.FormattingConversionServiceRuntimeHints,\
-infra.ui.freemarker.FreeMarkerTemplateAvailabilityProvider.Hints
+infra.format.support.FormattingConversionServiceRuntimeHints

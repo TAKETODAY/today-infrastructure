@@ -1,0 +1,2 @@
+infra.aot.hint.RuntimeHintsRegistrar= \
+infra.freemarker.FreeMarkerTemplateAvailabilityProvider.Hints

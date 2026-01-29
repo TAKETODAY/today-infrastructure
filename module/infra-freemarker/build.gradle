@@ -4,6 +4,7 @@ dependencies {
   api 'org.freemarker:freemarker'
 
   optional(project(":infra-app"))
+  optional(project(":infra-core-aot"))
   optional project(":infra-webmvc")
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
