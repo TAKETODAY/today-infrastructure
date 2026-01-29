@@ -4,6 +4,8 @@ dependencies {
   api(project(":infra-beans"))
   api(project(":infra-core"))
 
+  optional project(":infra-app")
+  optional project(":infra-aspects")
   optional(project(":infra-aop"))
   optional(project(":infra-context"))  // for JCA, @EnableTransactionManagement
   optional(project(":infra-core-aot"))
