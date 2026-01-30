@@ -19,11 +19,11 @@ logging:
     web: info
     root: info
 
-server:
+web:
   error:
-    includeBindingErrors: on_param
-    includeStacktrace: on_param
-    includeMessage: on_param
+    include-message: on_param
+    include-binding-errors: on_param
+    include-stacktrace: on_param
 
 freemarker:
   cache: false

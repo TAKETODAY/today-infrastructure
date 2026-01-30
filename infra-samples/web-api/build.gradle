@@ -3,13 +3,9 @@ description = "Samples Web API"
 apply plugin: "java-library"
 
 dependencies {
-
   api 'cn.taketoday:infra-webmvc'
   api 'cn.taketoday:infra-websocket'
-  api 'ch.qos.logback:logback-classic'
   api 'tools.jackson.core:jackson-databind'
-
-  api 'org.yaml:snakeyaml'
 
   compileOnly 'org.projectlombok:lombok'
   annotationProcessor 'org.projectlombok:lombok'
