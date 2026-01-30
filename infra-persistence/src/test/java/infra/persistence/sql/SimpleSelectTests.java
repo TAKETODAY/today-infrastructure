@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class SimpleSelectTests {
 
-  private final Platform platform = Platform.forClasspath();
+  private final Platform platform = Platform.generic();
 
   @Test
   void simple() {

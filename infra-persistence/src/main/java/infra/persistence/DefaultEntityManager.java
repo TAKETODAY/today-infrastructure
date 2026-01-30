@@ -116,21 +116,20 @@ public class DefaultEntityManager implements EntityManager {
    */
   private boolean autoGenerateId = true;
 
+  private Platform platform;
+
   private PropertyUpdateStrategy defaultUpdateStrategy = PropertyUpdateStrategy.noneNull();
 
   private Pageable defaultPageable = Pageable.of(10, 1);
 
-  private Platform platform;
-
   private SqlStatementLogger stmtLogger = SqlStatementLogger.sharedInstance;
 
-  @Nullable
-  private TransactionDefinition transactionConfig = TransactionDefinition.withDefaults();
+  private @Nullable TransactionDefinition transactionConfig = TransactionDefinition.withDefaults();
 
   private QueryStatementFactories handlerFactories = new QueryStatementFactories(entityMetadataFactory, propertyExtractors);
 
   public DefaultEntityManager(RepositoryManager repositoryManager) {
-    this(repositoryManager, Platform.forClasspath());
+    this(repositoryManager, Platform.generic());
   }
 
   public DefaultEntityManager(RepositoryManager repositoryManager, @Nullable Platform platform) {
@@ -142,7 +141,7 @@ public class DefaultEntityManager implements EntityManager {
   /**
    * Sets the platform for this instance. If the provided platform is {@code null},
    * a default platform will be determined based on the classpath using
-   * {@link Platform#forClasspath()}.
+   * {@link Platform#generic()}.
    *
    * <p>This method is useful when you want to explicitly define the platform or
    * rely on the default behavior when no specific platform is provided.</p>
@@ -150,7 +149,7 @@ public class DefaultEntityManager implements EntityManager {
    * @param platform the platform to set, or {@code null} to use the default platform
    */
   public void setPlatform(@Nullable Platform platform) {
-    this.platform = platform == null ? Platform.forClasspath() : platform;
+    this.platform = platform == null ? Platform.generic() : platform;
   }
 
   /**

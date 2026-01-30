@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import infra.jdbc.model.UserModel;
-import infra.persistence.platform.MySQLPlatform;
+import infra.persistence.platform.GenericPlatform;
 import infra.persistence.sql.Restriction;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,7 +49,7 @@ class WhereAnnotationTests {
     exampleQuery.renderWhereClause(sqlBuffer);
 
     String statementString = exampleQuery.render(userModelMetadata)
-            .toStatementString(new MySQLPlatform());
+            .toStatementString(new GenericPlatform());
 
     System.out.println(sqlBuffer);
     System.out.println(statementString);

@@ -57,7 +57,7 @@ class MapQueryStatementFactoryTests {
     assertThat(queryStatement).isNotNull();
 
     StatementSequence sequence = queryStatement.render(entityMetadata);
-    assertThat(sequence.toStatementString(Platform.forClasspath())).endsWith("FROM t_user WHERE `name` = ?");
+    assertThat(sequence.toStatementString(Platform.generic())).endsWith("FROM t_user WHERE `name` = ?");
 
     assertThat(factory.createQuery(null)).isNull();
   }

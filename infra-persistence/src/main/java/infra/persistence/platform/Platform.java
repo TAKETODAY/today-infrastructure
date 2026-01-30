@@ -20,7 +20,6 @@ import java.util.regex.Pattern;
 
 import infra.persistence.sql.ANSIJoinFragment;
 import infra.persistence.sql.JoinFragment;
-import infra.util.ClassUtils;
 import infra.util.StringUtils;
 
 /**
@@ -31,15 +30,6 @@ import infra.util.StringUtils;
  *
  * <p>This class includes constants, static utility methods, and abstract methods
  * that must be implemented by subclasses to handle platform-specific SQL generation.
- *
- * <p><b>Usage Example:</b>
- * Below is an example of how to use the {@code Platform} class to determine the
- * appropriate database platform based on the classpath:
- * <pre>{@code
- * Platform platform = Platform.forClasspath();
- * String truncateStatement = platform.getTruncateTableStatement("example_table");
- * System.out.println(truncateStatement);
- * }</pre>
  *
  * <p><b>Subclassing Example:</b>
  * To create a custom platform implementation, extend this class and override
@@ -133,38 +123,10 @@ public abstract class Platform {
   //
 
   /**
-   * Determines the database platform based on the classpath. This method checks for the presence
-   * of specific JDBC driver classes in the classpath and returns an appropriate {@link Platform}
-   * instance corresponding to the detected database.
-   *
-   * <p>Usage example:</p>
-   * <pre>{@code
-   *   Platform platform = Platform.forClasspath();
-   *   if (platform instanceof MySQLPlatform) {
-   *     System.out.println("MySQL database platform detected.");
-   *   } else if (platform instanceof OraclePlatform) {
-   *     System.out.println("Oracle database platform detected.");
-   *   } else if (platform instanceof PostgreSQLPlatform) {
-   *     System.out.println("PostgreSQL database platform detected.");
-   *   }
-   * }</pre>
-   *
-   * <p>If no supported database platform is detected, an {@link IllegalStateException} is thrown.</p>
-   *
-   * @return a {@link Platform} instance representing the detected database platform
-   * @throws IllegalStateException if the database platform cannot be determined from the classpath
+   * ANSI SQL Platform
    */
-  public static Platform forClasspath() {
-    if (ClassUtils.isPresent("com.mysql.cj.jdbc.Driver")) {
-      return new MySQLPlatform();
-    }
-    else if (ClassUtils.isPresent("oracle.jdbc.driver.OracleDriver")) {
-      return new OraclePlatform();
-    }
-    else if (ClassUtils.isPresent("org.postgresql.Driver")) {
-      return new PostgreSQLPlatform();
-    }
-    throw new IllegalStateException("Cannot determine database platform");
+  public static Platform generic() {
+    return new GenericPlatform();
   }
 
 }

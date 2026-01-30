@@ -47,15 +47,15 @@ import infra.jdbc.NamedQuery;
 import infra.jdbc.Query;
 import infra.jdbc.RepositoryManager;
 import infra.jdbc.format.SqlStatementLogger;
+import infra.jdbc.model.Gender;
+import infra.jdbc.model.UserModel;
 import infra.jdbc.type.BasicTypeHandler;
 import infra.jdbc.type.SmartTypeHandler;
 import infra.jdbc.type.TypeHandler;
 import infra.jdbc.type.WrappedTypeHandler;
 import infra.lang.Descriptive;
-import infra.jdbc.model.Gender;
 import infra.persistence.model.NoIdModel;
-import infra.jdbc.model.UserModel;
-import infra.persistence.platform.MySQLPlatform;
+import infra.persistence.platform.GenericPlatform;
 import infra.persistence.platform.Platform;
 import infra.persistence.sql.Restriction;
 import infra.test.util.ReflectionTestUtils;
@@ -1477,7 +1477,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
 
   }
 
-  static class HyperSQLPlatform extends MySQLPlatform {
+  static class HyperSQLPlatform extends GenericPlatform {
 
     @Override
     public void selectCountFrom(StringBuilder countSql, String tableName) {

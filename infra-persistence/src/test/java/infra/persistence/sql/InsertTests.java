@@ -35,7 +35,7 @@ class InsertTests {
     insert.addColumn("name");
     insert.addColumn("age");
 
-    assertThat(insert.toStatementString(Platform.forClasspath()))
+    assertThat(insert.toStatementString(Platform.generic()))
             .isEqualTo("/* comment */ INSERT INTO t_user (`name`, `age`) VALUES (?, ?)");
   }
 
@@ -46,7 +46,7 @@ class InsertTests {
 
     insert.addColumns(new String[] { "name", "age" });
 
-    assertThat(insert.toStatementString(Platform.forClasspath()))
+    assertThat(insert.toStatementString(Platform.generic()))
             .isEqualTo("/* comment */ INSERT INTO t_user (`name`, `age`) VALUES (?, ?)");
   }
 
@@ -55,7 +55,7 @@ class InsertTests {
     Insert insert = new Insert("t_user");
     insert.setComment("comment");
 
-    assertThat(insert.toStatementString(Platform.forClasspath()))
+    assertThat(insert.toStatementString(Platform.generic()))
             .isEqualTo("/* comment */ INSERT INTO t_user VALUES ( )");
   }
 
