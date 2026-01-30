@@ -87,20 +87,20 @@ class ResponseBodyEmitterReturnValueHandlerTests {
   public void supportsHandlerMethods() throws Exception {
 
     assertThat(this.handler.supportsHandler(
-            on(TestController.class).resolveHandlerMethod(ResponseBodyEmitter.class))).isTrue();
+            on(TestController.class).resolveHandlerMethod(ResponseBodyEmitter.class), null)).isTrue();
 
     assertThat(this.handler.supportsHandler(
-            on(TestController.class).resolveHandlerMethod(SseEmitter.class))).isTrue();
+            on(TestController.class).resolveHandlerMethod(SseEmitter.class), null)).isTrue();
 
     assertThat(this.handler.supportsHandler(
-            on(TestController.class).resolveHandlerMethod(ResponseEntity.class, ResponseBodyEmitter.class))).isTrue();
+            on(TestController.class).resolveHandlerMethod(ResponseEntity.class, ResponseBodyEmitter.class), null)).isTrue();
 
     assertThat(this.handler.supportsHandler(
-            on(TestController.class).resolveHandlerMethod(Flux.class, String.class))).isTrue();
+            on(TestController.class).resolveHandlerMethod(Flux.class, String.class), null)).isTrue();
 
     assertThat(this.handler.supportsHandler(
             on(TestController.class).resolveHandlerMethod(
-                    ResolvableType.forClassWithGenerics(ResponseEntity.class, forClassWithGenerics(Flux.class, String.class))))).isTrue();
+                    ResolvableType.forClassWithGenerics(ResponseEntity.class, forClassWithGenerics(Flux.class, String.class))), null)).isTrue();
   }
 
   @Test
