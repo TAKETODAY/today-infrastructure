@@ -118,12 +118,12 @@ public interface SmartReturnValueHandler extends ReturnValueHandler {
    * @return {@code true} if this {@link SmartReturnValueHandler} supports the specified
    * handler or return value, {@code false} otherwise
    */
-  default boolean supportsHandler(@Nullable Object handler, @Nullable Object returnValue) {
+  default boolean supportsHandler(Object handler, @Nullable Object returnValue) {
     return supportsHandler(handler) || supportsReturnValue(returnValue);
   }
 
   @Override
-  default boolean supportsHandler(@Nullable Object handler) {
+  default boolean supportsHandler(Object handler) {
     return false;
   }
 

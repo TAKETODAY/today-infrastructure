@@ -45,7 +45,7 @@ public class VoidReturnValueHandler implements SmartReturnValueHandler {
   }
 
   @Override
-  public boolean supportsHandler(@Nullable Object handler, @Nullable Object returnValue) {
+  public boolean supportsHandler(Object handler, @Nullable Object returnValue) {
     if (returnValue == null) {
       HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
       return handlerMethod == null || handlerMethod.isReturn(void.class) || handlerMethod.isReturn(Void.class);
