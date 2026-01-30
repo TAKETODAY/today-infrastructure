@@ -55,7 +55,7 @@ import infra.validation.BindException;
 import infra.web.HandlerMapping;
 import infra.web.RequestContext;
 import infra.web.accept.ApiVersionStrategy;
-import infra.web.bind.WebDataBinder;
+import infra.web.bind.RequestContextDataBinder;
 import infra.web.multipart.Part;
 import infra.web.util.UriBuilder;
 import infra.web.util.UriUtils;
@@ -1214,7 +1214,7 @@ public abstract class RequestPredicates {
     }
 
     @Override
-    public <T> T bind(Class<T> bindType, Consumer<WebDataBinder> dataBinderCustomizer) throws BindException {
+    public <T> T bind(Class<T> bindType, Consumer<RequestContextDataBinder> dataBinderCustomizer) throws BindException {
       return request.bind(bindType, dataBinderCustomizer);
     }
 

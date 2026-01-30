@@ -36,7 +36,7 @@ import infra.web.ResolvableMethod;
 import infra.web.annotation.RequestParam;
 import infra.web.annotation.RequestPart;
 import infra.web.bind.MissingRequestParameterException;
-import infra.web.bind.WebDataBinder;
+import infra.web.bind.RequestContextDataBinder;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.mock.MockRequestContext;
@@ -338,7 +338,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void missingRequestParamEmptyValueConvertedToNull() throws Throwable {
-    WebDataBinder binder = new WebDataBinder(null);
+    RequestContextDataBinder binder = new RequestContextDataBinder(null);
     binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
     MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
 
@@ -363,8 +363,8 @@ class RequestParamMethodArgumentResolverTests {
 
     BindingContext binderFactory = new BindingContext() {
       @Override
-      protected WebDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
-        return new WebDataBinder(null);
+      protected RequestContextDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
+        return new RequestContextDataBinder(null);
       }
     };
 
@@ -379,7 +379,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void missingRequestParamEmptyValueNotRequired() throws Throwable {
-    WebDataBinder binder = new WebDataBinder(null);
+    RequestContextDataBinder binder = new RequestContextDataBinder(null);
     binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
     request.addParameter("name", "");
 
@@ -397,7 +397,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void missingRequestParamEmptyValueNotRequiredWithDefaultValue() throws Throwable {
-    WebDataBinder binder = new WebDataBinder(null);
+    RequestContextDataBinder binder = new RequestContextDataBinder(null);
     binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
 
     BindingContext context = mock(BindingContext.class);

@@ -57,7 +57,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/2 16:39
  */
-class WebDataBinderTests {
+class RequestContextDataBinderTests {
 
   HttpMockRequestImpl request = new HttpMockRequestImpl();
 
@@ -67,7 +67,7 @@ class WebDataBinderTests {
   void testBindingWithNestedObjectCreation() throws Exception {
     TestBean tb = new TestBean();
 
-    WebDataBinder binder = new WebDataBinder(tb, "person");
+    RequestContextDataBinder binder = new RequestContextDataBinder(tb, "person");
     binder.registerCustomEditor(ITestBean.class, new PropertyEditorSupport() {
       @Override
       public void setAsText(String text) throws IllegalArgumentException {
@@ -88,7 +88,7 @@ class WebDataBinderTests {
   void testBindingWithNestedObjectCreationThroughAutoGrow() throws Exception {
     TestBean tb = new TestBeanWithConcreteSpouse();
 
-    WebDataBinder binder = new WebDataBinder(tb, "person");
+    RequestContextDataBinder binder = new RequestContextDataBinder(tb, "person");
     binder.setIgnoreUnknownFields(false);
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
@@ -102,7 +102,7 @@ class WebDataBinderTests {
   @Test
   void testFieldPrefixCausesFieldReset() throws Exception {
     TestBean target = new TestBean();
-    WebDataBinder binder = new WebDataBinder(target);
+    RequestContextDataBinder binder = new RequestContextDataBinder(target);
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("_postProcessed", "visible");
@@ -118,7 +118,7 @@ class WebDataBinderTests {
   @Test
   void testFieldPrefixCausesFieldResetWithIgnoreUnknownFields() throws Exception {
     TestBean target = new TestBean();
-    WebDataBinder binder = new WebDataBinder(target);
+    RequestContextDataBinder binder = new RequestContextDataBinder(target);
     binder.setIgnoreUnknownFields(false);
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
@@ -135,7 +135,7 @@ class WebDataBinderTests {
   @Test
   void testFieldWithArrayIndex() {
     TestBean target = new TestBean();
-    WebDataBinder binder = new WebDataBinder(target);
+    RequestContextDataBinder binder = new RequestContextDataBinder(target);
     binder.setIgnoreUnknownFields(false);
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
@@ -148,7 +148,7 @@ class WebDataBinderTests {
   @Test
   public void testFieldWithEmptyArrayIndex() {
     TestBean target = new TestBean();
-    WebDataBinder binder = new WebDataBinder(target);
+    RequestContextDataBinder binder = new RequestContextDataBinder(target);
     binder.setIgnoreUnknownFields(false);
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
@@ -161,7 +161,7 @@ class WebDataBinderTests {
   @Test
   public void testFieldDefault() throws Exception {
     TestBean target = new TestBean();
-    WebDataBinder binder = new WebDataBinder(target);
+    RequestContextDataBinder binder = new RequestContextDataBinder(target);
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("!postProcessed", "off");
@@ -180,7 +180,7 @@ class WebDataBinderTests {
     target.setSomeSet(null);
     target.setSomeList(null);
     target.setSomeMap(null);
-    WebDataBinder binder = new WebDataBinder(target);
+    RequestContextDataBinder binder = new RequestContextDataBinder(target);
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("_someSet", "visible");
@@ -196,7 +196,7 @@ class WebDataBinderTests {
   @Test
   public void testFieldDefaultPreemptsFieldMarker() throws Exception {
     TestBean target = new TestBean();
-    WebDataBinder binder = new WebDataBinder(target);
+    RequestContextDataBinder binder = new RequestContextDataBinder(target);
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("!postProcessed", "on");
@@ -218,7 +218,7 @@ class WebDataBinderTests {
   public void testFieldDefaultWithNestedProperty() throws Exception {
     TestBean target = new TestBean();
     target.setSpouse(new TestBean());
-    WebDataBinder binder = new WebDataBinder(target);
+    RequestContextDataBinder binder = new RequestContextDataBinder(target);
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("!spouse.postProcessed", "on");
@@ -239,7 +239,7 @@ class WebDataBinderTests {
   @Test
   public void testFieldDefaultNonBoolean() throws Exception {
     TestBean target = new TestBean();
-    WebDataBinder binder = new WebDataBinder(target);
+    RequestContextDataBinder binder = new RequestContextDataBinder(target);
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("!name", "anonymous");
@@ -255,7 +255,7 @@ class WebDataBinderTests {
   @Test
   public void testWithCommaSeparatedStringArray() throws Exception {
     TestBean target = new TestBean();
-    WebDataBinder binder = new WebDataBinder(target);
+    RequestContextDataBinder binder = new RequestContextDataBinder(target);
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("stringArray", "bar");
@@ -273,7 +273,7 @@ class WebDataBinderTests {
   @Test
   public void testEnumBinding() {
     EnumHolder target = new EnumHolder();
-    WebDataBinder binder = new WebDataBinder(target);
+    RequestContextDataBinder binder = new RequestContextDataBinder(target);
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("myEnum", "FOO");
@@ -284,7 +284,7 @@ class WebDataBinderTests {
   @Test
   public void testMultipartFileAsString() {
     TestBean target = new TestBean();
-    WebDataBinder binder = new WebDataBinder(target);
+    RequestContextDataBinder binder = new RequestContextDataBinder(target);
     binder.registerCustomEditor(String.class, new StringPartEditor());
 
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
@@ -296,7 +296,7 @@ class WebDataBinderTests {
   @Test
   public void testMultipartFileAsStringArray() {
     TestBean target = new TestBean();
-    WebDataBinder binder = new WebDataBinder(target);
+    RequestContextDataBinder binder = new RequestContextDataBinder(target);
     binder.registerCustomEditor(String.class, new StringPartEditor());
 
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
@@ -309,7 +309,7 @@ class WebDataBinderTests {
   @Test
   public void testMultipartFilesAsStringArray() {
     TestBean target = new TestBean();
-    WebDataBinder binder = new WebDataBinder(target);
+    RequestContextDataBinder binder = new RequestContextDataBinder(target);
     binder.registerCustomEditor(String.class, new StringPartEditor());
 
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
@@ -415,7 +415,7 @@ class WebDataBinderTests {
 
   @Test
   void headerPredicateWithConstructorArgs() {
-    WebDataBinder binder = new WebDataBinder(null);
+    RequestContextDataBinder binder = new RequestContextDataBinder(null);
     binder.addHeaderPredicate(name -> !name.equalsIgnoreCase("Some-Int-Array"));
     binder.setTargetType(ResolvableType.forClass(DataBean.class));
     binder.setNameResolver(new BindParamNameResolver());
@@ -463,7 +463,7 @@ class WebDataBinderTests {
   @Test
   void noUriTemplateVars() {
     TestBean target = new TestBean();
-    WebDataBinder binder = new WebDataBinder(target, "");
+    RequestContextDataBinder binder = new RequestContextDataBinder(target, "");
 
     binder.bind(context);
 
@@ -480,7 +480,7 @@ class WebDataBinderTests {
     request.addHeader("Some-Int-Array", "2");
 
     TestBean target = new TestBean();
-    WebDataBinder binder = new WebDataBinder(target, "");
+    RequestContextDataBinder binder = new RequestContextDataBinder(target, "");
     binder.bind(context);
 
     assertThat(target.getName()).isEqualTo("John");
@@ -496,7 +496,7 @@ class WebDataBinderTests {
     request.addHeader("Some-Int-Array", "1");
     request.addHeader("Some-Int-Array", "2");
 
-    WebDataBinder binder = new WebDataBinder(null);
+    RequestContextDataBinder binder = new RequestContextDataBinder(null);
     binder.setTargetType(ResolvableType.forClass(DataBean.class));
     binder.setNameResolver(new BindParamNameResolver());
     binder.construct(context);
@@ -517,7 +517,7 @@ class WebDataBinderTests {
     context.setMatchingMetadata(new UriVariablesMatchingMetadata(context, Map.of("age", "26")));
 
     TestBean target = new TestBean();
-    WebDataBinder binder = new WebDataBinder(target, "");
+    RequestContextDataBinder binder = new RequestContextDataBinder(target, "");
     binder.bind(context);
 
     assertThat(target.getName()).isEqualTo("John");
@@ -527,7 +527,7 @@ class WebDataBinderTests {
   @Test
   void constructorWithTargetOnly() {
     TestBean target = new TestBean();
-    WebDataBinder binder = new WebDataBinder(target);
+    RequestContextDataBinder binder = new RequestContextDataBinder(target);
 
     assertThat(binder.getTarget()).isSameAs(target);
     assertThat(binder.getObjectName()).isEqualTo("target");
@@ -537,7 +537,7 @@ class WebDataBinderTests {
   void constructorWithTargetAndObjectName() {
     TestBean target = new TestBean();
     String objectName = "testBean";
-    WebDataBinder binder = new WebDataBinder(target, objectName);
+    RequestContextDataBinder binder = new RequestContextDataBinder(target, objectName);
 
     assertThat(binder.getTarget()).isSameAs(target);
     assertThat(binder.getObjectName()).isEqualTo(objectName);
@@ -545,7 +545,7 @@ class WebDataBinderTests {
 
   @Test
   void setFieldMarkerPrefix() {
-    WebDataBinder binder = new WebDataBinder(new TestBean());
+    RequestContextDataBinder binder = new RequestContextDataBinder(new TestBean());
     String prefix = "__";
 
     binder.setFieldMarkerPrefix(prefix);
@@ -554,7 +554,7 @@ class WebDataBinderTests {
 
   @Test
   void setFieldDefaultPrefix() {
-    WebDataBinder binder = new WebDataBinder(new TestBean());
+    RequestContextDataBinder binder = new RequestContextDataBinder(new TestBean());
     String prefix = "!!";
 
     binder.setFieldDefaultPrefix(prefix);
@@ -563,7 +563,7 @@ class WebDataBinderTests {
 
   @Test
   void setBindEmptyMultipartFiles() {
-    WebDataBinder binder = new WebDataBinder(new TestBean());
+    RequestContextDataBinder binder = new RequestContextDataBinder(new TestBean());
 
     binder.setBindEmptyMultipartFiles(false);
     assertThat(binder.isBindEmptyMultipartFiles()).isFalse();
@@ -574,7 +574,7 @@ class WebDataBinderTests {
 
   @Test
   void setHeaderPredicate() {
-    WebDataBinder binder = new WebDataBinder(new TestBean());
+    RequestContextDataBinder binder = new RequestContextDataBinder(new TestBean());
     Predicate<String> customPredicate = name -> name.startsWith("X-");
 
     binder.setHeaderPredicate(customPredicate);
@@ -583,7 +583,7 @@ class WebDataBinderTests {
 
   @Test
   void resolvePrefixValueWithNoPrefixMatch() {
-    WebDataBinder binder = new WebDataBinder(new TestBean());
+    RequestContextDataBinder binder = new RequestContextDataBinder(new TestBean());
     BiFunction<String, Class<?>, Object> resolver = (name, type) -> null;
 
     Object result = binder.resolvePrefixValue("testField", String.class, resolver);
@@ -592,7 +592,7 @@ class WebDataBinderTests {
 
   @Test
   void resolvePrefixValueWithDefaultPrefix() {
-    WebDataBinder binder = new WebDataBinder(new TestBean());
+    RequestContextDataBinder binder = new RequestContextDataBinder(new TestBean());
     binder.setFieldDefaultPrefix("!");
     BiFunction<String, Class<?>, Object> resolver = (name, type) -> {
       if ("!testField".equals(name)) {
@@ -607,7 +607,7 @@ class WebDataBinderTests {
 
   @Test
   void resolvePrefixValueWithMarkerPrefix() {
-    WebDataBinder binder = new WebDataBinder(new TestBean());
+    RequestContextDataBinder binder = new RequestContextDataBinder(new TestBean());
     binder.setFieldMarkerPrefix("_");
     BiFunction<String, Class<?>, Object> resolver = (name, type) -> {
       if ("_testField".equals(name)) {
@@ -622,7 +622,7 @@ class WebDataBinderTests {
 
   @Test
   void checkFieldDefaultsProcessesCorrectly() {
-    WebDataBinder binder = new WebDataBinder(new TestBean());
+    RequestContextDataBinder binder = new RequestContextDataBinder(new TestBean());
     binder.setFieldDefaultPrefix("!");
 
     PropertyValues values = new PropertyValues();
@@ -638,7 +638,7 @@ class WebDataBinderTests {
 
   @Test
   void checkFieldMarkersProcessesCorrectly() {
-    WebDataBinder binder = new WebDataBinder(new TestBean());
+    RequestContextDataBinder binder = new RequestContextDataBinder(new TestBean());
     binder.setFieldMarkerPrefix("_");
 
     PropertyValues values = new PropertyValues();
@@ -654,7 +654,7 @@ class WebDataBinderTests {
 
   @Test
   void adaptEmptyArrayIndicesProcessesCorrectly() {
-    WebDataBinder binder = new WebDataBinder(new TestBean());
+    RequestContextDataBinder binder = new RequestContextDataBinder(new TestBean());
 
     PropertyValues values = new PropertyValues();
     values.add("stringArray[]", new String[] { "value1", "value2" });
@@ -669,7 +669,7 @@ class WebDataBinderTests {
 
   @Test
   void getEmptyValueForBooleanType() {
-    WebDataBinder binder = new WebDataBinder(new TestBean());
+    RequestContextDataBinder binder = new RequestContextDataBinder(new TestBean());
 
     Object result = binder.getEmptyValue(boolean.class);
     assertThat(result).isEqualTo(Boolean.FALSE);
@@ -677,7 +677,7 @@ class WebDataBinderTests {
 
   @Test
   void getEmptyValueForBooleanWrapperType() {
-    WebDataBinder binder = new WebDataBinder(new TestBean());
+    RequestContextDataBinder binder = new RequestContextDataBinder(new TestBean());
 
     Object result = binder.getEmptyValue(Boolean.class);
     assertThat(result).isEqualTo(Boolean.FALSE);
@@ -685,7 +685,7 @@ class WebDataBinderTests {
 
   @Test
   void getEmptyValueForArrayType() {
-    WebDataBinder binder = new WebDataBinder(new TestBean());
+    RequestContextDataBinder binder = new RequestContextDataBinder(new TestBean());
 
     Object result = binder.getEmptyValue(String[].class);
     assertThat(result).isInstanceOf(String[].class);
@@ -694,7 +694,7 @@ class WebDataBinderTests {
 
   @Test
   void getEmptyValueForCollectionType() {
-    WebDataBinder binder = new WebDataBinder(new TestBean());
+    RequestContextDataBinder binder = new RequestContextDataBinder(new TestBean());
 
     Object result = binder.getEmptyValue(List.class);
     assertThat(result).isInstanceOf(List.class);
@@ -703,7 +703,7 @@ class WebDataBinderTests {
 
   @Test
   void getEmptyValueForMapType() {
-    WebDataBinder binder = new WebDataBinder(new TestBean());
+    RequestContextDataBinder binder = new RequestContextDataBinder(new TestBean());
 
     Object result = binder.getEmptyValue(Map.class);
     assertThat(result).isInstanceOf(Map.class);
@@ -712,7 +712,7 @@ class WebDataBinderTests {
 
   @Test
   void getEmptyValueForUnsupportedType() {
-    WebDataBinder binder = new WebDataBinder(new TestBean());
+    RequestContextDataBinder binder = new RequestContextDataBinder(new TestBean());
 
     Object result = binder.getEmptyValue(String.class);
     assertThat(result).isNull();
@@ -720,7 +720,7 @@ class WebDataBinderTests {
 
   @Test
   void bindMultipartBindsSingleFile() {
-    WebDataBinder binder = new WebDataBinder(new TestBean());
+    RequestContextDataBinder binder = new RequestContextDataBinder(new TestBean());
 
     MockMultipartFile file = new MockMultipartFile("file", "test.txt", "text/plain", "content".getBytes());
     Map<String, List<Part>> multipartFiles = Map.of("file", List.of(file));
@@ -734,7 +734,7 @@ class WebDataBinderTests {
 
   @Test
   void bindMultipartBindsMultipleFiles() {
-    WebDataBinder binder = new WebDataBinder(new TestBean());
+    RequestContextDataBinder binder = new RequestContextDataBinder(new TestBean());
 
     MockMultipartFile file1 = new MockMultipartFile("files", "test1.txt", "text/plain", "content1".getBytes());
     MockMultipartFile file2 = new MockMultipartFile("files", "test2.txt", "text/plain", "content2".getBytes());
@@ -749,7 +749,7 @@ class WebDataBinderTests {
 
   @Test
   void bindMultipartSkipsEmptyFilesWhenDisabled() {
-    WebDataBinder binder = new WebDataBinder(new TestBean());
+    RequestContextDataBinder binder = new RequestContextDataBinder(new TestBean());
     binder.setBindEmptyMultipartFiles(false);
 
     MockMultipartFile emptyFile = new MockMultipartFile("file", "empty.txt", "text/plain", new byte[0]);
@@ -764,7 +764,7 @@ class WebDataBinderTests {
   @Test
   void closeNoCatchThrowsBindExceptionWhenErrorsPresent() {
     TestBean target = new TestBean();
-    WebDataBinder binder = new WebDataBinder(target);
+    RequestContextDataBinder binder = new RequestContextDataBinder(target);
 
     // Force a binding error by trying to set an invalid value
     PropertyValues values = new PropertyValues();
@@ -780,7 +780,7 @@ class WebDataBinderTests {
   @Test
   void closeNoCatchDoesNotThrowWhenNoErrors() throws BindException {
     TestBean target = new TestBean();
-    WebDataBinder binder = new WebDataBinder(target);
+    RequestContextDataBinder binder = new RequestContextDataBinder(target);
 
     PropertyValues values = new PropertyValues();
     values.add("age", "25");
@@ -833,7 +833,7 @@ class WebDataBinderTests {
 
   }
 
-  private static class TestBinder extends WebDataBinder {
+  private static class TestBinder extends RequestContextDataBinder {
 
     public TestBinder() {
       super(null);

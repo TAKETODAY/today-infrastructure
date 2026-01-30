@@ -48,7 +48,7 @@ import infra.util.MultiValueMap;
 import infra.validation.BindException;
 import infra.web.RequestContext;
 import infra.web.accept.ApiVersionStrategy;
-import infra.web.bind.WebDataBinder;
+import infra.web.bind.RequestContextDataBinder;
 import infra.web.multipart.MultipartRequest;
 import infra.web.multipart.NotMultipartRequestException;
 import infra.web.multipart.Part;
@@ -174,7 +174,7 @@ public interface ServerRequest extends ServerResponse.Context {
    * @return a constructed and bound instance of {@code bindType}
    * @throws BindException in case of binding errors
    */
-  <T> T bind(Class<T> bindType, Consumer<WebDataBinder> dataBinderCustomizer) throws BindException;
+  <T> T bind(Class<T> bindType, Consumer<RequestContextDataBinder> dataBinderCustomizer) throws BindException;
 
   /**
    * Get the request attribute value.

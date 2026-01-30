@@ -47,6 +47,7 @@ import infra.web.bind.MethodArgumentNotValidException;
 import infra.web.bind.MissingPathVariableException;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.RequestBindingException;
+import infra.web.bind.RequestContextDataBinder;
 import infra.web.bind.resolver.MissingRequestPartException;
 import infra.web.multipart.Part;
 import infra.web.util.DisconnectedClientHelper;
@@ -487,7 +488,7 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
   }
 
   /**
-   * Handle the case when a {@link infra.web.bind.WebDataBinder} conversion cannot occur.
+   * Handle the case when a {@link RequestContextDataBinder} conversion cannot occur.
    * <p>The default implementation sends an HTTP 500 error, and returns an empty {@code Object}.
    * Alternatively, a fallback view could be chosen, or the ConversionNotSupportedException could be
    * rethrown as-is.
@@ -507,7 +508,7 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
   }
 
   /**
-   * Handle the case when a {@link infra.web.bind.WebDataBinder} conversion error occurs.
+   * Handle the case when a {@link RequestContextDataBinder} conversion error occurs.
    * <p>The default implementation sends an HTTP 400 error, and returns an empty {@code Object}.
    * Alternatively, a fallback view could be chosen, or the TypeMismatchException could be rethrown as-is.
    *

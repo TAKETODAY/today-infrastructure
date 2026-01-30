@@ -29,7 +29,7 @@ import infra.core.MethodParameter;
 import infra.web.BindingContext;
 import infra.web.RequestContext;
 import infra.web.bind.MissingRequestValueException;
-import infra.web.bind.WebDataBinder;
+import infra.web.bind.RequestContextDataBinder;
 import infra.web.context.support.RequestScope;
 import infra.web.handler.method.MethodArgumentConversionNotSupportedException;
 import infra.web.handler.method.MethodArgumentTypeMismatchException;
@@ -140,7 +140,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
   private static Object convertIfNecessary(RequestContext context, BindingContext bindingContext,
           NamedValueInfo namedValueInfo, MethodParameter methodParameter, @Nullable Object arg) throws Throwable {
 
-    WebDataBinder binder = bindingContext.createBinder(context, namedValueInfo.name);
+    RequestContextDataBinder binder = bindingContext.createBinder(context, namedValueInfo.name);
     try {
       arg = binder.convertIfNecessary(arg, methodParameter.getParameterType(), methodParameter);
     }

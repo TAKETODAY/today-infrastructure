@@ -129,7 +129,7 @@ import infra.web.annotation.RequestParam;
 import infra.web.annotation.ResponseBody;
 import infra.web.annotation.ResponseStatus;
 import infra.web.annotation.RestController;
-import infra.web.bind.WebDataBinder;
+import infra.web.bind.RequestContextDataBinder;
 import infra.web.bind.annotation.BindParam;
 import infra.web.bind.annotation.InitBinder;
 import infra.web.bind.annotation.ModelAttribute;
@@ -2685,7 +2685,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
           extends MyCommandProvidingFormController<String, TestBean, ITestBean> {
 
     @InitBinder
-    public void initBinder(WebDataBinder binder) {
+    public void initBinder(RequestContextDataBinder binder) {
       binder.initBeanPropertyAccess();
       binder.setRequiredFields("sex");
       LocalValidatorFactoryBean vf = new LocalValidatorFactoryBean();
@@ -2711,7 +2711,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
           extends MyCommandProvidingFormController<String, TestBean, ITestBean> {
 
     @InitBinder({ "myCommand", "date" })
-    public void initBinder(WebDataBinder binder, String date, @RequestParam("date") String[] date2) {
+    public void initBinder(RequestContextDataBinder binder, String date, @RequestParam("date") String[] date2) {
       LocalValidatorFactoryBean vf = new LocalValidatorFactoryBean();
       vf.afterPropertiesSet();
       binder.setValidator(vf);
@@ -2727,7 +2727,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class MyWebBindingInitializer implements WebBindingInitializer {
 
     @Override
-    public void initBinder(WebDataBinder binder) {
+    public void initBinder(RequestContextDataBinder binder) {
       LocalValidatorFactoryBean vf = new LocalValidatorFactoryBean();
       vf.afterPropertiesSet();
       binder.setValidator(vf);
@@ -3398,7 +3398,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class BindingCookieValueController {
 
     @InitBinder
-    public void initBinder(WebDataBinder binder) {
+    public void initBinder(RequestContextDataBinder binder) {
       binder.initBeanPropertyAccess();
       SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
       dateFormat.setLenient(false);
@@ -3697,7 +3697,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class CustomMapEditorController {
 
     @InitBinder
-    public void initBinder(WebDataBinder binder) {
+    public void initBinder(RequestContextDataBinder binder) {
       binder.initBeanPropertyAccess();
       binder.registerCustomEditor(Map.class, new CustomMapEditor());
     }
@@ -3726,7 +3726,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class MultipartController {
 
     @InitBinder
-    public void initBinder(WebDataBinder binder) {
+    public void initBinder(RequestContextDataBinder binder) {
       binder.registerCustomEditor(String.class, new StringPartEditor());
     }
 
@@ -3797,7 +3797,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     }
 
     @InitBinder
-    public void initBinder(WebDataBinder dataBinder) {
+    public void initBinder(RequestContextDataBinder dataBinder) {
       dataBinder.setRequiredFields("name");
       saveSession();
     }
@@ -3834,7 +3834,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     private int count;
 
     @InitBinder
-    public void initBinder(WebDataBinder dataBinder) {
+    public void initBinder(RequestContextDataBinder dataBinder) {
       this.count++;
     }
 
@@ -3984,7 +3984,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class ValidatedDataClassController {
 
     @InitBinder
-    public void initBinder(WebDataBinder binder) {
+    public void initBinder(RequestContextDataBinder binder) {
       binder.registerCustomEditor(String.class, "param1", new StringTrimmerEditor(true));
       LocalValidatorFactoryBean vf = new LocalValidatorFactoryBean();
       vf.afterPropertiesSet();
@@ -4128,7 +4128,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class DateClassController {
 
     @InitBinder
-    public void initBinder(WebDataBinder binder) {
+    public void initBinder(RequestContextDataBinder binder) {
       binder.initDirectFieldAccess();
     }
 
@@ -4194,7 +4194,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class NestedValidatedDataClassController {
 
     @InitBinder
-    public void initBinder(WebDataBinder binder) {
+    public void initBinder(RequestContextDataBinder binder) {
 //      binder.setConversionService(new DefaultFormattingConversionService());
       binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
       LocalValidatorFactoryBean vf = new LocalValidatorFactoryBean();
@@ -4276,7 +4276,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class NestedDataAndDateClassController {
 
     @InitBinder
-    public void initBinder(WebDataBinder binder) {
+    public void initBinder(RequestContextDataBinder binder) {
       binder.initDirectFieldAccess();
     }
 

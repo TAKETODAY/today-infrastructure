@@ -24,7 +24,7 @@ import infra.beans.factory.annotation.Value;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.MethodParameter;
 import infra.web.RequestContext;
-import infra.web.bind.WebDataBinder;
+import infra.web.bind.RequestContextDataBinder;
 import infra.web.handler.method.NamedValueInfo;
 import infra.web.handler.method.ResolvableMethodParameter;
 
@@ -35,7 +35,7 @@ import infra.web.handler.method.ResolvableMethodParameter;
  * value string, which may contain ${...} placeholder or Infra Expression
  * Language #{...} expressions.
  *
- * <p>A {@link WebDataBinder} may be invoked to apply type conversion to
+ * <p>A {@link RequestContextDataBinder} may be invoked to apply type conversion to
  * resolved argument value.
  *
  * @author Rossen Stoyanchev

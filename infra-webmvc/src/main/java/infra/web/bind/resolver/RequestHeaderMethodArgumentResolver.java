@@ -28,7 +28,7 @@ import infra.core.MethodParameter;
 import infra.http.HttpHeaders;
 import infra.web.RequestContext;
 import infra.web.annotation.RequestHeader;
-import infra.web.bind.WebDataBinder;
+import infra.web.bind.RequestContextDataBinder;
 import infra.web.handler.method.ResolvableMethodParameter;
 
 /**
@@ -40,7 +40,7 @@ import infra.web.handler.method.ResolvableMethodParameter;
  * It has a required flag and a default value to fall back on when the request
  * header does not exist.
  *
- * <p>A {@link WebDataBinder} is invoked to apply type conversion to resolved
+ * <p>A {@link RequestContextDataBinder} is invoked to apply type conversion to resolved
  * request header values that don't yet match the method parameter type.
  *
  * @author Arjen Poutsma

@@ -27,7 +27,7 @@ import infra.core.conversion.ConversionService;
 import infra.format.support.DefaultFormattingConversionService;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.web.annotation.RequestParam;
-import infra.web.bind.WebDataBinder;
+import infra.web.bind.RequestContextDataBinder;
 import infra.web.bind.annotation.InitBinder;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.RequestParamMethodArgumentResolver;
@@ -55,8 +55,8 @@ class InitBinderBindingContextTests {
 
   @Test
   public void createBinder() throws Throwable {
-    InitBinderBindingContext factory = createFactory("initBinder", WebDataBinder.class);
-    WebDataBinder dataBinder = factory.createBinder(this.webRequest, null, null);
+    InitBinderBindingContext factory = createFactory("initBinder", RequestContextDataBinder.class);
+    RequestContextDataBinder dataBinder = factory.createBinder(this.webRequest, null, null);
 
     assertThat(dataBinder.getDisallowedFields()).isNotNull();
     assertThat(dataBinder.getDisallowedFields()[0]).isEqualTo("id");
@@ -67,16 +67,16 @@ class InitBinderBindingContextTests {
     ConversionService conversionService = new DefaultFormattingConversionService();
     bindingInitializer.setConversionService(conversionService);
 
-    InitBinderBindingContext factory = createFactory("initBinder", WebDataBinder.class);
-    WebDataBinder dataBinder = factory.createBinder(this.webRequest, null, null);
+    InitBinderBindingContext factory = createFactory("initBinder", RequestContextDataBinder.class);
+    RequestContextDataBinder dataBinder = factory.createBinder(this.webRequest, null, null);
 
     assertThat(dataBinder.getConversionService()).isSameAs(conversionService);
   }
 
   @Test
   public void createBinderWithAttrName() throws Throwable {
-    InitBinderBindingContext factory = createFactory("initBinderWithAttributeName", WebDataBinder.class);
-    WebDataBinder dataBinder = factory.createBinder(this.webRequest, null, "foo");
+    InitBinderBindingContext factory = createFactory("initBinderWithAttributeName", RequestContextDataBinder.class);
+    RequestContextDataBinder dataBinder = factory.createBinder(this.webRequest, null, "foo");
 
     assertThat(dataBinder.getDisallowedFields()).isNotNull();
     assertThat(dataBinder.getDisallowedFields()[0]).isEqualTo("id");
@@ -84,23 +84,23 @@ class InitBinderBindingContextTests {
 
   @Test
   public void createBinderWithAttrNameNoMatch() throws Throwable {
-    InitBinderBindingContext factory = createFactory("initBinderWithAttributeName", WebDataBinder.class);
-    WebDataBinder dataBinder = factory.createBinder(this.webRequest, null, "invalidName");
+    InitBinderBindingContext factory = createFactory("initBinderWithAttributeName", RequestContextDataBinder.class);
+    RequestContextDataBinder dataBinder = factory.createBinder(this.webRequest, null, "invalidName");
 
     assertThat(dataBinder.getDisallowedFields()).isNull();
   }
 
   @Test
   public void createBinderNullAttrName() throws Throwable {
-    InitBinderBindingContext factory = createFactory("initBinderWithAttributeName", WebDataBinder.class);
-    WebDataBinder dataBinder = factory.createBinder(this.webRequest, null, null);
+    InitBinderBindingContext factory = createFactory("initBinderWithAttributeName", RequestContextDataBinder.class);
+    RequestContextDataBinder dataBinder = factory.createBinder(this.webRequest, null, null);
 
     assertThat(dataBinder.getDisallowedFields()).isNull();
   }
 
   @Test
   public void returnValueNotExpected() throws Exception {
-    InitBinderBindingContext factory = createFactory("initBinderReturnValue", WebDataBinder.class);
+    InitBinderBindingContext factory = createFactory("initBinderReturnValue", RequestContextDataBinder.class);
     assertThatIllegalStateException()
             .isThrownBy(() -> factory.createBinder(this.webRequest, null, "invalidName"));
   }
@@ -111,8 +111,8 @@ class InitBinderBindingContextTests {
 
     this.argumentResolvers.addCustomizedStrategies(new RequestParamMethodArgumentResolver(null, false));
 
-    InitBinderBindingContext factory = createFactory("initBinderTypeConversion", WebDataBinder.class, int.class);
-    WebDataBinder dataBinder = factory.createBinder(this.webRequest, null, "foo");
+    InitBinderBindingContext factory = createFactory("initBinderTypeConversion", RequestContextDataBinder.class, int.class);
+    RequestContextDataBinder dataBinder = factory.createBinder(this.webRequest, null, "foo");
 
     assertThat(dataBinder.getDisallowedFields()).isNotNull();
     assertThat(dataBinder.getDisallowedFields()[0]).isEqualToIgnoringCase("requestParam-22");
@@ -138,22 +138,22 @@ class InitBinderBindingContextTests {
   private static class InitBinderHandler {
 
     @InitBinder
-    public void initBinder(WebDataBinder dataBinder) {
+    public void initBinder(RequestContextDataBinder dataBinder) {
       dataBinder.setDisallowedFields("id");
     }
 
     @InitBinder(value = "foo")
-    public void initBinderWithAttributeName(WebDataBinder dataBinder) {
+    public void initBinderWithAttributeName(RequestContextDataBinder dataBinder) {
       dataBinder.setDisallowedFields("id");
     }
 
     @InitBinder
-    public String initBinderReturnValue(WebDataBinder dataBinder) {
+    public String initBinderReturnValue(RequestContextDataBinder dataBinder) {
       return "invalid";
     }
 
     @InitBinder
-    public void initBinderTypeConversion(WebDataBinder dataBinder, @RequestParam int requestParam) {
+    public void initBinderTypeConversion(RequestContextDataBinder dataBinder, @RequestParam int requestParam) {
       dataBinder.setDisallowedFields("requestParam-" + requestParam);
     }
 

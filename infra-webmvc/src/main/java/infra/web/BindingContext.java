@@ -28,7 +28,7 @@ import infra.core.ResolvableType;
 import infra.ui.Model;
 import infra.ui.ModelMap;
 import infra.validation.BindingResult;
-import infra.web.bind.WebDataBinder;
+import infra.web.bind.RequestContextDataBinder;
 import infra.web.bind.support.BindParamNameResolver;
 import infra.web.bind.support.WebBindingInitializer;
 import infra.web.view.BindingAwareModelMap;
@@ -38,7 +38,7 @@ import infra.web.view.ModelAndView;
  * Context to assist with binding request data onto Objects and provide access
  * to a shared {@link Model} with controller-specific attributes.
  *
- * <p>Provides methods to create a {@link WebDataBinder} for a specific
+ * <p>Provides methods to create a {@link RequestContextDataBinder} for a specific
  * target, command Object to apply data binding and validation to, or without a
  * target Object for simple type conversion from request values.
  *
@@ -86,7 +86,7 @@ public class BindingContext {
   }
 
   /**
-   * Create a {@link WebDataBinder} without a target object for type
+   * Create a {@link RequestContextDataBinder} without a target object for type
    * conversion of request values to simple types.
    *
    * @param context the current exchange
@@ -94,12 +94,12 @@ public class BindingContext {
    * @return the created data binder
    * @throws Throwable if {@code @InitBinder} method invocation fails
    */
-  public WebDataBinder createBinder(RequestContext context, String objectName) throws Throwable {
+  public RequestContextDataBinder createBinder(RequestContext context, String objectName) throws Throwable {
     return createBinder(context, null, objectName, null);
   }
 
   /**
-   * Create a {@link WebDataBinder} to apply data binding and
+   * Create a {@link RequestContextDataBinder} to apply data binding and
    * validation with on the target, command object.
    *
    * @param request the current request
@@ -108,7 +108,7 @@ public class BindingContext {
    * @return the created data binder
    * @throws Throwable if {@code @InitBinder} method invocation fails
    */
-  public WebDataBinder createBinder(RequestContext request, @Nullable Object target, String objectName) throws Throwable {
+  public RequestContextDataBinder createBinder(RequestContext request, @Nullable Object target, String objectName) throws Throwable {
     return createBinder(request, target, objectName, null);
   }
 
@@ -118,10 +118,10 @@ public class BindingContext {
    * This may be used to construct the target, or otherwise provide more
    * insight on how to initialize the binder.
    */
-  public WebDataBinder createBinder(RequestContext request, @Nullable Object target,
+  public RequestContextDataBinder createBinder(RequestContext request, @Nullable Object target,
           String objectName, @Nullable ResolvableType targetType) throws Throwable {
 
-    WebDataBinder dataBinder = createBinderInstance(target, objectName, request);
+    RequestContextDataBinder dataBinder = createBinderInstance(target, objectName, request);
     dataBinder.setNameResolver(new BindParamNameResolver());
 
     if (target == null && targetType != null) {
@@ -145,8 +145,8 @@ public class BindingContext {
    * @param request the current request
    * @throws Exception in case of invalid state or arguments
    */
-  protected WebDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
-    return new WebDataBinder(target, objectName);
+  protected RequestContextDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
+    return new RequestContextDataBinder(target, objectName);
   }
 
   /**
@@ -154,7 +154,7 @@ public class BindingContext {
    *
    * @throws Throwable if {@code @InitBinder} method invocation fails
    */
-  public void initBinder(WebDataBinder dataBinder, RequestContext request) throws Throwable {
+  public void initBinder(RequestContextDataBinder dataBinder, RequestContext request) throws Throwable {
   }
 
   /**

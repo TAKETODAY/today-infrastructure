@@ -26,7 +26,7 @@ import infra.lang.Assert;
 import infra.util.ObjectUtils;
 import infra.web.BindingContext;
 import infra.web.RequestContext;
-import infra.web.bind.WebDataBinder;
+import infra.web.bind.RequestContextDataBinder;
 import infra.web.bind.annotation.InitBinder;
 import infra.web.bind.support.WebBindingInitializer;
 
@@ -87,10 +87,10 @@ public class InitBinderBindingContext extends BindingContext {
    * it is invoked only if the names include the target object name.
    *
    * @throws Exception if one of the invoked @{@link InitBinder} methods fails
-   * @see #isBinderMethodApplicable(HandlerMethod, WebDataBinder)
+   * @see #isBinderMethodApplicable(HandlerMethod, RequestContextDataBinder)
    */
   @Override
-  public void initBinder(WebDataBinder dataBinder, RequestContext request) throws Throwable {
+  public void initBinder(RequestContextDataBinder dataBinder, RequestContext request) throws Throwable {
     List<InvocableHandlerMethod> binderMethods = this.binderMethods;
     if (binderMethods == null) {
       binderMethods = methodResolver.getBinderMethods(handlerMethod);
@@ -120,10 +120,10 @@ public class InitBinderBindingContext extends BindingContext {
 
   /**
    * Determine whether the given {@code @InitBinder} method should be used
-   * to initialize the given {@link WebDataBinder} instance. By default we
+   * to initialize the given {@link RequestContextDataBinder} instance. By default we
    * check the specified attribute names in the annotation value, if any.
    */
-  protected boolean isBinderMethodApplicable(HandlerMethod initBinderMethod, WebDataBinder dataBinder) {
+  protected boolean isBinderMethodApplicable(HandlerMethod initBinderMethod, RequestContextDataBinder dataBinder) {
     InitBinder ann = initBinderMethod.getMethodAnnotation(InitBinder.class);
     Assert.state(ann != null, "No InitBinder annotation");
     String[] names = ann.value();

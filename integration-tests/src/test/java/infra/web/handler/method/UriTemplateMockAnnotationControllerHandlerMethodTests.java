@@ -40,7 +40,7 @@ import infra.web.RequestContext;
 import infra.web.annotation.MatrixVariable;
 import infra.web.annotation.PathVariable;
 import infra.web.annotation.RequestMapping;
-import infra.web.bind.WebDataBinder;
+import infra.web.bind.RequestContextDataBinder;
 import infra.web.bind.annotation.InitBinder;
 import infra.web.bind.support.WebBindingInitializer;
 import infra.web.mock.WebApplicationContext;
@@ -402,7 +402,7 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
   public static class BindingUriTemplateController {
 
     @InitBinder
-    void initBinder(WebDataBinder binder, @PathVariable("hotel") String hotel) {
+    void initBinder(RequestContextDataBinder binder, @PathVariable("hotel") String hotel) {
       assertThat(hotel).as("Invalid path variable value").isEqualTo("42");
       binder.initBeanPropertyAccess();
       SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");

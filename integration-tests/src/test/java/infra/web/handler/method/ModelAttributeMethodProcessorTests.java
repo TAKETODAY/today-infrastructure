@@ -38,7 +38,7 @@ import infra.validation.Errors;
 import infra.web.BindingContext;
 import infra.web.RequestContext;
 import infra.web.bind.MethodArgumentNotValidException;
-import infra.web.bind.WebDataBinder;
+import infra.web.bind.RequestContextDataBinder;
 import infra.web.bind.annotation.ModelAttribute;
 import infra.web.mock.MockRequestContext;
 import infra.web.multipart.Part;
@@ -158,7 +158,7 @@ class ModelAttributeMethodProcessorTests {
 
   @Test
   public void resolveArgumentViaDefaultConstructor() throws Throwable {
-    WebDataBinder dataBinder = new WebDataBinder(null);
+    RequestContextDataBinder dataBinder = new RequestContextDataBinder(null);
     dataBinder.setTargetType(ResolvableType.forMethodParameter(paramNamedValidModelAttr.getParameter()));
 
     BindingContext factory = mock();
@@ -179,7 +179,7 @@ class ModelAttributeMethodProcessorTests {
 
     BindingContext factory = new BindingContext() {
       @Override
-      protected WebDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
+      protected RequestContextDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
         StubRequestDataBinder dataBinder = new StubRequestDataBinder(target, objectName);
         ref.set(dataBinder);
         return dataBinder;
@@ -203,7 +203,7 @@ class ModelAttributeMethodProcessorTests {
     BindingContext factory = new BindingContext() {
 
       @Override
-      protected WebDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
+      protected RequestContextDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
         return dataBinder;
       }
     };
@@ -228,7 +228,7 @@ class ModelAttributeMethodProcessorTests {
     StubRequestDataBinder dataBinder = new StubRequestDataBinder(target, name);
     BindingContext factory = new BindingContext() {
       @Override
-      protected WebDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
+      protected RequestContextDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
         return dataBinder;
       }
     };
@@ -250,7 +250,7 @@ class ModelAttributeMethodProcessorTests {
     BindingContext binderFactory = new BindingContext() {
 
       @Override
-      protected WebDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
+      protected RequestContextDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
         StubRequestDataBinder dataBinder = new StubRequestDataBinder(target, name);
         dataBinder.getBindingResult().reject("error");
         return dataBinder;
@@ -270,7 +270,7 @@ class ModelAttributeMethodProcessorTests {
 
     BindingContext factory = new BindingContext() {
       @Override
-      protected WebDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
+      protected RequestContextDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
         return dataBinder;
       }
     };
@@ -311,8 +311,8 @@ class ModelAttributeMethodProcessorTests {
 
     BindingContext factory = new BindingContext() {
       @Override
-      protected WebDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
-        WebDataBinder binder = new WebDataBinder(target, objectName);
+      protected RequestContextDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
+        RequestContextDataBinder binder = new RequestContextDataBinder(target, objectName);
         binder.setTargetType(ResolvableType.forMethodParameter(beanWithConstructorArgs.getParameter()));
 
         // Add conversion service which will convert "1,2" to a list
@@ -339,7 +339,7 @@ class ModelAttributeMethodProcessorTests {
     this.processor.resolveArgument(request, param);
   }
 
-  private static class StubRequestDataBinder extends WebDataBinder {
+  private static class StubRequestDataBinder extends RequestContextDataBinder {
 
     private boolean bindInvoked;
 

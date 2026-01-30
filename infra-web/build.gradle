@@ -13,7 +13,6 @@ dependencies {
 
   optional(project(":infra-aop"))
   optional(project(":infra-web-client"))
-  optional(project(":infra-http-codec"))
   optional(project(":infra-http-reactive"))
   optional(project(":infra-oxm"))
   optional(project(":infra-core-aot"))

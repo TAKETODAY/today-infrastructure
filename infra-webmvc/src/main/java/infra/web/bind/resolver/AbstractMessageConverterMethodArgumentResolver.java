@@ -60,7 +60,7 @@ import infra.web.BindingContext;
 import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.RequestContext;
 import infra.web.bind.MethodArgumentNotValidException;
-import infra.web.bind.WebDataBinder;
+import infra.web.bind.RequestContextDataBinder;
 import infra.web.handler.method.ControllerAdviceBean;
 import infra.web.handler.method.RequestBodyAdvice;
 
@@ -278,7 +278,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
       String name = Conventions.getVariableNameForParameter(parameter);
       ResolvableType type = ResolvableType.forMethodParameter(parameter);
 
-      WebDataBinder binder = bindingContext.createBinder(context, arg, name, type);
+      RequestContextDataBinder binder = bindingContext.createBinder(context, arg, name, type);
       if (arg != null) {
         validateIfApplicable(binder, parameter);
         if (binder.getBindingResult().hasErrors() && isBindExceptionRequired(binder, parameter)) {
@@ -300,7 +300,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
    * @param parameter the method parameter descriptor
    * @see #isBindExceptionRequired
    */
-  protected void validateIfApplicable(WebDataBinder binder, MethodParameter parameter) {
+  protected void validateIfApplicable(RequestContextDataBinder binder, MethodParameter parameter) {
     for (Annotation ann : parameter.getParameterAnnotations()) {
       Object[] validationHints = ValidationAnnotationUtils.determineValidationHints(ann);
       if (validationHints != null) {
@@ -317,7 +317,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
    * @param parameter the method parameter descriptor
    * @return {@code true} if the next method argument is not of type {@link Errors}
    */
-  protected boolean isBindExceptionRequired(WebDataBinder binder, MethodParameter parameter) {
+  protected boolean isBindExceptionRequired(RequestContextDataBinder binder, MethodParameter parameter) {
     int i = parameter.getParameterIndex();
     Class<?>[] paramTypes = parameter.getExecutable().getParameterTypes();
     boolean hasBindingResult = (paramTypes.length > (i + 1) && Errors.class.isAssignableFrom(paramTypes[i + 1]));

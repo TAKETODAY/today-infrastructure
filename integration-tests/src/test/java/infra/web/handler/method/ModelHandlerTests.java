@@ -32,7 +32,7 @@ import infra.validation.BindingResult;
 import infra.web.BindingContext;
 import infra.web.RedirectModel;
 import infra.web.RequestContext;
-import infra.web.bind.WebDataBinder;
+import infra.web.bind.RequestContextDataBinder;
 import infra.web.bind.annotation.ModelAttribute;
 import infra.web.bind.resolver.ModelMethodProcessor;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
@@ -143,7 +143,7 @@ class ModelHandlerTests {
   public void updateModelBindingResult() throws Throwable {
     String commandName = "attr1";
     Object command = new Object();
-    WebDataBinder dataBinder = new WebDataBinder(command, commandName);
+    RequestContextDataBinder dataBinder = new RequestContextDataBinder(command, commandName);
     BindingContext container = new BindingContext0(dataBinder);
     container.addAttribute(commandName, command);
 
@@ -157,14 +157,14 @@ class ModelHandlerTests {
   }
 
   static class BindingContext0 extends BindingContext {
-    final WebDataBinder dataBinder;
+    final RequestContextDataBinder dataBinder;
 
-    BindingContext0(WebDataBinder dataBinder) {
+    BindingContext0(RequestContextDataBinder dataBinder) {
       this.dataBinder = dataBinder;
     }
 
     @Override
-    public WebDataBinder createBinder(RequestContext request, @Nullable Object target, String objectName) throws Throwable {
+    public RequestContextDataBinder createBinder(RequestContext request, @Nullable Object target, String objectName) throws Throwable {
       return dataBinder;
     }
   }
@@ -174,7 +174,7 @@ class ModelHandlerTests {
     String attributeName = "sessionAttr";
     String attribute = "value";
 
-    WebDataBinder dataBinder = new WebDataBinder(attribute, attributeName);
+    RequestContextDataBinder dataBinder = new RequestContextDataBinder(attribute, attributeName);
     BindingContext container = new BindingContext0(dataBinder);
     container.addAttribute(attributeName, attribute);
 

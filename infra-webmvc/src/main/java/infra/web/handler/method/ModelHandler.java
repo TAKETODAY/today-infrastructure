@@ -40,7 +40,7 @@ import infra.util.StringUtils;
 import infra.validation.BindingResult;
 import infra.web.BindingContext;
 import infra.web.RequestContext;
-import infra.web.bind.WebDataBinder;
+import infra.web.bind.RequestContextDataBinder;
 import infra.web.bind.annotation.ModelAttribute;
 
 /**
@@ -180,7 +180,7 @@ final class ModelHandler {
       if (value != null && isBindingCandidate(name, value)) {
         String bindingResultKey = BindingResult.MODEL_KEY_PREFIX + name;
         if (!model.containsAttribute(bindingResultKey)) {
-          WebDataBinder dataBinder = bindingContext.createBinder(request, value, name);
+          RequestContextDataBinder dataBinder = bindingContext.createBinder(request, value, name);
           model.put(bindingResultKey, dataBinder.getBindingResult());
         }
       }

@@ -40,7 +40,7 @@ import infra.web.RequestContext;
 import infra.web.annotation.RequestParam;
 import infra.web.annotation.RequestPart;
 import infra.web.bind.MissingRequestParameterException;
-import infra.web.bind.WebDataBinder;
+import infra.web.bind.RequestContextDataBinder;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.handler.method.support.UriComponentsContributor;
 import infra.web.multipart.MultipartRequest;
@@ -64,7 +64,7 @@ import infra.web.util.UriComponentsBuilder;
  * {@link RequestParamMapMethodArgumentResolver} is used instead to provide
  * access to all request parameters in the form of a map.
  *
- * <p>A {@link WebDataBinder} is invoked to apply type conversion to resolved request
+ * <p>A {@link RequestContextDataBinder} is invoked to apply type conversion to resolved request
  * header values that don't yet match the method parameter type.
  *
  * @author Arjen Poutsma

@@ -51,7 +51,7 @@ import infra.web.RequestContext;
 import infra.web.annotation.RequestBody;
 import infra.web.annotation.ResponseBody;
 import infra.web.bind.MethodArgumentNotValidException;
-import infra.web.bind.WebDataBinder;
+import infra.web.bind.RequestContextDataBinder;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.mock.MockRequestContext;
@@ -216,7 +216,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
     BindingContext bindingContext = new BindingContext() {
 
       @Override
-      public void initBinder(WebDataBinder dataBinder, RequestContext request) {
+      public void initBinder(RequestContextDataBinder dataBinder, RequestContext request) {
         LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
         validator.afterPropertiesSet();
         dataBinder.setValidator(validator);

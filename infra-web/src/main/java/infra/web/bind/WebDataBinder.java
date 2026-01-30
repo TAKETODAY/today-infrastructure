@@ -23,28 +23,21 @@ import org.jspecify.annotations.Nullable;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.BiFunction;
-import java.util.function.Predicate;
 
 import infra.beans.ConfigurablePropertyAccessor;
 import infra.beans.PropertyValue;
 import infra.beans.PropertyValues;
-import infra.core.MethodParameter;
-import infra.lang.Assert;
 import infra.util.CollectionUtils;
-import infra.util.StringUtils;
-import infra.validation.BindException;
 import infra.validation.DataBinder;
-import infra.web.HandlerMatchingMetadata;
-import infra.web.RequestContext;
 import infra.web.multipart.Part;
 
 /**
  * Special {@link DataBinder} for data binding from web request parameters
- * to JavaBean objects.
+ * to JavaBean objects. Designed for web environments, but not dependent on
+ * the Servlet API; serves as base class for more specific DataBinder variants,
+ * such as {@link infra.web.bind.RequestContextDataBinder}.
  *
  * <p><strong>WARNING</strong>: Data binding can lead to security issues by exposing
  * parts of the object graph that are not meant to be accessed or modified by
@@ -59,42 +52,24 @@ import infra.web.multipart.Part;
  * the form, but did not generate a request parameter because it was empty.
  * A field marker allows to detect that state and reset the corresponding
  * bean property accordingly. Default values, for parameters that are otherwise
- * not present, can specify a value for the field other then empty.
- *
- * <p>Can also used for manual data binding in custom web controllers or interceptors
- * that build on Infra {@link RequestContext} implementation. Simply instantiate
- * a WebDataBinder for each binding process, and invoke {@code bind} with
- * the current RequestContext as argument:
- *
- * <pre> {@code
- * MyBean myBean = new MyBean();
- * // apply binder to custom target object
- * WebDataBinder binder = new WebDataBinder(myBean);
- * // register custom editors, if desired
- * binder.registerCustomEditor(...);
- * // trigger actual binding of request parameters
- * binder.bind(request);
- * // optionally evaluate binding errors
- * Errors errors = binder.getErrors();
- * // ...
- * }</pre>
+ * not present, can specify a value for the field other than empty.
  *
  * @author Juergen Hoeller
  * @author Scott Andrews
  * @author Brian Clozel
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #registerCustomEditor
  * @see #setAllowedFields
  * @see #setRequiredFields
  * @see #setFieldMarkerPrefix
  * @see #setFieldDefaultPrefix
+ * @see infra.web.bind.RequestContextDataBinder
  * @since 4.0 2022/3/2 16:28
  */
 public class WebDataBinder extends DataBinder {
 
   /**
    * Default prefix that field marker parameters start with, followed by the field
-   * name: e.g. "_subscribeToNewsletter" for a field "subscribeToNewsletter".
+   * name: for example, "_subscribeToNewsletter" for a field "subscribeToNewsletter".
    * <p>Such a marker parameter indicates that the field was visible, that is,
    * existed in the form that caused the submission. If no corresponding field
    * value parameter was found, the field will be reset. The value of the field
@@ -107,19 +82,13 @@ public class WebDataBinder extends DataBinder {
 
   /**
    * Default prefix that field default parameters start with, followed by the field
-   * name: e.g. "!subscribeToNewsletter" for a field "subscribeToNewsletter".
+   * name: for example, "!subscribeToNewsletter" for a field "subscribeToNewsletter".
    * <p>Default parameters differ from field markers in that they provide a default
    * value instead of an empty value.
    *
    * @see #setFieldDefaultPrefix
    */
   public static final String DEFAULT_FIELD_DEFAULT_PREFIX = "!";
-
-  private static final Set<String> FILTERED_HEADER_NAMES = Set.of("accept", "authorization", "connection",
-          "cookie", "from", "host", "origin", "priority", "range", "referer", "upgrade");
-
-  // @since 5.0
-  private Predicate<String> headerPredicate = name -> !FILTERED_HEADER_NAMES.contains(name.toLowerCase(Locale.ROOT));
 
   private @Nullable String fieldMarkerPrefix = DEFAULT_FIELD_MARKER_PREFIX;
 
@@ -154,14 +123,14 @@ public class WebDataBinder extends DataBinder {
    * empty fields, having "prefix + field" as name. Such a marker parameter is
    * checked by existence: You can send any value for it, for example "visible".
    * This is particularly useful for HTML checkboxes and select options.
-   * <p>Default is "_", for "_FIELD" parameters (e.g. "_subscribeToNewsletter").
+   * <p>Default is "_", for "_FIELD" parameters (for example, "_subscribeToNewsletter").
    * Set this to null if you want to turn off the empty field check completely.
    * <p>HTML checkboxes only send a value when they're checked, so it is not
    * possible to detect that a formerly checked box has just been unchecked,
    * at least not with standard HTML means.
    * <p>One way to address this is to look for a checkbox parameter value if
    * you know that the checkbox has been visible in the form, resetting the
-   * checkbox if no value found. In Framework web MVC, this typically happens
+   * checkbox if no value found. In Infra web MVC, this typically happens
    * in a custom {@code onBind} implementation.
    * <p>This auto-reset mechanism addresses this deficiency, provided
    * that a marker parameter is sent for each checkbox field, like
@@ -186,7 +155,7 @@ public class WebDataBinder extends DataBinder {
    * Specify a prefix that can be used for parameters that indicate default
    * value fields, having "prefix + field" as name. The value of the default
    * field is used when the field is not provided.
-   * <p>Default is "!", for "!FIELD" parameters (e.g. "!subscribeToNewsletter").
+   * <p>Default is "!", for "!FIELD" parameters (for example, "!subscribeToNewsletter").
    * Set this to null if you want to turn off the field defaults completely.
    * <p>HTML checkboxes only send a value when they're checked, so it is not
    * possible to detect that a formerly checked box has just been unchecked,
@@ -209,11 +178,11 @@ public class WebDataBinder extends DataBinder {
   }
 
   /**
-   * Set whether to bind empty Multipart parameters. Default is "true".
-   * <p>Turn this off if you want to keep an already bound Multipart
+   * Set whether to bind empty MultipartFile parameters. Default is "true".
+   * <p>Turn this off if you want to keep an already bound MultipartFile
    * when the user resubmits the form without choosing a different file.
-   * Else, the already bound Multipart will be replaced by an empty
-   * Multipart holder.
+   * Else, the already bound MultipartFile will be replaced by an empty
+   * MultipartFile holder.
    *
    * @see infra.web.multipart.Part
    */
@@ -222,35 +191,10 @@ public class WebDataBinder extends DataBinder {
   }
 
   /**
-   * Return whether to bind empty Multipart parameters.
+   * Return whether to bind empty MultipartFile parameters.
    */
   public boolean isBindEmptyMultipartFiles() {
     return this.bindEmptyMultipartFiles;
-  }
-
-  /**
-   * Add a Predicate that filters the header names to use for data binding.
-   * Multiple predicates are combined with {@code AND}.
-   *
-   * @param predicate the predicate to add
-   * @since 5.0
-   */
-  public void addHeaderPredicate(Predicate<String> predicate) {
-    this.headerPredicate = this.headerPredicate.and(predicate);
-  }
-
-  /**
-   * Set the Predicate that filters the header names to use for data binding.
-   * <p>Note that this method resets any previous predicates that may have been
-   * set, including headers excluded by default such as the RFC 9218 defined
-   * "Priority" header.
-   *
-   * @param predicate the predicate to add
-   * @since 5.0
-   */
-  public void setHeaderPredicate(Predicate<String> predicate) {
-    Assert.notNull(predicate, "header predicate is required");
-    this.headerPredicate = predicate;
   }
 
   /**
@@ -262,7 +206,7 @@ public class WebDataBinder extends DataBinder {
    * @param resolver delegate resolver to use for the checks
    * @return the resolved value, or {@code null}
    */
-  protected @Nullable Object resolvePrefixValue(String name, Class<?> type, BiFunction<String, Class<?>, @Nullable Object> resolver) {
+  protected @Nullable Object resolvePrefixValue(String name, Class<?> type, BiFunction<String, Class<?>, Object> resolver) {
     Object value = resolver.apply(name, type);
     if (value == null) {
       String prefix = getFieldDefaultPrefix();
@@ -287,11 +231,11 @@ public class WebDataBinder extends DataBinder {
    * @see #checkFieldMarkers
    */
   @Override
-  protected void doBind(PropertyValues values) {
-    checkFieldDefaults(values);
-    checkFieldMarkers(values);
-    adaptEmptyArrayIndices(values);
-    super.doBind(values);
+  protected void doBind(PropertyValues mpvs) {
+    checkFieldDefaults(mpvs);
+    checkFieldMarkers(mpvs);
+    adaptEmptyArrayIndices(mpvs);
+    super.doBind(mpvs);
   }
 
   /**
@@ -380,7 +324,7 @@ public class WebDataBinder extends DataBinder {
    * @return the empty value (for most fields: {@code null})
    */
   protected @Nullable Object getEmptyValue(String field, @Nullable Class<?> fieldType) {
-    return fieldType != null ? getEmptyValue(fieldType) : null;
+    return (fieldType != null ? getEmptyValue(fieldType) : null);
   }
 
   /**
@@ -422,75 +366,12 @@ public class WebDataBinder extends DataBinder {
   }
 
   /**
-   * Use a default or single data constructor to create the target by
-   * binding request parameters, multipart files, or parts to constructor args.
-   * <p>After the call, use {@link #getBindingResult()} to check for bind errors.
-   * If there are none, the target is set, and {@link #bind(RequestContext)}
-   * can be called for further initialization via setters.
-   *
-   * @param request the request to bind
-   */
-  public void construct(RequestContext request) {
-    construct(new RequestValueResolver(request, this));
-  }
-
-  @Override
-  protected boolean shouldConstructArgument(MethodParameter param) {
-    Class<?> type = param.nestedIfOptional().getNestedParameterType();
-    return super.shouldConstructArgument(param)
-            && !Part.class.isAssignableFrom(type);
-  }
-
-  /**
-   * Bind the parameters of the given request to this binder's target,
-   * also binding multipart files in case of a multipart request.
-   * <p>This call can create field errors, representing basic binding
-   * errors like a required field (code "required"), or type mismatch
-   * between value and bean property (code "typeMismatch").
-   * <p>Multipart files are bound via their parameter name, just like normal
-   * HTTP parameters: i.e. "uploadedFile" to an "uploadedFile" bean property,
-   * invoking a "setUploadedFile" setter method.
-   * <p>The type of the target property for a multipart file can be Part, Multipart,
-   * byte[], or String. The latter two receive the contents of the uploaded file;
-   * all metadata like original file name, content type, etc are lost in those cases.
-   *
-   * @param request the request with parameters to bind (can be multipart)
-   * @see infra.web.multipart.Part
-   * @see #bind(PropertyValues)
-   */
-  public void bind(RequestContext request) {
-    if (shouldNotBindPropertyValues()) {
-      return;
-    }
-    doBind(getValuesToBind(request));
-  }
-
-  /**
-   * method to obtain the values for data binding.
-   *
-   * @param request the current exchange
-   * @return a map of bind values
-   */
-  public PropertyValues getValuesToBind(RequestContext request) {
-    PropertyValues pv = new PropertyValues(request.getParameters().toArrayMap(String[]::new));
-    if (request.isMultipart()) {
-      var multipartFiles = request.asMultipartRequest().getParts();
-      if (!multipartFiles.isEmpty()) {
-        bindMultipart(multipartFiles, pv);
-      }
-    }
-
-    addBindValues(pv, request);
-    return pv;
-  }
-
-  /**
    * Bind all multipart files contained in the given request, if any
    * (in case of a multipart request). To be called by subclasses.
    * <p>Multipart files will only be added to the property values if they
    * are not empty or if we're configured to bind empty multipart files too.
    *
-   * @param multipartFiles a Map of field name String to Multipart object
+   * @param multipartFiles a Map of field name String to Part object
    * @param mpvs the property values to be bound (can be modified)
    * @see infra.web.multipart.Part
    * @see #setBindEmptyMultipartFiles
@@ -509,168 +390,6 @@ public class WebDataBinder extends DataBinder {
         mpvs.add(key, values);
       }
     }
-  }
-
-  /**
-   * Treats errors as fatal.
-   * <p>Use this method only if it's an error if the input isn't valid.
-   * This might be appropriate if all input is from dropdowns, for example.
-   *
-   * @throws BindException if binding errors have been encountered
-   */
-  public void closeNoCatch() throws BindException {
-    if (getBindingResult().hasErrors()) {
-      throw new BindException(getBindingResult());
-    }
-  }
-
-  /**
-   * Merge URI variables into the property values to use for data binding.
-   */
-  protected void addBindValues(PropertyValues pv, RequestContext request) {
-    Map<String, String> uriVars = getUriVars(request);
-    if (uriVars != null) {
-      for (var entry : uriVars.entrySet()) {
-        addValueIfNotPresent(pv, "URI variable", entry.getKey(), entry.getValue());
-      }
-    }
-
-    for (String name : request.getHeaders().keySet()) {
-      Object value = getHeaderValue(request, name);
-      if (value != null) {
-        name = normalizeHeaderName(name);
-        addValueIfNotPresent(pv, "Header", name, value);
-      }
-    }
-  }
-
-  private static String normalizeHeaderName(String name) {
-    return StringUtils.uncapitalize(name.replace("-", ""));
-  }
-
-  private static @Nullable Map<String, String> getUriVars(RequestContext request) {
-    HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
-    if (matchingMetadata != null) {
-      return matchingMetadata.getUriVariables();
-    }
-    return null;
-  }
-
-  private static void addValueIfNotPresent(PropertyValues pv, String label, String name, Object value) {
-    if (pv.contains(name)) {
-      if (logger.isDebugEnabled()) {
-        logger.debug("{} '{}' overridden by request bind value.", label, name);
-      }
-    }
-    else {
-      pv.add(name, value);
-    }
-  }
-
-  private @Nullable Object getHeaderValue(RequestContext request, String name) {
-    if (!this.headerPredicate.test(name)) {
-      return null;
-    }
-
-    List<String> values = request.getHeaders().getValuesAsList(name);
-    if (values.isEmpty()) {
-      return null;
-    }
-
-    if (values.size() == 1) {
-      return values.get(0);
-    }
-
-    return values;
-  }
-
-  /**
-   * Resolver that looks up values to bind in a {@link RequestContext}.
-   */
-  protected class RequestValueResolver implements ValueResolver {
-
-    private final RequestContext request;
-
-    private final WebDataBinder dataBinder;
-
-    private @Nullable Set<String> parameterNames;
-
-    protected RequestValueResolver(RequestContext request, WebDataBinder dataBinder) {
-      this.request = request;
-      this.dataBinder = dataBinder;
-    }
-
-    protected RequestContext getRequest() {
-      return this.request;
-    }
-
-    @Override
-    public final @Nullable Object resolveValue(String name, Class<?> paramType) {
-      Object value = getRequestParameter(name, paramType);
-      if (value == null) {
-        value = this.dataBinder.resolvePrefixValue(name, paramType, this::getRequestParameter);
-      }
-      if (value == null) {
-        value = getMultipartValue(name, paramType);
-      }
-      return value;
-    }
-
-    protected @Nullable Object getRequestParameter(String name, Class<?> type) {
-      Object value = request.getParameters(name);
-
-      if (value == null && !name.endsWith("[]") && (List.class.isAssignableFrom(type) || type.isArray())) {
-        value = this.request.getParameters(name + "[]");
-      }
-      if (value == null) {
-        Map<String, String> uriVars = getUriVars(getRequest());
-        if (uriVars != null) {
-          value = uriVars.get(name);
-        }
-        if (value == null) {
-          value = getHeaderValue(request, name);
-        }
-      }
-      else if (((String[]) value).length == 1) {
-        return ((String[]) value)[0];
-      }
-      return value;
-    }
-
-    private @Nullable Object getMultipartValue(String name, Class<?> paramType) {
-      if (request.isMultipart()) {
-        List<Part> files = request.asMultipartRequest().getParts(name);
-        if (CollectionUtils.isNotEmpty(files)) {
-          return files.size() == 1 ? files.get(0) : files;
-        }
-      }
-      return null;
-    }
-
-    @Override
-    public Set<String> getNames() {
-      if (this.parameterNames == null) {
-        this.parameterNames = initParameterNames(this.request);
-      }
-      return this.parameterNames;
-    }
-
-    private Set<String> initParameterNames(RequestContext request) {
-      Set<String> set = request.getParameterNames();
-      Map<String, String> uriVars = getUriVars(getRequest());
-      if (uriVars != null) {
-        set.addAll(uriVars.keySet());
-      }
-
-      for (String name : request.getHeaders().keySet()) {
-        if (headerPredicate.test(name)) {
-          set.add(normalizeHeaderName(name));
-        }
-      }
-
-      return set;
-    }
-
   }
 
 }

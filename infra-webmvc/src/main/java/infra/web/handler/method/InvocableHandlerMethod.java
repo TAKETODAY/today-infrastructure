@@ -34,7 +34,7 @@ import infra.util.StringUtils;
 import infra.web.HttpRequestHandler;
 import infra.web.RequestContext;
 import infra.web.annotation.ResponseStatus;
-import infra.web.bind.WebDataBinder;
+import infra.web.bind.RequestContextDataBinder;
 import infra.web.bind.resolver.ParameterResolvingStrategies;
 import infra.web.view.View;
 
@@ -157,7 +157,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * {@link ParameterResolvingStrategies ParameterResolvingStrategies}.
    * The {@code providedArgs} parameter however may supply argument values to be used directly,
    * i.e. without argument resolution. Examples of provided argument values include a
-   * {@link WebDataBinder} or a thrown exception instance.
+   * {@link RequestContextDataBinder} or a thrown exception instance.
    * Provided argument values are checked before argument resolvers.
    * <p>Delegates to {@link #getMethodArgumentValues} and calls {@link Method#invoke(Object, Object...)} with the
    * resolved arguments.

@@ -18,10 +18,10 @@
 
 package infra.web.bind.support;
 
-import infra.web.bind.WebDataBinder;
+import infra.web.bind.RequestContextDataBinder;
 
 /**
- * Callback interface for initializing a {@link WebDataBinder} for performing
+ * Callback interface for initializing a {@link RequestContextDataBinder} for performing
  * data binding in the context of a specific web request.
  *
  * @author Juergen Hoeller
@@ -36,6 +36,6 @@ public interface WebBindingInitializer {
    *
    * @param binder the DataBinder to initialize
    */
-  void initBinder(WebDataBinder binder);
+  void initBinder(RequestContextDataBinder binder);
 
 }

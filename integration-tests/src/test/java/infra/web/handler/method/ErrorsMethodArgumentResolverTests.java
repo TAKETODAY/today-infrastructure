@@ -26,7 +26,7 @@ import infra.mock.web.HttpMockRequestImpl;
 import infra.validation.BindingResult;
 import infra.validation.Errors;
 import infra.web.BindingContext;
-import infra.web.bind.WebDataBinder;
+import infra.web.bind.RequestContextDataBinder;
 import infra.web.bind.resolver.ErrorsMethodArgumentResolver;
 import infra.web.mock.MockRequestContext;
 
@@ -51,7 +51,7 @@ public class ErrorsMethodArgumentResolverTests {
   @BeforeEach
   public void setup() throws Exception {
     paramErrors = new ResolvableMethodParameter(new MethodParameter(getClass().getDeclaredMethod("handle", Errors.class), 0));
-    bindingResult = new WebDataBinder(new Object(), "attr").getBindingResult();
+    bindingResult = new RequestContextDataBinder(new Object(), "attr").getBindingResult();
     webRequest = new MockRequestContext(null, new HttpMockRequestImpl(), null);
   }
 

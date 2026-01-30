@@ -27,7 +27,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1028,11 +1027,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    */
   protected boolean shouldConstructArgument(MethodParameter param) {
     Class<?> type = param.nestedIfOptional().getNestedParameterType();
-    return !(BeanUtils.isSimpleValueType(type)
-            || Collection.class.isAssignableFrom(type)
-            || Map.class.isAssignableFrom(type)
-            || type.isArray()
-            || type.getPackageName().startsWith("java."));
+    return !BeanUtils.isSimpleValueType(type) && !type.getPackageName().startsWith("java.");
   }
 
   private boolean hasValuesFor(String paramPath, ValueResolver resolver) {
