@@ -1036,6 +1036,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     int resolvedAutowireMode = merged.getResolvedAutowireMode();
     if (resolvedAutowireMode == AUTOWIRE_BY_NAME || resolvedAutowireMode == AUTOWIRE_BY_TYPE) {
       // Add property values based on autowire by name if applicable.
+      pvs = new PropertyValues(pvs);
       if (resolvedAutowireMode == AUTOWIRE_BY_NAME) {
         autowireByName(beanName, merged, beanWrapper, pvs);
       }
