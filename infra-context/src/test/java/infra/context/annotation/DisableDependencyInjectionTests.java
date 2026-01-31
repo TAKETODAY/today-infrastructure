@@ -50,6 +50,7 @@ class DisableDependencyInjectionTests {
 
   }
 
+  @EnableDependencyInjection
   @DisableAllDependencyInjection
   @Configuration(proxyBeanMethods = false)
   static class OuterConfig {
