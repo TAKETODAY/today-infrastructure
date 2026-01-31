@@ -362,10 +362,20 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
    */
   boolean isAbstract();
 
-  /** @since 4.0 */
+  /**
+   * Check whether dependency injection is enabled for this bean.
+   *
+   * @return {@code true} if dependency injection is enabled, {@code false} otherwise
+   * @since 4.0
+   */
   boolean isEnableDependencyInjection();
 
-  /** @since 4.0 */
+  /**
+   * Set whether dependency injection should be enabled for this bean.
+   *
+   * @param enableDependencyInjection {@code true} to enable dependency injection, {@code false} to disable it
+   * @since 4.0
+   */
   void setEnableDependencyInjection(boolean enableDependencyInjection);
 
   /**

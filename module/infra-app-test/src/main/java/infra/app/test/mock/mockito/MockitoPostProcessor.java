@@ -341,9 +341,8 @@ public class MockitoPostProcessor implements BeanFactoryAware, BeanClassLoaderAw
     return bean;
   }
 
-  @Nullable
   @Override
-  public PropertyValues processDependencies(@Nullable PropertyValues pvs, Object bean, String beanName) {
+  public @Nullable PropertyValues processDependencies(PropertyValues pvs, Object bean, String beanName) {
     ReflectionUtils.doWithFields(bean.getClass(), (field) -> postProcessField(bean, field));
     return pvs;
   }

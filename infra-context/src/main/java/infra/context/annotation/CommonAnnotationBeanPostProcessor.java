@@ -359,11 +359,11 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 
   @Override
   @Nullable
-  public PropertyValues processDependencies(@Nullable PropertyValues propertyValues, Object bean, String beanName) {
-    InjectionMetadata metadata = findResourceMetadata(beanName, bean.getClass(), propertyValues);
+  public PropertyValues processDependencies(PropertyValues pvs, Object bean, String beanName) {
+    InjectionMetadata metadata = findResourceMetadata(beanName, bean.getClass(), pvs);
     try {
-      metadata.inject(bean, beanName, propertyValues);
-      return propertyValues;
+      metadata.inject(bean, beanName, pvs);
+      return pvs;
     }
     catch (Throwable ex) {
       throw new BeanCreationException(beanName, "Injection of resource dependencies failed", ex);

@@ -1267,8 +1267,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    * came from (for the purpose of showing context in case of errors).
    */
   @Override
-  @Nullable
-  public String getResourceDescription() {
+  public @Nullable String getResourceDescription() {
     return resource != null ? resource.toString() : null;
   }
 

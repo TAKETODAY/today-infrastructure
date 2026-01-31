@@ -483,9 +483,8 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
     }
   }
 
-  @Nullable
   @Override
-  public PropertyValues processDependencies(@Nullable PropertyValues pvs, Object bean, String beanName) {
+  public @Nullable PropertyValues processDependencies(PropertyValues pvs, Object bean, String beanName) {
     InjectionMetadata metadata = findAutowiringMetadata(beanName, bean.getClass(), pvs);
     try {
       metadata.inject(bean, beanName, pvs);

@@ -518,14 +518,13 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
     }
 
     @Override
-    @Nullable
-    public PropertyValues processDependencies(@Nullable PropertyValues propertyValues, Object bean, String beanName) {
+    public PropertyValues processDependencies(PropertyValues pvs, Object bean, String beanName) {
       // postProcessDependencies method attempts to autowire other configuration beans.
       if (bean instanceof EnhancedConfiguration enhancedConfiguration) {
         // FIXME
         enhancedConfiguration.setBeanFactory(this.beanFactory);
       }
-      return propertyValues;
+      return pvs;
     }
 
     @Override

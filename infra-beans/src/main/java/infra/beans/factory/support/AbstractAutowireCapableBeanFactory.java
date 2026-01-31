@@ -143,8 +143,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
   private final HashSet<Class<?>> ignoredDependencyInterfaces = new HashSet<>();
 
   /** Resolver strategy for method parameter names. @since 4.0 */
-  @Nullable
-  private ParameterNameDiscoverer parameterNameDiscoverer = ParameterNameDiscoverer.getSharedInstance();
+  private @Nullable ParameterNameDiscoverer parameterNameDiscoverer = ParameterNameDiscoverer.getSharedInstance();
 
   /** Strategy for creating bean instances. */
   private InstantiationStrategy instantiationStrategy;
@@ -157,7 +156,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
    * The name of the currently created bean, for implicit dependency registration
    * on getBean etc invocations triggered from a user-specified Supplier callback.
    */
-  private final NamedThreadLocal<String> currentlyCreatedBean = new NamedThreadLocal<>("Currently created bean");
+  private final NamedThreadLocal<@Nullable String> currentlyCreatedBean = new NamedThreadLocal<>("Currently created bean");
 
   /**
    * Create a new AbstractAutowireCapableBeanFactory.
@@ -535,7 +534,6 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
   }
 
-  @SuppressWarnings("NullAway")
   private Method[] initMethodArray(String beanName, boolean isInitializingBean, Object bean, RootBeanDefinition def) {
     Method[] initMethodArray = def.initMethodArray;
     if (def.initMethodArray == null) {
@@ -692,7 +690,6 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
    * @see #autowireConstructor
    * @see #instantiateBean
    */
-  @SuppressWarnings("NullAway")
   protected BeanWrapper createBeanInstance(String beanName, RootBeanDefinition merged, @Nullable Object @Nullable [] args) {
     // Make sure bean class is actually resolved at this point.
     Class<?> beanClass = resolveBeanClass(beanName, merged);
@@ -700,7 +697,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     if (beanClass != null
             && !Modifier.isPublic(beanClass.getModifiers())
             && !merged.isNonPublicAccessAllowed()) {
-      throw new BeanCreationException(merged.getResourceDescription(),
+      throw new BeanCreationException(merged.getResourceDescription(), beanName,
               "Bean class isn't public, and non-public access not allowed: " + beanClass.getName());
     }
 
@@ -1035,49 +1032,41 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
 
     // maybe null
-    PropertyValues propertyValues = merged.getPropertyValues();
+    PropertyValues pvs = merged.hasPropertyValues() ? merged.getPropertyValues() : null;
     int resolvedAutowireMode = merged.getResolvedAutowireMode();
     if (resolvedAutowireMode == AUTOWIRE_BY_NAME || resolvedAutowireMode == AUTOWIRE_BY_TYPE) {
-      PropertyValues newPvs = new PropertyValues(propertyValues);
       // Add property values based on autowire by name if applicable.
       if (resolvedAutowireMode == AUTOWIRE_BY_NAME) {
-        autowireByName(beanName, merged, beanWrapper, newPvs);
+        autowireByName(beanName, merged, beanWrapper, pvs);
       }
       // Add property values based on autowire by type if applicable.
       if (resolvedAutowireMode == AUTOWIRE_BY_TYPE) {
-        autowireByType(beanName, merged, beanWrapper, newPvs);
+        autowireByType(beanName, merged, beanWrapper, pvs);
       }
-      propertyValues = newPvs;
     }
 
-    boolean hasDependenciesProcessors = !postProcessors().dependencies.isEmpty();
-    if (hasDependenciesProcessors && !merged.isSynthetic() && merged.isEnableDependencyInjection()) {
-      // -----------------------------------------------
-      // apply dependency injection (DI)
-      // apply outside framework expanded
-      // -----------------------------------------------
-
-      if (propertyValues == null) {
-        propertyValues = merged.getPropertyValues();
+    if (merged.isEnableDependencyInjection() && !merged.isSynthetic() && !postProcessors().dependencies.isEmpty()) {
+      if (pvs == null) {
+        pvs = merged.getPropertyValues();
       }
 
       for (DependenciesBeanPostProcessor processor : postProcessors().dependencies) {
-        PropertyValues pvsToUse = processor.processDependencies(propertyValues, wrappedInstance, beanName);
+        PropertyValues pvsToUse = processor.processDependencies(pvs, wrappedInstance, beanName);
         if (pvsToUse == null) {
           return;
         }
-        propertyValues = pvsToUse;
+        pvs = pvsToUse;
       }
     }
 
     boolean needsDepCheck = merged.getDependencyCheck() != AbstractBeanDefinition.DEPENDENCY_CHECK_NONE;
     if (needsDepCheck) {
       BeanProperty[] filteredPds = filterBeanPropertiesForDependencyCheck(beanWrapper, merged.allowCaching);
-      checkDependencies(beanName, merged, filteredPds, propertyValues);
+      checkDependencies(beanName, merged, filteredPds, pvs);
     }
 
-    if (propertyValues != null) {
-      applyPropertyValues(beanName, merged, beanWrapper, propertyValues);
+    if (pvs != null) {
+      applyPropertyValues(beanName, merged, beanWrapper, pvs);
     }
   }
 
@@ -1091,7 +1080,6 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
    * @param beanWrapper the BeanWrapper wrapping the target object
    * @param pvs the new property values
    */
-  @SuppressWarnings("NullAway")
   protected void applyPropertyValues(String beanName,
           BeanDefinition definition, BeanWrapper beanWrapper, @Nullable PropertyValues pvs) {
     if (pvs == null || pvs.isEmpty()) {
@@ -1250,7 +1238,6 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
    * @param wrapper the BeanWrapper from which we can obtain information about the bean
    * @param pvs the PropertyValues to register wired objects with
    */
-  @SuppressWarnings("NullAway")
   protected void autowireByType(String beanName, BeanDefinition definition, BeanWrapper wrapper, PropertyValues pvs) {
     BeanMetadata metadata = wrapper.getMetadata();
 

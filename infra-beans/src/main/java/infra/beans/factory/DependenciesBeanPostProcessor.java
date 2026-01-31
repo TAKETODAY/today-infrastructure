@@ -24,12 +24,14 @@ import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.BeanPostProcessor;
 
 /**
- * process dependency injection
+ * Extension of the {@link BeanPostProcessor} interface, allowing for post-processing
+ * of dependency injection before the factory applies property values to the bean.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/19 21:35</a>
  * @since 4.0
  */
 public interface DependenciesBeanPostProcessor extends BeanPostProcessor {
+
   /**
    * Post-process the given property values before the factory applies them
    * to the given bean.
@@ -43,8 +45,7 @@ public interface DependenciesBeanPostProcessor extends BeanPostProcessor {
    * @throws BeansException in case of errors
    * @see BeanDefinition#isEnableDependencyInjection()
    */
-  @Nullable
-  default PropertyValues processDependencies(@Nullable PropertyValues pvs, Object bean, String beanName) {
+  default @Nullable PropertyValues processDependencies(PropertyValues pvs, Object bean, String beanName) {
     return pvs;
   }
 
