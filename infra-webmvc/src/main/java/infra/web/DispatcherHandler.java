@@ -102,8 +102,7 @@ public class DispatcherHandler extends InfraHandler {
 
   private NotFoundHandler notFoundHandler;
 
-  @Nullable
-  protected WebAsyncManagerFactory webAsyncManagerFactory;
+  protected @Nullable WebAsyncManagerFactory webAsyncManagerFactory;
 
   public DispatcherHandler() {
   }
@@ -427,8 +426,7 @@ public class DispatcherHandler extends InfraHandler {
    * @return Target handler, if returns {@code null} indicates that there isn't a
    * handler to handle this request
    */
-  @Nullable
-  public Object lookupHandler(final RequestContext context) throws Exception {
+  public @Nullable Object lookupHandler(final RequestContext context) throws Exception {
     return handlerMapping.getHandler(context);
   }
 
@@ -601,8 +599,7 @@ public class DispatcherHandler extends InfraHandler {
    * @return a corresponding view to forward to
    * @throws Throwable if no handler can handle the exception
    */
-  @Nullable
-  protected Object processHandlerException(RequestContext request, @Nullable Object handler, Throwable ex) throws Throwable {
+  protected @Nullable Object processHandlerException(RequestContext request, @Nullable Object handler, Throwable ex) throws Throwable {
     // Success and error responses may use different content types
     HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
     if (matchingMetadata != null) {
@@ -638,8 +635,7 @@ public class DispatcherHandler extends InfraHandler {
    * @param request current HTTP request
    * @throws Exception if preparing the response failed
    */
-  @Nullable
-  protected Object handlerNotFound(RequestContext request) throws Throwable {
+  protected @Nullable Object handlerNotFound(RequestContext request) throws Throwable {
     if (throwExceptionIfNoHandlerFound) {
       throw new HandlerNotFoundException(
               request.getMethodAsString(), request.getRequestURI(), request.requestHeaders());
