@@ -22,7 +22,7 @@ package infra.web.multipart.parsing;
 import java.io.InputStream;
 import java.io.Serial;
 
-import infra.web.multipart.MultipartException;
+import infra.web.server.MultipartException;
 
 /**
  * This exception is thrown, if an attempt is made to read data from the {@link InputStream}, which has been returned by

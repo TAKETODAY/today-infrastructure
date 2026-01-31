@@ -69,7 +69,7 @@ import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import infra.web.mock.MockDispatcher;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.support.StaticWebApplicationContext;
-import infra.web.multipart.MultipartException;
+import infra.web.server.MultipartException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

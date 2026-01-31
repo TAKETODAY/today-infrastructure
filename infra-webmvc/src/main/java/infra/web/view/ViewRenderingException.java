@@ -21,6 +21,8 @@ import org.jspecify.annotations.Nullable;
 import infra.web.server.InternalServerException;
 
 /**
+ * Exception thrown when view rendering fails.
+ *
  * @author TODAY 2021/9/1 23:29
  * @since 4.0
  */

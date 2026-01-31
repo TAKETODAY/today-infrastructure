@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import infra.core.io.Resource;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.ResponseEntity;
@@ -174,14 +175,14 @@ class RestClientAdapterTests {
   @ParameterizedAdapterTest
   void multipart(MockWebServer server, Service service) throws Exception {
     Part file = new MockMultipartFile(
-            "testFileName", "originalTestFileName", MediaType.APPLICATION_JSON_VALUE, "test".getBytes());
+            "testFileName", "originalTestFileName.json", MediaType.APPLICATION_JSON_VALUE, "test".getBytes());
 
-    service.postMultipart(file, "test2");
+    service.postMultipart(file.getResource(), "test2");
 
     RecordedRequest request = server.takeRequest();
     assertThat(request.getHeaders().get("Content-Type")).startsWith("multipart/form-data;boundary=");
     assertThat(request.getBody().readUtf8()).containsSubsequence(
-            "Content-Disposition: form-data; name=\"file\"; filename=\"originalTestFileName\"",
+            "Content-Disposition: form-data; name=\"file\"; filename=\"originalTestFileName.json\"",
             "Content-Type: application/json", "Content-Length: 4", "test",
             "Content-Disposition: form-data; name=\"anotherPart\"", "Content-Type: text/plain;charset=UTF-8",
             "Content-Length: 5", "test2");
@@ -325,7 +326,7 @@ class RestClientAdapterTests {
     void postForm(@RequestParam MultiValueMap<String, String> params);
 
     @PostExchange
-    void postMultipart(Part file, @RequestPart String anotherPart);
+    void postMultipart(Resource file, @RequestPart String anotherPart);
 
     @PutExchange
     void putWithCookies(@CookieValue String firstCookie, @CookieValue String secondCookie);

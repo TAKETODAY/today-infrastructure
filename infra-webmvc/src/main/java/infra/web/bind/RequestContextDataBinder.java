@@ -236,6 +236,33 @@ public class RequestContextDataBinder extends WebDataBinder {
     }
   }
 
+  /**
+   * Bind all multipart files contained in the given request, if any
+   * (in case of a multipart request). To be called by subclasses.
+   * <p>Multipart files will only be added to the property values if they
+   * are not empty or if we're configured to bind empty multipart files too.
+   *
+   * @param multipartFiles a Map of field name String to Part object
+   * @param mpvs the property values to be bound (can be modified)
+   * @see infra.web.multipart.Part
+   * @see #setBindEmptyMultipartFiles
+   */
+  protected void bindMultipart(Map<String, List<Part>> multipartFiles, PropertyValues mpvs) {
+    for (var entry : multipartFiles.entrySet()) {
+      List<Part> values = entry.getValue();
+      String key = entry.getKey();
+      if (values.size() == 1) {
+        Part value = values.get(0);
+        if (isBindEmptyMultipartFiles() || !value.isEmpty()) {
+          mpvs.add(key, value);
+        }
+      }
+      else {
+        mpvs.add(key, values);
+      }
+    }
+  }
+
   private static String normalizeHeaderName(String name) {
     return StringUtils.uncapitalize(name.replace("-", ""));
   }

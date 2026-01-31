@@ -1,6 +1,5 @@
-
 /**
- * Support for embedded web servers.
+ * web server API.
  */
 @NullMarked
 package infra.web.server;

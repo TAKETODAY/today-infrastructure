@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package infra.web.multipart;
+package infra.web.server;
 
 import org.jspecify.annotations.Nullable;
 
 /**
- * Not A Multipart Request Exception
+ * Exception thrown when a request is expected to be multipart but is not.
  *
  * @author TODAY 2021/3/21 21:08
  * @since 3.0

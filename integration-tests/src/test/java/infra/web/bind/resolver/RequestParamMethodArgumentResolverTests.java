@@ -40,7 +40,7 @@ import infra.web.bind.RequestContextDataBinder;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.mock.MockRequestContext;
-import infra.web.multipart.MultipartException;
+import infra.web.server.MultipartException;
 import infra.web.multipart.Part;
 import infra.web.testfixture.MockMultipartFile;
 

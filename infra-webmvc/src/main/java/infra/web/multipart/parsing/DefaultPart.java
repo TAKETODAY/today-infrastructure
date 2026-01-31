@@ -42,7 +42,7 @@ import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.web.multipart.MultipartException;
+import infra.web.server.MultipartException;
 import infra.web.multipart.Part;
 import infra.web.multipart.parsing.DeferrableStream.State;
 

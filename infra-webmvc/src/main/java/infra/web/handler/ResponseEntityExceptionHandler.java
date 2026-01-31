@@ -50,7 +50,7 @@ import infra.web.bind.MissingPathVariableException;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.RequestBindingException;
 import infra.web.bind.resolver.MissingRequestPartException;
-import infra.web.multipart.MultipartException;
+import infra.web.server.MultipartException;
 import infra.web.util.WebUtils;
 
 /**

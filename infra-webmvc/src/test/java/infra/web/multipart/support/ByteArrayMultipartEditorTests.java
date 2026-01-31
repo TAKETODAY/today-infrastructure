@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package infra.web.multipart;
+package infra.web.multipart.support;
 
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import infra.web.multipart.support.ByteArrayMultipartEditor;
+import infra.web.multipart.Part;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

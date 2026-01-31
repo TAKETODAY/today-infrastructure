@@ -17,6 +17,7 @@
 package infra.web.multipart;
 
 import infra.web.RequestContext;
+import infra.web.server.MultipartException;
 
 /**
  * Strategy interface for parsing multipart requests.

@@ -49,7 +49,7 @@ import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.RequestBindingException;
 import infra.web.bind.resolver.MissingRequestPartException;
 import infra.web.mock.MockRequestContext;
-import infra.web.multipart.MultipartException;
+import infra.web.server.MultipartException;
 import infra.web.view.ModelAndView;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import infra.core.io.Resource;
 import infra.http.MediaType;
 import infra.http.service.annotation.GetExchange;
 import infra.http.service.annotation.PostExchange;
@@ -152,16 +153,16 @@ class WebClientAdapterTests {
   void multipart() throws InterruptedException {
     prepareResponse(response -> response.setResponseCode(201));
     String fileName = "testFileName";
-    String originalFileName = "originalTestFileName";
+    String originalFileName = "originalTestFileName.json";
     Part file = new MockMultipartFile(fileName, originalFileName,
             MediaType.APPLICATION_JSON_VALUE, "test".getBytes());
 
-    initService().postMultipart(file, "test2");
+    initService().postMultipart(file.getResource(), "test2");
 
     RecordedRequest request = this.server.takeRequest();
     assertThat(request.getHeaders().get("Content-Type")).startsWith("multipart/form-data;boundary=");
     assertThat(request.getBody().readUtf8())
-            .containsSubsequence("Content-Disposition: form-data; name=\"file\"; filename=\"originalTestFileName\"",
+            .containsSubsequence("Content-Disposition: form-data; name=\"file\"; filename=\"originalTestFileName.json\"",
                     "Content-Type: application/json", "Content-Length: 4", "test",
                     "Content-Disposition: form-data; name=\"anotherPart\"",
                     "Content-Type: text/plain;charset=UTF-8", "Content-Length: 5", "test2");
@@ -262,7 +263,7 @@ class WebClientAdapterTests {
     void postForm(@RequestParam MultiValueMap<String, String> params);
 
     @PostExchange
-    void postMultipart(Part file, @RequestPart String anotherPart);
+    void postMultipart(Resource file, @RequestPart String anotherPart);
 
     @GetExchange("/greeting")
     String getWithUriBuilderFactory(UriBuilderFactory uriBuilderFactory);

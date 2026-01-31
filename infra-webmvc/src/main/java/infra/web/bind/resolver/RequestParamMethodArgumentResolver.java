@@ -44,7 +44,7 @@ import infra.web.bind.RequestContextDataBinder;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.handler.method.support.UriComponentsContributor;
 import infra.web.multipart.MultipartRequest;
-import infra.web.multipart.NotMultipartRequestException;
+import infra.web.server.NotMultipartRequestException;
 import infra.web.multipart.Part;
 import infra.web.util.UriComponentsBuilder;
 

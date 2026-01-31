@@ -21,7 +21,7 @@ package infra.web.multipart.parsing;
 
 import java.io.Serial;
 
-import infra.web.multipart.MultipartException;
+import infra.web.server.MultipartException;
 
 /**
  * Signals that the input stream fails to follow the required syntax.

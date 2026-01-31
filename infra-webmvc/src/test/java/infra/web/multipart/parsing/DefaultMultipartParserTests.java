@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 import infra.web.RequestContext;
-import infra.web.multipart.NotMultipartRequestException;
+import infra.web.server.NotMultipartRequestException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

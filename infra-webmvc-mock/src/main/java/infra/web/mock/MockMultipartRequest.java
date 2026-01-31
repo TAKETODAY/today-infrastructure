@@ -26,8 +26,8 @@ import infra.mock.api.MockException;
 import infra.mock.api.http.HttpMockRequest;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
-import infra.web.multipart.MultipartException;
-import infra.web.multipart.NotMultipartRequestException;
+import infra.web.server.MultipartException;
+import infra.web.server.NotMultipartRequestException;
 import infra.web.multipart.Part;
 import infra.web.multipart.AbstractMultipartRequest;
 

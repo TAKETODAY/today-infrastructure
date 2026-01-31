@@ -31,7 +31,7 @@ import infra.mock.api.MockContext;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
-import infra.web.multipart.MultipartException;
+import infra.web.server.MultipartException;
 import infra.web.multipart.MultipartRequest;
 import infra.web.multipart.Part;
 import infra.web.util.WebUtils;

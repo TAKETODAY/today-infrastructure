@@ -36,7 +36,7 @@ class StringPartEditorTests {
 
   @Test
   void setAsTextSetsStringValue() {
-    infra.web.multipart.support.StringPartEditor editor = new StringPartEditor();
+    infra.web.multipart.support.StringPartEditor editor = new infra.web.multipart.support.StringPartEditor();
     String text = "test value";
 
     editor.setAsText(text);
