@@ -48,7 +48,7 @@ public class BindingAwareModelMap extends ModelMap {
   private static final long serialVersionUID = 1L;
 
   @Override
-  public Object put(String key, @Nullable Object value) {
+  public @Nullable Object put(String key, @Nullable Object value) {
     removeBindingResultIfNecessary(key, value);
     return super.put(key, value);
   }

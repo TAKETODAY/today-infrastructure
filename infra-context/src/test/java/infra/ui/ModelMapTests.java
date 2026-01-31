@@ -310,6 +310,15 @@ class ModelMapTests {
     assertThat(map.get("map")).isSameAs(proxy);
   }
 
+  @Test
+  void setAttributes() {
+    ModelMap map = new ModelMap();
+    map.setAttributes(Map.of("key", 1, "key2", 2));
+
+    assertThat(map.get("key")).isSameAs(1);
+    assertThat(map.get("key2")).isSameAs(2);
+  }
+
   public static class SomeInnerClass {
 
     @Override

@@ -85,8 +85,7 @@ public class RedirectModel extends ModelMap implements Serializable, Comparable<
           RedirectModel.class, "OUTPUT");
 
   // @since 4.0
-  @Nullable
-  private String targetRequestPath;
+  private @Nullable String targetRequestPath;
 
   // @since 4.0
   private final MultiValueMap<String, String> targetRequestParams = MultiValueMap.forLinkedHashMap(3);
@@ -126,8 +125,7 @@ public class RedirectModel extends ModelMap implements Serializable, Comparable<
    *
    * @since 4.0
    */
-  @Nullable
-  public String getTargetRequestPath() {
+  public @Nullable String getTargetRequestPath() {
     return this.targetRequestPath;
   }
 
@@ -260,8 +258,7 @@ public class RedirectModel extends ModelMap implements Serializable, Comparable<
    * @param attributeAccessor attributeAccessor to use for saving attributes
    * @return a {@link RedirectModel} instance
    */
-  @Nullable
-  public static RedirectModel findOutputModel(AttributeAccessor attributeAccessor) {
+  public static @Nullable RedirectModel findOutputModel(AttributeAccessor attributeAccessor) {
     Object attribute = attributeAccessor.getAttribute(RedirectModel.OUTPUT_ATTRIBUTE);
     if (attribute instanceof RedirectModel) {
       return (RedirectModel) attribute;

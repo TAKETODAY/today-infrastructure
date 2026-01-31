@@ -21,7 +21,9 @@ package infra.web;
 import org.jspecify.annotations.Nullable;
 
 /**
- * RedirectModel saving strategy
+ * Strategy for managing redirect model data during web requests.
+ * Handles the retrieval, updating, and saving of redirect models
+ * that need to persist across redirects.
  *
  * @author TODAY 2021/4/2 21:52
  * @since 3.0

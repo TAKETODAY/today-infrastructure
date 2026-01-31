@@ -24,9 +24,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import infra.core.Conventions;
-import infra.lang.Constant;
 import infra.lang.Unmodifiable;
-import infra.util.CollectionUtils;
 
 /**
  * Interface that defines a holder for model attributes.
@@ -41,19 +39,17 @@ import infra.util.CollectionUtils;
 public interface Model {
 
   /**
-   * Contains a attribute with given name
+   * Checks whether the model contains an attribute with the given name.
    *
-   * @param name Attribute name
-   * @return if contains the attribute
+   * @param name the name of the attribute to check
+   * @return {@code true} if the attribute exists in the model, {@code false} otherwise
    */
-  default boolean containsAttribute(String name) {
-    return getAttribute(name) == null;
-  }
+  boolean containsAttribute(String name);
 
   /**
-   * Add the attributes from map
+   * Add all attributes from the given map to the model.
    *
-   * @param attributes The attributes
+   * @param attributes the map containing attributes to be added
    */
   default void setAttributes(Map<String, Object> attributes) {
     for (Map.Entry<String, Object> entry : attributes.entrySet()) {
@@ -97,12 +93,13 @@ public interface Model {
    * remove
    * @return the last value of the attribute, if any
    */
+  @Nullable
   Object removeAttribute(String name);
 
   /**
    * Convert this model to a {@link Map}
    */
-  Map<String, Object> asMap();
+  Map<String, @Nullable Object> asMap();
 
   /**
    * Clear all attributes
@@ -122,13 +119,12 @@ public interface Model {
    *
    * @since 4.0
    */
-  default String[] getAttributeNames() {
-    return CollectionUtils.toArray(attributeNames().iterator(), Constant.EMPTY_STRING_ARRAY);
-  }
+  String[] getAttributeNames();
 
   /**
-   * Return the names.
+   * Return the names of all attributes.
    *
+   * @return an {@code Iterable} of attribute names
    * @since 4.0
    */
   @Unmodifiable

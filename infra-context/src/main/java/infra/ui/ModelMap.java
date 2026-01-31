@@ -44,7 +44,7 @@ import infra.util.StringUtils;
  * @see Conventions#getVariableName
  * @since 4.0 2022/4/8 22:58
  */
-public class ModelMap extends LinkedHashMap<String, Object> implements Model {
+public class ModelMap extends LinkedHashMap<String, @Nullable Object> implements Model {
 
   @Serial
   private static final long serialVersionUID = 1L;
@@ -52,7 +52,8 @@ public class ModelMap extends LinkedHashMap<String, Object> implements Model {
   /**
    * Construct a new, empty {@code ModelMap}.
    */
-  public ModelMap() { }
+  public ModelMap() {
+  }
 
   /**
    * Construct a new {@code ModelMap} containing the supplied attribute
@@ -183,12 +184,12 @@ public class ModelMap extends LinkedHashMap<String, Object> implements Model {
   }
 
   @Override
-  public Object removeAttribute(String name) {
+  public @Nullable Object removeAttribute(String name) {
     return remove(name);
   }
 
   @Override
-  public Map<String, Object> asMap() {
+  public Map<String, @Nullable Object> asMap() {
     return this;
   }
 
