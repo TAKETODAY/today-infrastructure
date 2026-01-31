@@ -21,6 +21,9 @@ package infra.http.service.invoker;
 import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
+import java.io.IOException;
+import java.nio.file.Files;
+
 import infra.core.MethodParameter;
 import infra.core.ParameterizedTypeReference;
 import infra.core.ReactiveAdapter;
@@ -28,9 +31,10 @@ import infra.core.ReactiveAdapterRegistry;
 import infra.core.io.Resource;
 import infra.http.HttpEntity;
 import infra.http.HttpHeaders;
+import infra.http.MediaTypeFactory;
 import infra.lang.Assert;
+import infra.util.MimeType;
 import infra.web.annotation.RequestPart;
-import infra.web.multipart.Part;
 
 /**
  * {@link HttpServiceArgumentResolver} for {@link RequestPart @RequestPart}
@@ -40,11 +44,9 @@ import infra.web.multipart.Part;
  * <ul>
  * <li>String -- form field
  * <li>{@link Resource Resource} -- file part
- * <li>{@link Part} -- uploaded file
  * <li>Object -- content to be encoded (e.g. to JSON)
  * <li>{@link HttpEntity} -- part content and headers although generally it's
  * easier to add headers through the returned builder
- * <li>{@link Part} -- a part from a server request
  * <li>{@link Publisher} of any of the above
  * </ul>
  *
@@ -66,13 +68,13 @@ public class RequestPartArgumentResolver extends AbstractNamedValueArgumentResol
   @Override
   protected @Nullable NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
     RequestPart annot = parameter.getParameterAnnotation(RequestPart.class);
-    boolean isMultipart = parameter.getParameterType().equals(Part.class);
+    boolean isResource = parameter.getParameterType().equals(Resource.class);
     String label = "request part";
 
     if (annot != null) {
       return new NamedValueInfo(annot.name(), annot.required(), null, label, true);
     }
-    else if (isMultipart) {
+    else if (isResource) {
       return new NamedValueInfo("", true, null, label, true);
     }
 
@@ -102,8 +104,8 @@ public class RequestPartArgumentResolver extends AbstractNamedValueArgumentResol
       }
     }
 
-    if (value instanceof Part part) {
-      value = toHttpEntity(name, part);
+    if (value instanceof Resource resource) {
+      value = toHttpEntity(name, resource);
     }
 
     requestValues.addRequestPart(name, value);
@@ -113,15 +115,34 @@ public class RequestPartArgumentResolver extends AbstractNamedValueArgumentResol
     return ParameterizedTypeReference.forType(nestedParam.getNestedGenericParameterType());
   }
 
-  private static Object toHttpEntity(String name, Part part) {
+  private static Object toHttpEntity(String name, Resource part) {
     HttpHeaders headers = HttpHeaders.forWritable();
-    if (part.getOriginalFilename() != null) {
-      headers.setContentDispositionFormData(name, part.getOriginalFilename());
+    String fileName = part.getName();
+    if (fileName != null) {
+      headers.setContentDispositionFormData(name, fileName);
     }
-    if (part.getContentType() != null) {
-      headers.setContentType(part.getContentType());
+
+    String contentType = getContentType(part);
+    if (contentType != null) {
+      headers.setContentType(contentType);
     }
-    return new HttpEntity<>(part.getResource(), headers);
+    return new HttpEntity<>(part, headers);
+  }
+
+  static @Nullable String getContentType(Resource part) {
+    String contentType = null;
+    if (part.isFile()) {
+      try {
+        contentType = Files.probeContentType(part.getFilePath());
+      }
+      catch (IOException ignored) {
+      }
+    }
+    if (contentType == null) {
+      contentType = MediaTypeFactory.getMediaType(part)
+              .map(MimeType::toString).orElse(null);
+    }
+    return contentType;
   }
 
 }

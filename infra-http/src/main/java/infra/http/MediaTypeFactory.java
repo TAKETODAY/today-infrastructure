@@ -49,7 +49,8 @@ public abstract class MediaTypeFactory {
 
   private static final MultiValueMap<String, MediaType> fileExtensionToMediaTypes = parseMimeTypes();
 
-  private MediaTypeFactory() { }
+  private MediaTypeFactory() {
+  }
 
   /**
    * Parse the {@code mime.types} file found in the resources. Format is:

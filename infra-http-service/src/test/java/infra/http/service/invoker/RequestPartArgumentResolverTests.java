@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
+import infra.core.io.Resource;
 import infra.http.HttpEntity;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
@@ -48,7 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class RequestPartArgumentResolverTests {
 
   private static final MockMultipartFile mockMultipartFile =
-          new MockMultipartFile("testFileName", "originalTestFileName", "text/plain", "test".getBytes());
+          new MockMultipartFile("testFileName", "originalTestFileName.txt", null, "test".getBytes());
 
   private final TestReactorExchangeAdapter client = new TestReactorExchangeAdapter();
 
@@ -77,13 +78,13 @@ class RequestPartArgumentResolverTests {
 
   @Test
   void part() {
-    this.service.postMultipartFile(mockMultipartFile);
+    this.service.postMultipartFile(mockMultipartFile.getResource());
     testMultipartFile(mockMultipartFile, "file");
   }
 
   @Test
   void requestPartMultipartFile() {
-    this.service.postRequestPartMultipartFile(mockMultipartFile);
+    this.service.postRequestPartMultipartFile(mockMultipartFile.getResource());
     testMultipartFile(mockMultipartFile, "myFile");
   }
 
@@ -128,13 +129,13 @@ class RequestPartArgumentResolverTests {
             @RequestPart Optional<String> optionalPart);
 
     @PostExchange
-    void postMultipartFile(Part file);
+    void postMultipartFile(Resource file);
 
     @PostExchange
-    void postRequestPartMultipartFile(@RequestPart(name = "myFile") Part file);
+    void postRequestPartMultipartFile(@RequestPart(name = "myFile") Resource file);
 
     @PostExchange
-    void postOptionalMultipartFile(@RequestPart Optional<Part> file, @RequestPart String anotherPart);
+    void postOptionalMultipartFile(@RequestPart Optional<Resource> file, @RequestPart String anotherPart);
   }
 
 }
