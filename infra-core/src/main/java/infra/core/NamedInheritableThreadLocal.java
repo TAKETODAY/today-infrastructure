@@ -18,6 +18,8 @@
 
 package infra.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Supplier;
 
 import infra.lang.Assert;
@@ -28,11 +30,11 @@ import infra.lang.Assert;
  *
  * @param <T> the value type
  * @author Juergen Hoeller
- * @author TODAY 2021/9/11 12:13
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see NamedThreadLocal
- * @since 4.0
+ * @since 4.0 2021/9/11 12:13
  */
-public class NamedInheritableThreadLocal<T> extends InheritableThreadLocal<T> {
+public class NamedInheritableThreadLocal<T extends @Nullable Object> extends InheritableThreadLocal<T> {
 
   private final String name;
 
@@ -58,10 +60,10 @@ public class NamedInheritableThreadLocal<T> extends InheritableThreadLocal<T> {
    * @param <S> the type of the thread local's value
    * @param supplier the supplier to be used to determine the initial value
    * @return a new thread local variable
-   * @throws NullPointerException if the specified supplier is null
+   * @throws IllegalArgumentException if the specified supplier is null
    * @since 4.0
    */
-  public static <S> NamedInheritableThreadLocal<S> withInitial(String name, Supplier<? extends S> supplier) {
+  public static <S extends @Nullable Object> NamedInheritableThreadLocal<S> withInitial(String name, Supplier<? extends S> supplier) {
     Assert.notNull(supplier, "Supplier is required");
     final class Supplied extends NamedInheritableThreadLocal<S> {
       Supplied(String name) {
