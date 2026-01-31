@@ -26,7 +26,7 @@ import infra.validation.BindingErrorProcessor;
 import infra.validation.DataBinder;
 import infra.validation.MessageCodesResolver;
 import infra.validation.Validator;
-import infra.web.bind.RequestContextDataBinder;
+import infra.web.bind.WebDataBinder;
 
 /**
  * Convenient {@link WebBindingInitializer} for declarative configuration
@@ -214,7 +214,7 @@ public class ConfigurableWebBindingInitializer implements WebBindingInitializer 
   }
 
   @Override
-  public void initBinder(RequestContextDataBinder binder) {
+  public void initBinder(WebDataBinder binder) {
     binder.setAutoGrowNestedPaths(autoGrowNestedPaths);
     if (directFieldAccess) {
       binder.initDirectFieldAccess();
@@ -245,7 +245,7 @@ public class ConfigurableWebBindingInitializer implements WebBindingInitializer 
   }
 
   @Nullable
-  private static Class<?> getTargetType(RequestContextDataBinder binder) {
+  private static Class<?> getTargetType(WebDataBinder binder) {
     Class<?> type = null;
     if (binder.getTarget() != null) {
       type = binder.getTarget().getClass();

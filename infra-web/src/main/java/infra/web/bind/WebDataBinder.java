@@ -206,7 +206,7 @@ public class WebDataBinder extends DataBinder {
    * @param resolver delegate resolver to use for the checks
    * @return the resolved value, or {@code null}
    */
-  protected @Nullable Object resolvePrefixValue(String name, Class<?> type, BiFunction<String, Class<?>, Object> resolver) {
+  protected @Nullable Object resolvePrefixValue(String name, Class<?> type, BiFunction<String, Class<?>, @Nullable Object> resolver) {
     Object value = resolver.apply(name, type);
     if (value == null) {
       String prefix = getFieldDefaultPrefix();

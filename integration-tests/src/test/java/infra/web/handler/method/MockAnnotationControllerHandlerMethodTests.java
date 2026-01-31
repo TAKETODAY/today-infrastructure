@@ -130,6 +130,7 @@ import infra.web.annotation.ResponseBody;
 import infra.web.annotation.ResponseStatus;
 import infra.web.annotation.RestController;
 import infra.web.bind.RequestContextDataBinder;
+import infra.web.bind.WebDataBinder;
 import infra.web.bind.annotation.BindParam;
 import infra.web.bind.annotation.InitBinder;
 import infra.web.bind.annotation.ModelAttribute;
@@ -2727,7 +2728,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class MyWebBindingInitializer implements WebBindingInitializer {
 
     @Override
-    public void initBinder(RequestContextDataBinder binder) {
+    public void initBinder(WebDataBinder binder) {
       LocalValidatorFactoryBean vf = new LocalValidatorFactoryBean();
       vf.afterPropertiesSet();
       binder.setValidator(vf);

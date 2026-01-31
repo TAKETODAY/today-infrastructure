@@ -36,9 +36,8 @@ import infra.web.bind.annotation.BindParam;
  */
 public final class BindParamNameResolver implements DataBinder.NameResolver {
 
-  @Nullable
   @Override
-  public String resolveName(MethodParameter parameter) {
+  public @Nullable String resolveName(MethodParameter parameter) {
     BindParam bindParam = parameter.getParameterAnnotation(BindParam.class);
     if (bindParam != null) {
       if (StringUtils.hasText(bindParam.value())) {

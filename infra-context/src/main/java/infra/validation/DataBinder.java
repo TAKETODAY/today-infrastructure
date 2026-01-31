@@ -177,21 +177,17 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 
   private String @Nullable [] requiredFields;
 
-  @Nullable
-  private NameResolver nameResolver;
+  private @Nullable NameResolver nameResolver;
 
-  @Nullable
-  private ConversionService conversionService;
+  private @Nullable ConversionService conversionService;
 
-  @Nullable
-  private MessageCodesResolver messageCodesResolver;
+  private @Nullable MessageCodesResolver messageCodesResolver;
 
   private BindingErrorProcessor bindingErrorProcessor = new DefaultBindingErrorProcessor();
 
   private final ArrayList<Validator> validators = new ArrayList<>();
 
-  @Nullable
-  private Predicate<Validator> excludedValidators;
+  private @Nullable Predicate<Validator> excludedValidators;
 
   /**
    * Create a new DataBinder instance, with default object name.
@@ -221,8 +217,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * <p>If the target object is {@code null} and {@link #getTargetType()} is set,
    * then {@link #construct(ValueResolver)} may be called to create the target.
    */
-  @Nullable
-  public Object getTarget() {
+  public @Nullable Object getTarget() {
     return this.target;
   }
 
@@ -248,8 +243,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
   /**
    * Return the {@link #setTargetType configured} type for the target object.
    */
-  @Nullable
-  public ResolvableType getTargetType() {
+  public @Nullable ResolvableType getTargetType() {
     return this.targetType;
   }
 
@@ -638,8 +632,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * Return the {@link #setNameResolver configured} name resolver for
    * constructor parameters.
    */
-  @Nullable
-  public NameResolver getNameResolver() {
+  public @Nullable NameResolver getNameResolver() {
     return this.nameResolver;
   }
 
@@ -734,8 +727,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
   /**
    * Return the primary Validator to apply after each binding step, if any.
    */
-  @Nullable
-  public Validator getValidator() {
+  public @Nullable Validator getValidator() {
     return (!this.validators.isEmpty() ? this.validators.get(0) : null);
   }
 
@@ -776,8 +768,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
   /**
    * Return the associated ConversionService, if any.
    */
-  @Nullable
-  public ConversionService getConversionService() {
+  public @Nullable ConversionService getConversionService() {
     return this.conversionService;
   }
 
@@ -921,7 +912,6 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
   }
 
   @Nullable
-  @SuppressWarnings("NullAway")
   private Object createObject(ResolvableType objectType, String nestedPath, ValueResolver valueResolver) {
     Class<?> clazz = objectType.resolve();
     boolean isOptional = (clazz == Optional.class);
@@ -1039,8 +1029,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
     return false;
   }
 
-  @Nullable
-  private List<?> createList(String paramPath, Class<?> paramType, ResolvableType type, ValueResolver valueResolver) {
+  private @Nullable List<?> createList(String paramPath, Class<?> paramType, ResolvableType type, ValueResolver valueResolver) {
     ResolvableType elementType = type.getNested(2);
     SortedSet<Integer> indexes = getIndexes(paramPath, valueResolver);
     if (indexes == null) {
@@ -1063,8 +1052,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
     return list;
   }
 
-  @Nullable
-  private <V> Map<String, V> createMap(String paramPath, Class<?> paramType, ResolvableType type, ValueResolver valueResolver) {
+  private <V> @Nullable Map<String, V> createMap(String paramPath, Class<?> paramType, ResolvableType type, ValueResolver valueResolver) {
     ResolvableType elementType = type.getNested(2);
     Map<String, V> map = null;
     for (String name : valueResolver.getNames()) {
@@ -1109,8 +1097,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
     return array;
   }
 
-  @Nullable
-  private static SortedSet<Integer> getIndexes(String paramPath, ValueResolver valueResolver) {
+  private static @Nullable SortedSet<Integer> getIndexes(String paramPath, ValueResolver valueResolver) {
     SortedSet<Integer> indexes = null;
     for (String name : valueResolver.getNames()) {
       if (name.startsWith(paramPath + "[")) {
@@ -1133,9 +1120,8 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
     return indexes;
   }
 
-  @Nullable
   @SuppressWarnings("unchecked")
-  private <V> V createIndexedValue(String paramPath, Class<?> containerType,
+  private <V> @Nullable V createIndexedValue(String paramPath, Class<?> containerType,
           ResolvableType elementType, String indexedPath, ValueResolver valueResolver) {
 
     Object value = null;

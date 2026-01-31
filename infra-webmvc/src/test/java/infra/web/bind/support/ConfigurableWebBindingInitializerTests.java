@@ -36,7 +36,7 @@ class ConfigurableWebBindingInitializerTests {
 
   @Test
   void defaultConstructorInitializesWithDefaultValues() {
-    ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
+    infra.web.bind.support.ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
 
     assertThat(initializer.isAutoGrowNestedPaths()).isTrue();
     assertThat(initializer.isDirectFieldAccess()).isFalse();
