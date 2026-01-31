@@ -319,6 +319,14 @@ class ModelMapTests {
     assertThat(map.get("key2")).isSameAs(2);
   }
 
+  @Test
+  void getAttributeNames() {
+    ModelMap map = new ModelMap();
+    map.setAttributes(Map.of("key", 1, "key2", 2));
+    assertThat(map.getAttributeNames()).contains("key", "key2");
+    assertThat(map.attributeNames()).contains("key", "key2");
+  }
+
   public static class SomeInnerClass {
 
     @Override

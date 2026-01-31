@@ -98,6 +98,8 @@ public interface Model {
 
   /**
    * Convert this model to a {@link Map}
+   *
+   * @return a {@link Map} representation of this model
    */
   Map<String, @Nullable Object> asMap();
 
