@@ -22,7 +22,6 @@ import java.io.File;
 
 import infra.beans.factory.SmartInitializingSingleton;
 import infra.beans.factory.annotation.DisableAllDependencyInjection;
-import infra.beans.factory.annotation.DisableDependencyInjection;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.MergedBeanDefinitionPostProcessor;
@@ -58,7 +57,6 @@ import infra.web.context.support.SessionScope;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/30 22:54
  */
-@DisableDependencyInjection
 @DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(SessionProperties.class)

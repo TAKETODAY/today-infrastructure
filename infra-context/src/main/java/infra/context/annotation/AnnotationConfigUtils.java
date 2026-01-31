@@ -25,6 +25,7 @@ import java.util.function.Consumer;
 import infra.aop.framework.autoproxy.AutoProxyUtils;
 import infra.beans.factory.annotation.AnnotatedBeanDefinition;
 import infra.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
+import infra.beans.factory.annotation.DisableAllDependencyInjection;
 import infra.beans.factory.annotation.DisableDependencyInjection;
 import infra.beans.factory.annotation.EnableDependencyInjection;
 import infra.beans.factory.config.BeanDefinition;
@@ -274,7 +275,8 @@ public abstract class AnnotationConfigUtils {
       if (annotations.isPresent(EnableDependencyInjection.class)) {
         definition.setEnableDependencyInjection(true);
       }
-      else if (annotations.isPresent(DisableDependencyInjection.class)) {
+      else if (annotations.isPresent(DisableDependencyInjection.class)
+              || annotations.isPresent(DisableAllDependencyInjection.class)) {
         definition.setEnableDependencyInjection(false);
       }
     }
