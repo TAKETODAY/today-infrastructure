@@ -2,4 +2,4 @@ http\://www.springframework.org/schema/context=infra.context.config.ContextNames
 http\://www.springframework.org/schema/jee=infra.ejb.config.JeeNamespaceHandler
 http\://www.springframework.org/schema/task=infra.scheduling.config.TaskNamespaceHandler
 http\://www.springframework.org/schema/cache=infra.cache.config.CacheNamespaceHandler
-
+http\://www.springframework.org/schema/lang=infra.scripting.config.LangNamespaceHandler

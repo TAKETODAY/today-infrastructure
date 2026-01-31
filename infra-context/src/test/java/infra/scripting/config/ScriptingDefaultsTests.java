@@ -1,0 +1,94 @@
+/*
+ * Copyright 2002-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package infra.scripting.config;
+
+import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Field;
+
+import infra.aop.framework.Advised;
+import infra.aop.support.AopUtils;
+import infra.aop.target.AbstractRefreshableTargetSource;
+import infra.context.ApplicationContext;
+import infra.context.support.ClassPathXmlApplicationContext;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * @author Mark Fisher
+ * @author Dave Syer
+ */
+@SuppressWarnings("resource")
+class ScriptingDefaultsTests {
+
+  private static final String CONFIG =
+          "infra/scripting/config/scriptingDefaultsTests.xml";
+
+  private static final String PROXY_CONFIG =
+          "infra/scripting/config/scriptingDefaultsProxyTargetClassTests.xml";
+
+  @Test
+  void defaultRefreshCheckDelay() throws Exception {
+    ApplicationContext context = new ClassPathXmlApplicationContext(CONFIG);
+    Advised advised = (Advised) context.getBean("testBean");
+    AbstractRefreshableTargetSource targetSource =
+            ((AbstractRefreshableTargetSource) advised.getTargetSource());
+    Field field = AbstractRefreshableTargetSource.class.getDeclaredField("refreshCheckDelay");
+    field.setAccessible(true);
+    long delay = (Long) field.get(targetSource);
+    assertThat(delay).isEqualTo(5000L);
+  }
+
+  @Test
+  void defaultInitMethod() {
+    ApplicationContext context = new ClassPathXmlApplicationContext(CONFIG);
+    ITestBean testBean = (ITestBean) context.getBean("testBean");
+    assertThat(testBean.isInitialized()).isTrue();
+  }
+
+  @Test
+  void nameAsAlias() {
+    ApplicationContext context = new ClassPathXmlApplicationContext(CONFIG);
+    ITestBean testBean = (ITestBean) context.getBean("/url");
+    assertThat(testBean.isInitialized()).isTrue();
+  }
+
+  @Test
+  void defaultDestroyMethod() {
+    ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONFIG);
+    ITestBean testBean = (ITestBean) context.getBean("nonRefreshableTestBean");
+    assertThat(testBean.isDestroyed()).isFalse();
+    context.close();
+    assertThat(testBean.isDestroyed()).isTrue();
+  }
+
+  @Test
+  void defaultAutowire() {
+    ApplicationContext context = new ClassPathXmlApplicationContext(CONFIG);
+    ITestBean testBean = (ITestBean) context.getBean("testBean");
+    ITestBean otherBean = (ITestBean) context.getBean("otherBean");
+    assertThat(testBean.getOtherBean()).isEqualTo(otherBean);
+  }
+
+  @Test
+  void defaultProxyTargetClass() {
+    ApplicationContext context = new ClassPathXmlApplicationContext(PROXY_CONFIG);
+    Object testBean = context.getBean("testBean");
+    assertThat(AopUtils.isCglibProxy(testBean)).isTrue();
+  }
+
+}
