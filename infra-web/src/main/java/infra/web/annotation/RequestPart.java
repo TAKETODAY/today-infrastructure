@@ -28,13 +28,12 @@ import java.lang.annotation.Target;
 import infra.core.annotation.AliasFor;
 import infra.core.conversion.Converter;
 import infra.http.converter.HttpMessageConverter;
-import infra.web.multipart.Part;
 
 /**
  * Annotation that can be used to associate the part of a "multipart/form-data" request
  * with a method argument.
  *
- * <p>Supported method argument types include {@link Part} in
+ * <p>Supported method argument types include {@link infra.core.io.Resource} in
  * conjunction with multipart requests, or otherwise for any other method
  * argument, the content of the part is passed through an {@link HttpMessageConverter}
  * taking into consideration the 'Content-Type' header of the request part. This is
@@ -44,7 +43,7 @@ import infra.web.multipart.Part;
  * <p>Note that @{@link RequestParam} annotation can also be used to associate the part
  * of a "multipart/form-data" request with a method argument supporting the same method
  * argument types. The main difference is that when the method argument is not a String
- * or raw {@code MultipartFile} / {@code Part}, {@code @RequestParam} relies on type
+ * or raw Part, {@code @RequestParam} relies on type
  * conversion via a registered {@link Converter} or {@link PropertyEditor} while
  * {@link RequestPart} relies on {@link HttpMessageConverter HttpMessageConverters}
  * taking into consideration the 'Content-Type' header of the request part.

@@ -250,8 +250,8 @@ public class RedirectModel extends ModelMap implements Serializable, Comparable<
 
   @Override
   public String toString() {
-    return "RedirectModel [attributes=" + super.toString() + ", targetRequestPath=" +
-            targetRequestPath + ", targetRequestParams=" + targetRequestParams + "]";
+    return "RedirectModel [attributes=%s, targetRequestPath=%s, targetRequestParams=%s]"
+            .formatted(super.toString(), targetRequestPath, targetRequestParams);
   }
 
   /**
