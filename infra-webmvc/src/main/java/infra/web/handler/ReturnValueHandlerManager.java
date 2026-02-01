@@ -314,7 +314,7 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
       ViewResolver viewResolver = this.viewResolver;
       if (viewResolver == null) {
         BeanNameViewResolver resolver = new BeanNameViewResolver();
-        resolver.setApplicationContext(obtainApplicationContext());
+        resolver.setApplicationContext(applicationContext());
         viewResolver = resolver;
       }
       viewReturnValueHandler = new ViewReturnValueHandler(viewResolver);

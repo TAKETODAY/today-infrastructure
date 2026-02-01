@@ -232,7 +232,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * @see #handlerMethodsInitialized
    */
   protected void initHandlerMethods() {
-    BeanFactory beanFactory = obtainApplicationContext().getBeanFactory();
+    BeanFactory beanFactory = applicationContext().getBeanFactory();
     for (String beanName : getCandidateBeanNames()) {
       if (!beanName.startsWith(SCOPED_TARGET_NAME_PREFIX)) {
         processCandidateBean(beanFactory, beanName);
@@ -249,8 +249,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    */
   protected String[] getCandidateBeanNames() {
     return detectHandlerMethodsInAncestorContexts ?
-            BeanFactoryUtils.beanNamesForTypeIncludingAncestors(obtainApplicationContext(), Object.class) :
-            obtainApplicationContext().getBeanNamesForType(Object.class);
+            BeanFactoryUtils.beanNamesForTypeIncludingAncestors(applicationContext(), Object.class) :
+            applicationContext().getBeanNamesForType(Object.class);
   }
 
   /**
@@ -286,7 +286,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    */
   protected void detectHandlerMethods(Object handler) {
     Class<?> handlerType = handler instanceof String beanName
-            ? obtainApplicationContext().getType(beanName)
+            ? applicationContext().getType(beanName)
             : handler.getClass();
 
     if (handlerType != null) {
@@ -397,7 +397,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     if (handlerMethod != null) {
       Object handler = handlerMethod.getBean();
       if (handler instanceof String beanName) {
-        handler = obtainApplicationContext().getBean(beanName);
+        handler = applicationContext().getBean(beanName);
         return handlerMethod.withBean(handler);
       }
     }

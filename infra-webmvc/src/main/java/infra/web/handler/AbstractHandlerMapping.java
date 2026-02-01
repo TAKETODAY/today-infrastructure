@@ -320,7 +320,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
    */
   protected void detectMappedInterceptors(List<HandlerInterceptor> mappedInterceptors) {
     mappedInterceptors.addAll(BeanFactoryUtils.beansOfTypeIncludingAncestors(
-            obtainApplicationContext(), MappedInterceptor.class, true, false).values());
+            applicationContext(), MappedInterceptor.class, true, false).values());
   }
 
   /**
@@ -352,7 +352,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
     }
 
     if (handler instanceof String) {
-      handler = obtainApplicationContext().getBean((String) handler);
+      handler = applicationContext().getBean((String) handler);
     }
 
     HandlerExecutionChain chain;

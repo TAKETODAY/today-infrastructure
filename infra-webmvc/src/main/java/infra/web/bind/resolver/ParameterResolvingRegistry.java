@@ -196,7 +196,7 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
   public void registerDefaultStrategies(ParameterResolvingStrategies strategies) {
     logger.debug("Registering default parameter-resolvers to {}", strategies);
 
-    ApplicationContext context = obtainApplicationContext();
+    ApplicationContext context = applicationContext();
     ConfigurableBeanFactory beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);
     RedirectModelManager modelManager = getRedirectModelManager();
     if (modelManager == null) {

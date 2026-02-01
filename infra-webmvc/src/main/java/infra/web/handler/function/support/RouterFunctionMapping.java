@@ -148,11 +148,11 @@ public class RouterFunctionMapping extends AbstractHandlerMapping implements Ini
    */
   @SuppressWarnings({ "unchecked", "rawtypes" })
   private void initRouterFunctions() {
-    List<RouterFunction> routerFunctions = obtainApplicationContext()
+    List<RouterFunction> routerFunctions = applicationContext()
             .getBeanProvider(RouterFunction.class)
             .orderedList();
 
-    ApplicationContext parentContext = obtainApplicationContext().getParent();
+    ApplicationContext parentContext = applicationContext().getParent();
     if (parentContext != null && !detectHandlerFunctionsInAncestorContexts) {
       parentContext.getBeanProvider(RouterFunction.class).stream().forEach(routerFunctions::remove);
     }

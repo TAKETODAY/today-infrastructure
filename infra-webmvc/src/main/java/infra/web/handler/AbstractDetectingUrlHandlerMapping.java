@@ -71,7 +71,7 @@ public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHand
    * @see #determineUrlsForHandler(String)
    */
   protected void detectHandlers() throws BeansException {
-    ApplicationContext applicationContext = obtainApplicationContext();
+    ApplicationContext applicationContext = applicationContext();
     var beanNames = detectHandlersInAncestorContexts
             ? BeanFactoryUtils.beanNamesForTypeIncludingAncestors(applicationContext, Object.class)
             : applicationContext.getBeanNamesForType(Object.class);

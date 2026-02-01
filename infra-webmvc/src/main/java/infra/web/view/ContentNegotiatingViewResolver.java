@@ -172,7 +172,7 @@ public class ContentNegotiatingViewResolver extends ApplicationObjectSupport imp
 
   @Override
   protected void initApplicationContext() {
-    ApplicationContext context = obtainApplicationContext();
+    ApplicationContext context = applicationContext();
     Collection<ViewResolver> matchingBeans =
             BeanFactoryUtils.beansOfTypeIncludingAncestors(context, ViewResolver.class).values();
     if (viewResolvers == null) {

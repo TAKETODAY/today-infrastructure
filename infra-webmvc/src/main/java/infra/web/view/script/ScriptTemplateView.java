@@ -307,7 +307,7 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
   protected ScriptEngine createEngineFromName(String engineName) {
     ScriptEngineManager scriptEngineManager = this.scriptEngineManager;
     if (scriptEngineManager == null) {
-      scriptEngineManager = new ScriptEngineManager(obtainApplicationContext().getClassLoader());
+      scriptEngineManager = new ScriptEngineManager(applicationContext().getClassLoader());
       this.scriptEngineManager = scriptEngineManager;
     }
 
@@ -347,7 +347,7 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
   @Nullable
   protected Resource getResource(String location) {
     if (resourceLoaderPaths != null) {
-      ApplicationContext context = obtainApplicationContext();
+      ApplicationContext context = applicationContext();
       for (String path : resourceLoaderPaths) {
         Resource resource = context.getResource(path + location);
         if (resource.exists()) {
@@ -361,7 +361,7 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
   protected ScriptTemplateConfig autodetectViewConfig() throws BeansException {
     try {
       return BeanFactoryUtils.beanOfTypeIncludingAncestors(
-              obtainApplicationContext(), ScriptTemplateConfig.class, true, false);
+              applicationContext(), ScriptTemplateConfig.class, true, false);
     }
     catch (NoSuchBeanDefinitionException ex) {
       throw new ApplicationContextException("Expected a single ScriptTemplateConfig bean in the current " +
@@ -403,7 +403,7 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
       };
 
       Locale locale = RequestContextUtils.getLocale(request);
-      RenderingContext context = new RenderingContext(obtainApplicationContext(), locale, templateLoader, url);
+      RenderingContext context = new RenderingContext(applicationContext(), locale, templateLoader, url);
 
       Object html;
       if (this.renderFunction == null) {

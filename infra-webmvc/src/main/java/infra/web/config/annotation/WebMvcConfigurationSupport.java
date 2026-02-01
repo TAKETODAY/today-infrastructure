@@ -208,7 +208,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
 
   private void initControllerAdviceCache() {
     List<ControllerAdviceBean> adviceBeans = ControllerAdviceBean.findAnnotatedBeans(
-            obtainApplicationContext(), RequestBodyAdvice.class, ResponseBodyAdvice.class);
+            applicationContext(), RequestBodyAdvice.class, ResponseBodyAdvice.class);
 
     if (!adviceBeans.isEmpty()) {
       requestResponseBodyAdvice.addAll(0, adviceBeans);
@@ -749,7 +749,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public HandlerMapping resourceHandlerMapping(@Nullable NotFoundHandler notFoundHandler,
           @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager) {
-    var context = obtainApplicationContext();
+    var context = applicationContext();
     var registry = new ResourceHandlerRegistry(context, contentNegotiationManager);
 
     registry.setNotFoundHandler(notFoundHandler);
@@ -769,7 +769,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   @Nullable
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public HandlerMapping viewControllerHandlerMapping() {
-    var context = obtainApplicationContext();
+    var context = applicationContext();
     ViewControllerRegistry registry = new ViewControllerRegistry(context);
     addViewControllers(registry);
 

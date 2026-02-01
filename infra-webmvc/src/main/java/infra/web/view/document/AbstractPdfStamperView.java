@@ -86,7 +86,7 @@ public abstract class AbstractPdfStamperView extends AbstractUrlBasedView {
   protected PdfReader readPdfResource() throws IOException {
     String url = getUrl();
     Assert.state(url != null, "'url' not set");
-    return new PdfReader(obtainApplicationContext().getResource(url).getInputStream());
+    return new PdfReader(applicationContext().getResource(url).getInputStream());
   }
 
   /**

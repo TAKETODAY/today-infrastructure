@@ -427,7 +427,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
   private void resolveResourceLocations() {
     ArrayList<Resource> result = new ArrayList<>();
     if (!this.locationValues.isEmpty()) {
-      ApplicationContext applicationContext = obtainApplicationContext();
+      ApplicationContext applicationContext = applicationContext();
       for (String location : this.locationValues) {
         if (this.embeddedValueResolver != null) {
           String resolvedLocation = this.embeddedValueResolver.resolveStringValue(location);

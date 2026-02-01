@@ -66,7 +66,7 @@ public class BeanNameViewResolver extends ApplicationObjectSupport implements Vi
   @Override
   @Nullable
   public View resolveViewName(String viewName, Locale locale) throws BeansException {
-    ApplicationContext context = obtainApplicationContext();
+    ApplicationContext context = applicationContext();
     if (!context.containsBean(viewName)) {
       // Allow for ViewResolver chaining...
       return null;

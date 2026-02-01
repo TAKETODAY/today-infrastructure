@@ -71,8 +71,8 @@ class ApplicationObjectSupportTests {
   }
 
   @Test
-  void obtainApplicationContextWhenNotSet() {
-    assertThatThrownBy(() -> testSupport.obtainApplicationContext())
+  void applicationContextWhenNotSet() {
+    assertThatThrownBy(() -> testSupport.applicationContext())
             .isInstanceOf(IllegalStateException.class)
             .hasMessageContaining("No ApplicationContext");
   }

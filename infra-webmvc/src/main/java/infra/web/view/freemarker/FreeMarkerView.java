@@ -227,7 +227,7 @@ public class FreeMarkerView extends AbstractTemplateView {
   protected FreeMarkerConfig autodetectConfiguration() throws BeansException {
     try {
       return BeanFactoryUtils.beanOfTypeIncludingAncestors(
-              obtainApplicationContext(), FreeMarkerConfig.class, true, false);
+              applicationContext(), FreeMarkerConfig.class, true, false);
     }
     catch (NoSuchBeanDefinitionException ex) {
       throw new ApplicationContextException(

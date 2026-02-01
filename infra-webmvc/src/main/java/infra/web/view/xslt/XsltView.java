@@ -479,7 +479,7 @@ public class XsltView extends AbstractUrlBasedView {
       logger.debug("Applying stylesheet [{}]", url);
     }
     try {
-      Resource resource = obtainApplicationContext().getResource(url);
+      Resource resource = applicationContext().getResource(url);
       return new StreamSource(resource.getInputStream(), resource.getURI().toASCIIString());
     }
     catch (IOException ex) {

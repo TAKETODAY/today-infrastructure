@@ -137,7 +137,7 @@ public abstract class ApplicationObjectSupport implements ApplicationContextAwar
    *
    * @throws IllegalStateException if not running in an ApplicationContext
    */
-  public ApplicationContext obtainApplicationContext() {
+  public ApplicationContext applicationContext() {
     final ApplicationContext context = this.applicationContext;
     Assert.state(context != null, "No ApplicationContext");
     return context;
@@ -151,7 +151,7 @@ public abstract class ApplicationObjectSupport implements ApplicationContextAwar
    * @since 4.0
    */
   public <T> T unwrapFactory(Class<T> requiredType) {
-    return obtainApplicationContext().unwrapFactory(requiredType);
+    return applicationContext().unwrapFactory(requiredType);
   }
 
   /**
@@ -161,7 +161,7 @@ public abstract class ApplicationObjectSupport implements ApplicationContextAwar
    * @since 4.0
    */
   public <T> T unwrapContext(Class<T> requiredType) {
-    return obtainApplicationContext().unwrap(requiredType);
+    return applicationContext().unwrap(requiredType);
   }
 
   /**

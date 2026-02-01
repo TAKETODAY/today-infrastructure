@@ -151,7 +151,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
     config.setContentNegotiationManager(getContentNegotiationManager());
     config.setApiVersionStrategy(getApiVersionStrategy());
 
-    ApplicationContext context = obtainApplicationContext();
+    ApplicationContext context = applicationContext();
     if (resolvingRegistry == null) {
       resolvingRegistry = ParameterResolvingRegistry.get(context);
     }
@@ -189,7 +189,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   @Override
   protected HandlerMethod createHandlerMethod(Object handler, Method method) {
     if (handler instanceof String beanName) {
-      ApplicationContext context = obtainApplicationContext();
+      ApplicationContext context = applicationContext();
       return new InvocableHandlerMethod(beanName,
               context.getBeanFactory(), context, method, parameterFactory);
     }

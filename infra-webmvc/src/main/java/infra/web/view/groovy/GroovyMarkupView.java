@@ -90,7 +90,7 @@ public class GroovyMarkupView extends AbstractTemplateView {
    */
   protected MarkupTemplateEngine autodetectMarkupTemplateEngine() throws BeansException {
     try {
-      return BeanFactoryUtils.beanOfTypeIncludingAncestors(obtainApplicationContext(),
+      return BeanFactoryUtils.beanOfTypeIncludingAncestors(applicationContext(),
               GroovyMarkupConfig.class, true, false).getTemplateEngine();
     }
     catch (NoSuchBeanDefinitionException ex) {

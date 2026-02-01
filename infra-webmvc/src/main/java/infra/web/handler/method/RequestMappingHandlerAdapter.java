@@ -163,7 +163,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
   @Override
   public void afterPropertiesSet() {
-    ApplicationContext context = obtainApplicationContext();
+    ApplicationContext context = applicationContext();
     if (resolvingRegistry == null) {
       resolvingRegistry = ParameterResolvingRegistry.get(context);
     }
