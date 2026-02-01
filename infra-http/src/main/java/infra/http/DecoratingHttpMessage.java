@@ -22,8 +22,8 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Abstract base class for {@link HttpMessage} decorators.
- *
+ * A decorating {@link HttpMessage} implementation that delegates
+ * all calls to another {@link HttpMessage}.
  * <p>Provides a convenient base for wrapping {@link HttpMessage} instances,
  * delegating all method calls to the wrapped instance by default.
  *

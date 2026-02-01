@@ -24,10 +24,11 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 
 /**
- * Abstract base class for {@link HttpOutputMessage} decorators.
- *
- * <p>Provides a convenient base for wrapping {@link HttpOutputMessage} instances,
- * delegating all method calls to the wrapped instance by default.
+ * A decorating implementation of {@link HttpOutputMessage} that delegates all
+ * calls to a given {@link HttpOutputMessage} instance.
+ * <p>
+ * This class follows the decorator pattern, allowing additional functionality
+ * to be added to HTTP output messages without modifying their structure.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2026/1/12 16:21
