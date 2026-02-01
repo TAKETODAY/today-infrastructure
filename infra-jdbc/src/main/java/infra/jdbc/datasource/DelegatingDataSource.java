@@ -47,8 +47,7 @@ import infra.lang.Assert;
  */
 public class DelegatingDataSource implements DataSource, InitializingBean {
 
-  @Nullable
-  private DataSource targetDataSource;
+  private @Nullable DataSource targetDataSource;
 
   /**
    * Create a new DelegatingDataSource.
@@ -77,15 +76,14 @@ public class DelegatingDataSource implements DataSource, InitializingBean {
   /**
    * Return the target DataSource that this DataSource should delegate to.
    */
-  @Nullable
-  public DataSource getTargetDataSource() {
+  public @Nullable DataSource getTargetDataSource() {
     return this.targetDataSource;
   }
 
   /**
    * Obtain the target {@code DataSource} for actual use (never {@code null}).
    */
-  protected DataSource obtainTargetDataSource() {
+  protected DataSource targetDataSource() {
     DataSource dataSource = getTargetDataSource();
     Assert.state(dataSource != null, "No 'targetDataSource' set");
     return dataSource;
@@ -100,42 +98,42 @@ public class DelegatingDataSource implements DataSource, InitializingBean {
 
   @Override
   public Connection getConnection() throws SQLException {
-    return obtainTargetDataSource().getConnection();
+    return targetDataSource().getConnection();
   }
 
   @Override
   public Connection getConnection(String username, String password) throws SQLException {
-    return obtainTargetDataSource().getConnection(username, password);
+    return targetDataSource().getConnection(username, password);
   }
 
   @Override
   public ConnectionBuilder createConnectionBuilder() throws SQLException {
-    return obtainTargetDataSource().createConnectionBuilder();
+    return targetDataSource().createConnectionBuilder();
   }
 
   @Override
   public ShardingKeyBuilder createShardingKeyBuilder() throws SQLException {
-    return obtainTargetDataSource().createShardingKeyBuilder();
+    return targetDataSource().createShardingKeyBuilder();
   }
 
   @Override
   public PrintWriter getLogWriter() throws SQLException {
-    return obtainTargetDataSource().getLogWriter();
+    return targetDataSource().getLogWriter();
   }
 
   @Override
   public void setLogWriter(PrintWriter out) throws SQLException {
-    obtainTargetDataSource().setLogWriter(out);
+    targetDataSource().setLogWriter(out);
   }
 
   @Override
   public int getLoginTimeout() throws SQLException {
-    return obtainTargetDataSource().getLoginTimeout();
+    return targetDataSource().getLoginTimeout();
   }
 
   @Override
   public void setLoginTimeout(int seconds) throws SQLException {
-    obtainTargetDataSource().setLoginTimeout(seconds);
+    targetDataSource().setLoginTimeout(seconds);
   }
 
   //---------------------------------------------------------------------
@@ -148,12 +146,12 @@ public class DelegatingDataSource implements DataSource, InitializingBean {
     if (iface.isInstance(this)) {
       return (T) this;
     }
-    return obtainTargetDataSource().unwrap(iface);
+    return targetDataSource().unwrap(iface);
   }
 
   @Override
   public boolean isWrapperFor(Class<?> iface) throws SQLException {
-    return (iface.isInstance(this) || obtainTargetDataSource().isWrapperFor(iface));
+    return (iface.isInstance(this) || targetDataSource().isWrapperFor(iface));
   }
 
   //---------------------------------------------------------------------

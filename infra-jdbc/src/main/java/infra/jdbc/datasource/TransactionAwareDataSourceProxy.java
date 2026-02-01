@@ -136,7 +136,7 @@ public class TransactionAwareDataSourceProxy extends DelegatingDataSource {
    */
   @Override
   public Connection getConnection() throws SQLException {
-    DataSource ds = obtainTargetDataSource();
+    DataSource ds = targetDataSource();
     Connection con = getTransactionAwareConnectionProxy(ds);
     if (!lazyTransactionalConnections && shouldObtainFixedConnection(ds)) {
       ((ConnectionProxy) con).getTargetConnection();

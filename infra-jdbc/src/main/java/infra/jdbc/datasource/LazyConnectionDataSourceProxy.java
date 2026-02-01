@@ -206,7 +206,7 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
   public void checkDefaultConnectionProperties() {
     if (this.defaultAutoCommit == null || this.defaultTransactionIsolation == null) {
       try {
-        try (Connection con = obtainTargetDataSource().getConnection()) {
+        try (Connection con = targetDataSource().getConnection()) {
           checkDefaultConnectionProperties(con);
         }
       }
@@ -509,7 +509,7 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
     }
 
     private DataSource getDataSourceToUse() {
-      return (this.readOnly && readOnlyDataSource != null ? readOnlyDataSource : obtainTargetDataSource());
+      return (this.readOnly && readOnlyDataSource != null ? readOnlyDataSource : targetDataSource());
     }
   }
 
