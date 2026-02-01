@@ -219,4 +219,141 @@ class HttpOutputMessageTests {
             .hasMessage("Stream error");
   }
 
+  @Test
+  void setHeader_shouldSetHeaderValue() {
+    HttpOutputMessage outputMessage = mock(HttpOutputMessage.class);
+    HttpHeaders headers = HttpHeaders.forWritable();
+
+    when(outputMessage.getHeaders()).thenReturn(headers);
+    doCallRealMethod().when(outputMessage).setHeader(any(String.class), any(String.class));
+
+    outputMessage.setHeader("Content-Type", "application/json");
+
+    assertThat(headers.getFirst("Content-Type")).isEqualTo("application/json");
+  }
+
+  @Test
+  void setContentLength_shouldSetContentLengthHeader() {
+    HttpOutputMessage outputMessage = mock(HttpOutputMessage.class);
+    HttpHeaders headers = HttpHeaders.forWritable();
+
+    when(outputMessage.getHeaders()).thenReturn(headers);
+    doCallRealMethod().when(outputMessage).setContentLength(anyLong());
+
+    outputMessage.setContentLength(1024L);
+
+    verify(outputMessage).getHeaders();
+    assertThat(headers.getContentLength()).isEqualTo(1024L);
+  }
+
+  @Test
+  void addHeader_shouldAddHeaderValue() {
+    HttpOutputMessage outputMessage = mock(HttpOutputMessage.class);
+    HttpHeaders headers = HttpHeaders.forWritable();
+
+    when(outputMessage.getHeaders()).thenReturn(headers);
+    doCallRealMethod().when(outputMessage).addHeader(any(String.class), any(String.class));
+
+    outputMessage.addHeader("Accept", "application/json");
+    outputMessage.addHeader("Accept", "text/html");
+
+    assertThat(headers.get("Accept")).containsExactly("application/json", "text/html");
+  }
+
+  @Test
+  void addHeaders_shouldAddMultipleHeaders() {
+    HttpOutputMessage outputMessage = mock(HttpOutputMessage.class);
+    HttpHeaders headers = HttpHeaders.forWritable();
+    HttpHeaders additionalHeaders = HttpHeaders.forWritable();
+    additionalHeaders.set("X-Header-1", "value1");
+    additionalHeaders.set("X-Header-2", "value2");
+
+    when(outputMessage.getHeaders()).thenReturn(headers);
+    doCallRealMethod().when(outputMessage).addHeaders(any(HttpHeaders.class));
+
+    outputMessage.addHeaders(additionalHeaders);
+
+    verify(outputMessage).getHeaders();
+    assertThat(headers.getFirst("X-Header-1")).isEqualTo("value1");
+    assertThat(headers.getFirst("X-Header-2")).isEqualTo("value2");
+  }
+
+  @Test
+  void addHeaders_withNull_shouldNotFail() {
+    HttpOutputMessage outputMessage = mock(HttpOutputMessage.class);
+    HttpHeaders headers = HttpHeaders.forWritable();
+
+    when(outputMessage.getHeaders()).thenReturn(headers);
+    doCallRealMethod().when(outputMessage).addHeaders(any(HttpHeaders.class));
+
+    outputMessage.addHeaders(null);
+
+    assertThat(headers.isEmpty()).isTrue();
+  }
+
+  @Test
+  void removeHeader_shouldRemoveExistingHeader() {
+    HttpOutputMessage outputMessage = mock(HttpOutputMessage.class);
+    HttpHeaders headers = HttpHeaders.forWritable();
+    headers.set("X-Custom-Header", "value");
+
+    when(outputMessage.getHeaders()).thenReturn(headers);
+    doCallRealMethod().when(outputMessage).removeHeader(any(String.class));
+
+    boolean result = outputMessage.removeHeader("X-Custom-Header");
+
+    verify(outputMessage).getHeaders();
+    assertThat(result).isTrue();
+    assertThat(headers.getFirst("X-Custom-Header")).isNull();
+  }
+
+  @Test
+  void removeHeader_shouldReturnFalseForNonExistingHeader() {
+    HttpOutputMessage outputMessage = mock(HttpOutputMessage.class);
+    HttpHeaders headers = HttpHeaders.forWritable();
+
+    when(outputMessage.getHeaders()).thenReturn(headers);
+    doCallRealMethod().when(outputMessage).removeHeader(any(String.class));
+
+    boolean result = outputMessage.removeHeader("Non-Existing-Header");
+
+    verify(outputMessage).getHeaders();
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  void setHeaders_shouldReplaceAllHeaders() {
+    HttpOutputMessage outputMessage = mock(HttpOutputMessage.class);
+    HttpHeaders existingHeaders = HttpHeaders.forWritable();
+    existingHeaders.set("Old-Header", "old-value");
+    HttpHeaders newHeaders = HttpHeaders.forWritable();
+    newHeaders.set("New-Header", "new-value");
+
+    when(outputMessage.getHeaders()).thenReturn(existingHeaders);
+    doCallRealMethod().when(outputMessage).setHeaders(any(HttpHeaders.class));
+
+    outputMessage.setHeaders(newHeaders);
+
+    verify(outputMessage).getHeaders();
+    assertThat(existingHeaders.getFirst("Old-Header")).isEqualTo("old-value");
+    assertThat(existingHeaders.getFirst("New-Header")).isEqualTo("new-value");
+  }
+
+  @Test
+  void sendFile_withFileOnly_shouldUseFullFileLength() throws IOException {
+    HttpOutputMessage outputMessage = mock(HttpOutputMessage.class);
+    File mockFile = mock(File.class);
+    OutputStream mockOutputStream = mock(OutputStream.class);
+
+    when(outputMessage.getBody()).thenReturn(mockOutputStream);
+    when(mockFile.length()).thenReturn(2048L);
+    doCallRealMethod().when(outputMessage).sendFile(any(File.class));
+    doCallRealMethod().when(outputMessage).sendFile(any(File.class), anyLong(), anyLong());
+
+    outputMessage.sendFile(mockFile);
+
+    verify(mockFile).length();
+    verify(outputMessage).sendFile(mockFile, 0, 2048L);
+  }
+
 }
