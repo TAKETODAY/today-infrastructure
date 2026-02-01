@@ -145,7 +145,7 @@ public class FreeMarkerViewResolver extends AbstractTemplateViewResolver {
     if (encoding == null) {
       // If an explicit encoding has not been configured for this particular view,
       // use the explicit default encoding for the FreeMarker Configuration, if set.
-      Configuration configuration = freeMarkerView.obtainConfiguration();
+      Configuration configuration = freeMarkerView.configuration();
       if (configuration.isDefaultEncodingExplicitlySet()) {
         encoding = configuration.getDefaultEncoding();
       }

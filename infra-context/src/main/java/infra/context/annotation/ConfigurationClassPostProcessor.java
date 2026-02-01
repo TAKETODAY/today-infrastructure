@@ -151,8 +151,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
   public static final AnnotationBeanNameGenerator IMPORT_BEAN_NAME_GENERATOR =
           FullyQualifiedAnnotationBeanNameGenerator.INSTANCE;
 
-  @Nullable
-  private BootstrapContext bootstrapContext;
+  private @Nullable BootstrapContext bootstrapContext;
 
   private final Set<Integer> registriesPostProcessed = new HashSet<>();
 
@@ -160,19 +159,16 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
 
   private final MultiValueMap<String, BeanRegistrar> beanRegistrars = new LinkedMultiValueMap<>();
 
-  @Nullable
-  private ConfigurationClassBeanDefinitionReader reader;
+  private @Nullable ConfigurationClassBeanDefinitionReader reader;
 
   private boolean localBeanNameGeneratorSet = false;
 
   /* Using fully qualified class names as default bean names by default. */
   private BeanNameGenerator importBeanNameGenerator = IMPORT_BEAN_NAME_GENERATOR;
 
-  @Nullable
-  private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
+  private @Nullable ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
-  @Nullable
-  private List<PropertySourceDescriptor> propertySourceDescriptors;
+  private @Nullable List<PropertySourceDescriptor> propertySourceDescriptors;
 
   public ConfigurationClassPostProcessor() {
   }
@@ -188,7 +184,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
   }
 
   // @since 4.0
-  protected final BootstrapContext obtainBootstrapContext() {
+  protected final BootstrapContext bootstrapContext() {
     Assert.state(bootstrapContext != null, "BootstrapContext is required");
     return bootstrapContext;
   }
@@ -218,7 +214,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
     Assert.notNull(beanNameGenerator, "BeanNameGenerator is required");
     this.localBeanNameGeneratorSet = true;
     this.importBeanNameGenerator = beanNameGenerator;
-    obtainBootstrapContext().setBeanNameGenerator(beanNameGenerator);
+    bootstrapContext().setBeanNameGenerator(beanNameGenerator);
   }
 
   @Override
@@ -308,7 +304,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
 
   @Nullable
   private Resource resolvePropertySourceLocation(String location) {
-    BootstrapContext bootstrapContext = obtainBootstrapContext();
+    BootstrapContext bootstrapContext = bootstrapContext();
     try {
       String resolvedLocation = bootstrapContext.getEnvironment().resolveRequiredPlaceholders(location);
       return bootstrapContext.getResource(resolvedLocation);
@@ -325,7 +321,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
   public void processConfigBeanDefinitions(BeanDefinitionRegistry registry) {
     ArrayList<BeanDefinitionHolder> configCandidates = new ArrayList<>();
     String[] candidateNames = registry.getBeanDefinitionNames();
-    BootstrapContext bootstrapContext = obtainBootstrapContext();
+    BootstrapContext bootstrapContext = bootstrapContext();
     for (String beanName : candidateNames) {
       BeanDefinition beanDef = registry.getBeanDefinition(beanName);
       if (beanDef.getAttribute(ConfigurationClassUtils.CONFIGURATION_CLASS_ATTRIBUTE) != null) {

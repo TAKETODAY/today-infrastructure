@@ -179,7 +179,7 @@ public class FreeMarkerView extends AbstractTemplateView {
    * @return the FreeMarker configuration (never {@code null})
    * @throws IllegalStateException in case of no Configuration object set
    */
-  protected Configuration obtainConfiguration() {
+  protected Configuration configuration() {
     Configuration configuration = getConfiguration();
     Assert.state(configuration != null, "No Configuration set");
     return configuration;
@@ -244,7 +244,7 @@ public class FreeMarkerView extends AbstractTemplateView {
    * @see freemarker.template.Configuration#getObjectWrapper()
    */
   protected ObjectWrapper getObjectWrapper() {
-    ObjectWrapper ow = obtainConfiguration().getObjectWrapper();
+    ObjectWrapper ow = configuration().getObjectWrapper();
     return ow != null ? ow :
             new DefaultObjectWrapperBuilder(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS).build();
   }
@@ -383,8 +383,8 @@ public class FreeMarkerView extends AbstractTemplateView {
   protected Template getTemplate(String name, Locale locale) throws IOException {
     String encoding = getEncoding();
     return encoding != null
-            ? obtainConfiguration().getTemplate(name, locale, encoding)
-            : obtainConfiguration().getTemplate(name, locale);
+            ? configuration().getTemplate(name, locale, encoding)
+            : configuration().getTemplate(name, locale);
   }
 
   /**
