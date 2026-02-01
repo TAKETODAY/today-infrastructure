@@ -65,8 +65,7 @@ import infra.util.StringUtils;
 public class MetadataMBeanInfoAssembler extends AbstractReflectiveMBeanInfoAssembler
         implements AutodetectCapableMBeanInfoAssembler, InitializingBean {
 
-  @Nullable
-  private JmxAttributeSource attributeSource;
+  private @Nullable JmxAttributeSource attributeSource;
 
   /**
    * Create a new {@code MetadataMBeanInfoAssembler} which needs to be
@@ -104,7 +103,7 @@ public class MetadataMBeanInfoAssembler extends AbstractReflectiveMBeanInfoAssem
     }
   }
 
-  private JmxAttributeSource obtainAttributeSource() {
+  private JmxAttributeSource attributeSource() {
     Assert.state(this.attributeSource != null, "No JmxAttributeSource set");
     return this.attributeSource;
   }
@@ -131,7 +130,7 @@ public class MetadataMBeanInfoAssembler extends AbstractReflectiveMBeanInfoAssem
    */
   @Override
   public boolean includeBean(Class<?> beanClass, String beanName) {
-    return (obtainAttributeSource().getManagedResource(getClassToExpose(beanClass)) != null);
+    return (attributeSource().getManagedResource(getClassToExpose(beanClass)) != null);
   }
 
   /**
@@ -175,14 +174,14 @@ public class MetadataMBeanInfoAssembler extends AbstractReflectiveMBeanInfoAssem
    * Checks to see if the given Method has the {@code ManagedAttribute} attribute.
    */
   private boolean hasManagedAttribute(Method method) {
-    return (obtainAttributeSource().getManagedAttribute(method) != null);
+    return (attributeSource().getManagedAttribute(method) != null);
   }
 
   /**
    * Checks to see if the given Method has the {@code ManagedMetric} attribute.
    */
   private boolean hasManagedMetric(Method method) {
-    return (obtainAttributeSource().getManagedMetric(method) != null);
+    return (attributeSource().getManagedMetric(method) != null);
   }
 
   /**
@@ -191,7 +190,7 @@ public class MetadataMBeanInfoAssembler extends AbstractReflectiveMBeanInfoAssem
    * @param method the method to check
    */
   private boolean hasManagedOperation(Method method) {
-    return (obtainAttributeSource().getManagedOperation(method) != null);
+    return (attributeSource().getManagedOperation(method) != null);
   }
 
   /**
@@ -200,7 +199,7 @@ public class MetadataMBeanInfoAssembler extends AbstractReflectiveMBeanInfoAssem
    */
   @Override
   protected String getDescription(Object managedBean, String beanKey) {
-    ManagedResource mr = obtainAttributeSource().getManagedResource(getClassToExpose(managedBean));
+    ManagedResource mr = attributeSource().getManagedResource(getClassToExpose(managedBean));
     return (mr != null ? mr.getDescription() : "");
   }
 
@@ -215,10 +214,10 @@ public class MetadataMBeanInfoAssembler extends AbstractReflectiveMBeanInfoAssem
     Method writeMethod = propertyDescriptor.getWriteMethod();
 
     ManagedAttribute getter = readMethod != null
-            ? obtainAttributeSource().getManagedAttribute(readMethod)
+            ? attributeSource().getManagedAttribute(readMethod)
             : null;
     ManagedAttribute setter = writeMethod != null
-            ? obtainAttributeSource().getManagedAttribute(writeMethod)
+            ? attributeSource().getManagedAttribute(writeMethod)
             : null;
 
     if (getter != null && StringUtils.hasText(getter.getDescription())) {
@@ -228,7 +227,7 @@ public class MetadataMBeanInfoAssembler extends AbstractReflectiveMBeanInfoAssem
       return setter.getDescription();
     }
 
-    ManagedMetric metric = (readMethod != null ? obtainAttributeSource().getManagedMetric(readMethod) : null);
+    ManagedMetric metric = (readMethod != null ? attributeSource().getManagedMetric(readMethod) : null);
     if (metric != null && StringUtils.hasText(metric.getDescription())) {
       return metric.getDescription();
     }
@@ -244,18 +243,18 @@ public class MetadataMBeanInfoAssembler extends AbstractReflectiveMBeanInfoAssem
   protected String getOperationDescription(Method method, String beanKey) {
     PropertyDescriptor pd = BeanUtils.findPropertyForMethod(method);
     if (pd != null) {
-      ManagedAttribute ma = obtainAttributeSource().getManagedAttribute(method);
+      ManagedAttribute ma = attributeSource().getManagedAttribute(method);
       if (ma != null && StringUtils.hasText(ma.getDescription())) {
         return ma.getDescription();
       }
-      ManagedMetric metric = obtainAttributeSource().getManagedMetric(method);
+      ManagedMetric metric = attributeSource().getManagedMetric(method);
       if (metric != null && StringUtils.hasText(metric.getDescription())) {
         return metric.getDescription();
       }
       return method.getName();
     }
     else {
-      ManagedOperation mo = obtainAttributeSource().getManagedOperation(method);
+      ManagedOperation mo = attributeSource().getManagedOperation(method);
       if (mo != null && StringUtils.hasText(mo.getDescription())) {
         return mo.getDescription();
       }
@@ -271,7 +270,7 @@ public class MetadataMBeanInfoAssembler extends AbstractReflectiveMBeanInfoAssem
   @Override
   @SuppressWarnings("NullAway")
   protected MBeanParameterInfo[] getOperationParameters(Method method, String beanKey) {
-    @Nullable ManagedOperationParameter[] params = obtainAttributeSource().getManagedOperationParameters(method);
+    @Nullable ManagedOperationParameter[] params = attributeSource().getManagedOperationParameters(method);
     if (ObjectUtils.isEmpty(params)) {
       return super.getOperationParameters(method, beanKey);
     }
@@ -292,7 +291,7 @@ public class MetadataMBeanInfoAssembler extends AbstractReflectiveMBeanInfoAssem
    */
   @Override
   protected ModelMBeanNotificationInfo[] getNotificationInfo(Object managedBean, String beanKey) {
-    @Nullable ManagedNotification[] notificationAttributes = obtainAttributeSource().getManagedNotifications(getClassToExpose(managedBean));
+    @Nullable ManagedNotification[] notificationAttributes = attributeSource().getManagedNotifications(getClassToExpose(managedBean));
     ModelMBeanNotificationInfo[] notificationInfos =
             new ModelMBeanNotificationInfo[notificationAttributes.length];
 
@@ -312,7 +311,7 @@ public class MetadataMBeanInfoAssembler extends AbstractReflectiveMBeanInfoAssem
    */
   @Override
   protected void populateMBeanDescriptor(Descriptor desc, Object managedBean, String beanKey) {
-    ManagedResource mr = obtainAttributeSource().getManagedResource(getClassToExpose(managedBean));
+    ManagedResource mr = attributeSource().getManagedResource(getClassToExpose(managedBean));
     if (mr == null) {
       throw new InvalidMetadataException(
               "No ManagedResource attribute found for class: " + getClassToExpose(managedBean));
@@ -350,15 +349,15 @@ public class MetadataMBeanInfoAssembler extends AbstractReflectiveMBeanInfoAssem
           Descriptor desc, @Nullable Method getter, @Nullable Method setter, String beanKey) {
 
     if (getter != null) {
-      ManagedMetric metric = obtainAttributeSource().getManagedMetric(getter);
+      ManagedMetric metric = attributeSource().getManagedMetric(getter);
       if (metric != null) {
         populateMetricDescriptor(desc, metric);
         return;
       }
     }
 
-    ManagedAttribute gma = (getter != null ? obtainAttributeSource().getManagedAttribute(getter) : null);
-    ManagedAttribute sma = (setter != null ? obtainAttributeSource().getManagedAttribute(setter) : null);
+    ManagedAttribute gma = (getter != null ? attributeSource().getManagedAttribute(getter) : null);
+    ManagedAttribute sma = (setter != null ? attributeSource().getManagedAttribute(setter) : null);
     populateAttributeDescriptor(desc,
             (gma != null ? gma : ManagedAttribute.EMPTY),
             (sma != null ? sma : ManagedAttribute.EMPTY));
@@ -412,7 +411,7 @@ public class MetadataMBeanInfoAssembler extends AbstractReflectiveMBeanInfoAssem
    */
   @Override
   protected void populateOperationDescriptor(Descriptor desc, Method method, String beanKey) {
-    ManagedOperation mo = obtainAttributeSource().getManagedOperation(method);
+    ManagedOperation mo = attributeSource().getManagedOperation(method);
     if (mo != null) {
       applyCurrencyTimeLimit(desc, mo.getCurrencyTimeLimit());
     }
