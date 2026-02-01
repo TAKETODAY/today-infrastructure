@@ -60,8 +60,7 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
   /**
    * @since 3.0.1
    */
-  @Nullable
-  private RedirectModelManager redirectModelManager;
+  private @Nullable RedirectModelManager redirectModelManager;
 
   // @since 4.0
   @SuppressWarnings("NullAway.Init")
@@ -80,7 +79,6 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
     this.messageConverters.add(new AllEncompassingFormHttpMessageConverter());
   }
 
-  @SuppressWarnings("NullAway")
   public ParameterResolvingRegistry(List<HttpMessageConverter<?>> messageConverters) {
     setMessageConverters(messageConverters);
   }
@@ -163,8 +161,7 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
    * @param parameter parameter value to be resolve
    * @return A suitable {@link ParameterResolvingStrategy}
    */
-  @Nullable
-  public ParameterResolvingStrategy findStrategy(ResolvableMethodParameter parameter) {
+  public @Nullable ParameterResolvingStrategy findStrategy(ResolvableMethodParameter parameter) {
     ParameterResolvingStrategy resolvingStrategy = lookupStrategy(parameter, customizedStrategies);
     if (resolvingStrategy == null) {
       resolvingStrategy = lookupStrategy(parameter, defaultStrategies);
@@ -260,20 +257,43 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
 
   //
 
+  /**
+   * Add one or more customized parameter resolving strategies to the registry.
+   *
+   * @param strategies the parameter resolving strategies to add
+   * @since 4.0
+   */
   public void addCustomizedStrategies(ParameterResolvingStrategy @Nullable ... strategies) {
     customizedStrategies.add(strategies);
   }
 
+  /**
+   * Add one or more default parameter resolving strategies to the registry.
+   *
+   * @param strategies the parameter resolving strategies to add
+   * @since 4.0
+   */
   public void addDefaultStrategies(ParameterResolvingStrategy @Nullable ... strategies) {
     defaultStrategies.add(strategies);
   }
 
+  /**
+   * Set the redirect model manager to use for redirect scenarios.
+   *
+   * @param redirectModelManager the redirect model manager to set
+   * @since 4.0
+   */
   public void setRedirectModelManager(@Nullable RedirectModelManager redirectModelManager) {
     this.redirectModelManager = redirectModelManager;
   }
 
-  @Nullable
-  public RedirectModelManager getRedirectModelManager() {
+  /**
+   * Get the redirect model manager to use for redirect scenarios.
+   *
+   * @return the redirect model manager, or {@code null} if not set
+   * @since 4.0
+   */
+  public @Nullable RedirectModelManager getRedirectModelManager() {
     return redirectModelManager;
   }
 
@@ -289,11 +309,13 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
   }
 
   /**
-   * Set one or more {@code RequestBodyAdvice} {@code ResponseBodyAdvice}
+   * Set one or more {@code RequestBodyAdvice} or {@code ResponseBodyAdvice} instances.
    *
-   * <p>
-   * clear all and add all
+   * <p>This method clears any existing advice objects and adds all objects from the provided list.
+   * The order of advice objects in the list is preserved during execution.
    *
+   * @param list the list of {@code RequestBodyAdvice} or {@code ResponseBodyAdvice} objects,
+   * may be {@code null} which results in clearing all existing advice
    * @see RequestBodyAdvice
    * @see ResponseBodyAdvice
    * @since 4.0
@@ -316,6 +338,7 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
   @Override
   public void trimToSize() {
     defaultStrategies.trimToSize();
+    customizedStrategies.trimToSize();
   }
 
   @Override
