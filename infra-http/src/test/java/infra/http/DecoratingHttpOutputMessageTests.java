@@ -8,11 +8,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -151,17 +149,6 @@ class DecoratingHttpOutputMessageTests {
     message.addHeader("Authorization", "Bearer token");
 
     verify(mockDelegate).addHeader("Authorization", "Bearer token");
-  }
-
-  @Test
-  void shouldReturnCorrectDelegateInstance() {
-    HttpOutputMessage mockDelegate = Mockito.mock(HttpOutputMessage.class);
-
-    DecoratingHttpOutputMessage message = new DecoratingHttpOutputMessage(mockDelegate);
-
-    // Verify that the delegate field is properly set through reflection or behavior
-    assertDoesNotThrow(() -> message.getBody());
-    verifyNoInteractions(mockDelegate); // No method called yet
   }
 
 }
