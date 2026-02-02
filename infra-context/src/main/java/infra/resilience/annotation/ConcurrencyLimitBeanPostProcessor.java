@@ -39,6 +39,8 @@ import infra.context.expression.EmbeddedValueResolverAware;
 import infra.core.StringValueResolver;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.lang.Assert;
+import infra.resilience.InvocationRejectedException;
+import infra.util.ClassUtils;
 import infra.util.StringUtils;
 
 /**
@@ -52,8 +54,7 @@ import infra.util.StringUtils;
  */
 public class ConcurrencyLimitBeanPostProcessor extends AbstractBeanFactoryAwareAdvisingPostProcessor implements EmbeddedValueResolverAware {
 
-  @Nullable
-  private StringValueResolver embeddedValueResolver;
+  private @Nullable StringValueResolver embeddedValueResolver;
 
   public ConcurrencyLimitBeanPostProcessor() {
     setBeforeExistingAdvisors(true);
@@ -72,50 +73,56 @@ public class ConcurrencyLimitBeanPostProcessor extends AbstractBeanFactoryAwareA
 
   private final class ConcurrencyLimitInterceptor implements MethodInterceptor {
 
-    private final Map<Object, ConcurrencyThrottleCache> cachePerInstance =
+    private final Map<Object, ConcurrencyThrottleHolder> holderPerInstance =
             Collections.synchronizedMap(new IdentityHashMap<>(16));
 
-    @Nullable
     @Override
-    public Object invoke(MethodInvocation invocation) throws Throwable {
+    public @Nullable Object invoke(MethodInvocation invocation) throws Throwable {
       Method method = invocation.getMethod();
-      Object target = invocation.getThis();
-      Class<?> targetClass = (target != null ? target.getClass() : method.getDeclaringClass());
-      if (target == null && invocation instanceof ProxyMethodInvocation methodInvocation) {
-        // Allow validation for AOP proxy without a target
-        target = methodInvocation.getProxy();
+      Object instance = invocation.getThis();
+      Class<?> targetClass = (instance != null ? instance.getClass() : method.getDeclaringClass());
+      if (invocation instanceof ProxyMethodInvocation methodInvocation) {
+        // Apply concurrency throttling at the AOP proxy level (independent of target instance)
+        instance = methodInvocation.getProxy();
       }
-      Assert.state(target != null, "Target is required");
+      Assert.state(instance != null, "Unique instance required - use a ProxyMethodInvocation");
 
-      ConcurrencyThrottleCache cache = cachePerInstance.computeIfAbsent(target, k -> new ConcurrencyThrottleCache());
-      MethodInterceptor interceptor = cache.methodInterceptors.get(method);
+      // Build unique ConcurrencyThrottleHolder instance per target object
+      ConcurrencyThrottleHolder holder = this.holderPerInstance.computeIfAbsent(instance,
+              k -> new ConcurrencyThrottleHolder());
+
+      // Determine method-specific interceptor instance with isolated concurrency count
+      MethodInterceptor interceptor = holder.methodInterceptors.get(method);
       if (interceptor == null) {
-        synchronized(cache) {
-          interceptor = cache.methodInterceptors.get(method);
+        synchronized(holder) {
+          interceptor = holder.methodInterceptors.get(method);
           if (interceptor == null) {
             boolean perMethod = false;
-            ConcurrencyLimit anno = AnnotatedElementUtils.getMergedAnnotation(method, ConcurrencyLimit.class);
-            if (anno != null) {
+            ConcurrencyLimit annotation = AnnotatedElementUtils.findMergedAnnotation(method, ConcurrencyLimit.class);
+            if (annotation != null) {
               perMethod = true;
             }
             else {
-              interceptor = cache.classInterceptor;
+              interceptor = holder.classInterceptor;
               if (interceptor == null) {
-                anno = AnnotatedElementUtils.getMergedAnnotation(targetClass, ConcurrencyLimit.class);
+                annotation = AnnotatedElementUtils.findMergedAnnotation(targetClass, ConcurrencyLimit.class);
               }
             }
             if (interceptor == null) {
-              Assert.state(anno != null, "No @ConcurrencyLimit annotation found");
-              int concurrencyLimit = parseInt(anno.limit(), anno.limitString());
+              Assert.state(annotation != null, "No @ConcurrencyLimit annotation found");
+              int concurrencyLimit = parseInt(annotation.limit(), annotation.limitString());
               if (concurrencyLimit < -1) {
-                throw new IllegalStateException(anno + " must be configured with a valid limit");
+                throw new IllegalStateException(annotation + " must be configured with a valid limit");
               }
-              interceptor = new ConcurrencyThrottleInterceptor(concurrencyLimit);
+              String name = (perMethod ? ClassUtils.getQualifiedMethodName(method) : targetClass.getName());
+              interceptor = (annotation.policy() == ConcurrencyLimit.ThrottlePolicy.REJECT ?
+                      new RejectingConcurrencyThrottleInterceptor(concurrencyLimit, name, instance) :
+                      new ResilienceConcurrencyThrottleInterceptor(concurrencyLimit, name, instance));
               if (!perMethod) {
-                cache.classInterceptor = interceptor;
+                holder.classInterceptor = interceptor;
               }
             }
-            cache.methodInterceptors.put(method, interceptor);
+            holder.methodInterceptors.put(method, interceptor);
           }
         }
       }
@@ -133,15 +140,43 @@ public class ConcurrencyLimitBeanPostProcessor extends AbstractBeanFactoryAwareA
       }
       return value;
     }
-
   }
 
-  private static final class ConcurrencyThrottleCache {
+  private static class ConcurrencyThrottleHolder {
 
-    public final ConcurrentHashMap<Method, MethodInterceptor> methodInterceptors = new ConcurrentHashMap<>();
+    final Map<Method, MethodInterceptor> methodInterceptors = new ConcurrentHashMap<>();
 
-    @Nullable
-    public MethodInterceptor classInterceptor;
+    @Nullable MethodInterceptor classInterceptor;
+  }
+
+  private static class ResilienceConcurrencyThrottleInterceptor extends ConcurrencyThrottleInterceptor {
+
+    private final String identifier;
+
+    private final Object target;
+
+    public ResilienceConcurrencyThrottleInterceptor(int concurrencyLimit, String identifier, Object target) {
+      super(concurrencyLimit);
+      this.identifier = identifier;
+      this.target = target;
+    }
+
+    @Override
+    protected void onAccessRejected(String msg) {
+      throw new InvocationRejectedException(msg + " " + this.identifier, this.target);
+    }
+  }
+
+  private static class RejectingConcurrencyThrottleInterceptor extends ResilienceConcurrencyThrottleInterceptor {
+
+    public RejectingConcurrencyThrottleInterceptor(int concurrencyLimit, String identifier, Object target) {
+      super(concurrencyLimit, identifier, target);
+    }
+
+    @Override
+    protected void onLimitReached() {
+      onAccessRejected("Concurrency limit reached: " + getConcurrencyLimit() + " - not allowed to enter");
+    }
   }
 
 }

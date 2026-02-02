@@ -45,6 +45,23 @@ import infra.util.ConcurrencyThrottleSupport;
 @SuppressWarnings("serial")
 public class SyncTaskExecutor extends ConcurrencyThrottleSupport implements TaskExecutor, Serializable {
 
+  private boolean rejectTasksWhenLimitReached = false;
+
+  /**
+   * Specify whether to reject tasks when the concurrency limit has been reached,
+   * throwing {@link TaskRejectedException} (which extends the common
+   * {@link java.util.concurrent.RejectedExecutionException})
+   * on any further execution attempts.
+   * <p>The default is {@code false}, blocking the caller until the submission can
+   * be accepted. Switch this to {@code true} for immediate rejection instead.
+   *
+   * @see #setConcurrencyLimit
+   * @since 5.0
+   */
+  public void setRejectTasksWhenLimitReached(boolean rejectTasksWhenLimitReached) {
+    this.rejectTasksWhenLimitReached = rejectTasksWhenLimitReached;
+  }
+
   /**
    * Execute the given {@code task} synchronously, through direct
    * invocation of its {@link Runnable#run() run()} method.
@@ -93,4 +110,16 @@ public class SyncTaskExecutor extends ConcurrencyThrottleSupport implements Task
     }
   }
 
+  @Override
+  protected void onLimitReached() {
+    if (this.rejectTasksWhenLimitReached) {
+      onAccessRejected("Concurrency limit reached: " + getConcurrencyLimit());
+    }
+    super.onLimitReached();
+  }
+
+  @Override
+  protected void onAccessRejected(String msg) {
+    throw new TaskRejectedException(msg);
+  }
 }

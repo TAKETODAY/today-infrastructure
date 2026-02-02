@@ -112,8 +112,7 @@ public abstract class ConcurrencyThrottleSupport implements Serializable {
    */
   protected void beforeAccess() {
     if (this.concurrencyLimit == NO_CONCURRENCY) {
-      throw new IllegalStateException(
-              "Currently no invocations allowed - concurrency limit set to NO_CONCURRENCY");
+      onAccessRejected("Concurrency limit set to NO_CONCURRENCY - not allowed to enter");
     }
     if (this.concurrencyLimit > 0) {
       this.concurrencyLock.lock();
@@ -142,7 +141,7 @@ public abstract class ConcurrencyThrottleSupport implements Serializable {
     boolean interrupted = false;
     while (this.concurrencyCount >= this.concurrencyLimit) {
       if (interrupted) {
-        throw new IllegalStateException("Thread was interrupted while waiting for invocation access, " +
+        onAccessRejected("Thread was interrupted while waiting for access " +
                 "but concurrency limit still does not allow for entering");
       }
       if (logger.isDebugEnabled()) {
@@ -158,6 +157,22 @@ public abstract class ConcurrencyThrottleSupport implements Serializable {
         interrupted = true;
       }
     }
+  }
+
+  /**
+   * Triggered when access has been rejected due to the concurrency policy
+   * or due to interruption.
+   * <p>Implementations will typically throw a corresponding exception.
+   * When returning normally, regular access will still be attempted.
+   * <p>The default implementation throws an {@link IllegalStateException}.
+   *
+   * @param msg the rejection message (common exception messages are designed
+   * so that they can be appended with an identifier separated by a space
+   * in custom subclasses)
+   * @since 5.0
+   */
+  protected void onAccessRejected(String msg) {
+    throw new IllegalStateException(msg);
   }
 
   /**

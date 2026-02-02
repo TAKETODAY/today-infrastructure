@@ -64,19 +64,15 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator implement
   /** Internal concurrency throttle used by this executor. */
   private final ConcurrencyThrottleAdapter concurrencyThrottle = new ConcurrencyThrottleAdapter();
 
-  @Nullable
-  private VirtualThreadDelegate virtualThreadDelegate;
+  private @Nullable VirtualThreadDelegate virtualThreadDelegate;
 
-  @Nullable
-  private ThreadFactory threadFactory;
+  private @Nullable ThreadFactory threadFactory;
 
-  @Nullable
-  private TaskDecorator taskDecorator;
+  private @Nullable TaskDecorator taskDecorator;
+
+  private @Nullable Set<Thread> activeThreads;
 
   private long taskTerminationTimeout;
-
-  @Nullable
-  private Set<Thread> activeThreads;
 
   private volatile boolean active = true;
 
@@ -415,9 +411,14 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator implement
     @Override
     protected void onLimitReached() {
       if (rejectTasksWhenLimitReached) {
-        throw new TaskRejectedException("Concurrency limit reached: " + getConcurrencyLimit());
+        onAccessRejected("Concurrency limit reached: " + getConcurrencyLimit());
       }
       super.onLimitReached();
+    }
+
+    @Override
+    protected void onAccessRejected(String msg) {
+      throw new TaskRejectedException(msg);
     }
 
     @Override

@@ -98,4 +98,37 @@ public @interface ConcurrencyLimit {
    */
   String limitString() default "";
 
+  /**
+   * The policy for throttling method invocations when the limit has been reached.
+   * <p>The default behavior is to block further concurrent invocations once the
+   * specified limit has been reached: {@link ThrottlePolicy#BLOCK}.
+   * <p>Switch this policy to {@code REJECT} for rejecting further invocations instead,
+   * throwing {@link infra.resilience.InvocationRejectedException}
+   * (which extends the common {@link java.util.concurrent.RejectedExecutionException})
+   * on any further concurrent invocation attempts: {@link ThrottlePolicy#REJECT}.
+   *
+   * @since 5.0
+   */
+  ThrottlePolicy policy() default ThrottlePolicy.BLOCK;
+
+  /**
+   * Policy to apply for throttling method invocations when the limit has been reached.
+   *
+   * @since 5.0
+   */
+  enum ThrottlePolicy {
+
+    /**
+     * The default: block until we can invoke the method within the configured limit.
+     */
+    BLOCK,
+
+    /**
+     * Alternative: reject further method invocations once the limit has been reached.
+     *
+     * @see infra.resilience.InvocationRejectedException
+     */
+    REJECT
+  }
+
 }
