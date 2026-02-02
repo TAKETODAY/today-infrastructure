@@ -18,8 +18,11 @@
 
 package infra.cache.support;
 
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.api.AutoClose;
+import org.junit.jupiter.api.Named;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.FieldSource;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -29,7 +32,6 @@ import infra.cache.CacheManager;
 import infra.cache.annotation.CacheConfig;
 import infra.cache.annotation.Cacheable;
 import infra.cache.annotation.EnableCaching;
-import infra.context.ApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
@@ -37,20 +39,33 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Named.named;
 
 /**
  * Tests for annotation-based caching methods that use reactive operators.
  *
  * @author Juergen Hoeller
  */
-public class CaffeineReactiveCachingTests {
+@ParameterizedClass
+@FieldSource("configClasses")
+class CaffeineReactiveCachingTests {
 
-  @ParameterizedTest
-  @ValueSource(classes = { AsyncCacheModeConfig.class, AsyncCacheModeConfig.class })
-  void cacheHitDetermination(Class<?> configClass) {
-    ApplicationContext ctx = new AnnotationConfigApplicationContext(configClass, ReactiveCacheableService.class);
-    ReactiveCacheableService service = ctx.getBean(ReactiveCacheableService.class);
+  static List<Named<Class<?>>> configClasses = List.of(
+          named(AsyncCacheModeConfig.class.getSimpleName(), AsyncCacheModeConfig.class),
+          named(AsyncCacheModeWithoutNullValuesConfig.class.getSimpleName(), AsyncCacheModeWithoutNullValuesConfig.class));
 
+  @AutoClose
+  private final AnnotationConfigApplicationContext ctx;
+
+  private final ReactiveCacheableService service;
+
+  CaffeineReactiveCachingTests(Class<?> configClass) {
+    this.ctx = new AnnotationConfigApplicationContext(configClass, ReactiveCacheableService.class);
+    this.service = ctx.getBean(ReactiveCacheableService.class);
+  }
+
+  @Test
+  void cacheHitDetermination() {
     Object key = new Object();
 
     Long r1 = service.cacheFuture(key).join();
@@ -106,7 +121,22 @@ public class CaffeineReactiveCachingTests {
     assertThat(r1).isSameAs(r2).isSameAs(r3);
   }
 
-  @CacheConfig(cacheNames = "first")
+  @Test
+  void fluxCacheDoesntDependOnFirstRequest() {
+    Object key = new Object();
+
+    List<Long> l1 = service.cacheFlux(key).take(1L, true).collectList().block();
+    List<Long> l2 = service.cacheFlux(key).take(3L, true).collectList().block();
+    List<Long> l3 = service.cacheFlux(key).collectList().block();
+
+    Long first = l1.get(0);
+
+    assertThat(l1).as("l1").containsExactly(first);
+    assertThat(l2).as("l2").containsExactly(first, 0L, -1L);
+    assertThat(l3).as("l3").containsExactly(first, 0L, -1L, -2L, -3L);
+  }
+
+  @CacheConfig("first")
   static class ReactiveCacheableService {
 
     private final AtomicLong counter = new AtomicLong();
@@ -118,12 +148,12 @@ public class CaffeineReactiveCachingTests {
 
     @Cacheable
     public Mono<Long> cacheMono(Object arg) {
-      return Mono.just(this.counter.getAndIncrement());
+      return Mono.defer(() -> Mono.just(this.counter.getAndIncrement()));
     }
 
     @Cacheable
     public Flux<Long> cacheFlux(Object arg) {
-      return Flux.just(this.counter.getAndIncrement(), 0L);
+      return Flux.defer(() -> Flux.just(this.counter.getAndIncrement(), 0L, -1L, -2L, -3L));
     }
   }
 
