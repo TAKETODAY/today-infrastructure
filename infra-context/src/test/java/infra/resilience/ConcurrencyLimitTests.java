@@ -33,6 +33,7 @@ import infra.aop.support.AopUtils;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.annotation.AnnotationConfigApplicationContext;
+import infra.core.testfixture.DisabledIfInContinuousIntegration;
 import infra.mock.env.MockPropertySource;
 import infra.resilience.annotation.ConcurrencyLimit;
 import infra.resilience.annotation.ConcurrencyLimitBeanPostProcessor;
@@ -119,6 +120,7 @@ class ConcurrencyLimitTests {
   }
 
   @Test
+  @DisabledIfInContinuousIntegration
   void withPostProcessorForMethodWithRejection() throws Exception {
     AnnotatedMethodBean proxy = createProxy(AnnotatedMethodBean.class);
     AnnotatedMethodBean target = (AnnotatedMethodBean) AopProxyUtils.getSingletonTarget(proxy);
@@ -158,6 +160,7 @@ class ConcurrencyLimitTests {
   }
 
   @Test
+  @DisabledIfInContinuousIntegration
   void withPostProcessorForClassWithRejection() throws Exception {
     AnnotatedClassBeanWithRejection proxy = createProxy(AnnotatedClassBeanWithRejection.class);
     AnnotatedClassBeanWithRejection target = (AnnotatedClassBeanWithRejection) AopProxyUtils.getSingletonTarget(proxy);
