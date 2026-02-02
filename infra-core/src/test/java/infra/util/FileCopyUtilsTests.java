@@ -19,6 +19,7 @@
 package infra.util;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -28,6 +29,8 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -243,4 +246,31 @@ class FileCopyUtilsTests {
 
     FileCopyUtils.copy("", out);
   }
+
+  @Test
+  void copyFile(@TempDir Path tempDir) throws IOException {
+    Path source = tempDir.resolve("src");
+    Path target = tempDir.resolve("target");
+    Files.write(source, "content".getBytes());
+    int bytesWritten = FileCopyUtils.copy(source.toFile(), target.toFile());
+    assertThat(bytesWritten).isEqualTo(7);
+    assertThat(target).exists();
+    assertThat(target).content().isEqualTo("content");
+  }
+
+  @Test
+  void copyFileToByteArray(@TempDir Path tempDir) throws IOException {
+    Path source = tempDir.resolve("src");
+    Files.write(source, "content".getBytes());
+    assertThat(FileCopyUtils.copyToByteArray(source.toFile())).asString().isEqualTo("content");
+  }
+
+  @Test
+  void copyByteArrayToFile(@TempDir Path tempDir) throws IOException {
+    Path target = tempDir.resolve("target");
+    FileCopyUtils.copy("content".getBytes(), target.toFile());
+    assertThat(target).exists();
+    assertThat(target).content().isEqualTo("content");
+  }
+
 }
