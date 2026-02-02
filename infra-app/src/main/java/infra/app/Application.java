@@ -70,6 +70,7 @@ import infra.context.properties.source.ConfigurationPropertySources;
 import infra.context.support.AbstractApplicationContext;
 import infra.context.support.GenericApplicationContext;
 import infra.core.ApplicationTemp;
+import infra.core.JavaVersion;
 import infra.core.NativeDetector;
 import infra.core.Ordered;
 import infra.core.annotation.AnnotationAwareOrderComparator;
@@ -622,6 +623,10 @@ public class Application {
       }
       initializers.removeAll(aotInitializers);
       initializers.addAll(0, aotInitializers);
+    }
+
+    if (NativeDetector.inNativeImage()) {
+      NativeImageRequirementsException.throwIfNotMet();
     }
   }
 
@@ -1927,6 +1932,29 @@ public class Application {
     @Override
     String action() {
       return "Started";
+    }
+
+  }
+
+  /**
+   * Exception which is thrown if GraalVM's native-image requirements aren't met.
+   */
+  static final class NativeImageRequirementsException extends RuntimeException {
+
+    private static final JavaVersion MINIMUM_REQUIRED_JAVA_VERSION = JavaVersion.TWENTY_FIVE;
+
+    private static final JavaVersion CURRENT_JAVA_VERSION = JavaVersion.current();
+
+    NativeImageRequirementsException(String message) {
+      super(message);
+    }
+
+    static void throwIfNotMet() {
+      if (CURRENT_JAVA_VERSION.isOlderThan(MINIMUM_REQUIRED_JAVA_VERSION)) {
+        throw new NativeImageRequirementsException("Native Image requirements not met. "
+                + "Native Image must support at least Java %s but Java %s was detected"
+                .formatted(MINIMUM_REQUIRED_JAVA_VERSION, CURRENT_JAVA_VERSION));
+      }
     }
 
   }
