@@ -43,6 +43,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -66,16 +67,19 @@ import infra.http.reactive.client.ClientHttpConnector;
 import infra.http.reactive.client.HttpComponentsClientHttpConnector;
 import infra.http.reactive.client.JdkClientHttpConnector;
 import infra.http.reactive.client.ReactorClientHttpConnector;
-import infra.web.reactive.client.WebClient.ResponseSpec;
 import infra.web.reactive.BodyExtractors;
+import infra.web.reactive.client.WebClient.ResponseSpec;
 import infra.web.testfixture.Pojo;
+import io.netty.channel.Channel;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
+import reactor.netty.channel.ChannelOperations;
 import reactor.netty.http.client.HttpClient;
+import reactor.netty.http.client.HttpClientRequest;
 import reactor.netty.resources.ConnectionProvider;
 import reactor.test.StepVerifier;
 
@@ -1270,6 +1274,28 @@ class WebClientIntegrationTests {
             .expectNext("Hey now")
             .expectComplete()
             .verify(Duration.ofSeconds(3));
+  }
+
+  @Test
+  void reactorNettyAttributes() throws IOException {
+    startServer(new ReactorClientHttpConnector());
+
+    prepareResponse(builder ->
+            builder.setHeader("Content-Type", "text/plain").setBody("Hello!"));
+
+    AtomicReference<Channel> channelRef = new AtomicReference<>();
+
+    Mono<String> result = this.webClient.get().uri("/greeting")
+            .httpRequest(request -> {
+              HttpClientRequest reactorRequest = request.getNativeRequest();
+              channelRef.set(((ChannelOperations<?, ?>) reactorRequest).channel());
+            })
+            .retrieve()
+            .bodyToMono(String.class);
+
+    StepVerifier.create(result).expectNext("Hello!").expectComplete().verify(Duration.ofSeconds(3));
+
+    assertThat(channelRef.get().attr(ReactorClientHttpConnector.ATTRIBUTES_KEY).get()).isNull();
   }
 
   private <T> Mono<T> doMalformedChunkedResponseTest(

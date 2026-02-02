@@ -170,6 +170,7 @@ public abstract class AbstractClientHttpRequest extends AttributeAccessorSupport
    * Add attributes from {@link #getAttributes()} to the underlying request.
    * This method is called once only.
    *
+   * @see #hasAttributes()
    * @since 5.0
    */
   protected void applyAttributes() {

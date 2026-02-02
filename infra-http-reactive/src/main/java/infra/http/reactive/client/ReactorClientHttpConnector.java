@@ -34,6 +34,7 @@ import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import io.netty.util.AttributeKey;
 import reactor.core.publisher.Mono;
+import reactor.netty.Connection;
 import reactor.netty.NettyOutbound;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.http.client.HttpClientRequest;
@@ -167,12 +168,14 @@ public class ReactorClientHttpConnector implements ClientHttpConnector, SmartLif
             .request(io.netty.handler.codec.http.HttpMethod.valueOf(method.name()));
 
     requestSender = setUri(requestSender, uri);
-    AtomicReference<ReactorClientHttpResponse> responseRef = new AtomicReference<>();
+    AtomicReference<@Nullable ReactorClientHttpResponse> responseRef = new AtomicReference<>();
 
     return requestSender.send((request, outbound) -> requestCallback.apply(adaptRequest(method, uri, request, outbound)))
             .responseConnection((response, connection) -> {
-              responseRef.set(new ReactorClientHttpResponse(response, connection));
-              return Mono.just((ClientHttpResponse) responseRef.get());
+              var httpResponse = new ReactorClientHttpResponse(response, connection);
+              responseRef.set(httpResponse);
+              registerAttributeCallback(connection);
+              return Mono.just((ClientHttpResponse) httpResponse);
             })
             .next()
             .doOnCancel(() -> {
@@ -199,6 +202,16 @@ public class ReactorClientHttpConnector implements ClientHttpConnector, SmartLif
           NettyOutbound nettyOutbound) {
 
     return new ReactorClientHttpRequest(method, uri, request, nettyOutbound);
+  }
+
+  private static void registerAttributeCallback(Connection connection) {
+    connection.onTerminate().subscribe(null,
+            ex -> clearAttribute(connection), () -> clearAttribute(connection));
+  }
+
+  private static void clearAttribute(Connection connection) {
+    // Deprecation note on remove method: consider using set(Object) (with value of null)
+    connection.channel().attr(ATTRIBUTES_KEY).set(null);
   }
 
   @Override
