@@ -104,7 +104,7 @@ class InvocationsRecorderClassTransformer implements ClassFileTransformer {
       fileReader.accept(classVisitor, 0);
     }
     catch (Exception ex) {
-      ex.printStackTrace();
+      System.err.println("Failed to transform class: " + ex);
       return classfileBuffer;
     }
     if (classVisitor.isTransformed()) {
