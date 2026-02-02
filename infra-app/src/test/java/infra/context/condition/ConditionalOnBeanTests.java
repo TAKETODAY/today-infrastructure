@@ -27,6 +27,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import infra.app.test.context.assertj.AssertableApplicationContext;
@@ -42,6 +43,7 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.annotation.ImportBeanDefinitionRegistrar;
 import infra.context.annotation.ImportResource;
+import infra.context.condition.ConditionEvaluationReport.ConditionAndOutcome;
 import infra.context.condition.ConditionEvaluationReport.ConditionAndOutcomes;
 import infra.context.support.PropertySourcesPlaceholderConfigurer;
 import infra.core.type.AnnotationMetadata;
@@ -346,6 +348,25 @@ class ConditionalOnBeanTests {
                     TypeArgumentsConditionWithParameterizedContainerConfiguration.class)
             .run((context) -> assertThat(context).satisfies(beansAndContainersNamed(GenericExampleBean.class,
                     "customGenericExampleBean", "parameterizedContainerGenericExampleBean")));
+  }
+
+  @Test
+  void whenTypeDoesNotExistItIsStillDescribedInConditionOutcomeMessage() {
+    this.contextRunner.withUserConfiguration(OnBeanForTypeThatDoesNotExist.class).run((context) -> {
+      Map<String, ConditionAndOutcomes> conditionAndOutcomesBySource = ConditionEvaluationReport
+              .get(context.getBeanFactory())
+              .getConditionAndOutcomesBySource();
+      assertThat(conditionAndOutcomesBySource).hasEntrySatisfying(OnBeanForTypeThatDoesNotExist.class.getName(),
+              (conditionAndOutcomes) -> {
+                assertThat(conditionAndOutcomes).hasSize(1)
+                        .first()
+                        .extracting(conditionAndOutcome -> conditionAndOutcome.outcome)
+                        .satisfies((outcome) -> {
+                          assertThat(outcome.isMatch()).isFalse();
+                          assertThat(outcome.getMessage()).contains("com.example.DoesNotExist");
+                        });
+              });
+    });
   }
 
   private Consumer<ConfigurableApplicationContext> beansAndContainersNamed(Class<?> type, String... names) {
@@ -834,4 +855,14 @@ class ConditionalOnBeanTests {
 
   }
 
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnBean(type = "com.example.DoesNotExist")
+  static class OnBeanForTypeThatDoesNotExist {
+
+    @Bean
+    String bean() {
+      return "bean";
+    }
+
+  }
 }
