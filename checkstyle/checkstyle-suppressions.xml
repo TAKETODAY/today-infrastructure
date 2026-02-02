@@ -143,6 +143,7 @@
   <!-- today-framework -->
   <suppress files="infra.app.context.logging.LoggingApplicationListener" id="systemOutErrPrint" />
   <suppress files="infra.app.Application" id="systemOutErrPrint" />
+  <suppress files="infra.aot.agent.InvocationsRecorderClassTransformer" id="systemOutErrPrint" />
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]annotation[\\/]config[\\/]" checks="FinalClass" />
 
 
