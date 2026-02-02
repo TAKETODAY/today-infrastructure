@@ -1,0 +1,84 @@
+{
+  "properties": [
+    {
+      "name": "app.health.db.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether to enable database health check.",
+      "defaultValue": true
+    }
+  ],
+  "hints": [
+    {
+      "name": "sql.init.data-locations",
+      "providers": [
+        {
+          "name": "handle-as",
+          "parameters": {
+            "target": "java.util.List<infra.core.io.Resource>"
+          }
+        }
+      ]
+    },
+    {
+      "name": "datasource.driver-class-name",
+      "providers": [
+        {
+          "name": "class-reference",
+          "parameters": {
+            "target": "java.sql.Driver"
+          }
+        }
+      ]
+    },
+    {
+      "name": "sql.init.schema-locations",
+      "providers": [
+        {
+          "name": "handle-as",
+          "parameters": {
+            "target": "java.util.List<infra.core.io.Resource>"
+          }
+        }
+      ]
+    },
+    {
+      "name": "datasource.xa.data-source-class-name",
+      "providers": [
+        {
+          "name": "class-reference",
+          "parameters": {
+            "target": "javax.sql.XADataSource"
+          }
+        }
+      ]
+    }
+  ],
+  "ignored": {
+    "properties": [
+      {
+        "name": "datasource.dbcp2.driver"
+      },
+      {
+        "name": "datasource.hikari.credentials"
+      },
+      {
+        "name": "datasource.hikari.credentials-provider"
+      },
+      {
+        "name": "datasource.hikari.exception-override"
+      },
+      {
+        "name": "datasource.hikari.metrics-tracker-factory"
+      },
+      {
+        "name": "datasource.hikari.scheduled-executor"
+      },
+      {
+        "name": "datasource.oracleucp.connection-wait-duration-in-millis"
+      },
+      {
+        "name": "datasource.oracleucp.hostname-resolver"
+      }
+    ]
+  }
+}
