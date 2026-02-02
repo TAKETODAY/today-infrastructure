@@ -237,7 +237,8 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
     String beanName = BeanFactoryUtils.transformedBeanName(name);
     Object bean = obtainBean(beanName);
     if (bean instanceof FactoryBean<?> factoryBean && !BeanFactoryUtils.isFactoryDereference(name)) {
-      return isTypeMatch(factoryBean, typeToMatch.toClass());
+      Class<?> classToMatch = typeToMatch.resolve();
+      return classToMatch != null && isTypeMatch(factoryBean, classToMatch);
     }
     return typeToMatch.isInstance(bean);
   }
@@ -410,7 +411,7 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
       Object beanInstance = entry.getValue();
       if (beanInstance instanceof FactoryBean<?> factoryBean && !isFactoryType) {
         if ((includeNonSingletons || factoryBean.isSingleton()) &&
-                (type == null || isTypeMatch(factoryBean, type.toClass()))) {
+                (type == null || (resolved != null && isTypeMatch(factoryBean, resolved)))) {
           matches.add(beanName);
         }
       }

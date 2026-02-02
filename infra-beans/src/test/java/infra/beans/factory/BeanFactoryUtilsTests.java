@@ -40,6 +40,7 @@ import infra.beans.testfixture.beans.TestAnnotation;
 import infra.beans.testfixture.beans.TestBean;
 import infra.beans.testfixture.beans.factory.DummyFactory;
 import infra.bytecode.proxy.NoOp;
+import infra.core.ResolvableType;
 import infra.core.annotation.AliasFor;
 import infra.core.io.Resource;
 import infra.util.ObjectUtils;
@@ -541,6 +542,10 @@ class BeanFactoryUtilsTests {
     assertThat(lbf.getBean("sfb2", CharSequence.class)).isInstanceOf(String.class);
     assertThat(lbf.getBean("sfb1")).isInstanceOf(String.class);
     assertThat(lbf.getBean("sfb2")).isInstanceOf(String.class);
+
+    assertThat(lbf.getBeanNamesForType(Object.class)).isNotEmpty();
+    assertThat(lbf.getBeanNamesForType(ResolvableType.forClass(Object.class))).isNotEmpty();
+    assertThat(lbf.getBeanNamesForType(ResolvableType.NONE)).isEmpty();
   }
 
   @Test
