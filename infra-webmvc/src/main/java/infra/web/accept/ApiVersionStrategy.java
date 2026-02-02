@@ -72,6 +72,8 @@ public interface ApiVersionStrategy {
    *
    * @param request the current request
    * @return the parsed request version, or the default version
+   * @throws MissingApiVersionException if the version is required, but not specified
+   * @throws InvalidApiVersionException if the version is not supported
    */
   @Nullable
   default Comparable<?> resolveParseAndValidateVersion(RequestContext request) {
