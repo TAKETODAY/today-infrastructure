@@ -91,7 +91,6 @@ public class ApiVersionProperties {
     return empty ? null : builder;
   }
 
-  @ConfigurationPropertiesSource
   public static class Insert {
 
     /**

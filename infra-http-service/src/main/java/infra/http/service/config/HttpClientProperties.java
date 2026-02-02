@@ -24,7 +24,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import infra.context.properties.ConfigurationPropertiesSource;
 import infra.context.properties.NestedConfigurationProperty;
 import infra.http.client.config.HttpClientSettingsProperties;
 
@@ -38,7 +37,6 @@ import infra.http.client.config.HttpClientSettingsProperties;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-@ConfigurationPropertiesSource
 public class HttpClientProperties extends HttpClientSettingsProperties {
 
   /**

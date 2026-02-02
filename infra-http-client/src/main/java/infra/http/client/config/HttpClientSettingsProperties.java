@@ -22,7 +22,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 
-import infra.context.properties.ConfigurationPropertiesSource;
 import infra.http.client.HttpClientSettings;
 import infra.http.client.HttpRedirects;
 
@@ -34,7 +33,6 @@ import infra.http.client.HttpRedirects;
  * @see HttpClientSettings
  * @since 5.0
  */
-@ConfigurationPropertiesSource
 public abstract class HttpClientSettingsProperties {
 
   /**
@@ -60,7 +58,6 @@ public abstract class HttpClientSettingsProperties {
   /**
    * SSL configuration.
    */
-  @ConfigurationPropertiesSource
   public static class Ssl {
 
     /**
