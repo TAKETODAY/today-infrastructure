@@ -20,7 +20,7 @@ package infra.web.util;
 
 import org.jspecify.annotations.Nullable;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
 
@@ -49,19 +49,12 @@ public class DisconnectedClientHelper {
   private static final Set<String> EXCEPTION_TYPE_NAMES =
           Set.of("AbortedException", "ClientAbortException", "EOFException", "EofException");
 
-  private static final Set<Class<?>> CLIENT_EXCEPTION_TYPES = new HashSet<>(2);
+  private static final Set<Class<?>> EXCLUDED_EXCEPTION_TYPES = new LinkedHashSet<>(2);
 
   static {
-    ClassLoader classLoader = DisconnectedClientHelper.class.getClassLoader();
-    Class<?> loaded = ClassUtils.load("infra.web.client.RestClientException", classLoader);
-    if (loaded != null) {
-      CLIENT_EXCEPTION_TYPES.add(loaded);
-    }
-
-    loaded = ClassUtils.load("infra.web.reactive.client.WebClientException", classLoader);
-    if (loaded != null) {
-      CLIENT_EXCEPTION_TYPES.add(loaded);
-    }
+    addExcludedExceptionType("infra.web.client.RestClientException");
+    addExcludedExceptionType("infra.web.reactive.client.WebClientException");
+    addExcludedExceptionType("infra.dao.DataAccessException");
   }
 
   private final Logger logger;
@@ -107,7 +100,7 @@ public class DisconnectedClientHelper {
     Throwable lastEx = null;
     while (currentEx != null && currentEx != lastEx) {
       // Ignore onward connection issues to other servers (500 error)
-      for (Class<?> exceptionType : CLIENT_EXCEPTION_TYPES) {
+      for (Class<?> exceptionType : EXCLUDED_EXCEPTION_TYPES) {
         if (exceptionType.isInstance(currentEx)) {
           return false;
         }
@@ -130,6 +123,15 @@ public class DisconnectedClientHelper {
     }
 
     return false;
+  }
+
+  private static void addExcludedExceptionType(String type) {
+    try {
+      ClassLoader classLoader = DisconnectedClientHelper.class.getClassLoader();
+      EXCLUDED_EXCEPTION_TYPES.add(ClassUtils.forName(type, classLoader));
+    }
+    catch (ClassNotFoundException ignored) {
+    }
   }
 
 }
