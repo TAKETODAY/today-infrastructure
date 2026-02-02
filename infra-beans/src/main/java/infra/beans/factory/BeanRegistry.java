@@ -230,6 +230,13 @@ public interface BeanRegistry {
     Spec<T> prototype();
 
     /**
+     * Configure this bean with a custom scope.
+     *
+     * @see BeanDefinition#setScope(String)
+     */
+    Spec<T> scope(String scope);
+
+    /**
      * Set the supplier to construct a bean instance.
      *
      * @see AbstractBeanDefinition#setInstanceSupplier(Supplier)
