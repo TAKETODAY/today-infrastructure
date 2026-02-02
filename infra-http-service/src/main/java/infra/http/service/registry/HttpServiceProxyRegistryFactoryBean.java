@@ -41,6 +41,8 @@ import infra.beans.factory.FactoryBean;
 import infra.beans.factory.InitializingBean;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
+import infra.context.expression.EmbeddedValueResolverAware;
+import infra.core.StringValueResolver;
 import infra.http.service.invoker.HttpExchangeAdapter;
 import infra.http.service.invoker.HttpServiceProxyFactory;
 import infra.lang.Assert;
@@ -64,8 +66,8 @@ import infra.util.MultiValueMap;
  * @see AbstractHttpServiceRegistrar
  * @since 5.0
  */
-public final class HttpServiceProxyRegistryFactoryBean
-        implements ApplicationContextAware, BeanClassLoaderAware, InitializingBean, FactoryBean<HttpServiceProxyRegistry> {
+public final class HttpServiceProxyRegistryFactoryBean implements ApplicationContextAware,
+        BeanClassLoaderAware, InitializingBean, FactoryBean<HttpServiceProxyRegistry>, EmbeddedValueResolverAware {
 
   private static final Map<HttpServiceGroup.ClientType, HttpServiceGroupAdapter<?>> groupAdapters =
           GroupAdapterInitializer.initGroupAdapters();
@@ -77,6 +79,8 @@ public final class HttpServiceProxyRegistryFactoryBean
   private @Nullable ClassLoader beanClassLoader;
 
   private @Nullable HttpServiceProxyRegistry proxyRegistry;
+
+  private @Nullable StringValueResolver embeddedValueResolver;
 
   HttpServiceProxyRegistryFactoryBean(GroupsMetadata groupsMetadata) {
     this.groupsMetadata = groupsMetadata;
@@ -93,6 +97,11 @@ public final class HttpServiceProxyRegistryFactoryBean
   }
 
   @Override
+  public void setEmbeddedValueResolver(StringValueResolver resolver) {
+    this.embeddedValueResolver = resolver;
+  }
+
+  @Override
   public Class<?> getObjectType() {
     return HttpServiceProxyRegistry.class;
   }
@@ -103,18 +112,15 @@ public final class HttpServiceProxyRegistryFactoryBean
     Assert.notNull(this.beanClassLoader, "BeanClassLoader not initialized");
 
     // Create the groups from the metadata
-    Set<ConfigurableGroup> groups = groupsMetadata.groups(this.beanClassLoader).stream()
-            .map(ConfigurableGroup::new)
+    Set<ConfigurableGroup> groups = groupsMetadata.groups(beanClassLoader).stream()
+            .map(group -> new ConfigurableGroup(group, embeddedValueResolver))
             .collect(Collectors.toSet());
 
     // Apply group configurers
-    for (var entry : groupAdapters.entrySet()) {
-      var clientType = entry.getKey();
-      var groupAdapter = entry.getValue();
-      for (HttpServiceGroupConfigurer<?> configurer : applicationContext.getBeanProvider(groupAdapter.getConfigurerType())) {
-        configurer.configureGroups(new DefaultGroups<>(groups, clientType));
-      }
-    }
+    groupAdapters.forEach((clientType, groupAdapter) ->
+            this.applicationContext.getBeanProvider(groupAdapter.getConfigurerType())
+                    .orderedStream()
+                    .forEach(configurer -> configurer.configureGroups(new DefaultGroups<>(groups, clientType))));
 
     // Create proxies
     Map<String, Map<Class<?>, Object>> proxies = groups.stream()
@@ -165,13 +171,16 @@ public final class HttpServiceProxyRegistryFactoryBean
 
     private final HttpServiceGroupAdapter<?> groupAdapter;
 
-    private final HttpServiceProxyFactory.Builder proxyFactoryBuilder = HttpServiceProxyFactory.builder();
-
     private @Nullable Object clientBuilder;
 
-    ConfigurableGroup(HttpServiceGroup group) {
+    private final HttpServiceProxyFactory.Builder proxyFactoryBuilder = HttpServiceProxyFactory.builder();
+
+    ConfigurableGroup(HttpServiceGroup group, @Nullable StringValueResolver valueResolver) {
       this.group = group;
       this.groupAdapter = getGroupAdapter(group.clientType());
+      if (valueResolver != null) {
+        this.proxyFactoryBuilder.embeddedValueResolver(valueResolver);
+      }
     }
 
     private static HttpServiceGroupAdapter<?> getGroupAdapter(HttpServiceGroup.ClientType clientType) {
