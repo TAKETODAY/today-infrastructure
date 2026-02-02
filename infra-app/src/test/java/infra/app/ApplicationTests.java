@@ -22,6 +22,8 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -45,6 +47,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import infra.aot.AotDetector;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
+import infra.app.Application.NativeImageRequirementsException;
 import infra.app.BootstrapRegistry.InstanceSupplier;
 import infra.app.availability.AvailabilityChangeEvent;
 import infra.app.availability.AvailabilityState;
@@ -727,6 +730,43 @@ class ApplicationTests {
 
   @Test
   @ForkedClassPath
+  @EnabledForJreRange(max = JRE.JAVA_24)
+  void nativeImageShouldCheckForJava25() {
+    System.setProperty("org.graalvm.nativeimage.imagecode", "true");
+    try {
+      Application application = new Application();
+      application.setApplicationType(ApplicationType.NORMAL);
+      assertThatExceptionOfType(NativeImageRequirementsException.class).isThrownBy(application::run)
+              .withMessage("Native Image requirements not met. "
+                      + "Native Image must support at least Java 25 but Java %d was detected"
+                      .formatted(Runtime.version().feature()));
+    }
+    finally {
+      System.clearProperty("org.graalvm.nativeimage.imagecode");
+    }
+  }
+
+  @Test
+  @ForkedClassPath
+  @EnabledForJreRange(max = JRE.JAVA_24)
+  void missingAotInitializerTakesPrecedenceOverNativeImageRequirementsCheck() {
+    System.setProperty("infra.aot.enabled", "true");
+    System.setProperty("org.graalvm.nativeimage.imagecode", "true");
+    try {
+      Application application = new Application();
+      application.setApplicationType(ApplicationType.NORMAL);
+      assertThatExceptionOfType(AotInitializerNotFoundException.class).isThrownBy(application::run)
+              .withMessageStartingWith("Startup with AOT mode enabled failed");
+    }
+    finally {
+      System.clearProperty("org.graalvm.nativeimage.imagecode");
+      System.clearProperty("infra.aot.enabled");
+    }
+  }
+
+  @Test
+  @ForkedClassPath
+  @EnabledForJreRange(min = JRE.JAVA_25)
   void failureInANativeImageWritesFailureToSystemOut(CapturedOutput output) {
     System.setProperty("org.graalvm.nativeimage.imagecode", "true");
     try {
