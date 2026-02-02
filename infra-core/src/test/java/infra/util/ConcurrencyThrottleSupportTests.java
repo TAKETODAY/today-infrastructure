@@ -40,7 +40,7 @@ class ConcurrencyThrottleSupportTests {
     var support = new ConcurrencyThrottleSupportImpl(NO_CONCURRENCY);
     assertThatThrownBy(support::beforeAccess)
             .isInstanceOf(IllegalStateException.class)
-            .hasMessageContaining("Currently no invocations allowed");
+            .hasMessageContaining("Concurrency limit set to NO_CONCURRENCY - not allowed to enter");
   }
 
   @Test
