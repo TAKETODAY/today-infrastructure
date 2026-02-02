@@ -1,5 +1,3 @@
-infra.app.health.config.actuate.endpoint.AvailabilityProbesAutoConfiguration
-infra.app.health.config.actuate.endpoint.HealthEndpointAutoConfiguration
 infra.app.health.config.AvailabilityHealthContributorAutoConfiguration
 infra.app.health.config.DiskSpaceHealthContributorAutoConfiguration
 infra.app.health.config.SslHealthContributorAutoConfiguration
