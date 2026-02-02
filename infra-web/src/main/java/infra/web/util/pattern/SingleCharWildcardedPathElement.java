@@ -27,6 +27,7 @@ import infra.web.util.pattern.PathPattern.MatchingContext;
  * or more times (to basically many any character at that position).
  *
  * @author Andy Clement
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 class SingleCharWildcardedPathElement extends PathElement {
@@ -82,8 +83,11 @@ class SingleCharWildcardedPathElement extends PathElement {
     else {
       for (int i = 0; i < this.len; i++) {
         char ch = this.text[i];
-        // TODO revisit performance if doing a lot of case insensitive matching
-        if ((ch != '?') && (ch != Character.toLowerCase(value.charAt(i)))) {
+        char valCh = value.charAt(i);
+        if (ch == valCh || ch == '?') {
+          continue;
+        }
+        if (ch != Character.toLowerCase(valCh)) {
           return false;
         }
       }
