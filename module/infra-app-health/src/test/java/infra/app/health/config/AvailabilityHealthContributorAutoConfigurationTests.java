@@ -49,7 +49,7 @@ class AvailabilityHealthContributorAutoConfigurationTests {
 
   @Test
   void livenessIndicatorWhenPropertyEnabledAddsBeans() {
-    this.contextRunner.withPropertyValues("app.health.livenessState.enabled=true")
+    this.contextRunner.withPropertyValues("app.health.liveness-state.enabled=true")
             .run((context) -> assertThat(context).hasSingleBean(ApplicationAvailability.class)
                     .hasSingleBean(LivenessStateHealthIndicator.class)
                     .doesNotHaveBean(ReadinessStateHealthIndicator.class));

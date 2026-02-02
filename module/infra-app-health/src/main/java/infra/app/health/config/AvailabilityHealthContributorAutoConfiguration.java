@@ -45,14 +45,14 @@ public final class AvailabilityHealthContributorAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean(name = "livenessStateHealthIndicator")
-  @ConditionalOnBooleanProperty("app.health.livenessstate.enabled")
+  @ConditionalOnBooleanProperty("app.health.liveness-state.enabled")
   static LivenessStateHealthIndicator livenessStateHealthIndicator(ApplicationAvailability applicationAvailability) {
     return new LivenessStateHealthIndicator(applicationAvailability);
   }
 
   @Bean
   @ConditionalOnMissingBean(name = "readinessStateHealthIndicator")
-  @ConditionalOnBooleanProperty("app.health.readinessstate.enabled")
+  @ConditionalOnBooleanProperty("app.health.readiness-state.enabled")
   static ReadinessStateHealthIndicator readinessStateHealthIndicator(ApplicationAvailability applicationAvailability) {
     return new ReadinessStateHealthIndicator(applicationAvailability);
   }

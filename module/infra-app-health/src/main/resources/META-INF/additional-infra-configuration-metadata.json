@@ -14,7 +14,7 @@
       "defaultValue": true
     },
     {
-      "name": "app.health.livenessstate.enabled",
+      "name": "app.health.liveness-state.enabled",
       "type": "java.lang.Boolean",
       "description": "Whether to enable liveness state health check.",
       "defaultValue": false
@@ -26,7 +26,7 @@
       "defaultValue": true
     },
     {
-      "name": "app.health.readinessstate.enabled",
+      "name": "app.health.readiness-state.enabled",
       "type": "java.lang.Boolean",
       "description": "Whether to enable readiness state health check.",
       "defaultValue": false
