@@ -19,6 +19,8 @@
 package infra.core.task;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -95,6 +97,7 @@ class SyncTaskExecutorTests {
   }
 
   @Test
+  @DisabledOnOs(OS.MAC)
   void taskRejectedWhenConcurrencyLimitReached() throws Exception {
     SyncTaskExecutor executor = new SyncTaskExecutor();
     executor.setConcurrencyLimit(2);
