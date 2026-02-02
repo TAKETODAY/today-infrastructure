@@ -86,7 +86,7 @@ public final class DefaultApiVersionInserter implements ApiVersionInserter {
         builder.pathSegment(segment);
       }
     }
-    return builder.build().toURI();
+    return builder.build(true).toURI();
   }
 
   private void assertPathSegmentIndex(Integer index, int pathSegmentsSize, URI uri) {
