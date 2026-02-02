@@ -68,12 +68,30 @@ class SqlBinaryValueTests {
   }
 
   @Test
+  void withInputStreamUndeterminedLength() throws SQLException {
+    InputStream content = new ByteArrayInputStream(new byte[] { 0, 1, 2 });
+    SqlBinaryValue value = new SqlBinaryValue(content, -1);
+    PreparedStatement ps = mock();
+    value.setTypeValue(ps, 1, JdbcUtils.TYPE_UNKNOWN, null);
+    verify(ps).setBinaryStream(1, content);
+  }
+
+  @Test
   void withInputStreamForBlob() throws SQLException {
     InputStream content = new ByteArrayInputStream(new byte[] { 0, 1, 2 });
     SqlBinaryValue value = new SqlBinaryValue(content, 3);
     PreparedStatement ps = mock();
     value.setTypeValue(ps, 1, Types.BLOB, null);
     verify(ps).setBlob(1, content, 3L);
+  }
+
+  @Test
+  void withInputStreamForBlobUndeterminedLength() throws SQLException {
+    InputStream content = new ByteArrayInputStream(new byte[] { 0, 1, 2 });
+    SqlBinaryValue value = new SqlBinaryValue(content, -1);
+    PreparedStatement ps = mock();
+    value.setTypeValue(ps, 1, Types.BLOB, null);
+    verify(ps).setBlob(1, content);
   }
 
   @Test
@@ -86,12 +104,30 @@ class SqlBinaryValueTests {
   }
 
   @Test
+  void withInputStreamSourceUndeterminedLength() throws SQLException {
+    InputStream content = new ByteArrayInputStream(new byte[] { 0, 1, 2 });
+    SqlBinaryValue value = new SqlBinaryValue(() -> content, -1);
+    PreparedStatement ps = mock();
+    value.setTypeValue(ps, 1, JdbcUtils.TYPE_UNKNOWN, null);
+    verify(ps).setBinaryStream(1, content);
+  }
+
+  @Test
   void withInputStreamSourceForBlob() throws SQLException {
     InputStream content = new ByteArrayInputStream(new byte[] { 0, 1, 2 });
     SqlBinaryValue value = new SqlBinaryValue(() -> content, 3);
     PreparedStatement ps = mock();
     value.setTypeValue(ps, 1, Types.BLOB, null);
     verify(ps).setBlob(1, content, 3L);
+  }
+
+  @Test
+  void withInputStreamSourceForBlobUndeterminedLength() throws SQLException {
+    InputStream content = new ByteArrayInputStream(new byte[] { 0, 1, 2 });
+    SqlBinaryValue value = new SqlBinaryValue(() -> content, -1);
+    PreparedStatement ps = mock();
+    value.setTypeValue(ps, 1, Types.BLOB, null);
+    verify(ps).setBlob(1, content);
   }
 
   @Test
