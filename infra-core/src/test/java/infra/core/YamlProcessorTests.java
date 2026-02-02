@@ -28,20 +28,20 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import infra.core.io.ByteArrayResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.InstanceOfAssertFactories.set;
 
 /**
  * @author TODAY 2021/9/30 23:41
  */
 class YamlProcessorTests {
 
-  private final YamlProcessor processor = new YamlProcessor();
+  private final TestYamlProcessor processor = new TestYamlProcessor();
 
   @Test
   void arrayConvertedToIndexedBeanReference() {
@@ -136,14 +136,11 @@ class YamlProcessorTests {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
-  void standardTypesSupportedByDefault() throws Exception {
+  void standardTypesSupportedByDefault() {
     setYaml("value: !!set\n  ? first\n  ? second");
     this.processor.process((properties, map) -> {
       assertThat(properties).containsExactly(entry("value[0]", "first"), entry("value[1]", "second"));
-      assertThat(map.get("value")).isInstanceOf(Set.class);
-      Set<String> set = (Set<String>) map.get("value");
-      assertThat(set).containsExactly("first", "second");
+      assertThat(map.get("value")).asInstanceOf(set(String.class)).containsExactly("first", "second");
     });
   }
 
@@ -180,8 +177,50 @@ class YamlProcessorTests {
             .withMessageContaining("Global tag is not allowed: tag:yaml.org,2002:java.net.URL");
   }
 
+  @Test
+  void processAndFlattenWithoutIncludedNulls() {
+    setYaml("avalue: value\nanull: null\natilde: ~\nparent:\n  anempty: {}\n");
+    Map<String, Object> flattened = this.processor.processAndFlatten(false, null);
+    assertThat(flattened).containsOnly(
+            entry("avalue", "value"),
+            entry("anull", ""),
+            entry("atilde", ""));
+  }
+
+  @Test
+  void processAndFlattenWithIncludedNulls() {
+    setYaml("avalue: value\nanull: null\natilde: ~\nparent:\n  anempty: {}\n");
+    Map<String, Object> flattened = this.processor.processAndFlatten(true, null);
+    assertThat(flattened).containsOnly(
+            entry("avalue", "value"),
+            entry("anull", null),
+            entry("atilde", null),
+            entry("parent.anempty", null));
+  }
+
+  @Test
+  void processAndFlattenWithIncludedBlankString() {
+    setYaml("avalue: value\nanull: null\natilde: ~\nparent:\n  anempty: {}\n");
+    Map<String, Object> flattened = this.processor.processAndFlatten(true, "");
+    assertThat(flattened).containsOnly(
+            entry("avalue", "value"),
+            entry("anull", ""),
+            entry("atilde", ""),
+            entry("parent.anempty", ""));
+  }
+
   private void setYaml(String yaml) {
     this.processor.setResources(new ByteArrayResource(yaml.getBytes()));
+  }
+
+  private static class TestYamlProcessor extends YamlProcessor {
+
+    Map<String, Object> processAndFlatten(boolean includeEmpty, Object emptyValue) {
+      Map<String, Object> flattened = new LinkedHashMap<>();
+      process((properties, map) -> flattened.putAll(getFlattenedMap(map, includeEmpty, emptyValue)));
+      return flattened;
+    }
+
   }
 
 }

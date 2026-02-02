@@ -298,13 +298,38 @@ public class YamlProcessor {
    * @return a flattened map
    */
   protected final Map<String, Object> getFlattenedMap(Map<String, Object> source) {
-    LinkedHashMap<String, Object> result = new LinkedHashMap<>();
-    buildFlattenedMap(result, source, null);
+    return getFlattenedMap(source, false, null);
+  }
+
+  /**
+   * Return a flattened version of the given map, recursively following any nested Map
+   * or Collection values. Entries from the resulting map retain the same order as the
+   * source. When called with the Map from a {@link MatchCallback} the result will
+   * contain the same values as the {@link MatchCallback} Properties.
+   *
+   * @param source the source map
+   * @param includeEmpty whether empty entries should be included in the result
+   * @param emptyValue the value used to represent an empty entry &mdash; for
+   * example, {@code null} or an empty {@code String}
+   * @return a flattened map
+   * @since 5.0
+   */
+  protected final Map<String, Object> getFlattenedMap(Map<String, Object> source,
+          boolean includeEmpty, @Nullable Object emptyValue) {
+
+    Map<String, Object> result = new LinkedHashMap<>();
+    buildFlattenedMap(result, source, null, includeEmpty, emptyValue);
     return result;
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  private void buildFlattenedMap(Map<String, Object> result, Map<String, Object> source, @Nullable String path) {
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private void buildFlattenedMap(Map<String, Object> result, Map<String, Object> source, @Nullable String path,
+          boolean includeEmpty, @Nullable Object emptyValue) {
+
+    if (includeEmpty && source.isEmpty()) {
+      result.put(path, emptyValue);
+      return;
+    }
     for (Map.Entry<String, Object> entry : source.entrySet()) {
       String key = entry.getKey();
       Object value = entry.getValue();
@@ -321,22 +346,23 @@ public class YamlProcessor {
       }
       else if (value instanceof Map map) {
         // Need a compound key
-        buildFlattenedMap(result, map, key);
+        buildFlattenedMap(result, map, key, includeEmpty, emptyValue);
       }
-      else if (value instanceof Collection<?> collection) {
+      else if (value instanceof Collection collection) {
         // Need a compound key
         if (collection.isEmpty()) {
-          result.put(key, Constant.BLANK);
+          result.put(key, "");
         }
         else {
           int count = 0;
           for (Object object : collection) {
-            buildFlattenedMap(result, Collections.singletonMap("[" + (count++) + "]", object), key);
+            buildFlattenedMap(result, Collections.singletonMap(
+                    "[" + (count++) + "]", object), key, includeEmpty, emptyValue);
           }
         }
       }
       else {
-        result.put(key, (value != null ? value : Constant.BLANK));
+        result.put(key, (value != null ? value : (includeEmpty ? emptyValue : "")));
       }
     }
   }
