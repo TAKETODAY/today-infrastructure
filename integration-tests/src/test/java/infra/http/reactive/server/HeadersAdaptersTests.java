@@ -123,6 +123,19 @@ class HeadersAdaptersTests {
     assertThatThrownBy(names::remove).isInstanceOf(IllegalStateException.class);
   }
 
+  @ParameterizedHeadersTest
+  void shouldReturnNullWhenRemoveUnknown(MultiValueMap<String, String> headers) {
+    assertThat(headers.remove("unknown")).isEqualTo(null);
+  }
+
+  @ParameterizedHeadersTest
+  void shouldReturnPreviousValuesWhenRemove(MultiValueMap<String, String> headers) {
+    headers.add("TestHeader", "first");
+    headers.add("TestHEADER", "second");
+
+    assertThat(headers.remove("testheader")).hasSize(2);
+  }
+
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.METHOD)
   @ParameterizedTest(name = "[{index}] {0}")

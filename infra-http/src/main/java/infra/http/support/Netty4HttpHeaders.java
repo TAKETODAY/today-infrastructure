@@ -130,10 +130,10 @@ public final class Netty4HttpHeaders extends infra.http.HttpHeaders {
 
   @Nullable
   @Override
-  public List<String> remove(Object name) {
-    if (name instanceof String headerName) {
-      List<String> previousValues = this.headers.getAll(headerName);
-      this.headers.remove(headerName);
+  public List<String> remove(Object key) {
+    if (key instanceof String name && this.headers.contains(name)) {
+      List<String> previousValues = this.headers.getAll(name);
+      this.headers.remove(name);
       return previousValues;
     }
     return null;

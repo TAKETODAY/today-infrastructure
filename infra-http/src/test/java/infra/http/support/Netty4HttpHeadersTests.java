@@ -318,4 +318,5 @@ class Netty4HttpHeadersTests {
     Netty4HttpHeaders headers = new Netty4HttpHeaders(null);
     assertThat(headers).isNotNull();
   }
+
 }
