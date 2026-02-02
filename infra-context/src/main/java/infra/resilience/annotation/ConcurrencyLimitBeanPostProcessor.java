@@ -144,7 +144,7 @@ public class ConcurrencyLimitBeanPostProcessor extends AbstractBeanFactoryAwareA
 
   private static class ConcurrencyThrottleHolder {
 
-    final Map<Method, MethodInterceptor> methodInterceptors = new ConcurrentHashMap<>();
+    final ConcurrentHashMap<Method, MethodInterceptor> methodInterceptors = new ConcurrentHashMap<>();
 
     @Nullable MethodInterceptor classInterceptor;
   }

@@ -30,7 +30,9 @@ import infra.core.annotation.AliasFor;
 /**
  * A common annotation specifying a concurrency limit for an individual method,
  * or for all proxy-invoked methods in a given class hierarchy if annotated at
- * the type level.
+ * the type level. The default behavior is to block further method invocations
+ * when the limit has been reached. Alternatively, further invocations can be
+ * rejected through configuring {@link #policy()} as {@code policy = REJECT}.
  *
  * <p>In the type-level case, all methods inheriting the concurrency limit
  * from the type level share a common concurrency throttle, with any mix
