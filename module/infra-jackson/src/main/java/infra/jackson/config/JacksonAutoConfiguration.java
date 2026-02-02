@@ -345,6 +345,8 @@ public final class JacksonAutoConfiguration {
       configureFeatures(builder, properties.datatype.datetime, builder::configure);
       configureFeatures(builder, properties.datatype.enumFeatures, builder::configure);
       configureFeatures(builder, properties.datatype.jsonNode, builder::configure);
+      configureFeatures(builder, properties.read, builder::configure);
+      configureFeatures(builder, properties.write, builder::configure);
       configureDateFormat(builder);
       configurePropertyNamingStrategy(builder);
       configureModules(builder);

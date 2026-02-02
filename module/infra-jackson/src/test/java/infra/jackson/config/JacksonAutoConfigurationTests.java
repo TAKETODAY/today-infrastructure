@@ -55,6 +55,7 @@ import infra.jackson.ObjectValueSerializer;
 import infra.jackson.config.JacksonAutoConfiguration.JacksonAutoConfigurationRuntimeHints;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.StreamReadFeature;
+import tools.jackson.core.StreamWriteFeature;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonFactoryBuilder;
 import tools.jackson.core.json.JsonReadFeature;
@@ -370,6 +371,26 @@ class JacksonAutoConfigurationTests {
               assertThat(tools.jackson.databind.cfg.JsonNodeFeature.WRITE_NULL_PROPERTIES.enabledByDefault()).isTrue();
               assertThat(mapper.deserializationConfig().isEnabled(tools.jackson.databind.cfg.JsonNodeFeature.WRITE_NULL_PROPERTIES)).isFalse();
             });
+  }
+
+  @EnumSource
+  @ParameterizedTest
+  void enableWriteFeature(MapperType mapperType) {
+    this.contextRunner.withPropertyValues("jackson.write.write-bigdecimal-as-plain:true").run((context) -> {
+      ObjectMapper mapper = mapperType.getMapper(context);
+      assertThat(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN.enabledByDefault()).isFalse();
+      assertThat(mapper.isEnabled(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN)).isTrue();
+    });
+  }
+
+  @EnumSource
+  @ParameterizedTest
+  void enableReadFeature(MapperType mapperType) {
+    this.contextRunner.withPropertyValues("jackson.read.strict-duplicate-detection:true").run((context) -> {
+      ObjectMapper mapper = mapperType.getMapper(context);
+      assertThat(StreamReadFeature.STRICT_DUPLICATE_DETECTION.enabledByDefault()).isFalse();
+      assertThat(mapper.isEnabled(StreamReadFeature.STRICT_DUPLICATE_DETECTION)).isTrue();
+    });
   }
 
   @Test

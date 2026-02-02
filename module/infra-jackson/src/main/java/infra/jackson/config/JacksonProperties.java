@@ -32,6 +32,8 @@ import java.util.TimeZone;
 import infra.context.properties.ConfigurationProperties;
 import infra.context.properties.NestedConfigurationProperty;
 import infra.context.properties.bind.Name;
+import tools.jackson.core.StreamReadFeature;
+import tools.jackson.core.StreamWriteFeature;
 import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.DeserializationFeature;
@@ -123,6 +125,16 @@ public class JacksonProperties {
 
   @NestedConfigurationProperty
   public final Datatype datatype = new Datatype();
+
+  /**
+   * Jackson on/off token reader features common to multiple formats.
+   */
+  public final Map<StreamReadFeature, Boolean> read = new EnumMap<>(StreamReadFeature.class);
+
+  /**
+   * Jackson on/off token writer features common to multiple formats.
+   */
+  public final Map<StreamWriteFeature, Boolean> write = new EnumMap<>(StreamWriteFeature.class);
 
   @NestedConfigurationProperty
   public final Json json = new Json();
