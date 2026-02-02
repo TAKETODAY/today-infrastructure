@@ -19,16 +19,19 @@ package infra.jdbc.type;
 import infra.beans.BeanProperty;
 
 /**
- * @param <T> value type
+ * A smart type handler that can determine if it supports a given property.
+ *
+ * @param <T> the type of the property
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/1/23 14:54
  */
 public interface SmartTypeHandler<T> extends TypeHandler<T> {
 
   /**
-   * Test this handler can handle input property
+   * Tests whether this handler can handle the given property.
    *
-   * @param property bean property
+   * @param property The bean property to test
+   * @return {@code true} if this handler supports the property, otherwise {@code false}
    */
   boolean supportsProperty(BeanProperty property);
 
