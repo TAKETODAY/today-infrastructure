@@ -28,6 +28,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ServiceLoader;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -185,8 +186,7 @@ public class TodayStrategies {
    * {@code null} if it is not set at all
    * @since 5.0
    */
-  @Nullable
-  public static Boolean checkFlag(String key) {
+  public static @Nullable Boolean checkFlag(String key) {
     String flag = getProperty(key);
     return flag != null ? Boolean.valueOf(flag) : null;
   }
@@ -217,8 +217,7 @@ public class TodayStrategies {
    * @return the value of the property, or {@code null} if the property is not
    * found in either the local properties store or system properties
    */
-  @Nullable
-  public static String getProperty(String key) {
+  public static @Nullable String getProperty(String key) {
     String value = localProperties.getProperty(key);
 
     if (value == null) {
@@ -280,8 +279,7 @@ public class TodayStrategies {
    * @see java.lang.System#getProperty(java.lang.String)
    * @see java.lang.System#getProperty(java.lang.String, java.lang.String)
    */
-  @Nullable
-  public static Integer getInteger(String key) {
+  public static @Nullable Integer getInteger(String key) {
     return getInteger(key, null);
   }
 
@@ -369,8 +367,7 @@ public class TodayStrategies {
    * @see System#getProperty(java.lang.String, java.lang.String)
    * @see Integer#decode(String)
    */
-  @Nullable
-  public static Integer getInteger(String key, @Nullable Integer val) {
+  public static @Nullable Integer getInteger(String key, @Nullable Integer val) {
     try {
       String v = getProperty(key);
       if (v != null) {
@@ -415,8 +412,7 @@ public class TodayStrategies {
    * @see java.lang.System#getProperty(java.lang.String)
    * @see java.lang.System#getProperty(java.lang.String, java.lang.String)
    */
-  @Nullable
-  public static Long getLong(String nm) {
+  public static @Nullable Long getLong(String nm) {
     return getLong(nm, null);
   }
 
@@ -509,8 +505,7 @@ public class TodayStrategies {
    * @see System#getProperty(java.lang.String)
    * @see System#getProperty(java.lang.String, java.lang.String)
    */
-  @Nullable
-  public static Long getLong(String key, @Nullable Long val) {
+  public static @Nullable Long getLong(String key, @Nullable Long val) {
     try {
       String v = getProperty(key);
       if (v != null) {
@@ -531,7 +526,6 @@ public class TodayStrategies {
   // Strategies
   //---------------------------------------------------------------------
 
-  @Nullable
   private final ClassLoader classLoader;
 
   private final Map<String, List<String>> strategies;
@@ -542,7 +536,7 @@ public class TodayStrategies {
    * @param classLoader the classloader used to instantiate the factories
    * @param strategies a map of strategy class name to implementation class names
    */
-  protected TodayStrategies(@Nullable ClassLoader classLoader, Map<String, List<String>> strategies) {
+  protected TodayStrategies(ClassLoader classLoader, Map<String, List<String>> strategies) {
     this.classLoader = classLoader;
     this.strategies = strategies;
   }
@@ -734,6 +728,14 @@ public class TodayStrategies {
         result.add(strategy);
       }
     }
+
+    for (var provider : ServiceLoader.load(strategyType, classLoader).stream().toList()) {
+      T strategy = instantiateStrategy(provider.type(), strategyType, instantiator, failureHandler);
+      if (strategy != null) {
+        result.add(strategy);
+      }
+    }
+
     AnnotationAwareOrderComparator.sort(result);
     return result;
   }
@@ -760,10 +762,21 @@ public class TodayStrategies {
                 "Class [%s] is not assignable to strategy type [%s]".formatted(implementationName, type.getName()));
       }
 
-      return instantiator.instantiate(implementation);
+      return instantiateStrategy(implementation, type, instantiator, failureHandler);
     }
     catch (Throwable ex) {
       failureHandler.handleFailure(type, implementationName, ex);
+      return null;
+    }
+  }
+
+  private <T> @Nullable T instantiateStrategy(Class<? extends T> implementation, Class<T> type,
+          ClassInstantiator instantiator, FailureHandler failureHandler) {
+    try {
+      return instantiator.instantiate(implementation);
+    }
+    catch (Throwable ex) {
+      failureHandler.handleFailure(type, implementation.getName(), ex);
       return null;
     }
   }

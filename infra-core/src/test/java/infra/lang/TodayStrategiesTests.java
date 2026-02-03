@@ -29,6 +29,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 
 import infra.lang.TodayStrategies.ArgumentResolver;
 import infra.lang.TodayStrategies.DefaultInstantiator;
@@ -238,6 +239,20 @@ class TodayStrategiesTests {
   @Test
   void findFirstShouldReturnNullWhenEmpty() {
     assertThat(TodayStrategies.findFirst("non.existent.strategy")).isNull();
+  }
+
+  @Nested
+  class ServiceLoaderTests {
+
+    @Test
+    void serviceLoader() {
+      List<DemoProvider> providers = TodayStrategies.forDefaultResourceLocation().load(DemoProvider.class);
+      List<DemoProvider> list = ServiceLoader.load(DemoProvider.class)
+              .stream().map(ServiceLoader.Provider::get).toList();
+
+      assertThat(providers).isEqualTo(list);
+    }
+
   }
 
   @Nested

@@ -105,7 +105,7 @@ class TodayStrategiesRuntimeHints implements RuntimeHintsRegistrar {
 
   private static class ExtendedTodayStrategies extends TodayStrategies {
 
-    ExtendedTodayStrategies(@Nullable ClassLoader classLoader, Map<String, List<String>> factories) {
+    ExtendedTodayStrategies(ClassLoader classLoader, Map<String, List<String>> factories) {
       super(classLoader, factories);
     }
 

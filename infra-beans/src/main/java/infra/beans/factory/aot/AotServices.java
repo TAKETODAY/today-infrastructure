@@ -43,6 +43,7 @@ import infra.util.ObjectUtils;
  *
  * @param <T> the service type
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public final class AotServices<T> implements Iterable<T> {
@@ -97,7 +98,7 @@ public final class AotServices<T> implements Iterable<T> {
    * @return a new {@link Loader} instance
    */
   public static Loader factories(@Nullable ClassLoader classLoader) {
-    return factories(getTodayStrategies(classLoader));
+    return factories(getStrategiesLoader(classLoader));
   }
 
   /**
@@ -122,8 +123,8 @@ public final class AotServices<T> implements Iterable<T> {
    */
   public static Loader factoriesAndBeans(BeanFactory beanFactory) {
     ClassLoader classLoader = (beanFactory instanceof ConfigurableBeanFactory configurableBeanFactory ?
-                               configurableBeanFactory.getBeanClassLoader() : null);
-    return factoriesAndBeans(getTodayStrategies(classLoader), beanFactory);
+            configurableBeanFactory.getBeanClassLoader() : null);
+    return factoriesAndBeans(getStrategiesLoader(classLoader), beanFactory);
   }
 
   /**
@@ -140,8 +141,7 @@ public final class AotServices<T> implements Iterable<T> {
     return new Loader(strategies, beanFactory);
   }
 
-  private static TodayStrategies getTodayStrategies(
-          @Nullable ClassLoader classLoader) {
+  private static TodayStrategies getStrategiesLoader(@Nullable ClassLoader classLoader) {
     return TodayStrategies.forResourceLocation(FACTORIES_RESOURCE_LOCATION, classLoader);
   }
 
@@ -221,7 +221,7 @@ public final class AotServices<T> implements Iterable<T> {
     private <T> Map<String, T> loadBeans(Class<T> type) {
       return (this.beanFactory != null) ? BeanFactoryUtils
               .beansOfTypeIncludingAncestors(this.beanFactory, type, true, false)
-                                        : Collections.emptyMap();
+              : Collections.emptyMap();
     }
 
   }

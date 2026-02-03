@@ -36,6 +36,7 @@ import infra.lang.TodayStrategies;
  * purposes.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class MockTodayStrategies extends TodayStrategies {
