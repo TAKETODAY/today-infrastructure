@@ -77,8 +77,7 @@ public interface JdbcOperations {
    * @return a result object returned by the action, or {@code null} if none
    * @throws DataAccessException if there is any problem
    */
-  @Nullable
-  <T> T execute(ConnectionCallback<T> action) throws DataAccessException;
+  <T extends @Nullable Object> T execute(ConnectionCallback<T> action) throws DataAccessException;
 
   //-------------------------------------------------------------------------
   // Methods dealing with static SQL (java.sql.Statement)
@@ -97,8 +96,7 @@ public interface JdbcOperations {
    * @return a result object returned by the action, or {@code null} if none
    * @throws DataAccessException if there is any problem
    */
-  @Nullable
-  <T> T execute(StatementCallback<T> action) throws DataAccessException;
+  <T extends @Nullable Object> T execute(StatementCallback<T> action) throws DataAccessException;
 
   /**
    * Issue a single SQL execute, typically a DDL statement.

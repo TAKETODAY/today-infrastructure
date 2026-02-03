@@ -99,7 +99,7 @@ public class DataSourceHealthIndicator extends AbstractHealthIndicator implement
   }
 
   @Override
-  protected void doHealthCheck(Health.Builder builder) throws Exception {
+  protected void doHealthCheck(Health.Builder builder) {
     if (this.dataSource == null) {
       builder.up().withDetail("database", "unknown");
     }

@@ -36,7 +36,6 @@ import infra.app.health.contributor.HealthContributor;
 import infra.app.health.contributor.HealthContributors;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.SimpleAutowireCandidateResolver;
-import infra.context.annotation.Bean;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnBean;
@@ -44,13 +43,13 @@ import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.jdbc.config.DataSourceAutoConfiguration;
-import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.datasource.lookup.AbstractRoutingDataSource;
 import infra.jdbc.health.DataSourceHealthIndicator;
 import infra.jdbc.metadata.CompositeDataSourcePoolMetadataProvider;
 import infra.jdbc.metadata.DataSourcePoolMetadata;
 import infra.jdbc.metadata.DataSourcePoolMetadataProvider;
 import infra.lang.Assert;
+import infra.stereotype.Component;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for
@@ -67,13 +66,13 @@ import infra.lang.Assert;
  * @since 5.0
  */
 @DisableDIAutoConfiguration(after = DataSourceAutoConfiguration.class)
-@ConditionalOnClass({ JdbcTemplate.class, AbstractRoutingDataSource.class, ConditionalOnEnabledHealthIndicator.class })
+@ConditionalOnClass(ConditionalOnEnabledHealthIndicator.class)
 @ConditionalOnBean(DataSource.class)
 @ConditionalOnEnabledHealthIndicator("db")
 @EnableConfigurationProperties(DataSourceHealthIndicatorProperties.class)
 public final class DataSourceHealthContributorAutoConfiguration {
 
-  @Bean
+  @Component
   @ConditionalOnMissingBean(name = { "dbHealthIndicator", "dbHealthContributor" })
   static HealthContributor dbHealthContributor(ConfigurableBeanFactory beanFactory,
           DataSourceHealthIndicatorProperties properties, List<DataSourcePoolMetadataProvider> metadataProviders) {
@@ -83,11 +82,11 @@ public final class DataSourceHealthContributorAutoConfiguration {
     DataSourcePoolMetadataProvider poolMetadataProvider = new CompositeDataSourcePoolMetadataProvider(metadataProviders);
 
     if (properties.ignoreRoutingDataSources) {
-      Map<String, DataSource> filteredDatasources = dataSources.entrySet()
+      Map<String, DataSource> filtered = dataSources.entrySet()
               .stream()
               .filter((e) -> !isRoutingDataSource(e.getValue()))
               .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-      return createContributor(filteredDatasources, poolMetadataProvider);
+      return createContributor(filtered, poolMetadataProvider);
     }
     return createContributor(dataSources, poolMetadataProvider);
   }

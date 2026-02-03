@@ -368,8 +368,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
   //-------------------------------------------------------------------------
 
   @Override
-  @Nullable
-  public <T> T execute(ConnectionCallback<T> action) throws DataAccessException {
+  public <T extends @Nullable Object> T execute(ConnectionCallback<T> action) throws DataAccessException {
     Assert.notNull(action, "Callback object is required");
 
     DataSource dataSource = obtainDataSource();
@@ -412,8 +411,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
   // Methods dealing with static SQL (java.sql.Statement)
   //-------------------------------------------------------------------------
 
-  @Nullable
-  private <T> T execute(StatementCallback<T> action, boolean closeResources) throws DataAccessException {
+  private <T extends @Nullable Object> T execute(StatementCallback<T> action, boolean closeResources) throws DataAccessException {
     Assert.notNull(action, "Callback object is required");
 
     Connection con = DataSourceUtils.getConnection(obtainDataSource());
@@ -447,8 +445,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
   }
 
   @Override
-  @Nullable
-  public <T> T execute(StatementCallback<T> action) throws DataAccessException {
+  public <T extends @Nullable Object> T execute(StatementCallback<T> action) throws DataAccessException {
     return execute(action, true);
   }
 

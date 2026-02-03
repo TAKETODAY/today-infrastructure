@@ -67,7 +67,6 @@ public interface ResultSetExtractor<T extends @Nullable Object> {
    * values or navigating (that is, there's no need to catch SQLException)
    * @throws DataAccessException in case of custom exceptions
    */
-  @Nullable
   T extractData(ResultSet rs) throws SQLException, DataAccessException;
 
   // static
