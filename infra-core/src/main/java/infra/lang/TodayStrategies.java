@@ -28,6 +28,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -729,7 +730,7 @@ public class TodayStrategies {
       }
     }
 
-    for (var provider : ServiceLoader.load(strategyType, classLoader).stream().toList()) {
+    for (var provider : loadServiceProviders(strategyType)) {
       T strategy = instantiateStrategy(provider.type(), strategyType, instantiator, failureHandler);
       if (strategy != null) {
         result.add(strategy);
@@ -742,6 +743,26 @@ public class TodayStrategies {
 
   // private stuff
 
+  /**
+   * Loads service providers for the specified strategy type using the JDK's ServiceLoader.
+   * This method attempts to load and stream the service providers associated with the given
+   * strategy type using the configured class loader. If a {@link ServiceConfigurationError}
+   * occurs during the loading process, an empty list is returned.
+   *
+   * @param <T> the type of the strategy
+   * @param strategyType the class object representing the strategy type
+   * @return a list of {@link ServiceLoader.Provider} instances for the given strategy type,
+   * or an empty list if an error occurs
+   */
+  private <T> List<ServiceLoader.Provider<T>> loadServiceProviders(Class<T> strategyType) {
+    try {
+      return ServiceLoader.load(strategyType, classLoader).stream().toList();
+    }
+    catch (ServiceConfigurationError e) {
+      return List.of();
+    }
+  }
+
   @Unmodifiable
   private List<String> getStrategyNames(String strategyKey) {
     return strategies.getOrDefault(strategyKey, Collections.emptyList());
@@ -752,8 +773,7 @@ public class TodayStrategies {
     return getStrategyNames(strategyType.getName());
   }
 
-  @Nullable
-  protected <T> T instantiateStrategy(String implementationName, Class<T> type,
+  protected <T> @Nullable T instantiateStrategy(String implementationName, Class<T> type,
           ClassInstantiator instantiator, FailureHandler failureHandler) {
     try {
       Class<T> implementation = ClassUtils.forName(implementationName, classLoader);

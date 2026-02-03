@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.lang.ClassInstantiator;
 import infra.lang.TodayStrategies;
+import infra.util.ClassUtils;
 
 /**
  * Simple mock {@link TodayStrategies} implementation that can be used for testing
@@ -52,7 +53,7 @@ public class MockTodayStrategies extends TodayStrategies {
    * classloader.
    */
   public MockTodayStrategies() {
-    this(null);
+    this(ClassUtils.getDefaultClassLoader());
   }
 
   /**
@@ -60,20 +61,19 @@ public class MockTodayStrategies extends TodayStrategies {
    *
    * @param classLoader the classloader to use
    */
-  public MockTodayStrategies(@Nullable ClassLoader classLoader) {
+  public MockTodayStrategies(ClassLoader classLoader) {
     this(classLoader, new LinkedHashMap<>());
   }
 
-  protected MockTodayStrategies(@Nullable ClassLoader classLoader,
+  protected MockTodayStrategies(ClassLoader classLoader,
           Map<String, List<String>> factories) {
     super(classLoader, factories);
     this.factories = factories;
   }
 
-  @Nullable
   @Override
   @SuppressWarnings("unchecked")
-  protected <T> T instantiateStrategy(String implementationName,
+  protected <T> @Nullable T instantiateStrategy(String implementationName,
           Class<T> type, ClassInstantiator instantiator, FailureHandler failureHandler) {
     if (implementationName.startsWith("!")) {
       Object implementation = this.implementations.get(implementationName);
