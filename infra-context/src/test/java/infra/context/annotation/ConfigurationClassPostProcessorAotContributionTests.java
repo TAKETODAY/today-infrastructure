@@ -175,6 +175,23 @@ public class ConfigurationClassPostProcessorAotContributionTests {
                       ));
     }
 
+    @Test
+    void applyToWhenHasImportAwareBeanRegistrarRegistersHints() {
+      BeanFactoryInitializationAotContribution contribution = getContribution(BeanRegistrarTests.ImportAwareConfiguration.class);
+      contribution.applyTo(generationContext, beanFactoryInitializationCode);
+      assertThat(generationContext.getRuntimeHints().resources().resourcePatternHints())
+              .singleElement()
+              .satisfies(resourceHint -> assertThat(resourceHint.getIncludes())
+                      .map(ResourcePatternHint::getPattern)
+                      .containsExactlyInAnyOrder(
+                              "/",
+                              "infra",
+                              "infra/context",
+                              "infra/context/annotation",
+                              "infra/context/annotation/ConfigurationClassPostProcessorAotContributionTests$BeanRegistrarTests$ImportAwareConfiguration.class"
+                      ));
+    }
+
     @SuppressWarnings("unchecked")
     private void compile(BiConsumer<Consumer<StandardBeanFactory>, Compiled> result) {
       MethodReference methodReference = beanFactoryInitializationCode.getInitializers().get(0);
