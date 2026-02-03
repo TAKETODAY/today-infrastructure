@@ -38,15 +38,15 @@ import infra.lang.Assert;
  * {@link Health} instances can be created by using {@link Builder}'s fluent API. Typical
  * usage in a {@link HealthIndicator} would be:
  *
- * <pre class="code">
+ * <pre>{@code
  * try {
- * 	// do some test to determine state of component
- * 	return Health.up().withDetail("version", "1.1.2").build();
+ *    // do some test to determine state of component
+ *    return Health.up().withDetail("version", "1.1.2").build();
  * }
  * catch (Exception ex) {
- * 	return Health.down(ex).build();
+ *    return Health.down(ex).build();
  * }
- * </pre>
+ * }</pre>
  *
  * @author Christian Dupuis
  * @author Phillip Webb
@@ -71,6 +71,11 @@ public final class Health {
     this.details = Collections.unmodifiableMap(builder.details);
   }
 
+  private Health(Status status, Map<String, Object> details) {
+    this.status = status;
+    this.details = details;
+  }
+
   /**
    * Return the status of the health.
    *
@@ -91,8 +96,34 @@ public final class Health {
     return this.details;
   }
 
-  Health withoutDetails() {
-    return (this.details.isEmpty()) ? this : status(getStatus()).build();
+  /**
+   * Returns a new {@link Health} instance with the same status but without any details.
+   * If this instance already has no details, it returns itself.
+   *
+   * @return a {@link Health} instance without details
+   */
+  public Health withoutDetails() {
+    return details.isEmpty() ? this : new Health(status, Collections.emptyMap());
+  }
+
+  /**
+   * Returns a new {@link Health} instance with the same status but with the provided details.
+   * If the provided details are {@code null}, an empty map will be used.
+   *
+   * @param details the details to include in the new {@link Health} instance
+   * @return a new {@link Health} instance with the specified details
+   */
+  public Health withDetails(@Nullable Map<String, Object> details) {
+    return new Health(status, details == null ? Collections.emptyMap() : Collections.unmodifiableMap(details));
+  }
+
+  /**
+   * Returns a new {@link Builder} instance initialized with the current status and details.
+   *
+   * @return a new {@link Builder} instance
+   */
+  public Builder toBuilder() {
+    return new Builder(status, details);
   }
 
   @Override

@@ -85,6 +85,21 @@ class HealthTests {
   void withDetails() {
     Health health = new Health.Builder(Status.UP, Collections.singletonMap("a", "b")).withDetail("c", "d").build();
     assertThat(health.getDetails()).containsOnly(entry("a", "b"), entry("c", "d"));
+
+    assertThat(health.withoutDetails().getDetails()).isEmpty();
+    assertThat(health.withDetails(null)).isEqualTo(health.withoutDetails())
+            .isEqualTo(health.withoutDetails().withoutDetails());
+
+    assertThat(health.withDetails(Map.of("e", "f")).getDetails())
+            .containsOnly(entry("e", "f"));
+  }
+
+  @Test
+  void toBuilder() {
+    Health health = Health.up().withDetails(Map.of("a", "b")).build();
+    health = health.toBuilder().withDetail("c", "d").build();
+
+    assertThat(health.getDetails()).containsOnly(entry("a", "b"), entry("c", "d"));
   }
 
   @Test
