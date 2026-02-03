@@ -93,6 +93,7 @@ import infra.context.BootstrapContextAware;
 import infra.context.annotation.ConfigurationClassEnhancer.EnhancedConfiguration;
 import infra.core.Ordered;
 import infra.core.PriorityOrdered;
+import infra.core.ReactiveStreams;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
 import infra.core.io.ClassPathResource;
@@ -937,7 +938,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
 
       var code = CodeBlock.builder();
       // For Publisher-based destroy methods
-      reflectionHints.registerType(TypeReference.of("org.reactivestreams.Publisher"));
+      reflectionHints.registerType(TypeReference.of(ReactiveStreams.INDICATOR_CLASS));
       Class<?> beanType = ClassUtils.getUserClass(beanDefinition.getResolvableType().toClass());
       Arrays.stream(methodNames).forEach(methodName -> addInitDestroyHint(beanType, methodName, reflectionHints));
       CodeBlock arguments = Arrays.stream(methodNames)
