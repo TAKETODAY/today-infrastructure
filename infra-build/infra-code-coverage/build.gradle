@@ -43,6 +43,7 @@ dependencies {
   jacocoAggregation project(':infra-http-service')
 
   jacocoAggregation project(':module:infra-freemarker')
+  jacocoAggregation project(':module:infra-groovy-templates')
   jacocoAggregation project(':module:infra-app-resttestclient')
   jacocoAggregation project(':module:infra-app-health')
   jacocoAggregation project(':module:infra-app-test')
