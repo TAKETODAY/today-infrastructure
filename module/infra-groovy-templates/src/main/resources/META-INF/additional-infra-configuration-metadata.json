@@ -1,0 +1,12 @@
+{
+  "properties": [
+    {
+      "name": "groovy.template.prefix",
+      "defaultValue": ""
+    },
+    {
+      "name": "groovy.template.suffix",
+      "defaultValue": ".tpl"
+    }
+  ]
+}

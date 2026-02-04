@@ -1,7 +1,7 @@
-description = "Infra freemarker integration"
+description = "Infra Groovy Templates integration"
 
 dependencies {
-  api 'org.freemarker:freemarker'
+	api("org.apache.groovy:groovy-templates")
 
   optional(project(":infra-app"))
   optional(project(":infra-core-aot"))
@@ -16,8 +16,9 @@ dependencies {
   testImplementation project(":infra-web-server")
   testImplementation project(':infra-test-support')
   testImplementation project(":module:infra-app-test")
-  testImplementation 'ch.qos.logback:logback-classic'
 
   testImplementation testFixtures(project(":infra-web-server"))
   testImplementation testFixtures(project(":infra-web-netty-server"))
+
+	testRuntimeOnly("ch.qos.logback:logback-classic")
 }
