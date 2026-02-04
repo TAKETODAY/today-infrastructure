@@ -759,6 +759,7 @@ public class TodayStrategies {
       return ServiceLoader.load(strategyType, classLoader).stream().toList();
     }
     catch (ServiceConfigurationError e) {
+      log.warn("Failed to load service providers for strategy type: {}", strategyType.getName(), e);
       return List.of();
     }
   }

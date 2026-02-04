@@ -76,7 +76,7 @@ public class FreeMarkerTemplateAvailabilityProvider extends PathBasedTemplateAva
 
   static class Hints extends BindableRuntimeHintsRegistrar {
 
-    Hints() {
+    public Hints() {
       super(FreeMarkerTemplateAvailabilityProperties.class);
     }
 

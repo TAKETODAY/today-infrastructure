@@ -1,2 +1,0 @@
-infra.aot.hint.RuntimeHintsRegistrar=\
-infra.groovy.template.config.GroovyTemplateAvailabilityProvider.GroovyTemplateAvailabilityRuntimeHints

@@ -1,3 +1,0 @@
-# Template availability providers
-infra.ui.template.TemplateAvailabilityProvider=\
-infra.freemarker.FreeMarkerTemplateAvailabilityProvider

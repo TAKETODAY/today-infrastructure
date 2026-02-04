@@ -72,6 +72,9 @@ public class GroovyTemplateAvailabilityProvider extends PathBasedTemplateAvailab
 
   static class GroovyTemplateAvailabilityRuntimeHints implements RuntimeHintsRegistrar {
 
+    public GroovyTemplateAvailabilityRuntimeHints() {
+    }
+
     @Override
     public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
       if (ClassUtils.isPresent(REQUIRED_CLASS_NAME, classLoader)) {
