@@ -139,9 +139,10 @@ public final class NettyWebServerFactoryAutoConfiguration {
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public static NettyRequestConfig nettyRequestConfig(ServerProperties server,
-          NettyServerProperties netty, SendErrorHandler sendErrorHandler, MultipartParser multipartParser) {
+          NettyServerProperties netty, SendErrorHandler sendErrorHandler,
+          MultipartParser multipartParser, List<NettyRequestConfigCustomizer> customizers) {
 
-    return NettyRequestConfig.forBuilder(Ssl.isEnabled(server.ssl))
+    var builder = NettyRequestConfig.forBuilder(Ssl.isEnabled(server.ssl))
             .multipartParser(multipartParser)
             .writerAutoFlush(netty.writerAutoFlush)
             .headersFactory(DefaultHttpHeadersFactory.headersFactory()
@@ -149,8 +150,12 @@ public final class NettyWebServerFactoryAutoConfiguration {
             .sendErrorHandler(sendErrorHandler)
             .maxContentLength(netty.maxContentLength.toBytes())
             .dataReceivedQueueCapacity(netty.dataReceivedQueueCapacity)
-            .autoRead(netty.autoRead)
-            .build();
+            .autoRead(netty.autoRead);
+
+    for (NettyRequestConfigCustomizer customizer : customizers) {
+      customizer.customize(builder);
+    }
+    return builder.build();
   }
 
   @Component

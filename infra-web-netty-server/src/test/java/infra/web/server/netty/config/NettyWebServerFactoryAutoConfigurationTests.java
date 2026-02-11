@@ -31,6 +31,7 @@ import infra.util.DataSize;
 import infra.web.server.config.ServerProperties;
 import infra.web.server.context.AnnotationConfigWebServerApplicationContext;
 import infra.web.server.netty.HttpTrafficHandler;
+import infra.web.server.netty.NettyRequestConfig;
 import infra.web.server.netty.NettyServerProperties;
 import infra.web.server.netty.NettyWebServerFactory;
 import infra.web.server.netty.RandomPortWebServerConfig;
@@ -47,7 +48,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class NettyWebServerFactoryAutoConfigurationTests {
 
   private final ApplicationContextRunner contextRunner = ApplicationContextRunner.forProvider(this::createContext)
-          .withConfiguration(AutoConfigurations.of(RandomPortWebServerConfig.class));
+          .withConfiguration(AutoConfigurations.of(RandomPortWebServerConfig.class,
+                  NettyWebServerFactoryAutoConfiguration.class));
 
   AnnotationConfigWebServerApplicationContext createContext() {
     var context = new AnnotationConfigWebServerApplicationContext();
@@ -174,6 +176,18 @@ class NettyWebServerFactoryAutoConfigurationTests {
       assertThat(factory).extracting("acceptorPoolName").isEqualTo("acceptor");
 
     });
+  }
+
+  @Test
+  void nettyRequestConfigCustomizers() {
+    contextRunner.withPropertyValues("server.netty.autoRead=true")
+            .withBean(NettyRequestConfigCustomizer.class, () -> builder -> builder.autoRead(false))
+            .run(context -> {
+              assertThat(context).hasSingleBean(NettyRequestConfig.class);
+              assertThat(context.getBean(NettyRequestConfig.class).autoRead)
+                      .isFalse();
+            });
+
   }
 
 }
