@@ -30,7 +30,8 @@ import infra.lang.Constant;
 
 /**
  * Utility class for handling validation annotations.
- * Mainly for internal use within the framework.
+ *
+ * <p>Mainly for internal use within the framework.
  *
  * @author Christoph Dreis
  * @author Juergen Hoeller
@@ -40,9 +41,8 @@ import infra.lang.Constant;
 public abstract class ValidationAnnotationUtils {
 
   /**
-   * Determine any validation hints by the given annotation.
-   * <p>This implementation checks for Infra
-   * {@link Validated},
+   * Determine any validation hints for the given annotation.
+   * <p>This implementation checks for Infra {@link Validated},
    * {@code @jakarta.validation.Valid}, and custom annotations whose
    * name starts with "Valid" which may optionally declare validation
    * hints through the "value" attribute.
@@ -62,7 +62,7 @@ public abstract class ValidationAnnotationUtils {
       return Constant.EMPTY_OBJECTS;
     }
     // Meta presence of @Validated ?
-    Validated validatedAnn = AnnotationUtils.getAnnotation(ann, Validated.class);
+    Validated validatedAnn = AnnotationUtils.findAnnotation(annotationType, Validated.class);
     if (validatedAnn != null) {
       return validatedAnn.value();
     }
