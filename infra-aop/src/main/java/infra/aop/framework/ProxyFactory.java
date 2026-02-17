@@ -38,13 +38,15 @@ import infra.util.ClassUtils;
  * @since 3.0
  */
 public class ProxyFactory extends ProxyCreatorSupport {
+
   @Serial
   private static final long serialVersionUID = 1L;
 
   /**
    * Create a new ProxyFactory.
    */
-  public ProxyFactory() { }
+  public ProxyFactory() {
+  }
 
   /**
    * Create a new ProxyFactory.
