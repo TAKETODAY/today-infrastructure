@@ -107,13 +107,6 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
   }
 
   /**
-   * Return the first pattern.
-   */
-  public PathPattern getFirstPattern() {
-    return this.patterns[0];
-  }
-
-  /**
    * Whether the condition is the "" (empty path) mapping.
    */
   public boolean isEmptyPathMapping() {
