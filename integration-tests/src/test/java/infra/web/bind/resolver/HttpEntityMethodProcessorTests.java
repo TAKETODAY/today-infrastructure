@@ -119,6 +119,26 @@ class HttpEntityMethodProcessorTests {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
+  void shouldResolveEntityWithMutatedHeaders() throws Exception {
+    mockRequest.setMethod("POST");
+    mockRequest.setContent("project=infra%20framework".getBytes(StandardCharsets.UTF_8));
+    mockRequest.addHeader("Content-Length", "project=infra%20framework".length());
+    mockRequest.setContentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+
+    List<HttpMessageConverter<?>> converters = new ArrayList<>();
+    converters.add(new ByteArrayHttpMessageConverter());
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters, null);
+
+    Method method = getClass().getDeclaredMethod("resolveAsByteArray", RequestEntity.class);
+    MethodParameter requestEntity = new MethodParameter(method, 0);
+    HttpEntity<byte[]> result = (HttpEntity<byte[]>) processor.resolveArgument(
+            webRequest, new ResolvableMethodParameter(requestEntity));
+
+    assertThat(result.getBody().length).isEqualTo(result.getHeaders().getContentLength());
+  }
+
+  @Test
   public void resolveGenericArgument() throws Exception {
     String content = "[{\"name\" : \"Jad\"}, {\"name\" : \"Robert\"}]";
     this.mockRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
@@ -552,6 +572,9 @@ class HttpEntityMethodProcessorTests {
 
   private ResponseEntity<CharSequence> handle() {
     return null;
+  }
+
+  private void resolveAsByteArray(RequestEntity<byte[]> request) {
   }
 
   @SuppressWarnings("unused")
