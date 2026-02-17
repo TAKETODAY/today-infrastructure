@@ -71,35 +71,29 @@ public class MethodParameter implements AnnotatedElement {
 
   private final int parameterIndex;
 
-  @Nullable
-  private volatile Parameter parameter;
-
   private int nestingLevel;
 
   /** Map from Integer level to Integer type index. */
-  @Nullable
-  Map<Integer, Integer> typeIndexesPerLevel;
+  @Nullable Map<Integer, Integer> typeIndexesPerLevel;
+
+  private volatile @Nullable Parameter parameter;
 
   /** The containing class. Could also be supplied by overriding {@link #getContainingClass()} */
-  @Nullable
-  private volatile Class<?> containingClass;
+  private volatile @Nullable Class<?> containingClass;
 
-  @Nullable
-  private volatile Class<?> parameterType;
+  private volatile @Nullable Class<?> parameterType;
 
-  @Nullable
-  private volatile Type genericParameterType;
+  private volatile @Nullable Type genericParameterType;
 
   private volatile Annotation @Nullable [] parameterAnnotations;
 
-  @Nullable
-  private volatile ParameterNameDiscoverer parameterNameDiscoverer;
+  private volatile Annotation @Nullable [] methodAnnotations;
 
-  @Nullable
-  volatile String parameterName;
+  private volatile @Nullable ParameterNameDiscoverer parameterNameDiscoverer;
 
-  @Nullable
-  private volatile MethodParameter nestedMethodParameter;
+  private volatile @Nullable MethodParameter nestedMethodParameter;
+
+  volatile @Nullable String parameterName;
 
   /**
    * Create a new {@code MethodParameter} for the given method, with nesting level 1.
@@ -192,6 +186,7 @@ public class MethodParameter implements AnnotatedElement {
     this.parameterAnnotations = original.parameterAnnotations;
     this.parameterNameDiscoverer = original.parameterNameDiscoverer;
     this.parameterName = original.parameterName;
+    this.methodAnnotations = original.methodAnnotations;
   }
 
   /**
@@ -553,7 +548,12 @@ public class MethodParameter implements AnnotatedElement {
    * Return the annotations associated with the target method/constructor itself.
    */
   public Annotation[] getMethodAnnotations() {
-    return adaptAnnotationArray(getAnnotatedElement().getAnnotations());
+    Annotation[] methodAnns = this.methodAnnotations;
+    if (methodAnns == null) {
+      methodAnns = adaptAnnotationArray(getAnnotatedElement().getAnnotations());
+      this.methodAnnotations = methodAnns;
+    }
+    return methodAnns;
   }
 
   /**
@@ -562,10 +562,15 @@ public class MethodParameter implements AnnotatedElement {
    * @param annotationType the annotation type to look for
    * @return the annotation object, or {@code null} if not found
    */
-  @Nullable
-  public <A extends Annotation> A getMethodAnnotation(Class<A> annotationType) {
-    A annotation = getAnnotatedElement().getAnnotation(annotationType);
-    return annotation != null ? adaptAnnotation(annotation) : null;
+  @SuppressWarnings("unchecked")
+  public <A extends Annotation> @Nullable A getMethodAnnotation(Class<A> annotationType) {
+    Annotation[] anns = getMethodAnnotations();
+    for (Annotation ann : anns) {
+      if (annotationType.isInstance(ann)) {
+        return (A) ann;
+      }
+    }
+    return null;
   }
 
   /**
@@ -575,7 +580,7 @@ public class MethodParameter implements AnnotatedElement {
    * @see #getMethodAnnotation(Class)
    */
   public <A extends Annotation> boolean hasMethodAnnotation(Class<A> annotationType) {
-    return getAnnotatedElement().isAnnotationPresent(annotationType);
+    return getMethodAnnotation(annotationType) != null;
   }
 
   /**
@@ -657,8 +662,7 @@ public class MethodParameter implements AnnotatedElement {
    * {@link #initParameterNameDiscovery ParameterNameDiscoverer}
    * has been set to begin with)
    */
-  @Nullable
-  public String getParameterName() {
+  public @Nullable String getParameterName() {
     if (this.parameterIndex < 0) {
       return null;
     }
@@ -726,9 +730,8 @@ public class MethodParameter implements AnnotatedElement {
   }
 
   @Override
-  @Nullable
   @SuppressWarnings("unchecked")
-  public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
+  public <T extends Annotation> @Nullable T getAnnotation(Class<T> annotationClass) {
     for (Annotation annotation : getAnnotations()) {
       if (annotation.annotationType() == annotationClass) {
         return (T) annotation;
