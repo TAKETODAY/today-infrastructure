@@ -34,8 +34,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import infra.aop.framework.AopProxyUtils;
-import infra.aop.support.AopUtils;
 import infra.context.MessageSourceResolvable;
 import infra.context.support.DefaultMessageSourceResolvable;
 import infra.core.BridgeMethodResolver;
@@ -44,7 +42,6 @@ import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.GenericTypeResolver;
 import infra.core.MethodParameter;
 import infra.core.ParameterNameDiscoverer;
-import infra.core.annotation.AnnotationUtils;
 import infra.lang.Assert;
 import infra.validation.BeanPropertyBindingResult;
 import infra.validation.BindingResult;
@@ -52,6 +49,7 @@ import infra.validation.DefaultMessageCodesResolver;
 import infra.validation.Errors;
 import infra.validation.MessageCodesResolver;
 import infra.validation.annotation.Validated;
+import infra.validation.annotation.ValidationAnnotationUtils;
 import infra.validation.method.MethodValidationResult;
 import infra.validation.method.MethodValidator;
 import infra.validation.method.ParameterErrors;
@@ -203,21 +201,7 @@ public class MethodValidationAdapter implements MethodValidator {
    */
   @Override
   public Class<?>[] determineValidationGroups(Object target, Method method) {
-    Validated validatedAnn = AnnotationUtils.findAnnotation(method, Validated.class);
-    if (validatedAnn == null) {
-      if (AopUtils.isAopProxy(target)) {
-        for (Class<?> type : AopProxyUtils.proxiedUserInterfaces(target)) {
-          validatedAnn = AnnotationUtils.findAnnotation(type, Validated.class);
-          if (validatedAnn != null) {
-            break;
-          }
-        }
-      }
-      else {
-        validatedAnn = AnnotationUtils.findAnnotation(target.getClass(), Validated.class);
-      }
-    }
-    return (validatedAnn != null ? validatedAnn.value() : new Class<?>[0]);
+    return ValidationAnnotationUtils.determineValidationGroups(target, method);
   }
 
   @Override

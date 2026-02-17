@@ -21,8 +21,12 @@ package infra.validation.annotation;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 
+import infra.aop.framework.AopProxyUtils;
+import infra.aop.support.AopUtils;
 import infra.core.annotation.AnnotationUtils;
+import infra.lang.Constant;
 
 /**
  * Utility class for handling validation annotations.
@@ -34,8 +38,6 @@ import infra.core.annotation.AnnotationUtils;
  * @since 4.0
  */
 public abstract class ValidationAnnotationUtils {
-
-  private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
   /**
    * Determine any validation hints by the given annotation.
@@ -57,7 +59,7 @@ public abstract class ValidationAnnotationUtils {
     // Direct presence of @Valid ?
     Class<? extends Annotation> annotationType = ann.annotationType();
     if ("jakarta.validation.Valid".equals(annotationType.getName())) {
-      return EMPTY_OBJECT_ARRAY;
+      return Constant.EMPTY_OBJECTS;
     }
     // Meta presence of @Validated ?
     Validated validatedAnn = AnnotationUtils.getAnnotation(ann, Validated.class);
@@ -74,9 +76,35 @@ public abstract class ValidationAnnotationUtils {
 
   private static Object[] convertValidationHints(@Nullable Object hints) {
     if (hints == null) {
-      return EMPTY_OBJECT_ARRAY;
+      return Constant.EMPTY_OBJECTS;
     }
     return (hints instanceof Object[] ? (Object[]) hints : new Object[] { hints });
   }
 
+  /**
+   * Determine the applicable validation groups from an
+   * {@link infra.validation.annotation.Validated @Validated}
+   * annotation either on the method, or on the containing target class of
+   * the method, or for an AOP proxy without a target (with all behavior in
+   * advisors), also check on proxied interfaces.
+   *
+   * @since 5.0
+   */
+  public static Class<?>[] determineValidationGroups(Object target, Method method) {
+    Validated validatedAnn = AnnotationUtils.findAnnotation(method, Validated.class);
+    if (validatedAnn == null) {
+      if (AopUtils.isAopProxy(target)) {
+        for (Class<?> type : AopProxyUtils.proxiedUserInterfaces(target)) {
+          validatedAnn = AnnotationUtils.findAnnotation(type, Validated.class);
+          if (validatedAnn != null) {
+            break;
+          }
+        }
+      }
+      else {
+        validatedAnn = AnnotationUtils.findAnnotation(target.getClass(), Validated.class);
+      }
+    }
+    return (validatedAnn != null ? validatedAnn.value() : Constant.EMPTY_CLASSES);
+  }
 }

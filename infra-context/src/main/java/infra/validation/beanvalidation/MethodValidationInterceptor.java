@@ -259,16 +259,15 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
     private static final ReactiveAdapterRegistry reactiveAdapterRegistry =
             ReactiveAdapterRegistry.getSharedInstance();
 
-    @Nullable
-    static Object[] insertAsyncValidation(InfraValidatorAdapter validatorAdapter,
+    static @Nullable Object[] insertAsyncValidation(InfraValidatorAdapter validatorAdapter,
             boolean adaptViolations, Object target, Method method, @Nullable Object[] arguments) {
 
-      for (int i = 0; i < method.getParameterCount(); i++) {
+      Class<?>[] parameterTypes = method.getParameterTypes();
+      for (int i = 0; i < parameterTypes.length; i++) {
         if (arguments[i] == null) {
           continue;
         }
-        Class<?> parameterType = method.getParameterTypes()[i];
-        ReactiveAdapter reactiveAdapter = reactiveAdapterRegistry.getAdapter(parameterType);
+        ReactiveAdapter reactiveAdapter = reactiveAdapterRegistry.getAdapter(parameterTypes[i]);
         if (reactiveAdapter == null || reactiveAdapter.isNoValue()) {
           continue;
         }
