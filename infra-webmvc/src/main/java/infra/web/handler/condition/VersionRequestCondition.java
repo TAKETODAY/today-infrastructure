@@ -99,9 +99,12 @@ public final class VersionRequestCondition extends AbstractRequestCondition<Vers
   @Nullable
   @Override
   public VersionRequestCondition getMatchingCondition(RequestContext request) {
-    Comparable<?> requestVersion = (Comparable<?>) request.getAttribute(HandlerMapping.API_VERSION_ATTRIBUTE);
+    if (this.version == null) {
+      return this;
+    }
 
-    if (this.version == null || requestVersion == null) {
+    Comparable<?> requestVersion = (Comparable<?>) request.getAttribute(HandlerMapping.API_VERSION_ATTRIBUTE);
+    if (requestVersion == null) {
       return this;
     }
 
