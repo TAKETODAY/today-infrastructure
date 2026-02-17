@@ -188,8 +188,10 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
    * or {@code null} if no patterns match.
    */
   @Override
-  @Nullable
-  public PathPatternsRequestCondition getMatchingCondition(RequestContext request) {
+  public @Nullable PathPatternsRequestCondition getMatchingCondition(RequestContext request) {
+    if (patterns.length == 1) {
+      return patterns[0].matches(request.getRequestPath()) ? this : null;
+    }
     PathPattern[] matches = getMatchingPatterns(request.getRequestPath());
     return matches != null ? new PathPatternsRequestCondition(matches) : null;
   }
