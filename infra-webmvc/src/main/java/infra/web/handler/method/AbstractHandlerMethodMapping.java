@@ -389,10 +389,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
   /**
    * Look up a handler method for the given request.
    */
-  @Nullable
   @Override
-  @SuppressWarnings("NullAway")
-  protected HandlerMethod getHandlerInternal(RequestContext request) {
+  protected @Nullable HandlerMethod getHandlerInternal(RequestContext request) {
     HandlerMethod handlerMethod = lookupHandlerMethod(request.getRequestPath().value(), request);
     if (handlerMethod != null) {
       Object handler = handlerMethod.getBean();
@@ -414,8 +412,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * @see #handleMatch(Match, String, RequestContext)
    * @see #handleNoMatch(Set, String, RequestContext)
    */
-  @Nullable
-  protected HandlerMethod lookupHandlerMethod(String directLookupPath, RequestContext request) {
+  protected @Nullable HandlerMethod lookupHandlerMethod(String directLookupPath, RequestContext request) {
     ArrayList<Match<T>> matches = new ArrayList<>();
     List<T> directPathMatches = mappingRegistry.getDirectPathMappings(directLookupPath);
     if (directPathMatches != null) {

@@ -79,9 +79,9 @@ public class HandlerMethod implements AsyncHandler {
   /** Logger that is available to subclasses. */
   protected static final Logger log = LoggerFactory.getLogger(HandlerMethod.class);
 
-  static MapCache<AnnotationKey, Boolean, HandlerMethod> methodAnnotationCache = new MapCache<>(128) {
+  static MapCache<AnnotationKey, Boolean, @Nullable HandlerMethod> methodAnnotationCache = new MapCache<>(128) {
     @Override
-    protected Boolean createValue(AnnotationKey key, HandlerMethod handlerMethod) {
+    protected Boolean createValue(AnnotationKey key, @Nullable HandlerMethod handlerMethod) {
       return AnnotatedElementUtils.hasAnnotation(key.method, key.annotationType);
     }
   };
