@@ -70,10 +70,10 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 
   private static final VersionRequestCondition EMPTY_VERSION = new VersionRequestCondition(null, null);
 
-  @Nullable
-  private final String name;
+  private final @Nullable String name;
 
   private final RequestMethodsRequestCondition methodsCondition;
+
   private final PathPatternsRequestCondition pathPatternsCondition;
 
   private final ParamsRequestCondition paramsCondition;
@@ -88,7 +88,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 
   private final RequestConditionHolder customConditionHolder;
 
-  private final int hashCode;
+  private @Nullable Integer hashCode;
 
   private final BuilderConfiguration options;
 
@@ -116,16 +116,12 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
     this.customConditionHolder = customCondition;
     this.pathPatternsCondition = pathPatterns;
     this.combine = combine;
-
-    this.hashCode = calculateHashCode(pathPatterns, methodsCondition, paramsCondition, headersCondition,
-            consumesCondition, producesCondition, versionCondition, customConditionHolder);
   }
 
   /**
    * Return the name for this mapping, or {@code null}.
    */
-  @Nullable
-  public String getName() {
+  public @Nullable String getName() {
     return this.name;
   }
 
@@ -278,8 +274,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
    * @return a new instance in case of a match; or {@code null} otherwise
    */
   @Override
-  @Nullable
-  public RequestMappingInfo getMatchingCondition(RequestContext request) {
+  public @Nullable RequestMappingInfo getMatchingCondition(RequestContext request) {
     RequestMethodsRequestCondition methods = methodsCondition.getMatchingCondition(request);
     if (methods == null) {
       return null;
@@ -392,17 +387,18 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 
   @Override
   public int hashCode() {
-    return this.hashCode;
+    if (hashCode == null) {
+      hashCode = calculateHashCode();
+    }
+    return hashCode;
   }
 
-  private static int calculateHashCode(PathPatternsRequestCondition pathPatterns,
-          RequestMethodsRequestCondition methods, ParamsRequestCondition params, HeadersRequestCondition headers,
-          ConsumesRequestCondition consumes, ProducesRequestCondition produces, VersionRequestCondition version, RequestConditionHolder custom) {
-
-    return pathPatterns.hashCode() * 31 +
-            methods.hashCode() + params.hashCode() +
-            headers.hashCode() + consumes.hashCode() + produces.hashCode() +
-            version.hashCode() + custom.hashCode();
+  private int calculateHashCode() {
+    return pathPatternsCondition.hashCode() * 31 +
+            this.methodsCondition.hashCode() +
+            this.paramsCondition.hashCode() + this.headersCondition.hashCode() +
+            this.consumesCondition.hashCode() + this.producesCondition.hashCode() +
+            this.versionCondition.hashCode() + this.customConditionHolder.hashCode();
   }
 
   @Override
