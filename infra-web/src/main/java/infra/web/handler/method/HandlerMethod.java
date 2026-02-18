@@ -337,19 +337,30 @@ public class HandlerMethod implements AsyncHandler {
     return returnType;
   }
 
+  /**
+   * Determine if the return type of this handler method is assignable to the given superclass.
+   *
+   * @param superClass the superclass to check against
+   * @return {@code true} if the return type is assignable to the given superclass, {@code false} otherwise
+   */
   public boolean isReturnTypeAssignableTo(Class<?> superClass) {
     return superClass.isAssignableFrom(returnType);
   }
 
+  /**
+   * Check if the return type of this handler method matches the given type exactly.
+   *
+   * @param returnType the type to compare with the handler method's return type
+   * @return {@code true} if the return type matches exactly, {@code false} otherwise
+   */
   public boolean isReturn(Class<?> returnType) {
     return returnType == this.returnType;
   }
 
-  // handleRequest
-  // -----------------------------------------
-
   /**
-   * ResponseBody present?
+   * Indicates whether the {@link ResponseBody} annotation is present on the method or its declaring class.
+   *
+   * @return {@code true} if the {@link ResponseBody} annotation is present, {@code false} otherwise
    */
   public boolean isResponseBody() {
     return this.responseBody;
@@ -534,12 +545,22 @@ public class HandlerMethod implements AsyncHandler {
   // HandlerMethod
 
   /**
+   * Determine whether the given object is a handler method.
+   *
+   * @param handler the object to check
+   * @return {@code true} if the object is a handler method, {@code false} otherwise
    * @since 5.0
    */
   public static boolean isHandler(@Nullable Object handler) {
     return unwrap(handler) != null;
   }
 
+  /**
+   * Unwrap the given handler to extract the underlying {@link HandlerMethod}, if any.
+   *
+   * @param handler the handler to unwrap
+   * @return the extracted {@link HandlerMethod}, or {@code null} if not found
+   */
   @Nullable
   public static HandlerMethod unwrap(@Nullable Object handler) {
     if (handler instanceof HandlerMethod) {
