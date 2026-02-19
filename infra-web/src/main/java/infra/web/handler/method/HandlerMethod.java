@@ -26,8 +26,10 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 import java.util.StringJoiner;
+import java.util.concurrent.ConcurrentHashMap;
 
 import infra.beans.factory.BeanFactory;
 import infra.context.MessageSource;
@@ -42,11 +44,11 @@ import infra.core.i18n.LocaleContextHolder;
 import infra.http.HttpStatusCode;
 import infra.lang.Assert;
 import infra.lang.Constant;
+import infra.lang.NullValue;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
-import infra.util.MapCache;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
 import infra.web.annotation.ResponseBody;
@@ -79,13 +81,6 @@ public class HandlerMethod implements AsyncHandler {
   /** Logger that is available to subclasses. */
   protected static final Logger log = LoggerFactory.getLogger(HandlerMethod.class);
 
-  static MapCache<AnnotationKey, Boolean, @Nullable HandlerMethod> methodAnnotationCache = new MapCache<>(128) {
-    @Override
-    protected Boolean createValue(AnnotationKey key, @Nullable HandlerMethod handlerMethod) {
-      return AnnotatedElementUtils.hasAnnotation(key.method, key.annotationType);
-    }
-  };
-
   private final Object bean;
 
   private final Class<?> beanType;
@@ -104,6 +99,8 @@ public class HandlerMethod implements AsyncHandler {
 
   /** @since 2.3.7 */
   private final Class<?> returnType;
+
+  private final Map<Class<? extends Annotation>, Object> annotations;
 
   /**
    * @since 4.0
@@ -153,6 +150,7 @@ public class HandlerMethod implements AsyncHandler {
     this.bean = bean;
     this.method = method;
     this.messageSource = messageSource;
+    this.annotations = new ConcurrentHashMap<>(4);
     this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
     this.beanType = ClassUtils.getUserClass(bean);
     this.returnType = bridgedMethod.getReturnType();
@@ -173,6 +171,7 @@ public class HandlerMethod implements AsyncHandler {
     this.bean = bean;
     this.messageSource = null;
     this.beanType = ClassUtils.getUserClass(bean);
+    this.annotations = new ConcurrentHashMap<>(4);
     this.method = bean.getClass().getMethod(methodName, parameterTypes);
     this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
     this.returnType = bridgedMethod.getReturnType();
@@ -198,6 +197,7 @@ public class HandlerMethod implements AsyncHandler {
     if (beanType == null) {
       throw new IllegalStateException("Cannot resolve bean type for bean with name '%s'".formatted(beanName));
     }
+    this.annotations = new ConcurrentHashMap<>(4);
     this.beanType = ClassUtils.getUserClass(beanType);
     this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
     this.returnType = bridgedMethod.getReturnType();
@@ -224,6 +224,7 @@ public class HandlerMethod implements AsyncHandler {
     this.responseBody = other.responseBody;
     this.corsConfig = other.corsConfig;
     this.returnTypeParameter = other.returnTypeParameter;
+    this.annotations = other.annotations;
     this.inheritedParameterAnnotations = other.inheritedParameterAnnotations;
   }
 
@@ -242,6 +243,7 @@ public class HandlerMethod implements AsyncHandler {
     this.responseStatusReason = other.responseStatusReason;
     this.responseBody = other.responseBody;
     this.corsConfig = other.corsConfig;
+    this.annotations = other.annotations;
     this.returnTypeParameter = other.returnTypeParameter;
     this.inheritedParameterAnnotations = other.inheritedParameterAnnotations;
   }
@@ -386,29 +388,32 @@ public class HandlerMethod implements AsyncHandler {
   }
 
   /**
-   * Return a single annotation on the underlying method traversing its super methods
+   * Return a single annotation on the underlying method, traversing its super methods
    * if no annotation can be found on the given method itself.
-   * <p>Also supports <em>merged</em> composed annotations with attribute
-   * overrides
+   * <p>Supports <em>merged</em> composed annotations with attribute overrides.
    *
-   * @param annotationType the type of annotation to introspect the method for
+   * @param annotationType the annotation type to look for
    * @return the annotation, or {@code null} if none found
    * @see AnnotatedElementUtils#findMergedAnnotation
    */
-  @Nullable
-  public <A extends Annotation> A getMethodAnnotation(Class<A> annotationType) {
-    return AnnotatedElementUtils.findMergedAnnotation(this.method, annotationType);
+  @SuppressWarnings("unchecked")
+  public <A extends Annotation> @Nullable A getMethodAnnotation(Class<A> annotationType) {
+    Object result = this.annotations.computeIfAbsent(annotationType, key -> {
+      Object value = AnnotatedElementUtils.findMergedAnnotation(this.method, annotationType);
+      return value == null ? NullValue.INSTANCE : value;
+    });
+    return result == NullValue.INSTANCE ? null : (A) result;
   }
 
   /**
-   * Return whether the parameter is declared with the given annotation type.
+   * Determine if an annotation of the given type is <em>present</em> or
+   * <em>meta-present</em> on the method.
    *
    * @param annotationType the annotation type to look for
    * @see AnnotatedElementUtils#hasAnnotation
-   * @since 4.0
    */
   public <A extends Annotation> boolean hasMethodAnnotation(Class<A> annotationType) {
-    return methodAnnotationCache.get(new AnnotationKey(method, annotationType), this);
+    return getMethodAnnotation(annotationType) != null;
   }
 
   @Override
@@ -811,9 +816,9 @@ public class HandlerMethod implements AsyncHandler {
 
     public final Method method;
 
-    public final Class<? extends Annotation> annotationType;
+    public final Class<Annotation> annotationType;
 
-    AnnotationKey(Method method, Class<? extends Annotation> annotationType) {
+    AnnotationKey(Method method, Class<Annotation> annotationType) {
       this.method = method;
       this.annotationType = annotationType;
       this.hash = Objects.hash(method, annotationType);
