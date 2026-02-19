@@ -76,7 +76,7 @@ class RemappedErrorViewIntegrationTests {
 
     @Override
     public void configureMessageConverters(ServerBuilder builder) {
-      builder.unregisterDefaults()
+      builder.disableDefaults()
               .addCustomConverter(new JacksonJsonHttpMessageConverter());
     }
   }

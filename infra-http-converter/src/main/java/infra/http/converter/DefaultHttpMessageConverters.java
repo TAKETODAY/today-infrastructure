@@ -292,7 +292,7 @@ class DefaultHttpMessageConverters implements HttpMessageConverters {
     }
 
     @Override
-    public ClientBuilder unregisterDefaults() {
+    public ClientBuilder disableDefaults() {
       this.registerDefaults = false;
       return this;
     }
@@ -392,7 +392,7 @@ class DefaultHttpMessageConverters implements HttpMessageConverters {
     }
 
     @Override
-    public ServerBuilder unregisterDefaults() {
+    public ServerBuilder disableDefaults() {
       this.registerDefaults = false;
       return this;
     }
