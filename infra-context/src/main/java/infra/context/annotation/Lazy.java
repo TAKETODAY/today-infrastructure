@@ -57,6 +57,9 @@ import infra.stereotype.Component;
  * for optional dependencies. For a programmatic equivalent, allowing for lazy references
  * with more sophistication, consider {@link infra.beans.factory.ObjectProvider}.
  *
+ * <p>This annotation may be used as a <em>meta-annotation</em> to create custom
+ * <em>composed annotations</em>.
+ *
  * @author Chris Beams
  * @author Juergen Hoeller
  * @author TODAY 2021/3/9 12:09

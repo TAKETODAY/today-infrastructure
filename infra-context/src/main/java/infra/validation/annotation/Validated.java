@@ -48,6 +48,9 @@ import infra.validation.beanvalidation.MethodValidationPostProcessor;
  * for a specific bean to begin with. Can also be used as a meta-annotation on a
  * custom stereotype annotation or a custom group-specific validated annotation.
  *
+ * <p>This annotation may be used as a <em>meta-annotation</em> to create custom
+ * <em>composed annotations</em>.
+ *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see jakarta.validation.Validator#validate(Object, Class[])
