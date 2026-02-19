@@ -380,6 +380,12 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
   @Override
   @SuppressWarnings("NullAway")
   public @Nullable V computeIfAbsent(@Nullable K key, Function<? super @Nullable K, ? extends @Nullable V> mappingFunction) {
+    // Avoid locking if entry is present
+    Reference<K, V> ref = getReference(key, Restructure.NEVER);
+    Entry<K, V> entry = (ref != null ? ref.get() : null);
+    if (entry != null) {
+      return entry.getValue();
+    }
     return doTask(key, new Task<V>(TaskOption.RESTRUCTURE_BEFORE, TaskOption.RESIZE) {
 
       @Override
