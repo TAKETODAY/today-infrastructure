@@ -52,22 +52,25 @@ import infra.core.annotation.AnnotationUtils;
 public class ContextAnnotationAutowireCandidateResolver extends QualifierAnnotationAutowireCandidateResolver {
 
   @Override
-  @Nullable
-  public Object getLazyResolutionProxyIfNecessary(DependencyDescriptor descriptor, @Nullable String beanName) {
+  public @Nullable Object getLazyResolutionProxyIfNecessary(DependencyDescriptor descriptor, @Nullable String beanName) {
     return isLazy(descriptor)
             ? buildLazyResolutionProxy(descriptor, beanName)
             : null;
   }
 
   @Override
-  @Nullable
-  public Class<?> getLazyResolutionProxyClass(DependencyDescriptor descriptor, @Nullable String beanName) {
+  public @Nullable Class<?> getLazyResolutionProxyClass(DependencyDescriptor descriptor, @Nullable String beanName) {
     return (isLazy(descriptor) ? (Class<?>) buildLazyResolutionProxy(descriptor, beanName, true) : null);
   }
 
   protected boolean isLazy(DependencyDescriptor descriptor) {
     for (Annotation ann : descriptor.getAnnotations()) {
-      Lazy lazy = AnnotationUtils.getAnnotation(ann, Lazy.class);
+      // Directly present?
+      if (ann instanceof Lazy lazy && lazy.value()) {
+        return true;
+      }
+      // Meta-present?
+      Lazy lazy = AnnotationUtils.findAnnotation(ann.annotationType(), Lazy.class);
       if (lazy != null && lazy.value()) {
         return true;
       }
@@ -76,7 +79,7 @@ public class ContextAnnotationAutowireCandidateResolver extends QualifierAnnotat
     if (methodParam != null) {
       Method method = methodParam.getMethod();
       if (method == null || void.class == method.getReturnType()) {
-        Lazy lazy = AnnotationUtils.getAnnotation(methodParam.getAnnotatedElement(), Lazy.class);
+        Lazy lazy = AnnotationUtils.findAnnotation(methodParam.getAnnotatedElement(), Lazy.class);
         return lazy != null && lazy.value();
       }
     }
