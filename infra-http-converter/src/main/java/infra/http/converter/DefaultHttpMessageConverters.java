@@ -179,7 +179,7 @@ class DefaultHttpMessageConverters implements HttpMessageConverters {
     }
 
     void addMessageConverterConfigurer(Consumer<HttpMessageConverter<?>> configurer) {
-      this.configurer = (this.configurer != null) ? configurer.andThen(this.configurer) : configurer;
+      this.configurer = (this.configurer != null) ? this.configurer.andThen(configurer) : configurer;
     }
 
     List<HttpMessageConverter<?>> getBaseConverters() {

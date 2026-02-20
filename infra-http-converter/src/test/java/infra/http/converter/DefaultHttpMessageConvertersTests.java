@@ -195,11 +195,18 @@ class DefaultHttpMessageConvertersTests {
               .addCustomConverter(customConverter)
               .configureMessageConverters(converter -> {
                 if (converter instanceof CustomHttpMessageConverter custom) {
-                  custom.processed = true;
+                  assertThat(custom.processCount).isZero();
+                  custom.processCount++;
+                }
+              })
+              .configureMessageConverters(converter -> {
+                if (converter instanceof CustomHttpMessageConverter custom) {
+                  assertThat(custom.processCount).isEqualTo(1);
+                  custom.processCount++;
                 }
               }).build();
 
-      assertThat(customConverter.processed).isTrue();
+      assertThat(customConverter.processCount).isEqualTo(2);
     }
 
   }
@@ -300,11 +307,18 @@ class DefaultHttpMessageConvertersTests {
               .addCustomConverter(customConverter)
               .configureMessageConverters(converter -> {
                 if (converter instanceof CustomHttpMessageConverter custom) {
-                  custom.processed = true;
+                  assertThat(custom.processCount).isZero();
+                  custom.processCount++;
+                }
+              })
+              .configureMessageConverters(converter -> {
+                if (converter instanceof CustomHttpMessageConverter custom) {
+                  assertThat(custom.processCount).isEqualTo(1);
+                  custom.processCount++;
                 }
               }).build();
 
-      assertThat(customConverter.processed).isTrue();
+      assertThat(customConverter.processCount).isEqualTo(2);
     }
   }
 
@@ -318,7 +332,7 @@ class DefaultHttpMessageConvertersTests {
 
   static class CustomHttpMessageConverter extends AbstractHttpMessageConverter<Object> {
 
-    boolean processed = false;
+    int processCount;
 
     @Override
     protected boolean supports(Class<?> clazz) {
