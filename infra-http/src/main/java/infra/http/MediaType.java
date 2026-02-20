@@ -306,7 +306,7 @@ public class MediaType extends MimeType implements Serializable {
    * @throws IllegalArgumentException if any of the parameters contain illegal characters
    */
   public MediaType(MediaType other, @Nullable Map<String, String> parameters) {
-    super(other.getType(), other.getSubtype(), parameters);
+    super(other, parameters);
   }
 
   /**
@@ -331,7 +331,7 @@ public class MediaType extends MimeType implements Serializable {
    */
   private MediaType(MimeType mimeType) {
     super(mimeType);
-    for (Map.Entry<String, String> entry : getParameters().entrySet()) {
+    for (var entry : getParameters().entrySet()) {
       checkParameters(entry.getKey(), entry.getValue());
     }
   }
