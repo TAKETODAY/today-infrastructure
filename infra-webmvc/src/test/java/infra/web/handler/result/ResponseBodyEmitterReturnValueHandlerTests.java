@@ -43,6 +43,7 @@ import infra.web.handler.method.HandlerMethod;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.StandardMockAsyncWebRequest;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
 import static infra.core.ResolvableType.forClassWithGenerics;
@@ -330,6 +331,30 @@ class ResponseBodyEmitterReturnValueHandlerTests {
     assertThat(this.response.getContentAsString()).isEqualTo("data:foo\n\ndata:bar\n\n");
   }
 
+  @Test
+  void responseEntityMono() throws Exception {
+
+    ResponseEntity<Publisher<?>> entity = ResponseEntity.ok()
+            .contentType(MediaType.TEXT_PLAIN)
+            .header("X-Custom", "value")
+            .body(Mono.just("foo"));
+
+    ResolvableType bodyType = forClassWithGenerics(Mono.class, String.class);
+    var handlerMethod = on(TestController.class).resolveHandlerMethod(ResponseEntity.class, bodyType);
+
+    this.handler.handleReturnValue(webRequest, handlerMethod, entity);
+    webRequest.flush();
+
+    assertThat(this.response.getStatus()).isEqualTo(200);
+    assertThat(this.response.getHeaders("Content-Type")).containsExactly("text/plain");
+    assertThat(this.response.getHeaders("X-Custom")).containsExactly("value");
+
+    assertThat(webRequest.isConcurrentHandlingStarted()).isTrue();
+
+
+    assertThat(webRequest.asyncManager().getConcurrentResult()).isEqualTo("foo");
+  }
+
   @SuppressWarnings("unused")
   private static class TestController {
 
@@ -354,6 +379,8 @@ class ResponseBodyEmitterReturnValueHandlerTests {
     private ResponseEntity<Flux<SimpleBean>> h10() { return null; }
 
     private ResponseEntity<Publisher<?>> h11() { return null; }
+
+    private ResponseEntity<Mono<String>> h12() { return null; }
 
   }
 
