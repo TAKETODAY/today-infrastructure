@@ -34,6 +34,7 @@ import java.util.function.Consumer;
 
 import infra.core.io.Resource;
 import infra.http.MediaType;
+import infra.http.ResponseEntity;
 import infra.http.service.annotation.GetExchange;
 import infra.http.service.annotation.PostExchange;
 import infra.http.service.invoker.HttpServiceProxyFactory;
@@ -63,7 +64,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class WebClientAdapterTests {
 
-  private static final String ANOTHER_SERVER_RESPONSE_BODY = "Hello Spring 2!";
+  private static final String ANOTHER_SERVER_RESPONSE_BODY = "Hello Infra 2!";
 
   private MockWebServer server;
 
@@ -90,10 +91,10 @@ class WebClientAdapterTests {
   @Test
   void greeting() {
     prepareResponse(response ->
-            response.setHeader("Content-Type", "text/plain").setBody("Hello Spring!"));
+            response.setHeader("Content-Type", "text/plain").setBody("Hello Infra!"));
 
     StepVerifier.create(initService().getGreeting())
-            .expectNext("Hello Spring!")
+            .expectNext("Hello Infra!")
             .expectComplete()
             .verify(Duration.ofSeconds(5));
   }
@@ -111,10 +112,10 @@ class WebClientAdapterTests {
             .build();
 
     prepareResponse(response ->
-            response.setHeader("Content-Type", "text/plain").setBody("Hello Spring!"));
+            response.setHeader("Content-Type", "text/plain").setBody("Hello Infra!"));
 
-    StepVerifier.create(initService(webClient).getGreetingWithAttribute("myAttributeValue"))
-            .expectNext("Hello Spring!")
+    StepVerifier.create(initService(webClient, Service.class).getGreetingWithAttribute("myAttributeValue"))
+            .expectNext("Hello Infra!")
             .expectComplete()
             .verify(Duration.ofSeconds(5));
 
@@ -122,7 +123,6 @@ class WebClientAdapterTests {
   }
 
   @Test
-    // gh-29624
   void uri() throws Exception {
     String expectedBody = "hello";
     prepareResponse(response -> response.setResponseCode(200).setBody(expectedBody));
@@ -224,6 +224,22 @@ class WebClientAdapterTests {
     assertThat(request.getBody().readUtf8()).isEqualTo("[{\"name\":\"John\"},{\"name\":\"Richard\"}]");
   }
 
+  @Test
+  void getBodyWithGenericReturnType() {
+    prepareResponse(r -> r.setHeader("Content-Type", "application/json").setBody("{\"name\":\"Karl\"}"));
+    Person person = initService(PersonClient.class).getBody();
+
+    assertThat(person.getName()).isEqualTo("Karl");
+  }
+
+  @Test
+  void getEntityWithGenericReturnType() {
+    prepareResponse(r -> r.setHeader("Content-Type", "application/json").setBody("{\"name\":\"Karl\"}"));
+    ResponseEntity<Person> entity = initService(PersonClient.class).getEntity();
+
+    assertThat(entity.getBody().getName()).isEqualTo("Karl");
+  }
+
   private static MockWebServer anotherServer() {
     MockWebServer anotherServer = new MockWebServer();
     MockResponse response = new MockResponse();
@@ -234,12 +250,17 @@ class WebClientAdapterTests {
 
   private Service initService() {
     WebClient webClient = WebClient.create(this.server.url("/").toString());
-    return initService(webClient);
+    return initService(webClient, Service.class);
   }
 
-  private Service initService(WebClient webClient) {
+  private <S> S initService(Class<S> serviceType) {
+    WebClient webClient = WebClient.builder().baseURI(this.server.url("/").toString()).build();
+    return initService(webClient, serviceType);
+  }
+
+  private <S> S initService(WebClient webClient, Class<S> serviceType) {
     WebClientAdapter adapter = WebClientAdapter.forClient(webClient);
-    return HttpServiceProxyFactory.forAdapter(adapter).createClient(Service.class);
+    return HttpServiceProxyFactory.forAdapter(adapter).createClient(serviceType);
   }
 
   private void prepareResponse(Consumer<MockResponse> consumer) {
@@ -292,4 +313,17 @@ class WebClientAdapterTests {
     }
 
   }
+
+  private interface BaseClient<T> {
+
+    @GetExchange
+    T getBody();
+
+    @GetExchange
+    ResponseEntity<T> getEntity();
+  }
+
+  private interface PersonClient extends BaseClient<Person> {
+  }
+
 }

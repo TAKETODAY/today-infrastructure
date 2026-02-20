@@ -30,10 +30,11 @@ public interface RequestExecutionFactory<T extends HttpRequestValues> extends Ht
   /**
    * Creates an HTTP request executor for the given method and return type.
    *
+   * @param serviceType service type
    * @param method the method to create executor for
    * @return a new HTTP request executor instance
    */
-  RequestExecution<T> createRequestExecution(Method method);
+  RequestExecution<T> createRequestExecution(Class<?> serviceType, Method method);
 
   /**
    * Whether the underlying client supports use of request attributes.

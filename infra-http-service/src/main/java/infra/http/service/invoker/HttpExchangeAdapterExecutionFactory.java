@@ -4,11 +4,13 @@ import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
+import infra.core.GenericTypeResolver;
 import infra.core.MethodParameter;
 import infra.core.ParameterizedTypeReference;
 import infra.core.ReactiveAdapter;
@@ -39,14 +41,14 @@ final class HttpExchangeAdapterExecutionFactory implements RequestExecutionFacto
   }
 
   @Override
-  public RequestExecution<HttpRequestValues> createRequestExecution(Method method) {
+  public RequestExecution<HttpRequestValues> createRequestExecution(Class<?> serviceType, Method method) {
     RequestExecution<HttpRequestValues> responseFunction = null;
     if (isReactorAdapter) {
-      responseFunction = ReactorExchangeRequestExecution.create((ReactorHttpExchangeAdapter) exchangeAdapter, method);
+      responseFunction = ReactorExchangeRequestExecution.create((ReactorHttpExchangeAdapter) exchangeAdapter, serviceType, method);
     }
 
     if (responseFunction == null) {
-      responseFunction = createRequestExecution(exchangeAdapter, method);
+      responseFunction = createRequestExecution(exchangeAdapter, serviceType, method);
     }
 
     return method.getReturnType() == Optional.class
@@ -67,8 +69,8 @@ final class HttpExchangeAdapterExecutionFactory implements RequestExecutionFacto
   /**
    * Create the {@code RequestExecution} that matches the method return type.
    */
-  private static RequestExecution<HttpRequestValues> createRequestExecution(HttpExchangeAdapter client, Method method) {
-    MethodParameter param = returnType(method);
+  private static RequestExecution<HttpRequestValues> createRequestExecution(HttpExchangeAdapter client, Class<?> serviceType, Method method) {
+    MethodParameter param = returnType(serviceType, method);
 
     Class<?> returnType = param.getParameterType();
     if (isAsync(returnType)) {
@@ -102,7 +104,8 @@ final class HttpExchangeAdapterExecutionFactory implements RequestExecutionFacto
         return client::exchangeForBodilessEntity;
       }
       else {
-        var bodyTypeRef = ParameterizedTypeReference.forType(bodyParam.getNestedGenericParameterType());
+        Type type = bodyParam.getNestedGenericParameterType();
+        var bodyTypeRef = ParameterizedTypeReference.forType(GenericTypeResolver.resolveType(type, serviceType));
         return request -> client.exchangeForEntity(request, bodyTypeRef);
       }
     }
@@ -119,7 +122,8 @@ final class HttpExchangeAdapterExecutionFactory implements RequestExecutionFacto
       return request -> returnAdapter.fromPublisher(reactiveAdapter.toPublisher(responseFunction.execute(request)));
     }
 
-    var bodyTypeRef = ParameterizedTypeReference.forType(param.getNestedGenericParameterType());
+    Type type = param.getNestedGenericParameterType();
+    var bodyTypeRef = ParameterizedTypeReference.forType(GenericTypeResolver.resolveType(type, serviceType));
     return request -> client.exchangeForBody(request, bodyTypeRef);
   }
 
@@ -165,8 +169,8 @@ final class HttpExchangeAdapterExecutionFactory implements RequestExecutionFacto
     }
   }
 
-  private static MethodParameter returnType(Method method) {
-    MethodParameter param = new MethodParameter(method, -1).nestedIfOptional();
+  private static MethodParameter returnType(Class<?> serviceType, Method method) {
+    MethodParameter param = new MethodParameter(method, -1).withContainingClass(serviceType).nestedIfOptional();
     if (isAsync(param.getParameterType())) {
       param = param.nested();
     }
@@ -189,8 +193,8 @@ final class HttpExchangeAdapterExecutionFactory implements RequestExecutionFacto
      * Create the {@code RequestExecution} that matches the method return type.
      */
     @Nullable
-    public static RequestExecution<HttpRequestValues> create(ReactorHttpExchangeAdapter client, Method method) {
-      MethodParameter returnParam = new MethodParameter(method, -1);
+    public static RequestExecution<HttpRequestValues> create(ReactorHttpExchangeAdapter client, Class<?> serviceType, Method method) {
+      MethodParameter returnParam = new MethodParameter(method, -1).withContainingClass(serviceType);
 
       RequestExecution<HttpRequestValues> execution = client.createRequestExecution(method, returnParam, false);
       if (execution != null) {
@@ -223,11 +227,11 @@ final class HttpExchangeAdapterExecutionFactory implements RequestExecutionFacto
         }
         else {
           ReactiveAdapter bodyAdapter = client.getReactiveAdapterRegistry().getAdapter(bodyType);
-          responseFunction = initResponseEntityFunction(client, bodyParam, bodyAdapter);
+          responseFunction = initResponseEntityFunction(client, bodyParam, bodyAdapter, serviceType);
         }
       }
       else {
-        responseFunction = initBodyFunction(client, actualParam, reactiveAdapter);
+        responseFunction = initBodyFunction(client, actualParam, reactiveAdapter, serviceType);
       }
 
       return new ReactorExchangeRequestExecution(responseFunction, reactiveAdapter);
@@ -235,11 +239,14 @@ final class HttpExchangeAdapterExecutionFactory implements RequestExecutionFacto
 
     @SuppressWarnings("NullAway")
     private static Function<HttpRequestValues, Publisher<?>> initResponseEntityFunction(
-            ReactorHttpExchangeAdapter client, MethodParameter methodParam, @Nullable ReactiveAdapter reactiveAdapter) {
+            ReactorHttpExchangeAdapter client, MethodParameter methodParam,
+            @Nullable ReactiveAdapter reactiveAdapter, Class<?> serviceType) {
 
       if (reactiveAdapter == null) {
+        Type type = methodParam.getNestedGenericParameterType();
+        Type resolvedType = GenericTypeResolver.resolveType(type, serviceType);
         return request -> client.exchangeForEntityMono(
-                request, ParameterizedTypeReference.forType(methodParam.getNestedGenericParameterType()));
+                request, ParameterizedTypeReference.forType(resolvedType));
       }
 
       Assert.isTrue(reactiveAdapter.isMultiValue(),
@@ -255,16 +262,20 @@ final class HttpExchangeAdapterExecutionFactory implements RequestExecutionFacto
 
       return request -> client.exchangeForEntityFlux(request, bodyType)
               .map(entity -> {
-                Object body = reactiveAdapter.fromPublisher(entity.getBody());
+                Flux<?> entityBody = entity.getBody();
+                Assert.state(entityBody != null, "Entity body must not be null");
+                Object body = reactiveAdapter.fromPublisher(entityBody);
                 return new ResponseEntity<>(body, entity.getHeaders(), entity.getStatusCode());
               });
     }
 
     private static Function<HttpRequestValues, Publisher<?>> initBodyFunction(
-            ReactorHttpExchangeAdapter client, MethodParameter methodParam, ReactiveAdapter reactiveAdapter) {
+            ReactorHttpExchangeAdapter client, MethodParameter methodParam,
+            ReactiveAdapter reactiveAdapter, Class<?> serviceType) {
 
       ParameterizedTypeReference<?> bodyType =
-              ParameterizedTypeReference.forType(methodParam.getNestedGenericParameterType());
+              ParameterizedTypeReference.forType(GenericTypeResolver.resolveType(
+                      methodParam.getNestedGenericParameterType(), serviceType));
 
       return reactiveAdapter.isMultiValue()
               ? request -> client.exchangeForBodyFlux(request, bodyType)

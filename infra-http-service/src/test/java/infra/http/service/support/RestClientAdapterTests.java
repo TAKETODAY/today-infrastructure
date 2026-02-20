@@ -20,6 +20,7 @@ package infra.http.service.support;
 
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -78,14 +79,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SuppressWarnings("JUnitMalformedDeclaration")
 class RestClientAdapterTests {
 
-  private final MockWebServer anotherServer = anotherServer();
+  private MockWebServer anotherServer = anotherServer();
 
-  @SuppressWarnings("ConstantValue")
+  @BeforeEach
+  void setUp() throws IOException {
+    this.anotherServer.start();
+  }
+
   @AfterEach
   void shutdown() throws IOException {
-    if (this.anotherServer != null) {
-      this.anotherServer.shutdown();
-    }
+    this.anotherServer.close();
   }
 
   @Retention(RetentionPolicy.RUNTIME)
@@ -290,11 +293,59 @@ class RestClientAdapterTests {
     assertThat(request.getBody().readUtf8()).isEqualTo(body);
   }
 
-  private Service initService(MockWebServer server) {
-    String url = server.url("/").toString();
-    RestClient restClient = RestClient.builder().baseURI(url).build();
+  @Test
+  void greetingWithApiVersion() throws Exception {
+    anotherServer = new MockWebServer();
+
+    prepareResponse(builder ->
+            builder.setHeader("Content-Type", "text/plain").setBody("Hello Infra 2!"));
+
+    RestClient restClient = RestClient.builder()
+            .baseURI(anotherServer.url("/").toString())
+            .apiVersionInserter(ApiVersionInserter.forHeader("API-Version"))
+            .build();
+
     RestClientAdapter adapter = RestClientAdapter.create(restClient);
-    return HttpServiceProxyFactory.forAdapter(adapter).build().createClient(Service.class);
+    Service service = HttpServiceProxyFactory.forAdapter(adapter).build().createClient(Service.class);
+
+    String actualResponse = service.getGreetingWithVersion();
+
+    RecordedRequest request = anotherServer.takeRequest();
+    assertThat(request.getHeaders().get("API-Version")).isEqualTo("1.2");
+    assertThat(actualResponse).isEqualTo("Hello Infra 2!");
+  }
+
+  @Test
+  void getBodyWithGenericReturnType() {
+    anotherServer = new MockWebServer();
+    prepareResponse(r -> r.setHeader("Content-Type", "application/json").setBody("{\"name\":\"Karl\"}"));
+    Person person = initService(PersonClient.class).getBody();
+
+    assertThat(person.name()).isEqualTo("Karl");
+  }
+
+  @Test
+  void getEntityWithGenericReturnType() {
+    anotherServer = new MockWebServer();
+    prepareResponse(r -> r.setHeader("Content-Type", "application/json")
+            .setBody("{\"name\":\"Karl\"}"));
+    ResponseEntity<Person> entity = initService(PersonClient.class).getEntity();
+
+    assertThat(entity.getBody().name()).isEqualTo("Karl");
+  }
+
+  private void prepareResponse(Function<MockResponse, MockResponse> f) {
+    MockResponse builder = new MockResponse();
+    this.anotherServer.enqueue(f.apply(builder));
+  }
+
+  private <S> S initService(Class<S> serviceType) {
+    String url = this.anotherServer.url("/").toString();
+    RestClient restClient = RestClient.builder().baseURI(url).configureMessageConverters(builder -> {
+      builder.registerDefaults();
+    }).build();
+    RestClientAdapter adapter = RestClientAdapter.create(restClient);
+    return HttpServiceProxyFactory.forAdapter(adapter).build().createClient(serviceType);
   }
 
   private static MockWebServer anotherServer() {
@@ -356,4 +407,16 @@ class RestClientAdapterTests {
   record Person(String name) {
   }
 
+  private interface BaseClient<T> {
+
+    @GetExchange
+    T getBody();
+
+    @GetExchange
+    ResponseEntity<T> getEntity();
+  }
+
+  private interface PersonClient extends BaseClient<Person> {
+
+  }
 }

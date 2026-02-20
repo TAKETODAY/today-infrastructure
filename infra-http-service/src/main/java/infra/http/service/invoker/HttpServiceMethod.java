@@ -56,7 +56,7 @@ final class HttpServiceMethod {
   private final HttpRequestValues.Processor requestValuesProcessor;
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  HttpServiceMethod(Method method, Class<?> containingClass,
+  HttpServiceMethod(Method method, Class<?> serviceType,
           List<HttpServiceArgumentResolver> argumentResolvers, RequestExecutionFactory factory,
           @Nullable StringValueResolver embeddedValueResolver, HttpRequestValues.Processor requestValuesProcessor) {
 
@@ -64,8 +64,8 @@ final class HttpServiceMethod {
     this.parameters = initMethodParameters(method);
     this.argumentResolvers = argumentResolvers;
     this.requestValuesProcessor = requestValuesProcessor;
-    this.requestExecution = factory.createRequestExecution(method);
-    this.requestValuesInitializer = HttpRequestValuesInitializer.create(method, containingClass, embeddedValueResolver, factory);
+    this.requestExecution = factory.createRequestExecution(serviceType, method);
+    this.requestValuesInitializer = HttpRequestValuesInitializer.create(method, serviceType, embeddedValueResolver, factory);
   }
 
   private static MethodParameter[] initMethodParameters(Method method) {
