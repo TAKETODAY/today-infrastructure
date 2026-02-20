@@ -59,7 +59,6 @@ import reactor.util.context.Context;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("NullAway")
 final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
 
   private static final Logger log = LoggerFactory.getLogger(PartGenerator.class);
@@ -103,7 +102,8 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
 
       sink.onCancel(generator);
       sink.onRequest(l -> generator.requestToken());
-      tokens.subscribe(generator);
+      tokens.doOnDiscard(MultipartParser.BodyToken.class, bodyToken -> bodyToken.getBuffer().release())
+              .subscribe(generator);
     });
   }
 
