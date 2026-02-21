@@ -38,6 +38,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import infra.aop.framework.ProxyFactory;
 import infra.aop.target.SingletonTargetSource;
@@ -826,6 +828,41 @@ class RequestResponseBodyMethodProcessorTests {
     assertThat(value).isEqualTo("foo");
   }
 
+  @Test
+  void resolveArgumentTypeVariableWithAbstractMethod() throws Exception {
+    this.mockRequest.setContent("\"foo\"".getBytes(StandardCharsets.UTF_8));
+    this.mockRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+    Method method = SubControllerImplementingAbstractMethod.class.getMethod("handle", Object.class);
+    HandlerMethod handlerMethod = new HandlerMethod(new SubControllerImplementingAbstractMethod(), method);
+    MethodParameter methodParameter = handlerMethod.getMethodParameters()[0];
+
+    List<HttpMessageConverter<?>> converters = List.of(new JacksonJsonHttpMessageConverter());
+    RequestResponseBodyMethodProcessor processor = new RequestResponseBodyMethodProcessor(converters);
+
+    assertThat(processor.supportsParameter(new ResolvableMethodParameter(methodParameter))).isTrue();
+    String value = (String) processor.readWithMessageConverters(
+            this.request, methodParameter, methodParameter.getGenericParameterType());
+    assertThat(value).isEqualTo("foo");
+  }
+
+  @Test
+  void shouldNotDuplicateInCompatibleMediaTypes() throws Exception {
+    Method method = TestRestController.class.getMethod("handle");
+    MethodParameter returnType = new MethodParameter(method, -1);
+
+    List<HttpMessageConverter<?>> converters = List.of(new StringHttpMessageConverter(), new JacksonJsonHttpMessageConverter());
+    RequestResponseBodyMethodProcessor processor = new RequestResponseBodyMethodProcessor(converters);
+
+    String accept = Stream.iterate(1, i -> i + 1)
+            .limit(48).map(i -> "application/" + i)
+            .collect(Collectors.joining(","));
+    accept = accept + ", application/json";
+    mockRequest.addHeader("Accept", accept);
+
+    processor.writeWithMessageConverters("infra framework", returnType, this.request);
+  }
+
   private void assertContentDisposition(RequestResponseBodyMethodProcessor processor,
           boolean expectContentDisposition, String requestURI, String comment) throws Throwable {
 
@@ -1155,6 +1192,19 @@ class RequestResponseBodyMethodProcessorTests {
   }
 
   static class SubControllerImplementingInterface extends MyControllerImplementingInterface {
+
+    @Override
+    public String handle(String arg) {
+      return arg;
+    }
+  }
+
+  abstract static class MyControllerWithAbstractMethod<A> {
+
+    public abstract A handle(@RequestBody A arg);
+  }
+
+  static class SubControllerImplementingAbstractMethod extends MyControllerWithAbstractMethod<String> {
 
     @Override
     public String handle(String arg) {
