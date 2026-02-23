@@ -21,6 +21,7 @@ package infra.http.converter;
 import org.jspecify.annotations.Nullable;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -98,9 +99,10 @@ public class ResourceHttpMessageConverter extends AbstractHttpMessageConverter<R
         }
       };
     }
-    else if (Resource.class == clazz || ByteArrayResource.class.isAssignableFrom(clazz)) {
+    else if (clazz.isAssignableFrom(ByteArrayResource.class)) {
       byte[] body = StreamUtils.copyToByteArray(inputMessage.getBody());
       return new ByteArrayResource(body) {
+
         @Override
         @Nullable
         public String getName() {
@@ -130,18 +132,32 @@ public class ResourceHttpMessageConverter extends AbstractHttpMessageConverter<R
   }
 
   @Override
-  protected void writeInternal(Resource resource, HttpOutputMessage outputMessage)
-          throws IOException, HttpMessageNotWritableException //
-  {
+  protected void writeInternal(Resource resource, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
     if (outputMessage.supportsZeroCopy() && resource.isFile()) {
       File file = resource.getFile();
       outputMessage.sendFile(file);
     }
     else {
-      try (InputStream in = resource.getInputStream()) {
-        OutputStream out = outputMessage.getBody();
-        in.transferTo(out);
-        out.flush();
+      // We cannot use try-with-resources here for the InputStream, since we have
+      // custom handling of the close() method in a finally-block.
+      try {
+        InputStream in = resource.getInputStream();
+        try {
+          OutputStream out = outputMessage.getBody();
+          in.transferTo(out);
+          out.flush();
+        }
+        catch (NullPointerException ignored) {
+        }
+        finally {
+          try {
+            in.close();
+          }
+          catch (Throwable ignored) {
+          }
+        }
+      }
+      catch (FileNotFoundException ignored) {
       }
     }
   }
