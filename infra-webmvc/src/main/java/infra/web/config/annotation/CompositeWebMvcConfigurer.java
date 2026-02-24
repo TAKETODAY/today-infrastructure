@@ -28,7 +28,6 @@ import infra.util.CollectionUtils;
 import infra.validation.Validator;
 import infra.web.ErrorResponse;
 import infra.web.HandlerExceptionHandler;
-import infra.web.HandlerMapping;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.ParameterResolvingStrategies;
 import infra.web.handler.ReturnValueHandlerManager;
@@ -83,13 +82,6 @@ public class CompositeWebMvcConfigurer implements WebMvcConfigurer {
   public void modifyReturnValueHandlerManager(ReturnValueHandlerManager manager) {
     for (WebMvcConfigurer delegate : getWebMvcConfigurers()) {
       delegate.modifyReturnValueHandlerManager(manager);
-    }
-  }
-
-  @Override
-  public void configureHandlerRegistry(List<HandlerMapping> handlerRegistries) {
-    for (WebMvcConfigurer delegate : getWebMvcConfigurers()) {
-      delegate.configureHandlerRegistry(handlerRegistries);
     }
   }
 
@@ -184,9 +176,8 @@ public class CompositeWebMvcConfigurer implements WebMvcConfigurer {
     }
   }
 
-  @Nullable
   @Override
-  public Validator getValidator() {
+  public @Nullable Validator getValidator() {
     Validator selected = null;
     for (WebMvcConfigurer configurer : getWebMvcConfigurers()) {
       Validator validator = configurer.getValidator();

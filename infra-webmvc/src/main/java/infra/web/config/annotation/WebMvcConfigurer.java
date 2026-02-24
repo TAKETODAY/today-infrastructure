@@ -82,29 +82,31 @@ public interface WebMvcConfigurer {
   }
 
   /**
-   * Configure {@link ReturnValueHandler}
+   * Customize the {@link ReturnValueHandlerManager} instance.
+   * <p>This method allows modification of the {@link ReturnValueHandlerManager}
+   * which is responsible for managing {@link ReturnValueHandler}s used to process
+   * the return values of controller methods. Implementations can add, remove, or
+   * reorder handlers as needed.
    *
-   * @param manager {@link ReturnValueHandler} registry
+   * @param manager the {@link ReturnValueHandlerManager} instance to customize
    * @see ReturnValueHandlerManager
+   * @since 4.0
    */
   default void modifyReturnValueHandlerManager(ReturnValueHandlerManager manager) {
   }
 
   /**
-   * Configure static {@link Resource}
+   * Configure static {@link Resource} handlers.
+   * <p>This method allows customization of how static resources are served,
+   * such as setting cache periods, defining resource locations, and mapping
+   * URL paths to filesystem or classpath locations. It provides fine-grained
+   * control over static resource handling within the application.
    *
-   * @param registry {@link ResourceHandlerRegistry}
+   * @param registry the {@link ResourceHandlerRegistry} used to register
+   * resource handlers
+   * @since 4.0
    */
   default void addResourceHandlers(ResourceHandlerRegistry registry) {
-  }
-
-  /**
-   * Configure {@link HandlerMapping}
-   *
-   * @param handlerRegistries {@link HandlerMapping}s
-   * @since 2.3.7
-   */
-  default void configureHandlerRegistry(List<HandlerMapping> handlerRegistries) {
   }
 
   /**
@@ -135,7 +137,13 @@ public interface WebMvcConfigurer {
 
   /**
    * Configure content negotiation options.
+   * <p>This method allows customization of how the framework determines
+   * the media type(s) for a request, such as through file extensions,
+   * query parameters, or Accept headers. It provides control over
+   * strategies like favoring path extensions, using parameter-based
+   * negotiation, or enabling media type mapping.
    *
+   * @param configurer the {@link ContentNegotiationConfigurer} to customize
    * @since 4.0
    */
   default void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
@@ -290,8 +298,7 @@ public interface WebMvcConfigurer {
    *
    * @since 4.0
    */
-  @Nullable
-  default Validator getValidator() {
+  default @Nullable Validator getValidator() {
     return null;
   }
 

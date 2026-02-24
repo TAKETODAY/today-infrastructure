@@ -61,15 +61,13 @@ public class ResourceHandlerRegistry {
 
   private final ApplicationContext applicationContext;
 
-  @Nullable
-  private final ContentNegotiationManager contentNegotiationManager;
+  private final @Nullable ContentNegotiationManager contentNegotiationManager;
 
   private final List<ResourceHandlerRegistration> registrations = new ArrayList<>();
 
   private int order = Ordered.LOWEST_PRECEDENCE - 1;
 
-  @Nullable
-  private NotFoundHandler notFoundHandler;
+  private @Nullable NotFoundHandler notFoundHandler;
 
   /**
    * Create a new resource handler registry for the given application context.
@@ -86,8 +84,7 @@ public class ResourceHandlerRegistry {
    * @param context the application context
    * @param contentNegotiationManager the content negotiation manager to use
    */
-  public ResourceHandlerRegistry(ApplicationContext context,
-          @Nullable ContentNegotiationManager contentNegotiationManager) {
+  public ResourceHandlerRegistry(ApplicationContext context, @Nullable ContentNegotiationManager contentNegotiationManager) {
     Assert.notNull(context, "ApplicationContext is required");
     this.applicationContext = context;
     this.contentNegotiationManager = contentNegotiationManager;
@@ -141,8 +138,7 @@ public class ResourceHandlerRegistry {
    * Return a handler mapping with the mapped resource handlers; or {@code null} in case
    * of no registrations.
    */
-  @Nullable
-  protected SimpleUrlHandlerMapping getHandlerMapping() {
+  protected @Nullable SimpleUrlHandlerMapping getHandlerMapping() {
     if (registrations.isEmpty()) {
       return null;
     }

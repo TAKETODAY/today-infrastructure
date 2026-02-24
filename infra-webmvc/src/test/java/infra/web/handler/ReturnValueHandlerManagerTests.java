@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import infra.core.ReactiveAdapterRegistry;
 import infra.http.HttpStatus;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.session.SessionRedirectModelManager;
@@ -259,5 +260,20 @@ class ReturnValueHandlerManagerTests {
     ReturnValueHandlerManager manager = new ReturnValueHandlerManager();
     SelectableReturnValueHandler selectable = manager.asSelectable();
     assertThat(selectable.getInternalHandlers()).isEqualTo(manager.getHandlers());
+  }
+
+  @Test
+  void reactiveAdapterRegistry() {
+    ReturnValueHandlerManager manager = new ReturnValueHandlerManager();
+    assertThat(manager.getReactiveAdapterRegistry()).isSameAs(ReactiveAdapterRegistry.getSharedInstance());
+    manager.setReactiveAdapterRegistry(null);
+    assertThat(manager.getReactiveAdapterRegistry()).isSameAs(ReactiveAdapterRegistry.getSharedInstance());
+
+    manager.setReactiveAdapterRegistry(ReactiveAdapterRegistry.getSharedInstance());
+    assertThat(manager.getReactiveAdapterRegistry()).isSameAs(ReactiveAdapterRegistry.getSharedInstance());
+
+    ReactiveAdapterRegistry registry = new ReactiveAdapterRegistry();
+    manager.setReactiveAdapterRegistry(registry);
+    assertThat(manager.getReactiveAdapterRegistry()).isSameAs(registry).isNotEqualTo(ReactiveAdapterRegistry.getSharedInstance());
   }
 }

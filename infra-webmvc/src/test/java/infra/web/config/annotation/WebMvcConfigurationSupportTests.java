@@ -50,7 +50,6 @@ import infra.validation.Validator;
 import infra.web.ErrorResponse;
 import infra.web.HandlerExceptionHandler;
 import infra.web.HandlerInterceptor;
-import infra.web.HandlerMapping;
 import infra.web.RedirectModelManager;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.annotation.GetMapping;
@@ -405,11 +404,6 @@ class WebMvcConfigurationSupportTests {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
       registry.addResourceHandler("/resources/**").addResourceLocations("src/test/java/");
-    }
-
-    @Override
-    public void configureHandlerRegistry(List<HandlerMapping> handlerRegistries) {
-      WebMvcConfigurer.super.configureHandlerRegistry(handlerRegistries);
     }
 
     @Override

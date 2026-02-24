@@ -1066,7 +1066,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
     }
 
     @Override
-    public void validate(@Nullable Object target, Errors errors) { }
+    public void validate(@Nullable Object target, Errors errors) {
+    }
 
   }
 
