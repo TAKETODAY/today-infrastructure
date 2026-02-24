@@ -124,11 +124,11 @@ public class ResourceHandlerRegistry {
   }
 
   /**
-   * Set not found handler
+   * Sets the handler to be used when a resource is not found.
    * <p>
-   * handle resource not found
+   * This handler will be invoked whenever a requested resource cannot be located.
    *
-   * @param notFoundHandler HttpRequestHandler
+   * @param notFoundHandler the handler to use for resource not found scenarios
    */
   public void setNotFoundHandler(@Nullable NotFoundHandler notFoundHandler) {
     this.notFoundHandler = notFoundHandler;
