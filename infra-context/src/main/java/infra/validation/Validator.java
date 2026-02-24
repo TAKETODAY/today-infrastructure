@@ -191,7 +191,9 @@ public interface Validator {
   final class TypedValidator<T> implements Validator {
 
     private final Class<T> targetClass;
+
     private final Predicate<Class<?>> supports;
+
     private final BiConsumer<T, Errors> validate;
 
     public TypedValidator(Class<T> targetClass, Predicate<Class<?>> supports, BiConsumer<T, Errors> validate) {

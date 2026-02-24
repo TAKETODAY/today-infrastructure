@@ -67,9 +67,25 @@ import infra.web.view.ViewResolver;
 import infra.web.view.ViewReturnValueHandler;
 
 /**
- * return-value handler manager
+ * Manages return value handlers for processing the results of HTTP request executions.
+ * This class provides mechanisms to register, retrieve, and delegate to various
+ * {@link ReturnValueHandler} implementations based on the type of return value
+ * and the context of the HTTP request.
  *
- * @author TODAY 2019-12-28 13:47
+ * <p>The manager supports a wide range of return types including views, HTTP entities,
+ * asynchronous results, and custom objects. It also integrates with message converters,
+ * content negotiation, and reactive type handling.
+ *
+ * <p>Key features include:
+ * <ul>
+ *   <li>Registration of default and custom return value handlers</li>
+ *   <li>Selection of appropriate handlers based on return value and context</li>
+ *   <li>Support for reactive programming models</li>
+ *   <li>Integration with view resolution and content negotiation</li>
+ * </ul>
+ *
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 2019-12-28 13:47
  */
 public class ReturnValueHandlerManager extends ApplicationObjectSupport implements ArraySizeTrimmer, ReturnValueHandler, Iterable<ReturnValueHandler> {
 
@@ -78,39 +94,35 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   // @since 4.0
   private final SelectableReturnValueHandler delegate = new SelectableReturnValueHandler(handlers);
 
-  /**
-   * @since 3.0.1
-   */
-  @Nullable
-  private RedirectModelManager redirectModelManager;
+  // @since 4.0
+  private final ArrayList<Object> bodyAdvice = new ArrayList<>();
 
-  @Nullable
-  private ViewReturnValueHandler viewReturnValueHandler;
-
-  @Nullable
-  private ObjectHandlerMethodReturnValueHandler objectHandler;
+  private final ArrayList<ErrorResponse.Interceptor> errorResponseInterceptors = new ArrayList<>();
 
   // @since 4.0
-  @Nullable
-  private ViewResolver viewResolver;
-
-  // @since 4.0
+  @SuppressWarnings("NullAway.Init")
   private List<HttpMessageConverter<?>> messageConverters;
 
   // @since 4.0
   private ContentNegotiationManager contentNegotiationManager = new ContentNegotiationManager();
 
-  // @since 4.0
-  private final ArrayList<Object> bodyAdvice = new ArrayList<>();
-
-  @Nullable
-  private AsyncTaskExecutor taskExecutor;
-
   private String imageFormatName = RenderedImageReturnValueHandler.IMAGE_PNG;
 
   private ReactiveAdapterRegistry reactiveAdapterRegistry = ReactiveAdapterRegistry.getSharedInstance();
 
-  private final ArrayList<ErrorResponse.Interceptor> errorResponseInterceptors = new ArrayList<>();
+  /**
+   * @since 3.0.1
+   */
+  private @Nullable RedirectModelManager redirectModelManager;
+
+  private @Nullable ViewReturnValueHandler viewReturnValueHandler;
+
+  private @Nullable ObjectHandlerMethodReturnValueHandler objectHandler;
+
+  // @since 4.0
+  private @Nullable ViewResolver viewResolver;
+
+  private @Nullable AsyncTaskExecutor taskExecutor;
 
   public ReturnValueHandlerManager() {
     this.messageConverters = new ArrayList<>(4);
@@ -119,7 +131,6 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
     this.messageConverters.add(new AllEncompassingFormHttpMessageConverter());
   }
 
-  @SuppressWarnings("NullAway")
   public ReturnValueHandlerManager(List<HttpMessageConverter<?>> messageConverters) {
     setMessageConverters(messageConverters);
   }
@@ -205,8 +216,7 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
     return new SelectableReturnValueHandler(handlers);
   }
 
-  @Nullable
-  public ReturnValueHandler getHandler(final Object handler) {
+  public @Nullable ReturnValueHandler getHandler(final Object handler) {
     return ReturnValueHandler.select(getHandlers(), handler, null);
   }
 
@@ -214,8 +224,7 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
    * @param returnValue if returnValue is {@link ReturnValueHandler#NONE_RETURN_VALUE} match handler only
    * @return null if returnValue is {@link ReturnValueHandler#NONE_RETURN_VALUE} or no one matched
    */
-  @Nullable
-  public ReturnValueHandler selectHandler(@Nullable Object handler, @Nullable Object returnValue) {
+  public @Nullable ReturnValueHandler selectHandler(@Nullable Object handler, @Nullable Object returnValue) {
     return ReturnValueHandler.select(handlers, handler, returnValue);
   }
 
@@ -365,8 +374,7 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   /**
    * @since 4.0
    */
-  @Nullable
-  public <T> T get(@Nullable Class<T> handlerClass) {
+  public <T> @Nullable T get(@Nullable Class<T> handlerClass) {
     if (handlerClass == null) {
       return null;
     }
@@ -376,9 +384,8 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   /**
    * @since 4.0
    */
-  @Nullable
   @SuppressWarnings("unchecked")
-  protected final <T> T get(Class<T> handlerClass, List<ReturnValueHandler> handlers) {
+  protected final <T> @Nullable T get(Class<T> handlerClass, List<ReturnValueHandler> handlers) {
     for (ReturnValueHandler handler : handlers) {
       if (handlerClass.isInstance(handler)) {
         return (T) handler;
@@ -403,8 +410,7 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
     this.redirectModelManager = redirectModelManager;
   }
 
-  @Nullable
-  public RedirectModelManager getRedirectModelManager() {
+  public @Nullable RedirectModelManager getRedirectModelManager() {
     return redirectModelManager;
   }
 
@@ -412,8 +418,7 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
     this.objectHandler = objectHandler;
   }
 
-  @Nullable
-  public ObjectHandlerMethodReturnValueHandler getObjectHandler() {
+  public @Nullable ObjectHandlerMethodReturnValueHandler getObjectHandler() {
     return objectHandler;
   }
 

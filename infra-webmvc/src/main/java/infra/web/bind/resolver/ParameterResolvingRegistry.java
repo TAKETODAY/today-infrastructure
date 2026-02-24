@@ -45,7 +45,10 @@ import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.handler.method.ResponseBodyAdvice;
 
 /**
- * ParameterResolvingStrategy registry
+ * Registry for managing and providing access to {@link ParameterResolvingStrategy} instances.
+ * This class maintains both default and customized strategies for resolving method parameters
+ * in web requests. It also handles registration of default strategies and provides methods
+ * to find or obtain suitable resolvers for given parameters.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ParameterResolvingStrategy
@@ -200,7 +203,7 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
     ConfigurableBeanFactory beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);
     RedirectModelManager modelManager = getRedirectModelManager();
     if (modelManager == null) {
-      logger.info("RedirectModel disabled");
+      logger.debug("RedirectModel disabled");
     }
 
     // Annotation-based argument resolution
