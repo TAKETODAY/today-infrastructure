@@ -50,7 +50,6 @@ import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 
-import static infra.web.server.netty.NettyUtils.format;
 import static io.netty.handler.ssl.ApplicationProtocolConfig.Protocol;
 import static io.netty.handler.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
 import static io.netty.handler.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
@@ -186,7 +185,7 @@ final class SecuredHttpChannelInitializer extends HttpChannelInitializer {
     @Override
     protected void configurePipeline(ChannelHandlerContext ctx, String protocol) {
       if (logger.isDebugEnabled()) {
-        logger.debug(format(ch, "Negotiated application-level protocol [{}]"), protocol);
+        logger.debug("Negotiated application-level protocol [{}]", protocol);
       }
 
       if (ApplicationProtocolNames.HTTP_2.equals(protocol)) {
