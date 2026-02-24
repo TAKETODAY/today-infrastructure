@@ -22,33 +22,23 @@ import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
 import java.util.StringJoiner;
-import java.util.concurrent.ConcurrentHashMap;
 
 import infra.beans.factory.BeanFactory;
 import infra.context.MessageSource;
-import infra.core.BridgeMethodResolver;
 import infra.core.MethodParameter;
 import infra.core.ResolvableType;
 import infra.core.annotation.AnnotatedElementUtils;
+import infra.core.annotation.AnnotatedMethod;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
-import infra.core.annotation.SynthesizingMethodParameter;
 import infra.core.i18n.LocaleContextHolder;
 import infra.http.HttpStatusCode;
 import infra.lang.Assert;
-import infra.lang.Constant;
-import infra.lang.NullValue;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
-import infra.util.CollectionUtils;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
 import infra.web.annotation.ResponseBody;
@@ -76,7 +66,7 @@ import infra.web.handler.result.CollectedValuesList;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2018-06-25 20:03:11
  */
-public class HandlerMethod implements AsyncHandler {
+public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
 
   /** Logger that is available to subclasses. */
   protected static final Logger log = LoggerFactory.getLogger(HandlerMethod.class);
@@ -85,44 +75,19 @@ public class HandlerMethod implements AsyncHandler {
 
   private final Class<?> beanType;
 
-  /** action **/
-  private final Method method;
-
-  /**
-   * If the bean method is a bridge method, this method is the bridged
-   * (user-defined) method. Otherwise, it returns the same method as {@link #getMethod()}.
-   */
-  protected final Method bridgedMethod;
-
-  /** parameter list **/
-  private final MethodParameter[] parameters;
-
-  /** @since 2.3.7 */
-  private final Class<?> returnType;
-
-  private final Map<Class<? extends Annotation>, Object> annotations;
+  /** @since 4.0 */
+  private final boolean responseBody;
 
   /**
    * @since 4.0
    */
-  @Nullable
-  private MethodParameter returnTypeParameter;
+  private @Nullable MethodParameter returnTypeParameter;
 
-  @Nullable
-  private final MessageSource messageSource;
+  private final @Nullable MessageSource messageSource;
 
-  /** @since 4.0 */
-  private final boolean responseBody;
+  private @Nullable HttpStatusCode responseStatus;
 
-  @Nullable
-  private HttpStatusCode responseStatus;
-
-  @Nullable
-  private String responseStatusReason;
-
-  /** @since 4.0 */
-  @Nullable
-  private volatile ArrayList<Annotation[][]> inheritedParameterAnnotations;
+  private @Nullable String responseStatusReason;
 
   /**
    * cors config cache
@@ -146,15 +111,10 @@ public class HandlerMethod implements AsyncHandler {
    * @since 5.0
    */
   protected HandlerMethod(Object bean, Method method, @Nullable MessageSource messageSource) {
-    Assert.notNull(method, "Method is required");
+    super(method);
     this.bean = bean;
-    this.method = method;
     this.messageSource = messageSource;
-    this.annotations = new ConcurrentHashMap<>(4);
-    this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
     this.beanType = ClassUtils.getUserClass(bean);
-    this.returnType = bridgedMethod.getReturnType();
-    this.parameters = initMethodParameters();
     this.responseBody = computeResponseBody();
     evaluateResponseStatus();
     ReflectionUtils.makeAccessible(bridgedMethod);
@@ -166,16 +126,10 @@ public class HandlerMethod implements AsyncHandler {
    * @throws NoSuchMethodException when the method cannot be found
    */
   public HandlerMethod(Object bean, String methodName, Class<?>... parameterTypes) throws NoSuchMethodException {
-    Assert.notNull(bean, "Bean is required");
-    Assert.notNull(methodName, "Method name is required");
+    super(bean.getClass().getMethod(methodName, parameterTypes));
     this.bean = bean;
     this.messageSource = null;
     this.beanType = ClassUtils.getUserClass(bean);
-    this.annotations = new ConcurrentHashMap<>(4);
-    this.method = bean.getClass().getMethod(methodName, parameterTypes);
-    this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
-    this.returnType = bridgedMethod.getReturnType();
-    this.parameters = initMethodParameters();
     this.responseBody = computeResponseBody();
     evaluateResponseStatus();
     ReflectionUtils.makeAccessible(bridgedMethod);
@@ -184,25 +138,19 @@ public class HandlerMethod implements AsyncHandler {
   /**
    * Create an instance from a bean name, a method, and a {@code BeanFactory}.
    */
-  @SuppressWarnings("NullAway")
   public HandlerMethod(String beanName, BeanFactory beanFactory, @Nullable MessageSource messageSource, Method method) {
-    Assert.notNull(method, "Method is required");
+    super(method);
     Assert.hasText(beanName, "Bean name is required");
     Assert.notNull(beanFactory, "BeanFactory is required");
 
     this.bean = beanFactory.isSingleton(beanName) ? beanFactory.getBean(beanName) : beanName;
-    this.method = method;
     this.messageSource = messageSource;
     Class<?> beanType = beanFactory.getType(beanName);
     if (beanType == null) {
       throw new IllegalStateException("Cannot resolve bean type for bean with name '%s'".formatted(beanName));
     }
-    this.annotations = new ConcurrentHashMap<>(4);
     this.beanType = ClassUtils.getUserClass(beanType);
-    this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
-    this.returnType = bridgedMethod.getReturnType();
     ReflectionUtils.makeAccessible(bridgedMethod);
-    this.parameters = initMethodParameters();
     this.responseBody = computeResponseBody();
     evaluateResponseStatus();
   }
@@ -211,57 +159,37 @@ public class HandlerMethod implements AsyncHandler {
    * Copy constructor for use in subclasses.
    */
   protected HandlerMethod(HandlerMethod other) {
-    Assert.notNull(other, "HandlerMethod is required");
+    super(other);
     this.bean = other.bean;
     this.messageSource = other.messageSource;
-    this.method = other.method;
     this.beanType = other.beanType;
-    this.returnType = other.returnType;
-    this.bridgedMethod = other.bridgedMethod;
-    this.parameters = other.parameters;
     this.responseStatus = other.responseStatus;
     this.responseStatusReason = other.responseStatusReason;
     this.responseBody = other.responseBody;
     this.corsConfig = other.corsConfig;
     this.returnTypeParameter = other.returnTypeParameter;
-    this.annotations = other.annotations;
-    this.inheritedParameterAnnotations = other.inheritedParameterAnnotations;
   }
 
   /**
    * Re-create HandlerMethod with the resolved handler.
    */
   protected HandlerMethod(HandlerMethod other, Object handler) {
+    super(other);
     this.bean = handler;
     this.messageSource = other.messageSource;
     this.beanType = other.beanType;
-    this.method = other.method;
-    this.returnType = other.returnType;
-    this.bridgedMethod = other.bridgedMethod;
-    this.parameters = other.parameters;
     this.responseStatus = other.responseStatus;
     this.responseStatusReason = other.responseStatusReason;
     this.responseBody = other.responseBody;
     this.corsConfig = other.corsConfig;
-    this.annotations = other.annotations;
     this.returnTypeParameter = other.returnTypeParameter;
-    this.inheritedParameterAnnotations = other.inheritedParameterAnnotations;
   }
-
-  // ---- useful methods
 
   /**
    * Return the bean for this handler method.
    */
   public Object getBean() {
     return this.bean;
-  }
-
-  /**
-   * Return the method for this handler method.
-   */
-  public Method getMethod() {
-    return this.method;
   }
 
   /**
@@ -273,24 +201,9 @@ public class HandlerMethod implements AsyncHandler {
     return this.beanType;
   }
 
-  /**
-   * Return the method parameters for this handler method.
-   */
-  public MethodParameter[] getMethodParameters() {
-    return this.parameters;
-  }
-
-  /**
-   * Returns the number of formal parameters (whether explicitly
-   * declared or implicitly declared or neither) for the executable
-   * represented by this object.
-   *
-   * @return The number of formal parameters for the executable this
-   * object represents
-   * @since 4.0
-   */
-  public int getParameterCount() {
-    return parameters.length;
+  @Override
+  protected Class<?> getContainingClass() {
+    return this.beanType;
   }
 
   /**
@@ -298,8 +211,7 @@ public class HandlerMethod implements AsyncHandler {
    *
    * @see ResponseStatus#code()
    */
-  @Nullable
-  protected HttpStatusCode getResponseStatus() {
+  protected @Nullable HttpStatusCode getResponseStatus() {
     return this.responseStatus;
   }
 
@@ -308,55 +220,21 @@ public class HandlerMethod implements AsyncHandler {
    *
    * @see ResponseStatus#reason()
    */
-  @Nullable
-  protected String getResponseStatusReason() {
+  protected @Nullable String getResponseStatusReason() {
     return this.responseStatusReason;
   }
 
   /**
    * Return the HandlerMethod return type.
    */
+  @Override
   public MethodParameter getReturnType() {
     MethodParameter returnType = returnTypeParameter;
     if (returnType == null) {
-      returnType = new HandlerMethodParameter(-1);
+      returnType = super.getReturnType();
       this.returnTypeParameter = returnType;
     }
     return returnType;
-  }
-
-  /**
-   * Return the actual return value type.
-   */
-  public MethodParameter getReturnValueType(@Nullable Object returnValue) {
-    return new ReturnValueMethodParameter(returnValue);
-  }
-
-  /**
-   * Return the actual return type.
-   */
-  public Class<?> getRawReturnType() {
-    return returnType;
-  }
-
-  /**
-   * Determine if the return type of this handler method is assignable to the given superclass.
-   *
-   * @param superClass the superclass to check against
-   * @return {@code true} if the return type is assignable to the given superclass, {@code false} otherwise
-   */
-  public boolean isReturnTypeAssignableTo(Class<?> superClass) {
-    return superClass.isAssignableFrom(returnType);
-  }
-
-  /**
-   * Check if the return type of this handler method matches the given type exactly.
-   *
-   * @param returnType the type to compare with the handler method's return type
-   * @return {@code true} if the return type matches exactly, {@code false} otherwise
-   */
-  public boolean isReturn(Class<?> returnType) {
-    return returnType == this.returnType;
   }
 
   /**
@@ -378,42 +256,6 @@ public class HandlerMethod implements AsyncHandler {
       return annotation.getBoolean(MergedAnnotation.VALUE);
     }
     return false;
-  }
-
-  /**
-   * Return {@code true} if the method return type is void, {@code false} otherwise.
-   */
-  public boolean isVoid() {
-    return returnType == void.class;
-  }
-
-  /**
-   * Return a single annotation on the underlying method, traversing its super methods
-   * if no annotation can be found on the given method itself.
-   * <p>Supports <em>merged</em> composed annotations with attribute overrides.
-   *
-   * @param annotationType the annotation type to look for
-   * @return the annotation, or {@code null} if none found
-   * @see AnnotatedElementUtils#findMergedAnnotation
-   */
-  @SuppressWarnings("unchecked")
-  public <A extends Annotation> @Nullable A getMethodAnnotation(Class<A> annotationType) {
-    Object result = this.annotations.computeIfAbsent(annotationType, key -> {
-      Object value = AnnotatedElementUtils.findMergedAnnotation(this.method, annotationType);
-      return value == null ? NullValue.INSTANCE : value;
-    });
-    return result == NullValue.INSTANCE ? null : (A) result;
-  }
-
-  /**
-   * Determine if an annotation of the given type is <em>present</em> or
-   * <em>meta-present</em> on the method.
-   *
-   * @param annotationType the annotation type to look for
-   * @see AnnotatedElementUtils#hasAnnotation
-   */
-  public <A extends Annotation> boolean hasMethodAnnotation(Class<A> annotationType) {
-    return getMethodAnnotation(annotationType) != null;
   }
 
   @Override
@@ -459,65 +301,11 @@ public class HandlerMethod implements AsyncHandler {
 
   @Override
   public String toString() {
-    return initDescription(beanType, method);
-  }
-
-  private ArrayList<Annotation[][]> getInheritedParameterAnnotations() {
-    var parameterAnnotations = this.inheritedParameterAnnotations;
-    if (parameterAnnotations == null) {
-      parameterAnnotations = new ArrayList<>();
-      Class<?> clazz = this.method.getDeclaringClass();
-      while (clazz != null) {
-        for (Class<?> ifc : clazz.getInterfaces()) {
-          for (Method candidate : ifc.getMethods()) {
-            if (isOverrideFor(candidate)) {
-              parameterAnnotations.add(candidate.getParameterAnnotations());
-            }
-          }
-        }
-        clazz = clazz.getSuperclass();
-        if (clazz == Object.class) {
-          clazz = null;
-        }
-        if (clazz != null) {
-          for (Method candidate : clazz.getDeclaredMethods()) {
-            if (isOverrideFor(candidate)) {
-              parameterAnnotations.add(candidate.getParameterAnnotations());
-            }
-          }
-        }
-      }
-      this.inheritedParameterAnnotations = parameterAnnotations;
+    StringJoiner joiner = new StringJoiner(", ", "(", ")");
+    for (Class<?> paramType : method.getParameterTypes()) {
+      joiner.add(paramType.getSimpleName());
     }
-    return parameterAnnotations;
-  }
-
-  private boolean isOverrideFor(Method candidate) {
-    if (Modifier.isPrivate(candidate.getModifiers())
-            || !candidate.getName().equals(this.method.getName())
-            || (candidate.getParameterCount() != this.method.getParameterCount())) {
-      return false;
-    }
-    Class<?>[] paramTypes = this.method.getParameterTypes();
-    if (Arrays.equals(candidate.getParameterTypes(), paramTypes)) {
-      return true;
-    }
-    for (int i = 0; i < paramTypes.length; i++) {
-      if (paramTypes[i] !=
-              ResolvableType.forMethodParameter(candidate, i, this.method.getDeclaringClass()).toClass()) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private MethodParameter[] initMethodParameters() {
-    int count = bridgedMethod.getParameterCount();
-    MethodParameter[] result = new MethodParameter[count];
-    for (int i = 0; i < count; i++) {
-      result[i] = new HandlerMethodParameter(i);
-    }
-    return result;
+    return beanType.getName() + "#" + method.getName() + joiner;
   }
 
   private void evaluateResponseStatus() {
@@ -537,14 +325,6 @@ public class HandlerMethod implements AsyncHandler {
         log.warn("Return value of [{}] will be ignored since @ResponseStatus 'reason' attribute is set.", getMethod());
       }
     }
-  }
-
-  private static String initDescription(Class<?> beanType, Method method) {
-    StringJoiner joiner = new StringJoiner(", ", "(", ")");
-    for (Class<?> paramType : method.getParameterTypes()) {
-      joiner.add(paramType.getSimpleName());
-    }
-    return beanType.getName() + "#" + method.getName() + joiner;
   }
 
   // HandlerMethod
@@ -579,6 +359,7 @@ public class HandlerMethod implements AsyncHandler {
   }
 
   protected static class ConcurrentResultHandlerMethod extends HandlerMethod {
+
     private final HandlerMethod target;
 
     private final MethodParameter returnType;
@@ -645,7 +426,7 @@ public class HandlerMethod implements AsyncHandler {
    * that's null falling back on the generic type within the declared async
    * return type, e.g. Foo instead of {@code DeferredResult<Foo>}.
    */
-  private class ConcurrentResultMethodParameter extends HandlerMethodParameter {
+  private class ConcurrentResultMethodParameter extends AnnotatedMethodParameter {
 
     @Nullable
     private final Object returnValue;
@@ -696,149 +477,4 @@ public class HandlerMethod implements AsyncHandler {
     }
   }
 
-  /**
-   * A MethodParameter with HandlerMethod-specific behavior.
-   */
-  protected class HandlerMethodParameter extends SynthesizingMethodParameter {
-
-    private volatile Annotation @Nullable [] combinedAnnotations;
-
-    public HandlerMethodParameter(int index) {
-      super(method, index);
-    }
-
-    protected HandlerMethodParameter(HandlerMethodParameter original) {
-      super(original);
-      this.combinedAnnotations = original.combinedAnnotations;
-    }
-
-    @Override
-    public Method getMethod() {
-      return HandlerMethod.this.bridgedMethod;
-    }
-
-    @Override
-    public Class<?> getContainingClass() {
-      return HandlerMethod.this.getBeanType();
-    }
-
-    @Nullable
-    @Override
-    public <T extends Annotation> T getMethodAnnotation(Class<T> annotationType) {
-      return HandlerMethod.this.getMethodAnnotation(annotationType);
-    }
-
-    @Override
-    public <T extends Annotation> boolean hasMethodAnnotation(Class<T> annotationType) {
-      return HandlerMethod.this.hasMethodAnnotation(annotationType);
-    }
-
-    @Override
-    public Annotation[] getParameterAnnotations() {
-      Annotation[] anns = this.combinedAnnotations;
-      if (anns == null) {
-        anns = super.getParameterAnnotations();
-        int index = getParameterIndex();
-        if (index >= 0) {
-          for (Annotation[][] ifcAnns : getInheritedParameterAnnotations()) {
-            if (index < ifcAnns.length) {
-              Annotation[] paramAnns = ifcAnns[index];
-              if (paramAnns.length > 0) {
-                ArrayList<Annotation> merged = new ArrayList<>(anns.length + paramAnns.length);
-                CollectionUtils.addAll(merged, anns);
-                for (Annotation paramAnn : paramAnns) {
-                  boolean existingType = false;
-                  for (Annotation ann : anns) {
-                    if (ann.annotationType() == paramAnn.annotationType()) {
-                      existingType = true;
-                      break;
-                    }
-                  }
-                  if (!existingType) {
-                    merged.add(adaptAnnotation(paramAnn));
-                  }
-                }
-                anns = merged.toArray(Constant.EMPTY_ANNOTATIONS);
-              }
-            }
-          }
-        }
-        this.combinedAnnotations = anns;
-      }
-      return anns;
-    }
-
-    @Override
-    public HandlerMethodParameter clone() {
-      return new HandlerMethodParameter(this);
-    }
-
-    @Override
-    public String toString() {
-      return getParameterType().getSimpleName() + " " + getParameterName();
-    }
-
-  }
-
-  /**
-   * A MethodParameter for a HandlerMethod return type based on an actual return value.
-   */
-  private class ReturnValueMethodParameter extends HandlerMethodParameter {
-
-    @Nullable
-    private final Class<?> returnValueType;
-
-    public ReturnValueMethodParameter(@Nullable Object returnValue) {
-      super(-1);
-      this.returnValueType = returnValue != null ? returnValue.getClass() : null;
-    }
-
-    protected ReturnValueMethodParameter(ReturnValueMethodParameter original) {
-      super(original);
-      this.returnValueType = original.returnValueType;
-    }
-
-    @Override
-    public Class<?> getParameterType() {
-      return returnValueType != null ? returnValueType : super.getParameterType();
-    }
-
-    @Override
-    public ReturnValueMethodParameter clone() {
-      return new ReturnValueMethodParameter(this);
-    }
-
-  }
-
-  static final class AnnotationKey {
-
-    private final int hash;
-
-    public final Method method;
-
-    public final Class<Annotation> annotationType;
-
-    AnnotationKey(Method method, Class<Annotation> annotationType) {
-      this.method = method;
-      this.annotationType = annotationType;
-      this.hash = Objects.hash(method, annotationType);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o)
-        return true;
-      if (!(o instanceof AnnotationKey annotationKey))
-        return false;
-      return hash == annotationKey.hash
-              && Objects.equals(method, annotationKey.method)
-              && Objects.equals(annotationType, annotationKey.annotationType);
-    }
-
-    @Override
-    public int hashCode() {
-      return this.hash;
-    }
-
-  }
 }

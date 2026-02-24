@@ -237,7 +237,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
           if (log.isDebugEnabled()) {
             String exMsg = ex.getMessage();
             if (exMsg != null && !exMsg.contains(parameters[i].getMethod().toGenericString())) {
-              log.debug(formatArgumentError(parameters[i], exMsg));
+              log.debug(formatArgumentError(parameters[i].getParameter(), exMsg));
             }
           }
           throw ex;
@@ -277,11 +277,6 @@ public class InvocableHandlerMethod extends HandlerMethod {
             .collect(Collectors.joining(",\n", " ", " "));
     return "%s\nController [%s]\nMethod [%s] with argument values:\n%s"
             .formatted(text, getBeanType().getName(), bridgedMethod.toGenericString(), formattedArgs);
-  }
-
-  private static String formatArgumentError(ResolvableMethodParameter param, String message) {
-    return "Could not resolve parameter [%d] in %s%s"
-            .formatted(param.getParameterIndex(), param.getMethod().toGenericString(), StringUtils.hasText(message) ? ": " + message : "");
   }
 
 }
