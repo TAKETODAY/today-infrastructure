@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class JavaVersionTests {
 
   @Test
-  void getJavaVersionShouldBeAvailable() {
+  void currentShouldBeAvailable() {
     assertThat(JavaVersion.current()).isNotNull();
   }
 
@@ -114,6 +114,30 @@ class JavaVersionTests {
   @EnabledOnJre(JRE.JAVA_22)
   void currentJavaVersionTwentyTwo() {
     assertThat(JavaVersion.current()).isEqualTo(JavaVersion.TWENTY_TWO);
+  }
+
+  @Test
+  @EnabledOnJre(JRE.JAVA_23)
+  void currentJavaVersionTwentyThree() {
+    assertThat(JavaVersion.current()).isEqualTo(JavaVersion.TWENTY_THREE);
+  }
+
+  @Test
+  @EnabledOnJre(JRE.JAVA_24)
+  void currentJavaVersionTwentyFour() {
+    assertThat(JavaVersion.current()).isEqualTo(JavaVersion.TWENTY_FOUR);
+  }
+
+  @Test
+  @EnabledOnJre(JRE.JAVA_25)
+  void currentJavaVersionTwentyFive() {
+    assertThat(JavaVersion.current()).isEqualTo(JavaVersion.TWENTY_FIVE);
+  }
+
+  @Test
+  @EnabledOnJre(JRE.JAVA_26)
+  void currentJavaVersionTwentySix() {
+    assertThat(JavaVersion.current()).isEqualTo(JavaVersion.TWENTY_SIX);
   }
 
 }
