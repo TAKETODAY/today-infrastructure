@@ -1,5 +1,5 @@
 [[expressions-language-ref]]
-= Language Reference
+= 语言参考
 :page-section-summary-toc: 1
 
-This section describes how the Infra Expression Language works.
+本节描述 Infra 表达式语言的工作方式。

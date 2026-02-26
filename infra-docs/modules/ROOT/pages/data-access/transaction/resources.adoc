@@ -1,18 +1,14 @@
 [[transaction-resources]]
-= Further Resources
+= 更多资源
 :page-section-summary-toc: 1
 
-For more information about the TODAY Framework's transaction support, see:
+如需了解 TODAY Framework 事务支持的更多信息，请参阅：
 
 * link:++https://www.infoworld.com/article/2077963/distributed-transactions-in-spring--with-and-without-xa.html++[
-  Distributed transactions in Infra, with and without XA] is a JavaWorld presentation in
-  which Infra David Syer guides you through seven patterns for distributed transactions
-  in Infra applications, three of them with XA and four without.
-* https://www.infoq.com/minibooks/JTDS[_Java Transaction Design Strategies_] is a book
-  available from https://www.infoq.com/[InfoQ] that provides a well-paced introduction
-  to transactions in Java. It also includes side-by-side examples of how to configure
-  and use transactions with both the TODAY Framework and EJB3.
-
-
+  Infra 中有无 XA 的分布式事务] 是一篇 JavaWorld 演讲，其中 Infra 的 David Syer 带你了解
+  Infra 应用中分布式事务的七种模式，其中三种使用 XA，四种不使用 XA。
+* https://www.infoq.com/minibooks/JTDS[_Java Transaction Design Strategies_] 是一本文档，
+  由 https://www.infoq.com/[InfoQ] 提供，对 Java 事务做了循序渐进的介绍，
+  并包含 TODAY Framework 与 EJB3 在事务配置与使用方面的并列示例。
 
 

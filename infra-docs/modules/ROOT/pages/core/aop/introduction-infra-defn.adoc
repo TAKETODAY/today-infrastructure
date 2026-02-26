@@ -1,61 +1,43 @@
 [[aop-introduction-infra-defn]]
-= Infra AOP Capabilities and Goals
+= Infra AOP 的能力与目标
 
-Infra AOP is implemented in pure Java. There is no need for a special compilation
-process. Infra AOP does not need to control the class loader hierarchy and is thus
-suitable for use in a mockApi container or application server.
+Infra AOP 以纯 Java 实现，无需特殊编译过程。Infra AOP 不需要控制类加载器层级，因此
+适合在 mockApi 容器或应用服务器中使用。
 
-Infra AOP currently supports only method execution join points (advising the execution
-of methods on Infra beans). Field interception is not implemented, although support for
-field interception could be added without breaking the core Infra AOP APIs. If you need
-to advise field access and update join points, consider a language such as AspectJ.
+Infra AOP 目前只支持方法执行连接点（对 Infra bean 上的方法执行进行通知）。
+字段拦截尚未实现，不过在不破坏核心 Infra AOP API 的前提下可以添加字段拦截支持。
+如果需要对字段访问和更新连接点进行通知，可考虑使用 AspectJ。
 
-Infra AOP's approach to AOP differs from that of most other AOP frameworks. The aim is
-not to provide the most complete AOP implementation (although Infra AOP is quite
-capable). Rather, the aim is to provide a close integration between AOP implementation and
-Infra IoC, to help solve common problems in enterprise applications.
+Infra AOP 的 AOP 方法与大多数其他 AOP 框架不同。其目标不是提供最完整的 AOP 实现
+（尽管 Infra AOP 已相当强大），而是提供 AOP 实现与 Infra IoC 的紧密集成，
+以帮助解决企业应用中的常见问题。
 
-Thus, for example, the TODAY Framework's AOP functionality is normally used in
-conjunction with the Infra IoC container. Aspects are configured by using normal bean
-definition syntax (although this allows powerful "auto-proxying" capabilities). This is a
-crucial difference from other AOP implementations. You cannot do some things
-easily or efficiently with Infra AOP, such as advise very fine-grained objects (typically,
-domain objects). AspectJ is the best choice in such cases. However, our
-experience is that Infra AOP provides an excellent solution to most problems in
-enterprise Java applications that are amenable to AOP.
+因此，例如 TODAY Framework 的 AOP 功能通常与 Infra IoC 容器配合使用。
+切面通过常规的 bean 定义语法进行配置（并可借助强大的“自动代理”能力）。
+这与其他 AOP 实现有着关键差异。使用 Infra AOP 有些事情并不容易或高效，
+比如对非常细粒度的对象（通常是领域对象）进行通知。在这种情况下 AspectJ 是最佳选择。
+不过我们的经验是，Infra AOP 对于大多数适合使用 AOP 的企业级 Java 应用问题都能提供出色的解决方案。
 
-Infra AOP never strives to compete with AspectJ to provide a comprehensive AOP
-solution. We believe that both proxy-based frameworks such as Infra AOP and full-blown
-frameworks such as AspectJ are valuable and that they are complementary, rather than in
-competition. Infra seamlessly integrates Infra AOP and IoC with AspectJ, to enable
-all uses of AOP within a consistent Infra-based application
-architecture. This integration does not affect the Infra AOP API or the AOP Alliance
-API. Infra AOP remains backward-compatible. See xref:core/aop-api.adoc[the following chapter]
-for a discussion of the Infra AOP APIs.
+Infra AOP 从不试图与 AspectJ 竞争提供全面的 AOP 解决方案。我们认为基于代理的框架
+（如 Infra AOP）与完整的框架（如 AspectJ）都是有价值的，并且是互补而非竞争关系。
+Infra 将 Infra AOP 与 IoC 无缝集成到 AspectJ 中，使 AOP 的各种用法都能在一致的
+Infra 应用架构中实现。这种集成不会影响 Infra AOP API 或 AOP Alliance API。
+Infra AOP 保持向后兼容。参见 xref:core/aop-api.adoc[后续章节] 了解 Infra AOP API。
 
 [NOTE]
 ====
-One of the central tenets of the TODAY Framework is that of non-invasiveness. This
-is the idea that you should not be forced to introduce framework-specific classes and
-interfaces into your business or domain model. However, in some places, the TODAY Framework
-does give you the option to introduce TODAY Framework-specific dependencies into your
-codebase. The rationale in giving you such options is because, in certain scenarios, it
-might be just plain easier to read or code some specific piece of functionality in such
-a way. However, the TODAY Framework (almost) always offers you the choice: You have the
-freedom to make an informed decision as to which option best suits your particular use
-case or scenario.
+TODAY Framework 的核心原则之一是非侵入性，即不应被迫将框架特定的类和接口引入业务或
+领域模型。不过在某些地方，TODAY Framework 提供了引入 TODAY Framework 专用依赖的选项。
+给出这些选项的理由是，在某些场景中，以特定方式读取或编写功能可能更为简便。然而，
+TODAY Framework（几乎）总会给你选择的自由：你可以根据具体用例或场景做出明智决定。
 
-One such choice that is relevant to this chapter is that of which AOP framework (and
-which AOP style) to choose. You have the choice of AspectJ, Infra AOP, or both. You
-also have the choice of either the @AspectJ annotation-style approach or the Infra XML
-configuration-style approach. The fact that this chapter chooses to introduce the
-@AspectJ-style approach first should not be taken as an indication that the Infra team
-favors the @AspectJ annotation-style approach over the Infra XML configuration-style.
+与本章相关的一个选择是：应使用哪种 AOP 框架（以及哪种 AOP 风格）。
+你可以选择 AspectJ、Infra AOP 或两者同时使用，也可以选择 @AspectJ 注解风格或
+Infra XML 配置风格。本章优先介绍 @AspectJ 风格，并不意味着 Infra 团队偏好它而非
+Infra XML 配置风格。
 
-See xref:core/aop/choosing.adoc[Choosing which AOP Declaration Style to Use] for a more complete discussion of the advantages and disadvantages of
-each style.
+参见 xref:core/aop/choosing.adoc[选择使用哪种 AOP 声明风格]，了解各风格的优缺点。
 ====
-
 
 
 

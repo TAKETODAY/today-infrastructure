@@ -1,35 +1,28 @@
 [[integration-testing-support-jdbc]]
-= JDBC Testing Support
+= JDBC 测试支持
 
 [[integration-testing-support-jdbc-test-utils]]
 == JdbcTestUtils
 
-The `infra.test.jdbc` package contains `JdbcTestUtils`, which is a
-collection of JDBC-related utility functions intended to simplify standard database
-testing scenarios. Specifically, `JdbcTestUtils` provides the following static utility
-methods.
+`infra.test.jdbc` 包包含 `JdbcTestUtils`，它是一组 JDBC 相关的工具函数，
+用于简化常见的数据库测试场景。具体来说，`JdbcTestUtils` 提供以下静态工具方法。
 
-* `countRowsInTable(..)`: Counts the number of rows in the given table.
-* `countRowsInTableWhere(..)`: Counts the number of rows in the given table by using the
-  provided `WHERE` clause.
-* `deleteFromTables(..)`: Deletes all rows from the specified tables.
-* `deleteFromTableWhere(..)`: Deletes rows from the given table by using the provided
-  `WHERE` clause.
-* `dropTables(..)`: Drops the specified tables.
+* `countRowsInTable(..)`: 统计指定表中的行数。
+* `countRowsInTableWhere(..)`: 使用给定的 `WHERE` 子句统计指定表中的行数。
+* `deleteFromTables(..)`: 删除指定表中的所有行。
+* `deleteFromTableWhere(..)`: 使用给定的 `WHERE` 子句删除指定表中的行。
+* `dropTables(..)`: 删除指定表。
 
 [TIP]
 ====
 xref:testing/testcontext-framework/support-classes.adoc#testcontext-support-classes-junit4[`AbstractTransactionalJUnit4InfraContextTests`]
 and xref:testing/testcontext-framework/support-classes.adoc#testcontext-support-classes-testng[`AbstractTransactionalTestNGInfraContextTests`]
-provide convenience methods that delegate to the aforementioned methods in
-`JdbcTestUtils`.
+提供了便捷方法，用于委托给 `JdbcTestUtils` 中上述方法。
 ====
 
 [[integration-testing-support-jdbc-embedded-database]]
-== Embedded Databases
+== 嵌入式数据库
 
-The `infra-jdbc` module provides support for configuring and launching an embedded
-database, which you can use in integration tests that interact with a database.
-For details, see xref:data-access/jdbc/embedded-database-support.adoc[Embedded Database Support]
- and <<data-access.adoc#jdbc-embedded-database-dao-testing, Testing Data Access
-Logic with an Embedded Database>>.
+`infra-jdbc` 模块提供配置和启动嵌入式数据库的支持，可用于需要与数据库交互的集成测试。
+详见 xref:data-access/jdbc/embedded-database-support.adoc[嵌入式数据库支持] 和
+<<data-access.adoc#jdbc-embedded-database-dao-testing, 使用嵌入式数据库测试数据访问逻辑>>。

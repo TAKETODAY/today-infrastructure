@@ -1,14 +1,12 @@
 [[cache]]
-= Cache Abstraction
+= 缓存抽象
 :page-section-summary-toc: 1
 
-Since version 3.1, the TODAY Framework provides support for transparently adding caching to
-an existing Infra application. Similar to the xref:data-access/transaction.adoc[transaction]
-support, the caching abstraction allows consistent use of various caching solutions with
-minimal impact on the code.
+自 3.1 起，TODAY Framework 支持在现有 Infra 应用中透明地添加缓存。与
+xref:data-access/transaction.adoc[事务] 支持类似，缓存抽象允许以一致方式使用多种缓存解决方案，
+对代码影响最小。
 
-In TODAY Framework 4.1, the cache abstraction was significantly extended with support
-for xref:integration/cache/jsr-107.adoc[JSR-107 annotations] and more customization options.
-
+在 TODAY Framework 4.1 中，缓存抽象显著扩展，支持
+xref:integration/cache/jsr-107.adoc[JSR-107 注解] 并提供更多自定义选项。
 
 

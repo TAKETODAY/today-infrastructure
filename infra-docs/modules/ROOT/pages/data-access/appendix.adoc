@@ -1,5 +1,5 @@
 [[appendix]]
-= Appendix
+= 附录
 
 
 
@@ -7,31 +7,26 @@
 [[xsd-schemas]]
 == XML Schemas
 
-This part of the appendix lists XML schemas for data access, including the following:
+本附录部分列出了数据访问相关的 XML 架构，包括：
 
-* xref:data-access/appendix.adoc#xsd-schemas-tx[The `tx` Schema]
-* xref:data-access/appendix.adoc#xsd-schemas-jdbc[The `jdbc` Schema]
+* xref:data-access/appendix.adoc#xsd-schemas-tx[`tx` 架构]
+* xref:data-access/appendix.adoc#xsd-schemas-jdbc[`jdbc` 架构]
 
 
 
 [[xsd-schemas-tx]]
-=== The `tx` Schema
+=== `tx` 架构
 
-The `tx` tags deal with configuring all of those beans in Infra comprehensive support
-for transactions. These tags are covered in the chapter entitled
-xref:data-access/transaction.adoc[Transaction Management].
+`tx` 标签用于配置 Infra 事务综合支持中的各类 bean。
+这些标签在 xref:data-access/transaction.adoc[事务管理] 章节中介绍。
 
-TIP: We strongly encourage you to look at the `'spring-tx.xsd'` file that ships with the
-Infra distribution. This file contains the XML Schema for Infra transaction
-configuration and covers all of the various elements in the `tx` namespace, including
-attribute defaults and similar information. This file is documented inline, and, thus,
-the information is not repeated here in the interests of adhering to the DRY (Don't
-Repeat Yourself) principle.
+TIP: 我们强烈建议你查看 Infra 发布包中的 `spring-tx.xsd` 文件。
+该文件包含 Infra 事务配置的 XML Schema，并涵盖 `tx` 命名空间中各元素的信息，
+包括属性默认值等。该文件带有内联文档说明，因此为遵循 DRY（Don’t Repeat Yourself）
+原则，这里不再重复。
 
-In the interest of completeness, to use the elements in the `tx` schema, you need to have
-the following preamble at the top of your Infra XML configuration file. The text in the
-following snippet references the correct schema so that the tags in the `tx` namespace
-are available to you:
+为完整起见，要使用 `tx` 架构中的元素，需要在 Infra XML 配置文件顶部加入如下前置声明。
+下方片段引用了正确的 schema，从而使 `tx` 命名空间中的标签可用：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -52,28 +47,24 @@ are available to you:
 
 </beans>
 ----
-<1> Declare usage of the `tx` namespace.
-<2> Specify the location (with other schema locations).
+<1> 声明使用 `tx` 命名空间。
+<2> 指定该位置（以及其他 schema 位置）。
 
-NOTE: Often, when you use the elements in the `tx` namespace, you are also using the
-elements from the `aop` namespace (since the declarative transaction support in Infra is
-implemented by using AOP). The preceding XML snippet contains the relevant lines needed
-to reference the `aop` schema so that the elements in the `aop` namespace are available
-to you.
+NOTE: 通常在使用 `tx` 命名空间元素时，也会使用 `aop` 命名空间元素
+（因为 Infra 的声明式事务支持基于 AOP 实现）。上面的 XML 片段包含了引用 `aop`
+schema 所需的行，从而使 `aop` 命名空间中的元素可用。
 
 
 
 [[xsd-schemas-jdbc]]
-=== The `jdbc` Schema
+=== `jdbc` 架构
 
-The `jdbc` elements let you quickly configure an embedded database or initialize an
-existing data source. These elements are documented in
-xref:data-access/jdbc/embedded-database-support.adoc[Embedded Database Support] and
-xref:data-access/jdbc/initializing-datasource.adoc[Initializing a DataSource], respectively.
+`jdbc` 元素可用于快速配置嵌入式数据库或初始化现有数据源。
+这些元素分别在 xref:data-access/jdbc/embedded-database-support.adoc[嵌入式数据库支持]
+与 xref:data-access/jdbc/initializing-datasource.adoc[初始化数据源] 中进行说明。
 
-To use the elements in the `jdbc` schema, you need to have the following preamble at the
-top of your Infra XML configuration file. The text in the following snippet references
-the correct schema so that the elements in the `jdbc` namespace are available to you:
+要使用 `jdbc` 架构中的元素，需要在 Infra XML 配置文件顶部加入如下前置声明。
+下方片段引用了正确的 schema，从而使 `jdbc` 命名空间中的元素可用：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -91,5 +82,5 @@ the correct schema so that the elements in the `jdbc` namespace are available to
 
 	</beans>
 ----
-<1> Declare usage of the `jdbc` namespace.
-<2> Specify the location (with other schema locations).
+<1> 声明使用 `jdbc` 命名空间。
+<2> 指定该位置（以及其他 schema 位置）。

@@ -1,36 +1,32 @@
 [[mvc-view-document]]
-= PDF and Excel
+= PDF 与 Excel
 
-Infra offers ways to return output other than HTML, including PDF and Excel spreadsheets.
-This section describes how to use those features.
+Infra 提供了除 HTML 以外的输出方式，包括 PDF 和 Excel 电子表格。
+本节介绍如何使用这些功能。
 
 
 
 [[mvc-view-document-intro]]
-== Introduction to Document Views
+== 文档视图简介
 
-An HTML page is not always the best way for the user to view the model output,
-and Infra makes it simple to generate a PDF document or an Excel spreadsheet
-dynamically from the model data. The document is the view and is streamed from the
-server with the correct content type, to (hopefully) enable the client PC to run their
-spreadsheet or PDF viewer application in response.
+HTML 页面并不总是用户查看模型输出的最佳方式，Infra 使得基于模型数据动态生成 PDF 文档或
+Excel 电子表格变得简单。文档即视图，会以正确的内容类型从服务器流式返回，从而（希望）
+让客户端 PC 使用其电子表格或 PDF 查看器应用进行响应。
 
-In order to use Excel views, you need to add the Apache POI library to your classpath.
-For PDF generation, you need to add (preferably) the OpenPDF library.
+要使用 Excel 视图，需要将 Apache POI 库加入类路径。
+生成 PDF 时，需要加入（最好使用）OpenPDF 库。
 
-NOTE: You should use the latest versions of the underlying document-generation libraries,
-if possible. In particular, we strongly recommend OpenPDF (for example, OpenPDF 1.2.12)
-instead of the outdated original iText 2.1.7, since OpenPDF is actively maintained and
-fixes an important vulnerability for untrusted PDF content.
+NOTE: 你应尽量使用文档生成库的最新版本。特别是，我们强烈建议使用 OpenPDF（例如 OpenPDF 1.2.12）
+而不是过时的 iText 2.1.7，因为 OpenPDF 仍在积极维护，并修复了处理不可信 PDF 内容的重要漏洞。
 
 
 
 [[mvc-view-document-pdf]]
-== PDF Views
+== PDF 视图
 
-A simple PDF view for a word list could extend
-`infra.web.view.document.AbstractPdfView` and implement the
-`buildPdfDocument()` method, as the following example shows:
+一个用于单词列表的简单 PDF 视图可以继承
+`infra.web.view.document.AbstractPdfView` 并实现
+`buildPdfDocument()` 方法，如下例所示：
 
 [tabs]
 ======
@@ -53,23 +49,20 @@ public class PdfWordList extends AbstractPdfView {
 
 ======
 
-A controller can return such a view either from an external view definition
-(referencing it by name) or as a `View` instance from the handler method.
+控制器可以通过外部视图定义（按名称引用）或在处理方法中直接返回 `View` 实例来返回该视图。
 
 
 
 [[mvc-view-document-excel]]
-== Excel Views
+== Excel 视图
 
-Since TODAY Framework 4.2,
-`infra.web.mock.view.document.AbstractXlsView` is provided as a base
-class for Excel views. It is based on Apache POI, with specialized subclasses (`AbstractXlsxView`
-and `AbstractXlsxStreamingView`) that supersede the outdated `AbstractExcelView` class.
+自 TODAY Framework 4.2 起，
+`infra.web.mock.view.document.AbstractXlsView` 被作为 Excel 视图的基类提供。
+它基于 Apache POI，并提供了专用子类（`AbstractXlsxView` 和 `AbstractXlsxStreamingView`）
+来取代过时的 `AbstractExcelView` 类。
 
-The programming model is similar to `AbstractPdfView`, with `buildExcelDocument()`
-as the central template method and controllers being able to return such a view from
-an external definition (by name) or as a `View` instance from the handler method.
-
+编程模型与 `AbstractPdfView` 类似，`buildExcelDocument()` 是核心模板方法，
+控制器可通过外部定义（按名称）或在处理方法中直接返回 `View` 实例来返回该视图。
 
 
 

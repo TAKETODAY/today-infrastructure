@@ -1,59 +1,46 @@
 [[aop-choosing]]
-= Choosing which AOP Declaration Style to Use
+= 选择使用哪种 AOP 声明风格
 
-Once you have decided that an aspect is the best approach for implementing a given
-requirement, how do you decide between using Infra AOP or AspectJ and between the
-Aspect language (code) style, the @AspectJ annotation style, or the Infra XML style? These
-decisions are influenced by a number of factors including application requirements,
-development tools, and team familiarity with AOP.
+当你确定切面是实现某项需求的最佳方式后，如何在 Infra AOP 与 AspectJ 之间，
+以及在 Aspect 语言（代码）风格、@AspectJ 注解风格或 Infra XML 风格之间做选择？
+这些决策会受到应用需求、开发工具和团队对 AOP 熟悉程度等因素影响。
 
 
 
 [[aop-infra-or-aspectj]]
-== Infra AOP or Full AspectJ?
+== Infra AOP 还是完整 AspectJ？
 
-Use the simplest thing that can work. Infra AOP is simpler than using full AspectJ, as
-there is no requirement to introduce the AspectJ compiler / weaver into your development
-and build processes. If you only need to advise the execution of operations on Infra
-beans, Infra AOP is the right choice. If you need to advise objects not managed by
-the Infra container (such as domain objects, typically), you need to use
-AspectJ. You also need to use AspectJ if you wish to advise join points other than
-simple method executions (for example, field get or set join points and so on).
+选择可行的最简单方案。Infra AOP 比完整的 AspectJ 更简单，因为不需要在开发与构建
+流程中引入 AspectJ 编译器/织入器。如果只需要对 Infra bean 上的操作执行进行通知，
+Infra AOP 是正确选择。如果需要对不由 Infra 容器管理的对象（通常是领域对象）进行通知，
+就需要使用 AspectJ。若希望对方法执行之外的连接点（例如字段 get/set 等）进行通知，
+也需要使用 AspectJ。
 
-When you use AspectJ, you have the choice of the AspectJ language syntax (also known as
-the "code style") or the @AspectJ annotation style. If aspects play a large
-role in your design, and you are able to use the https://www.eclipse.org/ajdt/[AspectJ
-Development Tools (AJDT)] plugin for Eclipse, the AspectJ language syntax is the
-preferred option. It is cleaner and simpler because the language was purposefully
-designed for writing aspects. If you do not use Eclipse or have only a few aspects
-that do not play a major role in your application, you may want to consider using
-the @AspectJ style, sticking with regular Java compilation in your IDE, and adding
-an aspect weaving phase to your build script.
+使用 AspectJ 时，可选择 AspectJ 语言语法（也称“代码风格”）或 @AspectJ 注解风格。
+如果切面在设计中占较大比重，且可以使用 Eclipse 的
+https://www.eclipse.org/ajdt/[AspectJ Development Tools (AJDT)] 插件，
+AspectJ 语言语法是首选，因为它专为编写切面而设计，语义更清晰、表达更简洁。
+如果不使用 Eclipse，或只需要少量切面且其在应用中不占主要地位，可以考虑使用
+@AspectJ 风格，在 IDE 中保持常规 Java 编译，并在构建脚本中加入切面织入阶段。
 
 
 
 [[aop-ataspectj-or-xml]]
-== @AspectJ or XML for Infra AOP?
+== Infra AOP 使用 @AspectJ 还是 XML？
 
-If you have chosen to use Infra AOP, you have a choice of @AspectJ or XML style.
-There are various tradeoffs to consider.
+如果选择使用 Infra AOP，你可以在 @AspectJ 与 XML 风格之间选择。
+二者存在若干权衡。
 
-The XML style may be most familiar to existing Infra users, and it is backed by genuine
-POJOs. When using AOP as a tool to configure enterprise services, XML can be a good
-choice (a good test is whether you consider the pointcut expression to be a part of your
-configuration that you might want to change independently). With the XML style, it is
-arguably clearer from your configuration which aspects are present in the system.
+XML 风格可能最符合既有 Infra 用户的习惯，并由真正的 POJO 作为后端实现。
+当将 AOP 用作配置企业级服务的工具时，XML 是不错的选择
+（一个好判断标准是：你是否希望将切点表达式视为独立于代码、可单独变更的配置）。
+采用 XML 风格时，你可以更清晰地从配置中看到系统中存在哪些切面。
 
-The XML style has two disadvantages. First, it does not fully encapsulate the
-implementation of the requirement it addresses in a single place. The DRY principle says
-that there should be a single, unambiguous, authoritative representation of any piece of
-knowledge within a system. When using the XML style, the knowledge of how a requirement
-is implemented is split across the declaration of the backing bean class and the XML in
-the configuration file. When you use the @AspectJ style, this information is encapsulated
-in a single module: the aspect. Secondly, the XML style is slightly more limited in what
-it can express than the @AspectJ style: Only the "singleton" aspect instantiation model
-is supported, and it is not possible to combine named pointcuts declared in XML.
-For example, in the @AspectJ style you can write something like the following:
+XML 风格有两个缺点。第一，它无法把需求的实现完全封装在单一位置。DRY 原则要求系统中
+任何知识只有唯一、明确且权威的表达。使用 XML 风格时，需求实现的知识被分散在后端
+bean 类的声明以及配置文件中的 XML 里。使用 @AspectJ 风格时，这些信息被封装在一个模块中，
+即切面本身。第二，XML 风格的表达能力略逊于 @AspectJ：只支持“单例”切面实例化模型，
+且无法组合在 XML 中声明的命名切点。例如，在 @AspectJ 风格中可以写如下内容：
 
 [tabs]
 ======
@@ -73,7 +60,7 @@ Java::
 
 ======
 
-In the XML style you can declare the first two pointcuts:
+在 XML 风格中可以声明前两个切点：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -82,17 +69,13 @@ In the XML style you can declare the first two pointcuts:
 <aop:pointcut id="operationReturningAnAccount" expression="execution(com.xyz.Account+ *(..))"/>
 ----
 
-The downside of the XML approach is that you cannot define the
-`accountPropertyAccess` pointcut by combining these definitions.
+XML 方式的缺点是无法通过组合这些定义来声明
+`accountPropertyAccess` 切点。
 
-The @AspectJ style supports additional instantiation models and richer pointcut
-composition. It has the advantage of keeping the aspect as a modular unit. It also has
-the advantage that the @AspectJ aspects can be understood (and thus consumed) both by
-Infra AOP and by AspectJ. So, if you later decide you need the capabilities of AspectJ
-to implement additional requirements, you can easily migrate to a classic AspectJ setup.
-In general, the Infra team prefers the @AspectJ style for custom aspects beyond simple
-configuration of enterprise services.
-
+@AspectJ 风格支持更多实例化模型与更丰富的切点组合。它的优势在于让切面作为模块单元存在。
+它还具有 @AspectJ 切面既可被 Infra AOP 理解也可被 AspectJ 理解的优势。因此，如果以后
+需要 AspectJ 的能力来满足更多需求，可以轻松迁移到经典 AspectJ 方案。总体而言，
+Infra 团队更偏好将 @AspectJ 风格用于除简单企业服务配置之外的自定义切面。
 
 
 

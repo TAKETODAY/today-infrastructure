@@ -1,155 +1,119 @@
 [[integration-testing]]
-= Integration Testing
+= 集成测试
 
-It is important to be able to perform some integration testing without requiring
-deployment to your application server or connecting to other enterprise infrastructure.
-Doing so lets you test things such as:
+在不需要部署到应用服务器或连接其他企业级基础设施的情况下进行集成测试非常重要。
+这样可以测试以下内容：
 
-* The correct wiring of your Infra IoC container contexts.
-* Data access using JDBC or an ORM tool. This can include such things as the correctness
-  of SQL statements, Hibernate queries, JPA entity mappings, and so forth.
+* Infra IoC 容器上下文的正确装配。
+* 使用 JDBC 或 ORM 工具进行数据访问的正确性。这可以包括 SQL 语句、Hibernate 查询、
+  JPA 实体映射等。
 
-The TODAY Framework provides first-class support for integration testing in the
-`infra-test` module. The name of the actual JAR file might include the release version
-and might also be in the long `infra.test` form, depending on where you get
-it from (see the xref:core/beans/dependencies.adoc[section on Dependency Management]
-for an explanation). This library includes the `infra.test` package, which
-contains valuable classes for integration testing with a Infra container. This testing
-does not rely on an application server or other deployment environment. Such tests are
-slower to run than unit tests but much faster than the equivalent Selenium tests or
-remote tests that rely on deployment to an application server.
+TODAY Framework 在 `infra-test` 模块中提供一流的集成测试支持。实际 JAR 文件名可能包含
+发布版本号，也可能采用较长的 `infra.test` 形式，取决于你获取它的方式
+（参见 xref:core/beans/dependencies.adoc[依赖管理章节] 了解说明）。该库包含
+`infra.test` 包，其中提供了对 Infra 容器进行集成测试的有用类。这类测试不依赖应用服务器或
+其他部署环境。其运行速度比单元测试慢，但远快于依赖部署到应用服务器的等效 Selenium 测试
+或远程测试。
 
-Unit and integration testing support is provided in the form of the annotation-driven
-xref:testing/testcontext-framework.adoc[Infra TestContext Framework]. The TestContext framework is
-agnostic of the actual testing framework in use, which allows instrumentation of tests
-in various environments, including JUnit, TestNG, and others.
+单元与集成测试支持通过注解驱动的
+xref:testing/testcontext-framework.adoc[Infra TestContext Framework] 提供。TestContext
+框架与具体测试框架无关，可在 JUnit、TestNG 等多种环境中对测试进行装配。
 
-The following section provides an overview of the high-level goals of Infra
-integration support, and the rest of this chapter then focuses on dedicated topics:
+以下内容概述 Infra 集成测试支持的高级目标，章节余下部分将聚焦于以下专题：
 
-* xref:testing/support-jdbc.adoc[JDBC Testing Support]
+* xref:testing/support-jdbc.adoc[JDBC 测试支持]
 * xref:testing/testcontext-framework.adoc[Infra TestContext Framework]
 * xref:testing/webtestclient.adoc[WebTestClient]
 * xref:testing/mvc-test-framework.adoc[MockMvc]
-* xref:testing/mvc-test-client.adoc[Testing Client Applications]
-* xref:testing/annotations.adoc[Annotations]
+* xref:testing/mvc-test-client.adoc[测试客户端应用]
+* xref:testing/annotations.adoc[注解]
 
 
 
 [[integration-testing-goals]]
-== Goals of Integration Testing
+== 集成测试目标
 
-Infra integration testing support has the following primary goals:
+Infra 集成测试支持的主要目标包括：
 
-* To manage xref:testing/integration.adoc#testing-ctx-management[Infra IoC container caching] between tests.
-* To provide xref:testing/integration.adoc#testing-fixture-di[Dependency Injection of test fixture instances].
-* To provide xref:testing/integration.adoc#testing-tx[transaction management] appropriate to integration testing.
-* To supply xref:testing/integration.adoc#testing-support-classes[Infra-specific base classes] that assist
-  developers in writing integration tests.
+* 在测试之间管理 xref:testing/integration.adoc#testing-ctx-management[Infra IoC 容器缓存]。
+* 提供 xref:testing/integration.adoc#testing-fixture-di[测试夹具实例的依赖注入]。
+* 提供适合集成测试的 xref:testing/integration.adoc#testing-tx[事务管理]。
+* 提供 xref:testing/integration.adoc#testing-support-classes[Infra 专用基类]，帮助开发者编写集成测试。
 
-The next few sections describe each goal and provide links to implementation and
-configuration details.
+接下来几节将逐一说明这些目标，并给出实现与配置的细节链接。
 
 
 [[testing-ctx-management]]
-=== Context Management and Caching
+=== 上下文管理与缓存
 
-The Infra TestContext Framework provides consistent loading of Infra
-`ApplicationContext` instances and `WebApplicationContext` instances as well as caching
-of those contexts. Support for the caching of loaded contexts is important, because
-startup time can become an issue -- not because of the overhead of Infra itself, but
-because the objects instantiated by the Infra container take time to instantiate. For
-example, a project with 50 to 100 Hibernate mapping files might take 10 to 20 seconds to
-load the mapping files, and incurring that cost before running every test in every test
-fixture leads to slower overall test runs that reduce developer productivity.
+Infra TestContext Framework 提供对 Infra `ApplicationContext` 与 `WebApplicationContext`
+的加载与一致缓存。缓存加载的上下文很重要，因为启动时间可能成为问题——并非 Infra 本身的
+开销，而是 Infra 容器实例化对象所需的时间。例如，一个包含 50 到 100 个 Hibernate 映射
+文件的项目可能需要 10 到 20 秒加载映射文件；如果每个测试夹具在运行前都要承担这个成本，
+将导致整体测试运行变慢并降低开发效率。
 
-Test classes typically declare either an array of resource locations for XML or Groovy
-configuration metadata -- often in the classpath -- or an array of component classes that
-is used to configure the application. These locations or classes are the same as or
-similar to those specified in `web.xml` or other configuration files for production
-deployments.
+测试类通常声明一组资源位置（XML 或 Groovy 配置元数据，通常在 classpath 中），或一组
+组件类用于配置应用。这些位置或类与生产部署中 `web.xml` 或其他配置文件中指定的内容相同或
+相似。
 
-By default, once loaded, the configured `ApplicationContext` is reused for each test.
-Thus, the setup cost is incurred only once per test suite, and subsequent test execution
-is much faster. In this context, the term "`test suite`" means all tests run in the same
-JVM -- for example, all tests run from an Ant, Maven, or Gradle build for a given project
-or module. In the unlikely case that a test corrupts the application context and requires
-reloading (for example, by modifying a bean definition or the state of an application
-object) the TestContext framework can be configured to reload the configuration and
-rebuild the application context before executing the next test.
+默认情况下，配置好的 `ApplicationContext` 在加载后会在每个测试中复用。因此，初始化成本
+仅在每个测试套件中发生一次，后续测试执行更快。这里“测试套件”指在同一 JVM 中运行的所有
+测试，例如某个项目或模块的 Ant、Maven 或 Gradle 构建中执行的所有测试。在极少数情况下，
+如果测试破坏了应用上下文并需要重新加载（例如修改了 bean 定义或应用对象状态），
+TestContext 框架可以配置为在执行下一个测试前重新加载配置并重建应用上下文。
 
-See xref:testing/testcontext-framework/ctx-management.adoc[Context Management] and xref:testing/testcontext-framework/ctx-management/caching.adoc[Context Caching] with the
-TestContext framework.
+参见 xref:testing/testcontext-framework/ctx-management.adoc[上下文管理] 与
+xref:testing/testcontext-framework/ctx-management/caching.adoc[上下文缓存]（TestContext framework）。
 
 
 [[testing-fixture-di]]
-=== Dependency Injection of Test Fixtures
+=== 测试夹具的依赖注入
 
-When the TestContext framework loads your application context, it can optionally
-configure instances of your test classes by using Dependency Injection. This provides a
-convenient mechanism for setting up test fixtures by using preconfigured beans from your
-application context. A strong benefit here is that you can reuse application contexts
-across various testing scenarios (for example, for configuring Infra-managed object
-graphs, transactional proxies, `DataSource` instances, and others), thus avoiding the
-need to duplicate complex test fixture setup for individual test cases.
+当 TestContext 框架加载应用上下文时，它可以选择通过依赖注入来配置测试类实例。这提供了
+一个便捷机制，可以使用来自应用上下文的预配置 bean 来设置测试夹具。其优势在于可以在多种
+测试场景中复用应用上下文（例如用于配置 Infra 管理的对象图、事务代理、`DataSource`
+实例等），从而避免为单个测试用例重复搭建复杂的测试夹具。
 
-As an example, consider a scenario where we have a class (`HibernateTitleRepository`)
-that implements data access logic for a `Title` domain entity. We want to write
-integration tests that test the following areas:
+例如，考虑一个实现 `Title` 领域实体数据访问逻辑的类（`HibernateTitleRepository`）。
+我们希望编写集成测试来验证以下方面：
 
-* The Infra configuration: Basically, is everything related to the configuration of the
-  `HibernateTitleRepository` bean correct and present?
-* The Hibernate mapping file configuration: Is everything mapped correctly and are the
-  correct lazy-loading settings in place?
-* The logic of the `HibernateTitleRepository`: Does the configured instance of this class
-  perform as anticipated?
+* Infra 配置：与 `HibernateTitleRepository` bean 配置相关的内容是否正确且齐全？
+* Hibernate 映射文件配置：映射是否正确、懒加载设置是否正确？
+* `HibernateTitleRepository` 的逻辑：该类的配置实例是否按预期工作？
 
-See dependency injection of test fixtures with the
-xref:testing/testcontext-framework/fixture-di.adoc[TestContext framework].
+参见 xref:testing/testcontext-framework/fixture-di.adoc[TestContext framework] 中的测试夹具依赖注入。
 
 
 [[testing-tx]]
-=== Transaction Management
+=== 事务管理
 
-One common issue in tests that access a real database is their effect on the state of the
-persistence store. Even when you use a development database, changes to the state may
-affect future tests. Also, many operations -- such as inserting or modifying persistent
-data -- cannot be performed (or verified) outside of a transaction.
+在访问真实数据库的测试中，一个常见问题是它们对持久化存储状态的影响。即使使用开发数据库，
+状态变化也可能影响后续测试。此外，许多操作（例如插入或修改持久化数据）无法在事务之外
+执行或验证。
 
-The TestContext framework addresses this issue. By default, the framework creates and
-rolls back a transaction for each test. You can write code that can assume the existence
-of a transaction. If you call transactionally proxied objects in your tests, they behave
-correctly, according to their configured transactional semantics. In addition, if a test
-method deletes the contents of selected tables while running within the transaction
-managed for the test, the transaction rolls back by default, and the database returns to
-its state prior to execution of the test. Transactional support is provided to a test by
-using a `PlatformTransactionManager` bean defined in the test's application context.
+TestContext 框架解决了该问题。默认情况下，框架为每个测试创建并在结束时回滚事务。你可以
+编写假设事务存在的代码。如果在测试中调用经过事务代理的对象，它们会按照配置的事务语义
+正确运行。此外，如果测试方法在由测试管理的事务中删除了特定表的数据，事务默认回滚，
+数据库会恢复到测试执行前的状态。测试的事务支持通过在测试的应用上下文中定义
+`PlatformTransactionManager` bean 来提供。
 
-If you want a transaction to commit (unusual, but occasionally useful when you want a
-particular test to populate or modify the database), you can tell the TestContext
-framework to cause the transaction to commit instead of roll back by using the
-xref:testing/annotations.adoc[`@Commit`] annotation.
+如果希望事务提交（不常见，但在需要让测试填充或修改数据库时偶尔有用），可以使用
+xref:testing/annotations.adoc[`@Commit`] 注解，让 TestContext 框架提交事务而不是回滚。
 
-See transaction management with the xref:testing/testcontext-framework/tx.adoc[TestContext framework].
+参见 xref:testing/testcontext-framework/tx.adoc[TestContext framework] 中的事务管理。
 
 
 [[testing-support-classes]]
-=== Support Classes for Integration Testing
+=== 集成测试的支持类
 
-The Infra TestContext Framework provides several `abstract` support classes that
-simplify the writing of integration tests. These base test classes provide well-defined
-hooks into the testing framework as well as convenient instance variables and methods,
-which let you access:
+Infra TestContext Framework 提供若干 `abstract` 支持类，简化集成测试的编写。
+这些基础测试类提供了与测试框架的明确钩子，以及便捷的实例变量和方法，使你能够访问：
 
-* The `ApplicationContext`, for performing explicit bean lookups or testing the state of
-  the context as a whole.
-* A `JdbcTemplate`, for executing SQL statements to query the database. You can use such
-  queries to confirm database state both before and after execution of database-related
-  application code, and Infra ensures that such queries run in the scope of the same
-  transaction as the application code. When used in conjunction with an ORM tool, be sure
-  to avoid xref:testing/testcontext-framework/tx.adoc#testcontext-tx-false-positives[false positives].
+* `ApplicationContext`，用于显式查找 bean 或测试上下文整体状态。
+* `JdbcTemplate`，用于执行 SQL 查询数据库。你可以在执行与数据库相关的应用代码前后
+  确认数据库状态，Infra 确保这些查询在与应用代码相同的事务范围内执行。与 ORM 工具结合
+  使用时，应避免 xref:testing/testcontext-framework/tx.adoc#testcontext-tx-false-positives[误报]。
 
-In addition, you may want to create your own custom, application-wide superclass with
-instance variables and methods specific to your project.
+另外，你可能希望创建一个自定义的、应用范围内的超类，包含适合项目的实例变量和方法。
 
-See support classes for the xref:testing/testcontext-framework/support-classes.adoc[TestContext framework].
+参见 xref:testing/testcontext-framework/support-classes.adoc[TestContext framework] 中的支持类。

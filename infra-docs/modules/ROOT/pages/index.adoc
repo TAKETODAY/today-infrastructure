@@ -20,6 +20,5 @@ Nicoll, Sebastien Deleuze, Jay Bryant, Mark Paluch，海子（Harry Yang）
 
 Copyright 2017 - 2024 the original author or authors All Rights Reserved.
 
-Copies of this document may be made for your own use and for distribution to others,
-provided that you do not charge any fee for such copies and further provided that each
-copy contains this Copyright Notice, whether distributed in print or electronically.
+在不收取任何费用的前提下，你可以复制本文件供自己使用并分发给他人，
+但必须确保每份副本都包含本版权声明，无论以纸质或电子形式分发。

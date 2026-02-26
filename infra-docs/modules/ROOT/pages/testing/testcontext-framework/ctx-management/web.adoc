@@ -1,33 +1,26 @@
 [[testcontext-ctx-management-web]]
-= Loading a `WebApplicationContext`
+= 加载 `WebApplicationContext`
 
-To instruct the TestContext framework to load a `WebApplicationContext` instead of a
-standard `ApplicationContext`, you can annotate the respective test class with
-`@WebAppConfiguration`.
+要让 TestContext 框架加载 `WebApplicationContext` 而不是标准的 `ApplicationContext`，
+可以在相应测试类上标注 `@WebAppConfiguration`。
 
-The presence of `@WebAppConfiguration` on your test class instructs the TestContext
-framework (TCF) that a `WebApplicationContext` (WAC) should be loaded for your
-integration tests. In the background, the TCF makes sure that a `MockContextImpl` is
-created and supplied to your test's WAC. By default, the base resource path for your
-`MockContextImpl` is set to `src/main/webapp`. This is interpreted as a path relative
-to the root of your JVM (normally the path to your project). If you are familiar with the
-directory structure of a web application in a Maven project, you know that
-`src/main/webapp` is the default location for the root of your WAR. If you need to
-override this default, you can provide an alternate path to the `@WebAppConfiguration`
-annotation (for example, `@WebAppConfiguration("src/test/webapp")`). If you wish to
-reference a base resource path from the classpath instead of the file system, you can use
-Infra `classpath:` prefix.
+在测试类上使用 `@WebAppConfiguration` 会指示 TestContext 框架（TCF）为你的集成测试加载
+`WebApplicationContext`（WAC）。在幕后，TCF 会确保创建 `MockContextImpl` 并将其提供给
+测试的 WAC。默认情况下，`MockContextImpl` 的基础资源路径为 `src/main/webapp`。
+这会被解释为相对于 JVM 根目录的路径（通常为项目路径）。如果你熟悉 Maven 项目的
+Web 应用目录结构，就会知道 `src/main/webapp` 是 WAR 根目录的默认位置。
+如需覆盖该默认值，可以为 `@WebAppConfiguration` 提供另一个路径
+（例如 `@WebAppConfiguration("src/test/webapp")`）。如果希望从 classpath 而不是
+文件系统引用基础资源路径，可以使用 Infra 的 `classpath:` 前缀。
 
-Note that Infra testing support for `WebApplicationContext` implementations is on par
-with its support for standard `ApplicationContext` implementations. When testing with a
-`WebApplicationContext`, you are free to declare XML configuration files, Groovy scripts,
-or `@Configuration` classes by using `@ContextConfiguration`. You are also free to use
-any other test annotations, such as `@ActiveProfiles`, `@TestExecutionListeners`, `@Sql`,
-`@Rollback`, and others.
+请注意，Infra 对 `WebApplicationContext` 实现的测试支持与对标准 `ApplicationContext`
+实现的支持一致。使用 `WebApplicationContext` 测试时，你可以通过
+`@ContextConfiguration` 声明 XML 配置文件、Groovy 脚本或 `@Configuration` 类。
+也可以使用其他测试注解，例如 `@ActiveProfiles`、`@TestExecutionListeners`、`@Sql`、
+`@Rollback` 等。
 
-The remaining examples in this section show some of the various configuration options for
-loading a `WebApplicationContext`. The following example shows the TestContext
-framework's support for convention over configuration:
+本节剩余示例展示了加载 `WebApplicationContext` 的多种配置选项。
+下面示例展示了 TestContext 框架对“约定优于配置”的支持：
 
 [tabs]
 ======
@@ -50,15 +43,14 @@ class WacTests {
 
 ======
 
-If you annotate a test class with `@WebAppConfiguration` without specifying a resource
-base path, the resource path effectively defaults to `file:src/main/webapp`. Similarly,
-if you declare `@ContextConfiguration` without specifying resource `locations`, component
-`classes`, or context `initializers`, Infra tries to detect the presence of your
-configuration by using conventions (that is, `WacTests-context.xml` in the same package
-as the `WacTests` class or static nested `@Configuration` classes).
+如果在测试类上使用 `@WebAppConfiguration` 而未指定资源基础路径，
+则资源路径默认等同于 `file:src/main/webapp`。同样，如果声明 `@ContextConfiguration`
+时未指定资源 `locations`、组件 `classes` 或上下文 `initializers`，
+Infra 会通过约定来尝试检测你的配置
+（即与 `WacTests` 类同包的 `WacTests-context.xml` 或静态嵌套的 `@Configuration` 类）。
 
-The following example shows how to explicitly declare a resource base path with
-`@WebAppConfiguration` and an XML resource location with `@ContextConfiguration`:
+下面示例展示了如何使用 `@WebAppConfiguration` 显式声明资源基础路径，
+并使用 `@ContextConfiguration` 指定 XML 资源位置：
 
 [tabs]
 ======
@@ -80,12 +72,10 @@ class WacTests {
 
 ======
 
-The important thing to note here is the different semantics for paths with these two
-annotations. By default, `@WebAppConfiguration` resource paths are file system based,
-whereas `@ContextConfiguration` resource locations are classpath based.
+需要注意的是，这两个注解的路径语义不同。默认情况下，`@WebAppConfiguration`
+资源路径基于文件系统，而 `@ContextConfiguration` 资源位置基于 classpath。
 
-The following example shows that we can override the default resource semantics for both
-annotations by specifying a Infra resource prefix:
+下面示例展示了可以通过指定 Infra 资源前缀来覆盖两个注解的默认资源语义：
 
 [tabs]
 ======
@@ -107,5 +97,4 @@ class WacTests {
 
 ======
 
-Contrast the comments in this example with the previous example.
-
+对比本例与上一例中的注释即可看出差异。

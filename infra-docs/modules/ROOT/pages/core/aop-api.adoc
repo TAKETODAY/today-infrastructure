@@ -1,7 +1,6 @@
 [[aop-api]]
-= AOP APIs
+= AOP API
 :page-section-summary-toc: 1
 
-上一章描述了使用 @AspectJ 和基于 XML 的切面定义的 AOP 的 Infra 支持。
-在本章中，我们讨论了更低级别的 Infra AOP APIs。对于常见的应用程序，我们建议使用上一章描述的 Infra AOP 与 AspectJ pointcuts。
-
+上一章描述了使用 @AspectJ 和基于 XML 的切面定义的 Infra AOP 支持。
+在本章中，我们讨论更低层级的 Infra AOP API。对于常见的应用程序，我们建议使用上一章描述的 Infra AOP 与 AspectJ pointcut。

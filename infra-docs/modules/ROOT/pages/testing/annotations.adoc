@@ -1,6 +1,5 @@
 [[integration-testing-annotations]]
-= Annotations
+= 注解
 :page-section-summary-toc: 1
 
-This section covers annotations that you can use when you test Infra applications.
-
+本节介绍测试 Infra 应用时可以使用的注解。

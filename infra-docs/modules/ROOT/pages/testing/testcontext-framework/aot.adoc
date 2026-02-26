@@ -1,82 +1,71 @@
 [[testcontext-aot]]
-= Ahead of Time Support for Tests
+= 测试的提前编译（AOT）支持
 
-This chapter covers Infra Ahead of Time (AOT) support for integration tests using the
-Infra TestContext Framework.
+本章介绍使用 Infra TestContext Framework 进行集成测试时的 Infra 提前编译（AOT）支持。
 
-The testing support extends Infra xref:core/aot.adoc[core AOT support] with the
-following features.
+测试支持在 Infra xref:core/aot.adoc[核心 AOT 支持] 的基础上扩展了以下特性。
 
-* Build-time detection of all integration tests in the current project that use the
-  TestContext framework to load an `ApplicationContext`.
-  - Provides explicit support for test classes based on JUnit Jupiter and JUnit 4 as well
-    as implicit support for TestNG and other testing frameworks that use Infra core
-    testing annotations -- as long as the tests are run using a JUnit Platform
-    `TestEngine` that is registered for the current project.
-* Build-time AOT processing: each unique test `ApplicationContext` in the current project
-  will be xref:core/aot.adoc#aot.refresh[refreshed for AOT processing].
-* Runtime AOT support: when executing in AOT runtime mode, a Infra integration test will
-  use an AOT-optimized `ApplicationContext` that participates transparently with the
-  xref:testing/testcontext-framework/ctx-management/caching.adoc[context cache].
+* 构建时检测当前项目中使用 TestContext 框架加载 `ApplicationContext` 的所有集成测试。
+  - 对基于 JUnit Jupiter 与 JUnit 4 的测试类提供显式支持，同时对使用 Infra 核心测试注解的
+    TestNG 以及其他测试框架提供隐式支持——前提是这些测试通过已在当前项目注册的
+    JUnit Platform `TestEngine` 运行。
+* 构建时 AOT 处理：对当前项目中每个唯一的测试 `ApplicationContext`
+  xref:core/aot.adoc#aot.refresh[进行 AOT 处理的刷新]。
+* 运行时 AOT 支持：在 AOT 运行模式下，Infra 集成测试使用 AOT 优化后的
+  `ApplicationContext`，并透明地参与
+  xref:testing/testcontext-framework/ctx-management/caching.adoc[上下文缓存]。
 
-All tests are enabled in AOT mode by default. However, you can selectively disable an
-entire test class or individual test method in AOT mode by annotating it with
-xref:testing/annotations/integration-spring/annotation-disabledinaotmode.adoc[`@DisabledInAotMode`].
-When using JUnit Jupiter, you may selectively enable or disable tests in a GraalVM native
-image via Jupiter's `@EnabledInNativeImage` and `@DisabledInNativeImage` annotations.
-Note that `@DisabledInAotMode` also disables the annotated test class or test method when
-running within a GraalVM native image, analogous to JUnit Jupiter's
-`@DisabledInNativeImage` annotation.
+默认情况下，所有测试在 AOT 模式下启用。不过，你可以通过
+xref:testing/annotations/integration-spring/annotation-disabledinaotmode.adoc[`@DisabledInAotMode`]
+注解，选择性地在 AOT 模式下禁用整个测试类或某个测试方法。
+使用 JUnit Jupiter 时，可以通过 `@EnabledInNativeImage` 与 `@DisabledInNativeImage`
+注解在 GraalVM 原生镜像中选择性启用或禁用测试。注意 `@DisabledInAotMode` 也会在
+GraalVM 原生镜像中禁用被标注的测试类或测试方法，这一点与 JUnit Jupiter 的
+`@DisabledInNativeImage` 注解一致。
 
 [TIP]
 ====
-By default, if an error is encountered during build-time AOT processing, an exception
-will be thrown, and the overall process will fail immediately.
+默认情况下，构建时 AOT 处理遇到错误会抛出异常，整体流程将立即失败。
 
-If you would prefer that build-time AOT processing continue after errors are encountered,
-you can disable the `failOnError` mode which results in errors being logged at `WARN`
-level or with greater detail at `DEBUG` level.
+如果希望构建时 AOT 处理在遇到错误后继续执行，可以禁用 `failOnError` 模式，
+从而将错误记录为 `WARN` 级别，或在 `DEBUG` 级别记录更详细的信息。
 
-The `failOnError` mode can be disabled from the command line or a build script by setting
-a JVM system property named `infra.test.aot.processing.failOnError` to `false`. As an
-alternative, you can set the same property via the
-xref:appendix.adoc#appendix-infra-properties[`TodayStrategies`] mechanism.
+可以在命令行或构建脚本中将 JVM 系统属性 `infra.test.aot.processing.failOnError` 设置为
+`false` 来禁用 `failOnError` 模式。或者，也可以通过
+xref:appendix.adoc#appendix-infra-properties[`TodayStrategies`] 机制设置该属性。
 ====
 
 [NOTE]
 ====
-The `@ContextHierarchy` annotation is not supported in AOT mode.
+AOT 模式不支持 `@ContextHierarchy` 注解。
 ====
 
-To provide test-specific runtime hints for use within a GraalVM native image, you have
-the following options.
+要为 GraalVM 原生镜像提供测试专用的运行时提示，你可以使用以下方式。
 
-* Implement a custom
+* 实现自定义
   {today-framework-api}/test/context/aot/TestRuntimeHintsRegistrar.html[`TestRuntimeHintsRegistrar`]
-  and register it globally via `META-INF/config/aot.factories`.
-* Implement a custom {today-framework-api}/aot/hint/RuntimeHintsRegistrar.html[`RuntimeHintsRegistrar`]
-  and register it globally via `META-INF/config/aot.factories` or locally on a test class
-  via {today-framework-api}/context/annotation/ImportRuntimeHints.html[`@ImportRuntimeHints`].
-* Annotate a test class with {today-framework-api}/aot/hint/annotation/Reflective.html[`@Reflective`] or
-  {today-framework-api}/aot/hint/annotation/RegisterReflectionForBinding.html[`@RegisterReflectionForBinding`].
-* See xref:core/aot.adoc#aot.hints[Runtime Hints] for details on Infra core runtime hints
-  and annotation support.
+  并通过 `META-INF/config/aot.factories` 进行全局注册。
+* 实现自定义 {today-framework-api}/aot/hint/RuntimeHintsRegistrar.html[`RuntimeHintsRegistrar`]
+  并通过 `META-INF/config/aot.factories` 全局注册，或在测试类上通过
+  {today-framework-api}/context/annotation/ImportRuntimeHints.html[`@ImportRuntimeHints`]
+  进行局部注册。
+* 在测试类上标注
+  {today-framework-api}/aot/hint/annotation/Reflective.html[`@Reflective`] 或
+  {today-framework-api}/aot/hint/annotation/RegisterReflectionForBinding.html[`@RegisterReflectionForBinding`]。
+* 参见 xref:core/aot.adoc#aot.hints[Runtime Hints] 了解 Infra 核心运行时提示与注解支持详情。
 
 [TIP]
 ====
-The `TestRuntimeHintsRegistrar` API serves as a companion to the core
-`RuntimeHintsRegistrar` API. If you need to register global hints for testing support
-that are not specific to particular test classes, favor implementing
-`RuntimeHintsRegistrar` over the test-specific API.
+`TestRuntimeHintsRegistrar` API 是核心 `RuntimeHintsRegistrar` API 的补充。
+如果需要为测试支持注册不特定于某个测试类的全局提示，建议优先实现
+`RuntimeHintsRegistrar`，而不是使用测试专用 API。
 ====
 
-If you implement a custom `ContextLoader`, it must implement
-{today-framework-api}/test/context/aot/AotContextLoader.html[`AotContextLoader`] in
-order to provide AOT build-time processing and AOT runtime execution support. Note,
-however, that all context loader implementations provided by the TODAY Framework and
-Infra App already implement `AotContextLoader`.
+如果你实现了自定义 `ContextLoader`，它必须实现
+{today-framework-api}/test/context/aot/AotContextLoader.html[`AotContextLoader`]，
+以提供 AOT 构建时处理与运行时执行支持。注意，TODAY Framework 与 Infra App 提供的
+所有上下文加载器实现都已实现 `AotContextLoader`。
 
-If you implement a custom `TestExecutionListener`, it must implement
+如果你实现了自定义 `TestExecutionListener`，它必须实现
 {today-framework-api}/test/context/aot/AotTestExecutionListener.html[`AotTestExecutionListener`]
-in order to participate in AOT processing. See the `SqlScriptsTestExecutionListener` in
-the `infra-test` module for an example.
+才能参与 AOT 处理。示例可参考 `infra-test` 模块中的 `SqlScriptsTestExecutionListener`。
