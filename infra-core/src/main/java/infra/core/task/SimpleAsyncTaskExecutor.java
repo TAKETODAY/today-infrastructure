@@ -74,11 +74,13 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator implement
 
   private long taskTerminationTimeout;
 
-  private volatile boolean active = true;
-
   private boolean cancelRemainingTasksOnClose = false;
 
   private boolean rejectTasksWhenLimitReached = false;
+
+  private volatile boolean active = true;
+
+  private volatile boolean cancelled = false;
 
   /**
    * Create a new SimpleAsyncTaskExecutor with default thread name prefix.
@@ -364,6 +366,7 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator implement
       Set<Thread> threads = this.activeThreads;
       if (threads != null) {
         if (this.cancelRemainingTasksOnClose) {
+          this.cancelled = true;
           // Early interrupt for remaining tasks on close
           threads.forEach(Thread::interrupt);
         }
@@ -377,6 +380,7 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator implement
             catch (InterruptedException ex) {
               Thread.currentThread().interrupt();
             }
+            this.cancelled = true;
           }
           if (!this.cancelRemainingTasksOnClose) {
             // Late interrupt for remaining tasks after timeout
@@ -394,6 +398,12 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator implement
   private void trackActiveThreadsIfNecessary() {
     this.activeThreads = this.taskTerminationTimeout > 0 || this.cancelRemainingTasksOnClose ?
             ConcurrentHashMap.newKeySet() : null;
+  }
+
+  private void checkCancelled() {
+    if (this.cancelled) {
+      throw new TaskRejectedException(getClass().getSimpleName() + " has cancelled all remaining tasks");
+    }
   }
 
   /**
@@ -446,16 +456,27 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator implement
       Thread thread = null;
       if (threads != null) {
         thread = Thread.currentThread();
-        threads.add(thread);
+        if (isActive()) {
+          threads.add(thread);
+        }
+        else {
+          synchronized(threads) {
+            checkCancelled();
+            threads.add(thread);
+          }
+        }
       }
       try {
         this.task.run();
       }
       finally {
         if (threads != null) {
-          threads.remove(thread);
-          if (!isActive()) {
+          if (isActive()) {
+            threads.remove(thread);
+          }
+          else {
             synchronized(threads) {
+              threads.remove(thread);
               if (threads.isEmpty()) {
                 threads.notify();
               }
